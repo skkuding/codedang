@@ -9,14 +9,6 @@ const commonSchema = z.object({
   description: z.string().min(1),
   inputDescription: z.string().min(1),
   outputDescription: z.string().min(1),
-  samples: z
-    .array(
-      z.object({
-        input: z.string().min(1),
-        output: z.string().min(1)
-      })
-    )
-    .min(1),
   testcases: z
     .array(
       z.object({
@@ -54,15 +46,31 @@ const commonSchema = z.object({
     .optional()
 })
 
-export const EditSchema = commonSchema.extend({
+export const editSchema = commonSchema.extend({
   id: z.number(),
   tags: z
     .object({ create: z.array(z.number()), delete: z.array(z.number()) })
-    .optional()
+    .optional(),
+  samples: z.object({
+    create: z.array(
+      z
+        .object({ input: z.string().min(1), output: z.string().min(1) })
+        .optional()
+    ),
+    delete: z.array(z.number().optional())
+  })
 })
 
 export const createSchema = commonSchema.extend({
-  tagIds: z.array(z.number())
+  tagIds: z.array(z.number()),
+  samples: z
+    .array(
+      z.object({
+        input: z.string().min(1),
+        output: z.string().min(1)
+      })
+    )
+    .min(1)
 })
 
 export const inputStyle =

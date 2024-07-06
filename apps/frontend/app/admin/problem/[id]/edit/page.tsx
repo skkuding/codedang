@@ -1,125 +1,54 @@
 'use client'
 
-import CheckboxSelect from '@/components/CheckboxSelect'
-import OptionSelect from '@/components/OptionSelect'
-import TagsSelect from '@/components/TagsSelect'
-import TextEditor from '@/components/TextEditor'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
 import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
 import { GET_TAGS } from '@/graphql/problem/queries'
-import { languages, levels } from '@/lib/constants'
-import { cn } from '@/lib/utils'
 import { useMutation, useQuery } from '@apollo/client'
-import type { Template, UpdateProblemInput } from '@generated/graphql'
+import type {
+  Sample,
+  Template,
+  Testcase,
+  UpdateProblemInput
+} from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { useForm, Controller } from 'react-hook-form'
-import { FaEye, FaEyeSlash } from 'react-icons/fa'
+import { useForm, FormProvider } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
-import { MdHelpOutline } from 'react-icons/md'
-import { PiWarningBold } from 'react-icons/pi'
 import { toast } from 'sonner'
-import { z } from 'zod'
-import ExampleTextarea from '../../_components/ExampleTextarea'
-import Label from '../../_components/Label'
-import { inputStyle } from '../../utils'
-
-const schema = z.object({
-  id: z.number(),
-  title: z.string().min(1).max(200),
-  isVisible: z.boolean(),
-  difficulty: z.enum(levels),
-  languages: z.array(z.enum(languages)),
-  tags: z
-    .object({ create: z.array(z.number()), delete: z.array(z.number()) })
-    .optional(),
-  description: z.string().min(1),
-  inputDescription: z.string().min(1),
-  outputDescription: z.string().min(1),
-  samples: z.object({
-    create: z.array(
-      z
-        .object({ input: z.string().min(1), output: z.string().min(1) })
-        .optional()
-    ),
-    delete: z.array(z.number().optional())
-  }),
-  testcases: z
-    .array(
-      z.object({
-        input: z.string().min(1),
-        output: z.string().min(1)
-      })
-    )
-    .min(1),
-  timeLimit: z.number().min(0),
-  memoryLimit: z.number().min(0),
-  hint: z.string().optional(),
-  source: z.string().optional(),
-  template: z
-    .array(
-      z
-        .object({
-          language: z.enum([
-            'C',
-            'Cpp',
-            'Golang',
-            'Java',
-            'Python2',
-            'Python3'
-          ]),
-          code: z.array(
-            z.object({
-              id: z.number(),
-              text: z.string(),
-              locked: z.boolean()
-            })
-          )
-        })
-        .optional()
-    )
-    .optional()
-})
+import AddBadge from '../../_components/AddBadge'
+import AddableForm from '../../_components/AddableForm'
+import DescriptionForm from '../../_components/DescriptionForm'
+import FormSection from '../../_components/FormSection'
+import InfoForm from '../../_components/InfoForm'
+import LimitForm from '../../_components/LimitForm'
+import PopoverVisibleInfo from '../../_components/PopoverVisibleInfo'
+import SwitchField from '../../_components/SwitchField'
+import TemplateField from '../../_components/TemplateField'
+import TitleForm from '../../_components/TitleForm'
+import VisibleForm from '../../_components/VisibleForm'
+import { editSchema } from '../../utils'
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params
-  const [showHint, setShowHint] = useState(true)
-  const [showSource, setShowSource] = useState(true)
   const { data: tagsData } = useQuery(GET_TAGS)
   const tags =
     tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
 
   const router = useRouter()
 
-  const {
-    handleSubmit,
-    control,
-    register,
-    getValues,
-    setValue,
-    watch,
-    formState: { errors }
-  } = useForm<UpdateProblemInput>({
-    resolver: zodResolver(schema),
+  const methods = useForm<UpdateProblemInput>({
+    resolver: zodResolver(editSchema),
     defaultValues: {
       samples: { create: [], delete: [] },
       template: []
     }
   })
+
+  const { handleSubmit, setValue, getValues } = methods
 
   useQuery(GET_PROBLEM, {
     variables: {
@@ -169,49 +98,6 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   })
 
-  const watchedSamples = watch('samples.create')
-  const watchedTestcases = watch('testcases')
-  const watchedLanguages = watch('languages')
-
-  useEffect(() => {
-    if (watchedLanguages) {
-      const templates: Template[] = [] // temp array to store templates
-      const savedTemplates = getValues('template') // templates saved in form
-      watchedLanguages.map((language) => {
-        const temp = savedTemplates!.filter(
-          (template) => template.language === language
-        )
-        if (temp.length !== 0) {
-          templates.push(temp[0])
-        } else {
-          // push dummy template to array
-          templates.push({
-            language,
-            code: [
-              {
-                id: -1,
-                text: '',
-                locked: false
-              }
-            ]
-          })
-        }
-      })
-      templates.map((template, index) => {
-        setValue(`template.${index}`, {
-          language: template.language,
-          code: [
-            {
-              id: index,
-              text: template.code[0].text ?? '',
-              locked: false
-            }
-          ]
-        })
-      })
-    }
-  }, [watchedLanguages])
-
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
   const onSubmit = async (input: UpdateProblemInput) => {
     const tagsToDelete = getValues('tags.delete')
@@ -250,25 +136,6 @@ export default function Page({ params }: { params: { id: string } }) {
     setValue('testcases', [...values, newTestcase])
   }
 
-  const removeSample = (index: number) => {
-    const currentValues = getValues('samples.create')
-    if (currentValues.length <= 1) {
-      toast.warning('At least one sample is required')
-      return
-    }
-    const updatedValues = currentValues.filter((_, i) => i !== index)
-    setValue('samples.create', updatedValues)
-  }
-
-  const removeTestcase = (index: number) => {
-    const currentValues = getValues('testcases')
-    if ((currentValues?.length ?? 0) <= 1) {
-      toast.warning('At least one testcase is required')
-      return
-    }
-    const updatedValues = currentValues?.filter((_, i) => i !== index)
-    setValue('testcases', updatedValues)
-  }
   return (
     <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
@@ -283,416 +150,88 @@ export default function Page({ params }: { params: { id: string } }) {
           onSubmit={handleSubmit(onSubmit)}
           className="flex w-[760px] flex-col gap-6"
         >
-          <div className="flex gap-6">
-            <div className="flex flex-col gap-1">
-              <Label>Title</Label>
-              <Input
-                id="title"
-                type="text"
-                placeholder="Name your problem"
-                className={cn(inputStyle, 'w-[380px]')}
-                {...register('title')}
-              />
-              {errors.title && (
-                <div className="flex items-center gap-1 text-xs text-red-500">
-                  <PiWarningBold />
-                  {getValues('title')?.length === 0
-                    ? 'required'
-                    : errors.title.message?.toString()}
-                </div>
+          <FormProvider {...methods}>
+            <div className="flex gap-6">
+              <FormSection title="Title">
+                <TitleForm />
+              </FormSection>
+
+              <FormSection title="Visible">
+                <PopoverVisibleInfo />
+                <VisibleForm />
+              </FormSection>
+            </div>
+
+            <FormSection title="info">
+              <InfoForm tags={tags} tagName="tags.create" />
+            </FormSection>
+
+            <FormSection title="Description">
+              {getValues('description') && (
+                <DescriptionForm name="description" />
               )}
-            </div>
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-2">
-                <Label>Visible</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button>
-                      <MdHelpOutline className="text-gray-400 hover:text-gray-700" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent side="top" className="mb-2 px-4 py-3">
-                    <ul className="text-sm font-normal leading-none">
-                      <li>For contest, &apos;hidden&apos; is recommended.</li>
-                      <li>You can edit these settings later.</li>
-                    </ul>
-                  </PopoverContent>
-                </Popover>
-              </div>
+            </FormSection>
 
-              <div className="flex items-center gap-2">
-                <Controller
-                  control={control}
-                  name="isVisible"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <div className="flex gap-6">
-                      <label className="flex gap-2">
-                        <input
-                          type="radio"
-                          onBlur={onBlur}
-                          onChange={() => onChange(true)}
-                          checked={value === true}
-                          className="accent-black"
-                        />
-                        <FaEye
-                          className={
-                            value === true ? 'text-black' : 'text-gray-400'
-                          }
-                        />
-                      </label>
-                      <label className="flex gap-2">
-                        <input
-                          type="radio"
-                          onBlur={onBlur}
-                          onChange={() => onChange(false)}
-                          checked={value === false}
-                          className="accent-black"
-                        />
-                        <FaEyeSlash
-                          className={
-                            value === false ? 'text-black' : 'text-gray-400'
-                          }
-                        />
-                      </label>
-                    </div>
-                  )}
-                />
-              </div>
-              {errors.isVisible && (
-                <div className="flex items-center gap-1 text-xs text-red-500">
-                  <PiWarningBold />
-                  required
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <Label>Info</Label>
-            <div className="flex gap-4">
-              <div className="flex flex-col gap-1">
-                <Controller
-                  render={({ field }) => (
-                    <OptionSelect
-                      options={levels}
-                      value={field.value as string}
-                      onChange={field.onChange}
-                    />
-                  )}
-                  name="difficulty"
-                  control={control}
-                />
-                {errors.difficulty && (
-                  <div className="flex items-center gap-1 text-xs text-red-500">
-                    <PiWarningBold />
-                    required
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col gap-1">
-                <Controller
-                  render={({ field }) => (
-                    <CheckboxSelect
-                      title="Language"
-                      options={languages}
-                      onChange={(selectedLanguages) => {
-                        field.onChange(selectedLanguages)
-                      }}
-                      defaultValue={field.value as string[]}
-                    />
-                  )}
-                  name="languages"
-                  control={control}
-                />
-                {errors.languages && (
-                  <div className="flex items-center gap-1 text-xs text-red-500">
-                    <PiWarningBold />
-                    required
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col gap-1">
-                <Controller
-                  render={({ field }) => (
-                    <TagsSelect
-                      options={tags}
-                      onChange={field.onChange}
-                      defaultValue={field.value}
-                    />
-                  )}
-                  name="tags.create"
-                  control={control}
-                />
-                {errors.tags && (
-                  <div className="flex items-center gap-1 text-xs text-red-500">
-                    <PiWarningBold />
-                    required
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <Label>Description</Label>
-            {getValues('description') && (
-              <Controller
-                render={({ field }) => (
-                  <TextEditor
-                    placeholder="Enter a description..."
-                    onChange={field.onChange}
-                    defaultValue={field.value as string}
-                  />
-                )}
-                name="description"
-                control={control}
-              />
-            )}
-            {errors.description && (
-              <div className="flex items-center gap-1 text-xs text-red-500">
-                <PiWarningBold />
-                required
-              </div>
-            )}
-          </div>
-          <div className="flex flex-col gap-1">
             <div className="flex justify-between">
-              <div className="flex w-[360px] flex-col gap-1">
-                <Label>Input Description</Label>
-                {getValues('inputDescription') && (
-                  <Controller
-                    render={({ field }) => (
-                      <TextEditor
-                        placeholder="Enter a description..."
-                        onChange={field.onChange}
-                        defaultValue={field.value as string}
-                      />
-                    )}
-                    name="inputDescription"
-                    control={control}
-                  />
-                )}
-                {errors.inputDescription && (
-                  <div className="flex items-center gap-1 text-xs text-red-500">
-                    <PiWarningBold />
-                    required
-                  </div>
-                )}
+              <div className="w-[360px]">
+                <FormSection title="Input Description">
+                  {getValues('inputDescription') && (
+                    <DescriptionForm name="inputDescription" />
+                  )}
+                </FormSection>
               </div>
-              <div className="flex w-[360px] flex-col gap-1">
-                <Label>Output Description</Label>
-                {getValues('outputDescription') && (
-                  <Controller
-                    render={({ field }) => (
-                      <TextEditor
-                        placeholder="Enter a description..."
-                        onChange={field.onChange}
-                        defaultValue={field.value as string}
-                      />
-                    )}
-                    name="outputDescription"
-                    control={control}
-                  />
-                )}
-
-                {errors.outputDescription && (
-                  <div className="flex items-center gap-1 text-xs text-red-500">
-                    <PiWarningBold />
-                    required
-                  </div>
-                )}
+              <div className="w-[360px]">
+                <FormSection title="Output Description">
+                  {getValues('outputDescription') && (
+                    <DescriptionForm name="outputDescription" />
+                  )}
+                </FormSection>
               </div>
             </div>
-          </div>
 
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <Label>Sample</Label>
-              <Badge
-                onClick={addSample}
-                className="h-[18px] w-[45px] cursor-pointer items-center justify-center bg-gray-200/60 p-0 text-xs font-medium text-gray-500 shadow-sm hover:bg-gray-200"
-              >
-                + add
-              </Badge>
-            </div>
-            <div className="flex flex-col gap-2">
-              {watchedSamples &&
-                watchedSamples.map((_, index) => (
-                  <div key={index} className="flex flex-col gap-1">
-                    <ExampleTextarea
-                      onRemove={() => {
-                        removeSample(index)
-                      }}
-                      inputName={`samples.create.${index}.input`}
-                      outputName={`samples.create.${index}.output`}
-                      register={register}
-                    />
-                    {errors.samples?.create?.[index] && (
-                      <div className="flex items-center gap-1 text-xs text-red-500">
-                        <PiWarningBold />
-                        required
-                      </div>
-                    )}
-                  </div>
-                ))}
-            </div>
-          </div>
+            <FormSection title="Sample">
+              <AddBadge onClick={addSample} />
+              {getValues('samples.create') && (
+                <AddableForm<Sample>
+                  type="samples"
+                  fieldName="samples.create"
+                  minimumRequired={1}
+                />
+              )}
+            </FormSection>
 
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <Label>Testcase</Label>
-              <Badge
-                onClick={addTestcase}
-                className="h-[18px] w-[45px] cursor-pointer items-center justify-center bg-gray-200/60 p-0 text-xs font-medium text-gray-500 shadow-sm hover:bg-gray-200"
-              >
-                + add
-              </Badge>
-            </div>
-            <div className="flex flex-col gap-2">
-              {watchedTestcases &&
-                watchedTestcases.map((_, index) => (
-                  <div key={index} className="flex flex-col gap-1">
-                    <ExampleTextarea
-                      key={index}
-                      onRemove={() => removeTestcase(index)}
-                      inputName={`testcases.${index}.input`}
-                      outputName={`testcases.${index}.output`}
-                      register={register}
-                    />
-                    {errors.testcases?.[index] && (
-                      <div className="flex items-center gap-1 text-xs text-red-500">
-                        <PiWarningBold />
-                        required
-                      </div>
-                    )}
-                  </div>
-                ))}
-            </div>
-          </div>
+            <FormSection title="Testcases">
+              <AddBadge onClick={addTestcase} />
+              {getValues('testcases') && (
+                <AddableForm<Testcase>
+                  type="testcases"
+                  fieldName="testcases"
+                  minimumRequired={1}
+                />
+              )}
+            </FormSection>
 
-          <div className="flex flex-col gap-1">
-            <Label>Limit</Label>
-            <div className="flex gap-8">
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="time"
-                    type="number"
-                    min={0}
-                    placeholder="Time"
-                    className={cn(inputStyle, 'h-[36px] w-[112px]')}
-                    {...register('timeLimit', {
-                      setValueAs: (value: string) => parseInt(value, 10)
-                    })}
-                  />
-                  <p className="text-sm font-bold text-gray-600">ms</p>
-                </div>
-                {errors.timeLimit && (
-                  <div className="flex items-center gap-1 text-xs text-red-500">
-                    <PiWarningBold />
-                    {Number.isNaN(getValues('timeLimit'))
-                      ? 'required'
-                      : errors.timeLimit?.message?.toString()}
-                  </div>
-                )}
-              </div>
+            <FormSection title="Limit">
+              <LimitForm />
+            </FormSection>
 
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="memory"
-                    type="number"
-                    min={0}
-                    placeholder="Memory"
-                    className={cn(inputStyle, 'h-[36px] w-[112px]')}
-                    {...register('memoryLimit', {
-                      setValueAs: (value: string) => parseInt(value, 10)
-                    })}
-                  />
-                  <p className="text-sm font-bold text-gray-600">MB</p>
-                </div>
-                {errors.memoryLimit && (
-                  <div className="flex items-center gap-1 text-xs text-red-500">
-                    <PiWarningBold />
-                    {Number.isNaN(getValues('memoryLimit'))
-                      ? 'required'
-                      : errors.memoryLimit?.message?.toString()}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+            <SwitchField name="hint" title="Hint" placeholder="Enter a hint" />
+            <SwitchField
+              name="source"
+              title="Source"
+              placeholder="Enter a source"
+              isInput
+            />
+            <TemplateField />
 
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <Label required={false}>Hint</Label>
-              <Switch
-                onCheckedChange={() => {
-                  setShowHint(!showHint)
-                  setValue('hint', '')
-                }}
-                checked={showHint}
-                className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
-              />
-            </div>
-            {showHint && (
-              <Textarea
-                id="hint"
-                placeholder="Enter a hint"
-                className="min-h-[120px] w-[760px] bg-white"
-                {...register('hint')}
-              />
-            )}
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <Label required={false}>Source</Label>
-              <Switch
-                onCheckedChange={() => {
-                  setShowSource(!showSource)
-                  setValue('source', '')
-                }}
-                checked={showSource}
-                className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
-              />
-            </div>
-            {showSource && (
-              <Input
-                id="source"
-                type="text"
-                placeholder="Enter a source"
-                className={cn(inputStyle, 'h-[36px] w-[380px]')}
-                {...register('source')}
-              />
-            )}
-          </div>
-          <div className="flex flex-col gap-6">
-            {watchedLanguages &&
-              watchedLanguages.map((language, index) => (
-                <div key={index} className="flex gap-4">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <Label required={false}>{language} Template</Label>
-                    </div>
-                    {language && (
-                      <Textarea
-                        placeholder={`Enter a ${language} template...`}
-                        className="h-[180px] w-[480px] bg-white"
-                        {...register(`template.${index}.code.0.text`)}
-                      />
-                    )}
-                  </div>
-                </div>
-              ))}
-          </div>
-          <Button
-            type="submit"
-            className="flex h-[36px] w-[100px] items-center gap-2 px-0"
-          >
-            <IoMdCheckmarkCircleOutline fontSize={20} />
-            <div className="mb-[2px] text-base">Submit</div>
-          </Button>
+            <Button
+              type="submit"
+              className="flex h-[36px] w-[100px] items-center gap-2 px-0"
+            >
+              <IoMdCheckmarkCircleOutline fontSize={20} />
+              <div className="mb-[2px] text-base">Submit</div>
+            </Button>
+          </FormProvider>
         </form>
       </main>
       <ScrollBar orientation="horizontal" />
