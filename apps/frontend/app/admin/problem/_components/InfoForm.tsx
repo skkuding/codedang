@@ -31,36 +31,36 @@ export default function InfoForm({ tags }: { tags: Tag[] }) {
   })
 
   return (
-    <>
-      <div className="flex gap-4">
-        <div className="flex flex-col gap-1">
-          <OptionSelect
-            options={levels}
-            value={difficultyField.value as string}
-            onChange={difficultyField.onChange}
-          />
-          {errors.difficulty && <ErrorMessage />}
-        </div>
-        <div className="flex flex-col gap-1">
-          <CheckboxSelect
-            title="Language"
-            options={languages}
-            onChange={(selectedLanguages) => {
-              languagesField.onChange(selectedLanguages)
-            }}
-            defaultValue={languagesField.value as string[]}
-          />
-          {errors.languages && <ErrorMessage />}
-        </div>
-        <div className="flex flex-col gap-1">
-          <TagsSelect
-            options={tags}
-            onChange={tagsField.onChange}
-            defaultValue={tagsField.value}
-          />
-          {errors.tags && <ErrorMessage />}
-        </div>
+    <div className="flex gap-4">
+      <div className="flex flex-col gap-1">
+        <OptionSelect
+          options={levels}
+          value={difficultyField.value as string}
+          onChange={difficultyField.onChange}
+        />
+        {errors.difficulty && <ErrorMessage />}
       </div>
-    </>
+
+      <div className="flex flex-col gap-1">
+        <CheckboxSelect
+          title="Language"
+          options={languages}
+          onChange={(selectedLanguages) => {
+            languagesField.onChange(selectedLanguages)
+          }}
+          defaultValue={languagesField.value as string[]}
+        />
+        {errors.languages && <ErrorMessage />}
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <TagsSelect
+          options={tags}
+          onChange={tagsField.onChange}
+          defaultValue={tagsField.value}
+        />
+        {errors.tags && <ErrorMessage />}
+      </div>
+    </div>
   )
 }
