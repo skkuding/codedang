@@ -3,17 +3,21 @@ export default function FormSection({
   title,
   isLabled = true
 }: {
-  children: React.ReactNode
+  children: React.ReactNode | React.ReactNode[]
   title: string
   isLabled?: boolean
 }) {
+  const isChildrenArray = Array.isArray(children)
+  const [badge, content] = isChildrenArray ? children : [null, children]
+
   return (
     <div className="flex flex-col gap-1">
-      <div>
-        <span className="font-bold">{title} </span>
+      <div className="flex items-center gap-1">
+        <span className="font-bold">{title}</span>
         {isLabled && <span className="text-red-500">*</span>}
+        {badge}
       </div>
-      {children}
+      {content}
     </div>
   )
 }
