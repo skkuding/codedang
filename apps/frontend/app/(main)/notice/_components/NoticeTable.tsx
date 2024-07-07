@@ -13,7 +13,7 @@ interface NoticeProps {
 }
 
 const getFixedNotices = async () => {
-  const notices: NoticeProps = await fetcher
+  const fixedNoticesRes: NoticeProps = await fetcher
     .get('notice', {
       searchParams: {
         fixed: 'true',
@@ -21,12 +21,12 @@ const getFixedNotices = async () => {
       }
     })
     .json()
-  console.log('1. getFixedNotices', notices)
-  return notices.data ?? notices
+  console.log('1. getFixedNotices', fixedNoticesRes)
+  return fixedNoticesRes.data ?? fixedNoticesRes
 }
 
 const getNotices = async (search: string) => {
-  const notices: NoticeProps = await fetcher
+  const noticesRes: NoticeProps = await fetcher
     .get('notice', {
       searchParams: {
         search,
@@ -34,8 +34,8 @@ const getNotices = async (search: string) => {
       }
     })
     .json()
-  console.log('2. getNotices', notices)
-  return notices.data ?? notices
+  console.log('2. getNotices', noticesRes)
+  return noticesRes.data ?? noticesRes
 }
 
 export default async function NoticeTable({ search }: Props) {
