@@ -10,7 +10,7 @@ interface ProblemCardsProps {
 }
 
 const getProblems = async () => {
-  const problems: ProblemCardsProps = await fetcher
+  const res: ProblemCardsProps = await fetcher
     .get('problem', {
       searchParams: {
         take: 3
@@ -19,8 +19,8 @@ const getProblems = async () => {
     })
     .json()
 
-  problems.data ?? console.error('4.getProblem', problems)
-  return problems.data ?? []
+  res.data ?? console.error('4.getProblem', res)
+  return res.data ?? []
 }
 
 export default async function ProblemCards() {
