@@ -7,7 +7,8 @@ import {
   type Submission,
   type SubmissionResult,
   type Language,
-  type Problem
+  type Problem,
+  type ProblemTestcase
 } from '@prisma/client'
 import type { AxiosRequestConfig } from 'axios'
 import { plainToInstance } from 'class-transformer'
@@ -31,7 +32,6 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { SubmissionResultCreateManyInput } from '@admin/@generated'
 import {
   type CreateSubmissionDto,
   Snippet,
@@ -378,7 +378,7 @@ export class SubmissionService implements OnModuleInit {
     resultStatus: ResultStatus,
     result: Partial<SubmissionResult> & Pick<SubmissionResult, 'result'>
   ) {
-    if (result.problemTestcaseId)
+    if (result.problemTestcaseId) {
       await this.prisma.submissionResult.create({
         data: {
           submissionId: id,
@@ -388,30 +388,24 @@ export class SubmissionService implements OnModuleInit {
           memoryUsage: result.memoryUsage
         }
       })
-    else {
-      const testcases = (
-        await this.prisma.submission.findFirstOrThrow({
-          where: {
-            id
-          },
-          include: {
-            problem: {
-              include: {
-                problemTestcase: {
-                  select: {
-                    id: true
-                  }
-                }
-              }
-            }
-          }
-        })
-      ).problem.problemTestcase
+    } else {
+      const { problemId } = await this.prisma.submission.findUniqueOrThrow({
+        where: {
+          id
+        }
+      })
+
+      const testcases = await this.prisma.problemTestcase.findMany({
+        where: {
+          problemId
+        }
+      })
+
       await this.prisma.submissionResult.createMany({
-        data: testcases.map((tc): SubmissionResultCreateManyInput => {
+        data: testcases.map((testcase: ProblemTestcase) => {
           return {
             submissionId: id,
-            problemTestcaseId: tc.id,
+            problemTestcaseId: testcase.id,
             result: result.result
           }
         })
