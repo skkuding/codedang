@@ -19,7 +19,7 @@ export class PrismaTestService
     super({
       datasources: {
         db: {
-          url: process.env.TEST_DATABASE_URL
+          url: process.env.DATABASE_URL
         }
       }
     })
@@ -40,6 +40,7 @@ export class PrismaTestService
   async rollbackTransaction() {
     await this.$executeRaw`ROLLBACK`
   }
+
   getPaginator(cursor: number | null): Paginator<number>
 
   getPaginator<T>(
