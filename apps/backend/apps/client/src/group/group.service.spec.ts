@@ -12,8 +12,7 @@ import {
   ConflictFoundException,
   EntityNotExistException
 } from '@libs/exception'
-import { PrismaService, type FlatTransactionClient } from '@libs/prisma'
-import { transactionExtension } from '@libs/prisma'
+import { PrismaService } from '@libs/prisma'
 import { GroupService } from './group.service'
 import type { UserGroupData } from './interface/user-group-data.interface'
 
@@ -21,20 +20,14 @@ chai.use(chaiExclude)
 describe('GroupService', () => {
   let service: GroupService
   let cache: Cache
-  let tx: FlatTransactionClient
 
-  const prisma = new PrismaClient().$extends(transactionExtension)
+  const prisma = new PrismaClient()
 
   beforeEach(async function () {
-    // TODO: CI 테스트에서 timeout이 걸리는 문제를 우회하기 위해서 timeout을 0으로 설정 (timeout disabled)
-    // local에서는 timeout을 disable 하지 않아도 테스트가 정상적으로 동작함 (default setting: 2000ms)
-    this.timeout(0)
-    //transaction client
-    tx = await prisma.$begin()
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GroupService,
-        { provide: PrismaService, useValue: tx },
+        PrismaService,
         ConfigService,
         {
           provide: CACHE_MANAGER,
@@ -177,7 +170,7 @@ describe('GroupService', () => {
     let groupId: number
     const userId = 4
     beforeEach(async () => {
-      const group = await tx.group.create({
+      const group = await prisma.group.create({
         data: {
           groupName: 'test',
           description: 'test',
@@ -188,10 +181,6 @@ describe('GroupService', () => {
         }
       })
       groupId = group.id
-    })
-
-    afterEach(async () => {
-      await tx.$rollback()
     })
 
     it('should return {isJoined: true} when group not set as requireApprovalBeforeJoin', async () => {
@@ -215,7 +204,7 @@ describe('GroupService', () => {
     })
 
     it('should return {isJoined: false} when group set as requireApprovalBeforeJoin', async () => {
-      await tx.group.update({
+      await prisma.group.update({
         where: {
           id: groupId
         },
@@ -240,7 +229,7 @@ describe('GroupService', () => {
     })
 
     it('should throw ConflictFoundException when user is already group memeber', async () => {
-      await tx.userGroup.create({
+      await prisma.userGroup.create({
         data: {
           userId,
           groupId,
@@ -260,7 +249,7 @@ describe('GroupService', () => {
         { userId, expiresAt: Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME }
       ])
 
-      await tx.group.update({
+      await prisma.group.update({
         where: {
           id: groupId
         },
@@ -282,7 +271,7 @@ describe('GroupService', () => {
     const groupId = 3
     const userId = 4
     beforeEach(async () => {
-      await tx.userGroup.createMany({
+      await prisma.userGroup.createMany({
         data: [
           {
             userId,
@@ -296,10 +285,6 @@ describe('GroupService', () => {
           }
         ]
       })
-    })
-
-    afterEach(async () => {
-      await tx.$rollback()
     })
 
     it('should return deleted userGroup when valid userId and groupId passed', async () => {
