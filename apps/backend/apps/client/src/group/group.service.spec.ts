@@ -1,7 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { Prisma, PrismaClient } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import * as chai from 'chai'
@@ -12,7 +12,7 @@ import {
   ConflictFoundException,
   EntityNotExistException
 } from '@libs/exception'
-import { PrismaService } from '@libs/prisma'
+import { PrismaService, PrismaTestService } from '@libs/prisma'
 import { GroupService } from './group.service'
 import type { UserGroupData } from './interface/user-group-data.interface'
 
@@ -20,14 +20,17 @@ chai.use(chaiExclude)
 describe('GroupService', () => {
   let service: GroupService
   let cache: Cache
+  let prisma: PrismaTestService
 
-  const prisma = new PrismaClient()
-
-  beforeEach(async function () {
+  before(async function () {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GroupService,
-        PrismaService,
+        PrismaTestService,
+        {
+          provide: PrismaService,
+          useExisting: PrismaTestService
+        },
         ConfigService,
         {
           provide: CACHE_MANAGER,
@@ -40,6 +43,19 @@ describe('GroupService', () => {
     }).compile()
     service = module.get<GroupService>(GroupService)
     cache = module.get<Cache>(CACHE_MANAGER)
+    prisma = module.get<PrismaTestService>(PrismaTestService)
+  })
+
+  beforeEach(async () => {
+    await prisma.startTransaction()
+  })
+
+  afterEach(async () => {
+    await prisma.rollbackTransaction()
+  })
+
+  after(async () => {
+    await prisma.$disconnect()
   })
 
   it('should be defined', () => {
@@ -169,7 +185,7 @@ describe('GroupService', () => {
   describe('joinGroupById', () => {
     let groupId: number
     const userId = 4
-    beforeEach(async () => {
+    const createTestGroup = async function () {
       const group = await prisma.group.create({
         data: {
           groupName: 'test',
@@ -181,9 +197,24 @@ describe('GroupService', () => {
         }
       })
       groupId = group.id
-    })
+    }
+
+    // beforeEach(async () => {
+    //   const group = await prisma.group.create({
+    //     data: {
+    //       groupName: 'test',
+    //       description: 'test',
+    //       config: {
+    //         allowJoinFromSearch: true,
+    //         requireApprovalBeforeJoin: false
+    //       }
+    //     }
+    //   })
+    //   groupId = group.id
+    // })
 
     it('should return {isJoined: true} when group not set as requireApprovalBeforeJoin', async () => {
+      await createTestGroup()
       const res = await service.joinGroupById(userId, groupId)
       const userGroupData: UserGroupData = {
         userId,
@@ -204,6 +235,7 @@ describe('GroupService', () => {
     })
 
     it('should return {isJoined: false} when group set as requireApprovalBeforeJoin', async () => {
+      await createTestGroup()
       await prisma.group.update({
         where: {
           id: groupId
@@ -229,6 +261,7 @@ describe('GroupService', () => {
     })
 
     it('should throw ConflictFoundException when user is already group memeber', async () => {
+      await createTestGroup()
       await prisma.userGroup.create({
         data: {
           userId,
@@ -245,6 +278,7 @@ describe('GroupService', () => {
     })
 
     it('should throw ConflictFoundException when join request already exists in cache', async () => {
+      await createTestGroup()
       stub(cache, 'get').resolves([
         { userId, expiresAt: Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME }
       ])
