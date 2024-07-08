@@ -13,7 +13,7 @@ import {
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
-import { PrismaService } from '@libs/prisma'
+import { PrismaService, PrismaTestService } from '@libs/prisma'
 import { ContestService, type ContestResult } from './contest.service'
 
 const contestId = 1
@@ -83,13 +83,35 @@ const contests = [
 
 describe('ContestService', () => {
   let service: ContestService
-  let prisma: PrismaService
-  beforeEach(async () => {
+  let prisma: PrismaTestService
+
+  before(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ContestService, PrismaService, ConfigService]
+      providers: [
+        ContestService,
+        PrismaTestService,
+        {
+          provide: PrismaService,
+          useExisting: PrismaTestService
+        },
+        ConfigService
+      ]
     }).compile()
+
     service = module.get<ContestService>(ContestService)
-    prisma = module.get<PrismaService>(PrismaService)
+    prisma = module.get<PrismaTestService>(PrismaTestService)
+  })
+
+  beforeEach(async () => {
+    await prisma.startTransaction()
+  })
+
+  afterEach(async () => {
+    await prisma.rollbackTransaction()
+  })
+
+  after(async () => {
+    await prisma.$disconnect()
   })
 
   it('should be defined', () => {
@@ -300,14 +322,6 @@ describe('ContestService', () => {
 
   describe('createContestRecord', () => {
     let contestRecordId = -1
-
-    after(async () => {
-      await prisma.contestRecord.delete({
-        where: {
-          id: contestRecordId
-        }
-      })
-    })
 
     it('should throw error when the contest does not exist', async () => {
       await expect(
