@@ -7,7 +7,8 @@ import {
   type Submission,
   type SubmissionResult,
   type Language,
-  type Problem
+  type Problem,
+  Role
 } from '@prisma/client'
 import type { AxiosRequestConfig } from 'axios'
 import { plainToInstance } from 'class-transformer'
@@ -576,6 +577,7 @@ export class SubmissionService implements OnModuleInit {
     id: number,
     problemId: number,
     userId: number,
+    userRole: Role,
     groupId = OPEN_SPACE_ID,
     contestId: number | null
   ) {
@@ -653,7 +655,8 @@ export class SubmissionService implements OnModuleInit {
       contest &&
       contest.startTime <= now &&
       contest.endTime > now &&
-      submission.userId !== userId
+      submission.userId !== userId &&
+      userRole === Role.User
     ) {
       throw new ForbiddenAccessException(
         "Contest should end first before you browse other people's submissions"
@@ -662,6 +665,8 @@ export class SubmissionService implements OnModuleInit {
 
     if (
       submission.userId === userId ||
+      userRole === Role.Admin ||
+      userRole === Role.SuperAdmin ||
       (await this.hasPassedProblem(userId, { problemId }))
     ) {
       const code = plainToInstance(Snippet, submission.code)
@@ -682,6 +687,7 @@ export class SubmissionService implements OnModuleInit {
         testcaseResult: results
       }
     }
+
     throw new ForbiddenAccessException(
       "You must pass the problem first to browse other people's submissions"
     )
