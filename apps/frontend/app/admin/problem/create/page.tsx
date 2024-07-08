@@ -20,11 +20,15 @@ import { GET_TAGS } from '@/graphql/problem/queries'
 import { languages, levels } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { useMutation, useQuery } from '@apollo/client'
-import { Level, type CreateProblemInput } from '@generated/graphql'
+import {
+  Level,
+  type CreateProblemInput,
+  type Template
+} from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -125,6 +129,46 @@ export default function Page() {
 
   const watchedSamples = watch('samples')
   const watchedTestcases = watch('testcases')
+  const watchedLanguages = watch('languages')
+
+  useEffect(() => {
+    if (watchedLanguages) {
+      const templates: Template[] = [] // temp array to store templates
+      const savedTemplates = getValues('template') // templates saved in form
+      watchedLanguages.map((language) => {
+        const temp = savedTemplates!.filter(
+          (template) => template.language === language
+        )
+        if (temp.length !== 0) {
+          templates.push(temp[0])
+        } else {
+          // push dummy template to array
+          templates.push({
+            language,
+            code: [
+              {
+                id: -1,
+                text: '',
+                locked: false
+              }
+            ]
+          })
+        }
+      })
+      templates.map((template, index) => {
+        setValue(`template.${index}`, {
+          language: template.language,
+          code: [
+            {
+              id: index,
+              text: template.code[0].text ?? '',
+              locked: false
+            }
+          ]
+        })
+      })
+    }
+  }, [watchedLanguages])
 
   const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
   const onSubmit = async (input: CreateProblemInput) => {
@@ -542,6 +586,25 @@ export default function Page() {
             )}
           </div>
 
+          <div className="flex flex-col gap-6">
+            {watchedLanguages &&
+              watchedLanguages.map((language, index) => (
+                <div key={index} className="flex gap-4">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <Label required={false}>{language} Template</Label>
+                    </div>
+                    {language && (
+                      <Textarea
+                        placeholder={`Enter a ${language} template...`}
+                        className="h-[180px] w-[480px] bg-white"
+                        {...register(`template.${index}.code.0.text`)}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+          </div>
           <Button
             type="submit"
             className="flex h-[36px] w-[100px] items-center gap-2 px-0"
