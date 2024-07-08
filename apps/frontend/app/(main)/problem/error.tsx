@@ -18,7 +18,9 @@ export default function Error({ error }: Props) {
 
   return (
     <div className="flex h-full w-full flex-1 flex-col items-center justify-center gap-3 py-12">
-      <p className="mt-8 text-2xl font-extrabold">Something Went Wrong!</p>
+      <p className="mt-8 text-2xl font-extrabold">
+        Failed to load problem resource!
+      </p>
       <p className="mb-4 max-w-[36rem] text-lg font-semibold">
         {error.message || 'Unknown Error'}
       </p>
