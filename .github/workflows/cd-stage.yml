@@ -87,7 +87,7 @@ jobs:
           sparse-checkout: |
             docker-compose.yml
             scripts/deploy.sh
-            .env.stage
+            .env.development
             apps/infra/stage/Caddyfile
             apps/grafana-logs/promtail/promtail-config.yml
 
