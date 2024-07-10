@@ -9,7 +9,7 @@ import tracer from './tracer'
 
 const bootstrap = async () => {
   // otel instrumentation
-  if (process.env.NODE_ENV == 'production') {
+  if (process.env.NODE_ENV == 'production' || process.env.NODE_ENV == 'stage') {
     if (
       process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL == undefined ||
       process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL == ''
@@ -29,7 +29,10 @@ const bootstrap = async () => {
   app.useGlobalInterceptors(new LoggerErrorInterceptor())
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }))
   app.use(cookieParser())
-  if (process.env.NODE_ENV !== 'production') {
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    process.env.NODE_ENV !== 'stage'
+  ) {
     app.enableCors({
       origin: 'http://localhost:5525',
       credentials: true,

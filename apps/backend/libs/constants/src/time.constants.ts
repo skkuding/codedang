@@ -8,9 +8,10 @@ export const REFRESH_TOKEN_EXPIRE_TIME = SECONDS_PER_DAY
 export const REFRESH_TOKEN_COOKIE_OPTIONS = {
   maxAge: 1000 * SECONDS_PER_DAY,
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
+  secure:
+    process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'stage',
   path:
-    process.env.NODE_ENV === 'production'
+    process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'stage'
       ? '/api/auth/reissue'
       : '/auth/reissue'
 }
