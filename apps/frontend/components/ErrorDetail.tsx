@@ -15,6 +15,7 @@ export default function Error({ errorDetail, error }: ErrorDetailProps) {
         {error.message || 'Unknown Error'}
       </p>
       <Button
+        className="text-black"
         variant="outline"
         onClick={() => {
           window.location.reload()
