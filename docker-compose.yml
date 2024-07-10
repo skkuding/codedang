@@ -14,7 +14,7 @@ services:
       - database
     stdin_open: true
     tty: true
-    env_file: .env.stage
+    env_file: .env.development
     environment:
       DEVCONTAINER: 1
     network_mode: host
@@ -68,7 +68,7 @@ services:
     ports:
       - 15672:15672 # Admin Management
       - 5672:5672
-    env_file: .env.stage
+    env_file: .env.development
     environment:
       RABBITMQ_ERLANG_COOKIE: RabbitMQ-My-Cookies
     volumes:
@@ -93,7 +93,7 @@ services:
       setup:
         condition: service_completed_successfully
     env_file:
-      - .env.stage
+      - .env.development
       - .env
     network_mode: host
 
@@ -106,7 +106,7 @@ services:
       setup:
         condition: service_completed_successfully
     env_file:
-      - .env.stage
+      - .env.development
       - .env
     network_mode: host
 
@@ -118,7 +118,7 @@ services:
     depends_on:
       setup:
         condition: service_completed_successfully
-    env_file: .env.stage
+    env_file: .env.development
     network_mode: host
 
   promtail:

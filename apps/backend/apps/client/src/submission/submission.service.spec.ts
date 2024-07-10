@@ -3,7 +3,7 @@ import { NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
-import { Language, ResultStatus, type User } from '@prisma/client'
+import { Language, ResultStatus, Role, type User } from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
@@ -49,6 +49,7 @@ const db = {
     findUniqueOrThrow: stub()
   },
   user: {
+    findFirstOrThrow: stub(),
     findFirst: stub()
   },
   getPaginator: PrismaService.prototype.getPaginator
@@ -343,12 +344,18 @@ describe('SubmissionService', () => {
         user: { username: 'username' },
         submissionResult: submissionResults
       })
+      db.user.findFirstOrThrow.resolves({
+        username: 'username',
+        id: submissions[0].userId,
+        role: Role.User
+      })
 
       expect(
         await service.getSubmission(
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
+          Role.User,
           undefined,
           null
         )
@@ -374,6 +381,7 @@ describe('SubmissionService', () => {
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
+          Role.User,
           undefined,
           null
         )
@@ -391,6 +399,7 @@ describe('SubmissionService', () => {
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
+          Role.User,
           undefined,
           null
         )
@@ -408,6 +417,7 @@ describe('SubmissionService', () => {
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
+          Role.User,
           undefined,
           null
         )
