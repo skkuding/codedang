@@ -3,6 +3,7 @@ import { encode, getToken } from 'next-auth/jwt'
 import { parseCookie } from 'next/dist/compiled/@edge-runtime/cookies'
 import { NextResponse, type NextRequest } from 'next/server'
 import { baseUrl } from './lib/constants'
+import { isDevelopmentEnv } from './lib/utils'
 
 const getAuthToken = (res: Response) => {
   const Authorization = res.headers.get('authorization') as string
@@ -65,9 +66,7 @@ export const middleware = async (req: NextRequest) => {
       res.cookies.set(sessionCookieName, newToken, {
         // for client setCookie
         maxAge: 24 * 60 * 60,
-        secure:
-          process.env.NODE_ENV === 'production' ||
-          process.env.NODE_ENV === 'stage',
+        secure: !isDevelopmentEnv(),
         httpOnly: true,
         sameSite: 'lax'
       })
