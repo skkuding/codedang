@@ -1,11 +1,9 @@
 import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
 import dummyImg from '@/public/dummy.png'
 import GithubLogo from '@/public/github.svg'
 import SkkudingLogo from '@/public/skkudingLogo.png'
 import type { Route } from 'next'
 import Link from 'next/link'
-import { Suspense } from 'react'
 import Carousel from './_components/Carousel'
 // import ContestCards from './_components/ContestCards'
 import ProblemCards from './_components/ProblemCards'
@@ -78,13 +76,7 @@ export default function Home() {
           </Link>
         </div>
         <div className="grid w-full grid-cols-3 gap-5">
-          <Suspense
-            fallback={[...Array(3)].map((_, i) => (
-              <Skeleton key={i} className="flex h-[120px] w-full rounded-xl" />
-            ))}
-          >
-            <ProblemCards />
-          </Suspense>
+          <ProblemCards />
         </div>
       </div>
     </div>
