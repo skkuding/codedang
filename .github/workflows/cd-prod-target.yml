@@ -57,11 +57,11 @@ jobs:
 
       - name: Terraform Plan - target
         working-directory: ./apps/infra/production/${{ github.event.inputs.terraform_project }}
-        run: terraform plan -input=false
+        run: terraform plan -input=false -out=plan.out
 
       - name: Terraform Apply - target
         working-directory: ./apps/infra/production/${{ github.event.inputs.terraform_project }}
-        run: terraform apply -auto-approve -input=false
+        run: terraform apply plan.out -auto-approve -input=false
 
       - name: Create Terraform variable file - codedang
         working-directory: ./apps/infra/production/codedang
@@ -80,8 +80,8 @@ jobs:
 
       - name: Terraform Plan - codedang
         working-directory: ./apps/infra/production/codedang
-        run: terraform plan -input=false
+        run: terraform plan -input=false -out=plan.out
 
       - name: Terraform Apply - codedang
         working-directory: ./apps/infra/production/codedang
-        run: terraform apply -auto-approve -input=false
+        run: terraform apply plan.out -auto-approve -input=false
