@@ -11,6 +11,10 @@ on:
           - 'storage'
           - 'network'
 
+permissions: # permissions to the job (for the OpenID Connection)
+  id-token: write
+  contents: read
+
 jobs:
   prepare:
     name: Prepare tfvars variable
@@ -26,9 +30,13 @@ jobs:
   deploy-terraform:
     name: Deploy Terraform Project
     runs-on: ubuntu-latest
+    environment: production
     env:
       TFVARS_TARGET: ${{ needs.prepare.outputs.tfvars_target }}
     needs: prepare
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
