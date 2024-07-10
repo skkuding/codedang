@@ -64,3 +64,5 @@ export const dateFormatter = (date: string | Date, format: string) => {
     new Date(date).toLocaleString('en-US', { timeZone: 'Asia/Seoul' })
   ).format(format)
 }
+
+export const isDevlopment = () => process.env.NODE_ENV === 'development'
