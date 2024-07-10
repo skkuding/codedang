@@ -38,6 +38,11 @@ do
   fi
 done < .env.development
 
+# Add NODE_ENV=local to .env file
+echo "NODE_ENV=local" >> .env
+# Add APP_ENV=local to .env file
+echo "APP_ENV=local" >> .env
+
 # If dotenv schema is not updated, remove the file
 if [ -f apps/backend/.env ] && grep -q DATABASE_URL apps/backend/.env
 then
