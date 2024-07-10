@@ -1,4 +1,4 @@
-import type { FieldErrorsImpl } from 'react-hook-form'
+import type { FieldErrorsImpl, FieldValues } from 'react-hook-form'
 import { useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 import ErrorMessage from './ErrorMessage'
@@ -8,6 +8,11 @@ type AddableProps = {
   type: string
   fieldName: string
   minimumRequired: number
+}
+
+type EditSampleProps<T extends FieldValues> = {
+  create: T[]
+  delete: T[]
 }
 
 export default function AddableForm<
@@ -32,8 +37,11 @@ export default function AddableForm<
   }
 
   const watchedItems: T[] = watch(fieldName)
+  const [prop, props] = fieldName.split('.') as [string, 'create' | undefined]
 
-  const itemErrors = errors[fieldName] as FieldErrorsImpl<T[]> | undefined
+  const itemErrors = props
+    ? (errors[prop] as FieldErrorsImpl<EditSampleProps<T>> | undefined)?.create
+    : (errors[prop] as FieldErrorsImpl<T[]> | undefined)
 
   return (
     <div className="flex flex-col gap-2">

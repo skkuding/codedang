@@ -193,7 +193,7 @@ export default function Page({ params }: { params: { id: string } }) {
               <AddBadge onClick={addSample} />
               {getValues('samples.create') && (
                 <AddableForm<Sample>
-                  type="samples"
+                  type="sample"
                   fieldName="samples.create"
                   minimumRequired={1}
                 />
@@ -204,7 +204,7 @@ export default function Page({ params }: { params: { id: string } }) {
               <AddBadge onClick={addTestcase} />
               {getValues('testcases') && (
                 <AddableForm<Testcase>
-                  type="testcases"
+                  type="testcase"
                   fieldName="testcases"
                   minimumRequired={1}
                 />

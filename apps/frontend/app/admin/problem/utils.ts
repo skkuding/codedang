@@ -6,9 +6,18 @@ const commonSchema = z.object({
   isVisible: z.boolean(),
   difficulty: z.enum(levels),
   languages: z.array(z.enum(languages)),
-  description: z.string().min(1),
-  inputDescription: z.string().min(1),
-  outputDescription: z.string().min(1),
+  description: z
+    .string()
+    .min(1)
+    .refine((value) => value !== '<p></p>'),
+  inputDescription: z
+    .string()
+    .min(1)
+    .refine((value) => value !== '<p></p>'),
+  outputDescription: z
+    .string()
+    .min(1)
+    .refine((value) => value !== '<p></p>'),
   testcases: z
     .array(
       z.object({
@@ -52,11 +61,9 @@ export const editSchema = commonSchema.extend({
     .object({ create: z.array(z.number()), delete: z.array(z.number()) })
     .optional(),
   samples: z.object({
-    create: z.array(
-      z
-        .object({ input: z.string().min(1), output: z.string().min(1) })
-        .optional()
-    ),
+    create: z
+      .array(z.object({ input: z.string().min(1), output: z.string().min(1) }))
+      .min(1),
     delete: z.array(z.number().optional())
   })
 })
