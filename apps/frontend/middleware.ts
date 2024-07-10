@@ -1,6 +1,6 @@
 import { ACCESS_TOKEN_EXPIRE_TIME } from '@/lib/constants'
 import { baseUrl } from '@/lib/constants'
-import { isDevlopment } from '@/lib/utils'
+import { isDevelopmentEnv } from '@/lib/utils'
 import { encode, getToken } from 'next-auth/jwt'
 import { parseCookie } from 'next/dist/compiled/@edge-runtime/cookies'
 import { NextResponse, type NextRequest } from 'next/server'
@@ -66,7 +66,7 @@ export const middleware = async (req: NextRequest) => {
       res.cookies.set(sessionCookieName, newToken, {
         // for client setCookie
         maxAge: 24 * 60 * 60,
-        secure: !isDevlopment(),
+        secure: !isDevelopmentEnv(),
         httpOnly: true,
         sameSite: 'lax'
       })

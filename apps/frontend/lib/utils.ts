@@ -65,4 +65,4 @@ export const dateFormatter = (date: string | Date, format: string) => {
   ).format(format)
 }
 
-export const isDevlopment = () => process.env.NODE_ENV === 'development'
+export const isDevelopmentEnv = () => process.env.NODE_ENV === 'development'
