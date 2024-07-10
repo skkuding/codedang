@@ -122,7 +122,7 @@ export default [
     }
   },
   {
-    files: ['**/frontend/**/*.tsx}'],
+    files: ['**/*.tsx'],
     ignores: ['**/components/ui/*.tsx'],
     rules: {
       'react/function-component-definition': [
@@ -158,8 +158,7 @@ export default [
       '.pnpm-store',
       '**/@generated',
       '**/collection',
-      'eslint.config.mjs',
-      '**/*.config.js'
+      '**/*.config.{js,cjs,mjs,ts}'
     ]
   }
 ]
