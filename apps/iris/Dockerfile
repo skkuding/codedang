@@ -8,6 +8,9 @@ RUN go build
 
 ### SERVER ###
 FROM ubuntu:24.04
+ARG app_env=production
+
+ENV APP_ENV ${app_env}
 
 COPY --from=builder /build/iris .
 
