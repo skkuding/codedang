@@ -87,6 +87,8 @@ jobs:
         with:
           push: true
           context: '{{defaultContext}}:apps/iris'
+          build-args:
+            app_env: production
           tags: ${{ steps.login-ecr.outputs.registry }}/codedang-iris:latest
 
   deploy:
