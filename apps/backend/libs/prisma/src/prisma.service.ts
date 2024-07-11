@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import type { Prisma } from '@prisma/client'
 import { PrismaClient } from '@prisma/client'
 
-type Paginator<T> = {
+export type Paginator<T> = {
   skip?: number
   cursor?: T extends number ? { id: number } : T
 }
