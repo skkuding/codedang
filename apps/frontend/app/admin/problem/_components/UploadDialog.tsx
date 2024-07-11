@@ -80,7 +80,12 @@ export default function UploadDialog({ refetch }: Props) {
           Upload
         </Button>
       </DialogTrigger>
-      <DialogContent className="flex h-[24rem] w-[32rem] flex-col">
+      <DialogContent
+        onInteractOutside={(e) => {
+          e.preventDefault()
+        }}
+        className="flex h-[24rem] w-[32rem] flex-col"
+      >
         <h1 className="my-2 text-2xl font-bold">Upload Problem</h1>
         <p className="text-sm">
           Please upload Excel file containing problem data. If you are looking
