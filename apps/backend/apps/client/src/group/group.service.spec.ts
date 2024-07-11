@@ -6,13 +6,17 @@ import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import * as chai from 'chai'
 import chaiExclude from 'chai-exclude'
-import { stub } from 'sinon'
+import * as sinon from 'sinon'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException
 } from '@libs/exception'
-import { PrismaService, PrismaTestService } from '@libs/prisma'
+import {
+  PrismaService,
+  PrismaTestService,
+  type FlatTransactionClient
+} from '@libs/prisma'
 import { GroupService } from './group.service'
 import type { UserGroupData } from './interface/user-group-data.interface'
 
@@ -21,6 +25,9 @@ describe('GroupService', () => {
   let service: GroupService
   let cache: Cache
   let prisma: PrismaTestService
+  let transaction: FlatTransactionClient
+
+  const sandbox = sinon.createSandbox()
 
   before(async function () {
     const module: TestingModule = await Test.createTestingModule({
@@ -47,15 +54,21 @@ describe('GroupService', () => {
   })
 
   beforeEach(async () => {
-    await prisma.startTransaction()
+    transaction = await prisma.$begin()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(service as any).prisma = transaction
   })
 
   afterEach(async () => {
-    await prisma.rollbackTransaction()
+    await transaction.$rollback()
   })
 
   after(async () => {
     await prisma.$disconnect()
+  })
+
+  afterEach(() => {
+    sandbox.restore()
   })
 
   it('should be defined', () => {
@@ -110,12 +123,13 @@ describe('GroupService', () => {
     it('should call getGroup', async () => {
       const groupId = 2
       const userId = 4
-      stub(cache, 'get').resolves(groupId)
+      sandbox.stub(cache, 'get').resolves(groupId)
 
       const res = await service.getGroupByInvitation(
         'invitationCodeKey',
         userId
       )
+
       expect(res).to.deep.equal({
         id: 2,
         groupName: 'Example Private Group',
@@ -128,7 +142,7 @@ describe('GroupService', () => {
 
     it('should throw error if given invitation is invalid', async () => {
       const userId = 4
-      stub(cache, 'get').resolves(null)
+      sandbox.stub(cache, 'get').resolves(null)
 
       await expect(
         service.getGroupByInvitation('invalidInvitationCodeKey', userId)
@@ -185,8 +199,9 @@ describe('GroupService', () => {
   describe('joinGroupById', () => {
     let groupId: number
     const userId = 4
+
     const createTestGroup = async function () {
-      const group = await prisma.group.create({
+      const group = await transaction.group.create({
         data: {
           groupName: 'test',
           description: 'test',
@@ -196,25 +211,11 @@ describe('GroupService', () => {
           }
         }
       })
-      groupId = group.id
+      return group.id
     }
 
-    // beforeEach(async () => {
-    //   const group = await prisma.group.create({
-    //     data: {
-    //       groupName: 'test',
-    //       description: 'test',
-    //       config: {
-    //         allowJoinFromSearch: true,
-    //         requireApprovalBeforeJoin: false
-    //       }
-    //     }
-    //   })
-    //   groupId = group.id
-    // })
-
     it('should return {isJoined: true} when group not set as requireApprovalBeforeJoin', async () => {
-      await createTestGroup()
+      groupId = await createTestGroup()
       const res = await service.joinGroupById(userId, groupId)
       const userGroupData: UserGroupData = {
         userId,
@@ -235,8 +236,8 @@ describe('GroupService', () => {
     })
 
     it('should return {isJoined: false} when group set as requireApprovalBeforeJoin', async () => {
-      await createTestGroup()
-      await prisma.group.update({
+      groupId = await createTestGroup()
+      await transaction.group.update({
         where: {
           id: groupId
         },
@@ -248,7 +249,7 @@ describe('GroupService', () => {
         }
       })
 
-      stub(cache, 'get').resolves([])
+      sandbox.stub(cache, 'get').resolves([])
 
       const res = await service.joinGroupById(userId, groupId)
       expect(res).to.deep.equal({
@@ -261,8 +262,8 @@ describe('GroupService', () => {
     })
 
     it('should throw ConflictFoundException when user is already group memeber', async () => {
-      await createTestGroup()
-      await prisma.userGroup.create({
+      groupId = await createTestGroup()
+      await transaction.userGroup.create({
         data: {
           userId,
           groupId,
@@ -278,12 +279,14 @@ describe('GroupService', () => {
     })
 
     it('should throw ConflictFoundException when join request already exists in cache', async () => {
-      await createTestGroup()
-      stub(cache, 'get').resolves([
-        { userId, expiresAt: Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME }
-      ])
+      groupId = await createTestGroup()
+      sandbox
+        .stub(cache, 'get')
+        .resolves([
+          { userId, expiresAt: Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME }
+        ])
 
-      await prisma.group.update({
+      await transaction.group.update({
         where: {
           id: groupId
         },
@@ -305,7 +308,7 @@ describe('GroupService', () => {
     const groupId = 3
     const userId = 4
     beforeEach(async () => {
-      await prisma.userGroup.createMany({
+      await transaction.userGroup.createMany({
         data: [
           {
             userId,
