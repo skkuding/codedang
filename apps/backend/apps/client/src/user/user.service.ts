@@ -321,8 +321,8 @@ export class UserService {
       password: generate({ length: 10, numbers: true }),
       realName: socialSignUpDto.realName,
       email: socialSignUpDto.email,
-      studentID: 'defaultStudentID',
-      major: 'defaultMajor'
+      studentID: socialSignUpDto.studentID,
+      major: socialSignUpDto.major
     })
     const profile: CreateUserProfileData = {
       userId: user.id,
