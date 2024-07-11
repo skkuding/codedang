@@ -44,7 +44,7 @@ model User {
   password   String
   role       Role      @default(User)
   email      String    @unique
-  studentID  String    @unique
+  studentID  String    @unique @map("student_id")
   major      String
   lastLogin  DateTime? @map("last_login")
   createTime DateTime  @default(now()) @map("create_time")
