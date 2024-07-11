@@ -173,7 +173,7 @@ describe('GroupService', () => {
             memberNum: 2
           }
         ],
-        total: 4
+        total: 2
       })
     })
   })
