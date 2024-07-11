@@ -981,7 +981,30 @@ const createProblems = async () => {
 }
 
 const createContests = async () => {
-  const contestData = [
+  const contestData: {
+    data:
+      | {
+          title: string
+          description: string
+          createdById: number
+          groupId: number
+          startTime: Date
+          endTime: Date
+          isVisible: boolean
+          isRankVisible: boolean
+          invitationCode: string
+        }
+      | {
+          title: string
+          description: string
+          createdById: number
+          groupId: number
+          startTime: Date
+          endTime: Date
+          isVisible: boolean
+          isRankVisible: boolean
+        }
+  }[] = [
     // Ongoing Contests
     {
       data: {
@@ -1034,8 +1057,7 @@ const createContests = async () => {
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true,
-        invitationCode: '123456'
+        isRankVisible: true
       }
     },
     {
@@ -1060,8 +1082,7 @@ const createContests = async () => {
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true,
-        invitationCode: '123456'
+        isRankVisible: true
       }
     },
     {
@@ -1073,8 +1094,7 @@ const createContests = async () => {
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true,
-        invitationCode: '123456'
+        isRankVisible: true
       }
     },
     // Finished Contests
@@ -1178,8 +1198,7 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: false,
-        invitationCode: '123456'
+        isRankVisible: false
       }
     },
     {
@@ -1191,8 +1210,7 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true,
-        invitationCode: '123456'
+        isRankVisible: true
       }
     },
     // Upcoming Contests
@@ -1245,8 +1263,7 @@ const createContests = async () => {
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true,
-        invitationCode: '123456'
+        isRankVisible: true
       }
     }
   ]
