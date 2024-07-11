@@ -31,7 +31,7 @@ jobs:
           push: true
           build-args:
             target: client
-            node_env: stage
+            app_env: stage
           tags: ghcr.io/${{ github.repository_owner }}/codedang-client-api:latest
 
   build-admin-api:
@@ -55,7 +55,7 @@ jobs:
           push: true
           build-args:
             target: admin
-            node_env: stage
+            app_env: stage
           tags: ghcr.io/${{ github.repository_owner }}/codedang-admin-api:latest
 
   build-iris:
