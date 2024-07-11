@@ -333,14 +333,6 @@ describe('ContestService', () => {
     const invitationCode = '123456'
     const invalidInvitationCode = '000000'
 
-    after(async () => {
-      await prisma.contestRecord.delete({
-        where: {
-          id: contestRecordId
-        }
-      })
-    })
-
     it('should throw error when the invitation code does not match', async () => {
       await expect(
         service.createContestRecord(1, user01Id, invalidInvitationCode)
