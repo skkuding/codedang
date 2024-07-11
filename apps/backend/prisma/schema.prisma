@@ -327,7 +327,9 @@ model ContestRecord {
   userId             Int?      @map("user_id")
   acceptedProblemNum Int       @default(0) @map("accepted_problem_num")
   score              Int       @default(0)
+  // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각
   finishTime         DateTime? @map("finish_time")
+  // totalPenalty: Submission 시, AC를 받지 못했을 때, 올라가는 Counter
   totalPenalty       Int       @default(0) @map("total_penalty")
   createTime         DateTime  @default(now()) @map("create_time")
   updateTime         DateTime  @updatedAt @map("update_time")
