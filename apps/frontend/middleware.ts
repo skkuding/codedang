@@ -66,7 +66,8 @@ export const middleware = async (req: NextRequest) => {
         // for client setCookie
         maxAge: 24 * 60 * 60,
         secure:
-          process.env.APP_ENV == 'production' || process.env.APP_ENV == 'stage',
+          process.env.APP_ENV === 'production' ||
+          process.env.APP_ENV === 'stage',
         httpOnly: true,
         sameSite: 'lax'
       })
