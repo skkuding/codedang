@@ -38,8 +38,6 @@ do
   fi
 done < .env.development
 
-# Add NODE_ENV=local to .env file
-echo "NODE_ENV=local" >> .env
 # Add APP_ENV=local to .env file
 echo "APP_ENV=local" >> .env
 
