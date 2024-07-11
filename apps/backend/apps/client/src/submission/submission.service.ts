@@ -111,7 +111,18 @@ export class SubmissionService implements OnModuleInit {
     groupId = OPEN_SPACE_ID
   ) {
     const now = new Date()
-
+    await this.prisma.contest.findFirstOrThrow({
+      where: {
+        id: contestId,
+        groupId,
+        startTime: {
+          lte: now
+        },
+        endTime: {
+          gt: now
+        }
+      }
+    })
     const { contest } = await this.prisma.contestRecord.findUniqueOrThrow({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
