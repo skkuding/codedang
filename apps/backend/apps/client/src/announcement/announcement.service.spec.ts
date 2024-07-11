@@ -3,7 +3,11 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import * as chai from 'chai'
 import chaiExclude from 'chai-exclude'
-import { PrismaService, PrismaTestService } from '@libs/prisma'
+import {
+  PrismaService,
+  PrismaTestService,
+  type FlatTransactionClient
+} from '@libs/prisma'
 import { AnnouncementService } from './announcement.service'
 
 chai.use(chaiExclude)
@@ -11,6 +15,7 @@ chai.use(chaiExclude)
 describe('AnnouncementService', () => {
   let service: AnnouncementService
   let prisma: PrismaTestService
+  let transaction: FlatTransactionClient
 
   before(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -30,11 +35,13 @@ describe('AnnouncementService', () => {
   })
 
   beforeEach(async () => {
-    await prisma.startTransaction()
+    transaction = await prisma.$begin()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(service as any).prisma = transaction
   })
 
   afterEach(async () => {
-    await prisma.rollbackTransaction()
+    await transaction.$rollback()
   })
 
   after(async () => {
