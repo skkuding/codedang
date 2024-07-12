@@ -29,9 +29,9 @@ jobs:
         with:
           file: ./apps/backend/Dockerfile # build with root context
           push: true
-          build-args:
-            target: client
-            app_env: stage
+          build-args: |
+            target=client
+            app_env=stage
           tags: ghcr.io/${{ github.repository_owner }}/codedang-client-api:latest
 
   build-admin-api:
@@ -53,9 +53,9 @@ jobs:
         with:
           file: ./apps/backend/Dockerfile # build with root context
           push: true
-          build-args:
-            target: admin
-            app_env: stage
+          build-args: |
+            target=admin
+            app_env=stage
           tags: ghcr.io/${{ github.repository_owner }}/codedang-admin-api:latest
 
   build-iris:
@@ -77,8 +77,8 @@ jobs:
         with:
           push: true
           context: '{{defaultContext}}:apps/iris'
-          build-args:
-            app_env: stage
+          build-args: |
+            app_env=stage
           tags: ghcr.io/${{ github.repository_owner }}/codedang-iris:latest
 
   run-server:
