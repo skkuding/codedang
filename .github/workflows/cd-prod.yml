@@ -35,9 +35,9 @@ jobs:
         with:
           file: ./apps/backend/Dockerfile
           push: true
-          build-args:
-            target: client
-            app_env: production
+          build-args: |
+            target=client
+            app_env=production
           tags: ${{ steps.login-ecr.outputs.registry }}/codedang-client-api:latest
 
   build-admin-api:
@@ -61,9 +61,9 @@ jobs:
         with:
           file: ./apps/backend/Dockerfile
           push: true
-          build-args:
-            target: admin
-            app_env: production
+          build-args: |
+            target=admin
+            app_env=production
           tags: ${{ steps.login-ecr.outputs.registry }}/codedang-admin-api:latest
 
   build-iris:
@@ -87,8 +87,8 @@ jobs:
         with:
           push: true
           context: '{{defaultContext}}:apps/iris'
-          build-args:
-            app_env: production
+          build-args: |
+            app_env=production
           tags: ${{ steps.login-ecr.outputs.registry }}/codedang-iris:latest
 
   deploy:
