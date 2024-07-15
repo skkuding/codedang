@@ -123,11 +123,10 @@ jobs:
         working-directory: ./apps/infra/production/codedang
         run: terraform init
 
-      # TODO: plan in the other job, and reuse the plan file
       - name: Terraform Plan
         working-directory: ./apps/infra/production/codedang
-        run: terraform plan -input=false
+        run: terraform plan -input=false -out=plan.out
 
       - name: Terraform Apply
         working-directory: ./apps/infra/production/codedang
-        run: terraform apply -auto-approve -input=false
+        run: terraform apply plan.out -input=false
