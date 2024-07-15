@@ -25,11 +25,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           file: ./apps/backend/Dockerfile # build with root context
           push: true
-          build-args: 'target=client'
+          build-args: |
+            target=client
+            app_env=stage
           tags: ghcr.io/${{ github.repository_owner }}/codedang-client-api:latest
 
   build-admin-api:
@@ -47,11 +49,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           file: ./apps/backend/Dockerfile # build with root context
           push: true
-          build-args: 'target=admin'
+          build-args: |
+            target=admin
+            app_env=stage
           tags: ghcr.io/${{ github.repository_owner }}/codedang-admin-api:latest
 
   build-iris:
@@ -69,10 +73,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push iris image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: true
           context: '{{defaultContext}}:apps/iris'
+          build-args: |
+            app_env=stage
           tags: ghcr.io/${{ github.repository_owner }}/codedang-iris:latest
 
   run-server:
@@ -87,7 +93,7 @@ jobs:
           sparse-checkout: |
             docker-compose.yml
             scripts/deploy.sh
-            .env.stage
+            .env.development
             apps/infra/stage/Caddyfile
             apps/grafana-logs/promtail/promtail-config.yml
 
@@ -143,8 +149,8 @@ jobs:
 
       - name: Run Bruno Collection (Client)
         working-directory: ./collection/client
-        run: bru run --env stage
+        run: bru run --env Stage
 
       - name: Run Bruno Collection (Admin)
         working-directory: ./collection/admin
-        run: bru run --env stage
+        run: bru run --env Stage
