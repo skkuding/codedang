@@ -77,6 +77,7 @@ const mockContest: Contest = {
   endTime: new Date(),
   isVisible: true,
   isRankVisible: true,
+  enableCopyPaste: true,
   createTime: new Date(),
   updateTime: new Date()
 }
