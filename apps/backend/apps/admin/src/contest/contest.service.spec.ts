@@ -37,6 +37,7 @@ const contest: Contest = {
   endTime,
   isVisible: true,
   isRankVisible: true,
+  enableCopyPaste: true,
   createTime,
   updateTime
 }
@@ -51,6 +52,7 @@ const contestWithCount = {
   endTime,
   isVisible: true,
   isRankVisible: true,
+  enableCopyPaste: true,
   createTime,
   updateTime,
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -69,6 +71,7 @@ const contestWithParticipants: ContestWithParticipants = {
   endTime,
   isVisible: true,
   isRankVisible: true,
+  enableCopyPaste: true,
   createTime,
   updateTime,
   participants: 10
@@ -139,7 +142,8 @@ const input = {
   startTime: faker.date.past(),
   endTime: faker.date.future(),
   isVisible: false,
-  isRankVisible: false
+  isRankVisible: false,
+  enableCopyPaste: true
 } satisfies CreateContestInput
 
 const updateInput = {
@@ -149,7 +153,8 @@ const updateInput = {
   startTime: faker.date.past(),
   endTime: faker.date.future(),
   isVisible: false,
-  isRankVisible: false
+  isRankVisible: false,
+  enableCopyPaste: false
 } satisfies UpdateContestInput
 
 const db = {

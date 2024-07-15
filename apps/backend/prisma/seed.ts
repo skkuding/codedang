@@ -1021,7 +1021,8 @@ const createContests = async () => {
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        enableCopyPaste: true
       }
     },
     {
@@ -1033,7 +1034,8 @@ const createContests = async () => {
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        enableCopyPaste: true
       }
     },
     {
@@ -1045,7 +1047,8 @@ const createContests = async () => {
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        enableCopyPaste: true
       }
     },
     {
@@ -1057,7 +1060,8 @@ const createContests = async () => {
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        enableCopyPaste: true
       }
     },
     {
@@ -1069,7 +1073,8 @@ const createContests = async () => {
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        enableCopyPaste: true
       }
     },
     // Finished Contests
@@ -1082,7 +1087,8 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: false
+        isRankVisible: false,
+        enableCopyPaste: true
       }
     },
     {
@@ -1094,7 +1100,8 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        enableCopyPaste: true
       }
     },
     {
@@ -1106,7 +1113,8 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: false
+        isRankVisible: false,
+        enableCopyPaste: true
       }
     },
     {
@@ -1118,7 +1126,8 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: false
+        isRankVisible: false,
+        enableCopyPaste: true
       }
     },
     {
@@ -1130,7 +1139,8 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: false
+        isRankVisible: false,
+        enableCopyPaste: true
       }
     },
     {
@@ -1142,7 +1152,8 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: false
+        isRankVisible: false,
+        enableCopyPaste: true
       }
     },
     {
@@ -1154,7 +1165,8 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: false
+        isRankVisible: false,
+        enableCopyPaste: true
       }
     },
     {
@@ -1166,7 +1178,8 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: false
+        isRankVisible: false,
+        enableCopyPaste: true
       }
     },
     {
@@ -1178,7 +1191,8 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        enableCopyPaste: true
       }
     },
     // Upcoming Contests
@@ -1191,7 +1205,8 @@ const createContests = async () => {
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        enableCopyPaste: true
       }
     },
     {
@@ -1203,7 +1218,8 @@ const createContests = async () => {
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        enableCopyPaste: true
       }
     },
     {
@@ -1216,7 +1232,8 @@ const createContests = async () => {
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: false,
-        isRankVisible: true
+        isRankVisible: true,
+        enableCopyPaste: true
       }
     },
     {
@@ -1228,7 +1245,8 @@ const createContests = async () => {
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        enableCopyPaste: true
       }
     }
   ]
