@@ -10,27 +10,27 @@ variable "rabbitmq_port" {
 }
 
 # TODO: description 넣고 공통부분은 object로 처리
-variable "public_subnet1" {}
-variable "public_subnet2" {}
-variable "database_url" {}
-variable "redis_host" {}
-variable "redis_port" {}
-variable "jwt_secret" {}
-variable "rabbitmq_host" {}
-variable "rabbitmq_password" {}
-variable "rabbitmq_vhost" {}
-variable "rabbitmq_api_url" {}
-variable "github_client_id" {}
-variable "github_client_secret" {}
-variable "kakao_client_id" {}
-variable "kakao_client_secret" {}
-variable "otel_exporter_otlp_endpoint_url" {}
-variable "loki_url" {}
+variable "public_subnet1" { sensitive = true }
+variable "public_subnet2" { sensitive = true }
+variable "database_url" { sensitive = true }
+variable "redis_host" { sensitive = true }
+variable "redis_port" { sensitive = true }
+variable "jwt_secret" { sensitive = true }
+variable "rabbitmq_host" { sensitive = true }
+variable "rabbitmq_password" { sensitive = true }
+variable "rabbitmq_vhost" { sensitive = true }
+variable "rabbitmq_api_url" { sensitive = true }
+variable "github_client_id" { sensitive = true }
+variable "github_client_secret" { sensitive = true }
+variable "kakao_client_id" { sensitive = true }
+variable "kakao_client_secret" { sensitive = true }
+variable "otel_exporter_otlp_endpoint_url" { sensitive = true }
+variable "loki_url" { sensitive = true }
 
-variable "testcase_bucket_name" { default = "" }
-variable "testcase_access_key" { default = "" }
-variable "testcase_secret_key" { default = "" }
-variable "testcase_bucket_arn" { default = "" }
-variable "media_bucket_name" { default = "" }
-variable "media_access_key" { default = "" }
-variable "media_secret_key" { default = "" }
+variable "testcase_bucket_name" { sensitive = true }
+variable "testcase_access_key" { sensitive = true }
+variable "testcase_secret_key" { sensitive = true }
+variable "testcase_bucket_arn" { sensitive = true }
+variable "media_bucket_name" { sensitive = true }
+variable "media_access_key" { sensitive = true }
+variable "media_secret_key" { sensitive = true }
