@@ -1,5 +1,5 @@
 module "codedang_api" {
-  source = "../modules/cluster_autoscaling"
+  source = "./modules/cluster_autoscaling"
 
   launch_template = {
     name                      = "Codedang-LaunchTemplate-Api"
@@ -23,16 +23,16 @@ module "codedang_api" {
   ecs_capacity_provider_name = "codedang-api-capacity-provider"
 
   subnets = {
-    private_client_api1 = {
+    private_api1 = {
       cidr_block        = "10.0.1.0/24"
       availability_zone = "ap-northeast-2a"
-      tags_name         = "Codedang-Clinet-Api-Subnet1"
+      tags_name         = "Codedang-Api-Subnet1"
     }
 
-    private_client_api2 = {
+    private_api2 = {
       cidr_block        = "10.0.2.0/24"
       availability_zone = "ap-northeast-2c"
-      tags_name         = "Codedang-Clinet-Api-Subnet2"
+      tags_name         = "Codedang-Api-Subnet2"
     }
   }
 

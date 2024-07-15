@@ -3,7 +3,7 @@ data "aws_ecr_repository" "client_api" {
 }
 
 module "client_api_loadbalancer" {
-  source = "../modules/loadbalancing"
+  source = "./modules/loadbalancing"
 
   lb = {
     name = "Codedang-Client-Api-LB"
@@ -25,7 +25,7 @@ module "client_api_loadbalancer" {
 }
 
 module "client_api" {
-  source = "../modules/service_autoscaling"
+  source = "./modules/service_autoscaling"
 
   #TODO
   task_definition = {

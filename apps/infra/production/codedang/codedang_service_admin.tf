@@ -3,7 +3,7 @@ data "aws_ecr_repository" "admin_api" {
 }
 
 module "admin_api_loadbalancer" {
-  source = "../modules/loadbalancing"
+  source = "./modules/loadbalancing"
 
   lb = {
     name = "Codedang-Admin-Api-LB"
@@ -25,7 +25,7 @@ module "admin_api_loadbalancer" {
 }
 
 module "admin_api" {
-  source = "../modules/service_autoscaling"
+  source = "./modules/service_autoscaling"
 
   #TODO
   task_definition = {

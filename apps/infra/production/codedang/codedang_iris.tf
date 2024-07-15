@@ -1,6 +1,6 @@
 
 module "codedang_iris" {
-  source = "../modules/cluster_autoscaling"
+  source = "./modules/cluster_autoscaling"
 
   launch_template = {
     name                      = "Codedang-LaunchTemplate-Iris"

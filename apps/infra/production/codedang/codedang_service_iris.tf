@@ -3,7 +3,7 @@ data "aws_ecr_repository" "iris" {
 }
 
 module "iris" {
-  source = "../modules/service_autoscaling"
+  source = "./modules/service_autoscaling"
 
   #TODO
   task_definition = {
