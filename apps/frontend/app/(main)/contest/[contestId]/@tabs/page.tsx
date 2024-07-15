@@ -4,6 +4,7 @@ import { sanitize } from 'isomorphic-dompurify'
 import RegisterButton from './_components/RegisterButton'
 
 interface ContestTop {
+  title: string
   description: string
   startTime: string
   endTime: string
@@ -45,6 +46,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
             id={contestId}
             registered={data.isRegistered}
             state={state}
+            title={data.title}
           />
         </div>
       )}

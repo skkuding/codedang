@@ -1,6 +1,14 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { fetcherWithAuth } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -18,11 +26,13 @@ const getFirstProblemId = async (contestId: string) => {
 export default function RegisterButton({
   id,
   registered,
-  state
+  state,
+  title
 }: {
   id: string
   registered: boolean
   state: string
+  title: string
 }) {
   const [firstProblemId, setFirstProblemId] = useState('')
   const buttonColor = registered ? 'bg-secondary' : 'bg-primary'
@@ -60,32 +70,17 @@ export default function RegisterButton({
   }, [registered])
   return (
     <>
-      {state === 'Upcoming' ? (
-        <Button
-          className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
-          onClick={() => {
-            if (registered) {
-              clickDeregister(id)
-              toast.success('Deregistered Upcoming test successfully')
-            } else {
-              clickRegister(id)
-              toast.success('Registered Upcoming test successfully')
-            }
-          }}
-        >
-          {registered ? 'Deregister' : 'Register'}
-        </Button>
-      ) : (
+      {registered ? (
         <>
-          {!registered ? (
+          {state === 'Upcoming' ? (
             <Button
               className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
               onClick={() => {
-                clickRegister(id)
-                toast.success('Registered Ongoing test successfully')
+                clickDeregister(id)
+                toast.success('Deregistered Upcoming test successfully')
               }}
             >
-              Register
+              Deregister
             </Button>
           ) : (
             <>
@@ -102,6 +97,39 @@ export default function RegisterButton({
             </>
           )}
         </>
+      ) : (
+        <Dialog>
+          <DialogTrigger>
+            <Button
+              className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
+            >
+              Register Now
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="flex w-[416px] flex-col gap-8 p-10">
+            <DialogHeader>
+              <DialogTitle className="line-clamp-2 text-xl">
+                {title}
+              </DialogTitle>
+            </DialogHeader>
+            <Input
+              placeholder="Register Code"
+              type="number"
+              className="h-12 w-full [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            />
+            <div className="flex justify-center">
+              <Button
+                onClick={() => {
+                  clickRegister(id)
+                  toast.success(`Registered ${state} test successfully`)
+                }}
+                className="w-24"
+              >
+                Register
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </>
   )
