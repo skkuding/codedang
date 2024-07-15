@@ -13,7 +13,6 @@ permissions: # permissions to the job (for the OpenID Connection)
 
 jobs:
   # TODO: trigger Amplify deployment
-
   build-client-api:
     name: Build client-api image
     runs-on: ubuntu-latest
