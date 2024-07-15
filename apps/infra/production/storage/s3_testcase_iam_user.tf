@@ -1,6 +1,9 @@
 # TODO: do not create IAM user, use EC2 instance profile instead
 resource "aws_iam_user" "testcase" {
   name = "user-codedang-testcase"
+  tags = {
+    Description = "Testcase 버킷 사용 IAM User"
+  }
 }
 
 data "aws_iam_policy_document" "testcase_get_put_delete_object" {

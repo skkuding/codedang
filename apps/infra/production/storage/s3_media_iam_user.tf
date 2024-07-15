@@ -1,5 +1,8 @@
 resource "aws_iam_user" "media" {
   name = "user-codedang-media"
+  tags = {
+    Description = "Media 버킷 사용 IAM User"
+  }
 }
 
 data "aws_iam_policy_document" "media_get_put_delete_object" {
