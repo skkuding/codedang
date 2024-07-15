@@ -39,6 +39,8 @@ export class UpdateContestInput {
   description?: string
 
   @Field(() => String, { nullable: true })
+  @IsNumberString()
+  @Length(6, 6)
   invitationCode?: string
 
   @Field(() => GraphQLISODateTime, { nullable: true })
