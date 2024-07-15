@@ -2,6 +2,10 @@
 
 Project for Network
 
+코드당 인프라의 네트워크의 설정을 담은 프로젝트로 route53, cloudfront, subnet, nat 등을 관리합니다.
+public network의 경우에는 본 프로젝트에서 관리하고, private network의 경우에는 각 리소스를 사용하는 서비스(프로젝트)에서 생성 및 사용하고, 본 프로젝트에서는 route table만 관리합니다. 
+
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
