@@ -278,7 +278,7 @@ model Contest {
   endTime         DateTime @map("end_time")
   isVisible       Boolean  @default(true) @map("is_visible")
   isRankVisible   Boolean  @default(true) @map("is_rank_visible")
-  enableCopyPaste Boolean  @map("enable_copy_paste")
+  enableCopyPaste Boolean  @default(true) @map("enable_copy_paste") // 이 Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다.
   createTime      DateTime @default(now()) @map("create_time")
   updateTime      DateTime @updatedAt @map("update_time")
 
