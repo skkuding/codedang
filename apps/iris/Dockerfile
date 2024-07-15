@@ -1,4 +1,6 @@
 ### BUILDER ###
+ARG app_env=production
+
 FROM golang:1.22 AS builder
 
 COPY . /build
@@ -8,6 +10,10 @@ RUN go build
 
 ### SERVER ###
 FROM ubuntu:24.04
+ARG app_env
+
+
+ENV APP_ENV=${app_env}
 
 COPY --from=builder /build/iris .
 
