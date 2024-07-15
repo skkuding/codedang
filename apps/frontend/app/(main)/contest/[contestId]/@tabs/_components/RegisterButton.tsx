@@ -9,10 +9,17 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { fetcherWithAuth } from '@/lib/utils'
+import { cn, fetcherWithAuth } from '@/lib/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
+import { useForm } from 'react-hook-form'
+// import { toast } from 'sonner'
+import { z } from 'zod'
+
+interface RegisterCodeInput {
+  invitationCode: string
+}
 
 const getFirstProblemId = async (contestId: string) => {
   const { problems }: { problems: { id: string }[] } = await fetcherWithAuth
@@ -22,6 +29,10 @@ const getFirstProblemId = async (contestId: string) => {
     .json()
   return problems?.at(0)?.id
 }
+
+const schema = z.object({
+  invitationCode: z.string().min(6)
+})
 
 export default function RegisterButton({
   id,
@@ -35,44 +46,64 @@ export default function RegisterButton({
   title: string
 }) {
   const [firstProblemId, setFirstProblemId] = useState('')
-  const buttonColor = registered ? 'bg-secondary' : 'bg-primary'
+  // const buttonColor = registered ? 'bg-secondary' : 'bg-primary'
   const router = useRouter()
-  const clickRegister = async (contestId: string) => {
-    await fetcherWithAuth
-      .post(`contest/${contestId}/participation`, {
-        searchParams: { groupId: 1 }
-      })
-      .then((res) => {
-        res.json()
-        router.refresh()
-      })
-      .catch((err) => console.log(err))
-  }
-  const clickDeregister = async (contestId: string) => {
-    await fetcherWithAuth
-      .delete(`contest/${contestId}/participation`, {
-        searchParams: { groupId: 1 }
-      })
-      .then((res) => {
-        res.json()
-        router.refresh()
-      })
-      .catch((err) => console.log(err))
-  }
+  // const clickRegister = async (contestId: string) => {
+  //   await fetcherWithAuth
+  //     .post(`contest/${contestId}/participation`, {
+  //       searchParams: { groupId: 1 }
+  //     })
+  //     .then((res) => {
+  //       res.json()
+  //       router.refresh()
+  //     })
+  //     .catch((err) => console.log(err))
+  // }
+  // const clickDeregister = async (contestId: string) => {
+  //   await fetcherWithAuth
+  //     .delete(`contest/${contestId}/participation`, {
+  //       searchParams: { groupId: 1 }
+  //     })
+  //     .then((res) => {
+  //       res.json()
+  //       router.refresh()
+  //     })
+  //     .catch((err) => console.log(err))
+  // }
 
   useEffect(() => {
     async function fetchFirstProblemId() {
-      const firstId =
-        registered && state === 'Ongoing' ? await getFirstProblemId(id) : ''
-      firstId && setFirstProblemId(firstId)
+      if (registered && state === 'Ongoing') {
+        const firstId = await getFirstProblemId(id)
+        setFirstProblemId(firstId ?? '')
+      } else {
+        setFirstProblemId('')
+      }
     }
     fetchFirstProblemId()
-  }, [registered])
+  }, [registered, state, id])
+
+  const {
+    handleSubmit,
+    register,
+    trigger,
+    formState: { errors }
+  } = useForm<RegisterCodeInput>({
+    resolver: zodResolver(schema)
+  })
+
+  // TODO: change to async function
+  const onSubmit = (data: RegisterCodeInput) => {
+    console.log(data)
+    // clickRegister(id)
+    // toast.success(`Registered ${state} test successfully`)
+  }
+
   return (
     <>
       {registered ? (
         <>
-          {state === 'Upcoming' ? (
+          {/* {state === 'Upcoming' ? (
             <Button
               className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
               onClick={() => {
@@ -83,52 +114,62 @@ export default function RegisterButton({
               Deregister
             </Button>
           ) : (
-            <>
-              {firstProblemId && (
-                <Button
-                  className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
-                  onClick={() =>
-                    router.push(`/contest/${id}/problem/${firstProblemId}`)
-                  }
-                >
-                  Go To First Problem!
-                </Button>
-              )}
-            </>
+            <> */}
+          {firstProblemId && (
+            <Button
+              className="px-12 py-6 text-lg font-light"
+              onClick={() =>
+                router.push(`/contest/${id}/problem/${firstProblemId}`)
+              }
+            >
+              Go To First Problem!
+            </Button>
           )}
+          {/* </>
+          )} */}
         </>
       ) : (
         <Dialog>
-          <DialogTrigger>
+          <DialogTrigger disabled={state === 'Upcoming'} asChild>
             <Button
-              className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
+              className="px-12 py-6 text-lg disabled:bg-gray-300 disabled:text-gray-600"
+              disabled={state === 'Upcoming'}
             >
               Register Now
             </Button>
           </DialogTrigger>
-          <DialogContent className="flex w-[416px] flex-col gap-8 p-10">
-            <DialogHeader>
-              <DialogTitle className="line-clamp-2 text-xl">
-                {title}
-              </DialogTitle>
-            </DialogHeader>
-            <Input
-              placeholder="Register Code"
-              type="number"
-              className="h-12 w-full [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-            />
-            <div className="flex justify-center">
-              <Button
-                onClick={() => {
-                  clickRegister(id)
-                  toast.success(`Registered ${state} test successfully`)
-                }}
-                className="w-24"
-              >
-                Register
-              </Button>
-            </div>
-          </DialogContent>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <DialogContent className="flex w-[416px] flex-col gap-6 p-10">
+              <DialogHeader>
+                <DialogTitle className="line-clamp-2 text-xl">
+                  {title}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="flex flex-col gap-1 pt-2">
+                <Input
+                  placeholder="Register Code"
+                  {...register('invitationCode', {
+                    onChange: () => trigger('invitationCode')
+                  })}
+                  type="number"
+                  className={cn(
+                    'h-12 w-full [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+                    errors.invitationCode &&
+                      'border-red-500 focus-visible:ring-red-500'
+                  )}
+                />
+                {errors.invitationCode && (
+                  <p className="text-xs text-red-500">Incorrect</p>
+                )}
+              </div>
+
+              <div className="flex justify-center">
+                <Button type="submit" className="w-24">
+                  Register
+                </Button>
+              </div>
+            </DialogContent>
+          </form>
         </Dialog>
       )}
     </>
