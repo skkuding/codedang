@@ -357,6 +357,7 @@ export const exampleContest: Contest = {
   createdById: 1,
   isVisible: true,
   isRankVisible: true,
+  enableCopyPaste: true,
   startTime: new Date(),
   endTime: new Date(),
   createTime: new Date(),
