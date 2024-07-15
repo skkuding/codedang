@@ -1,5 +1,5 @@
 provider "aws" {
-  alias  = "us-east-1"
+  alias  = "us_east_1"
   region = "us-east-1"
 }
 
@@ -22,7 +22,7 @@ resource "aws_route53_record" "codedang" {
 resource "aws_acm_certificate" "codedang" {
   domain_name       = "codedang.com"
   validation_method = "DNS"
-  provider          = aws.us-east-1
+  provider          = aws.us_east_1
 }
 
 resource "aws_route53_record" "certificate" {
@@ -44,7 +44,7 @@ resource "aws_route53_record" "certificate" {
 }
 
 resource "aws_acm_certificate_validation" "for_all_domains" {
-  provider        = aws.us-east-1
+  provider        = aws.us_east_1
   certificate_arn = aws_acm_certificate.codedang.arn
   validation_record_fqdns = [
     for record in aws_route53_record.certificate : record.fqdn
