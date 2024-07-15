@@ -31,18 +31,9 @@ body:json {
 }
 
 assert {
-  res.body.id: isNumber
-  res.body.userId: isNumber
-  res.body.problemId: isNumber
-  res.body.contestId: isNumber
-  res.body.workbookId: isNull
-  res.body.code: isArray
-  res.body.code[0]: isJson
-  res.body.codeSize: isNumber
-  res.body.language: isString
-  res.body.result: isString
-  res.body.createTime: isString
-  res.body.updateTime: isString
+  res.body.message: eq "No Contest found"
+  res.body.error: eq "Not Found"
+  res.body.statusCode: eq 404
 }
 
 script:pre-request {
@@ -50,9 +41,9 @@ script:pre-request {
 }
 
 docs {
-  ## Create Submission (WA)
+  ## 404: No Contest found
   
-  `Contest`에 WA 판정을 받는 코드를 제출하여, 채점 요청을 보냅니다.
+  존재하지 `Contest`에 Submission을 제출합니다.
   
   ### Query
   
