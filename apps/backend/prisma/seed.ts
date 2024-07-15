@@ -982,28 +982,18 @@ const createProblems = async () => {
 
 const createContests = async () => {
   const contestData: {
-    data:
-      | {
-          title: string
-          description: string
-          createdById: number
-          groupId: number
-          startTime: Date
-          endTime: Date
-          isVisible: boolean
-          isRankVisible: boolean
-          invitationCode: string
-        }
-      | {
-          title: string
-          description: string
-          createdById: number
-          groupId: number
-          startTime: Date
-          endTime: Date
-          isVisible: boolean
-          isRankVisible: boolean
-        }
+    data: {
+      title: string
+      description: string
+      createdById: number
+      groupId: number
+      startTime: Date
+      endTime: Date
+      isVisible: boolean
+      isRankVisible: boolean
+      invitationCode: string | null
+      enableCopyPaste: boolean
+    }
   }[] = [
     // Ongoing Contests
     {
@@ -1059,6 +1049,7 @@ const createContests = async () => {
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
+        invitationCode: null,
         enableCopyPaste: true
       }
     },
@@ -1086,6 +1077,7 @@ const createContests = async () => {
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
+        invitationCode: null,
         enableCopyPaste: true
       }
     },
@@ -1099,6 +1091,7 @@ const createContests = async () => {
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
+        invitationCode: null,
         enableCopyPaste: true
       }
     },
@@ -1211,6 +1204,7 @@ const createContests = async () => {
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
+        invitationCode: null,
         enableCopyPaste: true
       }
     },
@@ -1224,6 +1218,7 @@ const createContests = async () => {
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
+        invitationCode: null,
         enableCopyPaste: true
       }
     },
@@ -1281,6 +1276,7 @@ const createContests = async () => {
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
+        invitationCode: null,
         enableCopyPaste: true
       }
     }
