@@ -55,7 +55,7 @@ jobs:
 
       - name: Terraform Apply
         working-directory: ./apps/infra/production/${{ github.event.inputs.terraform_project }}
-        run: terraform apply plan.out -input=false
+        run: terraform apply -input=false plan.out
 
   deploy-terraform-codedang:
     name: Deploy Terraform Codedang Project
@@ -100,4 +100,4 @@ jobs:
 
       - name: Terraform Apply
         working-directory: ./apps/infra/production/codedang
-        run: terraform apply plan.out -input=false
+        run: terraform apply -input=false plan.out

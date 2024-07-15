@@ -135,4 +135,4 @@ jobs:
 
       - name: Terraform Apply
         working-directory: ./apps/infra/production/codedang
-        run: terraform apply plan.out -input=false
+        run: terraform apply -input=false plan.out
