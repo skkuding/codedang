@@ -2,6 +2,8 @@
 
 Project for Storage
 
+DB, Redis, S3 버킷들을 관리하는 프로젝트입니다. 
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
