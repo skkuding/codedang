@@ -3,7 +3,13 @@ import { NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
-import { Language, ResultStatus, Role, type User } from '@prisma/client'
+import {
+  Language,
+  ResultStatus,
+  Role,
+  type Contest,
+  type User
+} from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
@@ -38,6 +44,9 @@ const db = {
     findUnique: stub(),
     update: stub()
   },
+  contest: {
+    findFirstOrThrow: stub()
+  },
   contestProblem: {
     findUniqueOrThrow: stub(),
     findFirstOrThrow: stub()
@@ -58,6 +67,19 @@ const db = {
 
 const CONTEST_ID = 1
 const WORKBOOK_ID = 1
+const mockContest: Contest = {
+  id: CONTEST_ID,
+  createdById: 1,
+  groupId: 1,
+  title: 'SKKU Coding Platform 모의대회',
+  description: 'test',
+  startTime: new Date(),
+  endTime: new Date(),
+  isVisible: true,
+  isRankVisible: true,
+  createTime: new Date(),
+  updateTime: new Date()
+}
 
 describe('SubmissionService', () => {
   let service: SubmissionService
@@ -122,6 +144,7 @@ describe('SubmissionService', () => {
   describe('submitToContest', () => {
     it('should call createSubmission', async () => {
       const createSpy = stub(service, 'createSubmission')
+      db.contest.findFirstOrThrow(mockContest)
       db.contestRecord.findUniqueOrThrow.resolves({
         contest: {
           groupId: 1,
