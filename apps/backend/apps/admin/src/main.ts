@@ -7,7 +7,7 @@ import tracer from './tracer'
 
 const bootstrap = async () => {
   // otel instrumentation
-  if (process.env.NODE_ENV == 'production') {
+  if (process.env.APP_ENV == 'production' || process.env.APP_ENV == 'stage') {
     if (
       process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL == undefined ||
       process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL == ''

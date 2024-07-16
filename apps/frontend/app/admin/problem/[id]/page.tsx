@@ -79,6 +79,7 @@ export default function Page({ params }: { params: { id: string } }) {
           </Link>
         </div>
         {katexContent}
+
         <p className="text-xl font-bold">Submission</p>
         <DataTable
           data={items ?? []}
