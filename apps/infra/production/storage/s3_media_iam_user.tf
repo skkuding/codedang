@@ -1,20 +1,21 @@
-# TODO: ECS쪽에 추가하기!!!!
-# user for admin api
 resource "aws_iam_user" "media" {
   name = "user-codedang-media"
+  tags = {
+    Description = "Media 버킷 사용 IAM User"
+  }
 }
 
-data "aws_iam_policy_document" "media_s3" {
+data "aws_iam_policy_document" "media_get_put_delete_object" {
   statement {
     actions   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"]
     resources = ["${aws_s3_bucket.media.arn}/*"]
   }
 }
 
-resource "aws_iam_user_policy" "media_s3" {
+resource "aws_iam_user_policy" "media" {
   name   = "codedang-media-s3"
   user   = aws_iam_user.media.name
-  policy = data.aws_iam_policy_document.media_s3.json
+  policy = data.aws_iam_policy_document.media_get_put_delete_object.json
 }
 
 resource "aws_iam_access_key" "media" {
