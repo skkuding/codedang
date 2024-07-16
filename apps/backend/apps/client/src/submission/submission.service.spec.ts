@@ -3,7 +3,7 @@ import { NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
-import { Language, ResultStatus } from '@prisma/client'
+import { Language, ResultStatus, Role, type User } from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
@@ -47,6 +47,10 @@ const db = {
   },
   contestRecord: {
     findUniqueOrThrow: stub()
+  },
+  user: {
+    findFirstOrThrow: stub(),
+    findFirst: stub()
   },
   getPaginator: PrismaService.prototype.getPaginator
 }
@@ -340,12 +344,18 @@ describe('SubmissionService', () => {
         user: { username: 'username' },
         submissionResult: submissionResults
       })
+      db.user.findFirstOrThrow.resolves({
+        username: 'username',
+        id: submissions[0].userId,
+        role: Role.User
+      })
 
       expect(
         await service.getSubmission(
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
+          Role.User,
           undefined,
           null
         )
@@ -371,6 +381,7 @@ describe('SubmissionService', () => {
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
+          Role.User,
           undefined,
           null
         )
@@ -388,6 +399,7 @@ describe('SubmissionService', () => {
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
+          Role.User,
           undefined,
           null
         )
@@ -405,6 +417,7 @@ describe('SubmissionService', () => {
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
+          Role.User,
           undefined,
           null
         )
@@ -415,9 +428,20 @@ describe('SubmissionService', () => {
 
   describe('getContestSubmisssions', () => {
     it('should return submissions', async () => {
+      const adminUser: User = {
+        id: 1,
+        username: 'username',
+        password: '1234',
+        role: 'Admin',
+        email: 'test@test.com',
+        lastLogin: new Date(),
+        createTime: new Date(),
+        updateTime: new Date()
+      }
       db.contestRecord.findUniqueOrThrow.resolves()
       db.contestProblem.findFirstOrThrow.resolves()
       db.submission.findMany.resolves(submissions)
+      db.user.findFirst.resolves(adminUser)
 
       expect(
         await service.getContestSubmissions({
@@ -425,10 +449,11 @@ describe('SubmissionService', () => {
           contestId: 1,
           userId: submissions[0].userId
         })
-      )
+      ).to.be.deep.equal({ data: submissions, total: 1 })
     })
 
     it('should throw exception if user is not registered to contest', async () => {
+      db.user.findFirst.resolves(null)
       db.contestRecord.findUniqueOrThrow.rejects(
         new NotFoundException('No contestRecord found error')
       )

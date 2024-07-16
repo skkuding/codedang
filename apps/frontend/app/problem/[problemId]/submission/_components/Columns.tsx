@@ -13,7 +13,7 @@ export const columns: ColumnDef<SubmissionItem>[] = [
   {
     header: () => 'User ID',
     accessorKey: 'username',
-    cell: ({ row }) => row.original.user.username
+    cell: ({ row }) => row.original.user?.username ?? 'Unknown User'
   },
   {
     header: () => 'Result',

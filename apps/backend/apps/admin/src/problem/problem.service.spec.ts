@@ -83,6 +83,9 @@ const db = {
     update: stub()
   },
   $transaction: stub(),
+  image: {
+    deleteMany: stub()
+  },
   getPaginator: PrismaService.prototype.getPaginator
 }
 

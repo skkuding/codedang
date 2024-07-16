@@ -21,11 +21,11 @@ import { GET_TAGS } from '@/graphql/problem/queries'
 import { languages, levels } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { useMutation, useQuery } from '@apollo/client'
-import type { UpdateProblemInput } from '@generated/graphql'
+import type { Template, UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -99,7 +99,6 @@ export default function Page({ params }: { params: { id: string } }) {
   const { id } = params
   const [showHint, setShowHint] = useState(true)
   const [showSource, setShowSource] = useState(true)
-
   const { data: tagsData } = useQuery(GET_TAGS)
   const tags =
     tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
@@ -152,12 +151,66 @@ export default function Page({ params }: { params: { id: string } }) {
       setValue('memoryLimit', data.memoryLimit)
       setValue('hint', data.hint)
       setValue('source', data.source)
-      setValue('template', [])
+      if (data.template) {
+        const templates = JSON.parse(data.template[0])
+        templates.map((template: Template, index: number) => {
+          setValue(`template.${index}`, {
+            language: template.language,
+            code: [
+              {
+                id: template.code[0].id,
+                text: template.code[0].text,
+                locked: template.code[0].locked
+              }
+            ]
+          })
+        })
+      }
     }
   })
 
   const watchedSamples = watch('samples.create')
   const watchedTestcases = watch('testcases')
+  const watchedLanguages = watch('languages')
+
+  useEffect(() => {
+    if (watchedLanguages) {
+      const templates: Template[] = [] // temp array to store templates
+      const savedTemplates = getValues('template') // templates saved in form
+      watchedLanguages.map((language) => {
+        const temp = savedTemplates!.filter(
+          (template) => template.language === language
+        )
+        if (temp.length !== 0) {
+          templates.push(temp[0])
+        } else {
+          // push dummy template to array
+          templates.push({
+            language,
+            code: [
+              {
+                id: -1,
+                text: '',
+                locked: false
+              }
+            ]
+          })
+        }
+      })
+      templates.map((template, index) => {
+        setValue(`template.${index}`, {
+          language: template.language,
+          code: [
+            {
+              id: index,
+              text: template.code[0].text ?? '',
+              locked: false
+            }
+          ]
+        })
+      })
+    }
+  }, [watchedLanguages])
 
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
   const onSubmit = async (input: UpdateProblemInput) => {
@@ -402,17 +455,23 @@ export default function Page({ params }: { params: { id: string } }) {
               </div>
             )}
           </div>
-
           <div className="flex flex-col gap-1">
             <div className="flex justify-between">
-              <div className="flex flex-col gap-1">
+              <div className="flex w-[360px] flex-col gap-1">
                 <Label>Input Description</Label>
-                <Textarea
-                  id="inputDescription"
-                  placeholder="Enter a description..."
-                  className="min-h-[120px] w-[360px] bg-white"
-                  {...register('inputDescription')}
-                />
+                {getValues('inputDescription') && (
+                  <Controller
+                    render={({ field }) => (
+                      <TextEditor
+                        placeholder="Enter a description..."
+                        onChange={field.onChange}
+                        defaultValue={field.value as string}
+                      />
+                    )}
+                    name="inputDescription"
+                    control={control}
+                  />
+                )}
                 {errors.inputDescription && (
                   <div className="flex items-center gap-1 text-xs text-red-500">
                     <PiWarningBold />
@@ -420,14 +479,22 @@ export default function Page({ params }: { params: { id: string } }) {
                   </div>
                 )}
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex w-[360px] flex-col gap-1">
                 <Label>Output Description</Label>
-                <Textarea
-                  id="outputDescription"
-                  placeholder="Enter a description..."
-                  className="min-h-[120px] w-[360px] bg-white"
-                  {...register('outputDescription')}
-                />
+                {getValues('outputDescription') && (
+                  <Controller
+                    render={({ field }) => (
+                      <TextEditor
+                        placeholder="Enter a description..."
+                        onChange={field.onChange}
+                        defaultValue={field.value as string}
+                      />
+                    )}
+                    name="outputDescription"
+                    control={control}
+                  />
+                )}
+
                 {errors.outputDescription && (
                   <div className="flex items-center gap-1 text-xs text-red-500">
                     <PiWarningBold />
@@ -600,7 +667,25 @@ export default function Page({ params }: { params: { id: string } }) {
               />
             )}
           </div>
-
+          <div className="flex flex-col gap-6">
+            {watchedLanguages &&
+              watchedLanguages.map((language, index) => (
+                <div key={index} className="flex gap-4">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <Label required={false}>{language} Template</Label>
+                    </div>
+                    {language && (
+                      <Textarea
+                        placeholder={`Enter a ${language} template...`}
+                        className="h-[180px] w-[480px] bg-white"
+                        {...register(`template.${index}.code.0.text`)}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+          </div>
           <Button
             type="submit"
             className="flex h-[36px] w-[100px] items-center gap-2 px-0"

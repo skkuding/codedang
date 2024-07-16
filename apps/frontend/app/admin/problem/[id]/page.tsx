@@ -7,8 +7,10 @@ import { GET_PROBLEM_DETAIL } from '@/graphql/problem/queries'
 import { usePagination } from '@/lib/pagination'
 import type { SubmissionItem } from '@/types/type'
 import { useQuery } from '@apollo/client'
-import { sanitize } from 'isomorphic-dompurify'
+// import { sanitize } from 'isomorphic-dompurify'
+import katex from 'katex'
 import Link from 'next/link'
+import { useEffect, useRef, type RefObject } from 'react'
 import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
 import { columns } from './_components/Columns'
 import DataTable from './_components/DataTable'
@@ -28,6 +30,37 @@ export default function Page({ params }: { params: { id: string } }) {
     20
   )
 
+  const renderKatex = (
+    html: string | undefined,
+    katexRef: RefObject<HTMLDivElement>
+  ) => {
+    if (katexRef.current) {
+      katexRef.current.innerHTML = html ?? ''
+      const div = katexRef.current
+      div.querySelectorAll('math-component').forEach((el) => {
+        const content = el.getAttribute('content') || ''
+        const mathHtml = katex.renderToString(content, {
+          throwOnError: false,
+          strict: false,
+          globalGroup: true,
+          output: 'mathml'
+        })
+        el.outerHTML = mathHtml
+      })
+    }
+  }
+
+  const katexRef = useRef<HTMLDivElement>(null)!
+  useEffect(() => {
+    renderKatex(problemData?.description, katexRef)
+  }, [problemData?.description, katexRef])
+
+  const katexContent = (
+    <div
+      className="prose mb-12 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12"
+      ref={katexRef}
+    />
+  )
   return (
     <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
@@ -45,12 +78,8 @@ export default function Page({ params }: { params: { id: string } }) {
             </Button>
           </Link>
         </div>
-        <div
-          className="prose mb-12 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12"
-          dangerouslySetInnerHTML={{
-            __html: sanitize(problemData?.description ?? '')
-          }}
-        />
+        {katexContent}
+
         <p className="text-xl font-bold">Submission</p>
         <DataTable
           data={items ?? []}

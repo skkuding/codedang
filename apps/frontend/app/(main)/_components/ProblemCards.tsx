@@ -1,7 +1,11 @@
+'use client'
+
+import { Skeleton } from '@/components/ui/skeleton'
 import { fetcher } from '@/lib/utils'
 import type { WorkbookProblem } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import ProblemCard from './ProblemCard'
 
 interface ProblemCardsProps {
@@ -10,7 +14,7 @@ interface ProblemCardsProps {
 }
 
 const getProblems = async () => {
-  const problems: ProblemCardsProps = await fetcher
+  const problemRes: ProblemCardsProps = await fetcher
     .get('problem', {
       searchParams: {
         take: 3
@@ -19,25 +23,37 @@ const getProblems = async () => {
     })
     .json()
 
-  return problems.data
+  problemRes.data ?? console.error('4.getProblem', problemRes)
+  return problemRes.data ?? problemRes
 }
 
-export default async function ProblemCards() {
-  const problems = await getProblems()
+export default function ProblemCards() {
+  const [problems, setProblems] = useState<WorkbookProblem[]>([])
+  const [loading, setLoading] = useState(true)
+  useEffect(() => {
+    getProblems().then((res) => {
+      setProblems(res)
+      setLoading(false)
+    })
+  }, [])
 
   return (
     <>
-      {problems.map((problem) => {
-        return (
-          <Link
-            key={problem.id}
-            href={`/problem/${problem.id}` as Route}
-            className="inline-block w-full"
-          >
-            <ProblemCard problem={problem} />
-          </Link>
-        )
-      })}
+      {loading
+        ? [...Array(3)].map((_, i) => (
+            <Skeleton key={i} className="flex h-[120px] w-full rounded-xl" />
+          ))
+        : problems.map((problem) => {
+            return (
+              <Link
+                key={problem.id}
+                href={`/problem/${problem.id}` as Route}
+                className="inline-block w-full"
+              >
+                <ProblemCard problem={problem} />
+              </Link>
+            )
+          })}
     </>
   )
 }

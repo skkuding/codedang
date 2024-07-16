@@ -49,7 +49,8 @@ export class ProblemRepository {
         input: true,
         output: true
       }
-    }
+    },
+    template: true
   }
 
   private readonly codeDraftSelectOption = {
@@ -77,7 +78,7 @@ export class ProblemRepository {
 
     const orderByMapper: Record<
       ProblemOrder,
-      Prisma.ProblemOrderByWithRelationAndSearchRelevanceInput[]
+      Prisma.ProblemOrderByWithRelationInput[]
     > = {
       'id-asc': [{ id: 'asc' }],
       'id-desc': [{ id: 'desc' }],

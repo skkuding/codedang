@@ -1,0 +1,103 @@
+name: CD - Production Target
+
+on:
+  workflow_dispatch:
+    inputs:
+      terraform_project:
+        description: 'Select Terraform Project to Update'
+        required: true
+        type: choice
+        options:
+          - 'storage'
+          - 'network'
+
+permissions: # permissions to the job (for the OpenID Connection)
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-terraform-target-project:
+    name: Deploy Terraform targeted Project
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY }}
+          aws-region: ap-northeast-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.2
+
+      - name: Create Terraform variable file
+        working-directory: ./apps/infra/production/${{ github.event.inputs.terraform_project }}
+        run: |
+          echo "$TFVARS_TARGET" >> terraform.tfvars
+        env:
+          TFVARS_TARGET: ${{ secrets.TFVARS_TARGET }}
+
+      - name: Terraform Init
+        working-directory: ./apps/infra/production/${{ github.event.inputs.terraform_project }}
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: ./apps/infra/production/${{ github.event.inputs.terraform_project }}
+        run: terraform plan -input=false -out=plan.out
+
+      - name: Terraform Apply
+        working-directory: ./apps/infra/production/${{ github.event.inputs.terraform_project }}
+        run: terraform apply -input=false plan.out
+
+  deploy-terraform-codedang:
+    name: Deploy Terraform Codedang Project
+    runs-on: ubuntu-latest
+    needs: [deploy-terraform-target-project]
+    environment: production
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY }}
+          aws-region: ap-northeast-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.2
+      - name: Create Terraform variable file
+        working-directory: ./apps/infra/production/codedang
+        run: |
+          echo "$TFVARS" >> terraform.tfvars
+          echo "$OAUTH_GITHUB" >> terraform.tfvars
+          echo "$OAUTH_KAKAO" >> terraform.tfvars
+        env:
+          TFVARS: ${{ secrets.TFVARS }}
+          OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
+          OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
+
+      - name: Terraform Init
+        working-directory: ./apps/infra/production/codedang
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: ./apps/infra/production/codedang
+        run: terraform plan -input=false -out=plan.out
+
+      - name: Terraform Apply
+        working-directory: ./apps/infra/production/codedang
+        run: terraform apply -input=false plan.out

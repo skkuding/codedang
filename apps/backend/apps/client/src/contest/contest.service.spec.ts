@@ -13,7 +13,11 @@ import {
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
-import { PrismaService } from '@libs/prisma'
+import {
+  PrismaService,
+  PrismaTestService,
+  type FlatTransactionClient
+} from '@libs/prisma'
 import { ContestService, type ContestResult } from './contest.service'
 
 const contestId = 1
@@ -32,12 +36,14 @@ const contest = {
   endTime: now.add(1, 'day').toDate(),
   isVisible: true,
   isRankVisible: true,
+  enableCopyPaste: true,
   createTime: now.add(-1, 'day').toDate(),
   updateTime: now.add(-1, 'day').toDate(),
   group: {
     id: groupId,
     groupName: 'group'
-  }
+  },
+  invitationCode: '123456'
 } satisfies Contest & {
   group: Partial<Group>
 }
@@ -83,13 +89,38 @@ const contests = [
 
 describe('ContestService', () => {
   let service: ContestService
-  let prisma: PrismaService
-  beforeEach(async () => {
+  let prisma: PrismaTestService
+  let transaction: FlatTransactionClient
+
+  before(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ContestService, PrismaService, ConfigService]
+      providers: [
+        ContestService,
+        PrismaTestService,
+        {
+          provide: PrismaService,
+          useExisting: PrismaTestService
+        },
+        ConfigService
+      ]
     }).compile()
+
     service = module.get<ContestService>(ContestService)
-    prisma = module.get<PrismaService>(PrismaService)
+    prisma = module.get<PrismaTestService>(PrismaTestService)
+  })
+
+  beforeEach(async () => {
+    transaction = await prisma.$begin()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(service as any).prisma = transaction
+  })
+
+  afterEach(async () => {
+    await transaction.$rollback()
+  })
+
+  after(async () => {
+    await prisma.$disconnect()
   })
 
   it('should be defined', () => {
@@ -300,38 +331,42 @@ describe('ContestService', () => {
 
   describe('createContestRecord', () => {
     let contestRecordId = -1
+    const invitationCode = '123456'
+    const invalidInvitationCode = '000000'
 
-    after(async () => {
-      await prisma.contestRecord.delete({
-        where: {
-          id: contestRecordId
-        }
-      })
+    it('should throw error when the invitation code does not match', async () => {
+      await expect(
+        service.createContestRecord(1, user01Id, invalidInvitationCode)
+      ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should throw error when the contest does not exist', async () => {
       await expect(
-        service.createContestRecord(999, user01Id)
+        service.createContestRecord(999, user01Id, invitationCode)
       ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
     })
 
     it('should throw error when user is participated in contest again', async () => {
       await expect(
-        service.createContestRecord(contestId, user01Id)
+        service.createContestRecord(contestId, user01Id, invitationCode)
       ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should throw error when contest is not ongoing', async () => {
-      await expect(service.createContestRecord(8, user01Id)).to.be.rejectedWith(
-        ConflictFoundException
-      )
+      await expect(
+        service.createContestRecord(8, user01Id, invitationCode)
+      ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should register to a contest successfully', async () => {
-      const contestRecord = await service.createContestRecord(2, user01Id)
+      const contestRecord = await service.createContestRecord(
+        2,
+        user01Id,
+        invitationCode
+      )
       contestRecordId = contestRecord.id
       expect(
-        await prisma.contestRecord.findUnique({
+        await transaction.contestRecord.findUnique({
           where: { id: contestRecordId }
         })
       ).to.deep.equals(contestRecord)
@@ -343,7 +378,7 @@ describe('ContestService', () => {
 
     afterEach(async () => {
       try {
-        await prisma.contestRecord.delete({
+        await transaction.contestRecord.delete({
           where: { id: contestRecord.id }
         })
       } catch (error) {
@@ -360,7 +395,7 @@ describe('ContestService', () => {
 
     it('should return deleted contest record', async () => {
       const newlyRegisteringContestId = 16
-      contestRecord = await prisma.contestRecord.create({
+      contestRecord = await transaction.contestRecord.create({
         data: {
           contestId: newlyRegisteringContestId,
           userId: user01Id,
