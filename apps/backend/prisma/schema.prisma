@@ -274,6 +274,7 @@ model Contest {
   groupId         Int      @map("group_id")
   title           String
   description     String
+  invitationCode  String?  @map("invitation_code")
   startTime       DateTime @map("start_time")
   endTime         DateTime @map("end_time")
   isVisible       Boolean  @default(true) @map("is_visible")

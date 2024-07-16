@@ -5,13 +5,14 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/contest/2/participation?groupId=1
+  url: {{baseUrl}}/contest/2/participation?groupId=1&invitationCode=123456
   body: none
   auth: none
 }
 
 query {
   groupId: 1
+  invitationCode: 123456
 }
 
 assert {
