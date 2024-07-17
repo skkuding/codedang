@@ -1,7 +1,7 @@
 resource "aws_iam_user" "media" {
   name = "user-codedang-media"
   tags = {
-    Description = "Media 버킷 사용 IAM User"
+    Description = "Admin에서 사용하는 Media 버킷 접속용 IAM User"
   }
 }
 
