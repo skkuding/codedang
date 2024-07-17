@@ -5,7 +5,7 @@ const commonSchema = z.object({
   title: z.string().min(1, { message: 'required' }).max(200),
   isVisible: z.boolean(),
   difficulty: z.enum(levels),
-  languages: z.array(z.enum(languages)),
+  languages: z.array(z.enum(languages)).min(1),
   description: z
     .string()
     .min(1)
