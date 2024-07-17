@@ -9,7 +9,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CodeContext, createCodeStore, useLanguageStore } from '@/stores/editor'
-import type { Language, ProblemDetail } from '@/types/type'
+import type { Language, ProblemDetail, Template } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -90,8 +90,14 @@ export default function EditorMainResizablePanel({
       <ResizablePanel defaultSize={65} className="bg-slate-900">
         <div className="grid-rows-editor grid h-full">
           <CodeContext.Provider value={store}>
-            <EditorHeader problem={problem} contestId={contestId} />
-            <CodeEditorInEditorResizablePanel />
+            <EditorHeader
+              problem={problem}
+              contestId={contestId}
+              templateString={problem.template[0]}
+            />
+            <CodeEditorInEditorResizablePanel
+              templateString={problem.template[0]}
+            />
           </CodeContext.Provider>
         </div>
       </ResizablePanel>
@@ -99,11 +105,29 @@ export default function EditorMainResizablePanel({
   )
 }
 
-function CodeEditorInEditorResizablePanel() {
+interface CodeEditorInEditorResizablePanelProps {
+  templateString: string
+}
+
+function CodeEditorInEditorResizablePanel({
+  templateString
+}: CodeEditorInEditorResizablePanelProps) {
   const { language } = useLanguageStore()
   const store = useContext(CodeContext)
   if (!store) throw new Error('CodeContext is not provided')
   const { code, setCode } = useStore(store)
+
+  useEffect(() => {
+    const parsedTemplates = JSON.parse(templateString)
+    const filteredTemplate = parsedTemplates.filter(
+      (template: Template) => template.language === language
+    )
+    if (!code) {
+      if (filteredTemplate.length === 0) return
+      setCode(filteredTemplate[0].code[0].text)
+    }
+  }, [language])
+
   return (
     <CodeEditor
       value={code}

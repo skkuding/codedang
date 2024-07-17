@@ -3,6 +3,7 @@
 
 ### BUILDER ###
 ARG target=client
+ARG app_env=production
 
 FROM node:20.15.0-alpine AS builder
 ARG target
@@ -20,8 +21,9 @@ RUN npm run build ${target}
 ### PRODUCTION ###
 FROM node:20.15.0-alpine
 ARG target
+ARG app_env
 
-ENV NODE_ENV=production
+ENV APP_ENV=${app_env}
 ENV TARGET=${target}
 
 COPY --from=builder /build/out /app

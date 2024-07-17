@@ -6,6 +6,21 @@ export interface TextareaProps
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, ...props }, ref) => {
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (event.key === 'Tab') {
+        event.preventDefault()
+        const target = event.target as HTMLTextAreaElement
+        const start = target.selectionStart
+        const end = target.selectionEnd
+
+        // Insert 2 spaces at the current cursor position
+        target.value =
+          target.value.substring(0, start) + '  ' + target.value.substring(end)
+
+        // Move the cursor 2 characters forward
+        target.selectionStart = target.selectionEnd = start + 2
+      }
+    }
     return (
       <textarea
         className={cn(
@@ -13,6 +28,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           className
         )}
         ref={ref}
+        onKeyDown={handleKeyDown}
         {...props}
       />
     )
