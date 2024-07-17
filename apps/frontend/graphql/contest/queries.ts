@@ -4,6 +4,7 @@ const GET_CONTEST = gql(`
   query GetContest($contestId: Int!) {
     getContest(contestId: $contestId) {
       id
+      invitationCode
       description
       endTime
       startTime
