@@ -7,14 +7,14 @@ import {
   AccordionTrigger
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
+import { renderKatex } from '@/lib/renderKatex'
 import { convertToLetter } from '@/lib/utils'
 import type { ContestProblem, ProblemDetail } from '@/types/type'
 import { motion } from 'framer-motion'
 import { sanitize } from 'isomorphic-dompurify'
-import katex from 'katex'
 import { CheckCircle, Lightbulb, Tag } from 'lucide-react'
 import { Clipboard } from 'lucide-react'
-import { useState, useEffect, useRef, type RefObject } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import useCopyToClipboard from 'react-use/lib/useCopyToClipboard'
 import {
   Tooltip,
@@ -44,23 +44,6 @@ const useCopy = () => {
   return { copiedID, copy }
 }
 
-const renderKatex = (html: string, katexRef: RefObject<HTMLDivElement>) => {
-  if (katexRef.current) {
-    katexRef.current.innerHTML = html
-    const div = katexRef.current
-    div.querySelectorAll('math-component').forEach((el) => {
-      const content = el.getAttribute('content') || ''
-      const mathHtml = katex.renderToString(content, {
-        throwOnError: false,
-        strict: false,
-        globalGroup: true,
-        output: 'mathml'
-      })
-      el.outerHTML = mathHtml
-    })
-  }
-}
-
 export function EditorDescription({
   problem,
   contestProblems
@@ -69,6 +52,7 @@ export function EditorDescription({
   contestProblems?: ContestProblem[]
 }) {
   const { copiedID, copy } = useCopy()
+
   const katexRef = useRef<HTMLDivElement>(null)!
   useEffect(() => {
     renderKatex(problem.description, katexRef)
