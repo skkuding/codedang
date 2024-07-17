@@ -19,6 +19,7 @@ const UPDATE_CONTEST = gql(`
   mutation UpdateContest($groupId: Int!, $input: UpdateContestInput!) {
     updateContest(groupId: $groupId, input: $input) {
       id
+      invitationCode
       isRankVisible
       isVisible
       description
