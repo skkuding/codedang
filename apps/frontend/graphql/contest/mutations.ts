@@ -4,6 +4,7 @@ const CREATE_CONTEST = gql(`
   mutation CreateContest($groupId: Int!, $input: CreateContestInput!) {
     createContest(groupId: $groupId, input: $input) {
       id
+      invitationCode
       isVisible
       isRankVisible
       description
