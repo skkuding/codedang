@@ -12,9 +12,9 @@ post {
 
 body:json {
   {
-    "username": "test",
+    "username": "kwon",
     "password": "it'smehi",
-    "email": "nicole2974@g.skku.edu",
+    "email": "kwon99814@naver.com",
     "realName": "MyeongRyunLee"
   }
 }
@@ -24,13 +24,13 @@ assert {
 }
 
 script:pre-request {
-  const axios = require('axios')
+  /*const axios = require('axios')
   const baseUrl = bru.getEnvVar('baseUrl')
   const res = await axios.post(baseUrl + '/email-auth/verify-pin',{
     "pin": "414775", // email 속의 pin
     "email": "nicole2974@g.skku.edu" // email 주소
   })
-  req.setHeader('email-auth', res.headers['email-auth'])
+  req.setHeader('email-auth', res.headers['email-auth'])*/
 }
 
 docs {

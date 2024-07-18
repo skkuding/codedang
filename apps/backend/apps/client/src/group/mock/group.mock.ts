@@ -51,7 +51,9 @@ const users: User[] = [
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T10:00:00.000Z'),
     email: 'manager@skkuding.dev',
-    lastLogin: new Date('2023-02-22T10:00:00.000Z')
+    lastLogin: new Date('2023-02-22T10:00:00.000Z'),
+    studentID: '2024139898',
+    major: 'chemistry'
   },
   {
     id: 2,
@@ -61,7 +63,9 @@ const users: User[] = [
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T10:00:00.000Z'),
     email: 'user01@skkuding.dev',
-    lastLogin: new Date('2023-02-22T10:00:00.000Z')
+    lastLogin: new Date('2023-02-22T10:00:00.000Z'),
+    studentID: '2024123456',
+    major: 'chemistry'
   },
   {
     id: 3,
@@ -71,7 +75,9 @@ const users: User[] = [
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T10:00:00.000Z'),
     email: 'user02@skkuding.dev',
-    lastLogin: new Date('2023-02-22T10:00:00.000Z')
+    lastLogin: new Date('2023-02-22T10:00:00.000Z'),
+    studentID: '2024654321',
+    major: 'chemistry'
   },
   {
     id: 4,
@@ -81,7 +87,9 @@ const users: User[] = [
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T10:00:00.000Z'),
     email: 'user03@skkuding.dev',
-    lastLogin: new Date('2023-02-22T10:00:00.000Z')
+    lastLogin: new Date('2023-02-22T10:00:00.000Z'),
+    studentID: '2024312123',
+    major: 'chemistry'
   }
 ]
 

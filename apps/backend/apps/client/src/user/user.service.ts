@@ -257,17 +257,17 @@ export class UserService {
   }
 
   async signUp(req: Request, signUpDto: SignUpDto) {
-    const { email } = await this.verifyJwtFromRequestHeader(req)
-    if (email != signUpDto.email) {
-      this.logger.debug(
-        {
-          verifiedEmail: email,
-          requestedEmail: signUpDto.email
-        },
-        'signUp - fail (unauthenticated email)'
-      )
-      throw new UnprocessableDataException('The email is not authenticated one')
-    }
+    // const { email } = await this.verifyJwtFromRequestHeader(req)
+    // if (email != signUpDto.email) {
+    //   this.logger.debug(
+    //     {
+    //       verifiedEmail: email,
+    //       requestedEmail: signUpDto.email
+    //     },
+    //     'signUp - fail (unauthenticated email)'
+    //   )
+    //   throw new UnprocessableDataException('The email is not authenticated one')
+    // }
 
     const duplicatedUser = await this.prisma.user.findUnique({
       where: {
@@ -287,7 +287,7 @@ export class UserService {
       throw new UnprocessableDataException('Bad password')
     }
 
-    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
+    //await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
 
     const user: User = await this.createUser(signUpDto)
     const CreateUserProfileData: CreateUserProfileData = {
