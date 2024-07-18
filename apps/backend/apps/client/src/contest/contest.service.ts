@@ -367,8 +367,12 @@ export class ContestService {
     )
     */
     // combine contest and sortedContestRecordsWithUserDetail
+
+    const { invitationCode, ...contestDetails } = contest
+    const invitationCodeExists = invitationCode != null
     return {
-      ...contest,
+      ...contestDetails,
+      invitationCodeExists,
       isRegistered
     }
   }
