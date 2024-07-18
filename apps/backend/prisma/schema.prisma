@@ -177,7 +177,7 @@ model Problem {
   submissionCount Int        @default(0) @map("submission_count")
   acceptedCount   Int        @default(0) @map("accepted_count")
   acceptedRate    Float      @default(0) @map("accepted_rate")
-  exposeTime      DateTime   @map("expose_time") // 모든 이용자들에게 공개되는 시각
+  exposeTime      DateTime   @map("expose_time") // 속한 대회들이 모두 끝나는 시각 (이후 공개 여부를 변경가능)
   createTime      DateTime   @default(now()) @map("create_time")
   updateTime      DateTime   @updatedAt @map("update_time")
 
