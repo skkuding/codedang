@@ -11,8 +11,11 @@ data "aws_iam_policy_document" "task_assume_role" {
 
 resource "aws_iam_role" "ecs_task_execution_role" {
   name               = "Codedang-Api-Task-Execution-Role"
-  description        = "ECS agent가 작업을 실행하고 관리할 때 사용하는 권한"
   assume_role_policy = data.aws_iam_policy_document.task_assume_role.json
+
+  tags = {
+    Description = "ECS agent가 작업을 실행하고 관리할 때 사용하는 권한"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role" {

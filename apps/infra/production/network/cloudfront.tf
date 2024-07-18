@@ -1,8 +1,9 @@
-resource "aws_cloudfront_origin_access_control" "main" {
-  name                              = "Codedang-Cloudfront-S3-OAI"
-  origin_access_control_origin_type = "s3"
-  signing_behavior                  = "always"
-  signing_protocol                  = "sigv4"
+data "aws_lb" "client_api" {
+  name = "Codedang-Client-Api-LB"
+}
+
+data "aws_lb" "admin_api" {
+  name = "Codedang-Admin-Api-LB"
 }
 
 data "aws_cloudfront_cache_policy" "disable" {
@@ -17,7 +18,7 @@ data "aws_cloudfront_origin_request_policy" "exclude_host_header" {
   name = "Managed-AllViewerExceptHostHeader"
 }
 
-resource "aws_cloudfront_distribution" "main" {
+resource "aws_cloudfront_distribution" "codedang" {
   origin {
     domain_name = "amplify.codedang.com"
     origin_id   = "frontend" # TODO: Add unique ID of Amplify
@@ -31,8 +32,8 @@ resource "aws_cloudfront_distribution" "main" {
   }
 
   origin {
-    domain_name = aws_lb.client_api.dns_name
-    origin_id   = aws_lb.client_api.id
+    domain_name = data.aws_lb.client_api.dns_name
+    origin_id   = data.aws_lb.client_api.id
 
     custom_origin_config {
       http_port              = 80
@@ -43,8 +44,8 @@ resource "aws_cloudfront_distribution" "main" {
   }
 
   origin {
-    domain_name = aws_lb.admin_api.dns_name
-    origin_id   = aws_lb.admin_api.id
+    domain_name = data.aws_lb.admin_api.dns_name
+    origin_id   = data.aws_lb.admin_api.id
 
     custom_origin_config {
       http_port              = 80
@@ -73,7 +74,7 @@ resource "aws_cloudfront_distribution" "main" {
     path_pattern             = "/api/*"
     allowed_methods          = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
     cached_methods           = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id         = aws_lb.client_api.id
+    target_origin_id         = data.aws_lb.client_api.id
     viewer_protocol_policy   = "redirect-to-https"
     cache_policy_id          = data.aws_cloudfront_cache_policy.disable.id
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.allow_all.id
@@ -83,7 +84,7 @@ resource "aws_cloudfront_distribution" "main" {
     path_pattern             = "/graphql"
     allowed_methods          = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
     cached_methods           = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id         = aws_lb.admin_api.id
+    target_origin_id         = data.aws_lb.admin_api.id
     viewer_protocol_policy   = "redirect-to-https"
     cache_policy_id          = data.aws_cloudfront_cache_policy.disable.id
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.allow_all.id
@@ -91,12 +92,12 @@ resource "aws_cloudfront_distribution" "main" {
 
   restrictions {
     geo_restriction {
-      restriction_type = "none" # Allow cache from all countries
+      restriction_type = "none"
     }
   }
 
   viewer_certificate {
-    acm_certificate_arn      = aws_acm_certificate_validation.main.certificate_arn # Certificate for codedang.com
+    acm_certificate_arn      = aws_acm_certificate_validation.for_all_domains.certificate_arn
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }

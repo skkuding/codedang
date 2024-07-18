@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { graphqlUploadExpress } from 'graphql-upload'
 import { Logger, LoggerErrorInterceptor } from 'nestjs-pino'
@@ -23,6 +24,7 @@ const bootstrap = async () => {
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 2 }))
   app.useLogger(app.get(Logger))
   app.useGlobalInterceptors(new LoggerErrorInterceptor())
+  app.useGlobalPipes(new ValidationPipe())
 
   await app.listen(3000)
 }

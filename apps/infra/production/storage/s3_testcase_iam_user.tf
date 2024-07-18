@@ -2,7 +2,7 @@
 resource "aws_iam_user" "testcase" {
   name = "user-codedang-testcase"
   tags = {
-    Description = "Testcase 버킷 사용 IAM User"
+    Description = "Admin에서 사용하는 Testcase 버킷 접속용 IAM User"
   }
 }
 

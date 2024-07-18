@@ -11,8 +11,11 @@ data "aws_iam_policy_document" "ec2_assume_role" {
 
 resource "aws_iam_role" "ecs_container_instance_role" {
   name               = "Codedang-ECS-Container-Instance-Role"
-  description        = "ECS가 EC2 인스턴스를 등록할 수 있는 권한"
   assume_role_policy = data.aws_iam_policy_document.ec2_assume_role.json
+
+  tags = {
+    Description = "ECS가 EC2 인스턴스를 등록할 수 있는 권한"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_container_instance_role" {

@@ -42,7 +42,8 @@ const contest = {
   group: {
     id: groupId,
     groupName: 'group'
-  }
+  },
+  invitationCode: '123456'
 } satisfies Contest & {
   group: Partial<Group>
 }
@@ -330,27 +331,39 @@ describe('ContestService', () => {
 
   describe('createContestRecord', () => {
     let contestRecordId = -1
+    const invitationCode = '123456'
+    const invalidInvitationCode = '000000'
+
+    it('should throw error when the invitation code does not match', async () => {
+      await expect(
+        service.createContestRecord(1, user01Id, invalidInvitationCode)
+      ).to.be.rejectedWith(ConflictFoundException)
+    })
 
     it('should throw error when the contest does not exist', async () => {
       await expect(
-        service.createContestRecord(999, user01Id)
+        service.createContestRecord(999, user01Id, invitationCode)
       ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
     })
 
     it('should throw error when user is participated in contest again', async () => {
       await expect(
-        service.createContestRecord(contestId, user01Id)
+        service.createContestRecord(contestId, user01Id, invitationCode)
       ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should throw error when contest is not ongoing', async () => {
-      await expect(service.createContestRecord(8, user01Id)).to.be.rejectedWith(
-        ConflictFoundException
-      )
+      await expect(
+        service.createContestRecord(8, user01Id, invitationCode)
+      ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should register to a contest successfully', async () => {
-      const contestRecord = await service.createContestRecord(2, user01Id)
+      const contestRecord = await service.createContestRecord(
+        2,
+        user01Id,
+        invitationCode
+      )
       contestRecordId = contestRecord.id
       expect(
         await transaction.contestRecord.findUnique({

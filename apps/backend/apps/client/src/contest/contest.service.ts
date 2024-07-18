@@ -375,12 +375,22 @@ export class ContestService {
   async createContestRecord(
     contestId: number,
     userId: number,
+    invitationCode?: string,
     groupId = OPEN_SPACE_ID
   ) {
     const contest = await this.prisma.contest.findUniqueOrThrow({
       where: { id: contestId, groupId },
-      select: { startTime: true, endTime: true, groupId: true }
+      select: {
+        startTime: true,
+        endTime: true,
+        groupId: true,
+        invitationCode: true
+      }
     })
+
+    if (contest.invitationCode && contest.invitationCode !== invitationCode) {
+      throw new ConflictFoundException('Invalid invitation code')
+    }
 
     const hasRegistered = await this.prisma.contestRecord.findFirst({
       where: { userId, contestId }
