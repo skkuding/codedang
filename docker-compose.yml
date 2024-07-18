@@ -27,7 +27,7 @@ services:
       - 9001:9001
     command: server /data --console-address ":9001"
     environment:
-      MINIO_BROWSER_REDIRECT_URL: https://stage.codedang.com/bucket
+      MINIO_BROWSER_REDIRECT_URL: https://stage.codedang.com/console
       MINIO_ROOT_USER: skku
       MINIO_ROOT_PASSWORD: skku1234
     volumes:
