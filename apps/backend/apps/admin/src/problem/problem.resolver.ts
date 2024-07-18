@@ -21,6 +21,7 @@ import {
   ContestProblem,
   ExampleIO,
   Image,
+  Problem,
   ProblemTag,
   ProblemTestcase,
   WorkbookProblem
