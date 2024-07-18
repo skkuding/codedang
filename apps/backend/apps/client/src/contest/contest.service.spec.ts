@@ -7,7 +7,10 @@ import {
   type ContestRecord
 } from '@prisma/client'
 import { expect } from 'chai'
+import * as chai from 'chai'
+import chaiExclude from 'chai-exclude'
 import * as dayjs from 'dayjs'
+import * as sinon from 'sinon'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -87,10 +90,13 @@ const contests = [
   ...upcomingContests
 ] satisfies Partial<ContestResult>[]
 
+chai.use(chaiExclude)
 describe('ContestService', () => {
   let service: ContestService
   let prisma: PrismaTestService
   let transaction: FlatTransactionClient
+
+  const sandbox = sinon.createSandbox()
 
   before(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -121,6 +127,10 @@ describe('ContestService', () => {
 
   after(async () => {
     await prisma.$disconnect()
+  })
+
+  afterEach(() => {
+    sandbox.restore()
   })
 
   it('should be defined', () => {
