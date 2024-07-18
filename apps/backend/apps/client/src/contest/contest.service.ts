@@ -14,6 +14,7 @@ const contestSelectOption = {
   startTime: true,
   endTime: true,
   group: { select: { id: true, groupName: true } },
+  invitationCode: true,
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
     select: {
