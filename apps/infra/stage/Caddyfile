@@ -68,8 +68,14 @@ stage.codedang.com {
 
 	handle /bucket* {
 		uri strip_prefix /bucket
+		reverse_proxy 127.0.0.1:9000
+	}
+
+	handle /console* {
+		uri strip_prefix /console
 		reverse_proxy 127.0.0.1:9001
 	}
+
 
 	handle /logs* {
 		reverse_proxy 127.0.0.1:9999
