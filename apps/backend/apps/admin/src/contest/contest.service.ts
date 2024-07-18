@@ -347,16 +347,46 @@ export class ContestService {
 
     for (const problemId of problemIds) {
       try {
+        // 문제가 포함된 대회 중 가장 늦게 끝나는 대회의 종료시각으로 exposeTime 설정 (없을시 비공개 전환)
+        let exposeTime = maxDate
+
+        const contestIds = (
+          await this.prisma.contestProblem.findMany({
+            where: {
+              problemId: problemId
+            }
+          })
+        )
+          .filter((contestProblem) => contestProblem.contestId !== contestId)
+          .map((contestProblem) => contestProblem.contestId)
+
+        if (contestIds.length) {
+          const latestContest = await this.prisma.contest.findFirstOrThrow({
+            where: {
+              id: {
+                in: contestIds
+              }
+            },
+            orderBy: {
+              endTime: 'desc'
+            },
+            select: {
+              endTime: true
+            }
+          })
+          exposeTime = latestContest.endTime
+        }
+
         const [, contestProblem] = await this.prisma.$transaction([
           this.prisma.problem.updateMany({
             where: {
               id: problemId,
               exposeTime: {
-                lte: contest.endTime // TODO: contest에서 problem이 삭제될 때 exposeTime이 어떻게 조정되어야하는지에 관한 논의 필요
+                lte: contest.endTime
               }
             },
             data: {
-              exposeTime: new Date()
+              exposeTime: exposeTime
             }
           }),
           this.prisma.contestProblem.delete({
