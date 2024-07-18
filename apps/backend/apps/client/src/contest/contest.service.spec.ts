@@ -53,6 +53,7 @@ const ongoingContests = [
     id: contest.id,
     group: contest.group,
     title: contest.title,
+    invitationCode: 'test',
     startTime: now.add(-1, 'day').toDate(),
     endTime: now.add(1, 'day').toDate(),
     participants: 1
@@ -64,6 +65,7 @@ const upcomingContests = [
     id: contest.id + 6,
     group: contest.group,
     title: contest.title,
+    invitationCode: 'test',
     startTime: now.add(1, 'day').toDate(),
     endTime: now.add(2, 'day').toDate(),
     participants: 1
@@ -75,6 +77,7 @@ const finishedContests = [
     id: contest.id + 1,
     group: contest.group,
     title: contest.title,
+    invitationCode: null,
     startTime: now.add(-2, 'day').toDate(),
     endTime: now.add(-1, 'day').toDate(),
     participants: 1

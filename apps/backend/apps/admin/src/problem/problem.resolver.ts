@@ -19,6 +19,7 @@ import {
 } from '@nestjs/graphql'
 import {
   ContestProblem,
+  ExampleIO,
   Image,
   ProblemTag,
   ProblemTestcase,
@@ -180,6 +181,16 @@ export class ProblemResolver {
       ) {
         throw new NotFoundException(error.message)
       }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @ResolveField('samples', () => [ExampleIO])
+  async getSamples(@Parent() problem: Problem) {
+    try {
+      return await this.problemService.getProblemSamples(problem.id)
+    } catch (error) {
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
