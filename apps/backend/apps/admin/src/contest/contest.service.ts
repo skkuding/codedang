@@ -284,42 +284,43 @@ export class ContestService {
 
     for (const problemId of problemIds) {
       try {
-        const contestProblem = await this.prisma.contestProblem.create({
-          data: {
-            // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
-            // 임시 방편으로 order: 0으로 설정합니다.
-            order: 0,
-            contestId,
-            problemId
-          }
-        })
+        const [contestProblem] = await this.prisma.$transaction([
+          this.prisma.contestProblem.create({
+            data: {
+              // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
+              // 임시 방편으로 order: 0으로 설정합니다.
+              order: 0,
+              contestId,
+              problemId
+            }
+          }),
+          this.prisma.problem.update({
+            where: {
+              id: problemId,
+              OR: [
+                {
+                  exposeTime: {
+                    equals: minDate
+                  }
+                },
+                {
+                  exposeTime: {
+                    equals: maxDate
+                  }
+                },
+                {
+                  exposeTime: {
+                    lte: contest.endTime
+                  }
+                }
+              ]
+            },
+            data: {
+              exposeTime: contest.endTime
+            }
+          })
+        ])
         contestProblems.push(contestProblem)
-
-        await this.prisma.problem.update({
-          where: {
-            id: problemId,
-            OR: [
-              {
-                exposeTime: {
-                  equals: minDate
-                }
-              },
-              {
-                exposeTime: {
-                  equals: maxDate
-                }
-              },
-              {
-                exposeTime: {
-                  lte: contest.endTime
-                }
-              }
-            ]
-          },
-          data: {
-            exposeTime: contest.endTime
-          }
-        })
       } catch (error) {
         continue
       }
