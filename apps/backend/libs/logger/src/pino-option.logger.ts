@@ -31,7 +31,7 @@ export const pinoLoggerModuleOption: Params = {
       }
     },
     stream:
-      process.env.NODE_ENV !== 'production'
+      process.env.APP_ENV !== 'production' && process.env.APP_ENV !== 'stage'
         ? PinoPretty(pinoPrettyOptions)
         : undefined,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

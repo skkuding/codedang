@@ -150,12 +150,14 @@ export class ContestController {
   async createContestRecord(
     @Req() req: AuthenticatedRequest,
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Param('id', IDValidationPipe) contestId: number
+    @Param('id', IDValidationPipe) contestId: number,
+    @Query('invitationCode') invitationCode?: string
   ) {
     try {
       return await this.contestService.createContestRecord(
         contestId,
         req.user.id,
+        invitationCode,
         groupId
       )
     } catch (error) {
