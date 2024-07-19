@@ -14,6 +14,7 @@ const contestSelectOption = {
   startTime: true,
   endTime: true,
   group: { select: { id: true, groupName: true } },
+  invitationCode: true,
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
     select: {
@@ -366,8 +367,12 @@ export class ContestService {
     )
     */
     // combine contest and sortedContestRecordsWithUserDetail
+
+    const { invitationCode, ...contestDetails } = contest
+    const invitationCodeExists = invitationCode != null
     return {
-      ...contest,
+      ...contestDetails,
+      invitationCodeExists,
       isRegistered
     }
   }

@@ -378,15 +378,6 @@ export class ProblemService {
       where: {
         id,
         groupId
-      },
-      include: {
-        samples: true,
-        problemTestcase: true,
-        problemTag: {
-          include: {
-            tag: true
-          }
-        }
       }
     })
   }
@@ -705,6 +696,14 @@ export class ProblemService {
       throw new EntityNotExistException('problem')
     }
     return tag
+  }
+
+  async getProblemSamples(problemId: number) {
+    return await this.prisma.exampleIO.findMany({
+      where: {
+        problemId
+      }
+    })
   }
 
   async getProblemTags(problemId: number) {
