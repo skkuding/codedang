@@ -30,7 +30,7 @@ module "admin_api" {
   #TODO
   task_definition = {
     family = "Codedang-Admin-Api"
-    memory = 950
+    # memory = 950
     container_definitions = jsonencode([
       jsondecode(templatefile("container_definitions/admin_api.json", {
         ecr_uri                         = data.aws_ecr_repository.admin_api.repository_url,
