@@ -16,5 +16,3 @@ export default function Error({ error }: Props) {
 
   return <ErrorDetail errorDetail="Failed to Load Problem!" error={error} />
 }
-
-const test = 'test'
