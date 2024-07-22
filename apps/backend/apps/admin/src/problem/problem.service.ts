@@ -81,7 +81,7 @@ export class ProblemService {
     const problem = await this.prisma.problem.create({
       data: {
         ...data,
-        exposeTime: isVisible ? MIN_DATE : MAX_DATE,
+        visibleLockTime: isVisible ? MIN_DATE : MAX_DATE,
         samples: {
           create: samples
         },
@@ -100,7 +100,7 @@ export class ProblemService {
       }
     })
     await this.createTestcases(problem.id, testcases)
-    return this.changeExposetimeToIsVisible(problem)
+    return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
   // TODO: 테스트케이스별로 파일 따로 업로드 -> 수정 시 updateTestcases, deleteProblem 로직 함께 정리
@@ -376,7 +376,7 @@ export class ProblemService {
       },
       take
     })
-    return this.changeExposetimeToIsVisible(problems)
+    return this.changeVisibleLockTimeToIsVisible(problems)
   }
 
   async getProblem(id: number, groupId: number) {
@@ -386,7 +386,7 @@ export class ProblemService {
         groupId
       }
     })
-    return this.changeExposetimeToIsVisible(problem)
+    return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
   async getProblemById(id: number) {
@@ -395,7 +395,7 @@ export class ProblemService {
         id
       }
     })
-    return this.changeExposetimeToIsVisible(problem)
+    return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
@@ -421,7 +421,7 @@ export class ProblemService {
         'A problem should support at least one language'
       )
     }
-    if (isVisible != undefined && new Date() < problem.exposeTime) {
+    if (isVisible != undefined && new Date() < problem.visibleLockTime) {
       throw new UnprocessableDataException(
         'Unable to set the visible property until the contest is over'
       )
@@ -454,14 +454,14 @@ export class ProblemService {
           })
         },
         ...(isVisible != undefined && {
-          exposeTime: isVisible ? MIN_DATE : MAX_DATE
+          visibleLockTime: isVisible ? MIN_DATE : MAX_DATE
         }),
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
         problemTag
       }
     })
-    return this.changeExposetimeToIsVisible(updatedProblem)
+    return this.changeVisibleLockTimeToIsVisible(updatedProblem)
   }
 
   async updateProblemTag(
@@ -764,20 +764,20 @@ export class ProblemService {
     })
   }
 
-  changeExposetimeToIsVisible(
+  changeVisibleLockTimeToIsVisible(
     problems: Problem[] | Problem
   ): ProblemWithIsVisible[] | ProblemWithIsVisible {
     const problemsWithIsVisible = (
       Array.isArray(problems) ? problems : [problems]
     ).map((problem: Problem) => {
-      const { exposeTime, ...data } = problem
+      const { visibleLockTime, ...data } = problem
       return {
         isVisible:
-          exposeTime < new Date()
+          visibleLockTime.getTime() === MIN_DATE.getTime()
             ? true
-            : exposeTime.getTime() === MAX_DATE.getTime()
-              ? false
-              : null,
+            : visibleLockTime < new Date()
+              ? null
+              : false,
         ...data
       }
     })

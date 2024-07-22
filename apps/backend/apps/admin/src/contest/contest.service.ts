@@ -300,24 +300,24 @@ export class ContestService {
               id: problemId,
               OR: [
                 {
-                  exposeTime: {
+                  visibleLockTime: {
                     equals: MIN_DATE
                   }
                 },
                 {
-                  exposeTime: {
+                  visibleLockTime: {
                     equals: MAX_DATE
                   }
                 },
                 {
-                  exposeTime: {
+                  visibleLockTime: {
                     lte: contest.endTime
                   }
                 }
               ]
             },
             data: {
-              exposeTime: contest.endTime
+              visibleLockTime: contest.endTime
             }
           })
         ])
@@ -349,8 +349,8 @@ export class ContestService {
 
     for (const problemId of problemIds) {
       try {
-        // 문제가 포함된 대회 중 가장 늦게 끝나는 대회의 종료시각으로 exposeTime 설정 (없을시 비공개 전환)
-        let exposeTime = MAX_DATE
+        // 문제가 포함된 대회 중 가장 늦게 끝나는 대회의 종료시각으로 visibleLockTime 설정 (없을시 비공개 전환)
+        let visibleLockTime = MAX_DATE
 
         const contestIds = (
           await this.prisma.contestProblem.findMany({
@@ -376,19 +376,19 @@ export class ContestService {
               endTime: true
             }
           })
-          exposeTime = latestContest.endTime
+          visibleLockTime = latestContest.endTime
         }
 
         const [, contestProblem] = await this.prisma.$transaction([
           this.prisma.problem.updateMany({
             where: {
               id: problemId,
-              exposeTime: {
+              visibleLockTime: {
                 lte: contest.endTime
               }
             },
             data: {
-              exposeTime
+              visibleLockTime
             }
           }),
           this.prisma.contestProblem.delete({

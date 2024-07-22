@@ -3,7 +3,7 @@ import { Problem } from '@admin/@generated'
 
 @ObjectType()
 export class ProblemWithIsVisible extends OmitType(Problem, [
-  'exposeTime'
+  'visibleLockTime'
 ] as const) {
   @Field(() => Boolean, { nullable: true })
   isVisible!: boolean | null

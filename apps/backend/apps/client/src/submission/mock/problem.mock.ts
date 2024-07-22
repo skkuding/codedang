@@ -28,7 +28,7 @@ export const problems: Problem[] = [
     submissionCount: 10,
     acceptedCount: 5,
     acceptedRate: 0.5,
-    exposeTime: new Date(),
+    visibleLockTime: new Date(),
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     engTitle: null,

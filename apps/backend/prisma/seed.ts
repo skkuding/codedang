@@ -19,10 +19,12 @@ import {
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
-import { MIN_DATE, MAX_DATE } from '@libs/constants'
 
 const prisma = new PrismaClient()
 const fixturePath = join(__dirname, '__fixtures__')
+
+const MIN_DATE: Date = new Date('2000-01-01T00:00:00.000Z')
+const MAX_DATE: Date = new Date('2999-12-31T00:00:00.000Z')
 
 let superAdminUser: User
 let managerUser: User
@@ -652,7 +654,7 @@ const createProblems = async () => {
             }
           ]
         },
-        exposeTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
+        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
       }
     })
   )
@@ -684,7 +686,7 @@ const createProblems = async () => {
         samples: {
           create: [{ input: '1\n10\n12\n13', output: 'Uphill' }]
         },
-        exposeTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
+        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
       }
     })
   )
@@ -720,7 +722,7 @@ const createProblems = async () => {
             { input: 'SHOW', output: 'NO' }
           ]
         },
-        exposeTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
+        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
       }
     })
   )
@@ -752,7 +754,7 @@ const createProblems = async () => {
         samples: {
           create: [{ input: '9\n2\n7\n3\n7\n7\n3\n7\n5\n7\n', output: '4' }]
         },
-        exposeTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
+        visibleLockTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
       }
     })
   )
@@ -789,7 +791,7 @@ const createProblems = async () => {
             }
           ]
         },
-        exposeTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
+        visibleLockTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
       }
     })
   )
@@ -819,7 +821,7 @@ const createProblems = async () => {
         memoryLimit: 128,
         source: 'USACO November 2011 Silver 3번',
         samples: { create: [{ input: '3 6', output: '5' }] },
-        exposeTime: MIN_DATE
+        visibleLockTime: MIN_DATE
       }
     })
   )
@@ -861,7 +863,7 @@ const createProblems = async () => {
             }
           ]
         },
-        exposeTime: MIN_DATE
+        visibleLockTime: MIN_DATE
       }
     })
   )
@@ -903,7 +905,7 @@ const createProblems = async () => {
             }
           ]
         },
-        exposeTime: MAX_DATE
+        visibleLockTime: MAX_DATE
       }
     })
   )
@@ -936,7 +938,7 @@ const createProblems = async () => {
             }
           ]
         },
-        exposeTime: MAX_DATE
+        visibleLockTime: MAX_DATE
       }
     })
   )

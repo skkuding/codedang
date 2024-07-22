@@ -94,7 +94,7 @@ export class SubmissionService implements OnModuleInit {
       where: {
         id: problemId,
         groupId,
-        exposeTime: {
+        visibleLockTime: {
           lt: new Date()
         }
       }
@@ -176,7 +176,7 @@ export class SubmissionService implements OnModuleInit {
         problem: true
       }
     })
-    if (problem.groupId !== groupId || problem.exposeTime >= new Date()) {
+    if (problem.groupId !== groupId || problem.visibleLockTime >= new Date()) {
       throw new EntityNotExistException('problem')
     }
 
@@ -460,7 +460,7 @@ export class SubmissionService implements OnModuleInit {
       where: {
         id: problemId,
         groupId,
-        exposeTime: {
+        visibleLockTime: {
           lt: new Date()
         }
       }
@@ -535,7 +535,7 @@ export class SubmissionService implements OnModuleInit {
         where: {
           id: problemId,
           groupId,
-          exposeTime: {
+          visibleLockTime: {
             lt: new Date() // contestId가 없는 경우에는 공개된 문제인 경우에만 제출 내역을 가져와야 함
           }
         }

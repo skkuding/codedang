@@ -150,7 +150,10 @@ describe('SubmissionService', () => {
         }
       })
       db.contestProblem.findUniqueOrThrow.resolves({
-        problem: { ...problems[0], exposeTime: new Date(Date.now() + 10000) }
+        problem: {
+          ...problems[0],
+          visibleLockTime: new Date(Date.now() + 10000)
+        }
       })
 
       await expect(
@@ -184,7 +187,10 @@ describe('SubmissionService', () => {
     it('should throw exception if groupId does not match or problem is not exposed', async () => {
       const createSpy = stub(service, 'createSubmission')
       db.workbookProblem.findUniqueOrThrow.resolves({
-        problem: { ...problems[0], exposeTime: new Date(Date.now() + 10000) }
+        problem: {
+          ...problems[0],
+          visibleLockTime: new Date(Date.now() + 10000)
+        }
       })
 
       await expect(

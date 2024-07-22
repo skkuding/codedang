@@ -177,7 +177,9 @@ model Problem {
   submissionCount Int        @default(0) @map("submission_count")
   acceptedCount   Int        @default(0) @map("accepted_count")
   acceptedRate    Float      @default(0) @map("accepted_rate")
-  exposeTime      DateTime   @map("expose_time") // 속한 대회들이 모두 끝나는 시각 (이후 공개 여부를 변경가능)
+  visibleLockTime DateTime   @map("visible_lock_time")
+  // 문제가 속한 대회들이 모두 끝나는 시각으로 이후 문제의 공개 여부를 변경가능, 속한 대회가 없을 경우 MIN_DATE
+  // MIN_DATE의 경우 모든 사용자에게 공개, 이외에는 비공개
   createTime      DateTime   @default(now()) @map("create_time")
   updateTime      DateTime   @updatedAt @map("update_time")
 

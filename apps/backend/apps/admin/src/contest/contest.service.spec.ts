@@ -110,7 +110,7 @@ const problem: Problem = {
   memoryLimit: 100000,
   difficulty: 'Level1',
   source: 'source',
-  exposeTime: faker.date.past(),
+  visibleLockTime: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
   samples: [],
