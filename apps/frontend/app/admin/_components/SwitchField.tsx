@@ -2,7 +2,7 @@ import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import Label from '../problem/_components/Label'
 import { inputStyle } from '../problem/utils'
@@ -24,8 +24,12 @@ export default function SwitchField({
   type = 'text',
   hasValue = false
 }: SwitchFieldProps) {
-  const [isEnabled, setIsEnabled] = useState(hasValue)
+  const [isEnabled, setIsEnabled] = useState(false)
   const { register, setValue } = useFormContext()
+
+  useEffect(() => {
+    setIsEnabled(hasValue)
+  }, [hasValue])
 
   return (
     <div className="flex flex-col gap-1">

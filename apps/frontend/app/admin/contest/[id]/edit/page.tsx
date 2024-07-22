@@ -1,12 +1,12 @@
 'use client'
 
+import DescriptionForm from '@/app/admin/_components/DescriptionForm'
+import FormSection from '@/app/admin/_components/FormSection'
+import SwitchField from '@/app/admin/_components/SwitchField'
+import TitleForm from '@/app/admin/_components/TitleForm'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
-import TextEditor from '@/components/TextEditor'
-import { DateTimePickerDemo } from '@/components/date-time-picker-demo'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Switch } from '@/components/ui/switch'
 import {
   IMPORT_PROBLEMS_TO_CONTEST,
   UPDATE_CONTEST,
@@ -18,7 +18,6 @@ import {
   UPDATE_CONTEST_PROBLEMS_ORDER
 } from '@/graphql/problem/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
-import { cn } from '@/lib/utils'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -26,17 +25,14 @@ import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { useForm, Controller } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
-import { PiWarningBold } from 'react-icons/pi'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import Label from '../../_components/Label'
+import TimeForm from '../../_components/TimeForm'
 import { columns } from '../_components/Columns'
-
-const inputStyle =
-  'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
 
 const schema = z.object({
   id: z.number(),
@@ -65,20 +61,15 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const router = useRouter()
 
-  const {
-    handleSubmit,
-    control,
-    register,
-    getValues,
-    setValue,
-    formState: { errors }
-  } = useForm<UpdateContestInput>({
+  const methods = useForm<UpdateContestInput>({
     resolver: zodResolver(schema),
     defaultValues: {
       isRankVisible: true,
       isVisible: true
     }
   })
+
+  const { handleSubmit, getValues, setValue } = methods
 
   useQuery(GET_CONTEST, {
     variables: { contestId: Number(id) },
@@ -98,6 +89,9 @@ export default function Page({ params }: { params: { id: string } }) {
         }
         setValue('description', contestFormData.description)
         setValue('invitationCode', contestFormData.invitationCode)
+        if (contestFormData.invitationCode) {
+          setShowInvitationCode(true)
+        }
       } else {
         const data = contestData.getContest
         setValue('title', data.title)
@@ -105,9 +99,9 @@ export default function Page({ params }: { params: { id: string } }) {
         setValue('startTime', new Date(data.startTime))
         setValue('endTime', new Date(data.endTime))
         setValue('invitationCode', data.invitationCode)
-      }
-      if (getValues('invitationCode') !== null) {
-        setShowInvitationCode(true)
+        if (data.invitationCode) {
+          setShowInvitationCode(true)
+        }
       }
       setIsLoading(false)
     }
@@ -255,166 +249,74 @@ export default function Page({ params }: { params: { id: string } }) {
           onSubmit={handleSubmit(onSubmit)}
           className="flex w-[760px] flex-col gap-6"
         >
-          <div className="flex gap-6">
-            <div className="flex flex-col gap-1">
-              <Label>Title</Label>
-              <Input
-                id="title"
-                type="text"
-                placeholder="Name your contest"
-                className={cn(inputStyle, 'w-[380px]')}
-                {...register('title')}
-              />
-              {errors.title && (
-                <div className="flex items-center gap-1 text-xs text-red-500">
-                  <PiWarningBold />
-                  {getValues('title')?.length === 0
-                    ? 'required'
-                    : errors.title?.message}
-                </div>
+          <FormProvider {...methods}>
+            <FormSection title="Title">
+              <TitleForm placeholder="Name your contest" />
+            </FormSection>
+            <div className="flex gap-6">
+              <FormSection title="Start Time">
+                <TimeForm name="startTime" />
+              </FormSection>
+              <FormSection title="End Time">
+                <TimeForm name="endTime" />
+              </FormSection>
+            </div>
+            <FormSection title="Description">
+              {getValues('description') && (
+                <DescriptionForm name="description" />
               )}
-            </div>
-          </div>
-          <div className="flex gap-6">
-            <div>
-              <Label>Start Time</Label>
-              <Controller
-                render={({ field }) => (
-                  <DateTimePickerDemo
-                    onChange={field.onChange}
-                    defaultValue={field.value}
-                  />
-                )}
-                name="startTime"
-                control={control}
-              />
-              {errors.startTime && (
-                <div className="flex items-center gap-1 text-xs text-red-500">
-                  <PiWarningBold />
-                  {errors.startTime?.message as string}
-                </div>
-              )}
-            </div>
-            <div>
-              <Label>End Time</Label>
-              <Controller
-                render={({ field }) => (
-                  <DateTimePickerDemo
-                    onChange={field.onChange}
-                    defaultValue={field.value}
-                  />
-                )}
-                name="endTime"
-                control={control}
-              />
-              {errors.endTime && (
-                <div className="flex items-center gap-1 text-xs text-red-500">
-                  <PiWarningBold />
-                  {errors.endTime?.message as string}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <Label>Description</Label>
-            {getValues('description') && (
-              <Controller
-                render={({ field }) => (
-                  <TextEditor
-                    placeholder="Enter a description..."
-                    onChange={field.onChange}
-                    defaultValue={field.value ?? ''}
-                  />
-                )}
-                name="description"
-                control={control}
-              />
-            )}
-            {errors.description && (
-              <div className="flex items-center gap-1 text-xs text-red-500">
-                <PiWarningBold />
-                required
-              </div>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <Label required={false}>Invitation Code</Label>
-              <Switch
-                onCheckedChange={() => {
-                  setShowInvitationCode(!showInvitationCode)
-                  setValue('invitationCode', null)
-                }}
-                checked={showInvitationCode}
-                className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
-              />
-            </div>
-            {showInvitationCode && (
-              <Input
-                id="invitationCode"
-                placeholder="Enter a Invitation Code"
-                type="number"
-                className={cn(
-                  inputStyle,
-                  'w-[380px]',
-                  '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
-                )}
-                {...register('invitationCode')}
-              />
-            )}
-            {errors.invitationCode && (
-              <div className="flex items-center gap-1 text-xs text-red-500">
-                <PiWarningBold />
-                {errors.invitationCode.message as string}
-              </div>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center justify-between">
-              <Label>Contest Problem List</Label>
-              <Button
-                type="button"
-                className="flex h-[36px] w-36 items-center gap-2 px-0"
-                disabled={isLoading}
-                onClick={() => {
-                  const formData = {
-                    title: getValues('title'),
-                    startTime: getValues('startTime'),
-                    endTime: getValues('endTime'),
-                    description: getValues('description'),
-                    invitationCode: getValues('invitationCode')
-                  }
-                  localStorage.setItem(
-                    `contestFormData-${id}`,
-                    JSON.stringify(formData)
-                  )
-                  router.push(`/admin/problem?import=true&contestId=${id}`)
-                }}
-              >
-                <PlusCircleIcon className="h-4 w-4" />
-                <div className="mb-[2px] text-sm">Import Problem</div>
-              </Button>
-            </div>
-            <DataTableAdmin
-              // eslint-disable-next-line
-              columns={columns as any[]}
-              data={problems as Problem[]}
-              enableDelete={true}
-              enableSearch={true}
+            </FormSection>
+            <SwitchField
+              name="invitationCode"
+              title="Invitation Code"
+              type="number"
+              isInput={true}
+              placeholder="Enter a invitation code"
+              hasValue={showInvitationCode}
             />
-          </div>
-
-          <Button
-            type="submit"
-            className="flex h-[36px] w-[100px] items-center gap-2 px-0"
-            disabled={isLoading}
-          >
-            <IoMdCheckmarkCircleOutline fontSize={20} />
-            <div className="mb-[2px] text-base">Submit</div>
-          </Button>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center justify-between">
+                <Label>Contest Problem List</Label>
+                <Button
+                  type="button"
+                  className="flex h-[36px] w-36 items-center gap-2 px-0"
+                  disabled={isLoading}
+                  onClick={() => {
+                    const formData = {
+                      title: getValues('title'),
+                      startTime: getValues('startTime'),
+                      endTime: getValues('endTime'),
+                      description: getValues('description'),
+                      invitationCode: getValues('invitationCode')
+                    }
+                    localStorage.setItem(
+                      `contestFormData-${id}`,
+                      JSON.stringify(formData)
+                    )
+                    router.push(`/admin/problem?import=true&contestId=${id}`)
+                  }}
+                >
+                  <PlusCircleIcon className="h-4 w-4" />
+                  <div className="mb-[2px] text-sm">Import Problem</div>
+                </Button>
+              </div>
+              <DataTableAdmin
+                // eslint-disable-next-line
+                columns={columns as any[]}
+                data={problems as Problem[]}
+                enableDelete={true}
+                enableSearch={true}
+              />
+            </div>
+            <Button
+              type="submit"
+              className="flex h-[36px] w-[100px] items-center gap-2 px-0"
+              disabled={isLoading}
+            >
+              <IoMdCheckmarkCircleOutline fontSize={20} />
+              <div className="mb-[2px] text-base">Submit</div>
+            </Button>
+          </FormProvider>
         </form>
       </main>
     </ScrollArea>
