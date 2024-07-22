@@ -341,7 +341,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <Label required={false}>Register Code</Label>
+              <Label required={false}>Invitation Code</Label>
               <Switch
                 onCheckedChange={() => {
                   setShowInvitationCode(!showInvitationCode)
@@ -354,7 +354,7 @@ export default function Page({ params }: { params: { id: string } }) {
             {showInvitationCode && (
               <Input
                 id="invitationCode"
-                placeholder="Enter a Register Code"
+                placeholder="Enter a Invitation Code"
                 type="number"
                 className={cn(
                   inputStyle,

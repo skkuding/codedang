@@ -169,7 +169,7 @@ model Problem {
   ///           }[]
   /// }
   isVisible       Boolean    @default(true) @map("is_visible")
-  template        Json[]
+  template        Json[]     @default([])
   languages       Language[]
   timeLimit       Int        @map("time_limit") // unit: MilliSeconds
   memoryLimit     Int        @map("memory_limit") // unit: MegaBytes
