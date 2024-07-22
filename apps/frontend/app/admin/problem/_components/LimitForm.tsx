@@ -1,8 +1,8 @@
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { useFormContext } from 'react-hook-form'
+import ErrorMessage from '../../_components/ErrorMessage'
 import { inputStyle } from '../utils'
-import ErrorMessage from './ErrorMessage'
 
 export default function LimitForm() {
   const {
