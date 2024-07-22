@@ -347,7 +347,7 @@ export class SubmissionService implements OnModuleInit {
     const resultStatus = Status(msg.resultCode)
 
     if (resultStatus === ResultStatus.ServerError) {
-      await this.updateSubmissionResult(submissionId, resultStatus, {
+      await this.updateTestcaseJudgeResult(submissionId, resultStatus, {
         result: ResultStatus.ServerError
       })
       throw new UnprocessableDataException(
@@ -357,7 +357,7 @@ export class SubmissionService implements OnModuleInit {
 
     // TODO: 컴파일 메시지 데이터베이스에 저장하기
     if (resultStatus === ResultStatus.CompileError) {
-      await this.updateSubmissionResult(submissionId, resultStatus, {
+      await this.updateTestcaseJudgeResult(submissionId, resultStatus, {
         result: ResultStatus.CompileError
       })
       return
@@ -370,11 +370,11 @@ export class SubmissionService implements OnModuleInit {
       memoryUsage: msg.judgeResult.memory
     }
 
-    await this.updateSubmissionResult(submissionId, resultStatus, results)
+    await this.updateTestcaseJudgeResult(submissionId, resultStatus, results)
   }
 
   @Span()
-  async updateSubmissionResult(
+  async updateTestcaseJudgeResult(
     id: number,
     resultStatus: ResultStatus,
     result: Partial<SubmissionResult> & Pick<SubmissionResult, 'result'>
@@ -412,48 +412,76 @@ export class SubmissionService implements OnModuleInit {
         })
       })
     }
+  }
 
-    // FIXME: 현재 코드는 message 하나에 특정 problem에 대한 모든 테스트케이스의 채점 결과가 전송된다고 가정하고, 이를 받아서 submission의 overall result를 업데이트합니다.
-    //        테스트케이스별로 DB 업데이트가 이루어진다면 아래 코드를 수정해야 합니다.
-    const submission = await this.prisma.submission.update({
+  @Span()
+  async updateSubmissionResult(id: number): Promise<void> {
+    const submission = await this.prisma.submission.findUnique({
       where: {
-        id
+        id,
+        result: ResultStatus.Judging,
+        submissionResult: {
+          every: {
+            NOT: {
+              result: ResultStatus.Judging
+            }
+          }
+        }
       },
-      data: {
-        result: resultStatus
+      select: {
+        problemId: true,
+        submissionResult: {
+          select: {
+            result: true
+          }
+        }
       }
     })
 
-    if (
-      resultStatus !== ResultStatus.Judging &&
-      resultStatus !== ResultStatus.ServerError
-    ) {
-      const problem = await this.prisma.problem.findFirstOrThrow({
-        where: {
-          id: submission.problemId
-        },
-        select: {
-          submissionCount: true,
-          acceptedCount: true,
-          acceptedRate: true
-        }
-      })
-      const submissionCount = problem.submissionCount + 1
-      const acceptedCount =
-        resultStatus === ResultStatus.Accepted
-          ? problem.acceptedCount + 1
-          : problem.acceptedCount
-      await this.prisma.problem.update({
-        where: {
-          id: submission.problemId
-        },
-        data: {
-          submissionCount,
-          acceptedCount,
-          acceptedRate: acceptedCount / submissionCount
-        }
-      })
+    if (!submission) return
+
+    const allAccepted = submission.submissionResult.every(
+      (submissionResult) => submissionResult.result === ResultStatus.Accepted
+    )
+
+    const submissionResult = allAccepted
+      ? ResultStatus.Accepted
+      : submission.submissionResult.find(
+          (submissionResult) =>
+            submissionResult.result !== ResultStatus.Accepted
+        )?.result ?? ResultStatus.ServerError
+
+    await this.prisma.submission.update({
+      where: { id },
+      data: { result: submissionResult }
+    })
+
+    await this.updateProblemAccepted(submission.problemId, allAccepted)
+  }
+
+  @Span()
+  async updateProblemAccepted(id: number, isAccepted: boolean): Promise<void> {
+    const data: {
+      submissionCount: { increment: number }
+      acceptedCount?: { increment: number }
+    } = {
+      submissionCount: {
+        increment: 1
+      }
     }
+
+    if (isAccepted) {
+      data.acceptedCount = {
+        increment: 1
+      }
+    }
+
+    await this.prisma.problem.update({
+      where: {
+        id
+      },
+      data
+    })
   }
 
   // FIXME: Workbook 구분
