@@ -15,6 +15,9 @@ export default function Error({ error }: Props) {
   }, [error])
 
   return (
-    <ErrorDetail errorDetail="Failed to Load Contest Overall!" error={error} />
+    <ErrorDetail
+      errorDetail="Failed to Load Contest Edit Page!"
+      error={error}
+    />
   )
 }
