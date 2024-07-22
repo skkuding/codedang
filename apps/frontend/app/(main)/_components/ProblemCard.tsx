@@ -1,7 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import '@/components/ui/card'
 import type { WorkbookProblem } from '@/types/type'
-import { MdOutlineSubdirectoryArrowRight } from 'react-icons/md'
-import Badge from './Badge'
 
 interface Props {
   problem: WorkbookProblem
@@ -9,20 +7,30 @@ interface Props {
 
 export default function ProblemCard({ problem }: Props) {
   return (
-    <Card className="flex w-full flex-col justify-between gap-1 shadow-none transition hover:scale-105 hover:opacity-80">
-      <CardHeader className="pb-0">
-        <Badge
-          type={problem.difficulty}
-        >{`Level ${problem.difficulty[5]}`}</Badge>
-        <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap text-lg font-semibold">
-          {`#${problem.id} ${problem.title}`}
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="flex items-center gap-1 text-xs text-gray-500">
-        <MdOutlineSubdirectoryArrowRight />
-        Solved Rate {(problem.acceptedRate * 100).toFixed(2)}%
-      </CardContent>
-    </Card>
+    <div className="flex w-full flex-col justify-between gap-4 rounded-md border border-gray-200 p-4 shadow-none transition hover:scale-105">
+      <div className="flex flex-col justify-between gap-4 pt-2">
+        <p className="text-sm font-medium text-gray-500">{`Problem #${problem.id}`}</p>
+        <div className="line-clamp-2 whitespace-pre-wrap text-lg font-semibold leading-tight">
+          {/* code to keep two lines of problem title */}
+          {`${problem.title}
+          `}
+        </div>
+      </div>
+      <div className="border-t-2"></div>
+      <div className="grid grid-cols-2 text-xs text-gray-500">
+        <div className="flex flex-col items-center gap-2 py-4">
+          <p className="text-sm font-medium">Level</p>
+          <p className="text-2xl font-semibold text-black">
+            {problem.difficulty.substring(5)}
+          </p>
+        </div>
+        <div className="flex flex-col items-center gap-2 border-l-2 py-4">
+          <p className="text-sm font-medium">Submission</p>
+          <p className="text-2xl font-semibold text-black">
+            {problem.submissionCount}
+          </p>
+        </div>
+      </div>
+    </div>
   )
 }
