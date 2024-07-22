@@ -17,7 +17,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-interface RegisterCodeInput {
+interface InvitationCodeInput {
   invitationCode: string
 }
 
@@ -102,7 +102,7 @@ export default function RegisterButton({
     trigger,
     getValues,
     formState: { errors }
-  } = useForm<RegisterCodeInput>({
+  } = useForm<InvitationCodeInput>({
     resolver: zodResolver(schema)
   })
 
@@ -174,7 +174,7 @@ export default function RegisterButton({
             >
               <div className="flex flex-col gap-1">
                 <Input
-                  placeholder="Register Code"
+                  placeholder="Invitation Code"
                   {...register('invitationCode', {
                     onChange: () => trigger('invitationCode')
                   })}
