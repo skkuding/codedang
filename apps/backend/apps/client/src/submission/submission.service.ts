@@ -368,11 +368,33 @@ export class SubmissionService implements OnModuleInit {
   }
 
   @Span()
-  async handleJudgerMessage(msg: JudgerResponse) {
-    const submissionId = msg.submissionId
+  async handleJudgerMessage(msg: JudgerResponse): Promise<void> {
+    if (Status(msg.resultCode) === ResultStatus.ServerError) {
+      await this.prisma.submission.update({
+        where: {
+          id: msg.submissionId
+        },
+        data: {
+          result: ResultStatus.ServerError
+        }
+      })
+
+      await this.prisma.submissionResult.updateMany({
+        where: {
+          submissionId: msg.submissionId
+        },
+        data: {
+          result: ResultStatus.ServerError
+        }
+      })
+
+      throw new UnprocessableDataException(
+        `${msg.submissionId} ${msg.error} ${msg.judgeResult}`
+      )
+    }
 
     const submissionResult = {
-      submissionId,
+      submissionId: msg.submissionId,
       problemTestcaseId: parseInt(msg.judgeResult.testcaseId.split(':')[1], 10),
       result: Status(msg.judgeResult.resultCode),
       cpuTime: BigInt(msg.judgeResult.cpuTime),
@@ -388,7 +410,6 @@ export class SubmissionService implements OnModuleInit {
       Pick<SubmissionResult, 'result'>
   ) {
     // TODO: submission의 값들이 아닌 submissionResult의 id 값으로 접근할 수 있도록 수정
-
     const { id } = await this.prisma.submissionResult.findFirstOrThrow({
       where: {
         submissionId: submissionResult.submissionId,

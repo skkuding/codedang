@@ -8,6 +8,7 @@ import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
 import { spy, stub } from 'sinon'
+import { Status } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -26,16 +27,19 @@ const db = {
   submission: {
     findMany: stub(),
     findFirstOrThrow: stub(),
+    findUnique: stub(),
     create: stub(),
     update: stub(),
     count: stub().resolves(1)
   },
   submissionResult: {
     create: stub(),
-    createMany: stub()
+    createMany: stub(),
+    updateMany: stub()
   },
   problem: {
     findFirstOrThrow: stub(),
+    findUniqueOrThrow: stub(),
     findUnique: stub(),
     update: stub()
   },
@@ -203,6 +207,7 @@ describe('SubmissionService', () => {
 
   describe('createSubmission', () => {
     it('should create submission', async () => {
+      const createSpy = stub(service, 'createSubmissionResults')
       const publishSpy = stub(amqpConnection, 'publish')
       db.problem.findUnique.resolves(problems[0])
       db.submission.create.resolves(submissions[0])
@@ -214,6 +219,7 @@ describe('SubmissionService', () => {
           submissions[0].userId
         )
       ).to.be.deep.equal(submissions[0])
+      expect(createSpy.calledOnceWith(submissions[0])).to.be.true
       expect(publishSpy.calledOnce).to.be.true
     })
 
@@ -253,13 +259,26 @@ describe('SubmissionService', () => {
 
   describe('handleJudgerMessage', () => {
     it('should call update submission result', async () => {
-      const updateSpy = stub(service, 'updateSubmissionResult')
+      const updateSpy = stub(service, 'updateTestcaseJudgeResult')
+      const submissionResult = {
+        submissionId: judgerResponse.submissionId,
+        problemTestcaseId: parseInt(
+          judgerResponse.judgeResult.testcaseId.split(':')[1],
+          10
+        ),
+        result: Status(judgerResponse.judgeResult.resultCode),
+        cpuTime: BigInt(judgerResponse.judgeResult.cpuTime),
+        memoryUsage: judgerResponse.judgeResult.memory
+      }
 
       await service.handleJudgerMessage(judgerResponse)
-      expect(updateSpy.calledOnce).to.be.true
+      expect(updateSpy.calledOnceWith({ ...submissionResult })).to.be.true
     })
 
     it('should throw UnprocessableDataException when result code is Server Error', async () => {
+      stub(service, 'updateTestcaseJudgeResult').resolves()
+      db.submission.update.resolves()
+      db.submissionResult.updateMany.resolves()
       const target: JudgerResponse = {
         resultCode: 7,
         error: 'succeed',
@@ -276,9 +295,6 @@ describe('SubmissionService', () => {
         }
       }
 
-      db.submission.findFirstOrThrow.resolves(submissions[0])
-      db.problem.findFirstOrThrow.resolves(problems[0])
-
       await expect(service.handleJudgerMessage(target)).to.be.rejectedWith(
         UnprocessableDataException
       )
@@ -286,25 +302,70 @@ describe('SubmissionService', () => {
   })
 
   describe('updateSubmissionResult', () => {
-    it('should call update submission result', async () => {
-      db.submission.update.reset()
-      db.submission.update.resolves(submissions[0])
-      db.submission.findFirstOrThrow.resolves(submissions[0])
-      db.problem.findFirstOrThrow.resolves(problems[0])
-      db.problem.update.reset()
-      submissionResults.forEach((result, index) => {
-        db.submissionResult.create.onCall(index).resolves(result)
+    it('should call update accepted submission result', async () => {
+      const updateSpy = stub(service, 'updateProblemAccepted').resolves()
+      db.submission.findUnique.resolves({
+        problemId: submissions[0].problemId,
+        submissionResult: [
+          {
+            result: ResultStatus.Accepted
+          },
+          {
+            result: ResultStatus.Accepted
+          },
+          {
+            result: ResultStatus.Accepted
+          }
+        ]
       })
+      db.submission.update.resolves()
 
-      await service.updateSubmissionResult(
-        submissions[0].id,
-        ResultStatus.CompileError,
-        {
-          result: ResultStatus.CompileError
-        }
+      await service.updateSubmissionResult(submissions[0].id)
+
+      expect(updateSpy.calledOnceWith(submissions[0].id, true)).to.be.true
+      expect(
+        db.submission.update.calledOnceWith({
+          where: {
+            id: submissions[0].id
+          },
+          data: {
+            result: ResultStatus.Accepted
+          }
+        })
       )
-      expect(db.submission.update.calledOnce).to.be.true
-      expect(db.problem.update.calledOnce).to.be.true
+    })
+
+    it('should call update not accepted submission result', async () => {
+      const updateSpy = stub(service, 'updateProblemAccepted').resolves()
+      db.submission.findUnique.resolves({
+        problemId: submissions[0].problemId,
+        submissionResult: [
+          {
+            result: ResultStatus.Accepted
+          },
+          {
+            result: ResultStatus.MemoryLimitExceeded
+          },
+          {
+            result: ResultStatus.Accepted
+          }
+        ]
+      })
+      db.submission.update.resolves()
+
+      await service.updateSubmissionResult(submissions[0].id)
+
+      expect(updateSpy.calledOnceWith(submissions[0].id, false)).to.be.true
+      expect(
+        db.submission.update.calledOnceWith({
+          where: {
+            id: submissions[0].id
+          },
+          data: {
+            result: ResultStatus.MemoryLimitExceeded
+          }
+        })
+      )
     })
   })
 
@@ -537,7 +598,6 @@ describe('SubmissionService', () => {
     }
 
     const result = await service.validateJudgerResponse(target)
-    console.log(result)
     expect(result).to.be.deep.equal(target)
   })
 
