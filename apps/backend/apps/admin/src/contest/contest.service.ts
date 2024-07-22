@@ -387,7 +387,7 @@ export class ContestService {
               }
             },
             data: {
-              exposeTime: exposeTime
+              exposeTime
             }
           }),
           this.prisma.contestProblem.delete({
