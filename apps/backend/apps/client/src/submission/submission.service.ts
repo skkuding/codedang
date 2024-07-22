@@ -8,7 +8,6 @@ import {
   type SubmissionResult,
   type Language,
   type Problem,
-  type ProblemTestcase,
   Role
 } from '@prisma/client'
 import type { AxiosRequestConfig } from 'axios'
@@ -234,9 +233,37 @@ export class SubmissionService implements OnModuleInit {
       })
     }
 
+    await this.createSubmissionResults(submission)
+
     await this.publishJudgeRequestMessage(code, submission)
 
     return submission
+  }
+
+  @Span()
+  async createSubmissionResults(submission: Submission): Promise<void> {
+    const problem = await this.prisma.problem.findUniqueOrThrow({
+      where: {
+        id: submission.problemId
+      },
+      select: {
+        problemTestcase: {
+          select: {
+            id: true
+          }
+        }
+      }
+    })
+
+    await this.prisma.submissionResult.createMany({
+      data: problem.problemTestcase.map((testcase) => {
+        return {
+          submissionId: submission.id,
+          problemTestcaseId: testcase.id,
+          result: ResultStatus.Judging
+        }
+      })
+    })
   }
 
   isValidCode(code: Snippet[], language: Language, templates: Template[]) {
@@ -319,7 +346,6 @@ export class SubmissionService implements OnModuleInit {
     }
 
     const judgeRequest = new JudgeRequest(code, submission.language, problem)
-    // TODO: problem 단위가 아닌 testcase 단위로 채점하도록 iris 수정
 
     const span = this.traceService.startSpan(
       'publishJudgeRequestMessage.publish'
@@ -344,74 +370,43 @@ export class SubmissionService implements OnModuleInit {
   @Span()
   async handleJudgerMessage(msg: JudgerResponse) {
     const submissionId = msg.submissionId
-    const resultStatus = Status(msg.resultCode)
 
-    if (resultStatus === ResultStatus.ServerError) {
-      await this.updateTestcaseJudgeResult(submissionId, resultStatus, {
-        result: ResultStatus.ServerError
-      })
-      throw new UnprocessableDataException(
-        `${msg.submissionId} ${msg.error} ${msg.judgeResult}`
-      )
-    }
-
-    // TODO: 컴파일 메시지 데이터베이스에 저장하기
-    if (resultStatus === ResultStatus.CompileError) {
-      await this.updateTestcaseJudgeResult(submissionId, resultStatus, {
-        result: ResultStatus.CompileError
-      })
-      return
-    }
-
-    const results = {
+    const submissionResult = {
+      submissionId,
       problemTestcaseId: parseInt(msg.judgeResult.testcaseId.split(':')[1], 10),
       result: Status(msg.judgeResult.resultCode),
       cpuTime: BigInt(msg.judgeResult.cpuTime),
       memoryUsage: msg.judgeResult.memory
     }
 
-    await this.updateTestcaseJudgeResult(submissionId, resultStatus, results)
+    await this.updateTestcaseJudgeResult(submissionResult)
   }
 
   @Span()
   async updateTestcaseJudgeResult(
-    id: number,
-    resultStatus: ResultStatus,
-    result: Partial<SubmissionResult> & Pick<SubmissionResult, 'result'>
+    submissionResult: Partial<SubmissionResult> &
+      Pick<SubmissionResult, 'result'>
   ) {
-    if (result.problemTestcaseId) {
-      await this.prisma.submissionResult.create({
-        data: {
-          submissionId: id,
-          problemTestcaseId: result.problemTestcaseId,
-          result: result.result,
-          cpuTime: result.cpuTime,
-          memoryUsage: result.memoryUsage
-        }
-      })
-    } else {
-      const { problemId } = await this.prisma.submission.findUniqueOrThrow({
-        where: {
-          id
-        }
-      })
+    // TODO: submission의 값들이 아닌 submissionResult의 id 값으로 접근할 수 있도록 수정
 
-      const testcases = await this.prisma.problemTestcase.findMany({
-        where: {
-          problemId
-        }
-      })
+    const { id } = await this.prisma.submissionResult.findFirstOrThrow({
+      where: {
+        submissionId: submissionResult.submissionId,
+        problemTestcaseId: submissionResult.problemTestcaseId
+      },
+      select: {
+        id: true
+      }
+    })
 
-      await this.prisma.submissionResult.createMany({
-        data: testcases.map((testcase: ProblemTestcase) => {
-          return {
-            submissionId: id,
-            problemTestcaseId: testcase.id,
-            result: result.result
-          }
-        })
-      })
-    }
+    await this.prisma.submissionResult.update({
+      where: {
+        id
+      },
+      data: {
+        result: submissionResult.result
+      }
+    })
   }
 
   @Span()
