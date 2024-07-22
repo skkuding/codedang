@@ -118,7 +118,7 @@ function CodeEditorInEditorResizablePanel({
   const { code, setCode } = useStore(store)
 
   useEffect(() => {
-    if (templateString === undefined) return
+    if (!templateString) return
     const parsedTemplates = JSON.parse(templateString)
     const filteredTemplate = parsedTemplates.filter(
       (template: Template) => template.language === language
