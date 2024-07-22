@@ -182,7 +182,7 @@ const db = {
   $transaction: stub().callsFake(async () => {
     const updatedProblem = await db.problem.update()
     const newContestProblem = await db.contestProblem.create()
-    return [updatedProblem, newContestProblem]
+    return [newContestProblem, updatedProblem]
   }),
   getPaginator: PrismaService.prototype.getPaginator
 }
