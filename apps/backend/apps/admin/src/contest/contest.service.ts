@@ -354,7 +354,7 @@ export class ContestService {
         const contestIds = (
           await this.prisma.contestProblem.findMany({
             where: {
-              problemId: problemId
+              problemId
             }
           })
         )
