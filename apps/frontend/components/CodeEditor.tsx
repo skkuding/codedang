@@ -13,14 +13,14 @@ import { ScrollArea, ScrollBar } from './ui/scroll-area'
 
 const editorTheme = createTheme({
   settings: {
-    background: '#0f172a',
+    background: '#121728',
     foreground: '#9cdcfe',
     fontFamily: 'var(--font-mono), monospace',
     caret: '#c6c6c6',
     selection: '#6199ff2f',
     selectionMatch: '#72a1ff59',
     lineHighlight: '#ffffff0f',
-    gutterBackground: '#0f172a',
+    gutterBackground: '#121728',
     gutterActiveForeground: '#fff'
   },
   styles: [
