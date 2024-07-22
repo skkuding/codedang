@@ -821,7 +821,7 @@ const createProblems = async () => {
         memoryLimit: 128,
         source: 'USACO November 2011 Silver 3번',
         samples: { create: [{ input: '3 6', output: '5' }] },
-        exposeTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
+        exposeTime: minDate
       }
     })
   )
@@ -1317,7 +1317,7 @@ const createContests = async () => {
   }
 
   // add problems to finished contest
-  for (const problem of problems.slice(3, 6)) {
+  for (const problem of problems.slice(3, 5)) {
     await prisma.contestProblem.create({
       data: {
         order: problem.id - 1,
