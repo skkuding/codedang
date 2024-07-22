@@ -11,6 +11,7 @@ export default function ProblemCard({ problem }: Props) {
       <div className="flex flex-col justify-between gap-4 pt-2">
         <p className="text-sm font-medium text-gray-500">{`Problem #${problem.id}`}</p>
         <div className="line-clamp-2 whitespace-pre-wrap text-lg font-semibold leading-tight">
+          {/* code to keep two lines of problem title */}
           {`${problem.title}
           `}
         </div>
@@ -19,11 +20,15 @@ export default function ProblemCard({ problem }: Props) {
       <div className="grid grid-cols-2 text-xs text-gray-500">
         <div className="flex flex-col items-center gap-2 py-4">
           <p className="text-sm font-medium">Level</p>
-          <p className="text-2xl font-semibold text-black">{`${problem.difficulty.substring(5)}`}</p>
+          <p className="text-2xl font-semibold text-black">
+            {problem.difficulty.substring(5)}
+          </p>
         </div>
         <div className="flex flex-col items-center gap-2 border-l-2 py-4">
           <p className="text-sm font-medium">Submission</p>
-          <p className="text-2xl font-semibold text-black">{`${problem.submissionCount}`}</p>
+          <p className="text-2xl font-semibold text-black">
+            {problem.submissionCount}
+          </p>
         </div>
       </div>
     </div>
