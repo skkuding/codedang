@@ -66,12 +66,12 @@ export default function Home() {
           </Suspense>
         </div>
       </div> */}
-      <div className="flex w-full flex-col gap-3">
+      <div className="flex w-full flex-col gap-6">
         <div className="flex w-full items-center justify-between text-gray-700">
-          <p className="text-xl font-bold">Professor’s Recommendation</p>
+          <p className="text-2xl font-bold">Problem ✨</p>
           <Link href={'/problem' as Route}>
-            <Button variant="outline" className="h-8">
-              More
+            <Button variant="ghost" className="h-8 px-3">
+              See More
             </Button>
           </Link>
         </div>
