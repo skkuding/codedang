@@ -47,7 +47,9 @@ const user: User = {
   email: EMAIL_ADDRESS,
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
-  updateTime: faker.date.past()
+  updateTime: faker.date.past(),
+  studentID: null,
+  major: null
 }
 const profile: UserProfile = {
   id: ID,
@@ -380,7 +382,9 @@ describe('UserService', () => {
       username: user.username,
       password: user.password,
       email: user.email,
-      realName: profile.realName
+      realName: profile.realName,
+      studentID: user.studentID,
+      major: user.major
     }
 
     let createUserSpy: SinonSpy
@@ -433,7 +437,9 @@ describe('UserService', () => {
       await expect(
         service.signUp(authRequestObject, {
           ...signUpDto,
-          email: 'else@email.com'
+          email: 'else@email.com',
+          major: '',
+          studentID: ''
         })
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(createUserSpy.calledOnce).to.be.false

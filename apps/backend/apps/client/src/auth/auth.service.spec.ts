@@ -35,7 +35,9 @@ describe('AuthService', () => {
     email: '',
     lastLogin: faker.date.past(),
     createTime: faker.date.past(),
-    updateTime: faker.date.past()
+    updateTime: faker.date.past(),
+    studentID: null,
+    major: null
   }
   const userMock = {
     getUserCredential: stub().resolves(user),
