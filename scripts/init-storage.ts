@@ -10,7 +10,7 @@ import { resolve, basename } from 'path'
 
 const main = async () => {
   await Promise.all([setupTestcaseBucket(), setupMediaBucket()]).then(() => {
-    console.log('All buckets are set up')
+    console.log("All buckets are set up");
   })
 }
 
