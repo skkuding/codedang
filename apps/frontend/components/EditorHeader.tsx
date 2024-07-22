@@ -97,6 +97,7 @@ export default function Editor({
   }, [])
 
   useEffect(() => {
+    if (!templateString) return
     const parsedTemplates = JSON.parse(templateString)
     const filteredTemplate = parsedTemplates.filter(
       (template: Template) => template.language === language

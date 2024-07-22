@@ -1,18 +1,18 @@
 meta {
-  name: Succeed
+  name: Succeed: Contest(AC)
   type: http
-  seq: 1
+  seq: 4
 }
 
 post {
-  url: {{baseUrl}}/submission?problemId=1
+  url: {{baseUrl}}/submission?problemId=1&contestId=1
   body: json
   auth: none
 }
 
 params:query {
   problemId: 1
-  ~contestId: 1
+  contestId: 1
   ~groupId: 1
   ~workbookId: 1
 }
@@ -30,16 +30,31 @@ body:json {
   }
 }
 
+assert {
+  res.body.id: isNumber
+  res.body.userId: isNumber
+  res.body.problemId: isNumber
+  res.body.contestId: isNumber
+  res.body.workbookId: isNull
+  res.body.code: isArray
+  res.body.code[0]: isJson
+  res.body.codeSize: isNumber
+  res.body.language: isString
+  res.body.result: isString
+  res.body.createTime: isString
+  res.body.updateTime: isString
+}
+
 script:pre-request {
   await require("./login").loginUser(req);
 }
 
 docs {
-  # Create Submission
+  ## Create Submission (AC)
   
-  코드를 제출하여 채점 요청을 보냅니다.
+  `Contest`에 AC 판정을 받는 코드를 제출하여, 채점 요청을 보냅니다.
   
-  ## Query
+  ### Query
   
   > 필수 query는 * 표시하였습니다.
   
@@ -50,4 +65,9 @@ docs {
   |contestId|Integer|문제가 속한 대회 ID|
   |workbookId|Integer|문제가 속한 문제집 ID|
   
+  ### Error Case
+  
+  #### 404: No Contest found
+  
+  현재 진행 중이지 않는 `Contest`에 `Submission`을 Create하려는 경우
 }
