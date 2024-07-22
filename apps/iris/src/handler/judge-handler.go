@@ -361,7 +361,7 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 		res.SetJudgeResultCode(WRONG_ANSWER)
 	}
 
-// TODO: ChResult 구조체 활용
+	// TODO: ChResult 구조체 활용
 Send:
 	marshaledRes, err := json.Marshal(res)
 	if err != nil {
