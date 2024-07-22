@@ -285,7 +285,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 	}
 
 	tcNum := tc.Count()
-  cnt := make(chan int)
+	cnt := make(chan int)
 	for i := 0; i < tcNum; i++ {
 		go j.judgeTestcase(i, dir, validReq, tc.Elements[i], out, cnt)
 	}
