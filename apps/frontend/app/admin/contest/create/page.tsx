@@ -11,6 +11,7 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Switch } from '@/components/ui/switch'
 import {
   CREATE_CONTEST,
   IMPORT_PROBLEMS_TO_CONTEST
@@ -46,7 +47,8 @@ const schema = z.object({
   isVisible: z.boolean().optional(),
   description: z.string().min(1),
   startTime: z.date(),
-  endTime: z.date()
+  endTime: z.date(),
+  invitationCode: z.string().min(6).max(6).nullish()
 })
 
 interface ContestProblem {
@@ -60,6 +62,7 @@ export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isCreating, setIsCreating] = useState<boolean>(false)
+  const [showInvitationCode, setShowInvitationCode] = useState<boolean>(false)
 
   const router = useRouter()
 
@@ -177,6 +180,10 @@ export default function Page() {
         setValue('endTime', new Date(contestFormData.endTime))
       }
       setValue('description', contestFormData.description)
+      if (contestFormData.invitationCode) {
+        setValue('invitationCode', contestFormData.invitationCode)
+        setShowInvitationCode(true)
+      }
     } else {
       setValue('description', ' ')
     }
@@ -289,6 +296,40 @@ export default function Page() {
               </div>
             )}
           </div>
+
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <Label required={false}>Register Code</Label>
+              <Switch
+                onCheckedChange={() => {
+                  setShowInvitationCode(!showInvitationCode)
+                  setValue('invitationCode', null)
+                }}
+                checked={showInvitationCode}
+                className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
+              />
+            </div>
+            {showInvitationCode && (
+              <Input
+                id="invitationCode"
+                placeholder="Enter a Invitation Code"
+                type="number"
+                className={cn(
+                  inputStyle,
+                  'w-[380px]',
+                  '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
+                )}
+                {...register('invitationCode')}
+              />
+            )}
+            {errors.invitationCode && (
+              <div className="flex items-center gap-1 text-xs text-red-500">
+                <PiWarningBold />
+                {errors.invitationCode.message as string}
+              </div>
+            )}
+          </div>
+
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -331,7 +372,8 @@ export default function Page() {
                     title: getValues('title'),
                     startTime: getValues('startTime'),
                     endTime: getValues('endTime'),
-                    description: getValues('description')
+                    description: getValues('description'),
+                    invitationCode: getValues('invitationCode')
                   }
                   localStorage.setItem(
                     'contestFormData',

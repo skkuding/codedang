@@ -15,6 +15,17 @@ export interface Tag {
   name: string
 }
 
+export interface Snippet {
+  id: number
+  locked: boolean
+  text: string
+}
+
+export interface Template {
+  code: Snippet[]
+  language: Language
+}
+
 export interface Problem {
   id: number
   title: string
@@ -55,6 +66,7 @@ export interface ProblemDetail {
   source: string
   tags: Tag[]
   hint: string
+  template: string[]
 }
 
 // Contest type definition

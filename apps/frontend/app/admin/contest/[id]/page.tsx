@@ -6,6 +6,7 @@ import { DateTimePickerDemo } from '@/components/date-time-picker-demo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Switch } from '@/components/ui/switch'
 import {
   IMPORT_PROBLEMS_TO_CONTEST,
   UPDATE_CONTEST,
@@ -44,7 +45,8 @@ const schema = z.object({
   isVisible: z.boolean(),
   description: z.string().min(1),
   startTime: z.date(),
-  endTime: z.date()
+  endTime: z.date(),
+  invitationCode: z.string().min(6).max(6).nullish()
 })
 
 interface Problem {
@@ -58,6 +60,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [prevProblemIds, setPrevProblemIds] = useState<number[]>([])
   const [problems, setProblems] = useState<Problem[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [showInvitationCode, setShowInvitationCode] = useState<boolean>(false)
   const { id } = params
 
   const router = useRouter()
@@ -94,12 +97,17 @@ export default function Page({ params }: { params: { id: string } }) {
           setValue('endTime', new Date(contestFormData.endTime))
         }
         setValue('description', contestFormData.description)
+        setValue('invitationCode', contestFormData.invitationCode)
       } else {
         const data = contestData.getContest
         setValue('title', data.title)
         setValue('description', data.description)
         setValue('startTime', new Date(data.startTime))
         setValue('endTime', new Date(data.endTime))
+        setValue('invitationCode', data.invitationCode)
+      }
+      if (getValues('invitationCode') !== null) {
+        setShowInvitationCode(true)
       }
       setIsLoading(false)
     }
@@ -162,10 +170,6 @@ export default function Page({ params }: { params: { id: string } }) {
     const problemIds = problems.map((problem) => problem.id)
 
     const orderArray = JSON.parse(localStorage.getItem('orderArray') || '[]')
-    if (orderArray.length === 0) {
-      toast.error('Problem order not set')
-      return
-    }
     if (orderArray.length !== problemIds.length) {
       toast.error('Problem order not set')
       return
@@ -336,6 +340,39 @@ export default function Page({ params }: { params: { id: string } }) {
           </div>
 
           <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <Label required={false}>Invitation Code</Label>
+              <Switch
+                onCheckedChange={() => {
+                  setShowInvitationCode(!showInvitationCode)
+                  setValue('invitationCode', null)
+                }}
+                checked={showInvitationCode}
+                className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
+              />
+            </div>
+            {showInvitationCode && (
+              <Input
+                id="invitationCode"
+                placeholder="Enter a Invitation Code"
+                type="number"
+                className={cn(
+                  inputStyle,
+                  'w-[380px]',
+                  '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
+                )}
+                {...register('invitationCode')}
+              />
+            )}
+            {errors.invitationCode && (
+              <div className="flex items-center gap-1 text-xs text-red-500">
+                <PiWarningBold />
+                {errors.invitationCode.message as string}
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
               <Label>Contest Problem List</Label>
               <Button
@@ -347,7 +384,8 @@ export default function Page({ params }: { params: { id: string } }) {
                     title: getValues('title'),
                     startTime: getValues('startTime'),
                     endTime: getValues('endTime'),
-                    description: getValues('description')
+                    description: getValues('description'),
+                    invitationCode: getValues('invitationCode')
                   }
                   localStorage.setItem(
                     `contestFormData-${id}`,

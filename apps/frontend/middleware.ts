@@ -65,7 +65,9 @@ export const middleware = async (req: NextRequest) => {
       res.cookies.set(sessionCookieName, newToken, {
         // for client setCookie
         maxAge: 24 * 60 * 60,
-        secure: process.env.NODE_ENV === 'production',
+        secure:
+          process.env.APP_ENV === 'production' ||
+          process.env.APP_ENV === 'stage',
         httpOnly: true,
         sameSite: 'lax'
       })
