@@ -15,7 +15,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
 import { Workbook } from 'exceljs'
 import type { ReadStream } from 'fs'
-import { MAX_IMAGE_SIZE } from '@libs/constants'
+import { MAX_DATE, MAX_IMAGE_SIZE, MIN_DATE } from '@libs/constants'
 import {
   DuplicateFoundException,
   EntityNotExistException,
@@ -25,7 +25,6 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from './model/problem.constants'
-import { minDate, maxDate } from './model/problem.constants'
 import type {
   CreateProblemInput,
   UploadFileInput,
@@ -82,7 +81,7 @@ export class ProblemService {
     const problem = await this.prisma.problem.create({
       data: {
         ...data,
-        exposeTime: isVisible ? minDate : maxDate,
+        exposeTime: isVisible ? MIN_DATE : MAX_DATE,
         samples: {
           create: samples
         },
@@ -455,7 +454,7 @@ export class ProblemService {
           })
         },
         ...(isVisible != undefined && {
-          exposeTime: isVisible ? minDate : maxDate
+          exposeTime: isVisible ? MIN_DATE : MAX_DATE
         }),
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
@@ -776,7 +775,7 @@ export class ProblemService {
         isVisible:
           exposeTime < new Date()
             ? true
-            : exposeTime.getTime() === maxDate.getTime()
+            : exposeTime.getTime() === MAX_DATE.getTime()
               ? false
               : null,
         ...data

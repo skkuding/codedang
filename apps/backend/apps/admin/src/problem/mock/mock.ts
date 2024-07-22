@@ -10,8 +10,8 @@ import type {
 } from '@generated'
 import { faker } from '@faker-js/faker'
 import { createReadStream } from 'fs'
+import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import type { FileUploadDto } from '../dto/file-upload.dto'
-import { minDate, maxDate } from '../model/problem.constants'
 import type { UploadFileInput } from '../model/problem.input'
 import type { ProblemWithIsVisible } from '../model/problem.output'
 import type { Template } from '../model/template.input'
@@ -26,7 +26,7 @@ const changeExposetimeToIsVisible = function (
       isVisible:
         exposeTime < new Date()
           ? true
-          : exposeTime.getTime() === maxDate.getTime()
+          : exposeTime.getTime() === MAX_DATE.getTime()
             ? false
             : null,
       ...data
@@ -67,7 +67,7 @@ export const problems: Problem[] = [
     acceptedRate: 0.5,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    exposeTime: maxDate,
+    exposeTime: MAX_DATE,
     samples: [],
     engTitle: null,
     engDescription: null,
@@ -156,7 +156,7 @@ export const importedProblems: Problem[] = [
     acceptedRate: 0.5,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    exposeTime: minDate,
+    exposeTime: MIN_DATE,
     samples: [],
     engTitle: null,
     engDescription: null,
@@ -200,7 +200,7 @@ export const importedProblems: Problem[] = [
     acceptedRate: 0.5,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    exposeTime: minDate,
+    exposeTime: MIN_DATE,
     samples: [],
     engTitle: null,
     engDescription: null,

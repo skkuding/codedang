@@ -43,6 +43,3 @@ export const ImportedProblemHeader: string[] = [
   'AnswerDetail',
   'AnswerYn'
 ]
-
-export const maxDate: Date = new Date('2999-12-31T00:00:00.000Z')
-export const minDate: Date = new Date('2000-01-01T00:00:00.000Z')

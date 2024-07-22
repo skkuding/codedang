@@ -19,6 +19,7 @@ import {
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
+import { MIN_DATE, MAX_DATE } from '@libs/constants'
 
 const prisma = new PrismaClient()
 const fixturePath = join(__dirname, '__fixtures__')
@@ -38,9 +39,6 @@ const workbooks: Workbook[] = []
 const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
 const announcements: Announcement[] = []
-
-const maxDate: Date = new Date('2999-12-31T00:00:00.000Z')
-const minDate: Date = new Date('2000-01-01T00:00:00.000Z')
 
 const createUsers = async () => {
   // create super admin user
@@ -821,7 +819,7 @@ const createProblems = async () => {
         memoryLimit: 128,
         source: 'USACO November 2011 Silver 3번',
         samples: { create: [{ input: '3 6', output: '5' }] },
-        exposeTime: minDate
+        exposeTime: MIN_DATE
       }
     })
   )
@@ -863,7 +861,7 @@ const createProblems = async () => {
             }
           ]
         },
-        exposeTime: minDate
+        exposeTime: MIN_DATE
       }
     })
   )
@@ -905,7 +903,7 @@ const createProblems = async () => {
             }
           ]
         },
-        exposeTime: maxDate
+        exposeTime: MAX_DATE
       }
     })
   )
@@ -938,7 +936,7 @@ const createProblems = async () => {
             }
           ]
         },
-        exposeTime: maxDate
+        exposeTime: MAX_DATE
       }
     })
   )

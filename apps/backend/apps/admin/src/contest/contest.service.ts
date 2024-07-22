@@ -10,7 +10,9 @@ import { Cache } from 'cache-manager'
 import {
   OPEN_SPACE_ID,
   PUBLICIZING_REQUEST_EXPIRE_TIME,
-  PUBLICIZING_REQUEST_KEY
+  PUBLICIZING_REQUEST_KEY,
+  MIN_DATE,
+  MAX_DATE
 } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -18,7 +20,6 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { maxDate, minDate } from '@admin/problem/model/problem.constants'
 import type { CreateContestInput } from './model/contest.input'
 import type { UpdateContestInput } from './model/contest.input'
 import type { PublicizingRequest } from './model/publicizing-request.model'
@@ -300,12 +301,12 @@ export class ContestService {
               OR: [
                 {
                   exposeTime: {
-                    equals: minDate
+                    equals: MIN_DATE
                   }
                 },
                 {
                   exposeTime: {
-                    equals: maxDate
+                    equals: MAX_DATE
                   }
                 },
                 {
@@ -349,7 +350,7 @@ export class ContestService {
     for (const problemId of problemIds) {
       try {
         // 문제가 포함된 대회 중 가장 늦게 끝나는 대회의 종료시각으로 exposeTime 설정 (없을시 비공개 전환)
-        let exposeTime = maxDate
+        let exposeTime = MAX_DATE
 
         const contestIds = (
           await this.prisma.contestProblem.findMany({
