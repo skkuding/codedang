@@ -12,7 +12,9 @@ interface Props {
 export default function Error({ error }: Props) {
   useEffect(() => {
     captureException(error)
-  }, [error])dasdas
+  }, [error])
 
   return <ErrorDetail errorDetail="Failed to Load Problem!" error={error} />
 }
+
+const test = 'test'
