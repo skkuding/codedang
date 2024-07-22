@@ -15,7 +15,9 @@ const user: User = {
   email: 'email@codedang.com',
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
-  updateTime: faker.date.past()
+  updateTime: faker.date.past(),
+  studentID: null,
+  major: null
 }
 
 const userGroup: UserGroup = {
