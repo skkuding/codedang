@@ -24,11 +24,11 @@ const changeVisibleLockTimeToIsVisible = function (
     const { visibleLockTime, ...data } = problem
     return {
       isVisible:
-        visibleLockTime < new Date()
+        visibleLockTime.getTime() === MIN_DATE.getTime()
           ? true
-          : visibleLockTime.getTime() === MAX_DATE.getTime()
-            ? false
-            : null,
+          : visibleLockTime < new Date()
+            ? null
+            : false,
       ...data
     }
   })
