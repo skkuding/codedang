@@ -131,7 +131,7 @@ jobs:
           cache-dependency-path: apps/iris/go.sum
 
       - name: Echo branches
-        run: echo $(git branch -a | grep -E "(main)"
+        run: echo $(git branch -a | grep -E "(main)")
 
       - name: Lint pull request title
         if: ${{ github.event_name == 'pull_request' }}
