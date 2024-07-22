@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "user" ALTER COLUMN "major" DROP NOT NULL,
-ALTER COLUMN "student_id" DROP NOT NULL;
