@@ -32,6 +32,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { StorageService } from '@libs/storage'
 import {
   type CreateSubmissionDto,
   Snippet,
@@ -49,7 +50,8 @@ export class SubmissionService implements OnModuleInit {
     private readonly amqpConnection: AmqpConnection,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
-    private readonly traceService: TraceService
+    private readonly traceService: TraceService,
+    private readonly storageService: StorageService
   ) {}
   onModuleInit() {
     this.amqpConnection.createSubscriber(
@@ -407,7 +409,8 @@ export class SubmissionService implements OnModuleInit {
   @Span()
   async updateTestcaseJudgeResult(
     submissionResult: Partial<SubmissionResult> &
-      Pick<SubmissionResult, 'result'>
+      Pick<SubmissionResult, 'result'> &
+      Pick<SubmissionResult, 'submissionId'>
   ) {
     // TODO: submission의 값들이 아닌 submissionResult의 id 값으로 접근할 수 있도록 수정
     const { id } = await this.prisma.submissionResult.findFirstOrThrow({
@@ -428,6 +431,8 @@ export class SubmissionService implements OnModuleInit {
         result: submissionResult.result
       }
     })
+
+    await this.updateSubmissionResult(submissionResult.submissionId)
   }
 
   @Span()
