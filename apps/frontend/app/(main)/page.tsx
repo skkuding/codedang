@@ -68,6 +68,17 @@ export default function Home() {
       </div> */}
       <div className="flex w-full flex-col gap-6">
         <div className="flex w-full items-center justify-between text-gray-700">
+          <p className="text-2xl font-bold">Contest 🏆</p>
+          <Link href={'/problem' as Route}>
+            <Button variant="ghost" className="h-8 px-3">
+              See More
+            </Button>
+          </Link>
+        </div>
+        <div className="grid w-full grid-cols-3 gap-5">
+          <ProblemCards />
+        </div>
+        <div className="flex w-full items-center justify-between text-gray-700">
           <p className="text-2xl font-bold">Problem ✨</p>
           <Link href={'/problem' as Route}>
             <Button variant="ghost" className="h-8 px-3">

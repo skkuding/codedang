@@ -10,10 +10,8 @@ export default function ProblemCard({ problem }: Props) {
     <div className="flex w-full flex-col justify-between gap-4 rounded-md border border-gray-200 p-4 shadow-none transition hover:scale-105">
       <div className="flex flex-col justify-between gap-4 pt-2">
         <p className="text-sm font-medium text-gray-500">{`Problem #${problem.id}`}</p>
-        <div className="line-clamp-2 whitespace-pre-wrap text-lg font-semibold leading-tight">
-          {/* code to keep two lines of problem title */}
-          {`${problem.title}
-          `}
+        <div className="line-clamp-2 h-11 whitespace-pre-wrap text-lg font-semibold leading-tight">
+          {problem.title}
         </div>
       </div>
       <div className="border-t-2"></div>
