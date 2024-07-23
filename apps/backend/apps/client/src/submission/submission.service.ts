@@ -40,6 +40,7 @@ import {
 } from './dto/create-submission.dto'
 import { JudgeRequest } from './dto/judge-request.class'
 import { JudgerResponse } from './dto/judger-response.dto'
+import type { TestcaseDTO } from './dto/testcase.dto'
 
 @Injectable()
 export class SubmissionService implements OnModuleInit {
@@ -238,6 +239,9 @@ export class SubmissionService implements OnModuleInit {
       const submission = await this.prisma.submission.create({
         data: submissionData
       })
+
+      await this.createSubmissionResults(submission)
+
       await this.publishJudgeRequestMessage(code, submission)
       return submission
     }
@@ -257,6 +261,8 @@ export class SubmissionService implements OnModuleInit {
         data: { ...submissionData, contestId: idOptions.contestId }
       })
 
+      await this.createSubmissionResults(submission)
+
       await this.publishJudgeRequestMessage(code, submission)
       return submission
     }
@@ -275,25 +281,18 @@ export class SubmissionService implements OnModuleInit {
 
   @Span()
   async createSubmissionResults(submission: Submission): Promise<void> {
-    const problem = await this.prisma.problem.findUniqueOrThrow({
-      where: {
-        id: submission.problemId
-      },
-      select: {
-        problemTestcase: {
-          select: {
-            id: true
-          }
-        }
-      }
-    })
+    const rawTestcase = await this.storageService.readObject(
+      `${submission.problemId}.json`
+    )
+
+    const testcases = JSON.parse(rawTestcase) as TestcaseDTO[]
 
     await this.prisma.submissionResult.createMany({
-      data: problem.problemTestcase.map((testcase) => {
+      data: testcases.map((testcase) => {
         return {
           submissionId: submission.id,
-          problemTestcaseId: testcase.id,
-          result: ResultStatus.Judging
+          result: ResultStatus.Judging,
+          problemTestcaseId: parseInt(testcase.id.split(':')[1], 10)
         }
       })
     })
@@ -458,7 +457,9 @@ export class SubmissionService implements OnModuleInit {
         id
       },
       data: {
-        result: submissionResult.result
+        result: submissionResult.result,
+        cpuTime: submissionResult.cpuTime,
+        memoryUsage: submissionResult.memoryUsage
       }
     })
 
@@ -763,6 +764,8 @@ export class SubmissionService implements OnModuleInit {
           cpuTime: result.cpuTime ? result.cpuTime.toString() : null
         }
       })
+
+      results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
 
       return {
         problemId,
