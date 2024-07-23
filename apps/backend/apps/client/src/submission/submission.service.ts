@@ -299,32 +299,6 @@ export class SubmissionService implements OnModuleInit {
     })
   }
 
-  @Span()
-  async createSubmissionResults(submission: Submission): Promise<void> {
-    const problem = await this.prisma.problem.findUniqueOrThrow({
-      where: {
-        id: submission.problemId
-      },
-      select: {
-        problemTestcase: {
-          select: {
-            id: true
-          }
-        }
-      }
-    })
-
-    await this.prisma.submissionResult.createMany({
-      data: problem.problemTestcase.map((testcase) => {
-        return {
-          submissionId: submission.id,
-          problemTestcaseId: testcase.id,
-          result: ResultStatus.Judging
-        }
-      })
-    })
-  }
-
   isValidCode(code: Snippet[], language: Language, templates: Template[]) {
     const template = templates.find((code) => code.language === language)?.code
     if (!template || template.length === 0) return true
