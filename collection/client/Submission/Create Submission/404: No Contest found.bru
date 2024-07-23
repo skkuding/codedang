@@ -1,18 +1,18 @@
 meta {
-  name: Succeed
+  name: 404: No Contest found
   type: http
-  seq: 1
+  seq: 5
 }
 
 post {
-  url: {{baseUrl}}/submission?problemId=1
+  url: {{baseUrl}}/submission?problemId=1&contestId=999
   body: json
   auth: none
 }
 
 params:query {
   problemId: 1
-  ~contestId: 1
+  contestId: 999
   ~groupId: 1
   ~workbookId: 1
 }
@@ -22,7 +22,7 @@ body:json {
     "code": [
       {
         "id": 1,
-        "text": "#include <stdio.h>\nint main() { int a, b; scanf(\"%d%d\", &a, &b); printf(\"%d\\n\", a + b);}",
+        "text": "#include <stdio.h>\nint main() { int a, b; scanf(\"%d%d\", &a, &b); printf(\"%d\\n\", a - b);}",
         "locked": false
       }
     ],
@@ -30,16 +30,22 @@ body:json {
   }
 }
 
+assert {
+  res.body.message: eq "No Contest found"
+  res.body.error: eq "Not Found"
+  res.body.statusCode: eq 404
+}
+
 script:pre-request {
   await require("./login").loginUser(req);
 }
 
 docs {
-  # Create Submission
+  ## 404: No Contest found
   
-  코드를 제출하여 채점 요청을 보냅니다.
+  존재하지 `Contest`에 Submission을 제출합니다.
   
-  ## Query
+  ### Query
   
   > 필수 query는 * 표시하였습니다.
   

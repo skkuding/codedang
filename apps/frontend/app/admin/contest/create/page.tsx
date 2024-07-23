@@ -180,6 +180,10 @@ export default function Page() {
         setValue('endTime', new Date(contestFormData.endTime))
       }
       setValue('description', contestFormData.description)
+      if (contestFormData.invitationCode) {
+        setValue('invitationCode', contestFormData.invitationCode)
+        setShowInvitationCode(true)
+      }
     } else {
       setValue('description', ' ')
     }
@@ -308,7 +312,7 @@ export default function Page() {
             {showInvitationCode && (
               <Input
                 id="invitationCode"
-                placeholder="Enter a Register Code"
+                placeholder="Enter a Invitation Code"
                 type="number"
                 className={cn(
                   inputStyle,
@@ -368,7 +372,8 @@ export default function Page() {
                     title: getValues('title'),
                     startTime: getValues('startTime'),
                     endTime: getValues('endTime'),
-                    description: getValues('description')
+                    description: getValues('description'),
+                    invitationCode: getValues('invitationCode')
                   }
                   localStorage.setItem(
                     'contestFormData',

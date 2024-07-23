@@ -113,7 +113,18 @@ export class SubmissionService implements OnModuleInit {
     groupId = OPEN_SPACE_ID
   ) {
     const now = new Date()
-
+    await this.prisma.contest.findFirstOrThrow({
+      where: {
+        id: contestId,
+        groupId,
+        startTime: {
+          lte: now
+        },
+        endTime: {
+          gt: now
+        }
+      }
+    })
     const { contest } = await this.prisma.contestRecord.findUniqueOrThrow({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -194,8 +205,6 @@ export class SubmissionService implements OnModuleInit {
     userId: number,
     idOptions?: { contestId?: number; workbookId?: number }
   ) {
-    let submission: Submission
-
     if (!problem.languages.includes(submissionDto.language)) {
       throw new ConflictFoundException(
         `This problem does not support language ${submissionDto.language}`
@@ -221,25 +230,73 @@ export class SubmissionService implements OnModuleInit {
       ...data
     }
 
-    if (idOptions && idOptions.contestId) {
-      submission = await this.prisma.submission.create({
-        data: { ...submissionData, contestId: idOptions.contestId }
-      })
-    } else if (idOptions && idOptions.workbookId) {
-      submission = await this.prisma.submission.create({
-        data: { ...submissionData, workbookId: idOptions.workbookId }
-      })
-    } else {
-      submission = await this.prisma.submission.create({
+    // idOptions Object가 undefined이거나 contestId와 workbookId가 모두 없는 경우
+    if (
+      idOptions === undefined ||
+      (!idOptions.contestId && !idOptions.workbookId)
+    ) {
+      const submission = await this.prisma.submission.create({
         data: submissionData
       })
+      await this.publishJudgeRequestMessage(code, submission)
+      return submission
     }
 
-    await this.createSubmissionResults(submission)
+    if (idOptions.contestId) {
+      // 해당 contestId에 해당하는 Contest에서 해당 problemId에 해당하는 문제로 AC를 받은 submission이 있는지 확인
+      const hasPassed = await this.hasPassedProblem(userId, {
+        problemId: problem.id,
+        contestId: idOptions.contestId
+      })
+      if (hasPassed) {
+        throw new ConflictFoundException(
+          'You have already gotten AC for this problem'
+        )
+      }
+      const submission = await this.prisma.submission.create({
+        data: { ...submissionData, contestId: idOptions.contestId }
+      })
 
-    await this.publishJudgeRequestMessage(code, submission)
+      await this.publishJudgeRequestMessage(code, submission)
+      return submission
+    }
 
-    return submission
+    if (idOptions.workbookId) {
+      const submission = await this.prisma.submission.create({
+        data: { ...submissionData, workbookId: idOptions.workbookId }
+      })
+
+      await this.createSubmissionResults(submission)
+
+      await this.publishJudgeRequestMessage(code, submission)
+      return submission
+    }
+  }
+
+  @Span()
+  async createSubmissionResults(submission: Submission): Promise<void> {
+    const problem = await this.prisma.problem.findUniqueOrThrow({
+      where: {
+        id: submission.problemId
+      },
+      select: {
+        problemTestcase: {
+          select: {
+            id: true
+          }
+        }
+      }
+    })
+
+    await this.prisma.submissionResult.createMany({
+      data: problem.problemTestcase.map((testcase) => {
+        return {
+          submissionId: submission.id,
+          problemTestcaseId: testcase.id,
+          result: ResultStatus.Judging
+        }
+      })
+    })
   }
 
   @Span()
