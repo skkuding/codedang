@@ -102,6 +102,9 @@ services:
         reservations:
           cpus: 0.58
           memory: 512M
+        limits:
+          cpus: 2.0
+          memory: 2G
 
   backend-admin:
     profiles: ['deploy', 'update-target']
@@ -120,6 +123,9 @@ services:
         reservations:
           cpus: 0.58
           memory: 512M
+        limits:
+          cpus: 2.0
+          memory: 2G
 
   iris:
     profiles: ['deploy', 'update-target']
@@ -131,6 +137,11 @@ services:
         condition: service_completed_successfully
     env_file: .env.development
     network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: 0.50
+          memory: 512M
 
   promtail:
     profiles: ['deploy']
