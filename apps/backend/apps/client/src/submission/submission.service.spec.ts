@@ -3,7 +3,13 @@ import { NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
-import { Language, ResultStatus, Role, type User } from '@prisma/client'
+import {
+  Language,
+  ResultStatus,
+  Role,
+  type Contest,
+  type User
+} from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
@@ -38,6 +44,9 @@ const db = {
     findUnique: stub(),
     update: stub()
   },
+  contest: {
+    findFirstOrThrow: stub()
+  },
   contestProblem: {
     findUniqueOrThrow: stub(),
     findFirstOrThrow: stub()
@@ -46,7 +55,8 @@ const db = {
     findUniqueOrThrow: stub()
   },
   contestRecord: {
-    findUniqueOrThrow: stub()
+    findUniqueOrThrow: stub(),
+    update: stub()
   },
   user: {
     findFirstOrThrow: stub(),
@@ -57,6 +67,21 @@ const db = {
 
 const CONTEST_ID = 1
 const WORKBOOK_ID = 1
+const mockContest: Contest = {
+  id: CONTEST_ID,
+  createdById: 1,
+  groupId: 1,
+  title: 'SKKU Coding Platform 모의대회',
+  description: 'test',
+  invitationCode: 'test',
+  startTime: new Date(),
+  endTime: new Date(),
+  isVisible: true,
+  isRankVisible: true,
+  enableCopyPaste: true,
+  createTime: new Date(),
+  updateTime: new Date()
+}
 
 describe('SubmissionService', () => {
   let service: SubmissionService
@@ -121,6 +146,7 @@ describe('SubmissionService', () => {
   describe('submitToContest', () => {
     it('should call createSubmission', async () => {
       const createSpy = stub(service, 'createSubmission')
+      db.contest.findFirstOrThrow(mockContest)
       db.contestRecord.findUniqueOrThrow.resolves({
         contest: {
           groupId: 1,
@@ -222,6 +248,60 @@ describe('SubmissionService', () => {
       expect(publishSpy.calledOnce).to.be.true
     })
 
+    it('should create submission with contestId', async () => {
+      const publishSpy = stub(amqpConnection, 'publish')
+      db.problem.findUnique.resolves(problems[0])
+      db.submission.create.resolves({
+        ...submissions[0],
+        contestId: CONTEST_ID
+      })
+      db.submission.findMany.resolves(submissions)
+      expect(
+        await service.createSubmission(
+          submissionDto,
+          problems[0],
+          submissions[0].userId,
+          { contestId: CONTEST_ID }
+        )
+      ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
+      expect(publishSpy.calledOnce).to.be.true
+    })
+
+    it('should throw conflict found exception if user has already gotten AC', async () => {
+      const publishSpy = stub(amqpConnection, 'publish')
+      db.problem.findUnique.resolves(problems[0])
+      db.submission.create.resolves(submissions[0])
+      db.submission.findMany.resolves([{ result: ResultStatus.Accepted }])
+
+      await expect(
+        service.createSubmission(
+          submissionDto,
+          problems[0],
+          submissions[0].userId,
+          { contestId: CONTEST_ID }
+        )
+      ).to.be.rejectedWith(ConflictFoundException)
+      expect(publishSpy.calledOnce).to.be.false
+    })
+
+    it('should create submission with workbookId', async () => {
+      const publishSpy = stub(amqpConnection, 'publish')
+      db.problem.findUnique.resolves(problems[0])
+      db.submission.create.resolves({
+        ...submissions[0],
+        workbookId: WORKBOOK_ID
+      })
+      expect(
+        await service.createSubmission(
+          submissionDto,
+          problems[0],
+          submissions[0].userId,
+          { workbookId: WORKBOOK_ID }
+        )
+      ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
+      expect(publishSpy.calledOnce).to.be.true
+    })
+
     it('should throw exception if the language is not supported', async () => {
       const publishSpy = stub(amqpConnection, 'publish')
       db.problem.findUnique.resolves(problems[0])
@@ -286,19 +366,24 @@ describe('SubmissionService', () => {
           ]
         }
       }
-
+      db.submission.update.resolves(submissions[0])
       await expect(service.handleJudgerMessage(target)).to.be.rejectedWith(
         UnprocessableDataException
       )
+      db.submission.update.reset()
     })
   })
 
   describe('updateSubmissionResult', () => {
     it('should call update submission result', async () => {
       db.submission.update.reset()
-      db.submission.update.resolves(submissions[0])
+      db.submission.update.resolves({
+        ...submissions[0],
+        contestId: CONTEST_ID
+      })
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.problem.update.reset()
+
       submissionResults.forEach((result, index) => {
         db.submissionResult.create.onCall(index).resolves(result)
       })

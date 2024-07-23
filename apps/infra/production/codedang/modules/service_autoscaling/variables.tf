@@ -2,7 +2,7 @@ variable "task_definition" {
   type = object({
     family                = string
     cpu                   = optional(number)
-    memory                = number
+    memory                = optional(number)
     container_definitions = any
     execution_role_arn    = string
   })

@@ -30,7 +30,7 @@ module "client_api" {
   #TODO
   task_definition = {
     family = "Codedang-Client-Api"
-    memory = 950
+    # memory = 950
 
     container_definitions = jsonencode([
       jsondecode(templatefile("container_definitions/client_api.json", {
