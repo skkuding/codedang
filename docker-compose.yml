@@ -97,6 +97,11 @@ services:
       - .env.development
       - .env
     network_mode: host
+    deploy:
+      resources:
+        reservations:
+          cpus: 0.58
+          memory: 512M
 
   backend-admin:
     profiles: ['deploy', 'update-target']
@@ -110,6 +115,11 @@ services:
       - .env.development
       - .env
     network_mode: host
+    deploy:
+      resources:
+        reservations:
+          cpus: 0.58
+          memory: 512M
 
   iris:
     profiles: ['deploy', 'update-target']
