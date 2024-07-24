@@ -1,7 +1,9 @@
 'use client'
 
+import ContestProblemListLabel from '@/app/admin/_components/ContestProblemListLabel'
 import DescriptionForm from '@/app/admin/_components/DescriptionForm'
 import FormSection from '@/app/admin/_components/FormSection'
+import ImportProblemButton from '@/app/admin/_components/ImportProblemButton'
 import SwitchField from '@/app/admin/_components/SwitchField'
 import TitleForm from '@/app/admin/_components/TitleForm'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
@@ -21,7 +23,6 @@ import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -29,21 +30,13 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { toast } from 'sonner'
-import Label from '../../_components/Label'
 import TimeForm from '../../_components/TimeForm'
-import { editSchema } from '../../utils'
+import { type ContestProblem, editSchema } from '../../utils'
 import { columns } from '../_components/Columns'
-
-interface Problem {
-  id: number
-  title: string
-  order: number
-  difficulty: string
-}
 
 export default function Page({ params }: { params: { id: string } }) {
   const [prevProblemIds, setPrevProblemIds] = useState<number[]>([])
-  const [problems, setProblems] = useState<Problem[]>([])
+  const [problems, setProblems] = useState<ContestProblem[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [showInvitationCode, setShowInvitationCode] = useState<boolean>(false)
   const { id } = params
@@ -265,34 +258,17 @@ export default function Page({ params }: { params: { id: string } }) {
             />
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <Label>Contest Problem List</Label>
-                <Button
-                  type="button"
-                  className="flex h-[36px] w-36 items-center gap-2 px-0"
+                <ContestProblemListLabel />
+                <ImportProblemButton
                   disabled={isLoading}
-                  onClick={() => {
-                    const formData = {
-                      title: getValues('title'),
-                      startTime: getValues('startTime'),
-                      endTime: getValues('endTime'),
-                      description: getValues('description'),
-                      invitationCode: getValues('invitationCode')
-                    }
-                    localStorage.setItem(
-                      `contestFormData-${id}`,
-                      JSON.stringify(formData)
-                    )
-                    router.push(`/admin/problem?import=true&contestId=${id}`)
-                  }}
-                >
-                  <PlusCircleIcon className="h-4 w-4" />
-                  <div className="mb-[2px] text-sm">Import Problem</div>
-                </Button>
+                  isCreatePage={false}
+                  id={Number(id)}
+                />
               </div>
               <DataTableAdmin
                 // eslint-disable-next-line
                 columns={columns as any[]}
-                data={problems as Problem[]}
+                data={problems as ContestProblem[]}
                 enableDelete={true}
                 enableSearch={true}
               />

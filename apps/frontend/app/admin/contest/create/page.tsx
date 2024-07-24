@@ -2,11 +2,6 @@
 
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { Button } from '@/components/ui/button'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   CREATE_CONTEST,
@@ -19,30 +14,22 @@ import {
 import { useMutation } from '@apollo/client'
 import type { CreateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
-import { MdHelpOutline } from 'react-icons/md'
 import { toast } from 'sonner'
+import ContestProblemListLabel from '../../_components/ContestProblemListLabel'
 import DescriptionForm from '../../_components/DescriptionForm'
 import FormSection from '../../_components/FormSection'
+import ImportProblemButton from '../../_components/ImportProblemButton'
 import SwitchField from '../../_components/SwitchField'
 import TitleForm from '../../_components/TitleForm'
-import Label from '../_components/Label'
 import TimeForm from '../_components/TimeForm'
-import { createSchema } from '../utils'
+import { type ContestProblem, createSchema } from '../utils'
 import { columns } from './_components/Columns'
-
-interface ContestProblem {
-  id: number
-  title: string
-  order: number
-  difficulty: string
-}
 
 export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
@@ -224,64 +211,13 @@ export default function Page() {
 
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Label>Contest Problem List</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button>
-                        <MdHelpOutline className="text-gray-400 hover:text-gray-700" />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      side="top"
-                      className="mb-2 w-[680px] bg-black px-4 py-2 text-white"
-                    >
-                      <ul className="text-xs font-normal">
-                        <li>
-                          The problems in the contest problem list are initially
-                          set to &apos;not visible&apos; at the time of creating
-                          the contest
-                        </li>
-                        <li>
-                          They become visible according to the specified start
-                          time and remain inaccessible in the problem list
-                        </li>
-                        <li>
-                          throughout the duration of the contest. After the
-                          contest period ends, they become visible again in the
-                          problem list.
-                        </li>
-                      </ul>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <Button
-                  type="button"
-                  className="flex h-[36px] w-36 items-center gap-2 px-0"
-                  disabled={isLoading}
-                  onClick={() => {
-                    const formData = {
-                      title: getValues('title'),
-                      startTime: getValues('startTime'),
-                      endTime: getValues('endTime'),
-                      description: getValues('description'),
-                      invitationCode: getValues('invitationCode')
-                    }
-                    localStorage.setItem(
-                      'contestFormData',
-                      JSON.stringify(formData)
-                    )
-                    router.push('/admin/problem?import=true')
-                  }}
-                >
-                  <PlusCircleIcon className="h-4 w-4" />
-                  <div className="mb-[2px] text-sm">Import Problem</div>
-                </Button>
+                <ContestProblemListLabel />
+                <ImportProblemButton disabled={isLoading} isCreatePage={true} />
               </div>
               <DataTableAdmin
                 // eslint-disable-next-line
-                columns={columns as any}
-                data={problems}
+                columns={columns as any[]}
+                data={problems as ContestProblem[]}
                 enableDelete={true}
                 enableSearch={true}
               />

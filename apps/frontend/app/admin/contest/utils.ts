@@ -13,3 +13,10 @@ export const createSchema = z.object({
 export const editSchema = createSchema.extend({
   id: z.number()
 })
+
+export interface ContestProblem {
+  id: number
+  title: string
+  order: number
+  difficulty: string
+}

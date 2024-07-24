@@ -4,8 +4,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import Label from '../problem/_components/Label'
 import { inputStyle } from '../utils'
+import Label from './Label'
 
 interface SwitchFieldProps {
   name: string
