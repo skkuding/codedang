@@ -409,8 +409,8 @@ model SubmissionResult {
   problemTestcase   ProblemTestcase @relation(fields: [problemTestcaseId], references: [id], onDelete: Cascade)
   problemTestcaseId Int             @map("problem_test_case_id")
   result            ResultStatus
-  cpuTime           BigInt          @map("cpu_time")
-  memoryUsage       Int             @map("memory_usage")
+  cpuTime           BigInt?         @map("cpu_time")
+  memoryUsage       Int?            @map("memory_usage")
   createTime        DateTime        @default(now()) @map("create_time")
   updateTime        DateTime        @updatedAt @map("update_time")
 

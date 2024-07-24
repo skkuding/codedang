@@ -4,15 +4,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"strconv"
 
 	"github.com/skkuding/codedang/apps/iris/src/handler"
 )
 
 type ResultCode int8
 type Response struct {
-	SubmissionId string          `json:"submissionId"`
+	SubmissionId int             `json:"submissionId"`
 	ResultCode   ResultCode      `json:"resultCode"`
-	Data         json.RawMessage `json:"data"`
+	JudgeResult  json.RawMessage `json:"judgeResult"`
 	Error        string          `json:"error"`
 }
 
@@ -42,10 +43,11 @@ func NewResponse(id string, data json.RawMessage, err error) *Response {
 		resultCode = ErrorToResultCode(err)
 	}
 
+	_id, _ := strconv.Atoi(id)
 	return &Response{
-		SubmissionId: id,
+		SubmissionId: _id,
 		ResultCode:   resultCode,
-		Data:         data,
+		JudgeResult:  data,
 		Error:        errMessage,
 	}
 }
