@@ -11,8 +11,15 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
 import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
+import ContestOverallTabs from './_components/ContestOverallTabs'
 
-export default function Page({ params }: { params: { id: string } }) {
+export default function Layout({
+  params,
+  tabs
+}: {
+  params: { id: string }
+  tabs: React.ReactNode
+}) {
   const { id } = params
 
   const contestData = useQuery(GET_CONTEST, {
@@ -28,7 +35,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const katexContent = (
     <div
-      className="prose mb-12 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12"
+      className="prose mb-4 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12"
       ref={katexRef}
     />
   )
@@ -63,6 +70,8 @@ export default function Page({ params }: { params: { id: string } }) {
           </div>
         </div>
         {katexContent}
+        <ContestOverallTabs contestId={id} />
+        {tabs}
       </main>
       <ScrollBar orientation="horizontal" />
     </ScrollArea>
