@@ -22,11 +22,14 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { S3MediaProvider, S3Provider } from '@libs/storage'
+import { StorageService } from '@libs/storage'
 import { Snippet } from './dto/create-submission.dto'
 import type { JudgerResponse } from './dto/judger-response.dto'
 import { problems } from './mock/problem.mock'
 import { submissions, submissionDto } from './mock/submission.mock'
 import { judgerResponse, submissionResults } from './mock/submissionResult.mock'
+import { testcase } from './mock/testcase.mock'
 import { SubmissionService } from './submission.service'
 
 const db = {
@@ -91,6 +94,7 @@ const mockContest: Contest = {
 describe('SubmissionService', () => {
   let service: SubmissionService
   let amqpConnection: AmqpConnection
+  let storageService: StorageService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -106,12 +110,16 @@ describe('SubmissionService', () => {
           })
         },
         ConfigService,
-        TraceService
+        TraceService,
+        { provide: StorageService, useValue: { readObject: () => [] } },
+        S3Provider,
+        S3MediaProvider
       ]
     }).compile()
 
     service = module.get<SubmissionService>(SubmissionService)
     amqpConnection = module.get<AmqpConnection>(AmqpConnection)
+    storageService = module.get<StorageService>(StorageService)
   })
 
   it('should be defined', () => {
@@ -251,12 +259,16 @@ describe('SubmissionService', () => {
 
     it('should create submission with contestId', async () => {
       const publishSpy = stub(amqpConnection, 'publish')
+      const getSpy = stub(storageService, 'readObject').resolves(
+        JSON.stringify(testcase)
+      )
       db.problem.findUnique.resolves(problems[0])
       db.submission.create.resolves({
         ...submissions[0],
         contestId: CONTEST_ID
       })
       db.submission.findMany.resolves(submissions)
+
       expect(
         await service.createSubmission(
           submissionDto,
@@ -266,6 +278,8 @@ describe('SubmissionService', () => {
         )
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
       expect(publishSpy.calledOnce).to.be.true
+      expect(getSpy.calledOnceWith(`${submissions[0].problemId}.json`)).to.be
+        .true
     })
 
     it('should throw conflict found exception if user has already gotten AC', async () => {
@@ -287,11 +301,15 @@ describe('SubmissionService', () => {
 
     it('should create submission with workbookId', async () => {
       const publishSpy = stub(amqpConnection, 'publish')
+      const getSpy = stub(storageService, 'readObject').resolves(
+        JSON.stringify(testcase)
+      )
       db.problem.findUnique.resolves(problems[0])
       db.submission.create.resolves({
         ...submissions[0],
         workbookId: WORKBOOK_ID
       })
+
       expect(
         await service.createSubmission(
           submissionDto,
@@ -301,16 +319,22 @@ describe('SubmissionService', () => {
         )
       ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
       expect(publishSpy.calledOnce).to.be.true
+      expect(getSpy.calledOnceWith(`${submissions[0].problemId}.json`)).to.be
+        .true
     })
 
     it('should create submission with contestId', async () => {
       const publishSpy = stub(amqpConnection, 'publish')
+      const getSpy = stub(storageService, 'readObject').resolves(
+        JSON.stringify(testcase)
+      )
       db.problem.findUnique.resolves(problems[0])
       db.submission.create.resolves({
         ...submissions[0],
         contestId: CONTEST_ID
       })
       db.submission.findMany.resolves(submissions)
+
       expect(
         await service.createSubmission(
           submissionDto,
@@ -320,6 +344,8 @@ describe('SubmissionService', () => {
         )
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
       expect(publishSpy.calledOnce).to.be.true
+      expect(getSpy.calledOnceWith(`${submissions[0].problemId}.json`)).to.be
+        .true
     })
 
     it('should throw conflict found exception if user has already gotten AC', async () => {
@@ -341,6 +367,9 @@ describe('SubmissionService', () => {
 
     it('should create submission with workbookId', async () => {
       const publishSpy = stub(amqpConnection, 'publish')
+      const getSpy = stub(storageService, 'readObject').resolves(
+        JSON.stringify(testcase)
+      )
       db.problem.findUnique.resolves(problems[0])
       db.submission.create.resolves({
         ...submissions[0],
@@ -355,6 +384,8 @@ describe('SubmissionService', () => {
         )
       ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
       expect(publishSpy.calledOnce).to.be.true
+      expect(getSpy.calledOnceWith(`${submissions[0].problemId}.json`)).to.be
+        .true
     })
 
     it('should throw exception if the language is not supported', async () => {
