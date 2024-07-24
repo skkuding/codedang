@@ -4,7 +4,7 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover'
 import { MdHelpOutline } from 'react-icons/md'
-import Label from './Label'
+import Label from '../../_components/Label'
 
 export default function ContestProblemListLabel() {
   return (
