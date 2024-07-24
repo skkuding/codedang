@@ -29,21 +29,10 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { toast } from 'sonner'
-import { z } from 'zod'
 import Label from '../../_components/Label'
 import TimeForm from '../../_components/TimeForm'
+import { editSchema } from '../../utils'
 import { columns } from '../_components/Columns'
-
-const schema = z.object({
-  id: z.number(),
-  title: z.string().min(1).max(100),
-  isRankVisible: z.boolean(),
-  isVisible: z.boolean(),
-  description: z.string().min(1),
-  startTime: z.date(),
-  endTime: z.date(),
-  invitationCode: z.string().min(6).max(6).nullish()
-})
 
 interface Problem {
   id: number
@@ -62,7 +51,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const router = useRouter()
 
   const methods = useForm<UpdateContestInput>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(editSchema),
     defaultValues: {
       isRankVisible: true,
       isVisible: true

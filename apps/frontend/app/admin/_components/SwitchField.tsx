@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import Label from '../problem/_components/Label'
-import { inputStyle } from '../problem/utils'
+import { inputStyle } from '../utils'
 
 interface SwitchFieldProps {
   name: string

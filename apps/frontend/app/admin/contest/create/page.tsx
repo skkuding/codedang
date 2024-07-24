@@ -28,24 +28,14 @@ import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { MdHelpOutline } from 'react-icons/md'
 import { toast } from 'sonner'
-import { z } from 'zod'
 import DescriptionForm from '../../_components/DescriptionForm'
 import FormSection from '../../_components/FormSection'
 import SwitchField from '../../_components/SwitchField'
 import TitleForm from '../../_components/TitleForm'
 import Label from '../_components/Label'
 import TimeForm from '../_components/TimeForm'
+import { createSchema } from '../utils'
 import { columns } from './_components/Columns'
-
-const schema = z.object({
-  title: z.string().min(1).max(100),
-  isRankVisible: z.boolean().optional(),
-  isVisible: z.boolean().optional(),
-  description: z.string().min(1),
-  startTime: z.date(),
-  endTime: z.date(),
-  invitationCode: z.string().min(6).max(6).nullish()
-})
 
 interface ContestProblem {
   id: number
@@ -63,7 +53,7 @@ export default function Page() {
   const router = useRouter()
 
   const methods = useForm<CreateContestInput>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(createSchema),
     defaultValues: {
       isRankVisible: true,
       isVisible: true
