@@ -15,6 +15,7 @@ import type {
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
@@ -50,6 +51,9 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const { handleSubmit, setValue, getValues } = methods
 
+  const [showHint, setShowHint] = useState<boolean>(false)
+  const [showSource, setShowSource] = useState<boolean>(false)
+
   useQuery(GET_PROBLEM, {
     variables: {
       groupId: 1,
@@ -79,7 +83,9 @@ export default function Page({ params }: { params: { id: string } }) {
       setValue('timeLimit', data.timeLimit)
       setValue('memoryLimit', data.memoryLimit)
       setValue('hint', data.hint)
+      if (data.hint !== '') setShowHint(true)
       setValue('source', data.source)
+      if (data.source !== '') setShowSource(true)
       if (data.template) {
         const templates = JSON.parse(data.template[0])
         templates.map((template: Template, index: number) => {
@@ -215,12 +221,18 @@ export default function Page({ params }: { params: { id: string } }) {
               <LimitForm />
             </FormSection>
 
-            <SwitchField name="hint" title="Hint" placeholder="Enter a hint" />
+            <SwitchField
+              name="hint"
+              title="Hint"
+              placeholder="Enter a hint"
+              hasValue={showHint}
+            />
             <SwitchField
               name="source"
               title="Source"
               placeholder="Enter a source"
               isInput
+              hasValue={showSource}
             />
             <TemplateField />
 
