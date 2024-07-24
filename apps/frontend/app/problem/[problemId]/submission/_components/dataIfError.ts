@@ -17,7 +17,7 @@ return 0;
   testcaseResult: Array.from({ length: 5 }, (_, i) => ({
     id: i,
     submissionId: 0,
-    problemTestCaseId: i,
+    problemTestcaseId: i,
     result: 'Accepted',
     cpuTime: '0',
     memoryUsage: 12345,
