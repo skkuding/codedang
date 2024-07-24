@@ -10,7 +10,7 @@ post {
   auth: none
 }
 
-params:query {
+query {
   problemId: 1
   contestId: 999
   ~groupId: 1
@@ -42,18 +42,18 @@ script:pre-request {
 
 docs {
   ## 404: No Contest found
-  
+
   존재하지 `Contest`에 Submission을 제출합니다.
-  
+
   ### Query
-  
+
   > 필수 query는 * 표시하였습니다.
-  
+
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |problemId *|Integer|문제 ID|
   |groupId|Integer|문제가 속한 Group ID (default: 1)|
   |contestId|Integer|문제가 속한 대회 ID|
   |workbookId|Integer|문제가 속한 문제집 ID|
-  
+
 }
