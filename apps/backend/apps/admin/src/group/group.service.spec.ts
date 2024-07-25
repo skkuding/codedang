@@ -64,8 +64,8 @@ const user: User = {
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  studentID: null,
-  major: null
+  studentID: '0000000000',
+  major: 'none'
 }
 
 const db = {

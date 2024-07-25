@@ -382,9 +382,7 @@ describe('UserService', () => {
       username: user.username,
       password: user.password,
       email: user.email,
-      realName: profile.realName,
-      studentID: user.studentID,
-      major: user.major
+      realName: profile.realName
     }
 
     let createUserSpy: SinonSpy

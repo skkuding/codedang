@@ -5,8 +5,8 @@
 
 */
 -- AlterTable
-ALTER TABLE "user" ADD COLUMN     "major" TEXT,
-ADD COLUMN     "student_id" TEXT;
+ALTER TABLE "user" ADD COLUMN     "major" TEXT DEFAULT 'none',
+ADD COLUMN     "student_id" TEXT DEFAULT '0000000000';
 
 -- CreateIndex
 CREATE UNIQUE INDEX "user_student_id_key" ON "user"("student_id");

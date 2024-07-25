@@ -5,7 +5,8 @@ import {
   IsNotEmpty,
   Matches,
   IsNumberString,
-  IsString
+  IsString,
+  IsOptional
 } from 'class-validator'
 
 export class SocialSignUpDto {
@@ -28,10 +29,10 @@ export class SocialSignUpDto {
   readonly id: string // github, kakao 등에서 로그인 시 받아오게 되는 고유 id
 
   @IsNumberString()
-  @IsNotEmpty()
-  readonly studentID: string
+  @IsOptional()
+  readonly studentID?: string
 
   @IsString()
-  @IsNotEmpty()
-  readonly major: string
+  @IsOptional()
+  readonly major?: string
 }
