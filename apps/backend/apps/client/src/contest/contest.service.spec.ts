@@ -9,7 +9,7 @@ import {
 } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
-import chaiExclude from 'chai-exclude'
+// import chaiExclude from 'chai-exclude'
 import * as dayjs from 'dayjs'
 import * as sinon from 'sinon'
 import {
@@ -94,7 +94,7 @@ const contests = [
   ...upcomingContests
 ] satisfies Partial<ContestResult>[]
 
-chai.use(chaiExclude)
+// chai.use(chaiExclude)
 describe('ContestService', () => {
   let service: ContestService
   let cache: Cache
