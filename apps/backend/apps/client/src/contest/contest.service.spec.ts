@@ -1,3 +1,4 @@
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import {
@@ -6,8 +7,11 @@ import {
   type Group,
   type ContestRecord
 } from '@prisma/client'
+import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
+import chaiExclude from 'chai-exclude'
 import * as dayjs from 'dayjs'
+import * as sinon from 'sinon'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -87,10 +91,14 @@ const contests = [
   ...upcomingContests
 ] satisfies Partial<ContestResult>[]
 
+chai.use(chaiExclude)
 describe('ContestService', () => {
   let service: ContestService
+  let cache: Cache
   let prisma: PrismaTestService
   let transaction: FlatTransactionClient
+
+  const sandbox = sinon.createSandbox()
 
   before(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -101,11 +109,18 @@ describe('ContestService', () => {
           provide: PrismaService,
           useExisting: PrismaTestService
         },
-        ConfigService
+        ConfigService,
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => []
+          })
+        }
       ]
     }).compile()
-
     service = module.get<ContestService>(ContestService)
+    cache = module.get<Cache>(CACHE_MANAGER)
     prisma = module.get<PrismaTestService>(PrismaTestService)
   })
 
@@ -123,12 +138,18 @@ describe('ContestService', () => {
     await prisma.$disconnect()
   })
 
+  afterEach(() => {
+    sandbox.restore()
+  })
+
   it('should be defined', () => {
     expect(service).to.be.ok
   })
 
   describe('getContestsByGroupId', () => {
     it('should return ongoing, upcoming contests when userId is undefined', async () => {
+      sandbox.stub(cache, 'get').resolves(groupId)
+
       const contests = await service.getContestsByGroupId(groupId)
       expect(contests.ongoing).to.have.lengthOf(4)
       expect(contests.upcoming).to.have.lengthOf(2)
