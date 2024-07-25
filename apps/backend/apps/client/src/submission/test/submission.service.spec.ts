@@ -24,13 +24,16 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { S3MediaProvider, S3Provider } from '@libs/storage'
 import { StorageService } from '@libs/storage'
-import type { JudgerResponse } from './class/judger-response.dto'
-import { Snippet } from './dto/create-submission.dto'
-import { problems } from './mock/problem.mock'
-import { submissions, submissionDto } from './mock/submission.mock'
-import { judgerResponse, submissionResults } from './mock/submissionResult.mock'
-import { testcase } from './mock/testcase.mock'
-import { SubmissionService } from './submission.service'
+import { Snippet } from '../class/create-submission.dto'
+import type { JudgerResponse } from '../class/judger-response.dto'
+import { problems } from '../mock/problem.mock'
+import { submissions, submissionDto } from '../mock/submission.mock'
+import {
+  judgerResponse,
+  submissionResults
+} from '../mock/submissionResult.mock'
+import { testcase } from '../mock/testcase.mock'
+import { SubmissionService } from '../submission.service'
 
 const db = {
   submission: {
