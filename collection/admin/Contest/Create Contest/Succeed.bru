@@ -22,7 +22,8 @@ body:graphql {
         isVisible: true
         isRankVisible: true
         enableCopyPaste: true
-        invitationCode:"123456"
+        isJudgeResultVisible: true
+        invitationCode: "123456"
       }
     ) {
       id
@@ -30,8 +31,10 @@ body:graphql {
       description
       enableCopyPaste
       invitationCode
+      isJudgeResultVisible
     }
   }
+  
 }
 
 assert {
