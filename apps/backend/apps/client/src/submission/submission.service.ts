@@ -86,6 +86,7 @@ export class SubmissionService implements OnModuleInit {
   @Span()
   async submitToProblem(
     submissionDto: CreateSubmissionDto,
+    userIp: string,
     userId: number,
     problemId: number,
     groupId = OPEN_SPACE_ID
@@ -99,12 +100,22 @@ export class SubmissionService implements OnModuleInit {
         }
       }
     })
-    return await this.createSubmission(submissionDto, problem, userId)
+    const submission = await this.createSubmission(
+      submissionDto,
+      problem,
+      userId
+    )
+
+    this.logger.log(
+      `Submission ${submission.id} is created for problem ${problem.id} by ip ${userIp}`
+    )
+    return submission
   }
 
   @Span()
   async submitToContest(
     submissionDto: CreateSubmissionDto,
+    userIp: string,
     userId: number,
     problemId: number,
     contestId: number,
@@ -151,14 +162,25 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    return await this.createSubmission(submissionDto, problem, userId, {
-      contestId
-    })
+    const submission = await this.createSubmission(
+      submissionDto,
+      problem,
+      userId,
+      {
+        contestId
+      }
+    )
+
+    this.logger.log(
+      `Submission ${submission.id} is created for contest ${contestId} by ip ${userIp}`
+    )
+    return submission
   }
 
   @Span()
   async submitToWorkbook(
     submissionDto: CreateSubmissionDto,
+    userIp: string,
     userId: number,
     problemId: number,
     workbookId: number,
@@ -180,9 +202,19 @@ export class SubmissionService implements OnModuleInit {
       throw new EntityNotExistException('problem')
     }
 
-    return await this.createSubmission(submissionDto, problem, userId, {
-      workbookId
-    })
+    const submission = await this.createSubmission(
+      submissionDto,
+      problem,
+      userId,
+      {
+        workbookId
+      }
+    )
+
+    this.logger.log(
+      `Submission ${submission.id} is created for workbook ${workbookId} by ip ${userIp}`
+    )
+    return submission
   }
 
   @Span()
