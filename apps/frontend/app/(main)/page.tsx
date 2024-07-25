@@ -1,11 +1,9 @@
 import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
 import dummyImg from '@/public/dummy.png'
 import GithubLogo from '@/public/github.svg'
 import SkkudingLogo from '@/public/skkudingLogo.png'
 import type { Route } from 'next'
 import Link from 'next/link'
-import { Suspense } from 'react'
 import Carousel from './_components/Carousel'
 // import ContestCards from './_components/ContestCards'
 import ProblemCards from './_components/ProblemCards'
@@ -68,23 +66,17 @@ export default function Home() {
           </Suspense>
         </div>
       </div> */}
-      <div className="flex w-full flex-col gap-3">
+      <div className="flex w-full flex-col gap-6">
         <div className="flex w-full items-center justify-between text-gray-700">
-          <p className="text-xl font-bold">Professor’s Recommendation</p>
+          <p className="text-2xl font-bold">Problem ✨</p>
           <Link href={'/problem' as Route}>
-            <Button variant="outline" className="h-8">
-              More
+            <Button variant="ghost" className="h-8 px-3">
+              See More
             </Button>
           </Link>
         </div>
         <div className="grid w-full grid-cols-3 gap-5">
-          <Suspense
-            fallback={[...Array(3)].map((_, i) => (
-              <Skeleton key={i} className="flex h-[120px] w-full rounded-xl" />
-            ))}
-          >
-            <ProblemCards />
-          </Suspense>
+          <ProblemCards />
         </div>
       </div>
     </div>
