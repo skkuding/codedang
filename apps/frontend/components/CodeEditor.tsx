@@ -63,7 +63,7 @@ const languageParser: Record<Language, () => LanguageSupport> = {
 
 interface Props extends ReactCodeMirrorProps {
   language: Language
-  enableCopyPaste: boolean
+  enableCopyPaste?: boolean
 }
 
 const copyPasteHandler = () => {
@@ -84,7 +84,7 @@ export default function CodeEditor({
   value,
   language,
   onChange,
-  enableCopyPaste,
+  enableCopyPaste = false,
   readOnly: readOnly = false,
   ...props
 }: Props) {
