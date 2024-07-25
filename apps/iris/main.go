@@ -99,7 +99,7 @@ func main() {
 			utils.Getenv("RABBITMQ_PORT", "5672") + "/" +
 			utils.Getenv("RABBITMQ_DEFAULT_VHOST", "")
 
-	connector.Factory(
+	go connector.Factory(
 		connector.RABBIT_MQ,
 		connector.Providers{Router: routeProvider, Logger: logProvider},
 		rabbitmq.ConsumerConfig{

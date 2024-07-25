@@ -169,7 +169,7 @@ model Problem {
   ///           }[]
   /// }
   isVisible       Boolean    @default(true) @map("is_visible")
-  template        Json[]
+  template        Json[]     @default([])
   languages       Language[]
   timeLimit       Int        @map("time_limit") // unit: MilliSeconds
   memoryLimit     Int        @map("memory_limit") // unit: MegaBytes
@@ -297,6 +297,7 @@ model ContestProblem {
   contestId  Int      @map("contest_id")
   problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId  Int      @map("problem_id")
+  // 각 문제의 점수 (비율 아님)
   score      Int      @default(0)
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
@@ -321,16 +322,19 @@ model Announcement {
 }
 
 model ContestRecord {
-  id                 Int      @id @default(autoincrement())
-  contest            Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId          Int      @map("contest_id")
-  user               User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId             Int?     @map("user_id")
-  acceptedProblemNum Int      @default(0) @map("accepted_problem_num")
-  score              Int      @default(0)
-  totalPenalty       Int      @default(0) @map("total_penalty")
-  createTime         DateTime @default(now()) @map("create_time")
-  updateTime         DateTime @updatedAt @map("update_time")
+  id                 Int       @id @default(autoincrement())
+  contest            Contest   @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId          Int       @map("contest_id")
+  user               User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId             Int?      @map("user_id")
+  acceptedProblemNum Int       @default(0) @map("accepted_problem_num")
+  score              Int       @default(0)
+  // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각
+  finishTime         DateTime? @map("finish_time")
+  // totalPenalty: Submission 시, AC를 받지 못했을 때, 올라가는 Counter
+  totalPenalty       Int       @default(0) @map("total_penalty")
+  createTime         DateTime  @default(now()) @map("create_time")
+  updateTime         DateTime  @updatedAt @map("update_time")
 
   @@unique([contestId, userId])
   @@map("contest_record")
@@ -405,8 +409,8 @@ model SubmissionResult {
   problemTestcase   ProblemTestcase @relation(fields: [problemTestcaseId], references: [id], onDelete: Cascade)
   problemTestcaseId Int             @map("problem_test_case_id")
   result            ResultStatus
-  cpuTime           BigInt          @map("cpu_time")
-  memoryUsage       Int             @map("memory_usage")
+  cpuTime           BigInt?         @map("cpu_time")
+  memoryUsage       Int?            @map("memory_usage")
   createTime        DateTime        @default(now()) @map("create_time")
   updateTime        DateTime        @updatedAt @map("update_time")
 

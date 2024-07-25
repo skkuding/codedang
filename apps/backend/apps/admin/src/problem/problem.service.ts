@@ -286,9 +286,14 @@ export class ProblemService {
       )
     }
 
+    const baseUrlForImage =
+      this.config.get('APP_ENV') == 'stage'
+        ? 'https://stage.codedang.com/bucket'
+        : this.config.get('STORAGE_BUCKET_ENDPOINT_URL')
+
     return {
       src:
-        this.config.get('STORAGE_BUCKET_ENDPOINT_URL') +
+        baseUrlForImage +
         '/' +
         this.config.get('MEDIA_BUCKET_NAME') +
         '/' +
@@ -373,15 +378,6 @@ export class ProblemService {
       where: {
         id,
         groupId
-      },
-      include: {
-        samples: true,
-        problemTestcase: true,
-        problemTag: {
-          include: {
-            tag: true
-          }
-        }
       }
     })
   }
@@ -700,6 +696,14 @@ export class ProblemService {
       throw new EntityNotExistException('problem')
     }
     return tag
+  }
+
+  async getProblemSamples(problemId: number) {
+    return await this.prisma.exampleIO.findMany({
+      where: {
+        problemId
+      }
+    })
   }
 
   async getProblemTags(problemId: number) {

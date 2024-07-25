@@ -32,6 +32,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { StorageService } from '@libs/storage'
 import {
   type CreateSubmissionDto,
   Snippet,
@@ -39,6 +40,7 @@ import {
 } from './dto/create-submission.dto'
 import { JudgeRequest } from './dto/judge-request.class'
 import { JudgerResponse } from './dto/judger-response.dto'
+import type { TestcaseDTO } from './dto/testcase.dto'
 
 @Injectable()
 export class SubmissionService implements OnModuleInit {
@@ -49,7 +51,8 @@ export class SubmissionService implements OnModuleInit {
     private readonly amqpConnection: AmqpConnection,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
-    private readonly traceService: TraceService
+    private readonly traceService: TraceService,
+    private readonly storageService: StorageService
   ) {}
   onModuleInit() {
     this.amqpConnection.createSubscriber(
@@ -122,7 +125,18 @@ export class SubmissionService implements OnModuleInit {
     groupId = OPEN_SPACE_ID
   ) {
     const now = new Date()
-
+    await this.prisma.contest.findFirstOrThrow({
+      where: {
+        id: contestId,
+        groupId,
+        startTime: {
+          lte: now
+        },
+        endTime: {
+          gt: now
+        }
+      }
+    })
     const { contest } = await this.prisma.contestRecord.findUniqueOrThrow({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -224,8 +238,6 @@ export class SubmissionService implements OnModuleInit {
     userId: number,
     idOptions?: { contestId?: number; workbookId?: number }
   ) {
-    let submission: Submission
-
     if (!problem.languages.includes(submissionDto.language)) {
       throw new ConflictFoundException(
         `This problem does not support language ${submissionDto.language}`
@@ -251,23 +263,71 @@ export class SubmissionService implements OnModuleInit {
       ...data
     }
 
-    if (idOptions && idOptions.contestId) {
-      submission = await this.prisma.submission.create({
-        data: { ...submissionData, contestId: idOptions.contestId }
-      })
-    } else if (idOptions && idOptions.workbookId) {
-      submission = await this.prisma.submission.create({
-        data: { ...submissionData, workbookId: idOptions.workbookId }
-      })
-    } else {
-      submission = await this.prisma.submission.create({
+    // idOptions Object가 undefined이거나 contestId와 workbookId가 모두 없는 경우
+    if (
+      idOptions === undefined ||
+      (!idOptions.contestId && !idOptions.workbookId)
+    ) {
+      const submission = await this.prisma.submission.create({
         data: submissionData
       })
+
+      await this.createSubmissionResults(submission)
+
+      await this.publishJudgeRequestMessage(code, submission)
+      return submission
     }
 
-    await this.publishJudgeRequestMessage(code, submission)
+    if (idOptions.contestId) {
+      // 해당 contestId에 해당하는 Contest에서 해당 problemId에 해당하는 문제로 AC를 받은 submission이 있는지 확인
+      const hasPassed = await this.hasPassedProblem(userId, {
+        problemId: problem.id,
+        contestId: idOptions.contestId
+      })
+      if (hasPassed) {
+        throw new ConflictFoundException(
+          'You have already gotten AC for this problem'
+        )
+      }
+      const submission = await this.prisma.submission.create({
+        data: { ...submissionData, contestId: idOptions.contestId }
+      })
 
-    return submission
+      await this.createSubmissionResults(submission)
+
+      await this.publishJudgeRequestMessage(code, submission)
+      return submission
+    }
+
+    if (idOptions.workbookId) {
+      const submission = await this.prisma.submission.create({
+        data: { ...submissionData, workbookId: idOptions.workbookId }
+      })
+
+      await this.createSubmissionResults(submission)
+
+      await this.publishJudgeRequestMessage(code, submission)
+      return submission
+    }
+  }
+
+  @Span()
+  async createSubmissionResults(submission: Submission): Promise<void> {
+    const rawTestcase = await this.storageService.readObject(
+      `${submission.problemId}.json`
+    )
+
+    const testcases = JSON.parse(rawTestcase) as TestcaseDTO[]
+
+    await this.prisma.submissionResult.createMany({
+      data: testcases.map((testcase) => {
+        return {
+          submissionId: submission.id,
+          result: ResultStatus.Judging,
+          problemTestcaseId: parseInt(testcase.id.split(':')[1], 10)
+        }
+      })
+    })
   }
 
   isValidCode(code: Snippet[], language: Language, templates: Template[]) {
@@ -350,7 +410,6 @@ export class SubmissionService implements OnModuleInit {
     }
 
     const judgeRequest = new JudgeRequest(code, submission.language, problem)
-    // TODO: problem 단위가 아닌 testcase 단위로 채점하도록 iris 수정
 
     const span = this.traceService.startSpan(
       'publishJudgeRequestMessage.publish'
@@ -373,104 +432,213 @@ export class SubmissionService implements OnModuleInit {
   }
 
   @Span()
-  async handleJudgerMessage(msg: JudgerResponse) {
-    const submissionId = parseInt(msg.submissionId)
-    const resultStatus = Status(msg.resultCode)
+  async handleJudgerMessage(msg: JudgerResponse): Promise<void> {
+    if (Status(msg.resultCode) === ResultStatus.ServerError) {
+      await this.prisma.submission.update({
+        where: {
+          id: msg.submissionId
+        },
+        data: {
+          result: ResultStatus.ServerError
+        }
+      })
 
-    if (resultStatus === ResultStatus.ServerError) {
-      await this.updateSubmissionResult(submissionId, resultStatus, [])
+      await this.prisma.submissionResult.updateMany({
+        where: {
+          submissionId: msg.submissionId
+        },
+        data: {
+          result: ResultStatus.ServerError
+        }
+      })
+
       throw new UnprocessableDataException(
-        `${msg.submissionId} ${msg.error} ${msg.data}`
+        `${msg.submissionId} ${msg.error} ${msg.judgeResult}`
       )
     }
 
-    // TODO: 컴파일 메시지 데이터베이스에 저장하기
-    if (resultStatus === ResultStatus.CompileError) {
-      await this.updateSubmissionResult(submissionId, resultStatus, [])
-      return
+    const submissionResult = {
+      submissionId: msg.submissionId,
+      problemTestcaseId: parseInt(msg.judgeResult.testcaseId.split(':')[1], 10),
+      result: Status(msg.judgeResult.resultCode),
+      cpuTime: BigInt(msg.judgeResult.cpuTime),
+      memoryUsage: msg.judgeResult.memory
     }
 
-    const results = msg.data.judgeResult.map((result) => {
-      return {
-        problemTestcaseId: parseInt(result.testcaseId.split(':')[1], 10),
-        result: Status(result.resultCode),
-        cpuTime: BigInt(result.cpuTime),
-        memoryUsage: result.memory
-      }
-    })
-
-    await this.updateSubmissionResult(submissionId, resultStatus, results)
+    await this.updateTestcaseJudgeResult(submissionResult)
   }
 
   @Span()
-  async updateSubmissionResult(
-    id: number,
-    resultStatus: ResultStatus,
-    results: Array<
-      Partial<SubmissionResult> &
-        Pick<SubmissionResult, 'result' | 'cpuTime' | 'memoryUsage'>
-    >
+  async updateTestcaseJudgeResult(
+    submissionResult: Partial<SubmissionResult> &
+      Pick<SubmissionResult, 'result' | 'submissionId'>
   ) {
-    await Promise.all(
-      results.map(
-        async (result) =>
-          await this.prisma.submissionResult.create({
-            data: {
-              submission: {
-                connect: { id }
-              },
-              problemTestcase: {
-                connect: { id: result.problemTestcaseId }
-              },
-              result: result.result,
-              cpuTime: result.cpuTime,
-              memoryUsage: result.memoryUsage
-            }
-          })
-      )
-    )
+    // TODO: submission의 값들이 아닌 submissionResult의 id 값으로 접근할 수 있도록 수정
+    const { id } = await this.prisma.submissionResult.findFirstOrThrow({
+      where: {
+        submissionId: submissionResult.submissionId,
+        problemTestcaseId: submissionResult.problemTestcaseId
+      },
+      select: {
+        id: true
+      }
+    })
 
-    // FIXME: 현재 코드는 message 하나에 특정 problem에 대한 모든 테스트케이스의 채점 결과가 전송된다고 가정하고, 이를 받아서 submission의 overall result를 업데이트합니다.
-    //        테스트케이스별로 DB 업데이트가 이루어진다면 아래 코드를 수정해야 합니다.
-    const submission = await this.prisma.submission.update({
+    await this.prisma.submissionResult.update({
       where: {
         id
       },
       data: {
-        result: resultStatus
+        result: submissionResult.result,
+        cpuTime: submissionResult.cpuTime,
+        memoryUsage: submissionResult.memoryUsage
       }
     })
 
-    if (
-      resultStatus !== ResultStatus.Judging &&
-      resultStatus !== ResultStatus.ServerError
-    ) {
-      const problem = await this.prisma.problem.findFirstOrThrow({
-        where: {
-          id: submission.problemId
-        },
-        select: {
-          submissionCount: true,
-          acceptedCount: true,
-          acceptedRate: true
+    await this.updateSubmissionResult(submissionResult.submissionId)
+  }
+
+  @Span()
+  async updateSubmissionResult(submissionId: number): Promise<void> {
+    const submission = await this.prisma.submission.findUnique({
+      where: {
+        id: submissionId,
+        result: ResultStatus.Judging,
+        submissionResult: {
+          every: {
+            NOT: {
+              result: ResultStatus.Judging
+            }
+          }
         }
-      })
-      const submissionCount = problem.submissionCount + 1
-      const acceptedCount =
-        resultStatus === ResultStatus.Accepted
-          ? problem.acceptedCount + 1
-          : problem.acceptedCount
-      await this.prisma.problem.update({
-        where: {
-          id: submission.problemId
-        },
-        data: {
-          submissionCount,
-          acceptedCount,
-          acceptedRate: acceptedCount / submissionCount
+      },
+      select: {
+        problemId: true,
+        userId: true,
+        contestId: true,
+        updateTime: true,
+        submissionResult: {
+          select: {
+            result: true
+          }
         }
-      })
+      }
+    })
+
+    if (!submission) return
+
+    const allAccepted = submission.submissionResult.every(
+      (submissionResult) => submissionResult.result === ResultStatus.Accepted
+    )
+
+    const submissionResult = allAccepted
+      ? ResultStatus.Accepted
+      : submission.submissionResult.find(
+          (submissionResult) =>
+            submissionResult.result !== ResultStatus.Accepted
+        )?.result ?? ResultStatus.ServerError
+
+    await this.prisma.submission.update({
+      where: { id: submissionId },
+      data: { result: submissionResult }
+    })
+
+    if (submission.userId && submission.contestId)
+      await this.calculateSubmissionScore(submission, allAccepted)
+
+    await this.updateProblemAccepted(submission.problemId, allAccepted)
+  }
+
+  @Span()
+  async calculateSubmissionScore(
+    submission: Pick<
+      Submission,
+      'problemId' | 'contestId' | 'userId' | 'updateTime'
+    >,
+    isAccepted: boolean
+  ) {
+    const contestId = submission.contestId!
+    const userId = submission.userId!
+
+    let toBeAddedScore = 0,
+      toBeAddedPenalty = 0,
+      toBeAddedAcceptedProblemNum = 0,
+      isFinishTimeToBeUpdated = false
+
+    const contestRecord = await this.prisma.contestRecord.findUniqueOrThrow({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_userId: {
+          contestId,
+          userId
+        }
+      },
+      select: {
+        id: true,
+        acceptedProblemNum: true,
+        score: true,
+        totalPenalty: true,
+        finishTime: true
+      }
+    })
+
+    if (isAccepted) {
+      toBeAddedScore = (
+        await this.prisma.contestProblem.findFirstOrThrow({
+          where: {
+            contestId,
+            problemId: submission.problemId
+          },
+          select: {
+            score: true
+          }
+        })
+      ).score
+      isFinishTimeToBeUpdated = true
+      toBeAddedAcceptedProblemNum = 1
+    } else {
+      toBeAddedPenalty = 1
     }
+
+    await this.prisma.contestRecord.update({
+      where: {
+        id: contestRecord.id
+      },
+      data: {
+        acceptedProblemNum:
+          contestRecord.acceptedProblemNum + toBeAddedAcceptedProblemNum,
+        score: contestRecord.score + toBeAddedScore,
+        totalPenalty: contestRecord.totalPenalty + toBeAddedPenalty,
+        finishTime: isFinishTimeToBeUpdated
+          ? submission.updateTime
+          : contestRecord.finishTime
+      }
+    })
+  }
+
+  @Span()
+  async updateProblemAccepted(id: number, isAccepted: boolean): Promise<void> {
+    const data: {
+      submissionCount: { increment: number }
+      acceptedCount?: { increment: number }
+    } = {
+      submissionCount: {
+        increment: 1
+      }
+    }
+
+    if (isAccepted) {
+      data.acceptedCount = {
+        increment: 1
+      }
+    }
+
+    await this.prisma.problem.update({
+      where: {
+        id
+      },
+      data
+    })
   }
 
   // FIXME: Workbook 구분
@@ -625,9 +793,11 @@ export class SubmissionService implements OnModuleInit {
       const results = submission.submissionResult.map((result) => {
         return {
           ...result,
-          cpuTime: result.cpuTime.toString()
+          cpuTime: result.cpuTime ? result.cpuTime.toString() : null
         }
       })
+
+      results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
 
       return {
         problemId,
