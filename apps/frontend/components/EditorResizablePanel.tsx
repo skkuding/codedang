@@ -22,13 +22,13 @@ interface ProblemEditorProps {
   problem: ProblemDetail
   children: React.ReactNode
   contestId?: number
-  enableCopyPaste: boolean
+  enableCopyPaste?: boolean
 }
 
 export default function EditorMainResizablePanel({
   problem,
   contestId,
-  enableCopyPaste,
+  enableCopyPaste = false,
   children
 }: ProblemEditorProps) {
   const pathname = usePathname()
