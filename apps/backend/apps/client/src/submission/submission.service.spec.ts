@@ -90,6 +90,7 @@ const mockContest: Contest = {
   createTime: new Date(),
   updateTime: new Date()
 }
+const USERIP = '127.0.0.1'
 
 describe('SubmissionService', () => {
   let service: SubmissionService
@@ -133,6 +134,7 @@ describe('SubmissionService', () => {
 
       await service.submitToProblem(
         submissionDto,
+        USERIP,
         submissions[0].userId,
         problems[0].groupId
       )
@@ -148,6 +150,7 @@ describe('SubmissionService', () => {
       await expect(
         service.submitToProblem(
           submissionDto,
+          USERIP,
           submissions[0].userId,
           problems[0].groupId
         )
@@ -171,6 +174,7 @@ describe('SubmissionService', () => {
 
       await service.submitToContest(
         submissionDto,
+        USERIP,
         submissions[0].userId,
         problems[0].id,
         CONTEST_ID,
@@ -195,6 +199,7 @@ describe('SubmissionService', () => {
       await expect(
         service.submitToContest(
           submissionDto,
+          USERIP,
           submissions[0].userId,
           problems[0].id,
           CONTEST_ID,
@@ -212,6 +217,7 @@ describe('SubmissionService', () => {
 
       await service.submitToWorkbook(
         submissionDto,
+        USERIP,
         submissions[0].userId,
         problems[0].id,
         WORKBOOK_ID,
@@ -229,6 +235,7 @@ describe('SubmissionService', () => {
       await expect(
         service.submitToWorkbook(
           submissionDto,
+          USERIP,
           submissions[0].userId,
           problems[0].id,
           WORKBOOK_ID,

@@ -90,6 +90,7 @@ export class SubmissionService implements OnModuleInit {
   async submitToProblem(
     submissionDto: CreateSubmissionDto,
     userIp: string,
+    userIp: string,
     userId: number,
     problemId: number,
     groupId = OPEN_SPACE_ID
@@ -109,15 +110,18 @@ export class SubmissionService implements OnModuleInit {
       userId
     )
 
-    this.logger.log(
-      `Submission ${submission.id} is created for problem ${problem.id} by ip ${userIp}`
-    )
-    return submission
+    if (submission) {
+      this.logger.log(
+        `Submission ${submission.id} is created for problem ${problem.id} by ip ${userIp}`
+      )
+      return submission
+    }
   }
 
   @Span()
   async submitToContest(
     submissionDto: CreateSubmissionDto,
+    userIp: string,
     userIp: string,
     userId: number,
     problemId: number,
@@ -185,15 +189,18 @@ export class SubmissionService implements OnModuleInit {
       }
     )
 
-    this.logger.log(
-      `Submission ${submission.id} is created for contest ${contestId} by ip ${userIp}`
-    )
+    if (submission) {
+      this.logger.log(
+        `Submission ${submission.id} is created for contest ${contestId} by ip ${userIp}`
+      )
+    }
     return submission
   }
 
   @Span()
   async submitToWorkbook(
     submissionDto: CreateSubmissionDto,
+    userIp: string,
     userIp: string,
     userId: number,
     problemId: number,
@@ -225,9 +232,11 @@ export class SubmissionService implements OnModuleInit {
       }
     )
 
-    this.logger.log(
-      `Submission ${submission.id} is created for workbook ${workbookId} by ip ${userIp}`
-    )
+    if (submission) {
+      this.logger.log(
+        `Submission ${submission.id} is created for workbook ${workbookId} by ip ${userIp}`
+      )
+    }
     return submission
   }
 
