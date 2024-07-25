@@ -37,10 +37,10 @@ import {
   type CreateSubmissionDto,
   Snippet,
   Template
-} from './dto/create-submission.dto'
-import { JudgeRequest } from './dto/judge-request.class'
-import { JudgerResponse } from './dto/judger-response.dto'
-import type { TestcaseDTO } from './dto/testcase.dto'
+} from './class/create-submission.dto'
+import { JudgeRequest } from './class/judge-request'
+import { JudgerResponse } from './class/judger-response.dto'
+import type { TestcaseDTO } from './interface/testcase.dto'
 
 @Injectable()
 export class SubmissionService implements OnModuleInit {
