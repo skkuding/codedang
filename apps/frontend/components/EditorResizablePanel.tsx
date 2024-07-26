@@ -28,7 +28,7 @@ interface ProblemEditorProps {
 export default function EditorMainResizablePanel({
   problem,
   contestId,
-  enableCopyPaste = false,
+  enableCopyPaste = true,
   children
 }: ProblemEditorProps) {
   const pathname = usePathname()

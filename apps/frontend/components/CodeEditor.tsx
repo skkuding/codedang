@@ -84,7 +84,7 @@ export default function CodeEditor({
   value,
   language,
   onChange,
-  enableCopyPaste = false,
+  enableCopyPaste = true,
   readOnly: readOnly = false,
   ...props
 }: Props) {
@@ -95,7 +95,7 @@ export default function CodeEditor({
         extensions={[
           fontSize,
           languageParser[language](),
-          enableCopyPaste ? [copyPasteHandler()] : []
+          !enableCopyPaste ? [copyPasteHandler()] : []
         ]}
         value={value}
         onChange={onChange}
