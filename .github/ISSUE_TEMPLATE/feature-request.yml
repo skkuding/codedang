@@ -10,7 +10,7 @@ body:
       required: true
   - type: input
     attributes:
-      label: Notion task #
+      label: Notion task #
       description: Notion task 번호를 적어주세요. 형식은 TAS-123과 같습니다. 만들어놓은 Notion task가 없을 경우 번호를 비워두시면 Notion task가 자동으로 생성됩니다.
       value: TAS-
     validations:
