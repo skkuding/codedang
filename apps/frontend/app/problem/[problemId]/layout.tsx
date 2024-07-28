@@ -21,8 +21,8 @@ export default async function layout({
   const session = await auth()
 
   return (
-    <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
-      <header className="flex justify-between bg-slate-900 px-4">
+    <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-[#222939] text-white">
+      <header className="flex justify-between bg-[#222939] px-4">
         <div className="flex items-center justify-center gap-6 font-bold text-slate-500">
           <Link href="/">
             <Image src={codedangLogo} alt="코드당" width={33} />

@@ -11,10 +11,11 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import useAuthModalStore from '@/stores/authModal'
-import { LogOut, User, UserRoundCog } from 'lucide-react'
+import { LogOut, UserRoundCog, ChevronDown } from 'lucide-react'
 import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import Link from 'next/link'
+import { BiSolidUser } from 'react-icons/bi'
 import { RxHamburgerMenu } from 'react-icons/rx'
 import AuthModal from './AuthModal'
 
@@ -49,7 +50,8 @@ export default function HeaderAuthPanel({
             >
               {session?.user.username}
             </p>
-            <User className="text-gray-500" width={24} />
+            <BiSolidUser className="h-6 w-6 text-gray-300" />
+            {group === 'editor' ? <ChevronDown className="w-4" /> : null}{' '}
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             {session?.user.role !== 'User' && (

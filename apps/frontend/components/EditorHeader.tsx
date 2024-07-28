@@ -34,7 +34,9 @@ import JSConfetti from 'js-confetti'
 import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
-import { IoMdRefresh } from 'react-icons/io'
+import { BsTrash3 } from 'react-icons/bs'
+import { IoPlayCircleOutline } from 'react-icons/io5'
+import { PiArrowFatLineUpLight } from 'react-icons/pi'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
 import { useStore } from 'zustand'
@@ -145,15 +147,16 @@ export default function Editor({
   }
 
   return (
-    <div className="flex shrink-0 items-center justify-end border-b border-b-slate-700 bg-slate-800 px-5">
-      <div className="flex items-center gap-3">
+    <div className="flex shrink-0 items-center justify-between border-b border-b-slate-700 bg-[#222939] px-5">
+      <div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
               size="icon"
-              className="size-7 shrink-0 rounded-md bg-slate-600 hover:bg-slate-700"
+              className="size-7 w-[77px] shrink-0 gap-[5px] rounded-md bg-slate-600 font-normal text-red-500 hover:bg-slate-700"
             >
-              <IoMdRefresh className="size-5" />
+              <BsTrash3 size={17} />
+              Reset
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent className="border border-slate-800 bg-slate-900">
@@ -166,19 +169,37 @@ export default function Editor({
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex gap-2">
-              <AlertDialogAction onClick={() => setCode(templateCode ?? '')}>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-red-500 hover:bg-red-600"
+                onClick={() => setCode(templateCode ?? '')}
+              >
                 Reset
               </AlertDialogAction>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+      </div>
+      <div className="flex items-center gap-3">
+        {/* TODO: Add Test function */}
+        <Button variant={'secondary'} className="h-7 shrink-0 gap-1 px-2">
+          <IoPlayCircleOutline size={22} />
+          Test
+        </Button>
         <Button
-          className="h-7 shrink-0 rounded-md px-2"
+          className="h-7 shrink-0 gap-1 px-2"
           disabled={loading}
           onClick={submit}
         >
-          {loading ? 'Judging' : 'Submit'}
+          {loading ? (
+            'Judging'
+          ) : (
+            <>
+              {/* TODO: Find emoticon for Submit Button */}
+              <PiArrowFatLineUpLight />
+              Submit
+            </>
+          )}
         </Button>
         <Select
           onValueChange={(language: Language) => {
