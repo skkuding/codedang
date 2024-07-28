@@ -6,15 +6,22 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion'
-import { Badge } from '@/components/ui/badge'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
 import { renderKatex } from '@/lib/renderKatex'
 import { convertToLetter } from '@/lib/utils'
 import type { ContestProblem, ProblemDetail } from '@/types/type'
 import { motion } from 'framer-motion'
 import { sanitize } from 'isomorphic-dompurify'
-import { CheckCircle, Lightbulb, Tag } from 'lucide-react'
-import { Clipboard } from 'lucide-react'
+import { CheckCircle, FileText } from 'lucide-react'
+import { CopyCheck } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
+import { FaFileContract } from 'react-icons/fa6'
 import useCopyToClipboard from 'react-use/lib/useCopyToClipboard'
 import {
   Tooltip,
@@ -60,23 +67,32 @@ export function EditorDescription({
 
   const katexContent = <div ref={katexRef} />
   return (
-    <div className="dark flex h-full flex-col gap-8 p-6 text-lg">
-      <div>
-        <h1 className="mb-3 text-xl font-bold">{`#${contestProblems ? convertToLetter(contestProblems.find((item) => item.id === problem.id)?.order as number) : problem.id}. ${problem.title}`}</h1>
+    <div className="dark flex h-full flex-col gap-6 bg-[#222939] py-6 text-lg">
+      <div className="px-6">
+        <div className="flex h-6 justify-between">
+          <h1 className="mb-3 text-xl font-bold">{`#${contestProblems ? convertToLetter(contestProblems.find((item) => item.id === problem.id)?.order as number) : problem.id}. ${problem.title}`}</h1>
+          <div className="flex items-center rounded bg-neutral-500 px-[10px] py-[6px] text-sm text-[#FED7DE]">
+            {problem.difficulty.replace(/(\D)(\d)/, '$1 $2')}
+          </div>
+        </div>
         <div className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300">
           {katexContent}
         </div>
+        <hr className="border-slate-700" />
       </div>
-      <div>
+
+      <div className="px-6">
         <h2 className="mb-3 font-bold">Input</h2>
         <div
-          className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
+          className="prose prose-invert mb-4 max-w-full text-sm leading-relaxed text-slate-300"
           dangerouslySetInnerHTML={{
             __html: sanitize(problem.inputDescription)
           }}
         />
+        <hr className="border-slate-700" />
       </div>
-      <div>
+
+      <div className="px-6">
         <h2 className="mb-3 font-bold">Output</h2>
         <div
           className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
@@ -85,6 +101,9 @@ export function EditorDescription({
           }}
         />
       </div>
+
+      <hr className="border-4 border-[#121728]" />
+
       <div>
         {problem.samples.map(({ id, input, output }, index) => {
           const whitespaceStyle =
@@ -98,13 +117,15 @@ export function EditorDescription({
             .replaceAll(/\n/g, `<span style="${whitespaceStyle}">↵</span>\n`)
             .replaceAll(/\t/g, `<span style="${whitespaceStyle}">↹</span>`)
           return (
-            <div key={id} className="mb-2">
-              <h2 className="mb-2 font-bold">Sample {index + 1}</h2>
+            <div key={id} className="mb-2 px-6">
+              <h2 className="mb-2 font-bold">Sample</h2>
 
               <div className="flex space-x-2 text-base">
-                <div className="w-full rounded-md bg-slate-900">
-                  <div className="flex items-center justify-between border-b border-slate-800 px-4 py-2">
-                    <h3 className="select-none text-xs font-semibold">Input</h3>
+                <div className="w-full space-y-2">
+                  <div className="flex space-x-3">
+                    <h3 className="select-none text-xs font-semibold">
+                      Input {index + 1}
+                    </h3>
                     <TooltipProvider delayDuration={300}>
                       <Tooltip>
                         <motion.div
@@ -117,10 +138,11 @@ export function EditorDescription({
                           transition={{ duration: 0.2 }}
                         >
                           {copiedID == `input-${id}` ? (
+                            // TODO: Find icon for copied
                             <CheckCircle size={16} className="text-green-500" />
                           ) : (
                             <TooltipTrigger asChild>
-                              <Clipboard
+                              <CopyCheck
                                 size={16}
                                 className="cursor-pointer transition-opacity hover:opacity-60"
                                 onClick={() => {
@@ -136,18 +158,21 @@ export function EditorDescription({
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <pre
-                    className="h-24 w-full select-none overflow-auto px-4 py-2 font-mono text-sm"
-                    dangerouslySetInnerHTML={{
-                      __html: sanitize(changedInput)
-                    }}
-                  />
+                  <div className="bg-[#222939 w-full rounded-md border border-[#555C66]">
+                    {/* <div className="flex items-center justify-between border-b border-slate-800 px-4 py-2"></div> */}
+                    <pre
+                      className="h-24 w-full select-none overflow-auto px-4 py-2 font-mono text-sm"
+                      dangerouslySetInnerHTML={{
+                        __html: sanitize(changedInput)
+                      }}
+                    />
+                  </div>
                 </div>
 
-                <div className="w-full rounded-md bg-slate-900">
-                  <div className="flex items-center justify-between border-b border-slate-800 px-4 py-2">
+                <div className="w-full space-y-2">
+                  <div className="flex space-x-3">
                     <h3 className="select-none text-xs font-semibold">
-                      Output
+                      Output {index + 1}
                     </h3>
                     <TooltipProvider delayDuration={300}>
                       <Tooltip>
@@ -161,10 +186,11 @@ export function EditorDescription({
                           transition={{ duration: 0.2 }}
                         >
                           {copiedID == `output-${id}` ? (
+                            // TODO: Find icon for copied
                             <CheckCircle size={16} className="text-green-500" />
                           ) : (
                             <TooltipTrigger asChild>
-                              <Clipboard
+                              <CopyCheck
                                 size={16}
                                 className="cursor-pointer transition-opacity hover:opacity-60"
                                 onClick={() => {
@@ -180,12 +206,15 @@ export function EditorDescription({
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <pre
-                    className="h-24 w-full select-none overflow-auto px-4 py-2 font-mono text-sm"
-                    dangerouslySetInnerHTML={{
-                      __html: sanitize(changedOutput)
-                    }}
-                  />
+                  <div className="bg-[#222939 w-full rounded-md border-[1px] border-[#555C66]">
+                    {/* <div className="flex items-center justify-between border-b border-slate-800 px-4 py-2"></div> */}
+                    <pre
+                      className="h-24 w-full select-none overflow-auto px-4 py-2 font-mono text-sm"
+                      dangerouslySetInnerHTML={{
+                        __html: sanitize(changedOutput)
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -193,67 +222,113 @@ export function EditorDescription({
         })}
       </div>
 
-      <div className="items-center space-y-1 text-base">
-        <div className="flex gap-3">
-          <h2>Time Limit:</h2>
-          <p className="text-slate-300">{problem.timeLimit} ms</p>
+      <hr className="border-4 border-[#121728]" />
+
+      <div className="flex shrink-0 gap-11 px-6 text-base">
+        <div className="space-y-2">
+          <h2 className="text-nowrap">Time Limit</h2>
+          <h2 className="text-nowrap">Memory Limit</h2>
+          <h2 className="text-nowrap">Source</h2>
         </div>
-        <div className="flex gap-3">
-          <h2>Memory Limit:</h2>
-          <p className="text-slate-300">{problem.memoryLimit} MB</p>
-        </div>
-        <div className="flex gap-3">
-          <h2>Source:</h2>
-          <p className="text-slate-300">{problem.source}</p>
+        <div className="space-y-2">
+          <p className="text-slate-400">{problem.timeLimit} ms</p>
+          <p className="text-slate-400">{problem.memoryLimit} MB</p>
+          <p className="text-slate-400">{problem.source}</p>
         </div>
       </div>
 
-      <Accordion type="multiple">
-        {problem.tags && (
-          <AccordionItem value="item-1" className="border-b-slate-700">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-2 text-base">
-                <Tag size={16} />
-                Tags
-              </div>
-            </AccordionTrigger>
-            <AccordionContent>
-              {problem.tags.map((tag) => (
-                <Badge
-                  key={tag.id}
-                  className="bg-slate-300 text-slate-800 hover:bg-slate-300"
-                >
-                  {tag.name}
-                </Badge>
-              ))}
-            </AccordionContent>
-          </AccordionItem>
-        )}
+      <hr className="border-4 border-[#121728]" />
 
-        {problem.hint && (
-          <AccordionItem value="item-2" className="border-b-slate-700">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-2 text-base">
-                <Lightbulb size={16} />
-                Hint
-              </div>
-            </AccordionTrigger>
-            <AccordionContent>
-              <pre
-                dangerouslySetInnerHTML={{ __html: sanitize(problem.hint) }}
-                className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
-              />
-            </AccordionContent>
-          </AccordionItem>
-        )}
+      <Accordion type="multiple">
+        <AccordionItem value="item-1" className="border-none px-6">
+          <AccordionTrigger className="hover:no-underline">
+            <div className="flex items-center text-base">Hint</div>
+          </AccordionTrigger>
+          <AccordionContent>
+            <pre
+              dangerouslySetInnerHTML={{ __html: sanitize(problem.hint) }}
+              className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
+            />
+          </AccordionContent>
+        </AccordionItem>
       </Accordion>
-      {/* TODO: Add Compile Version Documentation
-       <div className="mt-8 flex gap-3">
-        <LucideFileText className="size-7" />
-        <p className="text-xs">
-          Compile Version <br /> Documentation
-        </p>
-      </div> */}
+
+      <hr className="border-4 border-[#121728]" />
+
+      <div className="flex px-6">
+        <Dialog>
+          <DialogTrigger asChild>
+            {/* TODO: Find Icon */}
+            <FaFileContract className="cursor-pointer" />
+          </DialogTrigger>
+          <DialogContent
+            showDarkOverlay={true}
+            className="rounded-xl border-none bg-slate-900 text-gray-300 sm:max-w-md"
+          >
+            <DialogHeader>
+              <DialogTitle className="font-normal text-white">
+                Compiler Version Document
+              </DialogTitle>
+            </DialogHeader>
+            <div className="overflow-x-auto rounded border border-slate-600">
+              <table className="min-w-full bg-slate-900 text-left text-sm">
+                <thead className="border-b border-slate-600 bg-slate-800 text-xs">
+                  <tr>
+                    <th className="px-6 py-3">Language</th>
+                    <th className="px-6 py-3">Compiler Version Document</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-slate-600">
+                    <td className="flex px-6 py-4">C</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-2">
+                        <FileText size={18} />
+                        <span>gcc 13.2.0</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <FileText size={18} />
+                        <span>c11</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr className="border-b border-slate-600">
+                    <td className="flex px-6 py-4">C++</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-2">
+                        <FileText size={18} />
+                        <span>g++ 13.2.0</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <FileText size={18} />
+                        <span>c++ 14</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr className="border-b border-slate-600">
+                    <td className="flex px-6 py-4">Java</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-2">
+                        <FileText size={18} />
+                        <span>openjdk 17.0.11</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="flex px-6 py-4">Python</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-2">
+                        <FileText size={18} />
+                        <span>python 3.12.3</span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   )
 }

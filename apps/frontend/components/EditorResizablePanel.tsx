@@ -49,7 +49,7 @@ export default function EditorMainResizablePanel({
         minSize={20}
       >
         <div className="grid-rows-editor grid h-full grid-cols-1">
-          <div className="flex h-full w-full items-center border-b border-slate-700 bg-slate-800 px-6">
+          <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
             <Tabs
               value={
                 pathname.startsWith(`${base}/problem/${problem.id}/submission`)
@@ -73,7 +73,7 @@ export default function EditorMainResizablePanel({
                     value="Submission"
                     className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
                   >
-                    Submission
+                    Submission List
                   </TabsTrigger>
                 </Link>
               </TabsList>
@@ -85,9 +85,9 @@ export default function EditorMainResizablePanel({
         </div>
       </ResizablePanel>
 
-      <ResizableHandle withHandle className="border border-slate-700" />
+      <ResizableHandle withHandle className="border-[0.5px] border-slate-700" />
 
-      <ResizablePanel defaultSize={65} className="bg-slate-900">
+      <ResizablePanel defaultSize={65} className="bg-[#222939]">
         <div className="grid-rows-editor grid h-full">
           <CodeContext.Provider value={store}>
             <EditorHeader

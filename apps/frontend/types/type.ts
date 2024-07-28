@@ -67,6 +67,7 @@ export interface ProblemDetail {
   tags: Tag[]
   hint: string
   template: string[]
+  difficulty: Level
 }
 
 // Contest type definition
