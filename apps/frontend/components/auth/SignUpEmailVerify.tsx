@@ -126,9 +126,6 @@ export default function SignUpEmailVerify() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-1">
-      {sentEmail && !expired && (
-        <p className="absolute right-10 top-10 text-red-500">{formatTimer()}</p>
-      )}
       <p className="mb-4 text-left text-xl font-bold text-blue-500">Sign Up</p>
       {!sentEmail && (
         <Input
@@ -151,8 +148,11 @@ export default function SignUpEmailVerify() {
       <p className="text-xs text-red-500">{emailError}</p>
       {sentEmail && (
         <>
-          <div className="text-sm font-semibold text-gray-500">
-            {emailContent}
+          <div className="flex justify-between">
+            <div className="text-sm text-black">{emailContent}</div>
+            {sentEmail && !expired && (
+              <p className="text-red-500">{formatTimer()}</p>
+            )}
           </div>
           <Input
             type="number"
