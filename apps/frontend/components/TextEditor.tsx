@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Dialog,
   DialogContent,
@@ -9,9 +11,12 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Toggle } from '@/components/ui/toggle'
+import { UPLOAD_IMAGE } from '@/graphql/problem/mutations'
+import { useMutation } from '@apollo/client'
 import Tex from '@matejmazur/react-katex'
 import { DialogClose } from '@radix-ui/react-dialog'
 import { mergeAttributes, Node } from '@tiptap/core'
+import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
 import { Extension } from '@tiptap/react'
@@ -28,7 +33,8 @@ import {
   List,
   ListOrdered,
   Link as LinkIcon,
-  Pi
+  Pi,
+  ImagePlus
 } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { Button } from './ui/button'
@@ -151,6 +157,7 @@ export default function TextEditor({
   defaultValue?: string
 }) {
   const [url, setUrl] = useState('')
+  const [imageUrl, setImageUrl] = useState<string | undefined>('')
   const [equation, setEquation] = useState('')
   const handleEquation = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,7 +176,8 @@ export default function TextEditor({
           'before:absolute before:text-gray-300 before:float-left before:content-[attr(data-placeholder)] before:pointer-events-none'
       }),
       Link,
-      Indentation
+      Indentation,
+      Image.configure({ inline: true, allowBase64: true })
     ],
     editorProps: {
       attributes: {
@@ -208,6 +216,39 @@ export default function TextEditor({
     },
     [editor]
   )
+
+  const addImage = useCallback(
+    (imageUrl: string | undefined) => {
+      if (!editor) return null
+      if (imageUrl === null) {
+        return
+      }
+      if (imageUrl === '') {
+        return
+      }
+      if (imageUrl) {
+        editor?.chain().focus().setImage({ src: imageUrl }).run()
+      }
+    },
+    [editor]
+  )
+
+  const [uploadImage] = useMutation(UPLOAD_IMAGE)
+
+  const handleUploadPhoto = async (files: FileList | null) => {
+    if (files === null) return
+    const file = files[0]
+    try {
+      const { data } = await uploadImage({
+        variables: {
+          input: { file }
+        }
+      })
+      setImageUrl(data?.uploadImage.src)
+    } catch (error) {
+      console.error('Error uploading file:', error)
+    }
+  }
 
   return (
     <div className="flex flex-col justify-stretch bg-white">
@@ -314,6 +355,34 @@ export default function TextEditor({
                 >
                   Insert
                 </Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog>
+          <DialogTrigger asChild>
+            <Toggle size="sm" pressed={editor?.isActive('image')}>
+              <ImagePlus className="h-[14px] w-[14px]" />
+            </Toggle>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Upload Image</DialogTitle>
+            </DialogHeader>
+            <DialogDescription className="flex-col gap-1">
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  handleUploadPhoto(e.target.files)
+                }}
+              />
+              <p className="text-sm"> * Image must be under 5MB</p>
+            </DialogDescription>
+            <DialogFooter className="flex items-center justify-between">
+              <DialogClose asChild>
+                <Button onClick={() => addImage(imageUrl)}>Insert</Button>
               </DialogClose>
             </DialogFooter>
           </DialogContent>
