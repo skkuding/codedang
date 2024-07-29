@@ -22,8 +22,7 @@ import {
 } from '@/components/ui/table'
 import { DELETE_CONTEST } from '@/graphql/contest/mutations'
 import { DELETE_PROBLEM } from '@/graphql/problem/mutations'
-import { GET_TAGS } from '@/graphql/problem/queries'
-import { useMutation, useQuery } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 import type { ColumnDef, SortingState } from '@tanstack/react-table'
 import {
   flexRender,
@@ -42,8 +41,8 @@ import { useEffect, useState, Suspense } from 'react'
 import { PiTrashLight } from 'react-icons/pi'
 import { toast } from 'sonner'
 import DataTableLangFilter from './DataTableLangFilter'
+import DataTableLevelFilter from './DataTableLevelFilter'
 import { DataTablePagination } from './DataTablePagination'
-import { DataTableTagsFilter } from './DataTableTagsFilter'
 import { Input } from './ui/input'
 
 interface DataTableProps<TData, TValue> {
@@ -64,6 +63,7 @@ interface ContestProblem {
 }
 
 const languageOptions = ['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']
+const levels = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
 
 let contestId: string | null = null
 
@@ -94,7 +94,8 @@ export function DataTableAdmin<TData, TValue>({
     columns,
     state: {
       sorting,
-      rowSelection
+      rowSelection,
+      columnVisibility: { languages: false }
     },
     autoResetPageIndex: false,
     enableRowSelection: true,
@@ -229,10 +230,6 @@ export function DataTableAdmin<TData, TValue>({
       })
   }
 
-  const { data: tagsData } = useQuery(GET_TAGS)
-  const tags =
-    tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
-
   return (
     <div className="space-y-4">
       <Suspense>
@@ -262,11 +259,11 @@ export function DataTableAdmin<TData, TValue>({
                     options={languageOptions}
                   />
                 )}
-                {table.getColumn('tag') && (
-                  <DataTableTagsFilter
-                    column={table.getColumn('tag')}
-                    title="Tags"
-                    options={tags}
+                {table.getColumn('difficulty') && (
+                  <DataTableLevelFilter
+                    column={table.getColumn('difficulty')}
+                    title="Level"
+                    options={levels}
                   />
                 )}
               </div>
@@ -353,7 +350,7 @@ export function DataTableAdmin<TData, TValue>({
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className="md:p-4"
+                        className="text-center md:p-4"
                         onClick={
                           cell.column.id === 'title'
                             ? () => router.push(href)
