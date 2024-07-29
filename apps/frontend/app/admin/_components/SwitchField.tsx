@@ -2,26 +2,34 @@ import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import Label from '../_components/Label'
 import { inputStyle } from '../utils'
+import Label from './Label'
 
 interface SwitchFieldProps {
   name: string
   title?: string
   placeholder?: string
   isInput?: boolean
+  type?: string
+  hasValue?: boolean
 }
 
 export default function SwitchField({
   name,
   title,
   placeholder,
-  isInput = false
+  isInput = false,
+  type = 'text',
+  hasValue = false
 }: SwitchFieldProps) {
-  const [isEnabled, setIsEnabled] = useState(true)
+  const [isEnabled, setIsEnabled] = useState(false)
   const { register, setValue } = useFormContext()
+
+  useEffect(() => {
+    setIsEnabled(hasValue)
+  }, [hasValue])
 
   return (
     <div className="flex flex-col gap-1">
@@ -30,7 +38,7 @@ export default function SwitchField({
         <Switch
           onCheckedChange={() => {
             setIsEnabled(!isEnabled)
-            setValue(name, '')
+            setValue(name, name === 'invitationCode' ? null : '')
           }}
           checked={isEnabled}
           className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
@@ -40,10 +48,14 @@ export default function SwitchField({
         (isInput ? (
           <Input
             id={name}
-            type="text"
+            type={type}
             placeholder={placeholder}
-            className={cn(inputStyle, 'h-[36px] w-[380px]')}
-            {...register('source')}
+            className={cn(
+              inputStyle,
+              'h-[36px] w-[380px]',
+              '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
+            )}
+            {...register(name)}
           />
         ) : (
           <Textarea

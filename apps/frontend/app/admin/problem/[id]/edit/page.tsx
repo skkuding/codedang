@@ -15,20 +15,21 @@ import type {
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { toast } from 'sonner'
+import DescriptionForm from '../../../_components/DescriptionForm'
+import FormSection from '../../../_components/FormSection'
+import SwitchField from '../../../_components/SwitchField'
+import TitleForm from '../../../_components/TitleForm'
 import AddBadge from '../../_components/AddBadge'
 import AddableForm from '../../_components/AddableForm'
-import DescriptionForm from '../../_components/DescriptionForm'
-import FormSection from '../../_components/FormSection'
 import InfoForm from '../../_components/InfoForm'
 import LimitForm from '../../_components/LimitForm'
 import PopoverVisibleInfo from '../../_components/PopoverVisibleInfo'
-import SwitchField from '../../_components/SwitchField'
 import TemplateField from '../../_components/TemplateField'
-import TitleForm from '../../_components/TitleForm'
 import VisibleForm from '../../_components/VisibleForm'
 import { editSchema } from '../../utils'
 
@@ -49,6 +50,9 @@ export default function Page({ params }: { params: { id: string } }) {
   })
 
   const { handleSubmit, setValue, getValues } = methods
+
+  const [showHint, setShowHint] = useState<boolean>(false)
+  const [showSource, setShowSource] = useState<boolean>(false)
 
   useQuery(GET_PROBLEM, {
     variables: {
@@ -79,7 +83,9 @@ export default function Page({ params }: { params: { id: string } }) {
       setValue('timeLimit', data.timeLimit)
       setValue('memoryLimit', data.memoryLimit)
       setValue('hint', data.hint)
+      if (data.hint !== '') setShowHint(true)
       setValue('source', data.source)
+      if (data.source !== '') setShowSource(true)
       if (data.template) {
         const templates = JSON.parse(data.template[0])
         templates.map((template: Template, index: number) => {
@@ -153,7 +159,7 @@ export default function Page({ params }: { params: { id: string } }) {
           <FormProvider {...methods}>
             <div className="flex gap-6">
               <FormSection title="Title">
-                <TitleForm />
+                <TitleForm placeholder="Name your problem" />
               </FormSection>
 
               <FormSection title="Visible">
@@ -215,12 +221,18 @@ export default function Page({ params }: { params: { id: string } }) {
               <LimitForm />
             </FormSection>
 
-            <SwitchField name="hint" title="Hint" placeholder="Enter a hint" />
+            <SwitchField
+              name="hint"
+              title="Hint"
+              placeholder="Enter a hint"
+              hasValue={showHint}
+            />
             <SwitchField
               name="source"
               title="Source"
               placeholder="Enter a source"
               isInput
+              hasValue={showSource}
             />
             <TemplateField />
 

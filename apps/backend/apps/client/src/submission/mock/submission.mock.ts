@@ -16,7 +16,14 @@ export const submissions = [
     userId: 1,
     problemId: 1,
     contestId: null,
-    workbookId: null
+    workbookId: null,
+    problem: {
+      problemTestcase: [
+        {
+          id: 1
+        }
+      ]
+    }
   },
   {
     id: 2,
@@ -31,7 +38,14 @@ export const submissions = [
     userId: 1,
     problemId: 1,
     contestId: null,
-    workbookId: null
+    workbookId: null,
+    problem: {
+      problemTestcase: [
+        {
+          id: 1
+        }
+      ]
+    }
   }
 ]
 

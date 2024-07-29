@@ -97,9 +97,17 @@ const DELETE_PROBLEM = gql(`
 `)
 
 const UPLOAD_PROBLEMS = gql(`
-  mutation uploadProblems ($groupId: Int!, $input: UploadFileInput!) {
+  mutation UploadProblems ($groupId: Int!, $input: UploadFileInput!) {
     uploadProblems(groupId: $groupId, input: $input) {
       id
+    }
+  }
+`)
+
+const UPLOAD_IMAGE = gql(`
+  mutation uploadImage ($input: UploadFileInput!){
+    uploadImage(input: $input){
+      src
     }
   }
 `)
@@ -110,5 +118,6 @@ export {
   UPDATE_PROBLEM_VISIBLE,
   UPDATE_CONTEST_PROBLEMS_ORDER,
   DELETE_PROBLEM,
-  UPLOAD_PROBLEMS
+  UPLOAD_PROBLEMS,
+  UPLOAD_IMAGE
 }

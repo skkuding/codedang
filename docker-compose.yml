@@ -19,14 +19,29 @@ services:
       DEVCONTAINER: 1
     network_mode: host
 
-  storage:
-    container_name: codedang-storage
+  local-storage:
+    container_name: codedang-local-storage
     image: minio/minio
     ports:
       - 9000:9000
       - 9001:9001
     command: server /data --console-address ":9001"
     environment:
+      MINIO_ROOT_USER: skku
+      MINIO_ROOT_PASSWORD: skku1234
+    volumes:
+      - codedang-storage:/data
+
+  deploy-storage:
+    profiles: ['deploy']
+    container_name: codedang-deploy-storage
+    image: minio/minio
+    ports:
+      - 9000:9000
+      - 9001:9001
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_BROWSER_REDIRECT_URL: https://stage.codedang.com/console
       MINIO_ROOT_USER: skku
       MINIO_ROOT_PASSWORD: skku1234
     volumes:
@@ -157,7 +172,7 @@ services:
     depends_on:
       - rabbitmq
       - database
-      - storage
+      - deploy-storage
     volumes:
       - $PWD/scripts:/etc/scripts
       # - $PWD/dist:/etc/dist:z

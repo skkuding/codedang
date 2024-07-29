@@ -10,7 +10,7 @@ get {
   auth: none
 }
 
-params:query {
+query {
   groupId: 1
 }
 
@@ -26,6 +26,7 @@ assert {
   res("description"): isString
   res("_count.contestRecord"): isNumber
   res("isRegistered"): isBoolean
+  res("enableCopyPaste"): isBoolean 
 }
 
 script:pre-request {

@@ -80,6 +80,7 @@ export interface Contest {
     id: string
     groupName: string
   }
+  enableCopyPaste: boolean
   status: ContestStatus
   participants: number
 }
@@ -154,7 +155,7 @@ export interface SubmissionDetail {
   testcaseResult: {
     id: number
     submissionId: number
-    problemTestCaseId: number
+    problemTestcaseId: number
     result: string
     cpuTime: string
     memoryUsage: number
