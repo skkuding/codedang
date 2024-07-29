@@ -1311,7 +1311,8 @@ const createContests = async () => {
       data: {
         order: problem.id - 1,
         contestId: ongoingContests[0].id,
-        problemId: problem.id
+        problemId: problem.id,
+        score: problem.id * 10
       }
     })
   }
@@ -1721,7 +1722,6 @@ const createCodeDrafts = async () => {
 
 const createContestRecords = async () => {
   const contestRecords: ContestRecord[] = []
-  let i = 0
   // group 1 users
   const group1Users = await prisma.userGroup.findMany({
     where: {
@@ -1733,12 +1733,11 @@ const createContestRecords = async () => {
       data: {
         userId: user.userId,
         contestId: 1,
-        acceptedProblemNum: user.userId,
-        totalPenalty: i * 60
+        acceptedProblemNum: 0,
+        totalPenalty: 0
       }
     })
     contestRecords.push(contestRecord)
-    i++
   }
 
   // upcoming contest에 참가한 User 1의 contest register를 un-register하는 기능과,
