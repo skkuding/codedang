@@ -2,10 +2,10 @@ import { Field, Int, ObjectType } from '@nestjs/graphql'
 import type { Language } from '@admin/@generated'
 
 /**
- * 특정 User의 특정 Contest에 대한 Submission 정보
+ * 특정 User의 특정 Contest에 대한 Submission 정보 (!== model SubmissionResult)
  */
-@ObjectType({ description: 'contestSubmissionResult' })
-export class ContestSubmissionResult {
+@ObjectType({ description: 'contestSubmissionInformation' })
+export class ContestSubmissionInformation {
   @Field(() => Int)
   contestId: number
 
