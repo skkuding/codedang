@@ -1,7 +1,7 @@
 import { Textarea } from '@/components/ui/textarea'
 import type { Language } from '@/types/type'
 import { useFormContext } from 'react-hook-form'
-import Label from './Label'
+import Label from '../../_components/Label'
 
 export default function TemplateField() {
   const { register, watch } = useFormContext()

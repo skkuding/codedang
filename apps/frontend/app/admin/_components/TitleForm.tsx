@@ -4,7 +4,7 @@ import { useFormContext } from 'react-hook-form'
 import { inputStyle } from '../utils'
 import ErrorMessage from './ErrorMessage'
 
-export default function TitleForm() {
+export default function TitleForm({ placeholder }: { placeholder: string }) {
   const {
     register,
     formState: { errors }
@@ -14,7 +14,7 @@ export default function TitleForm() {
       <Input
         id="title"
         type="text"
-        placeholder="Name your problem"
+        placeholder={placeholder}
         className={cn(inputStyle, 'w-[380px]')}
         {...register('title', {
           required: true
