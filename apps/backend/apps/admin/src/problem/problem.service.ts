@@ -775,9 +775,10 @@ export class ProblemService {
         isVisible:
           visibleLockTime.getTime() === MIN_DATE.getTime()
             ? true
-            : visibleLockTime < new Date()
-              ? null
-              : false,
+            : visibleLockTime < new Date() ||
+                visibleLockTime.getTime() === MAX_DATE.getTime()
+              ? false
+              : null,
         ...data
       }
     })

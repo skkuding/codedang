@@ -6,6 +6,7 @@ import type {
   ContestProblem,
   WorkbookProblem
 } from '@prisma/client'
+import { MIN_DATE } from '@libs/constants'
 import type { CreateTemplateDto } from '../dto/create-code-draft.dto'
 
 export const problems: Problem[] = [
@@ -26,7 +27,7 @@ export const problems: Problem[] = [
     submissionCount: 10,
     acceptedCount: 5,
     acceptedRate: 0.5,
-    visibleLockTime: new Date('2000-01-01'),
+    visibleLockTime: MIN_DATE,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     template: [],
@@ -53,7 +54,7 @@ export const problems: Problem[] = [
     submissionCount: 10,
     acceptedCount: 5,
     acceptedRate: 0.5,
-    visibleLockTime: new Date('2000-01-01'),
+    visibleLockTime: MIN_DATE,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     template: [],
