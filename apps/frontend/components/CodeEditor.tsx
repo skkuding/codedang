@@ -95,7 +95,7 @@ export default function CodeEditor({
         extensions={[
           fontSize,
           languageParser[language](),
-          !enableCopyPaste ? [copyPasteHandler()] : []
+          enableCopyPaste ? [] : [copyPasteHandler()]
         ]}
         value={value}
         onChange={onChange}
