@@ -169,7 +169,7 @@ services:
     profiles: ['deploy']
     image: python:3-bullseye # Python for rabbitmqadmin
     container_name: setup
-    pends_on:
+    depends_on:
       - rabbitmq
       - database
       - deploy-storage
