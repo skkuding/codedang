@@ -14,11 +14,11 @@ const badgeVariants = cva(
         destructive:
           'border-transparent bg-red-500 text-gray-50 hover:bg-red-500/80 dark:bg-red-900 dark:text-gray-50 dark:hover:bg-red-900/80',
         outline: 'text-gray-950 dark:text-gray-50',
-        level1: 'bg-level-bg-1 text-level-text-1',
-        level2: 'bg-level-bg-2 text-level-text-2',
-        level3: 'bg-level-bg-3 text-level-text-3',
-        level4: 'bg-level-bg-4 text-level-text-4',
-        level5: 'bg-level-bg-5 text-level-text-5'
+        level1: 'bg-level-light-1 text-level-dark-1',
+        level2: 'bg-level-light-2 text-level-dark-2',
+        level3: 'bg-level-light-3 text-level-dark-3',
+        level4: 'bg-level-light-4 text-level-dark-4',
+        level5: 'bg-level-light-5 text-leveldarkt-5'
       }
     },
     defaultVariants: {

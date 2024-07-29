@@ -37,14 +37,14 @@ export default {
         },
         secondary: '#30D7AE',
         level: {
-          text: {
+          dark: {
             1: '#FF5777',
             2: '#FFAA33',
             3: '#35C759',
             4: '#00BDDE',
             5: '#8266F5'
           },
-          bg: {
+          light: {
             1: '#FED7DE',
             2: '#FFF5CC',
             3: '#D8F4DE',
