@@ -165,7 +165,7 @@ export function DataTableAdmin<TData, TValue>({
         `importProblems-${contestId}`,
         JSON.stringify(problems)
       )
-      router.push(`/admin/contest/${contestId}`)
+      router.push(`/admin/contest/${contestId}/edit`)
     }
   }
 

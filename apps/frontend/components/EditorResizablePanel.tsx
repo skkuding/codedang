@@ -22,11 +22,13 @@ interface ProblemEditorProps {
   problem: ProblemDetail
   children: React.ReactNode
   contestId?: number
+  enableCopyPaste?: boolean
 }
 
 export default function EditorMainResizablePanel({
   problem,
   contestId,
+  enableCopyPaste = true,
   children
 }: ProblemEditorProps) {
   const pathname = usePathname()
@@ -97,6 +99,7 @@ export default function EditorMainResizablePanel({
             />
             <CodeEditorInEditorResizablePanel
               templateString={problem.template[0]}
+              enableCopyPaste={enableCopyPaste}
             />
           </CodeContext.Provider>
         </div>
@@ -107,10 +110,12 @@ export default function EditorMainResizablePanel({
 
 interface CodeEditorInEditorResizablePanelProps {
   templateString: string
+  enableCopyPaste: boolean
 }
 
 function CodeEditorInEditorResizablePanel({
-  templateString
+  templateString,
+  enableCopyPaste
 }: CodeEditorInEditorResizablePanelProps) {
   const { language } = useLanguageStore()
   const store = useContext(CodeContext)
@@ -134,6 +139,7 @@ function CodeEditorInEditorResizablePanel({
       value={code}
       language={language as Language}
       onChange={setCode}
+      enableCopyPaste={enableCopyPaste}
       height="100%"
       className="h-full"
     />

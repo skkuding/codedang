@@ -1478,9 +1478,7 @@ int main(void) {
     data: {
       submissionId: submissions[2].id,
       problemTestcaseId: problemTestcases[2].id,
-      result: ResultStatus.CompileError,
-      cpuTime: 12345,
-      memoryUsage: 12345
+      result: ResultStatus.CompileError
     }
   })
   await prisma.submission.update({

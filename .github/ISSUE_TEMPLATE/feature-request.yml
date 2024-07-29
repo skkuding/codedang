@@ -8,6 +8,13 @@ body:
       description: 해결하려는 문제와 그 해결책을 설명해주세요.
     validations:
       required: true
+  - type: input
+    attributes:
+      label: Notion task #
+      description: Notion task 번호를 적어주세요. 형식은 TAS-123과 같습니다. 만들어놓은 Notion task가 없을 경우 번호를 비워두시면 Notion task가 자동으로 생성됩니다.
+      value: TAS-
+    validations:
+      required: true
   - type: checkboxes
     attributes:
       label: Validations
