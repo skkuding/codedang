@@ -97,7 +97,7 @@ const DELETE_PROBLEM = gql(`
 `)
 
 const UPLOAD_PROBLEMS = gql(`
-  mutation uploadProblems ($groupId: Int!, $input: UploadFileInput!) {
+  mutation UploadProblems ($groupId: Int!, $input: UploadFileInput!) {
     uploadProblems(groupId: $groupId, input: $input) {
       id
     }

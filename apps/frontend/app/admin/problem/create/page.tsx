@@ -19,16 +19,16 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { toast } from 'sonner'
+import DescriptionForm from '../../_components/DescriptionForm'
+import FormSection from '../../_components/FormSection'
+import SwitchField from '../../_components/SwitchField'
+import TitleForm from '../../_components/TitleForm'
 import AddBadge from '../_components/AddBadge'
 import AddableForm from '../_components/AddableForm'
-import DescriptionForm from '../_components/DescriptionForm'
-import FormSection from '../_components/FormSection'
 import InfoForm from '../_components/InfoForm'
 import LimitForm from '../_components/LimitForm'
 import PopoverVisibleInfo from '../_components/PopoverVisibleInfo'
-import SwitchField from '../_components/SwitchField'
 import TemplateField from '../_components/TemplateField'
-import TitleForm from '../_components/TitleForm'
 import VisibleForm from '../_components/VisibleForm'
 import { createSchema } from '../utils'
 
@@ -97,7 +97,7 @@ export default function Page() {
           <FormProvider {...methods}>
             <div className="flex gap-6">
               <FormSection title="Title">
-                <TitleForm />
+                <TitleForm placeholder="Name your problem" />
               </FormSection>
 
               <FormSection title="Visible">
