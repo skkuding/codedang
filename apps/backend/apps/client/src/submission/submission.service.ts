@@ -1,7 +1,6 @@
 import { HttpService } from '@nestjs/axios'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import {
   ResultStatus,
   type Submission,
@@ -11,13 +10,8 @@ import {
 } from '@prisma/client'
 import type { AxiosRequestConfig } from 'axios'
 import { plainToInstance } from 'class-transformer'
-import { Span, TraceService } from 'nestjs-otel'
-import {
-  OPEN_SPACE_ID,
-  EXCHANGE,
-  PUBLISH_TYPE,
-  SUBMISSION_KEY
-} from '@libs/constants'
+import { Span } from 'nestjs-otel'
+import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -30,18 +24,17 @@ import {
   Snippet,
   Template
 } from './class/create-submission.dto'
-import { JudgeRequest } from './class/judge-request'
 import type { TestcaseDTO } from './interface/testcase.dto'
+import { SubmissionPublicationService } from './submission-pub.service'
 
 @Injectable()
 export class SubmissionService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpConnection: AmqpConnection,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
-    private readonly traceService: TraceService,
-    private readonly storageService: StorageService
+    private readonly storageService: StorageService,
+    private readonly publish: SubmissionPublicationService
   ) {}
 
   @Span()
@@ -200,7 +193,7 @@ export class SubmissionService {
 
       await this.createSubmissionResults(submission)
 
-      await this.publishJudgeRequestMessage(code, submission)
+      await this.publish.publishJudgeRequestMessage(code, submission)
       return submission
     }
 
@@ -221,7 +214,7 @@ export class SubmissionService {
 
       await this.createSubmissionResults(submission)
 
-      await this.publishJudgeRequestMessage(code, submission)
+      await this.publish.publishJudgeRequestMessage(code, submission)
       return submission
     }
 
@@ -232,7 +225,7 @@ export class SubmissionService {
 
       await this.createSubmissionResults(submission)
 
-      await this.publishJudgeRequestMessage(code, submission)
+      await this.publish.publishJudgeRequestMessage(code, submission)
       return submission
     }
   }
@@ -318,36 +311,6 @@ export class SubmissionService {
     } else {
       return { isDelay: true, cause: 'RabbitMQ is not working.' }
     }
-  }
-
-  @Span()
-  async publishJudgeRequestMessage(code: Snippet[], submission: Submission) {
-    const problem = await this.prisma.problem.findUnique({
-      where: { id: submission.problemId },
-      select: {
-        id: true,
-        timeLimit: true,
-        memoryLimit: true
-      }
-    })
-
-    if (!problem) {
-      throw new EntityNotExistException('problem')
-    }
-
-    const judgeRequest = new JudgeRequest(code, submission.language, problem)
-
-    const span = this.traceService.startSpan(
-      'publishJudgeRequestMessage.publish'
-    )
-    span.setAttributes({ submissionId: submission.id })
-
-    this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
-      messageId: String(submission.id),
-      persistent: true,
-      type: PUBLISH_TYPE
-    })
-    span.end()
   }
 
   // FIXME: Workbook 구분
