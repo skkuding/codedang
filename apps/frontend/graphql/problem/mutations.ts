@@ -104,11 +104,20 @@ const UPLOAD_PROBLEMS = gql(`
   }
 `)
 
+const UPLOAD_IMAGE = gql(`
+  mutation uploadImage ($input: UploadFileInput!){
+    uploadImage(input: $input){
+      src
+    }
+  }
+`)
+
 export {
   CREATE_PROBLEM,
   UPDATE_PROBLEM,
   UPDATE_PROBLEM_VISIBLE,
   UPDATE_CONTEST_PROBLEMS_ORDER,
   DELETE_PROBLEM,
-  UPLOAD_PROBLEMS
+  UPLOAD_PROBLEMS,
+  UPLOAD_IMAGE
 }
