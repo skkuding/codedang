@@ -172,7 +172,7 @@ services:
     depends_on:
       - rabbitmq
       - database
-      - storage
+      - deploy-storage
     volumes:
       - $PWD/scripts:/etc/scripts
       # - $PWD/dist:/etc/dist:z
