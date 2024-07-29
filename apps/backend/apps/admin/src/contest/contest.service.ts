@@ -371,4 +371,39 @@ export class ContestService {
 
     return contestProblems
   }
+
+  async getContestSubmissionInformations(contestId: number, userId: number) {
+    const submissions = await this.prisma.submission.findMany({
+      where: {
+        userId,
+        contestId
+      },
+      include: {
+        problem: {
+          select: {
+            title: true
+          }
+        },
+        user: {
+          select: {
+            username: true
+          }
+        }
+      }
+    })
+
+    return await Promise.all(
+      submissions.map(async (submission) => {
+        return {
+          contestId: submission.contestId,
+          problemTitle: submission.problem.title,
+          submissionResult: submission.result,
+          language: submission.language,
+          submissionTime: submission.createTime,
+          codeSize: submission.codeSize,
+          ip: '127.0.0.1' // TODO: submission.ip 사용
+        }
+      })
+    )
+  }
 }
