@@ -11,7 +11,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
 import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
-import ContestOverallTabs from './_components/ContestOverallTabs'
+import ContestOverallTabs from '../_components/ContestOverallTabs'
 
 export default function Layout({
   params,
