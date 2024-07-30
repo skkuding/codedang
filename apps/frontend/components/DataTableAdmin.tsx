@@ -38,6 +38,7 @@ import { PlusCircleIcon } from 'lucide-react'
 import type { Route } from 'next'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
+import { IoSearch } from 'react-icons/io5'
 import { PiTrashLight } from 'react-icons/pi'
 import { toast } from 'sonner'
 import DataTableLangFilter from './DataTableLangFilter'
@@ -239,16 +240,19 @@ export function DataTableAdmin<TData, TValue>({
         <div className="flex justify-between">
           <div className="flex gap-2">
             {enableSearch && (
-              <Input
-                placeholder="Search"
-                value={
-                  (table.getColumn('title')?.getFilterValue() as string) ?? ''
-                }
-                onChange={(event) =>
-                  table.getColumn('title')?.setFilterValue(event.target.value)
-                }
-                className="h-10 w-[150px] lg:w-[250px]"
-              />
+              <div className="relative">
+                <IoSearch className="text-muted-foreground absolute left-2 top-3 h-4 w-4 text-gray-500" />
+                <Input
+                  placeholder="Search"
+                  value={
+                    (table.getColumn('title')?.getFilterValue() as string) ?? ''
+                  }
+                  onChange={(event) =>
+                    table.getColumn('title')?.setFilterValue(event.target.value)
+                  }
+                  className="h-10 w-[150px] pl-8 lg:w-[250px]"
+                />
+              </div>
             )}
             {enableFilter && (
               <div className="flex gap-2">

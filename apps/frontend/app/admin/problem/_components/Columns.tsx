@@ -5,8 +5,7 @@ import { Switch } from '@/components/ui/switch'
 import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
-import { FiEyeOff } from 'react-icons/fi'
-import { FiEye } from 'react-icons/fi'
+import { TbFileInfo } from 'react-icons/tb'
 
 interface Tag {
   id: number
@@ -29,7 +28,7 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
   const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
 
   return (
-    <div className="flex space-x-2">
+    <div className="ml-8 flex space-x-2">
       <Switch
         id="hidden-mode"
         checked={row.original.isVisible}
@@ -46,13 +45,11 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
           })
         }}
       />
-      <div className="flex items-center justify-center">
-        {row.original.isVisible ? (
-          <FiEye className="text-primary h-[14px] w-[14px]" />
-        ) : (
-          <FiEyeOff className="h-[14px] w-[14px] text-gray-400" />
-        )}
-      </div>
+      {!row.original.isVisible && (
+        <button className="justify-centert flex items-center">
+          <TbFileInfo className="h-[20px] w-[20px] text-black" />
+        </button>
+      )}
     </div>
   )
 }
@@ -62,13 +59,10 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     id: 'select',
     header: ({ table }) => (
       <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
-        }
+        checked={table.getIsAllPageRowsSelected()}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
-        className="translate-y-[2px] bg-white"
+        className="translate-y-[2px]"
       />
     ),
     cell: ({ row }) => (
@@ -76,7 +70,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
-        className="translate-y-[2px] bg-white"
+        className="translate-y-[2px]"
       />
     ),
     enableSorting: false,
@@ -135,10 +129,15 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
+
+      type levelType = 'level1' | 'level2' | 'level3' | 'level4' | 'level5'
       const formattedLevel = `Level ${level.slice(-1)}`
       return (
         <div>
-          <Badge className="mr-1 whitespace-nowrap rounded-md border-gray-400 bg-gray-300 px-1 font-normal">
+          <Badge
+            variant={level.toLowerCase() as levelType}
+            className="mr-1 whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
+          >
             {formattedLevel}
           </Badge>
         </div>
