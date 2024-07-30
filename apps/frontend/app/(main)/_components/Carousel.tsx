@@ -38,7 +38,7 @@ export default function Carousel({ slides }: Props) {
   }
 
   return (
-    <div className="relative my-5 h-[350px] w-full overflow-hidden rounded-xl bg-gray-100 sm:h-[360px]">
+    <div className="relative my-2 h-[350px] w-full overflow-hidden rounded-xl bg-gray-100 sm:h-[360px]">
       {slides.map((slide, index) => (
         <Link
           href={slide.href as Route}
