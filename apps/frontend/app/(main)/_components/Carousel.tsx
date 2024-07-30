@@ -69,7 +69,7 @@ export default function Carousel({ slides }: Props) {
           </Button>
           <p className="mx-1 flex gap-1 text-sm text-black">
             <span>{facade + 1}</span>
-            <span className="font-thin opacity-70">/</span>
+            <span className="opacity-70">/</span>
             <span>{slides.length}</span>
           </p>
           <Button
