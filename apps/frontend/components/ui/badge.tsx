@@ -18,7 +18,7 @@ const badgeVariants = cva(
         level2: 'bg-level-light-2 text-level-dark-2 border-0',
         level3: 'bg-level-light-3 text-level-dark-3 border-0',
         level4: 'bg-level-light-4 text-level-dark-4 border-0',
-        level5: 'bg-level-light-5 text-leveldarkt-5 border-0'
+        level5: 'bg-level-light-5 text-level-dark-5 border-0'
       }
     },
     defaultVariants: {
