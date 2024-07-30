@@ -64,8 +64,8 @@ func resultCodeToError(code JudgeResultCode) error {
 		return err.Wrap(ErrMemoryLimitExceed)
 	case RUNTIME_ERROR:
 		return err.Wrap(ErrRuntime)
-		// case SEGMENATION_FAULT:
-		// 	return err.Wrap(ErrSegFault)
+	case SEGMENATION_FAULT:
+		return err.Wrap(ErrSegFault)
 	}
 	return &HandlerError{caller: caller, err: ErrSandbox, level: logger.ERROR}
 }
