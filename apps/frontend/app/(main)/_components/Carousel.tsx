@@ -49,10 +49,10 @@ export default function Carousel({ slides }: Props) {
             bgImage[slide.type]
           )}
         >
-          <div className="w-full whitespace-nowrap text-4xl font-bold md:text-3xl">
+          <div className="w-full whitespace-nowrap text-2xl font-bold md:text-4xl">
             <p className="font-mono">{slide.topTitle}</p>
             <p className="font-mono">{slide.bottomTitle}</p>
-            <p className="mt-2 text-base font-normal opacity-70 md:text-lg">
+            <p className="mt-4 text-base font-normal opacity-70 md:text-lg">
               {slide.sub}
             </p>
           </div>

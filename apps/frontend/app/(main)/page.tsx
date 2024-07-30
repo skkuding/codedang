@@ -1,11 +1,4 @@
 import { Button } from '@/components/ui/button'
-import Carousel1 from '@/public/carousel1.svg'
-import Carousel2 from '@/public/carousel2.svg'
-import Carousel3 from '@/public/carousel3.svg'
-import dummyImg from '@/public/dummy.png'
-import GithubLogo from '@/public/github.svg'
-import SkkudingLogo from '@/public/skkudingLogo.png'
-import { color } from 'framer-motion'
 import type { Route } from 'next'
 import Link from 'next/link'
 import Carousel from './_components/Carousel'
@@ -23,30 +16,21 @@ const slides = [
     topTitle: 'Welcome to',
     bottomTitle: 'CODEDANG',
     sub: 'Online Judge Platform for SKKU',
-    img: 'apps/frontend/public/carousel2.svg',
-    imgAlt: 'Codedang Intro Banner',
-    color: 'green',
-    href: '/problem'
+    href: '/'
   },
   {
     type: 'github',
     topTitle: 'Contribute to',
     bottomTitle: 'Codedang on GitHub',
     sub: `Our project is open source`,
-    img: Carousel2,
-    imgAlt: 'Github Link Banner',
-    color: 'yellow',
-    href: '/'
+    href: 'https://github.com/skkuding/codedang'
   },
   {
     type: 'skkuding',
     topTitle: 'SKKUDING',
     bottomTitle: 'Beta Service',
     sub: `Feel free to contact us if there's any bug`,
-    img: Carousel3,
-    imgAlt: 'SKKUDING Beta service Banner',
-    color: 'blue',
-    href: 'https://github.com/skkuding/codedang'
+    href: 'https://pf.kakao.com/_UKraK/chat'
   }
 ]
 
