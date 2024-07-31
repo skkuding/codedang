@@ -47,7 +47,7 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
       />
       {!row.original.isVisible && (
         <button className="justify-centert flex items-center">
-          <TbFileInfo className="h-[20px] w-[20px] text-black" />
+          <TbFileInfo className="h-5 w-5 text-black" />
         </button>
       )}
     </div>

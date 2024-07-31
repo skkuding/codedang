@@ -63,7 +63,7 @@ interface ContestProblem {
   difficulty: string
 }
 
-const languageOptions = ['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']
+const languageOptions = ['C', 'Cpp', 'Java', 'Python3']
 const levels = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
 
 let contestId: string | null = null
@@ -241,7 +241,7 @@ export function DataTableAdmin<TData, TValue>({
           <div className="flex gap-2">
             {enableSearch && (
               <div className="relative">
-                <IoSearch className="text-muted-foreground absolute left-2 top-3 h-4 w-4 text-gray-500" />
+                <IoSearch className="text-muted-foreground absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
                 <Input
                   placeholder="Search"
                   value={
