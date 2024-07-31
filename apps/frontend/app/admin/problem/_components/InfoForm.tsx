@@ -7,7 +7,7 @@ import type { Template } from '@generated/graphql'
 import type { Language } from '@generated/graphql'
 import { useEffect } from 'react'
 import { useFormContext, useController } from 'react-hook-form'
-import ErrorMessage from './ErrorMessage'
+import ErrorMessage from '../../_components/ErrorMessage'
 
 export default function InfoForm({
   tags,

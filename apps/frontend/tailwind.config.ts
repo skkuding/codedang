@@ -2,7 +2,6 @@
 import typography from '@tailwindcss/typography'
 import type { Config } from 'tailwindcss'
 import animate from 'tailwindcss-animate'
-import colors from 'tailwindcss/colors'
 import defaultTheme from 'tailwindcss/defaultTheme'
 
 export default {
@@ -32,16 +31,28 @@ export default {
       colors: {
         primary: {
           DEFAULT: '#3581FA',
-          light: '#5FA4F5'
+          light: '#5FA4F5',
+          strong: '#0760EF',
+          heavy: '#0348B2'
         },
         secondary: '#30D7AE',
         level: {
-          1: colors.violet[400],
-          2: colors.violet[600],
-          3: colors.violet[800],
-          4: colors.rose[700],
-          5: colors.rose[900]
-        }
+          dark: {
+            1: '#FF5777',
+            2: '#FFAA33',
+            3: '#35C759',
+            4: '#00BDDE',
+            5: '#8266F5'
+          },
+          light: {
+            1: '#FED7DE',
+            2: '#FFF5CC',
+            3: '#D8F4DE',
+            4: '#C4F6FF',
+            5: '#E0D9FC'
+          }
+        },
+        error: '#FF3B2F'
       },
       keyframes: {
         'accordion-down': {
