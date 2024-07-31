@@ -22,14 +22,14 @@ const slides = [
     type: 'github',
     topTitle: 'Contribute to',
     bottomTitle: 'Codedang on GitHub',
-    sub: `Our project is open source`,
+    sub: 'Our project is open source',
     href: 'https://github.com/skkuding/codedang'
   },
   {
     type: 'skkuding',
     topTitle: 'SKKUDING',
     bottomTitle: 'Beta Service',
-    sub: `Feel free to contact us if there's any bug`,
+    sub: "Feel free to contact us if there's any bug",
     href: 'https://pf.kakao.com/_UKraK/chat'
   }
 ]

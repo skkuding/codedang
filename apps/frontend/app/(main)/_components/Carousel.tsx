@@ -44,7 +44,7 @@ export default function Carousel({ slides }: Props) {
           href={slide.href as Route}
           key={slide.href + slide.topTitle}
           className={cn(
-            'f absolute inset-0 z-10 flex flex-col-reverse items-center justify-between gap-5 p-8 py-14 text-white transition-opacity duration-1000 ease-in-out sm:flex-row md:px-14 md:py-0',
+            'absolute inset-0 z-10 flex flex-col-reverse items-center justify-between gap-5 p-8 py-14 text-white transition-opacity duration-1000 ease-in-out sm:flex-row md:px-14 md:py-0',
             facade !== index && 'z-0 opacity-0',
             bgImage[slide.type]
           )}
