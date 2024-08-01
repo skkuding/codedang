@@ -134,6 +134,26 @@ const contestProblem: ContestProblem = {
   updateTime: faker.date.past()
 }
 
+const submissionsWithProblemTitleAndUsername = {
+  id: 1,
+  userId: 1,
+  problemId: 1,
+  contestId: 1,
+  workbookId: 1,
+  code: [],
+  codeSize: 1,
+  language: 'C',
+  result: 'ACCEPTED',
+  createTime: '2000-01-01',
+  updateTime: '2000-01-02',
+  problem: {
+    title: 'submission'
+  },
+  user: {
+    username: 'user01'
+  }
+}
+
 const publicizingRequest: PublicizingRequest = {
   contestId,
   userId,
@@ -179,6 +199,9 @@ const db = {
   },
   group: {
     findUnique: stub().resolves(Group)
+  },
+  submission: {
+    findMany: stub().resolves([submissionsWithProblemTitleAndUsername])
   },
   $transaction: stub().callsFake(async () => {
     const updatedProblem = await db.problem.update()
@@ -340,6 +363,24 @@ describe('ContestService', () => {
       expect(
         service.importProblemsToContest(groupId, 9999, [problemId])
       ).to.be.rejectedWith(EntityNotExistException)
+    })
+  })
+
+  describe('getContestSubmissionSummaries', () => {
+    it('should return contest submission summaries', async () => {
+      const res = await service.getContestSubmissionSummaries(1, 1)
+
+      expect(res).to.deep.equal([
+        {
+          contestId: 1,
+          problemTitle: 'submission',
+          submissionResult: 'ACCEPTED',
+          language: 'C',
+          submissionTime: '2000-01-01',
+          codeSize: 1,
+          ip: '127.0.0.1' // TODO: submission.ip 사용
+        }
+      ])
     })
   })
 })
