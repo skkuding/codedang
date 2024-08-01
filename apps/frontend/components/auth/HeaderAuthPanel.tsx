@@ -74,9 +74,9 @@ export default function HeaderAuthPanel({
           <DialogTrigger asChild>
             <Button
               onClick={() => showSignIn()}
-              variant={variants[group]}
+              variant={'outline'}
               className={cn(
-                'hidden border-none px-3 py-1 text-base md:block',
+                'mr-3 hidden border-none px-3 py-1 text-base md:block',
                 group === 'editor' ? 'font-medium' : 'font-semibold'
               )}
             >
@@ -88,7 +88,6 @@ export default function HeaderAuthPanel({
               onClick={() => {
                 showSignUp()
               }}
-              variant={variants[group]}
               className={cn(
                 'hidden px-3 py-1 text-base md:block',
                 group === 'editor' ? 'font-medium' : 'font-bold'
