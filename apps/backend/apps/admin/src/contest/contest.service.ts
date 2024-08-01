@@ -143,19 +143,31 @@ export class ContestService {
       where: {
         id: contestId,
         groupId
+      },
+      select: {
+        contestProblem: {
+          select: {
+            problemId: true
+          }
+        }
       }
     })
     if (!contest) {
       throw new EntityNotExistException('contest')
     }
 
-    await this.prisma.contest.delete({
+    const problemIds = contest.contestProblem.map(
+      (problem) => problem.problemId
+    )
+    if (problemIds.length) {
+      await this.removeProblemsFromContest(groupId, contestId, problemIds)
+    }
+
+    return await this.prisma.contest.delete({
       where: {
         id: contestId
       }
     })
-
-    return contest
   }
 
   async getPublicizingRequests() {
