@@ -19,7 +19,7 @@ export default function Footer() {
     }
   }
   return (
-    <footer className="mt-8 flex h-[318px] w-full flex-col items-center justify-center gap-8 bg-gray-50 md:h-[318px] md:items-center">
+    <footer className="mt-8 flex h-[380px] w-full flex-col items-center justify-center gap-8 bg-gray-50 md:h-[380px] md:items-center">
       <div
         className="flex min-w-fit items-center justify-center"
         style={{ width: '12.07613rem', height: '2.5rem' }}
@@ -31,7 +31,7 @@ export default function Footer() {
           rel="noreferrer noopener"
           target="_blank"
           href="https://github.com/skkuding/"
-          className="rounded border border-gray-300 p-1"
+          className="rounded border border-gray-200 p-1"
         >
           <TbBrandGithubFilled className="text-gray-500" size="17" />
         </a>
@@ -39,20 +39,20 @@ export default function Footer() {
           href="https://pf.kakao.com/_UKraK/chat"
           rel="noreferrer noopener"
           target="_blank"
-          className="rounded border border-gray-300 p-1"
+          className="rounded border border-gray-200 p-1"
         >
           <RiKakaoTalkFill className="text-gray-500" size="17" />
         </a>
         <AiFillMail
           onClick={copyToClipboard}
-          className="rounded border border-gray-300 p-1 text-gray-500"
+          className="rounded border border-gray-200 p-1 text-gray-500"
           size="27"
         />
         <a
           rel="noreferrer noopener"
           target="_blank"
           href="https://skkuding.dev/"
-          className="rounded border border-gray-300 p-1"
+          className="rounded border border-gray-200 p-1"
         >
           <AiOutlineLink className="text-gray-500" size="17" />
         </a>
