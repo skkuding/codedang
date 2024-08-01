@@ -50,7 +50,9 @@ const createUsers = async () => {
       password: await hash('Supersuper'),
       email: 'skkucodingplatform@gmail.com',
       lastLogin: new Date(),
-      role: Role.SuperAdmin
+      role: Role.SuperAdmin,
+      studentId: '2024000000',
+      major: 'Computer Science'
     }
   })
 
@@ -61,7 +63,9 @@ const createUsers = async () => {
       password: await hash('Adminadmin'),
       email: 'admin@example.com',
       lastLogin: new Date(),
-      role: Role.Admin
+      role: Role.Admin,
+      studentId: '2024000001',
+      major: 'Computer Science'
     }
   })
 
@@ -72,7 +76,9 @@ const createUsers = async () => {
       password: await hash('Managermanager'),
       email: 'manager@example.com',
       lastLogin: new Date(),
-      role: Role.Manager
+      role: Role.Manager,
+      studentId: '2024000002',
+      major: 'Computer Science'
     }
   })
 
@@ -85,7 +91,9 @@ const createUsers = async () => {
         password: await hash('Useruser'),
         email: `user${specifier}@example.com`,
         lastLogin: new Date(),
-        role: Role.User
+        role: Role.User,
+        studentId: `20241000${i.toString().padStart(2, '0')}`,
+        major: 'Computer Science'
       }
     })
     users.push(user)

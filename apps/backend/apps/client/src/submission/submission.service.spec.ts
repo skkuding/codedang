@@ -670,7 +670,9 @@ describe('SubmissionService', () => {
         email: 'test@test.com',
         lastLogin: new Date(),
         createTime: new Date(),
-        updateTime: new Date()
+        updateTime: new Date(),
+        studentId: null,
+        major: null
       }
       db.contestRecord.findUniqueOrThrow.resolves()
       db.contestProblem.findFirstOrThrow.resolves()
