@@ -4,8 +4,8 @@ import { Language, SubmissionResult } from '@admin/@generated'
 /**
  * 특정 User의 특정 Contest에 대한 Submission 정보 (!== model SubmissionResult)
  */
-@ObjectType({ description: 'contestSubmissionInformation' })
-export class ContestSubmissionInformation {
+@ObjectType({ description: 'contestSubmissionSummary' })
+export class ContestSubmissionSummary {
   @Field(() => Int, { nullable: false })
   contestId: number
 

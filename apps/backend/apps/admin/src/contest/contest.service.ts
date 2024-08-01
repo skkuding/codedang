@@ -372,7 +372,7 @@ export class ContestService {
     return contestProblems
   }
 
-  async getContestSubmissionInformations(contestId: number, userId: number) {
+  async getContestSubmissionSummaries(contestId: number, userId: number) {
     const submissions = await this.prisma.submission.findMany({
       where: {
         userId,

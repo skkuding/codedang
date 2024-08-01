@@ -21,7 +21,7 @@ import {
   RequiredIntPipe
 } from '@libs/pipe'
 import { ContestService } from './contest.service'
-import { ContestSubmissionInformation } from './model/contest-submission-information.model'
+import { ContestSubmissionSummary } from './model/contest-submission-information.model'
 import { ContestWithParticipants } from './model/contest-with-participants.model'
 import { CreateContestInput } from './model/contest.input'
 import { UpdateContestInput } from './model/contest.input'
@@ -225,13 +225,13 @@ export class ContestResolver {
     }
   }
 
-  @Query(() => [ContestSubmissionInformation])
-  async getContestSubmissionInformations(
+  @Query(() => [ContestSubmissionSummary])
+  async getContestSubmissionSummaries(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
     @Args('userId', { type: () => Int }, IDValidationPipe) userId: number
   ) {
     try {
-      return await this.contestService.getContestSubmissionInformations(
+      return await this.contestService.getContestSubmissionSummaries(
         contestId,
         userId
       )
