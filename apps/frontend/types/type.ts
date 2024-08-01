@@ -80,6 +80,7 @@ export interface Contest {
     id: string
     groupName: string
   }
+  enableCopyPaste: boolean
   status: ContestStatus
   participants: number
 }

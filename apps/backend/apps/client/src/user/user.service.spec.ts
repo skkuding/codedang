@@ -47,7 +47,9 @@ const user: User = {
   email: EMAIL_ADDRESS,
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
-  updateTime: faker.date.past()
+  updateTime: faker.date.past(),
+  studentId: null,
+  major: null
 }
 const profile: UserProfile = {
   id: ID,
@@ -433,7 +435,9 @@ describe('UserService', () => {
       await expect(
         service.signUp(authRequestObject, {
           ...signUpDto,
-          email: 'else@email.com'
+          email: 'else@email.com',
+          major: '',
+          studentId: ''
         })
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(createUserSpy.calledOnce).to.be.false

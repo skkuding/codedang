@@ -63,12 +63,28 @@ const languageParser: Record<Language, () => LanguageSupport> = {
 
 interface Props extends ReactCodeMirrorProps {
   language: Language
+  enableCopyPaste?: boolean
+}
+
+const copyPasteHandler = () => {
+  return EditorView.domEventHandlers({
+    paste(event) {
+      event.preventDefault()
+    },
+    copy(event) {
+      event.preventDefault()
+    },
+    cut(event) {
+      event.preventDefault()
+    }
+  })
 }
 
 export default function CodeEditor({
   value,
   language,
   onChange,
+  enableCopyPaste = true,
   readOnly: readOnly = false,
   ...props
 }: Props) {
@@ -76,7 +92,11 @@ export default function CodeEditor({
     <ScrollArea className="rounded-md [&>div>div]:h-full">
       <ReactCodeMirror
         theme={editorTheme}
-        extensions={[fontSize, languageParser[language]()]}
+        extensions={[
+          fontSize,
+          languageParser[language](),
+          enableCopyPaste ? [] : [copyPasteHandler()]
+        ]}
         value={value}
         onChange={onChange}
         readOnly={readOnly}
