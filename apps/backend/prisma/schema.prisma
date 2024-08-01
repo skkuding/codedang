@@ -44,6 +44,8 @@ model User {
   password   String
   role       Role      @default(User)
   email      String    @unique
+  studentId  String?   @unique @default("0000000000") @map("student_id")
+  major      String?   @default("none")
   lastLogin  DateTime? @map("last_login")
   createTime DateTime  @default(now()) @map("create_time")
   updateTime DateTime  @updatedAt @map("update_time")
