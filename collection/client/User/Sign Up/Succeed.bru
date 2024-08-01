@@ -15,7 +15,9 @@ body:json {
     "username": "test",
     "password": "it'smehi",
     "email": "nicole2974@g.skku.edu",
-    "realName": "MyeongRyunLee"
+    "realName": "MyeongRyunLee",
+    "studentId": 2019000111,
+    "major": "Software"
   }
 }
 
@@ -35,7 +37,7 @@ script:pre-request {
 
 docs {
   # Sign up
-
+  
   - 새로운 사용자 계정을 생성합니다.
   - API를 테스트하고 싶으시다면, Send Pin for New Email을 통해 이메일로 받은 Pin과 해당 이메일을 Pre-script 속 pin과 email에 입력해주세요.
   - password가 올바르지 않은 형식이라면 `422`를 반환합니다.
