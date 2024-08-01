@@ -320,7 +320,9 @@ export class UserService {
       username: socialSignUpDto.username,
       password: generate({ length: 10, numbers: true }),
       realName: socialSignUpDto.realName,
-      email: socialSignUpDto.email
+      email: socialSignUpDto.email,
+      studentId: socialSignUpDto.studentId,
+      major: socialSignUpDto.major
     })
     const profile: CreateUserProfileData = {
       userId: user.id,
@@ -357,7 +359,9 @@ export class UserService {
       data: {
         username: signUpDto.username,
         password: encryptedPassword,
-        email: signUpDto.email
+        email: signUpDto.email,
+        studentId: signUpDto.studentId,
+        major: signUpDto.major
       }
     })
     this.logger.debug(user, 'createUser')

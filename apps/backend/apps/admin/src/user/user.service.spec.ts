@@ -22,7 +22,9 @@ const user1: User = {
   role: Role.User,
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
-  updateTime: faker.date.past()
+  updateTime: faker.date.past(),
+  studentId: null,
+  major: null
 }
 
 const user2: User = {
@@ -33,7 +35,9 @@ const user2: User = {
   role: Role.Admin,
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
-  updateTime: faker.date.past()
+  updateTime: faker.date.past(),
+  studentId: null,
+  major: null
 }
 
 const user3: User = {
@@ -44,7 +48,9 @@ const user3: User = {
   role: Role.User,
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
-  updateTime: faker.date.past()
+  updateTime: faker.date.past(),
+  studentId: null,
+  major: null
 }
 
 const userGroup1: UserGroup = {
