@@ -25,7 +25,7 @@ export class SignUpDto {
   readonly realName: string
 
   @IsNumberString()
-  readonly studentID?: string
+  readonly studentId?: string
 
   @IsString()
   readonly major?: string

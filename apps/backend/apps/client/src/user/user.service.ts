@@ -321,7 +321,7 @@ export class UserService {
       password: generate({ length: 10, numbers: true }),
       realName: socialSignUpDto.realName,
       email: socialSignUpDto.email,
-      studentID: socialSignUpDto.studentID,
+      studentId: socialSignUpDto.studentId,
       major: socialSignUpDto.major
     })
     const profile: CreateUserProfileData = {
@@ -360,7 +360,7 @@ export class UserService {
         username: signUpDto.username,
         password: encryptedPassword,
         email: signUpDto.email,
-        studentID: signUpDto.studentID,
+        studentId: signUpDto.studentId,
         major: signUpDto.major
       }
     })

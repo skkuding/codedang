@@ -36,7 +36,7 @@ describe('AuthService', () => {
     lastLogin: faker.date.past(),
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    studentID: null,
+    studentId: null,
     major: null
   }
   const userMock = {

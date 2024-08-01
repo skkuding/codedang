@@ -23,7 +23,7 @@ const user1: User = {
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  studentID: null,
+  studentId: null,
   major: null
 }
 
@@ -36,7 +36,7 @@ const user2: User = {
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  studentID: null,
+  studentId: null,
   major: null
 }
 
@@ -49,7 +49,7 @@ const user3: User = {
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  studentID: null,
+  studentId: null,
   major: null
 }
 

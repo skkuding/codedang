@@ -665,7 +665,7 @@ describe('SubmissionService', () => {
         lastLogin: new Date(),
         createTime: new Date(),
         updateTime: new Date(),
-        studentID: null,
+        studentId: null,
         major: null
       }
       db.contestRecord.findUniqueOrThrow.resolves()

@@ -30,7 +30,7 @@ export class SocialSignUpDto {
 
   @IsNumberString()
   @IsOptional()
-  readonly studentID?: string
+  readonly studentId?: string
 
   @IsString()
   @IsOptional()

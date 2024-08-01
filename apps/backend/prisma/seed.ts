@@ -48,7 +48,7 @@ const createUsers = async () => {
       email: 'skkucodingplatform@gmail.com',
       lastLogin: new Date(),
       role: Role.SuperAdmin,
-      studentID: '2024000000',
+      studentId: '2024000000',
       major: 'Computer Science'
     }
   })
@@ -61,7 +61,7 @@ const createUsers = async () => {
       email: 'admin@example.com',
       lastLogin: new Date(),
       role: Role.Admin,
-      studentID: '2024000001',
+      studentId: '2024000001',
       major: 'Computer Science'
     }
   })
@@ -74,7 +74,7 @@ const createUsers = async () => {
       email: 'manager@example.com',
       lastLogin: new Date(),
       role: Role.Manager,
-      studentID: '2024000002',
+      studentId: '2024000002',
       major: 'Computer Science'
     }
   })
@@ -89,7 +89,7 @@ const createUsers = async () => {
         email: `user${specifier}@example.com`,
         lastLogin: new Date(),
         role: Role.User,
-        studentID: `20241000${i.toString().padStart(2, '0')}`,
+        studentId: `20241000${i.toString().padStart(2, '0')}`,
         major: 'Computer Science'
       }
     })

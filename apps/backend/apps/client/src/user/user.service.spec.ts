@@ -48,7 +48,7 @@ const user: User = {
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  studentID: null,
+  studentId: null,
   major: null
 }
 const profile: UserProfile = {
@@ -437,7 +437,7 @@ describe('UserService', () => {
           ...signUpDto,
           email: 'else@email.com',
           major: '',
-          studentID: ''
+          studentId: ''
         })
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(createUserSpy.calledOnce).to.be.false

@@ -16,7 +16,7 @@ const user: User = {
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  studentID: '0000000000',
+  studentId: '0000000000',
   major: 'default'
 }
 
