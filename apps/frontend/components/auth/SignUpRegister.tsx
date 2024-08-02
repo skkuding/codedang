@@ -21,7 +21,7 @@ import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CommandList } from 'cmdk'
 import React, { useEffect, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { FaCheck, FaChevronDown, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -141,6 +141,7 @@ export default function SignUpRegister() {
   const [usernameVerify, setUsernameVerify] = useState<boolean>(false)
   const [signUpDisable, setSignUpDisable] = useState<boolean>(false)
   const [majorOpen, setMajorOpen] = React.useState<boolean>(false)
+  const [majorValue, setMajorValue] = React.useState<string>('')
 
   const {
     handleSubmit,
@@ -148,8 +149,7 @@ export default function SignUpRegister() {
     getValues,
     watch,
     trigger,
-    formState: { errors, isValid },
-    control
+    formState: { errors, isValid }
   } = useForm<SignUpFormInput>({
     resolver: zodResolver(schema)
   })
@@ -166,10 +166,10 @@ export default function SignUpRegister() {
     firstName: string
     lastName: string
     studentId: string
-    major: string
     username: string
   }) => {
-    const fullName = `${data.lastName}${data.firstName}`
+    const fullName = `${data.firstName} ${data.lastName}`
+    console.log(majorValue)
     try {
       setSignUpDisable(true)
       await fetch(baseUrl + '/user/sign-up', {
@@ -179,12 +179,11 @@ export default function SignUpRegister() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          // ...data,
           password: data.password,
           passwordAgain: data.passwordAgain,
           realName: fullName,
           studentId: data.studentId,
-          major: data.major,
+          major: majorValue,
           username: data.username,
           email: formData.email,
           verificationCode: formData.verificationCode
@@ -195,7 +194,7 @@ export default function SignUpRegister() {
           toast.success('Sign up succeeded!')
         }
       })
-    } catch {
+    } catch (error) {
       toast.error('Sign up failed!')
       setSignUpDisable(false)
     }
@@ -380,66 +379,54 @@ export default function SignUpRegister() {
           )}
         </div>
         <div className="flex flex-col gap-1">
-          <Controller
-            name="major"
-            control={control}
-            rules={{ required: true }}
-            render={({ field }) => (
-              <Popover
-                open={majorOpen}
-                onOpenChange={setMajorOpen}
-                modal={true}
+          <Popover open={majorOpen} onOpenChange={setMajorOpen} modal={true}>
+            <PopoverTrigger asChild>
+              <Button
+                aria-expanded={majorOpen}
+                variant="outline"
+                role="combobox"
+                className={cn(
+                  'justify-between font-normal',
+                  majorValue === '' ? 'text-gray-500' : []
+                )}
               >
-                <PopoverTrigger asChild>
-                  <Button
-                    aria-expanded={majorOpen}
-                    variant="outline"
-                    role="combobox"
-                    className="justify-between"
-                  >
-                    {field.value === '' ? 'First Major' : field.value}
-                    <FaChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="p-0">
-                  <Command>
-                    <CommandInput placeholder="Search major..." />
-                    <ScrollArea className="h-40">
-                      <CommandEmpty>No major found.</CommandEmpty>
-                      <CommandGroup>
-                        <CommandList>
-                          {majors?.map((major) => (
-                            <CommandItem
-                              key={major}
-                              value={major}
-                              onSelect={(currentValue) => {
-                                field.onChange(
-                                  currentValue === field.value
-                                    ? ''
-                                    : currentValue
-                                )
-                                setMajorOpen(false)
-                              }}
-                            >
-                              <FaCheck
-                                className={cn(
-                                  'mr-2 h-4 w-4',
-                                  field.value === major
-                                    ? 'opacity-100'
-                                    : 'opacity-0'
-                                )}
-                              />
-                              {major}
-                            </CommandItem>
-                          ))}
-                        </CommandList>
-                      </CommandGroup>
-                    </ScrollArea>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            )}
-          />
+                {majorValue === '' ? 'First Major' : majorValue}
+                <FaChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0">
+              <Command>
+                <CommandInput placeholder="Search major..." />
+                <ScrollArea className="h-40">
+                  <CommandEmpty>No major found.</CommandEmpty>
+                  <CommandGroup>
+                    <CommandList>
+                      {majors?.map((major) => (
+                        <CommandItem
+                          key={major}
+                          value={major}
+                          onSelect={(currentValue) => {
+                            setMajorValue(
+                              currentValue === majorValue ? '' : currentValue
+                            )
+                            setMajorOpen(false)
+                          }}
+                        >
+                          <FaCheck
+                            className={cn(
+                              'mr-2 h-4 w-4',
+                              majorValue === major ? 'opacity-100' : 'opacity-0'
+                            )}
+                          />
+                          {major}
+                        </CommandItem>
+                      ))}
+                    </CommandList>
+                  </CommandGroup>
+                </ScrollArea>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
 
         <Button
