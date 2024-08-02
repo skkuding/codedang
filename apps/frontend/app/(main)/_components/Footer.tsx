@@ -19,11 +19,8 @@ export default function Footer() {
     }
   }
   return (
-    <footer className="mt-8 flex h-[380px] w-full flex-col items-center justify-center gap-8 bg-gray-50 md:h-[380px] md:items-center">
-      <div
-        className="flex min-w-fit items-center justify-center"
-        style={{ width: '12.07613rem', height: '2.5rem' }}
-      >
+    <footer className="mt-8 flex h-80 w-full flex-col items-center justify-center gap-8 bg-gray-50 md:h-80 md:items-center">
+      <div className="flex min-w-fit items-center justify-center">
         <Image src={CodedangLogo} alt="코드당" width={180} height={28} />
       </div>
       <div className="flex items-center justify-center gap-3">
