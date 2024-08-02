@@ -21,7 +21,7 @@ import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CommandList } from 'cmdk'
 import React, { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { FaCheck, FaChevronDown, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -33,12 +33,12 @@ interface SignUpFormInput {
   firstName: string
   lastName: string
   studentId: string
-  department: string
+  major: string
   password: string
   passwordAgain: string
 }
 
-const departments = [
+const majors = [
   '유학·동양학과',
   '국어국문학과',
   '영어영문학과',
@@ -140,9 +140,7 @@ export default function SignUpRegister() {
   const [disableUsername, setDisableUsername] = useState<boolean>(false)
   const [usernameVerify, setUsernameVerify] = useState<boolean>(false)
   const [signUpDisable, setSignUpDisable] = useState<boolean>(false)
-
-  const [departmentOpen, setDepartmentOpen] = React.useState<boolean>(false)
-  const [departmentValue, setDepartmentValue] = React.useState<string>('')
+  const [majorOpen, setMajorOpen] = React.useState<boolean>(false)
 
   const {
     handleSubmit,
@@ -150,7 +148,8 @@ export default function SignUpRegister() {
     getValues,
     watch,
     trigger,
-    formState: { errors, isValid }
+    formState: { errors, isValid },
+    control
   } = useForm<SignUpFormInput>({
     resolver: zodResolver(schema)
   })
@@ -167,9 +166,10 @@ export default function SignUpRegister() {
     firstName: string
     lastName: string
     studentId: string
-    department: string
+    major: string
     username: string
   }) => {
+    const fullName = `${data.lastName}${data.firstName}`
     try {
       setSignUpDisable(true)
       await fetch(baseUrl + '/user/sign-up', {
@@ -179,7 +179,13 @@ export default function SignUpRegister() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          ...data,
+          // ...data,
+          password: data.password,
+          passwordAgain: data.passwordAgain,
+          realName: fullName,
+          studentId: data.studentId,
+          major: data.major,
+          username: data.username,
           email: formData.email,
           verificationCode: formData.verificationCode
         })
@@ -374,73 +380,71 @@ export default function SignUpRegister() {
           )}
         </div>
         <div className="flex flex-col gap-1">
-          <Popover
-            open={departmentOpen}
-            onOpenChange={setDepartmentOpen}
-            modal={true}
-          >
-            <PopoverTrigger asChild>
-              <Button
-                aria-expanded={departmentOpen}
-                variant="outline"
-                role="combobox"
-                className="justify-between"
+          <Controller
+            name="major"
+            control={control}
+            rules={{ required: true }}
+            render={({ field }) => (
+              <Popover
+                open={majorOpen}
+                onOpenChange={setMajorOpen}
+                modal={true}
               >
-                {departmentValue == '' ? 'First Major' : departmentValue}
-                <FaChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-0">
-              <Command>
-                <CommandInput placeholder="Search department..." />
-                <ScrollArea className="h-40">
-                  <CommandEmpty>No department found.</CommandEmpty>
-                  <CommandGroup>
-                    <CommandList>
-                      {departments?.map((department) => (
-                        <CommandItem
-                          key={department}
-                          value={department}
-                          onSelect={(currentValue) => {
-                            setDepartmentValue(
-                              currentValue === departmentValue
-                                ? ''
-                                : currentValue
-                            )
-                            setDepartmentOpen(false)
-                          }}
-                        >
-                          <FaCheck
-                            className={cn(
-                              'mr-2 h-4 w-4',
-                              departmentValue === department
-                                ? 'opacity-100'
-                                : 'opacity-0'
-                            )}
-                          />
-                          {department}
-                        </CommandItem>
-                      ))}
-                    </CommandList>
-                  </CommandGroup>
-                </ScrollArea>
-              </Command>
-            </PopoverContent>
-          </Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    aria-expanded={majorOpen}
+                    variant="outline"
+                    role="combobox"
+                    className="justify-between"
+                  >
+                    {field.value === '' ? 'First Major' : field.value}
+                    <FaChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="p-0">
+                  <Command>
+                    <CommandInput placeholder="Search major..." />
+                    <ScrollArea className="h-40">
+                      <CommandEmpty>No major found.</CommandEmpty>
+                      <CommandGroup>
+                        <CommandList>
+                          {majors?.map((major) => (
+                            <CommandItem
+                              key={major}
+                              value={major}
+                              onSelect={(currentValue) => {
+                                field.onChange(
+                                  currentValue === field.value
+                                    ? ''
+                                    : currentValue
+                                )
+                                setMajorOpen(false)
+                              }}
+                            >
+                              <FaCheck
+                                className={cn(
+                                  'mr-2 h-4 w-4',
+                                  field.value === major
+                                    ? 'opacity-100'
+                                    : 'opacity-0'
+                                )}
+                              />
+                              {major}
+                            </CommandItem>
+                          ))}
+                        </CommandList>
+                      </CommandGroup>
+                    </ScrollArea>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            )}
+          />
         </div>
 
         <Button
-          disabled={
-            !isValid ||
-            !disableUsername ||
-            signUpDisable ||
-            departmentValue == ''
-          }
-          className={cn(
-            isValid && disableUsername && departmentValue != ''
-              ? ''
-              : 'bg-gray-400'
-          )}
+          disabled={!isValid || !disableUsername || signUpDisable}
+          className={cn(isValid && disableUsername ? '' : 'bg-gray-400')}
           type="submit"
         >
           Register
