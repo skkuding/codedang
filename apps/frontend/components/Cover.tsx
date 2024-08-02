@@ -24,9 +24,11 @@ export default function Cover({ title, description }: CoverProps) {
         'relative bottom-[55px] z-[-10] mb-[-55px] flex h-[285px] w-screen items-center justify-center bg-cover bg-center bg-no-repeat'
       )}
     >
-      <div className="w-full flex-col justify-center text-center">
-        <h2 className="font-mono text-[56px] font-bold text-white">{title}</h2>
-        <p className="whitespace-nowrap text-base text-white/80">
+      <div className="w-full flex-col text-center">
+        <h2 className="py-5 font-mono text-4xl font-bold text-white md:text-[56px]">
+          {title}
+        </h2>
+        <p className="whitespace-nowrap text-sm text-white/80 md:text-base">
           {description}
         </p>
       </div>
