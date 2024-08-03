@@ -23,6 +23,7 @@ import { CommandList } from 'cmdk'
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaCheck, FaChevronDown, FaEye, FaEyeSlash } from 'react-icons/fa'
+import { IoWarningOutline } from 'react-icons/io5'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -100,28 +101,46 @@ const majors = [
   '글로벌바이오메디컬공학과'
 ]
 
+const FIELD_NAMES = [
+  'username',
+  'password',
+  'passwordAgain',
+  'firstName',
+  'lastName',
+  'studentId',
+  'major'
+] as const
+type Field = (typeof FIELD_NAMES)[number]
+const fields: Field[] = [...FIELD_NAMES]
+
 const schema = z
   .object({
     username: z
       .string()
-      .min(3)
-      .max(10)
-      .refine((data) => /^[a-z0-9]+$/.test(data)),
+      .min(1, { message: 'Required' })
+      .regex(/^[a-z0-9]{3,10}$/),
     password: z
       .string()
+      .min(1, { message: 'Required' })
       .min(8)
       .max(20)
       .refine((data) => {
         const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
         return !invalidPassword.test(data)
       }),
-    passwordAgain: z.string(),
+    passwordAgain: z.string().min(1, { message: 'Required' }),
     studentId: z
       .string()
-      .max(10)
-      .regex(new RegExp(/[0-9]{10}/)),
-    firstName: z.string().min(1),
-    lastName: z.string().min(1)
+      .min(1, { message: 'Required' })
+      .regex(/^[0-9]{10}$/, { message: 'only 10 numbers' }),
+    firstName: z
+      .string()
+      .min(1, { message: 'Required' })
+      .regex(/^[a-zA-Z]+$/, { message: 'only English supported' }),
+    lastName: z
+      .string()
+      .min(1, { message: 'Required' })
+      .regex(/^[a-zA-Z]+$/, { message: 'only English supported' })
   })
   .refine(
     (data: { password: string; passwordAgain: string }) =>
@@ -132,16 +151,39 @@ const schema = z
     }
   )
 
+export function requiredMessage(message?: string) {
+  return (
+    <div className="inline-flex items-center text-xs text-red-500">
+      {message === 'Required' && <IoWarningOutline />}
+      <p className={`${message === 'Required' && 'pl-1'}`}>{message}</p>
+    </div>
+  )
+}
+
 export default function SignUpRegister() {
   const formData = useSignUpModalStore((state) => state.formData)
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
   const [inputFocus, setInputFocus] = useState<number>(0)
-  const [disableUsername, setDisableUsername] = useState<boolean>(false)
-  const [usernameVerify, setUsernameVerify] = useState<boolean>(false)
+  const [focusedList, setFocusedList] = useState<Array<boolean>>([
+    true,
+    ...Array(7).fill(false)
+  ])
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean>(false)
+  const [checkedUsername, setCheckedUsername] = useState<string>('')
   const [signUpDisable, setSignUpDisable] = useState<boolean>(false)
   const [majorOpen, setMajorOpen] = React.useState<boolean>(false)
   const [majorValue, setMajorValue] = React.useState<string>('')
+
+  const updateFocus = (n: number) => {
+    setInputFocus(n)
+    setFocusedList((prevList) =>
+      prevList.map((focused, index) => (index === n ? true : focused))
+    )
+    if (n > 0) {
+      trigger(fields[n - 1])
+    }
+  }
 
   const {
     handleSubmit,
@@ -149,16 +191,33 @@ export default function SignUpRegister() {
     getValues,
     watch,
     trigger,
-    formState: { errors, isValid }
+    formState: { errors, isDirty }
   } = useForm<SignUpFormInput>({
-    resolver: zodResolver(schema)
+    resolver: zodResolver(schema),
+    defaultValues: {
+      username: '',
+      password: ''
+    },
+    shouldFocusError: false
   })
 
   const watchedPassword = watch('password')
+  const watchedPasswordAgain = watch('passwordAgain')
 
   useEffect(() => {
-    trigger('passwordAgain')
-  }, [watchedPassword, trigger])
+    if (watchedPasswordAgain) {
+      trigger('passwordAgain')
+    }
+  }, [watchedPassword, watchedPasswordAgain, trigger])
+
+  function onSubmitClick() {
+    setInputFocus(0)
+    setFocusedList(Array(8).fill(true))
+    fields.map((field) => {
+      trigger(field)
+      console.log('yes')
+    })
+  }
 
   const onSubmit = async (data: {
     password: string
@@ -168,6 +227,12 @@ export default function SignUpRegister() {
     studentId: string
     username: string
   }) => {
+    if (
+      !(data.username === checkedUsername && isUsernameAvailable) ||
+      majorValue === ''
+    ) {
+      return
+    }
     const fullName = `${data.firstName} ${data.lastName}`
     console.log(majorValue)
     try {
@@ -204,28 +269,29 @@ export default function SignUpRegister() {
   }
 
   const checkUserName = async () => {
-    const { username } = getValues()
+    const username = getValues('username')
     await trigger('username')
     if (!errors.username) {
       try {
         await fetch(baseUrl + `/user/username-check?username=${username}`, {
           method: 'GET'
         }).then((res) => {
-          setUsernameVerify(true)
+          setCheckedUsername(username)
           if (res.status === 200) {
-            setDisableUsername(true)
+            setIsUsernameAvailable(true)
           } else {
-            setDisableUsername(false)
+            setIsUsernameAvailable(false)
           }
         })
       } catch (err) {
         console.log(err)
       }
     }
+    updateFocus(0)
   }
 
   return (
-    <div className="mb-5 mt-12 flex w-full flex-col px-2 py-4">
+    <div className="mb-5 mt-12 flex w-full flex-col py-4">
       <form
         className="flex w-full flex-col gap-4"
         onSubmit={handleSubmit(onSubmit)}
@@ -234,56 +300,107 @@ export default function SignUpRegister() {
           <div className="flex gap-2">
             <Input
               placeholder="User ID"
-              disabled={disableUsername}
+              className={cn(
+                `${focusedList[1] && 'ring-1 focus-visible:ring-1'}`,
+                `${errors.username && (getValues('username') !== '' || inputFocus !== 1) ? 'ring-red-500 focus-visible:ring-red-500' : 'ring-primary'}`,
+                `${
+                  !isUsernameAvailable &&
+                  getValues('username') !== '' &&
+                  (checkedUsername === getValues('username') ||
+                    inputFocus !== 1) &&
+                  'ring-red-500 focus-visible:ring-red-500'
+                }`
+              )}
               {...register('username', {
-                onChange: () => validation('username')
+                onChange: () => validation('username'),
+                validate: (value) =>
+                  value === checkedUsername && isUsernameAvailable
+                    ? true
+                    : 'Check user ID'
               })}
               onFocus={() => {
-                setInputFocus(2)
+                trigger('username')
+                updateFocus(1)
               }}
             />
             <Button
-              onClick={() => checkUserName()}
+              onClick={() => {
+                checkUserName()
+              }}
               type="button"
               className={cn(
-                disableUsername && 'bg-gray-400',
+                ((isUsernameAvailable &&
+                  checkedUsername == getValues('username')) ||
+                  errors.username) &&
+                  'bg-gray-400',
                 'flex aspect-square w-12 items-center justify-center rounded-md'
               )}
-              disabled={disableUsername}
+              disabled={
+                (isUsernameAvailable &&
+                  checkedUsername == getValues('username')) ||
+                errors.username
+                  ? true
+                  : false
+              }
             >
               <FaCheck className="text-white" size="20" />
             </Button>
           </div>
-          {inputFocus === 2 && (
-            <div className="text-xs text-gray-500">
-              <ul className="list-disc pl-4">
-                <li>User ID used for log in</li>
-                <li>3-10 characters of small letters, numbers</li>
-              </ul>
-            </div>
-          )}
-          {errors.username ? (
-            <p className="text-xs text-red-500">Unavailable</p>
-          ) : (
-            usernameVerify &&
-            (disableUsername ? (
-              <p className="text-xs text-blue-500">Available</p>
-            ) : (
-              <p className="text-xs text-red-500">Unavailable</p>
-            ))
-          )}
+          <div className="text-xs">
+            {inputFocus !== 1 &&
+              (errors.username ? (
+                errors.username.message == 'Required' ? (
+                  requiredMessage('Required')
+                ) : (
+                  <ul className="list-disc pl-4 text-red-500">
+                    <li>User ID used for log in</li>
+                    <li>3-10 characters of small letters, numbers</li>
+                  </ul>
+                )
+              ) : isUsernameAvailable &&
+                checkedUsername == getValues('username') ? (
+                <p className="text-xs text-blue-500">Available</p>
+              ) : checkedUsername === getValues('username') ? (
+                checkedUsername !== '' ? (
+                  <p className="text-red-500">Unavailable</p>
+                ) : (
+                  <></>
+                )
+              ) : (
+                <p className="text-red-500">Check user ID</p>
+              ))}
+            {inputFocus === 1 &&
+              (!isUsernameAvailable &&
+              checkedUsername === getValues('username') &&
+              getValues('username') !== '' ? (
+                <p className="text-red-500">Unavailable</p>
+              ) : (
+                <div
+                  className={`${errors.username && getValues('username') !== '' ? 'text-red-500' : 'text-gray-500'}`}
+                >
+                  <ul className="list-disc pl-4">
+                    <li>User ID used for log in</li>
+                    <li>3-10 characters of small letters, numbers</li>
+                  </ul>
+                </div>
+              ))}
+          </div>
         </div>
 
         <div className="flex flex-col gap-1">
           <div className="relative flex justify-between gap-2">
             <Input
               placeholder="Password"
+              className={cn(
+                `${focusedList[2] && 'ring-1 focus-visible:ring-1'}`,
+                `${errors.password && (getValues('password') !== '' || inputFocus !== 2) ? 'ring-red-500 focus-visible:ring-red-500' : 'ring-primary'}`
+              )}
               {...register('password', {
                 onChange: () => validation('password')
               })}
               type={passwordShow ? 'text' : 'password'}
               onFocus={() => {
-                setInputFocus(3)
+                updateFocus(2)
               }}
             />
             <span
@@ -297,20 +414,31 @@ export default function SignUpRegister() {
               )}
             </span>
           </div>
-          {(inputFocus === 3 || errors.password) && (
-            <div
-              className={cn(
-                errors.password ? 'text-red-500' : 'text-gray-500',
-                'text-xs'
-              )}
-            >
-              <ul className="pl-4">
+          {inputFocus === 2 &&
+            (errors.password || getValues('password') === '' ? (
+              <div
+                className={`${getValues('password') === '' ? 'text-gray-500' : 'text-red-500'}`}
+              >
+                <ul className="pl-4 text-xs">
+                  <li className="list-disc">8-20 characters</li>
+                  <li className="list-disc">Include two of the followings:</li>
+                  <li>capital letters, small letters, numbers</li>
+                </ul>
+              </div>
+            ) : (
+              <p className="text-xs text-blue-500">Available</p>
+            ))}
+          {inputFocus !== 2 &&
+            errors.password &&
+            (errors.password.message == 'Required' ? (
+              requiredMessage('Required')
+            ) : (
+              <ul className="pl-4 text-xs text-red-500">
                 <li className="list-disc">8-20 characters</li>
                 <li className="list-disc">Include two of the followings:</li>
                 <li>capital letters, small letters, numbers</li>
               </ul>
-            </div>
-          )}
+            ))}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -319,10 +447,14 @@ export default function SignUpRegister() {
               {...register('passwordAgain', {
                 onChange: () => validation('passwordAgain')
               })}
+              className={cn(
+                `${focusedList[3] && 'ring-1 focus-visible:ring-1'}`,
+                `${errors.passwordAgain && (getValues('passwordAgain') !== '' || inputFocus !== 3) ? 'ring-red-500 focus-visible:ring-red-500' : 'ring-primary'}`
+              )}
               placeholder="Re-enter password"
               type={passwordAgainShow ? 'text' : 'password'}
               onFocus={() => {
-                setInputFocus(4)
+                updateFocus(3)
               }}
             />
             <span
@@ -336,32 +468,48 @@ export default function SignUpRegister() {
               )}
             </span>
           </div>
-          {errors.passwordAgain && (
-            <p className="text-xs text-red-500">
-              {errors.passwordAgain.message}
-            </p>
-          )}
+          {errors.passwordAgain &&
+            (getValues('passwordAgain') !== '' || inputFocus !== 3) &&
+            requiredMessage(errors.passwordAgain.message)}
         </div>
         <div className="border-b" />
         <div className="flex justify-between gap-4">
-          <Input
-            placeholder="First name (이름)"
-            {...register('firstName', {
-              onChange: () => validation('firstName')
-            })}
-            onFocus={() => {
-              setInputFocus(1)
-            }}
-          />
-          <Input
-            placeholder="Last name (성)"
-            {...register('lastName', {
-              onChange: () => validation('lastName')
-            })}
-            onFocus={() => {
-              setInputFocus(1)
-            }}
-          />
+          <div className="flex flex-col gap-1">
+            <Input
+              placeholder="First name (이름)"
+              {...register('firstName', {
+                onChange: () => validation('firstName')
+              })}
+              className={cn(
+                `${focusedList[4] && 'ring-1 focus-visible:ring-1'}`,
+                `${errors.firstName && (getValues('firstName') !== '' || inputFocus !== 4) ? 'ring-red-500 focus-visible:ring-red-500' : 'ring-primary'}`
+              )}
+              onFocus={() => {
+                updateFocus(4)
+              }}
+            />
+            {errors.firstName &&
+              (getValues('firstName') !== '' || inputFocus !== 4) &&
+              requiredMessage(errors.firstName.message)}
+          </div>
+          <div className="flex flex-col gap-1">
+            <Input
+              placeholder="Last name (성)"
+              {...register('lastName', {
+                onChange: () => validation('lastName')
+              })}
+              className={cn(
+                `${focusedList[5] && 'ring-1 focus-visible:ring-1'}`,
+                `${errors.lastName && (getValues('lastName') !== '' || inputFocus !== 5) ? 'ring-red-500 focus-visible:ring-red-500' : 'ring-primary'}`
+              )}
+              onFocus={() => {
+                updateFocus(5)
+              }}
+            />
+            {errors.lastName &&
+              (getValues('lastName') !== '' || inputFocus !== 5) &&
+              requiredMessage(errors.lastName.message)}
+          </div>
         </div>
         <div className="flex flex-col gap-1">
           <Input
@@ -369,14 +517,17 @@ export default function SignUpRegister() {
             {...register('studentId', {
               onChange: () => validation('studentId')
             })}
+            className={cn(
+              `${focusedList[6] && 'ring-1 focus-visible:ring-1'}`,
+              `${errors.studentId && (getValues('studentId') !== '' || inputFocus !== 6) ? 'ring-red-500 focus-visible:ring-red-500' : 'ring-primary'}`
+            )}
             onFocus={() => {
-              setInputFocus(1)
+              updateFocus(6)
             }}
           />
-
-          {errors.studentId && (
-            <p className="text-xs text-red-500">only 10 numbers</p>
-          )}
+          {errors.studentId &&
+            (getValues('studentId') !== '' || inputFocus !== 6) &&
+            requiredMessage(errors.studentId.message)}
         </div>
         <div className="flex flex-col gap-1">
           <Popover open={majorOpen} onOpenChange={setMajorOpen} modal={true}>
@@ -385,9 +536,16 @@ export default function SignUpRegister() {
                 aria-expanded={majorOpen}
                 variant="outline"
                 role="combobox"
+                onFocus={() => {
+                  updateFocus(7)
+                }}
                 className={cn(
                   'justify-between font-normal',
-                  majorValue === '' ? 'text-gray-500' : []
+                  majorValue === '' ? 'text-gray-500' : 'ring-primary ring-1',
+                  majorValue === '' &&
+                    focusedList[7] &&
+                    !majorOpen &&
+                    'ring-1 ring-red-500'
                 )}
               >
                 {majorValue === '' ? 'First Major' : majorValue}
@@ -406,9 +564,7 @@ export default function SignUpRegister() {
                           key={major}
                           value={major}
                           onSelect={(currentValue) => {
-                            setMajorValue(
-                              currentValue === majorValue ? '' : currentValue
-                            )
+                            setMajorValue(currentValue)
                             setMajorOpen(false)
                           }}
                         >
@@ -427,12 +583,16 @@ export default function SignUpRegister() {
               </Command>
             </PopoverContent>
           </Popover>
+          {majorValue === '' &&
+            focusedList[7] &&
+            !majorOpen &&
+            requiredMessage('Required')}
         </div>
 
         <Button
-          disabled={!isValid || !disableUsername || signUpDisable}
-          className={cn(isValid && disableUsername ? '' : 'bg-gray-400')}
+          disabled={signUpDisable || !isDirty}
           type="submit"
+          onClick={onSubmitClick}
         >
           Register
         </Button>
