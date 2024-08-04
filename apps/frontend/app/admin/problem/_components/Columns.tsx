@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
 import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
+import type { Level } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { TbFileInfo } from 'react-icons/tb'
@@ -129,13 +130,11 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
-
-      type levelType = 'level1' | 'level2' | 'level3' | 'level4' | 'level5'
       const formattedLevel = `Level ${level.slice(-1)}`
       return (
         <div>
           <Badge
-            variant={level.toLowerCase() as levelType}
+            variant={level.toLowerCase() as Level}
             className="mr-1 whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
           >
             {formattedLevel}
