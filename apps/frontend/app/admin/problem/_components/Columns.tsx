@@ -134,7 +134,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
       return (
         <div>
           <Badge
-            variant={level.toLowerCase() as Level}
+            variant={level as Level}
             className="mr-1 whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
           >
             {formattedLevel}
