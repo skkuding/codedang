@@ -2,6 +2,7 @@ import {
   IsAlphanumeric,
   IsEmail,
   IsNotEmpty,
+  IsNumberString,
   IsString,
   Matches
 } from 'class-validator'
@@ -22,4 +23,10 @@ export class SignUpDto {
   @Matches(/^[a-zA-Z\s]+$/)
   @IsNotEmpty()
   readonly realName: string
+
+  @IsNumberString()
+  readonly studentId?: string
+
+  @IsString()
+  readonly major?: string
 }
