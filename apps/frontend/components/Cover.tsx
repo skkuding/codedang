@@ -18,7 +18,7 @@ export default function Cover({ title, description, bgColor }: CoverProps) {
         'relative flex h-[200px] w-screen items-center justify-center overflow-hidden'
       )}
     >
-      <div className="relative z-10 flex w-full items-start justify-center">
+      <div className="relative flex w-full items-start justify-center">
         <h2 className="text-4xl font-bold text-white">{title}</h2>
         <p className="absolute mt-12 w-fit whitespace-nowrap text-base text-gray-50">
           {description}

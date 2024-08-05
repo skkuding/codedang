@@ -20,7 +20,7 @@ export default function NavLink<T extends string>({
     <Link
       href={href}
       className={cn(
-        'text-lg hover:opacity-60',
+        'text-md hover:text-primary',
         pathname.startsWith(String(href)) && 'text-primary'
       )}
     >
