@@ -41,7 +41,7 @@ export default function SwitchField({
             setValue(name, name === 'invitationCode' ? null : '')
           }}
           checked={isEnabled}
-          className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
+          className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
         />
       </div>
       {isEnabled &&
