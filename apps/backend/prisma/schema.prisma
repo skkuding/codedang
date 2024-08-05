@@ -376,6 +376,7 @@ model Submission {
   id         Int          @id @default(autoincrement())
   user       User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId     Int?         @map("user_id")
+  userIp     String?      @map("user_ip")
   problem    Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
   // Todo :
   // Regardless problem deletion, Keeping submission is positive for ranking or something ....
