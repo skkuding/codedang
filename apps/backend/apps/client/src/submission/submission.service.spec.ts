@@ -257,7 +257,8 @@ describe('SubmissionService', () => {
         await service.createSubmission(
           submissionDto,
           problems[0],
-          submissions[0].userId
+          submissions[0].userId,
+          USERIP
         )
       ).to.be.deep.equal(submissions[0])
       expect(createSpy.calledOnceWith(submissions[0])).to.be.true
@@ -281,6 +282,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { contestId: CONTEST_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
@@ -300,6 +302,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { contestId: CONTEST_ID }
         )
       ).to.be.rejectedWith(ConflictFoundException)
@@ -322,6 +325,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { workbookId: WORKBOOK_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
@@ -347,6 +351,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { contestId: CONTEST_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
@@ -366,6 +371,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { contestId: CONTEST_ID }
         )
       ).to.be.rejectedWith(ConflictFoundException)
@@ -387,6 +393,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { workbookId: WORKBOOK_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
@@ -403,7 +410,8 @@ describe('SubmissionService', () => {
         service.createSubmission(
           { ...submissionDto, language: Language.Python3 },
           problems[0],
-          submissions[0].userId
+          submissions[0].userId,
+          USERIP
         )
       ).to.be.rejectedWith(ConflictFoundException)
       expect(publishSpy.calledOnce).to.be.false
@@ -421,7 +429,8 @@ describe('SubmissionService', () => {
             code: plainToInstance(Snippet, submissions[1].code)
           },
           problems[0],
-          submissions[0].userId
+          submissions[0].userId,
+          USERIP
         )
       ).to.be.rejectedWith(ConflictFoundException)
       expect(validateSpy.returnValues[0]).to.be.false
