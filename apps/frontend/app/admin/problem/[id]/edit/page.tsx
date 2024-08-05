@@ -145,7 +145,7 @@ export default function Page({ params }: { params: { id: string } }) {
   return (
     <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
-        <div className="flex items-center gap-4">
+        <div className="-ml-8 flex items-center gap-4">
           <Link href={`/admin/problem/${id}`}>
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
@@ -157,9 +157,9 @@ export default function Page({ params }: { params: { id: string } }) {
           className="flex w-[760px] flex-col gap-6"
         >
           <FormProvider {...methods}>
-            <div className="flex gap-6">
+            <div className="flex gap-32">
               <FormSection title="Title">
-                <TitleForm placeholder="Name your problem" />
+                <TitleForm placeholder="Enter a problem name" />
               </FormSection>
 
               <FormSection title="Visible">
@@ -168,7 +168,7 @@ export default function Page({ params }: { params: { id: string } }) {
               </FormSection>
             </div>
 
-            <FormSection title="info">
+            <FormSection title="Info">
               <InfoForm tags={tags} tagName="tags.create" />
             </FormSection>
 
@@ -220,7 +220,7 @@ export default function Page({ params }: { params: { id: string } }) {
             <FormSection title="Limit">
               <LimitForm />
             </FormSection>
-
+            <TemplateField />
             <SwitchField
               name="hint"
               title="Hint"
@@ -234,7 +234,6 @@ export default function Page({ params }: { params: { id: string } }) {
               isInput
               hasValue={showSource}
             />
-            <TemplateField />
 
             <Button
               type="submit"
