@@ -106,7 +106,8 @@ export class SubmissionService implements OnModuleInit {
     const submission = await this.createSubmission(
       submissionDto,
       problem,
-      userId
+      userId,
+      userIp
     )
 
     if (submission) {
@@ -182,16 +183,12 @@ export class SubmissionService implements OnModuleInit {
       submissionDto,
       problem,
       userId,
+      userIp,
       {
         contestId
       }
     )
 
-    if (submission) {
-      this.logger.log(
-        `Submission ${submission.id} is created for contest ${contestId} by ip ${userIp}`
-      )
-    }
     return submission
   }
 
@@ -224,16 +221,12 @@ export class SubmissionService implements OnModuleInit {
       submissionDto,
       problem,
       userId,
+      userIp,
       {
         workbookId
       }
     )
 
-    if (submission) {
-      this.logger.log(
-        `Submission ${submission.id} is created for workbook ${workbookId} by ip ${userIp}`
-      )
-    }
     return submission
   }
 
@@ -242,6 +235,7 @@ export class SubmissionService implements OnModuleInit {
     submissionDto: CreateSubmissionDto,
     problem: Problem,
     userId: number,
+    userIp: string,
     idOptions?: { contestId?: number; workbookId?: number }
   ) {
     if (!problem.languages.includes(submissionDto.language)) {
@@ -264,6 +258,7 @@ export class SubmissionService implements OnModuleInit {
       code: code.map((snippet) => ({ ...snippet })), // convert to plain object
       result: ResultStatus.Judging,
       userId,
+      userIp,
       problemId: problem.id,
       codeSize: new TextEncoder().encode(code[0].text).length,
       ...data
