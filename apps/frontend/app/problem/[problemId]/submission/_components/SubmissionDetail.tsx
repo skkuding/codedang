@@ -11,7 +11,6 @@ import {
 import { dateFormatter, fetcherWithAuth } from '@/lib/utils'
 import type { SubmissionDetail } from '@/types/type'
 import { revalidateTag } from 'next/cache'
-// import { IoIosLock } from 'react-icons/io'
 import dataIfError from './dataIfError'
 
 interface Props {
