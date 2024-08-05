@@ -6,6 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion'
+import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
   DialogContent,
@@ -14,7 +15,7 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog'
 import { renderKatex } from '@/lib/renderKatex'
-import { convertToLetter } from '@/lib/utils'
+import { cn, convertToLetter } from '@/lib/utils'
 import compileIcon from '@/public/compileVersion.svg'
 import copyCompleteIcon from '@/public/copy.svg'
 import copyIcon from '@/public/copyComplete.svg'
@@ -68,14 +69,19 @@ export function EditorDescription({
   }, [problem.description, katexRef])
 
   const katexContent = <div ref={katexRef} />
+  const levelNumber = problem.difficulty.slice(-1)
   return (
     <div className="dark flex h-full flex-col gap-6 bg-[#222939] py-6 text-lg">
       <div className="px-6">
         <div className="flex h-6 justify-between">
           <h1 className="mb-3 text-xl font-bold">{`#${contestProblems ? convertToLetter(contestProblems.find((item) => item.id === problem.id)?.order as number) : problem.id}. ${problem.title}`}</h1>
-          <div className="flex items-center rounded bg-neutral-500 px-[10px] py-[6px] text-sm text-[#FED7DE]">
-            {problem.difficulty.replace(/(\D)(\d)/, '$1 $2')}
-          </div>
+          <Badge
+            className={cn(
+              `text-level-light-${levelNumber} rounded-md bg-neutral-500 hover:bg-neutral-500`
+            )}
+          >
+            {`Level ${levelNumber}`}
+          </Badge>
         </div>
         <div className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300">
           {katexContent}
