@@ -18,19 +18,22 @@ const bgImage: { [key: string]: string } = {
  */
 export default function Cover({ title, description }: CoverProps) {
   return (
-    <div
-      className={cn(
-        bgImage[title.toLowerCase()],
-        'relative bottom-[55px] z-[-10] mb-[-55px] flex h-[285px] w-screen items-center justify-center bg-cover bg-center bg-no-repeat'
-      )}
-    >
-      <div className="w-full flex-col text-center">
-        <h2 className="py-5 font-mono text-4xl font-bold text-white md:text-[56px]">
-          {title}
-        </h2>
-        <p className="whitespace-nowrap text-sm text-white/80 md:text-base">
-          {description}
-        </p>
+    <div className="flex-col">
+      <div className="absolute top-0 h-16 w-full bg-white" />
+      <div
+        className={cn(
+          bgImage[title.toLowerCase()],
+          'relative bottom-[55px] z-[-10] mb-[-55px] flex h-[285px] w-screen items-center justify-center bg-cover bg-center bg-no-repeat'
+        )}
+      >
+        <div className="w-full flex-col text-center">
+          <h2 className="py-5 font-mono text-4xl font-bold text-white md:text-[56px]">
+            {title}
+          </h2>
+          <p className="whitespace-nowrap text-sm text-white/80 md:text-base">
+            {description}
+          </p>
+        </div>
       </div>
     </div>
   )
