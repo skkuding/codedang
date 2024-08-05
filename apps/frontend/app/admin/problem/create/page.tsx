@@ -3,8 +3,8 @@
 import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { CREATE_PROBLEM } from '@/graphql/problem/mutations'
-import { GET_TAGS } from '@/graphql/problem/queries'
-import { useMutation, useQuery } from '@apollo/client'
+// import { GET_TAGS } from '@/graphql/problem/queries'
+import { useMutation } from '@apollo/client'
 import {
   Level,
   type CreateProblemInput,
@@ -33,9 +33,9 @@ import VisibleForm from '../_components/VisibleForm'
 import { createSchema } from '../utils'
 
 export default function Page() {
-  const { data: tagsData } = useQuery(GET_TAGS)
-  const tags =
-    tagsData?.getTags.map(({ id, name }) => ({ id: Number(id), name })) ?? []
+  // const { data: tagsData } = useQuery(GET_TAGS)
+  //   const tags =
+  //   tagsData?.getTags.map(({ id, name }) => ({ id: Number(id), name })) ?? []
 
   const [isCreating, setIsCreating] = useState(false)
 
@@ -106,8 +106,8 @@ export default function Page() {
               </FormSection>
             </div>
 
-            <FormSection title="info">
-              <InfoForm tags={tags} tagName="tagIds" />
+            <FormSection title="Info">
+              <InfoForm />
             </FormSection>
 
             <FormSection title="Description">

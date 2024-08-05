@@ -1,21 +1,15 @@
 import CheckboxSelect from '@/components/CheckboxSelect'
 import OptionSelect from '@/components/OptionSelect'
-import TagsSelect from '@/components/TagsSelect'
 import { languages, levels } from '@/lib/constants'
-import type { Tag } from '@/types/type'
+// import type { Tag } from '@/types/type'
 import type { Template } from '@generated/graphql'
 import type { Language } from '@generated/graphql'
 import { useEffect } from 'react'
 import { useFormContext, useController } from 'react-hook-form'
 import ErrorMessage from '../../_components/ErrorMessage'
 
-export default function InfoForm({
-  tags,
-  tagName
-}: {
-  tags: Tag[]
-  tagName: string
-}) {
+// TODO: (if) when tag select component is added later, please add 'tags' and 'tagName' to the 'InfoForm'.
+export default function InfoForm() {
   const {
     watch,
     control,
@@ -77,23 +71,14 @@ export default function InfoForm({
     defaultValue: []
   })
 
-  const { field: tagsField } = useController({
-    name: tagName,
-    control,
-    defaultValue: []
-  })
+  // const { field: tagsField } = useController({
+  //   name: tagName,
+  //   control,
+  //   defaultValue: []
+  // })
 
   return (
     <div className="flex gap-4">
-      <div className="flex flex-col gap-1">
-        <OptionSelect
-          options={levels}
-          value={difficultyField.value as string}
-          onChange={difficultyField.onChange}
-        />
-        {errors.difficulty && <ErrorMessage />}
-      </div>
-
       <div className="flex flex-col gap-1">
         <CheckboxSelect
           title="Language"
@@ -107,13 +92,22 @@ export default function InfoForm({
       </div>
 
       <div className="flex flex-col gap-1">
+        <OptionSelect
+          options={levels}
+          value={difficultyField.value as string}
+          onChange={difficultyField.onChange}
+        />
+        {errors.difficulty && <ErrorMessage />}
+      </div>
+
+      {/* <div className="flex flex-col gap-1">
         <TagsSelect
           options={tags}
           onChange={tagsField.onChange}
           defaultValue={tagsField.value}
         />
         {errors.tags && <ErrorMessage />}
-      </div>
+      </div> */}
     </div>
   )
 }
