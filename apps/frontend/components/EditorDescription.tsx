@@ -15,13 +15,15 @@ import {
 } from '@/components/ui/dialog'
 import { renderKatex } from '@/lib/renderKatex'
 import { convertToLetter } from '@/lib/utils'
+import compileIcon from '@/public/compileVersion.svg'
+import copyCompleteIcon from '@/public/copy.svg'
+import copyIcon from '@/public/copyComplete.svg'
 import type { ContestProblem, ProblemDetail } from '@/types/type'
 import { motion } from 'framer-motion'
 import { sanitize } from 'isomorphic-dompurify'
-import { CheckCircle, FileText } from 'lucide-react'
-import { CopyCheck } from 'lucide-react'
+import { FileText } from 'lucide-react'
+import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
-import { FaFileContract } from 'react-icons/fa6'
 import useCopyToClipboard from 'react-use/lib/useCopyToClipboard'
 import {
   Tooltip,
@@ -122,8 +124,8 @@ export function EditorDescription({
 
               <div className="flex space-x-2 text-base">
                 <div className="w-full space-y-2">
-                  <div className="flex space-x-3">
-                    <h3 className="select-none text-xs font-semibold">
+                  <div className="flex items-center space-x-3">
+                    <h3 className="select-none text-sm font-semibold">
                       Input {index + 1}
                     </h3>
                     <TooltipProvider delayDuration={300}>
@@ -138,16 +140,17 @@ export function EditorDescription({
                           transition={{ duration: 0.2 }}
                         >
                           {copiedID == `input-${id}` ? (
-                            // TODO: Find icon for copied
-                            <CheckCircle size={16} className="text-green-500" />
+                            <Image src={copyIcon} alt="copy" width={24} />
                           ) : (
                             <TooltipTrigger asChild>
-                              <CopyCheck
-                                size={16}
-                                className="cursor-pointer transition-opacity hover:opacity-60"
+                              <Image
                                 onClick={() => {
                                   copy(input + '\n\n', `input-${id}`) // add newline to the end for easy testing
                                 }}
+                                className="cursor-pointer transition-opacity hover:opacity-60"
+                                src={copyCompleteIcon}
+                                alt="copy"
+                                width={24}
                               />
                             </TooltipTrigger>
                           )}
@@ -159,7 +162,6 @@ export function EditorDescription({
                     </TooltipProvider>
                   </div>
                   <div className="bg-[#222939 w-full rounded-md border border-[#555C66]">
-                    {/* <div className="flex items-center justify-between border-b border-slate-800 px-4 py-2"></div> */}
                     <pre
                       className="h-24 w-full select-none overflow-auto px-4 py-2 font-mono text-sm"
                       dangerouslySetInnerHTML={{
@@ -170,8 +172,8 @@ export function EditorDescription({
                 </div>
 
                 <div className="w-full space-y-2">
-                  <div className="flex space-x-3">
-                    <h3 className="select-none text-xs font-semibold">
+                  <div className="flex items-center space-x-3">
+                    <h3 className="select-none text-sm font-semibold">
                       Output {index + 1}
                     </h3>
                     <TooltipProvider delayDuration={300}>
@@ -186,16 +188,17 @@ export function EditorDescription({
                           transition={{ duration: 0.2 }}
                         >
                           {copiedID == `output-${id}` ? (
-                            // TODO: Find icon for copied
-                            <CheckCircle size={16} className="text-green-500" />
+                            <Image src={copyIcon} alt="copy" width={24} />
                           ) : (
                             <TooltipTrigger asChild>
-                              <CopyCheck
-                                size={16}
-                                className="cursor-pointer transition-opacity hover:opacity-60"
+                              <Image
                                 onClick={() => {
                                   copy(output + '\n\n', `output-${id}`) // add newline to the end for easy testing
                                 }}
+                                className="cursor-pointer transition-opacity hover:opacity-60"
+                                src={copyCompleteIcon}
+                                alt="copy"
+                                width={24}
                               />
                             </TooltipTrigger>
                           )}
@@ -207,7 +210,6 @@ export function EditorDescription({
                     </TooltipProvider>
                   </div>
                   <div className="bg-[#222939 w-full rounded-md border-[1px] border-[#555C66]">
-                    {/* <div className="flex items-center justify-between border-b border-slate-800 px-4 py-2"></div> */}
                     <pre
                       className="h-24 w-full select-none overflow-auto px-4 py-2 font-mono text-sm"
                       dangerouslySetInnerHTML={{
@@ -258,8 +260,12 @@ export function EditorDescription({
       <div className="flex px-6">
         <Dialog>
           <DialogTrigger asChild>
-            {/* TODO: Find Icon */}
-            <FaFileContract className="cursor-pointer" />
+            <Image
+              className="cursor-pointer"
+              src={compileIcon}
+              alt="compile"
+              width={24}
+            />
           </DialogTrigger>
           <DialogContent
             showDarkOverlay={true}

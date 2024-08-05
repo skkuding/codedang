@@ -40,18 +40,29 @@ export default function HeaderAuthPanel({
     <div className="ml-2 flex items-center gap-2">
       {session ? (
         <DropdownMenu>
-          <DropdownMenuTrigger className="hidden gap-2 px-4 py-1 md:flex">
+          <DropdownMenuTrigger
+            className={cn(
+              'hidden gap-2 rounded-md px-4 py-1 md:flex',
+              group === 'editor' ? null : 'bg-primary text-white'
+            )}
+          >
+            <BiSolidUser
+              className={cn(
+                'h-6 w-6',
+                group === 'editor' ? 'text-gray-300' : 'text-white'
+              )}
+            />
             <p
               className={
                 group === 'editor'
                   ? 'text-primary-light font-bold'
-                  : 'text-primary font-bold'
+                  : 'font-semibold text-white'
               }
             >
               {session?.user.username}
             </p>
-            <BiSolidUser className="h-6 w-6 text-gray-300" />
-            {group === 'editor' ? <ChevronDown className="w-4" /> : null}{' '}
+            <ChevronDown className="w-4" />
+            {/* // {group === 'editor' ? <ChevronDown className="w-4" /> : null}{' '} */}
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             {session?.user.role !== 'User' && (
