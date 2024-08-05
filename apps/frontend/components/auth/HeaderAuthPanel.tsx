@@ -62,7 +62,6 @@ export default function HeaderAuthPanel({
               {session?.user.username}
             </p>
             <ChevronDown className="w-4" />
-            {/* // {group === 'editor' ? <ChevronDown className="w-4" /> : null}{' '} */}
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             {session?.user.role !== 'User' && (
