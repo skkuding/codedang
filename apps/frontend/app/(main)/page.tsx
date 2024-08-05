@@ -1,7 +1,4 @@
 import { Button } from '@/components/ui/button'
-import dummyImg from '@/public/dummy.png'
-import GithubLogo from '@/public/github.svg'
-import SkkudingLogo from '@/public/skkudingLogo.png'
 import type { Route } from 'next'
 import Link from 'next/link'
 import Carousel from './_components/Carousel'
@@ -15,31 +12,25 @@ export const dynamic = 'force-dynamic'
 
 const slides = [
   {
-    topTitle: 'Codedang,',
-    bottomTitle: 'Online Judge for SKKU',
-    sub: 'Level up your coding skills with us',
-    img: dummyImg,
-    imgAlt: 'Codedang Intro Banner',
-    color: 'green',
+    type: 'codedang',
+    topTitle: 'Welcome to',
+    bottomTitle: 'CODEDANG',
+    sub: 'Online Judge Platform for SKKU',
     href: '/problem'
   },
   {
-    topTitle: 'SKKUDING',
-    bottomTitle: 'Beta Service',
-    sub: `Feel free to contact us if there's any bug`,
-    img: SkkudingLogo,
-    imgAlt: 'SKKUDING Beta service Banner',
-    color: 'black',
-    href: '/'
-  },
-  {
+    type: 'github',
     topTitle: 'Contribute to',
     bottomTitle: 'Codedang on GitHub',
-    sub: 'Our project is open source!',
-    img: GithubLogo,
-    imgAlt: 'Github Link Banner',
-    color: 'yellow',
+    sub: 'Our project is open source',
     href: 'https://github.com/skkuding/codedang'
+  },
+  {
+    type: 'skkuding',
+    topTitle: 'SKKUDING',
+    bottomTitle: 'Beta Service',
+    sub: "Feel free to contact us if there's any bug",
+    href: 'https://pf.kakao.com/_UKraK/chat'
   }
 ]
 

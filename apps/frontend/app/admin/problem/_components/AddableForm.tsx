@@ -1,7 +1,7 @@
 import type { FieldErrorsImpl, FieldValues } from 'react-hook-form'
 import { useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
-import ErrorMessage from './ErrorMessage'
+import ErrorMessage from '../../_components/ErrorMessage'
 import ExampleTextarea from './ExampleTextarea'
 
 type AddableProps = {
