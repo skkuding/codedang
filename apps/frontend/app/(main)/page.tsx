@@ -16,7 +16,7 @@ const slides = [
     topTitle: 'Welcome to',
     bottomTitle: 'CODEDANG',
     sub: 'Online Judge Platform for SKKU',
-    href: '/'
+    href: '/problem'
   },
   {
     type: 'github',

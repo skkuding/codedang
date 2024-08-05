@@ -201,6 +201,8 @@ model Image {
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?
   createTime  DateTime @default(now()) @map("create_time")
+
+  @@map("image")
 }
 
 enum Level {

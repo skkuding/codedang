@@ -10,7 +10,7 @@ export const revalidate = 5
 
 const mono = IBM_Plex_Mono({
   subsets: ['latin'],
-  weight: ['400', '700'],
+  weight: ['400', '600', '700'],
   variable: '--font-mono'
 })
 

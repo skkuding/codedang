@@ -17,18 +17,18 @@ import { Separator } from '@/components/ui/separator'
 import type { Column } from '@tanstack/react-table'
 import { IoFilter } from 'react-icons/io5'
 
-interface DataTableLangFilterProps<TData, TValue> {
+interface DataTableLevelFilterProps<TData, TValue> {
   column?: Column<TData, TValue>
   title?: string
   options: string[]
 }
 
-export default function DataTableLangFilter<TData, TValue>({
+export default function DataTableLevelFilter<TData, TValue>({
   column,
   title,
   options
-}: DataTableLangFilterProps<TData, TValue>) {
-  const selectedValues = new Set(column?.getFilterValue() as string[])
+}: DataTableLevelFilterProps<TData, TValue>) {
+  const selectedValues = new Set(column?.getFilterValue() as string)
 
   return (
     <Popover>
@@ -61,7 +61,7 @@ export default function DataTableLangFilter<TData, TValue>({
                           variant="secondary"
                           className="rounded-sm px-1 font-normal"
                         >
-                          {option}
+                          Level {option.slice(-1)}
                         </Badge>
                       ))}
                   </div>
@@ -75,7 +75,7 @@ export default function DataTableLangFilter<TData, TValue>({
       <PopoverContent className="w-[115px] p-0" align="start">
         <Command>
           <CommandList>
-            <CommandEmpty>No language found.</CommandEmpty>
+            <CommandEmpty>No level found.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => (
                 <CommandItem key={option} value={option} className="gap-x-2">
@@ -93,7 +93,7 @@ export default function DataTableLangFilter<TData, TValue>({
                       )
                     }}
                   />
-                  {option}
+                  Level {option.slice(-1)}
                 </CommandItem>
               ))}
             </CommandGroup>
