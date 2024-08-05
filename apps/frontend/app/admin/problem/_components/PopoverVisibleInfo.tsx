@@ -10,7 +10,7 @@ export default function PopoverVisibleInfo() {
     <Popover>
       <PopoverTrigger asChild>
         <button>
-          <MdHelpOutline className="text-gray-400 hover:text-gray-700" />
+          <MdHelpOutline className="ml-[10px] text-gray-400 hover:text-gray-700" />
         </button>
       </PopoverTrigger>
       <PopoverContent side="top" className="mb-2 w-max px-3 py-2">

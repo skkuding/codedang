@@ -12,9 +12,9 @@ export default function FormSection({
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-3">
         <span className="font-bold">{title}</span>
-        {isLabled && <span className="text-red-500">*</span>}
+        {isLabled && <span className="mt-1 text-red-500">*</span>}
         {badge}
       </div>
       {content}
