@@ -501,10 +501,10 @@ export class SubmissionService implements OnModuleInit {
 
     const submissionResult = allAccepted
       ? ResultStatus.Accepted
-      : submission.submissionResult.find(
+      : (submission.submissionResult.find(
           (submissionResult) =>
             submissionResult.result !== ResultStatus.Accepted
-        )?.result ?? ResultStatus.ServerError
+        )?.result ?? ResultStatus.ServerError)
 
     await this.prisma.submission.update({
       where: { id: submissionId },
