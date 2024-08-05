@@ -6,7 +6,6 @@ import codedangLogo from '@/public/codedang-editor.svg'
 import type { ProblemDetail } from '@/types/type'
 import Image from 'next/image'
 import Link from 'next/link'
-import { IoIosArrowForward } from 'react-icons/io'
 
 export default async function layout({
   params,
@@ -29,7 +28,7 @@ export default async function layout({
           </Link>
           <div className="flex items-center gap-1">
             <Link href="/problem">Problem</Link>
-            <IoIosArrowForward className="size-6" />
+            &nbsp;/&nbsp;
             <h1 className="text-lg font-bold text-white">{`#${problemId}. ${problem.title}`}</h1>
           </div>
         </div>

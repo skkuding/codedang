@@ -115,9 +115,7 @@ export default async function SubmissionDetail({
         <></>
       ) : (
         <div className="absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1 backdrop-blur">
-          {/* <IoIosLock size={100} /> */}
-          {/* TODO: Change Font Type */}
-          <p className="mt-4 text-xl font-semibold">Access Denied</p>
+          <p className="mt-4 font-mono text-xl font-semibold">Access Denied</p>
           <p className="w-10/12 text-center">
             {`To view other users' code,
             please submit your own correct code first`}

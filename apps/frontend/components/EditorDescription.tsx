@@ -15,7 +15,7 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog'
 import { renderKatex } from '@/lib/renderKatex'
-import { cn, convertToLetter } from '@/lib/utils'
+import { convertToLetter } from '@/lib/utils'
 import compileIcon from '@/public/compileVersion.svg'
 import copyCompleteIcon from '@/public/copy.svg'
 import copyIcon from '@/public/copyComplete.svg'
@@ -76,9 +76,7 @@ export function EditorDescription({
         <div className="flex h-6 justify-between">
           <h1 className="mb-3 text-xl font-bold">{`#${contestProblems ? convertToLetter(contestProblems.find((item) => item.id === problem.id)?.order as number) : problem.id}. ${problem.title}`}</h1>
           <Badge
-            className={cn(
-              `text-level-light-${levelNumber} rounded-md bg-neutral-500 hover:bg-neutral-500`
-            )}
+            className={`text-level-light-${levelNumber} rounded-md bg-neutral-500 hover:bg-neutral-500`}
           >
             {`Level ${levelNumber}`}
           </Badge>

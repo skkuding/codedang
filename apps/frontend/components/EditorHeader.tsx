@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select'
 import { auth } from '@/lib/auth'
 import { fetcherWithAuth } from '@/lib/utils'
+import submitIcon from '@/public/submit.svg'
 import useAuthModalStore from '@/stores/authModal'
 import { CodeContext, useLanguageStore } from '@/stores/editor'
 import type {
@@ -32,11 +33,11 @@ import type {
 } from '@/types/type'
 import JSConfetti from 'js-confetti'
 import type { Route } from 'next'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
 import { IoPlayCircleOutline } from 'react-icons/io5'
-import { PiArrowFatLineUpLight } from 'react-icons/pi'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
 import { useStore } from 'zustand'
@@ -195,9 +196,7 @@ export default function Editor({
             'Judging'
           ) : (
             <>
-              {/* TODO: Find emoticon for Submit Button */}
-              <PiArrowFatLineUpLight />
-              Submit
+              <Image src={submitIcon} width={22} alt={'submit'} /> Submit
             </>
           )}
         </Button>

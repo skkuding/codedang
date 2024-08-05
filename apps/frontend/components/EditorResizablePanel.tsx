@@ -76,7 +76,7 @@ export default function EditorMainResizablePanel({
                     value="Submission"
                     className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
                   >
-                    Submission List
+                    Submissions
                   </TabsTrigger>
                 </Link>
               </TabsList>
