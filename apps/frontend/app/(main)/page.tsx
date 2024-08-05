@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import type { Route } from 'next'
 import Link from 'next/link'
 import Carousel from './_components/Carousel'
+import ContestCards from './_components/ContestCards'
 // import ContestCards from './_components/ContestCards'
 import ProblemCards from './_components/ProblemCards'
 
@@ -58,6 +59,17 @@ export default function Home() {
         </div>
       </div> */}
       <div className="flex w-full flex-col gap-6">
+        <div className="flex w-full items-center justify-between text-gray-700">
+          <p className="text-2xl font-bold">Contest 🏆</p>
+          <Link href={'/problem' as Route}>
+            <Button variant="ghost" className="h-8 px-3">
+              See More
+            </Button>
+          </Link>
+        </div>
+        <div className="grid w-full grid-cols-3 gap-5">
+          <ContestCards />
+        </div>
         <div className="flex w-full items-center justify-between text-gray-700">
           <p className="text-2xl font-bold">Problem ✨</p>
           <Link href={'/problem' as Route}>
