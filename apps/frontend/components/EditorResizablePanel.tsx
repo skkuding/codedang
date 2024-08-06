@@ -52,7 +52,6 @@ export default function EditorMainResizablePanel({
       >
         <div className="grid-rows-editor grid h-full grid-cols-1">
           <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
-            {' '}
             <Tabs
               value={
                 pathname.startsWith(`${base}/problem/${problem.id}/submission`)

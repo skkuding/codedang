@@ -293,11 +293,21 @@ export function EditorDescription({
                     <td className="flex px-6 py-4">C</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2">
-                        <FileText size={18} />
+                        <a
+                          href="https://cplusplus.com/reference/clibrary/"
+                          target="_blank"
+                        >
+                          <FileText size={18} />
+                        </a>
                         <span>gcc 13.2.0</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <FileText size={18} />
+                        <a
+                          href="https://cplusplus.com/reference/clibrary/"
+                          target="_blank"
+                        >
+                          <FileText size={18} />
+                        </a>
                         <span>c11</span>
                       </div>
                     </td>
@@ -306,11 +316,21 @@ export function EditorDescription({
                     <td className="flex px-6 py-4">C++</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2">
-                        <FileText size={18} />
+                        <a
+                          href="https://cplusplus.com/reference/"
+                          target="_blank"
+                        >
+                          <FileText size={18} />
+                        </a>
                         <span>g++ 13.2.0</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <FileText size={18} />
+                        <a
+                          href="https://cplusplus.com/reference/"
+                          target="_blank"
+                        >
+                          <FileText size={18} />
+                        </a>
                         <span>c++ 14</span>
                       </div>
                     </td>
@@ -319,7 +339,12 @@ export function EditorDescription({
                     <td className="flex px-6 py-4">Java</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2">
-                        <FileText size={18} />
+                        <a
+                          href="https://docs.oracle.com/en/java/javase/17/docs/api/index.html"
+                          target="_blank"
+                        >
+                          <FileText size={18} />
+                        </a>
                         <span>openjdk 17.0.11</span>
                       </div>
                     </td>
@@ -328,7 +353,12 @@ export function EditorDescription({
                     <td className="flex px-6 py-4">Python</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2">
-                        <FileText size={18} />
+                        <a
+                          href="https://docs.python.org/3.12/library/index.html"
+                          target="_blank"
+                        >
+                          <FileText size={18} />
+                        </a>
                         <span>python 3.12.3</span>
                       </div>
                     </td>
