@@ -4,9 +4,8 @@ import { baseUrl } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
-import { useInterval } from 'react-use'
 import { z } from 'zod'
 
 interface EmailVerifyInput {
@@ -26,6 +25,8 @@ const timeLimit = 300
 
 export default function SignUpEmailVerify() {
   const [timer, setTimer] = useState(timeLimit)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const previousTimeRef = useRef(Date.now())
   const [expired, setExpired] = useState(false)
   const { nextModal, setFormData } = useSignUpModalStore((state) => state)
   const {
@@ -43,21 +44,34 @@ export default function SignUpEmailVerify() {
   const [codeError, setCodeError] = useState<string>('')
   const [emailVerified, setEmailVerified] = useState<boolean>(false)
   const [emailAuthToken, setEmailAuthToken] = useState<string>('')
-
-  useInterval(
-    () => {
-      if (timer > 0) {
-        setTimer((prevTimer) => prevTimer - 1)
-      }
-    },
-    sentEmail ? 1000 : null
-  )
+  const [sendButtonDisabled, setSendButtonDisabled] = useState<boolean>(false)
 
   useEffect(() => {
-    if (timer === 0) {
-      setExpired(true)
+    if (sentEmail && !expired) {
+      previousTimeRef.current = Date.now()
+      intervalRef.current = setInterval(() => {
+        const currentTime = Date.now()
+        const elapsedTime = (currentTime - previousTimeRef.current) / 1000
+        previousTimeRef.current = currentTime
+
+        setTimer((prevTimer) => {
+          const updatedTimer = Math.max(prevTimer - Math.round(elapsedTime), 0)
+          if (updatedTimer === 0) {
+            setExpired(true)
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current)
+            }
+          }
+          return updatedTimer
+        })
+      }, 1000)
     }
-  }, [timer])
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [sentEmail, expired])
 
   const formatTimer = () => {
     const minutes = Math.floor(timer / 60)
@@ -77,8 +91,9 @@ export default function SignUpEmailVerify() {
   const sendEmail = async () => {
     const { email } = getValues()
     setEmailContent(email)
+    setEmailError('')
     await trigger('email')
-    if (!errors.email && !sentEmail) {
+    if (!errors.email) {
       await fetch(baseUrl + '/email-auth/send-email/register-new', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -86,10 +101,12 @@ export default function SignUpEmailVerify() {
       })
         .then((res) => {
           if (res.status === 409) {
-            setEmailError('You have already signed up!')
+            setEmailError('You have already signed up')
+            setSendButtonDisabled(false)
           } else if (res.status === 201) {
             setSentEmail(true)
             setEmailError('')
+            setSendButtonDisabled(false)
           }
         })
         .catch(() => {
@@ -116,38 +133,53 @@ export default function SignUpEmailVerify() {
           setCodeError('')
           setEmailAuthToken(response.headers.get('email-auth') || '')
         } else {
-          setCodeError('Verification code is not valid!')
+          setCodeError('Verification code is not valid')
+          setEmailVerified(false)
         }
       } catch {
-        setCodeError('Email verification failed!')
+        setEmailVerified(false)
+        setCodeError('Email verification failed')
       }
     }
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-1">
-      <p className="mb-4 text-left text-xl font-bold text-blue-500">Sign Up</p>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex w-full flex-col gap-2"
+    >
+      <p className="mb-4 text-left font-mono text-xl font-bold text-blue-500">
+        Sign up
+      </p>
       {!sentEmail && (
-        <Input
-          id="email"
-          type="email"
-          className="w-64"
-          placeholder="Email Address"
-          {...register('email')}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              sendEmail()
-            }
-          }}
-        />
+        <div>
+          <Input
+            id="email"
+            type="email"
+            className={cn(
+              'focus-visible:ring-primary w-full focus-visible:ring-1',
+              `${(emailError != '' || errors.email) && 'ring-1 ring-red-500'}`
+            )}
+            placeholder="example@g.skku.edu"
+            {...register('email')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !sendButtonDisabled) {
+                e.preventDefault()
+                setSendButtonDisabled(true)
+                sendEmail()
+              }
+            }}
+          />
+          {errors.email && (
+            <p className="mt-1 text-xs text-red-500">{errors.email?.message}</p>
+          )}
+          {emailError != '' && (
+            <p className="mt-1 text-xs text-red-500">{emailError}</p>
+          )}
+        </div>
       )}
-      {errors.email && (
-        <p className="text-xs text-red-500">{errors.email?.message}</p>
-      )}
-      <p className="text-xs text-red-500">{emailError}</p>
       {sentEmail && (
-        <>
+        <div>
           <div className="flex justify-between">
             <div className="text-sm text-black">{emailContent}</div>
             {sentEmail && !expired && (
@@ -156,51 +188,68 @@ export default function SignUpEmailVerify() {
           </div>
           <Input
             type="number"
-            className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            className={cn(
+              'mt-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+              'focus-visible:ring-primary w-full focus-visible:ring-1',
+              `${(errors.verificationCode || expired || codeError != '') && 'ring-1 ring-red-500 focus-visible:ring-red-500'}`
+            )}
             placeholder="Verification Code"
             {...register('verificationCode', {
               onChange: () => verifyCode()
             })}
           />
-        </>
+          {sentEmail &&
+            !expired &&
+            !errors.verificationCode &&
+            codeError === '' &&
+            !emailVerified && (
+              <p className="text-primary mt-1 text-xs">
+                We&apos;ve sent an email
+              </p>
+            )}
+          {expired && (
+            <p className="mt-1 text-xs text-red-500">
+              Verification code expired
+              <br />
+              Please resend an email and try again
+            </p>
+          )}
+          {!expired && (
+            <p className="mt-1 text-xs text-red-500">
+              {errors.verificationCode
+                ? errors.verificationCode?.message
+                : codeError}
+            </p>
+          )}
+        </div>
       )}
-      <p className="text-xs text-red-500">
-        {errors.verificationCode ? errors.verificationCode?.message : codeError}
-      </p>
-      {sentEmail &&
-        !expired &&
-        !errors.verificationCode &&
-        codeError === '' &&
-        !emailVerified && (
-          <p className="text-xs text-blue-500">We&apos;ve sent an email!</p>
-        )}
-      {expired && (
-        <p className="text-xs text-red-500">
-          Verification code expired
-          <br />
-          Please resend an email and try again
-        </p>
-      )}
+
       {!sentEmail ? (
         <Button
           type="button"
-          className="mb-8 mt-2 w-64"
-          onClick={() => sendEmail()}
+          className="mt-4 w-full font-semibold"
+          disabled={sendButtonDisabled}
+          onClick={() => {
+            setSendButtonDisabled(true)
+            sendEmail()
+          }}
         >
           Send Email
         </Button>
       ) : !expired ? (
         <Button
           type="submit"
-          className={cn('mb-8 mt-2 w-64', !emailVerified && 'bg-gray-400')}
-          disabled={!emailVerified}
+          className={cn(
+            'mt-2 w-full font-semibold',
+            (!emailVerified || !!errors.verificationCode) && 'bg-gray-400'
+          )}
+          disabled={!emailVerified || !!errors.verificationCode}
         >
           Next
         </Button>
       ) : (
         <Button
-          type="submit"
-          className="mb-8 mt-2 w-64"
+          className="mt-2 w-full font-semibold"
           onClick={() => {
             setExpired(false)
             setTimer(timeLimit)

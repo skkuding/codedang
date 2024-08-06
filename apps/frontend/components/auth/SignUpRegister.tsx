@@ -376,7 +376,7 @@ export default function SignUpRegister() {
                 <p className="text-red-500">Unavailable</p>
               ) : (
                 <div
-                  className={`${errors.username && getValues('username') !== '' ? 'text-red-500' : 'text-gray-500'}`}
+                  className={`${errors.username && getValues('username') !== '' ? 'text-red-500' : 'text-gray-700'}`}
                 >
                   <ul className="list-disc pl-4">
                     <li>User ID used for log in</li>
@@ -417,7 +417,7 @@ export default function SignUpRegister() {
           {inputFocus === 2 &&
             (errors.password || getValues('password') === '' ? (
               <div
-                className={`${getValues('password') === '' ? 'text-gray-500' : 'text-red-500'}`}
+                className={`${getValues('password') === '' ? 'text-gray-700' : 'text-red-500'}`}
               >
                 <ul className="pl-4 text-xs">
                   <li className="list-disc">8-20 characters</li>
@@ -472,7 +472,7 @@ export default function SignUpRegister() {
             (getValues('passwordAgain') !== '' || inputFocus !== 3) &&
             requiredMessage(errors.passwordAgain.message)}
         </div>
-        <div className="border-b" />
+        <div className="my-2 border-b" />
         <div className="flex justify-between gap-4">
           <div className="flex flex-col gap-1">
             <Input
@@ -536,16 +536,18 @@ export default function SignUpRegister() {
                 aria-expanded={majorOpen}
                 variant="outline"
                 role="combobox"
-                onFocus={() => {
+                onClick={() => {
                   updateFocus(7)
                 }}
                 className={cn(
-                  'justify-between font-normal',
-                  majorValue === '' ? 'text-gray-500' : 'ring-primary ring-1',
+                  'justify-between border-gray-200 font-normal text-black',
+                  majorValue === ''
+                    ? 'text-gray-500'
+                    : 'ring-primary border-0 ring-1',
                   majorValue === '' &&
                     focusedList[7] &&
                     !majorOpen &&
-                    'ring-1 ring-red-500'
+                    'border-0 ring-1 ring-red-500'
                 )}
               >
                 {majorValue === '' ? 'First Major' : majorValue}
