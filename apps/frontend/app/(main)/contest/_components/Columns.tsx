@@ -16,31 +16,26 @@ export const columns: ColumnDef<Contest>[] = [
     )
   },
   {
-    header: 'Status',
-    accessorKey: 'status',
-    cell: ({ row }) => (
-      <Badge type={row.original.status}>
-        <p>
-          {row.original.status.startsWith('registered')
-            ? 'registered'
-            : row.original.status}
-        </p>
-      </Badge>
-    )
-  },
-  {
-    header: 'Starts at',
-    accessorKey: 'startTime',
-    cell: ({ row }) => dateFormatter(row.original.startTime, 'YYYY-MM-DD')
-  },
-  {
-    header: 'Ends at',
-    accessorKey: 'endTime',
-    cell: ({ row }) => dateFormatter(row.original.endTime, 'YYYY-MM-DD')
+    header: 'Registered',
+    accessorKey: 'registered',
+    cell: () => ''
   },
   {
     header: 'Participants',
     accessorKey: 'participants',
     cell: ({ row }) => row.original.participants
+  },
+  {
+    header: 'Total score',
+    accessorKey: 'totalScore',
+    cell: () => '000/000'
+  },
+  {
+    header: 'Period',
+    accessorKey: 'period',
+    cell: ({ row }) =>
+      dateFormatter(row.original.startTime, 'YYYY-MM-DD') +
+      ' ~ ' +
+      dateFormatter(row.original.endTime, 'YYYY-MM-DD')
   }
 ]
