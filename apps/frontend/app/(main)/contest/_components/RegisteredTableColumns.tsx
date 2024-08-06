@@ -16,9 +16,9 @@ export const columns: ColumnDef<Contest>[] = [
     )
   },
   {
-    header: 'Registered',
-    accessorKey: 'registered',
-    cell: () => ''
+    header: 'Status',
+    accessorKey: 'status',
+    cell: ({ row }) => <>{row.original.status}</>
   },
   {
     header: 'Participants',

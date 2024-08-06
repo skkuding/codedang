@@ -1,8 +1,17 @@
 import { Skeleton } from '@/components/ui/skeleton'
 import { auth } from '@/lib/auth'
+import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import ContestCardList from './_components/ContestCardList'
 import FinishedContestTable from './_components/FinishedContestTable'
+import RegisteredContestTable from './_components/RegisteredContestTable'
+import TableSwitchButton from './_components/TableSwitchButton'
+
+interface ContestProps {
+  searchParams: {
+    registered: string
+  }
+}
 
 function ContestCardListFallback() {
   return (
@@ -41,8 +50,13 @@ function FinishedContestTableFallback() {
   )
 }
 
-export default async function Contest() {
+export default async function Contest({ searchParams }: ContestProps) {
   const session = await auth()
+  const registered = searchParams.registered === 'true' ?? false
+  if (!session && registered) {
+    redirect('/contest')
+  }
+
   return (
     <>
       <div className="mb-12 flex flex-col gap-12">
@@ -62,7 +76,18 @@ export default async function Contest() {
         </Suspense>
       </div>
       <Suspense fallback={<FinishedContestTableFallback />}>
-        <FinishedContestTable />
+        {session ? (
+          <TableSwitchButton />
+        ) : (
+          <p className="text-primary-light text-2xl font-bold md:text-2xl">
+            Finished
+          </p>
+        )}
+        {session && registered ? (
+          <RegisteredContestTable />
+        ) : (
+          <FinishedContestTable />
+        )}
       </Suspense>
     </>
   )
