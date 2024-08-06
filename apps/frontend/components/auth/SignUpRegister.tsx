@@ -155,7 +155,7 @@ export function requiredMessage(message?: string) {
   return (
     <div className="inline-flex items-center text-xs text-red-500">
       {message === 'Required' && <IoWarningOutline />}
-      <p className={`${message === 'Required' && 'pl-1'}`}>{message}</p>
+      <p className={cn(message === 'Required' && 'pl-1')}>{message}</p>
     </div>
   )
 }
@@ -229,7 +229,7 @@ export default function SignUpRegister() {
   }) => {
     if (
       !(data.username === checkedUsername && isUsernameAvailable) ||
-      majorValue === ''
+      !majorValue
     ) {
       return
     }
@@ -301,15 +301,16 @@ export default function SignUpRegister() {
             <Input
               placeholder="User ID"
               className={cn(
-                `${focusedList[1] && 'ring-1 focus-visible:ring-1'}`,
-                `${errors.username && (getValues('username') !== '' || inputFocus !== 1) ? 'ring-red-500 focus-visible:ring-red-500' : 'ring-primary'}`,
-                `${
-                  !isUsernameAvailable &&
-                  getValues('username') !== '' &&
+                focusedList[1] && 'ring-1 focus-visible:ring-1',
+                errors.username && (getValues('username') || inputFocus !== 1)
+                  ? 'ring-red-500 focus-visible:ring-red-500'
+                  : 'ring-primary',
+
+                !isUsernameAvailable &&
+                  getValues('username') &&
                   (checkedUsername === getValues('username') ||
                     inputFocus !== 1) &&
                   'ring-red-500 focus-visible:ring-red-500'
-                }`
               )}
               {...register('username', {
                 onChange: () => validation('username'),
@@ -361,7 +362,7 @@ export default function SignUpRegister() {
                 checkedUsername == getValues('username') ? (
                 <p className="text-xs text-blue-500">Available</p>
               ) : checkedUsername === getValues('username') ? (
-                checkedUsername !== '' ? (
+                checkedUsername ? (
                   <p className="text-red-500">Unavailable</p>
                 ) : (
                   <></>
@@ -372,11 +373,15 @@ export default function SignUpRegister() {
             {inputFocus === 1 &&
               (!isUsernameAvailable &&
               checkedUsername === getValues('username') &&
-              getValues('username') !== '' ? (
+              getValues('username') ? (
                 <p className="text-red-500">Unavailable</p>
               ) : (
                 <div
-                  className={`${errors.username && getValues('username') !== '' ? 'text-red-500' : 'text-gray-700'}`}
+                  className={cn(
+                    errors.username && getValues('username')
+                      ? 'text-red-500'
+                      : 'text-gray-700'
+                  )}
                 >
                   <ul className="list-disc pl-4">
                     <li>User ID used for log in</li>
@@ -392,8 +397,10 @@ export default function SignUpRegister() {
             <Input
               placeholder="Password"
               className={cn(
-                `${focusedList[2] && 'ring-1 focus-visible:ring-1'}`,
-                `${errors.password && (getValues('password') !== '' || inputFocus !== 2) ? 'ring-red-500 focus-visible:ring-red-500' : 'ring-primary'}`
+                focusedList[2] && 'ring-1 focus-visible:ring-1',
+                errors.password && (getValues('password') || inputFocus !== 2)
+                  ? 'ring-red-500 focus-visible:ring-red-500'
+                  : 'ring-primary'
               )}
               {...register('password', {
                 onChange: () => validation('password')
@@ -415,9 +422,11 @@ export default function SignUpRegister() {
             </span>
           </div>
           {inputFocus === 2 &&
-            (errors.password || getValues('password') === '' ? (
+            (errors.password || !getValues('password') ? (
               <div
-                className={`${getValues('password') === '' ? 'text-gray-700' : 'text-red-500'}`}
+                className={cn(
+                  !getValues('password') ? 'text-gray-700' : 'text-red-500'
+                )}
               >
                 <ul className="pl-4 text-xs">
                   <li className="list-disc">8-20 characters</li>
@@ -448,8 +457,11 @@ export default function SignUpRegister() {
                 onChange: () => validation('passwordAgain')
               })}
               className={cn(
-                `${focusedList[3] && 'ring-1 focus-visible:ring-1'}`,
-                `${errors.passwordAgain && (getValues('passwordAgain') !== '' || inputFocus !== 3) ? 'ring-red-500 focus-visible:ring-red-500' : 'ring-primary'}`
+                focusedList[3] && 'ring-1 focus-visible:ring-1',
+                errors.passwordAgain &&
+                  (getValues('passwordAgain') || inputFocus !== 3)
+                  ? 'ring-red-500 focus-visible:ring-red-500'
+                  : 'ring-primary'
               )}
               placeholder="Re-enter password"
               type={passwordAgainShow ? 'text' : 'password'}
@@ -469,7 +481,7 @@ export default function SignUpRegister() {
             </span>
           </div>
           {errors.passwordAgain &&
-            (getValues('passwordAgain') !== '' || inputFocus !== 3) &&
+            (getValues('passwordAgain') || inputFocus !== 3) &&
             requiredMessage(errors.passwordAgain.message)}
         </div>
         <div className="my-2 border-b" />
@@ -481,15 +493,17 @@ export default function SignUpRegister() {
                 onChange: () => validation('firstName')
               })}
               className={cn(
-                `${focusedList[4] && 'ring-1 focus-visible:ring-1'}`,
-                `${errors.firstName && (getValues('firstName') !== '' || inputFocus !== 4) ? 'ring-red-500 focus-visible:ring-red-500' : 'ring-primary'}`
+                focusedList[4] && 'ring-1 focus-visible:ring-1',
+                errors.firstName && (getValues('firstName') || inputFocus !== 4)
+                  ? 'ring-red-500 focus-visible:ring-red-500'
+                  : 'ring-primary'
               )}
               onFocus={() => {
                 updateFocus(4)
               }}
             />
             {errors.firstName &&
-              (getValues('firstName') !== '' || inputFocus !== 4) &&
+              (getValues('firstName') || inputFocus !== 4) &&
               requiredMessage(errors.firstName.message)}
           </div>
           <div className="flex flex-col gap-1">
@@ -499,15 +513,17 @@ export default function SignUpRegister() {
                 onChange: () => validation('lastName')
               })}
               className={cn(
-                `${focusedList[5] && 'ring-1 focus-visible:ring-1'}`,
-                `${errors.lastName && (getValues('lastName') !== '' || inputFocus !== 5) ? 'ring-red-500 focus-visible:ring-red-500' : 'ring-primary'}`
+                focusedList[5] && 'ring-1 focus-visible:ring-1',
+                errors.lastName && (getValues('lastName') || inputFocus !== 5)
+                  ? 'ring-red-500 focus-visible:ring-red-500'
+                  : 'ring-primary'
               )}
               onFocus={() => {
                 updateFocus(5)
               }}
             />
             {errors.lastName &&
-              (getValues('lastName') !== '' || inputFocus !== 5) &&
+              (getValues('lastName') || inputFocus !== 5) &&
               requiredMessage(errors.lastName.message)}
           </div>
         </div>
@@ -518,15 +534,17 @@ export default function SignUpRegister() {
               onChange: () => validation('studentId')
             })}
             className={cn(
-              `${focusedList[6] && 'ring-1 focus-visible:ring-1'}`,
-              `${errors.studentId && (getValues('studentId') !== '' || inputFocus !== 6) ? 'ring-red-500 focus-visible:ring-red-500' : 'ring-primary'}`
+              focusedList[6] && 'ring-1 focus-visible:ring-1',
+              errors.studentId && (getValues('studentId') || inputFocus !== 6)
+                ? 'ring-red-500 focus-visible:ring-red-500'
+                : 'ring-primary'
             )}
             onFocus={() => {
               updateFocus(6)
             }}
           />
           {errors.studentId &&
-            (getValues('studentId') !== '' || inputFocus !== 6) &&
+            (getValues('studentId') || inputFocus !== 6) &&
             requiredMessage(errors.studentId.message)}
         </div>
         <div className="flex flex-col gap-1">
@@ -541,16 +559,16 @@ export default function SignUpRegister() {
                 }}
                 className={cn(
                   'justify-between border-gray-200 font-normal text-black',
-                  majorValue === ''
+                  !majorValue
                     ? 'text-gray-500'
                     : 'ring-primary border-0 ring-1',
-                  majorValue === '' &&
+                  !majorValue &&
                     focusedList[7] &&
                     !majorOpen &&
                     'border-0 ring-1 ring-red-500'
                 )}
               >
-                {majorValue === '' ? 'First Major' : majorValue}
+                {!majorValue ? 'First Major' : majorValue}
                 <FaChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
@@ -585,7 +603,7 @@ export default function SignUpRegister() {
               </Command>
             </PopoverContent>
           </Popover>
-          {majorValue === '' &&
+          {!majorValue &&
             focusedList[7] &&
             !majorOpen &&
             requiredMessage('Required')}
