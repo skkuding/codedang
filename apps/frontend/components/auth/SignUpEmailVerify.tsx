@@ -158,7 +158,7 @@ export default function SignUpEmailVerify() {
             type="email"
             className={cn(
               'focus-visible:ring-primary w-full focus-visible:ring-1',
-              `${(emailError || errors.email) && 'ring-1 ring-red-500'}`
+              (emailError || errors.email) && 'ring-1 ring-red-500'
             )}
             placeholder="example@g.skku.edu"
             {...register('email')}
@@ -191,7 +191,8 @@ export default function SignUpEmailVerify() {
             className={cn(
               'mt-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
               'focus-visible:ring-primary w-full focus-visible:ring-1',
-              `${(errors.verificationCode || expired || codeError) && 'ring-1 ring-red-500 focus-visible:ring-red-500'}`
+              (errors.verificationCode || expired || codeError) &&
+                'ring-1 ring-red-500 focus-visible:ring-red-500'
             )}
             placeholder="Verification Code"
             {...register('verificationCode', {
