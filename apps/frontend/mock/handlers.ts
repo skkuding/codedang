@@ -35,6 +35,7 @@ export const handlers = [
         headers: {
           authorization:
             'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3MjI5NDE5NzAsImV4cCI6MTcyMjk0Mzc3MCwiaXNzIjoic2trdWRpbmcuZGV2In0.irmggrLtvc6EroLYv-C4MHe96mDit1R6Wbf3W-wseiA',
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           'set-cookie':
             'refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3MjI5NDE5NzAsImV4cCI6MTcyMzAyODM3MCwiaXNzIjoic2trdWRpbmcuZGV2In0.BdV0hk0r_1bVIdxKyer8kzZzhSS_k4d8zvTnD28Jpy0; Max-Age=86400; Path=/api/auth/reissue; Expires=Wed, 07 Aug 2024 10:59:30 GMT; HttpOnly; Secure; SameSite=None; Secure'
         }
@@ -49,6 +50,7 @@ export const handlers = [
         headers: {
           authorization:
             'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3MjI5NDE5NzAsImV4cCI6MTcyMjk0Mzc3MCwiaXNzIjoic2trdWRpbmcuZGV2In0.irmggrLtvc6EroLYv-C4MHe96mDit1R6Wbf3W-wseiAds',
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           'set-cookie':
             'refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3MjI5NDE5NzAsImV4cCI6MTcyMzAyODM3MCwiaXNzIjoic2trdWRpbmcuZGV2In0.BdV0hk0r_1bVIdxKyer8kzZzhSS_k4d8zvTnD28Jpy0; Max-Age=86400; Path=/api/auth/reissue; Expires=Wed, 07 Aug 2024 10:59:30 GMT; HttpOnly; Secure; SameSite=None; Secure'
         }

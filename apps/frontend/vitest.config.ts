@@ -8,6 +8,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
     env: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       NEXT_PUBLIC_BASEURL: 'https://test.com/api'
     }
   },
