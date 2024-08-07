@@ -109,7 +109,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   async updateTestcaseJudgeResult(
     submissionResult: Partial<SubmissionResult> &
       Pick<SubmissionResult, 'result' | 'submissionId'>
-  ) {
+  ): Promise<void> {
     // TODO: submission의 값들이 아닌 submissionResult의 id 값으로 접근할 수 있도록 수정
     const { id } = await this.prisma.submissionResult.findFirstOrThrow({
       where: {
@@ -193,7 +193,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       'problemId' | 'contestId' | 'userId' | 'updateTime'
     >,
     isAccepted: boolean
-  ) {
+  ): Promise<void> {
     const contestId = submission.contestId!
     const userId = submission.userId!
 
