@@ -174,7 +174,27 @@ describe('SubmissionSubscriptionService', () => {
       ).to.be.true
     })
 
-    it('should update submissionResult and throw errors when server error', async () => {
+    it('should call handleJudgeError when CompileError or ServerError detected', async () => {
+      const handlerSpy = sandbox.stub(service, 'handleJudgeError').resolves()
+
+      const serverErrMsg = {
+        resultCode: 8,
+        submissionId: 1,
+        error: '',
+        judgeResult
+      }
+
+      await service.handleJudgerMessage(serverErrMsg)
+      expect(handlerSpy.calledOnceWith(ResultStatus.ServerError, serverErrMsg))
+        .to.be.true
+    })
+  })
+
+  describe('handleJudgeError', () => {
+    it('should handle ServerError', async () => {
+      const findSpy = sandbox
+        .stub(db.submission, 'findUnique')
+        .resolves(submissions[0])
       const updateSpy = sandbox.stub(db.submission, 'update').resolves()
       const updateManySpy = sandbox
         .stub(db.submissionResult, 'updateMany')
@@ -187,8 +207,20 @@ describe('SubmissionSubscriptionService', () => {
       }
 
       await expect(
-        service.handleJudgerMessage(serverErrMsg)
+        service.handleJudgeError(ResultStatus.ServerError, serverErrMsg)
       ).to.be.rejectedWith(UnprocessableDataException)
+
+      expect(
+        findSpy.calledOnceWith({
+          where: {
+            id: serverErrMsg.submissionId,
+            result: ResultStatus.Judging
+          },
+          select: {
+            id: true
+          }
+        })
+      ).to.be.true
       expect(
         updateSpy.calledOnceWith({
           where: {
@@ -209,6 +241,67 @@ describe('SubmissionSubscriptionService', () => {
           }
         })
       ).to.be.true
+    })
+
+    it('should handle CompileError', async () => {
+      const findSpy = sandbox
+        .stub(db.submission, 'findUnique')
+        .resolves(submissions[0])
+      const updateSpy = sandbox.stub(db.submission, 'update').resolves()
+      const updateManySpy = sandbox
+        .stub(db.submissionResult, 'updateMany')
+        .resolves()
+      const serverErrMsg = {
+        resultCode: 6,
+        submissionId: 1,
+        error: '',
+        judgeResult
+      }
+
+      await service.handleJudgeError(ResultStatus.CompileError, serverErrMsg)
+
+      expect(
+        findSpy.calledOnceWith({
+          where: {
+            id: serverErrMsg.submissionId,
+            result: ResultStatus.Judging
+          },
+          select: {
+            id: true
+          }
+        })
+      ).to.be.true
+      expect(
+        updateSpy.calledOnceWith({
+          where: {
+            id: serverErrMsg.submissionId
+          },
+          data: {
+            result: ResultStatus.CompileError
+          }
+        })
+      ).to.be.true
+      expect(
+        updateManySpy.calledOnceWith({
+          where: {
+            submissionId: serverErrMsg.submissionId
+          },
+          data: {
+            result: ResultStatus.CompileError
+          }
+        })
+      ).to.be.true
+    })
+
+    it('should return when already handled error arrived', async () => {
+      sandbox.stub(db.submission, 'findUnique').resolves(undefined)
+      const updateSpy = sandbox.stub(db.submission, 'update').resolves()
+      const updateManySpy = sandbox
+        .stub(db.submissionResult, 'updateMany')
+        .resolves()
+
+      expect(updateSpy.notCalled).to.be.true
+      expect(updateManySpy.notCalled).to.be.true
     })
   })
 

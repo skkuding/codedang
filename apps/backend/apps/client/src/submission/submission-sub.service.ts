@@ -70,39 +70,67 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
   @Span()
   async handleJudgerMessage(msg: JudgerResponse): Promise<void> {
-    if (Status(msg.resultCode) === ResultStatus.ServerError) {
-      await this.prisma.submission.update({
-        where: {
-          id: msg.submissionId
-        },
-        data: {
-          result: ResultStatus.ServerError
-        }
-      })
+    const status = Status(msg.resultCode)
 
-      await this.prisma.submissionResult.updateMany({
-        where: {
-          submissionId: msg.submissionId
-        },
-        data: {
-          result: ResultStatus.ServerError
-        }
-      })
-
-      throw new UnprocessableDataException(
-        `${msg.submissionId} ${msg.error} ${msg.judgeResult}`
-      )
+    if (
+      status === ResultStatus.ServerError ||
+      status === ResultStatus.CompileError
+    ) {
+      await this.handleJudgeError(status, msg)
+      return
     }
 
     const submissionResult = {
       submissionId: msg.submissionId,
       problemTestcaseId: parseInt(msg.judgeResult.testcaseId.split(':')[1], 10),
-      result: Status(msg.judgeResult.resultCode),
+      result: status,
       cpuTime: BigInt(msg.judgeResult.cpuTime),
       memoryUsage: msg.judgeResult.memory
     }
 
     await this.updateTestcaseJudgeResult(submissionResult)
+  }
+
+  @Span()
+  async handleJudgeError(
+    status: ResultStatus,
+    msg: JudgerResponse
+  ): Promise<void> {
+    const submission = await this.prisma.submission.findUnique({
+      where: {
+        id: msg.submissionId,
+        result: ResultStatus.Judging
+      },
+      select: {
+        id: true
+      }
+    })
+
+    // 이미 처리한 채점 예외에 대해서는 중복으로 처리하지 않음
+    if (!submission) return
+
+    await this.prisma.submission.update({
+      where: {
+        id: msg.submissionId
+      },
+      data: {
+        result: status
+      }
+    })
+
+    await this.prisma.submissionResult.updateMany({
+      where: {
+        submissionId: msg.submissionId
+      },
+      data: {
+        result: status
+      }
+    })
+
+    if (status === ResultStatus.ServerError)
+      throw new UnprocessableDataException(
+        `${msg.submissionId} ${msg.error} ${msg.judgeResult}`
+      )
   }
 
   @Span()
