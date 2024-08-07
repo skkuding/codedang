@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import type { Submission } from '@prisma/client'
 import { Span, TraceService } from 'nestjs-otel'
@@ -10,8 +10,6 @@ import { JudgeRequest } from './class/judge-request'
 
 @Injectable()
 export class SubmissionPublicationService {
-  private readonly logger = new Logger(SubmissionPublicationService.name)
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly amqpConnection: AmqpConnection,
