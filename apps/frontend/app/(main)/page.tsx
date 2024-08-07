@@ -61,7 +61,7 @@ export default function Home() {
       <div className="flex w-full flex-col gap-6">
         <div className="flex w-full items-center justify-between text-gray-700">
           <p className="text-2xl font-bold">Contest 🏆</p>
-          <Link href={'/problem' as Route}>
+          <Link href={'/contest' as Route}>
             <Button variant="ghost" className="h-8 px-3">
               See More
             </Button>
