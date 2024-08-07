@@ -56,7 +56,8 @@ const ongoingContests = [
     invitationCode: 'test',
     startTime: now.add(-1, 'day').toDate(),
     endTime: now.add(1, 'day').toDate(),
-    participants: 1
+    participants: 1,
+    enableCopyPaste: true
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -68,7 +69,8 @@ const upcomingContests = [
     invitationCode: 'test',
     startTime: now.add(1, 'day').toDate(),
     endTime: now.add(2, 'day').toDate(),
-    participants: 1
+    participants: 1,
+    enableCopyPaste: true
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -80,7 +82,8 @@ const finishedContests = [
     invitationCode: null,
     startTime: now.add(-2, 'day').toDate(),
     endTime: now.add(-1, 'day').toDate(),
-    participants: 1
+    participants: 1,
+    enableCopyPaste: true
   }
 ] satisfies Partial<ContestResult>[]
 

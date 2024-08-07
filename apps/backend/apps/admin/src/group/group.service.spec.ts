@@ -63,7 +63,9 @@ const user: User = {
   role: Role.Admin,
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
-  updateTime: faker.date.past()
+  updateTime: faker.date.past(),
+  studentId: '0000000000',
+  major: 'none'
 }
 
 const db = {

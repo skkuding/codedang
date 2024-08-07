@@ -1,6 +1,6 @@
 import { useFormContext, useController } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
-import ErrorMessage from './ErrorMessage'
+import ErrorMessage from '../../_components/ErrorMessage'
 
 export default function VisibleForm() {
   const {

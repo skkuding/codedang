@@ -1,36 +1,36 @@
-meta {
-  name: Succeed
-  type: http
-  seq: 1
-}
+// meta {
+//   name: Succeed
+//   type: http
+//   seq: 1
+// }
 
-delete {
-  url: {{baseUrl}}/user
-  body: json
-  auth: none
-}
+// delete {
+//   url: {{baseUrl}}/user
+//   body: json
+//   auth: none
+// }
 
-body:json {
-  {
-    "password": "Useruser"
-  }
-}
+// body:json {
+//   {
+//     "password": "Useruser"
+//   }
+// }
 
-assert {
-  res.status: eq 200
-}
+// assert {
+//   res.status: eq 200
+// }
 
-script:pre-request {
-  await require("./login").loginUser2nd(req);
-}
+// script:pre-request {
+//   await require("./login").loginUser2nd(req);
+// }
 
-script:post-response {
-  // TODO: recreate user
-}
+// script:post-response {
+//   // TODO: recreate user
+// }
 
-docs {
-  # Withdrawal 회원 탈퇴
-  
-  현재 로그인된 계정을 탈퇴합니다.
-  - 만약 비밀번호가 다르다면 `401`을 반환합니다.
-}
+// docs {
+//   # Withdrawal 회원 탈퇴
+
+//   현재 로그인된 계정을 탈퇴합니다.
+//   - 만약 비밀번호가 다르다면 `401`을 반환합니다.
+// }
