@@ -44,7 +44,7 @@ model User {
   password   String
   role       Role      @default(User)
   email      String    @unique
-  studentId  String?   @unique @default("0000000000") @map("student_id")
+  studentId  String?   @default("0000000000") @map("student_id")
   major      String?   @default("none")
   lastLogin  DateTime? @map("last_login")
   createTime DateTime  @default(now()) @map("create_time")
@@ -203,6 +203,8 @@ model Image {
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?
   createTime  DateTime @default(now()) @map("create_time")
+
+  @@map("image")
 }
 
 enum Level {
@@ -314,9 +316,9 @@ model ContestProblem {
 model Announcement {
   id         Int      @id @default(autoincrement())
   content    String
-  contest    Contest  @relation(fields: [contestId], references: [id])
+  contest    Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
   contestId  Int      @map("contest_id")
-  problem    Problem? @relation(fields: [problemId], references: [id])
+  problem    Problem? @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId  Int?     @map("problem_id")
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")

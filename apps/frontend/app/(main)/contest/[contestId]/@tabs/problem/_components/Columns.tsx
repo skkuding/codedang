@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge'
 import { convertToLetter } from '@/lib/utils'
-import type { ContestProblem } from '@/types/type'
+import type { ContestProblem, Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 
 export const columns: ColumnDef<ContestProblem>[] = [
@@ -26,17 +26,7 @@ export const columns: ColumnDef<ContestProblem>[] = [
     header: 'Level',
     accessorKey: 'difficulty',
     cell: ({ row }) => (
-      <Badge
-        className="rounded-md"
-        variant={
-          row.original.difficulty.toLowerCase() as
-            | 'level1'
-            | 'level2'
-            | 'level3'
-            | 'level4'
-            | 'level5'
-        }
-      >
+      <Badge className="rounded-md" variant={row.original.difficulty as Level}>
         {row.original.difficulty}
       </Badge>
     )
