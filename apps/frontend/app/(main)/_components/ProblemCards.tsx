@@ -17,7 +17,8 @@ const getProblems = async () => {
   const problemRes: ProblemCardsProps = await fetcher
     .get('problem', {
       searchParams: {
-        take: 3
+        take: 3,
+        order: 'submit-desc'
         // workbookId: 1
       }
     })
