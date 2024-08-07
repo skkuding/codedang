@@ -1,3 +1,4 @@
+import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
@@ -75,20 +76,26 @@ export default async function Contest({ searchParams }: ContestProps) {
           />
         </Suspense>
       </div>
-      <Suspense fallback={<FinishedContestTableFallback />}>
-        {session ? (
-          <TableSwitchButton />
-        ) : (
-          <p className="text-primary-light text-2xl font-bold md:text-2xl">
-            Finished
-          </p>
-        )}
-        {session && registered ? (
-          <RegisteredContestTable />
-        ) : (
-          <FinishedContestTable />
-        )}
-      </Suspense>
+      <div className="flex-col">
+        <h1 className="mb-6 text-2xl font-bold text-gray-700">
+          List of Contests
+        </h1>
+        <Suspense fallback={<FinishedContestTableFallback />}>
+          {session ? (
+            <TableSwitchButton />
+          ) : (
+            <p className="text-primary-light border-primary-light w-fit border-b-2 p-6 text-2xl font-semibold md:text-2xl">
+              Finished
+            </p>
+          )}
+          <Separator className="mb-10" />
+          {session && registered ? (
+            <RegisteredContestTable />
+          ) : (
+            <FinishedContestTable />
+          )}
+        </Suspense>
+      </div>
     </>
   )
 }
