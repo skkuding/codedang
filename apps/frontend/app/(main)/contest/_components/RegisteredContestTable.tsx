@@ -1,17 +1,25 @@
 import DataTable from '@/components/DataTable'
 import { fetcherWithAuth } from '@/lib/utils'
 import type { Contest } from '@/types/type'
+import { Search } from 'lucide-react'
 import { columns } from './RegisteredTableColumns'
 
 interface FinishedContestProps {
   data: Contest[]
 }
 
-const getOngoingUpcomingContests = async () => {
+const getOngoingUpcomingContests = async (search: string) => {
   const data: {
     registeredOngoing: Contest[]
     registeredUpcoming: Contest[]
-  } = await fetcherWithAuth.get('contest/registered-ongoing-upcoming').json()
+  } = await fetcherWithAuth
+    .get('contest/registered-ongoing-upcoming', {
+      searchParams: {
+        search,
+        take: '51'
+      }
+    })
+    .json()
   data.registeredOngoing.forEach((contest) => {
     contest.status = 'ongoing'
   })
@@ -21,11 +29,16 @@ const getOngoingUpcomingContests = async () => {
   return data.registeredOngoing.concat(data.registeredUpcoming)
 }
 
-const getFinishedContests = async () => {
-  const data = await getOngoingUpcomingContests()
+const getFinishedContests = async (search: string) => {
+  const data = await getOngoingUpcomingContests(search)
 
   const FinishedData: FinishedContestProps = await fetcherWithAuth
-    .get('contest/registered-finished?take=51')
+    .get('contest/registered-finished', {
+      searchParams: {
+        search,
+        take: '51'
+      }
+    })
     .json()
   FinishedData.data.forEach((contest) => {
     contest.status = 'finished'
@@ -33,8 +46,12 @@ const getFinishedContests = async () => {
   return data.concat(FinishedData.data)
 }
 
-export default async function RegisteredContestTable() {
-  const data = await getFinishedContests()
+export default async function RegisteredContestTable({
+  search
+}: {
+  search: string
+}) {
+  const data = await getFinishedContests(search)
 
   return (
     <>

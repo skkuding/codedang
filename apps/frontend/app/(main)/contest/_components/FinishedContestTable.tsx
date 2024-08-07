@@ -7,9 +7,18 @@ interface ContestProps {
   data: Contest[]
 }
 
-export default async function FinishedContestTable() {
+export default async function FinishedContestTable({
+  search
+}: {
+  search: string
+}) {
   const ContestData: ContestProps = await fetcher
-    .get('contest/finished?take=51')
+    .get('contest/finished', {
+      searchParams: {
+        search,
+        take: '51'
+      }
+    })
     .json()
 
   ContestData.data.forEach((contest) => {
@@ -18,7 +27,7 @@ export default async function FinishedContestTable() {
 
   return (
     <>
-      {/* TODO: Add search bar */}
+      {console.log(search)}
       <DataTable
         data={ContestData.data}
         columns={columns}
