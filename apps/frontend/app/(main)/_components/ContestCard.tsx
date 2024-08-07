@@ -3,12 +3,11 @@
 import { cn, dateFormatter } from '@/lib/utils'
 import CalendarIcon from '@/public/20_calendar.svg'
 import ClockIcon from '@/public/20_clock.svg'
-import OngoingIcon from '@/public/20_ongoing.svg'
-import UpcomingIcon from '@/public/20_upcoming.svg'
 import type { Contest } from '@/types/type'
 import Image from 'next/image'
 import { CircularProgressbar } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
+import StatusBadge from './StatusBadge'
 import TimeDiff from './TimeDiff'
 
 const bgVariants = {
@@ -47,18 +46,7 @@ export default function ContestCard({ contest }: Props) {
           txtVariants[contest.status]
         )}
       >
-        <div className="inline-flex items-center gap-2">
-          {contest.status.endsWith('going') ? (
-            <Image src={OngoingIcon} alt="Ongoing" />
-          ) : (
-            <Image src={UpcomingIcon} alt="Upcoming" />
-          )}
-          <p>
-            {contest.status.startsWith('registered')
-              ? 'registered'
-              : contest.status}
-          </p>
-        </div>
+        <StatusBadge variant={contest.status} />
         <div className="line-clamp-2 h-14 whitespace-pre-wrap text-lg font-semibold leading-tight text-black">
           {contest.title}
         </div>
