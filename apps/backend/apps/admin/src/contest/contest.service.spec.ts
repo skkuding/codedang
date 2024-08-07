@@ -41,7 +41,8 @@ const contest: Contest = {
   enableCopyPaste: true,
   createTime,
   updateTime,
-  invitationCode
+  invitationCode,
+  contestProblem: []
 }
 
 const contestWithCount = {
@@ -266,6 +267,7 @@ describe('ContestService', () => {
   describe('deleteContest', () => {
     it('should return deleted contest', async () => {
       db.contest.findFirst.resolves(contest)
+      db.contest.delete.resolves(contest)
 
       const res = await service.deleteContest(groupId, contestId)
       expect(res).to.deep.equal(contest)
