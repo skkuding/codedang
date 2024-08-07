@@ -40,7 +40,7 @@ export class SubmissionPublicationService {
     )
     span.setAttributes({ submissionId: submission.id })
 
-    this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
+    await this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
       messageId: String(submission.id),
       persistent: true,
       type: PUBLISH_TYPE

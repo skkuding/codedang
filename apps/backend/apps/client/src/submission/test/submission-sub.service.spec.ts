@@ -69,6 +69,9 @@ const db = {
   },
   contestProblem: {
     findFirstOrThrow: mockFunc
+  },
+  problem: {
+    update: mockFunc
   }
 }
 
@@ -102,7 +105,7 @@ describe('SubmissionSubscriptionService', () => {
     amqpConnection = module.get<AmqpConnection>(AmqpConnection)
   })
 
-  afterEach(async () => {
+  afterEach(() => {
     sandbox.restore()
   })
 
@@ -373,6 +376,51 @@ describe('SubmissionSubscriptionService', () => {
       ).to.be.true
       expect(findFirstSpy.notCalled).to.be.true
       expect(updateSpy.calledOnce).to.be.true
+    })
+  })
+
+  describe('updateProblemAccepted', () => {
+    it('should update submissionCount', async () => {
+      const updateSpy = sandbox.stub(db.problem, 'update').resolves()
+      const id = 1
+      const isAccepted = false
+
+      await service.updateProblemAccepted(id, isAccepted)
+      expect(
+        updateSpy.calledOnceWith({
+          where: {
+            id
+          },
+          data: {
+            submissionCount: {
+              increment: 1
+            }
+          }
+        })
+      ).to.be.true
+    })
+
+    it('should update submissionCount and acceptedCount', async () => {
+      const updateSpy = sandbox.stub(db.problem, 'update').resolves()
+      const id = 1
+      const isAccepted = true
+
+      await service.updateProblemAccepted(id, isAccepted)
+      expect(
+        updateSpy.calledOnceWith({
+          where: {
+            id
+          },
+          data: {
+            submissionCount: {
+              increment: 1
+            },
+            acceptedCount: {
+              increment: 1
+            }
+          }
+        })
+      ).to.be.true
     })
   })
 })
