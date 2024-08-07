@@ -372,7 +372,7 @@ export class ContestService {
     return contestProblems
   }
 
-  async getContestSubmissionSummaries(contestId: number, userId: number) {
+  async getContestSubmissionSummaryByUserId(contestId: number, userId: number) {
     const submissions = await this.prisma.submission.findMany({
       where: {
         userId,
@@ -386,7 +386,8 @@ export class ContestService {
         },
         user: {
           select: {
-            username: true
+            username: true,
+            studentId: true
           }
         }
       }
@@ -397,6 +398,8 @@ export class ContestService {
         return {
           contestId: submission.contestId,
           problemTitle: submission.problem.title,
+          username: submission.user?.username,
+          studentId: submission.user?.studentId,
           submissionResult: submission.result,
           language: submission.language,
           submissionTime: submission.createTime,

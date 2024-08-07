@@ -4,13 +4,19 @@ import { Language, ResultStatus } from '@admin/@generated'
 /**
  * 특정 User의 특정 Contest에 대한 Submission 정보 (!== model SubmissionResult)
  */
-@ObjectType({ description: 'contestSubmissionSummary' })
-export class ContestSubmissionSummary {
+@ObjectType({ description: 'ContestSubmissionSummaryForOne' })
+export class ContestSubmissionSummaryForOne {
   @Field(() => Int, { nullable: false })
   contestId: number
 
   @Field(() => String, { nullable: false })
   problemTitle: string
+
+  @Field(() => String, { nullable: false })
+  username: string
+
+  @Field(() => String, { nullable: false })
+  studentId: string
 
   @Field(() => ResultStatus, { nullable: false })
   submissionResult: ResultStatus // Accepted, RuntimeError, ...

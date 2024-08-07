@@ -150,7 +150,8 @@ const submissionsWithProblemTitleAndUsername = {
     title: 'submission'
   },
   user: {
-    username: 'user01'
+    username: 'user01',
+    studentId: '1234567890'
   }
 }
 
@@ -366,14 +367,16 @@ describe('ContestService', () => {
     })
   })
 
-  describe('getContestSubmissionSummaries', () => {
+  describe('getContestSubmissionSummaryByUserId', () => {
     it('should return contest submission summaries', async () => {
-      const res = await service.getContestSubmissionSummaries(1, 1)
+      const res = await service.getContestSubmissionSummaryByUserId(1, 1)
 
       expect(res).to.deep.equal([
         {
           contestId: 1,
           problemTitle: 'submission',
+          username: 'user01',
+          studentId: '1234567890',
           submissionResult: 'ACCEPTED',
           language: 'C',
           submissionTime: '2000-01-01',
