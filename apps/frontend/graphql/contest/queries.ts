@@ -5,6 +5,7 @@ const GET_CONTEST = gql(`
     getContest(contestId: $contestId) {
       id
       invitationCode
+      enableCopyPaste
       description
       endTime
       startTime

@@ -38,6 +38,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [prevProblemIds, setPrevProblemIds] = useState<number[]>([])
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [enableCopyPaste, setEnableCopyPaste] = useState<boolean>(false)
   const [showInvitationCode, setShowInvitationCode] = useState<boolean>(false)
   const { id } = params
 
@@ -74,6 +75,9 @@ export default function Page({ params }: { params: { id: string } }) {
         if (contestFormData.invitationCode) {
           setShowInvitationCode(true)
         }
+        if (contestFormData.enableCopyPaste) {
+          setEnableCopyPaste(true)
+        }
       } else {
         const data = contestData.getContest
         setValue('title', data.title)
@@ -81,8 +85,12 @@ export default function Page({ params }: { params: { id: string } }) {
         setValue('startTime', new Date(data.startTime))
         setValue('endTime', new Date(data.endTime))
         setValue('invitationCode', data.invitationCode)
+        setValue('enableCopyPaste', data.enableCopyPaste)
         if (data.invitationCode) {
           setShowInvitationCode(true)
+        }
+        if (data.enableCopyPaste) {
+          setEnableCopyPaste(true)
         }
       }
       setIsLoading(false)
@@ -249,6 +257,18 @@ export default function Page({ params }: { params: { id: string } }) {
               )}
             </FormSection>
             <SwitchField
+              name="enableCopyPaste"
+              title="Disable participants from Copy/Pasting"
+              type={null}
+              hasValue={enableCopyPaste}
+            />
+            <SwitchField
+              name="hideScore"
+              title="Hide scores from participants"
+              type={null}
+            />
+            {/* TODO: hide score api 적용 */}
+            <SwitchField
               name="invitationCode"
               title="Invitation Code"
               type="number"
@@ -256,8 +276,8 @@ export default function Page({ params }: { params: { id: string } }) {
               placeholder="Enter a invitation code"
               hasValue={showInvitationCode}
             />
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center justify-between">
+            <div className="mt-[-20px] flex flex-col gap-1">
+              <div className="relative top-[42px] mr-16 flex items-center justify-between">
                 <ContestProblemListLabel />
                 <ImportProblemButton
                   disabled={isLoading}
@@ -270,7 +290,6 @@ export default function Page({ params }: { params: { id: string } }) {
                 columns={columns as any[]}
                 data={problems as ContestProblem[]}
                 enableDelete={true}
-                enableSearch={true}
               />
             </div>
             <Button

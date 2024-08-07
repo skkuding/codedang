@@ -3,7 +3,7 @@ import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { useEffect, useState } from 'react'
-import { useFormContext } from 'react-hook-form'
+import { useController, useFormContext } from 'react-hook-form'
 import { inputStyle } from '../utils'
 import Label from './Label'
 
@@ -25,11 +25,12 @@ export default function SwitchField({
   hasValue = false
 }: SwitchFieldProps) {
   const [isEnabled, setIsEnabled] = useState(false)
-  const {
-    register,
-    setValue,
-    formState: { errors }
-  } = useFormContext()
+  const { register, control, setValue } = useFormContext()
+
+  const { field } = useController({
+    name,
+    control
+  })
 
   useEffect(() => {
     setIsEnabled(hasValue)
@@ -40,9 +41,10 @@ export default function SwitchField({
       <div className="flex items-center gap-2">
         <Label required={false}>{title}</Label>
         <Switch
-          onCheckedChange={() => {
+          onCheckedChange={(e) => {
             setIsEnabled(!isEnabled)
             setValue(name, name === 'invitationCode' ? null : '')
+            !type && field.onChange(e)
           }}
           checked={isEnabled}
           className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"

@@ -48,7 +48,12 @@ export default function Page() {
     }
   })
 
-  const { handleSubmit, getValues, setValue } = methods
+  const {
+    handleSubmit,
+    getValues,
+    setValue,
+    formState: { errors }
+  } = methods
 
   const [createContest, { error }] = useMutation(CREATE_CONTEST)
   const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
