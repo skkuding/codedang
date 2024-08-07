@@ -8,7 +8,7 @@ resource "aws_s3_bucket" "testcase" {
 
 data "aws_eip" "nat" {
   tags = {
-    Name = "Codedang-NatEIP"
+    Name = "Codedang-NAT-Instance"
   }
 }
 
