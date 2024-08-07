@@ -61,7 +61,9 @@ const db = {
     update: mockFunc
   },
   submissionResult: {
-    updateMany: mockFunc
+    findFirstOrThrow: mockFunc,
+    updateMany: mockFunc,
+    update: mockFunc
   },
   contestRecord: {
     findUniqueOrThrow: mockFunc,
@@ -469,6 +471,50 @@ describe('SubmissionSubscriptionService', () => {
       ).to.be.true
       expect(findFirstSpy.notCalled).to.be.true
       expect(updateSpy.calledOnce).to.be.true
+    })
+  })
+
+  describe('updateTestcaseJudgeResult', () => {
+    it('should resolves', async () => {
+      const findSpy = sandbox
+        .stub(db.submissionResult, 'findFirstOrThrow')
+        .resolves(submissionResults[0])
+      const updateSpy = sandbox.stub(db.submissionResult, 'update').resolves()
+      const updateSubmissionResultSpy = sandbox
+        .stub(service, 'updateSubmissionResult')
+        .resolves()
+
+      await service.updateTestcaseJudgeResult(submissionResults[0])
+
+      expect(
+        findSpy.calledOnceWith({
+          where: {
+            submissionId: submissionResults[0].submissionId,
+            problemTestcaseId: submissionResults[0].problemTestcaseId
+          },
+
+          select: {
+            id: true
+          }
+        })
+      ).to.be.true
+      expect(
+        updateSpy.calledOnceWith({
+          where: {
+            id: submissionResults[0].id
+          },
+          data: {
+            result: submissionResults[0].result,
+            cpuTime: submissionResults[0].cpuTime,
+            memoryUsage: submissionResults[0].memoryUsage
+          }
+        })
+      ).to.be.true
+      expect(
+        updateSubmissionResultSpy.calledOnceWith(
+          submissionResults[0].submissionId
+        )
+      ).to.be.true
     })
   })
 
