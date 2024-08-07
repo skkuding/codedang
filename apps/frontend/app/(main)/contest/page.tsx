@@ -84,11 +84,12 @@ export default async function Contest({ searchParams }: ContestProps) {
           {session ? (
             <TableSwitchButton />
           ) : (
-            <p className="text-primary-light border-primary-light w-fit border-b-2 p-6 text-2xl font-semibold md:text-2xl">
+            <p className="text-primary-light border-primary-light w-fit border-b-2 p-6 text-2xl font-bold md:text-2xl">
               Finished
             </p>
           )}
           <Separator className="mb-10" />
+
           {session && registered ? (
             <RegisteredContestTable />
           ) : (

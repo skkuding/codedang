@@ -13,9 +13,9 @@ export default function TableSwitchButton() {
       <Link
         href="/contest"
         className={cn(
-          'w-fit p-6 text-xl text-[#333333]/30 hover:text-[#333333]/50 md:text-2xl',
+          'w-fit p-6 text-xl font-medium text-[#333333]/30 hover:text-[#333333]/50 md:text-2xl',
           !registered
-            ? 'text-primary-light hover:text-primary-light border-primary-light border-b-2 font-semibold'
+            ? 'text-primary-light hover:text-primary-light border-primary-light border-b-2 font-bold'
             : ''
         )}
         scroll={false}
@@ -25,9 +25,9 @@ export default function TableSwitchButton() {
       <Link
         href="/contest?registered=true"
         className={cn(
-          'w-fit p-6 text-xl text-[#333333]/30 hover:text-[#333333]/50 md:text-2xl',
+          'w-fit p-6 text-xl font-medium text-[#333333]/30 hover:text-[#333333]/50 md:text-2xl',
           registered
-            ? 'text-primary-light hover:text-primary-light border-primary-light border-b-2 font-semibold'
+            ? 'text-primary-light hover:text-primary-light border-primary-light border-b-2 font-bold'
             : ''
         )}
         scroll={false}
