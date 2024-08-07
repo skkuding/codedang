@@ -12,7 +12,7 @@ interface SwitchFieldProps {
   title?: string
   placeholder?: string
   isInput?: boolean
-  type?: string
+  type?: string | null
   hasValue?: boolean
 }
 
@@ -25,7 +25,11 @@ export default function SwitchField({
   hasValue = false
 }: SwitchFieldProps) {
   const [isEnabled, setIsEnabled] = useState(false)
-  const { register, setValue } = useFormContext()
+  const {
+    register,
+    setValue,
+    formState: { errors }
+  } = useFormContext()
 
   useEffect(() => {
     setIsEnabled(hasValue)
@@ -41,10 +45,11 @@ export default function SwitchField({
             setValue(name, name === 'invitationCode' ? null : '')
           }}
           checked={isEnabled}
-          className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
+          className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
         />
       </div>
       {isEnabled &&
+        type &&
         (isInput ? (
           <Input
             id={name}

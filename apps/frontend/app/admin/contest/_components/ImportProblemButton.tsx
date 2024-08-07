@@ -25,7 +25,8 @@ export default function ImportProblemButton({
           startTime: getValues('startTime'),
           endTime: getValues('endTime'),
           description: getValues('description'),
-          invitationCode: getValues('invitationCode')
+          invitationCode: getValues('invitationCode'),
+          enableCopyPaste: getValues('enableCopyPaste')
         }
         if (isCreatePage) {
           localStorage.setItem('contestFormData', JSON.stringify(formData))

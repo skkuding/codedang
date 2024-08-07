@@ -35,6 +35,7 @@ export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isCreating, setIsCreating] = useState<boolean>(false)
+  const [enableCopyPaste, setEnableCopyPaste] = useState<boolean>(false)
   const [showInvitationCode, setShowInvitationCode] = useState<boolean>(false)
 
   const router = useRouter()
@@ -152,6 +153,10 @@ export default function Page() {
         setValue('invitationCode', contestFormData.invitationCode)
         setShowInvitationCode(true)
       }
+      if (contestFormData.enableCopyPaste) {
+        setValue('enableCopyPaste', contestFormData.enableCopyPaste)
+        setEnableCopyPaste(true)
+      }
     } else {
       setValue('description', ' ')
     }
@@ -179,7 +184,7 @@ export default function Page() {
         </div>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex w-[760px] flex-col gap-6"
+          className="flex w-[760px] flex-col gap-8"
         >
           <FormProvider {...methods}>
             <FormSection title="Title">
@@ -198,19 +203,28 @@ export default function Page() {
                 <DescriptionForm name="description" />
               )}
             </FormSection>
-            {getValues('invitationCode') && (
-              <SwitchField
-                name="invitationCode"
-                title="Invitation Code"
-                type="number"
-                isInput={true}
-                placeholder="Enter a invitation code"
-                hasValue={showInvitationCode}
-              />
-            )}
-
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center justify-between">
+            <SwitchField
+              name="enableCopyPaste"
+              title="Disable participants from Copy/Pasting"
+              type={null}
+              hasValue={enableCopyPaste}
+            />
+            <SwitchField
+              name="hideScore"
+              title="Hide scores from participants"
+              type={null}
+            />
+            {/* TODO: hide score api 적용 */}
+            <SwitchField
+              name="invitationCode"
+              title="Invitation Code"
+              type="number"
+              isInput={true}
+              placeholder="Enter a invitation code"
+              hasValue={showInvitationCode}
+            />
+            <div className="mt-[-20px] flex flex-col gap-1">
+              <div className="relative top-[42px] mr-16 flex items-center justify-between">
                 <ContestProblemListLabel />
                 <ImportProblemButton disabled={isLoading} isCreatePage={true} />
               </div>
@@ -219,7 +233,6 @@ export default function Page() {
                 columns={columns as any[]}
                 data={problems as ContestProblem[]}
                 enableDelete={true}
-                enableSearch={true}
               />
             </div>
             <Button
