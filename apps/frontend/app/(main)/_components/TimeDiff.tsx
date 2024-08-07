@@ -26,7 +26,7 @@ export default function TimeDiff({ timeRef }: Props) {
 
   return (
     <span suppressHydrationWarning>
-      D-{days} {hours + diff.format(':mm:ss')}
+      {days > 0 ? `${days} DAYS` : `${hours + diff.format(':mm:ss')}`}
     </span>
   )
 }
