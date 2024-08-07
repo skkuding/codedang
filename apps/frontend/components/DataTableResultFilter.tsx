@@ -17,17 +17,23 @@ import { Separator } from '@/components/ui/separator'
 import type { Column } from '@tanstack/react-table'
 import { IoFilter } from 'react-icons/io5'
 
-interface DataTableLevelFilterProps<TData, TValue> {
-  column?: Column<TData, TValue>
-  title?: string
-  options: string[]
+interface Option {
+  label: string
+  value: string
+  icon: JSX.Element
 }
 
-export default function DataTableLevelFilter<TData, TValue>({
+interface DataTableResultFilterProps<TData, TValue> {
+  column?: Column<TData, TValue>
+  title?: string
+  options: Option[]
+}
+
+export default function DataTableResultFilter<TData, TValue>({
   column,
   title,
   options
-}: DataTableLevelFilterProps<TData, TValue>) {
+}: DataTableResultFilterProps<TData, TValue>) {
   const selectedValues = new Set(column?.getFilterValue() as string)
 
   return (
@@ -54,14 +60,14 @@ export default function DataTableLevelFilter<TData, TValue>({
                 ) : (
                   <div className="flex space-x-1">
                     {options
-                      .filter((option) => selectedValues.has(option))
+                      .filter((option) => selectedValues.has(option.value))
                       .map((option) => (
                         <Badge
-                          key={option}
+                          key={option.value}
                           variant="secondary"
                           className="rounded-sm px-1 font-normal"
                         >
-                          Level {option.slice(-1)}
+                          {option.label}
                         </Badge>
                       ))}
                   </div>
@@ -72,20 +78,24 @@ export default function DataTableLevelFilter<TData, TValue>({
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-[115px] p-0" align="start">
+      <PopoverContent className="w-[140px] p-0" align="start">
         <Command>
           <CommandList>
-            <CommandEmpty>No level found.</CommandEmpty>
+            <CommandEmpty>No Result found.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => (
-                <CommandItem key={option} value={option} className="gap-x-2">
+                <CommandItem
+                  key={option.value}
+                  value={option.value}
+                  className="gap-x-2"
+                >
                   <Checkbox
-                    checked={selectedValues.has(option)}
+                    checked={selectedValues.has(option.value)}
                     onCheckedChange={() => {
-                      if (selectedValues.has(option)) {
-                        selectedValues.delete(option)
+                      if (selectedValues.has(option.value)) {
+                        selectedValues.delete(option.value)
                       } else {
-                        selectedValues.add(option)
+                        selectedValues.add(option.value)
                       }
                       const filterValues = Array.from(selectedValues)
                       column?.setFilterValue(
@@ -93,7 +103,10 @@ export default function DataTableLevelFilter<TData, TValue>({
                       )
                     }}
                   />
-                  Level {option.slice(-1)}
+                  <span className="flex items-center gap-x-1">
+                    {option.label}
+                    {option.icon}
+                  </span>
                 </CommandItem>
               ))}
             </CommandGroup>
