@@ -114,17 +114,65 @@ export class ContestService {
       where: {
         id: contest.id,
         groupId
+      },
+      select: {
+        startTime: true,
+        endTime: true,
+        contestProblem: {
+          select: {
+            problemId: true
+          }
+        }
       }
     })
     if (!contestFound) {
       throw new EntityNotExistException('contest')
     }
+    const isEndTimeChanged =
+      contest.endTime && contest.endTime !== contestFound.endTime
     contest.startTime = contest.startTime || contestFound.startTime
     contest.endTime = contest.endTime || contestFound.endTime
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
       )
+    }
+
+    const problemIds = contestFound.contestProblem.map(
+      (problem) => problem.problemId
+    )
+    if (problemIds.length && isEndTimeChanged) {
+      for (const problemId of problemIds) {
+        try {
+          await this.prisma.problem.update({
+            where: {
+              id: problemId,
+              OR: [
+                {
+                  visibleLockTime: {
+                    equals: MIN_DATE
+                  }
+                },
+                {
+                  visibleLockTime: {
+                    equals: MAX_DATE
+                  }
+                },
+                {
+                  visibleLockTime: {
+                    lte: contest.endTime
+                  }
+                }
+              ]
+            },
+            data: {
+              visibleLockTime: contest.endTime
+            }
+          })
+        } catch (error) {
+          continue
+        }
+      }
     }
 
     return await this.prisma.contest.update({

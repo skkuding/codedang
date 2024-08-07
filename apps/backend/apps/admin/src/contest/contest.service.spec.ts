@@ -251,6 +251,7 @@ describe('ContestService', () => {
 
   describe('updateContest', () => {
     it('should return updated contest', async () => {
+      db.contest.findFirst.resolves(contest)
       db.contest.update.resolves(contest)
 
       const res = await service.updateContest(groupId, updateInput)
