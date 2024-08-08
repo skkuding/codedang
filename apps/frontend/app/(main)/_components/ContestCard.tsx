@@ -61,6 +61,7 @@ export default function ContestCard({ contest }: Props) {
           <ContestStatusTimeDiff
             contest={contest}
             textStyle="text-xs text-gray-800"
+            makeToast={false}
           />
         </div>
         {(contest.status == 'ongoing' ||

@@ -10,15 +10,18 @@ import duration from 'dayjs/plugin/duration'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { useInterval } from 'react-use'
+import { toast } from 'sonner'
 
 dayjs.extend(duration)
 
 export default function ContestStatusTimeDiff({
   contest,
-  textStyle
+  textStyle,
+  makeToast
 }: {
   contest: Contest
   textStyle: string
+  makeToast: boolean
 }) {
   const [contestStatus, setContestStatus] = useState<
     ContestStatus | undefined | null
@@ -47,15 +50,28 @@ export default function ContestStatusTimeDiff({
 
     const diff = dayjs.duration(Math.abs(dayjs(timeRef).diff(now)))
     const days = Math.floor(diff.asDays())
-    const hours = Math.floor(diff.asHours()).toString().padStart(2, '0')
+    const hours = Math.floor(diff.asHours())
+    const hours_str = hours.toString().padStart(2, '0')
     const minutes = Math.floor(diff.asMinutes() % 60)
-      .toString()
-      .padStart(2, '0')
+    const minutes_str = minutes.toString().padStart(2, '0')
     const seconds = Math.floor(diff.asSeconds() % 60)
-      .toString()
-      .padStart(2, '0')
+    const seconds_str = seconds.toString().padStart(2, '0')
+    if (makeToast) {
+      // TODO: to make sure user see this toast, user store should be implemented
+      if (days === 0 && hours === 0 && minutes === 5 && seconds === 0) {
+        toast.error('Contest ends in 5 minutes.')
+      }
+      if (days === 0 && hours === 0 && minutes === 1 && seconds === 0) {
+        toast.error('Contest ends in 1 minute.')
+      }
+    }
 
-    setTimeDiff({ days, hours, minutes, seconds })
+    setTimeDiff({
+      days,
+      hours: hours_str,
+      minutes: minutes_str,
+      seconds: seconds_str
+    })
   }
 
   useEffect(() => {
