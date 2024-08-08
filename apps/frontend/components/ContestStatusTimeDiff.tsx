@@ -84,7 +84,7 @@ export default function ContestStatusTimeDiff({
 
   if (inContestEditor && contestStatus === 'finished') {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-25 font-mono blur-md">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-25 font-mono backdrop-blur-md">
         <div className="text-center">
           <h1 className="mb-4 text-2xl font-bold">The contest has finished!</h1>
           <p className="mb-4">Click the button below to exit the page.</p>
