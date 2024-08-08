@@ -117,7 +117,7 @@ export default function ResetPassword() {
               )}
             </span>
           </div>
-          {inputFocus === 0 && (
+          {(inputFocus === 0 || errors.password) && (
             <div
               className={cn(
                 errors.password && getValues('password')
@@ -151,7 +151,7 @@ export default function ResetPassword() {
               type={passwordAgainShow ? 'text' : 'password'}
               onFocus={() => {
                 setInputFocus(1)
-                setFocusedList([focusedList[1], true])
+                setFocusedList([focusedList[0], true])
               }}
             />
             <span

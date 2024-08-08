@@ -18,7 +18,7 @@ const schema = z.object({
     .max(6, { message: 'Code must be 6 characters long' })
 })
 
-const timeLimit = 20
+const timeLimit = 300
 
 export default function ResetPasswordEmailVerify() {
   const [timer, setTimer] = useState(timeLimit)
@@ -40,6 +40,7 @@ export default function ResetPasswordEmailVerify() {
   const [emailVerified, setEmailVerified] = useState<boolean>(false)
   const [emailAuthToken, setEmailAuthToken] = useState<string>('')
   const [codeError, setCodeError] = useState<string>('')
+  const [inputFocused, setInputFocused] = useState<boolean>(false)
 
   useEffect(() => {
     if (!expired) {
@@ -102,7 +103,7 @@ export default function ResetPasswordEmailVerify() {
   const verifyCode = async () => {
     const { verificationCode } = getValues()
     await trigger('verificationCode')
-    if (!errors.verificationCode) {
+    if (!errors.verificationCode && !expired) {
       try {
         const response = await fetcher.post('email-auth/verify-pin', {
           json: {
@@ -116,7 +117,7 @@ export default function ResetPasswordEmailVerify() {
           setCodeError('')
           setEmailAuthToken(response.headers.get('email-auth') || '')
         } else {
-          setCodeError('Verification code is not valid!')
+          setCodeError('Verification code is not valid')
         }
       } catch {
         setCodeError('Email verification failed!')
@@ -138,11 +139,18 @@ export default function ResetPasswordEmailVerify() {
       </div>
       <Input
         type="number"
-        className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        className={cn(
+          '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+          inputFocused && 'ring-1 focus-visible:ring-1 disabled:ring-0',
+          errors.verificationCode || codeError
+            ? 'ring-red-500 focus-visible:ring-red-500'
+            : 'focus-visible:ring-primary'
+        )}
         placeholder="Verification Code"
         {...register('verificationCode', {
           onChange: () => verifyCode()
         })}
+        onFocus={() => setInputFocused(true)}
       />
       {!expired && !errors.verificationCode && !codeError && !emailVerified && (
         <p className="text-primary mt-1 text-xs">We&apos;ve sent an email</p>
@@ -164,7 +172,7 @@ export default function ResetPasswordEmailVerify() {
       {!expired ? (
         <Button
           type="submit"
-          className={cn('mb-8 mt-2 w-full', !emailVerified && 'bg-gray-400')}
+          className={cn('mb-8 mt-4 w-full', !emailVerified && 'bg-gray-400')}
           disabled={!emailVerified}
         >
           Next
@@ -172,7 +180,7 @@ export default function ResetPasswordEmailVerify() {
       ) : (
         <Button
           type="button"
-          className="mt-2 w-full font-semibold"
+          className="mt-4 w-full font-semibold"
           onClick={() => {
             sendEmail()
           }}

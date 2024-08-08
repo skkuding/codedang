@@ -105,14 +105,14 @@ export default function SignIn() {
           variant={'link'}
           className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
         >
-          Sign Up
+          Sign up
         </Button>
         <Button
           onClick={() => showRecoverAccount()}
           variant={'link'}
           className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
         >
-          Forgot ID/Password?
+          Forgot ID / password?
         </Button>
       </div>
     </div>

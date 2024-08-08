@@ -18,7 +18,9 @@ const schema = z.object({
 export default function FindUserId() {
   const [userId, setUserId] = useState<string>('')
   const [emailError, setEmailError] = useState<string>('')
+  const [wrongEmail, setWrongEmail] = useState<string>('')
   const [sentEmail, setSentEmail] = useState<boolean>(false)
+  const [inputFocused, setInputFocused] = useState<boolean>(false)
   const { nextModal, setFormData } = useRecoverAccountModalStore(
     (state) => state
   )
@@ -45,9 +47,13 @@ export default function FindUserId() {
       if (data.username) {
         setUserId(data.username)
         setEmailError('')
-      } else setEmailError('* No account confirmed with this email')
+      } else {
+        setEmailError('No account confirmed with this email')
+        setWrongEmail(email)
+      }
     } catch {
-      setEmailError('* No account confirmed with this email')
+      setEmailError('No account confirmed with this email')
+      setWrongEmail(email)
     }
   }
 
@@ -86,7 +92,7 @@ export default function FindUserId() {
     <>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex w-full flex-col gap-8 px-2"
+        className="flex w-full flex-col gap-6 px-2"
       >
         <div className="flex flex-col gap-1">
           <p className="text-primary mb-4 text-left font-mono text-xl font-bold">
@@ -95,16 +101,26 @@ export default function FindUserId() {
           <Input
             id="email"
             type="email"
+            className={cn(
+              inputFocused && 'ring-1 focus-visible:ring-1 disabled:ring-0',
+              errors.email || (emailError && getValues('email') == wrongEmail)
+                ? 'ring-red-500 focus-visible:ring-red-500'
+                : 'focus-visible:ring-primary'
+            )}
             placeholder="Email Address"
             {...register('email', {
               onChange: () => trigger('email')
             })}
+            onFocus={() => setInputFocused(true)}
+            onBlur={() => trigger('email')}
             disabled={!!userId}
           />
           {errors.email && (
             <p className="text-xs text-red-500">{errors.email?.message}</p>
           )}
-          <p className="text-xs text-red-500">{emailError}</p>
+          {emailError && getValues('email') == wrongEmail && (
+            <p className="text-xs text-red-500">{emailError}</p>
+          )}
           {userId && (
             <p className="mt-4 text-center text-sm text-gray-700">
               Your user ID is{' '}
@@ -118,12 +134,14 @@ export default function FindUserId() {
             <Button
               onClick={() => showSignIn()}
               type="button"
-              className="font-bold"
+              className="font-semibold"
             >
               Log in
             </Button>
           ) : (
-            <Button type="submit">Find User ID</Button>
+            <Button type="submit" className="font-semibold">
+              Find Your User ID
+            </Button>
           )}
           <Button
             type="button"
@@ -137,9 +155,9 @@ export default function FindUserId() {
                 })
             }}
             className={cn(
-              'border bg-white font-bold',
+              'border bg-white font-semibold',
               userId
-                ? 'border-primary text-primary'
+                ? 'border-primary text-primary hover:bg-blue-100'
                 : 'border-gray-300 text-gray-300'
             )}
             disabled={!userId}
@@ -154,7 +172,7 @@ export default function FindUserId() {
           variant={'link'}
           className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
         >
-          Register now
+          Sign up now
         </Button>
       </div>
     </>
