@@ -516,6 +516,9 @@ importers:
       react:
         specifier: ^18.3.1
         version: 18.3.1
+      react-circular-progressbar:
+        specifier: ^2.1.0
+        version: 2.1.0(react@18.3.1)
       react-day-picker:
         specifier: ^8.10.1
         version: 8.10.1(date-fns@3.6.0)(react@18.3.1)
@@ -8824,6 +8827,11 @@ packages:
   rc@1.2.8:
     resolution: {integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==}
     hasBin: true
+
+  react-circular-progressbar@2.1.0:
+    resolution: {integrity: sha512-xp4THTrod4aLpGy68FX/k1Q3nzrfHUjUe5v6FsdwXBl3YVMwgeXYQKDrku7n/D6qsJA9CuunarAboC2xCiKs1g==}
+    peerDependencies:
+      react: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
 
   react-day-picker@8.10.1:
     resolution: {integrity: sha512-TMx7fNbhLk15eqcMt+7Z7S2KF7mfTId/XJDjKE8f+IUcFn0l08/kI4FiYTL/0yuOLmEcbR4Fwe3GJf/NiiMnPA==}
@@ -20840,6 +20848,10 @@ snapshots:
       minimist: 1.2.8
       strip-json-comments: 2.0.1
     optional: true
+
+  react-circular-progressbar@2.1.0(react@18.3.1):
+    dependencies:
+      react: 18.3.1
 
   react-day-picker@8.10.1(date-fns@3.6.0)(react@18.3.1):
     dependencies:
