@@ -17,11 +17,11 @@ dayjs.extend(duration)
 export default function ContestStatusTimeDiff({
   contest,
   textStyle,
-  makeToast
+  inContestEditor
 }: {
   contest: Contest
   textStyle: string
-  makeToast: boolean
+  inContestEditor: boolean
 }) {
   const [contestStatus, setContestStatus] = useState<
     ContestStatus | undefined | null
@@ -50,14 +50,14 @@ export default function ContestStatusTimeDiff({
 
     const diff = dayjs.duration(Math.abs(dayjs(timeRef).diff(now)))
     const days = Math.floor(diff.asDays())
-    const hours = Math.floor(diff.asHours())
+    const hours = Math.floor(diff.asHours() % 24)
     const hours_str = hours.toString().padStart(2, '0')
     const minutes = Math.floor(diff.asMinutes() % 60)
     const minutes_str = minutes.toString().padStart(2, '0')
     const seconds = Math.floor(diff.asSeconds() % 60)
     const seconds_str = seconds.toString().padStart(2, '0')
-    if (makeToast) {
-      // TODO: to make sure user see this toast, user store should be implemented
+
+    if (inContestEditor) {
       if (days === 0 && hours === 0 && minutes === 5 && seconds === 0) {
         toast.error('Contest ends in 5 minutes.')
       }
@@ -81,6 +81,28 @@ export default function ContestStatusTimeDiff({
   useInterval(() => {
     updateContestStatus()
   }, 1000)
+
+  if (inContestEditor && contestStatus === 'finished') {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-25 font-mono blur-md">
+        <div className="text-center">
+          <h1 className="mb-4 text-2xl font-bold">The contest has finished!</h1>
+          <p className="mb-4">Click the button below to exit the page.</p>
+          <p className="mb-4">
+            The scoring results may not be released immediately.
+          </p>
+          <button
+            className="rounded bg-blue-600 px-4 py-2 text-white"
+            onClick={() => {
+              window.location.href = '/'
+            }}
+          >
+            Exit
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div

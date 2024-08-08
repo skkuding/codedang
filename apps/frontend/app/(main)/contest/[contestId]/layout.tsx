@@ -30,7 +30,7 @@ export default async function Layout({
           <ContestStatusTimeDiff
             contest={contest}
             textStyle="text-gray-500"
-            makeToast={false}
+            inContestEditor={false}
           />
         </header>
         <ContestTabs contestId={contestId} />
