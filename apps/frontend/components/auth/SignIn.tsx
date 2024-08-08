@@ -51,20 +51,32 @@ export default function SignIn() {
   return (
     <div className="flex h-full w-full flex-col justify-between">
       <div className="flex justify-center pt-4">
-        <Image src={CodedangLogo} alt="코드당" height={64} />
+        <Image
+          className="absolute top-4"
+          src={CodedangLogo}
+          alt="codedang"
+          width={100}
+        />
       </div>
       <div className="flex flex-col gap-4">
         <form
-          className="flex w-full flex-col gap-3"
+          className="flex w-full flex-col gap-4"
           onSubmit={handleSubmit(onSubmit)}
         >
+          <p className="text-primary mb-4 text-left font-mono text-xl font-bold">
+            Log in
+          </p>
           <Input placeholder="User ID" type="text" {...register('username')} />
           <Input
             placeholder="Password"
             type="password"
             {...register('password')}
           />
-          <Button className="w-full" type="submit" disabled={disableButton}>
+          <Button
+            className="mt-2 w-full"
+            type="submit"
+            disabled={disableButton}
+          >
             Log In
           </Button>
         </form>

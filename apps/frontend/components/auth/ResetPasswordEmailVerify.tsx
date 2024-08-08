@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input'
 import { cn, fetcher } from '@/lib/utils'
 import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -18,7 +18,13 @@ const schema = z.object({
     .max(6, { message: 'Code must be 6 characters long' })
 })
 
+const timeLimit = 20
+
 export default function ResetPasswordEmailVerify() {
+  const [timer, setTimer] = useState(timeLimit)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const previousTimeRef = useRef(Date.now())
+  const [expired, setExpired] = useState(false)
   const { nextModal, formData, setFormData } = useRecoverAccountModalStore(
     (state) => state
   )
@@ -35,6 +41,39 @@ export default function ResetPasswordEmailVerify() {
   const [emailAuthToken, setEmailAuthToken] = useState<string>('')
   const [codeError, setCodeError] = useState<string>('')
 
+  useEffect(() => {
+    if (!expired) {
+      previousTimeRef.current = Date.now()
+      intervalRef.current = setInterval(() => {
+        const currentTime = Date.now()
+        const elapsedTime = (currentTime - previousTimeRef.current) / 1000
+        previousTimeRef.current = currentTime
+
+        setTimer((prevTimer) => {
+          const updatedTimer = Math.max(prevTimer - Math.round(elapsedTime), 0)
+          if (updatedTimer === 0) {
+            setExpired(true)
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current)
+            }
+          }
+          return updatedTimer
+        })
+      }, 1000)
+    }
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [expired])
+
+  const formatTimer = () => {
+    const minutes = Math.floor(timer / 60)
+    const seconds = timer % 60
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
+  }
+
   const onSubmit = (data: EmailVerifyInput) => {
     setFormData({
       email: formData.email,
@@ -45,6 +84,21 @@ export default function ResetPasswordEmailVerify() {
     })
     nextModal()
   }
+
+  const sendEmail = async () => {
+    const email = formData.email
+    await fetcher
+      .post('email-auth/send-email/password-reset', {
+        json: { email }
+      })
+      .then((res) => {
+        if (res.status === 201) {
+          setExpired(false)
+          setTimer(timeLimit)
+        }
+      })
+  }
+
   const verifyCode = async () => {
     const { verificationCode } = getValues()
     await trigger('verificationCode')
@@ -75,11 +129,12 @@ export default function ResetPasswordEmailVerify() {
       onSubmit={handleSubmit(onSubmit)}
       className="flex w-full flex-col gap-1 px-2"
     >
-      <p className="text-primary mb-4 text-left text-xl font-bold">
+      <p className="text-primary mb-4 text-left font-mono text-xl font-bold">
         Reset Password
       </p>
-      <div className="text-sm font-semibold text-gray-500">
-        {formData.email}
+      <div className="flex justify-between">
+        <div className="text-sm text-black">{formData.email}</div>
+        {!expired && <p className="text-red-500">{formatTimer()}</p>}
       </div>
       <Input
         type="number"
@@ -89,19 +144,42 @@ export default function ResetPasswordEmailVerify() {
           onChange: () => verifyCode()
         })}
       />
-      <p className="text-xs text-red-500">
-        {errors.verificationCode ? errors.verificationCode?.message : codeError}
-      </p>
-      {!errors.verificationCode && codeError === '' && !emailVerified && (
-        <p className="text-primary text-xs">We&apos;ve sent an email!</p>
+      {!expired && !errors.verificationCode && !codeError && !emailVerified && (
+        <p className="text-primary mt-1 text-xs">We&apos;ve sent an email</p>
       )}
-      <Button
-        type="submit"
-        className={cn('mb-8 mt-2 w-full', !emailVerified && 'bg-gray-400')}
-        disabled={!emailVerified}
-      >
-        Next
-      </Button>
+      {expired && (
+        <p className="mt-1 text-xs text-red-500">
+          Verification code expired
+          <br />
+          Please resend an email and try again
+        </p>
+      )}
+      {!expired && (
+        <p className="mt-1 text-xs text-red-500">
+          {errors.verificationCode
+            ? errors.verificationCode?.message
+            : codeError}
+        </p>
+      )}
+      {!expired ? (
+        <Button
+          type="submit"
+          className={cn('mb-8 mt-2 w-full', !emailVerified && 'bg-gray-400')}
+          disabled={!emailVerified}
+        >
+          Next
+        </Button>
+      ) : (
+        <Button
+          type="button"
+          className="mt-2 w-full font-semibold"
+          onClick={() => {
+            sendEmail()
+          }}
+        >
+          Resend Email
+        </Button>
+      )}
     </form>
   )
 }

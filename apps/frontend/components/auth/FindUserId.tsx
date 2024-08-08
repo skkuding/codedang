@@ -89,7 +89,7 @@ export default function FindUserId() {
         className="flex w-full flex-col gap-8 px-2"
       >
         <div className="flex flex-col gap-1">
-          <p className="text-primary mb-4 text-left text-xl font-bold">
+          <p className="text-primary mb-4 text-left font-mono text-xl font-bold">
             Find User ID
           </p>
           <Input
@@ -105,20 +105,21 @@ export default function FindUserId() {
             <p className="text-xs text-red-500">{errors.email?.message}</p>
           )}
           <p className="text-xs text-red-500">{emailError}</p>
-          {userId ? (
-            <p className="text-center text-sm text-gray-500">
-              your User ID is <span className="text-primary">{userId}</span>
-            </p>
-          ) : (
-            <p className="text-center text-sm text-gray-300">
-              your User ID is ___________
+          {userId && (
+            <p className="mt-4 text-center text-sm text-gray-700">
+              Your user ID is{' '}
+              <span className="text-primary font-bold">{userId}</span>
             </p>
           )}
         </div>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
           {userId ? (
-            <Button onClick={() => showSignIn()} type="button">
+            <Button
+              onClick={() => showSignIn()}
+              type="button"
+              className="font-bold"
+            >
               Log in
             </Button>
           ) : (
@@ -135,7 +136,12 @@ export default function FindUserId() {
                   console.log('error')
                 })
             }}
-            className={cn(!userId && 'bg-gray-400')}
+            className={cn(
+              'border bg-white font-bold',
+              userId
+                ? 'border-primary text-primary'
+                : 'border-gray-300 text-gray-300'
+            )}
             disabled={!userId}
           >
             Reset Password
