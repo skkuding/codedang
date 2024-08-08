@@ -33,23 +33,14 @@ func SandboxResultCodeToJudgeResultCode(code sandbox.ResultCode) JudgeResultCode
 
 func ParseError(j JudgeResult) error {
 	if j.ResultCode != ACCEPTED {
-		return resultCodeToError(j.ResultCode)
-	}
-	return nil
-}
-
-func ParseFirstError(j []JudgeResult) error {
-	for _, res := range j {
-		if res.ResultCode != ACCEPTED {
-			// TODO : Customizing Results
-			if res.Signal == 11 && res.ResultCode != MEMORY_LIMIT_EXCEEDED {
-				return resultCodeToError(SEGMENATION_FAULT)
-			}
-			if res.RealTime >= 2000 && res.Signal == 9 && res.ResultCode == RUNTIME_ERROR {
-				return resultCodeToError(REAL_TIME_LIMIT_EXCEEDED)
-			}
-			return resultCodeToError(res.ResultCode)
+		// TODO : Customizing Results
+		if j.Signal == 11 && j.ResultCode != MEMORY_LIMIT_EXCEEDED {
+			return resultCodeToError(SEGMENATION_FAULT)
 		}
+		if j.RealTime >= 2000 && j.Signal == 9 && j.ResultCode == RUNTIME_ERROR {
+			return resultCodeToError(REAL_TIME_LIMIT_EXCEEDED)
+		}
+		return resultCodeToError(j.ResultCode)
 	}
 	return nil
 }
