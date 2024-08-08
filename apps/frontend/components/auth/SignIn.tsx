@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 // import { Separator } from '@/components/ui/separator'
 import CodedangLogo from '@/public/codedang.svg'
 // import KakaotalkLogo from '@/public/kakaotalk.svg'
@@ -25,7 +26,7 @@ export default function SignIn() {
   const [disableButton, setDisableButton] = useState(false)
   const { showSignUp, showRecoverAccount } = useAuthModalStore((state) => state)
   const router = useRouter()
-  const { register, handleSubmit } = useForm<Inputs>()
+  const { register, handleSubmit, watch } = useForm<Inputs>()
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setDisableButton(true)
     try {
@@ -70,13 +71,19 @@ export default function SignIn() {
             placeholder="User ID"
             type="text"
             {...register('username')}
-            className="focus-visible:ring-1"
+            className={cn(
+              'focus-visible:ring-1',
+              watch('username') && 'ring-primary ring-1'
+            )}
           />
           <Input
             placeholder="Password"
             type="password"
             {...register('password')}
-            className="focus-visible:ring-1"
+            className={cn(
+              'focus-visible:ring-1',
+              watch('password') && 'ring-primary ring-1'
+            )}
           />
           <Button
             className="mt-2 w-full"
