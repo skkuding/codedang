@@ -27,7 +27,11 @@ export default async function Layout({
           <h2 className="break-words text-2xl font-extrabold">
             {contest?.title}
           </h2>
-          <ContestStatusTimeDiff contest={contest} textStyle="text-gray-500" />
+          <ContestStatusTimeDiff
+            contest={contest}
+            textStyle="text-gray-500"
+            makeToast={false}
+          />
         </header>
         <ContestTabs contestId={contestId} />
         {tabs}
