@@ -90,6 +90,7 @@ const mockContest: Contest = {
   createTime: new Date(),
   updateTime: new Date()
 }
+const USERIP = '127.0.0.1'
 
 describe('SubmissionService', () => {
   let service: SubmissionService
@@ -133,6 +134,7 @@ describe('SubmissionService', () => {
 
       await service.submitToProblem(
         submissionDto,
+        USERIP,
         submissions[0].userId,
         problems[0].groupId
       )
@@ -148,6 +150,7 @@ describe('SubmissionService', () => {
       await expect(
         service.submitToProblem(
           submissionDto,
+          USERIP,
           submissions[0].userId,
           problems[0].groupId
         )
@@ -171,6 +174,7 @@ describe('SubmissionService', () => {
 
       await service.submitToContest(
         submissionDto,
+        USERIP,
         submissions[0].userId,
         problems[0].id,
         CONTEST_ID,
@@ -198,6 +202,7 @@ describe('SubmissionService', () => {
       await expect(
         service.submitToContest(
           submissionDto,
+          USERIP,
           submissions[0].userId,
           problems[0].id,
           CONTEST_ID,
@@ -215,6 +220,7 @@ describe('SubmissionService', () => {
 
       await service.submitToWorkbook(
         submissionDto,
+        USERIP,
         submissions[0].userId,
         problems[0].id,
         WORKBOOK_ID,
@@ -235,6 +241,7 @@ describe('SubmissionService', () => {
       await expect(
         service.submitToWorkbook(
           submissionDto,
+          USERIP,
           submissions[0].userId,
           problems[0].id,
           WORKBOOK_ID,
@@ -256,7 +263,8 @@ describe('SubmissionService', () => {
         await service.createSubmission(
           submissionDto,
           problems[0],
-          submissions[0].userId
+          submissions[0].userId,
+          USERIP
         )
       ).to.be.deep.equal(submissions[0])
       expect(createSpy.calledOnceWith(submissions[0])).to.be.true
@@ -280,6 +288,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { contestId: CONTEST_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
@@ -299,6 +308,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { contestId: CONTEST_ID }
         )
       ).to.be.rejectedWith(ConflictFoundException)
@@ -321,6 +331,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { workbookId: WORKBOOK_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
@@ -346,6 +357,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { contestId: CONTEST_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
@@ -365,6 +377,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { contestId: CONTEST_ID }
         )
       ).to.be.rejectedWith(ConflictFoundException)
@@ -386,6 +399,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { workbookId: WORKBOOK_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
@@ -402,7 +416,8 @@ describe('SubmissionService', () => {
         service.createSubmission(
           { ...submissionDto, language: Language.Python3 },
           problems[0],
-          submissions[0].userId
+          submissions[0].userId,
+          USERIP
         )
       ).to.be.rejectedWith(ConflictFoundException)
       expect(publishSpy.calledOnce).to.be.false
@@ -420,7 +435,8 @@ describe('SubmissionService', () => {
             code: plainToInstance(Snippet, submissions[1].code)
           },
           problems[0],
-          submissions[0].userId
+          submissions[0].userId,
+          USERIP
         )
       ).to.be.rejectedWith(ConflictFoundException)
       expect(validateSpy.returnValues[0]).to.be.false
