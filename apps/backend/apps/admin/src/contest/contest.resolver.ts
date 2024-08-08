@@ -14,8 +14,14 @@ import {
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
-import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
+import {
+  CursorValidationPipe,
+  GroupIDPipe,
+  IDValidationPipe,
+  RequiredIntPipe
+} from '@libs/pipe'
 import { ContestService } from './contest.service'
+import { ContestSubmissionSummaryForOne } from './model/contest-submission-summary-for-one.model'
 import { ContestWithParticipants } from './model/contest-with-participants.model'
 import { CreateContestInput } from './model/contest.input'
 import { UpdateContestInput } from './model/contest.input'
@@ -214,6 +220,23 @@ export class ContestResolver {
       if (error instanceof EntityNotExistException) {
         throw error.convert2HTTPException()
       }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  // TODO: 특정 User의 특정 Contest에 대한 점수만 요약해 불러오는 함수 필요
+  @Query(() => [ContestSubmissionSummaryForOne])
+  async getContestSubmissionSummaryByUserId(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args('userId', { type: () => Int }, IDValidationPipe) userId: number
+  ) {
+    try {
+      return await this.contestService.getContestSubmissionSummaryByUserId(
+        contestId,
+        userId
+      )
+    } catch (error) {
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
