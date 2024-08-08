@@ -4,8 +4,8 @@ import { RolesService } from '@libs/auth'
 import {
   SubmissionController,
   ContestSubmissionController
-} from './submission.controller'
-import { SubmissionService } from './submission.service'
+} from '../submission.controller'
+import { SubmissionService } from '../submission.service'
 
 describe('SubmissionController', () => {
   let controller: SubmissionController

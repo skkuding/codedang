@@ -1,6 +1,9 @@
 import { Language, ResultStatus } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
-import { type CreateSubmissionDto, Snippet } from '../dto/create-submission.dto'
+import {
+  Snippet,
+  type CreateSubmissionDto
+} from '../class/create-submission.dto'
 
 export const submissions = [
   {
