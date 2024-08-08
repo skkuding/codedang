@@ -66,11 +66,17 @@ export default function SignIn() {
           <p className="text-primary mb-4 text-left font-mono text-xl font-bold">
             Log in
           </p>
-          <Input placeholder="User ID" type="text" {...register('username')} />
+          <Input
+            placeholder="User ID"
+            type="text"
+            {...register('username')}
+            className="focus-visible:ring-1"
+          />
           <Input
             placeholder="Password"
             type="password"
             {...register('password')}
+            className="focus-visible:ring-1"
           />
           <Button
             className="mt-2 w-full"
