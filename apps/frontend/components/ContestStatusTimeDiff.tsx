@@ -8,6 +8,7 @@ import { ContestStatus } from '@/types/type'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
@@ -23,6 +24,7 @@ export default function ContestStatusTimeDiff({
   textStyle: string
   inContestEditor: boolean
 }) {
+  const router = useRouter()
   const [contestStatus, setContestStatus] = useState<
     ContestStatus | undefined | null
   >(contest.status)
@@ -94,7 +96,7 @@ export default function ContestStatusTimeDiff({
           <button
             className="rounded bg-blue-600 px-4 py-2 text-white"
             onClick={() => {
-              window.location.href = '/'
+              router.push(`/contest/${contest.id}`)
             }}
           >
             Exit
