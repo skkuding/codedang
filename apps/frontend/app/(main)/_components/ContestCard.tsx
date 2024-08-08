@@ -1,14 +1,13 @@
 'use client'
 
+import ContestStatusTimeDiff from '@/components/ContestStatusTimeDiff'
 import { cn, dateFormatter } from '@/lib/utils'
 import CalendarIcon from '@/public/20_calendar.svg'
-import ClockIcon from '@/public/20_clock.svg'
 import type { Contest } from '@/types/type'
 import Image from 'next/image'
 import { CircularProgressbar } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 import StatusBadge from './StatusBadge'
-import TimeDiff from './TimeDiff'
 
 const bgVariants = {
   ongoing: 'bg-gradient-to-b from-blue-100 to-white',
@@ -59,30 +58,15 @@ export default function ContestCard({ contest }: Props) {
               {startTime} ~ {endTime}
             </p>
           </div>
-
-          <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800 opacity-80">
-            {contest.status === 'finished' ? (
-              <>
-                <Image src={CalendarIcon} alt="Calendar" />
-                <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-                  {startTime} - {endTime}
-                </p>
-              </>
-            ) : (
-              <>
-                <Image src={ClockIcon} alt="Clock" />
-                {contest.status === 'ongoing' ? 'Ends in' : 'Starts in'}
-                <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-                  <TimeDiff timeRef={contest.endTime}></TimeDiff>
-                </p>
-              </>
-            )}
-          </div>
+          <ContestStatusTimeDiff
+            contest={contest}
+            textStyle="text-xs text-gray-800"
+          />
         </div>
         {(contest.status == 'ongoing' ||
           contest.status == 'registeredOngoing') && (
           <div className="h-12 w-12">
-            <CircularProgressbar value={60} text={`60%`} />
+            <CircularProgressbar value={60} text="60%" />
           </div>
         )}
       </div>
