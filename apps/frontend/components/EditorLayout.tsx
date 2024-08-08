@@ -91,7 +91,7 @@ export default async function EditorLayout({
           {contest ? (
             <ContestStatusTimeDiff
               contest={contest}
-              textStyle="text-base text-error"
+              textStyle="text-sm text-error"
             />
           ) : null}
           <HeaderAuthPanel session={session} group={'editor'} />
