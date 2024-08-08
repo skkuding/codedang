@@ -24,12 +24,17 @@ import { auth } from '@/lib/auth'
 import { fetcherWithAuth } from '@/lib/utils'
 import useAuthModalStore from '@/stores/authModal'
 import { CodeContext, useLanguageStore } from '@/stores/editor'
-import type { Language, ProblemDetail, Submission } from '@/types/type'
+import type {
+  Language,
+  ProblemDetail,
+  Submission,
+  Template
+} from '@/types/type'
 import JSConfetti from 'js-confetti'
-import { Trash2Icon } from 'lucide-react'
 import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
+import { IoMdRefresh } from 'react-icons/io'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
 import { useStore } from 'zustand'
@@ -37,15 +42,21 @@ import { useStore } from 'zustand'
 interface ProblemEditorProps {
   problem: ProblemDetail
   contestId?: number
+  templateString: string
 }
 
-export default function Editor({ problem, contestId }: ProblemEditorProps) {
+export default function Editor({
+  problem,
+  contestId,
+  templateString
+}: ProblemEditorProps) {
   const { language, setLanguage } = useLanguageStore()
   const store = useContext(CodeContext)
   if (!store) throw new Error('CodeContext is not provided')
   const { code, setCode } = useStore(store)
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
+  const [templateCode, setTemplateCode] = useState<string | null>(null)
   const router = useRouter()
   const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
   useInterval(
@@ -84,6 +95,16 @@ export default function Editor({ problem, contestId }: ProblemEditorProps) {
       }
     })
   }, [])
+
+  useEffect(() => {
+    if (!templateString) return
+    const parsedTemplates = JSON.parse(templateString)
+    const filteredTemplate = parsedTemplates.filter(
+      (template: Template) => template.language === language
+    )
+    if (filteredTemplate.length === 0) return
+    setTemplateCode(filteredTemplate[0].code[0].text)
+  }, [language])
 
   const submit = async () => {
     if (code === '') {
@@ -132,21 +153,21 @@ export default function Editor({ problem, contestId }: ProblemEditorProps) {
               size="icon"
               className="size-7 shrink-0 rounded-md bg-slate-600 hover:bg-slate-700"
             >
-              <Trash2Icon className="size-4" />
+              <IoMdRefresh className="size-5" />
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent className="border border-slate-800 bg-slate-900">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-slate-50">
-                Clear code
+                Reset code
               </AlertDialogTitle>
               <AlertDialogDescription className="text-slate-300">
-                Are you sure you want to clear your code?
+                Are you sure you want to reset to the default code?
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex gap-2">
-              <AlertDialogAction onClick={() => setCode('')}>
-                Clear
+              <AlertDialogAction onClick={() => setCode(templateCode ?? '')}>
+                Reset
               </AlertDialogAction>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
             </AlertDialogFooter>

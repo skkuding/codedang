@@ -3,10 +3,10 @@ import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
 import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
+import type { Level } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
-import { FiEyeOff } from 'react-icons/fi'
-import { FiEye } from 'react-icons/fi'
+import { TbFileInfo } from 'react-icons/tb'
 
 interface Tag {
   id: number
@@ -29,7 +29,7 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
   const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
 
   return (
-    <div className="flex space-x-2">
+    <div className="ml-8 flex space-x-2">
       <Switch
         id="hidden-mode"
         checked={row.original.isVisible}
@@ -46,13 +46,11 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
           })
         }}
       />
-      <div className="flex items-center justify-center">
-        {row.original.isVisible ? (
-          <FiEye className="text-primary h-[14px] w-[14px]" />
-        ) : (
-          <FiEyeOff className="h-[14px] w-[14px] text-gray-400" />
-        )}
-      </div>
+      {!row.original.isVisible && (
+        <button className="justify-centert flex items-center">
+          <TbFileInfo className="h-5 w-5 text-black" />
+        </button>
+      )}
     </div>
   )
 }
@@ -62,13 +60,10 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     id: 'select',
     header: ({ table }) => (
       <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
-        }
+        checked={table.getIsAllPageRowsSelected()}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
-        className="translate-y-[2px] bg-white"
+        className="translate-y-[2px]"
       />
     ),
     cell: ({ row }) => (
@@ -76,7 +71,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
-        className="translate-y-[2px] bg-white"
+        className="translate-y-[2px]"
       />
     ),
     enableSorting: false,
@@ -89,21 +84,8 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className="flex-col">
+        <div className="w-[400px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
           {row.getValue('title')}
-          <div className="flex">
-            <div>
-              {row.original.tag?.map((tag) => (
-                <Badge
-                  key={tag.id}
-                  variant="secondary"
-                  className="mr-1 whitespace-nowrap rounded-md border-gray-400 bg-gray-300 px-1 font-normal"
-                >
-                  {tag.tag.name}
-                </Badge>
-              ))}
-            </div>
-          </div>
         </div>
       )
     },
@@ -127,40 +109,14 @@ export const columns: ColumnDef<DataTableProblem>[] = [
 
       const langValue: string[] = row.getValue(id)
       const valueArray = value as string[]
-      const result = langValue.every((language) =>
-        valueArray.includes(language)
-      )
-      return result
-    }
-  },
-  /**
-   * @description
-   * made this column for filtering languages
-   * doesn't show in datatable
-   */
-  {
-    accessorKey: 'tag',
-    header: () => {},
-    cell: () => {},
-    filterFn: (row, id, value) => {
-      const tags = row.original.tag
-      if (!tags?.length) {
-        return false
-      }
-
-      const tagValue = row.getValue(id)
-      const valueArray = value as number[]
-      const tagIdArray = (tagValue as { id: number; tag: Tag }[]).map(
-        (tag) => tag.tag.id
-      )
-      const result = tagIdArray.every((tagId) => valueArray.includes(tagId))
+      const result = langValue.some((language) => valueArray.includes(language))
       return result
     }
   },
   {
     accessorKey: 'createTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Creation date" />
+      <DataTableColumnHeader column={column} title="Update" />
     ),
     cell: ({ row }) => {
       const updateTime: string = row.getValue('createTime')
@@ -174,8 +130,20 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
-      const formattedLevel = `Lev.${level.slice(-1)}`
-      return <div>{formattedLevel}</div>
+      const formattedLevel = `Level ${level.slice(-1)}`
+      return (
+        <div>
+          <Badge
+            variant={level as Level}
+            className="mr-1 whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
+          >
+            {formattedLevel}
+          </Badge>
+        </div>
+      )
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
     }
   },
   {
@@ -183,12 +151,14 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Submission" />
     ),
-    cell: ({ row }) => row.getValue('submissionCount')
+    cell: ({ row }) => {
+      return <div>{row.getValue('submissionCount')}</div>
+    }
   },
   {
     accessorKey: 'acceptedRate',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Solved" />
+      <DataTableColumnHeader column={column} title="Success Rate" />
     ),
     cell: ({ row }) => {
       const acceptedRate: number = row.getValue('acceptedRate')

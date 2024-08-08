@@ -47,7 +47,9 @@ const createUsers = async () => {
       password: await hash('Supersuper'),
       email: 'skkucodingplatform@gmail.com',
       lastLogin: new Date(),
-      role: Role.SuperAdmin
+      role: Role.SuperAdmin,
+      studentId: '2024000000',
+      major: 'Computer Science'
     }
   })
 
@@ -58,7 +60,9 @@ const createUsers = async () => {
       password: await hash('Adminadmin'),
       email: 'admin@example.com',
       lastLogin: new Date(),
-      role: Role.Admin
+      role: Role.Admin,
+      studentId: '2024000001',
+      major: 'Computer Science'
     }
   })
 
@@ -69,7 +73,9 @@ const createUsers = async () => {
       password: await hash('Managermanager'),
       email: 'manager@example.com',
       lastLogin: new Date(),
-      role: Role.Manager
+      role: Role.Manager,
+      studentId: '2024000002',
+      major: 'Computer Science'
     }
   })
 
@@ -82,7 +88,9 @@ const createUsers = async () => {
         password: await hash('Useruser'),
         email: `user${specifier}@example.com`,
         lastLogin: new Date(),
-        role: Role.User
+        role: Role.User,
+        studentId: `20241000${i.toString().padStart(2, '0')}`,
+        major: 'Computer Science'
       }
     })
     users.push(user)
@@ -981,7 +989,20 @@ const createProblems = async () => {
 }
 
 const createContests = async () => {
-  const contestData = [
+  const contestData: {
+    data: {
+      title: string
+      description: string
+      createdById: number
+      groupId: number
+      startTime: Date
+      endTime: Date
+      isVisible: boolean
+      isRankVisible: boolean
+      invitationCode: string | null
+      enableCopyPaste: boolean
+    }
+  }[] = [
     // Ongoing Contests
     {
       data: {
@@ -1021,7 +1042,9 @@ const createContests = async () => {
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
       }
     },
     {
@@ -1033,7 +1056,9 @@ const createContests = async () => {
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        invitationCode: null,
+        enableCopyPaste: true
       }
     },
     {
@@ -1045,7 +1070,9 @@ const createContests = async () => {
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
       }
     },
     {
@@ -1057,7 +1084,9 @@ const createContests = async () => {
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        invitationCode: null,
+        enableCopyPaste: true
       }
     },
     {
@@ -1069,7 +1098,9 @@ const createContests = async () => {
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        invitationCode: null,
+        enableCopyPaste: true
       }
     },
     // Finished Contests
@@ -1082,7 +1113,9 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: false
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
       }
     },
     {
@@ -1094,7 +1127,9 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
       }
     },
     {
@@ -1106,7 +1141,9 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: false
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
       }
     },
     {
@@ -1118,7 +1155,9 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: false
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
       }
     },
     {
@@ -1130,7 +1169,9 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: false
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
       }
     },
     {
@@ -1142,7 +1183,9 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: false
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
       }
     },
     {
@@ -1154,7 +1197,9 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: false
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
       }
     },
     {
@@ -1166,7 +1211,9 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: false
+        isRankVisible: false,
+        invitationCode: null,
+        enableCopyPaste: true
       }
     },
     {
@@ -1178,7 +1225,9 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        invitationCode: null,
+        enableCopyPaste: true
       }
     },
     // Upcoming Contests
@@ -1191,7 +1240,9 @@ const createContests = async () => {
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
       }
     },
     {
@@ -1203,7 +1254,9 @@ const createContests = async () => {
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
       }
     },
     {
@@ -1216,7 +1269,9 @@ const createContests = async () => {
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: false,
-        isRankVisible: true
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
       }
     },
     {
@@ -1228,7 +1283,9 @@ const createContests = async () => {
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
-        isRankVisible: true
+        isRankVisible: true,
+        invitationCode: null,
+        enableCopyPaste: true
       }
     }
   ]
@@ -1252,7 +1309,8 @@ const createContests = async () => {
       data: {
         order: problem.id - 1,
         contestId: ongoingContests[0].id,
-        problemId: problem.id
+        problemId: problem.id,
+        score: problem.id * 10
       }
     })
   }
@@ -1407,9 +1465,7 @@ int main(void) {
     data: {
       submissionId: submissions[2].id,
       problemTestcaseId: problemTestcases[2].id,
-      result: ResultStatus.CompileError,
-      cpuTime: 12345,
-      memoryUsage: 12345
+      result: ResultStatus.CompileError
     }
   })
   await prisma.submission.update({
@@ -1651,7 +1707,6 @@ const createCodeDrafts = async () => {
 
 const createContestRecords = async () => {
   const contestRecords: ContestRecord[] = []
-  let i = 0
   // group 1 users
   const group1Users = await prisma.userGroup.findMany({
     where: {
@@ -1663,12 +1718,11 @@ const createContestRecords = async () => {
       data: {
         userId: user.userId,
         contestId: 1,
-        acceptedProblemNum: user.userId,
-        totalPenalty: i * 60
+        acceptedProblemNum: 0,
+        totalPenalty: 0
       }
     })
     contestRecords.push(contestRecord)
-    i++
   }
 
   // upcoming contest에 참가한 User 1의 contest register를 un-register하는 기능과,

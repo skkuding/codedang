@@ -1,16 +1,16 @@
 import { Toaster } from '@/components/ui/sonner'
 import { metaBaseUrl } from '@/lib/constants'
 import type { Metadata, Viewport } from 'next'
-import { Ubuntu_Mono } from 'next/font/google'
+import { IBM_Plex_Mono } from 'next/font/google'
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css'
 import './globals.css'
 
 // TODO: 추후에 페이지 별로 revalidate 시간 논의 및 조정 필요
 export const revalidate = 5
 
-const mono = Ubuntu_Mono({
+const mono = IBM_Plex_Mono({
   subsets: ['latin'],
-  weight: ['400'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-mono'
 })
 

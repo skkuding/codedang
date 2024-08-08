@@ -14,6 +14,8 @@ const contestSelectOption = {
   startTime: true,
   endTime: true,
   group: { select: { id: true, groupName: true } },
+  invitationCode: true,
+  enableCopyPaste: true,
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
     select: {
@@ -366,8 +368,12 @@ export class ContestService {
     )
     */
     // combine contest and sortedContestRecordsWithUserDetail
+
+    const { invitationCode, ...contestDetails } = contest
+    const invitationCodeExists = invitationCode != null
     return {
-      ...contest,
+      ...contestDetails,
+      invitationCodeExists,
       isRegistered
     }
   }
@@ -375,12 +381,22 @@ export class ContestService {
   async createContestRecord(
     contestId: number,
     userId: number,
+    invitationCode?: string,
     groupId = OPEN_SPACE_ID
   ) {
     const contest = await this.prisma.contest.findUniqueOrThrow({
       where: { id: contestId, groupId },
-      select: { startTime: true, endTime: true, groupId: true }
+      select: {
+        startTime: true,
+        endTime: true,
+        groupId: true,
+        invitationCode: true
+      }
     })
+
+    if (contest.invitationCode && contest.invitationCode !== invitationCode) {
+      throw new ConflictFoundException('Invalid invitation code')
+    }
 
     const hasRegistered = await this.prisma.contestRecord.findFirst({
       where: { userId, contestId }

@@ -5,12 +5,12 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { GET_PROBLEM_DETAIL } from '@/graphql/problem/queries'
 import { usePagination } from '@/lib/pagination'
+import { renderKatex } from '@/lib/renderKatex'
 import type { SubmissionItem } from '@/types/type'
 import { useQuery } from '@apollo/client'
 // import { sanitize } from 'isomorphic-dompurify'
-import katex from 'katex'
 import Link from 'next/link'
-import { useEffect, useRef, type RefObject } from 'react'
+import { useEffect, useRef } from 'react'
 import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
 import { columns } from './_components/Columns'
 import DataTable from './_components/DataTable'
@@ -29,26 +29,6 @@ export default function Page({ params }: { params: { id: string } }) {
     `submission?problemId=${id}`,
     20
   )
-
-  const renderKatex = (
-    html: string | undefined,
-    katexRef: RefObject<HTMLDivElement>
-  ) => {
-    if (katexRef.current) {
-      katexRef.current.innerHTML = html ?? ''
-      const div = katexRef.current
-      div.querySelectorAll('math-component').forEach((el) => {
-        const content = el.getAttribute('content') || ''
-        const mathHtml = katex.renderToString(content, {
-          throwOnError: false,
-          strict: false,
-          globalGroup: true,
-          output: 'mathml'
-        })
-        el.outerHTML = mathHtml
-      })
-    }
-  }
 
   const katexRef = useRef<HTMLDivElement>(null)!
   useEffect(() => {
@@ -79,6 +59,7 @@ export default function Page({ params }: { params: { id: string } }) {
           </Link>
         </div>
         {katexContent}
+
         <p className="text-xl font-bold">Submission</p>
         <DataTable
           data={items ?? []}

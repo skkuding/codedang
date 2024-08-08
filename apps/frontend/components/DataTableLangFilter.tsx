@@ -14,8 +14,8 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
-import { PlusCircledIcon } from '@radix-ui/react-icons'
 import type { Column } from '@tanstack/react-table'
+import { IoFilter } from 'react-icons/io5'
 
 interface DataTableLangFilterProps<TData, TValue> {
   column?: Column<TData, TValue>
@@ -38,7 +38,7 @@ export default function DataTableLangFilter<TData, TValue>({
           size={'sm'}
           className="h-10 border hover:bg-gray-50"
         >
-          <PlusCircledIcon className="mr-2 h-4 w-4" />
+          <IoFilter className="mr-2 h-4 w-4" />
           <p className="font-bold">{title}</p>
           {selectedValues.size > 0 && (
             <>

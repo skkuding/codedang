@@ -4,6 +4,7 @@ const CREATE_CONTEST = gql(`
   mutation CreateContest($groupId: Int!, $input: CreateContestInput!) {
     createContest(groupId: $groupId, input: $input) {
       id
+      invitationCode
       isVisible
       isRankVisible
       description
@@ -18,6 +19,7 @@ const UPDATE_CONTEST = gql(`
   mutation UpdateContest($groupId: Int!, $input: UpdateContestInput!) {
     updateContest(groupId: $groupId, input: $input) {
       id
+      invitationCode
       isRankVisible
       isVisible
       description

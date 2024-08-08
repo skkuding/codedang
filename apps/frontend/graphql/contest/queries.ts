@@ -4,6 +4,7 @@ const GET_CONTEST = gql(`
   query GetContest($contestId: Int!) {
     getContest(contestId: $contestId) {
       id
+      invitationCode
       description
       endTime
       startTime
@@ -13,7 +14,7 @@ const GET_CONTEST = gql(`
 `)
 
 const GET_CONTESTS = gql(`
-  query getContests($groupId: Int!, $cursor: Int, $take: Int!) {
+  query GetContests($groupId: Int!, $cursor: Int, $take: Int!) {
     getContests(groupId: $groupId, cursor: $cursor, take: $take) {
       id
       title

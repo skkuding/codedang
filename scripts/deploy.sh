@@ -8,7 +8,7 @@ rm -rf $BASEDIR
 git clone https://github.com/skkuding/codedang $BASEDIR
 cd $BASEDIR
 
-source $BASEDIR/.env.stage
+source $BASEDIR/.env.development
 
 wget -qO- https://get.pnpm.io/install.sh | bash -
 source /root/.bashrc
@@ -18,8 +18,8 @@ pnpm env use --global lts
 
 pnpm install
 
-# 테스트케이스 업로드
-pnpm run init:testcases
+# 버킷 data 초기화 및 테스트케이스 업로드
+pnpm run init:storage
 
 # 데이터베이스 마이그레이션
 pnpm --filter="@codedang/backend" exec prisma migrate reset -f

@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -50,12 +51,6 @@ func (r Request) Validate() (*Request, error) {
 	return &r, nil
 }
 
-type Result struct {
-	TotalTestcase int           `json:"totalTestcase"`
-	AcceptedNum   int           `json:"acceptedNum"`
-	JudgeResult   []JudgeResult `json:"judgeResult"`
-}
-
 type JudgeResult struct {
 	TestcaseId string          `json:"testcaseId"`
 	ResultCode JudgeResultCode `json:"resultCode"`
@@ -68,33 +63,37 @@ type JudgeResult struct {
 	Error      string          `json:"error"`
 }
 
-func (r *Result) Accepted() {
-	r.AcceptedNum += 1
+type JudgeResultMessage struct {
+	Result json.RawMessage
+	Err    error
 }
 
-func (r *Result) SetJudgeResult(idx int, testcaseId string, execResult sandbox.ExecResult) {
-	r.JudgeResult[idx].TestcaseId = testcaseId
-	r.JudgeResult[idx].CpuTime = execResult.CpuTime
-	r.JudgeResult[idx].RealTime = execResult.RealTime
-	r.JudgeResult[idx].Memory = execResult.Memory
-	r.JudgeResult[idx].Signal = execResult.Signal
-	r.JudgeResult[idx].ErrorCode = execResult.ErrorCode
-	r.JudgeResult[idx].ExitCode = execResult.ExitCode
-	r.JudgeResult[idx].ResultCode = SandboxResultCodeToJudgeResultCode(execResult.ResultCode)
-	// system error가 아니면 run result task에 반영(Resource usage)
+var ErrJudgeEnd = errors.New("judge handle end")
+
+// func (r *Result) Accepted() {
+// 	r.AcceptedNum += 1
+// }
+
+func (r *JudgeResult) SetJudgeResultCode(code JudgeResultCode) {
+	r.ResultCode = code
 }
 
-func (r *Result) SetJudgeResultCode(idx int, code JudgeResultCode) {
-	r.JudgeResult[idx].ResultCode = code
+func (r *JudgeResult) SetJudgeExecResult(execResult sandbox.ExecResult) {
+	r.CpuTime = execResult.CpuTime
+	r.RealTime = execResult.RealTime
+	r.Memory = execResult.Memory
+	r.Signal = execResult.Signal
+	r.ExitCode = execResult.ExitCode
+	r.ErrorCode = execResult.ErrorCode
 }
 
-func (r *Result) Marshal() (json.RawMessage, error) {
-	if res, err := json.Marshal(r); err != nil {
-		return nil, &HandlerError{caller: "judge-handler", err: fmt.Errorf("marshaling result: %w", err)}
-	} else {
-		return res, nil
-	}
-}
+// func (r *Result) Marshal() (json.RawMessage, error) {
+// 	if res, err := json.Marshal(r); err != nil {
+// 		return nil, &HandlerError{caller: "judge-handler", err: fmt.Errorf("marshaling result: %w", err)}
+// 	} else {
+// 		return res, nil
+// 	}
+// }
 
 // JudgeResult ResultCode
 type JudgeResultCode int8
@@ -138,7 +137,7 @@ func NewJudgeHandler(
 }
 
 // handle top layer logical flow
-func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
+func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessage) {
 	startedAt := time.Now()
 	tracer := otel.Tracer("Handle Tracer")
 	handleCtx, span := tracer.Start(
@@ -154,59 +153,66 @@ func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 
 	//TODO: validation logic here
 	req := Request{}
-	res := Result{}
 
 	err := json.Unmarshal(data, &req)
 	if err != nil {
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("%w: %s", ErrValidate, err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}
+		}}
+		close(out)
+		return
 	}
 	validReq, err := req.Validate()
 	if err != nil {
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller:  "request validate",
 			err:     fmt.Errorf("%w: %s", ErrValidate, err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}
+		}}
+		close(out)
+		return
 	}
 
 	dir := utils.RandString(constants.DIR_NAME_LEN) + id
 	defer func() {
 		j.file.RemoveDir(dir)
+		close(out)
 		j.logger.Log(logger.DEBUG, fmt.Sprintf("task %s done: total time: %s", dir, time.Since(startedAt)))
 	}()
 
 	if err := j.file.CreateDir(dir); err != nil {
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("creating base directory: %w", err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}
+		}}
+		return
 	}
 
 	srcPath, err := j.langConfig.MakeSrcPath(dir, sandbox.Language(validReq.Language))
 	if err != nil {
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("creating src path: %w", err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}
+		}}
+		return
 	}
 
 	if err := j.file.CreateFile(srcPath, validReq.Code); err != nil {
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("creating src file: %w", err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}
+		}}
+		return
 	}
 
 	// err = j.judger.Judge(task)
@@ -219,100 +225,62 @@ func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 	compileOut := <-compileOutCh
 
 	if testcaseOut.Err != nil {
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("%w: %s", ErrTestcaseGet, testcaseOut.Err),
 			level:   logger.ERROR,
 			Message: testcaseOut.Err.Error(),
-		}
+		}}
+		return
 	}
 	// elements, ok := testcaseOut.Data.([]testcase.Element)
 	// tc := testcase.Testcase{Elements: elements}
 	tc, ok := testcaseOut.Data.(testcase.Testcase)
 	if !ok {
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller: "handle",
 			err:    fmt.Errorf("%w: Testcase", ErrTypeAssertionFail),
 			level:  logger.ERROR,
-		}
+		}}
+		return
 	}
 
 	if compileOut.Err != nil {
 		// 컴파일러 실행 과정이나 이후 처리 과정에서 오류가 생긴 경우
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller: "handle",
 			err:    fmt.Errorf("%w: %s", ErrSandbox, compileOut.Err),
 			level:  logger.ERROR,
-		}
+		}}
+		return
 	}
 	compileResult, ok := compileOut.Data.(sandbox.CompileResult)
 	if !ok {
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller: "handle",
 			err:    fmt.Errorf("%w: CompileResult", ErrTypeAssertionFail),
 			level:  logger.INFO,
-		}
+		}}
+		return
 	}
 	if compileResult.ExecResult.ResultCode != sandbox.SUCCESS {
 		// 컴파일러를 실행했으나 컴파일에 실패한 경우
 		// FIXME: 함수로 분리
-		if marshaledRes, err := res.Marshal(); err != nil {
-			return nil, &HandlerError{err: ErrMarshalJson}
-		} else {
-			return marshaledRes, &HandlerError{
-				err:     ErrCompile,
-				Message: compileResult.ErrOutput,
-			}
-		}
+		out <- JudgeResultMessage{nil, &HandlerError{
+			err: ErrCompile, Message: compileResult.ErrOutput,
+		}}
+		return
 	}
 
 	tcNum := tc.Count()
-	// FIXME: res.Init으로 분리
-	res.JudgeResult = make([]JudgeResult, tcNum)
-	res.TotalTestcase = tcNum
+	cnt := make(chan int)
+	for i := 0; i < tcNum; i++ {
+		go j.judgeTestcase(i, dir, validReq, tc.Elements[i], out, cnt)
+	}
 
 	for i := 0; i < tcNum; i++ {
-		runTracer := otel.Tracer("Run Tracer")
-		_, runSpan := runTracer.Start(handleCtx, "go:runner.run:"+strconv.Itoa(i+1))
-
-		time.Sleep(time.Millisecond)
-		runResult, err := j.runner.Run(sandbox.RunRequest{
-			Order:       i,
-			Dir:         dir,
-			Language:    sandbox.Language(validReq.Language),
-			TimeLimit:   validReq.TimeLimit,
-			MemoryLimit: validReq.MemoryLimit,
-		}, []byte(tc.Elements[i].In))
-
-		if err != nil {
-			j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
-			res.JudgeResult[i].ResultCode = SYSTEM_ERROR
-			res.JudgeResult[i].Error = string(runResult.ErrOutput)
-			continue
-		}
-		res.SetJudgeResult(i, tc.Elements[i].Id, runResult.ExecResult)
-		if runResult.ExecResult.ResultCode != sandbox.RUN_SUCCESS {
-			continue
-		}
-
-		// 하나당 약 50microsec 10개 채점시 500microsec.
-		// output이 커지면 더 길어짐 -> FIXME: 최적화 과정에서 goroutine으로 수정
-		// st := time.Now()
-		accepted := grader.Grade([]byte(tc.Elements[i].Out), runResult.Output)
-		if accepted {
-			res.Accepted()
-			res.SetJudgeResultCode(i, ACCEPTED)
-		} else {
-			res.SetJudgeResultCode(i, WRONG_ANSWER)
-		}
-		runSpan.End()
+		<-cnt
 	}
-
-	marshaledRes, err := json.Marshal(res)
-	if err != nil {
-		return nil, &HandlerError{err: ErrMarshalJson, level: logger.ERROR}
-	}
-	return marshaledRes, ParseFirstError(res.JudgeResult)
 }
 
 // wrapper to use goroutine
@@ -341,4 +309,59 @@ func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.C
 		return
 	}
 	out <- result.ChResult{Data: res}
+}
+
+func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
+	tc testcase.Element, out chan JudgeResultMessage, cnt chan int) {
+
+	var accepted bool
+
+	res := JudgeResult{}
+
+	time.Sleep(time.Millisecond)
+
+	runResult, err := j.runner.Run(sandbox.RunRequest{
+		Order:       idx,
+		Dir:         dir,
+		Language:    sandbox.Language(validReq.Language),
+		TimeLimit:   validReq.TimeLimit,
+		MemoryLimit: validReq.MemoryLimit,
+	}, []byte(tc.In))
+
+	if err != nil {
+		j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
+		res.ResultCode = SYSTEM_ERROR
+		res.Error = string(runResult.ErrOutput)
+		goto Send
+	}
+
+	res.TestcaseId = tc.Id
+
+	if runResult.ExecResult.ResultCode != sandbox.RUN_SUCCESS {
+		goto Send
+	}
+
+	res.SetJudgeExecResult(runResult.ExecResult)
+
+	// 하나당 약 50microsec 10개 채점시 500microsec.
+	// output이 커지면 더 길어짐 -> FIXME: 최적화 과정에서 goroutine으로 수정
+	// st := time.Now()
+	accepted = grader.Grade([]byte(tc.Out), runResult.Output)
+
+	if accepted {
+		res.SetJudgeResultCode(ACCEPTED)
+	} else {
+		res.SetJudgeResultCode(WRONG_ANSWER)
+	}
+
+	// TODO: ChResult 구조체 활용
+Send:
+	marshaledRes, err := json.Marshal(res)
+	if err != nil {
+		out <- JudgeResultMessage{nil, &HandlerError{err: ErrMarshalJson, level: logger.ERROR}}
+	} else {
+		// j.logger.Log(logger.DEBUG, string(marshaledRes))
+		out <- JudgeResultMessage{marshaledRes, ParseError(res)}
+	}
+	cnt <- 1
 }

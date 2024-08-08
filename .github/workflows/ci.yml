@@ -122,6 +122,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: ./.github/actions/setup-pnpm
 
       - name: Set up Go
@@ -135,7 +138,7 @@ jobs:
         run: echo "${{ github.event.pull_request.title }}" | pnpm commitlint --verbose
 
       - name: Check style (Node.js)
-        run: pnpm format:check
+        run: git diff --name-only --diff-filter=ACMRUXB origin/main | grep -E "(.ts$|.tsx$|.js$|.jsx$)" | xargs -r pnpm prettier -c
 
       - name: Check Style (Go)
         run: |
@@ -147,7 +150,7 @@ jobs:
         working-directory: ./apps/iris
 
       - name: Lint (Node.js)
-        run: pnpm lint
+        run: git diff --name-only --diff-filter=ACMRUXB origin/main | grep -E "(.ts$|.tsx$|.js$|.jsx$)" | xargs -r pnpm eslint
 
   test-backend:
     name: Test Backend

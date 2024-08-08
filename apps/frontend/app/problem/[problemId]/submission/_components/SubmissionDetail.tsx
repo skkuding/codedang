@@ -91,7 +91,7 @@ export default async function SubmissionDetail({
             <TableBody>
               {submission.testcaseResult.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item.id}</TableCell>
+                  <TableCell>{item.problemTestcaseId.toString()}</TableCell>
                   <TableCell
                     className={
                       item.result === 'Accepted'
