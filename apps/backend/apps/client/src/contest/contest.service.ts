@@ -233,6 +233,7 @@ export class ContestService {
   }
 
   async getFinishedContestsByGroupId(
+    userId: number | null,
     cursor: number | null,
     take: number,
     groupId: number,
@@ -258,6 +259,26 @@ export class ContestService {
       orderBy: [{ endTime: 'desc' }, { id: 'desc' }]
     })
 
+    const countRenamedContests = this.renameToParticipants(finished)
+
+    const finishedContestWithIsRegistered = await Promise.all(
+      countRenamedContests.map(async (contest) => {
+        return {
+          ...contest,
+          // userId가 없거나(로그인 안됨) contest에 참여중이지 않은 경우 false
+          isRegisterd:
+            !(await this.prisma.contestRecord.findFirst({
+              where: {
+                userId,
+                contestId: contest.id
+              }
+            })) || !userId
+              ? false
+              : true
+        }
+      })
+    )
+
     const total = await this.prisma.contest.count({
       where: {
         endTime: {
@@ -271,7 +292,10 @@ export class ContestService {
       }
     })
 
-    return { data: this.renameToParticipants(finished), total }
+    return {
+      data: finishedContestWithIsRegistered,
+      total
+    }
   }
 
   // TODO: participants 대신 _count.contestRecord 그대로 사용하는 것 고려해보기

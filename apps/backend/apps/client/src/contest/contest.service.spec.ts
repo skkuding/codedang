@@ -309,6 +309,7 @@ describe('ContestService', () => {
     it('should return finished contests', async () => {
       const contests = await service.getFinishedContestsByGroupId(
         null,
+        null,
         10,
         groupId
       )
