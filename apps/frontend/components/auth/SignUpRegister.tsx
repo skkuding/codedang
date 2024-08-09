@@ -290,6 +290,17 @@ export default function SignUpRegister() {
     updateFocus(0)
   }
 
+  const isRequiredError =
+    errors.username && errors.username.message === 'Required'
+  const isInvalidFormatError =
+    errors.username && errors.username.message !== 'Required'
+  const isUsernameChecked = checkedUsername === getValues('username')
+  const isAvailable =
+    !errors.username && isUsernameAvailable && isUsernameChecked
+  const isUnavailable =
+    !errors.username && !isUsernameAvailable && isUsernameChecked
+  const shouldCheckUserId = !isUsernameChecked && !errors.username
+
   return (
     <div className="mb-5 mt-12 flex w-full flex-col py-4">
       <form
@@ -348,28 +359,24 @@ export default function SignUpRegister() {
             </Button>
           </div>
           <div className="text-xs">
-            {inputFocus !== 1 &&
-              (errors.username ? (
-                errors.username.message == 'Required' ? (
-                  requiredMessage('Required')
-                ) : (
+            {inputFocus !== 1 && (
+              <>
+                {isRequiredError && requiredMessage('Required')}
+                {isInvalidFormatError && (
                   <ul className="list-disc pl-4 text-red-500">
                     <li>User ID used for log in</li>
                     <li>3-10 characters of small letters, numbers</li>
                   </ul>
-                )
-              ) : isUsernameAvailable &&
-                checkedUsername == getValues('username') ? (
-                <p className="text-xs text-blue-500">Available</p>
-              ) : checkedUsername === getValues('username') ? (
-                checkedUsername ? (
-                  <p className="text-red-500">Unavailable</p>
-                ) : (
-                  <></>
-                )
-              ) : (
-                <p className="text-red-500">Check user ID</p>
-              ))}
+                )}
+                {isAvailable && (
+                  <p className="text-xs text-blue-500">Available</p>
+                )}
+                {isUnavailable && <p className="text-red-500">Unavailable</p>}
+                {shouldCheckUserId && (
+                  <p className="text-red-500">Check user ID</p>
+                )}
+              </>
+            )}
             {inputFocus === 1 &&
               (!isUsernameAvailable &&
               checkedUsername === getValues('username') &&
