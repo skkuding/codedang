@@ -5,6 +5,18 @@ import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import * as React from 'react'
 
+// Used to change the background color of the overlay
+type DialogOverlayProps = React.ComponentPropsWithoutRef<
+  typeof DialogPrimitive.Overlay
+> & {
+  showDarkOverlay?: boolean // If showDarkOverlay is true, the overlay will have a different background color
+}
+// Used to change the background color of the overlay
+interface ExtendedDialogContentProps
+  extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
+  showDarkOverlay?: boolean
+}
+
 const Dialog = DialogPrimitive.Root
 
 const DialogTrigger = DialogPrimitive.Trigger
@@ -15,13 +27,17 @@ const DialogClose = DialogPrimitive.Close
 
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
+  DialogOverlayProps
+>(({ className, showDarkOverlay = false, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
       'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-gray-100/60 backdrop-blur-sm dark:bg-gray-950/60',
-      className
+      className,
+      {
+        // Different Overlay background color
+        'bg-slate-950/30 backdrop-blur': showDarkOverlay
+      }
     )}
     {...props}
   />
@@ -30,10 +46,10 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+  ExtendedDialogContentProps
+>(({ className, children, showDarkOverlay, ...props }, ref) => (
   <DialogPortal>
-    <DialogOverlay />
+    <DialogOverlay showDarkOverlay={showDarkOverlay} />
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
