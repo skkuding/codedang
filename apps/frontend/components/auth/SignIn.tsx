@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 // import { FaGithub } from 'react-icons/fa'
 // import { FcGoogle } from 'react-icons/fc'
 import { toast } from 'sonner'
@@ -24,6 +25,7 @@ interface Inputs {
 
 export default function SignIn() {
   const [disableButton, setDisableButton] = useState(false)
+  const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const { showSignUp, showRecoverAccount } = useAuthModalStore((state) => state)
   const router = useRouter()
   const { register, handleSubmit, watch } = useForm<Inputs>()
@@ -76,15 +78,27 @@ export default function SignIn() {
               watch('username') && 'ring-primary ring-1'
             )}
           />
-          <Input
-            placeholder="Password"
-            type="password"
-            {...register('password')}
-            className={cn(
-              'focus-visible:ring-1',
-              watch('password') && 'ring-primary ring-1'
-            )}
-          />
+          <div className="relative flex justify-between gap-1">
+            <Input
+              placeholder="Password"
+              type={passwordShow ? 'text' : 'password'}
+              {...register('password')}
+              className={cn(
+                'focus-visible:ring-1',
+                watch('password') && 'ring-primary ring-1'
+              )}
+            />
+            <span
+              className="absolute right-0 top-0 flex h-full p-3"
+              onClick={() => setPasswordShow(!passwordShow)}
+            >
+              {passwordShow ? (
+                <FaEye className="text-gray-400" />
+              ) : (
+                <FaEyeSlash className="text-gray-400" />
+              )}
+            </span>
+          </div>
           <Button
             className="mt-2 w-full"
             type="submit"
