@@ -10,24 +10,16 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - uses: pnpm/action-setup@v3
-    - uses: actions/setup-node@v4
+    - name: Checkout repository
+      uses: pnpm/action-setup@v4
+      with:
+        run_install: false
+
+    - name: Setup Node.js and pnpm
+      uses: actions/setup-node@v4
       with:
         node-version: 20
-
-    # https://github.com/pnpm/action-setup/tree/v2/?tab=readme-ov-file#use-cache-to-reduce-installation-time
-    - name: Get pnpm store directory
-      shell: bash
-      run: |
-        echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-    - uses: actions/cache@v4
-      name: Setup pnpm cache
-      with:
-        path: ${{ env.STORE_PATH }}
-        key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-pnpm-
+        cache: 'pnpm'
 
     - name: Install dependencies
       if: ${{ inputs.install == 'yes' }}
