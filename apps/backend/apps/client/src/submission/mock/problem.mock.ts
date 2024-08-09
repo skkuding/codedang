@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { type Problem, Language, Level } from '@prisma/client'
+import { MIN_DATE } from '@libs/constants'
 
 export const problems: Problem[] = [
   {
@@ -28,10 +29,9 @@ export const problems: Problem[] = [
     submissionCount: 10,
     acceptedCount: 5,
     acceptedRate: 0.5,
-    exposeTime: new Date(),
+    visibleLockTime: MIN_DATE,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    isVisible: true,
     engTitle: null,
     engDescription: null,
     engHint: null,

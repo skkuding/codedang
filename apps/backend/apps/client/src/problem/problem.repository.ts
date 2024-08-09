@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Injectable } from '@nestjs/common'
 import type { Problem, Tag, CodeDraft, Prisma } from '@prisma/client'
+import { MIN_DATE } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
 import type { CodeDraftUpdateInput } from '@admin/@generated'
 import type { CreateTemplateDto } from './dto/create-code-draft.dto'
@@ -23,7 +24,6 @@ export class ProblemRepository {
     id: true,
     title: true,
     engTitle: true,
-    exposeTime: true,
     difficulty: true,
     acceptedRate: true,
     submissionCount: true
@@ -110,10 +110,7 @@ export class ProblemRepository {
           // 아니면 텍스트가 많은 field에서는 full-text search를 사용하고, 텍스트가 적은 field에서는 contains를 사용하는 방법도 고려해보자.
           contains: search
         },
-        exposeTime: {
-          lte: new Date()
-        },
-        isVisible: true
+        visibleLockTime: MIN_DATE
       },
       select: {
         ...this.problemsSelectOption,
@@ -134,10 +131,7 @@ export class ProblemRepository {
           // TODO: 검색 방식 변경 시 함께 변경 요함
           contains: search
         },
-        exposeTime: {
-          lte: new Date()
-        },
-        isVisible: true
+        visibleLockTime: MIN_DATE
       }
     })
   }
@@ -168,7 +162,7 @@ export class ProblemRepository {
       where: {
         id: problemId,
         groupId,
-        isVisible: true
+        visibleLockTime: MIN_DATE
       },
       select: this.problemSelectOption
     })
@@ -206,10 +200,7 @@ export class ProblemRepository {
       take,
       orderBy: { order: 'asc' },
       where: {
-        contestId,
-        problem: {
-          isVisible: true
-        }
+        contestId
       },
       select: {
         order: true,
@@ -223,10 +214,7 @@ export class ProblemRepository {
   async getContestProblemTotalCount(contestId: number) {
     return await this.prisma.contestProblem.count({
       where: {
-        contestId,
-        problem: {
-          isVisible: true
-        }
+        contestId
       }
     })
   }
@@ -238,9 +226,6 @@ export class ProblemRepository {
         contestId_problemId: {
           contestId,
           problemId
-        },
-        problem: {
-          isVisible: true
         }
       },
       select: {
@@ -271,7 +256,7 @@ export class ProblemRepository {
       where: {
         workbookId,
         problem: {
-          isVisible: true
+          visibleLockTime: MIN_DATE
         }
       },
       select: {
@@ -288,7 +273,7 @@ export class ProblemRepository {
       where: {
         workbookId,
         problem: {
-          isVisible: true
+          visibleLockTime: MIN_DATE
         }
       }
     })
@@ -303,7 +288,7 @@ export class ProblemRepository {
           problemId
         },
         problem: {
-          isVisible: true
+          visibleLockTime: MIN_DATE
         }
       },
       select: {

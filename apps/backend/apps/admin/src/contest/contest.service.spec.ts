@@ -41,7 +41,8 @@ const contest: Contest = {
   enableCopyPaste: true,
   createTime,
   updateTime,
-  invitationCode
+  invitationCode,
+  contestProblem: []
 }
 
 const contestWithCount = {
@@ -104,14 +105,13 @@ const problem: Problem = {
   inputDescription: 'inputdescription',
   outputDescription: 'outputdescription',
   hint: 'hint',
-  isVisible: true,
   template: [],
   languages: ['C'],
   timeLimit: 10000,
   memoryLimit: 100000,
   difficulty: 'Level1',
   source: 'source',
-  exposeTime: faker.date.past(),
+  visibleLockTime: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
   samples: [],
@@ -183,7 +183,7 @@ const db = {
   $transaction: stub().callsFake(async () => {
     const updatedProblem = await db.problem.update()
     const newContestProblem = await db.contestProblem.create()
-    return [updatedProblem, newContestProblem]
+    return [newContestProblem, updatedProblem]
   }),
   getPaginator: PrismaService.prototype.getPaginator
 }
@@ -251,6 +251,7 @@ describe('ContestService', () => {
 
   describe('updateContest', () => {
     it('should return updated contest', async () => {
+      db.contest.findFirst.resolves(contest)
       db.contest.update.resolves(contest)
 
       const res = await service.updateContest(groupId, updateInput)
@@ -267,6 +268,7 @@ describe('ContestService', () => {
   describe('deleteContest', () => {
     it('should return deleted contest', async () => {
       db.contest.findFirst.resolves(contest)
+      db.contest.delete.resolves(contest)
 
       const res = await service.deleteContest(groupId, contestId)
       expect(res).to.deep.equal(contest)
