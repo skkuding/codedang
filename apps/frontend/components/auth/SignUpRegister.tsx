@@ -215,7 +215,6 @@ export default function SignUpRegister() {
     setFocusedList(Array(8).fill(true))
     fields.map((field) => {
       trigger(field)
-      console.log('yes')
     })
   }
 
@@ -234,7 +233,6 @@ export default function SignUpRegister() {
       return
     }
     const fullName = `${data.firstName} ${data.lastName}`
-    console.log(majorValue)
     try {
       setSignUpDisable(true)
       await fetch(baseUrl + '/user/sign-up', {
