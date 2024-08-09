@@ -337,6 +337,8 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 	res.TestcaseId = tc.Id
 
 	if runResult.ExecResult.ResultCode != sandbox.RUN_SUCCESS {
+		res.ResultCode = JudgeResultCode(runResult.ExecResult.ResultCode)
+		res.Error = string(runResult.ErrOutput)
 		goto Send
 	}
 
