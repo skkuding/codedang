@@ -22,12 +22,14 @@ export default function RecoverAccount() {
         <IoMdArrowBack />
       </button>
 
-      <Image
-        className="absolute left-8 top-10"
-        src={CodedangLogo}
-        alt="codedang"
-        width={70}
-      />
+      <div className="flex justify-center pt-4">
+        <Image
+          className="absolute top-4"
+          src={CodedangLogo}
+          alt="codedang"
+          width={100}
+        />
+      </div>
 
       {modalPage === 0 && <FindUserId />}
       {modalPage === 1 && <ResetPasswordEmailVerify />}

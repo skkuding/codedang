@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 // import { Separator } from '@/components/ui/separator'
 import CodedangLogo from '@/public/codedang.svg'
 // import KakaotalkLogo from '@/public/kakaotalk.svg'
@@ -12,6 +13,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 // import { FaGithub } from 'react-icons/fa'
 // import { FcGoogle } from 'react-icons/fc'
 import { toast } from 'sonner'
@@ -23,9 +25,10 @@ interface Inputs {
 
 export default function SignIn() {
   const [disableButton, setDisableButton] = useState(false)
+  const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const { showSignUp, showRecoverAccount } = useAuthModalStore((state) => state)
   const router = useRouter()
-  const { register, handleSubmit } = useForm<Inputs>()
+  const { register, handleSubmit, watch } = useForm<Inputs>()
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setDisableButton(true)
     try {
@@ -51,20 +54,56 @@ export default function SignIn() {
   return (
     <div className="flex h-full w-full flex-col justify-between">
       <div className="flex justify-center pt-4">
-        <Image src={CodedangLogo} alt="코드당" height={64} />
+        <Image
+          className="absolute top-4"
+          src={CodedangLogo}
+          alt="codedang"
+          width={100}
+        />
       </div>
       <div className="flex flex-col gap-4">
         <form
-          className="flex w-full flex-col gap-3"
+          className="flex w-full flex-col gap-4"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <Input placeholder="User ID" type="text" {...register('username')} />
+          <p className="text-primary mb-4 text-left font-mono text-xl font-bold">
+            Log in
+          </p>
           <Input
-            placeholder="Password"
-            type="password"
-            {...register('password')}
+            placeholder="User ID"
+            type="text"
+            {...register('username')}
+            className={cn(
+              'focus-visible:ring-1',
+              watch('username') && 'ring-primary ring-1'
+            )}
           />
-          <Button className="w-full" type="submit" disabled={disableButton}>
+          <div className="relative flex justify-between gap-1">
+            <Input
+              placeholder="Password"
+              type={passwordShow ? 'text' : 'password'}
+              {...register('password')}
+              className={cn(
+                'focus-visible:ring-1',
+                watch('password') && 'ring-primary ring-1'
+              )}
+            />
+            <span
+              className="absolute right-0 top-0 flex h-full p-3"
+              onClick={() => setPasswordShow(!passwordShow)}
+            >
+              {passwordShow ? (
+                <FaEye className="text-gray-400" />
+              ) : (
+                <FaEyeSlash className="text-gray-400" />
+              )}
+            </span>
+          </div>
+          <Button
+            className="mt-2 w-full"
+            type="submit"
+            disabled={disableButton}
+          >
             Log In
           </Button>
         </form>
@@ -93,14 +132,14 @@ export default function SignIn() {
           variant={'link'}
           className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
         >
-          Sign Up
+          Sign up
         </Button>
         <Button
           onClick={() => showRecoverAccount()}
           variant={'link'}
           className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
         >
-          Forgot ID/Password?
+          Forgot ID / password?
         </Button>
       </div>
     </div>
