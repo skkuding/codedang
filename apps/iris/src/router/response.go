@@ -26,6 +26,7 @@ const (
 	RUNTIME_ERROR
 	COMPILE_ERROR
 	TESTCASE_ERROR
+	SEGMENTATION_FAULT_ERROR
 	SERVER_ERROR
 )
 
@@ -95,6 +96,9 @@ func ErrorToResultCode(err error) ResultCode {
 	}
 	if errors.Is(err, handler.ErrTestcaseGet) {
 		return TESTCASE_ERROR
+	}
+	if errors.Is(err, handler.ErrSegFault) {
+		return SEGMENTATION_FAULT_ERROR
 	}
 	return SERVER_ERROR
 }

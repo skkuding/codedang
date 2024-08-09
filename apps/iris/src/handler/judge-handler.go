@@ -106,6 +106,7 @@ const (
 	MEMORY_LIMIT_EXCEEDED
 	RUNTIME_ERROR
 	SYSTEM_ERROR
+	SEGMENATION_FAULT
 )
 
 type JudgeHandler struct {
