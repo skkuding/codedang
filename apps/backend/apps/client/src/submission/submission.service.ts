@@ -89,6 +89,7 @@ export class SubmissionService implements OnModuleInit {
   @Span()
   async submitToProblem(
     submissionDto: CreateSubmissionDto,
+    userIp: string,
     userId: number,
     problemId: number,
     groupId = OPEN_SPACE_ID
@@ -102,12 +103,25 @@ export class SubmissionService implements OnModuleInit {
         }
       }
     })
-    return await this.createSubmission(submissionDto, problem, userId)
+    const submission = await this.createSubmission(
+      submissionDto,
+      problem,
+      userId,
+      userIp
+    )
+
+    if (submission) {
+      this.logger.log(
+        `Submission ${submission.id} is created for problem ${problem.id} by ip ${userIp}`
+      )
+      return submission
+    }
   }
 
   @Span()
   async submitToContest(
     submissionDto: CreateSubmissionDto,
+    userIp: string,
     userId: number,
     problemId: number,
     contestId: number,
@@ -165,14 +179,23 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    return await this.createSubmission(submissionDto, problem, userId, {
-      contestId
-    })
+    const submission = await this.createSubmission(
+      submissionDto,
+      problem,
+      userId,
+      userIp,
+      {
+        contestId
+      }
+    )
+
+    return submission
   }
 
   @Span()
   async submitToWorkbook(
     submissionDto: CreateSubmissionDto,
+    userIp: string,
     userId: number,
     problemId: number,
     workbookId: number,
@@ -194,9 +217,17 @@ export class SubmissionService implements OnModuleInit {
       throw new EntityNotExistException('problem')
     }
 
-    return await this.createSubmission(submissionDto, problem, userId, {
-      workbookId
-    })
+    const submission = await this.createSubmission(
+      submissionDto,
+      problem,
+      userId,
+      userIp,
+      {
+        workbookId
+      }
+    )
+
+    return submission
   }
 
   @Span()
@@ -204,6 +235,7 @@ export class SubmissionService implements OnModuleInit {
     submissionDto: CreateSubmissionDto,
     problem: Problem,
     userId: number,
+    userIp: string,
     idOptions?: { contestId?: number; workbookId?: number }
   ) {
     if (!problem.languages.includes(submissionDto.language)) {
@@ -226,6 +258,7 @@ export class SubmissionService implements OnModuleInit {
       code: code.map((snippet) => ({ ...snippet })), // convert to plain object
       result: ResultStatus.Judging,
       userId,
+      userIp,
       problemId: problem.id,
       codeSize: new TextEncoder().encode(code[0].text).length,
       ...data
@@ -501,10 +534,10 @@ export class SubmissionService implements OnModuleInit {
 
     const submissionResult = allAccepted
       ? ResultStatus.Accepted
-      : submission.submissionResult.find(
+      : (submission.submissionResult.find(
           (submissionResult) =>
             submissionResult.result !== ResultStatus.Accepted
-        )?.result ?? ResultStatus.ServerError
+        )?.result ?? ResultStatus.ServerError)
 
     await this.prisma.submission.update({
       where: { id: submissionId },

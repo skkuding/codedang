@@ -1,3 +1,4 @@
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import {
@@ -107,10 +108,16 @@ describe('ContestService', () => {
           provide: PrismaService,
           useExisting: PrismaTestService
         },
-        ConfigService
+        ConfigService,
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => []
+          })
+        }
       ]
     }).compile()
-
     service = module.get<ContestService>(ContestService)
     prisma = module.get<PrismaTestService>(PrismaTestService)
   })
@@ -301,6 +308,7 @@ describe('ContestService', () => {
   describe('getFinishedContestsByGroupId', () => {
     it('should return finished contests', async () => {
       const contests = await service.getFinishedContestsByGroupId(
+        null,
         null,
         10,
         groupId
