@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
-import { GripVertical } from 'lucide-react'
+// import { GripVertical } from 'lucide-react';
+import { MoveHorizontal } from 'lucide-react'
 import * as ResizablePrimitive from 'react-resizable-panels'
 
 const ResizablePanelGroup = ({
@@ -32,8 +33,12 @@ const ResizableHandle = ({
     {...props}
   >
     {withHandle && (
-      <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border border-slate-500 bg-slate-500 dark:border-gray-800 dark:bg-gray-800">
-        <GripVertical className="h-2.5 w-2.5" />
+      // Changed from GripVertical to MoveHorizontal
+      // <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border border-slate-500 bg-slate-500 dark:border-gray-800 dark:bg-gray-800">
+      //   <GripVertical className="h-2.5 w-2.5" />
+      // </div>
+      <div className="z-10 flex h-5 w-6 items-center justify-center rounded-sm border border-slate-600 bg-neutral-700 px-0.5 hover:bg-[#182C53] active:bg-[#244C92] dark:border-gray-800 dark:bg-gray-800">
+        <MoveHorizontal className="h-5 w-4 text-slate-300 hover:text-blue-400 active:text-blue-400" />
       </div>
     )}
   </ResizablePrimitive.PanelResizeHandle>
