@@ -59,6 +59,7 @@ func (c *compiler) Compile(dto CompileRequest) (CompileResult, error) {
 
 	compileResult := CompileResult{}
 	compileResult.ExecResult = execResult
+
 	if execResult.ResultCode != RUN_SUCCESS {
 		compileOutputPath := c.file.MakeFilePath(dir, constants.COMPILE_OUT_FILE).String()
 		data, err := c.file.ReadFile(compileOutputPath)
