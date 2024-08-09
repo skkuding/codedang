@@ -1,12 +1,12 @@
 'use client'
 
-import TimeDiff from '@/app/(main)/_components/TimeDiff'
 import { cn } from '@/lib/utils'
 import ClockIcon from '@/public/20_clock.svg'
 import type { Contest } from '@/types/type'
 import type { ContestStatus } from '@/types/type'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
+import type { Route } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -96,7 +96,7 @@ export default function ContestStatusTimeDiff({
           <button
             className="rounded bg-blue-600 px-4 py-2 text-white"
             onClick={() => {
-              router.push(`/contest/${contest.id}`)
+              router.push(`/contest/${contest.id}` as Route)
             }}
           >
             Exit
@@ -118,7 +118,9 @@ export default function ContestStatusTimeDiff({
           <Image src={ClockIcon} alt="Clock" />
           Finished
           <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-            <TimeDiff timeRef={contest.endTime}></TimeDiff>
+            {timeDiff.days > 0
+              ? `${timeDiff.days} DAYS`
+              : `${timeDiff.hours}:${timeDiff.minutes}:${timeDiff.seconds}`}
           </p>
           ago
         </>
