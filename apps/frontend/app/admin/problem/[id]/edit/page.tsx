@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
-//import { GET_TAGS } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type {
   Sample,
@@ -35,10 +34,6 @@ import { editSchema } from '../../utils'
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params
-  // const { data: tagsData } = useQuery(GET_TAGS)
-  // const tags =
-  // tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
-
   const router = useRouter()
 
   const methods = useForm<UpdateProblemInput>({

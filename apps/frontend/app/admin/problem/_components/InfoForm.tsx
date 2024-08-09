@@ -1,14 +1,12 @@
 import CheckboxSelect from '@/components/CheckboxSelect'
 import OptionSelect from '@/components/OptionSelect'
 import { languages, levels } from '@/lib/constants'
-// import type { Tag } from '@/types/type'
 import type { Template } from '@generated/graphql'
 import type { Language } from '@generated/graphql'
 import { useEffect } from 'react'
 import { useFormContext, useController } from 'react-hook-form'
 import ErrorMessage from '../../_components/ErrorMessage'
 
-// TODO: (if) when tag select component is added later, please add 'tags' and 'tagName' to the 'InfoForm'.
 export default function InfoForm() {
   const {
     watch,
