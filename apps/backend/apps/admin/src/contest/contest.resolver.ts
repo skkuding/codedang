@@ -64,6 +64,23 @@ export class ContestResolver {
     }
   }
 
+  @Query(() => [ContestWithParticipants])
+  async getUserinfo(
+    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    contestId: number
+  ) {
+    try {
+      return await this.contestService.getUserinfo(contestId)
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code == 'P2025'
+      ) {
+        throw new NotFoundException(error.message)
+      }
+    }
+  }
+
   @Mutation(() => Contest)
   async createContest(
     @Args('input') input: CreateContestInput,
