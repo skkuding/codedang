@@ -1,0 +1,31 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    duplicateContest(
+      groupId: 1,
+      contestId: 1
+    )
+  }
+}
+
+assert {
+  res.body.data.duplicateContest: isDefined
+}
+
+docs {
+  # Duplicate Contest
+  ---
+  - 선택한 Contest를 기반으로 새로운 Contest를 생성합니다.
+  - 등록된 User, ContestProblems도 복제됩니다.
+}

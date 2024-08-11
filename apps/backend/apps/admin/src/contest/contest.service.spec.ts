@@ -1,6 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { ContestProblem, Group } from '@generated'
+import { ContestProblem, Group, ContestRecord } from '@generated'
 import { Problem } from '@generated'
 import { Contest } from '@generated'
 import { faker } from '@faker-js/faker'
@@ -27,6 +27,7 @@ const endTime = faker.date.future()
 const createTime = faker.date.past()
 const updateTime = faker.date.past()
 const invitationCode = '123456'
+const duplicatedContestId = 2
 
 const contest: Contest = {
   id: contestId,
@@ -134,6 +135,18 @@ const contestProblem: ContestProblem = {
   updateTime: faker.date.past()
 }
 
+const contestRecord: ContestRecord = {
+  id: 2,
+  contestId: duplicatedContestId,
+  userId: 1,
+  score: 100,
+  createTime: faker.date.past(),
+  updateTime: faker.date.past(),
+  acceptedProblemNum: 0,
+  finishTime: null,
+  totalPenalty: 0
+}
+
 const publicizingRequest: PublicizingRequest = {
   contestId,
   userId,
@@ -171,7 +184,12 @@ const db = {
     delete: stub().resolves(Contest)
   },
   contestProblem: {
-    create: stub().resolves(ContestProblem)
+    create: stub().resolves(ContestProblem),
+    findMany: stub().resolves([ContestProblem])
+  },
+  contestRecord: {
+    findMany: stub().resolves([ContestRecord]),
+    create: stub().resolves(ContestRecord)
   },
   problem: {
     update: stub().resolves(Problem),
@@ -339,6 +357,52 @@ describe('ContestService', () => {
     it('should throw error when the contestId not exist', async () => {
       expect(
         service.importProblemsToContest(groupId, 9999, [problemId])
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+  })
+
+  describe('duplicateContest', () => {
+    it('should return duplicated contest', async () => {
+      db.contest.findFirst.resolves(contest)
+      db.contestProblem.create.resolves({
+        ...contest,
+        createdById: userId,
+        groupId,
+        isVisible: false
+      })
+      db.contestProblem.findMany.resolves([contestProblem])
+      db.contestProblem.create.resolves({
+        ...contestProblem,
+        contestId: duplicatedContestId
+      })
+      db.contestRecord.findMany.resolves([contestRecord])
+      db.contestRecord.create.resolves({
+        ...contestRecord,
+        contestId: duplicatedContestId
+      })
+
+      const res = await service.duplicateContest(groupId, contestId, userId)
+      expect(res.contest).to.deep.equal(contest)
+      expect(res.problems).to.deep.equal([
+        {
+          ...contestProblem,
+          contestId: duplicatedContestId
+        }
+      ])
+      expect(res.records).to.deep.equal([
+        { ...contestRecord, contestId: duplicatedContestId }
+      ])
+    })
+
+    it('should throw error when the contestId not exist', async () => {
+      expect(
+        service.duplicateContest(groupId, 9999, userId)
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+
+    it('should throw error when the groupId not exist', async () => {
+      expect(
+        service.duplicateContest(9999, contestId, userId)
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })
