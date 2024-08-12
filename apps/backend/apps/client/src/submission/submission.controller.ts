@@ -9,7 +9,8 @@ import {
   InternalServerErrorException,
   Logger,
   Query,
-  DefaultValuePipe
+  DefaultValuePipe,
+  Headers
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
@@ -36,6 +37,7 @@ export class SubmissionController {
   @Post()
   async createSubmission(
     @Req() req: AuthenticatedRequest,
+    @Headers('x-forwarded-for') userIp: string,
     @Body() submissionDto: CreateSubmissionDto,
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number,
@@ -46,6 +48,7 @@ export class SubmissionController {
       if (!contestId && !workbookId) {
         return await this.submissionService.submitToProblem(
           submissionDto,
+          userIp,
           req.user.id,
           problemId,
           groupId
@@ -53,6 +56,7 @@ export class SubmissionController {
       } else if (contestId) {
         return await this.submissionService.submitToContest(
           submissionDto,
+          userIp,
           req.user.id,
           problemId,
           contestId,
@@ -61,6 +65,7 @@ export class SubmissionController {
       } else if (workbookId) {
         return await this.submissionService.submitToWorkbook(
           submissionDto,
+          userIp,
           req.user.id,
           problemId,
           workbookId,
