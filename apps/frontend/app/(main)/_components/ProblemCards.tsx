@@ -40,7 +40,7 @@ export default function ProblemCards() {
 
   return (
     <>
-      <div className="flex justify-between gap-5 lg:hidden">
+      <div className="flex justify-between gap-5 xl:hidden">
         {loading
           ? [...Array(2)].map((_, i) => (
               <Skeleton key={i} className="flex h-[120px] w-full rounded-xl" />
@@ -57,7 +57,7 @@ export default function ProblemCards() {
               )
             })}
       </div>
-      <div className="hidden justify-between gap-5 lg:flex">
+      <div className="hidden justify-between gap-5 xl:flex">
         {loading
           ? [...Array(3)].map((_, i) => (
               <Skeleton key={i} className="flex h-[120px] w-full rounded-xl" />

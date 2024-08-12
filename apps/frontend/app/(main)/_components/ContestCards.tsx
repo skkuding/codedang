@@ -42,7 +42,7 @@ export default async function ContestCards() {
 
   return (
     <>
-      <div className="flex justify-between gap-5 lg:hidden">
+      <div className="flex justify-between gap-5 xl:hidden">
         {contests.slice(0, 2).map((contest) => {
           return (
             <Link
@@ -55,7 +55,7 @@ export default async function ContestCards() {
           )
         })}
       </div>
-      <div className="hidden justify-between gap-5 lg:flex">
+      <div className="hidden justify-between gap-5 xl:flex">
         {contests.map((contest) => {
           return (
             <Link
