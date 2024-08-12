@@ -35,7 +35,7 @@ export default function ContestCard({ contest }: Props) {
   return (
     <div
       className={cn(
-        'flex w-full flex-col justify-between gap-1 rounded-md border border-gray-200 px-3 shadow-none transition hover:scale-105 hover:opacity-80',
+        'flex w-full flex-col justify-between gap-4 rounded-md border border-gray-200 px-3 shadow-none transition hover:scale-105 hover:opacity-80',
         bgVariants[contest.status]
       )}
     >
@@ -46,15 +46,15 @@ export default function ContestCard({ contest }: Props) {
         )}
       >
         <StatusBadge variant={contest.status} />
-        <div className="line-clamp-2 h-14 whitespace-pre-wrap text-lg font-semibold leading-tight text-black">
+        <div className="line-clamp-4 h-24 text-ellipsis whitespace-pre-wrap text-lg font-semibold leading-tight text-black min-[400px]:line-clamp-2 min-[400px]:h-12">
           {contest.title}
         </div>
       </div>
       <div className="mb-4 flex items-center justify-between">
-        <div className="flex flex-col gap-2">
+        <div className="line-clamp-2 flex flex-col gap-2">
           <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800 opacity-80">
             <Image src={CalendarIcon} alt="Calendar" />
-            <p className="overflow-hidden text-ellipsis whitespace-nowrap">
+            <p className="overflow-hidden text-ellipsis whitespace-pre-wrap">
               {startTime} ~ {endTime}
             </p>
           </div>
@@ -66,7 +66,7 @@ export default function ContestCard({ contest }: Props) {
         </div>
         {(contest.status == 'ongoing' ||
           contest.status == 'registeredOngoing') && (
-          <div className="h-12 w-12">
+          <div className="hidden h-12 w-12 min-[400px]:block">
             <CircularProgressbar value={60} text="60%" />
           </div>
         )}
