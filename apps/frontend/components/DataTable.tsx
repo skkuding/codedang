@@ -10,6 +10,9 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
+import icon1_result from '@/public/icon1_result.svg'
+import icon2_result from '@/public/icon2_result.svg'
+import icon3_result from '@/public/icon3_result.svg'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
@@ -18,6 +21,7 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 import type { Route } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import DataTableLangFilter from './DataTableLangFilter'
@@ -40,37 +44,9 @@ interface DataTableProps<TData, TValue> {
 }
 
 const variants = {
-  todo: (
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none">
-      <path
-        stroke="gray"
-        stroke-dasharray="4 4"
-        stroke-opacity=".25"
-        d="M1.5 9H1V5h.5V3c0-.82843.67157-1.5 1.5-1.5h2V1h4v.5h2c.8284 0 1.5.67157 1.5 1.5v2h.5v4h-.5v2c0 .8284-.6716 1.5-1.5 1.5H9v.5H5v-.5H3c-.82843 0-1.5-.6716-1.5-1.5V9Z"
-      />
-    </svg>
-  ),
-  accept: (
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none">
-      <path
-        fill="#619CFB"
-        fill-rule="evenodd"
-        d="M7 13c3.3137 0 6-2.6863 6-6 0-3.31371-2.6863-6-6-6-3.31371 0-6 2.68629-6 6 0 3.3137 2.68629 6 6 6Zm3.4286-7.6965c.1953-.19526.1953-.51184 0-.7071-.1952-.19526-.51182-.19526-.70708 0L5.97498 8.34294l-1.6965-1.69649c-.19526-.19527-.51184-.19527-.70711 0-.19526.19526-.19526.51184 0 .7071L5.62142 9.4036l.35356.35356.35355-.35356 4.10007-4.1001Z"
-        clip-rule="evenodd"
-      />
-    </svg>
-  ),
-  attempt: (
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none">
-      <path
-        fill="#FF3B2F"
-        d="M14 8c0 3.3137-2.6863 6-6 6-3.31371 0-6-2.6863-6-6 0-3.31371 2.68629-6 6-6 3.3137 0 6 2.68629 6 6Z"
-      />
-      <g stroke="#fff" stroke-linecap="round">
-        <path d="m5.75 10.25 4.5-4.5M5.75 10.25l4.5-4.5M5.75 10.25l4.5-4.5M5.75 10.25l4.5-4.5M5.75 10.25l4.5-4.5M10.25 10.25l-4.5-4.5M10.25 10.25l-4.5-4.5M10.25 10.25l-4.5-4.5M10.25 10.25l-4.5-4.5M10.25 10.25l-4.5-4.5" />
-      </g>
-    </svg>
-  )
+  todo: <Image src={icon1_result} alt="Todo Icon" />,
+  accept: <Image src={icon2_result} alt="Accept Icon" />,
+  attempt: <Image src={icon3_result} alt="Attempt Icon" />
 }
 
 const levels = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
@@ -150,33 +126,34 @@ export default function DataTable<TData extends Item, TValue>({
     <>
       <>
         {enableFilter && (
-          <div className="flex items-center justify-between gap-96">
-            <div className="flex" style={{ marginRight: '96px' }}>
+          <div className="flex w-full justify-between">
+            <div className="flex gap-1">
               <SearchBar />
             </div>
-
-            <div className="flex gap-5">
-              {table.getColumn('difficulty') && (
-                <DataTableLevelFilter
-                  column={table.getColumn('difficulty')}
-                  title="Level"
-                  options={levels}
-                />
-              )}
-              {table.getColumn('languages') && (
-                <DataTableLangFilter
-                  column={table.getColumn('languages')}
-                  title="Languages"
-                  options={languageOptions}
-                />
-              )}
-              {table.getColumn('results') && (
-                <DataTableResultFilter
-                  column={table.getColumn('results')}
-                  title="Result"
-                  options={resultOptions}
-                />
-              )}
+            <div>
+              <div className="ml-2 flex items-center gap-2">
+                {table.getColumn('difficulty') && (
+                  <DataTableLevelFilter
+                    column={table.getColumn('difficulty')}
+                    title="Level"
+                    options={levels}
+                  />
+                )}
+                {table.getColumn('languages') && (
+                  <DataTableLangFilter
+                    column={table.getColumn('languages')}
+                    title="Languages"
+                    options={languageOptions}
+                  />
+                )}
+                {table.getColumn('results') && (
+                  <DataTableResultFilter
+                    column={table.getColumn('results')}
+                    title="Result"
+                    options={resultOptions}
+                  />
+                )}
+              </div>
             </div>
           </div>
         )}
