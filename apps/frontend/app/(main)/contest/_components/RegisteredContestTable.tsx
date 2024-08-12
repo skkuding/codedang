@@ -1,6 +1,7 @@
 import DataTable from '@/components/DataTable'
 import { fetcherWithAuth } from '@/lib/utils'
 import type { Contest } from '@/types/type'
+import { Search } from 'lucide-react'
 import { columns } from './RegisteredTableColumns'
 
 interface FinishedContestProps {

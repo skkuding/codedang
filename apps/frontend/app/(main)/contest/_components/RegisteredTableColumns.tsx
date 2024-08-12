@@ -1,9 +1,9 @@
 'use client'
 
-import Badge from '@/app/(main)/_components/Badge'
 import { dateFormatter } from '@/lib/utils'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
+import StatusBadge from '../../_components/StatusBadge'
 
 export const columns: ColumnDef<Contest>[] = [
   {
@@ -18,7 +18,11 @@ export const columns: ColumnDef<Contest>[] = [
   {
     header: 'Status',
     accessorKey: 'status',
-    cell: ({ row }) => <>{row.original.status}</>
+    cell: ({ row }) => (
+      <>
+        <StatusBadge variant={row.original.status} />
+      </>
+    )
   },
   {
     header: 'Participants',
