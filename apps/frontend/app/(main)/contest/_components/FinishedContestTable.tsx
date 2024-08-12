@@ -1,6 +1,7 @@
 import DataTable from '@/components/DataTable'
-import { fetcher } from '@/lib/utils'
+import { fetcher, fetcherWithAuth } from '@/lib/utils'
 import type { Contest } from '@/types/type'
+import type { Session } from 'next-auth'
 import { columns } from './FinishedTableColumns'
 
 interface ContestProps {
@@ -8,11 +9,13 @@ interface ContestProps {
 }
 
 export default async function FinishedContestTable({
-  search
+  search,
+  session
 }: {
   search: string
+  session: Session | null
 }) {
-  const ContestData: ContestProps = await fetcher
+  const ContestData: ContestProps = await (session ? fetcherWithAuth : fetcher)
     .get('contest/finished', {
       searchParams: {
         search,
@@ -27,7 +30,6 @@ export default async function FinishedContestTable({
 
   return (
     <>
-      {console.log(search)}
       <DataTable
         data={ContestData.data}
         columns={columns}

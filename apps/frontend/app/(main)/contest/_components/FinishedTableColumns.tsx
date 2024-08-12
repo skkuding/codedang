@@ -1,8 +1,10 @@
 'use client'
 
 import { dateFormatter } from '@/lib/utils'
+import CheckIcon from '@/public/check_blue.svg'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
+import Image from 'next/image'
 
 export const columns: ColumnDef<Contest>[] = [
   {
@@ -17,7 +19,12 @@ export const columns: ColumnDef<Contest>[] = [
   {
     header: 'Registered',
     accessorKey: 'registered',
-    cell: () => ''
+    cell: ({ row }) =>
+      row.original.isRegistered && (
+        <div className="flex items-center justify-center">
+          <Image src={CheckIcon} alt="check" height={24} />
+        </div>
+      )
   },
   {
     header: 'Participants',

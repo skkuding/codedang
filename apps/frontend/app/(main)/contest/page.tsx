@@ -98,7 +98,7 @@ export default async function Contest({ searchParams }: ContestProps) {
           {session && registered ? (
             <RegisteredContestTable search={search} />
           ) : (
-            <FinishedContestTable search={search} />
+            <FinishedContestTable search={search} session={session} />
           )}
         </Suspense>
       </div>
