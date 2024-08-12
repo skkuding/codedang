@@ -28,7 +28,7 @@ module.exports = withSentryConfig(withBundleAnalyzer(nextConfig), {
   silent: true,
   org: 'skkuding',
   project: process.env.SENTRY_PROJECT,
-  url: 'https://sentry.codedang.com',
+  sentryUrl: 'https://sentry.codedang.com',
   // For all available options, see:
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
