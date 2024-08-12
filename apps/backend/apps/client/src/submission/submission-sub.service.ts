@@ -80,6 +80,10 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       return
     }
 
+    if (!msg.judgeResult) {
+      throw new UnprocessableDataException('judgeResult is empty')
+    }
+
     const submissionResult = {
       submissionId: msg.submissionId,
       problemTestcaseId: parseInt(msg.judgeResult.testcaseId.split(':')[1], 10),
