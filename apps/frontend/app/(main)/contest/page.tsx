@@ -1,3 +1,4 @@
+import SearchBar from '@/components/SearchBar'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { auth } from '@/lib/auth'
@@ -11,6 +12,7 @@ import TableSwitchButton from './_components/TableSwitchButton'
 interface ContestProps {
   searchParams: {
     registered: string
+    search: string
   }
 }
 
@@ -57,6 +59,7 @@ export default async function Contest({ searchParams }: ContestProps) {
   if (!session && registered) {
     redirect('/contest')
   }
+  const search = searchParams.search ?? ''
 
   return (
     <>
@@ -88,12 +91,14 @@ export default async function Contest({ searchParams }: ContestProps) {
               Finished
             </p>
           )}
-          <Separator className="mb-10" />
-
+          <Separator className="mb-3" />
+          <div className="flex justify-end">
+            <SearchBar className="w-60" />
+          </div>
           {session && registered ? (
-            <RegisteredContestTable />
+            <RegisteredContestTable search={search} />
           ) : (
-            <FinishedContestTable />
+            <FinishedContestTable search={search} />
           )}
         </Suspense>
       </div>
