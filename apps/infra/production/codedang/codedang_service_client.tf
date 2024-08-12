@@ -85,7 +85,7 @@ module "client_api" {
   ecs_service = {
     name          = "Codedang-Client-Api-Service"
     cluster_arn   = module.codedang_api.ecs_cluster.arn
-    desired_count = 1
+    desired_count = 0
     load_balancer = {
       container_name   = "Codedang-Client-Api"
       container_port   = 4000
