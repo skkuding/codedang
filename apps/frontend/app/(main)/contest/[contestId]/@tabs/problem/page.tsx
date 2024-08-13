@@ -1,7 +1,6 @@
 import DataTable from '@/components/DataTable'
 import { fetcherWithAuth } from '@/lib/utils'
 import type { ContestProblem } from '@/types/type'
-import { IoIosLock } from 'react-icons/io'
 import { columns } from './_components/Columns'
 
 interface ContestProblemProps {
@@ -25,9 +24,8 @@ export default async function ContestProblem({ params }: ContestProblemProps) {
     const { statusCode, message }: { statusCode: number; message: string } =
       await res.json()
     return (
-      <div className="flex h-44 items-center justify-center gap-4">
-        <IoIosLock size={80} />
-        <div className="flex flex-col items-center gap-1">
+      <div className="flex h-44 translate-y-[22px] items-center justify-center gap-4">
+        <div className="flex flex-col items-center gap-1 font-mono">
           <p className="text-xl font-semibold">Access Denied</p>
           <p className="text-gray-500">
             {statusCode === 401
