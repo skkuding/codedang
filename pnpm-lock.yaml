@@ -168,8 +168,8 @@ importers:
         specifier: ^5.1.4
         version: 5.1.4
       chai-exclude:
-        specifier: ^2.1.1
-        version: 2.1.1(chai@4.5.0)
+        specifier: ^3.0.0
+        version: 3.0.0(chai@4.5.0)
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
@@ -5229,10 +5229,10 @@ packages:
     peerDependencies:
       chai: '>= 2.1.2 < 6'
 
-  chai-exclude@2.1.1:
-    resolution: {integrity: sha512-IHgNmgAFOkyRPnmOtZio9UsOHQ6RnzVr2LOs+5V9urYYqjhV/ERLQapC0Eq2DmID5eDWyngAcBxNUm0ZK0QbrQ==}
+  chai-exclude@3.0.0:
+    resolution: {integrity: sha512-v3PH1eI0fXyASr9PiZbq+/HuNfJWickgnPoSfQkUO1Mmq90YRrGvorZQ8ykUkexVdffXct3h9Vk/ztoLHb2EZA==}
     peerDependencies:
-      chai: '>= 4.0.0 < 5'
+      chai: '>= 5'
 
   chai@4.5.0:
     resolution: {integrity: sha512-RITGBfijLkBddZvnn8jdqoTypxvqbOLYQkGGxXzeFjVHvudaPw0HNFD9x928/eUwYWd2dPCugVqspGALTZZQKw==}
@@ -16470,7 +16470,7 @@ snapshots:
       chai: 4.5.0
       check-error: 1.0.3
 
-  chai-exclude@2.1.1(chai@4.5.0):
+  chai-exclude@3.0.0(chai@4.5.0):
     dependencies:
       chai: 4.5.0
       fclone: 1.0.11
