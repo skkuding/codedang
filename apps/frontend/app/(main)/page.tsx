@@ -67,7 +67,7 @@ export default function Home() {
             </Button>
           </Link>
         </div>
-        <div className="grid w-full grid-cols-3 gap-5">
+        <div>
           <ContestCards />
         </div>
         <div className="flex w-full items-center justify-between text-gray-700">
@@ -78,7 +78,7 @@ export default function Home() {
             </Button>
           </Link>
         </div>
-        <div className="grid w-full grid-cols-3 gap-5">
+        <div>
           <ProblemCards />
         </div>
       </div>

@@ -28,7 +28,7 @@ resource "aws_autoscaling_group" "this" {
   name                = var.autoscaling_group.name
   vpc_zone_identifier = [for key in keys(var.subnets) : aws_subnet.this[key].id]
 
-  desired_capacity = 1
+  desired_capacity = 0
   min_size         = 1
   max_size         = var.autoscaling_group.max_size
 
@@ -66,5 +66,12 @@ resource "aws_ecs_capacity_provider" "this" {
   auto_scaling_group_provider {
     auto_scaling_group_arn         = aws_autoscaling_group.this.arn
     managed_termination_protection = "ENABLED"
+
+    managed_scaling {
+      maximum_scaling_step_size = 5
+      minimum_scaling_step_size = 1
+      status                    = "ENABLED"
+      target_capacity           = 100
+    }
   }
 }
