@@ -29,19 +29,17 @@ export default async function FinishedContestTable({
   })
 
   return (
-    <>
-      <DataTable
-        data={ContestData.data}
-        columns={columns}
-        headerStyle={{
-          title: 'text-left w-2/5 md:w-1/3',
-          registered: 'w-1/5 md:w-1/6',
-          participants: 'w-1/5 md:w-1/6',
-          totalScore: 'w-1/5 md:w-1/6',
-          period: 'w-1/5 md:w-1/4'
-        }}
-        linked
-      />
-    </>
+    <DataTable
+      data={ContestData.data}
+      columns={columns}
+      headerStyle={{
+        title: 'text-left w-2/5 md:w-1/3',
+        registered: 'w-1/5 md:w-1/6',
+        participants: 'w-1/5 md:w-1/6',
+        totalScore: 'w-1/5 md:w-1/6',
+        period: 'w-1/5 md:w-1/4'
+      }}
+      linked
+    />
   )
 }
