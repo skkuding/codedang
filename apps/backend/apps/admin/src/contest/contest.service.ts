@@ -399,8 +399,10 @@ export class ContestService {
 
     // 유저가 같은 problemId에 대해 여러 번 제출할 수 있으므로, 같은 문제에 대해 여러 번 제출한 내역은 무시함.
     // 만약 여러번의 제출 중 ACCEPTED가 있다면 우선적으로 반영함.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const distinctSubmissions: any = {} // problemId : submission 형태로 저장
+    const distinctSubmissions: {
+      [problemId: string]: Submission
+    } = {}
+
     for (const submission of submissions) {
       const problemId = submission.problemId
 
