@@ -16,7 +16,7 @@
     "@codemirror/lang-java": "^6.0.1",
     "@codemirror/lang-python": "^6.1.6",
     "@codemirror/state": "^6.4.1",
-    "@codemirror/view": "^6.29.1",
+    "@codemirror/view": "^6.32.0",
     "@headlessui/react": "^2.1.2",
     "@hookform/resolvers": "^3.9.0",
     "@lezer/highlight": "^1.2.0",
