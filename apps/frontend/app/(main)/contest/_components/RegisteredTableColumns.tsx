@@ -18,11 +18,7 @@ export const columns: ColumnDef<Contest>[] = [
   {
     header: 'Status',
     accessorKey: 'status',
-    cell: ({ row }) => (
-      <>
-        <StatusBadge variant={row.original.status} />
-      </>
-    )
+    cell: ({ row }) => <StatusBadge variant={row.original.status} />
   },
   {
     header: 'Participants',

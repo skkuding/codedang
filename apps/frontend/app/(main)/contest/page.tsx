@@ -85,7 +85,7 @@ export default async function Contest({ searchParams }: ContestProps) {
         </h1>
         <Suspense fallback={<FinishedContestTableFallback />}>
           {session ? (
-            <TableSwitchButton />
+            <TableSwitchButton registered={registered} />
           ) : (
             <p className="text-primary-light border-primary-light w-fit border-b-2 p-6 text-2xl font-bold md:text-2xl">
               Finished

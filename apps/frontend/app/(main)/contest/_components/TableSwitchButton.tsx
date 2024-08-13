@@ -1,13 +1,11 @@
-'use client'
-
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 
-export default function TableSwitchButton() {
-  const searchParam = useSearchParams()
-  const registered = searchParam.get('registered')
-
+export default function TableSwitchButton({
+  registered
+}: {
+  registered: boolean
+}) {
   return (
     <div className="flex items-center">
       <Link
