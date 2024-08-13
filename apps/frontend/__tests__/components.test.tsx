@@ -6,6 +6,7 @@ test('ContestCard', () => {
   render(
     <ContestCard
       contest={{
+        enableCopyPaste: true,
         id: 1,
         title: 'test',
         status: 'ongoing',
