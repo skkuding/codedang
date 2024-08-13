@@ -28,8 +28,8 @@ resource "aws_autoscaling_group" "this" {
   name                = var.autoscaling_group.name
   vpc_zone_identifier = [for key in keys(var.subnets) : aws_subnet.this[key].id]
 
-  desired_capacity = 0
-  min_size         = 0
+  desired_capacity = 1
+  min_size         = 1
   max_size         = var.autoscaling_group.max_size
 
   mixed_instances_policy {
