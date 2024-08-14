@@ -42,13 +42,13 @@ export default function HeaderAuthPanel({
         <DropdownMenu>
           <DropdownMenuTrigger
             className={cn(
-              'hidden gap-2 rounded-md px-4 py-1 md:flex',
+              'hidden items-center gap-2 rounded-md px-4 py-1 md:flex',
               group === 'editor' ? null : 'bg-primary text-white'
             )}
           >
             <BiSolidUser
               className={cn(
-                'h-6 w-6',
+                'h-4 w-4',
                 group === 'editor' ? 'text-gray-300' : 'text-white'
               )}
             />
