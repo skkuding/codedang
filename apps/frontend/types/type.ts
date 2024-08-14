@@ -84,6 +84,7 @@ export interface Contest {
   enableCopyPaste: boolean
   status: ContestStatus
   participants: number
+  isRegistered: boolean
 }
 
 export interface ContestAnnouncement {
