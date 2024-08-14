@@ -214,13 +214,13 @@ export default function Editor({
               <SelectValue />
             </p>
           </SelectTrigger>
-          <SelectContent className="mt-3 min-w-[86px] max-w-fit border-none bg-[#4C5565] p-0 font-mono">
+          <SelectContent className="mt-3 min-w-[100px] max-w-fit border-none bg-[#4C5565] p-0 font-mono">
             <SelectGroup className="text-white">
               {problem.languages.map((language) => (
                 <SelectItem
                   key={language}
                   value={language}
-                  className="cursor-pointer ring-0 hover:bg-[#222939]"
+                  className="cursor-pointer hover:bg-[#222939]"
                 >
                   {language}
                 </SelectItem>
