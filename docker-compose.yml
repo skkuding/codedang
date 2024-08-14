@@ -114,10 +114,10 @@ services:
     deploy:
       resources:
         reservations:
-          cpus: 0.58
+          cpus: '0.58'
           memory: 512M
         limits:
-          cpus: 2.0
+          cpus: '2.0'
           memory: 2G
 
   backend-admin:
@@ -135,10 +135,10 @@ services:
     deploy:
       resources:
         reservations:
-          cpus: 0.58
+          cpus: '0.58'
           memory: 512M
         limits:
-          cpus: 2.0
+          cpus: '2.0'
           memory: 2G
 
   iris:
@@ -154,7 +154,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 0.50
+          cpus: '0.50'
           memory: 512M
 
   promtail:
