@@ -1,3 +1,5 @@
+'use client'
+
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -10,13 +12,35 @@ import {
   AlertDialogAction
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import { DUPLICATE_CONTEST } from '@/graphql/contest/mutations'
 import CopyIcon from '@/public/icons/copy.svg'
+import type { Contest } from '@/types/type'
+import { useMutation } from '@apollo/client'
 import Image from 'next/image'
 
+const duplicateContestById = async (groupId: number, contestId: number) => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [duplicateContest, { error }] = useMutation(DUPLICATE_CONTEST)
+  if (error) {
+    console.error(error)
+    return
+  }
+  const res = await duplicateContest({
+    variables: {
+      groupId,
+      contestId
+    }
+  })
+  if (res.data) {
+    console.log('Duplicated contest info:', res.data)
+  }
+}
 export default function DuplicateContest({
-  isContestOngoing
+  groupId,
+  contest
 }: {
-  isContestOngoing: boolean
+  groupId: number
+  contest: Contest
 }) {
   return (
     <div>
@@ -33,7 +57,7 @@ export default function DuplicateContest({
         <AlertDialogContent className="border border-slate-800 bg-slate-900">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-slate-50">
-              Duplicate {isContestOngoing ? 'Ongoing ' : ''}Contest
+              Duplicate {contest.status === 'ongoing' ? 'Ongoing ' : ''}Contest
             </AlertDialogTitle>
             <AlertDialogDescription className="text-slate-300">
               <p>Contents That Will Be Copied:</p>
@@ -55,7 +79,7 @@ export default function DuplicateContest({
               <ul>
                 <li>Users&quot; Submissions</li>
               </ul>
-              {isContestOngoing && (
+              {contest.status === 'ongoing' && (
                 <p className="text-red-500">
                   Caution: The new contest will be set to visible. Are you sure
                   you want to proceed with duplicating the selected contest?
@@ -67,7 +91,7 @@ export default function DuplicateContest({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-red-500 hover:bg-red-600"
-              onClick={() => console.log('Duplicating contest...')}
+              onClick={() => duplicateContestById(groupId, contest.id)}
             >
               Duplicate
             </AlertDialogAction>
