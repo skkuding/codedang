@@ -71,36 +71,72 @@ export default async function Contest({
 
   data.sort((a, b) => +new Date(a.startTime) - +new Date(b.startTime))
 
-  const contestChunks = []
+  const contestChunksThree = []
   for (let i = 0; i < data.length; i += 3)
-    contestChunks.push(data.slice(i, i + 3))
+    contestChunksThree.push(data.slice(i, i + 3))
+
+  const contestChunksTwo = []
+  for (let i = 0; i < data.length; i += 2)
+    contestChunksTwo.push(data.slice(i, i + 2))
 
   return data.length === 0 ? (
     <></>
   ) : (
-    <Carousel>
-      <div className="mb-5 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-700">{title}</h1>
-        <div className="flex items-center justify-end gap-2">
-          <CarouselPrevious />
-          <CarouselNext />
+    <>
+      <Carousel className="max-xl:hidden">
+        <div className="mb-5 flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-700">{title}</h1>
+          <div className="flex items-center justify-end gap-2">
+            <CarouselPrevious />
+            <CarouselNext />
+          </div>
         </div>
-      </div>
-      <CarouselContent className="p-1">
-        {contestChunks.map((contestChunk) => (
-          <CarouselItem key={contestChunk[0].id} className="flex w-full gap-3">
-            {contestChunk.map((contest) => (
-              <Link
-                key={contest.id}
-                href={`/contest/${contest.id}` as Route}
-                className="block w-1/3 overflow-hidden p-2"
-              >
-                <ContestCard contest={contest} />
-              </Link>
-            ))}
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-    </Carousel>
+        <CarouselContent className="p-1">
+          {contestChunksThree.map((contestChunk) => (
+            <CarouselItem
+              key={contestChunk[0].id}
+              className="flex w-full gap-3"
+            >
+              {contestChunk.map((contest) => (
+                <Link
+                  key={contest.id}
+                  href={`/contest/${contest.id}` as Route}
+                  className="block w-1/3 overflow-hidden p-2"
+                >
+                  <ContestCard contest={contest} />
+                </Link>
+              ))}
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
+      <Carousel className="xl:hidden">
+        <div className="mb-5 flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-700">{title}</h1>
+          <div className="flex items-center justify-end gap-2">
+            <CarouselPrevious />
+            <CarouselNext />
+          </div>
+        </div>
+        <CarouselContent className="p-1">
+          {contestChunksTwo.map((contestChunk) => (
+            <CarouselItem
+              key={contestChunk[0].id}
+              className="flex w-full gap-3"
+            >
+              {contestChunk.map((contest) => (
+                <Link
+                  key={contest.id}
+                  href={`/contest/${contest.id}` as Route}
+                  className="block w-1/2 overflow-hidden p-2"
+                >
+                  <ContestCard contest={contest} />
+                </Link>
+              ))}
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
+    </>
   )
 }
