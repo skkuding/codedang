@@ -88,7 +88,7 @@ export default function HeaderAuthPanel({
               onClick={() => showSignIn()}
               variant={'outline'}
               className={cn(
-                'mr-3 hidden px-3 py-1 text-base md:block',
+                'mr-3 hidden rounded-lg px-4 py-1 text-sm md:block',
                 group === 'editor' ? 'font-medium' : 'font-semibold'
               )}
             >
@@ -101,7 +101,7 @@ export default function HeaderAuthPanel({
                 showSignUp()
               }}
               className={cn(
-                'hidden px-3 py-1 text-base md:block',
+                'hidden rounded-lg px-4 py-1 text-sm md:block',
                 group === 'editor' ? 'font-medium' : 'font-bold'
               )}
             >
