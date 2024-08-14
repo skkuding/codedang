@@ -44,6 +44,15 @@ resource "aws_autoscaling_group" "this" {
   lifecycle {
     create_before_destroy = true
   }
+
+  tag {
+    key                 = "AmazonECSManaged"
+    value               = ""
+    propagate_at_launch = true
+  }
+
+  protect_from_scale_in = true
+
 }
 
 resource "aws_autoscaling_policy" "this" {
