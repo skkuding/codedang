@@ -12,8 +12,8 @@ import { useQuery } from '@apollo/client'
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
 import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
+import DataTable from '../../_components/DataTable'
 import { columns } from './_components/Columns'
-import DataTable from './_components/DataTable'
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params
