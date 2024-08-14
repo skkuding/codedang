@@ -40,7 +40,7 @@ export class Auth {
   constructor(page: Page) {
     this.page = page
     this.loginButton = page.locator(
-      'button.items-center.justify-center.rounded-md.text-primary'
+      'button.md\\:block.text-primary.h-10.px-3.py-1'
     )
 
     this.loginModal = page.locator(
@@ -51,7 +51,7 @@ export class Auth {
       'button.inline-flex.items-center.justify-center.text-xs.text-gray-500'
     )
     this.loginSubmitButton = page.locator(
-      'button.bg-primary.text-gray-50.h-10.px-4.py-2'
+      'form button.bg-primary.text-gray-50[type="submit"]'
     )
 
     this.forgotIDPasswordButton = page.locator(

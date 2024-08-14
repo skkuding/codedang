@@ -2,9 +2,9 @@ import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
   timeout: 30000,
-  retries: 2,
+  retries: 3,
   reporter: [['list'], ['json', { outputFile: 'test-results.json' }]],
-  testDir: '/tests',
+  testDir: './playwright/tests/',
   testMatch: '**/login.test.ts',
   projects: [
     {

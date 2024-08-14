@@ -1,0 +1,304 @@
+{
+  "config": {
+    "configFile": "/workspace/apps/frontend/playwright.config.ts",
+    "rootDir": "/workspace/apps/frontend/playwright/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 3
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 15000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/apps/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 3,
+        "metadata": {},
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/workspace/apps/frontend/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/login.test.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/apps/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 3,
+        "metadata": {},
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/workspace/apps/frontend/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/login.test.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/apps/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 3,
+        "metadata": {},
+        "id": "Google Chrome",
+        "name": "Google Chrome",
+        "testDir": "/workspace/apps/frontend/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/login.test.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "version": "1.46.0",
+    "workers": 6,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth/login.test.ts",
+      "file": "auth/login.test.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Login Tests",
+          "file": "auth/login.test.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Log in via homepage",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 14837,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2024-08-13T09:11:23.034Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "932ff77a7ef026530189-a2945469adbfc3b99f57",
+              "file": "auth/login.test.ts",
+              "line": 38,
+              "column": 7
+            },
+            {
+              "title": "Log in via sign up modal",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 10683,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2024-08-13T09:11:39.481Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "932ff77a7ef026530189-4bbd3d6bca4b08090d69",
+              "file": "auth/login.test.ts",
+              "line": 47,
+              "column": 7
+            },
+            {
+              "title": "Log in via homepage",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 13529,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2024-08-13T09:11:23.070Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "932ff77a7ef026530189-e223825d8d9369bfdf9e",
+              "file": "auth/login.test.ts",
+              "line": 38,
+              "column": 7
+            },
+            {
+              "title": "Log in via sign up modal",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 12476,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2024-08-13T09:11:37.096Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "932ff77a7ef026530189-5a95c8cd4ad00893d3ea",
+              "file": "auth/login.test.ts",
+              "line": 47,
+              "column": 7
+            },
+            {
+              "title": "Log in via homepage",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Google Chrome",
+                  "projectName": "Google Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "status": "passed",
+                      "duration": 11906,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2024-08-13T09:11:23.025Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "932ff77a7ef026530189-ec9e5849b3d274d0b311",
+              "file": "auth/login.test.ts",
+              "line": 38,
+              "column": 7
+            },
+            {
+              "title": "Log in via sign up modal",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Google Chrome",
+                  "projectName": "Google Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "status": "passed",
+                      "duration": 5760,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2024-08-13T09:11:35.754Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "932ff77a7ef026530189-617219135be3b29ddf9e",
+              "file": "auth/login.test.ts",
+              "line": 47,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2024-08-13T09:11:22.064Z",
+    "duration": 29191.555,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
