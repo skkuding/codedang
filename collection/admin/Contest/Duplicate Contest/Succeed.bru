@@ -14,19 +14,29 @@ body:graphql {
   mutation {
     duplicateContest(
       groupId: 1,
-      contestId: 26
+      contestId: 1
     ) {
       contest {
         id
+        invitationCode
+        isRankVisible
+        isVisible
+        description
+        endTime
+        startTime
         title
       }
       problems {
         problemId
+        contestId
+        order
+
       }
       records {
         id
+        userId
+        score
       }
-
     }
   }
 }
