@@ -13,27 +13,9 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { DUPLICATE_CONTEST } from '@/graphql/contest/mutations'
-import CopyIcon from '@/public/icons/copy.svg'
 import { useMutation } from '@apollo/client'
-import Image from 'next/image'
+import { CopyIcon } from 'lucide-react'
 
-const duplicateContestById = async (groupId: number, contestId: number) => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [duplicateContest, { error }] = useMutation(DUPLICATE_CONTEST)
-  if (error) {
-    console.error(error)
-    return
-  }
-  const res = await duplicateContest({
-    variables: {
-      groupId,
-      contestId
-    }
-  })
-  if (res.data) {
-    console.log('Duplicated contest info:', res.data)
-  }
-}
 export default function DuplicateContest({
   groupId,
   contestId,
@@ -43,26 +25,43 @@ export default function DuplicateContest({
   contestId: number
   contestStatus: string
 }) {
+  const [duplicateContest, { error }] = useMutation(DUPLICATE_CONTEST)
+
+  const duplicateContestById = async () => {
+    if (error) {
+      console.error(error)
+      return
+    }
+
+    const res = await duplicateContest({
+      variables: {
+        groupId,
+        contestId
+      }
+    })
+
+    if (res.data) {
+      console.log('Duplicated contest info:', res.data)
+    }
+  }
+
   return (
     <div>
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button
-            size="icon"
-            className="size-7 w-[77px] shrink-0 gap-[5px] rounded-md bg-slate-600 font-normal text-red-500 hover:bg-slate-700"
-          >
-            <Image src={CopyIcon} alt="Copy" width={24} />
+          <Button variant="default" size="default">
+            <CopyIcon className="mr-2 h-4 w-4" />
             Duplicate
           </Button>
         </AlertDialogTrigger>
-        <AlertDialogContent className="border border-slate-800 bg-slate-900">
+        <AlertDialogContent className="border-slate-80 border bg-white">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-slate-50">
+            <AlertDialogTitle className="text-xl font-bold text-black">
               Duplicate {contestStatus === 'ongoing' ? 'Ongoing ' : ''}Contest
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-300">
-              <p>Contents That Will Be Copied:</p>
-              <ul>
+            <AlertDialogDescription className="text-neutral-500">
+              <p className="font-semibold">Contents That Will Be Copied:</p>
+              <ul className="mb-3 ml-5 list-disc">
                 <li>Title</li>
                 <li>Start Time & End Time</li>
                 <li>Description</li>
@@ -71,28 +70,39 @@ export default function DuplicateContest({
                 </li>
                 <li>Contest Problems</li>
                 <li className="text-red-500">
-                  Participants of the selected contest (All participants of the
-                  selected contest will be automatically registered for the
-                  duplicated contest.)
+                  Participants of the selected contest <br />
+                  <span className="text-xs">
+                    (All participants of the selected contest will be
+                    automatically registered for the duplicated contest.)
+                  </span>
                 </li>
               </ul>
-              <p>Contents That Will Not Be Copied:</p>
-              <ul>
-                <li>Users&quot; Submissions</li>
+              <p className="font-semibold">Contents That Will Not Be Copied:</p>
+              <ul className="mb-3 ml-5 list-disc">
+                <li>Users&apos; Submissions</li>
               </ul>
-              {contestStatus === 'ongoing' && (
-                <p className="text-red-500">
-                  Caution: The new contest will be set to visible. Are you sure
-                  you want to proceed with duplicating the selected contest?
+              {contestStatus === 'ongoing' ? (
+                <p className="mb-3 mt-4 text-red-500">
+                  Caution: The new contest will be set to visible.
+                </p>
+              ) : (
+                <p className="mb-3 mt-4 text-red-500">
+                  Caution: The new contest will be set to invisible
                 </p>
               )}
+              <p className="mt-4">
+                Are you sure you want to proceed with duplicating the selected
+                contest?
+              </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="flex gap-2">
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="flex justify-end gap-2">
+            <AlertDialogCancel className="rounded-md bg-gray-500 px-4 py-2 text-white">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-red-500 hover:bg-red-600"
-              onClick={() => duplicateContestById(groupId, contestId)}
+              className="rounded-md bg-blue-600 px-4 py-2 text-white"
+              onClick={duplicateContestById}
             >
               Duplicate
             </AlertDialogAction>

@@ -21,6 +21,12 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider
+} from '@/components/ui/tooltip'
 import { DELETE_CONTEST } from '@/graphql/contest/mutations'
 import { DELETE_PROBLEM } from '@/graphql/problem/mutations'
 import { getStatusWithStartEnd } from '@/lib/utils'
@@ -38,7 +44,6 @@ import {
 } from '@tanstack/react-table'
 import { CopyIcon, PlusCircleIcon } from 'lucide-react'
 import type { Route } from 'next'
-import Image from 'next/image'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
 import { IoSearch } from 'react-icons/io5'
@@ -290,73 +295,80 @@ export function DataTableAdmin<TData, TValue>({
               </div>
             )}
           </div>
-          {enableImport ? (
-            <Button onClick={() => handleImportProblems()}>
-              <PlusCircleIcon className="mr-2 h-4 w-4" />
-              Import
-            </Button>
-          ) : null}
-          {enableDuplicate ? (
-            selectedRowCount === 1 ? (
-              <DuplicateContest
-                contestId={
-                  (table.getSelectedRowModel().rows[0] as SelectedContest)
-                    ?.original.id
-                }
-                contestStatus={getStatusWithStartEnd(
-                  (table.getSelectedRowModel().rows[0] as SelectedContest)
-                    ?.original.startTime,
-                  (table.getSelectedRowModel().rows[0] as SelectedContest)
-                    ?.original.endTime
-                )}
-                groupId={1}
-              />
-            ) : (
-              <Button
-                disabled={true}
-                size="icon"
-                className="size-7 w-[77px] shrink-0 gap-[5px] rounded-md bg-slate-600 font-normal text-red-500 hover:bg-slate-700"
-              >
-                <Image src={CopyIcon.toString()} alt="Copy" width={24} />
-                Duplicate
+          <div className="flex gap-2">
+            {enableImport ? (
+              <Button onClick={() => handleImportProblems()}>
+                <PlusCircleIcon className="mr-2 h-4 w-4" />
+                Import
               </Button>
-            )
-          ) : null}
-          {enableDelete ? (
-            selectedRowCount !== 0 ? (
-              <AlertDialog>
-                <AlertDialogTrigger>
-                  <Button variant="outline" type="button">
-                    <PiTrashLight fontSize={18} />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to permanently delete{' '}
-                      {selectedRowCount} {deletingObject}(s)?
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction asChild>
-                      <Button
-                        onClick={() => handleDeleteRows()}
-                        className="bg-red-500 hover:bg-red-500/90"
-                      >
-                        Delete
+            ) : null}
+            {enableDuplicate ? (
+              selectedRowCount === 1 ? (
+                <DuplicateContest
+                  contestId={
+                    (table.getSelectedRowModel().rows[0] as SelectedContest)
+                      ?.original.id
+                  }
+                  contestStatus={getStatusWithStartEnd(
+                    (table.getSelectedRowModel().rows[0] as SelectedContest)
+                      ?.original.startTime,
+                    (table.getSelectedRowModel().rows[0] as SelectedContest)
+                      ?.original.endTime
+                  )}
+                  groupId={1}
+                />
+              ) : (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Button variant="default" size="default" disabled>
+                        <CopyIcon className="mr-2 h-4 w-4" />
+                        Duplicate
                       </Button>
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            ) : (
-              <Button variant="outline" type="button">
-                <PiTrashLight fontSize={18} />
-              </Button>
-            )
-          ) : null}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p> Select only one contest to duplicate</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )
+            ) : null}
+            {enableDelete ? (
+              selectedRowCount !== 0 ? (
+                <AlertDialog>
+                  <AlertDialogTrigger>
+                    <Button variant="outline" type="button">
+                      <PiTrashLight fontSize={18} />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to permanently delete{' '}
+                        {selectedRowCount} {deletingObject}(s)?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction asChild>
+                        <Button
+                          onClick={() => handleDeleteRows()}
+                          className="bg-red-500 hover:bg-red-500/90"
+                        >
+                          Delete
+                        </Button>
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              ) : (
+                <Button variant="outline" type="button">
+                  <PiTrashLight fontSize={18} />
+                </Button>
+              )
+            ) : null}
+          </div>
         </div>
       )}
 
