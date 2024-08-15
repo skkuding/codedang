@@ -392,6 +392,13 @@ export class ContestService {
       throw new EntityNotExistException('contest')
     }
 
+    // if contest status is ongoing, visible would be true. else, false
+    const now = new Date()
+    let newVisible = false
+    if (contestFound.startTime <= now && now <= contestFound.endTime) {
+      newVisible = true
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, createTime, updateTime, title, ...contestDataToCopy } =
       contestFound
@@ -402,7 +409,7 @@ export class ContestService {
         title: 'Copy of ' + title,
         createdById: userId,
         groupId,
-        isVisible: false
+        isVisible: newVisible
       }
     })
 
