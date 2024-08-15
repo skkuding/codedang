@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button'
 import { DUPLICATE_CONTEST } from '@/graphql/contest/mutations'
 import { useMutation } from '@apollo/client'
 import { CopyIcon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 export default function DuplicateContest({
   groupId,
@@ -25,6 +27,7 @@ export default function DuplicateContest({
   contestId: number
   contestStatus: string
 }) {
+  const router = useRouter()
   const [duplicateContest, { error }] = useMutation(DUPLICATE_CONTEST)
 
   const duplicateContestById = async () => {
@@ -32,6 +35,7 @@ export default function DuplicateContest({
       console.error(error)
       return
     }
+    const toastId = toast.loading('Duplicating contest...')
 
     const res = await duplicateContest({
       variables: {
@@ -40,9 +44,15 @@ export default function DuplicateContest({
       }
     })
 
-    if (res.data) {
-      console.log('Duplicated contest info:', res.data)
+    if (res.data?.duplicateContest.contest) {
+      toast.success(
+        `Contest duplicated completed.\n Duplicated contest title: ${res.data.duplicateContest.contest.title}`,
+        {
+          id: toastId
+        }
+      )
     }
+    router.refresh()
   }
 
   return (
@@ -97,11 +107,11 @@ export default function DuplicateContest({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex justify-end gap-2">
-            <AlertDialogCancel className="rounded-md bg-gray-500 px-4 py-2 text-white">
+            <AlertDialogCancel className="rounded-md px-4 py-2">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              className="rounded-md bg-blue-600 px-4 py-2 text-white"
+              className="rounded-md bg-blue-500 px-4 py-2 text-white"
               onClick={duplicateContestById}
             >
               Duplicate
