@@ -177,24 +177,7 @@ export class ContestService {
 
           await this.prisma.problem.update({
             where: {
-              id: problemId,
-              OR: [
-                {
-                  visibleLockTime: {
-                    equals: MIN_DATE
-                  }
-                },
-                {
-                  visibleLockTime: {
-                    equals: MAX_DATE
-                  }
-                },
-                {
-                  visibleLockTime: {
-                    lte: contest.endTime
-                  }
-                }
-              ]
+              id: problemId
             },
             data: {
               visibleLockTime
