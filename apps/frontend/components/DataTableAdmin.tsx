@@ -1,5 +1,6 @@
 'use client'
 
+import DuplicateContest from '@/app/admin/contest/_components/DuplicateContest'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +23,7 @@ import {
 } from '@/components/ui/table'
 import { DELETE_CONTEST } from '@/graphql/contest/mutations'
 import { DELETE_PROBLEM } from '@/graphql/problem/mutations'
+import { getStatusWithStartEnd } from '@/lib/utils'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef, SortingState } from '@tanstack/react-table'
 import {
@@ -34,8 +36,9 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import { PlusCircleIcon } from 'lucide-react'
+import { CopyIcon, PlusCircleIcon } from 'lucide-react'
 import type { Route } from 'next'
+import Image from 'next/image'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
 import { IoSearch } from 'react-icons/io5'
@@ -54,6 +57,7 @@ interface DataTableProps<TData, TValue> {
   enableDelete?: boolean // Enable delete selected rows
   enablePagination?: boolean // Enable pagination
   enableImport?: boolean // Enable import selected rows
+  enableDuplicate?: boolean // Enable duplicate selected rows
   checkSelectedRows?: boolean // Check selected rows
 }
 
@@ -61,6 +65,14 @@ interface ContestProblem {
   id: number
   title: string
   difficulty: string
+}
+
+interface SelectedContest {
+  original: {
+    id: number
+    startTime: string
+    endTime: string
+  }
 }
 
 const languageOptions = ['C', 'Cpp', 'Java', 'Python3']
@@ -82,6 +94,7 @@ export function DataTableAdmin<TData, TValue>({
   enableDelete = false,
   enablePagination = false,
   enableImport = false,
+  enableDuplicate = false,
   checkSelectedRows = false
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
@@ -236,7 +249,11 @@ export function DataTableAdmin<TData, TValue>({
       <Suspense>
         <Search />
       </Suspense>
-      {(enableSearch || enableFilter || enableImport || enableDelete) && (
+      {(enableSearch ||
+        enableFilter ||
+        enableImport ||
+        enableDelete ||
+        enableDuplicate) && (
         <div className="flex justify-between">
           <div className="flex gap-2">
             {enableSearch && (
@@ -278,6 +295,32 @@ export function DataTableAdmin<TData, TValue>({
               <PlusCircleIcon className="mr-2 h-4 w-4" />
               Import
             </Button>
+          ) : null}
+          {enableDuplicate ? (
+            selectedRowCount === 1 ? (
+              <DuplicateContest
+                contestId={
+                  (table.getSelectedRowModel().rows[0] as SelectedContest)
+                    ?.original.id
+                }
+                contestStatus={getStatusWithStartEnd(
+                  (table.getSelectedRowModel().rows[0] as SelectedContest)
+                    ?.original.startTime,
+                  (table.getSelectedRowModel().rows[0] as SelectedContest)
+                    ?.original.endTime
+                )}
+                groupId={1}
+              />
+            ) : (
+              <Button
+                disabled={true}
+                size="icon"
+                className="size-7 w-[77px] shrink-0 gap-[5px] rounded-md bg-slate-600 font-normal text-red-500 hover:bg-slate-700"
+              >
+                <Image src={CopyIcon.toString()} alt="Copy" width={24} />
+                Duplicate
+              </Button>
+            )
           ) : null}
           {enableDelete ? (
             selectedRowCount !== 0 ? (

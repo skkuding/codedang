@@ -14,7 +14,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { DUPLICATE_CONTEST } from '@/graphql/contest/mutations'
 import CopyIcon from '@/public/icons/copy.svg'
-import type { Contest } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import Image from 'next/image'
 
@@ -37,10 +36,12 @@ const duplicateContestById = async (groupId: number, contestId: number) => {
 }
 export default function DuplicateContest({
   groupId,
-  contest
+  contestId,
+  contestStatus
 }: {
   groupId: number
-  contest: Contest
+  contestId: number
+  contestStatus: string
 }) {
   return (
     <div>
@@ -57,7 +58,7 @@ export default function DuplicateContest({
         <AlertDialogContent className="border border-slate-800 bg-slate-900">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-slate-50">
-              Duplicate {contest.status === 'ongoing' ? 'Ongoing ' : ''}Contest
+              Duplicate {contestStatus === 'ongoing' ? 'Ongoing ' : ''}Contest
             </AlertDialogTitle>
             <AlertDialogDescription className="text-slate-300">
               <p>Contents That Will Be Copied:</p>
@@ -79,7 +80,7 @@ export default function DuplicateContest({
               <ul>
                 <li>Users&quot; Submissions</li>
               </ul>
-              {contest.status === 'ongoing' && (
+              {contestStatus === 'ongoing' && (
                 <p className="text-red-500">
                   Caution: The new contest will be set to visible. Are you sure
                   you want to proceed with duplicating the selected contest?
@@ -91,7 +92,7 @@ export default function DuplicateContest({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-red-500 hover:bg-red-600"
-              onClick={() => duplicateContestById(groupId, contest.id)}
+              onClick={() => duplicateContestById(groupId, contestId)}
             >
               Duplicate
             </AlertDialogAction>

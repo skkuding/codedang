@@ -63,3 +63,16 @@ export const dateFormatter = (date: string | Date, format: string) => {
     new Date(date).toLocaleString('en-US', { timeZone: 'Asia/Seoul' })
   ).format(format)
 }
+
+export const getStatusWithStartEnd = (startTime: string, endTime: string) => {
+  const now = new Date()
+  const start = dayjs(startTime, 'YYYY-MM-DD HH:mm:ss').toDate()
+  const end = dayjs(endTime, 'YYYY-MM-DD HH:mm:ss').toDate()
+  if (now < start) {
+    return 'upcoming'
+  } else if (now > end) {
+    return 'finished'
+  } else {
+    return 'ongoing'
+  }
+}
