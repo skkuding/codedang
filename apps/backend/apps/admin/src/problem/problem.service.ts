@@ -426,7 +426,11 @@ export class ProblemService {
         'A problem should support at least one language'
       )
     }
-    if (isVisible != undefined && new Date() < problem.visibleLockTime) {
+    if (
+      isVisible != undefined &&
+      new Date() < problem.visibleLockTime &&
+      problem.visibleLockTime !== MAX_DATE
+    ) {
       throw new UnprocessableDataException(
         'Unable to set the visible property until the contest is over'
       )

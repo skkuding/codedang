@@ -144,6 +144,37 @@ export class ContestService {
     if (problemIds.length && isEndTimeChanged) {
       for (const problemId of problemIds) {
         try {
+          // 문제가 포함된 대회 중 가장 늦게 끝나는 대회의 종료시각으로 visibleLockTime 설정
+          let visibleLockTime = contest.endTime
+
+          const contestIds = (
+            await this.prisma.contestProblem.findMany({
+              where: {
+                problemId
+              }
+            })
+          )
+            .filter((contestProblem) => contestProblem.contestId !== contest.id)
+            .map((contestProblem) => contestProblem.contestId)
+
+          if (contestIds.length) {
+            const latestContest = await this.prisma.contest.findFirstOrThrow({
+              where: {
+                id: {
+                  in: contestIds
+                }
+              },
+              orderBy: {
+                endTime: 'desc'
+              },
+              select: {
+                endTime: true
+              }
+            })
+            if (contest.endTime < latestContest.endTime)
+              visibleLockTime = latestContest.endTime
+          }
+
           await this.prisma.problem.update({
             where: {
               id: problemId,
@@ -166,7 +197,7 @@ export class ContestService {
               ]
             },
             data: {
-              visibleLockTime: contest.endTime
+              visibleLockTime
             }
           })
         } catch (error) {
