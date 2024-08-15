@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input'
 import { cn, fetcher } from '@/lib/utils'
 import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { toast } from 'sonner'
@@ -19,16 +19,18 @@ const schema = z
     password: z
       .string()
       .min(8)
+      .max(20)
       .refine((data) => {
         const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
         return !invalidPassword.test(data)
       }),
-    passwordAgain: z.string().min(8)
+    passwordAgain: z.string()
   })
   .refine(
     (data: { password: string; passwordAgain: string }) =>
       data.password === data.passwordAgain,
     {
+      message: 'Incorrect',
       path: ['passwordAgain']
     }
   )
@@ -38,6 +40,8 @@ export default function ResetPassword() {
     handleSubmit,
     register,
     trigger,
+    getValues,
+    watch,
     formState: { errors, isValid }
   } = useForm<ResetPasswordInput>({
     resolver: zodResolver(schema)
@@ -45,7 +49,17 @@ export default function ResetPassword() {
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
   const [inputFocus, setInputFocus] = useState<number>(0)
+  const [focusedList, setFocusedList] = useState<Array<boolean>>([false, false])
   const { formData } = useRecoverAccountModalStore((state) => state)
+
+  const watchedPassword = watch('password')
+  const watchedPasswordAgain = watch('passwordAgain')
+
+  useEffect(() => {
+    if (watchedPasswordAgain) {
+      trigger('passwordAgain')
+    }
+  }, [watchedPassword, watchedPasswordAgain, trigger])
 
   const onSubmit = async (data: ResetPasswordInput) => {
     try {
@@ -69,24 +83,31 @@ export default function ResetPassword() {
       onSubmit={handleSubmit(onSubmit)}
       className="flex w-full flex-col gap-1 px-2"
     >
-      <p className="text-primary mb-4 text-left text-xl font-bold">
+      <p className="text-primary mb-4 text-left font-mono text-xl font-bold">
         Reset Password
       </p>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <div className="flex justify-between gap-2">
+          <div className="relative flex justify-between gap-1">
             <Input
               placeholder="Password"
+              className={cn(
+                focusedList[0] && 'ring-1 focus-visible:ring-1',
+                errors.password && getValues('password')
+                  ? 'ring-red-500 focus-visible:ring-red-500'
+                  : 'ring-primary'
+              )}
               {...register('password', {
                 onChange: () => trigger('password')
               })}
               type={passwordShow ? 'text' : 'password'}
               onFocus={() => {
                 setInputFocus(0)
+                setFocusedList([true, focusedList[1]])
               }}
             />
             <span
-              className="flex items-center"
+              className="absolute right-0 top-0 flex h-full p-3"
               onClick={() => setPasswordShow(!passwordShow)}
             >
               {passwordShow ? (
@@ -96,27 +117,33 @@ export default function ResetPassword() {
               )}
             </span>
           </div>
-          {inputFocus === 0 && (
+          {(inputFocus === 0 || errors.password) && (
             <div
               className={cn(
-                errors.password ? 'text-red-500' : 'text-gray-500',
+                errors.password && getValues('password')
+                  ? 'text-red-500'
+                  : 'text-gray-500',
                 'text-xs'
               )}
             >
-              <ul className="pl-4">
-                <li className="list-disc">
-                  Your password must be at least 8 characters
-                </li>
-                <li>and include two of the followings:</li>
-                <li>Capital letters, Small letters, or Numbers</li>
+              <ul className="pl-4 text-xs">
+                <li className="list-disc">8-20 characters</li>
+                <li className="list-disc">Include two of the followings:</li>
+                <li>capital letters, small letters, numbers</li>
               </ul>
             </div>
           )}
         </div>
 
         <div className="flex flex-col gap-1">
-          <div className="flex justify-between gap-2">
+          <div className="relative flex justify-between gap-1">
             <Input
+              className={cn(
+                focusedList[1] && 'ring-1 focus-visible:ring-1',
+                errors.passwordAgain && getValues('passwordAgain')
+                  ? 'ring-red-500 focus-visible:ring-red-500'
+                  : 'ring-primary'
+              )}
               {...register('passwordAgain', {
                 onChange: () => trigger('passwordAgain')
               })}
@@ -124,10 +151,11 @@ export default function ResetPassword() {
               type={passwordAgainShow ? 'text' : 'password'}
               onFocus={() => {
                 setInputFocus(1)
+                setFocusedList([focusedList[0], true])
               }}
             />
             <span
-              className="flex items-center"
+              className="absolute right-0 top-0 flex h-full p-3"
               onClick={() => setPasswordAgainShow(!passwordAgainShow)}
             >
               {passwordAgainShow ? (
@@ -138,7 +166,9 @@ export default function ResetPassword() {
             </span>
           </div>
           {errors.passwordAgain && (
-            <p className="text-xs text-red-500">Incorrect</p>
+            <p className="text-xs text-red-500">
+              {errors.passwordAgain.message}
+            </p>
           )}
         </div>
         <Button
