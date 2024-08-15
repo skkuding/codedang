@@ -429,7 +429,7 @@ export class ProblemService {
     if (
       isVisible != undefined &&
       new Date() < problem.visibleLockTime &&
-      problem.visibleLockTime !== MAX_DATE
+      problem.visibleLockTime.getTime() !== MAX_DATE.getTime()
     ) {
       throw new UnprocessableDataException(
         'Unable to set the visible property until the contest is over'
