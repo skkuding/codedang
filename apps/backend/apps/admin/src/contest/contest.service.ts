@@ -393,11 +393,13 @@ export class ContestService {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, createTime, updateTime, ...contestDataToCopy } = contestFound
+    const { id, createTime, updateTime, title, ...contestDataToCopy } =
+      contestFound
 
     const newContest = await this.prisma.contest.create({
       data: {
         ...contestDataToCopy,
+        title: 'Copy of ' + title,
         createdById: userId,
         groupId,
         isVisible: false

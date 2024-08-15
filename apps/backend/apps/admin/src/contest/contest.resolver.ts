@@ -229,8 +229,8 @@ export class ContestResolver {
   ) {
     try {
       return await this.contestService.duplicateContest(
-        contestId,
         groupId,
+        contestId,
         req.user.id
       )
     } catch (error) {
