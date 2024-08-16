@@ -20,6 +20,7 @@ services:
     network_mode: host
 
   local-storage:
+    profiles: ['devcontainer']
     container_name: codedang-local-storage
     image: minio/minio
     ports:
