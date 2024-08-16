@@ -93,6 +93,11 @@ export function DataTableAdmin<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    defaultColumn: {
+      minSize: 0,
+      size: Number.MAX_SAFE_INTEGER,
+      maxSize: Number.MAX_SAFE_INTEGER
+    },
     state: {
       sorting,
       rowSelection,
@@ -319,12 +324,19 @@ export function DataTableAdmin<TData, TValue>({
 
       <div className="rounded-md border">
         <Table>
-          <TableHeader className="[&_tr]:border-b-gray-200">
+          <TableHeader className="bg-neutral-100 [&_tr]:border-b-gray-200">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      className={
+                        header.getSize()
+                          ? `w-[${header.getSize()}px]`
+                          : 'w-auto'
+                      }
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -349,7 +361,7 @@ export function DataTableAdmin<TData, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
-                    className="cursor-pointer hover:bg-gray-200"
+                    className="cursor-pointer hover:bg-neutral-200/30"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell

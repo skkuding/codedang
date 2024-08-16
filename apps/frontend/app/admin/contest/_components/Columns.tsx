@@ -114,10 +114,7 @@ export const columns: ColumnDef<DataTableContest>[] = [
     id: 'select',
     header: ({ table }) => (
       <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
-        }
+        checked={table.getIsAllPageRowsSelected()}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
         className="translate-y-[2px] bg-white"
@@ -140,7 +137,9 @@ export const columns: ColumnDef<DataTableContest>[] = [
       <DataTableColumnHeader column={column} title="Title" />
     ),
     cell: ({ row }) => (
-      <p className="text-left font-medium">{row.getValue('title')}</p>
+      <p className="max-w-[500px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+        {row.getValue('title')}
+      </p>
     ),
     enableSorting: false,
     enableHiding: false
@@ -160,7 +159,8 @@ export const columns: ColumnDef<DataTableContest>[] = [
       <p className="text-center font-normal">
         {`${dateFormatter(row.original.startTime, 'YY-MM-DD hh:mm')} ~ ${dateFormatter(row.original.endTime, 'YY-MM-DD hh:mm')}`}
       </p>
-    )
+    ),
+    size: 250
   },
   {
     accessorKey: 'participants',
@@ -171,7 +171,8 @@ export const columns: ColumnDef<DataTableContest>[] = [
     ),
     cell: ({ row }) => (
       <p className="text-center font-normal">{row.original.participants}</p>
-    )
+    ),
+    size: 100
   },
   {
     accessorKey: 'isVisible',
@@ -180,6 +181,7 @@ export const columns: ColumnDef<DataTableContest>[] = [
     ),
     cell: ({ row }) => {
       return <VisibleCell row={row} />
-    }
+    },
+    size: 100
   }
 ]
