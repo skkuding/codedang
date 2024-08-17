@@ -8,7 +8,6 @@ import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { FaSortDown } from 'react-icons/fa'
-import { IoIosArrowForward } from 'react-icons/io'
 import ContestStatusTimeDiff from './ContestStatusTimeDiff'
 import {
   DropdownMenu,
@@ -49,12 +48,12 @@ export default async function EditorLayout({
 
   return (
     <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
-      <header className="flex justify-between bg-slate-900 px-4">
-        <div className="flex items-center justify-center gap-6 font-bold text-slate-500">
+      <header className="flex justify-between bg-slate-900 px-6">
+        <div className="flex items-center justify-center gap-6 text-lg text-[#787E80]">
           <Link href="/">
             <Image src={codedangLogo} alt="코드당" width={33} />
           </Link>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 font-medium">
             {contest ? (
               <Link href={`/contest/${contestId}` as Route}>
                 {contest.title}
@@ -62,10 +61,10 @@ export default async function EditorLayout({
             ) : (
               <Link href="/problem">Problem</Link>
             )}
-            <IoIosArrowForward className="size-6" />
+            <p className="mx-2"> / </p>
             {contest ? (
               <DropdownMenu>
-                <DropdownMenuTrigger className="flex gap-1 text-lg font-bold text-white outline-none">
+                <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
                   <h1>{`${convertToLetter(problems?.data.find((item) => item.id === Number(problemId))?.order as number)}. ${problem.title}`}</h1>
                   <FaSortDown />
                 </DropdownMenuTrigger>
@@ -83,7 +82,7 @@ export default async function EditorLayout({
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <h1 className="text-lg font-bold text-white">{`#${problem.id}. ${problem.title}`}</h1>
+              <h1 className="text-lg font-medium text-white">{`#${problem.id}. ${problem.title}`}</h1>
             )}
           </div>
         </div>

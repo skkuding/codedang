@@ -104,8 +104,10 @@ export default function HeaderAuthPanel({
               onClick={() => showSignIn()}
               variant={'outline'}
               className={cn(
-                'mr-3 hidden px-3 py-1 text-base md:block',
-                isEditor ? 'font-medium' : 'font-semibold'
+                'mr-3 hidden px-3 py-1 text-base font-semibold md:block',
+                isEditor
+                  ? 'h-8 rounded-[4px] border-none bg-[#EAF3FF] text-[11px]'
+                  : ''
               )}
             >
               Log In
@@ -118,7 +120,9 @@ export default function HeaderAuthPanel({
               }}
               className={cn(
                 'hidden px-3 py-1 text-base md:block',
-                group === 'editor' ? 'font-medium' : 'font-bold'
+                isEditor
+                  ? 'h-8 rounded-[4px] text-[11px] font-semibold'
+                  : 'font-bold'
               )}
             >
               Sign Up
