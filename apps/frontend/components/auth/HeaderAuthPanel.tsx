@@ -74,7 +74,7 @@ export default function HeaderAuthPanel({
                   className={cn(
                     'flex cursor-pointer items-center gap-1',
                     isEditor
-                      ? 'text-white focus:rounded-none focus:bg-[#222939] focus:text-white'
+                      ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
                       : 'font-semibold'
                   )}
                 >
@@ -86,7 +86,7 @@ export default function HeaderAuthPanel({
               className={cn(
                 'flex cursor-pointer items-center gap-1',
                 isEditor
-                  ? 'text-white focus:rounded-none focus:bg-[#222939] focus:text-white'
+                  ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
                   : 'font-semibold'
               )}
               onClick={() => {
