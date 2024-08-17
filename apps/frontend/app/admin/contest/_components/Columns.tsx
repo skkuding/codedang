@@ -36,6 +36,7 @@ function VisibleCell({ row }: { row: Row<DataTableContest> }) {
   return (
     <div className="ml-6 flex items-center space-x-2">
       <Switch
+        onClick={(e) => e.stopPropagation()}
         id="hidden-mode"
         checked={row.original.isVisible}
         onCheckedChange={() => {
@@ -74,7 +75,7 @@ function VisibleCell({ row }: { row: Row<DataTableContest> }) {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button>
+                <button onClick={(e) => e.stopPropagation()}>
                   {row.original.isVisible ? (
                     <Image src={VisibleIcon} alt="Visible" />
                   ) : (
@@ -114,6 +115,7 @@ export const columns: ColumnDef<DataTableContest>[] = [
     id: 'select',
     header: ({ table }) => (
       <Checkbox
+        onClick={(e) => e.stopPropagation()}
         checked={table.getIsAllPageRowsSelected()}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"

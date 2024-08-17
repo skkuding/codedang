@@ -367,11 +367,7 @@ export function DataTableAdmin<TData, TValue>({
                       <TableCell
                         key={cell.id}
                         className="text-center md:p-4"
-                        onClick={
-                          cell.column.id === 'title'
-                            ? () => router.push(href)
-                            : undefined
-                        }
+                        onClick={() => router.push(href)}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,

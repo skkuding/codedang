@@ -20,6 +20,7 @@ services:
     network_mode: host
 
   local-storage:
+    profiles: ['devcontainer']
     container_name: codedang-local-storage
     image: minio/minio
     ports:
@@ -27,8 +28,8 @@ services:
       - 9001:9001
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: skku
-      MINIO_ROOT_PASSWORD: skku1234
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     volumes:
       - codedang-storage:/data
 
@@ -114,10 +115,10 @@ services:
     deploy:
       resources:
         reservations:
-          cpus: 0.58
+          cpus: '0.58'
           memory: 512M
         limits:
-          cpus: 2.0
+          cpus: '2.0'
           memory: 2G
 
   backend-admin:
@@ -135,10 +136,10 @@ services:
     deploy:
       resources:
         reservations:
-          cpus: 0.58
+          cpus: '0.58'
           memory: 512M
         limits:
-          cpus: 2.0
+          cpus: '2.0'
           memory: 2G
 
   iris:
@@ -154,7 +155,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 0.50
+          cpus: '0.50'
           memory: 512M
 
   promtail:
