@@ -34,7 +34,7 @@ function VisibleCell({ row }: { row: Row<DataTableContest> }) {
   const [updateVisible] = useMutation(UPDATE_CONTEST_VISIBLE)
 
   return (
-    <div className="ml-6 flex items-center space-x-2">
+    <div className="ml-4 flex items-center space-x-2">
       <Switch
         onClick={(e) => e.stopPropagation()}
         id="hidden-mode"
@@ -75,7 +75,10 @@ function VisibleCell({ row }: { row: Row<DataTableContest> }) {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button onClick={(e) => e.stopPropagation()}>
+                <button
+                  onClick={(e) => e.stopPropagation()}
+                  className="h-6 w-6"
+                >
                   {row.original.isVisible ? (
                     <Image src={VisibleIcon} alt="Visible" />
                   ) : (
@@ -139,7 +142,7 @@ export const columns: ColumnDef<DataTableContest>[] = [
       <DataTableColumnHeader column={column} title="Title" />
     ),
     cell: ({ row }) => (
-      <p className="max-w-[500px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
         {row.getValue('title')}
       </p>
     ),
@@ -158,7 +161,7 @@ export const columns: ColumnDef<DataTableContest>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <p className="text-center font-normal">
+      <p className="overflow-hidden whitespace-nowrap text-center font-normal">
         {`${dateFormatter(row.original.startTime, 'YY-MM-DD hh:mm')} ~ ${dateFormatter(row.original.endTime, 'YY-MM-DD hh:mm')}`}
       </p>
     ),

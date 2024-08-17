@@ -55,6 +55,9 @@ interface DataTableProps<TData, TValue> {
   enablePagination?: boolean // Enable pagination
   enableImport?: boolean // Enable import selected rows
   checkSelectedRows?: boolean // Check selected rows
+  headerStyle?: {
+    [key: string]: string
+  }
 }
 
 interface ContestProblem {
@@ -82,7 +85,8 @@ export function DataTableAdmin<TData, TValue>({
   enableDelete = false,
   enablePagination = false,
   enableImport = false,
-  checkSelectedRows = false
+  checkSelectedRows = false,
+  headerStyle = {}
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])
@@ -322,8 +326,8 @@ export function DataTableAdmin<TData, TValue>({
         </div>
       )}
 
-      <div className="rounded-md border">
-        <Table>
+      <div>
+        <Table className="rounded border">
           <TableHeader className="bg-neutral-100 [&_tr]:border-b-gray-200">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -331,11 +335,7 @@ export function DataTableAdmin<TData, TValue>({
                   return (
                     <TableHead
                       key={header.id}
-                      className={
-                        header.getSize()
-                          ? `w-[${header.getSize()}px]`
-                          : 'w-auto'
-                      }
+                      className={headerStyle[header.id]}
                     >
                       {header.isPlaceholder
                         ? null
