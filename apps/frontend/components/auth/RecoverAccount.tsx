@@ -21,12 +21,11 @@ export default function RecoverAccount() {
       >
         <IoMdArrowBack />
       </button>
-
       <Image
-        className="absolute left-8 top-10"
+        className="absolute top-4"
         src={CodedangLogo}
         alt="codedang"
-        width={70}
+        width={100}
       />
 
       {modalPage === 0 && <FindUserId />}
