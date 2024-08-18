@@ -4,7 +4,7 @@ import {
   Injectable,
   UnprocessableEntityException
 } from '@nestjs/common'
-import type { Contest, ContestRecord } from '@generated'
+import type { Contest } from '@generated'
 import type { ContestProblem } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import {
@@ -487,20 +487,33 @@ export class ContestService {
 
   /**
    * Duplicate contest with contest problems and users who participated in the contest
-   * Not copied: submission or
+   * Not copied: submission
    * @param groupId group to duplicate contest
    * @param contestId contest to duplicate
    * @param userId user who tries to duplicates the contest
    * @returns
    */
   async duplicateContest(groupId: number, contestId: number, userId: number) {
-    // 1. copy contest
-    const contestFound = await this.prisma.contest.findFirst({
-      where: {
-        id: contestId,
-        groupId
-      }
-    })
+    const [contestFound, contestProblemsFound, userContestRecords] =
+      await Promise.all([
+        this.prisma.contest.findFirst({
+          where: {
+            id: contestId,
+            groupId
+          }
+        }),
+        this.prisma.contestProblem.findMany({
+          where: {
+            contestId
+          }
+        }),
+        this.prisma.contestRecord.findMany({
+          where: {
+            contestId
+          }
+        })
+      ])
+
     if (!contestFound) {
       throw new EntityNotExistException('contest')
     }
@@ -516,53 +529,46 @@ export class ContestService {
     const { id, createTime, updateTime, title, ...contestDataToCopy } =
       contestFound
 
-    const newContest = await this.prisma.contest.create({
-      data: {
-        ...contestDataToCopy,
-        title: 'Copy of ' + title,
-        createdById: userId,
-        groupId,
-        isVisible: newVisible
-      }
-    })
+    const [newContest, newContestProblems, newContestRecords] =
+      await this.prisma.$transaction(async (tx) => {
+        // 1. copy contest
+        const newContest = await tx.contest.create({
+          data: {
+            ...contestDataToCopy,
+            title: 'Copy of ' + title,
+            createdById: userId,
+            groupId,
+            isVisible: newVisible
+          }
+        })
 
-    // 2. copy contest problems
-    const contestProblemsFound = await this.prisma.contestProblem.findMany({
-      where: {
-        contestId
-      }
-    })
-    const newContestProblems: ContestProblem[] = []
+        // 2. copy contest problems
+        const newContestProblems = await Promise.all(
+          contestProblemsFound.map((contestProblem) =>
+            tx.contestProblem.create({
+              data: {
+                order: contestProblem.order,
+                contestId: newContest.id,
+                problemId: contestProblem.problemId
+              }
+            })
+          )
+        )
 
-    for (const contestProblem of contestProblemsFound) {
-      const newContestProblem = await this.prisma.contestProblem.create({
-        data: {
-          order: contestProblem.order,
-          contestId: newContest.id,
-          problemId: contestProblem.problemId
-        }
+        // 3. copy contest records (users who participated in the contest)
+        const newContestRecords = await Promise.all(
+          userContestRecords.map((userContestRecord) =>
+            tx.contestRecord.create({
+              data: {
+                contestId: newContest.id,
+                userId: userContestRecord.userId
+              }
+            })
+          )
+        )
+
+        return [newContest, newContestProblems, newContestRecords]
       })
-      newContestProblems.push(newContestProblem)
-    }
-
-    // 3. copy contest records (users who participated in the contest)
-
-    const userContestRecords = await this.prisma.contestRecord.findMany({
-      where: {
-        contestId
-      }
-    })
-    const newContestRecords: ContestRecord[] = []
-    // add users to new contest
-    for (const userContestRecord of userContestRecords) {
-      const newUserContestRecord = await this.prisma.contestRecord.create({
-        data: {
-          contestId: newContest.id,
-          userId: userContestRecord.userId
-        }
-      })
-      newContestRecords.push(newUserContestRecord)
-    }
 
     return {
       contest: newContest,
