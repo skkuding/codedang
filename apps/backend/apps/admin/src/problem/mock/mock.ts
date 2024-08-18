@@ -380,6 +380,7 @@ export const exampleContest: Contest = {
   isVisible: true,
   isRankVisible: true,
   enableCopyPaste: true,
+  isJudgeResultVisible: true,
   startTime: new Date(),
   endTime: new Date(),
   createTime: new Date(),
