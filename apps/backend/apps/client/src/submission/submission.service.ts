@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios'
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
   ResultStatus,
@@ -11,7 +11,7 @@ import {
 import type { AxiosRequestConfig } from 'axios'
 import { plainToInstance } from 'class-transformer'
 import { Span } from 'nestjs-otel'
-import { OPEN_SPACE_ID } from '@libs/constants'
+import { MIN_DATE, OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -29,6 +29,8 @@ import { SubmissionPublicationService } from './submission-pub.service'
 
 @Injectable()
 export class SubmissionService {
+  private readonly logger = new Logger(SubmissionService.name)
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
@@ -40,6 +42,7 @@ export class SubmissionService {
   @Span()
   async submitToProblem(
     submissionDto: CreateSubmissionDto,
+    userIp: string,
     userId: number,
     problemId: number,
     groupId = OPEN_SPACE_ID
@@ -48,17 +51,30 @@ export class SubmissionService {
       where: {
         id: problemId,
         groupId,
-        exposeTime: {
-          lt: new Date()
+        visibleLockTime: {
+          equals: MIN_DATE
         }
       }
     })
-    return await this.createSubmission(submissionDto, problem, userId)
+    const submission = await this.createSubmission(
+      submissionDto,
+      problem,
+      userId,
+      userIp
+    )
+
+    if (submission) {
+      this.logger.log(
+        `Submission ${submission.id} is created for problem ${problem.id} by ip ${userIp}`
+      )
+      return submission
+    }
   }
 
   @Span()
   async submitToContest(
     submissionDto: CreateSubmissionDto,
+    userIp: string,
     userId: number,
     problemId: number,
     contestId: number,
@@ -116,14 +132,23 @@ export class SubmissionService {
       }
     })
 
-    return await this.createSubmission(submissionDto, problem, userId, {
-      contestId
-    })
+    const submission = await this.createSubmission(
+      submissionDto,
+      problem,
+      userId,
+      userIp,
+      {
+        contestId
+      }
+    )
+
+    return submission
   }
 
   @Span()
   async submitToWorkbook(
     submissionDto: CreateSubmissionDto,
+    userIp: string,
     userId: number,
     problemId: number,
     workbookId: number,
@@ -141,13 +166,24 @@ export class SubmissionService {
         problem: true
       }
     })
-    if (problem.groupId !== groupId || problem.exposeTime >= new Date()) {
+    if (
+      problem.groupId !== groupId ||
+      problem.visibleLockTime.getTime() !== MIN_DATE.getTime() // 공개된 problem이 아닐 때
+    ) {
       throw new EntityNotExistException('problem')
     }
 
-    return await this.createSubmission(submissionDto, problem, userId, {
-      workbookId
-    })
+    const submission = await this.createSubmission(
+      submissionDto,
+      problem,
+      userId,
+      userIp,
+      {
+        workbookId
+      }
+    )
+
+    return submission
   }
 
   @Span()
@@ -155,6 +191,7 @@ export class SubmissionService {
     submissionDto: CreateSubmissionDto,
     problem: Problem,
     userId: number,
+    userIp: string,
     idOptions?: { contestId?: number; workbookId?: number }
   ) {
     if (!problem.languages.includes(submissionDto.language)) {
@@ -177,6 +214,7 @@ export class SubmissionService {
       code: code.map((snippet) => ({ ...snippet })), // convert to plain object
       result: ResultStatus.Judging,
       userId,
+      userIp,
       problemId: problem.id,
       codeSize: new TextEncoder().encode(code[0].text).length,
       ...data
@@ -332,8 +370,8 @@ export class SubmissionService {
       where: {
         id: problemId,
         groupId,
-        exposeTime: {
-          lt: new Date()
+        visibleLockTime: {
+          equals: MIN_DATE
         }
       }
     })
@@ -407,8 +445,8 @@ export class SubmissionService {
         where: {
           id: problemId,
           groupId,
-          exposeTime: {
-            lt: new Date() // contestId가 없는 경우에는 공개된 문제인 경우에만 제출 내역을 가져와야 함
+          visibleLockTime: {
+            equals: MIN_DATE // contestId가 없는 경우에는 공개된 문제인 경우에만 제출 내역을 가져와야 함
           }
         }
       })
