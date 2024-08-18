@@ -1,0 +1,47 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation($id: Int!) {
+    removeAnnouncement(
+      id: $id
+    ) {
+      id
+      problemId
+      content
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "id": 1
+  }
+}
+
+assert {
+  res.body.data.removeAnnouncement: isDefined
+}
+
+docs {
+  ## Delete Announcement
+  Announcement를 제거합니다.
+  
+  ### Args
+  | 이름 | 타입 | 설명|
+  |--|--|--|
+  |id|int|제거할 Announcement id|
+  
+  ### Error Case
+  #### NOT_FOUND
+  존재하지 않는 id
+}

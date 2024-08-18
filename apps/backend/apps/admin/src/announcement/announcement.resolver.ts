@@ -1,44 +1,91 @@
+import { InternalServerErrorException, Logger } from '@nestjs/common'
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
-import { Announcement } from '@generated'
+import {
+  DuplicateFoundException,
+  EntityNotExistException
+} from '@libs/exception'
+import { Announcement } from '@admin/@generated'
 import { AnnouncementService } from './announcement.service'
-import { CreateAnnouncementInput } from './dto/create-announcement.input'
-import { UpdateAnnouncementInput } from './dto/update-announcement.input'
+import { AnnouncementInput } from './dto/announcement.input'
 
 @Resolver(() => Announcement)
 export class AnnouncementResolver {
+  private readonly logger = new Logger(AnnouncementResolver.name)
   constructor(private readonly announcementService: AnnouncementService) {}
 
   @Mutation(() => Announcement)
-  createAnnouncement(
+  async createAnnouncement(
     @Args('createAnnouncementInput')
-    createAnnouncementInput: CreateAnnouncementInput
+    announcementInput: AnnouncementInput
   ) {
-    return this.announcementService.create(createAnnouncementInput)
+    try {
+      return await this.announcementService.createAnnouncement(
+        announcementInput
+      )
+    } catch (error) {
+      if (error instanceof DuplicateFoundException || EntityNotExistException) {
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
   }
 
-  @Query(() => [Announcement], { name: 'announcement' })
-  findAll() {
-    return this.announcementService.findAll()
+  @Query(() => [Announcement], { name: 'getAnnouncements' })
+  async getAnnouncements(
+    @Args('contestId', { type: () => Int }) contestId: number,
+    @Args('problemId', { type: () => Int, nullable: true }) problemId?: number
+  ) {
+    try {
+      return await this.announcementService.getAnnouncements(
+        contestId,
+        problemId
+      )
+    } catch (error) {
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
   }
 
-  @Query(() => Announcement, { name: 'announcement' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.announcementService.findOne(id)
+  @Query(() => Announcement, { name: 'getAnnouncementById' })
+  async getAnnouncementById(@Args('id', { type: () => Int }) id: number) {
+    try {
+      return await this.announcementService.getAnnouncementById(id)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
   }
 
   @Mutation(() => Announcement)
-  updateAnnouncement(
-    @Args('updateAnnouncementInput')
-    updateAnnouncementInput: UpdateAnnouncementInput
+  async updateAnnouncement(
+    @Args('id', { type: () => Int }) id: number,
+    @Args('content', { type: () => String }) content: string
   ) {
-    return this.announcementService.update(
-      updateAnnouncementInput.id,
-      updateAnnouncementInput
-    )
+    try {
+      return await this.announcementService.updateAnnouncement(id, content)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
   }
 
   @Mutation(() => Announcement)
-  removeAnnouncement(@Args('id', { type: () => Int }) id: number) {
-    return this.announcementService.remove(id)
+  async removeAnnouncement(@Args('id', { type: () => Int }) id: number) {
+    try {
+      return await this.announcementService.removeAnnouncement(id)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
   }
 }

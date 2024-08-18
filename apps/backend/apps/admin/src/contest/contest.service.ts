@@ -4,7 +4,6 @@ import {
   Injectable,
   UnprocessableEntityException
 } from '@nestjs/common'
-import type { Contest } from '@generated'
 import type { ContestProblem } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import {
@@ -20,6 +19,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { Contest } from '@admin/@generated'
 import type { CreateContestInput } from './model/contest.input'
 import type { UpdateContestInput } from './model/contest.input'
 import type { PublicizingRequest } from './model/publicizing-request.model'

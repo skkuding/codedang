@@ -1,0 +1,48 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation($id: Int!, $content: String!) {
+    updateAnnouncement(
+      id: $id
+      content: $content
+    ) {
+      id
+      problemId
+      content
+    }
+  }
+  
+  
+}
+
+body:graphql:vars {
+  {
+    "id": 1,
+    "content": "updated announcement"
+  }
+}
+
+assert {
+  res.body.data.updateAnnouncement: isDefined
+}
+
+docs {
+  ## Update Announcment
+  Announcement의 내용을 업데이트합니다.
+  
+  ### Args
+  | 이름 | 타입 | 설명|
+  |--|--|--|
+  |Id|int|Announcement의 id|
+  |content|string|수정할 Announcement의 내용|
+}

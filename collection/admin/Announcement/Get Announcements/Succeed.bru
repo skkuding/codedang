@@ -1,0 +1,49 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query($contestId: Int!, $problemId: Int) {
+    getAnnouncements(
+      contestId: $contestId
+      problemId: $problemId
+    ) {
+    	id
+      problemId
+      contestId
+      content
+    }
+  }
+  
+  
+}
+
+body:graphql:vars {
+  {
+    "problemId": 1,
+    "contestId": 1
+  }
+}
+
+assert {
+  res.body.data.getAnnouncements: isDefined
+}
+
+docs {
+  ## Get Announcements
+  해당 문제에 등록된 모든 Announcement를 조회합니다.
+  
+  ### Args
+  | 이름 | 타입 | 설명|
+  |--|--|--|
+  |contestId|int|Announcement를 조회할 contest의 id|
+  |problemId|int(optional)|Announcement를 조회할 문제의 id|
+}

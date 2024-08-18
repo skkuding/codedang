@@ -1,6 +1,6 @@
 import { Field } from '@nestjs/graphql'
 import { InputType } from '@nestjs/graphql'
-import { GroupCreateInput, GroupUpdateInput } from '@generated'
+import { GroupCreateInput, GroupUpdateInput } from '@admin/@generated'
 
 @InputType()
 class Config {
