@@ -486,7 +486,100 @@ export class ContestService {
   }
 
   /**
-   * 특정 User의 특정 Contest에 대한 총점, 통과한 문제 개수와 각 문제별 테스트케이스 통과 개수를 불러옵니다.
+   * Duplicate contest with contest problems and users who participated in the contest
+   * Not copied: submission
+   * @param groupId group to duplicate contest
+   * @param contestId contest to duplicate
+   * @param userId user who tries to duplicates the contest
+   * @returns
+   */
+  async duplicateContest(groupId: number, contestId: number, userId: number) {
+    const [contestFound, contestProblemsFound, userContestRecords] =
+      await Promise.all([
+        this.prisma.contest.findFirst({
+          where: {
+            id: contestId,
+            groupId
+          }
+        }),
+        this.prisma.contestProblem.findMany({
+          where: {
+            contestId
+          }
+        }),
+        this.prisma.contestRecord.findMany({
+          where: {
+            contestId
+          }
+        })
+      ])
+
+    if (!contestFound) {
+      throw new EntityNotExistException('contest')
+    }
+
+    // if contest status is ongoing, visible would be true. else, false
+    const now = new Date()
+    let newVisible = false
+    if (contestFound.startTime <= now && now <= contestFound.endTime) {
+      newVisible = true
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, createTime, updateTime, title, ...contestDataToCopy } =
+      contestFound
+
+    const [newContest, newContestProblems, newContestRecords] =
+      await this.prisma.$transaction(async (tx) => {
+        // 1. copy contest
+        const newContest = await tx.contest.create({
+          data: {
+            ...contestDataToCopy,
+            title: 'Copy of ' + title,
+            createdById: userId,
+            groupId,
+            isVisible: newVisible
+          }
+        })
+
+        // 2. copy contest problems
+        const newContestProblems = await Promise.all(
+          contestProblemsFound.map((contestProblem) =>
+            tx.contestProblem.create({
+              data: {
+                order: contestProblem.order,
+                contestId: newContest.id,
+                problemId: contestProblem.problemId
+              }
+            })
+          )
+        )
+
+        // 3. copy contest records (users who participated in the contest)
+        const newContestRecords = await Promise.all(
+          userContestRecords.map((userContestRecord) =>
+            tx.contestRecord.create({
+              data: {
+                contestId: newContest.id,
+                userId: userContestRecord.userId
+              }
+            })
+          )
+        )
+
+        return [newContest, newContestProblems, newContestRecords]
+      })
+
+    return {
+      contest: newContest,
+      problems: newContestProblems,
+      records: newContestRecords
+    }
+  }
+
+  /**
+   *
+   * 특정 user의 특정 Contest에 대한 총점, 통과한 문제 개수와 각 문제별 테스트케이스 통과 개수를 불러옵니다.
    */
   async getContestScoreSummary(userId: number, contestId: number) {
     const [contestProblems, submissions] = await Promise.all([

@@ -61,6 +61,7 @@ export default function Page() {
             enableSearch={true}
             enableDelete={true}
             enablePagination={true}
+            enableDuplicate={true}
           />
         )}
       </div>
