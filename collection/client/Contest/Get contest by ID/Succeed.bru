@@ -10,7 +10,7 @@ get {
   auth: none
 }
 
-query {
+params:query {
   groupId: 1
 }
 
@@ -26,7 +26,8 @@ assert {
   res("description"): isString
   res("_count.contestRecord"): isNumber
   res("isRegistered"): isBoolean
-  res("enableCopyPaste"): isBoolean 
+  res("enableCopyPaste"): isBoolean
+  res("isJudgeResultVisible"): isBoolean
 }
 
 script:pre-request {
@@ -35,23 +36,23 @@ script:pre-request {
 
 docs {
   ## Get Contest by ID
-  
+
   하나의 대회 정보와 Contest 참여자 정보, 로그인한 유저가 해당 Contest에 참여가능한지 여부에 대한 정보를 가져옵니다. (로그인 하지 않은 유저는 Open Space의 Contest 정보만 볼 수 있고, `isRegistered`는 항상 `false`)
   ### Path
-  
+
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |id|Integer|Contest(대회) ID|
-  
+
   ### Query
-  
+
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |groupId|Integer|대회가 속한 Group ID|
-  
+
   ### Error Case
-  
+
   #### [404] Contest does not exist
-  
+
   존재하지 않는 ContestID를 Path로 주면 오류가 납니다.
 }

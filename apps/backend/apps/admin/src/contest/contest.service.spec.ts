@@ -39,6 +39,7 @@ const contest: Contest = {
   endTime,
   isVisible: true,
   isRankVisible: true,
+  isJudgeResultVisible: true,
   enableCopyPaste: true,
   createTime,
   updateTime,
@@ -56,6 +57,7 @@ const contestWithCount = {
   endTime,
   isVisible: true,
   isRankVisible: true,
+  isJudgeResultVisible: true,
   enableCopyPaste: true,
   createTime,
   updateTime,
@@ -77,6 +79,7 @@ const contestWithParticipants: ContestWithParticipants = {
   isVisible: true,
   isRankVisible: true,
   enableCopyPaste: true,
+  isJudgeResultVisible: true,
   createTime,
   updateTime,
   participants: 10,
@@ -160,7 +163,8 @@ const input = {
   endTime: faker.date.future(),
   isVisible: false,
   isRankVisible: false,
-  enableCopyPaste: true
+  enableCopyPaste: true,
+  isJudgeResultVisible: true
 } satisfies CreateContestInput
 
 const updateInput = {
