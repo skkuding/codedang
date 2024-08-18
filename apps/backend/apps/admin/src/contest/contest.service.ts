@@ -4,7 +4,7 @@ import {
   Injectable,
   UnprocessableEntityException
 } from '@nestjs/common'
-import type { Contest } from '@generated'
+import type { Contest, Submission } from '@generated'
 import type { ContestProblem } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import {
@@ -483,5 +483,115 @@ export class ContestService {
     }
 
     return contestProblems
+  }
+
+  /**
+   * 특정 User의 특정 Contest에 대한 총점, 통과한 문제 개수와 각 문제별 테스트케이스 통과 개수를 불러옵니다.
+   */
+  async getContestScoreSummary(userId: number, contestId: number) {
+    const [contestProblems, submissions] = await Promise.all([
+      this.prisma.contestProblem.findMany({
+        where: {
+          contestId
+        }
+      }),
+      this.prisma.submission.findMany({
+        where: {
+          userId,
+          contestId
+        }
+      })
+    ])
+
+    if (!submissions) {
+      throw new EntityNotExistException('Submissions')
+    }
+    if (!contestProblems) {
+      throw new EntityNotExistException('ContestProblems')
+    }
+
+    // 유저가 같은 problemId에 대해 여러 번 제출할 수 있으므로, 같은 문제에 대해 여러 번 제출한 내역은 무시함.
+    // 만약 여러번의 제출 중 ACCEPTED가 있다면 우선적으로 반영함.
+    const distinctSubmissions: {
+      [problemId: string]: Submission
+    } = {}
+
+    for (const submission of submissions) {
+      const problemId = submission.problemId
+
+      if (!(problemId in distinctSubmissions)) {
+        distinctSubmissions[problemId] = submission
+      } else if (
+        distinctSubmissions[problemId].result !== 'Accepted' &&
+        submission.result === 'Accepted'
+      ) {
+        distinctSubmissions[problemId] = submission
+      }
+    }
+
+    // 개별 Problem의 Testcase 중 Accepted 개수
+    const acceptedTestcaseCountPerProblem: {
+      problemId: number
+      totalTestcaseCount: number
+      acceptedTestcaseCount: number
+    }[] = []
+
+    acceptedTestcaseCountPerProblem.push(
+      ...(await Promise.all(
+        Object.values(distinctSubmissions).map(async (submission) => {
+          const { id, problemId } = submission as Submission
+
+          const submissionResults = await this.prisma.submissionResult.findMany(
+            {
+              where: {
+                submissionId: id
+              }
+            }
+          )
+
+          return {
+            problemId,
+            totalTestcaseCount: submissionResults.length,
+            acceptedTestcaseCount: submissionResults.filter(
+              (r) => r.result === 'Accepted'
+            ).length
+          }
+        })
+      ))
+    )
+
+    const scores = await Promise.all(
+      Object.keys(distinctSubmissions).map(async (problemId) => {
+        const submission = distinctSubmissions[problemId]
+
+        // 문제의 결과가 'Accepted'가 아닌 경우 건너뛰기
+        if (submission.result !== 'Accepted') {
+          return 0
+        }
+
+        const contestProblem =
+          await this.prisma.contestProblem.findFirstOrThrow({
+            where: {
+              problemId: parseInt(problemId),
+              contestId
+            },
+            select: {
+              score: true
+            }
+          })
+
+        return contestProblem.score
+      })
+    )
+    const totalScore = scores.reduce((total, score) => (total += score), 0)
+
+    const scoreSummary = {
+      totalProblemCount: contestProblems.length, // Contest에 존재하는 Problem의 총 개수
+      submittedProblemCount: Object.keys(distinctSubmissions).length, // Contest에 존재하는 문제 중 제출된 문제의 개수
+      totalScore, // 총점 (100점 만점 기준)
+      acceptedTestcaseCountPerProblem // 개별 Problem의 Testcase 중 Accepted 개수
+    }
+
+    return scoreSummary
   }
 }
