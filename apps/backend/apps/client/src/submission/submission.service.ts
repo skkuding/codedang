@@ -23,7 +23,8 @@ import {
   PUBLISH_TYPE,
   RESULT_KEY,
   RESULT_QUEUE,
-  SUBMISSION_KEY
+  SUBMISSION_KEY,
+  MIN_DATE
 } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -98,8 +99,8 @@ export class SubmissionService implements OnModuleInit {
       where: {
         id: problemId,
         groupId,
-        exposeTime: {
-          lt: new Date()
+        visibleLockTime: {
+          equals: MIN_DATE
         }
       }
     })
@@ -213,7 +214,10 @@ export class SubmissionService implements OnModuleInit {
         problem: true
       }
     })
-    if (problem.groupId !== groupId || problem.exposeTime >= new Date()) {
+    if (
+      problem.groupId !== groupId ||
+      problem.visibleLockTime.getTime() !== MIN_DATE.getTime() // 공개된 problem이 아닐 때
+    ) {
       throw new EntityNotExistException('problem')
     }
 
@@ -661,8 +665,8 @@ export class SubmissionService implements OnModuleInit {
       where: {
         id: problemId,
         groupId,
-        exposeTime: {
-          lt: new Date()
+        visibleLockTime: {
+          equals: MIN_DATE
         }
       }
     })
@@ -736,8 +740,8 @@ export class SubmissionService implements OnModuleInit {
         where: {
           id: problemId,
           groupId,
-          exposeTime: {
-            lt: new Date() // contestId가 없는 경우에는 공개된 문제인 경우에만 제출 내역을 가져와야 함
+          visibleLockTime: {
+            equals: MIN_DATE // contestId가 없는 경우에는 공개된 문제인 경우에만 제출 내역을 가져와야 함
           }
         }
       })
