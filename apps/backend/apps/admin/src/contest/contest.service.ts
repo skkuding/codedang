@@ -391,10 +391,10 @@ export class ContestService {
     ])
 
     if (!submissions) {
-      throw new EntityNotExistException('There are no submissions')
+      throw new EntityNotExistException('Submissions')
     }
     if (!contestProblems) {
-      throw new EntityNotExistException('There are no contestProblems')
+      throw new EntityNotExistException('ContestProblems')
     }
 
     // 유저가 같은 problemId에 대해 여러 번 제출할 수 있으므로, 같은 문제에 대해 여러 번 제출한 내역은 무시함.
