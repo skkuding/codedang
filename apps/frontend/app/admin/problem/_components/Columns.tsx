@@ -33,7 +33,7 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
       <Switch
         id="hidden-mode"
         onClick={(e) => e.stopPropagation()}
-        disabled={!row.original.isVisible}
+        disabled={row.original.isVisible === null}
         checked={row.original.isVisible === true}
         onCheckedChange={() => {
           row.original.isVisible = !row.original.isVisible
