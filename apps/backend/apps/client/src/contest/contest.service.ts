@@ -266,7 +266,7 @@ export class ContestService {
         return {
           ...contest,
           // userId가 없거나(로그인 안됨) contest에 참여중이지 않은 경우 false
-          isRegisterd:
+          isRegistered:
             !(await this.prisma.contestRecord.findFirst({
               where: {
                 userId,

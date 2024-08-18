@@ -10,7 +10,9 @@ import { Cache } from 'cache-manager'
 import {
   OPEN_SPACE_ID,
   PUBLICIZING_REQUEST_EXPIRE_TIME,
-  PUBLICIZING_REQUEST_KEY
+  PUBLICIZING_REQUEST_KEY,
+  MIN_DATE,
+  MAX_DATE
 } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -112,17 +114,79 @@ export class ContestService {
       where: {
         id: contest.id,
         groupId
+      },
+      select: {
+        startTime: true,
+        endTime: true,
+        contestProblem: {
+          select: {
+            problemId: true
+          }
+        }
       }
     })
     if (!contestFound) {
       throw new EntityNotExistException('contest')
     }
+    const isEndTimeChanged =
+      contest.endTime && contest.endTime !== contestFound.endTime
     contest.startTime = contest.startTime || contestFound.startTime
     contest.endTime = contest.endTime || contestFound.endTime
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
       )
+    }
+
+    const problemIds = contestFound.contestProblem.map(
+      (problem) => problem.problemId
+    )
+    if (problemIds.length && isEndTimeChanged) {
+      for (const problemId of problemIds) {
+        try {
+          // 문제가 포함된 대회 중 가장 늦게 끝나는 대회의 종료시각으로 visibleLockTime 설정
+          let visibleLockTime = contest.endTime
+
+          const contestIds = (
+            await this.prisma.contestProblem.findMany({
+              where: {
+                problemId
+              }
+            })
+          )
+            .filter((contestProblem) => contestProblem.contestId !== contest.id)
+            .map((contestProblem) => contestProblem.contestId)
+
+          if (contestIds.length) {
+            const latestContest = await this.prisma.contest.findFirstOrThrow({
+              where: {
+                id: {
+                  in: contestIds
+                }
+              },
+              orderBy: {
+                endTime: 'desc'
+              },
+              select: {
+                endTime: true
+              }
+            })
+            if (contest.endTime < latestContest.endTime)
+              visibleLockTime = latestContest.endTime
+          }
+
+          await this.prisma.problem.update({
+            where: {
+              id: problemId
+            },
+            data: {
+              visibleLockTime
+            }
+          })
+        } catch (error) {
+          continue
+        }
+      }
     }
 
     return await this.prisma.contest.update({
@@ -141,19 +205,31 @@ export class ContestService {
       where: {
         id: contestId,
         groupId
+      },
+      select: {
+        contestProblem: {
+          select: {
+            problemId: true
+          }
+        }
       }
     })
     if (!contest) {
       throw new EntityNotExistException('contest')
     }
 
-    await this.prisma.contest.delete({
+    const problemIds = contest.contestProblem.map(
+      (problem) => problem.problemId
+    )
+    if (problemIds.length) {
+      await this.removeProblemsFromContest(groupId, contestId, problemIds)
+    }
+
+    return await this.prisma.contest.delete({
       where: {
         id: contestId
       }
     })
-
-    return contest
   }
 
   async getPublicizingRequests() {
@@ -283,35 +359,42 @@ export class ContestService {
 
     for (const problemId of problemIds) {
       try {
-        const problem = await this.prisma.problem.findFirstOrThrow({
-          where: {
-            id: problemId
-          }
-        })
-
-        if (problem.exposeTime <= contest.endTime) {
-          await this.prisma.problem.update({
+        const [contestProblem] = await this.prisma.$transaction([
+          this.prisma.contestProblem.create({
+            data: {
+              // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
+              // 임시 방편으로 order: 0으로 설정합니다.
+              order: 0,
+              contestId,
+              problemId
+            }
+          }),
+          this.prisma.problem.update({
             where: {
               id: problemId,
-              exposeTime: {
-                lte: contest.endTime
-              }
+              OR: [
+                {
+                  visibleLockTime: {
+                    equals: MIN_DATE
+                  }
+                },
+                {
+                  visibleLockTime: {
+                    equals: MAX_DATE
+                  }
+                },
+                {
+                  visibleLockTime: {
+                    lte: contest.endTime
+                  }
+                }
+              ]
             },
             data: {
-              exposeTime: contest.endTime
+              visibleLockTime: contest.endTime
             }
           })
-        }
-
-        const contestProblem = await this.prisma.contestProblem.create({
-          data: {
-            // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
-            // 임시 방편으로 order: 0으로 설정합니다.
-            order: 0,
-            contestId,
-            problemId
-          }
-        })
+        ])
         contestProblems.push(contestProblem)
       } catch (error) {
         continue
@@ -340,16 +423,46 @@ export class ContestService {
 
     for (const problemId of problemIds) {
       try {
+        // 문제가 포함된 대회 중 가장 늦게 끝나는 대회의 종료시각으로 visibleLockTime 설정 (없을시 비공개 전환)
+        let visibleLockTime = MAX_DATE
+
+        const contestIds = (
+          await this.prisma.contestProblem.findMany({
+            where: {
+              problemId
+            }
+          })
+        )
+          .filter((contestProblem) => contestProblem.contestId !== contestId)
+          .map((contestProblem) => contestProblem.contestId)
+
+        if (contestIds.length) {
+          const latestContest = await this.prisma.contest.findFirstOrThrow({
+            where: {
+              id: {
+                in: contestIds
+              }
+            },
+            orderBy: {
+              endTime: 'desc'
+            },
+            select: {
+              endTime: true
+            }
+          })
+          visibleLockTime = latestContest.endTime
+        }
+
         const [, contestProblem] = await this.prisma.$transaction([
           this.prisma.problem.updateMany({
             where: {
               id: problemId,
-              exposeTime: {
-                lte: contest.endTime // TODO: contest에서 problem이 삭제될 때 exposeTime이 어떻게 조정되어야하는지에 관한 논의 필요
+              visibleLockTime: {
+                lte: contest.endTime
               }
             },
             data: {
-              exposeTime: new Date()
+              visibleLockTime
             }
           }),
           this.prisma.contestProblem.delete({

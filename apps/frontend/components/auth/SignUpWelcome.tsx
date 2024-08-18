@@ -12,11 +12,11 @@ import useSignUpModalStore from '@/stores/signUpModal'
 export default function SignUpWelcome() {
   const { nextModal } = useSignUpModalStore((state) => state)
   return (
-    <div className="flex flex-col gap-3">
-      <p className="text-center text-xl font-semibold text-blue-500">
-        &quot;Welcome to CODEDANG&quot;
+    <div className="flex w-full flex-col gap-6">
+      <p className="text-center font-mono text-xl font-bold">
+        WELCOME to <span className="text-blue-500">CODEDANG</span>
       </p>
-      <Button className="w-full" onClick={() => nextModal()}>
+      <Button className="w-full font-semibold" onClick={() => nextModal()}>
         Sign up with Email
       </Button>
       {/* <div className="flex items-center justify-center gap-5">

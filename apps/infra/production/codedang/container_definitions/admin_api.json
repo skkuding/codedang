@@ -1,7 +1,7 @@
 {
   "name": "Codedang-Admin-Api",
   "image": "${ecr_uri}",
-  "cpu": 600,
+  "cpu": 924,
   "memoryReservation": 512,
   "essential": true,
   "portMappings": [

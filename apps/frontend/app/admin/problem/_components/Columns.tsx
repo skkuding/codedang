@@ -32,6 +32,7 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
     <div className="ml-8 flex space-x-2">
       <Switch
         id="hidden-mode"
+        onClick={(e) => e.stopPropagation()}
         checked={row.original.isVisible}
         onCheckedChange={() => {
           row.original.isVisible = !row.original.isVisible
@@ -47,7 +48,10 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
         }}
       />
       {!row.original.isVisible && (
-        <button className="justify-centert flex items-center">
+        <button
+          className="justify-centert flex items-center"
+          onClick={(e) => e.stopPropagation()}
+        >
           <TbFileInfo className="h-5 w-5 text-black" />
         </button>
       )}
@@ -68,6 +72,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     ),
     cell: ({ row }) => (
       <Checkbox
+        onClick={(e) => e.stopPropagation()}
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
