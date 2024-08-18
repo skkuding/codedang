@@ -21,6 +21,17 @@ const bootstrap = async () => {
   }
 
   const app = await NestFactory.create(AdminModule, { bufferLogs: true })
+
+  if (process.env.APP_ENV !== 'production' && process.env.APP_ENV !== 'stage') {
+    app.enableCors({
+      origin: 'http://localhost:5525',
+      credentials: true,
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+      allowedHeaders: ['*'],
+      exposedHeaders: ['Content-Type', 'Authorization', 'Email-Auth']
+    })
+  }
+
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 2 }))
   app.useLogger(app.get(Logger))
   app.useGlobalInterceptors(new LoggerErrorInterceptor())

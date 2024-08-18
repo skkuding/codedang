@@ -28,7 +28,7 @@ resource "aws_autoscaling_group" "this" {
   name                = var.autoscaling_group.name
   vpc_zone_identifier = [for key in keys(var.subnets) : aws_subnet.this[key].id]
 
-  desired_capacity = 0
+  desired_capacity = 1
   min_size         = 1
   max_size         = var.autoscaling_group.max_size
 
@@ -44,6 +44,15 @@ resource "aws_autoscaling_group" "this" {
   lifecycle {
     create_before_destroy = true
   }
+
+  tag {
+    key                 = "AmazonECSManaged"
+    value               = ""
+    propagate_at_launch = true
+  }
+
+  protect_from_scale_in = true
+
 }
 
 resource "aws_autoscaling_policy" "this" {

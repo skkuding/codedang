@@ -1,8 +1,20 @@
+import SearchBar from '@/components/SearchBar'
+import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { auth } from '@/lib/auth'
+import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import ContestCardList from './_components/ContestCardList'
 import FinishedContestTable from './_components/FinishedContestTable'
+import RegisteredContestTable from './_components/RegisteredContestTable'
+import TableSwitchButton from './_components/TableSwitchButton'
+
+interface ContestProps {
+  searchParams: {
+    registered: string
+    search: string
+  }
+}
 
 function ContestCardListFallback() {
   return (
@@ -41,8 +53,14 @@ function FinishedContestTableFallback() {
   )
 }
 
-export default async function Contest() {
+export default async function Contest({ searchParams }: ContestProps) {
   const session = await auth()
+  const registered = searchParams.registered === 'true' ?? false
+  if (!session && registered) {
+    redirect('/contest')
+  }
+  const search = searchParams.search ?? ''
+
   return (
     <>
       <div className="mb-12 flex flex-col gap-12">
@@ -61,9 +79,29 @@ export default async function Contest() {
           />
         </Suspense>
       </div>
-      <Suspense fallback={<FinishedContestTableFallback />}>
-        <FinishedContestTable />
-      </Suspense>
+      <div className="flex-col">
+        <h1 className="mb-6 text-2xl font-bold text-gray-700">
+          List of Contests
+        </h1>
+        <Suspense fallback={<FinishedContestTableFallback />}>
+          {session ? (
+            <TableSwitchButton registered={registered} />
+          ) : (
+            <p className="text-primary-light border-primary-light w-fit border-b-2 p-6 text-2xl font-bold md:text-2xl">
+              Finished
+            </p>
+          )}
+          <Separator className="mb-3" />
+          <div className="flex justify-end">
+            <SearchBar className="w-60" />
+          </div>
+          {session && registered ? (
+            <RegisteredContestTable search={search} />
+          ) : (
+            <FinishedContestTable search={search} session={session} />
+          )}
+        </Suspense>
+      </div>
     </>
   )
 }
