@@ -22,6 +22,7 @@ import { UpdateContestInput } from './model/contest.input'
 import { DuplicatedContestResponse } from './model/duplicated-contest-response.output'
 import { PublicizingRequest } from './model/publicizing-request.model'
 import { PublicizingResponse } from './model/publicizing-response.output'
+import { UserContestScoreSummary } from './model/score-summary'
 
 @Resolver(() => Contest)
 export class ContestResolver {
@@ -238,6 +239,22 @@ export class ContestResolver {
         error instanceof UnprocessableDataException ||
         error instanceof EntityNotExistException
       ) {
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Query(() => UserContestScoreSummary)
+  async getScoreSummaries(
+    @Args('userId', { type: () => Int }) userId: number,
+    @Args('contestId', { type: () => Int }) contestId: number
+  ) {
+    try {
+      return await this.contestService.getContestScoreSummary(userId, contestId)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
