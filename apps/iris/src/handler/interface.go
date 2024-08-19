@@ -46,7 +46,7 @@ func ParseError(j JudgeResult) error {
 }
 
 func resultCodeToError(code JudgeResultCode) error {
-	caller := "parse first error"
+	caller := "parse error"
 	err := &HandlerError{
 		caller: caller,
 		level:  logger.INFO,
