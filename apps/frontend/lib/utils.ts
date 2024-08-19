@@ -12,7 +12,6 @@ export const cn = (...inputs: ClassValue[]) => {
 
 export const fetcher = ky.create({
   prefixUrl: baseUrl,
-  throwHttpErrors: false,
   retry: 0,
   timeout: 5000,
   hooks: {
@@ -63,4 +62,17 @@ export const dateFormatter = (date: string | Date, format: string) => {
   return dayjs(
     new Date(date).toLocaleString('en-US', { timeZone: 'Asia/Seoul' })
   ).format(format)
+}
+
+export const getStatusWithStartEnd = (startTime: string, endTime: string) => {
+  const now = new Date()
+  const start = dayjs(startTime, 'YYYY-MM-DD HH:mm:ss').toDate()
+  const end = dayjs(endTime, 'YYYY-MM-DD HH:mm:ss').toDate()
+  if (now < start) {
+    return 'upcoming'
+  } else if (now > end) {
+    return 'finished'
+  } else {
+    return 'ongoing'
+  }
 }
