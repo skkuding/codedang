@@ -48,41 +48,41 @@ export default async function EditorLayout({
 
   return (
     <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
-      <header className="flex justify-between bg-slate-900 px-6">
+      <header className="flex h-12 justify-between bg-slate-900 px-6">
         <div className="flex items-center justify-center gap-6 text-lg text-[#787E80]">
           <Link href="/">
             <Image src={codedangLogo} alt="코드당" width={33} />
           </Link>
           <div className="flex items-center gap-1 font-medium">
-            {contest ? (
-              <Link href={`/contest/${contestId}` as Route}>
-                {contest.title}
-              </Link>
-            ) : (
-              <Link href="/problem">Problem</Link>
-            )}
+            {contest ? <>Contest</> : <Link href="/problem">Problem</Link>}
             <p className="mx-2"> / </p>
             {contest ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
-                  <h1>{`${convertToLetter(problems?.data.find((item) => item.id === Number(problemId))?.order as number)}. ${problem.title}`}</h1>
-                  <FaSortDown />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="border-slate-700 bg-slate-900">
-                  {problems?.data.map((p: ContestProblem) => (
-                    <Link
-                      key={p.id}
-                      href={`/contest/${contestId}/problem/${p.id}` as Route}
-                    >
-                      <DropdownMenuItem className="text-white hover:cursor-pointer focus:bg-slate-800 focus:text-white">
-                        {`${convertToLetter(p.order)}. ${p.title}`}
-                      </DropdownMenuItem>
-                    </Link>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <>
+                <Link href={`/contest/${contestId}` as Route}>
+                  {contest.title}
+                </Link>
+                <p className="mx-2"> / </p>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
+                    <h1>{`${convertToLetter(problems?.data.find((item) => item.id === Number(problemId))?.order as number)}. ${problem.title}`}</h1>
+                    <FaSortDown />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="border-slate-700 bg-slate-900">
+                    {problems?.data.map((p: ContestProblem) => (
+                      <Link
+                        key={p.id}
+                        href={`/contest/${contestId}/problem/${p.id}` as Route}
+                      >
+                        <DropdownMenuItem className="text-white hover:cursor-pointer focus:bg-slate-800 focus:text-white">
+                          {`${convertToLetter(p.order)}. ${p.title}`}
+                        </DropdownMenuItem>
+                      </Link>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
             ) : (
-              <h1 className="text-lg font-medium text-white">{`#${problem.id}. ${problem.title}`}</h1>
+              <h1 className="overflow-hidden text-ellipsis text-lg font-medium text-white">{`#${problem.id}. ${problem.title}`}</h1>
             )}
           </div>
         </div>
