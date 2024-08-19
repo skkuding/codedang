@@ -76,10 +76,10 @@ export function EditorDescription({
   return (
     <div className="dark flex h-full flex-col gap-6 bg-[#222939] py-6 text-lg">
       <div className="px-6">
-        <div className="flex h-6 justify-between">
-          <h1 className="mb-3 text-xl font-bold">{`#${contestProblems ? convertToLetter(contestProblems.find((item) => item.id === problem.id)?.order as number) : problem.id}. ${problem.title}`}</h1>
+        <div className="flex max-h-24 justify-between gap-4">
+          <h1 className="mb-3 overflow-hidden text-ellipsis whitespace-nowrap text-xl font-bold">{`#${contestProblems ? convertToLetter(contestProblems.find((item) => item.id === problem.id)?.order as number) : problem.id}. ${problem.title}`}</h1>
           <Badge
-            className="rounded-md bg-neutral-500 hover:bg-neutral-500"
+            className="h-6 w-[52px] whitespace-nowrap rounded-[4px] bg-neutral-500 p-[6px] text-xs font-medium hover:bg-neutral-500"
             textColors={level as Level}
           >
             {`Level ${levelNumber}`}

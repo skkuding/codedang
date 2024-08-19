@@ -82,7 +82,7 @@ export default async function EditorLayout({
                 </DropdownMenu>
               </>
             ) : (
-              <h1 className="overflow-hidden text-ellipsis text-lg font-medium text-white">{`#${problem.id}. ${problem.title}`}</h1>
+              <h1 className="w-[1024px] overflow-hidden text-ellipsis whitespace-nowrap text-lg font-medium text-white">{`#${problem.id}. ${problem.title}`}</h1>
             )}
           </div>
         </div>
