@@ -68,6 +68,7 @@ export default function Page() {
               participants: 'px-0 w-1/12',
               isVisible: 'px-0 w-1/12'
             }}
+            enableDuplicate={true}
           />
         )}
       </div>
