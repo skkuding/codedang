@@ -1,5 +1,15 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql'
 import { Language, ResultStatus } from '@admin/@generated'
+import { UserContestScoreSummary } from './score-summary'
+
+@ObjectType({ description: 'ContestSubmissionSummaryForUser' })
+export class ContestSubmissionSummaryForUser {
+  @Field(() => ContestSubmissionSummaryForOne, { nullable: false })
+  submissions: ContestSubmissionSummaryForOne[]
+
+  @Field(() => UserContestScoreSummary, { nullable: false })
+  scoreSummary: UserContestScoreSummary
+}
 
 /**
  * 특정 User의 특정 Contest에 대한 Submission 정보 (!== model SubmissionResult)

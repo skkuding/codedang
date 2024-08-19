@@ -21,7 +21,7 @@ import {
   RequiredIntPipe
 } from '@libs/pipe'
 import { ContestService } from './contest.service'
-import { ContestSubmissionSummaryForOne } from './model/contest-submission-summary-for-one.model'
+import { ContestSubmissionSummaryForUser } from './model/contest-submission-summary-for-user.model'
 import { ContestWithParticipants } from './model/contest-with-participants.model'
 import { CreateContestInput } from './model/contest.input'
 import { UpdateContestInput } from './model/contest.input'
@@ -228,15 +228,25 @@ export class ContestResolver {
   }
 
   // TODO: 특정 User의 특정 Contest에 대한 점수만 요약해 불러오는 함수 필요
-  @Query(() => [ContestSubmissionSummaryForOne])
+  @Query(() => ContestSubmissionSummaryForUser)
   async getContestSubmissionSummaryByUserId(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
-    @Args('userId', { type: () => Int }, IDValidationPipe) userId: number
+    @Args('userId', { type: () => Int }, IDValidationPipe) userId: number,
+    @Args(
+      'take',
+      { type: () => Int, defaultValue: 10 },
+      new RequiredIntPipe('take')
+    )
+    take: number,
+    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
+    cursor: number | null
   ) {
     try {
       return await this.contestService.getContestSubmissionSummaryByUserId(
+        take,
         contestId,
-        userId
+        userId,
+        cursor
       )
     } catch (error) {
       this.logger.error(error)

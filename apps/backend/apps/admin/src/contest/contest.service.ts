@@ -485,8 +485,16 @@ export class ContestService {
     return contestProblems
   }
 
-  async getContestSubmissionSummaryByUserId(contestId: number, userId: number) {
+  async getContestSubmissionSummaryByUserId(
+    take: number,
+    contestId: number,
+    userId: number,
+    cursor: number | null
+  ) {
+    const paginator = this.prisma.getPaginator(cursor)
     const submissions = await this.prisma.submission.findMany({
+      ...paginator,
+      take,
       where: {
         userId,
         contestId
@@ -506,7 +514,7 @@ export class ContestService {
       }
     })
 
-    return await Promise.all(
+    const mappedSubmission = await Promise.all(
       submissions.map(async (submission) => {
         return {
           contestId: submission.contestId,
@@ -517,10 +525,17 @@ export class ContestService {
           language: submission.language,
           submissionTime: submission.createTime,
           codeSize: submission.codeSize,
-          ip: '127.0.0.1' // TODO: submission.ip 사용
+          ip: submission.userIp
         }
       })
     )
+
+    const scoreSummary = await this.getContestScoreSummary(userId, contestId)
+
+    return {
+      scoreSummary,
+      submissions: mappedSubmission
+    }
   }
 
   /**
