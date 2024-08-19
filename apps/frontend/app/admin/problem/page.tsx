@@ -64,8 +64,7 @@ export default function Page({
           ...tag,
           id: +tag.id
         }
-      })),
-      isVisible: problem.isVisible ?? false
+      }))
     })) ?? []
 
   return (
