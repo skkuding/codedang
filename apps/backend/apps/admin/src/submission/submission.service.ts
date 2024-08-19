@@ -53,7 +53,7 @@ export class SubmissionService {
         language: c.language as Language,
         submissionTime: c.createTime,
         codeSize: c.codeSize ?? null,
-        ip: '127.0.0.1' // TODO: c.ip 사용
+        ip: c.userIp
       }
     })
 
