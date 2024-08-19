@@ -67,6 +67,7 @@ export interface ProblemDetail {
   tags: Tag[]
   hint: string
   template: string[]
+  difficulty: Level
 }
 
 // Contest type definition
@@ -83,6 +84,7 @@ export interface Contest {
   enableCopyPaste: boolean
   status: ContestStatus
   participants: number
+  isRegistered: boolean
 }
 
 export interface ContestAnnouncement {

@@ -17,7 +17,8 @@ const getProblems = async () => {
   const problemRes: ProblemCardsProps = await fetcher
     .get('problem', {
       searchParams: {
-        take: 3
+        take: 3,
+        order: 'submit-desc'
         // workbookId: 1
       }
     })
@@ -39,21 +40,40 @@ export default function ProblemCards() {
 
   return (
     <>
-      {loading
-        ? [...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="flex h-[120px] w-full rounded-xl" />
-          ))
-        : problems.map((problem) => {
-            return (
-              <Link
-                key={problem.id}
-                href={`/problem/${problem.id}` as Route}
-                className="inline-block w-full"
-              >
-                <ProblemCard problem={problem} />
-              </Link>
-            )
-          })}
+      <div className="flex justify-between gap-5 xl:hidden">
+        {loading
+          ? [...Array(2)].map((_, i) => (
+              <Skeleton key={i} className="flex h-[120px] w-full rounded-xl" />
+            ))
+          : problems.slice(0, 2).map((problem) => {
+              return (
+                <Link
+                  key={problem.id}
+                  href={`/problem/${problem.id}` as Route}
+                  className="inline-block w-full"
+                >
+                  <ProblemCard problem={problem} />
+                </Link>
+              )
+            })}
+      </div>
+      <div className="hidden justify-between gap-5 xl:flex">
+        {loading
+          ? [...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="flex h-[120px] w-full rounded-xl" />
+            ))
+          : problems.map((problem) => {
+              return (
+                <Link
+                  key={problem.id}
+                  href={`/problem/${problem.id}` as Route}
+                  className="inline-block w-full"
+                >
+                  <ProblemCard problem={problem} />
+                </Link>
+              )
+            })}
+      </div>
     </>
   )
 }

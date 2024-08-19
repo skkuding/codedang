@@ -1,3 +1,4 @@
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import {
@@ -35,6 +36,7 @@ const contest = {
   startTime: now.add(-1, 'day').toDate(),
   endTime: now.add(1, 'day').toDate(),
   isVisible: true,
+  isJudgeResultVisible: true,
   isRankVisible: true,
   enableCopyPaste: true,
   createTime: now.add(-1, 'day').toDate(),
@@ -54,6 +56,7 @@ const ongoingContests = [
     group: contest.group,
     title: contest.title,
     invitationCode: 'test',
+    isJudgeResultVisible: true,
     startTime: now.add(-1, 'day').toDate(),
     endTime: now.add(1, 'day').toDate(),
     participants: 1,
@@ -67,6 +70,7 @@ const upcomingContests = [
     group: contest.group,
     title: contest.title,
     invitationCode: 'test',
+    isJudgeResultVisible: true,
     startTime: now.add(1, 'day').toDate(),
     endTime: now.add(2, 'day').toDate(),
     participants: 1,
@@ -80,6 +84,7 @@ const finishedContests = [
     group: contest.group,
     title: contest.title,
     invitationCode: null,
+    isJudgeResultVisible: true,
     startTime: now.add(-2, 'day').toDate(),
     endTime: now.add(-1, 'day').toDate(),
     participants: 1,
@@ -107,10 +112,16 @@ describe('ContestService', () => {
           provide: PrismaService,
           useExisting: PrismaTestService
         },
-        ConfigService
+        ConfigService,
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => []
+          })
+        }
       ]
     }).compile()
-
     service = module.get<ContestService>(ContestService)
     prisma = module.get<PrismaTestService>(PrismaTestService)
   })
@@ -301,6 +312,7 @@ describe('ContestService', () => {
   describe('getFinishedContestsByGroupId', () => {
     it('should return finished contests', async () => {
       const contests = await service.getFinishedContestsByGroupId(
+        null,
         null,
         10,
         groupId

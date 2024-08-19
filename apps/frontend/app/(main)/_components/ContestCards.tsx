@@ -42,17 +42,32 @@ export default async function ContestCards() {
 
   return (
     <>
-      {contests.map((contest) => {
-        return (
-          <Link
-            key={contest.id}
-            href={`/contest/${contest.id}` as Route}
-            className="inline-block w-full"
-          >
-            <ContestCard contest={contest} />
-          </Link>
-        )
-      })}
+      <div className="flex justify-between gap-5 xl:hidden">
+        {contests.slice(0, 2).map((contest) => {
+          return (
+            <Link
+              key={contest.id}
+              href={`/contest/${contest.id}` as Route}
+              className="inline-block w-full"
+            >
+              <ContestCard contest={contest} />
+            </Link>
+          )
+        })}
+      </div>
+      <div className="hidden justify-between gap-5 xl:flex">
+        {contests.map((contest) => {
+          return (
+            <Link
+              key={contest.id}
+              href={`/contest/${contest.id}` as Route}
+              className="inline-block w-full"
+            >
+              <ContestCard contest={contest} />
+            </Link>
+          )
+        })}
+      </div>
     </>
   )
 }

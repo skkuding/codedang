@@ -1,35 +1,21 @@
 import { HttpService } from '@nestjs/axios'
-import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
 import {
   ResultStatus,
   type Submission,
-  type SubmissionResult,
   type Language,
   type Problem,
   Role
 } from '@prisma/client'
 import type { AxiosRequestConfig } from 'axios'
 import { plainToInstance } from 'class-transformer'
-import { ValidationError, validateOrReject } from 'class-validator'
-import { Span, TraceService } from 'nestjs-otel'
-import {
-  OPEN_SPACE_ID,
-  Status,
-  CONSUME_CHANNEL,
-  EXCHANGE,
-  ORIGIN_HANDLER_NAME,
-  PUBLISH_TYPE,
-  RESULT_KEY,
-  RESULT_QUEUE,
-  SUBMISSION_KEY
-} from '@libs/constants'
+import { Span } from 'nestjs-otel'
+import { MIN_DATE, OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
-  ForbiddenAccessException,
-  UnprocessableDataException
+  ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
@@ -37,58 +23,26 @@ import {
   type CreateSubmissionDto,
   Snippet,
   Template
-} from './dto/create-submission.dto'
-import { JudgeRequest } from './dto/judge-request.class'
-import { JudgerResponse } from './dto/judger-response.dto'
-import type { TestcaseDTO } from './dto/testcase.dto'
+} from './class/create-submission.dto'
+import type { TestcaseDTO } from './interface/testcase.dto'
+import { SubmissionPublicationService } from './submission-pub.service'
 
 @Injectable()
-export class SubmissionService implements OnModuleInit {
+export class SubmissionService {
   private readonly logger = new Logger(SubmissionService.name)
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpConnection: AmqpConnection,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
-    private readonly traceService: TraceService,
-    private readonly storageService: StorageService
+    private readonly storageService: StorageService,
+    private readonly publish: SubmissionPublicationService
   ) {}
-  onModuleInit() {
-    this.amqpConnection.createSubscriber(
-      async (msg: object) => {
-        try {
-          const res = await this.validateJudgerResponse(msg)
-          await this.handleJudgerMessage(res)
-        } catch (error) {
-          if (
-            Array.isArray(error) &&
-            error.every((e) => e instanceof ValidationError)
-          ) {
-            this.logger.error(error, 'Message format error')
-          } else if (error instanceof UnprocessableDataException) {
-            this.logger.error(error, 'Iris exception')
-          } else {
-            this.logger.error(error, 'Unexpected error')
-          }
-          return new Nack()
-        }
-      },
-      {
-        exchange: EXCHANGE,
-        routingKey: RESULT_KEY,
-        queue: RESULT_QUEUE,
-        queueOptions: {
-          channel: CONSUME_CHANNEL
-        }
-      },
-      ORIGIN_HANDLER_NAME
-    )
-  }
 
   @Span()
   async submitToProblem(
     submissionDto: CreateSubmissionDto,
+    userIp: string,
     userId: number,
     problemId: number,
     groupId = OPEN_SPACE_ID
@@ -97,17 +51,30 @@ export class SubmissionService implements OnModuleInit {
       where: {
         id: problemId,
         groupId,
-        exposeTime: {
-          lt: new Date()
+        visibleLockTime: {
+          equals: MIN_DATE
         }
       }
     })
-    return await this.createSubmission(submissionDto, problem, userId)
+    const submission = await this.createSubmission(
+      submissionDto,
+      problem,
+      userId,
+      userIp
+    )
+
+    if (submission) {
+      this.logger.log(
+        `Submission ${submission.id} is created for problem ${problem.id} by ip ${userIp}`
+      )
+      return submission
+    }
   }
 
   @Span()
   async submitToContest(
     submissionDto: CreateSubmissionDto,
+    userIp: string,
     userId: number,
     problemId: number,
     contestId: number,
@@ -165,14 +132,23 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    return await this.createSubmission(submissionDto, problem, userId, {
-      contestId
-    })
+    const submission = await this.createSubmission(
+      submissionDto,
+      problem,
+      userId,
+      userIp,
+      {
+        contestId
+      }
+    )
+
+    return submission
   }
 
   @Span()
   async submitToWorkbook(
     submissionDto: CreateSubmissionDto,
+    userIp: string,
     userId: number,
     problemId: number,
     workbookId: number,
@@ -190,13 +166,24 @@ export class SubmissionService implements OnModuleInit {
         problem: true
       }
     })
-    if (problem.groupId !== groupId || problem.exposeTime >= new Date()) {
+    if (
+      problem.groupId !== groupId ||
+      problem.visibleLockTime.getTime() !== MIN_DATE.getTime() // 공개된 problem이 아닐 때
+    ) {
       throw new EntityNotExistException('problem')
     }
 
-    return await this.createSubmission(submissionDto, problem, userId, {
-      workbookId
-    })
+    const submission = await this.createSubmission(
+      submissionDto,
+      problem,
+      userId,
+      userIp,
+      {
+        workbookId
+      }
+    )
+
+    return submission
   }
 
   @Span()
@@ -204,6 +191,7 @@ export class SubmissionService implements OnModuleInit {
     submissionDto: CreateSubmissionDto,
     problem: Problem,
     userId: number,
+    userIp: string,
     idOptions?: { contestId?: number; workbookId?: number }
   ) {
     if (!problem.languages.includes(submissionDto.language)) {
@@ -226,6 +214,7 @@ export class SubmissionService implements OnModuleInit {
       code: code.map((snippet) => ({ ...snippet })), // convert to plain object
       result: ResultStatus.Judging,
       userId,
+      userIp,
       problemId: problem.id,
       codeSize: new TextEncoder().encode(code[0].text).length,
       ...data
@@ -242,7 +231,7 @@ export class SubmissionService implements OnModuleInit {
 
       await this.createSubmissionResults(submission)
 
-      await this.publishJudgeRequestMessage(code, submission)
+      await this.publish.publishJudgeRequestMessage(code, submission)
       return submission
     }
 
@@ -263,7 +252,7 @@ export class SubmissionService implements OnModuleInit {
 
       await this.createSubmissionResults(submission)
 
-      await this.publishJudgeRequestMessage(code, submission)
+      await this.publish.publishJudgeRequestMessage(code, submission)
       return submission
     }
 
@@ -274,7 +263,7 @@ export class SubmissionService implements OnModuleInit {
 
       await this.createSubmissionResults(submission)
 
-      await this.publishJudgeRequestMessage(code, submission)
+      await this.publish.publishJudgeRequestMessage(code, submission)
       return submission
     }
   }
@@ -362,253 +351,6 @@ export class SubmissionService implements OnModuleInit {
     }
   }
 
-  @Span()
-  async publishJudgeRequestMessage(code: Snippet[], submission: Submission) {
-    const problem = await this.prisma.problem.findUnique({
-      where: { id: submission.problemId },
-      select: {
-        id: true,
-        timeLimit: true,
-        memoryLimit: true
-      }
-    })
-
-    if (!problem) {
-      throw new EntityNotExistException('problem')
-    }
-
-    const judgeRequest = new JudgeRequest(code, submission.language, problem)
-
-    const span = this.traceService.startSpan(
-      'publishJudgeRequestMessage.publish'
-    )
-    span.setAttributes({ submissionId: submission.id })
-
-    this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
-      messageId: String(submission.id),
-      persistent: true,
-      type: PUBLISH_TYPE
-    })
-    span.end()
-  }
-
-  async validateJudgerResponse(msg: object): Promise<JudgerResponse> {
-    const res: JudgerResponse = plainToInstance(JudgerResponse, msg)
-    await validateOrReject(res)
-
-    return res
-  }
-
-  @Span()
-  async handleJudgerMessage(msg: JudgerResponse): Promise<void> {
-    if (Status(msg.resultCode) === ResultStatus.ServerError) {
-      await this.prisma.submission.update({
-        where: {
-          id: msg.submissionId
-        },
-        data: {
-          result: ResultStatus.ServerError
-        }
-      })
-
-      await this.prisma.submissionResult.updateMany({
-        where: {
-          submissionId: msg.submissionId
-        },
-        data: {
-          result: ResultStatus.ServerError
-        }
-      })
-
-      throw new UnprocessableDataException(
-        `${msg.submissionId} ${msg.error} ${msg.judgeResult}`
-      )
-    }
-
-    const submissionResult = {
-      submissionId: msg.submissionId,
-      problemTestcaseId: parseInt(msg.judgeResult.testcaseId.split(':')[1], 10),
-      result: Status(msg.judgeResult.resultCode),
-      cpuTime: BigInt(msg.judgeResult.cpuTime),
-      memoryUsage: msg.judgeResult.memory
-    }
-
-    await this.updateTestcaseJudgeResult(submissionResult)
-  }
-
-  @Span()
-  async updateTestcaseJudgeResult(
-    submissionResult: Partial<SubmissionResult> &
-      Pick<SubmissionResult, 'result' | 'submissionId'>
-  ) {
-    // TODO: submission의 값들이 아닌 submissionResult의 id 값으로 접근할 수 있도록 수정
-    const { id } = await this.prisma.submissionResult.findFirstOrThrow({
-      where: {
-        submissionId: submissionResult.submissionId,
-        problemTestcaseId: submissionResult.problemTestcaseId
-      },
-      select: {
-        id: true
-      }
-    })
-
-    await this.prisma.submissionResult.update({
-      where: {
-        id
-      },
-      data: {
-        result: submissionResult.result,
-        cpuTime: submissionResult.cpuTime,
-        memoryUsage: submissionResult.memoryUsage
-      }
-    })
-
-    await this.updateSubmissionResult(submissionResult.submissionId)
-  }
-
-  @Span()
-  async updateSubmissionResult(submissionId: number): Promise<void> {
-    const submission = await this.prisma.submission.findUnique({
-      where: {
-        id: submissionId,
-        result: ResultStatus.Judging,
-        submissionResult: {
-          every: {
-            NOT: {
-              result: ResultStatus.Judging
-            }
-          }
-        }
-      },
-      select: {
-        problemId: true,
-        userId: true,
-        contestId: true,
-        updateTime: true,
-        submissionResult: {
-          select: {
-            result: true
-          }
-        }
-      }
-    })
-
-    if (!submission) return
-
-    const allAccepted = submission.submissionResult.every(
-      (submissionResult) => submissionResult.result === ResultStatus.Accepted
-    )
-
-    const submissionResult = allAccepted
-      ? ResultStatus.Accepted
-      : (submission.submissionResult.find(
-          (submissionResult) =>
-            submissionResult.result !== ResultStatus.Accepted
-        )?.result ?? ResultStatus.ServerError)
-
-    await this.prisma.submission.update({
-      where: { id: submissionId },
-      data: { result: submissionResult }
-    })
-
-    if (submission.userId && submission.contestId)
-      await this.calculateSubmissionScore(submission, allAccepted)
-
-    await this.updateProblemAccepted(submission.problemId, allAccepted)
-  }
-
-  @Span()
-  async calculateSubmissionScore(
-    submission: Pick<
-      Submission,
-      'problemId' | 'contestId' | 'userId' | 'updateTime'
-    >,
-    isAccepted: boolean
-  ) {
-    const contestId = submission.contestId!
-    const userId = submission.userId!
-
-    let toBeAddedScore = 0,
-      toBeAddedPenalty = 0,
-      toBeAddedAcceptedProblemNum = 0,
-      isFinishTimeToBeUpdated = false
-
-    const contestRecord = await this.prisma.contestRecord.findUniqueOrThrow({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        contestId_userId: {
-          contestId,
-          userId
-        }
-      },
-      select: {
-        id: true,
-        acceptedProblemNum: true,
-        score: true,
-        totalPenalty: true,
-        finishTime: true
-      }
-    })
-
-    if (isAccepted) {
-      toBeAddedScore = (
-        await this.prisma.contestProblem.findFirstOrThrow({
-          where: {
-            contestId,
-            problemId: submission.problemId
-          },
-          select: {
-            score: true
-          }
-        })
-      ).score
-      isFinishTimeToBeUpdated = true
-      toBeAddedAcceptedProblemNum = 1
-    } else {
-      toBeAddedPenalty = 1
-    }
-
-    await this.prisma.contestRecord.update({
-      where: {
-        id: contestRecord.id
-      },
-      data: {
-        acceptedProblemNum:
-          contestRecord.acceptedProblemNum + toBeAddedAcceptedProblemNum,
-        score: contestRecord.score + toBeAddedScore,
-        totalPenalty: contestRecord.totalPenalty + toBeAddedPenalty,
-        finishTime: isFinishTimeToBeUpdated
-          ? submission.updateTime
-          : contestRecord.finishTime
-      }
-    })
-  }
-
-  @Span()
-  async updateProblemAccepted(id: number, isAccepted: boolean): Promise<void> {
-    const data: {
-      submissionCount: { increment: number }
-      acceptedCount?: { increment: number }
-    } = {
-      submissionCount: {
-        increment: 1
-      }
-    }
-
-    if (isAccepted) {
-      data.acceptedCount = {
-        increment: 1
-      }
-    }
-
-    await this.prisma.problem.update({
-      where: {
-        id
-      },
-      data
-    })
-  }
-
   // FIXME: Workbook 구분
   @Span()
   async getSubmissions({
@@ -628,8 +370,8 @@ export class SubmissionService implements OnModuleInit {
       where: {
         id: problemId,
         groupId,
-        exposeTime: {
-          lt: new Date()
+        visibleLockTime: {
+          equals: MIN_DATE
         }
       }
     })
@@ -703,8 +445,8 @@ export class SubmissionService implements OnModuleInit {
         where: {
           id: problemId,
           groupId,
-          exposeTime: {
-            lt: new Date() // contestId가 없는 경우에는 공개된 문제인 경우에만 제출 내역을 가져와야 함
+          visibleLockTime: {
+            equals: MIN_DATE // contestId가 없는 경우에는 공개된 문제인 경우에만 제출 내역을 가져와야 함
           }
         }
       })

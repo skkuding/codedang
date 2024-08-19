@@ -1,0 +1,41 @@
+meta {
+  name: UNPROCESSABLE (3)
+  type: graphql
+  seq: 4
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateProblem($groupId: Int!, $input: UpdateProblemInput!) {
+    updateProblem(groupId: $groupId, input: $input) {
+      id
+      createdById
+      groupId
+      title
+      description
+      inputDescription
+      outputDescription
+      hint
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "input": {
+      "id": 1,
+      "isVisible": false
+    }
+  }
+}
+
+assert {
+  res.body.errors[0].extensions.code: eq UNPROCESSABLE
+  res.body.errors[0].message: eq Unable to set the visible property until the contest is over
+}

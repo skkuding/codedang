@@ -11,7 +11,6 @@ import {
 import { dateFormatter, fetcherWithAuth } from '@/lib/utils'
 import type { SubmissionDetail } from '@/types/type'
 import { revalidateTag } from 'next/cache'
-import { IoIosLock } from 'react-icons/io'
 import dataIfError from './dataIfError'
 
 interface Props {
@@ -115,11 +114,10 @@ export default async function SubmissionDetail({
         <></>
       ) : (
         <div className="absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1 backdrop-blur">
-          <IoIosLock size={100} />
-          <p className="mt-4 text-xl font-semibold">Access Denied</p>
+          <p className="mt-4 font-mono text-xl font-semibold">Access Denied</p>
           <p className="w-10/12 text-center">
-            {`If you want to check other users' code,
-                please submit a correct answer of your own.`}
+            {`To view other users' code,
+            please submit your own correct code first`}
           </p>
         </div>
       )}
