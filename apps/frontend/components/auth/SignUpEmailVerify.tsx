@@ -113,6 +113,7 @@ export default function SignUpEmailVerify() {
           setEmailError('Something went wrong!')
         })
     }
+    setSendButtonDisabled(false)
   }
   const verifyCode = async () => {
     const { verificationCode } = getValues()
