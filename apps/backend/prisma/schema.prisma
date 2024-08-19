@@ -170,7 +170,7 @@ model Problem {
   ///             "locked": boolean
   ///           }[]
   /// }
-  
+
   template        Json[]     @default([])
   languages       Language[]
   timeLimit       Int        @map("time_limit") // unit: MilliSeconds
@@ -435,6 +435,7 @@ enum ResultStatus {
   MemoryLimitExceeded
   OutputLimitExceeded
   ServerError
+  BLIND // isJudgeResult == True로 설정된 contest의 채점 결과를 반환할 때 사용
 }
 
 model CodeDraft {
