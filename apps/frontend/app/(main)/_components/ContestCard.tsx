@@ -46,7 +46,7 @@ export default function ContestCard({ contest }: Props) {
         )}
       >
         <StatusBadge variant={contest.status} />
-        <div className="line-clamp-4 h-24 text-ellipsis whitespace-pre-wrap text-lg font-semibold leading-tight text-black min-[400px]:line-clamp-2 min-[400px]:h-12">
+        <div className="line-clamp-4 text-ellipsis whitespace-pre-wrap text-lg font-semibold leading-tight text-black min-[400px]:line-clamp-2">
           {contest.title}
         </div>
       </div>
