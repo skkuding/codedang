@@ -247,9 +247,10 @@ export function DataTableAdmin<TData, TValue>({
                   value={
                     (table.getColumn('title')?.getFilterValue() as string) ?? ''
                   }
-                  onChange={(event) =>
+                  onChange={(event) => {
                     table.getColumn('title')?.setFilterValue(event.target.value)
-                  }
+                    table.setPageIndex(0)
+                  }}
                   className="h-10 w-[150px] pl-8 lg:w-[250px]"
                 />
               </div>
