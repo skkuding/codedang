@@ -12,11 +12,11 @@ export class SubmissionService {
     take: number,
     cursor: number | null
   ) {
-    const pagenator = this.prisma.getPaginator(cursor)
+    const paginator = this.prisma.getPaginator(cursor)
 
     const { contestId, problemId } = input
     const contestSubmissions = await this.prisma.submission.findMany({
-      ...pagenator,
+      ...paginator,
       take,
       where: {
         contestId,
@@ -53,7 +53,7 @@ export class SubmissionService {
         language: c.language as Language,
         submissionTime: c.createTime,
         codeSize: c.codeSize ?? null,
-        ip: c.userIp
+        ip: c.userIp ?? 'Unknown'
       }
     })
 
