@@ -58,6 +58,7 @@ export default function Page({
       ...problem,
       isVisible: problem.isVisible,
       id: Number(problem.id),
+      isVisible: problem.isVisible !== undefined ? problem.isVisible : null,
       languages: problem.languages ?? [],
       tag: problem.tag.map(({ id, tag }) => ({
         id: +id,

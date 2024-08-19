@@ -64,6 +64,9 @@ interface DataTableProps<TData, TValue> {
   enableImport?: boolean // Enable import selected rows
   enableDuplicate?: boolean // Enable duplicate selected rows
   checkSelectedRows?: boolean // Check selected rows
+  headerStyle?: {
+    [key: string]: string
+  }
 }
 
 interface ContestProblem {
@@ -99,8 +102,9 @@ export function DataTableAdmin<TData, TValue>({
   enableDelete = false,
   enablePagination = false,
   enableImport = false,
-  enableDuplicate = false,
-  checkSelectedRows = false
+  checkSelectedRows = false,
+  headerStyle = {},
+  enableDuplicate = false
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])
@@ -111,6 +115,11 @@ export function DataTableAdmin<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    defaultColumn: {
+      minSize: 0,
+      size: Number.MAX_SAFE_INTEGER,
+      maxSize: Number.MAX_SAFE_INTEGER
+    },
     state: {
       sorting,
       rowSelection,
@@ -272,7 +281,7 @@ export function DataTableAdmin<TData, TValue>({
                   onChange={(event) =>
                     table.getColumn('title')?.setFilterValue(event.target.value)
                   }
-                  className="h-10 w-[150px] pl-8 lg:w-[250px]"
+                  className="h-10 w-[150px] bg-transparent pl-8 lg:w-[250px]"
                 />
               </div>
             )}
@@ -372,14 +381,17 @@ export function DataTableAdmin<TData, TValue>({
         </div>
       )}
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader className="[&_tr]:border-b-gray-200">
+      <div>
+        <Table className="rounded border">
+          <TableHeader className="bg-neutral-100 [&_tr]:border-b-gray-200">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      className={headerStyle[header.id]}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -404,7 +416,7 @@ export function DataTableAdmin<TData, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
-                    className="cursor-pointer hover:bg-gray-200"
+                    className="cursor-pointer hover:bg-neutral-200/30"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell

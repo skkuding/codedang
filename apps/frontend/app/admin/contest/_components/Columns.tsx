@@ -11,10 +11,12 @@ import {
 } from '@/components/ui/tooltip'
 import { UPDATE_CONTEST_VISIBLE } from '@/graphql/contest/mutations'
 import { cn, dateFormatter } from '@/lib/utils'
+import InvisibleIcon from '@/public/24_invisible.svg'
+import VisibleIcon from '@/public/24_visible.svg'
 import { useMutation } from '@apollo/client'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import type { ColumnDef, Row } from '@tanstack/react-table'
-import { FiEye, FiEyeOff } from 'react-icons/fi'
+import Image from 'next/image'
 import { toast } from 'sonner'
 
 interface DataTableContest {
@@ -32,7 +34,7 @@ function VisibleCell({ row }: { row: Row<DataTableContest> }) {
   const [updateVisible] = useMutation(UPDATE_CONTEST_VISIBLE)
 
   return (
-    <div className="flex space-x-2">
+    <div className="ml-4 flex items-center space-x-2">
       <Switch
         onClick={(e) => e.stopPropagation()}
         id="hidden-mode"
@@ -74,11 +76,14 @@ function VisibleCell({ row }: { row: Row<DataTableContest> }) {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button onClick={(e) => e.stopPropagation()}>
+                <button
+                  onClick={(e) => e.stopPropagation()}
+                  className="h-6 w-6"
+                >
                   {row.original.isVisible ? (
-                    <FiEye className="text-primary h-[14px] w-[14px]" />
+                    <Image src={VisibleIcon} alt="Visible" />
                   ) : (
-                    <FiEyeOff className="h-[14px] w-[14px] text-gray-400" />
+                    <Image src={InvisibleIcon} alt="Invisible" />
                   )}
                 </button>
               </TooltipTrigger>
@@ -115,10 +120,7 @@ export const columns: ColumnDef<DataTableContest>[] = [
     header: ({ table }) => (
       <Checkbox
         onClick={(e) => e.stopPropagation()}
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
-        }
+        checked={table.getIsAllPageRowsSelected()}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
         className="translate-y-[2px] bg-white"
@@ -126,6 +128,7 @@ export const columns: ColumnDef<DataTableContest>[] = [
     ),
     cell: ({ row }) => (
       <Checkbox
+        onClick={(e) => e.stopPropagation()}
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
@@ -140,7 +143,11 @@ export const columns: ColumnDef<DataTableContest>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Title" />
     ),
-    cell: ({ row }) => row.getValue('title'),
+    cell: ({ row }) => (
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+        {row.getValue('title')}
+      </p>
+    ),
     enableSorting: false,
     enableHiding: false
   },
@@ -156,21 +163,23 @@ export const columns: ColumnDef<DataTableContest>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <p className="text-center">
-        {`${dateFormatter(row.original.startTime, 'YYYY-MM-DD')} ~ ${dateFormatter(row.original.endTime, 'YYYY-MM-DD')}`}
+      <p className="overflow-hidden whitespace-nowrap text-center font-normal">
+        {`${dateFormatter(row.original.startTime, 'YY-MM-DD hh:mm')} ~ ${dateFormatter(row.original.endTime, 'YY-MM-DD hh:mm')}`}
       </p>
-    )
+    ),
+    size: 250
   },
   {
     accessorKey: 'participants',
     header: ({ column }) => (
       <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Register" />
+        <DataTableColumnHeader column={column} title="Participants" />
       </div>
     ),
     cell: ({ row }) => (
-      <p className="text-center">{row.original.participants}</p>
-    )
+      <p className="text-center font-normal">{row.original.participants}</p>
+    ),
+    size: 100
   },
   {
     accessorKey: 'isVisible',
@@ -179,6 +188,7 @@ export const columns: ColumnDef<DataTableContest>[] = [
     ),
     cell: ({ row }) => {
       return <VisibleCell row={row} />
-    }
+    },
+    size: 100
   }
 ]
