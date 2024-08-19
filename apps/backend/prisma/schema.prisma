@@ -170,7 +170,7 @@ model Problem {
   ///             "locked": boolean
   ///           }[]
   /// }
-  isVisible       Boolean    @default(true) @map("is_visible")
+  
   template        Json[]     @default([])
   languages       Language[]
   timeLimit       Int        @map("time_limit") // unit: MilliSeconds
@@ -180,7 +180,9 @@ model Problem {
   submissionCount Int        @default(0) @map("submission_count")
   acceptedCount   Int        @default(0) @map("accepted_count")
   acceptedRate    Float      @default(0) @map("accepted_rate")
-  exposeTime      DateTime   @default(now()) @map("expose_time")
+  visibleLockTime DateTime   @map("visible_lock_time")
+  // 문제가 속한 대회들이 모두 끝나는 시각으로 이후 문제의 공개 여부를 변경가능, 속한 대회가 없을 경우 MIN_DATE
+  // MIN_DATE의 경우 모든 사용자에게 공개, 이외에는 비공개
   createTime      DateTime   @default(now()) @map("create_time")
   updateTime      DateTime   @updatedAt @map("update_time")
 
@@ -271,21 +273,22 @@ model Tag {
 }
 
 model Contest {
-  id              Int      @id @default(autoincrement())
-  createdBy       User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
-  createdById     Int?     @map("created_by_id")
-  group           Group    @relation(fields: [groupId], references: [id])
-  groupId         Int      @map("group_id")
-  title           String
-  description     String
-  invitationCode  String?  @map("invitation_code")
-  startTime       DateTime @map("start_time")
-  endTime         DateTime @map("end_time")
-  isVisible       Boolean  @default(true) @map("is_visible")
-  isRankVisible   Boolean  @default(true) @map("is_rank_visible")
-  enableCopyPaste Boolean  @default(true) @map("enable_copy_paste") // 이 Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다.
-  createTime      DateTime @default(now()) @map("create_time")
-  updateTime      DateTime @updatedAt @map("update_time")
+  id                   Int      @id @default(autoincrement())
+  createdBy            User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById          Int?     @map("created_by_id")
+  group                Group    @relation(fields: [groupId], references: [id])
+  groupId              Int      @map("group_id")
+  title                String
+  description          String
+  invitationCode       String?  @map("invitation_code")
+  startTime            DateTime @map("start_time")
+  endTime              DateTime @map("end_time")
+  isVisible            Boolean  @default(true) @map("is_visible")
+  isRankVisible        Boolean  @default(true) @map("is_rank_visible")
+  isJudgeResultVisible Boolean  @default(true) @map("is_judge_result_visible") // 이 Contest에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다.
+  enableCopyPaste      Boolean  @default(true) @map("enable_copy_paste") // 이 Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다.
+  createTime           DateTime @default(now()) @map("create_time")
+  updateTime           DateTime @updatedAt @map("update_time")
 
   contestProblem ContestProblem[]
   contestRecord  ContestRecord[]

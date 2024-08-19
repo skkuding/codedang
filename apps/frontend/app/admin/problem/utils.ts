@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 const commonSchema = z.object({
   title: z.string().min(1, { message: 'required' }).max(200),
-  isVisible: z.boolean(),
+  isVisible: z.boolean().optional(),
   difficulty: z.enum(levels),
   languages: z.array(z.enum(languages)).min(1),
   description: z
