@@ -66,8 +66,9 @@ export class ContestController {
   }
 
   @Get('finished')
-  @AuthNotNeededIfOpenSpace()
+  @UserNullWhenAuthFailedIfOpenSpace()
   async getFinishedContests(
+    @Req() req: AuthenticatedRequest,
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
@@ -76,6 +77,7 @@ export class ContestController {
   ) {
     try {
       return await this.contestService.getFinishedContestsByGroupId(
+        req.user?.id,
         cursor,
         take,
         groupId,
