@@ -238,7 +238,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
             <Button
               type="submit"
-              className="flex h-[36px] w-[100px] items-center gap-2 px-0"
+              className="flex h-[36px] w-[90px] items-center gap-2 px-0"
             >
               <IoIosCheckmarkCircle fontSize={20} />
               <div className="text-base">Edit</div>
