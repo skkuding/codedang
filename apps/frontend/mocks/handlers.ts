@@ -61,5 +61,24 @@ export const handlers = [
         status: 401
       })
     }
+  }),
+  http.get('/next-auth/api/auth/session', async () => {
+    const session = {
+      user: {
+        username: 'admin',
+        role: 'Admin'
+      },
+      expires: '2024-08-20T05:05:22.959Z',
+      token: {
+        accessToken:
+          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3MjQwNDM1OTYsImV4cCI6MTcyNDA0NTM5NiwiaXNzIjoic2trdWRpbmcuZGV2In0.QC-f78V536WuKT2lxqvpi4tnPa4BIpnxxoCaQIwedEw',
+        refreshToken:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3MjQwNDM1OTYsImV4cCI6MTcyNDEyOTk5NiwiaXNzIjoic2trdWRpbmcuZGV2In0.ph7UFnW5nF8cQ7Zk_OjUbE7prHkIAbT8F3vsTRnDTaA',
+        accessTokenExpires: Date.now() + 1000,
+        refreshTokenExpires: Date.now()
+      }
+    }
+
+    return HttpResponse.json(session)
   })
 ]
