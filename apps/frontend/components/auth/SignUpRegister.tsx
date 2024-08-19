@@ -382,7 +382,9 @@ export default function SignUpRegister() {
                 {isAvailable && (
                   <p className="text-xs text-blue-500">Available</p>
                 )}
-                {isUnavailable && <p className="text-red-500">Unavailable</p>}
+                {isUnavailable && (
+                  <p className="text-red-500">This ID is already in use</p>
+                )}
                 {shouldCheckUserId && (
                   <p className="text-red-500">Check user ID</p>
                 )}
@@ -392,7 +394,7 @@ export default function SignUpRegister() {
               (!isUsernameAvailable &&
               checkedUsername === getValues('username') &&
               getValues('username') ? (
-                <p className="text-red-500">Unavailable</p>
+                <p className="text-red-500">This ID is already in use</p>
               ) : (
                 <div
                   className={cn(
