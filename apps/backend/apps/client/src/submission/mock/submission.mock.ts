@@ -1,6 +1,9 @@
 import { Language, ResultStatus } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
-import { type CreateSubmissionDto, Snippet } from '../dto/create-submission.dto'
+import {
+  Snippet,
+  type CreateSubmissionDto
+} from '../class/create-submission.dto'
 
 export const submissions = [
   {
@@ -14,6 +17,7 @@ export const submissions = [
     updateTime: new Date('2023-01-01'),
     language: Language.C,
     userId: 1,
+    userIp: '127.0.0.1',
     problemId: 1,
     contestId: null,
     workbookId: null,
@@ -36,6 +40,7 @@ export const submissions = [
     updateTime: new Date('2023-01-01'),
     language: Language.Python3,
     userId: 1,
+    userIp: '127.0.0.1',
     problemId: 1,
     contestId: null,
     workbookId: null,
