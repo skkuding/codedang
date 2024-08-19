@@ -489,6 +489,7 @@ export class ContestService {
     take: number,
     contestId: number,
     userId: number,
+    problemId: number | null,
     cursor: number | null
   ) {
     const paginator = this.prisma.getPaginator(cursor)
@@ -497,7 +498,8 @@ export class ContestService {
       take,
       where: {
         userId,
-        contestId
+        contestId,
+        problemId: problemId ?? undefined
       },
       include: {
         problem: {

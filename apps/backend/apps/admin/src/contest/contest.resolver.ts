@@ -238,6 +238,8 @@ export class ContestResolver {
       new RequiredIntPipe('take')
     )
     take: number,
+    @Args('problemId', { nullable: true, type: () => Int }, IDValidationPipe)
+    problemId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null
   ) {
@@ -246,6 +248,7 @@ export class ContestResolver {
         take,
         contestId,
         userId,
+        problemId,
         cursor
       )
     } catch (error) {
