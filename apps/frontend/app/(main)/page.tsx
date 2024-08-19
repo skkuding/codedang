@@ -37,7 +37,7 @@ const slides = [
 
 export default function Home() {
   return (
-    <div className="flex w-full flex-col gap-12 lg:items-center">
+    <div className="flex w-full flex-col gap-16 lg:items-center">
       <Carousel slides={slides} />
       {/* <div className="flex w-full flex-col gap-3">
         <div className="flex w-full items-center justify-between text-gray-700">
@@ -58,8 +58,9 @@ export default function Home() {
           </Suspense>
         </div>
       </div> */}
+
       <div className="flex w-full flex-col gap-6">
-        <div className="flex w-full items-center justify-between text-gray-700">
+        <div className="flex items-center justify-between text-gray-700">
           <p className="text-2xl font-bold">Contest 🏆</p>
           <Link href={'/contest' as Route}>
             <Button variant="ghost" className="h-8 px-3">
@@ -67,10 +68,11 @@ export default function Home() {
             </Button>
           </Link>
         </div>
-        <div>
-          <ContestCards />
-        </div>
-        <div className="flex w-full items-center justify-between text-gray-700">
+        <ContestCards />
+      </div>
+
+      <div className="flex w-full flex-col gap-6">
+        <div className="flex items-center justify-between text-gray-700">
           <p className="text-2xl font-bold">Problem ✨</p>
           <Link href={'/problem' as Route}>
             <Button variant="ghost" className="h-8 px-3">
@@ -78,9 +80,7 @@ export default function Home() {
             </Button>
           </Link>
         </div>
-        <div>
-          <ProblemCards />
-        </div>
+        <ProblemCards />
       </div>
     </div>
   )
