@@ -56,8 +56,8 @@ import { UserModule } from './user/user.module'
     UserModule,
     AnnouncementModule,
     NoticeModule,
-    LoggerModule.forRoot(pinoLoggerModuleOption),
-    SubmissionModule
+    SubmissionModule,
+    LoggerModule.forRoot(pinoLoggerModuleOption)
   ],
   controllers: [AdminController],
   providers: [

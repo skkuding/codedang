@@ -3,7 +3,7 @@ import { Args, Int, Query, Resolver } from '@nestjs/graphql'
 import { CursorValidationPipe } from '@libs/pipe'
 import { Submission } from '@admin/@generated'
 import { ContestSubmissionOverall } from './model/contest-submission-overall.model'
-import type { GetContestSubmissionOverallInput } from './model/get-contest-submission-overall.input'
+import { GetContestSubmissionOverallInput } from './model/get-contest-submission-overall.input'
 import { SubmissionService } from './submission.service'
 
 @Resolver(() => Submission)
@@ -13,7 +13,10 @@ export class SubmissionResolver {
 
   @Query(() => [ContestSubmissionOverall])
   async getContestSubmissionOveralls(
-    @Args('input', { nullable: false })
+    @Args('input', {
+      nullable: false,
+      type: () => GetContestSubmissionOverallInput
+    })
     input: GetContestSubmissionOverallInput,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
@@ -27,7 +30,7 @@ export class SubmissionResolver {
         cursor
       )
     } catch (error) {
-      this.logger.error(error.message)
+      this.logger.error(error.error)
       throw new InternalServerErrorException()
     }
   }
