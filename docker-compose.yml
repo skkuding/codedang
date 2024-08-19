@@ -43,8 +43,8 @@ services:
     command: server /data --console-address ":9001"
     environment:
       MINIO_BROWSER_REDIRECT_URL: https://stage.codedang.com/console
-      MINIO_ROOT_USER: skku
-      MINIO_ROOT_PASSWORD: skku1234
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     volumes:
       - codedang-storage:/data
 
