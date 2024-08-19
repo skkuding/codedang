@@ -34,6 +34,7 @@ export default function SignUpEmailVerify() {
     register,
     getValues,
     trigger,
+    clearErrors,
     formState: { errors }
   } = useForm<EmailVerifyInput>({
     resolver: zodResolver(schema)
@@ -159,10 +160,12 @@ export default function SignUpEmailVerify() {
             type="email"
             className={cn(
               'focus-visible:ring-primary w-full focus-visible:ring-1',
-              (emailError || errors.email) && 'ring-1 ring-red-500'
+              (emailError || errors.email) &&
+                'ring-1 ring-red-500 focus-visible:ring-red-500'
             )}
             placeholder="example@g.skku.edu"
             {...register('email')}
+            onChange={() => clearErrors('email')}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !sendButtonDisabled) {
                 e.preventDefault()
