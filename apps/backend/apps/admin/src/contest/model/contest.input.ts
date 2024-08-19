@@ -27,6 +27,9 @@ export class CreateContestInput {
   @Field(() => Boolean, { nullable: false })
   isRankVisible!: boolean
 
+  @Field(() => Boolean, { nullable: false })
+  isJudgeResultVisible!: boolean
+
   @Field(() => Boolean, { nullable: true })
   enableCopyPaste?: boolean
 }
@@ -62,4 +65,7 @@ export class UpdateContestInput {
 
   @Field(() => Boolean, { nullable: true })
   enableCopyPaste?: boolean
+
+  @Field(() => Boolean, { nullable: true })
+  isJudgeResultVisible?: boolean
 }

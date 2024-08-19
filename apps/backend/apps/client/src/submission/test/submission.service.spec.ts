@@ -2,7 +2,6 @@ import { HttpModule } from '@nestjs/axios'
 import { NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import {
   Language,
   ResultStatus,
@@ -14,23 +13,21 @@ import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
 import { spy, stub } from 'sinon'
-import { Status } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
-  ForbiddenAccessException,
-  UnprocessableDataException
+  ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { S3MediaProvider, S3Provider } from '@libs/storage'
 import { StorageService } from '@libs/storage'
-import { Snippet } from './dto/create-submission.dto'
-import type { JudgerResponse } from './dto/judger-response.dto'
-import { problems } from './mock/problem.mock'
-import { submissions, submissionDto } from './mock/submission.mock'
-import { judgerResponse, submissionResults } from './mock/submissionResult.mock'
-import { testcase } from './mock/testcase.mock'
-import { SubmissionService } from './submission.service'
+import { Snippet } from '../class/create-submission.dto'
+import { problems } from '../mock/problem.mock'
+import { submissions, submissionDto } from '../mock/submission.mock'
+import { submissionResults } from '../mock/submissionResult.mock'
+import { testcase } from '../mock/testcase.mock'
+import { SubmissionPublicationService } from '../submission-pub.service'
+import { SubmissionService } from '../submission.service'
 
 const db = {
   submission: {
@@ -86,15 +83,17 @@ const mockContest: Contest = {
   endTime: new Date(),
   isVisible: true,
   isRankVisible: true,
+  isJudgeResultVisible: true,
   enableCopyPaste: true,
   createTime: new Date(),
   updateTime: new Date()
 }
+const USERIP = '127.0.0.1'
 
 describe('SubmissionService', () => {
   let service: SubmissionService
-  let amqpConnection: AmqpConnection
   let storageService: StorageService
+  let publish: SubmissionPublicationService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -102,24 +101,23 @@ describe('SubmissionService', () => {
       providers: [
         SubmissionService,
         { provide: PrismaService, useValue: db },
-        {
-          provide: AmqpConnection,
-          useFactory: () => ({
-            publish: () => [],
-            createSubscriber: () => []
-          })
-        },
         ConfigService,
         TraceService,
         { provide: StorageService, useValue: { readObject: () => [] } },
+        {
+          provide: SubmissionPublicationService,
+          useFactory: () => ({ publishJudgeRequestMessage: () => [] })
+        },
         S3Provider,
         S3MediaProvider
       ]
     }).compile()
 
     service = module.get<SubmissionService>(SubmissionService)
-    amqpConnection = module.get<AmqpConnection>(AmqpConnection)
     storageService = module.get<StorageService>(StorageService)
+    publish = module.get<SubmissionPublicationService>(
+      SubmissionPublicationService
+    )
   })
 
   it('should be defined', () => {
@@ -133,6 +131,7 @@ describe('SubmissionService', () => {
 
       await service.submitToProblem(
         submissionDto,
+        USERIP,
         submissions[0].userId,
         problems[0].groupId
       )
@@ -148,6 +147,7 @@ describe('SubmissionService', () => {
       await expect(
         service.submitToProblem(
           submissionDto,
+          USERIP,
           submissions[0].userId,
           problems[0].groupId
         )
@@ -171,6 +171,7 @@ describe('SubmissionService', () => {
 
       await service.submitToContest(
         submissionDto,
+        USERIP,
         submissions[0].userId,
         problems[0].id,
         CONTEST_ID,
@@ -189,12 +190,16 @@ describe('SubmissionService', () => {
         }
       })
       db.contestProblem.findUniqueOrThrow.resolves({
-        problem: { ...problems[0], exposeTime: new Date(Date.now() + 10000) }
+        problem: {
+          ...problems[0],
+          visibleLockTime: new Date(Date.now() + 10000)
+        }
       })
 
       await expect(
         service.submitToContest(
           submissionDto,
+          USERIP,
           submissions[0].userId,
           problems[0].id,
           CONTEST_ID,
@@ -212,6 +217,7 @@ describe('SubmissionService', () => {
 
       await service.submitToWorkbook(
         submissionDto,
+        USERIP,
         submissions[0].userId,
         problems[0].id,
         WORKBOOK_ID,
@@ -223,12 +229,16 @@ describe('SubmissionService', () => {
     it('should throw exception if groupId does not match or problem is not exposed', async () => {
       const createSpy = stub(service, 'createSubmission')
       db.workbookProblem.findUniqueOrThrow.resolves({
-        problem: { ...problems[0], exposeTime: new Date(Date.now() + 10000) }
+        problem: {
+          ...problems[0],
+          visibleLockTime: new Date(Date.now() + 10000)
+        }
       })
 
       await expect(
         service.submitToWorkbook(
           submissionDto,
+          USERIP,
           submissions[0].userId,
           problems[0].id,
           WORKBOOK_ID,
@@ -242,7 +252,7 @@ describe('SubmissionService', () => {
   describe('createSubmission', () => {
     it('should create submission', async () => {
       const createSpy = stub(service, 'createSubmissionResults')
-      const publishSpy = stub(amqpConnection, 'publish')
+      const publishSpy = stub(publish, 'publishJudgeRequestMessage')
       db.problem.findUnique.resolves(problems[0])
       db.submission.create.resolves(submissions[0])
 
@@ -250,7 +260,8 @@ describe('SubmissionService', () => {
         await service.createSubmission(
           submissionDto,
           problems[0],
-          submissions[0].userId
+          submissions[0].userId,
+          USERIP
         )
       ).to.be.deep.equal(submissions[0])
       expect(createSpy.calledOnceWith(submissions[0])).to.be.true
@@ -258,7 +269,7 @@ describe('SubmissionService', () => {
     })
 
     it('should create submission with contestId', async () => {
-      const publishSpy = stub(amqpConnection, 'publish')
+      const publishSpy = stub(publish, 'publishJudgeRequestMessage')
       const getSpy = stub(storageService, 'readObject').resolves(
         JSON.stringify(testcase)
       )
@@ -274,6 +285,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { contestId: CONTEST_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
@@ -283,7 +295,7 @@ describe('SubmissionService', () => {
     })
 
     it('should throw conflict found exception if user has already gotten AC', async () => {
-      const publishSpy = stub(amqpConnection, 'publish')
+      const publishSpy = stub(publish, 'publishJudgeRequestMessage')
       db.problem.findUnique.resolves(problems[0])
       db.submission.create.resolves(submissions[0])
       db.submission.findMany.resolves([{ result: ResultStatus.Accepted }])
@@ -293,6 +305,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { contestId: CONTEST_ID }
         )
       ).to.be.rejectedWith(ConflictFoundException)
@@ -300,7 +313,7 @@ describe('SubmissionService', () => {
     })
 
     it('should create submission with workbookId', async () => {
-      const publishSpy = stub(amqpConnection, 'publish')
+      const publishSpy = stub(publish, 'publishJudgeRequestMessage')
       const getSpy = stub(storageService, 'readObject').resolves(
         JSON.stringify(testcase)
       )
@@ -315,6 +328,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { workbookId: WORKBOOK_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
@@ -324,7 +338,7 @@ describe('SubmissionService', () => {
     })
 
     it('should create submission with contestId', async () => {
-      const publishSpy = stub(amqpConnection, 'publish')
+      const publishSpy = stub(publish, 'publishJudgeRequestMessage')
       const getSpy = stub(storageService, 'readObject').resolves(
         JSON.stringify(testcase)
       )
@@ -340,6 +354,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { contestId: CONTEST_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
@@ -349,7 +364,7 @@ describe('SubmissionService', () => {
     })
 
     it('should throw conflict found exception if user has already gotten AC', async () => {
-      const publishSpy = stub(amqpConnection, 'publish')
+      const publishSpy = stub(publish, 'publishJudgeRequestMessage')
       db.problem.findUnique.resolves(problems[0])
       db.submission.create.resolves(submissions[0])
       db.submission.findMany.resolves([{ result: ResultStatus.Accepted }])
@@ -359,6 +374,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { contestId: CONTEST_ID }
         )
       ).to.be.rejectedWith(ConflictFoundException)
@@ -366,7 +382,7 @@ describe('SubmissionService', () => {
     })
 
     it('should create submission with workbookId', async () => {
-      const publishSpy = stub(amqpConnection, 'publish')
+      const publishSpy = stub(publish, 'publishJudgeRequestMessage')
       const getSpy = stub(storageService, 'readObject').resolves(
         JSON.stringify(testcase)
       )
@@ -380,6 +396,7 @@ describe('SubmissionService', () => {
           submissionDto,
           problems[0],
           submissions[0].userId,
+          USERIP,
           { workbookId: WORKBOOK_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
@@ -389,14 +406,15 @@ describe('SubmissionService', () => {
     })
 
     it('should throw exception if the language is not supported', async () => {
-      const publishSpy = stub(amqpConnection, 'publish')
+      const publishSpy = stub(publish, 'publishJudgeRequestMessage')
       db.problem.findUnique.resolves(problems[0])
 
       await expect(
         service.createSubmission(
           { ...submissionDto, language: Language.Python3 },
           problems[0],
-          submissions[0].userId
+          submissions[0].userId,
+          USERIP
         )
       ).to.be.rejectedWith(ConflictFoundException)
       expect(publishSpy.calledOnce).to.be.false
@@ -404,7 +422,7 @@ describe('SubmissionService', () => {
 
     it('should throw error if locked code is modified', async () => {
       const validateSpy = spy(service, 'isValidCode')
-      const publishSpy = stub(amqpConnection, 'publish')
+      const publishSpy = stub(publish, 'publishJudgeRequestMessage')
       db.problem.findUnique.resolves(problems[0])
 
       await expect(
@@ -414,124 +432,12 @@ describe('SubmissionService', () => {
             code: plainToInstance(Snippet, submissions[1].code)
           },
           problems[0],
-          submissions[0].userId
+          submissions[0].userId,
+          USERIP
         )
       ).to.be.rejectedWith(ConflictFoundException)
       expect(validateSpy.returnValues[0]).to.be.false
       expect(publishSpy.calledOnce).to.be.false
-    })
-  })
-
-  describe('handleJudgerMessage', () => {
-    it('should call update submission result', async () => {
-      const updateSpy = stub(service, 'updateTestcaseJudgeResult')
-      const submissionResult = {
-        submissionId: judgerResponse.submissionId,
-        problemTestcaseId: parseInt(
-          judgerResponse.judgeResult.testcaseId.split(':')[1],
-          10
-        ),
-        result: Status(judgerResponse.judgeResult.resultCode),
-        cpuTime: BigInt(judgerResponse.judgeResult.cpuTime),
-        memoryUsage: judgerResponse.judgeResult.memory
-      }
-
-      await service.handleJudgerMessage(judgerResponse)
-      expect(updateSpy.calledOnceWith({ ...submissionResult })).to.be.true
-    })
-
-    it('should throw UnprocessableDataException when result code is Server Error', async () => {
-      stub(service, 'updateTestcaseJudgeResult').resolves()
-      db.submission.update.resolves()
-      db.submissionResult.updateMany.resolves()
-      const target: JudgerResponse = {
-        resultCode: 7,
-        error: 'succeed',
-        submissionId: 1,
-        judgeResult: {
-          testcaseId: '1',
-          resultCode: 1,
-          cpuTime: 1,
-          realTime: 1,
-          memory: 1,
-          signal: 1,
-          exitCode: 1,
-          errorCode: 1
-        }
-      }
-      db.submission.update.resolves(submissions[0])
-      await expect(service.handleJudgerMessage(target)).to.be.rejectedWith(
-        UnprocessableDataException
-      )
-      db.submission.update.reset()
-    })
-  })
-
-  describe('updateSubmissionResult', () => {
-    it('should call update accepted submission result', async () => {
-      const updateSpy = stub(service, 'updateProblemAccepted').resolves()
-      db.submission.findUnique.resolves({
-        problemId: submissions[0].problemId,
-        submissionResult: [
-          {
-            result: ResultStatus.Accepted
-          },
-          {
-            result: ResultStatus.Accepted
-          },
-          {
-            result: ResultStatus.Accepted
-          }
-        ]
-      })
-      db.submission.update.resolves()
-
-      await service.updateSubmissionResult(submissions[0].id)
-
-      expect(updateSpy.calledOnceWith(submissions[0].id, true)).to.be.true
-      expect(
-        db.submission.update.calledOnceWith({
-          where: {
-            id: submissions[0].id
-          },
-          data: {
-            result: ResultStatus.Accepted
-          }
-        })
-      )
-    })
-
-    it('should call update not accepted submission result', async () => {
-      const updateSpy = stub(service, 'updateProblemAccepted').resolves()
-      db.submission.findUnique.resolves({
-        problemId: submissions[0].problemId,
-        submissionResult: [
-          {
-            result: ResultStatus.Accepted
-          },
-          {
-            result: ResultStatus.MemoryLimitExceeded
-          },
-          {
-            result: ResultStatus.Accepted
-          }
-        ]
-      })
-      db.submission.update.resolves()
-
-      await service.updateSubmissionResult(submissions[0].id)
-
-      expect(updateSpy.calledOnceWith(submissions[0].id, false)).to.be.true
-      expect(
-        db.submission.update.calledOnceWith({
-          where: {
-            id: submissions[0].id
-          },
-          data: {
-            result: ResultStatus.MemoryLimitExceeded
-          }
-        })
-      )
     })
   })
 
@@ -711,62 +617,6 @@ describe('SubmissionService', () => {
         })
       ).to.be.rejectedWith(NotFoundException)
     })
-  })
-
-  describe('judgerMessageTypeHandler', () => {
-    it('should throw error when resultCode is invalid', async () => {
-      const target = {
-        resultCode: -1,
-        data: 'Test Error',
-        error: 'Test Error',
-        submissionId: 1
-      }
-
-      await expect(service.validateJudgerResponse(target)).to.be.rejected
-    })
-
-    it('should return message object', async () => {
-      const target: JudgerResponse = {
-        resultCode: 5,
-        error: 'succeed',
-        submissionId: 1,
-        judgeResult: {
-          testcaseId: '1',
-          resultCode: 1,
-          cpuTime: 1,
-          realTime: 1,
-          memory: 1,
-          signal: 1,
-          exitCode: 1,
-          errorCode: 1
-        }
-      }
-
-      const result = await service.validateJudgerResponse(target)
-
-      expect(result).to.be.deep.equal(target)
-    })
-  })
-
-  it('should handle message without error', async () => {
-    const target = {
-      resultCode: 0,
-      submissionId: 1,
-      error: '',
-      judgeResult: {
-        testcaseId: '18:30',
-        resultCode: 0,
-        cpuTime: 0,
-        realTime: 0,
-        memory: 1044480,
-        signal: 0,
-        exitCode: 0,
-        errorCode: 0
-      }
-    }
-
-    const result = await service.validateJudgerResponse(target)
-    expect(result).to.be.deep.equal(target)
   })
 
   // TODO: 기획 문의 / 확정 후 Test DB 기반으로 재작성 예정

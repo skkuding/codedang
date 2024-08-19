@@ -59,15 +59,12 @@ describe('GroupService', () => {
     ;(service as any).prisma = transaction
   })
 
-  afterEach(async () => {
-    await transaction.$rollback()
-  })
-
   after(async () => {
     await prisma.$disconnect()
   })
 
-  afterEach(() => {
+  afterEach(async () => {
+    await transaction.$rollback()
     sandbox.restore()
   })
 
