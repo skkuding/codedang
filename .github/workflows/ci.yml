@@ -143,7 +143,7 @@ jobs:
         run: echo "${{ github.event.pull_request.title }}" | pnpm commitlint --verbose
 
       - name: Check style (Node.js)
-        run: git diff --name-only --diff-filter=ACMRUXB origin/main | xargs -r pnpm prettier -c --ignore-unknown
+        run: git diff --name-only --diff-filter=ACMRUXB origin/main | grep '\.' | xargs -r pnpm prettier -c --ignore-unknown
 
       - name: Check Style (Go)
         run: |
