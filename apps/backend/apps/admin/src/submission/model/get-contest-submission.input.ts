@@ -1,7 +1,7 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
 
 @InputType()
-export class GetContestSubmissionOverallInput {
+export class GetContestSubmissionsInput {
   @Field(() => Int, { nullable: false })
   contestId!: number
 

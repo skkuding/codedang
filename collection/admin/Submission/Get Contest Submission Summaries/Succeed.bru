@@ -11,12 +11,12 @@ post {
 }
 
 body:graphql {
-  query GetContestSubmissionSummaries(
-    $input: GetContestSubmissionSummaryInput!,
+  query GetContestSubmissions(
+    $input: GetContestSubmissionsInput!,
     $cursor: Int,
     $take: Int
   ) {
-    getContestSubmissionSummaries(
+    getContestSubmissions(
       input: $input,
       cursor: $cursor,
       take: $take

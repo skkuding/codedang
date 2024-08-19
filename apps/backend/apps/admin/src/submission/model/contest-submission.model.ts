@@ -2,7 +2,7 @@ import { Field, Int, ObjectType } from '@nestjs/graphql'
 import { Language, ResultStatus } from '@admin/@generated'
 
 @ObjectType({ description: 'contestSubmissionOverall' })
-export class ContestSubmissionOverall {
+export class ContestSubmission {
   @Field(() => String, { nullable: false })
   title!: string // 문제 title
 

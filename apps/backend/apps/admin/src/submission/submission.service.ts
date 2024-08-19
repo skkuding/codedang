@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '@libs/prisma'
 import type { Language, ResultStatus } from '@admin/@generated'
-import type { GetContestSubmissionOverallInput } from './model/get-contest-submission-overall.input'
+import type { GetContestSubmissionsInput } from './model/get-contest-submission.input'
 
 @Injectable()
 export class SubmissionService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getContestSubmissionOveralls(
-    input: GetContestSubmissionOverallInput,
+  async getContestSubmissions(
+    input: GetContestSubmissionsInput,
     take: number,
     cursor: number | null
   ) {
@@ -46,9 +46,9 @@ export class SubmissionService {
     const results = contestSubmissions.map((c) => {
       return {
         title: c.problem.title,
-        studentId: c.user?.studentId as string,
-        realname: c.user?.userProfile?.realName as string,
-        username: c.user?.username as string,
+        studentId: c.user?.studentId ?? 'Unknown',
+        realname: c.user?.userProfile?.realName ?? 'Unknown',
+        username: c.user?.username ?? 'Unknown',
         result: c.result as ResultStatus,
         language: c.language as Language,
         submissionTime: c.createTime,
