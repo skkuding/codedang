@@ -176,11 +176,13 @@ describe('SubmissionSubscriptionService', () => {
       ).to.be.true
     })
 
-    it('should call handleJudgeError when CompileError or ServerError detected', async () => {
+    it('should call handleJudgeError when ServerError detected', async () => {
       const handlerSpy = sandbox.stub(service, 'handleJudgeError').resolves()
-
+      const updateSpy = sandbox
+        .stub(service, 'updateTestcaseJudgeResult')
+        .resolves()
       const serverErrMsg = {
-        resultCode: 8,
+        resultCode: 9,
         submissionId: 1,
         error: '',
         judgeResult
@@ -189,6 +191,25 @@ describe('SubmissionSubscriptionService', () => {
       await service.handleJudgerMessage(serverErrMsg)
       expect(handlerSpy.calledOnceWith(ResultStatus.ServerError, serverErrMsg))
         .to.be.true
+      expect(updateSpy.notCalled).to.be.true
+    })
+
+    it('should call handleJudgeError when CompileError detected', async () => {
+      const handlerSpy = sandbox.stub(service, 'handleJudgeError').resolves()
+      const updateSpy = sandbox
+        .stub(service, 'updateTestcaseJudgeResult')
+        .resolves()
+      const serverErrMsg = {
+        resultCode: 6,
+        submissionId: 1,
+        error: '',
+        judgeResult
+      }
+
+      await service.handleJudgerMessage(serverErrMsg)
+      expect(handlerSpy.calledOnceWith(ResultStatus.CompileError, serverErrMsg))
+        .to.be.true
+      expect(updateSpy.notCalled).to.be.true
     })
   })
 

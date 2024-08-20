@@ -39,8 +39,8 @@ export const Status = (code: number) => {
       return ResultStatus.CompileError
     case 7: // TESTCASE_ERROR
       return ResultStatus.ServerError
-    case 8: // SERVER_ERROR
-      return ResultStatus.ServerError
+    case 8: // Segmentation Fault
+      return ResultStatus.SegmentationFaultError
     default:
       return ResultStatus.ServerError
   }
