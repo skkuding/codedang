@@ -170,7 +170,7 @@ model Problem {
   ///             "locked": boolean
   ///           }[]
   /// }
-  
+
   template        Json[]     @default([])
   languages       Language[]
   timeLimit       Int        @map("time_limit") // unit: MilliSeconds
@@ -435,6 +435,7 @@ enum ResultStatus {
   MemoryLimitExceeded
   OutputLimitExceeded
   ServerError
+  SegmentationFaultError
 }
 
 model CodeDraft {
