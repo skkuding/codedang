@@ -42,3 +42,14 @@ body:graphql:vars {
     "take": 10
   }
 }
+
+docs {
+  ## Get Contest Submissions
+  
+  - Contest Overall 페이지 중 All Submissions 탭에서 표시할 데이터를 반환합니다.
+  
+  #### 필요 인자
+  |`input`|`take`|`cursor`|
+  |----------|----------|----------|
+  | `contestId`: 제출 내역을 불러올 Contest의 ID입니다.  `problemId?`: 제출된 내역 중 특정 Problem의 제출만을 필터링 할 수 있습니다.| pagination 구현을 위함 | pagination 구현을 위함 |
+}
