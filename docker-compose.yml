@@ -41,10 +41,9 @@ services:
       - 9000:9000
       - 9001:9001
     command: server /data --console-address ":9001"
+    env_file: .env
     environment:
       MINIO_BROWSER_REDIRECT_URL: https://stage.codedang.com/console
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     volumes:
       - codedang-storage:/data
 
