@@ -38,6 +38,9 @@ export default function Page({ params }: { params: { id: string } }) {
   const [prevProblemIds, setPrevProblemIds] = useState<number[]>([])
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [enableCopyPaste, setEnableCopyPaste] = useState<boolean>(false)
+  const [isJudgeResultVisible, setIsJudgeResultVisible] =
+    useState<boolean>(false)
   const [showInvitationCode, setShowInvitationCode] = useState<boolean>(false)
   const { id } = params
 
@@ -70,9 +73,17 @@ export default function Page({ params }: { params: { id: string } }) {
           setValue('endTime', new Date(contestFormData.endTime))
         }
         setValue('description', contestFormData.description)
+        setValue('enableCopyPaste', contestFormData.enableCopyPaste)
+        setValue('isJudgeResultVisible', contestFormData.isJudgeResultVisible)
         setValue('invitationCode', contestFormData.invitationCode)
         if (contestFormData.invitationCode) {
           setShowInvitationCode(true)
+        }
+        if (contestFormData.enableCopyPaste) {
+          setEnableCopyPaste(true)
+        }
+        if (contestFormData.isJudgeResultVisible) {
+          setIsJudgeResultVisible(true)
         }
       } else {
         const data = contestData.getContest
@@ -80,9 +91,17 @@ export default function Page({ params }: { params: { id: string } }) {
         setValue('description', data.description)
         setValue('startTime', new Date(data.startTime))
         setValue('endTime', new Date(data.endTime))
+        setValue('enableCopyPaste', data.enableCopyPaste)
+        setValue('isJudgeResultVisible', data.isJudgeResultVisible)
         setValue('invitationCode', data.invitationCode)
         if (data.invitationCode) {
           setShowInvitationCode(true)
+        }
+        if (data.enableCopyPaste) {
+          setEnableCopyPaste(true)
+        }
+        if (data.isJudgeResultVisible) {
+          setIsJudgeResultVisible(true)
         }
       }
       setIsLoading(false)
@@ -248,6 +267,16 @@ export default function Page({ params }: { params: { id: string } }) {
                 <DescriptionForm name="description" />
               )}
             </FormSection>
+            <SwitchField
+              name="enableCopyPaste"
+              title="Disable participants from Copy/Pasting"
+              hasValue={enableCopyPaste}
+            />
+            <SwitchField
+              name="isJudgeResultVisible"
+              title="Hide scores from participants"
+              hasValue={isJudgeResultVisible}
+            />
             <SwitchField
               name="invitationCode"
               title="Invitation Code"
