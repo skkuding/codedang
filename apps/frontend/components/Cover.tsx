@@ -38,6 +38,7 @@ export default function Cover({ title, description }: CoverProps) {
           width={280}
           height={280}
           alt={title}
+          className="max-md:hidden"
         />
         <div className="flex-col text-center md:px-20">
           <h2 className="py-5 font-mono text-4xl font-bold text-white md:text-[56px]">
@@ -52,7 +53,7 @@ export default function Cover({ title, description }: CoverProps) {
           width={280}
           height={280}
           alt={title}
-          className="rotate-180"
+          className="rotate-180 max-md:hidden"
         />
       </div>
       <div className="h-16 w-full bg-white" />
