@@ -25,6 +25,8 @@ export default function ImportProblemButton({
           startTime: getValues('startTime'),
           endTime: getValues('endTime'),
           description: getValues('description'),
+          enableCopyPaste: getValues('enableCopyPaste'),
+          isJudgeResultVisible: getValues('isJudgeResultVisible'),
           invitationCode: getValues('invitationCode')
         }
         if (isCreatePage) {

@@ -252,7 +252,7 @@ export default function Page({ params }: { params: { id: string } }) {
               name="invitationCode"
               title="Invitation Code"
               type="number"
-              isInput={true}
+              formElement="input"
               placeholder="Enter a invitation code"
               hasValue={showInvitationCode}
             />

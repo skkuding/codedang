@@ -225,13 +225,14 @@ export default function Page({ params }: { params: { id: string } }) {
               name="hint"
               title="Hint"
               placeholder="Enter a hint"
+              formElement="textarea"
               hasValue={showHint}
             />
             <SwitchField
               name="source"
               title="Source"
               placeholder="Enter a source"
-              isInput
+              formElement="input"
               hasValue={showSource}
             />
             <TemplateField />

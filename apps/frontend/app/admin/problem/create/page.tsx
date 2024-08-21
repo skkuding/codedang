@@ -149,11 +149,17 @@ export default function Page() {
               <LimitForm />
             </FormSection>
 
-            <SwitchField name="hint" title="Hint" placeholder="Enter a hint" />
+            <SwitchField
+              name="hint"
+              title="Hint"
+              placeholder="Enter a hint"
+              formElement="textarea"
+            />
             <SwitchField
               name="source"
               title="Source"
               placeholder="Enter a source"
+              formElement="input"
             />
 
             <TemplateField />
