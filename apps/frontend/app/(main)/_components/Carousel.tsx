@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { Route } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa6'
@@ -13,14 +14,16 @@ interface Props {
     topTitle: string
     bottomTitle: string
     sub: string
+    img: string
+    imgAlt: string
     href: string
   }[]
 }
 
-const bgImage: { [key: string]: string } = {
-  codedang: 'bg-[url(/carousel1.svg)]',
-  github: 'bg-[url(/carousel2.svg)]',
-  skkuding: 'bg-[url(/carousel3.svg)]'
+const bgColors: { [key: string]: string } = {
+  codedang: 'bg-gradient-to-r from-[#3D63B8] to-[#0E1322]',
+  github: 'bg-gradient-to-b from-[#161429] to-[#704FC3]',
+  skkuding: 'bg-gradient-to-r from-[#41775D] to-[#123D29]'
 }
 
 export default function Carousel({ slides }: Props) {
@@ -38,24 +41,32 @@ export default function Carousel({ slides }: Props) {
   }
 
   return (
-    <div className="relative my-2 h-[350px] w-full overflow-hidden rounded-xl bg-gray-100 sm:h-[360px]">
+    <div className="relative my-5 h-[466px] w-full overflow-hidden rounded-lg bg-gray-100 sm:h-[360px]">
       {slides.map((slide, index) => (
         <Link
           href={slide.href as Route}
           key={slide.href + slide.topTitle}
           className={cn(
-            'absolute inset-0 z-10 flex flex-col-reverse items-center justify-between gap-5 p-8 py-14 text-white transition-opacity duration-1000 ease-in-out sm:flex-row md:px-14 md:py-0',
+            'absolute inset-0 z-10 flex flex-col-reverse items-center justify-between py-14 pl-10 text-white transition-opacity duration-1000 ease-in-out sm:flex-row',
             facade !== index && 'z-0 opacity-0',
-            bgImage[slide.type]
+            bgColors[slide.type]
           )}
         >
-          <div className="w-full whitespace-nowrap text-2xl font-bold md:text-4xl">
-            <p className="font-mono">{slide.topTitle}</p>
-            <p className="font-mono">{slide.bottomTitle}</p>
-            <p className="mt-4 text-base font-normal opacity-70 md:text-lg">
+          <div className="mb-10 w-full text-4xl font-bold">
+            <p className="text-nowrap font-mono">{slide.topTitle}</p>
+            <p className="text-nowrap font-mono">{slide.bottomTitle}</p>
+            <p className="mt-4 whitespace-nowrap text-base font-normal opacity-70 md:text-lg">
               {slide.sub}
             </p>
           </div>
+          <Image
+            src={slide.img}
+            alt={slide.imgAlt}
+            width={554}
+            height={554}
+            className="absolute bottom-48 left-16 z-[-10] mr-5 size-[330px] object-contain sm:bottom-0 sm:left-0 sm:size-[458px] sm:pl-0 md:relative"
+            priority
+          />
         </Link>
       ))}
       <div className="absolute bottom-4 left-0 right-0 z-20 flex justify-center">
