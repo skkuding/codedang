@@ -47,26 +47,28 @@ export default function Carousel({ slides }: Props) {
           href={slide.href as Route}
           key={slide.href + slide.topTitle}
           className={cn(
-            'absolute inset-0 z-10 flex flex-col-reverse items-center justify-between py-14 pl-10 text-white transition-opacity duration-1000 ease-in-out sm:flex-row',
+            'absolute inset-0 z-10 flex flex-col-reverse items-center justify-between py-14 pl-6 text-white transition-opacity duration-1000 ease-in-out sm:flex-row md:pl-10',
             facade !== index && 'z-0 opacity-0',
             bgColors[slide.type]
           )}
         >
           <div className="mb-10 w-full text-4xl font-bold">
-            <p className="text-nowrap font-mono">{slide.topTitle}</p>
-            <p className="text-nowrap font-mono">{slide.bottomTitle}</p>
+            <p className="font-mono md:text-nowrap">{slide.topTitle}</p>
+            <p className="font-mono md:text-nowrap">{slide.bottomTitle}</p>
             <p className="mt-4 whitespace-nowrap text-base font-normal opacity-70 md:text-lg">
               {slide.sub}
             </p>
           </div>
-          <Image
-            src={slide.img}
-            alt={slide.imgAlt}
-            width={554}
-            height={554}
-            className="absolute bottom-48 left-16 z-[-10] mr-5 size-[330px] object-contain sm:bottom-0 sm:left-0 sm:size-[458px] sm:pl-0 md:relative"
-            priority
-          />
+          <div>
+            <Image
+              src={slide.img}
+              alt={slide.imgAlt}
+              width={554}
+              height={554}
+              className="absolute -right-16 bottom-48 z-[-10] mr-5 size-[330px] object-contain sm:relative sm:bottom-0 sm:left-0 sm:size-[1024px] sm:pl-0"
+              priority
+            />
+          </div>
         </Link>
       ))}
       <div className="absolute bottom-4 left-0 right-0 z-20 flex justify-center">
