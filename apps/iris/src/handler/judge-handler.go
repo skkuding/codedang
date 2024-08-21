@@ -106,6 +106,7 @@ const (
 	MEMORY_LIMIT_EXCEEDED
 	RUNTIME_ERROR
 	SYSTEM_ERROR
+	SEGMENATION_FAULT
 )
 
 type JudgeHandler struct {
@@ -338,7 +339,7 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 	res.SetJudgeExecResult(runResult.ExecResult)
 
 	if runResult.ExecResult.ResultCode != sandbox.RUN_SUCCESS {
-		res.SetJudgeResultCode(JudgeResultCode(runResult.ExecResult.ResultCode))
+		res.SetJudgeResultCode(SandboxResultCodeToJudgeResultCode(runResult.ExecResult.ResultCode))
 		goto Send
 	}
 
