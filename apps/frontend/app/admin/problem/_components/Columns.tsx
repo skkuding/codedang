@@ -6,7 +6,7 @@ import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
 import type { Level } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
-import { TbFileInfo } from 'react-icons/tb'
+import ContainedContests from './ContainedContests'
 
 interface Tag {
   id: number
@@ -29,7 +29,7 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
   const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
 
   return (
-    <div className="ml-8 flex space-x-2">
+    <div className="ml-8 flex items-center space-x-2">
       <Switch
         id="hidden-mode"
         onClick={(e) => e.stopPropagation()}
@@ -48,15 +48,7 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
           })
         }}
       />
-      {!row.original.isVisible && (
-        // TODO: Add contest info modal
-        <button
-          className="justify-centert flex items-center"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <TbFileInfo className="h-5 w-5 text-black" />
-        </button>
-      )}
+      <ContainedContests problemId={row.original.id} />
     </div>
   )
 }
