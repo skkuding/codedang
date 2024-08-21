@@ -90,18 +90,6 @@ export default function ContainedContests({
               Contests which include this problem
             </p>
           </DialogHeader>
-          {contestData && contestData?.upcoming.length > 0 && (
-            <div>
-              <p className="mb-2 font-bold text-neutral-800">
-                Upcoming Contest(s)
-              </p>
-              {contestData?.upcoming.map((contest) => (
-                <p key={contest.id} className="text-xs text-neutral-400">
-                  {contest.title}
-                </p>
-              ))}
-            </div>
-          )}
           <ContestSection
             title="Upcoming Contest(s)"
             contests={contestData?.upcoming}
