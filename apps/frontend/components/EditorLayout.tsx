@@ -34,16 +34,23 @@ export default async function EditorLayout({
 }: EditorLayoutProps) {
   let problems: ContestProblemProps | undefined
   let contest: Contest | undefined
+  let problem: ProblemDetail | undefined
 
   if (contestId) {
     // for getting contest info and problems list
     problems = await fetcherWithAuth.get(`contest/${contestId}/problem`).json()
+    const ContestProblem: { problem: ProblemDetail } = await fetcherWithAuth
+      .get(`contest/${contestId}/problem/${problemId}`)
+      .json()
+    problem = ContestProblem.problem
     contest = await fetcher(`contest/${contestId}`).json()
     contest ? (contest.status = 'ongoing') : null // TODO: refactor this after change status interactively
+  } else {
+    problem = await fetcher(`problem/${problemId}`).json()
   }
 
   // for getting problem detail
-  const problem: ProblemDetail = await fetcher(`problem/${problemId}`).json()
+
   const session = await auth()
 
   return (
