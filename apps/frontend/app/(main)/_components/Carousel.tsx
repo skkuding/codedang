@@ -21,7 +21,8 @@ interface Props {
 }
 
 const bgColors: { [key: string]: string } = {
-  codedang: 'bg-gradient-to-r from-[#3D63B8] to-[#0E1322]',
+  codedang:
+    'bg-[linear-gradient(325deg,rgba(79,86,162,0)_0%,rgba(79,86,162,0.5)_50%),linear-gradient(90deg,#3D63B8_0%,#0E1322_100%)]',
   github: 'bg-gradient-to-b from-[#161429] to-[#704FC3]',
   skkuding: 'bg-gradient-to-r from-[#41775D] to-[#123D29]'
 }
