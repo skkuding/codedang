@@ -1,0 +1,49 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetContestsByProblemId($problemId: Int!) {
+    getContestsByProblemId(problemId: $problemId) {
+      upcoming {
+        id
+        title
+      }
+      ongoing {
+        id
+        title
+      }
+      finished {
+        id
+        title
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "problemId": 10
+  }
+}
+
+assert {
+  res.body.data.getContest: isDefined
+}
+
+docs {
+  ## Get Contests By Problem ID
+  Problem ID를 가지고 Contests정보를 가져옵니다.
+  Ongoing, Upcoming, Finished로 Group된 Contests를 반환합니다.
+
+  ### Error Cases
+  - Problem ID에 해당하는 Problem이 없는 경우 Problem does not exist 에러를 반환합니다.
+}

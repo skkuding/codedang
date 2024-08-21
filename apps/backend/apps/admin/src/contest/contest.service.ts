@@ -687,4 +687,50 @@ export class ContestService {
 
     return scoreSummary
   }
+
+  async getContestsByProblemId(problemId: number) {
+    const problem = await this.prisma.problem.findUnique({
+      where: {
+        id: problemId
+      }
+    })
+    if (!problem) {
+      throw new EntityNotExistException('Problem')
+    }
+    const contestProblems = await this.prisma.contestProblem.findMany({
+      where: {
+        problemId
+      },
+      select: {
+        contest: true
+      }
+    })
+    const contests = contestProblems.map(
+      (contestProblem) => contestProblem.contest
+    )
+
+    const now = new Date()
+
+    const contestsGroupedByStatus = contests.reduce(
+      (acc, contest) => {
+        if (contest.endTime > now) {
+          if (contest.startTime <= now) {
+            acc.ongoing.push(contest)
+          } else {
+            acc.upcoming.push(contest)
+          }
+        } else {
+          acc.finished.push(contest)
+        }
+        return acc
+      },
+      {
+        upcoming: [] as Contest[],
+        ongoing: [] as Contest[],
+        finished: [] as Contest[]
+      }
+    )
+
+    return contestsGroupedByStatus
+  }
 }
