@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { Route } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa6'
@@ -13,14 +14,17 @@ interface Props {
     topTitle: string
     bottomTitle: string
     sub: string
+    img: string
+    imgAlt: string
     href: string
   }[]
 }
 
-const bgImage: { [key: string]: string } = {
-  codedang: 'bg-[url(/carousel1.svg)]',
-  github: 'bg-[url(/carousel2.svg)]',
-  skkuding: 'bg-[url(/carousel3.svg)]'
+const bgColors: { [key: string]: string } = {
+  codedang:
+    'bg-[linear-gradient(325deg,rgba(79,86,162,0)_0%,rgba(79,86,162,0.5)_50%),linear-gradient(90deg,#3D63B8_0%,#0E1322_100%)]',
+  github: 'bg-gradient-to-b from-[#161429] to-[#704FC3]',
+  skkuding: 'bg-gradient-to-r from-[#41775D] to-[#123D29]'
 }
 
 export default function Carousel({ slides }: Props) {
@@ -38,23 +42,33 @@ export default function Carousel({ slides }: Props) {
   }
 
   return (
-    <div className="relative my-2 h-[350px] w-full overflow-hidden rounded-xl bg-gray-100 sm:h-[360px]">
+    <div className="relative my-5 h-[466px] w-full overflow-hidden rounded-lg bg-gray-100 sm:h-[360px]">
       {slides.map((slide, index) => (
         <Link
           href={slide.href as Route}
           key={slide.href + slide.topTitle}
           className={cn(
-            'absolute inset-0 z-10 flex flex-col-reverse items-center justify-between gap-5 p-8 py-14 text-white transition-opacity duration-1000 ease-in-out sm:flex-row md:px-14 md:py-0',
+            'absolute inset-0 z-10 flex flex-col-reverse items-center justify-between py-14 pl-6 text-white transition-opacity duration-1000 ease-in-out sm:flex-row md:pl-10',
             facade !== index && 'z-0 opacity-0',
-            bgImage[slide.type]
+            bgColors[slide.type]
           )}
         >
-          <div className="w-full whitespace-nowrap text-2xl font-bold md:text-4xl">
-            <p className="font-mono">{slide.topTitle}</p>
-            <p className="font-mono">{slide.bottomTitle}</p>
-            <p className="mt-4 text-base font-normal opacity-70 md:text-lg">
+          <div className="mb-10 w-full text-4xl font-bold">
+            <p className="font-mono md:text-nowrap">{slide.topTitle}</p>
+            <p className="font-mono md:text-nowrap">{slide.bottomTitle}</p>
+            <p className="mt-4 whitespace-nowrap text-base font-normal opacity-70 md:text-lg">
               {slide.sub}
             </p>
+          </div>
+          <div>
+            <Image
+              src={slide.img}
+              alt={slide.imgAlt}
+              width={554}
+              height={554}
+              className="absolute -right-16 bottom-48 z-[-10] mr-5 size-[330px] object-contain sm:relative sm:bottom-0 sm:left-0 sm:size-[1024px] sm:pl-0"
+              priority
+            />
           </div>
         </Link>
       ))}
