@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev -p 5525",
     "build": "pnpm run compile && next build",
-    "start": "next start",
+    "start": "next start --keepAliveTimeout 70000",
     "lint": "next lint",
     "compile": "graphql-codegen --require dotenv/config",
     "test": "vitest"

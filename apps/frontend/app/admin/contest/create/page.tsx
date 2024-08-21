@@ -198,16 +198,14 @@ export default function Page() {
                 <DescriptionForm name="description" />
               )}
             </FormSection>
-            {getValues('invitationCode') && (
-              <SwitchField
-                name="invitationCode"
-                title="Invitation Code"
-                type="number"
-                isInput={true}
-                placeholder="Enter a invitation code"
-                hasValue={showInvitationCode}
-              />
-            )}
+            <SwitchField
+              name="invitationCode"
+              title="Invitation Code"
+              type="number"
+              isInput={true}
+              placeholder="Enter a invitation code"
+              hasValue={showInvitationCode}
+            />
 
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
