@@ -49,7 +49,7 @@ export default async function EditorLayout({
   return (
     <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
       <header className="flex h-12 justify-between bg-slate-900 px-6">
-        <div className="flex items-center justify-center gap-6 text-lg text-[#787E80]">
+        <div className="flex items-center justify-center gap-4 text-lg text-[#787E80]">
           <Link href="/">
             <Image src={codedangLogo} alt="코드당" width={33} />
           </Link>
