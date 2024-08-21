@@ -31,6 +31,7 @@ import type { SignUpDto } from './dto/signup.dto'
 import type { SocialSignUpDto } from './dto/social-signup.dto'
 import type { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import type { UpdateUserProfileDto } from './dto/update-userprofile.dto'
+import type { UpdateUserDto } from './dto/updateUser.dto'
 import type { UserEmailDto } from './dto/userEmail.dto'
 import type { UsernameDto } from './dto/username.dto'
 import type { CreateUserProfileData } from './interface/create-userprofile.interface'
@@ -542,6 +543,8 @@ export class UserService {
     }
   }
 
+  // update user profile - not used now (using updateUser instead),
+  // but keep it for future use of user profile
   async updateUserProfile(
     userId: number,
     updateUserProfileDto: UpdateUserProfileDto
@@ -576,5 +579,58 @@ export class UserService {
       this.logger.debug('exception (username duplicated)')
       throw new DuplicateFoundException('user')
     }
+  }
+
+  // update user field (password, studentId, major, realName)
+  async updateUser(req: AuthenticatedRequest, updateUserDto: UpdateUserDto) {
+    const user = await this.getUserCredential(req.user.username)
+    if (!user) {
+      throw new EntityNotExistException('User')
+    }
+
+    const isValidUser = await this.jwtAuthService.isValidUser(
+      user,
+      updateUserDto.password
+    )
+    if (!isValidUser) {
+      throw new UnidentifiedException('password')
+    }
+
+    let encryptedNewPassword: string | undefined = undefined
+
+    if (updateUserDto.newPassword) {
+      if (!this.isValidPassword(updateUserDto.newPassword)) {
+        throw new UnprocessableDataException('Bad password')
+      }
+      encryptedNewPassword = await hash(
+        updateUserDto.newPassword,
+        ARGON2_HASH_OPTION
+      )
+    }
+
+    const updateData = {
+      password: encryptedNewPassword,
+      studentId: updateUserDto.studentId,
+      major: updateUserDto.major,
+      userProfile: {
+        update: { realName: updateUserDto.realName }
+      }
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: req.user.id },
+      data: updateData,
+      select: {
+        // don't select password for security
+        studentId: true,
+        major: true,
+        userProfile: {
+          select: {
+            realName: true
+          }
+        }
+      }
+    })
+    return updatedUser
   }
 }

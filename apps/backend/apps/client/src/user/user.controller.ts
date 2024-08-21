@@ -19,6 +19,7 @@ import { SignUpDto } from './dto/signup.dto'
 import { SocialSignUpDto } from './dto/social-signup.dto'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import { UpdateUserProfileDto } from './dto/update-userprofile.dto'
+import { UpdateUserDto } from './dto/updateUser.dto'
 import { UserEmailDto } from './dto/userEmail.dto'
 import { UsernameDto } from './dto/username.dto'
 import { UserService } from './user.service'
@@ -92,6 +93,14 @@ export class UserController {
   @AuthNotNeededIfOpenSpace()
   async getUsernameByEmail(@Query() userEmailDto: UserEmailDto) {
     return await this.userService.getUsernameByEmail(userEmailDto)
+  }
+
+  @Patch('user')
+  async updateUser(
+    @Req() req: AuthenticatedRequest,
+    @Body() updateUserDto: UpdateUserDto
+  ) {
+    return await this.userService.updateUser(req, updateUserDto)
   }
 }
 
