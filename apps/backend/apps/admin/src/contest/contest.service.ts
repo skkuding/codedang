@@ -698,8 +698,8 @@ export class ContestService {
       }
     })
 
-    if (!contestProblems) {
-      throw new EntityNotExistException('ContestProblem')
+    if (!contestProblems.length) {
+      throw new EntityNotExistException('Problem or ContestProblem')
     }
 
     const contests = contestProblems.map(

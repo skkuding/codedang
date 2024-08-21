@@ -31,7 +31,7 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "problemId": 10
+    "problemId": 1
   }
 }
 
@@ -45,5 +45,5 @@ docs {
   Ongoing, Upcoming, Finished로 Group된 Contests를 반환합니다.
 
   ### Error Cases
-  - Problem ID에 해당하는 Problem이 없는 경우 Problem does not exist 에러를 반환합니다.
+  - Problem ID에 해당하는 Problem이 없거나, 해당 Problem ID에 해당하는 Belonged Contest가 0개인 경우 Problem or Contest Problem Does not exist 에러를 반환합니다.
 }
