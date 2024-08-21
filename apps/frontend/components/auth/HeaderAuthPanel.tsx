@@ -52,7 +52,7 @@ export default function HeaderAuthPanel({
             <BiSolidUser
               className={cn(
                 'h-4 w-4',
-                isEditor ? 'text-gray-300' : 'text-white'
+                isEditor ? 'size-6 rounded-none text-gray-300' : 'text-white'
               )}
             />
             {!isEditor && (
