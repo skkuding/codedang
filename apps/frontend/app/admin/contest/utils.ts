@@ -1,7 +1,10 @@
 import { z } from 'zod'
 
 export const createSchema = z.object({
-  title: z.string().min(1).max(100),
+  title: z
+    .string()
+    .min(1)
+    .max(100, 'The title can only be up to 100 characters long'),
   isRankVisible: z.boolean(),
   isVisible: z.boolean(),
   description: z
@@ -12,7 +15,10 @@ export const createSchema = z.object({
   endTime: z.date(),
   enableCopyPaste: z.boolean(),
   isJudgeResultVisible: z.boolean(),
-  invitationCode: z.string().min(6).max(6).nullish()
+  invitationCode: z
+    .string()
+    .regex(/^\d{6}$/, 'The invitation code must be a 6-digit number')
+    .nullish()
 })
 
 export const editSchema = createSchema.extend({

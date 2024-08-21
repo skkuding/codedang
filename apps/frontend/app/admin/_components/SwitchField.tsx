@@ -77,7 +77,7 @@ export default function SwitchField({
           />
         ) : null)}
       {isEnabled && name == 'invitationCode' && errors[name] && (
-        <ErrorMessage message="The invitation code must be a 6-digit number" />
+        <ErrorMessage message={errors[name]?.message?.toString()} />
       )}
     </div>
   )
