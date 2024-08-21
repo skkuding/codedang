@@ -10,7 +10,7 @@ get {
   auth: none
 }
 
-params:query {
+query {
   ~groupId: 2
   ~cursor: 1
   ~take: 5
@@ -26,7 +26,7 @@ assert {
   res.body.data[0].group.id: isNumber
   res.body.data[0].group.groupName: isString
   res.body.data[0].participants: isNumber
-  res.body.data[0].isJudgeResultVisible: isBoolean 
+  res.body.data[0].isJudgeResultVisible: isBoolean
 }
 
 script:pre-request {
@@ -35,13 +35,13 @@ script:pre-request {
 
 docs {
   ## Get Registered Finished Contests
-  
+
   사용자가 참가 신청을 한 종료된 대회들을 가져옵니다.
-  
+
   pagination과 제목 검색이 가능합니다.
-  
+
   ### Query
-  
+
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |take  |Integer|가져올 대회 개수 (default: 10)|

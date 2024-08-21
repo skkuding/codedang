@@ -27,7 +27,8 @@
         "golang.go",
         "hashicorp.terraform",
         "ms-azuretools.vscode-docker",
-        "prisma.prisma"
+        "prisma.prisma",
+        "mhutchie.git-graph"
       ],
       "settings": {
         "extensions.verifySignature": false
