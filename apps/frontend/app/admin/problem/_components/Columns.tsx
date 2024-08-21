@@ -20,7 +20,7 @@ interface DataTableProblem {
   difficulty: string
   submissionCount: number
   acceptedRate: number
-  isVisible: boolean
+  isVisible: boolean | null
   languages: string[]
   tag: { id: number; tag: Tag }[]
 }
@@ -33,7 +33,8 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
       <Switch
         id="hidden-mode"
         onClick={(e) => e.stopPropagation()}
-        checked={row.original.isVisible}
+        disabled={row.original.isVisible === null}
+        checked={row.original.isVisible === true}
         onCheckedChange={() => {
           row.original.isVisible = !row.original.isVisible
           updateVisible({
@@ -48,6 +49,7 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
         }}
       />
       {!row.original.isVisible && (
+        // TODO: Add contest info modal
         <button
           className="justify-centert flex items-center"
           onClick={(e) => e.stopPropagation()}

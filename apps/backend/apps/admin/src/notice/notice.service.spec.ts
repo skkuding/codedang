@@ -112,7 +112,7 @@ describe('NoticeService', () => {
   })
 
   describe('updateNotice', () => {
-    it('should return updated contest', async () => {
+    it('should return updated notice', async () => {
       db.notice.update.resolves(updatedNotice)
       expect(
         await service.updateNotice(groupId, noticeId, updateNoticeInput)

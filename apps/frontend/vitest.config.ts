@@ -9,7 +9,9 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
     env: {
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      NEXT_PUBLIC_BASEURL: 'https://test.com/api'
+      NEXT_PUBLIC_BASEURL: 'https://test.com/api',
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      NEXTAUTH_URL: 'https://test.com/next-auth/api/auth'
     }
   },
   resolve: {

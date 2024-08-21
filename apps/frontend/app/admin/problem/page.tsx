@@ -57,6 +57,7 @@ export default function Page({
     data?.getProblems.map((problem) => ({
       ...problem,
       id: Number(problem.id),
+      isVisible: problem.isVisible !== undefined ? problem.isVisible : null,
       languages: problem.languages ?? [],
       tag: problem.tag.map(({ id, tag }) => ({
         id: +id,

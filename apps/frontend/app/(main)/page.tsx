@@ -17,6 +17,8 @@ const slides = [
     topTitle: 'Welcome to',
     bottomTitle: 'CODEDANG',
     sub: 'Online Judge Platform for SKKU',
+    img: '/codedang-carousel.png',
+    imgAlt: 'Codedang',
     href: '/problem'
   },
   {
@@ -24,6 +26,8 @@ const slides = [
     topTitle: 'Contribute to',
     bottomTitle: 'Codedang on GitHub',
     sub: 'Our project is open source',
+    img: '/github-carousel.png',
+    imgAlt: 'GitHub',
     href: 'https://github.com/skkuding/codedang'
   },
   {
@@ -31,13 +35,15 @@ const slides = [
     topTitle: 'SKKUDING',
     bottomTitle: 'Beta Service',
     sub: "Feel free to contact us if there's any bug",
+    img: '/bug-carousel.png',
+    imgAlt: 'Bug',
     href: 'https://pf.kakao.com/_UKraK/chat'
   }
 ]
 
 export default function Home() {
   return (
-    <div className="flex w-full flex-col gap-12 lg:items-center">
+    <div className="flex w-full flex-col gap-16 lg:items-center">
       <Carousel slides={slides} />
       {/* <div className="flex w-full flex-col gap-3">
         <div className="flex w-full items-center justify-between text-gray-700">
@@ -58,8 +64,9 @@ export default function Home() {
           </Suspense>
         </div>
       </div> */}
+
       <div className="flex w-full flex-col gap-6">
-        <div className="flex w-full items-center justify-between text-gray-700">
+        <div className="flex items-center justify-between text-gray-700">
           <p className="text-2xl font-bold">Contest 🏆</p>
           <Link href={'/contest' as Route}>
             <Button variant="ghost" className="h-8 px-3">
@@ -67,10 +74,11 @@ export default function Home() {
             </Button>
           </Link>
         </div>
-        <div>
-          <ContestCards />
-        </div>
-        <div className="flex w-full items-center justify-between text-gray-700">
+        <ContestCards />
+      </div>
+
+      <div className="flex w-full flex-col gap-6">
+        <div className="flex items-center justify-between text-gray-700">
           <p className="text-2xl font-bold">Problem ✨</p>
           <Link href={'/problem' as Route}>
             <Button variant="ghost" className="h-8 px-3">
@@ -78,9 +86,7 @@ export default function Home() {
             </Button>
           </Link>
         </div>
-        <div>
-          <ProblemCards />
-        </div>
+        <ProblemCards />
       </div>
     </div>
   )

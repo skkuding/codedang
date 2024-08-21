@@ -45,13 +45,13 @@ export default function HeaderAuthPanel({
         <DropdownMenu>
           <DropdownMenuTrigger
             className={cn(
-              'hidden gap-2 rounded-md px-4 py-1 md:flex',
+              'hidden items-center gap-2 rounded-md px-4 py-1 md:flex',
               isEditor ? 'border-0 ring-offset-0' : 'bg-primary text-white'
             )}
           >
             <BiSolidUser
               className={cn(
-                'h-6 w-6',
+                'h-4 w-4',
                 isEditor ? 'text-gray-300' : 'text-white'
               )}
             />
@@ -104,7 +104,7 @@ export default function HeaderAuthPanel({
               onClick={() => showSignIn()}
               variant={'outline'}
               className={cn(
-                'mr-3 hidden px-3 py-1 text-base font-semibold md:block',
+                'mr-3 hidden rounded-lg px-4 py-1 text-sm font-semibold md:block',
                 isEditor
                   ? 'h-8 rounded-[4px] border-none bg-[#EAF3FF] text-[11px]'
                   : ''
@@ -119,7 +119,7 @@ export default function HeaderAuthPanel({
                 showSignUp()
               }}
               className={cn(
-                'hidden px-3 py-1 text-base md:block',
+                'hidden rounded-lg px-4 py-1 text-sm md:block',
                 isEditor
                   ? 'h-8 rounded-[4px] text-[11px] font-semibold'
                   : 'font-bold'

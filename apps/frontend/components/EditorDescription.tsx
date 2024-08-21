@@ -17,8 +17,8 @@ import {
 import { renderKatex } from '@/lib/renderKatex'
 import { convertToLetter } from '@/lib/utils'
 import compileIcon from '@/public/compileVersion.svg'
-import copyCompleteIcon from '@/public/copy.svg'
-import copyIcon from '@/public/copyComplete.svg'
+import copyIcon from '@/public/copy.svg'
+import copyCompleteIcon from '@/public/copyComplete.svg'
 import type { ContestProblem, ProblemDetail } from '@/types/type'
 import { Level } from '@/types/type'
 import { motion } from 'framer-motion'
@@ -148,7 +148,11 @@ export function EditorDescription({
                           transition={{ duration: 0.2 }}
                         >
                           {copiedID == `input-${id}` ? (
-                            <Image src={copyIcon} alt="copy" width={24} />
+                            <Image
+                              src={copyCompleteIcon}
+                              alt="copy"
+                              width={24}
+                            />
                           ) : (
                             <TooltipTrigger asChild>
                               <Image
@@ -156,7 +160,7 @@ export function EditorDescription({
                                   copy(input + '\n\n', `input-${id}`) // add newline to the end for easy testing
                                 }}
                                 className="cursor-pointer transition-opacity hover:opacity-60"
-                                src={copyCompleteIcon}
+                                src={copyIcon}
                                 alt="copy"
                                 width={24}
                               />
@@ -196,7 +200,11 @@ export function EditorDescription({
                           transition={{ duration: 0.2 }}
                         >
                           {copiedID == `output-${id}` ? (
-                            <Image src={copyIcon} alt="copy" width={24} />
+                            <Image
+                              src={copyCompleteIcon}
+                              alt="copy"
+                              width={24}
+                            />
                           ) : (
                             <TooltipTrigger asChild>
                               <Image
@@ -204,7 +212,7 @@ export function EditorDescription({
                                   copy(output + '\n\n', `output-${id}`) // add newline to the end for easy testing
                                 }}
                                 className="cursor-pointer transition-opacity hover:opacity-60"
-                                src={copyCompleteIcon}
+                                src={copyIcon}
                                 alt="copy"
                                 width={24}
                               />
