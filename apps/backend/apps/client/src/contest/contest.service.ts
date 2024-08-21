@@ -16,6 +16,7 @@ const contestSelectOption = {
   group: { select: { id: true, groupName: true } },
   invitationCode: true,
   enableCopyPaste: true,
+  isJudgeResultVisible: true,
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
     select: {

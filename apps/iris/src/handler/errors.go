@@ -51,4 +51,5 @@ var (
 	ErrRealTimeLimitExceed = errors.New("realtime limit exceeded")
 	ErrMemoryLimitExceed   = errors.New("memory limit exceeded")
 	ErrRuntime             = errors.New("runtime error")
+	ErrSegFault            = errors.New("segmentation fault")
 )

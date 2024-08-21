@@ -18,7 +18,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
-import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
+import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { toast } from 'sonner'
 import DescriptionForm from '../../../_components/DescriptionForm'
 import FormSection from '../../../_components/FormSection'
@@ -238,10 +238,10 @@ export default function Page({ params }: { params: { id: string } }) {
 
             <Button
               type="submit"
-              className="flex h-[36px] w-[100px] items-center gap-2 px-0"
+              className="flex h-[36px] w-[90px] items-center gap-2 px-0"
             >
-              <IoMdCheckmarkCircleOutline fontSize={20} />
-              <div className="mb-[2px] text-base">Submit</div>
+              <IoIosCheckmarkCircle fontSize={20} />
+              <div className="text-base">Edit</div>
             </Button>
           </FormProvider>
         </form>

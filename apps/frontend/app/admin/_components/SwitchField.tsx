@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { inputStyle } from '../utils'
+import ErrorMessage from './ErrorMessage'
 import Label from './Label'
 
 interface SwitchFieldProps {
@@ -25,7 +26,12 @@ export default function SwitchField({
   hasValue = false
 }: SwitchFieldProps) {
   const [isEnabled, setIsEnabled] = useState(false)
-  const { register, setValue } = useFormContext()
+  const {
+    register,
+    setValue,
+    trigger,
+    formState: { errors }
+  } = useFormContext()
 
   useEffect(() => {
     setIsEnabled(hasValue)
@@ -55,7 +61,9 @@ export default function SwitchField({
               'h-[36px] w-[380px]',
               '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
             )}
-            {...register(name)}
+            {...register(name, {
+              onChange: () => trigger(name)
+            })}
           />
         ) : (
           <Textarea
@@ -65,6 +73,9 @@ export default function SwitchField({
             {...register(name)}
           />
         ))}
+      {isEnabled && errors['invitationCode'] && (
+        <ErrorMessage message="The invitation code must be a 6-digit number" />
+      )}
     </div>
   )
 }
