@@ -689,14 +689,6 @@ export class ContestService {
   }
 
   async getContestsByProblemId(problemId: number) {
-    const problem = await this.prisma.problem.findUnique({
-      where: {
-        id: problemId
-      }
-    })
-    if (!problem) {
-      throw new EntityNotExistException('Problem')
-    }
     const contestProblems = await this.prisma.contestProblem.findMany({
       where: {
         problemId
@@ -705,6 +697,11 @@ export class ContestService {
         contest: true
       }
     })
+
+    if (!contestProblems) {
+      throw new EntityNotExistException('ContestProblem')
+    }
+
     const contests = contestProblems.map(
       (contestProblem) => contestProblem.contest
     )
