@@ -1,0 +1,33 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/user
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "password": "Useruser",
+    "newPassword": "Useruser",
+     // Don't change password in stage server please!!
+    "realName": "changedName"
+  }
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+script:post-response {
+  // TODO: User Fields rollback
+}
+
+docs {
+  # user 정보 수정
+  - realname, studentId, major, password를 선택적으로 수정할 수 있으며, 이를 수행하기 전 로그인한 유저의 password를 검사하여 올바른 request인지 validation합니다.
+}
