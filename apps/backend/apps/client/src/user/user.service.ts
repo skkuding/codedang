@@ -492,6 +492,8 @@ export class UserService {
         email: true,
         lastLogin: true,
         updateTime: true,
+        studentId: true,
+        major: true,
         userProfile: {
           select: {
             realName: true
