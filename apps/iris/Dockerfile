@@ -12,7 +12,6 @@ RUN go build
 FROM ubuntu:24.04
 ARG app_env
 
-
 ENV APP_ENV=${app_env}
 
 COPY --from=builder /build/iris .
@@ -21,6 +20,10 @@ COPY --from=builder /build/iris .
 RUN apt update && apt install -y \
   curl gcc g++ openjdk-17-jdk python3.9 \
   && rm -rf /var/lib/apt/lists/*
+
+# Set Python 3.9 as the default Python version
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1 \
+  && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1
 
 # Install sandbox
 RUN mkdir -p /app/sandbox/policy /app/sandbox/results \
