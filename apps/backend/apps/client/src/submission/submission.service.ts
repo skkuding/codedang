@@ -517,7 +517,7 @@ export class SubmissionService {
       results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
 
       if (contestId && !isJudgeResultVisible) {
-        results.map((r) => (r.result = 'BLIND'))
+        results.map((r) => (r.result = 'Blind'))
       }
 
       return {
@@ -529,7 +529,7 @@ export class SubmissionService {
         result:
           !contestId || (contestId && isJudgeResultVisible)
             ? submission.result
-            : 'BLIND',
+            : 'Blind',
         testcaseResult: results
       }
     }
@@ -639,7 +639,7 @@ export class SubmissionService {
     })
 
     if (!isJudgeResultVisible) {
-      submissions.map((submission) => (submission.result = 'BLIND'))
+      submissions.map((submission) => (submission.result = 'Blind'))
     }
 
     const total = await this.prisma.submission.count({
