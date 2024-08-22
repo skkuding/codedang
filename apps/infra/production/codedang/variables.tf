@@ -26,6 +26,9 @@ variable "kakao_client_id" { sensitive = true }
 variable "kakao_client_secret" { sensitive = true }
 variable "otel_exporter_otlp_endpoint_url" { sensitive = true }
 variable "loki_url" { sensitive = true }
+variable "username_for_load_test" { sensitive = true }
+variable "email_for_load_test" { sensitive = true }
+variable "pin_for_load_test" { sensitive = true }
 
 variable "testcase_bucket_name" { sensitive = true }
 variable "testcase_access_key" { sensitive = true }

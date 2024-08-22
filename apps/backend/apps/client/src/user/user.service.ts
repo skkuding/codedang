@@ -81,7 +81,7 @@ export class UserService {
 
   async sendPinForRegisterNewEmail({ email }: UserEmailDto): Promise<string> {
     // TODO: load test를 위함, 테스트 후 삭제 예정
-    if (email === this.config.get('email_for_load_test')) {
+    if (email === this.config.get('EMAIL_FOR_LOAD_TEST')) {
       this.logger.debug('load test - sendPinForRegisterNewEmail')
       return this.createPinAndSendEmail(email)
     }
@@ -115,7 +115,7 @@ export class UserService {
 
   async createPinAndSendEmail(email: string): Promise<string> {
     // TODO: load test를 위함, 테스트 후 삭제 예정
-    if (email === this.config.get('email_for_load_test')) {
+    if (email === this.config.get('EMAIL_FOR_LOAD_TEST')) {
       this.logger.debug('load test - createPinAndSendEmail')
       return 'You entered an email for testing'
     }
@@ -219,7 +219,7 @@ export class UserService {
     email
   }: EmailAuthenticationPinDto): Promise<string> {
     // TODO: load test를 위함, 테스트 후 삭제 예정
-    if (pin === this.config.get('pin_for_load_test')) {
+    if (pin === this.config.get('PIN_FOR_LOAD_TEST')) {
       this.logger.debug('load test - verifyPinAndIssueJwt')
       const payload: EmailAuthJwtPayload = { email }
       const token = await this.createJwt(payload)
@@ -324,8 +324,8 @@ export class UserService {
   async signUp(req: Request, signUpDto: SignUpDto) {
     // TODO: load test를 위함, 테스트 후 삭제 예정
     if (
-      signUpDto.email === this.config.get('email_for_load_test') ||
-      signUpDto.username === this.config.get('username_for_load_test')
+      signUpDto.email === this.config.get('EMAIL_FOR_LOAD_TEST') ||
+      signUpDto.username === this.config.get('USERNAME_FOR_LOAD_TEST')
     ) {
       this.logger.debug('load test - sign up')
       return await this.signUpForLoadTest(signUpDto)
@@ -637,7 +637,7 @@ export class UserService {
 
   async checkDuplicatedUsername(usernameDto: UsernameDto) {
     // TODO: load test를 위함, 테스트 후 삭제 예정
-    if (usernameDto.username === this.config.get('username_for_load_test')) {
+    if (usernameDto.username === this.config.get('USERNAME_FOR_LOAD_TEST')) {
       this.logger.debug('load test - checkDuplicatedUsername')
       return
     }
