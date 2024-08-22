@@ -18,7 +18,6 @@ import { NewPasswordDto } from './dto/newPassword.dto'
 import { SignUpDto } from './dto/signup.dto'
 import { SocialSignUpDto } from './dto/social-signup.dto'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
-import { UpdateUserProfileDto } from './dto/update-userprofile.dto'
 import { UpdateUserDto } from './dto/updateUser.dto'
 import { UserEmailDto } from './dto/userEmail.dto'
 import { UsernameDto } from './dto/username.dto'
@@ -70,17 +69,6 @@ export class UserController {
     @Body() updateUserEmail: UpdateUserEmailDto
   ) {
     return await this.userService.updateUserEmail(req, updateUserEmail)
-  }
-
-  @Patch('profile')
-  async updateUserProfile(
-    @Req() req: AuthenticatedRequest,
-    @Body() updateUserProfileDto: UpdateUserProfileDto
-  ) {
-    return await this.userService.updateUserProfile(
-      req.user.id,
-      updateUserProfileDto
-    )
   }
 
   @Get('username-check')

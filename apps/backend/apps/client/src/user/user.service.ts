@@ -30,7 +30,6 @@ import type { NewPasswordDto } from './dto/newPassword.dto'
 import type { SignUpDto } from './dto/signup.dto'
 import type { SocialSignUpDto } from './dto/social-signup.dto'
 import type { UpdateUserEmailDto } from './dto/update-user-email.dto'
-import type { UpdateUserProfileDto } from './dto/update-userprofile.dto'
 import type { UpdateUserDto } from './dto/updateUser.dto'
 import type { UserEmailDto } from './dto/userEmail.dto'
 import type { UsernameDto } from './dto/username.dto'
@@ -541,31 +540,6 @@ export class UserService {
         error.code == 'P2025'
       )
         throw new EntityNotExistException('user')
-      throw error
-    }
-  }
-
-  // update user profile - not used now (using updateUser instead),
-  // but keep it for future use of user profile
-  async updateUserProfile(
-    userId: number,
-    updateUserProfileDto: UpdateUserProfileDto
-  ): Promise<UserProfile> {
-    try {
-      const userProfile = await this.prisma.userProfile.update({
-        where: { userId },
-        data: {
-          realName: updateUserProfileDto.realName
-        }
-      })
-      this.logger.debug(userProfile, 'updateUserProfile')
-      return userProfile
-    } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code == 'P2025'
-      )
-        throw new EntityNotExistException('UserProfile')
       throw error
     }
   }
