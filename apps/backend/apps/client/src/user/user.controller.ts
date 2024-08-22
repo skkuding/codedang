@@ -95,7 +95,7 @@ export class UserController {
     return await this.userService.getUsernameByEmail(userEmailDto)
   }
 
-  @Patch('user')
+  @Patch('')
   async updateUser(
     @Req() req: AuthenticatedRequest,
     @Body() updateUserDto: UpdateUserDto
