@@ -468,7 +468,7 @@ describe('SubmissionService', () => {
         return {
           ...result,
           cpuTime:
-            result.cpuTime && result.cpuTime === BigInt(0)
+            result.cpuTime || result.cpuTime === BigInt(0)
               ? result.cpuTime.toString()
               : null
         }
