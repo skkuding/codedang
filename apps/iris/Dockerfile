@@ -19,7 +19,7 @@ COPY --from=builder /build/iris .
 
 # Install dependencies
 RUN apt update && apt install -y \
-  curl gcc g++ openjdk-17-jdk python3 \
+  curl gcc g++ openjdk-17-jdk python3.9 \
   && rm -rf /var/lib/apt/lists/*
 
 # Install sandbox
