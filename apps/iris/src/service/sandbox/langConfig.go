@@ -125,7 +125,7 @@ func NewLangConfig(file file.FileManager, javaPolicyPath string) *langConfig {
 		Language: PYTHON,
 		SrcName:  "solution.py",
 		// [IMPORTANT] 도커 이미지 변경 시 파이썬 버전도 변경 필요함
-		ExeName:               "__pycache__/solution.cpython-39.pyc", // Default Version on Debian 11 (bullseye)
+		ExeName:               "__pycache__/solution.cpython-312.pyc", // Default Version on Debian 11 (bullseye)
 		MaxCompileCpuTime:     3000,
 		MaxCompileRealTime:    10000,
 		MaxCompileMemory:      128 * 1024 * 1024,
