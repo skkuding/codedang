@@ -8,7 +8,7 @@
     "knip": "knip"
   },
   "devDependencies": {
-    "@aws-sdk/client-s3": "^3.626.0",
+    "@aws-sdk/client-s3": "^3.635.0",
     "@commitlint/cli": "^19.4.0",
     "@commitlint/config-conventional": "^19.2.2",
     "@commitlint/types": "^19.0.3",
@@ -20,12 +20,12 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-vue": "^9.27.0",
-    "knip": "^5.27.1",
-    "lefthook": "^1.7.11",
+    "knip": "^5.27.3",
+    "lefthook": "^1.7.14",
     "prettier": "^3.3.3",
-    "prettier-plugin-tailwindcss": "^0.6.5",
+    "prettier-plugin-tailwindcss": "^0.6.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   },
-  "packageManager": "pnpm@9.7.0"
+  "packageManager": "pnpm@9.7.1"
 }

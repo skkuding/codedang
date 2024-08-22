@@ -29,6 +29,7 @@ export const columns: ColumnDef<Problem>[] = [
     ),
     cell: ({ row }) => (
       <Checkbox
+        onClick={(e) => e.stopPropagation()}
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"

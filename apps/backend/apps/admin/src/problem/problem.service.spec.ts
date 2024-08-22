@@ -26,8 +26,10 @@ import {
   fileUploadInput,
   groupId,
   importedProblems,
+  importedProblemsWithIsVisible,
   problemId,
   problems,
+  problemsWithIsVisible,
   template,
   testcaseInput
 } from './mock/mock'
@@ -141,7 +143,7 @@ describe('ProblemService', () => {
         problems[0].createdById!,
         groupId
       )
-      expect(result).to.deep.equal(problems[0])
+      expect(result).to.deep.equal(problemsWithIsVisible[0])
       expect(uploadSpy.calledOnce).to.be.true
     })
 
@@ -187,7 +189,7 @@ describe('ProblemService', () => {
 
       expect(s3UploadCache.calledTwice).to.be.true
       expect(createTestcasesSpy.calledTwice).to.be.true
-      expect(res).to.deep.equal(importedProblems)
+      expect(res).to.deep.equal(importedProblemsWithIsVisible)
     })
   })
 
@@ -195,7 +197,7 @@ describe('ProblemService', () => {
     it('should return group problems', async () => {
       db.problem.findMany.resolves(problems)
       const result = await service.getProblems({}, groupId, 1, 5)
-      expect(result).to.deep.equal(problems)
+      expect(result).to.deep.equal(problemsWithIsVisible)
     })
   })
 
@@ -203,7 +205,7 @@ describe('ProblemService', () => {
     it('should return a group problem', async () => {
       db.problem.findFirstOrThrow.resolves(problems[0])
       const result = await service.getProblem(problemId, groupId)
-      expect(result).to.deep.equal(problems[0])
+      expect(result).to.deep.equal(problemsWithIsVisible[0])
     })
   })
 
@@ -225,7 +227,10 @@ describe('ProblemService', () => {
         },
         groupId
       )
-      expect(result).to.deep.equal({ ...problems[0], title: 'revised' })
+      expect(result).to.deep.equal({
+        ...problemsWithIsVisible[0],
+        title: 'revised'
+      })
       expect(uploadSpy.calledOnce).to.be.true
     })
 
@@ -252,6 +257,21 @@ describe('ProblemService', () => {
           {
             id: problemId,
             template: [{ ...template, language: 'Java' }]
+          },
+          groupId
+        )
+      ).to.be.rejectedWith(UnprocessableDataException)
+      expect(uploadSpy.called).to.be.false
+    })
+
+    it('should throw error when user changes visible property of problem included in upcoming/ongoing contest', async () => {
+      const uploadSpy = stub(storageService, 'uploadObject').resolves()
+      db.problem.findFirstOrThrow.resolves(problems[1])
+      await expect(
+        service.updateProblem(
+          {
+            id: problemId,
+            isVisible: false
           },
           groupId
         )

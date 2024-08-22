@@ -25,7 +25,7 @@ import {
   IDValidationPipe,
   RequiredIntPipe
 } from '@libs/pipe'
-import { CreateSubmissionDto } from './dto/create-submission.dto'
+import { CreateSubmissionDto } from './class/create-submission.dto'
 import { SubmissionService } from './submission.service'
 
 @Controller('submission')

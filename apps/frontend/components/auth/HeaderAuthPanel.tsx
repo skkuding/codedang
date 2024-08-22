@@ -36,48 +36,64 @@ export default function HeaderAuthPanel({
   const { currentModal, hideModal, showSignIn, showSignUp } = useAuthModalStore(
     (state) => state
   )
+  const isUser = session?.user.role === 'User'
+  const isEditor = group === 'editor'
+
   return (
     <div className="ml-2 flex items-center gap-2">
       {session ? (
         <DropdownMenu>
           <DropdownMenuTrigger
             className={cn(
-              'hidden gap-2 rounded-md px-4 py-1 md:flex',
-              group === 'editor' ? null : 'bg-primary text-white'
+              'hidden items-center gap-2 rounded-md px-4 py-1 md:flex',
+              isEditor ? 'border-0 ring-offset-0' : 'bg-primary text-white'
             )}
           >
             <BiSolidUser
               className={cn(
-                'h-6 w-6',
-                group === 'editor' ? 'text-gray-300' : 'text-white'
+                'h-4 w-4',
+                isEditor ? 'size-6 rounded-none text-gray-300' : 'text-white'
               )}
             />
-            <p
-              className={
-                group === 'editor'
-                  ? 'text-primary-light font-bold'
-                  : 'font-semibold text-white'
-              }
-            >
-              {session?.user.username}
-            </p>
+            {!isEditor && (
+              <p className="font-semibold text-white">
+                {session?.user.username}
+              </p>
+            )}
             <ChevronDown className="w-4" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            {session?.user.role !== 'User' && (
+          <DropdownMenuContent
+            className={cn(
+              isEditor &&
+                'mr-5 rounded-sm border-none bg-[#4C5565] px-0 font-normal text-white'
+            )}
+          >
+            {!isUser && (
               <Link href="/admin">
-                <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
+                <DropdownMenuItem
+                  className={cn(
+                    'flex cursor-pointer items-center gap-1',
+                    isEditor
+                      ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
+                      : 'font-semibold'
+                  )}
+                >
                   <UserRoundCog className="size-4" /> Management
                 </DropdownMenuItem>
               </Link>
             )}
             <DropdownMenuItem
-              className="flex cursor-pointer items-center gap-1 font-semibold"
+              className={cn(
+                'flex cursor-pointer items-center gap-1',
+                isEditor
+                  ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
+                  : 'font-semibold'
+              )}
               onClick={() => {
                 signOut()
               }}
             >
-              <LogOut className="size-4" /> Log Out
+              <LogOut className="size-4" /> LogOut
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -88,8 +104,10 @@ export default function HeaderAuthPanel({
               onClick={() => showSignIn()}
               variant={'outline'}
               className={cn(
-                'mr-3 hidden px-3 py-1 text-base md:block',
-                group === 'editor' ? 'font-medium' : 'font-semibold'
+                'mr-3 hidden rounded-lg px-4 py-1 text-sm font-semibold md:block',
+                isEditor
+                  ? 'h-8 rounded-[4px] border-none bg-[#EAF3FF] text-[11px]'
+                  : ''
               )}
             >
               Log In
@@ -101,8 +119,10 @@ export default function HeaderAuthPanel({
                 showSignUp()
               }}
               className={cn(
-                'hidden px-3 py-1 text-base md:block',
-                group === 'editor' ? 'font-medium' : 'font-bold'
+                'hidden rounded-lg px-4 py-1 text-sm md:block',
+                isEditor
+                  ? 'h-8 rounded-[4px] text-[11px] font-semibold'
+                  : 'font-bold'
               )}
             >
               Sign Up
