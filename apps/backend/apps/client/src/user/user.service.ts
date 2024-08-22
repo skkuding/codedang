@@ -6,13 +6,13 @@ import type { User, UserProfile } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { hash } from 'argon2'
 import { Cache } from 'cache-manager'
-import { randomInt } from 'crypto'
+import { randomInt, randomUUID } from 'crypto'
 import type { Request } from 'express'
 import { generate } from 'generate-password'
 import { ExtractJwt } from 'passport-jwt'
 import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
-import { EMAIL_AUTH_EXPIRE_TIME, ARGON2_HASH_OPTION } from '@libs/constants'
+import { EMAIL_AUTH_EXPIRE_TIME } from '@libs/constants'
 import {
   ConflictFoundException,
   DuplicateFoundException,
@@ -80,6 +80,12 @@ export class UserService {
   }
 
   async sendPinForRegisterNewEmail({ email }: UserEmailDto): Promise<string> {
+    // TODO: load test를 위함, 테스트 후 삭제 예정
+    if (email === this.config.get('email_for_load_test')) {
+      this.logger.debug('load test - sendPinForRegisterNewEmail')
+      return this.createPinAndSendEmail(email)
+    }
+
     const duplicatedUser = await this.getUserCredentialByEmail(email)
     if (duplicatedUser) {
       this.logger.debug('email duplicated')
@@ -108,6 +114,12 @@ export class UserService {
   }
 
   async createPinAndSendEmail(email: string): Promise<string> {
+    // TODO: load test를 위함, 테스트 후 삭제 예정
+    if (email === this.config.get('email_for_load_test')) {
+      this.logger.debug('load test - createPinAndSendEmail')
+      return 'You entered an email for testing'
+    }
+
     const pin = this.createPinRandomly(6)
 
     await this.emailService.sendEmailAuthenticationPin(email, pin)
@@ -186,7 +198,7 @@ export class UserService {
           email
         },
         data: {
-          password: await hash(newPassword, ARGON2_HASH_OPTION)
+          password: await hash(newPassword)
         }
       })
       this.logger.debug(user, 'updateUserPasswordInPrisma')
@@ -206,6 +218,15 @@ export class UserService {
     pin,
     email
   }: EmailAuthenticationPinDto): Promise<string> {
+    // TODO: load test를 위함, 테스트 후 삭제 예정
+    if (pin === this.config.get('pin_for_load_test')) {
+      this.logger.debug('load test - verifyPinAndIssueJwt')
+      const payload: EmailAuthJwtPayload = { email }
+      const token = await this.createJwt(payload)
+
+      return token
+    }
+
     await this.verifyPin(pin, email)
 
     const payload: EmailAuthJwtPayload = { email }
@@ -256,7 +277,60 @@ export class UserService {
     return jwt
   }
 
+  /** TODO: load test를 위함, 테스트 후 삭제 예정 */
+  async signUpForLoadTest(signUpDto: SignUpDto) {
+    const newSignUpDto: SignUpDto = {
+      ...signUpDto,
+      username: signUpDto.username + randomUUID(),
+      email: signUpDto.email + randomUUID()
+    }
+
+    const duplicatedUser = await this.prisma.user.findUnique({
+      where: {
+        username: newSignUpDto.username
+      }
+    })
+    if (duplicatedUser) {
+      this.logger.debug('username duplicated')
+      throw new DuplicateFoundException('Username')
+    }
+
+    if (!this.isValidUsername(signUpDto.username)) {
+      this.logger.debug('signUp - fail (invalid username)')
+      throw new UnprocessableDataException('Bad username')
+    } else if (!this.isValidPassword(signUpDto.password)) {
+      this.logger.debug('signUp - fail (invalid password)')
+      throw new UnprocessableDataException('Bad password')
+    }
+    try {
+      await this.deletePinFromCache(
+        emailAuthenticationPinCacheKey(newSignUpDto.email)
+      )
+    } catch (e) {
+      // pass
+    }
+
+    const user: User = await this.createUser(newSignUpDto)
+    const CreateUserProfileData: CreateUserProfileData = {
+      userId: user.id,
+      realName: signUpDto.realName
+    }
+    await this.createUserProfile(CreateUserProfileData)
+    await this.registerUserToPublicGroup(user.id)
+
+    return user
+  }
+
   async signUp(req: Request, signUpDto: SignUpDto) {
+    // TODO: load test를 위함, 테스트 후 삭제 예정
+    if (
+      signUpDto.email === this.config.get('email_for_load_test') ||
+      signUpDto.username === this.config.get('username_for_load_test')
+    ) {
+      this.logger.debug('load test - sign up')
+      return await this.signUpForLoadTest(signUpDto)
+    }
+
     const { email } = await this.verifyJwtFromRequestHeader(req)
     if (email != signUpDto.email) {
       this.logger.debug(
@@ -320,9 +394,7 @@ export class UserService {
       username: socialSignUpDto.username,
       password: generate({ length: 10, numbers: true }),
       realName: socialSignUpDto.realName,
-      email: socialSignUpDto.email,
-      studentId: socialSignUpDto.studentId,
-      major: socialSignUpDto.major
+      email: socialSignUpDto.email
     })
     const profile: CreateUserProfileData = {
       userId: user.id,
@@ -353,15 +425,13 @@ export class UserService {
   }
 
   async createUser(signUpDto: SignUpDto): Promise<User> {
-    const encryptedPassword = await hash(signUpDto.password, ARGON2_HASH_OPTION)
+    const encryptedPassword = await hash(signUpDto.password)
 
     const user = await this.prisma.user.create({
       data: {
         username: signUpDto.username,
         password: encryptedPassword,
-        email: signUpDto.email,
-        studentId: signUpDto.studentId,
-        major: signUpDto.major
+        email: signUpDto.email
       }
     })
     this.logger.debug(user, 'createUser')
@@ -566,6 +636,12 @@ export class UserService {
   }
 
   async checkDuplicatedUsername(usernameDto: UsernameDto) {
+    // TODO: load test를 위함, 테스트 후 삭제 예정
+    if (usernameDto.username === this.config.get('username_for_load_test')) {
+      this.logger.debug('load test - checkDuplicatedUsername')
+      return
+    }
+
     const duplicatedUser = await this.prisma.user.findUnique({
       where: {
         username: usernameDto.username
