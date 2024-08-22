@@ -58,10 +58,9 @@
       "name": "OTEL_EXPORTER_OTLP_ENDPOINT_URL",
       "value": "${otel_exporter_otlp_endpoint_url}"
     },
-
     {
       "name": "USERNAME_FOR_LOAD_TEST",
-      "value": "${usernmae_for_load_test}"
+      "value": "${username_for_load_test}"
     },
     {
       "name": "EMAIL_FOR_LOAD_TEST",
