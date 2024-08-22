@@ -10,7 +10,7 @@ get {
   auth: none
 }
 
-params:query {
+query {
   ~take: 10
   ~cursor: 1
   ~groupId: 1
@@ -26,7 +26,7 @@ assert {
   res("data")[0].group.id: isNumber
   res("data")[0].group.groupName: isString
   res("data")[0].participants: isNumber
-  res("data")[0].isJudgeResultVisible: isBoolean 
+  res("data")[0].isJudgeResultVisible: isBoolean
 }
 
 docs {

@@ -435,6 +435,7 @@ enum ResultStatus {
   MemoryLimitExceeded
   OutputLimitExceeded
   ServerError
+  SegmentationFaultError
   Blind // isJudgeResultVisible == False로 설정된 contest의 채점 결과를 반환할 때 사용
 }
 
