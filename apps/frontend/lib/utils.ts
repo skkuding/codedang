@@ -14,6 +14,7 @@ export const fetcher = ky.create({
   prefixUrl: baseUrl,
   retry: 0,
   timeout: 5000,
+  throwHttpErrors: false,
   hooks: {
     beforeError: [
       (error) => {
@@ -52,6 +53,15 @@ export const fetcherWithAuth = fetcher.extend({
       }
     ]
   }
+})
+
+// difference with fetcher: "throws" http error (must handle error when using)
+export const safeFetcher = fetcher.extend({
+  throwHttpErrors: true
+})
+
+export const safeFetcherWithAuth = fetcherWithAuth.extend({
+  throwHttpErrors: true
 })
 
 export const convertToLetter = (n: number) => {
