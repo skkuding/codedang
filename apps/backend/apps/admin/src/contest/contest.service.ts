@@ -4,7 +4,7 @@ import {
   Injectable,
   UnprocessableEntityException
 } from '@nestjs/common'
-import type { Contest, Submission } from '@generated'
+import { Contest, ResultStatus, Submission } from '@generated'
 import type { ContestProblem } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import {
@@ -610,9 +610,9 @@ export class ContestService {
     }
 
     // 하나의 Problem에 대해 여러 개의 Submission이 존재한다면, 더 높은 점수를 갖는 Submission을 반영함
-    const distinctSubmissions: {
+    const highestScoreSubmissions: {
       [problemId: string]: {
-        submission: Submission
+        result: ResultStatus
         score: number // Problem에서 획득한 점수
       }
     } = this.getHighestScoreSubmissions(submissions)
@@ -622,10 +622,10 @@ export class ContestService {
       score: number
     }[] = []
 
-    for (const problemId in distinctSubmissions) {
+    for (const problemId in highestScoreSubmissions) {
       problemScores.push({
         problemId: parseInt(problemId),
-        score: distinctSubmissions[problemId].score
+        score: highestScoreSubmissions[problemId].score
       })
     }
 
@@ -635,11 +635,11 @@ export class ContestService {
     )
 
     const scoreSummary = {
-      submittedProblemCount: Object.keys(distinctSubmissions).length, // Contest에 존재하는 문제 중 제출된 문제의 개수
+      submittedProblemCount: Object.keys(highestScoreSubmissions).length, // Contest에 존재하는 문제 중 제출된 문제의 개수
       totalProblemCount: contestProblems.length, // Contest에 존재하는 Problem의 총 개수
       userContestScore, // Contest에서 유저가 받은 점수
       contestPerfectScore: contestProblems.reduce(
-        (total, contestProblem) => (total += contestProblem.score),
+        (total, { score }) => total + score,
         0
       ), // Contest의 만점
       problemScores // 개별 Problem의 점수 리스트 (각 문제에서 몇 점을 획득했는지)
@@ -649,10 +649,10 @@ export class ContestService {
   }
 
   getHighestScoreSubmissions(submissions: Submission[]) {
-    const distinctSubmissions: {
+    const highestScoreSubmissions: {
       [problemId: string]: {
-        submission: Submission
-        score: number // Problem에서 획득한 점수
+        result: ResultStatus
+        score: number // Problem에서 획득한 점수 (100점 만점 기준)
       }
     } = {}
 
@@ -660,27 +660,27 @@ export class ContestService {
       const problemId = submission.problemId
 
       if (
-        !(problemId in distinctSubmissions) ||
-        (distinctSubmissions[problemId].submission.result !== 'Accepted' &&
-          submission.result === 'Accepted')
+        !(problemId in highestScoreSubmissions) ||
+        (highestScoreSubmissions[problemId].result !== ResultStatus.Accepted &&
+          submission.result === ResultStatus.Accepted)
       ) {
-        distinctSubmissions[problemId] = {
-          submission,
+        highestScoreSubmissions[problemId] = {
+          result: ResultStatus.Accepted,
           score: 100
         }
       } else {
-        const currentScore = distinctSubmissions[problemId].score
+        const currentScore = highestScoreSubmissions[problemId].score
 
         if (submission.score > currentScore) {
-          distinctSubmissions[problemId] = {
-            submission,
+          highestScoreSubmissions[problemId] = {
+            result: submission.result as ResultStatus,
             score: submission.score
           }
         }
       }
     }
 
-    return distinctSubmissions
+    return highestScoreSubmissions
   }
 
   async calculateUserContestScore(
