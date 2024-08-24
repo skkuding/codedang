@@ -8,10 +8,17 @@ import {
   Controller,
   Logger,
   Delete,
-  Query
+  Query,
+  NotFoundException,
+  InternalServerErrorException
 } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { Request, type Response } from 'express'
 import { AuthenticatedRequest, AuthNotNeededIfOpenSpace } from '@libs/auth'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from '@libs/exception'
 import { DeleteUserDto } from './dto/deleteUser.dto'
 import { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
@@ -88,7 +95,21 @@ export class UserController {
     @Req() req: AuthenticatedRequest,
     @Body() updateUserDto: UpdateUserDto
   ) {
-    return await this.userService.updateUser(req, updateUserDto)
+    try {
+      return await this.userService.updateUser(req, updateUserDto)
+    } catch (error) {
+      if (
+        (error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.name == 'NotFoundError') ||
+        error instanceof EntityNotExistException
+      ) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableDataException(error.message)
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
   }
 }
 
