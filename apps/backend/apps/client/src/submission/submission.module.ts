@@ -5,6 +5,7 @@ import { APP_GUARD } from '@nestjs/core'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
 import { GroupMemberGuard, RolesModule } from '@libs/auth'
 import { CONSUME_CHANNEL, PUBLISH_CHANNEL } from '@libs/constants'
+import { ProblemModule } from '@client/problem/problem.module'
 import {
   ContestSubmissionController,
   SubmissionController
@@ -48,7 +49,8 @@ import { SubmissionService } from './submission.service'
       inject: [ConfigService]
     }),
     HttpModule,
-    RolesModule
+    RolesModule,
+    ProblemModule
   ],
   controllers: [SubmissionController, ContestSubmissionController],
   providers: [

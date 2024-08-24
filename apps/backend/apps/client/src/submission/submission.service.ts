@@ -33,6 +33,7 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
+import { ProblemRepository } from '@client/problem/problem.repository'
 import {
   type CreateSubmissionDto,
   Snippet,
@@ -52,7 +53,8 @@ export class SubmissionService implements OnModuleInit {
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
     private readonly traceService: TraceService,
-    private readonly storageService: StorageService
+    private readonly storageService: StorageService,
+    private readonly problemRepository: ProblemRepository
   ) {}
   onModuleInit() {
     this.amqpConnection.createSubscriber(
@@ -281,7 +283,7 @@ export class SubmissionService implements OnModuleInit {
 
     if (idOptions.contestId) {
       // 해당 contestId에 해당하는 Contest에서 해당 problemId에 해당하는 문제로 AC를 받은 submission이 있는지 확인
-      const hasPassed = await this.hasPassedProblem(userId, {
+      const hasPassed = await this.problemRepository.hasPassedProblem(userId, {
         problemId: problem.id,
         contestId: idOptions.contestId
       })
@@ -788,7 +790,7 @@ export class SubmissionService implements OnModuleInit {
       submission.userId === userId ||
       userRole === Role.Admin ||
       userRole === Role.SuperAdmin ||
-      (await this.hasPassedProblem(userId, { problemId }))
+      (await this.problemRepository.hasPassedProblem(userId, { problemId }))
     ) {
       const code = plainToInstance(Snippet, submission.code)
       const results = submission.submissionResult.map((result) => {
@@ -813,24 +815,6 @@ export class SubmissionService implements OnModuleInit {
 
     throw new ForbiddenAccessException(
       "You must pass the problem first to browse other people's submissions"
-    )
-  }
-
-  @Span()
-  async hasPassedProblem(
-    userId: number,
-    where: { problemId: number; contestId?: number }
-  ): Promise<boolean> {
-    const submissions = await this.prisma.submission.findMany({
-      where: {
-        ...where,
-        userId
-      },
-      select: { result: true }
-    })
-
-    return submissions.some(
-      (submission) => submission.result === ResultStatus.Accepted
     )
   }
 

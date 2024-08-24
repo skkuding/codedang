@@ -10,7 +10,11 @@ import {
   Req
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { AuthNotNeededIfOpenSpace, type AuthenticatedRequest } from '@libs/auth'
+import {
+  AuthNotNeededIfOpenSpace,
+  UserNullWhenAuthFailedIfOpenSpace,
+  type AuthenticatedRequest
+} from '@libs/auth'
 import {
   EntityNotExistException,
   ForbiddenAccessException
@@ -30,7 +34,6 @@ import {
 } from './problem.service'
 
 @Controller('problem')
-@AuthNotNeededIfOpenSpace()
 export class ProblemController {
   private readonly logger = new Logger(ProblemController.name)
 
@@ -40,8 +43,11 @@ export class ProblemController {
   ) {}
 
   @Get()
+  @UserNullWhenAuthFailedIfOpenSpace()
   async getProblems(
-    @Query('groupId', GroupIDPipe) groupId: number,
+    @Req() req: AuthenticatedRequest,
+    @Query('groupId', GroupIDPipe)
+    groupId: number,
     @Query('workbookId', IDValidationPipe) workbookId: number | null,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
@@ -53,6 +59,7 @@ export class ProblemController {
     try {
       if (!workbookId) {
         return await this.problemService.getProblems({
+          userId: req.user?.id ?? null,
           cursor,
           take,
           groupId,
@@ -79,6 +86,7 @@ export class ProblemController {
   }
 
   @Get(':problemId')
+  @AuthNotNeededIfOpenSpace()
   async getProblem(
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('workbookId', IDValidationPipe) workbookId: number | null,

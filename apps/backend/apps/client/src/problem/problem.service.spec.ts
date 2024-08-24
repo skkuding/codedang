@@ -155,6 +155,7 @@ describe('ProblemService', () => {
 
       // when
       const result = await service.getProblems({
+        userId: null,
         cursor: 1,
         take: 2,
         groupId: OPEN_SPACE_ID
@@ -168,13 +169,15 @@ describe('ProblemService', () => {
               ...mockProblems[0],
               submissionCount: 10,
               acceptedRate: 0.5,
-              tags: [mockProblemTag.tag]
+              tags: [mockProblemTag.tag],
+              hasPassed: null
             },
             {
               ...mockProblems[1],
               submissionCount: 10,
               acceptedRate: 0.5,
-              tags: [mockProblemTag.tag]
+              tags: [mockProblemTag.tag],
+              hasPassed: null
             }
           ],
           total: 2
