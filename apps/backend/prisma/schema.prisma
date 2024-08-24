@@ -402,6 +402,7 @@ model Submission {
   codeSize   Int?         @map("code_size")
   language   Language
   result     ResultStatus
+  score      Int          @default(0) /// 100점 만점 기준 점수
   createTime DateTime     @default(now()) @map("create_time")
   updateTime DateTime     @updatedAt @map("update_time")
 
