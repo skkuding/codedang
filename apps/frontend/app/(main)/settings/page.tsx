@@ -16,7 +16,8 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { cn } from '@/lib/utils'
+// import { baseUrl } from '@/lib/constants'
+import { cn, safeFetcherWithAuth } from '@/lib/utils'
 import invisible from '@/public/24_invisible.svg'
 import visible from '@/public/24_visible.svg'
 import codedangSymbol from '@/public/codedang-editor.svg'
@@ -26,6 +27,7 @@ import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaCheck, FaChevronDown } from 'react-icons/fa6'
+import { toast } from 'sonner'
 // import { IoWarningOutline } from 'react-icons/io5'
 import { z } from 'zod'
 
@@ -34,14 +36,19 @@ interface SettingsFormat {
   currentPassword: string
   newPassword: string
   confirmPassword: string
-  name: string
+  realName: string
   major: string
   studentId: string
-  // email: string
-  // verificationCode: string
-  // firstName: string
-  // lastName: string
 }
+
+// 선택적인 필드만 포함된 타입 정의
+type UpdatePayload = Partial<{
+  studentId: string
+  password: string
+  newPassword: string
+  realName: string
+  major: string
+}>
 
 const majors = [
   '학과 정보 없음',
@@ -168,10 +175,8 @@ export default function Page() {
     handleSubmit,
     getValues,
     setValue,
-    // trigger,
     watch,
     formState: { errors, isDirty }
-    // formState: { errors }
   } = useForm<SettingsFormat>({
     resolver: zodResolver(schema),
     mode: 'onChange',
@@ -179,7 +184,7 @@ export default function Page() {
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
-      name: '',
+      realName: '',
       major: ''
     }
   })
@@ -195,12 +200,12 @@ export default function Page() {
   // const [passwordConfirmed, setPasswordConfirmed] = useState<boolean>(false)
   const [majorOpen, setMajorOpen] = useState<boolean>(false)
   const [majorValue, setMajorValue] = useState<string>('')
-  // const [saveButtonAble, setSaveButtonAble] = useState<boolean>(false)
+  const [saveDisable, setSaveDisable] = useState<boolean>(true)
 
   const currentPassword = watch('currentPassword')
   const newPassword = watch('newPassword')
   const confirmPassword = watch('confirmPassword')
-  const name = watch('name')
+  const realName = watch('realName')
   const isPasswordsMatch = newPassword === confirmPassword && newPassword !== ''
 
   // New Password Input 창과 Re-enter Password Input 창의 border 색상을 일치하는지 여부에 따라 바꿈
@@ -211,8 +216,54 @@ export default function Page() {
     }
   }, [isPasswordsMatch, newPassword, confirmPassword])
 
-  const onSubmit = () => {
-    // setSaveButtonAble(true)
+  // Save Button 활성화 조건을 관리하기 위해 useEffect를 추가
+  useEffect(() => {
+    if (isPasswordCorrect && isPasswordsMatch && realName) {
+      setSaveDisable(false) // 조건이 모두 만족되면 Save 버튼 활성화
+    } else {
+      setSaveDisable(true) // 조건이 하나라도 불만족 시 Save 버튼 비활성화
+    }
+  }, [isPasswordCorrect, isPasswordsMatch, realName])
+
+  // API로 변경된 정보 전송
+  const onSubmit = async (data: SettingsFormat) => {
+    console.log('실행됨')
+    if (!isPasswordsMatch) {
+      return
+    }
+
+    try {
+      setSaveDisable(true)
+
+      // 필요 없는 필드 제외
+      const updatePayload: UpdatePayload = {}
+      if (data.studentId || data.studentId !== '') {
+        updatePayload.studentId = data.studentId
+      }
+      if (data.currentPassword || data.currentPassword !== '') {
+        updatePayload.password = data.currentPassword
+      }
+      if (data.newPassword || data.newPassword !== '') {
+        updatePayload.newPassword = data.newPassword
+      }
+      if (data.realName || data.realName !== '') {
+        updatePayload.realName = data.realName
+      }
+      if (data.major || data.major !== '') {
+        updatePayload.major = data.major
+      }
+
+      const response = await safeFetcherWithAuth.patch('user', {
+        json: updatePayload
+      })
+
+      if (response.ok) {
+        toast.success('Successfully updated your information')
+      }
+    } catch (error) {
+      toast.error('Failed to update your information')
+      setSaveDisable(false)
+    }
   }
 
   return (
@@ -317,9 +368,7 @@ export default function Page() {
                 isPasswordsMatch
                   ? 'border-primary'
                   : (errors.newPassword && newPassword && 'border-red-500') ||
-                    (confirmPassword &&
-                      errors.confirmPassword &&
-                      'border-red-500')
+                    (confirmPassword && 'border-red-500')
               } `}
             />
             <span
@@ -367,9 +416,7 @@ export default function Page() {
               className={`flex justify-stretch border-neutral-300 ring-0 placeholder:text-neutral-400 focus-visible:ring-0 disabled:bg-neutral-200 ${
                 isPasswordsMatch
                   ? 'border-primary'
-                  : errors.confirmPassword &&
-                    confirmPassword &&
-                    'border-red-500'
+                  : confirmPassword && 'border-red-500'
               } `}
             />
             <span
@@ -402,8 +449,8 @@ export default function Page() {
         <label className="-mb-4 text-xs">Name</label>
         <Input
           placeholder="홍길동"
-          {...register('name')}
-          className={`${name && 'border-primary'} placeholder:text-neutral-300 focus-visible:ring-0`}
+          {...register('realName')}
+          className={`${realName && 'border-primary'} placeholder:text-neutral-300 focus-visible:ring-0`}
         />
 
         {/* Student ID */}
@@ -471,10 +518,10 @@ export default function Page() {
         {/* Save Button */}
         <div className="mt-2 text-end">
           <Button
-            disabled={!isDirty}
+            // 변동 사항이 존재하고, 모든 입력 사항이 입력 조건에 맞을 때 활성화
+            disabled={!isDirty && saveDisable}
             type="submit"
             className="font-semibold disabled:bg-neutral-300 disabled:text-neutral-500"
-            onClick={() => {}}
           >
             Save
           </Button>
