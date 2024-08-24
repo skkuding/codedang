@@ -1,4 +1,4 @@
-import { type Language, Level, type Tag, type ExampleIO } from '@prisma/client'
+import { type Language, Level, type Tag } from '@prisma/client'
 import { Exclude, Expose } from 'class-transformer'
 
 @Exclude()
@@ -22,7 +22,6 @@ export class ProblemResponseDto {
   @Expose() submissionCount: number
   @Expose() acceptedCount: number
   @Expose() acceptedRate: number
-  @Expose() samples: Partial<ExampleIO>[]
   @Expose() tags: Partial<Tag>[]
   @Expose() template: JSON[]
 }

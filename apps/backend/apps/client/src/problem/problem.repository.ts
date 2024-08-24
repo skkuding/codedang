@@ -44,13 +44,6 @@ export class ProblemRepository {
     memoryLimit: true,
     source: true,
     acceptedCount: true,
-    samples: {
-      select: {
-        id: true,
-        input: true,
-        output: true
-      }
-    },
     template: true
   }
 

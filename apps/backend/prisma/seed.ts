@@ -650,18 +650,6 @@ const createProblems = async () => {
         timeLimit: 2000,
         memoryLimit: 512,
         source: '',
-        samples: {
-          create: [
-            {
-              input: '1 2',
-              output: '3'
-            },
-            {
-              input: '11 12',
-              output: '23'
-            }
-          ]
-        },
         visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
       }
     })
@@ -691,9 +679,6 @@ const createProblems = async () => {
         timeLimit: 2000,
         memoryLimit: 512,
         source: 'Canadian Computing Competition(CCC) 2012 Junior 2번',
-        samples: {
-          create: [{ input: '1\n10\n12\n13', output: 'Uphill' }]
-        },
         visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
       }
     })
@@ -723,13 +708,6 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'Canadian Computing Competition(CCC) 2013 Junior 2번',
-        samples: {
-          create: [
-            { input: 'SHINS', output: 'YES' },
-            { input: 'NO', output: 'YES' },
-            { input: 'SHOW', output: 'NO' }
-          ]
-        },
         visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
       }
     })
@@ -759,9 +737,6 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'USACO 2012 US Open Bronze 1번',
-        samples: {
-          create: [{ input: '9\n2\n7\n3\n7\n7\n3\n7\n5\n7\n', output: '4' }]
-        },
         visibleLockTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
       }
     })
@@ -791,14 +766,6 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'ICPC Regionals NCPC 2009 B번',
-        samples: {
-          create: [
-            {
-              input: '5 3\n100\n-75\n-25\n-42\n42\n0 1\n1 2\n3 4',
-              output: 'POSSIBLE'
-            }
-          ]
-        },
         visibleLockTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
       }
     })
@@ -828,7 +795,6 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'USACO November 2011 Silver 3번',
-        samples: { create: [{ input: '3 6', output: '5' }] },
         visibleLockTime: MIN_DATE
       }
     })
@@ -858,19 +824,6 @@ const createProblems = async () => {
         timeLimit: 2000,
         memoryLimit: 512,
         source: 'COCI 2019/2020 Contest #3 2번',
-        samples: {
-          create: [
-            { input: 'aaaaa\n2\n1 2\n4 5\n2 4 1 5 3', output: '2' },
-            {
-              input: 'abbabaab\n3\n1 3\n4 7\n3 5\n6 3 5 1 4 2 7 8',
-              output: '5'
-            },
-            {
-              input: 'abcd\n1\n1 4\n1 2 3 4',
-              output: '0'
-            }
-          ]
-        },
         visibleLockTime: MIN_DATE
       }
     })
@@ -900,19 +853,6 @@ const createProblems = async () => {
         timeLimit: 2000,
         memoryLimit: 256,
         source: 'ICPC Regionals SEERC 2019 J번',
-        samples: {
-          create: [
-            {
-              input: '3\n1 2 1\n2 3 1\n3 1 1',
-              output: '3'
-            },
-            {
-              input:
-                '5\n4 5 4\n1 3 4\n1 2 4\n3 2 3\n3 5 2\n1 4 3\n4 2 2\n1 5 4\n5 2 4\n3 4 2',
-              output: '35'
-            }
-          ]
-        },
         visibleLockTime: MAX_DATE
       }
     })
@@ -933,19 +873,6 @@ const createProblems = async () => {
         timeLimit: 2000,
         memoryLimit: 256,
         source: '2024 육군훈련소 입소 코딩 테스트',
-        samples: {
-          create: [
-            {
-              input: '3\n1 2 1\n2 3 1\n3 1 1',
-              output: '3'
-            },
-            {
-              input:
-                '5\n4 5 4\n1 3 4\n1 2 4\n3 2 3\n3 5 2\n1 4 3\n4 2 2\n1 5 4\n5 2 4\n3 4 2',
-              output: '35'
-            }
-          ]
-        },
         visibleLockTime: MAX_DATE
       }
     })

@@ -56,15 +56,7 @@ export class ProblemService {
     userId: number,
     groupId: number
   ) {
-    const {
-      languages,
-      template,
-      tagIds,
-      samples,
-      testcases,
-      isVisible,
-      ...data
-    } = input
+    const { languages, template, tagIds, testcases, isVisible, ...data } = input
     if (!languages.length) {
       throw new UnprocessableDataException(
         'A problem should support at least one language'
@@ -82,9 +74,6 @@ export class ProblemService {
       data: {
         ...data,
         visibleLockTime: isVisible ? MIN_DATE : MAX_DATE,
-        samples: {
-          create: samples
-        },
         groupId,
         createdById: userId,
         languages,
@@ -94,9 +83,6 @@ export class ProblemService {
             return { tagId }
           })
         }
-      },
-      include: {
-        samples: true
       }
     })
     await this.createTestcases(problem.id, testcases)
@@ -252,8 +238,7 @@ export class ProblemService {
         difficulty: level,
         source: '',
         testcases: testcaseInput,
-        tagIds: [],
-        samples: []
+        tagIds: []
       })
     })
     return await Promise.all(
@@ -404,16 +389,8 @@ export class ProblemService {
   }
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
-    const {
-      id,
-      languages,
-      template,
-      tags,
-      testcases,
-      samples,
-      isVisible,
-      ...data
-    } = input
+    const { id, languages, template, tags, testcases, isVisible, ...data } =
+      input
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
         id,
@@ -454,14 +431,6 @@ export class ProblemService {
       where: { id },
       data: {
         ...data,
-        samples: {
-          create: samples?.create,
-          delete: samples?.delete.map((deleteId) => {
-            return {
-              id: deleteId
-            }
-          })
-        },
         ...(isVisible != undefined && {
           visibleLockTime: isVisible ? MIN_DATE : MAX_DATE
         }),
@@ -741,14 +710,6 @@ export class ProblemService {
       throw new EntityNotExistException('problem')
     }
     return tag
-  }
-
-  async getProblemSamples(problemId: number) {
-    return await this.prisma.exampleIO.findMany({
-      where: {
-        problemId
-      }
-    })
   }
 
   async getProblemTags(problemId: number) {

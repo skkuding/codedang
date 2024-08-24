@@ -186,7 +186,6 @@ model Problem {
   createTime      DateTime   @default(now()) @map("create_time")
   updateTime      DateTime   @updatedAt @map("update_time")
 
-  samples         ExampleIO[]
   problemTestcase ProblemTestcase[]
   problemTag      ProblemTag[]
   contestProblem  ContestProblem[]
@@ -225,30 +224,19 @@ enum Language {
 }
 
 model ProblemTestcase {
-  id          Int      @id @default(autoincrement())
-  problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  problemId   Int      @map("problem_id")
-  input       String // url to corresponding file
-  output      String
-  scoreWeight Int      @default(1) @map("score_weight")
-  createTime  DateTime @default(now()) @map("create_time")
-  updateTime  DateTime @updatedAt @map("update_time")
+  id               Int      @id @default(autoincrement())
+  problem          Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  problemId        Int      @map("problem_id")
+  input            String // url to corresponding file
+  output           String
+  scoreWeight      Int      @default(1) @map("score_weight")
+  isHiddenTestcase Boolean  @default(false) @map("is_hidden_testcase")
+  createTime       DateTime @default(now()) @map("create_time")
+  updateTime       DateTime @updatedAt @map("update_time")
 
   submissionResult SubmissionResult[]
 
   @@map("problem_testcase")
-}
-
-model ExampleIO {
-  id         Int      @id @default(autoincrement())
-  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  problemId  Int      @map("problem_id")
-  input      String
-  output     String
-  createTime DateTime @default(now()) @map("create_time")
-  updateTime DateTime @updatedAt @map("update_time")
-
-  @@map("example_io")
 }
 
 model ProblemTag {
