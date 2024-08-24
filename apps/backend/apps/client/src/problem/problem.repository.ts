@@ -44,7 +44,17 @@ export class ProblemRepository {
     memoryLimit: true,
     source: true,
     acceptedCount: true,
-    template: true
+    template: true,
+    problemTestcase: {
+      where: {
+        isHiddenTestcase: false
+      },
+      select: {
+        id: true,
+        input: true,
+        output: true
+      }
+    }
   }
 
   private readonly codeDraftSelectOption = {
