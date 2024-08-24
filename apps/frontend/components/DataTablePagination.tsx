@@ -8,7 +8,6 @@ import {
 import { cn } from '@/lib/utils'
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 import type { Table } from '@tanstack/react-table'
-import { usePathname } from 'next/navigation'
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>
@@ -26,7 +25,7 @@ export function DataTablePagination<TData>({
   return (
     <div className="flex items-center justify-between px-2">
       <div className="text-muted-foreground text-xs text-neutral-600">
-        {usePathname().split('/').pop() !== 'user' &&
+        {table.getColumn('select') &&
           `${table.getFilteredSelectedRowModel().rows.length} of${' '}
           ${table.getFilteredRowModel().rows.length} row(s) selected`}
       </div>
