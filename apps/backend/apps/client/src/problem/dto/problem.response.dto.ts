@@ -29,5 +29,5 @@ export class ProblemResponseDto {
   @Expose() acceptedRate: number
   @Expose() tags: Partial<Tag>[]
   @Expose() template: JSON[]
-  @Expose() testcases: Pick<ProblemTestcase, 'id' | 'input' | 'output'>[]
+  @Expose() problemTestcase: Pick<ProblemTestcase, 'id' | 'input' | 'output'>[]
 }
