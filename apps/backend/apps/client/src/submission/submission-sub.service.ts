@@ -16,7 +16,10 @@ import {
   RESULT_QUEUE,
   Status
 } from '@libs/constants'
-import { UnprocessableDataException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { JudgerResponse } from './class/judger-response.dto'
 
@@ -182,6 +185,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       },
       select: {
+        id: true,
         problemId: true,
         userId: true,
         contestId: true,
@@ -215,6 +219,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     if (submission.userId && submission.contestId)
       await this.calculateSubmissionScore(submission, allAccepted)
 
+    await this.calculateProblemScore(submission.id)
     await this.updateProblemAccepted(submission.problemId, allAccepted)
   }
 
@@ -281,6 +286,42 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         finishTime: isFinishTimeToBeUpdated
           ? submission.updateTime
           : contestRecord.finishTime
+      }
+    })
+  }
+
+  async calculateProblemScore(id: number) {
+    const submission = await this.prisma.submission.findFirst({
+      where: {
+        id
+      },
+      select: {
+        submissionResult: {
+          select: {
+            problemTestcase: true,
+            result: true
+          }
+        }
+      }
+    })
+
+    if (!submission) {
+      throw new EntityNotExistException('submission')
+    }
+
+    let newScore = 0
+    submission.submissionResult.map((submissionResult) => {
+      if (submissionResult.result === 'Accepted') {
+        newScore += submissionResult.problemTestcase.scoreWeight
+      }
+    })
+
+    await this.prisma.submission.update({
+      where: {
+        id
+      },
+      data: {
+        score: newScore
       }
     })
   }

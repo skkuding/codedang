@@ -34,7 +34,7 @@ export default async function EditorLayout({
 }: EditorLayoutProps) {
   let problems: ContestProblemProps | undefined
   let contest: Contest | undefined
-  let problem: ProblemDetail | undefined
+  let problem: ProblemDetail
 
   if (contestId) {
     // for getting contest info and problems list
