@@ -22,6 +22,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import type { CreateContestInput } from './model/contest.input'
 import type { UpdateContestInput } from './model/contest.input'
+import type { ProblemScoreInput } from './model/problem-score.input'
 import type { PublicizingRequest } from './model/publicizing-request.model'
 import type { PublicizingResponse } from './model/publicizing-response.output'
 
@@ -343,7 +344,7 @@ export class ContestService {
   async importProblemsToContest(
     groupId: number,
     contestId: number,
-    problemIds: number[]
+    problemIdsWithScore: ProblemScoreInput[]
   ) {
     const contest = await this.prisma.contest.findUnique({
       where: {
@@ -357,7 +358,7 @@ export class ContestService {
 
     const contestProblems: ContestProblem[] = []
 
-    for (const problemId of problemIds) {
+    for (const { problemId, score } of problemIdsWithScore) {
       try {
         const [contestProblem] = await this.prisma.$transaction([
           this.prisma.contestProblem.create({
@@ -366,7 +367,8 @@ export class ContestService {
               // 임시 방편으로 order: 0으로 설정합니다.
               order: 0,
               contestId,
-              problemId
+              problemId,
+              score
             }
           }),
           this.prisma.problem.update({
