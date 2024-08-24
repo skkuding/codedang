@@ -75,6 +75,25 @@ export class ContestService {
     }
   }
 
+  // async getUserinfo(contestId: number) {
+  //   const { _count, ...data } = await this.prisma.contest.findFirstOrThrow({
+  //     where: {
+  //       id: contestId
+  //     },
+  //     include: {
+  //       // eslint-disable-next-line @typescript-eslint/naming-convention
+  //       _count: {
+  //         select: { contestRecord: true }
+  //       }
+  //     }
+  //   })
+
+  //   return {
+  //     ...data,
+  //     participants: _count.contestRecord
+  //   }
+  // }
+
   async createContest(
     groupId: number,
     userId: number,
@@ -577,6 +596,22 @@ export class ContestService {
     }
   }
 
+  async getContestRecords(contestId: number) {
+    const contestRecords = await this.prisma.contestRecord.findMany({
+      where: { contestId },
+      select: {
+        userId: true,
+        user: {
+          select: {
+            id: true
+          }
+        }
+      }
+    })
+
+    return contestRecords
+  }
+
   /**
    *
    * 특정 user의 특정 Contest에 대한 총점, 통과한 문제 개수와 각 문제별 테스트케이스 통과 개수를 불러옵니다.
@@ -686,5 +721,24 @@ export class ContestService {
     }
 
     return scoreSummary
+  }
+
+  async putUserinfoScoreTogether(contestId: number) {
+    const contestRecords = await this.getContestRecords(contestId)
+
+    const scoreSummaries = await Promise.all(
+      contestRecords.map(async (record) => {
+        const scoreSummary = await this.getContestScoreSummary(
+          record.userId!,
+          contestId
+        )
+        return {
+          ...record,
+          scoreSummary // 테스트 결과를 포함
+        }
+      })
+    )
+
+    return scoreSummaries
   }
 }

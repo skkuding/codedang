@@ -1,0 +1,39 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetUserinfo($contestId: Int!) {
+    getUserinfo(contestId: $contestId) {
+      id
+      contestId
+      userId
+      acceptedProblemNum
+      score
+      finishTime
+      totalPenalty
+      createTime
+      updateTime
+      user {
+        id
+        name
+        email
+      }
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "contestId": 1
+  }
+}

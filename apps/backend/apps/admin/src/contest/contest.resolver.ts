@@ -66,23 +66,6 @@ export class ContestResolver {
     }
   }
 
-  @Query(() => [ContestWithParticipants])
-  async getUserinfo(
-    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
-    contestId: number
-  ) {
-    try {
-      return await this.contestService.getUserinfo(contestId)
-    } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code == 'P2025'
-      ) {
-        throw new NotFoundException(error.message)
-      }
-    }
-  }
-
   @Mutation(() => Contest)
   async createContest(
     @Args('input') input: CreateContestInput,
@@ -263,6 +246,23 @@ export class ContestResolver {
     }
   }
 
+  @Query(() => [ContestWithParticipants])
+  async getUserinfo(
+    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    contestId: number
+  ) {
+    try {
+      return await this.contestService.getContestRecords(contestId)
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code == 'P2025'
+      ) {
+        throw new NotFoundException(error.message)
+      }
+    }
+  }
+
   @Query(() => UserContestScoreSummary)
   async getScoreSummaries(
     @Args('userId', { type: () => Int }) userId: number,
@@ -276,6 +276,23 @@ export class ContestResolver {
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
+    }
+  }
+
+  @Query(() => [ContestWithParticipants])
+  async getUserinfoAndScore(
+    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    contestId: number
+  ) {
+    try {
+      return await this.contestService.putUserinfoScoreTogether(contestId)
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code == 'P2025'
+      ) {
+        throw new NotFoundException(error.message)
+      }
     }
   }
 }
