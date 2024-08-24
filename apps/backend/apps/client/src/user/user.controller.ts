@@ -17,6 +17,7 @@ import { Request, type Response } from 'express'
 import { AuthenticatedRequest, AuthNotNeededIfOpenSpace } from '@libs/auth'
 import {
   EntityNotExistException,
+  UnidentifiedException,
   UnprocessableDataException
 } from '@libs/exception'
 import { DeleteUserDto } from './dto/deleteUser.dto'
@@ -106,6 +107,8 @@ export class UserController {
         throw new NotFoundException(error.message)
       } else if (error instanceof UnprocessableDataException) {
         throw new UnprocessableDataException(error.message)
+      } else if (error instanceof UnidentifiedException) {
+        throw error
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
