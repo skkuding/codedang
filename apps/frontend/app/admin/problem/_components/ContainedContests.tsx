@@ -10,9 +10,8 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import FileInfoIcon from '@/public/24_compile.svg'
-import { useQuery } from '@apollo/client'
+import type { GetContestsByProblemIdQuery } from '@generated/graphql'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -39,17 +38,12 @@ function ContestSection({
 }
 
 export default function ContainedContests({
-  problemId
+  data
 }: {
-  problemId: number
+  data: GetContestsByProblemIdQuery
 }) {
   const [isTooltipOpen, setIsTooltipOpen] = useState(false)
-
-  const contestData = useQuery(GET_BELONGED_CONTESTS, {
-    variables: {
-      problemId: Number(problemId)
-    }
-  }).data?.getContestsByProblemId
+  const contestData = data.getContestsByProblemId
 
   return (
     <Dialog onOpenChange={() => setIsTooltipOpen(false)}>
@@ -102,14 +96,6 @@ export default function ContainedContests({
             title="Finished Contest(s)"
             contests={contestData?.finished}
           />
-          {(!contestData ||
-            (contestData.upcoming.length === 0 &&
-              contestData.ongoing.length === 0 &&
-              contestData.finished.length === 0)) && (
-            <p className="text-xs text-neutral-400">
-              There are no contests that have imported this problem.
-            </p>
-          )}
         </DialogContent>
       </div>
     </Dialog>
