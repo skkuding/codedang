@@ -90,6 +90,7 @@ export class ProblemService {
   }
 
   // TODO: 테스트케이스별로 파일 따로 업로드 -> 수정 시 updateTestcases, deleteProblem 로직 함께 정리
+  // TODO: 테스트케이스 저장 방식 S3 => DB 직접 저장으로 변경 시 함수 삭제
   async createTestcases(problemId: number, testcases: Array<Testcase>) {
     const filename = `${problemId}.json`
     const testcaseIds = await Promise.all(
