@@ -162,9 +162,17 @@ export default function Page() {
         const isConfirmed = window.confirm(
           'Are you sure you want to leave?\nYour changes have not been saved.\nIf you leave this page, all changes will be lost.\nDo you still want to proceed?'
         )
-
+        // Error occurs if I just put 'href' without 'href === ...' code..
         if (isConfirmed) {
-          originalPush(href, options)
+          if (
+            href === '/settings' ||
+            href === '/notice' ||
+            href === '/problem' ||
+            href === '/contest' ||
+            href === '/'
+          ) {
+            originalPush(href, options)
+          }
         }
       }
       router.push = newPush
