@@ -16,150 +16,75 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
-// import { baseUrl } from '@/lib/constants'
+import { majors } from '@/lib/constants'
 import { cn, safeFetcherWithAuth } from '@/lib/utils'
 import invisible from '@/public/24_invisible.svg'
 import visible from '@/public/24_visible.svg'
 import codedangSymbol from '@/public/codedang-editor.svg'
 import { zodResolver } from '@hookform/resolvers/zod'
+import type { NavigateOptions } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaCheck, FaChevronDown } from 'react-icons/fa6'
 import { toast } from 'sonner'
-// import { IoWarningOutline } from 'react-icons/io5'
 import { z } from 'zod'
 
 interface SettingsFormat {
-  username: string
   currentPassword: string
   newPassword: string
   confirmPassword: string
   realName: string
-  major: string
   studentId: string
+}
+
+interface getProfile {
+  username: string // ID
+  userProfile: {
+    realName: string
+  }
+  studentId: string
+  major: string
 }
 
 // 선택적인 필드만 포함된 타입 정의
 type UpdatePayload = Partial<{
-  studentId: string
   password: string
   newPassword: string
   realName: string
+  studentId: string
   major: string
 }>
 
-const majors = [
-  '학과 정보 없음',
-  '자유전공계열',
-  '인문과학계열',
-  '유학·동양학과',
-  '국어국문학과',
-  '영어영문학과',
-  '프랑스어문학과',
-  '중어중문학과',
-  '독어독문학과',
-  '러시아어문학과',
-  '한문학과',
-  '사학과',
-  '철학과',
-  '문헌정보학과',
-  '사회과학계열',
-  '행정학과',
-  '정치외교학과',
-  '미디어커뮤니케이션학과',
-  '사회학과',
-  '사회복지학과',
-  '심리학과',
-  '소비자학과',
-  '아동·청소년학과',
-  '경제학과',
-  '통계학과',
-  '경영학과',
-  '글로벌리더학부',
-  '글로벌경제학과',
-  '글로벌경영학과',
-  '교육학과',
-  '한문교육과',
-  '영상학과',
-  '의상학과',
-  '자연과학계열',
-  '생명과학과',
-  '수학과',
-  '물리학과',
-  '화학과',
-  '식품생명공학과',
-  '바이오메카트로닉스학과',
-  '융합생명공학과',
-  '전자전기공학부',
-  '공학계열',
-  '화학공학/고분자공학부',
-  '신소재공학부',
-  '기계공학부',
-  '건설환경공학부',
-  '시스템경영공학과',
-  '나노공학과',
-  '소프트웨어학과',
-  '반도체시스템공학과',
-  '지능형소프트웨어학과',
-  '글로벌바이오메디컬공학과',
-  '반도체융합공학과',
-  '에너지학과',
-  '양자정보공학과',
-  '건축학과',
-  '소재부품융합공학과',
-  '약학과',
-  '의예과',
-  '수학교육과',
-  '컴퓨터교육과',
-  '글로벌융합학부',
-  '데이터사이언스융합전공',
-  '인공지능융합전공',
-  '컬처앤테크놀로지융합전공',
-  '자기설계융합전공',
-  '연기예술학과',
-  '무용학과',
-  '미술학과',
-  '디자인학과',
-  '스포츠과학과'
-]
+// const schemaUpdate = z.object({
+//   studentId: z.string().optional(),
+//   password: z.string().optional(),
+//   newPassword: z.string().optional(),
+//   realName: z.string().optional(),
+//   major: z.string().optional()
+// })
 
-const schema = z
-  .object({
-    // currentPassword: z.string().min(1, { message: 'Required' }),
-    currentPassword: z.string().min(1, { message: 'Required' }),
-    // .min(8)
-    // .max(20)
-    // .refine((data) => {
-    //   const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
-    //   return !invalidPassword.test(data)
-    // }),
-    // newPassword: z.string().min(8, { message: 'Password must be at least 8 characters' }).optional(),
-    newPassword: z
-      .string()
-      .min(1)
-      .min(8)
-      .max(20)
-      .refine((data) => {
-        const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
-        return !invalidPassword.test(data)
-      }),
-    // confirmPassword: z.string().optional(),
-    confirmPassword: z.string().min(1),
-    name: z
-      .string()
-      .min(1, { message: 'Required' })
-      .regex(/^[a-zA-Z]+$/, { message: 'only English supported' })
-  })
-  .refine(
-    (data: { newPassword: string; confirmPassword: string }) =>
-      data.newPassword === data.confirmPassword,
-    {
-      path: ['confirmPassword'],
-      message: 'Incorrect'
-    }
-  )
+const schemaSettings = z.object({
+  currentPassword: z.string().min(1, { message: 'Required' }).optional(),
+  newPassword: z
+    .string()
+    .min(1)
+    .min(8)
+    .max(20)
+    .refine((data) => {
+      const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
+      return !invalidPassword.test(data)
+    })
+    .optional(),
+  confirmPassword: z.string().optional(),
+  realName: z
+    .string()
+    .regex(/^[a-zA-Z\s]+$/, { message: 'Only English Allowed' })
+    .optional(),
+  studentId: z.string().optional()
+})
 
 function requiredMessage(message?: string) {
   return (
@@ -170,6 +95,30 @@ function requiredMessage(message?: string) {
 }
 
 export default function Page() {
+  const [defaultProfileValues, setdefaultProfileValues] = useState<getProfile>({
+    username: '',
+    userProfile: {
+      realName: ''
+    },
+    studentId: '',
+    major: ''
+  })
+
+  useEffect(() => {
+    const fetchDefaultProfile = async () => {
+      try {
+        const data: getProfile = await safeFetcherWithAuth.get('user').json()
+        console.log(data)
+        setMajorValue(data.major)
+        setdefaultProfileValues(data)
+      } catch (error) {
+        console.error('Failed to fetch profile:', error)
+        toast.error('Failed to load profile data')
+      }
+    }
+    fetchDefaultProfile()
+  }, [])
+
   const {
     register,
     handleSubmit,
@@ -178,18 +127,56 @@ export default function Page() {
     watch,
     formState: { errors, isDirty }
   } = useForm<SettingsFormat>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schemaSettings),
     mode: 'onChange',
     defaultValues: {
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
-      realName: '',
-      major: ''
+      realName: defaultProfileValues.userProfile.realName,
+      studentId: defaultProfileValues.studentId
     }
   })
 
-  // Check if Current Password is correct
+  // const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
+  //   // Recommended
+  //   event.preventDefault()
+
+  //   // Included for legacy support, e.g. Chrome/Edge < 119
+  //   event.returnValue = true
+  //   return true
+  // }
+
+  /**
+   * Prompt the user with a confirmation dialog when they try to navigate away from the page.
+   */
+  const useConfirmNavigation = () => {
+    const router = useRouter()
+
+    useEffect(() => {
+      const originalPush = router.push
+      const newPush = (
+        href: string,
+        options?: NavigateOptions | undefined
+      ): void => {
+        const isConfirmed = window.confirm(
+          'Are you sure you want to leave?\nYour changes have not been saved.\nIf you leave this page, all changes will be lost.\nDo you still want to proceed?'
+        )
+        if (isConfirmed) {
+          originalPush(href, options)
+        }
+      }
+      router.push = newPush
+      // window.onbeforeunload = beforeUnloadHandler
+      return () => {
+        router.push = originalPush
+        // window.onbeforeunload = null
+      }
+    }, [router, isDirty])
+  }
+
+  useConfirmNavigation()
+
   const [isCheckButtonClicked, setIsCheckButtonClicked] =
     useState<boolean>(false)
   const [isPasswordCorrect, setIsPasswordCorrect] = useState<boolean>(false)
@@ -197,16 +184,25 @@ export default function Page() {
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [newPasswordShow, setNewPasswordShow] = useState<boolean>(false)
   const [confirmPasswordShow, setConfirmPasswordShow] = useState<boolean>(false)
-  // const [passwordConfirmed, setPasswordConfirmed] = useState<boolean>(false)
   const [majorOpen, setMajorOpen] = useState<boolean>(false)
   const [majorValue, setMajorValue] = useState<string>('')
-  const [saveDisable, setSaveDisable] = useState<boolean>(true)
-
   const currentPassword = watch('currentPassword')
   const newPassword = watch('newPassword')
   const confirmPassword = watch('confirmPassword')
   const realName = watch('realName')
   const isPasswordsMatch = newPassword === confirmPassword && newPassword !== ''
+
+  // saveAble1, saveAble2 둘 중 하나라도 true 면 Save 버튼 활성화
+  const saveAblePassword: boolean =
+    !!currentPassword &&
+    !!newPassword &&
+    !!confirmPassword &&
+    isPasswordCorrect &&
+    newPasswordAble &&
+    isPasswordsMatch
+  const saveAbleOthers: boolean =
+    !!realName || !!(majorValue !== defaultProfileValues.major)
+  const saveAble = saveAblePassword || saveAbleOthers
 
   // New Password Input 창과 Re-enter Password Input 창의 border 색상을 일치하는지 여부에 따라 바꿈
   useEffect(() => {
@@ -216,53 +212,82 @@ export default function Page() {
     }
   }, [isPasswordsMatch, newPassword, confirmPassword])
 
-  // Save Button 활성화 조건을 관리하기 위해 useEffect를 추가
-  useEffect(() => {
-    if (isPasswordCorrect && isPasswordsMatch && realName) {
-      setSaveDisable(false) // 조건이 모두 만족되면 Save 버튼 활성화
-    } else {
-      setSaveDisable(true) // 조건이 하나라도 불만족 시 Save 버튼 비활성화
-    }
-  }, [isPasswordCorrect, isPasswordsMatch, realName])
-
-  // API로 변경된 정보 전송
   const onSubmit = async (data: SettingsFormat) => {
-    console.log('실행됨')
-    if (!isPasswordsMatch) {
-      return
-    }
-
     try {
-      setSaveDisable(true)
-
-      // 필요 없는 필드 제외
+      // 필요 없는 필드 제외 (defaultProfileValues와 값이 같은 것들은 제외)
       const updatePayload: UpdatePayload = {}
-      if (data.studentId || data.studentId !== '') {
-        updatePayload.studentId = data.studentId
-      }
-      if (data.currentPassword || data.currentPassword !== '') {
-        updatePayload.password = data.currentPassword
-      }
-      if (data.newPassword || data.newPassword !== '') {
-        updatePayload.newPassword = data.newPassword
-      }
-      if (data.realName || data.realName !== '') {
+      if (data.realName !== defaultProfileValues.userProfile.realName) {
         updatePayload.realName = data.realName
       }
-      if (data.major || data.major !== '') {
-        updatePayload.major = data.major
+      if (majorValue !== defaultProfileValues.major) {
+        updatePayload.major = majorValue
+      }
+      if (data.currentPassword !== 'tmppassword1') {
+        updatePayload.password = data.currentPassword
+      }
+      if (data.newPassword !== 'tmppassword1') {
+        updatePayload.newPassword = data.newPassword
       }
 
       const response = await safeFetcherWithAuth.patch('user', {
         json: updatePayload
       })
-
       if (response.ok) {
+        // 성공시 페이지 이동이 일어나지 않고, 입력 사항을 갱신한 초기 상태를 노출함
         toast.success('Successfully updated your information')
+        setTimeout(() => {
+          window.location.reload()
+        }, 1500)
       }
     } catch (error) {
-      toast.error('Failed to update your information')
-      setSaveDisable(false)
+      console.error(error)
+      toast.error('Failed to update your information, Please try again')
+      setTimeout(() => {
+        window.location.reload()
+      }, 1500)
+    }
+  }
+
+  const onSubmitClick = () => {
+    return () => {
+      // submit 되기위해, watch로 확인되는 값이 default값과 같으면 setValue를 통해서 defaultProfileValues로 변경
+      if (realName === '') {
+        setValue('realName', defaultProfileValues.userProfile.realName)
+      }
+      if (majorValue === defaultProfileValues.major) {
+        setMajorValue(defaultProfileValues.major)
+      }
+      if (currentPassword === '') {
+        setValue('currentPassword', 'tmppassword1')
+      }
+      if (newPassword === '') {
+        setValue('newPassword', 'tmppassword1')
+      }
+      if (confirmPassword === '') {
+        setValue('confirmPassword', 'tmppassword1')
+      }
+    }
+  }
+
+  const checkPassword = async () => {
+    setIsCheckButtonClicked(true)
+    try {
+      const response = await safeFetcherWithAuth.post('auth/login', {
+        json: {
+          username: defaultProfileValues.username,
+          password: currentPassword
+        },
+        credentials: 'omit'
+      })
+
+      console.log(response)
+      if (response.status === 201) {
+        setIsPasswordCorrect(true)
+        setNewPasswordAble(true)
+        toast.success('Correct password')
+      }
+    } catch {
+      console.error('Failed to check password')
     }
   }
 
@@ -294,17 +319,14 @@ export default function Page() {
         </p>
 
         {/* ID */}
-        {/* 해야 할 일 : Input placeholder만 api 활용하여 넣기 */}
         <label className="-mb-4 text-xs">ID</label>
         <Input
-          placeholder="user01"
-          {...register('username')}
+          placeholder={defaultProfileValues.username}
           disabled={true}
           className="border-neutral-300 text-neutral-600 placeholder:text-neutral-400 disabled:bg-neutral-200"
         />
 
         {/* Current password */}
-        {/* 해야 할 일 : API 연결해서 입력값이랑 기존password값 비교하는 로직 */}
         <label className="-mb-4 mt-4 text-xs">Password</label>
         <div className="flex items-center gap-2">
           <div className="relative w-full justify-between">
@@ -329,13 +351,7 @@ export default function Page() {
           <Button
             disabled={!currentPassword}
             className="h-4/5 px-2 disabled:bg-neutral-400"
-            // password가 맞는지 확인하는 함수 (isPasswordCorrect조절)
-            onClick={() => {
-              // 현재 무조건 true로 설정
-              setIsPasswordCorrect(true)
-              setIsCheckButtonClicked(true)
-              setNewPasswordAble(true)
-            }}
+            onClick={checkPassword}
           >
             <FaCheck size={20} />
           </Button>
@@ -356,7 +372,6 @@ export default function Page() {
           ))}
 
         {/* New password */}
-        {/* 해야 할 일 : API 연결작업 */}
         <div className="flex items-center gap-2">
           <div className="relative w-full justify-between">
             <Input
@@ -398,7 +413,6 @@ export default function Page() {
         )}
 
         {/* Re-enter new password */}
-        {/* 해야 할 일 : API 연결작업 */}
         <div className="flex items-center gap-2">
           <div className="relative w-full justify-between">
             <Input
@@ -410,7 +424,6 @@ export default function Page() {
                   if (watch('newPassword') != val) {
                     return 'Incorrect'
                   }
-                  // setPasswordConfirmed(true)
                 }
               })}
               className={`flex justify-stretch border-neutral-300 ring-0 placeholder:text-neutral-400 focus-visible:ring-0 disabled:bg-neutral-200 ${
@@ -445,26 +458,26 @@ export default function Page() {
         <hr className="my-4 border-neutral-200" />
 
         {/* Name */}
-        {/* 해야 할 일 : API 연결작업 */}
         <label className="-mb-4 text-xs">Name</label>
         <Input
-          placeholder="홍길동"
+          placeholder={defaultProfileValues.userProfile.realName}
           {...register('realName')}
-          className={`${realName && 'border-primary'} placeholder:text-neutral-300 focus-visible:ring-0`}
+          className={`${realName && (errors.realName ? 'border-red-500' : 'border-primary')} placeholder:text-neutral-300 focus-visible:ring-0`}
         />
+        {realName &&
+          errors.realName &&
+          requiredMessage(errors.realName.message)}
 
         {/* Student ID */}
-        {/* 수정불가 */}
         <label className="-mb-4 mt-2 text-xs">Student ID</label>
         <Input
-          placeholder="홍길동의 ID"
+          placeholder={defaultProfileValues.studentId}
           disabled={true}
           {...register('studentId')}
           className="border-neutral-300 text-neutral-600 placeholder:text-neutral-400 disabled:bg-neutral-200"
         />
 
         {/* First Major */}
-        {/* 해야 할 일 : API 연결작업 */}
         <label className="-mb-4 mt-2 text-xs">First Major</label>
         <div className="flex flex-col gap-1">
           <Popover open={majorOpen} onOpenChange={setMajorOpen} modal={true}>
@@ -475,10 +488,12 @@ export default function Page() {
                 role="combobox"
                 className={cn(
                   'justify-between border-gray-200 font-normal text-neutral-600 hover:bg-white',
-                  !majorValue ? 'text-neutral-300' : 'border-primary'
+                  majorValue === defaultProfileValues.major
+                    ? 'text-neutral-300'
+                    : 'border-primary'
                 )}
               >
-                {!majorValue ? '원래 전공' : majorValue}
+                {!majorValue ? defaultProfileValues.major : majorValue}
                 <FaChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
@@ -518,10 +533,10 @@ export default function Page() {
         {/* Save Button */}
         <div className="mt-2 text-end">
           <Button
-            // 변동 사항이 존재하고, 모든 입력 사항이 입력 조건에 맞을 때 활성화
-            disabled={!isDirty && saveDisable}
+            disabled={!saveAble}
             type="submit"
             className="font-semibold disabled:bg-neutral-300 disabled:text-neutral-500"
+            onClick={onSubmitClick()}
           >
             Save
           </Button>
