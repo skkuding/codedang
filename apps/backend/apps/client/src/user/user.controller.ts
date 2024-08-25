@@ -106,9 +106,9 @@ export class UserController {
       ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableDataException(error.message)
+        throw error.convert2HTTPException()
       } else if (error instanceof UnidentifiedException) {
-        throw error
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
