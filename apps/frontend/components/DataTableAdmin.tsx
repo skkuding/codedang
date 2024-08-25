@@ -52,6 +52,7 @@ import { toast } from 'sonner'
 import DataTableLangFilter from './DataTableLangFilter'
 import DataTableLevelFilter from './DataTableLevelFilter'
 import { DataTablePagination } from './DataTablePagination'
+import DataTableProblemFilter from './DataTableProblemFilter'
 import { Input } from './ui/input'
 
 interface DataTableProps<TData, TValue> {
@@ -59,6 +60,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   enableSearch?: boolean // Enable search title
   enableFilter?: boolean // Enable filter for languages and tags
+  enableProblemFilter?: boolean // Enable filter for problems
   enableDelete?: boolean // Enable delete selected rows
   enablePagination?: boolean // Enable pagination
   enableImport?: boolean // Enable import selected rows
@@ -99,6 +101,7 @@ export function DataTableAdmin<TData, TValue>({
   data,
   enableSearch = false,
   enableFilter = false,
+  enableProblemFilter = false,
   enableDelete = false,
   enablePagination = false,
   enableImport = false,
@@ -270,7 +273,7 @@ export function DataTableAdmin<TData, TValue>({
         enableDuplicate) && (
         <div className="flex justify-between">
           <div className="flex gap-2">
-            {enableSearch && (
+            {enableSearch && !enableProblemFilter && (
               <div className="relative">
                 <IoSearch className="text-muted-foreground absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
                 <Input
@@ -301,6 +304,9 @@ export function DataTableAdmin<TData, TValue>({
                     title="Level"
                     options={levels}
                   />
+                )}
+                {enableProblemFilter && (
+                  <DataTableProblemFilter column={table.getColumn('title')} />
                 )}
               </div>
             )}
