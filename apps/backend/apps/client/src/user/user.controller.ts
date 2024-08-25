@@ -100,14 +100,15 @@ export class UserController {
       return await this.userService.updateUser(req, updateUserDto)
     } catch (error) {
       if (
-        (error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.name == 'NotFoundError') ||
-        error instanceof EntityNotExistException
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
       ) {
         throw new NotFoundException(error.message)
-      } else if (error instanceof UnprocessableDataException) {
-        throw error.convert2HTTPException()
-      } else if (error instanceof UnidentifiedException) {
+      } else if (
+        error instanceof EntityNotExistException ||
+        error instanceof UnprocessableDataException ||
+        error instanceof UnidentifiedException
+      ) {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
