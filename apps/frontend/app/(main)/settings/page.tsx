@@ -49,7 +49,6 @@ interface getProfile {
   major: string
 }
 
-// 선택적인 필드만 포함된 타입 정의
 type UpdatePayload = Partial<{
   password: string
   newPassword: string
@@ -108,12 +107,13 @@ export default function Page() {
     const fetchDefaultProfile = async () => {
       try {
         const data: getProfile = await safeFetcherWithAuth.get('user').json()
-        console.log(data)
         setMajorValue(data.major)
         setdefaultProfileValues(data)
+        setIsLoading(false)
       } catch (error) {
         console.error('Failed to fetch profile:', error)
         toast.error('Failed to load profile data')
+        setIsLoading(false)
       }
     }
     fetchDefaultProfile()
@@ -138,6 +138,7 @@ export default function Page() {
     }
   })
 
+  // 현재 뒤로가기 창닫기 새로고침은 모달창 안띄움
   // const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
   //   // Recommended
   //   event.preventDefault()
@@ -152,7 +153,6 @@ export default function Page() {
    */
   const useConfirmNavigation = () => {
     const router = useRouter()
-
     useEffect(() => {
       const originalPush = router.push
       const newPush = (
@@ -162,6 +162,7 @@ export default function Page() {
         const isConfirmed = window.confirm(
           'Are you sure you want to leave?\nYour changes have not been saved.\nIf you leave this page, all changes will be lost.\nDo you still want to proceed?'
         )
+
         if (isConfirmed) {
           originalPush(href, options)
         }
@@ -191,7 +192,7 @@ export default function Page() {
   const confirmPassword = watch('confirmPassword')
   const realName = watch('realName')
   const isPasswordsMatch = newPassword === confirmPassword && newPassword !== ''
-
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   // saveAble1, saveAble2 둘 중 하나라도 true 면 Save 버튼 활성화
   const saveAblePassword: boolean =
     !!currentPassword &&
@@ -204,7 +205,7 @@ export default function Page() {
     !!realName || !!(majorValue !== defaultProfileValues.major)
   const saveAble = saveAblePassword || saveAbleOthers
 
-  // New Password Input 창과 Re-enter Password Input 창의 border 색상을 일치하는지 여부에 따라 바꿈
+  // New Password Input 창과 Re-enter Password Input 창의 border 색상을, 일치하는지 여부에 따라 바꿈
   useEffect(() => {
     if (isPasswordsMatch) {
       setValue('newPassword', newPassword)
@@ -269,6 +270,7 @@ export default function Page() {
     }
   }
 
+  // 확인 필요
   const checkPassword = async () => {
     setIsCheckButtonClicked(true)
     try {
@@ -280,11 +282,9 @@ export default function Page() {
         credentials: 'omit'
       })
 
-      console.log(response)
       if (response.status === 201) {
         setIsPasswordCorrect(true)
         setNewPasswordAble(true)
-        toast.success('Correct password')
       }
     } catch {
       console.error('Failed to check password')
@@ -321,7 +321,7 @@ export default function Page() {
         {/* ID */}
         <label className="-mb-4 text-xs">ID</label>
         <Input
-          placeholder={defaultProfileValues.username}
+          placeholder={isLoading ? 'Loading...' : defaultProfileValues.username}
           disabled={true}
           className="border-neutral-300 text-neutral-600 placeholder:text-neutral-400 disabled:bg-neutral-200"
         />
@@ -460,7 +460,9 @@ export default function Page() {
         {/* Name */}
         <label className="-mb-4 text-xs">Name</label>
         <Input
-          placeholder={defaultProfileValues.userProfile.realName}
+          placeholder={
+            isLoading ? 'Loading...' : defaultProfileValues.userProfile.realName
+          }
           {...register('realName')}
           className={`${realName && (errors.realName ? 'border-red-500' : 'border-primary')} placeholder:text-neutral-300 focus-visible:ring-0`}
         />
@@ -471,7 +473,9 @@ export default function Page() {
         {/* Student ID */}
         <label className="-mb-4 mt-2 text-xs">Student ID</label>
         <Input
-          placeholder={defaultProfileValues.studentId}
+          placeholder={
+            isLoading ? 'Loading...' : defaultProfileValues.studentId
+          }
           disabled={true}
           {...register('studentId')}
           className="border-neutral-300 text-neutral-600 placeholder:text-neutral-400 disabled:bg-neutral-200"
@@ -493,7 +497,11 @@ export default function Page() {
                     : 'border-primary'
                 )}
               >
-                {!majorValue ? defaultProfileValues.major : majorValue}
+                {isLoading
+                  ? 'Loading...'
+                  : !majorValue
+                    ? defaultProfileValues.major
+                    : majorValue}
                 <FaChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
