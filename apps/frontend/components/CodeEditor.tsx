@@ -67,25 +67,19 @@ interface Props extends ReactCodeMirrorProps {
   enableCopyPaste?: boolean
 }
 
-const copyPasteHandler = (enableCopyPaste: boolean) => {
+const copyPasteHandler = () => {
   return EditorView.domEventHandlers({
     paste(event) {
-      if (!enableCopyPaste) {
-        toast.error('Copying and pasting is not allowed')
-        event.preventDefault()
-      }
+      toast.error('Copying and pasting is not allowed')
+      event.preventDefault()
     },
     copy(event) {
-      if (!enableCopyPaste) {
-        toast.error('Copying and pasting is not allowed')
-        event.preventDefault()
-      }
+      toast.error('Copying and pasting is not allowed')
+      event.preventDefault()
     },
     cut(event) {
-      if (!enableCopyPaste) {
-        toast.error('Copying and pasting is not allowed')
-        event.preventDefault()
-      }
+      toast.error('Copying and pasting is not allowed')
+      event.preventDefault()
     }
   })
 }
@@ -105,7 +99,7 @@ export default function CodeEditor({
         extensions={[
           fontSize,
           languageParser[language](),
-          copyPasteHandler(enableCopyPaste)
+          enableCopyPaste ? [] : copyPasteHandler()
         ]}
         value={value}
         onChange={onChange}
