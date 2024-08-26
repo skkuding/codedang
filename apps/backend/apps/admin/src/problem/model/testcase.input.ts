@@ -6,5 +6,5 @@ export class Testcase extends PickType(ProblemTestcaseCreateInput, [
   'input',
   'output',
   'scoreWeight',
-  'isHiddenTestcase'
+  'isHidden'
 ]) {}
