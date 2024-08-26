@@ -24,7 +24,8 @@ const db = {
 const submission: Submission & { submissionResult: SubmissionResult[] } = {
   ...submissions[0],
   codeSize: 1000,
-  submissionResult: []
+  submissionResult: [],
+  score: 100
 }
 
 describe('SubmissionPublicationService', () => {

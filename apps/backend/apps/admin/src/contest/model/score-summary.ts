@@ -3,26 +3,26 @@ import { Field, Int, ObjectType } from '@nestjs/graphql'
 @ObjectType()
 export class UserContestScoreSummary {
   @Field(() => Int)
-  totalProblemCount: number
-
-  @Field(() => Int)
   submittedProblemCount: number
 
   @Field(() => Int)
-  totalScore: number
+  totalProblemCount: number
 
-  @Field(() => [AcceptedTestcaseSummary])
-  acceptedTestcaseCountPerProblem: AcceptedTestcaseSummary[]
+  @Field(() => Int)
+  userContestScore: number
+
+  @Field(() => Int)
+  contestPerfectScore: number
+
+  @Field(() => [ProblemScore])
+  problemScores: ProblemScore[]
 }
 
 @ObjectType()
-class AcceptedTestcaseSummary {
+class ProblemScore {
   @Field(() => Int)
   problemId: number
 
   @Field(() => Int)
-  totalTestcaseCount: number
-
-  @Field(() => Int)
-  acceptedTestcaseCount: number
+  score: number
 }

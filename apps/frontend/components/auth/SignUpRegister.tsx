@@ -17,9 +17,11 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { baseUrl } from '@/lib/constants'
 import { cn } from '@/lib/utils'
+import checkIcon from '@/public/check.svg'
 import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CommandList } from 'cmdk'
+import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaCheck, FaChevronDown, FaEye, FaEyeSlash } from 'react-icons/fa'
@@ -305,12 +307,14 @@ export default function SignUpRegister() {
     errors.username && errors.username.message === 'Required'
   const isInvalidFormatError =
     errors.username && errors.username.message !== 'Required'
-  const isUsernameChecked = checkedUsername === getValues('username')
+  const isUsernameChecked =
+    checkedUsername === getValues('username') && getValues('username')
   const isAvailable =
     !errors.username && isUsernameAvailable && isUsernameChecked
   const isUnavailable =
     !errors.username && !isUsernameAvailable && isUsernameChecked
-  const shouldCheckUserId = !isUsernameChecked && !errors.username
+  const shouldCheckUserId =
+    !isUsernameChecked && !errors.username && getValues('username')
 
   return (
     <div className="mb-5 mt-12 flex w-full flex-col py-4">
@@ -319,23 +323,29 @@ export default function SignUpRegister() {
         onSubmit={handleSubmit(onSubmit)}
       >
         <div className="flex flex-col gap-1">
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <Input
               placeholder="User ID"
               className={cn(
-                focusedList[1] && 'ring-1 focus-visible:ring-1',
-                errors.username && (getValues('username') || inputFocus !== 1)
-                  ? 'ring-red-500 focus-visible:ring-red-500'
-                  : 'ring-primary',
+                'focus-visible:ring-0',
+                !focusedList[1]
+                  ? ''
+                  : errors.username &&
+                      (getValues('username') || inputFocus !== 1)
+                    ? 'border-red-500 focus-visible:border-red-500'
+                    : 'border-primary',
 
                 !isUsernameAvailable &&
                   getValues('username') &&
                   (checkedUsername === getValues('username') ||
                     inputFocus !== 1) &&
-                  'ring-red-500 focus-visible:ring-red-500'
+                  'border-red-500 focus-visible:border-red-500'
               )}
               {...register('username', {
-                onChange: () => validation('username'),
+                onChange: () => {
+                  validation('username')
+                  setIsUsernameAvailable(false)
+                },
                 validate: (value) =>
                   value === checkedUsername && isUsernameAvailable
                     ? true
@@ -356,7 +366,7 @@ export default function SignUpRegister() {
                   checkedUsername == getValues('username')) ||
                   errors.username) &&
                   'bg-gray-400',
-                'flex aspect-square w-12 items-center justify-center rounded-md'
+                'flex h-8 w-11 items-center justify-center rounded-md'
               )}
               disabled={
                 (isUsernameAvailable &&
@@ -365,8 +375,9 @@ export default function SignUpRegister() {
                   ? true
                   : false
               }
+              size="icon"
             >
-              <FaCheck className="text-white" size="20" />
+              <Image src={checkIcon} alt="check" />
             </Button>
           </div>
           <div className="text-xs">
@@ -382,7 +393,9 @@ export default function SignUpRegister() {
                 {isAvailable && (
                   <p className="text-xs text-blue-500">Available</p>
                 )}
-                {isUnavailable && <p className="text-red-500">Unavailable</p>}
+                {isUnavailable && (
+                  <p className="text-red-500">This ID is already in use</p>
+                )}
                 {shouldCheckUserId && (
                   <p className="text-red-500">Check user ID</p>
                 )}
@@ -392,7 +405,7 @@ export default function SignUpRegister() {
               (!isUsernameAvailable &&
               checkedUsername === getValues('username') &&
               getValues('username') ? (
-                <p className="text-red-500">Unavailable</p>
+                <p className="text-red-500">This ID is already in use</p>
               ) : (
                 <div
                   className={cn(
@@ -415,10 +428,13 @@ export default function SignUpRegister() {
             <Input
               placeholder="Password"
               className={cn(
-                focusedList[2] && 'ring-1 focus-visible:ring-1',
-                errors.password && (getValues('password') || inputFocus !== 2)
-                  ? 'ring-red-500 focus-visible:ring-red-500'
-                  : 'ring-primary'
+                'focus-visible:ring-0',
+                !focusedList[2]
+                  ? ''
+                  : errors.password &&
+                      (getValues('password') || inputFocus !== 2)
+                    ? 'border-red-500 focus-visible:border-red-500'
+                    : 'border-primary'
               )}
               {...register('password', {
                 onChange: () => validation('password')
@@ -475,11 +491,13 @@ export default function SignUpRegister() {
                 onChange: () => validation('passwordAgain')
               })}
               className={cn(
-                focusedList[3] && 'ring-1 focus-visible:ring-1',
-                errors.passwordAgain &&
-                  (getValues('passwordAgain') || inputFocus !== 3)
-                  ? 'ring-red-500 focus-visible:ring-red-500'
-                  : 'ring-primary'
+                'focus-visible:ring-0',
+                !focusedList[3]
+                  ? ''
+                  : errors.passwordAgain &&
+                      (getValues('passwordAgain') || inputFocus !== 3)
+                    ? 'border-red-500 focus-visible:border-red-500'
+                    : 'border-primary'
               )}
               placeholder="Re-enter password"
               type={passwordAgainShow ? 'text' : 'password'}
@@ -511,10 +529,13 @@ export default function SignUpRegister() {
                 onChange: () => validation('firstName')
               })}
               className={cn(
-                focusedList[4] && 'ring-1 focus-visible:ring-1',
-                errors.firstName && (getValues('firstName') || inputFocus !== 4)
-                  ? 'ring-red-500 focus-visible:ring-red-500'
-                  : 'ring-primary'
+                'focus-visible:ring-0',
+                !focusedList[4]
+                  ? ''
+                  : errors.firstName &&
+                      (getValues('firstName') || inputFocus !== 4)
+                    ? 'border-red-500 focus-visible:border-red-500'
+                    : 'border-primary'
               )}
               onFocus={() => {
                 updateFocus(4)
@@ -531,10 +552,13 @@ export default function SignUpRegister() {
                 onChange: () => validation('lastName')
               })}
               className={cn(
-                focusedList[5] && 'ring-1 focus-visible:ring-1',
-                errors.lastName && (getValues('lastName') || inputFocus !== 5)
-                  ? 'ring-red-500 focus-visible:ring-red-500'
-                  : 'ring-primary'
+                'focus-visible:ring-0',
+                !focusedList[5]
+                  ? ''
+                  : errors.lastName &&
+                      (getValues('lastName') || inputFocus !== 5)
+                    ? 'border-red-500 focus-visible:border-red-500'
+                    : 'border-primary'
               )}
               onFocus={() => {
                 updateFocus(5)
@@ -552,10 +576,13 @@ export default function SignUpRegister() {
               onChange: () => validation('studentId')
             })}
             className={cn(
-              focusedList[6] && 'ring-1 focus-visible:ring-1',
-              errors.studentId && (getValues('studentId') || inputFocus !== 6)
-                ? 'ring-red-500 focus-visible:ring-red-500'
-                : 'ring-primary'
+              'focus-visible:ring-0',
+              !focusedList[6]
+                ? ''
+                : errors.studentId &&
+                    (getValues('studentId') || inputFocus !== 6)
+                  ? 'border-red-500 focus-visible:border-red-500'
+                  : 'border-primary'
             )}
             onFocus={() => {
               updateFocus(6)

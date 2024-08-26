@@ -390,6 +390,7 @@ model Submission {
   codeSize   Int?         @map("code_size")
   language   Language
   result     ResultStatus
+  score      Int          @default(0) /// 100점 만점 기준 점수
   createTime DateTime     @default(now()) @map("create_time")
   updateTime DateTime     @updatedAt @map("update_time")
 
@@ -424,6 +425,7 @@ enum ResultStatus {
   OutputLimitExceeded
   ServerError
   SegmentationFaultError
+  Blind // isJudgeResultVisible == False로 설정된 contest의 채점 결과를 반환할 때 사용
 }
 
 model CodeDraft {

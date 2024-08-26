@@ -581,6 +581,7 @@ describe('SubmissionService', () => {
       db.contestProblem.findFirstOrThrow.resolves()
       db.submission.findMany.resolves(submissions)
       db.user.findFirst.resolves(adminUser)
+      db.contest.findFirstOrThrow.resolves({ isJudgeVisible: true })
 
       expect(
         await service.getContestSubmissions({
