@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dialog'
 import { renderKatex } from '@/lib/renderKatex'
 import { convertToLetter } from '@/lib/utils'
+import CopyIcon from '@/public/24_copy.svg'
 import compileIcon from '@/public/compileVersion.svg'
 import copyIcon from '@/public/copy.svg'
 import copyCompleteIcon from '@/public/copyComplete.svg'
@@ -27,6 +28,7 @@ import { FileText } from 'lucide-react'
 import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
 import useCopyToClipboard from 'react-use/lib/useCopyToClipboard'
+import { toast } from 'sonner'
 import {
   Tooltip,
   TooltipContent,
@@ -158,6 +160,17 @@ export function EditorDescription({
                               <Image
                                 onClick={() => {
                                   copy(input + '\n\n', `input-${id}`) // add newline to the end for easy testing
+                                  toast('Successfully copied', {
+                                    unstyled: true,
+                                    closeButton: false,
+                                    icon: <Image src={CopyIcon} alt="copy" />,
+                                    style: { backgroundColor: '#f0f8ff' },
+                                    classNames: {
+                                      toast:
+                                        'inline-flex items-center py-2 px-3 rounded gap-2',
+                                      title: 'text-primary font-medium'
+                                    }
+                                  })
                                 }}
                                 className="cursor-pointer transition-opacity hover:opacity-60"
                                 src={copyIcon}
@@ -210,6 +223,17 @@ export function EditorDescription({
                               <Image
                                 onClick={() => {
                                   copy(output + '\n\n', `output-${id}`) // add newline to the end for easy testing
+                                  toast('Successfully copied', {
+                                    unstyled: true,
+                                    closeButton: false,
+                                    icon: <Image src={CopyIcon} alt="copy" />,
+                                    style: { backgroundColor: '#f0f8ff' },
+                                    classNames: {
+                                      toast:
+                                        'inline-flex items-center py-2 px-3 rounded gap-2',
+                                      title: 'text-primary font-medium'
+                                    }
+                                  })
                                 }}
                                 className="cursor-pointer transition-opacity hover:opacity-60"
                                 src={copyIcon}
