@@ -286,8 +286,7 @@ export default function Page() {
         json: {
           username: defaultProfileValues.username,
           password: currentPassword
-        },
-        credentials: 'omit'
+        }
       })
 
       if (response.status === 201) {
