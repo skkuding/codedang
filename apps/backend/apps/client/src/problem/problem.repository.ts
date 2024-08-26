@@ -47,7 +47,7 @@ export class ProblemRepository {
     template: true,
     problemTestcase: {
       where: {
-        isHiddenTestcase: false
+        isHidden: false
       },
       select: {
         id: true,
