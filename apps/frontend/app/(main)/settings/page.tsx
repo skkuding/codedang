@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { majors } from '@/lib/constants'
-import { cn, safeFetcherWithAuth } from '@/lib/utils'
+import { cn, safeFetcher, safeFetcherWithAuth } from '@/lib/utils'
 import invisible from '@/public/24_invisible.svg'
 import visible from '@/public/24_visible.svg'
 import codedangSymbol from '@/public/codedang-editor.svg'
@@ -282,7 +282,7 @@ export default function Page() {
   const checkPassword = async () => {
     setIsCheckButtonClicked(true)
     try {
-      const response = await safeFetcherWithAuth.post('auth/login', {
+      const response = await safeFetcher.post('auth/login', {
         json: {
           username: defaultProfileValues.username,
           password: currentPassword
