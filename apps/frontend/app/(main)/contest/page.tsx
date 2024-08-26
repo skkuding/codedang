@@ -87,12 +87,12 @@ export default async function Contest({ searchParams }: ContestProps) {
           {session ? (
             <TableSwitchButton registered={registered} />
           ) : (
-            <p className="text-primary-light border-primary-light w-fit border-b-2 p-6 text-2xl font-bold md:text-2xl">
+            <p className="text-primary-light border-primary-light w-fit border-b-2 p-6 text-xl font-bold md:text-2xl">
               Finished
             </p>
           )}
           <Separator className="mb-3" />
-          <div className="flex justify-end">
+          <div className="flex justify-end py-8">
             <SearchBar className="w-60" />
           </div>
           {session && registered ? (
