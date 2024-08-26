@@ -30,7 +30,7 @@ export default function SortButton({ children, order }: SortButtonProps) {
         else if (currentOrder == `${order}-asc`) newParam.delete('order')
         router.push(`${pathname}?${newParam.toString()}` as Route)
       }}
-      className="items-center justify-center gap-1 md:text-base"
+      className="items-center justify-center gap-1 font-light tracking-tighter text-gray-400 md:text-base"
     >
       {children}
       <div className="text-gray-300">

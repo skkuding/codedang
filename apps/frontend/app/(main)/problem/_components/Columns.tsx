@@ -22,7 +22,7 @@ export const columns: ColumnDef<Problem>[] = [
     accessorKey: 'title',
     cell: ({ row }) => {
       return (
-        <p className="text-ellipsis whitespace-nowrap text-sm md:text-base">{`${row.original.id}. ${row.original.title}`}</p>
+        <p className="text-ellipsis whitespace-nowrap text-sm tracking-tighter md:text-base">{`${row.original.title}`}</p>
       )
     }
   },

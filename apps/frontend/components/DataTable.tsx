@@ -129,23 +129,23 @@ export default function DataTable<TData extends Item, TValue>({
       <>
         {enableFilter && (
           <div className="flex w-full items-center justify-between">
-            <div className="flex gap-1">
+            <div className="flex gap-1 text-gray-400">
               <SearchBar />
             </div>
             <div>
-              <div className="ml-2 flex items-center gap-2">
-                {table.getColumn('difficulty') && (
-                  <DataTableLevelFilter
-                    column={table.getColumn('difficulty')}
-                    title="Level"
-                    options={levels}
-                  />
-                )}
+              <div className="my-6 ml-2 flex items-center gap-2">
                 {table.getColumn('languages') && (
                   <DataTableLangFilter
                     column={table.getColumn('languages')}
                     title="Languages"
                     options={languageOptions}
+                  />
+                )}
+                {table.getColumn('difficulty') && (
+                  <DataTableLevelFilter
+                    column={table.getColumn('difficulty')}
+                    title="Level"
+                    options={levels}
                   />
                 )}
                 {table.getColumn('results') && (
@@ -160,12 +160,11 @@ export default function DataTable<TData extends Item, TValue>({
           </div>
         )}
       </>
-
-      <Table className="my-4 table-fixed">
+      <Table className="table-fixed rounded border border-gray-300">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow
-              className="bg-gray-200 text-gray-400"
+              className="border-white bg-gray-200 text-gray-400"
               key={headerGroup.id}
             >
               {headerGroup.headers.map((header) => {

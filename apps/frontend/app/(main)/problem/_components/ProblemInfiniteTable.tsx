@@ -23,9 +23,9 @@ export default function ProblemInfiniteTable() {
   return (
     <>
       <div className="flex items-center justify-between text-gray-500">
-        <div className="flex gap-1">
-          <p className="text-2xl font-bold text-gray-500">All</p>
-          <p className="text-2xl font-bold text-blue-500">{total}</p>
+        <div className="flex gap-3">
+          <p className="text-2xl font-bold text-black">ALL</p>
+          <p className="text-2xl font-medium text-blue-500">{total}</p>
         </div>
       </div>
       <div className="max-width:1300px flex flex-col items-center">
@@ -33,11 +33,16 @@ export default function ProblemInfiniteTable() {
           data={items}
           columns={columns}
           headerStyle={{
-            title: 'font-mono w-5/12 text-gray-400 bg-gray-100',
-            difficulty: 'font-mono w-3/12 text-gray-400 bg-gray-100',
-            submissionCount: 'font-mono w-3/12 text-gray-400 bg-gray-100',
-            acceptedRate: 'font-mono w-3/12 text-gray-400 bg-gray-100',
-            results: 'font-mono w-3/12 text-gray-400 bg-gray-100'
+            index: 'font-light font-mono',
+            title:
+              'tracking-tighter font-light font-mono w-5/12 text-gray-400 bg-gray-100',
+            difficulty: 'font-light font-mono w-3/12 text-gray-400 bg-gray-100',
+            submissionCount:
+              'font-light font-mono w-3/12 text-gray-400 bg-gray-100',
+            acceptedRate:
+              'font-light font-mono w-3/12 text-gray-400 bg-gray-100',
+            results:
+              'tracking-tighter font-mono font-light w-3/12 text-gray-400 bg-gray-100'
           }}
           linked
           enableFilter
