@@ -34,6 +34,7 @@ export default function SignUpEmailVerify() {
     register,
     getValues,
     trigger,
+    clearErrors,
     formState: { errors }
   } = useForm<EmailVerifyInput>({
     resolver: zodResolver(schema)
@@ -113,6 +114,7 @@ export default function SignUpEmailVerify() {
           setEmailError('Something went wrong!')
         })
     }
+    setSendButtonDisabled(false)
   }
   const verifyCode = async () => {
     const { verificationCode } = getValues()
@@ -157,12 +159,14 @@ export default function SignUpEmailVerify() {
             id="email"
             type="email"
             className={cn(
-              'focus-visible:ring-primary w-full focus-visible:ring-1',
-              (emailError || errors.email) && 'ring-1 ring-red-500'
+              'focus-visible:border-primary w-full focus-visible:ring-0',
+              (emailError || errors.email) &&
+                'border-red-500 focus-visible:border-red-500'
             )}
             placeholder="example@g.skku.edu"
             {...register('email')}
-            onKeyDown={(e) => {
+            onFocus={() => clearErrors('email')}
+            onKeyDown={async (e) => {
               if (e.key === 'Enter' && !sendButtonDisabled) {
                 e.preventDefault()
                 setSendButtonDisabled(true)
@@ -190,9 +194,9 @@ export default function SignUpEmailVerify() {
             type="number"
             className={cn(
               'mt-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
-              'focus-visible:ring-primary w-full focus-visible:ring-1',
+              'focus-visible:border-primary w-full focus-visible:ring-0',
               (errors.verificationCode || expired || codeError) &&
-                'ring-1 ring-red-500 focus-visible:ring-red-500'
+                'border-red-500 focus-visible:border-red-500'
             )}
             placeholder="Verification Code"
             {...register('verificationCode', {

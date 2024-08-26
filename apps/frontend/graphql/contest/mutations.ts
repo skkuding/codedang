@@ -7,6 +7,8 @@ const CREATE_CONTEST = gql(`
       invitationCode
       isVisible
       isRankVisible
+      enableCopyPaste
+      isJudgeResultVisible
       description
       endTime
       startTime
@@ -22,6 +24,8 @@ const UPDATE_CONTEST = gql(`
       invitationCode
       isRankVisible
       isVisible
+      enableCopyPaste
+      isJudgeResultVisible
       description
       endTime
       startTime

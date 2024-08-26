@@ -559,24 +559,29 @@ export class UserService {
 
   // update user field (password, studentId, major, realName)
   async updateUser(req: AuthenticatedRequest, updateUserDto: UpdateUserDto) {
-    const user = await this.getUserCredential(req.user.username)
-    if (!user) {
-      throw new EntityNotExistException('User')
-    }
-
-    const isValidUser = await this.jwtAuthService.isValidUser(
-      user,
-      updateUserDto.password
-    )
-    if (!isValidUser) {
-      throw new UnidentifiedException('password')
-    }
-
     let encryptedNewPassword: string | undefined = undefined
 
     if (updateUserDto.newPassword) {
+      if (!updateUserDto.password) {
+        throw new UnprocessableDataException(
+          'current password needed to change password'
+        )
+      }
+      const user = await this.getUserCredential(req.user.username)
+      if (!user) {
+        throw new EntityNotExistException('User')
+      }
+
+      const isValidUser = await this.jwtAuthService.isValidUser(
+        user,
+        updateUserDto.password
+      )
+      if (!isValidUser) {
+        throw new UnidentifiedException('current password')
+      }
+
       if (!this.isValidPassword(updateUserDto.newPassword)) {
-        throw new UnprocessableDataException('Bad password')
+        throw new UnprocessableDataException('Bad new password')
       }
       encryptedNewPassword = await hash(
         updateUserDto.newPassword,
