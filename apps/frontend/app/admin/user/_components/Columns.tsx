@@ -10,12 +10,12 @@ interface DataTableUser {
 export const columns: ColumnDef<DataTableUser>[] = [
   {
     accessorKey: 'userId',
-    header: 'ID',
+    header: '#',
     cell: ({ row }) => <div>{row.getValue('userId')}</div>
   },
   {
     accessorKey: 'username',
-    header: 'Username',
+    header: 'User ID',
     cell: ({ row }) => <div>{row.getValue('username')}</div>
   },
   {

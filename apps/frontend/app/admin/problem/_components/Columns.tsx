@@ -2,11 +2,12 @@ import { DataTableColumnHeader } from '@/components/DataTableColumnHeader'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
+import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
 import type { Level } from '@/types/type'
-import { useMutation } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
-import { TbFileInfo } from 'react-icons/tb'
+import ContainedContests from './ContainedContests'
 
 interface Tag {
   id: number
@@ -20,19 +21,25 @@ interface DataTableProblem {
   difficulty: string
   submissionCount: number
   acceptedRate: number
-  isVisible: boolean
+  isVisible: boolean | null
   languages: string[]
   tag: { id: number; tag: Tag }[]
 }
 
 function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
   const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
-
+  const contestData = useQuery(GET_BELONGED_CONTESTS, {
+    variables: {
+      problemId: Number(row.original.id)
+    }
+  }).data
   return (
-    <div className="ml-8 flex space-x-2">
+    <div className="ml-8 flex items-center space-x-2">
       <Switch
         id="hidden-mode"
-        checked={row.original.isVisible}
+        onClick={(e) => e.stopPropagation()}
+        disabled={row.original.isVisible === null}
+        checked={row.original.isVisible === true}
         onCheckedChange={() => {
           row.original.isVisible = !row.original.isVisible
           updateVisible({
@@ -46,11 +53,7 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
           })
         }}
       />
-      {!row.original.isVisible && (
-        <button className="justify-centert flex items-center">
-          <TbFileInfo className="h-5 w-5 text-black" />
-        </button>
-      )}
+      {contestData && <ContainedContests data={contestData} />}
     </div>
   )
 }
@@ -68,6 +71,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     ),
     cell: ({ row }) => (
       <Checkbox
+        onClick={(e) => e.stopPropagation()}
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"

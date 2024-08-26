@@ -13,10 +13,7 @@ import {
   REMOVE_PROBLEMS_FROM_CONTEST
 } from '@/graphql/contest/mutations'
 import { GET_CONTEST } from '@/graphql/contest/queries'
-import {
-  UPDATE_PROBLEM_VISIBLE,
-  UPDATE_CONTEST_PROBLEMS_ORDER
-} from '@/graphql/problem/mutations'
+import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
@@ -26,7 +23,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
-import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
+import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { toast } from 'sonner'
 import ContestProblemListLabel from '../../_components/ContestProblemListLabel'
 import ImportProblemButton from '../../_components/ImportProblemButton'
@@ -38,6 +35,9 @@ export default function Page({ params }: { params: { id: string } }) {
   const [prevProblemIds, setPrevProblemIds] = useState<number[]>([])
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [enableCopyPaste, setEnableCopyPaste] = useState<boolean>(false)
+  const [isJudgeResultVisible, setIsJudgeResultVisible] =
+    useState<boolean>(false)
   const [showInvitationCode, setShowInvitationCode] = useState<boolean>(false)
   const { id } = params
 
@@ -70,9 +70,17 @@ export default function Page({ params }: { params: { id: string } }) {
           setValue('endTime', new Date(contestFormData.endTime))
         }
         setValue('description', contestFormData.description)
+        setValue('enableCopyPaste', contestFormData.enableCopyPaste)
+        setValue('isJudgeResultVisible', contestFormData.isJudgeResultVisible)
         setValue('invitationCode', contestFormData.invitationCode)
         if (contestFormData.invitationCode) {
           setShowInvitationCode(true)
+        }
+        if (contestFormData.enableCopyPaste) {
+          setEnableCopyPaste(true)
+        }
+        if (contestFormData.isJudgeResultVisible) {
+          setIsJudgeResultVisible(true)
         }
       } else {
         const data = contestData.getContest
@@ -80,9 +88,17 @@ export default function Page({ params }: { params: { id: string } }) {
         setValue('description', data.description)
         setValue('startTime', new Date(data.startTime))
         setValue('endTime', new Date(data.endTime))
+        setValue('enableCopyPaste', data.enableCopyPaste)
+        setValue('isJudgeResultVisible', data.isJudgeResultVisible)
         setValue('invitationCode', data.invitationCode)
         if (data.invitationCode) {
           setShowInvitationCode(true)
+        }
+        if (data.enableCopyPaste) {
+          setEnableCopyPaste(true)
+        }
+        if (data.isJudgeResultVisible) {
+          setIsJudgeResultVisible(true)
         }
       }
       setIsLoading(false)
@@ -132,7 +148,6 @@ export default function Page({ params }: { params: { id: string } }) {
   const [updateContest, { error }] = useMutation(UPDATE_CONTEST)
   const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
   const [removeProblemsFromContest] = useMutation(REMOVE_PROBLEMS_FROM_CONTEST)
-  const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
   const [updateContestProblemsOrder] = useMutation(
     UPDATE_CONTEST_PROBLEMS_ORDER
   )
@@ -186,18 +201,6 @@ export default function Page({ params }: { params: { id: string } }) {
         problemIds
       }
     })
-    const updateVisiblePromise = problemIds.map((id) =>
-      updateVisible({
-        variables: {
-          groupId: 1,
-          input: {
-            id,
-            isVisible: false
-          }
-        }
-      })
-    )
-    await Promise.all(updateVisiblePromise)
 
     const orders: number[] = []
     orderArray.forEach((order: number, index: number) => {
@@ -249,10 +252,20 @@ export default function Page({ params }: { params: { id: string } }) {
               )}
             </FormSection>
             <SwitchField
+              name="enableCopyPaste"
+              title="Disable participants from Copy/Pasting"
+              hasValue={enableCopyPaste}
+            />
+            <SwitchField
+              name="isJudgeResultVisible"
+              title="Hide scores from participants"
+              hasValue={isJudgeResultVisible}
+            />
+            <SwitchField
               name="invitationCode"
               title="Invitation Code"
               type="number"
-              isInput={true}
+              formElement="input"
               placeholder="Enter a invitation code"
               hasValue={showInvitationCode}
             />
@@ -275,11 +288,11 @@ export default function Page({ params }: { params: { id: string } }) {
             </div>
             <Button
               type="submit"
-              className="flex h-[36px] w-[100px] items-center gap-2 px-0"
+              className="flex h-[36px] w-[90px] items-center gap-2 px-0"
               disabled={isLoading}
             >
-              <IoMdCheckmarkCircleOutline fontSize={20} />
-              <div className="mb-[2px] text-base">Submit</div>
+              <IoIosCheckmarkCircle fontSize={20} />
+              <div className="text-base">Edit</div>
             </Button>
           </FormProvider>
         </form>

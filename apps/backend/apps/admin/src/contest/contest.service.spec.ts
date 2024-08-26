@@ -1,6 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { ContestProblem, Group } from '@generated'
+import { ContestProblem, Group, ContestRecord } from '@generated'
 import { Problem } from '@generated'
 import { Contest } from '@generated'
 import { faker } from '@faker-js/faker'
@@ -27,6 +27,11 @@ const endTime = faker.date.future()
 const createTime = faker.date.past()
 const updateTime = faker.date.past()
 const invitationCode = '123456'
+const problemIdsWithScore = {
+  problemId,
+  score: 10
+}
+// const duplicatedContestId = 2
 
 const contest: Contest = {
   id: contestId,
@@ -38,10 +43,12 @@ const contest: Contest = {
   endTime,
   isVisible: true,
   isRankVisible: true,
+  isJudgeResultVisible: true,
   enableCopyPaste: true,
   createTime,
   updateTime,
-  invitationCode
+  invitationCode,
+  contestProblem: []
 }
 
 const contestWithCount = {
@@ -54,6 +61,7 @@ const contestWithCount = {
   endTime,
   isVisible: true,
   isRankVisible: true,
+  isJudgeResultVisible: true,
   enableCopyPaste: true,
   createTime,
   updateTime,
@@ -75,6 +83,7 @@ const contestWithParticipants: ContestWithParticipants = {
   isVisible: true,
   isRankVisible: true,
   enableCopyPaste: true,
+  isJudgeResultVisible: true,
   createTime,
   updateTime,
   participants: 10,
@@ -104,14 +113,13 @@ const problem: Problem = {
   inputDescription: 'inputdescription',
   outputDescription: 'outputdescription',
   hint: 'hint',
-  isVisible: true,
   template: [],
   languages: ['C'],
   timeLimit: 10000,
   memoryLimit: 100000,
   difficulty: 'Level1',
   source: 'source',
-  exposeTime: faker.date.past(),
+  visibleLockTime: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
   samples: [],
@@ -147,7 +155,8 @@ const input = {
   endTime: faker.date.future(),
   isVisible: false,
   isRankVisible: false,
-  enableCopyPaste: true
+  enableCopyPaste: true,
+  isJudgeResultVisible: true
 } satisfies CreateContestInput
 
 const updateInput = {
@@ -171,7 +180,12 @@ const db = {
     delete: stub().resolves(Contest)
   },
   contestProblem: {
-    create: stub().resolves(ContestProblem)
+    create: stub().resolves(ContestProblem),
+    findMany: stub().resolves([ContestProblem])
+  },
+  contestRecord: {
+    findMany: stub().resolves([ContestRecord]),
+    create: stub().resolves(ContestRecord)
   },
   problem: {
     update: stub().resolves(Problem),
@@ -183,7 +197,7 @@ const db = {
   $transaction: stub().callsFake(async () => {
     const updatedProblem = await db.problem.update()
     const newContestProblem = await db.contestProblem.create()
-    return [updatedProblem, newContestProblem]
+    return [newContestProblem, updatedProblem]
   }),
   getPaginator: PrismaService.prototype.getPaginator
 }
@@ -251,6 +265,7 @@ describe('ContestService', () => {
 
   describe('updateContest', () => {
     it('should return updated contest', async () => {
+      db.contest.findFirst.resolves(contest)
       db.contest.update.resolves(contest)
 
       const res = await service.updateContest(groupId, updateInput)
@@ -267,6 +282,7 @@ describe('ContestService', () => {
   describe('deleteContest', () => {
     it('should return deleted contest', async () => {
       db.contest.findFirst.resolves(contest)
+      db.contest.delete.resolves(contest)
 
       const res = await service.deleteContest(groupId, contestId)
       expect(res).to.deep.equal(contest)
@@ -313,7 +329,9 @@ describe('ContestService', () => {
       db.contestProblem.create.resolves(contestProblem)
 
       const res = await Promise.all(
-        await service.importProblemsToContest(groupId, contestId, [problemId])
+        await service.importProblemsToContest(groupId, contestId, [
+          problemIdsWithScore
+        ])
       )
 
       expect(res).to.deep.equal([contestProblem])
@@ -330,7 +348,7 @@ describe('ContestService', () => {
       )
 
       const res = await service.importProblemsToContest(groupId, contestId, [
-        problemId
+        problemIdsWithScore
       ])
 
       expect(res).to.deep.equal([])
@@ -338,8 +356,61 @@ describe('ContestService', () => {
 
     it('should throw error when the contestId not exist', async () => {
       expect(
-        service.importProblemsToContest(groupId, 9999, [problemId])
+        service.importProblemsToContest(groupId, 9999, [problemIdsWithScore])
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })
+
+  // describe('duplicateContest', () => {
+  //   db['$transaction'] = stub().callsFake(async () => {
+  //     const newContest = await db.contest.create()
+  //     const newContestProblem = await db.contestProblem.create()
+  //     const newContestRecord = await db.contestRecord.create()
+  //     return [newContest, newContestProblem, newContestRecord]
+  //   })
+
+  //   it('should return duplicated contest', async () => {
+  //     db.contest.findFirst.resolves(contest)
+  //     db.contestProblem.create.resolves({
+  //       ...contest,
+  //       createdById: userId,
+  //       groupId,
+  //       isVisible: false
+  //     })
+  //     db.contestProblem.findMany.resolves([contestProblem])
+  //     db.contestProblem.create.resolves({
+  //       ...contestProblem,
+  //       contestId: duplicatedContestId
+  //     })
+  //     db.contestRecord.findMany.resolves([contestRecord])
+  //     db.contestRecord.create.resolves({
+  //       ...contestRecord,
+  //       contestId: duplicatedContestId
+  //     })
+
+  //     const res = await service.duplicateContest(groupId, contestId, userId)
+  //     expect(res.contest).to.deep.equal(contest)
+  //     expect(res.problems).to.deep.equal([
+  //       {
+  //         ...contestProblem,
+  //         contestId: duplicatedContestId
+  //       }
+  //     ])
+  //     expect(res.records).to.deep.equal([
+  //       { ...contestRecord, contestId: duplicatedContestId }
+  //     ])
+  //   })
+
+  //   it('should throw error when the contestId not exist', async () => {
+  //     expect(
+  //       service.duplicateContest(groupId, 9999, userId)
+  //     ).to.be.rejectedWith(EntityNotExistException)
+  //   })
+
+  //   it('should throw error when the groupId not exist', async () => {
+  //     expect(
+  //       service.duplicateContest(9999, contestId, userId)
+  //     ).to.be.rejectedWith(EntityNotExistException)
+  //   })
+  // })
 })

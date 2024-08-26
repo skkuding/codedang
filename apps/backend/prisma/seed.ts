@@ -23,11 +23,15 @@ import { join } from 'path'
 const prisma = new PrismaClient()
 const fixturePath = join(__dirname, '__fixtures__')
 
+const MIN_DATE: Date = new Date('2000-01-01T00:00:00.000Z')
+const MAX_DATE: Date = new Date('2999-12-31T00:00:00.000Z')
+
 let superAdminUser: User
+let adminUser: User
 let managerUser: User
-const users: User[] = []
 let publicGroup: Group
 let privateGroup: Group
+const users: User[] = []
 const problems: Problem[] = []
 const problemTestcases: ProblemTestcase[] = []
 const contests: Contest[] = []
@@ -54,7 +58,7 @@ const createUsers = async () => {
   })
 
   // create admin user
-  await prisma.user.create({
+  adminUser = await prisma.user.create({
     data: {
       username: 'admin',
       password: await hash('Adminadmin'),
@@ -101,6 +105,13 @@ const createUsers = async () => {
     data: {
       userId: superAdminUser.id,
       realName: 'Yuljeon Kim'
+    }
+  })
+
+  await prisma.userProfile.create({
+    data: {
+      userId: adminUser.id,
+      realName: 'Admin Kim'
     }
   })
 
@@ -658,7 +669,8 @@ const createProblems = async () => {
               output: '23'
             }
           ]
-        }
+        },
+        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
       }
     })
   )
@@ -689,7 +701,8 @@ const createProblems = async () => {
         source: 'Canadian Computing Competition(CCC) 2012 Junior 2번',
         samples: {
           create: [{ input: '1\n10\n12\n13', output: 'Uphill' }]
-        }
+        },
+        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
       }
     })
   )
@@ -724,7 +737,8 @@ const createProblems = async () => {
             { input: 'NO', output: 'YES' },
             { input: 'SHOW', output: 'NO' }
           ]
-        }
+        },
+        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
       }
     })
   )
@@ -755,7 +769,8 @@ const createProblems = async () => {
         source: 'USACO 2012 US Open Bronze 1번',
         samples: {
           create: [{ input: '9\n2\n7\n3\n7\n7\n3\n7\n5\n7\n', output: '4' }]
-        }
+        },
+        visibleLockTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
       }
     })
   )
@@ -791,7 +806,8 @@ const createProblems = async () => {
               output: 'POSSIBLE'
             }
           ]
-        }
+        },
+        visibleLockTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
       }
     })
   )
@@ -820,7 +836,8 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'USACO November 2011 Silver 3번',
-        samples: { create: [{ input: '3 6', output: '5' }] }
+        samples: { create: [{ input: '3 6', output: '5' }] },
+        visibleLockTime: MIN_DATE
       }
     })
   )
@@ -861,7 +878,8 @@ const createProblems = async () => {
               output: '0'
             }
           ]
-        }
+        },
+        visibleLockTime: MIN_DATE
       }
     })
   )
@@ -903,7 +921,7 @@ const createProblems = async () => {
             }
           ]
         },
-        isVisible: false
+        visibleLockTime: MAX_DATE
       }
     })
   )
@@ -936,7 +954,7 @@ const createProblems = async () => {
             }
           ]
         },
-        isVisible: false
+        visibleLockTime: MAX_DATE
       }
     })
   )
@@ -1303,14 +1321,25 @@ const createContests = async () => {
     }
   }
 
-  // add problems to contest
-  for (const problem of problems) {
+  // add problems to ongoing contest
+  for (const problem of problems.slice(0, 3)) {
     await prisma.contestProblem.create({
       data: {
         order: problem.id - 1,
         contestId: ongoingContests[0].id,
         problemId: problem.id,
         score: problem.id * 10
+      }
+    })
+  }
+
+  // add problems to finished contest
+  for (const problem of problems.slice(3, 5)) {
+    await prisma.contestProblem.create({
+      data: {
+        order: problem.id - 1,
+        contestId: endedContests[0].id,
+        problemId: problem.id
       }
     })
   }

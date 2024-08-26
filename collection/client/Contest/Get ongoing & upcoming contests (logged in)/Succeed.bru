@@ -19,8 +19,9 @@ assert {
   res("ongoing")[0].group.groupName: isString
   res.status: eq 200
   res("ongoing")[0].participants: isNumber
-  res("registeredOngoing"): isDefined 
-  res("registeredUpcoming"): isDefined 
+  res("registeredOngoing"): isDefined
+  res("registeredUpcoming"): isDefined
+  res("ongoing")[0].isJudgeResultVisible: isBoolean 
 }
 
 script:pre-request {

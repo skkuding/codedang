@@ -7,6 +7,8 @@ const CREATE_CONTEST = gql(`
       invitationCode
       isVisible
       isRankVisible
+      enableCopyPaste
+      isJudgeResultVisible
       description
       endTime
       startTime
@@ -22,6 +24,8 @@ const UPDATE_CONTEST = gql(`
       invitationCode
       isRankVisible
       isVisible
+      enableCopyPaste
+      isJudgeResultVisible
       description
       endTime
       startTime
@@ -82,11 +86,40 @@ const REMOVE_PROBLEMS_FROM_CONTEST = gql(`
   }
 `)
 
+const DUPLICATE_CONTEST = gql(`
+  mutation DuplicateContest($groupId: Int!, $contestId: Int!) {
+    duplicateContest(groupId: $groupId, contestId: $contestId) {
+      contest {
+        id
+        invitationCode
+        isRankVisible
+        isVisible
+        description
+        endTime
+        startTime
+        title
+      }
+      problems {
+        problemId
+        contestId
+        order
+
+      }
+      records {
+        id
+        userId
+        score
+      }
+    }
+  }
+`)
+
 export {
   CREATE_CONTEST,
   UPDATE_CONTEST,
   UPDATE_CONTEST_VISIBLE,
   DELETE_CONTEST,
   IMPORT_PROBLEMS_TO_CONTEST,
-  REMOVE_PROBLEMS_FROM_CONTEST
+  REMOVE_PROBLEMS_FROM_CONTEST,
+  DUPLICATE_CONTEST
 }
