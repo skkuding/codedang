@@ -6,6 +6,13 @@ import SwitchField from '@/app/admin/_components/SwitchField'
 import TitleForm from '@/app/admin/_components/TitleForm'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   IMPORT_PROBLEMS_TO_CONTEST,
@@ -18,6 +25,7 @@ import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -26,10 +34,10 @@ import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { toast } from 'sonner'
 import ContestProblemListLabel from '../../_components/ContestProblemListLabel'
-import ImportProblemButton from '../../_components/ImportProblemButton'
 import TimeForm from '../../_components/TimeForm'
 import { type ContestProblem, editSchema } from '../../utils'
 import { columns } from '../_components/Columns'
+import ImportProblemTable from './_components/ImportProblemTable'
 
 export default function Page({ params }: { params: { id: string } }) {
   const [prevProblemIds, setPrevProblemIds] = useState<number[]>([])
@@ -272,11 +280,20 @@ export default function Page({ params }: { params: { id: string } }) {
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <ContestProblemListLabel />
-                <ImportProblemButton
-                  disabled={isLoading}
-                  isCreatePage={false}
-                  id={Number(id)}
-                />
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <PlusCircleIcon className="h-4 w-4" />
+                      <div className="mb-[2px] text-sm">Import Problem</div>
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="w-[1080px] max-w-[1080px]">
+                    <DialogHeader>
+                      <DialogTitle>Import Problem</DialogTitle>
+                    </DialogHeader>
+                    <ImportProblemTable />
+                  </DialogContent>
+                </Dialog>
               </div>
               <DataTableAdmin
                 // eslint-disable-next-line

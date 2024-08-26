@@ -61,6 +61,7 @@ interface DataTableProps<TData, TValue> {
   enableFilter?: boolean // Enable filter for languages and tags
   enableDelete?: boolean // Enable delete selected rows
   enablePagination?: boolean // Enable pagination
+  enableRowsPerpage?: boolean // Enable pagination
   enableImport?: boolean // Enable import selected rows
   enableDuplicate?: boolean // Enable duplicate selected rows
   checkSelectedRows?: boolean // Check selected rows
@@ -101,6 +102,7 @@ export function DataTableAdmin<TData, TValue>({
   enableFilter = false,
   enableDelete = false,
   enablePagination = false,
+  enableRowsPerpage = true,
   enableImport = false,
   checkSelectedRows = false,
   headerStyle = {},
@@ -136,6 +138,12 @@ export function DataTableAdmin<TData, TValue>({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues()
   })
+
+  useEffect(() => {
+    if (enableImport) {
+      table.setPageSize(5)
+    }
+  }, [enableImport, table])
 
   let deletingObject
   if (pathname === '/admin/contest') {
@@ -478,7 +486,12 @@ export function DataTableAdmin<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      {enablePagination && <DataTablePagination table={table} />}
+      {enablePagination && (
+        <DataTablePagination
+          table={table}
+          showRowsPerPage={enableRowsPerpage}
+        />
+      )}
     </div>
   )
 }
