@@ -467,7 +467,10 @@ describe('SubmissionService', () => {
       const testcaseResult = submissionResults.map((result) => {
         return {
           ...result,
-          cpuTime: result.cpuTime ? result.cpuTime.toString() : null
+          cpuTime:
+            result.cpuTime || result.cpuTime === BigInt(0)
+              ? result.cpuTime.toString()
+              : null
         }
       })
 

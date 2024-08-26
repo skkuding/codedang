@@ -1,5 +1,5 @@
 import type { User } from 'next-auth'
-import { fetcher } from '../utils'
+import { safeFetcher } from '../utils'
 import { getJWTFromResponse } from './getJWTFromResponse'
 
 /**
@@ -13,7 +13,7 @@ export const authorize = async <C extends Record<string, string>>(
   // Try to login with the credential.
   try {
     // Login with the credential and get JWT from the response.
-    const loginResponse = await fetcher.post('auth/login', {
+    const loginResponse = await safeFetcher.post('auth/login', {
       json: {
         username: credential?.username,
         password: credential?.password
@@ -27,7 +27,7 @@ export const authorize = async <C extends Record<string, string>>(
     } = getJWTFromResponse(loginResponse)
 
     // Get user data for getting user role.
-    const userResponse = await fetcher.get('user', {
+    const userResponse = await safeFetcher.get('user', {
       headers: {
         Authorization: accessToken
       }
