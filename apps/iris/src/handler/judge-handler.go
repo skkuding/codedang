@@ -10,6 +10,7 @@ import (
 
 	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/common/result"
+	"github.com/skkuding/codedang/apps/iris/src/loader"
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/grader"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
@@ -312,7 +313,7 @@ func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.C
 }
 
 func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
-	tc testcase.Element, out chan JudgeResultMessage, cnt chan int) {
+	tc loader.Element, out chan JudgeResultMessage, cnt chan int) {
 
 	var accepted bool
 
