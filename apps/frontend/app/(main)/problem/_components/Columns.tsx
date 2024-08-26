@@ -22,7 +22,26 @@ export const columns: ColumnDef<Problem>[] = [
       <Badge className="rounded-md" variant={row.original.difficulty as Level}>
         {row.original.difficulty}
       </Badge>
-    )
+    ),
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    }
+  },
+  {
+    accessorKey: 'languages',
+    header: () => {},
+    cell: () => {},
+    filterFn: (row, id, value) => {
+      const languages = row.original.languages
+      if (!languages?.length) {
+        return false
+      }
+
+      const langValue: string[] = row.getValue(id)
+      const valueArray = value as string[]
+      const result = langValue.some((language) => valueArray.includes(language))
+      return result
+    }
   },
   {
     header: () => <SortButton order="submit">Submission</SortButton>,
@@ -35,8 +54,8 @@ export const columns: ColumnDef<Problem>[] = [
     cell: ({ row }) => `${(row.original.acceptedRate * 100).toFixed(2)}%`
   },
   {
-    header: 'Info',
-    accessorKey: 'info',
-    cell: ({ row }) => row.original.info
+    header: 'Result',
+    accessorKey: 'results',
+    cell: ({ row }) => row.original.results
   }
 ]

@@ -1,5 +1,6 @@
 'use client'
 
+import SearchBar from '@/components/SearchBar'
 import {
   Table,
   TableBody,
@@ -9,15 +10,23 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
+import icon1_result from '@/public/icon1_result.svg'
+import icon2_result from '@/public/icon2_result.svg'
+import icon3_result from '@/public/icon3_result.svg'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   useReactTable
 } from '@tanstack/react-table'
 import type { Route } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import DataTableLangFilter from './DataTableLangFilter'
+import DataTableLevelFilter from './DataTableLevelFilter'
+import DataTableResultFilter from './DataTableResultFilter'
 
 interface Item {
   id: number
@@ -31,7 +40,34 @@ interface DataTableProps<TData, TValue> {
   }
   linked?: boolean
   emptyMessage?: string
+  enableFilter?: boolean
 }
+
+const variants = {
+  todo: <Image src={icon1_result} alt="Todo Icon" />,
+  accept: <Image src={icon2_result} alt="Accept Icon" />,
+  attempt: <Image src={icon3_result} alt="Attempt Icon" />
+}
+
+const levels = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
+const languageOptions = ['C', 'Cpp', 'Java', 'Python3']
+const resultOptions = [
+  {
+    label: 'To-do',
+    value: 'toDo',
+    icon: variants.todo
+  },
+  {
+    label: 'Solved',
+    value: 'solved',
+    icon: variants.accept
+  },
+  {
+    label: 'Attempted',
+    value: 'attempted',
+    icon: variants.attempt
+  }
+]
 
 /**
  * @param columns
@@ -75,83 +111,122 @@ export default function DataTable<TData extends Item, TValue>({
   data,
   headerStyle,
   linked = false,
+  enableFilter = false,
+
   emptyMessage = 'No results.'
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel()
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel()
   })
   const router = useRouter()
   const currentPath = usePathname()
 
   return (
-    <Table className="table-fixed">
-      <TableHeader>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <TableRow className="hover:bg-white" key={headerGroup.id}>
-            {headerGroup.headers.map((header) => {
-              return (
-                <TableHead
-                  key={header.id}
-                  className={cn(
-                    'text-center text-sm md:text-base',
-                    headerStyle[header.id]
-                  )}
-                >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              )
-            })}
-          </TableRow>
-        ))}
-      </TableHeader>
-      <TableBody>
-        {table.getRowModel().rows?.length ? (
-          table.getRowModel().rows.map((row) => {
-            const href = `${currentPath}/${row.original.id}` as Route
-            const handleClick = linked
-              ? () => {
-                  router.push(href)
-                }
-              : (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-                  e.currentTarget.classList.toggle('expanded')
-                }
-            return (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && 'selected'}
-                className="cursor-pointer"
-                onClick={handleClick}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="align-top">
-                    <div className="text-center text-xs md:text-sm">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </div>
-                    {/* for prefetch */}
-                    <Link href={href} />
-                  </TableCell>
-                ))}
-              </TableRow>
-            )
-          })
-        ) : (
-          <TableRow>
-            <TableCell colSpan={columns.length} className="h-24 text-center">
-              {emptyMessage}
-            </TableCell>
-          </TableRow>
+    <>
+      <>
+        {enableFilter && (
+          <div className="flex w-full justify-between">
+            <div className="flex gap-1">
+              <SearchBar />
+            </div>
+            <div>
+              <div className="ml-2 flex items-center gap-2">
+                {table.getColumn('difficulty') && (
+                  <DataTableLevelFilter
+                    column={table.getColumn('difficulty')}
+                    title="Level"
+                    options={levels}
+                  />
+                )}
+                {table.getColumn('languages') && (
+                  <DataTableLangFilter
+                    column={table.getColumn('languages')}
+                    title="Languages"
+                    options={languageOptions}
+                  />
+                )}
+                {table.getColumn('results') && (
+                  <DataTableResultFilter
+                    column={table.getColumn('results')}
+                    title="Result"
+                    options={resultOptions}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
         )}
-      </TableBody>
-    </Table>
+      </>
+      <Table className="table-fixed">
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow className="hover:bg-white" key={headerGroup.id}>
+              {headerGroup.headers.map((header) => {
+                return (
+                  <TableHead
+                    key={header.id}
+                    className={cn(
+                      'text-center text-sm md:text-base',
+                      headerStyle[header.id]
+                    )}
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                )
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => {
+              const href = `${currentPath}/${row.original.id}` as Route
+              const handleClick = linked
+                ? () => {
+                    router.push(href)
+                  }
+                : (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+                    e.currentTarget.classList.toggle('expanded')
+                  }
+              return (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                  className="cursor-pointer"
+                  onClick={handleClick}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id} className="align-top">
+                      <div className="text-center text-xs md:text-sm">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </div>
+                      {/* for prefetch */}
+                      <Link href={href} />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              )
+            })
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                {emptyMessage}
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </>
   )
 }

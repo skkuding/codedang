@@ -36,7 +36,7 @@ export default function DataTableLangFilter<TData, TValue>({
         <Button
           variant="outline"
           size={'sm'}
-          className="h-10 border hover:bg-gray-50"
+          className="h-10 border-2 border-neutral-200 text-black hover:bg-gray-50"
         >
           <IoFilter className="mr-2 h-4 w-4" />
           <p className="font-bold">{title}</p>

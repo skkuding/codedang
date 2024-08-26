@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none">
+      <path
+        stroke="gray"
+        stroke-dasharray="4 4"
+        stroke-opacity=".25"
+        d="M1.5 9H1V5h.5V3c0-.82843.67157-1.5 1.5-1.5h2V1h4v.5h2c.8284 0 1.5.67157 1.5 1.5v2h.5v4h-.5v2c0 .8284-.6716 1.5-1.5 1.5H9v.5H5v-.5H3c-.82843 0-1.5-.6716-1.5-1.5V9Z"
+      />
+    </svg>

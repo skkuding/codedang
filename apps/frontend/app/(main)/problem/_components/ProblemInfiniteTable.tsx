@@ -1,7 +1,6 @@
 'use client'
 
 import DataTable from '@/components/DataTable'
-import SearchBar from '@/components/SearchBar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
 import type { Problem } from '@/types/type'
@@ -28,7 +27,6 @@ export default function ProblemInfiniteTable() {
           <p className="text-2xl font-bold text-gray-500">All</p>
           <p className="text-2xl font-bold text-blue-500">{total}</p>
         </div>
-        <SearchBar />
       </div>
       <div className="flex flex-col items-center">
         <DataTable
@@ -42,6 +40,7 @@ export default function ProblemInfiniteTable() {
             info: 'w-1/12'
           }}
           linked
+          enableFilter
         />
         {isFetchingNextPage && (
           <>

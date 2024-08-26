@@ -34,6 +34,8 @@ export interface Problem {
   acceptedRate: number
   tags?: Tag[]
   info?: string
+  languages: string[]
+  results: string[]
 }
 
 /**
