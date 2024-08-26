@@ -7,10 +7,7 @@ import {
   CREATE_CONTEST,
   IMPORT_PROBLEMS_TO_CONTEST
 } from '@/graphql/contest/mutations'
-import {
-  UPDATE_PROBLEM_VISIBLE,
-  UPDATE_CONTEST_PROBLEMS_ORDER
-} from '@/graphql/problem/mutations'
+import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import type { CreateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -56,7 +53,6 @@ export default function Page() {
 
   const [createContest, { error }] = useMutation(CREATE_CONTEST)
   const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
-  const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
   const [updateContestProblemsOrder] = useMutation(
     UPDATE_CONTEST_PROBLEMS_ORDER
   )
@@ -108,19 +104,6 @@ export default function Page() {
         problemIds
       }
     })
-
-    const updateVisiblePromise = problems.map((problem) =>
-      updateVisible({
-        variables: {
-          groupId: 1,
-          input: {
-            id: problem.id,
-            isVisible: false
-          }
-        }
-      })
-    )
-    await Promise.all(updateVisiblePromise)
 
     const orders: number[] = []
     orderArray.forEach((order: number, index: number) => {

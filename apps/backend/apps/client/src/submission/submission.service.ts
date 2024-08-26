@@ -412,8 +412,13 @@ export class SubmissionService {
     contestId: number | null
   ) {
     const now = new Date()
-    let contest: { groupId: number; startTime: Date; endTime: Date } | null =
-      null
+    let contest: {
+      groupId: number
+      startTime: Date
+      endTime: Date
+      isJudgeResultVisible: boolean
+    } | null = null
+    let isJudgeResultVisible: boolean | null = null
 
     if (contestId) {
       const contestRecord = await this.prisma.contestRecord.findUniqueOrThrow({
@@ -429,7 +434,8 @@ export class SubmissionService {
             select: {
               groupId: true,
               startTime: true,
-              endTime: true
+              endTime: true,
+              isJudgeResultVisible: true
             }
           }
         }
@@ -438,6 +444,7 @@ export class SubmissionService {
         throw new EntityNotExistException('contest')
       }
       contest = contestRecord.contest
+      isJudgeResultVisible = contest.isJudgeResultVisible
     }
 
     if (!contestId) {
@@ -503,11 +510,19 @@ export class SubmissionService {
       const results = submission.submissionResult.map((result) => {
         return {
           ...result,
-          cpuTime: result.cpuTime ? result.cpuTime.toString() : null
+          // TODO: 채점 속도가 너무 빠른경우에 대한 수정 필요 (0ms 미만)
+          cpuTime:
+            result.cpuTime || result.cpuTime === BigInt(0)
+              ? result.cpuTime.toString()
+              : null
         }
       })
 
       results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
+
+      if (contestId && !isJudgeResultVisible) {
+        results.map((r) => (r.result = 'Blind'))
+      }
 
       return {
         problemId,
@@ -515,7 +530,10 @@ export class SubmissionService {
         code: code.map((snippet) => snippet.text).join('\n'),
         language: submission.language,
         createTime: submission.createTime,
-        result: submission.result,
+        result:
+          !contestId || (contestId && isJudgeResultVisible)
+            ? submission.result
+            : 'Blind',
         testcaseResult: results
       }
     }
@@ -590,6 +608,17 @@ export class SubmissionService {
       }
     })
 
+    const isJudgeResultVisible = (
+      await this.prisma.contest.findFirstOrThrow({
+        where: {
+          id: contestId
+        },
+        select: {
+          isJudgeResultVisible: true
+        }
+      })
+    ).isJudgeResultVisible
+
     const submissions = await this.prisma.submission.findMany({
       ...paginator,
       take,
@@ -612,6 +641,10 @@ export class SubmissionService {
       },
       orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
     })
+
+    if (!isJudgeResultVisible) {
+      submissions.map((submission) => (submission.result = 'Blind'))
+    }
 
     const total = await this.prisma.submission.count({
       where: { problemId, contestId }

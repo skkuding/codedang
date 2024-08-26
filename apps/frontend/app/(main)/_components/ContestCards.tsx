@@ -16,23 +16,7 @@ const getContests = async () => {
   data.upcoming.forEach((contest) => {
     contest.status = 'upcoming'
   })
-  let contests = data.ongoing.concat(data.upcoming)
-
-  if (contests.length < 3) {
-    const data: {
-      finished: Contest[]
-    } = await fetcher
-      .get('contest/finished', {
-        searchParams: {
-          take: 3
-        }
-      })
-      .json()
-    data.finished.forEach((contest) => {
-      contest.status = 'finished'
-    })
-    contests = contests.concat(data.finished)
-  }
+  const contests = data.ongoing.concat(data.upcoming)
 
   return contests.slice(0, 3)
 }
@@ -42,26 +26,26 @@ export default async function ContestCards() {
 
   return (
     <>
-      <div className="flex justify-between gap-5 xl:hidden">
+      <div className="flex justify-start gap-5 md:hidden">
         {contests.slice(0, 2).map((contest) => {
           return (
             <Link
               key={contest.id}
               href={`/contest/${contest.id}` as Route}
-              className="inline-block w-full"
+              className="inline-block w-1/2"
             >
               <ContestCard contest={contest} />
             </Link>
           )
         })}
       </div>
-      <div className="hidden justify-between gap-5 xl:flex">
+      <div className="hidden justify-start gap-5 md:flex">
         {contests.map((contest) => {
           return (
             <Link
               key={contest.id}
               href={`/contest/${contest.id}` as Route}
-              className="inline-block w-full"
+              className="inline-block w-1/3"
             >
               <ContestCard contest={contest} />
             </Link>

@@ -467,7 +467,10 @@ describe('SubmissionService', () => {
       const testcaseResult = submissionResults.map((result) => {
         return {
           ...result,
-          cpuTime: result.cpuTime ? result.cpuTime.toString() : null
+          cpuTime:
+            result.cpuTime || result.cpuTime === BigInt(0)
+              ? result.cpuTime.toString()
+              : null
         }
       })
 
@@ -578,6 +581,7 @@ describe('SubmissionService', () => {
       db.contestProblem.findFirstOrThrow.resolves()
       db.submission.findMany.resolves(submissions)
       db.user.findFirst.resolves(adminUser)
+      db.contest.findFirstOrThrow.resolves({ isJudgeVisible: true })
 
       expect(
         await service.getContestSubmissions({

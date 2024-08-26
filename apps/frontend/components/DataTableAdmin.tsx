@@ -9,8 +9,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
+  AlertDialogTitle
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import {
@@ -28,9 +27,10 @@ import {
   TooltipProvider
 } from '@/components/ui/tooltip'
 import { DELETE_CONTEST } from '@/graphql/contest/mutations'
+import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import { DELETE_PROBLEM } from '@/graphql/problem/mutations'
 import { getStatusWithStartEnd } from '@/lib/utils'
-import { useMutation } from '@apollo/client'
+import { useLazyQuery, useMutation } from '@apollo/client'
 import type { ColumnDef, SortingState } from '@tanstack/react-table'
 import {
   flexRender,
@@ -146,6 +146,7 @@ export function DataTableAdmin<TData, TValue>({
 
   const [deleteProblem] = useMutation(DELETE_PROBLEM)
   const [deleteContest] = useMutation(DELETE_CONTEST)
+  const [isDeleteAlertDialogOpen, setIsDeleteAlertDialogOpen] = useState(false)
 
   useEffect(() => {
     if (checkSelectedRows) {
@@ -258,6 +259,29 @@ export function DataTableAdmin<TData, TValue>({
       })
   }
 
+  const [fetchContests] = useLazyQuery(GET_BELONGED_CONTESTS)
+
+  const handleDeleteButtonClick = async () => {
+    const selectedRows = table.getSelectedRowModel().rows as {
+      original: { id: number }
+    }[]
+    const promises = selectedRows.map((row) =>
+      fetchContests({
+        variables: {
+          problemId: Number(row.original.id)
+        }
+      }).then((result) => result.data)
+    )
+    const results = await Promise.all(promises)
+    const isAllSafe = !results.some((data) => data !== undefined)
+    if (isAllSafe) {
+      setIsDeleteAlertDialogOpen(true)
+    } else {
+      setIsDeleteAlertDialogOpen(false)
+      toast.error('Failed :  Problem included in the contest')
+    }
+  }
+
   return (
     <div className="space-y-4">
       <Suspense>
@@ -278,9 +302,10 @@ export function DataTableAdmin<TData, TValue>({
                   value={
                     (table.getColumn('title')?.getFilterValue() as string) ?? ''
                   }
-                  onChange={(event) =>
+                  onChange={(event) => {
                     table.getColumn('title')?.setFilterValue(event.target.value)
-                  }
+                    table.setPageIndex(0)
+                  }}
                   className="h-10 w-[150px] bg-transparent pl-8 lg:w-[250px]"
                 />
               </div>
@@ -344,33 +369,40 @@ export function DataTableAdmin<TData, TValue>({
             ) : null}
             {enableDelete ? (
               selectedRowCount !== 0 ? (
-                <AlertDialog>
-                  <AlertDialogTrigger>
-                    <Button variant="outline" type="button">
-                      <PiTrashLight fontSize={18} />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to permanently delete{' '}
-                        {selectedRowCount} {deletingObject}(s)?
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction asChild>
-                        <Button
-                          onClick={() => handleDeleteRows()}
-                          className="bg-red-500 hover:bg-red-500/90"
-                        >
-                          Delete
-                        </Button>
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <div>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={handleDeleteButtonClick}
+                  >
+                    <PiTrashLight fontSize={18} />
+                  </Button>
+                  <AlertDialog
+                    open={isDeleteAlertDialogOpen}
+                    onOpenChange={setIsDeleteAlertDialogOpen}
+                  >
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to permanently delete{' '}
+                          {selectedRowCount} {deletingObject}(s)?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction asChild>
+                          <Button
+                            onClick={() => handleDeleteRows()}
+                            className="bg-red-500 hover:bg-red-500/90"
+                          >
+                            Delete
+                          </Button>
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               ) : (
                 <Button variant="outline" type="button">
                   <PiTrashLight fontSize={18} />
