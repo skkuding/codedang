@@ -235,14 +235,14 @@ export class ContestResolver {
   async getContestSubmissionSummaryByUserId(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
     @Args('userId', { type: () => Int }, IDValidationPipe) userId: number,
+    @Args('problemId', { nullable: true, type: () => Int }, IDValidationPipe)
+    problemId: number,
     @Args(
       'take',
       { type: () => Int, defaultValue: 10 },
       new RequiredIntPipe('take')
     )
     take: number,
-    @Args('problemId', { nullable: true, type: () => Int }, IDValidationPipe)
-    problemId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null
   ) {

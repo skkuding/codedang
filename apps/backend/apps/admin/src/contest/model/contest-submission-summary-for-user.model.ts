@@ -4,11 +4,11 @@ import { UserContestScoreSummary } from './score-summary'
 
 @ObjectType({ description: 'ContestSubmissionSummaryForUser' })
 export class ContestSubmissionSummaryForUser {
-  @Field(() => ContestSubmissionSummaryForOne, { nullable: false })
-  submissions: ContestSubmissionSummaryForOne[]
-
   @Field(() => UserContestScoreSummary, { nullable: false })
   scoreSummary: UserContestScoreSummary
+
+  @Field(() => [ContestSubmissionSummaryForOne], { nullable: false })
+  submissions: ContestSubmissionSummaryForOne[]
 }
 
 /**
@@ -16,30 +16,30 @@ export class ContestSubmissionSummaryForUser {
  */
 @ObjectType({ description: 'ContestSubmissionSummaryForOne' })
 export class ContestSubmissionSummaryForOne {
-  @Field(() => Int, { nullable: false })
+  @Field(() => Int, { nullable: true })
   contestId: number
 
-  @Field(() => String, { nullable: false })
+  @Field(() => String, { nullable: true })
   problemTitle: string
 
-  @Field(() => String, { nullable: false })
+  @Field(() => String, { nullable: true })
   username: string
 
-  @Field(() => String, { nullable: false })
+  @Field(() => String, { nullable: true })
   studentId: string
 
-  @Field(() => ResultStatus, { nullable: false })
+  @Field(() => ResultStatus, { nullable: true })
   submissionResult: ResultStatus // Accepted, RuntimeError, ...
 
-  @Field(() => Language, { nullable: false })
+  @Field(() => Language, { nullable: true })
   language: Language
 
-  @Field(() => String, { nullable: false })
+  @Field(() => String, { nullable: true })
   submissionTime: Date
 
   @Field(() => Int, { nullable: true })
   codeSize?: number
 
-  @Field(() => String, { nullable: false })
-  ip: string
+  @Field(() => String, { nullable: true })
+  ip?: string
 }

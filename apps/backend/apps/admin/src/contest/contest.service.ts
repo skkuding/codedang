@@ -518,21 +518,19 @@ export class ContestService {
       }
     })
 
-    const mappedSubmission = await Promise.all(
-      submissions.map(async (submission) => {
-        return {
-          contestId: submission.contestId,
-          problemTitle: submission.problem.title,
-          username: submission.user?.username,
-          studentId: submission.user?.studentId,
-          submissionResult: submission.result,
-          language: submission.language,
-          submissionTime: submission.createTime,
-          codeSize: submission.codeSize,
-          ip: submission.userIp
-        }
-      })
-    )
+    const mappedSubmission = submissions.map((submission) => {
+      return {
+        contestId: submission.contestId,
+        problemTitle: submission.problem.title,
+        username: submission.user?.username,
+        studentId: submission.user?.studentId,
+        submissionResult: submission.result,
+        language: submission.language,
+        submissionTime: submission.createTime,
+        codeSize: submission.codeSize,
+        ip: submission.userIp
+      }
+    })
 
     const scoreSummary = await this.getContestScoreSummary(userId, contestId)
 
