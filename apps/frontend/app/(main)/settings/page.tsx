@@ -138,7 +138,6 @@ export default function Page() {
     }
   })
 
-  // 현재 뒤로가기 창닫기 새로고침은 모달창 안띄움
   // const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
   //   // Recommended
   //   event.preventDefault()
@@ -242,7 +241,6 @@ export default function Page() {
         json: updatePayload
       })
       if (response.ok) {
-        // 성공시 페이지 이동이 일어나지 않고, 입력 사항을 갱신한 초기 상태를 노출함
         toast.success('Successfully updated your information')
         setTimeout(() => {
           window.location.reload()
@@ -278,7 +276,6 @@ export default function Page() {
     }
   }
 
-  // 확인 필요
   const checkPassword = async () => {
     setIsCheckButtonClicked(true)
     try {
