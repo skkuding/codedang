@@ -8,17 +8,25 @@ import {
   Controller,
   Logger,
   Delete,
-  Query
+  Query,
+  NotFoundException,
+  InternalServerErrorException
 } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { Request, type Response } from 'express'
 import { AuthenticatedRequest, AuthNotNeededIfOpenSpace } from '@libs/auth'
+import {
+  EntityNotExistException,
+  UnidentifiedException,
+  UnprocessableDataException
+} from '@libs/exception'
 import { DeleteUserDto } from './dto/deleteUser.dto'
 import { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
 import { SignUpDto } from './dto/signup.dto'
 import { SocialSignUpDto } from './dto/social-signup.dto'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
-import { UpdateUserProfileDto } from './dto/update-userprofile.dto'
+import { UpdateUserDto } from './dto/updateUser.dto'
 import { UserEmailDto } from './dto/userEmail.dto'
 import { UsernameDto } from './dto/username.dto'
 import { UserService } from './user.service'
@@ -71,17 +79,6 @@ export class UserController {
     return await this.userService.updateUserEmail(req, updateUserEmail)
   }
 
-  @Patch('profile')
-  async updateUserProfile(
-    @Req() req: AuthenticatedRequest,
-    @Body() updateUserProfileDto: UpdateUserProfileDto
-  ) {
-    return await this.userService.updateUserProfile(
-      req.user.id,
-      updateUserProfileDto
-    )
-  }
-
   @Get('username-check')
   @AuthNotNeededIfOpenSpace()
   async checkDuplicatedUsername(@Query() usernameDto: UsernameDto) {
@@ -92,6 +89,31 @@ export class UserController {
   @AuthNotNeededIfOpenSpace()
   async getUsernameByEmail(@Query() userEmailDto: UserEmailDto) {
     return await this.userService.getUsernameByEmail(userEmailDto)
+  }
+
+  @Patch('')
+  async updateUser(
+    @Req() req: AuthenticatedRequest,
+    @Body() updateUserDto: UpdateUserDto
+  ) {
+    try {
+      return await this.userService.updateUser(req, updateUserDto)
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
+      } else if (
+        error instanceof EntityNotExistException ||
+        error instanceof UnprocessableDataException ||
+        error instanceof UnidentifiedException
+      ) {
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
   }
 }
 

@@ -13,10 +13,7 @@ import {
   REMOVE_PROBLEMS_FROM_CONTEST
 } from '@/graphql/contest/mutations'
 import { GET_CONTEST } from '@/graphql/contest/queries'
-import {
-  UPDATE_PROBLEM_VISIBLE,
-  UPDATE_CONTEST_PROBLEMS_ORDER
-} from '@/graphql/problem/mutations'
+import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
@@ -26,7 +23,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
-import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
+import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { toast } from 'sonner'
 import ContestProblemListLabel from '../../_components/ContestProblemListLabel'
 import ImportProblemButton from '../../_components/ImportProblemButton'
@@ -132,7 +129,6 @@ export default function Page({ params }: { params: { id: string } }) {
   const [updateContest, { error }] = useMutation(UPDATE_CONTEST)
   const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
   const [removeProblemsFromContest] = useMutation(REMOVE_PROBLEMS_FROM_CONTEST)
-  const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
   const [updateContestProblemsOrder] = useMutation(
     UPDATE_CONTEST_PROBLEMS_ORDER
   )
@@ -186,18 +182,6 @@ export default function Page({ params }: { params: { id: string } }) {
         problemIds
       }
     })
-    const updateVisiblePromise = problemIds.map((id) =>
-      updateVisible({
-        variables: {
-          groupId: 1,
-          input: {
-            id,
-            isVisible: false
-          }
-        }
-      })
-    )
-    await Promise.all(updateVisiblePromise)
 
     const orders: number[] = []
     orderArray.forEach((order: number, index: number) => {
@@ -275,11 +259,11 @@ export default function Page({ params }: { params: { id: string } }) {
             </div>
             <Button
               type="submit"
-              className="flex h-[36px] w-[100px] items-center gap-2 px-0"
+              className="flex h-[36px] w-[90px] items-center gap-2 px-0"
               disabled={isLoading}
             >
-              <IoMdCheckmarkCircleOutline fontSize={20} />
-              <div className="mb-[2px] text-base">Submit</div>
+              <IoIosCheckmarkCircle fontSize={20} />
+              <div className="text-base">Edit</div>
             </Button>
           </FormProvider>
         </form>

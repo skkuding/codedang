@@ -61,6 +61,14 @@ export default function Page() {
             enableSearch={true}
             enableDelete={true}
             enablePagination={true}
+            headerStyle={{
+              select: '',
+              title: 'w-3/5',
+              startTime: 'px-0 w-1/5',
+              participants: 'px-0 w-1/12',
+              isVisible: 'px-0 w-1/12'
+            }}
+            enableDuplicate={true}
           />
         )}
       </div>

@@ -106,6 +106,7 @@ const (
 	MEMORY_LIMIT_EXCEEDED
 	RUNTIME_ERROR
 	SYSTEM_ERROR
+	SEGMENATION_FAULT
 )
 
 type JudgeHandler struct {
@@ -335,12 +336,12 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 	}
 
 	res.TestcaseId = tc.Id
+	res.SetJudgeExecResult(runResult.ExecResult)
 
 	if runResult.ExecResult.ResultCode != sandbox.RUN_SUCCESS {
+		res.SetJudgeResultCode(SandboxResultCodeToJudgeResultCode(runResult.ExecResult.ResultCode))
 		goto Send
 	}
-
-	res.SetJudgeExecResult(runResult.ExecResult)
 
 	// 하나당 약 50microsec 10개 채점시 500microsec.
 	// output이 커지면 더 길어짐 -> FIXME: 최적화 과정에서 goroutine으로 수정
