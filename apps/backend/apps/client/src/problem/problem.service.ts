@@ -39,8 +39,6 @@ export class ProblemService {
     const tagIds = [...uniqueTagIds]
     const tagList = await this.problemRepository.getProblemsTags(tagIds)
 
-    console.log(options.userId)
-
     const problems = unprocessedProblems.map(async (problem) => {
       let hasPassed: boolean | null = null
       const { problemTag, ...data } = problem
@@ -51,7 +49,6 @@ export class ProblemService {
           options.userId,
           { problemId: problem.id }
         )
-        console.log(hasPassed)
       }
       return {
         ...data,
