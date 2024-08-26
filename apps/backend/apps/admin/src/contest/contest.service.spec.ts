@@ -27,6 +27,10 @@ const endTime = faker.date.future()
 const createTime = faker.date.past()
 const updateTime = faker.date.past()
 const invitationCode = '123456'
+const problemIdsWithScore = {
+  problemId,
+  score: 10
+}
 // const duplicatedContestId = 2
 
 const contest: Contest = {
@@ -367,7 +371,9 @@ describe('ContestService', () => {
       db.contestProblem.create.resolves(contestProblem)
 
       const res = await Promise.all(
-        await service.importProblemsToContest(groupId, contestId, [problemId])
+        await service.importProblemsToContest(groupId, contestId, [
+          problemIdsWithScore
+        ])
       )
 
       expect(res).to.deep.equal([contestProblem])
@@ -384,7 +390,7 @@ describe('ContestService', () => {
       )
 
       const res = await service.importProblemsToContest(groupId, contestId, [
-        problemId
+        problemIdsWithScore
       ])
 
       expect(res).to.deep.equal([])
@@ -392,7 +398,7 @@ describe('ContestService', () => {
 
     it('should throw error when the contestId not exist', async () => {
       expect(
-        service.importProblemsToContest(groupId, 9999, [problemId])
+        service.importProblemsToContest(groupId, 9999, [problemIdsWithScore])
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })

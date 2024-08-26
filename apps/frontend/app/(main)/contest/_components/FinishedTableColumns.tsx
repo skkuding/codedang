@@ -1,7 +1,7 @@
 'use client'
 
 import { dateFormatter } from '@/lib/utils'
-import CheckIcon from '@/public/check_blue.svg'
+import CheckIcon from '@/public/check-gray-icon.svg'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'

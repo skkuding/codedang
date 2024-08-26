@@ -4,6 +4,8 @@ const GET_CONTEST = gql(`
   query GetContest($contestId: Int!) {
     getContest(contestId: $contestId) {
       id
+      enableCopyPaste
+      isJudgeResultVisible
       invitationCode
       description
       endTime
@@ -28,4 +30,22 @@ const GET_CONTESTS = gql(`
   }
 `)
 
-export { GET_CONTEST, GET_CONTESTS }
+const GET_BELONGED_CONTESTS =
+  gql(`query GetContestsByProblemId($problemId: Int!) {
+  getContestsByProblemId(problemId: $problemId) {
+    upcoming {
+      id
+      title
+    }
+    ongoing {
+      id
+      title
+    }
+    finished {
+      id
+      title
+    }
+  }
+}`)
+
+export { GET_CONTEST, GET_CONTESTS, GET_BELONGED_CONTESTS }

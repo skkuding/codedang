@@ -44,7 +44,8 @@ const msg = {
 const submission: Submission & { submissionResult: SubmissionResult[] } = {
   ...submissions[0],
   codeSize: 1000,
-  submissionResult: [submissionResults[0], submissionResults[1]]
+  submissionResult: [submissionResults[0], submissionResults[1]],
+  score: 100
 }
 
 const contestSubmission = {
@@ -58,7 +59,8 @@ const mockFunc = (...args: object[]) => []
 const db = {
   submission: {
     findUnique: mockFunc,
-    update: mockFunc
+    update: mockFunc,
+    findFirst: mockFunc
   },
   submissionResult: {
     findFirstOrThrow: mockFunc,
@@ -176,11 +178,13 @@ describe('SubmissionSubscriptionService', () => {
       ).to.be.true
     })
 
-    it('should call handleJudgeError when CompileError or ServerError detected', async () => {
+    it('should call handleJudgeError when ServerError detected', async () => {
       const handlerSpy = sandbox.stub(service, 'handleJudgeError').resolves()
-
+      const updateSpy = sandbox
+        .stub(service, 'updateTestcaseJudgeResult')
+        .resolves()
       const serverErrMsg = {
-        resultCode: 8,
+        resultCode: 9,
         submissionId: 1,
         error: '',
         judgeResult
@@ -189,6 +193,25 @@ describe('SubmissionSubscriptionService', () => {
       await service.handleJudgerMessage(serverErrMsg)
       expect(handlerSpy.calledOnceWith(ResultStatus.ServerError, serverErrMsg))
         .to.be.true
+      expect(updateSpy.notCalled).to.be.true
+    })
+
+    it('should call handleJudgeError when CompileError detected', async () => {
+      const handlerSpy = sandbox.stub(service, 'handleJudgeError').resolves()
+      const updateSpy = sandbox
+        .stub(service, 'updateTestcaseJudgeResult')
+        .resolves()
+      const serverErrMsg = {
+        resultCode: 6,
+        submissionId: 1,
+        error: '',
+        judgeResult
+      }
+
+      await service.handleJudgerMessage(serverErrMsg)
+      expect(handlerSpy.calledOnceWith(ResultStatus.CompileError, serverErrMsg))
+        .to.be.true
+      expect(updateSpy.notCalled).to.be.true
     })
   })
 
@@ -313,8 +336,11 @@ describe('SubmissionSubscriptionService', () => {
         .stub(db.submission, 'findUnique')
         .resolves(submission)
       const updateSpy = sandbox.stub(db.submission, 'update').resolves()
-      const scoreSpy = sandbox
+      const submissionScoreSpy = sandbox
         .stub(service, 'calculateSubmissionScore')
+        .resolves()
+      const problemScoreSpy = sandbox
+        .stub(service, 'calculateProblemScore')
         .resolves()
       const acceptSpy = sandbox
         .stub(service, 'updateProblemAccepted')
@@ -335,6 +361,7 @@ describe('SubmissionSubscriptionService', () => {
             }
           },
           select: {
+            id: true,
             problemId: true,
             userId: true,
             contestId: true,
@@ -357,8 +384,9 @@ describe('SubmissionSubscriptionService', () => {
           }
         })
       ).to.be.true
-      expect(scoreSpy.notCalled).to.be.true
+      expect(submissionScoreSpy.notCalled).to.be.true
       expect(acceptSpy.calledOnceWith(submission.problemId, true)).to.be.true
+      expect(problemScoreSpy.calledOnce).to.be.true
     })
 
     it('should return when judge not finished', async () => {
@@ -385,12 +413,18 @@ describe('SubmissionSubscriptionService', () => {
       const findSpy = sandbox
         .stub(db.submission, 'findUnique')
         .resolves(contestSubmission)
-      const scoreSpy = sandbox.stub(service, 'calculateSubmissionScore')
+      const submissionScoreSpy = sandbox.stub(
+        service,
+        'calculateSubmissionScore'
+      )
+      const problemScoreSpy = sandbox.stub(service, 'calculateProblemScore')
 
       await service.updateSubmissionResult(1)
 
       expect(findSpy.calledOnce).to.be.true
-      expect(scoreSpy.calledOnceWith(contestSubmission, true)).to.be.true
+      expect(submissionScoreSpy.calledOnceWith(contestSubmission, true)).to.be
+        .true
+      expect(problemScoreSpy.calledOnce).to.be.true
       expect(acceptSpy.calledOnceWithExactly(contestSubmission.problemId, true))
         .to.be.true
     })

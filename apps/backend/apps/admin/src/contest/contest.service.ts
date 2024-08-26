@@ -4,7 +4,7 @@ import {
   Injectable,
   UnprocessableEntityException
 } from '@nestjs/common'
-import type { Contest, Submission } from '@generated'
+import { Contest, ResultStatus, Submission } from '@generated'
 import type { ContestProblem } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import {
@@ -22,6 +22,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import type { CreateContestInput } from './model/contest.input'
 import type { UpdateContestInput } from './model/contest.input'
+import type { ProblemScoreInput } from './model/problem-score.input'
 import type { PublicizingRequest } from './model/publicizing-request.model'
 import type { PublicizingResponse } from './model/publicizing-response.output'
 
@@ -343,7 +344,7 @@ export class ContestService {
   async importProblemsToContest(
     groupId: number,
     contestId: number,
-    problemIds: number[]
+    problemIdsWithScore: ProblemScoreInput[]
   ) {
     const contest = await this.prisma.contest.findUnique({
       where: {
@@ -357,7 +358,7 @@ export class ContestService {
 
     const contestProblems: ContestProblem[] = []
 
-    for (const problemId of problemIds) {
+    for (const { problemId, score } of problemIdsWithScore) {
       try {
         const [contestProblem] = await this.prisma.$transaction([
           this.prisma.contestProblem.create({
@@ -366,7 +367,8 @@ export class ContestService {
               // 임시 방편으로 order: 0으로 설정합니다.
               order: 0,
               contestId,
-              problemId
+              problemId,
+              score
             }
           }),
           this.prisma.problem.update({
@@ -633,11 +635,10 @@ export class ContestService {
   }
 
   /**
-   *
    * 특정 user의 특정 Contest에 대한 총점, 통과한 문제 개수와 각 문제별 테스트케이스 통과 개수를 불러옵니다.
    */
   async getContestScoreSummary(userId: number, contestId: number) {
-    const [contestProblems, submissions] = await Promise.all([
+    const [contestProblems, submissions, contestRecord] = await Promise.all([
       this.prisma.contestProblem.findMany({
         where: {
           contestId
@@ -648,98 +649,167 @@ export class ContestService {
           userId,
           contestId
         }
+      }),
+      this.prisma.contestRecord.findFirst({
+        where: {
+          userId,
+          contestId
+        }
       })
     ])
 
-    if (!submissions) {
+    if (!submissions.length) {
       throw new EntityNotExistException('Submissions')
-    }
-    if (!contestProblems) {
+    } else if (!contestProblems.length) {
       throw new EntityNotExistException('ContestProblems')
+    } else if (!contestRecord) {
+      throw new EntityNotExistException('contestRecord')
     }
 
-    // 유저가 같은 problemId에 대해 여러 번 제출할 수 있으므로, 같은 문제에 대해 여러 번 제출한 내역은 무시함.
-    // 만약 여러번의 제출 중 ACCEPTED가 있다면 우선적으로 반영함.
-    const distinctSubmissions: {
-      [problemId: string]: Submission
+    // 하나의 Problem에 대해 여러 개의 Submission이 존재한다면, 더 높은 점수를 갖는 Submission을 반영함
+    const highestScoreSubmissions: {
+      [problemId: string]: {
+        result: ResultStatus
+        score: number // Problem에서 획득한 점수
+      }
+    } = this.getHighestScoreSubmissions(submissions)
+
+    const problemScores: {
+      problemId: number
+      score: number
+    }[] = []
+
+    for (const problemId in highestScoreSubmissions) {
+      problemScores.push({
+        problemId: parseInt(problemId),
+        score: highestScoreSubmissions[problemId].score
+      })
+    }
+
+    const userContestScore = await this.calculateUserContestScore(
+      contestId,
+      problemScores
+    )
+
+    const scoreSummary = {
+      submittedProblemCount: Object.keys(highestScoreSubmissions).length, // Contest에 존재하는 문제 중 제출된 문제의 개수
+      totalProblemCount: contestProblems.length, // Contest에 존재하는 Problem의 총 개수
+      userContestScore, // Contest에서 유저가 받은 점수
+      contestPerfectScore: contestProblems.reduce(
+        (total, { score }) => total + score,
+        0
+      ), // Contest의 만점
+      problemScores // 개별 Problem의 점수 리스트 (각 문제에서 몇 점을 획득했는지)
+    }
+
+    return scoreSummary
+  }
+
+  getHighestScoreSubmissions(submissions: Submission[]) {
+    const highestScoreSubmissions: {
+      [problemId: string]: {
+        result: ResultStatus
+        score: number // Problem에서 획득한 점수 (100점 만점 기준)
+      }
     } = {}
 
     for (const submission of submissions) {
       const problemId = submission.problemId
 
-      if (!(problemId in distinctSubmissions)) {
-        distinctSubmissions[problemId] = submission
-      } else if (
-        distinctSubmissions[problemId].result !== 'Accepted' &&
-        submission.result === 'Accepted'
+      if (
+        !(problemId in highestScoreSubmissions) ||
+        (highestScoreSubmissions[problemId].result !== ResultStatus.Accepted &&
+          submission.result === ResultStatus.Accepted)
       ) {
-        distinctSubmissions[problemId] = submission
+        highestScoreSubmissions[problemId] = {
+          result: ResultStatus.Accepted,
+          score: 100
+        }
+      } else {
+        const currentScore = highestScoreSubmissions[problemId].score
+
+        if (submission.score > currentScore) {
+          highestScoreSubmissions[problemId] = {
+            result: submission.result as ResultStatus,
+            score: submission.score
+          }
+        }
       }
     }
 
-    // 개별 Problem의 Testcase 중 Accepted 개수
-    const acceptedTestcaseCountPerProblem: {
+    return highestScoreSubmissions
+  }
+
+  async calculateUserContestScore(
+    contestId: number,
+    problemScores: {
       problemId: number
-      totalTestcaseCount: number
-      acceptedTestcaseCount: number
-    }[] = []
-
-    acceptedTestcaseCountPerProblem.push(
-      ...(await Promise.all(
-        Object.values(distinctSubmissions).map(async (submission) => {
-          const { id, problemId } = submission as Submission
-
-          const submissionResults = await this.prisma.submissionResult.findMany(
-            {
-              where: {
-                submissionId: id
-              }
+      score: number
+    }[]
+  ) {
+    let userContestScore = 0
+    for (const problemScore of problemScores) {
+      const contestProblemScore = (
+        await this.prisma.contestProblem.findUniqueOrThrow({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            contestId_problemId: {
+              contestId,
+              problemId: problemScore.problemId
             }
-          )
-
-          return {
-            problemId,
-            totalTestcaseCount: submissionResults.length,
-            acceptedTestcaseCount: submissionResults.filter(
-              (r) => r.result === 'Accepted'
-            ).length
+          },
+          select: {
+            score: true
           }
         })
-      ))
-    )
+      ).score
 
-    const scores = await Promise.all(
-      Object.keys(distinctSubmissions).map(async (problemId) => {
-        const submission = distinctSubmissions[problemId]
-
-        // 문제의 결과가 'Accepted'가 아닌 경우 건너뛰기
-        if (submission.result !== 'Accepted') {
-          return 0
-        }
-
-        const contestProblem =
-          await this.prisma.contestProblem.findFirstOrThrow({
-            where: {
-              problemId: parseInt(problemId),
-              contestId
-            },
-            select: {
-              score: true
-            }
-          })
-
-        return contestProblem.score
-      })
-    )
-    const totalScore = scores.reduce((total, score) => (total += score), 0)
-
-    const scoreSummary = {
-      totalProblemCount: contestProblems.length, // Contest에 존재하는 Problem의 총 개수
-      submittedProblemCount: Object.keys(distinctSubmissions).length, // Contest에 존재하는 문제 중 제출된 문제의 개수
-      totalScore, // 총점 (100점 만점 기준)
-      acceptedTestcaseCountPerProblem // 개별 Problem의 Testcase 중 Accepted 개수
+      userContestScore += contestProblemScore * (problemScore.score / 100)
     }
 
-    return scoreSummary
+    return userContestScore
+  }
+
+  async getContestsByProblemId(problemId: number) {
+    const contestProblems = await this.prisma.contestProblem.findMany({
+      where: {
+        problemId
+      },
+      select: {
+        contest: true
+      }
+    })
+
+    if (!contestProblems.length) {
+      throw new EntityNotExistException('Problem or ContestProblem')
+    }
+
+    const contests = contestProblems.map(
+      (contestProblem) => contestProblem.contest
+    )
+
+    const now = new Date()
+
+    const contestsGroupedByStatus = contests.reduce(
+      (acc, contest) => {
+        if (contest.endTime > now) {
+          if (contest.startTime <= now) {
+            acc.ongoing.push(contest)
+          } else {
+            acc.upcoming.push(contest)
+          }
+        } else {
+          acc.finished.push(contest)
+        }
+        return acc
+      },
+      {
+        upcoming: [] as Contest[],
+        ongoing: [] as Contest[],
+        finished: [] as Contest[]
+      }
+    )
+
+    return contestsGroupedByStatus
   }
 }
