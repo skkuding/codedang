@@ -119,7 +119,8 @@ export default function Page({ params }: { params: { id: string } }) {
             id: problem.problemId,
             title: problem.problem.title,
             order: problem.order,
-            difficulty: problem.problem.difficulty
+            difficulty: problem.problem.difficulty,
+            score: problem.score ?? 0 // Score 기능 완료되면 수정해주세요!!
           }
         })
         localStorage.setItem(
@@ -134,6 +135,10 @@ export default function Page({ params }: { params: { id: string } }) {
       } else {
         const parsedData = JSON.parse(importedProblems)
         if (parsedData.length > 0) {
+          console.log(parsedData)
+          parsedData.forEach((problem: ContestProblem) => {
+            problem.score = problem.score ?? 0 // Score 기능 완료되면 수정해주세요!!
+          })
           setProblems(parsedData)
           const orderArray = parsedData.map(
             // eslint-disable-next-line
@@ -198,7 +203,12 @@ export default function Page({ params }: { params: { id: string } }) {
       variables: {
         groupId: 1,
         contestId: Number(id),
-        problemIds
+        problemIdsWithScore: problems.map((problem) => {
+          return {
+            problemId: problem.id,
+            score: problem.score
+          }
+        })
       }
     })
 
@@ -206,6 +216,8 @@ export default function Page({ params }: { params: { id: string } }) {
     orderArray.forEach((order: number, index: number) => {
       orders[order] = problemIds[index]
     })
+    console.log(orders)
+
     await updateContestProblemsOrder({
       variables: {
         groupId: 1,
