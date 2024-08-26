@@ -1,8 +1,9 @@
 import { IsOptional, IsString, IsNumberString, Matches } from 'class-validator'
 
 export class UpdateUserDto {
+  @IsOptional()
   @IsString()
-  readonly password: string
+  readonly password?: string
 
   @IsOptional()
   @IsString()

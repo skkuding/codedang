@@ -27,6 +27,7 @@ const MIN_DATE: Date = new Date('2000-01-01T00:00:00.000Z')
 const MAX_DATE: Date = new Date('2999-12-31T00:00:00.000Z')
 
 let superAdminUser: User
+let adminUser: User
 let managerUser: User
 let publicGroup: Group
 let privateGroup: Group
@@ -57,7 +58,7 @@ const createUsers = async () => {
   })
 
   // create admin user
-  await prisma.user.create({
+  adminUser = await prisma.user.create({
     data: {
       username: 'admin',
       password: await hash('Adminadmin'),
@@ -104,6 +105,13 @@ const createUsers = async () => {
     data: {
       userId: superAdminUser.id,
       realName: 'Yuljeon Kim'
+    }
+  })
+
+  await prisma.userProfile.create({
+    data: {
+      userId: adminUser.id,
+      realName: 'Admin Kim'
     }
   })
 
