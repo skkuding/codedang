@@ -47,6 +47,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [isJudgeResultVisible, setIsJudgeResultVisible] =
     useState<boolean>(false)
   const [showInvitationCode, setShowInvitationCode] = useState<boolean>(false)
+  const [showImportDialog, setShowImportDialog] = useState<boolean>(false)
   const { id } = params
 
   const router = useRouter()
@@ -64,50 +65,23 @@ export default function Page({ params }: { params: { id: string } }) {
   useQuery(GET_CONTEST, {
     variables: { contestId: Number(id) },
     onCompleted: (contestData) => {
-      const storedContestFormData = localStorage.getItem(
-        `contestFormData-${id}`
-      )
       setValue('id', Number(id))
-      if (storedContestFormData) {
-        const contestFormData = JSON.parse(storedContestFormData)
-        setValue('title', contestFormData.title)
-        if (contestFormData.startTime) {
-          setValue('startTime', new Date(contestFormData.startTime))
-        }
-        if (contestFormData.endTime) {
-          setValue('endTime', new Date(contestFormData.endTime))
-        }
-        setValue('description', contestFormData.description)
-        setValue('enableCopyPaste', contestFormData.enableCopyPaste)
-        setValue('isJudgeResultVisible', contestFormData.isJudgeResultVisible)
-        setValue('invitationCode', contestFormData.invitationCode)
-        if (contestFormData.invitationCode) {
-          setShowInvitationCode(true)
-        }
-        if (contestFormData.enableCopyPaste) {
-          setEnableCopyPaste(true)
-        }
-        if (contestFormData.isJudgeResultVisible) {
-          setIsJudgeResultVisible(true)
-        }
-      } else {
-        const data = contestData.getContest
-        setValue('title', data.title)
-        setValue('description', data.description)
-        setValue('startTime', new Date(data.startTime))
-        setValue('endTime', new Date(data.endTime))
-        setValue('enableCopyPaste', data.enableCopyPaste)
-        setValue('isJudgeResultVisible', data.isJudgeResultVisible)
-        setValue('invitationCode', data.invitationCode)
-        if (data.invitationCode) {
-          setShowInvitationCode(true)
-        }
-        if (data.enableCopyPaste) {
-          setEnableCopyPaste(true)
-        }
-        if (data.isJudgeResultVisible) {
-          setIsJudgeResultVisible(true)
-        }
+      const data = contestData.getContest
+      setValue('title', data.title)
+      setValue('description', data.description)
+      setValue('startTime', new Date(data.startTime))
+      setValue('endTime', new Date(data.endTime))
+      setValue('enableCopyPaste', data.enableCopyPaste)
+      setValue('isJudgeResultVisible', data.isJudgeResultVisible)
+      setValue('invitationCode', data.invitationCode)
+      if (data.invitationCode) {
+        setShowInvitationCode(true)
+      }
+      if (data.enableCopyPaste) {
+        setEnableCopyPaste(true)
+      }
+      if (data.isJudgeResultVisible) {
+        setIsJudgeResultVisible(true)
       }
       setIsLoading(false)
     }
@@ -119,37 +93,17 @@ export default function Page({ params }: { params: { id: string } }) {
       const data = problemData.getContestProblems
 
       setPrevProblemIds(data.map((problem) => problem.problemId))
-      const importedProblems = localStorage.getItem(`importProblems-${id}`)
 
-      if (importedProblems === null) {
-        const contestProblems = data.map((problem) => {
-          return {
-            id: problem.problemId,
-            title: problem.problem.title,
-            order: problem.order,
-            difficulty: problem.problem.difficulty
-          }
-        })
-        localStorage.setItem(
-          'orderArray',
-          JSON.stringify(data.map((problem) => problem.order))
-        )
-        localStorage.setItem(
-          `importProblems-${id}`,
-          JSON.stringify(contestProblems)
-        )
-        setProblems(contestProblems)
-      } else {
-        const parsedData = JSON.parse(importedProblems)
-        if (parsedData.length > 0) {
-          setProblems(parsedData)
-          const orderArray = parsedData.map(
-            // eslint-disable-next-line
-            (_: any, index: number) => index
-          )
-          localStorage.setItem('orderArray', JSON.stringify(orderArray))
+      const contestProblems = data.map((problem) => {
+        return {
+          id: problem.problemId,
+          title: problem.problem.title,
+          order: problem.order,
+          difficulty: problem.problem.difficulty,
+          score: problem.score ?? 0 // Score 기능 완료되면 수정해주세요!!
         }
-      }
+      })
+      setProblems(contestProblems)
     }
   })
 
@@ -166,20 +120,9 @@ export default function Page({ params }: { params: { id: string } }) {
       return
     }
 
-    const problemIds = problems.map((problem) => problem.id)
-
-    const orderArray = JSON.parse(localStorage.getItem('orderArray') || '[]')
-    if (orderArray.length !== problemIds.length) {
-      toast.error('Problem order not set')
-      return
-    }
-    orderArray.forEach((order: number) => {
-      if (order === null) {
-        toast.error('Problem order not set')
-        return
-      }
-    })
-    if (new Set(orderArray).size !== orderArray.length) {
+    if (
+      new Set(problems.map((problem) => problem.order)).size !== problems.length
+    ) {
       toast.error('Duplicate problem order found')
       return
     }
@@ -206,24 +149,25 @@ export default function Page({ params }: { params: { id: string } }) {
       variables: {
         groupId: 1,
         contestId: Number(id),
-        problemIds
+        problemIdsWithScore: problems.map((problem) => {
+          return {
+            problemId: problem.id,
+            score: problem.score
+          }
+        })
       }
     })
 
-    const orders: number[] = []
-    orderArray.forEach((order: number, index: number) => {
-      orders[order] = problemIds[index]
-    })
+    const orderArray = problems
+      .sort((a, b) => a.order - b.order)
+      .map((problem) => problem.id)
     await updateContestProblemsOrder({
       variables: {
         groupId: 1,
         contestId: Number(id),
-        orders
+        orders: orderArray
       }
     })
-    localStorage.removeItem('orderArray')
-    localStorage.removeItem(`contestFormData-${id}`)
-    localStorage.removeItem(`importProblems-${id}`)
     toast.success('Contest updated successfully')
     router.push('/admin/contest')
     router.refresh()
@@ -280,24 +224,33 @@ export default function Page({ params }: { params: { id: string } }) {
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <ContestProblemListLabel />
-                <Dialog>
+                <Dialog
+                  open={showImportDialog}
+                  onOpenChange={setShowImportDialog}
+                >
                   <DialogTrigger asChild>
                     <Button variant="outline">
                       <PlusCircleIcon className="h-4 w-4" />
                       <div className="mb-[2px] text-sm">Import Problem</div>
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="w-[1080px] max-w-[1080px]">
+                  <DialogContent className="w-[1280px] max-w-[1280px]">
                     <DialogHeader>
                       <DialogTitle>Import Problem</DialogTitle>
                     </DialogHeader>
-                    <ImportProblemTable />
+                    <ImportProblemTable
+                      checkedProblems={problems as ContestProblem[]}
+                      onSelectedExport={(problems) =>
+                        setProblems(problems as ContestProblem[])
+                      }
+                      onCloseDialog={() => setShowImportDialog(false)}
+                    />
                   </DialogContent>
                 </Dialog>
               </div>
               <DataTableAdmin
                 // eslint-disable-next-line
-                columns={columns as any[]}
+                columns={columns(setProblems) as any[]}
                 data={problems as ContestProblem[]}
                 enableDelete={true}
                 enableSearch={true}

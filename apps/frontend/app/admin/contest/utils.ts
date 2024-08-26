@@ -30,4 +30,5 @@ export interface ContestProblem {
   title: string
   order: number
   difficulty: string
+  score: number
 }

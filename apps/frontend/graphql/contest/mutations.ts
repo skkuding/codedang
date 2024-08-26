@@ -52,23 +52,6 @@ const DELETE_CONTEST = gql(`
   }
 `)
 
-// const IMPORT_PROBLEMS_TO_CONTEST = gql(`
-//   mutation ImportProblemsToContest(
-//     $groupId: Int!,
-//     $contestId: Int!,
-//     $problemIds: [Int!]!
-//   ) {
-//     importProblemsToContest(
-//       groupId: $groupId,
-//       contestId: $contestId,
-//       problemIds: $problemIds
-//     ) {
-//       contestId
-//       problemId
-//     }
-//   }
-// `)
-
 const IMPORT_PROBLEMS_TO_CONTEST = gql(`
   mutation ImportProblemsToContest(
     $groupId: Int!,

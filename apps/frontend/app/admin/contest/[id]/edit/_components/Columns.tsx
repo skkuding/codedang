@@ -44,7 +44,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className="w-[400px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+        <div className="w-[500px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
           {row.getValue('title')}
         </div>
       )
@@ -52,11 +52,6 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     enableSorting: false,
     enableHiding: false
   },
-  /**
-   * @description
-   * made this column for filtering languages
-   * doesn't show in datatable
-   */
   {
     accessorKey: 'languages',
     header: () => {},

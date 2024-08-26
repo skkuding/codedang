@@ -3,17 +3,12 @@
 import { DataTableColumnHeader } from '@/components/DataTableColumnHeader'
 import OptionSelect from '@/components/OptionSelect'
 import { Checkbox } from '@/components/ui/checkbox'
-import type { Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
+import type { ContestProblem } from '../../utils'
 
-interface Problem {
-  id: number
-  title: string
-  order: number
-  difficulty: Level
-}
-
-export const columns: ColumnDef<Problem>[] = [
+export const columns = (
+  setProblems: React.Dispatch<React.SetStateAction<ContestProblem[]>>
+): ColumnDef<ContestProblem>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -44,7 +39,7 @@ export const columns: ColumnDef<Problem>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Title" />
     ),
-    cell: ({ row }) => row.getValue('title'),
+    cell: ({ row }) => <p className="text-left">{row.getValue('title')}</p>,
     enableSorting: false,
     enableHiding: false
   },
@@ -59,19 +54,20 @@ export const columns: ColumnDef<Problem>[] = [
       return (
         <div className="flex justify-center">
           <OptionSelect
-            placeholder={
+            value={
               row.original.order !== undefined
                 ? String.fromCharCode(Number(65 + row.original.order))
                 : String.fromCharCode(Number(65 + row.index))
             }
             options={alphabetArray}
             onChange={(selectedOrder) => {
-              const storedValue = localStorage.getItem('orderArray')
-              const orderArray = storedValue ? JSON.parse(storedValue) : []
-              orderArray[row.index] = Number(
-                selectedOrder.charCodeAt(0) - 'A'.charCodeAt(0)
+              setProblems((prevProblems: ContestProblem[]) =>
+                prevProblems.map((problem) =>
+                  problem.id === row.original.id
+                    ? { ...problem, order: selectedOrder.charCodeAt(0) - 65 }
+                    : problem
+                )
               )
-              localStorage.setItem('orderArray', JSON.stringify(orderArray))
             }}
           />
         </div>

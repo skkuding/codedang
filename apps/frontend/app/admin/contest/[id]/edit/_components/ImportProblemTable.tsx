@@ -5,7 +5,28 @@ import { useQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
 import { columns } from './Columns'
 
-export default function ImportProblemTable() {
+interface ContestProblem {
+  id: number
+  title: string
+  difficulty: string
+}
+
+interface OrderContestProblem {
+  id: number
+  title: string
+  difficulty: string
+  order: number
+}
+
+export default function ImportProblemTable({
+  checkedProblems,
+  onSelectedExport,
+  onCloseDialog
+}: {
+  checkedProblems: ContestProblem[]
+  onSelectedExport: (selectedRows: OrderContestProblem[]) => void
+  onCloseDialog: () => void
+}) {
   const { data, loading } = useQuery(GET_PROBLEMS, {
     variables: {
       groupId: 1,
@@ -66,7 +87,14 @@ export default function ImportProblemTable() {
           enablePagination={true}
           enableRowsPerpage={false}
           enableImport={true}
-          checkSelectedRows={true}
+          checkedRows={checkedProblems}
+          onSelectedExport={(problems) => {
+            onCloseDialog()
+            const problemsWithOrder = problems.map((problem, index) => {
+              return { ...problem, order: index }
+            })
+            onSelectedExport(problemsWithOrder)
+          }}
         />
       )}
     </>
