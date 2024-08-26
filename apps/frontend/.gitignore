@@ -40,3 +40,7 @@ __generated__/
 
 # Sentry Config File
 .sentryclirc
+
+# Playwright
+test-results/*
+test-results.json

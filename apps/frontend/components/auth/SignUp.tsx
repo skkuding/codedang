@@ -26,28 +26,30 @@ export default function SignUp() {
       )}
 
       <Image
-        className="absolute left-8 top-10"
+        className="absolute top-4"
         src={CodedangLogo}
         alt="codedang"
-        width={70}
+        width={100}
       />
 
       {modalPage === 0 && <SignUpWelcome />}
       {modalPage === 1 && <SignUpEmailVerify />}
       {modalPage === 2 && <SignUpRegister />}
 
-      <div className="absolute bottom-6 flex items-center justify-center">
-        <span className="h-5 w-fit text-xs leading-5 text-gray-500">
-          Already have account?
-        </span>
-        <Button
-          onClick={() => showSignIn()}
-          variant={'link'}
-          className="h-5 w-fit text-xs text-gray-500"
-        >
-          Log In
-        </Button>
-      </div>
+      {modalPage === 0 && (
+        <div className="absolute bottom-6 flex items-center justify-center">
+          <span className="h-5 w-fit text-xs leading-5 text-gray-500">
+            Already have account?
+          </span>
+          <Button
+            onClick={() => showSignIn()}
+            variant={'link'}
+            className="h-5 w-fit text-xs text-gray-500"
+          >
+            Log In
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

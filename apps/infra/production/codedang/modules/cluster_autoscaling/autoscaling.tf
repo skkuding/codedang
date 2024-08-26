@@ -44,6 +44,15 @@ resource "aws_autoscaling_group" "this" {
   lifecycle {
     create_before_destroy = true
   }
+
+  tag {
+    key                 = "AmazonECSManaged"
+    value               = ""
+    propagate_at_launch = true
+  }
+
+  protect_from_scale_in = true
+
 }
 
 resource "aws_autoscaling_policy" "this" {
@@ -66,5 +75,12 @@ resource "aws_ecs_capacity_provider" "this" {
   auto_scaling_group_provider {
     auto_scaling_group_arn         = aws_autoscaling_group.this.arn
     managed_termination_protection = "ENABLED"
+
+    managed_scaling {
+      maximum_scaling_step_size = 5
+      minimum_scaling_step_size = 1
+      status                    = "ENABLED"
+      target_capacity           = 100
+    }
   }
 }

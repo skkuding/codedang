@@ -1,70 +1,76 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn, dateFormatter } from '@/lib/utils'
-import type { Contest } from '@/types/type'
-import { FaRegClock } from 'react-icons/fa'
-import { FaRegCalendarAlt } from 'react-icons/fa'
-import Badge from './Badge'
-import TimeDiff from './TimeDiff'
+'use client'
 
-const variants = {
-  ongoing: 'bg-gradient-to-br from-blue-500 to-blue-950',
-  upcoming: 'bg-gradient-to-br from-emerald-600 to-emerald-900',
+import ContestStatusTimeDiff from '@/components/ContestStatusTimeDiff'
+import { cn, dateFormatter } from '@/lib/utils'
+import CalendarIcon from '@/public/20_calendar.svg'
+import type { Contest } from '@/types/type'
+import Image from 'next/image'
+import { CircularProgressbar } from 'react-circular-progressbar'
+import 'react-circular-progressbar/dist/styles.css'
+import StatusBadge from './StatusBadge'
+
+const bgVariants = {
+  ongoing: 'bg-gradient-to-b from-blue-100 to-white',
+  upcoming: 'bg-white',
   finished: 'bg-gray-500',
-  registeredOngoing: 'bg-gradient-to-br from-blue-500 to-blue-950',
-  registeredUpcoming: 'bg-gradient-to-br from-emerald-600 to-emerald-900'
+  registeredOngoing: 'bg-gradient-to-b from-blue-100 to-white',
+  registeredUpcoming: 'bg-white'
 }
 
+const txtVariants = {
+  ongoing: 'text-blue-500',
+  upcoming: 'text-red-400',
+  finished: 'text-gray-500',
+  registeredOngoing: 'text-blue-500',
+  registeredUpcoming: 'text-red-400'
+}
 interface Props {
   contest: Contest
 }
 
-const format = (target: Date, year: number): string =>
-  new Date(target).getFullYear() === year
-    ? dateFormatter(target, 'MMM DD')
-    : dateFormatter(target, 'MMM DD, YYYY')
-
 export default function ContestCard({ contest }: Props) {
-  const year = new Date().getFullYear()
-  const startTime = format(contest.startTime, year)
-  const endTime = format(contest.endTime, year)
+  const startTime = dateFormatter(contest.startTime, 'YYYY-MM-DD')
+  const endTime = dateFormatter(contest.endTime, 'YYYY-MM-DD')
 
   return (
-    <Card
+    <div
       className={cn(
-        'flex w-full flex-col justify-between gap-1 border-none text-white shadow-none transition hover:scale-105 hover:opacity-80',
-        variants[contest.status]
+        'flex w-full flex-col justify-between gap-4 rounded-md border border-gray-200 px-3 shadow-none transition hover:scale-105 hover:opacity-80',
+        bgVariants[contest.status]
       )}
     >
-      <CardHeader className="pb-0">
-        <Badge type={contest.status}>
-          <p>
-            {contest.status.startsWith('registered')
-              ? 'registered'
-              : contest.status}
-          </p>
-        </Badge>
-        <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap text-lg font-semibold">
-          {contest.title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="inline-flex items-center gap-1 whitespace-nowrap text-xs text-white opacity-80">
-        {contest.status === 'finished' ? (
-          <>
-            <FaRegCalendarAlt className="shrink-0" />
-            <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-              {startTime} - {endTime}
-            </p>
-          </>
-        ) : (
-          <>
-            <FaRegClock className="shrink-0" />
-            {contest.status === 'ongoing' ? 'Ends in' : 'Starts in'}
-            <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-              <TimeDiff timeRef={contest.endTime}></TimeDiff>
-            </p>
-          </>
+      <div
+        className={cn(
+          'flex flex-col justify-between gap-4 pt-4 uppercase',
+          txtVariants[contest.status]
         )}
-      </CardContent>
-    </Card>
+      >
+        <StatusBadge variant={contest.status} />
+        <div className="line-clamp-4 text-ellipsis whitespace-pre-wrap text-lg font-semibold leading-tight text-black min-[400px]:line-clamp-2">
+          {contest.title}
+        </div>
+      </div>
+      <div className="mb-4 flex items-center justify-between">
+        <div className="line-clamp-2 flex flex-col gap-2">
+          <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800 opacity-80">
+            <Image src={CalendarIcon} alt="Calendar" />
+            <p className="overflow-hidden text-ellipsis whitespace-pre-wrap">
+              {startTime} ~ {endTime}
+            </p>
+          </div>
+          <ContestStatusTimeDiff
+            contest={contest}
+            textStyle="text-xs text-gray-800"
+            inContestEditor={false}
+          />
+        </div>
+        {(contest.status == 'ongoing' ||
+          contest.status == 'registeredOngoing') && (
+          <div className="hidden h-12 w-12 min-[400px]:block">
+            <CircularProgressbar value={60} text="60%" />
+          </div>
+        )}
+      </div>
+    </div>
   )
 }

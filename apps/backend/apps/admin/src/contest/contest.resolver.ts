@@ -19,8 +19,12 @@ import { ContestService } from './contest.service'
 import { ContestWithParticipants } from './model/contest-with-participants.model'
 import { CreateContestInput } from './model/contest.input'
 import { UpdateContestInput } from './model/contest.input'
+import { ContestsGroupedByStatus } from './model/contests-grouped-by-status'
+import { DuplicatedContestResponse } from './model/duplicated-contest-response.output'
+import { ProblemScoreInput } from './model/problem-score.input'
 import { PublicizingRequest } from './model/publicizing-request.model'
 import { PublicizingResponse } from './model/publicizing-response.output'
+import { UserContestScoreSummary } from './model/score-summary'
 
 @Resolver(() => Contest)
 export class ContestResolver {
@@ -180,13 +184,14 @@ export class ContestResolver {
   async importProblemsToContest(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('contestId', { type: () => Int }) contestId: number,
-    @Args('problemIds', { type: () => [Int] }) problemIds: number[]
+    @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
+    problemIdsWithScore: ProblemScoreInput[]
   ) {
     try {
       return await this.contestService.importProblemsToContest(
         groupId,
         contestId,
-        problemIds
+        problemIdsWithScore
       )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
@@ -210,6 +215,62 @@ export class ContestResolver {
         contestId,
         problemIds
       )
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Mutation(() => DuplicatedContestResponse)
+  async duplicateContest(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('contestId', { type: () => Int })
+    contestId: number,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    try {
+      return await this.contestService.duplicateContest(
+        groupId,
+        contestId,
+        req.user.id
+      )
+    } catch (error) {
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof EntityNotExistException
+      ) {
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Query(() => UserContestScoreSummary)
+  async getScoreSummaries(
+    @Args('userId', { type: () => Int }) userId: number,
+    @Args('contestId', { type: () => Int }) contestId: number
+  ) {
+    try {
+      return await this.contestService.getContestScoreSummary(userId, contestId)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Query(() => ContestsGroupedByStatus)
+  async getContestsByProblemId(
+    @Args('problemId', { type: () => Int }) problemId: number
+  ) {
+    try {
+      return await this.contestService.getContestsByProblemId(problemId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw error.convert2HTTPException()

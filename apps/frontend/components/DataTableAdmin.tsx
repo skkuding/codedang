@@ -1,5 +1,6 @@
 'use client'
 
+import DuplicateContest from '@/app/admin/contest/_components/DuplicateContest'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,8 +9,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
+  AlertDialogTitle
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,10 +20,17 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider
+} from '@/components/ui/tooltip'
 import { DELETE_CONTEST } from '@/graphql/contest/mutations'
+import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import { DELETE_PROBLEM } from '@/graphql/problem/mutations'
-import { GET_TAGS } from '@/graphql/problem/queries'
-import { useMutation, useQuery } from '@apollo/client'
+import { getStatusWithStartEnd } from '@/lib/utils'
+import { useLazyQuery, useMutation } from '@apollo/client'
 import type { ColumnDef, SortingState } from '@tanstack/react-table'
 import {
   flexRender,
@@ -35,15 +42,16 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import { PlusCircleIcon } from 'lucide-react'
+import { CopyIcon, PlusCircleIcon } from 'lucide-react'
 import type { Route } from 'next'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
+import { IoSearch } from 'react-icons/io5'
 import { PiTrashLight } from 'react-icons/pi'
 import { toast } from 'sonner'
 import DataTableLangFilter from './DataTableLangFilter'
+import DataTableLevelFilter from './DataTableLevelFilter'
 import { DataTablePagination } from './DataTablePagination'
-import { DataTableTagsFilter } from './DataTableTagsFilter'
 import { Input } from './ui/input'
 
 interface DataTableProps<TData, TValue> {
@@ -54,7 +62,11 @@ interface DataTableProps<TData, TValue> {
   enableDelete?: boolean // Enable delete selected rows
   enablePagination?: boolean // Enable pagination
   enableImport?: boolean // Enable import selected rows
+  enableDuplicate?: boolean // Enable duplicate selected rows
   checkSelectedRows?: boolean // Check selected rows
+  headerStyle?: {
+    [key: string]: string
+  }
 }
 
 interface ContestProblem {
@@ -63,7 +75,16 @@ interface ContestProblem {
   difficulty: string
 }
 
-const languageOptions = ['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']
+interface SelectedContest {
+  original: {
+    id: number
+    startTime: string
+    endTime: string
+  }
+}
+
+const languageOptions = ['C', 'Cpp', 'Java', 'Python3']
+const levels = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
 
 let contestId: string | null = null
 
@@ -81,7 +102,9 @@ export function DataTableAdmin<TData, TValue>({
   enableDelete = false,
   enablePagination = false,
   enableImport = false,
-  checkSelectedRows = false
+  checkSelectedRows = false,
+  headerStyle = {},
+  enableDuplicate = false
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])
@@ -92,9 +115,15 @@ export function DataTableAdmin<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    defaultColumn: {
+      minSize: 0,
+      size: Number.MAX_SAFE_INTEGER,
+      maxSize: Number.MAX_SAFE_INTEGER
+    },
     state: {
       sorting,
-      rowSelection
+      rowSelection,
+      columnVisibility: { languages: false }
     },
     autoResetPageIndex: false,
     enableRowSelection: true,
@@ -117,6 +146,7 @@ export function DataTableAdmin<TData, TValue>({
 
   const [deleteProblem] = useMutation(DELETE_PROBLEM)
   const [deleteContest] = useMutation(DELETE_CONTEST)
+  const [isDeleteAlertDialogOpen, setIsDeleteAlertDialogOpen] = useState(false)
 
   useEffect(() => {
     if (checkSelectedRows) {
@@ -229,29 +259,56 @@ export function DataTableAdmin<TData, TValue>({
       })
   }
 
-  const { data: tagsData } = useQuery(GET_TAGS)
-  const tags =
-    tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
+  const [fetchContests] = useLazyQuery(GET_BELONGED_CONTESTS)
+
+  const handleDeleteButtonClick = async () => {
+    const selectedRows = table.getSelectedRowModel().rows as {
+      original: { id: number }
+    }[]
+    const promises = selectedRows.map((row) =>
+      fetchContests({
+        variables: {
+          problemId: Number(row.original.id)
+        }
+      }).then((result) => result.data)
+    )
+    const results = await Promise.all(promises)
+    const isAllSafe = !results.some((data) => data !== undefined)
+    if (isAllSafe) {
+      setIsDeleteAlertDialogOpen(true)
+    } else {
+      setIsDeleteAlertDialogOpen(false)
+      toast.error('Failed :  Problem included in the contest')
+    }
+  }
 
   return (
     <div className="space-y-4">
       <Suspense>
         <Search />
       </Suspense>
-      {(enableSearch || enableFilter || enableImport || enableDelete) && (
+      {(enableSearch ||
+        enableFilter ||
+        enableImport ||
+        enableDelete ||
+        enableDuplicate) && (
         <div className="flex justify-between">
           <div className="flex gap-2">
             {enableSearch && (
-              <Input
-                placeholder="Search"
-                value={
-                  (table.getColumn('title')?.getFilterValue() as string) ?? ''
-                }
-                onChange={(event) =>
-                  table.getColumn('title')?.setFilterValue(event.target.value)
-                }
-                className="h-10 w-[150px] lg:w-[250px]"
-              />
+              <div className="relative">
+                <IoSearch className="text-muted-foreground absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                <Input
+                  placeholder="Search"
+                  value={
+                    (table.getColumn('title')?.getFilterValue() as string) ?? ''
+                  }
+                  onChange={(event) => {
+                    table.getColumn('title')?.setFilterValue(event.target.value)
+                    table.setPageIndex(0)
+                  }}
+                  className="h-10 w-[150px] bg-transparent pl-8 lg:w-[250px]"
+                />
+              </div>
             )}
             {enableFilter && (
               <div className="flex gap-2">
@@ -262,68 +319,111 @@ export function DataTableAdmin<TData, TValue>({
                     options={languageOptions}
                   />
                 )}
-                {table.getColumn('tag') && (
-                  <DataTableTagsFilter
-                    column={table.getColumn('tag')}
-                    title="Tags"
-                    options={tags}
+                {table.getColumn('difficulty') && (
+                  <DataTableLevelFilter
+                    column={table.getColumn('difficulty')}
+                    title="Level"
+                    options={levels}
                   />
                 )}
               </div>
             )}
           </div>
-          {enableImport ? (
-            <Button onClick={() => handleImportProblems()}>
-              <PlusCircleIcon className="mr-2 h-4 w-4" />
-              Import
-            </Button>
-          ) : null}
-          {enableDelete ? (
-            selectedRowCount !== 0 ? (
-              <AlertDialog>
-                <AlertDialogTrigger>
-                  <Button variant="outline" type="button">
+          <div className="flex gap-2">
+            {enableImport ? (
+              <Button onClick={() => handleImportProblems()}>
+                <PlusCircleIcon className="mr-2 h-4 w-4" />
+                Import
+              </Button>
+            ) : null}
+            {enableDuplicate ? (
+              selectedRowCount === 1 ? (
+                <DuplicateContest
+                  contestId={
+                    (table.getSelectedRowModel().rows[0] as SelectedContest)
+                      ?.original.id
+                  }
+                  contestStatus={getStatusWithStartEnd(
+                    (table.getSelectedRowModel().rows[0] as SelectedContest)
+                      ?.original.startTime,
+                    (table.getSelectedRowModel().rows[0] as SelectedContest)
+                      ?.original.endTime
+                  )}
+                  groupId={1}
+                />
+              ) : (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Button variant="default" size="default" disabled>
+                        <CopyIcon className="mr-2 h-4 w-4" />
+                        Duplicate
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p> Select only one contest to duplicate</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )
+            ) : null}
+            {enableDelete ? (
+              selectedRowCount !== 0 ? (
+                <div>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={handleDeleteButtonClick}
+                  >
                     <PiTrashLight fontSize={18} />
                   </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to permanently delete{' '}
-                      {selectedRowCount} {deletingObject}(s)?
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction asChild>
-                      <Button
-                        onClick={() => handleDeleteRows()}
-                        className="bg-red-500 hover:bg-red-500/90"
-                      >
-                        Delete
-                      </Button>
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            ) : (
-              <Button variant="outline" type="button">
-                <PiTrashLight fontSize={18} />
-              </Button>
-            )
-          ) : null}
+                  <AlertDialog
+                    open={isDeleteAlertDialogOpen}
+                    onOpenChange={setIsDeleteAlertDialogOpen}
+                  >
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to permanently delete{' '}
+                          {selectedRowCount} {deletingObject}(s)?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction asChild>
+                          <Button
+                            onClick={() => handleDeleteRows()}
+                            className="bg-red-500 hover:bg-red-500/90"
+                          >
+                            Delete
+                          </Button>
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              ) : (
+                <Button variant="outline" type="button">
+                  <PiTrashLight fontSize={18} />
+                </Button>
+              )
+            ) : null}
+          </div>
         </div>
       )}
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader className="[&_tr]:border-b-gray-200">
+      <div>
+        <Table className="rounded border">
+          <TableHeader className="bg-neutral-100 [&_tr]:border-b-gray-200">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      className={headerStyle[header.id]}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -348,17 +448,13 @@ export function DataTableAdmin<TData, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
-                    className="cursor-pointer hover:bg-gray-200"
+                    className="cursor-pointer hover:bg-neutral-200/30"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className="md:p-4"
-                        onClick={
-                          cell.column.id === 'title'
-                            ? () => router.push(href)
-                            : undefined
-                        }
+                        className="text-center md:p-4"
+                        onClick={() => router.push(href)}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,

@@ -147,10 +147,12 @@ export default function Page() {
             <TemplateField />
 
             <SwitchField name="hint" title="Hint" placeholder="Enter a hint" />
+
             <SwitchField
               name="source"
               title="Source"
               placeholder="Enter a source"
+              formElement="input"
             />
 
             <Button

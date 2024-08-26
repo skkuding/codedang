@@ -33,22 +33,20 @@ func SandboxResultCodeToJudgeResultCode(code sandbox.ResultCode) JudgeResultCode
 
 func ParseError(j JudgeResult) error {
 	if j.ResultCode != ACCEPTED {
+		// TODO : Customizing Results
+		if j.Signal == 11 && j.ResultCode != MEMORY_LIMIT_EXCEEDED {
+			return resultCodeToError(SEGMENATION_FAULT)
+		}
+		if j.RealTime >= 2000 && j.Signal == 9 && j.ResultCode == RUNTIME_ERROR {
+			return resultCodeToError(REAL_TIME_LIMIT_EXCEEDED)
+		}
 		return resultCodeToError(j.ResultCode)
 	}
 	return nil
 }
 
-func ParseFirstError(j []JudgeResult) error {
-	for _, res := range j {
-		if res.ResultCode != ACCEPTED {
-			return resultCodeToError(res.ResultCode)
-		}
-	}
-	return nil
-}
-
 func resultCodeToError(code JudgeResultCode) error {
-	caller := "parse first error"
+	caller := "parse error"
 	err := &HandlerError{
 		caller: caller,
 		level:  logger.INFO,
@@ -64,6 +62,8 @@ func resultCodeToError(code JudgeResultCode) error {
 		return err.Wrap(ErrMemoryLimitExceed)
 	case RUNTIME_ERROR:
 		return err.Wrap(ErrRuntime)
+	case SEGMENATION_FAULT:
+		return err.Wrap(ErrSegFault)
 	}
 	return &HandlerError{caller: caller, err: ErrSandbox, level: logger.ERROR}
 }

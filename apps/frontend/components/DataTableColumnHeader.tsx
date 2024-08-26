@@ -6,11 +6,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  CaretSortIcon
-} from '@radix-ui/react-icons'
+import { TriangleDownIcon, TriangleUpIcon } from '@radix-ui/react-icons'
 import type { Column } from '@tanstack/react-table'
 
 interface DataTableColumnHeaderProps<TData, TValue>
@@ -26,35 +22,45 @@ export function DataTableColumnHeader<TData, TValue>({
 }: DataTableColumnHeaderProps<TData, TValue>) {
   // Title column
   if (!column.getCanSort()) {
-    return <div className={cn('w-[330px]', className)}>{title}</div>
+    return (
+      <div className={cn('w-[330px] text-left font-mono text-sm', className)}>
+        {title}
+      </div>
+    )
   }
 
   return (
-    <div className={cn('flex items-center space-x-2', className)}>
+    <div className={cn('flex items-center space-x-2 font-mono', className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="sm"
-            className="data-[state=open]:bg-accent -ml-3 h-8"
+            className={cn(
+              'data-[state=open]:bg-accent ml-3 flex h-8 justify-center text-neutral-400',
+              column.getIsSorted() ? 'text-black' : ''
+            )}
           >
             <span>{title}</span>
             {column.getIsSorted() === 'desc' ? (
-              <ArrowDownIcon className="ml-2 h-4 w-4" />
+              <TriangleDownIcon className="ml-2 h-4 w-4" />
             ) : column.getIsSorted() === 'asc' ? (
-              <ArrowUpIcon className="ml-2 h-4 w-4" />
+              <TriangleUpIcon className="ml-2 h-4 w-4" />
             ) : (
-              <CaretSortIcon className="ml-2 h-4 w-4" />
+              <div>
+                <TriangleUpIcon className="-mb-2.5 ml-2 h-4 w-4" />
+                <TriangleDownIcon className="-mt- ml-2 h-4 w-4" />
+              </div>
             )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
-            <ArrowUpIcon className="text-muted-foreground/70 mr-2 h-3.5 w-3.5" />
+            <TriangleUpIcon className="text-muted-foreground/70 mr-2 h-3.5 w-3.5" />
             {title === 'Visible' ? 'Hidden first' : 'Asc'}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
-            <ArrowDownIcon className="text-muted-foreground/70 mr-2 h-3.5 w-3.5" />
+            <TriangleDownIcon className="text-muted-foreground/70 mr-2 h-3.5 w-3.5" />
             {title === 'Visible' ? 'Visible first' : 'Desc'}
           </DropdownMenuItem>
         </DropdownMenuContent>

@@ -4,11 +4,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Cover
-        title="Notice"
-        description="Events and announcements of Codedang"
-        bgColor="bg-gray-500"
+        title="NOTICE"
+        description="Events and announcements of CODEDANG"
       />
-      <div className="flex w-full max-w-5xl flex-col gap-5 p-5 py-8 md:py-12">
+      <div className="flex w-full max-w-7xl flex-col gap-5 p-5 py-8">
         {children}
       </div>
     </>

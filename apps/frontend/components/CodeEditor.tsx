@@ -9,18 +9,19 @@ import { tags as t } from '@lezer/highlight'
 import { createTheme } from '@uiw/codemirror-themes'
 import type { ReactCodeMirrorProps } from '@uiw/react-codemirror'
 import ReactCodeMirror, { EditorView } from '@uiw/react-codemirror'
+import { toast } from 'sonner'
 import { ScrollArea, ScrollBar } from './ui/scroll-area'
 
 const editorTheme = createTheme({
   settings: {
-    background: '#0f172a',
+    background: '#121728',
     foreground: '#9cdcfe',
     fontFamily: 'var(--font-mono), monospace',
     caret: '#c6c6c6',
     selection: '#6199ff2f',
     selectionMatch: '#72a1ff59',
     lineHighlight: '#ffffff0f',
-    gutterBackground: '#0f172a',
+    gutterBackground: '#121728',
     gutterActiveForeground: '#fff'
   },
   styles: [
@@ -69,12 +70,15 @@ interface Props extends ReactCodeMirrorProps {
 const copyPasteHandler = () => {
   return EditorView.domEventHandlers({
     paste(event) {
+      toast.error('Copying and pasting is not allowed')
       event.preventDefault()
     },
     copy(event) {
+      toast.error('Copying and pasting is not allowed')
       event.preventDefault()
     },
     cut(event) {
+      toast.error('Copying and pasting is not allowed')
       event.preventDefault()
     }
   })
@@ -95,7 +99,7 @@ export default function CodeEditor({
         extensions={[
           fontSize,
           languageParser[language](),
-          enableCopyPaste ? [] : [copyPasteHandler()]
+          enableCopyPaste ? [] : copyPasteHandler()
         ]}
         value={value}
         onChange={onChange}

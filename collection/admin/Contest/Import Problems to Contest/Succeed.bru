@@ -13,9 +13,22 @@ post {
 body:graphql {
   mutation {
     importProblemsToContest(
-      groupId: 2
+      groupId: 1
       contestId: 3
-      problemIds: [7, 9, 8]
+      problemIdsWithScore: [
+        {
+          problemId: 7,
+          score: 20
+        },
+        {
+        	problemId: 8,
+          score: 30
+        },
+        {
+          problemId: 9,
+          score: 50
+        }
+      ]
     ) {
       contestId
       problemId
@@ -35,7 +48,8 @@ docs {
   # Import Problems
   ---
   - Group에 속해있는 문제들을 Contest에 import합니다.
-  - `problemIds`로 전달된 Problem들은 `groupId`로 전달된 Group에 속해 있는 경우에만 Contest에 import됩니다. 그렇지 않은 경우, 무시됩니다.
+  - `problemIdsWithScore`로 전달된 Problem들은 `groupId`로 전달된 Group에 속해 있는 경우에만 Contest에 import됩니다. 그렇지 않은 경우, 무시됩니다.
   - 이미 Contest에 Problem이 속해있는 경우, 해당 Problem ID는 무시됩니다.
   - 존재하지 않는 `problemId`를 전달하는 경우에도 해당 Problem Id는 무시됩니다.
+  - `score` 속성으로 Contest에서 해당 Problem이 갖게 될 점수를 설정할 수 있습니다.
 }
