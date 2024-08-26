@@ -18,12 +18,8 @@ COPY --from=builder /build/iris .
 
 # Install dependencies
 RUN apt update && apt install -y \
-  curl gcc g++ openjdk-17-jdk python3.9 \
+  curl gcc g++ openjdk-17-jdk \
   && rm -rf /var/lib/apt/lists/*
-
-# Set Python 3.9 as the default Python version
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1 \
-  && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1
 
 # Install sandbox
 RUN mkdir -p /app/sandbox/policy /app/sandbox/results \

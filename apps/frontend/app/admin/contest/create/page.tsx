@@ -7,10 +7,7 @@ import {
   CREATE_CONTEST,
   IMPORT_PROBLEMS_TO_CONTEST
 } from '@/graphql/contest/mutations'
-import {
-  UPDATE_PROBLEM_VISIBLE,
-  UPDATE_CONTEST_PROBLEMS_ORDER
-} from '@/graphql/problem/mutations'
+import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import type { CreateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -35,6 +32,9 @@ export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isCreating, setIsCreating] = useState<boolean>(false)
+  const [enableCopyPaste, setEnableCopyPaste] = useState<boolean>(false)
+  const [isJudgeResultVisible, setIsJudgeResultVisible] =
+    useState<boolean>(false)
   const [showInvitationCode, setShowInvitationCode] = useState<boolean>(false)
 
   const router = useRouter()
@@ -43,7 +43,9 @@ export default function Page() {
     resolver: zodResolver(createSchema),
     defaultValues: {
       isRankVisible: true,
-      isVisible: true
+      isVisible: true,
+      enableCopyPaste: false,
+      isJudgeResultVisible: false
     }
   })
 
@@ -51,7 +53,6 @@ export default function Page() {
 
   const [createContest, { error }] = useMutation(CREATE_CONTEST)
   const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
-  const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
   const [updateContestProblemsOrder] = useMutation(
     UPDATE_CONTEST_PROBLEMS_ORDER
   )
@@ -104,19 +105,6 @@ export default function Page() {
       }
     })
 
-    const updateVisiblePromise = problems.map((problem) =>
-      updateVisible({
-        variables: {
-          groupId: 1,
-          input: {
-            id: problem.id,
-            isVisible: false
-          }
-        }
-      })
-    )
-    await Promise.all(updateVisiblePromise)
-
     const orders: number[] = []
     orderArray.forEach((order: number, index: number) => {
       orders[order] = problemIds[index]
@@ -148,6 +136,14 @@ export default function Page() {
         setValue('endTime', new Date(contestFormData.endTime))
       }
       setValue('description', contestFormData.description)
+      if (contestFormData.enableCopyPaste) {
+        setValue('enableCopyPaste', contestFormData.enableCopyPaste)
+        setEnableCopyPaste(true)
+      }
+      if (contestFormData.isJudgeResultVisible) {
+        setValue('isJudgeResultVisible', contestFormData.isJudgeResultVisible)
+        setIsJudgeResultVisible(true)
+      }
       if (contestFormData.invitationCode) {
         setValue('invitationCode', contestFormData.invitationCode)
         setShowInvitationCode(true)
@@ -199,10 +195,20 @@ export default function Page() {
               )}
             </FormSection>
             <SwitchField
+              name="enableCopyPaste"
+              title="Disable participants from Copy/Pasting"
+              hasValue={enableCopyPaste}
+            />
+            <SwitchField
+              name="isJudgeResultVisible"
+              title="Hide scores from participants"
+              hasValue={isJudgeResultVisible}
+            />
+            <SwitchField
               name="invitationCode"
               title="Invitation Code"
               type="number"
-              isInput={true}
+              formElement="input"
               placeholder="Enter a invitation code"
               hasValue={showInvitationCode}
             />
