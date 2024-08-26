@@ -18,11 +18,11 @@ body:graphql {
     ) {
       submittedProblemCount
   		totalProblemCount
-      totalScore
-      acceptedTestcaseCountPerProblem {
+      userContestScore
+      contestPerfectScore
+      problemScores {
         problemId
-        totalTestcaseCount
-        acceptedTestcaseCount
+        score
       }
     }
   }
@@ -44,12 +44,13 @@ docs {
     - 제출된 문제의 개수(정답 여부와 관계 없음)
   - totalProblemCount
     - 전체 문제의 개수
-  - totalScore
+  - userContestScore
     - 해당 Contest에서 User가 획득한 총 점수
-  - acceptedTestcaseCountPerProblem
-    - 각 문제에서 통과한 테스트케이스의 개수 정보를 담고 있는 배열
+  - contestPerfectScore
+    - Contest의 만점
+  - problemScores
+    - 각 문제에서 획득한 점수를 담고 있는 배열 (100점 만점 기준)
     - 속성
       - problemId
-      - totalTestcaseCount: 문제의 테스트케이스 개수
-      - acceptedTestcaseCount: 통과한 테스트케이스 개수
+      - score
 }

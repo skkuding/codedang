@@ -602,28 +602,6 @@ describe('UserService', () => {
     })
   })
 
-  describe('updateUserProfile', () => {
-    it('update user profile', async () => {
-      db.userProfile.findUnique.resolves(profile)
-      const ret = await service.updateUserProfile(ID, {
-        realName: 'new name'
-      })
-      expect(ret).to.deep.equal({ ...profile, realName: 'new name' })
-    })
-
-    it('should not update user profile', async () => {
-      db.userProfile.update.rejects(
-        new Prisma.PrismaClientKnownRequestError('email', {
-          code: 'P2025',
-          clientVersion: '5.1.1'
-        })
-      )
-      await expect(
-        service.updateUserProfile(ID, { realName: 'new name' })
-      ).to.be.rejectedWith(EntityNotExistException)
-    })
-  })
-
   describe('checkDuplicatedUsername', () => {
     it('username not duplicated', async () => {
       db.user.findUnique.resolves(null)

@@ -19,6 +19,13 @@ const badgeVariants = cva(
         Level3: 'bg-level-light-3 text-level-dark-3 border-0',
         Level4: 'bg-level-light-4 text-level-dark-4 border-0',
         Level5: 'bg-level-light-5 text-level-dark-5 border-0'
+      },
+      textColors: {
+        Level1: 'text-level-light-1',
+        Level2: 'text-level-light-2',
+        Level3: 'text-level-light-3',
+        Level4: 'text-level-light-4',
+        Level5: 'text-level-light-5'
       }
     },
     defaultVariants: {
@@ -31,9 +38,12 @@ export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof badgeVariants> {}
 
-const Badge = ({ className, variant, ...props }: BadgeProps) => {
+const Badge = ({ className, variant, textColors, ...props }: BadgeProps) => {
   return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+    <div
+      className={cn(badgeVariants({ variant, textColors }), className)}
+      {...props}
+    />
   )
 }
 

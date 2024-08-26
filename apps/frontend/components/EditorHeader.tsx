@@ -148,13 +148,13 @@ export default function Editor({
   }
 
   return (
-    <div className="flex shrink-0 items-center justify-between border-b border-b-slate-700 bg-[#222939] px-5">
+    <div className="flex shrink-0 items-center justify-between border-b border-b-slate-700 bg-[#222939] px-6">
       <div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
               size="icon"
-              className="size-7 w-[77px] shrink-0 gap-[5px] rounded-md bg-slate-600 font-normal text-red-500 hover:bg-slate-700"
+              className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-slate-600 font-normal text-red-500 hover:bg-slate-700"
             >
               <BsTrash3 size={17} />
               Reset
@@ -183,12 +183,15 @@ export default function Editor({
       </div>
       <div className="flex items-center gap-3">
         {/* TODO: Add Test function */}
-        <Button variant={'secondary'} className="h-7 shrink-0 gap-1 px-2">
+        <Button
+          variant={'secondary'}
+          className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
+        >
           <IoPlayCircleOutline size={22} />
           Test
         </Button>
         <Button
-          className="h-7 shrink-0 gap-1 px-2"
+          className="h-8 shrink-0 gap-1 rounded-[4px] px-2 font-normal"
           disabled={loading}
           onClick={submit}
         >
@@ -206,18 +209,18 @@ export default function Editor({
           }}
           value={language}
         >
-          <SelectTrigger className="h-7 w-fit shrink-0 rounded-md border-none bg-slate-600 px-2 hover:bg-slate-700 focus:outline-none focus:ring-0 focus:ring-offset-0">
-            <p className="pr-1">
+          <SelectTrigger className="h-8 min-w-[86px] max-w-fit shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:outline-none focus:ring-0 focus:ring-offset-0">
+            <p className="px-1">
               <SelectValue />
             </p>
           </SelectTrigger>
-          <SelectContent className="border-slate-700 bg-slate-800">
+          <SelectContent className="mt-3 min-w-[100px] max-w-fit border-none bg-[#4C5565] p-0 font-mono">
             <SelectGroup className="text-white">
               {problem.languages.map((language) => (
                 <SelectItem
                   key={language}
                   value={language}
-                  className="cursor-pointer ring-0 hover:bg-slate-700"
+                  className="cursor-pointer hover:bg-[#222939]"
                 >
                   {language}
                 </SelectItem>

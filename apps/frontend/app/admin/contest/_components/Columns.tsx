@@ -40,6 +40,7 @@ function VisibleCell({ row }: { row: Row<DataTableContest> }) {
         id="hidden-mode"
         checked={row.original.isVisible}
         onCheckedChange={() => {
+          row.original.isVisible = !row.original.isVisible
           const currentTime = dateFormatter(new Date(), 'YYYY-MM-DD HH:mm:ss')
           const startTime = dateFormatter(
             row.original.startTime,
@@ -63,7 +64,7 @@ function VisibleCell({ row }: { row: Row<DataTableContest> }) {
                 startTime: row.original.startTime,
                 endTime: row.original.endTime,
                 description: row.original.description,
-                isVisible: !row.original.isVisible,
+                isVisible: row.original.isVisible,
                 isRankVisible: row.original.isRankVisible
               }
             }

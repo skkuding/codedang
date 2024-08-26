@@ -20,6 +20,7 @@ import compileIcon from '@/public/compileVersion.svg'
 import copyIcon from '@/public/copy.svg'
 import copyCompleteIcon from '@/public/copyComplete.svg'
 import type { ContestProblem, ProblemDetail } from '@/types/type'
+import { Level } from '@/types/type'
 import { motion } from 'framer-motion'
 import { sanitize } from 'isomorphic-dompurify'
 import { FileText } from 'lucide-react'
@@ -66,17 +67,20 @@ export function EditorDescription({
   const katexRef = useRef<HTMLDivElement>(null)!
   useEffect(() => {
     renderKatex(problem.description, katexRef)
+    console.log(level)
   }, [problem.description, katexRef])
 
   const katexContent = <div ref={katexRef} />
-  const levelNumber = problem.difficulty.slice(-1)
+  const level = problem.difficulty
+  const levelNumber = level.slice(-1)
   return (
     <div className="dark flex h-full flex-col gap-6 bg-[#222939] py-6 text-lg">
       <div className="px-6">
-        <div className="flex h-6 justify-between">
-          <h1 className="mb-3 text-xl font-bold">{`#${contestProblems ? convertToLetter(contestProblems.find((item) => item.id === problem.id)?.order as number) : problem.id}. ${problem.title}`}</h1>
+        <div className="flex max-h-24 justify-between gap-4">
+          <h1 className="mb-3 overflow-hidden text-ellipsis whitespace-nowrap text-xl font-bold">{`#${contestProblems ? convertToLetter(contestProblems.find((item) => item.id === problem.id)?.order as number) : problem.id}. ${problem.title}`}</h1>
           <Badge
-            className={`text-level-light-${levelNumber} rounded-md bg-neutral-500 hover:bg-neutral-500`}
+            className="h-6 w-[52px] whitespace-nowrap rounded-[4px] bg-neutral-500 p-[6px] text-xs font-medium hover:bg-neutral-500"
+            textColors={level as Level}
           >
             {`Level ${levelNumber}`}
           </Badge>
