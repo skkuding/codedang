@@ -7,11 +7,22 @@ import type { ColumnDef } from '@tanstack/react-table'
 
 export const columns: ColumnDef<Problem>[] = [
   {
+    header: 'No',
+    accessorKey: 'index',
+    cell: ({ row }) => {
+      return (
+        <span className="text-ellipsis whitespace-nowrap text-sm md:text-base">
+          {row.index + 1}
+        </span>
+      )
+    }
+  },
+  {
     header: 'Title',
     accessorKey: 'title',
     cell: ({ row }) => {
       return (
-        <p className="overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm md:text-base">{`${row.original.id}. ${row.original.title}`}</p>
+        <p className="text-ellipsis whitespace-nowrap text-sm md:text-base">{`${row.original.id}. ${row.original.title}`}</p>
       )
     }
   },
@@ -49,7 +60,7 @@ export const columns: ColumnDef<Problem>[] = [
     cell: ({ row }) => row.original.submissionCount
   },
   {
-    header: () => <SortButton order="acrate">Solved</SortButton>,
+    header: () => <SortButton order="acrate">Success Rate</SortButton>,
     accessorKey: 'acceptedRate',
     cell: ({ row }) => `${(row.original.acceptedRate * 100).toFixed(2)}%`
   },

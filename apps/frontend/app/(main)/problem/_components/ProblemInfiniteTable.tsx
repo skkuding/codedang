@@ -28,16 +28,16 @@ export default function ProblemInfiniteTable() {
           <p className="text-2xl font-bold text-blue-500">{total}</p>
         </div>
       </div>
-      <div className="flex flex-col items-center">
+      <div className="max-width:1300px flex flex-col items-center">
         <DataTable
           data={items}
           columns={columns}
           headerStyle={{
-            title: 'text-left w-5/12',
-            difficulty: 'w-2/12',
-            submissionCount: 'w-2/12',
-            acceptedRate: 'w-2/12',
-            info: 'w-1/12'
+            title: 'font-mono w-5/12 text-gray-400 bg-gray-100',
+            difficulty: 'font-mono w-3/12 text-gray-400 bg-gray-100',
+            submissionCount: 'font-mono w-3/12 text-gray-400 bg-gray-100',
+            acceptedRate: 'font-mono w-3/12 text-gray-400 bg-gray-100',
+            results: 'font-mono w-3/12 text-gray-400 bg-gray-100'
           }}
           linked
           enableFilter

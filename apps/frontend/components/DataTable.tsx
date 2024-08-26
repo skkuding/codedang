@@ -128,7 +128,7 @@ export default function DataTable<TData extends Item, TValue>({
     <>
       <>
         {enableFilter && (
-          <div className="flex w-full justify-between">
+          <div className="flex w-full items-center justify-between">
             <div className="flex gap-1">
               <SearchBar />
             </div>
@@ -160,16 +160,20 @@ export default function DataTable<TData extends Item, TValue>({
           </div>
         )}
       </>
-      <Table className="table-fixed">
+
+      <Table className="my-4 table-fixed">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow className="hover:bg-white" key={headerGroup.id}>
+            <TableRow
+              className="bg-gray-200 text-gray-400"
+              key={headerGroup.id}
+            >
               {headerGroup.headers.map((header) => {
                 return (
                   <TableHead
                     key={header.id}
                     className={cn(
-                      'text-center text-sm md:text-base',
+                      'py-2 text-center text-gray-400 md:text-base',
                       headerStyle[header.id]
                     )}
                   >
@@ -200,11 +204,14 @@ export default function DataTable<TData extends Item, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
-                  className="cursor-pointer"
+                  className={cn('cursor-pointer hover:bg-gray-50')}
                   onClick={handleClick}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="align-top">
+                    <TableCell
+                      key={cell.id}
+                      className="p-2 text-center align-middle text-xs md:text-sm"
+                    >
                       <div className="text-center text-xs md:text-sm">
                         {flexRender(
                           cell.column.columnDef.cell,
