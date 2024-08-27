@@ -5,7 +5,24 @@ import FormSection from '@/app/admin/_components/FormSection'
 import SwitchField from '@/app/admin/_components/SwitchField'
 import TitleForm from '@/app/admin/_components/TitleForm'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   IMPORT_PROBLEMS_TO_CONTEST,
@@ -18,6 +35,7 @@ import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -26,7 +44,7 @@ import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { toast } from 'sonner'
 import ContestProblemListLabel from '../../_components/ContestProblemListLabel'
-import ImportProblemButton from '../../_components/ImportProblemButton'
+import ImportProblemTable from '../../_components/ImportProblemTable'
 import TimeForm from '../../_components/TimeForm'
 import { type ContestProblem, editSchema } from '../../utils'
 import { columns } from '../_components/Columns'
@@ -39,6 +57,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [isJudgeResultVisible, setIsJudgeResultVisible] =
     useState<boolean>(false)
   const [showInvitationCode, setShowInvitationCode] = useState<boolean>(false)
+  const [showImportDialog, setShowImportDialog] = useState<boolean>(false)
   const { id } = params
 
   const router = useRouter()
@@ -56,50 +75,23 @@ export default function Page({ params }: { params: { id: string } }) {
   useQuery(GET_CONTEST, {
     variables: { contestId: Number(id) },
     onCompleted: (contestData) => {
-      const storedContestFormData = localStorage.getItem(
-        `contestFormData-${id}`
-      )
       setValue('id', Number(id))
-      if (storedContestFormData) {
-        const contestFormData = JSON.parse(storedContestFormData)
-        setValue('title', contestFormData.title)
-        if (contestFormData.startTime) {
-          setValue('startTime', new Date(contestFormData.startTime))
-        }
-        if (contestFormData.endTime) {
-          setValue('endTime', new Date(contestFormData.endTime))
-        }
-        setValue('description', contestFormData.description)
-        setValue('enableCopyPaste', contestFormData.enableCopyPaste)
-        setValue('isJudgeResultVisible', contestFormData.isJudgeResultVisible)
-        setValue('invitationCode', contestFormData.invitationCode)
-        if (contestFormData.invitationCode) {
-          setShowInvitationCode(true)
-        }
-        if (contestFormData.enableCopyPaste) {
-          setEnableCopyPaste(true)
-        }
-        if (contestFormData.isJudgeResultVisible) {
-          setIsJudgeResultVisible(true)
-        }
-      } else {
-        const data = contestData.getContest
-        setValue('title', data.title)
-        setValue('description', data.description)
-        setValue('startTime', new Date(data.startTime))
-        setValue('endTime', new Date(data.endTime))
-        setValue('enableCopyPaste', data.enableCopyPaste)
-        setValue('isJudgeResultVisible', data.isJudgeResultVisible)
-        setValue('invitationCode', data.invitationCode)
-        if (data.invitationCode) {
-          setShowInvitationCode(true)
-        }
-        if (data.enableCopyPaste) {
-          setEnableCopyPaste(true)
-        }
-        if (data.isJudgeResultVisible) {
-          setIsJudgeResultVisible(true)
-        }
+      const data = contestData.getContest
+      setValue('title', data.title)
+      setValue('description', data.description)
+      setValue('startTime', new Date(data.startTime))
+      setValue('endTime', new Date(data.endTime))
+      setValue('enableCopyPaste', data.enableCopyPaste)
+      setValue('isJudgeResultVisible', data.isJudgeResultVisible)
+      setValue('invitationCode', data.invitationCode)
+      if (data.invitationCode) {
+        setShowInvitationCode(true)
+      }
+      if (data.enableCopyPaste) {
+        setEnableCopyPaste(true)
+      }
+      if (data.isJudgeResultVisible) {
+        setIsJudgeResultVisible(true)
       }
       setIsLoading(false)
     }
@@ -111,42 +103,17 @@ export default function Page({ params }: { params: { id: string } }) {
       const data = problemData.getContestProblems
 
       setPrevProblemIds(data.map((problem) => problem.problemId))
-      const importedProblems = localStorage.getItem(`importProblems-${id}`)
 
-      if (importedProblems === null) {
-        const contestProblems = data.map((problem) => {
-          return {
-            id: problem.problemId,
-            title: problem.problem.title,
-            order: problem.order,
-            difficulty: problem.problem.difficulty,
-            score: problem.score ?? 0 // Score 기능 완료되면 수정해주세요!!
-          }
-        })
-        localStorage.setItem(
-          'orderArray',
-          JSON.stringify(data.map((problem) => problem.order))
-        )
-        localStorage.setItem(
-          `importProblems-${id}`,
-          JSON.stringify(contestProblems)
-        )
-        setProblems(contestProblems)
-      } else {
-        const parsedData = JSON.parse(importedProblems)
-        if (parsedData.length > 0) {
-          console.log(parsedData)
-          parsedData.forEach((problem: ContestProblem) => {
-            problem.score = problem.score ?? 0 // Score 기능 완료되면 수정해주세요!!
-          })
-          setProblems(parsedData)
-          const orderArray = parsedData.map(
-            // eslint-disable-next-line
-            (_: any, index: number) => index
-          )
-          localStorage.setItem('orderArray', JSON.stringify(orderArray))
+      const contestProblems = data.map((problem) => {
+        return {
+          id: problem.problemId,
+          title: problem.problem.title,
+          order: problem.order,
+          difficulty: problem.problem.difficulty,
+          score: problem.score ?? 0 // Score 기능 완료되면 수정해주세요!!
         }
-      }
+      })
+      setProblems(contestProblems)
     }
   })
 
@@ -163,20 +130,9 @@ export default function Page({ params }: { params: { id: string } }) {
       return
     }
 
-    const problemIds = problems.map((problem) => problem.id)
-
-    const orderArray = JSON.parse(localStorage.getItem('orderArray') || '[]')
-    if (orderArray.length !== problemIds.length) {
-      toast.error('Problem order not set')
-      return
-    }
-    orderArray.forEach((order: number) => {
-      if (order === null) {
-        toast.error('Problem order not set')
-        return
-      }
-    })
-    if (new Set(orderArray).size !== orderArray.length) {
+    if (
+      new Set(problems.map((problem) => problem.order)).size !== problems.length
+    ) {
       toast.error('Duplicate problem order found')
       return
     }
@@ -212,22 +168,16 @@ export default function Page({ params }: { params: { id: string } }) {
       }
     })
 
-    const orders: number[] = []
-    orderArray.forEach((order: number, index: number) => {
-      orders[order] = problemIds[index]
-    })
-    console.log(orders)
-
+    const orderArray = problems
+      .sort((a, b) => a.order - b.order)
+      .map((problem) => problem.id)
     await updateContestProblemsOrder({
       variables: {
         groupId: 1,
         contestId: Number(id),
-        orders
+        orders: orderArray
       }
     })
-    localStorage.removeItem('orderArray')
-    localStorage.removeItem(`contestFormData-${id}`)
-    localStorage.removeItem(`importProblems-${id}`)
     toast.success('Contest updated successfully')
     router.push('/admin/contest')
     router.refresh()
@@ -284,18 +234,65 @@ export default function Page({ params }: { params: { id: string } }) {
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <ContestProblemListLabel />
-                <ImportProblemButton
-                  disabled={isLoading}
-                  isCreatePage={false}
-                  id={Number(id)}
-                />
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      type="button"
+                      className="flex h-[36px] w-36 items-center gap-2 px-0"
+                    >
+                      <PlusCircleIcon className="h-4 w-4" />
+                      <div className="mb-[2px] text-sm">Import Problem</div>
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="p-8">
+                    <AlertDialogHeader className="gap-2">
+                      <AlertDialogTitle>
+                        Importing from Problem List
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        If contest problems are imported from the ‘All Problem
+                        List’, the problems will automatically become invisible
+                        state.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="rounded-md px-4 py-2">
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction asChild>
+                        <Button
+                          type="button"
+                          onClick={() => setShowImportDialog(true)}
+                        >
+                          Ok
+                        </Button>
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <Dialog
+                  open={showImportDialog}
+                  onOpenChange={setShowImportDialog}
+                >
+                  <DialogContent className="w-[1280px] max-w-[1280px]">
+                    <DialogHeader>
+                      <DialogTitle>Import Problem</DialogTitle>
+                    </DialogHeader>
+                    <ImportProblemTable
+                      checkedProblems={problems as ContestProblem[]}
+                      onSelectedExport={(problems) =>
+                        setProblems(problems as ContestProblem[])
+                      }
+                      onCloseDialog={() => setShowImportDialog(false)}
+                    />
+                  </DialogContent>
+                </Dialog>
               </div>
               <DataTableAdmin
                 // eslint-disable-next-line
-                columns={columns as any[]}
+                columns={columns(problems, setProblems) as any[]}
                 data={problems as ContestProblem[]}
-                enableDelete={true}
-                enableSearch={true}
+                defaultSortColumn="order"
               />
             </div>
             <Button

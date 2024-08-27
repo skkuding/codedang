@@ -134,7 +134,6 @@ export default function Page({
             enableDelete={importProblem ? false : true}
             enablePagination={true}
             enableImport={importProblem ? true : false}
-            checkSelectedRows={importProblem ? true : false}
           />
         )}
       </div>
