@@ -308,7 +308,7 @@ export default function Page() {
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex h-svh max-h-[846px] w-full flex-col justify-between gap-4 px-4"
+        className="flex max-h-[846px] w-full flex-col justify-between gap-4 px-4"
       >
         <h1 className="-mb-1 text-center text-2xl font-bold">Settings</h1>
         <p className="text-center text-sm text-neutral-500">
@@ -481,7 +481,7 @@ export default function Page() {
         {/* First Major */}
         <label className="-mb-4 mt-2 text-xs">First Major</label>
         <div className="flex flex-col gap-1">
-          <Popover open={majorOpen} onOpenChange={setMajorOpen} modal={true}>
+          <Popover open={majorOpen} onOpenChange={setMajorOpen}>
             <PopoverTrigger asChild>
               <Button
                 aria-expanded={majorOpen}
