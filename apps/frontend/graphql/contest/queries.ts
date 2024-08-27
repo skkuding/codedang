@@ -4,6 +4,8 @@ const GET_CONTEST = gql(`
   query GetContest($contestId: Int!) {
     getContest(contestId: $contestId) {
       id
+      enableCopyPaste
+      isJudgeResultVisible
       invitationCode
       description
       endTime

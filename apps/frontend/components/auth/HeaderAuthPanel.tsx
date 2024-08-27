@@ -9,15 +9,18 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
+import { cn, fetcherWithAuth } from '@/lib/utils'
 import useAuthModalStore from '@/stores/authModal'
 import { LogOut, UserRoundCog, ChevronDown } from 'lucide-react'
 import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { BiSolidUser } from 'react-icons/bi'
 import { RxHamburgerMenu } from 'react-icons/rx'
 import AuthModal from './AuthModal'
+import UpdateInformation from './UpdateInformation'
 
 interface HeaderAuthPanelProps {
   session: Session | null
@@ -38,38 +41,73 @@ export default function HeaderAuthPanel({
   )
   const isUser = session?.user.role === 'User'
   const isEditor = group === 'editor'
+  const [needsUpdate, setNeedsUpdate] = useState(false)
+  const pathname = usePathname()
+
+  useEffect(() => {
+    const checkIfNeedsUpdate = async () => {
+      const userResponse = await fetcherWithAuth.get('user')
+      const user: { role: string; studentId: string; major: string } =
+        await userResponse.json()
+      const updateNeeded =
+        user.role === 'User' &&
+        (user.studentId === '0000000000' || user.major === 'none')
+
+      setNeedsUpdate(updateNeeded)
+    }
+    if (session) {
+      checkIfNeedsUpdate()
+    }
+  }, [session])
+
+  const shouldShowDialog =
+    needsUpdate && pathname.split('/').pop() !== 'settings'
 
   return (
     <div className="ml-2 flex items-center gap-2">
       {session ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            className={cn(
-              'hidden items-center gap-2 rounded-md px-4 py-1 md:flex',
-              isEditor ? 'border-0 ring-offset-0' : 'bg-primary text-white'
-            )}
-          >
-            <BiSolidUser
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger
               className={cn(
-                'h-4 w-4',
-                isEditor ? 'size-6 rounded-none text-gray-300' : 'text-white'
+                'hidden items-center gap-2 rounded-md px-4 py-1 md:flex',
+                isEditor ? 'border-0 ring-offset-0' : 'bg-primary text-white'
               )}
-            />
-            {!isEditor && (
-              <p className="font-semibold text-white">
-                {session?.user.username}
-              </p>
-            )}
-            <ChevronDown className="w-4" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className={cn(
-              isEditor &&
-                'mr-5 rounded-sm border-none bg-[#4C5565] px-0 font-normal text-white'
-            )}
-          >
-            {!isUser && (
-              <Link href="/admin">
+            >
+              <BiSolidUser
+                className={cn(
+                  'h-4 w-4',
+                  isEditor ? 'size-6 rounded-none text-gray-300' : 'text-white'
+                )}
+              />
+              {!isEditor && (
+                <p className="font-semibold text-white">
+                  {session?.user.username}
+                </p>
+              )}
+              <ChevronDown className="w-4" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className={cn(
+                isEditor &&
+                  'mr-5 rounded-sm border-none bg-[#4C5565] px-0 font-normal text-white'
+              )}
+            >
+              {!isUser && (
+                <Link href="/admin">
+                  <DropdownMenuItem
+                    className={cn(
+                      'flex cursor-pointer items-center gap-1',
+                      isEditor
+                        ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
+                        : 'font-semibold'
+                    )}
+                  >
+                    <UserRoundCog className="size-4" /> Management
+                  </DropdownMenuItem>
+                </Link>
+              )}
+              <Link href="/settings">
                 <DropdownMenuItem
                   className={cn(
                     'flex cursor-pointer items-center gap-1',
@@ -78,11 +116,9 @@ export default function HeaderAuthPanel({
                       : 'font-semibold'
                   )}
                 >
-                  <UserRoundCog className="size-4" /> Management
+                  <UserRoundCog className="size-4" /> Settings
                 </DropdownMenuItem>
               </Link>
-            )}
-            <Link href="/settings">
               <DropdownMenuItem
                 className={cn(
                   'flex cursor-pointer items-center gap-1',
@@ -90,25 +126,23 @@ export default function HeaderAuthPanel({
                     ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
                     : 'font-semibold'
                 )}
+                onClick={() => {
+                  signOut()
+                }}
               >
-                <UserRoundCog className="size-4" /> Settings
+                <LogOut className="size-4" /> LogOut
               </DropdownMenuItem>
-            </Link>
-            <DropdownMenuItem
-              className={cn(
-                'flex cursor-pointer items-center gap-1',
-                isEditor
-                  ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
-                  : 'font-semibold'
-              )}
-              onClick={() => {
-                signOut()
-              }}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Dialog open={shouldShowDialog}>
+            <DialogContent
+              className="min-h-[30rem] max-w-[20.5rem]"
+              hideCloseButton={true}
             >
-              <LogOut className="size-4" /> LogOut
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <UpdateInformation />
+            </DialogContent>
+          </Dialog>
+        </>
       ) : (
         <Dialog open={currentModal !== ''} onOpenChange={hideModal}>
           <DialogTrigger asChild>
