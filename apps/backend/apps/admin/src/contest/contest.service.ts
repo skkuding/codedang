@@ -359,24 +359,27 @@ export class ContestService {
     const contestProblems: ContestProblem[] = []
 
     for (const { problemId, score } of problemIdsWithScore) {
-      const [contestProblem] = await this.prisma.$transaction([
-        this.prisma.contestProblem.upsert({
+      const isProblemAlreadyImported =
+        await this.prisma.contestProblem.findFirst({
           where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            contestId_problemId: {
-              contestId,
-              problemId
-            }
-          },
-          create: {
+            contestId,
+            problemId
+          }
+        })
+      if (isProblemAlreadyImported) {
+        continue
+      }
+
+      const [contestProblem] = await this.prisma.$transaction([
+        this.prisma.contestProblem.create({
+          data: {
             // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
             // 임시 방편으로 order: 0으로 설정합니다.
             order: 0,
             contestId,
             problemId,
             score
-          },
-          update: {}
+          }
         }),
         this.prisma.problem.updateMany({
           where: {
