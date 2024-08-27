@@ -568,9 +568,7 @@ export default function SignUpRegister() {
                             )}
                           />
                           <p className="w-[230px] overflow-hidden text-ellipsis whitespace-nowrap">
-                            {major === 'none'
-                              ? 'Department Information Unavailable / 학과 정보 없음'
-                              : major}
+                            {major}
                           </p>
                         </CommandItem>
                       ))}
