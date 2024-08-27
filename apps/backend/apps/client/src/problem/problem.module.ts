@@ -30,6 +30,7 @@ import {
     CodeDraftService,
     ProblemRepository,
     { provide: APP_GUARD, useClass: GroupMemberGuard }
-  ]
+  ],
+  exports: [ProblemRepository]
 })
 export class ProblemModule {}

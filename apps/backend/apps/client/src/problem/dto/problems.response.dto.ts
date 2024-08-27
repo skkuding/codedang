@@ -1,4 +1,4 @@
-import { Level, type Tag } from '@prisma/client'
+import { Level, type Language, type Tag } from '@prisma/client'
 import { Exclude, Expose, Type } from 'class-transformer'
 
 @Exclude()
@@ -33,4 +33,10 @@ class Problem {
 
   @Expose()
   tags: Partial<Tag>[]
+
+  @Expose()
+  languages: Language[]
+
+  @Expose()
+  hasPassed: boolean | null
 }

@@ -21,6 +21,7 @@ export class ProblemService {
   constructor(private readonly problemRepository: ProblemRepository) {}
 
   async getProblems(options: {
+    userId: number | null
     cursor: number | null
     take: number
     groupId: number
@@ -39,12 +40,20 @@ export class ProblemService {
     const tagList = await this.problemRepository.getProblemsTags(tagIds)
 
     const problems = unprocessedProblems.map(async (problem) => {
+      let hasPassed: boolean | null = null
       const { problemTag, ...data } = problem
       const problemTags = problemTag.map((tag) => tag.tagId)
       const tags = tagList.filter((tagItem) => problemTags.includes(tagItem.id))
+      if (options.userId) {
+        hasPassed = await this.problemRepository.hasPassedProblem(
+          options.userId,
+          { problemId: problem.id }
+        )
+      }
       return {
         ...data,
-        tags
+        tags,
+        hasPassed
       }
     })
 
