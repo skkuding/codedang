@@ -65,6 +65,7 @@ const IMPORT_PROBLEMS_TO_CONTEST = gql(`
     ) {
       contestId
       problemId
+      score
     }
   }
 `)

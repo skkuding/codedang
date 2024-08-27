@@ -47,10 +47,11 @@ export default function HeaderAuthPanel({
   useEffect(() => {
     const checkIfNeedsUpdate = async () => {
       const userResponse = await fetcherWithAuth.get('user')
-      const user: { studentId: string; major: string } =
+      const user: { role: string; studentId: string; major: string } =
         await userResponse.json()
       const updateNeeded =
-        user.studentId === '0000000000' || user.major === 'none'
+        user.role === 'User' &&
+        (user.studentId === '0000000000' || user.major === 'none')
 
       setNeedsUpdate(updateNeeded)
     }
