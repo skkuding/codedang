@@ -22,6 +22,7 @@ import invisible from '@/public/24_invisible.svg'
 import visible from '@/public/24_visible.svg'
 import codedangSymbol from '@/public/codedang-editor.svg'
 import { zodResolver } from '@hookform/resolvers/zod'
+import type { Route } from 'next'
 import type { NavigateOptions } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -163,15 +164,7 @@ export default function Page() {
         )
         // Error occurs if I just put 'href' without 'href === ...' code..
         if (isConfirmed) {
-          if (
-            href === '/settings' ||
-            href === '/notice' ||
-            href === '/problem' ||
-            href === '/contest' ||
-            href === '/'
-          ) {
-            originalPush(href, options)
-          }
+          originalPush(href as Route, options)
         }
       }
       router.push = newPush

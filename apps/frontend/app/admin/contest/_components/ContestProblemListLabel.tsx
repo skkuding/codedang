@@ -1,8 +1,9 @@
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover'
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 import { MdHelpOutline } from 'react-icons/md'
 import Label from '../../_components/Label'
 
@@ -10,32 +11,28 @@ export default function ContestProblemListLabel() {
   return (
     <div className="flex items-center gap-2">
       <Label>Contest Problem List</Label>
-      <Popover>
-        <PopoverTrigger asChild>
-          <button>
-            <MdHelpOutline className="text-gray-400 hover:text-gray-700" />
-          </button>
-        </PopoverTrigger>
-        <PopoverContent
-          side="top"
-          className="mb-2 w-[680px] bg-black px-4 py-2 text-white"
-        >
-          <ul className="text-xs font-normal">
-            <li>
-              The problems in the contest problem list are initially set to
-              &apos;not visible&apos; at the time of creating the contest
-            </li>
-            <li>
-              They become visible according to the specified start time and
-              remain inaccessible in the problem list
-            </li>
-            <li>
-              throughout the duration of the contest. After the contest period
-              ends, they become visible again in the problem list.
-            </li>
-          </ul>
-        </PopoverContent>
-      </Popover>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button type="button">
+              <MdHelpOutline className="text-gray-400 hover:text-gray-700" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent
+            side="top"
+            className="mb-2 w-[640px] bg-white px-4 py-2 shadow-md"
+          >
+            <p className="text-xs font-normal text-black">
+              If a problem is included in at least one ongoing, or upcoming
+              contest, it will automatically become invisible state in the ‘All
+              Problem List’. You cannot change its visibility until all the
+              ongoing or upcoming contests it is part of have ended. After the
+              contests are all over, you can manually make the problem visible
+              again.
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   )
 }
