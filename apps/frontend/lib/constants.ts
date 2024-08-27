@@ -51,7 +51,6 @@ export const levels = [
  * @constant
  */
 export const majors = [
-  '학과 정보 없음',
   '자유전공계열',
   '인문과학계열',
   '유학·동양학과',
