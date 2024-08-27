@@ -156,10 +156,8 @@ export function DataTableAdmin<TData, TValue>({
   const [isDeleteAlertDialogOpen, setIsDeleteAlertDialogOpen] = useState(false)
 
   useEffect(() => {
-    console.log(checkedRows)
     if (checkedRows.length !== 0) {
       const problemIds = checkedRows.map((problem) => problem.id)
-      console.log(problemIds)
       const problemIndex = data.reduce((acc: number[], problem, index) => {
         if (problemIds.includes((problem as { id: number }).id)) {
           acc.push(index as number)
