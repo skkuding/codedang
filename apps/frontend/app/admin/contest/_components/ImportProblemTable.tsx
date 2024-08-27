@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
-import { columns } from '../[id]/edit/_components/Columns'
+import { columns } from './ImportProblemTableColumns'
 
 interface ContestProblem {
   id: number
