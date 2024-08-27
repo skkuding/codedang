@@ -203,7 +203,7 @@ export default function Page() {
     isPasswordsMatch
   const saveAbleOthers: boolean =
     !!realName || !!(majorValue !== defaultProfileValues.major)
-  const saveAble = saveAblePassword || saveAbleOthers
+  const saveAble = isPasswordsMatch && (saveAblePassword || saveAbleOthers)
 
   // New Password Input 창과 Re-enter Password Input 창의 border 색상을, 일치하는지 여부에 따라 바꿈
   useEffect(() => {
