@@ -69,6 +69,7 @@ export default function Page() {
       return
     }
     const orderArray = JSON.parse(storedData)
+
     if (orderArray.length !== problemIds.length) {
       toast.error('Problem order not set')
       return
@@ -101,14 +102,22 @@ export default function Page() {
       variables: {
         groupId: 1,
         contestId,
-        problemIds
+        problemIdsWithScore: problems.map((problem) => {
+          return {
+            problemId: problem.id,
+            score: problem.score
+          }
+        })
       }
+    }).then(() => {
+      console.log('Problems imported')
     })
 
     const orders: number[] = []
     orderArray.forEach((order: number, index: number) => {
       orders[order] = problemIds[index]
     })
+    console.log(orders, problemIds)
     await updateContestProblemsOrder({
       variables: {
         groupId: 1,
@@ -155,6 +164,10 @@ export default function Page() {
     const importedProblems = JSON.parse(
       localStorage.getItem('importProblems') || '[]'
     )
+    importedProblems?.forEach((problem: ContestProblem) => {
+      problem.score = problem.score ?? 0 // Score 기능 완료되면 수정해주세요!!
+    })
+
     setProblems(importedProblems)
 
     // eslint-disable-next-line
