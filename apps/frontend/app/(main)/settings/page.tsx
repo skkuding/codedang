@@ -106,6 +106,7 @@ export default function Page() {
     const fetchDefaultProfile = async () => {
       try {
         const data: getProfile = await safeFetcherWithAuth.get('user').json()
+        console.log(data)
         setMajorValue(data.major)
         setdefaultProfileValues(data)
         setIsLoading(false)
