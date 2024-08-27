@@ -230,7 +230,6 @@ export class ContestResolver {
     }
   }
 
-  // TODO: 특정 User의 특정 Contest에 대한 점수만 요약해 불러오는 함수 필요
   @Query(() => ContestSubmissionSummaryForUser)
   async getContestSubmissionSummaryByUserId(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
