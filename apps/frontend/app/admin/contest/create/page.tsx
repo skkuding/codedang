@@ -1,16 +1,23 @@
 'use client'
 
 import { DataTableAdmin } from '@/components/DataTableAdmin'
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger
+  DialogTitle
 } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
@@ -166,35 +173,42 @@ export default function Page() {
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <ContestProblemListLabel />
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      type="button"
+                      className="flex h-[36px] w-36 items-center gap-2 px-0"
+                    >
                       <PlusCircleIcon className="h-4 w-4" />
                       <div className="mb-[2px] text-sm">Import Problem</div>
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent className="p-8">
-                    <DialogHeader className="gap-2">
-                      <DialogTitle>Importing from Problem List</DialogTitle>
-                      <DialogDescription>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="p-8">
+                    <AlertDialogHeader className="gap-2">
+                      <AlertDialogTitle>
+                        Importing from Problem List
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
                         If contest problems are imported from the ‘All Problem
                         List’, the problems will automatically become invisible
                         state.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                      <DialogClose asChild>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="rounded-md px-4 py-2">
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction asChild>
                         <Button
                           type="button"
-                          className="bg-black hover:bg-black/70"
                           onClick={() => setShowImportDialog(true)}
                         >
                           Ok
                         </Button>
-                      </DialogClose>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
                 <Dialog
                   open={showImportDialog}
                   onOpenChange={setShowImportDialog}
