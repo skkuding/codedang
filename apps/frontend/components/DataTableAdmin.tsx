@@ -16,6 +16,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow
@@ -69,6 +70,7 @@ interface DataTableProps<TData, TValue> {
     [key: string]: string
   }
   onSelectedExport?: (selectedRows: ContestProblem[]) => void
+  defaultSortColumn?: string
 }
 
 interface ContestProblem {
@@ -100,7 +102,8 @@ export function DataTableAdmin<TData, TValue>({
   checkedRows = [],
   headerStyle = {},
   enableDuplicate = false,
-  onSelectedExport = () => {}
+  onSelectedExport = () => {},
+  defaultSortColumn = ''
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])
@@ -117,7 +120,9 @@ export function DataTableAdmin<TData, TValue>({
       maxSize: Number.MAX_SAFE_INTEGER
     },
     state: {
-      sorting,
+      sorting: defaultSortColumn
+        ? [{ id: defaultSortColumn, desc: false }]
+        : sorting,
       rowSelection,
       columnVisibility: { languages: false }
     },
@@ -446,7 +451,8 @@ export function DataTableAdmin<TData, TValue>({
                         onClick={() => {
                           enableImport
                             ? row.toggleSelected(!row.getIsSelected())
-                            : router.push(href)
+                            : !pathname.includes('/admin/contest/') &&
+                              router.push(href)
                         }}
                       >
                         {flexRender(
@@ -469,6 +475,29 @@ export function DataTableAdmin<TData, TValue>({
               </TableRow>
             )}
           </TableBody>
+          {!enableImport && pathname.includes('/admin/contest/') && (
+            <TableFooter>
+              {table.getFooterGroups().map((footerGroup) => (
+                <TableRow key={footerGroup.id}>
+                  {footerGroup.headers.map((footer) => {
+                    return (
+                      <TableHead
+                        key={footer.id}
+                        className={headerStyle[footer.id]}
+                      >
+                        {footer.isPlaceholder
+                          ? null
+                          : flexRender(
+                              footer.column.columnDef.footer,
+                              footer.getContext()
+                            )}
+                      </TableHead>
+                    )
+                  })}
+                </TableRow>
+              ))}
+            </TableFooter>
+          )}
         </Table>
       </div>
       {enablePagination && (

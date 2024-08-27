@@ -8,7 +8,10 @@ import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
+  DialogClose,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger
@@ -224,16 +227,39 @@ export default function Page({ params }: { params: { id: string } }) {
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <ContestProblemListLabel />
-                <Dialog
-                  open={showImportDialog}
-                  onOpenChange={setShowImportDialog}
-                >
+                <Dialog>
                   <DialogTrigger asChild>
                     <Button variant="outline">
                       <PlusCircleIcon className="h-4 w-4" />
                       <div className="mb-[2px] text-sm">Import Problem</div>
                     </Button>
                   </DialogTrigger>
+                  <DialogContent className="p-8">
+                    <DialogHeader className="gap-2">
+                      <DialogTitle>Importing from Problem List</DialogTitle>
+                      <DialogDescription>
+                        If contest problems are imported from the ‘All Problem
+                        List’, the problems will automatically become invisible
+                        state.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button
+                          type="button"
+                          className="bg-black hover:bg-black/70"
+                          onClick={() => setShowImportDialog(true)}
+                        >
+                          Ok
+                        </Button>
+                      </DialogClose>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+                <Dialog
+                  open={showImportDialog}
+                  onOpenChange={setShowImportDialog}
+                >
                   <DialogContent className="w-[1280px] max-w-[1280px]">
                     <DialogHeader>
                       <DialogTitle>Import Problem</DialogTitle>
@@ -250,10 +276,9 @@ export default function Page({ params }: { params: { id: string } }) {
               </div>
               <DataTableAdmin
                 // eslint-disable-next-line
-                columns={columns(setProblems) as any[]}
+                columns={columns(problems, setProblems) as any[]}
                 data={problems as ContestProblem[]}
-                enableDelete={true}
-                enableSearch={true}
+                defaultSortColumn="order"
               />
             </div>
             <Button
