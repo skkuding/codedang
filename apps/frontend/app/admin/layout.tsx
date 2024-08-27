@@ -12,8 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <nav className="flex w-60 flex-col bg-white p-2 px-6 pb-6 pt-20 text-sm font-medium">
           {/* Todo: Group 기능 추가 시, Public Button 대신 GroupSelect 컴포넌트로 변경 */}
           {/* <GroupSelect /> */}
-
-          <Link href="/" className="ml-{24px}">
+          <Link href="/" className="ml-6">
             <Image
               src={CodedangLogo}
               alt="코드당"
