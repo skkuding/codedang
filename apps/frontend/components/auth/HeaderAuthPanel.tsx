@@ -50,8 +50,7 @@ export default function HeaderAuthPanel({
       const user: { studentId: string; major: string } =
         await userResponse.json()
       const updateNeeded =
-        user.studentId === '0000000000' ||
-        user.major === 'Department Information Unavailable / 학과 정보 없음'
+        user.studentId === '0000000000' || user.major === 'none'
 
       setNeedsUpdate(updateNeeded)
     }

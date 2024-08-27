@@ -51,7 +51,7 @@ export const levels = [
  * @constant
  */
 export const majors = [
-  'Department Information Unavailable / 학과 정보 없음',
+  'none',
   'Humanities / 인문과학계열',
   'Social Sciences / 사회과학계열',
   'Natural Sciences / 자연과학계열',
