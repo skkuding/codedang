@@ -359,48 +359,55 @@ export class ContestService {
     const contestProblems: ContestProblem[] = []
 
     for (const { problemId, score } of problemIdsWithScore) {
-      try {
-        const [contestProblem] = await this.prisma.$transaction([
-          this.prisma.contestProblem.create({
-            data: {
-              // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
-              // 임시 방편으로 order: 0으로 설정합니다.
-              order: 0,
-              contestId,
-              problemId,
-              score
-            }
-          }),
-          this.prisma.problem.update({
-            where: {
-              id: problemId,
-              OR: [
-                {
-                  visibleLockTime: {
-                    equals: MIN_DATE
-                  }
-                },
-                {
-                  visibleLockTime: {
-                    equals: MAX_DATE
-                  }
-                },
-                {
-                  visibleLockTime: {
-                    lte: contest.endTime
-                  }
-                }
-              ]
-            },
-            data: {
-              visibleLockTime: contest.endTime
-            }
-          })
-        ])
-        contestProblems.push(contestProblem)
-      } catch (error) {
+      const isProblemAlreadyImported =
+        await this.prisma.contestProblem.findFirst({
+          where: {
+            contestId,
+            problemId
+          }
+        })
+      if (isProblemAlreadyImported) {
         continue
       }
+
+      const [contestProblem] = await this.prisma.$transaction([
+        this.prisma.contestProblem.create({
+          data: {
+            // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
+            // 임시 방편으로 order: 0으로 설정합니다.
+            order: 0,
+            contestId,
+            problemId,
+            score
+          }
+        }),
+        this.prisma.problem.updateMany({
+          where: {
+            id: problemId,
+            OR: [
+              {
+                visibleLockTime: {
+                  equals: MIN_DATE
+                }
+              },
+              {
+                visibleLockTime: {
+                  equals: MAX_DATE
+                }
+              },
+              {
+                visibleLockTime: {
+                  lte: contest.endTime
+                }
+              }
+            ]
+          },
+          data: {
+            visibleLockTime: contest.endTime
+          }
+        })
+      ])
+      contestProblems.push(contestProblem)
     }
 
     return contestProblems
@@ -424,64 +431,60 @@ export class ContestService {
     const contestProblems: ContestProblem[] = []
 
     for (const problemId of problemIds) {
-      try {
-        // 문제가 포함된 대회 중 가장 늦게 끝나는 대회의 종료시각으로 visibleLockTime 설정 (없을시 비공개 전환)
-        let visibleLockTime = MAX_DATE
+      // 문제가 포함된 대회 중 가장 늦게 끝나는 대회의 종료시각으로 visibleLockTime 설정 (없을시 비공개 전환)
+      let visibleLockTime = MAX_DATE
 
-        const contestIds = (
-          await this.prisma.contestProblem.findMany({
-            where: {
+      const contestIds = (
+        await this.prisma.contestProblem.findMany({
+          where: {
+            problemId
+          }
+        })
+      )
+        .filter((contestProblem) => contestProblem.contestId !== contestId)
+        .map((contestProblem) => contestProblem.contestId)
+
+      if (contestIds.length) {
+        const latestContest = await this.prisma.contest.findFirstOrThrow({
+          where: {
+            id: {
+              in: contestIds
+            }
+          },
+          orderBy: {
+            endTime: 'desc'
+          },
+          select: {
+            endTime: true
+          }
+        })
+        visibleLockTime = latestContest.endTime
+      }
+
+      const [, contestProblem] = await this.prisma.$transaction([
+        this.prisma.problem.updateMany({
+          where: {
+            id: problemId,
+            visibleLockTime: {
+              lte: contest.endTime
+            }
+          },
+          data: {
+            visibleLockTime
+          }
+        }),
+        this.prisma.contestProblem.delete({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            contestId_problemId: {
+              contestId,
               problemId
             }
-          })
-        )
-          .filter((contestProblem) => contestProblem.contestId !== contestId)
-          .map((contestProblem) => contestProblem.contestId)
+          }
+        })
+      ])
 
-        if (contestIds.length) {
-          const latestContest = await this.prisma.contest.findFirstOrThrow({
-            where: {
-              id: {
-                in: contestIds
-              }
-            },
-            orderBy: {
-              endTime: 'desc'
-            },
-            select: {
-              endTime: true
-            }
-          })
-          visibleLockTime = latestContest.endTime
-        }
-
-        const [, contestProblem] = await this.prisma.$transaction([
-          this.prisma.problem.updateMany({
-            where: {
-              id: problemId,
-              visibleLockTime: {
-                lte: contest.endTime
-              }
-            },
-            data: {
-              visibleLockTime
-            }
-          }),
-          this.prisma.contestProblem.delete({
-            where: {
-              // eslint-disable-next-line @typescript-eslint/naming-convention
-              contestId_problemId: {
-                contestId,
-                problemId
-              }
-            }
-          })
-        ])
-
-        contestProblems.push(contestProblem)
-      } catch (error) {
-        continue
-      }
+      contestProblems.push(contestProblem)
     }
 
     return contestProblems
