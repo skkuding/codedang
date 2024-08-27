@@ -180,12 +180,13 @@ export function DataTableAdmin<TData, TValue>({
 
   const handleImportProblems = async () => {
     const selectedProblems = table.getSelectedRowModel().rows as {
-      original: { id: number; title: string; difficulty: string }
+      original: { id: number; title: string; difficulty: string; score: number }
     }[]
     const problems = selectedProblems.map((problem) => ({
       id: problem.original.id,
       title: problem.original.title,
-      difficulty: problem.original.difficulty
+      difficulty: problem.original.difficulty,
+      score: problem.original.score ?? 0 // Score 기능 완료되면 수정해주세요!!
     }))
     if (contestId === null) {
       localStorage.setItem('importProblems', JSON.stringify(problems))
