@@ -54,9 +54,13 @@ export const columns = (
   // },
   {
     accessorKey: 'title',
-    header: () => <p className="w-[300px] text-left text-sm">Title</p>,
-    cell: ({ row }) => <p className="text-left">{row.getValue('title')}</p>,
-    footer: () => <p className="w-[300px] text-left text-sm">Score Sum</p>,
+    header: () => <p className="w-[350px] text-left text-sm">Title</p>,
+    cell: ({ row }) => (
+      <p className="w-[350px] overflow-hidden text-ellipsis whitespace-nowrap text-left">
+        {row.getValue('title')}
+      </p>
+    ),
+    footer: () => <p className="w-[350px] text-left text-sm">Score Sum</p>,
     enableSorting: false,
     enableHiding: false
   },
@@ -144,7 +148,7 @@ export const columns = (
         <div>
           <Badge
             variant={level as Level}
-            className="mr-1 whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
+            className="whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
           >
             {formattedLevel}
           </Badge>

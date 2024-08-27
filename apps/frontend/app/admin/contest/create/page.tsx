@@ -33,11 +33,11 @@ import DescriptionForm from '../../_components/DescriptionForm'
 import FormSection from '../../_components/FormSection'
 import SwitchField from '../../_components/SwitchField'
 import TitleForm from '../../_components/TitleForm'
+import { columns } from '../[id]/_components/Columns'
 import ImportProblemTable from '../[id]/edit/_components/ImportProblemTable'
 import ContestProblemListLabel from '../_components/ContestProblemListLabel'
 import TimeForm from '../_components/TimeForm'
 import { type ContestProblem, createSchema } from '../utils'
-import { columns } from './_components/Columns'
 
 export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
