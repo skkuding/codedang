@@ -37,10 +37,10 @@ import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { toast } from 'sonner'
 import ContestProblemListLabel from '../../_components/ContestProblemListLabel'
+import ImportProblemTable from '../../_components/ImportProblemTable'
 import TimeForm from '../../_components/TimeForm'
 import { type ContestProblem, editSchema } from '../../utils'
 import { columns } from '../_components/Columns'
-import ImportProblemTable from './_components/ImportProblemTable'
 
 export default function Page({ params }: { params: { id: string } }) {
   const [prevProblemIds, setPrevProblemIds] = useState<number[]>([])
