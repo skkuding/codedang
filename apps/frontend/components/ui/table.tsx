@@ -8,15 +8,20 @@ const Table = React.forwardRef<
   <div
     className={cn(
       'relative w-full overflow-auto',
-      className?.includes('rounded') ? 'rounded' : '',
-      className?.includes('border') ? 'border' : ''
+      className
+        ?.split(' ')
+        .map((c) => (c.includes('border') || c.includes('rounded') ? c : ''))
+        .join(' ')
     )}
   >
     <table
       ref={ref}
       className={cn(
         'w-full caption-bottom text-sm',
-        className?.replace('rounded', '').replace('border', '')
+        className
+          ?.split(' ')
+          .map((c) => (c.includes('border') || c.includes('rounded') ? '' : c))
+          .join(' ')
       )}
       {...props}
     />

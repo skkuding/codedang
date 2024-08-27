@@ -1,7 +1,7 @@
 ### BUILDER ###
 ARG app_env=production
 
-FROM golang:1.22 AS builder
+FROM golang:1.23 AS builder
 
 COPY . /build
 WORKDIR /build
@@ -12,14 +12,13 @@ RUN go build
 FROM ubuntu:24.04
 ARG app_env
 
-
 ENV APP_ENV=${app_env}
 
 COPY --from=builder /build/iris .
 
 # Install dependencies
 RUN apt update && apt install -y \
-  curl gcc g++ openjdk-17-jdk python3 \
+  curl gcc g++ openjdk-17-jdk \
   && rm -rf /var/lib/apt/lists/*
 
 # Install sandbox
