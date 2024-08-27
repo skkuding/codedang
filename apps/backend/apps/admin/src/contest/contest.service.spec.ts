@@ -4,7 +4,6 @@ import { ContestProblem, Group, ContestRecord } from '@generated'
 import { Problem } from '@generated'
 import { Contest } from '@generated'
 import { faker } from '@faker-js/faker'
-import { Prisma } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
@@ -27,6 +26,10 @@ const endTime = faker.date.future()
 const createTime = faker.date.past()
 const updateTime = faker.date.past()
 const invitationCode = '123456'
+const problemIdsWithScore = {
+  problemId,
+  score: 10
+}
 // const duplicatedContestId = 2
 
 const contest: Contest = {
@@ -177,7 +180,8 @@ const db = {
   },
   contestProblem: {
     create: stub().resolves(ContestProblem),
-    findMany: stub().resolves([ContestProblem])
+    findMany: stub().resolves([ContestProblem]),
+    findFirst: stub().resolves(ContestProblem)
   },
   contestRecord: {
     findMany: stub().resolves([ContestRecord]),
@@ -185,6 +189,7 @@ const db = {
   },
   problem: {
     update: stub().resolves(Problem),
+    updateMany: stub().resolves([Problem]),
     findFirstOrThrow: stub().resolves(Problem)
   },
   group: {
@@ -323,9 +328,12 @@ describe('ContestService', () => {
       db.contest.findUnique.resolves(contest)
       db.problem.update.resolves(problem)
       db.contestProblem.create.resolves(contestProblem)
+      db.contestProblem.findFirst.resolves(null)
 
       const res = await Promise.all(
-        await service.importProblemsToContest(groupId, contestId, [problemId])
+        await service.importProblemsToContest(groupId, contestId, [
+          problemIdsWithScore
+        ])
       )
 
       expect(res).to.deep.equal([contestProblem])
@@ -334,15 +342,10 @@ describe('ContestService', () => {
     it('should return an empty array when the problem already exists in contest', async () => {
       db.contest.findUnique.resolves(contest)
       db.problem.update.resolves(problem)
-      db.contestProblem.create.throws(
-        new Prisma.PrismaClientKnownRequestError(
-          'ContestProblem already exists',
-          { code: 'P2002', clientVersion: 'version' }
-        )
-      )
+      db.contestProblem.findFirst.resolves(ContestProblem)
 
       const res = await service.importProblemsToContest(groupId, contestId, [
-        problemId
+        problemIdsWithScore
       ])
 
       expect(res).to.deep.equal([])
@@ -350,7 +353,7 @@ describe('ContestService', () => {
 
     it('should throw error when the contestId not exist', async () => {
       expect(
-        service.importProblemsToContest(groupId, 9999, [problemId])
+        service.importProblemsToContest(groupId, 9999, [problemIdsWithScore])
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })

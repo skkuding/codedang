@@ -12,7 +12,7 @@ interface SwitchFieldProps {
   name: string
   title?: string
   placeholder?: string
-  isInput?: boolean
+  formElement?: 'input' | 'textarea'
   type?: string
   hasValue?: boolean
 }
@@ -21,15 +21,16 @@ export default function SwitchField({
   name,
   title,
   placeholder,
-  isInput = false,
+  formElement,
   type = 'text',
   hasValue = false
 }: SwitchFieldProps) {
-  const [isEnabled, setIsEnabled] = useState(false)
+  const [isEnabled, setIsEnabled] = useState<boolean>(false)
   const {
     register,
     setValue,
     trigger,
+    getValues,
     formState: { errors }
   } = useFormContext()
 
@@ -43,15 +44,17 @@ export default function SwitchField({
         <Label required={false}>{title}</Label>
         <Switch
           onCheckedChange={() => {
+            if (name == 'invitationCode') setValue(name, null)
+            else if (name == 'hint' || name == 'source') setValue(name, '')
+            else setValue(name, !getValues(name))
             setIsEnabled(!isEnabled)
-            setValue(name, name === 'invitationCode' ? null : '')
           }}
           checked={isEnabled}
-          className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
+          className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
         />
       </div>
       {isEnabled &&
-        (isInput ? (
+        (formElement == 'input' ? (
           <Input
             id={name}
             type={type}
@@ -65,16 +68,16 @@ export default function SwitchField({
               onChange: () => trigger(name)
             })}
           />
-        ) : (
+        ) : formElement == 'textarea' ? (
           <Textarea
             id={name}
             placeholder={placeholder}
             className="min-h-[120px] w-[760px] bg-white"
             {...register(name)}
           />
-        ))}
-      {isEnabled && errors['invitationCode'] && (
-        <ErrorMessage message="The invitation code must be a 6-digit number" />
+        ) : null)}
+      {isEnabled && name == 'invitationCode' && errors[name] && (
+        <ErrorMessage message={errors[name]?.message?.toString()} />
       )}
     </div>
   )

@@ -32,6 +32,9 @@ export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isCreating, setIsCreating] = useState<boolean>(false)
+  const [enableCopyPaste, setEnableCopyPaste] = useState<boolean>(false)
+  const [isJudgeResultVisible, setIsJudgeResultVisible] =
+    useState<boolean>(false)
   const [showInvitationCode, setShowInvitationCode] = useState<boolean>(false)
 
   const router = useRouter()
@@ -40,7 +43,9 @@ export default function Page() {
     resolver: zodResolver(createSchema),
     defaultValues: {
       isRankVisible: true,
-      isVisible: true
+      isVisible: true,
+      enableCopyPaste: false,
+      isJudgeResultVisible: false
     }
   })
 
@@ -64,6 +69,7 @@ export default function Page() {
       return
     }
     const orderArray = JSON.parse(storedData)
+
     if (orderArray.length !== problemIds.length) {
       toast.error('Problem order not set')
       return
@@ -96,14 +102,22 @@ export default function Page() {
       variables: {
         groupId: 1,
         contestId,
-        problemIds
+        problemIdsWithScore: problems.map((problem) => {
+          return {
+            problemId: problem.id,
+            score: problem.score
+          }
+        })
       }
+    }).then(() => {
+      console.log('Problems imported')
     })
 
     const orders: number[] = []
     orderArray.forEach((order: number, index: number) => {
       orders[order] = problemIds[index]
     })
+    console.log(orders, problemIds)
     await updateContestProblemsOrder({
       variables: {
         groupId: 1,
@@ -131,6 +145,14 @@ export default function Page() {
         setValue('endTime', new Date(contestFormData.endTime))
       }
       setValue('description', contestFormData.description)
+      if (contestFormData.enableCopyPaste) {
+        setValue('enableCopyPaste', contestFormData.enableCopyPaste)
+        setEnableCopyPaste(true)
+      }
+      if (contestFormData.isJudgeResultVisible) {
+        setValue('isJudgeResultVisible', contestFormData.isJudgeResultVisible)
+        setIsJudgeResultVisible(true)
+      }
       if (contestFormData.invitationCode) {
         setValue('invitationCode', contestFormData.invitationCode)
         setShowInvitationCode(true)
@@ -142,6 +164,10 @@ export default function Page() {
     const importedProblems = JSON.parse(
       localStorage.getItem('importProblems') || '[]'
     )
+    importedProblems?.forEach((problem: ContestProblem) => {
+      problem.score = problem.score ?? 0 // Score 기능 완료되면 수정해주세요!!
+    })
+
     setProblems(importedProblems)
 
     // eslint-disable-next-line
@@ -182,10 +208,20 @@ export default function Page() {
               )}
             </FormSection>
             <SwitchField
+              name="enableCopyPaste"
+              title="Disable participants from Copy/Pasting"
+              hasValue={enableCopyPaste}
+            />
+            <SwitchField
+              name="isJudgeResultVisible"
+              title="Hide scores from participants"
+              hasValue={isJudgeResultVisible}
+            />
+            <SwitchField
               name="invitationCode"
               title="Invitation Code"
               type="number"
-              isInput={true}
+              formElement="input"
               placeholder="Enter a invitation code"
               hasValue={showInvitationCode}
             />
