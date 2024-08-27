@@ -134,7 +134,7 @@ export default function Page() {
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
-      realName: defaultProfileValues.userProfile.realName,
+      realName: defaultProfileValues.userProfile?.realName ?? '',
       studentId: defaultProfileValues.studentId
     }
   })
@@ -217,7 +217,7 @@ export default function Page() {
     try {
       // 필요 없는 필드 제외 (defaultProfileValues와 값이 같은 것들은 제외)
       const updatePayload: UpdatePayload = {}
-      if (data.realName !== defaultProfileValues.userProfile.realName) {
+      if (data.realName !== defaultProfileValues.userProfile?.realName) {
         updatePayload.realName = data.realName
       }
       if (majorValue !== defaultProfileValues.major) {
@@ -252,7 +252,7 @@ export default function Page() {
     return () => {
       // submit 되기위해, watch로 확인되는 값이 default값과 같으면 setValue를 통해서 defaultProfileValues로 변경
       if (realName === '') {
-        setValue('realName', defaultProfileValues.userProfile.realName)
+        setValue('realName', defaultProfileValues.userProfile?.realName)
       }
       if (majorValue === defaultProfileValues.major) {
         setMajorValue(defaultProfileValues.major)
@@ -458,7 +458,9 @@ export default function Page() {
         <label className="-mb-4 text-xs">Name</label>
         <Input
           placeholder={
-            isLoading ? 'Loading...' : defaultProfileValues.userProfile.realName
+            isLoading
+              ? 'Loading...'
+              : defaultProfileValues.userProfile?.realName
           }
           {...register('realName')}
           className={`${realName && (errors.realName ? 'border-red-500' : 'border-primary')} placeholder:text-neutral-300 focus-visible:ring-0`}
