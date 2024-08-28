@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
-import { GET_TAGS } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type {
   Sample,
@@ -35,10 +34,6 @@ import { editSchema } from '../../utils'
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params
-  const { data: tagsData } = useQuery(GET_TAGS)
-  const tags =
-    tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
-
   const router = useRouter()
 
   const methods = useForm<UpdateProblemInput>({
@@ -145,7 +140,7 @@ export default function Page({ params }: { params: { id: string } }) {
   return (
     <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
-        <div className="flex items-center gap-4">
+        <div className="-ml-8 flex items-center gap-4">
           <Link href={`/admin/problem/${id}`}>
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
@@ -157,9 +152,9 @@ export default function Page({ params }: { params: { id: string } }) {
           className="flex w-[760px] flex-col gap-6"
         >
           <FormProvider {...methods}>
-            <div className="flex gap-6">
+            <div className="flex gap-32">
               <FormSection title="Title">
-                <TitleForm placeholder="Name your problem" />
+                <TitleForm placeholder="Enter a problem name" />
               </FormSection>
 
               <FormSection title="Visible">
@@ -168,8 +163,8 @@ export default function Page({ params }: { params: { id: string } }) {
               </FormSection>
             </div>
 
-            <FormSection title="info">
-              <InfoForm tags={tags} tagName="tags.create" />
+            <FormSection title="Info">
+              <InfoForm />
             </FormSection>
 
             <FormSection title="Description">
@@ -220,7 +215,7 @@ export default function Page({ params }: { params: { id: string } }) {
             <FormSection title="Limit">
               <LimitForm />
             </FormSection>
-
+            <TemplateField />
             <SwitchField
               name="hint"
               title="Hint"
@@ -235,7 +230,6 @@ export default function Page({ params }: { params: { id: string } }) {
               formElement="input"
               hasValue={showSource}
             />
-            <TemplateField />
 
             <Button
               type="submit"
