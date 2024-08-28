@@ -31,7 +31,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
@@ -51,20 +51,38 @@ export default function Page() {
   const [isCreating, setIsCreating] = useState<boolean>(false)
   const [showImportDialog, setShowImportDialog] = useState<boolean>(false)
   const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showLeaveModal, setShowLeaveModal] = useState(false)
-  const [pendingUrl, setPendingUrl] = useState<string | null>(null)
 
+  const shouldSkipWarning = useRef(false)
   const router = useRouter()
 
   const useConfirmNavigation = () => {
     const router = useRouter()
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+
     useEffect(() => {
-      const newPush = (href: string): void => {
-        setPendingUrl(href)
-        setShowLeaveModal(true)
+      window.addEventListener('beforeunload', handleBeforeUnload)
+
+      const originalPush = router.push
+
+      router.push = (href, ...args) => {
+        if (shouldSkipWarning.current) {
+          originalPush(href, ...args)
+          return
+        }
+        const shouldWarn = window.confirm(
+          'Are you sure you want to leave this page? Changes you made may not be saved.'
+        )
+        if (shouldWarn) {
+          originalPush(href, ...args)
+        }
       }
-      if (!isCreating) {
-        router.push = newPush
+
+      return () => {
+        window.removeEventListener('beforeunload', handleBeforeUnload)
+        router.push = originalPush
       }
     }, [router])
   }
@@ -106,8 +124,8 @@ export default function Page() {
 
   const onSubmit = async () => {
     const input = methods.getValues()
-
     setIsCreating(true)
+
     const { data } = await createContest({
       variables: {
         groupId: 1,
@@ -143,6 +161,8 @@ export default function Page() {
         orders: orderArray
       }
     })
+
+    shouldSkipWarning.current = true
     toast.success('Contest created successfully')
     router.push('/admin/contest')
     router.refresh()
@@ -150,36 +170,6 @@ export default function Page() {
 
   return (
     <ScrollArea className="w-full">
-      <AlertDialog open={showLeaveModal}>
-        <AlertDialogContent className="p-8">
-          <AlertDialogHeader className="gap-2">
-            <AlertDialogTitle>Leave this page?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Changes you made may not be saved.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              className="rounded-md px-4 py-2"
-              onClick={() => setShowLeaveModal(false)}
-            >
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button
-                type="button"
-                onClick={() => {
-                  if (pendingUrl) {
-                    location.replace(pendingUrl)
-                  }
-                }}
-              >
-                Ok
-              </Button>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
       <main className="flex flex-col gap-6 px-20 py-16">
         <div className="flex items-center gap-4">
           <Link href="/admin/contest">
@@ -307,7 +297,7 @@ export default function Page() {
                   <AlertDialogCancel
                     type="button"
                     className="rounded-md px-4 py-2"
-                    onClick={() => setShowLeaveModal(false)}
+                    onClick={() => setShowCreateModal(false)}
                   >
                     Cancel
                   </AlertDialogCancel>

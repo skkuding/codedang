@@ -38,7 +38,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
@@ -58,20 +58,40 @@ export default function Page({ params }: { params: { id: string } }) {
     useState<boolean>(false)
   const [showInvitationCode, setShowInvitationCode] = useState<boolean>(false)
   const [showImportDialog, setShowImportDialog] = useState<boolean>(false)
-  const [showLeaveModal, setShowLeaveModal] = useState(false)
-  const [pendingUrl, setPendingUrl] = useState<string | null>(null)
   const { id } = params
 
+  const shouldSkipWarning = useRef(false)
   const router = useRouter()
 
   const useConfirmNavigation = () => {
     const router = useRouter()
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+
     useEffect(() => {
-      const newPush = (href: string): void => {
-        setPendingUrl(href)
-        setShowLeaveModal(true)
+      window.addEventListener('beforeunload', handleBeforeUnload)
+
+      const originalPush = router.push
+
+      router.push = (href, ...args) => {
+        if (shouldSkipWarning.current) {
+          originalPush(href, ...args)
+          return
+        }
+        const shouldWarn = window.confirm(
+          'Are you sure you want to leave this page? Changes you made may not be saved.'
+        )
+        if (shouldWarn) {
+          originalPush(href, ...args)
+        }
       }
-      router.push = newPush
+
+      return () => {
+        window.removeEventListener('beforeunload', handleBeforeUnload)
+        router.push = originalPush
+      }
     }, [router])
   }
 
@@ -193,6 +213,8 @@ export default function Page({ params }: { params: { id: string } }) {
         orders: orderArray
       }
     })
+
+    shouldSkipWarning.current = true
     toast.success('Contest updated successfully')
     router.push('/admin/contest')
     router.refresh()
@@ -200,36 +222,6 @@ export default function Page({ params }: { params: { id: string } }) {
 
   return (
     <ScrollArea className="w-full">
-      <AlertDialog open={showLeaveModal}>
-        <AlertDialogContent className="p-8">
-          <AlertDialogHeader className="gap-2">
-            <AlertDialogTitle>Leave this page?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Changes you made may not be saved.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              className="rounded-md px-4 py-2"
-              onClick={() => setShowLeaveModal(false)}
-            >
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button
-                type="button"
-                onClick={() => {
-                  if (pendingUrl) {
-                    location.replace(pendingUrl)
-                  }
-                }}
-              >
-                Ok
-              </Button>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
       <main className="flex flex-col gap-6 px-20 py-16">
         <div className="flex items-center gap-4">
           <Link href="/admin/contest">
