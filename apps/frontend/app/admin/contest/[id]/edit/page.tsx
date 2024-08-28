@@ -36,8 +36,6 @@ import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircleIcon } from 'lucide-react'
-import type { Route } from 'next'
-import type { NavigateOptions } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -62,9 +60,6 @@ export default function Page({ params }: { params: { id: string } }) {
   const [showImportDialog, setShowImportDialog] = useState<boolean>(false)
   const [showLeaveModal, setShowLeaveModal] = useState(false)
   const [pendingUrl, setPendingUrl] = useState<string | null>(null)
-  const [pendingOption, setPendingOption] = useState<
-    NavigateOptions | undefined
-  >(undefined)
   const { id } = params
 
   const router = useRouter()
@@ -72,12 +67,8 @@ export default function Page({ params }: { params: { id: string } }) {
   const useConfirmNavigation = () => {
     const router = useRouter()
     useEffect(() => {
-      const newPush = (
-        href: string,
-        options?: NavigateOptions | undefined
-      ): void => {
+      const newPush = (href: string): void => {
         setPendingUrl(href)
-        setPendingOption(options)
         setShowLeaveModal(true)
       }
       router.push = newPush
@@ -229,7 +220,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 type="button"
                 onClick={() => {
                   if (pendingUrl) {
-                    router.replace(pendingUrl as Route, pendingOption)
+                    location.replace(pendingUrl)
                   }
                 }}
               >

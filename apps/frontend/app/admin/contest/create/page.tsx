@@ -29,8 +29,6 @@ import { useMutation } from '@apollo/client'
 import type { CreateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircleIcon } from 'lucide-react'
-import type { Route } from 'next'
-import type { NavigateOptions } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -55,24 +53,19 @@ export default function Page() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showLeaveModal, setShowLeaveModal] = useState(false)
   const [pendingUrl, setPendingUrl] = useState<string | null>(null)
-  const [pendingOption, setPendingOption] = useState<
-    NavigateOptions | undefined
-  >(undefined)
 
   const router = useRouter()
 
   const useConfirmNavigation = () => {
     const router = useRouter()
     useEffect(() => {
-      const newPush = (
-        href: string,
-        options?: NavigateOptions | undefined
-      ): void => {
+      const newPush = (href: string): void => {
         setPendingUrl(href)
-        setPendingOption(options)
         setShowLeaveModal(true)
       }
-      router.push = newPush
+      if (!isCreating) {
+        router.push = newPush
+      }
     }, [router])
   }
 
@@ -99,20 +92,21 @@ export default function Page() {
   const isSubmittable = (input: CreateContestInput) => {
     if (input.startTime >= input.endTime) {
       toast.error('Start time must be less than end time')
-      return false
+      return
     }
 
     if (
       new Set(problems.map((problem) => problem.order)).size !== problems.length
     ) {
       toast.error('Duplicate problem order found')
-      return false
-    } else {
-      return true
+      return
     }
+    setShowCreateModal(true)
   }
 
-  const onSubmit = async (input: CreateContestInput) => {
+  const onSubmit = async () => {
+    const input = methods.getValues()
+
     setIsCreating(true)
     const { data } = await createContest({
       variables: {
@@ -139,7 +133,6 @@ export default function Page() {
         })
       }
     })
-
     const orderArray = problems
       .sort((a, b) => a.order - b.order)
       .map((problem) => problem.id)
@@ -177,7 +170,7 @@ export default function Page() {
                 type="button"
                 onClick={() => {
                   if (pendingUrl) {
-                    router.replace(pendingUrl as Route, pendingOption)
+                    location.replace(pendingUrl)
                   }
                 }}
               >
@@ -195,7 +188,7 @@ export default function Page() {
           <span className="text-4xl font-bold">Create Contest</span>
         </div>
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(isSubmittable)}
           className="flex w-[760px] flex-col gap-6"
         >
           <FormProvider {...methods}>
@@ -293,21 +286,15 @@ export default function Page() {
                 defaultSortColumn="order"
               />
             </div>
+            <Button
+              type="submit"
+              className="flex h-[36px] w-[100px] items-center gap-2 px-0"
+            >
+              <IoMdCheckmarkCircleOutline fontSize={20} />
+              <div className="mb-[2px] text-base">Create</div>
+            </Button>
             <AlertDialog open={showCreateModal}>
-              <AlertDialogTrigger>
-                <Button
-                  type="button"
-                  className="flex h-[36px] w-[100px] items-center gap-2 px-0"
-                  onClick={() => {
-                    if (handleSubmit(isSubmittable)) {
-                      setShowCreateModal(true)
-                    }
-                  }}
-                >
-                  <IoMdCheckmarkCircleOutline fontSize={20} />
-                  <div className="mb-[2px] text-base">Create</div>
-                </Button>
-              </AlertDialogTrigger>
+              <AlertDialogTrigger></AlertDialogTrigger>
               <AlertDialogContent className="p-8">
                 <AlertDialogHeader className="gap-2">
                   <AlertDialogTitle>Create Contest?</AlertDialogTitle>
@@ -318,13 +305,18 @@ export default function Page() {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel
+                    type="button"
                     className="rounded-md px-4 py-2"
                     onClick={() => setShowLeaveModal(false)}
                   >
                     Cancel
                   </AlertDialogCancel>
                   <AlertDialogAction asChild>
-                    <Button type="submit" disabled={isCreating}>
+                    <Button
+                      type="button"
+                      disabled={isCreating}
+                      onClick={() => onSubmit()}
+                    >
                       Create
                     </Button>
                   </AlertDialogAction>
