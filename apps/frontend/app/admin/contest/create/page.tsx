@@ -156,11 +156,11 @@ export default function Page() {
             </FormSection>
             <SwitchField
               name="enableCopyPaste"
-              title="Disable participants from Copy/Pasting"
+              title="Enable participants Copy/Pasting"
             />
             <SwitchField
               name="isJudgeResultVisible"
-              title="Hide scores from participants"
+              title="Reveal scores to participants"
             />
             <SwitchField
               name="invitationCode"
