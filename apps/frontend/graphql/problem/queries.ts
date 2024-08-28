@@ -16,11 +16,6 @@ const GET_PROBLEM = gql(`
       description
       inputDescription
       outputDescription
-      samples {
-        id
-        input
-        output
-      }
       testcase {
         id
         input

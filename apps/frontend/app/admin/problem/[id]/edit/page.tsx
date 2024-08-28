@@ -6,12 +6,7 @@ import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
 import { GET_TAGS } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
-import type {
-  Sample,
-  Template,
-  Testcase,
-  UpdateProblemInput
-} from '@generated/graphql'
+import type { Template, Testcase, UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -44,7 +39,6 @@ export default function Page({ params }: { params: { id: string } }) {
   const methods = useForm<UpdateProblemInput>({
     resolver: zodResolver(editSchema),
     defaultValues: {
-      samples: { create: [], delete: [] },
       template: []
     }
   })
@@ -77,8 +71,6 @@ export default function Page({ params }: { params: { id: string } }) {
       setValue('description', data.description)
       setValue('inputDescription', data.inputDescription)
       setValue('outputDescription', data.outputDescription)
-      setValue('samples.create', data?.samples || [])
-      setValue('samples.delete', data.samples?.map(({ id }) => +id) || [])
       setValue('testcases', data.testcase)
       setValue('timeLimit', data.timeLimit)
       setValue('memoryLimit', data.memoryLimit)
@@ -128,12 +120,6 @@ export default function Page({ params }: { params: { id: string } }) {
     toast.success('Succesfully updated problem')
     router.push('/admin/problem')
     router.refresh()
-  }
-
-  const addSample = () => {
-    const values = getValues('samples.create')
-    const newSample = { input: '', output: '' }
-    setValue('samples.create', [...values, newSample])
   }
 
   const addTestcase = () => {
@@ -194,17 +180,6 @@ export default function Page({ params }: { params: { id: string } }) {
                 </FormSection>
               </div>
             </div>
-
-            <FormSection title="Sample">
-              <AddBadge onClick={addSample} />
-              {getValues('samples.create') && (
-                <AddableForm<Sample>
-                  type="sample"
-                  fieldName="samples.create"
-                  minimumRequired={1}
-                />
-              )}
-            </FormSection>
 
             <FormSection title="Testcases">
               <AddBadge onClick={addTestcase} />

@@ -115,7 +115,7 @@ export function EditorDescription({
       <hr className="border-4 border-[#121728]" />
 
       <div>
-        {problem.samples.map(({ id, input, output }, index) => {
+        {problem.problemTestcase.map(({ id, input, output }, index) => {
           const whitespaceStyle =
             'color: rgb(53, 129, 250); min-width: 0.5em; display: inline-block;'
           const changedInput = input
