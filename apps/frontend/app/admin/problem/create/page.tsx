@@ -1,5 +1,15 @@
 'use client'
 
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { CREATE_PROBLEM } from '@/graphql/problem/mutations'
@@ -12,7 +22,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
@@ -32,8 +42,44 @@ import { createSchema } from '../utils'
 
 export default function Page() {
   const [isCreating, setIsCreating] = useState(false)
+  const [showCreateModal, setShowCreateModal] = useState(false)
 
+  const shouldSkipWarning = useRef(false)
   const router = useRouter()
+
+  const useConfirmNavigation = () => {
+    const router = useRouter()
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+
+    useEffect(() => {
+      window.addEventListener('beforeunload', handleBeforeUnload)
+
+      const originalPush = router.push
+
+      router.push = (href, ...args) => {
+        if (shouldSkipWarning.current) {
+          originalPush(href, ...args)
+          return
+        }
+        const shouldWarn = window.confirm(
+          'Are you sure you want to leave this page? Changes you made may not be saved.'
+        )
+        if (shouldWarn) {
+          originalPush(href, ...args)
+        }
+      }
+
+      return () => {
+        window.removeEventListener('beforeunload', handleBeforeUnload)
+        router.push = originalPush
+      }
+    }, [router])
+  }
+
+  useConfirmNavigation()
 
   const methods = useForm<CreateProblemInput>({
     resolver: zodResolver(createSchema),
@@ -51,7 +97,8 @@ export default function Page() {
   const { handleSubmit, setValue, getValues } = methods
 
   const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
-  const onSubmit = async (input: CreateProblemInput) => {
+  const onSubmit = async () => {
+    const input = methods.getValues()
     setIsCreating(true)
     await createProblem({
       variables: {
@@ -64,6 +111,8 @@ export default function Page() {
       setIsCreating(false)
       return
     }
+
+    shouldSkipWarning.current = true
     toast.success('Problem created successfully')
     router.push('/admin/problem')
     router.refresh()
@@ -84,7 +133,9 @@ export default function Page() {
         </div>
 
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(() => {
+            setShowCreateModal(true)
+          })}
           className="flex w-[760px] flex-col gap-6"
         >
           <FormProvider {...methods}>
@@ -152,6 +203,35 @@ export default function Page() {
               <IoMdCheckmarkCircleOutline fontSize={20} />
               <div className="mb-[2px] text-base">Create</div>
             </Button>
+            <AlertDialog open={showCreateModal}>
+              <AlertDialogContent className="p-8">
+                <AlertDialogHeader className="gap-2">
+                  <AlertDialogTitle>Create Contest?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Once user submit any coding, the testcases{' '}
+                    <span className="underline">cannot</span> be modified.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel
+                    type="button"
+                    className="rounded-md px-4 py-2"
+                    onClick={() => setShowCreateModal(false)}
+                  >
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction asChild>
+                    <Button
+                      type="button"
+                      disabled={isCreating}
+                      onClick={() => onSubmit()}
+                    >
+                      Create
+                    </Button>
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </FormProvider>
         </form>
       </main>
