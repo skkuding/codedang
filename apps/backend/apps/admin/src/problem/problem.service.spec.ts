@@ -128,7 +128,6 @@ describe('ProblemService', () => {
       memoryLimit: problems[0].memoryLimit,
       difficulty: Level.Level1,
       source: problems[0].source,
-      samples: problems[0].samples ?? [],
       testcases: [testcaseInput],
       tagIds: [1]
     }
