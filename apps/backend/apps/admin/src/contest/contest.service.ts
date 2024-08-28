@@ -490,6 +490,59 @@ export class ContestService {
     return contestProblems
   }
 
+  async getContestSubmissionSummaryByUserId(
+    take: number,
+    contestId: number,
+    userId: number,
+    problemId: number | null,
+    cursor: number | null
+  ) {
+    const paginator = this.prisma.getPaginator(cursor)
+    const submissions = await this.prisma.submission.findMany({
+      ...paginator,
+      take,
+      where: {
+        userId,
+        contestId,
+        problemId: problemId ?? undefined
+      },
+      include: {
+        problem: {
+          select: {
+            title: true
+          }
+        },
+        user: {
+          select: {
+            username: true,
+            studentId: true
+          }
+        }
+      }
+    })
+
+    const mappedSubmission = submissions.map((submission) => {
+      return {
+        contestId: submission.contestId,
+        problemTitle: submission.problem.title,
+        username: submission.user?.username,
+        studentId: submission.user?.studentId,
+        submissionResult: submission.result,
+        language: submission.language,
+        submissionTime: submission.createTime,
+        codeSize: submission.codeSize,
+        ip: submission.userIp
+      }
+    })
+
+    const scoreSummary = await this.getContestScoreSummary(userId, contestId)
+
+    return {
+      scoreSummary,
+      submissions: mappedSubmission
+    }
+  }
+
   /**
    * Duplicate contest with contest problems and users who participated in the contest
    * Not copied: submission
@@ -608,15 +661,23 @@ export class ContestService {
         }
       })
     ])
-
-    if (!submissions.length) {
-      throw new EntityNotExistException('Submissions')
-    } else if (!contestProblems.length) {
+    if (!contestProblems.length) {
       throw new EntityNotExistException('ContestProblems')
     } else if (!contestRecord) {
       throw new EntityNotExistException('contestRecord')
     }
-
+    if (!submissions.length) {
+      return {
+        submittedProblemCount: 0,
+        totalProblemCount: contestProblems.length,
+        userContestScore: 0,
+        contestPerfectScore: contestProblems.reduce(
+          (total, { score }) => total + score,
+          0
+        ),
+        problemScores: []
+      }
+    }
     // 하나의 Problem에 대해 여러 개의 Submission이 존재한다면, 마지막에 제출된 Submission만을 점수 계산에 반영함
     const latestSubmissions: {
       [problemId: string]: {
