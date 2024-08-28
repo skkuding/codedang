@@ -59,23 +59,9 @@ export const editSchema = commonSchema.extend({
   id: z.number(),
   tags: z
     .object({ create: z.array(z.number()), delete: z.array(z.number()) })
-    .optional(),
-  samples: z.object({
-    create: z
-      .array(z.object({ input: z.string().min(1), output: z.string().min(1) }))
-      .min(1),
-    delete: z.array(z.number().optional())
-  })
+    .optional()
 })
 
 export const createSchema = commonSchema.extend({
-  tagIds: z.array(z.number()),
-  samples: z
-    .array(
-      z.object({
-        input: z.string().min(1),
-        output: z.string().min(1)
-      })
-    )
-    .min(1)
+  tagIds: z.array(z.number())
 })
