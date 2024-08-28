@@ -20,16 +20,6 @@ resource "aws_eip" "for_nat" {
   }
 }
 
-# TODO: public_subnet2에도 할당 필요 (-> vpc endpoint로 수정하는 방향으로 진행하기)
-resource "aws_nat_gateway" "public_subnet1" {
-  allocation_id = aws_eip.for_nat.id
-  subnet_id     = aws_subnet.public_subnet1.id
-
-  tags = {
-    Name = "Codedang-NatGateway-1"
-  }
-}
-
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 

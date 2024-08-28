@@ -10,7 +10,7 @@ get {
   auth: none
 }
 
-query {
+params:query {
   take: 5
   ~cursor: 4
   ~search: 정
@@ -28,12 +28,19 @@ assert {
   res.body.data[0].acceptedRate: isNumber
   res.body.data[0].tags: isDefined
   res.body.total: isNumber
+  res.body.data[0].languages: isDefined 
+  res.body.data[0].hasPassed: isDefined 
+}
+
+script:pre-request {
+  // await require("./login").loginUser(req);
 }
 
 docs {
   # Get Problems
   
   공개된 문제 목록을 가져옵니다.
+  Login되어 있는 경우에는 각 problem을 pass했는지, 하지않았는지 그 상태 또한 전달합니다. (Script에 login 코드를 추가하였습니다.)
   
   ## Query
   

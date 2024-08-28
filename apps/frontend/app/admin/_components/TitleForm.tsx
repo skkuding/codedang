@@ -15,7 +15,7 @@ export default function TitleForm({ placeholder }: { placeholder: string }) {
         id="title"
         type="text"
         placeholder={placeholder}
-        className={cn(inputStyle, 'w-[380px]')}
+        className={cn(inputStyle, 'w-[500px]')}
         {...register('title', {
           required: true
         })}

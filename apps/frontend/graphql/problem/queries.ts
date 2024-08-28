@@ -75,6 +75,7 @@ const GET_CONTEST_PROBLEMS = gql(`
   query GetContestProblems($groupId: Int!, $contestId: Int!) {
     getContestProblems(groupId: $groupId, contestId: $contestId) {
       order
+      score
       problemId
       problem {
         title

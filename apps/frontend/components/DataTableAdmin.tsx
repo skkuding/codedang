@@ -9,14 +9,14 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
+  AlertDialogTitle
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow
@@ -28,9 +28,10 @@ import {
   TooltipProvider
 } from '@/components/ui/tooltip'
 import { DELETE_CONTEST } from '@/graphql/contest/mutations'
+import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import { DELETE_PROBLEM } from '@/graphql/problem/mutations'
 import { getStatusWithStartEnd } from '@/lib/utils'
-import { useMutation } from '@apollo/client'
+import { useLazyQuery, useMutation } from '@apollo/client'
 import type { ColumnDef, SortingState } from '@tanstack/react-table'
 import {
   flexRender,
@@ -44,7 +45,7 @@ import {
 } from '@tanstack/react-table'
 import { CopyIcon, PlusCircleIcon } from 'lucide-react'
 import type { Route } from 'next'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
 import { IoSearch } from 'react-icons/io5'
 import { PiTrashLight } from 'react-icons/pi'
@@ -61,12 +62,15 @@ interface DataTableProps<TData, TValue> {
   enableFilter?: boolean // Enable filter for languages and tags
   enableDelete?: boolean // Enable delete selected rows
   enablePagination?: boolean // Enable pagination
+  enableRowsPerpage?: boolean
   enableImport?: boolean // Enable import selected rows
   enableDuplicate?: boolean // Enable duplicate selected rows
-  checkSelectedRows?: boolean // Check selected rows
+  checkedRows?: ContestProblem[] // Check selected rows
   headerStyle?: {
     [key: string]: string
   }
+  onSelectedExport?: (selectedRows: ContestProblem[]) => void
+  defaultSortColumn?: string
 }
 
 interface ContestProblem {
@@ -86,14 +90,6 @@ interface SelectedContest {
 const languageOptions = ['C', 'Cpp', 'Java', 'Python3']
 const levels = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
 
-let contestId: string | null = null
-
-function Search() {
-  const searchParams = useSearchParams()
-  contestId = searchParams.get('contestId')
-  return null
-}
-
 export function DataTableAdmin<TData, TValue>({
   columns,
   data,
@@ -101,10 +97,13 @@ export function DataTableAdmin<TData, TValue>({
   enableFilter = false,
   enableDelete = false,
   enablePagination = false,
+  enableRowsPerpage = true,
   enableImport = false,
-  checkSelectedRows = false,
+  checkedRows = [],
   headerStyle = {},
-  enableDuplicate = false
+  enableDuplicate = false,
+  onSelectedExport = () => {},
+  defaultSortColumn = ''
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])
@@ -121,7 +120,9 @@ export function DataTableAdmin<TData, TValue>({
       maxSize: Number.MAX_SAFE_INTEGER
     },
     state: {
-      sorting,
+      sorting: defaultSortColumn
+        ? [{ id: defaultSortColumn, desc: false }]
+        : sorting,
       rowSelection,
       columnVisibility: { languages: false }
     },
@@ -137,6 +138,12 @@ export function DataTableAdmin<TData, TValue>({
     getFacetedUniqueValues: getFacetedUniqueValues()
   })
 
+  useEffect(() => {
+    if (enableImport) {
+      table.setPageSize(5)
+    }
+  }, [enableImport, table])
+
   let deletingObject
   if (pathname === '/admin/contest') {
     deletingObject = 'contest'
@@ -146,19 +153,11 @@ export function DataTableAdmin<TData, TValue>({
 
   const [deleteProblem] = useMutation(DELETE_PROBLEM)
   const [deleteContest] = useMutation(DELETE_CONTEST)
+  const [isDeleteAlertDialogOpen, setIsDeleteAlertDialogOpen] = useState(false)
 
   useEffect(() => {
-    if (checkSelectedRows) {
-      let importedProblems
-      if (contestId === null) {
-        importedProblems = localStorage.getItem('importProblems')
-        if (!importedProblems) return
-      } else {
-        importedProblems = localStorage.getItem(`importProblems-${contestId}`)
-        if (!importedProblems) return
-      }
-      const problems = JSON.parse(importedProblems)
-      const problemIds = problems.map((problem: ContestProblem) => problem.id)
+    if (checkedRows.length !== 0) {
+      const problemIds = checkedRows.map((problem) => problem.id)
       const problemIndex = data.reduce((acc: number[], problem, index) => {
         if (problemIds.includes((problem as { id: number }).id)) {
           acc.push(index as number)
@@ -175,27 +174,19 @@ export function DataTableAdmin<TData, TValue>({
         )
       )
     }
-  }, [checkSelectedRows, data])
+  }, [checkedRows, data])
 
   const handleImportProblems = async () => {
     const selectedProblems = table.getSelectedRowModel().rows as {
-      original: { id: number; title: string; difficulty: string }
+      original: { id: number; title: string; difficulty: string; score: number }
     }[]
     const problems = selectedProblems.map((problem) => ({
       id: problem.original.id,
       title: problem.original.title,
-      difficulty: problem.original.difficulty
+      difficulty: problem.original.difficulty,
+      score: problem.original.score ?? 0 // Score 기능 완료되면 수정해주세요!!
     }))
-    if (contestId === null) {
-      localStorage.setItem('importProblems', JSON.stringify(problems))
-      router.push('/admin/contest/create')
-    } else {
-      localStorage.setItem(
-        `importProblems-${contestId}`,
-        JSON.stringify(problems)
-      )
-      router.push(`/admin/contest/${contestId}/edit`)
-    }
+    onSelectedExport(problems)
   }
 
   // TODO: notice도 같은 방식으로 추가
@@ -258,11 +249,36 @@ export function DataTableAdmin<TData, TValue>({
       })
   }
 
+  const [fetchContests] = useLazyQuery(GET_BELONGED_CONTESTS)
+
+  const handleDeleteButtonClick = async () => {
+    if (page === 'problem') {
+      const selectedRows = table.getSelectedRowModel().rows as {
+        original: { id: number }
+      }[]
+      const promises = selectedRows.map((row) =>
+        fetchContests({
+          variables: {
+            problemId: Number(row.original.id)
+          }
+        }).then((result) => result.data)
+      )
+      const results = await Promise.all(promises)
+      const isAllSafe = !results.some((data) => data !== undefined)
+      if (isAllSafe) {
+        setIsDeleteAlertDialogOpen(true)
+      } else {
+        setIsDeleteAlertDialogOpen(false)
+        toast.error('Failed :  Problem included in the contest')
+      }
+    } else {
+      setIsDeleteAlertDialogOpen(true)
+    }
+  }
+
   return (
     <div className="space-y-4">
-      <Suspense>
-        <Search />
-      </Suspense>
+      <Suspense />
       {(enableSearch ||
         enableFilter ||
         enableImport ||
@@ -345,33 +361,40 @@ export function DataTableAdmin<TData, TValue>({
             ) : null}
             {enableDelete ? (
               selectedRowCount !== 0 ? (
-                <AlertDialog>
-                  <AlertDialogTrigger>
-                    <Button variant="outline" type="button">
-                      <PiTrashLight fontSize={18} />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to permanently delete{' '}
-                        {selectedRowCount} {deletingObject}(s)?
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction asChild>
-                        <Button
-                          onClick={() => handleDeleteRows()}
-                          className="bg-red-500 hover:bg-red-500/90"
-                        >
-                          Delete
-                        </Button>
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <div>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={handleDeleteButtonClick}
+                  >
+                    <PiTrashLight fontSize={18} />
+                  </Button>
+                  <AlertDialog
+                    open={isDeleteAlertDialogOpen}
+                    onOpenChange={setIsDeleteAlertDialogOpen}
+                  >
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to permanently delete{' '}
+                          {selectedRowCount} {deletingObject}(s)?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction asChild>
+                          <Button
+                            onClick={() => handleDeleteRows()}
+                            className="bg-red-500 hover:bg-red-500/90"
+                          >
+                            Delete
+                          </Button>
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               ) : (
                 <Button variant="outline" type="button">
                   <PiTrashLight fontSize={18} />
@@ -423,7 +446,12 @@ export function DataTableAdmin<TData, TValue>({
                       <TableCell
                         key={cell.id}
                         className="text-center md:p-4"
-                        onClick={() => router.push(href)}
+                        onClick={() => {
+                          enableImport
+                            ? row.toggleSelected(!row.getIsSelected())
+                            : !pathname.includes('/admin/contest/') &&
+                              router.push(href)
+                        }}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
@@ -445,9 +473,37 @@ export function DataTableAdmin<TData, TValue>({
               </TableRow>
             )}
           </TableBody>
+          {!enableImport && pathname.includes('/admin/contest/') && (
+            <TableFooter>
+              {table.getFooterGroups().map((footerGroup) => (
+                <TableRow key={footerGroup.id}>
+                  {footerGroup.headers.map((footer) => {
+                    return (
+                      <TableHead
+                        key={footer.id}
+                        className={headerStyle[footer.id]}
+                      >
+                        {footer.isPlaceholder
+                          ? null
+                          : flexRender(
+                              footer.column.columnDef.footer,
+                              footer.getContext()
+                            )}
+                      </TableHead>
+                    )
+                  })}
+                </TableRow>
+              ))}
+            </TableFooter>
+          )}
         </Table>
       </div>
-      {enablePagination && <DataTablePagination table={table} />}
+      {enablePagination && (
+        <DataTablePagination
+          table={table}
+          showRowsPerPage={enableRowsPerpage}
+        />
+      )}
     </div>
   )
 }
