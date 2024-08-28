@@ -127,7 +127,7 @@ export default function HeaderAuthPanel({
                     : 'font-semibold'
                 )}
                 onClick={() => {
-                  signOut()
+                  signOut({ callbackUrl: '/', redirect: true })
                 }}
               >
                 <LogOut className="size-4" /> LogOut
@@ -196,7 +196,7 @@ export default function HeaderAuthPanel({
             <DropdownMenuItem
               className="text-primary flex cursor-pointer items-center gap-1 font-semibold"
               onClick={() => {
-                signOut()
+                signOut({ callbackUrl: '/', redirect: true })
               }}
             >
               {session?.user.username}
@@ -229,7 +229,7 @@ export default function HeaderAuthPanel({
             <DropdownMenuItem
               className="flex cursor-pointer items-center gap-1 font-semibold"
               onClick={() => {
-                signOut()
+                signOut({ callbackUrl: '/', redirect: true })
               }}
             >
               <LogOut className="size-4" /> Log Out
