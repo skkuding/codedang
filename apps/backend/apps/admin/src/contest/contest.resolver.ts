@@ -30,7 +30,10 @@ import { DuplicatedContestResponse } from './model/duplicated-contest-response.o
 import { ProblemScoreInput } from './model/problem-score.input'
 import { PublicizingRequest } from './model/publicizing-request.model'
 import { PublicizingResponse } from './model/publicizing-response.output'
-import { UserContestScoreSummary } from './model/score-summary'
+import {
+  UserContestScoreSummary,
+  UserContestScoreSummaryWithUserInfo
+} from './model/score-summary'
 
 @Resolver(() => Contest)
 export class ContestResolver {
@@ -285,12 +288,33 @@ export class ContestResolver {
   }
 
   @Query(() => UserContestScoreSummary)
-  async getScoreSummaries(
+  async getContestScoreSummary(
     @Args('userId', { type: () => Int }) userId: number,
     @Args('contestId', { type: () => Int }) contestId: number
   ) {
     try {
       return await this.contestService.getContestScoreSummary(userId, contestId)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Query(() => [UserContestScoreSummaryWithUserInfo])
+  async getContestScoreSummaries(
+    @Args('take', { type: () => Int, defaultValue: 10 }) take: number,
+    @Args('contestId', { type: () => Int }) contestId: number,
+    @Args('cursor', { type: () => Int, nullable: true }) cursor: number | null
+  ) {
+    try {
+      return await this.contestService.getContestScoreSummaries(
+        take,
+        contestId,
+        cursor
+      )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw error.convert2HTTPException()

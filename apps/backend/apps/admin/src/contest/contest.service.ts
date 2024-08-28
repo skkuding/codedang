@@ -753,6 +753,60 @@ export class ContestService {
     return latestSubmissions
   }
 
+  async getContestScoreSummaries(
+    take: number,
+    contestId: number,
+    cursor: number | null
+  ) {
+    const paginator = this.prisma.getPaginator(cursor)
+
+    const contestRecords = await this.prisma.contestRecord.findMany({
+      ...paginator,
+      where: {
+        contestId,
+        userId: {
+          not: null
+        }
+      },
+      take,
+      include: {
+        user: {
+          select: {
+            username: true,
+            studentId: true,
+            userProfile: {
+              select: {
+                realName: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        user: {
+          studentId: 'asc'
+        }
+      }
+    })
+
+    const contestRecordsWithScoreSummary = await Promise.all(
+      contestRecords.map(async (record) => {
+        return {
+          userId: record.userId,
+          username: record.user?.username,
+          studentId: record.user?.studentId,
+          realName: record.user?.userProfile?.realName,
+          ...(await this.getContestScoreSummary(
+            record.userId as number,
+            contestId
+          ))
+        }
+      })
+    )
+
+    return contestRecordsWithScoreSummary
+  }
+
   async getContestsByProblemId(problemId: number) {
     const contestProblems = await this.prisma.contestProblem.findMany({
       where: {
