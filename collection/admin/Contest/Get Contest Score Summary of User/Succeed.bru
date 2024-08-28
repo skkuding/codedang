@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  query GetScoreSummaries($userId: Int!, $contestId: Int!) {
-    getScoreSummaries(
+  query GetContestScoreSummary($userId: Int!, $contestId: Int!) {
+    getContestScoreSummary(
       userId: $userId,
       contestId:$contestId
     ) {
@@ -26,7 +26,7 @@ body:graphql {
       }
     }
   }
-  
+
 }
 
 body:graphql:vars {
@@ -39,7 +39,7 @@ body:graphql:vars {
 docs {
   ## Get Contest Score Summary of User
   유저의 특정 Contest에 대한 점수 요약을 반환합니다.
-  
+
   - submittedProblemCount
     - 제출된 문제의 개수(정답 여부와 관계 없음)
   - totalProblemCount

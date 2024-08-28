@@ -288,7 +288,7 @@ export class ContestResolver {
   }
 
   @Query(() => UserContestScoreSummary)
-  async getScoreSummaries(
+  async getContestScoreSummary(
     @Args('userId', { type: () => Int }) userId: number,
     @Args('contestId', { type: () => Int }) contestId: number
   ) {
