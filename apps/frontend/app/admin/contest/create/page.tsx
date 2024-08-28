@@ -284,7 +284,6 @@ export default function Page() {
               <div className="mb-[2px] text-base">Create</div>
             </Button>
             <AlertDialog open={showCreateModal}>
-              <AlertDialogTrigger></AlertDialogTrigger>
               <AlertDialogContent className="p-8">
                 <AlertDialogHeader className="gap-2">
                   <AlertDialogTitle>Create Contest?</AlertDialogTitle>
