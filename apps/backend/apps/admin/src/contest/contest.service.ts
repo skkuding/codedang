@@ -661,15 +661,23 @@ export class ContestService {
         }
       })
     ])
-
-    if (!submissions.length) {
-      throw new EntityNotExistException('Submissions')
-    } else if (!contestProblems.length) {
+    if (!contestProblems.length) {
       throw new EntityNotExistException('ContestProblems')
     } else if (!contestRecord) {
       throw new EntityNotExistException('contestRecord')
     }
-
+    if (!submissions.length) {
+      return {
+        submittedProblemCount: 0,
+        totalProblemCount: contestProblems.length,
+        userContestScore: 0,
+        contestPerfectScore: contestProblems.reduce(
+          (total, { score }) => total + score,
+          0
+        ),
+        problemScores: []
+      }
+    }
     // 하나의 Problem에 대해 여러 개의 Submission이 존재한다면, 마지막에 제출된 Submission만을 점수 계산에 반영함
     const latestSubmissions: {
       [problemId: string]: {
