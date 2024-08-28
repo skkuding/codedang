@@ -221,6 +221,7 @@ export default function Page() {
   }, [isPasswordsMatch, newPassword, confirmPassword])
 
   const onSubmit = async (data: SettingsFormat) => {
+    console.log('실행됨')
     try {
       // 필요 없는 필드 제외 (defaultProfileValues와 값이 같은 것들은 제외)
       const updatePayload: UpdatePayload = {}
@@ -252,30 +253,46 @@ export default function Page() {
     } catch (error) {
       console.error(error)
       toast.error('Failed to update your information, Please try again')
-      setTimeout(() => {
-        window.location.reload()
-      }, 1500)
+      // setTimeout(() => {
+      //   window.location.reload()
+      // }, 1500)
     }
   }
 
   const onSubmitClick = () => {
     return () => {
       // submit 되기위해, watch로 확인되는 값이 default값과 같으면 setValue를 통해서 defaultProfileValues로 변경
-      if (realName === '') {
+      if (realName === '' || !realName) {
         setValue('realName', defaultProfileValues.userProfile.realName)
+        console.log('getValues realName :', getValues('realName'))
+        console.log(!!realName)
+        console.log(errors)
       }
       if (majorValue === defaultProfileValues.major) {
+        console.log('major 실행됨')
         setMajorValue(defaultProfileValues.major)
       }
       if (currentPassword === '') {
+        console.log('currentPassword 실행됨')
         setValue('currentPassword', 'tmppassword1')
       }
       if (newPassword === '') {
+        console.log('newPassword 실행됨')
         setValue('newPassword', 'tmppassword1')
       }
       if (confirmPassword === '') {
+        console.log('confirmPassword 실행됨')
         setValue('confirmPassword', 'tmppassword1')
       }
+      console.log(currentPassword, newPassword, confirmPassword, realName)
+      // onSubmit(data)
+      // console.log(
+      //   getValues('currentPassword'),
+      //   getValues('newPassword'),
+      //   getValues('confirmPassword')
+      // )
+      // console.log(getValues('realName'), studentId, majorValue)
+      // console.log(errors)
     }
   }
 
@@ -297,6 +314,12 @@ export default function Page() {
       console.error('Failed to check password')
     }
   }
+
+  useEffect(() => {
+    // console.log('realName : ', getValues('realName'))
+    // console.log('erros:', errors.realName)
+    // console.log('defaultProfileValues:', defaultProfileValues)
+  }, [realName, currentPassword, newPassword, confirmPassword])
 
   return (
     <div className="flex w-full gap-20 py-6">
@@ -478,7 +501,8 @@ export default function Page() {
           {...register('realName')}
           className={`${realName && (errors.realName ? 'border-red-500' : 'border-primary')} placeholder:text-neutral-400 focus-visible:ring-0 disabled:bg-neutral-200`}
         />
-        {realName &&
+        {/* {realName && */}
+        {watch('realName') &&
           errors.realName &&
           requiredMessage(errors.realName.message)}
 
