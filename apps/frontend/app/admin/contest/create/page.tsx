@@ -29,9 +29,11 @@ import { useMutation } from '@apollo/client'
 import type { CreateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircleIcon } from 'lucide-react'
+import type { Route } from 'next'
+import type { NavigateOptions } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
@@ -50,8 +52,31 @@ export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [isCreating, setIsCreating] = useState<boolean>(false)
   const [showImportDialog, setShowImportDialog] = useState<boolean>(false)
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showLeaveModal, setShowLeaveModal] = useState(false)
+  const [pendingUrl, setPendingUrl] = useState<string | null>(null)
+  const [pendingOption, setPendingOption] = useState<
+    NavigateOptions | undefined
+  >(undefined)
 
   const router = useRouter()
+
+  const useConfirmNavigation = () => {
+    const router = useRouter()
+    useEffect(() => {
+      const newPush = (
+        href: string,
+        options?: NavigateOptions | undefined
+      ): void => {
+        setPendingUrl(href)
+        setPendingOption(options)
+        setShowLeaveModal(true)
+      }
+      router.push = newPush
+    }, [router])
+  }
+
+  useConfirmNavigation()
 
   const methods = useForm<CreateContestInput>({
     resolver: zodResolver(createSchema),
@@ -71,19 +96,23 @@ export default function Page() {
     UPDATE_CONTEST_PROBLEMS_ORDER
   )
 
-  const onSubmit = async (input: CreateContestInput) => {
+  const isSubmittable = (input: CreateContestInput) => {
     if (input.startTime >= input.endTime) {
       toast.error('Start time must be less than end time')
-      return
+      return false
     }
 
     if (
       new Set(problems.map((problem) => problem.order)).size !== problems.length
     ) {
       toast.error('Duplicate problem order found')
-      return
+      return false
+    } else {
+      return true
     }
+  }
 
+  const onSubmit = async (input: CreateContestInput) => {
     setIsCreating(true)
     const { data } = await createContest({
       variables: {
@@ -128,6 +157,36 @@ export default function Page() {
 
   return (
     <ScrollArea className="w-full">
+      <AlertDialog open={showLeaveModal}>
+        <AlertDialogContent className="p-8">
+          <AlertDialogHeader className="gap-2">
+            <AlertDialogTitle>Leave this page?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Changes you made may not be saved.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              className="rounded-md px-4 py-2"
+              onClick={() => setShowLeaveModal(false)}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button
+                type="button"
+                onClick={() => {
+                  if (pendingUrl) {
+                    router.replace(pendingUrl as Route, pendingOption)
+                  }
+                }}
+              >
+                Ok
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <main className="flex flex-col gap-6 px-20 py-16">
         <div className="flex items-center gap-4">
           <Link href="/admin/contest">
@@ -234,14 +293,44 @@ export default function Page() {
                 defaultSortColumn="order"
               />
             </div>
-            <Button
-              type="submit"
-              className="flex h-[36px] w-[100px] items-center gap-2 px-0"
-              disabled={isCreating}
-            >
-              <IoMdCheckmarkCircleOutline fontSize={20} />
-              <div className="mb-[2px] text-base">Create</div>
-            </Button>
+            <AlertDialog open={showCreateModal}>
+              <AlertDialogTrigger>
+                <Button
+                  type="button"
+                  className="flex h-[36px] w-[100px] items-center gap-2 px-0"
+                  onClick={() => {
+                    if (handleSubmit(isSubmittable)) {
+                      setShowCreateModal(true)
+                    }
+                  }}
+                >
+                  <IoMdCheckmarkCircleOutline fontSize={20} />
+                  <div className="mb-[2px] text-base">Create</div>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="p-8">
+                <AlertDialogHeader className="gap-2">
+                  <AlertDialogTitle>Create Contest?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Once user submit any coding, the contest problem list and
+                    score <span className="underline">cannot</span> be modified.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel
+                    className="rounded-md px-4 py-2"
+                    onClick={() => setShowLeaveModal(false)}
+                  >
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction asChild>
+                    <Button type="submit" disabled={isCreating}>
+                      Create
+                    </Button>
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </FormProvider>
         </form>
       </main>
