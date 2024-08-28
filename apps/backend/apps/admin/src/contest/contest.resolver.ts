@@ -300,6 +300,27 @@ export class ContestResolver {
     }
   }
 
+  @Query(() => [UserContestScoreSummary])
+  async getContestScoreSummaries(
+    @Args('take', { type: () => Int, defaultValue: 10 }) take: number,
+    @Args('contestId', { type: () => Int }) contestId: number,
+    @Args('cursor', { type: () => Int, nullable: true }) cursor: number | null
+  ) {
+    try {
+      return await this.contestService.getContestScoreSummaries(
+        take,
+        contestId,
+        cursor
+      )
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
   @Query(() => ContestsGroupedByStatus)
   async getContestsByProblemId(
     @Args('problemId', { type: () => Int }) problemId: number
