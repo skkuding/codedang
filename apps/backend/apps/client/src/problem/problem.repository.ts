@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Injectable } from '@nestjs/common'
-import type { Problem, Tag, CodeDraft, Prisma } from '@prisma/client'
+import {
+  type Problem,
+  type Tag,
+  type CodeDraft,
+  type Prisma,
+  ResultStatus
+} from '@prisma/client'
+import { Span } from 'nestjs-otel'
 import { MIN_DATE } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
 import type { CodeDraftUpdateInput } from '@admin/@generated'
@@ -26,7 +33,8 @@ export class ProblemRepository {
     engTitle: true,
     difficulty: true,
     acceptedRate: true,
-    submissionCount: true
+    submissionCount: true,
+    languages: true
   }
 
   private readonly problemSelectOption: Prisma.ProblemSelect = {
@@ -39,7 +47,6 @@ export class ProblemRepository {
     engInputDescription: true,
     engOutputDescription: true,
     engHint: true,
-    languages: true,
     timeLimit: true,
     memoryLimit: true,
     source: true,
@@ -337,5 +344,25 @@ export class ProblemRepository {
       },
       select: this.codeDraftSelectOption
     })
+  }
+
+  @Span()
+  async hasPassedProblem(
+    userId: number,
+    where: { problemId: number; contestId?: number }
+  ): Promise<boolean | null> {
+    const submissions = await this.prisma.submission.findMany({
+      where: {
+        ...where,
+        userId
+      },
+      select: { result: true }
+    })
+
+    return submissions.length
+      ? submissions.some(
+          (submission) => submission.result === ResultStatus.Accepted
+        )
+      : null
   }
 }

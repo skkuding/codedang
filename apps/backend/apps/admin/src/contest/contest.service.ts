@@ -649,6 +649,9 @@ export class ContestService {
         where: {
           userId,
           contestId
+        },
+        orderBy: {
+          createTime: 'desc'
         }
       }),
       this.prisma.contestRecord.findFirst({
@@ -667,35 +670,36 @@ export class ContestService {
       throw new EntityNotExistException('contestRecord')
     }
 
-    // 하나의 Problem에 대해 여러 개의 Submission이 존재한다면, 더 높은 점수를 갖는 Submission을 반영함
-    const highestScoreSubmissions: {
+    // 하나의 Problem에 대해 여러 개의 Submission이 존재한다면, 마지막에 제출된 Submission만을 점수 계산에 반영함
+    const latestSubmissions: {
       [problemId: string]: {
         result: ResultStatus
-        score: number // Problem에서 획득한 점수
+        score: number // Problem에서 획득한 점수 (maxScore 만점 기준)
+        maxScore: number // Contest에서 Problem이 갖는 배점(만점)
       }
-    } = this.getHighestScoreSubmissions(submissions)
+    } = await this.getlatestSubmissions(submissions)
 
     const problemScores: {
       problemId: number
       score: number
+      maxScore: number
     }[] = []
 
-    for (const problemId in highestScoreSubmissions) {
+    for (const problemId in latestSubmissions) {
       problemScores.push({
         problemId: parseInt(problemId),
-        score: highestScoreSubmissions[problemId].score
+        score: latestSubmissions[problemId].score,
+        maxScore: latestSubmissions[problemId].maxScore
       })
     }
 
-    const userContestScore = await this.calculateUserContestScore(
-      contestId,
-      problemScores
-    )
-
     const scoreSummary = {
-      submittedProblemCount: Object.keys(highestScoreSubmissions).length, // Contest에 존재하는 문제 중 제출된 문제의 개수
+      submittedProblemCount: Object.keys(latestSubmissions).length, // Contest에 존재하는 문제 중 제출된 문제의 개수
       totalProblemCount: contestProblems.length, // Contest에 존재하는 Problem의 총 개수
-      userContestScore, // Contest에서 유저가 받은 점수
+      userContestScore: problemScores.reduce(
+        (total, { score }) => total + score,
+        0
+      ), // Contest에서 유저가 받은 점수
       contestPerfectScore: contestProblems.reduce(
         (total, { score }) => total + score,
         0
@@ -706,69 +710,39 @@ export class ContestService {
     return scoreSummary
   }
 
-  getHighestScoreSubmissions(submissions: Submission[]) {
-    const highestScoreSubmissions: {
+  async getlatestSubmissions(submissions: Submission[]) {
+    const latestSubmissions: {
       [problemId: string]: {
         result: ResultStatus
-        score: number // Problem에서 획득한 점수 (100점 만점 기준)
+        score: number // Problem에서 획득한 점수
+        maxScore: number // Contest에서 Problem이 갖는 배점
       }
     } = {}
 
     for (const submission of submissions) {
       const problemId = submission.problemId
+      if (problemId in latestSubmissions) continue
 
-      if (
-        !(problemId in highestScoreSubmissions) ||
-        (highestScoreSubmissions[problemId].result !== ResultStatus.Accepted &&
-          submission.result === ResultStatus.Accepted)
-      ) {
-        highestScoreSubmissions[problemId] = {
-          result: ResultStatus.Accepted,
-          score: 100
-        }
-      } else {
-        const currentScore = highestScoreSubmissions[problemId].score
-
-        if (submission.score > currentScore) {
-          highestScoreSubmissions[problemId] = {
-            result: submission.result as ResultStatus,
-            score: submission.score
-          }
-        }
-      }
-    }
-
-    return highestScoreSubmissions
-  }
-
-  async calculateUserContestScore(
-    contestId: number,
-    problemScores: {
-      problemId: number
-      score: number
-    }[]
-  ) {
-    let userContestScore = 0
-    for (const problemScore of problemScores) {
-      const contestProblemScore = (
+      const maxScore = (
         await this.prisma.contestProblem.findUniqueOrThrow({
           where: {
             // eslint-disable-next-line @typescript-eslint/naming-convention
             contestId_problemId: {
-              contestId,
-              problemId: problemScore.problemId
+              contestId: submission.contestId!,
+              problemId: submission.problemId
             }
-          },
-          select: {
-            score: true
           }
         })
       ).score
 
-      userContestScore += contestProblemScore * (problemScore.score / 100)
+      latestSubmissions[problemId] = {
+        result: submission.result as ResultStatus,
+        score: (submission.score / 100) * maxScore, // contest에 할당된 Problem의 총점에 맞게 계산
+        maxScore
+      }
     }
 
-    return userContestScore
+    return latestSubmissions
   }
 
   async getContestsByProblemId(problemId: number) {
