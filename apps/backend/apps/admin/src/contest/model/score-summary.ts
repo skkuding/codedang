@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql'
+import { Field, Float, Int, ObjectType } from '@nestjs/graphql'
 
 @ObjectType()
 export class UserContestScoreSummary {
@@ -8,7 +8,7 @@ export class UserContestScoreSummary {
   @Field(() => Int)
   totalProblemCount: number
 
-  @Field(() => Int)
+  @Field(() => Float)
   userContestScore: number
 
   @Field(() => Int)
@@ -23,6 +23,9 @@ class ProblemScore {
   @Field(() => Int)
   problemId: number
 
-  @Field(() => Int)
+  @Field(() => Float)
   score: number
+
+  @Field(() => Int)
+  maxScore: number
 }

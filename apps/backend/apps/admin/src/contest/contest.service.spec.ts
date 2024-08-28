@@ -4,7 +4,7 @@ import { ContestProblem, Group, ContestRecord } from '@generated'
 import { Problem } from '@generated'
 import { Contest } from '@generated'
 import { faker } from '@faker-js/faker'
-import { Prisma } from '@prisma/client'
+import { ResultStatus } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
@@ -142,6 +142,41 @@ const contestProblem: ContestProblem = {
   updateTime: faker.date.past()
 }
 
+const submissionsWithProblemTitleAndUsername = {
+  id: 1,
+  userId: 1,
+  userIp: '127.0.0.1',
+  problemId: 1,
+  contestId: 1,
+  workbookId: 1,
+  code: [],
+  codeSize: 1,
+  language: 'C',
+  result: ResultStatus.Accepted,
+  createTime: '2000-01-01',
+  updateTime: '2000-01-02',
+  problem: {
+    title: 'submission'
+  },
+  user: {
+    username: 'user01',
+    studentId: '1234567890'
+  }
+}
+
+// const submissionResults = [
+//   {
+//     id: 1,
+//     submissionId: 1,
+//     problemTestcaseId: 1,
+//     result: ResultStatus.Accepted,
+//     cpuTime: BigInt(1),
+//     memory: 1,
+//     createTime: '2000-01-01',
+//     updateTime: '2000-01-02'
+//   }
+// ]
+
 const publicizingRequest: PublicizingRequest = {
   contestId,
   userId,
@@ -181,7 +216,9 @@ const db = {
   },
   contestProblem: {
     create: stub().resolves(ContestProblem),
-    findMany: stub().resolves([ContestProblem])
+    findMany: stub().resolves([ContestProblem]),
+    findFirstOrThrow: stub().resolves(ContestProblem),
+    findFirst: stub().resolves(ContestProblem)
   },
   contestRecord: {
     findMany: stub().resolves([ContestRecord]),
@@ -189,11 +226,18 @@ const db = {
   },
   problem: {
     update: stub().resolves(Problem),
+    updateMany: stub().resolves([Problem]),
     findFirstOrThrow: stub().resolves(Problem)
   },
   group: {
     findUnique: stub().resolves(Group)
   },
+  submission: {
+    findMany: stub().resolves([submissionsWithProblemTitleAndUsername])
+  },
+  // submissionResult: {
+  //   findMany: stub().resolves([submissionResults])
+  // },
   $transaction: stub().callsFake(async () => {
     const updatedProblem = await db.problem.update()
     const newContestProblem = await db.contestProblem.create()
@@ -327,6 +371,7 @@ describe('ContestService', () => {
       db.contest.findUnique.resolves(contest)
       db.problem.update.resolves(problem)
       db.contestProblem.create.resolves(contestProblem)
+      db.contestProblem.findFirst.resolves(null)
 
       const res = await Promise.all(
         await service.importProblemsToContest(groupId, contestId, [
@@ -340,12 +385,7 @@ describe('ContestService', () => {
     it('should return an empty array when the problem already exists in contest', async () => {
       db.contest.findUnique.resolves(contest)
       db.problem.update.resolves(problem)
-      db.contestProblem.create.throws(
-        new Prisma.PrismaClientKnownRequestError(
-          'ContestProblem already exists',
-          { code: 'P2002', clientVersion: 'version' }
-        )
-      )
+      db.contestProblem.findFirst.resolves(ContestProblem)
 
       const res = await service.importProblemsToContest(groupId, contestId, [
         problemIdsWithScore
@@ -360,6 +400,38 @@ describe('ContestService', () => {
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })
+
+  // describe('getContestSubmissionSummaryByUserId', () => {
+  //   it('should return contest submission summaries', async () => {
+  //     const res = await service.getContestSubmissionSummaryByUserId(10, 1, 1, 1)
+
+  //     expect(res.submissions).to.deep.equal([
+  //       {
+  //         contestId: 1,
+  //         problemTitle: 'submission',
+  //         username: 'user01',
+  //         studentId: '1234567890',
+  //         submissionResult: ResultStatus.Accepted,
+  //         language: 'C',
+  //         submissionTime: '2000-01-01',
+  //         codeSize: 1,
+  //         ip: '127.0.0.1' // TODO: submission.ip 사용
+  //       }
+  //     ])
+  //     expect(res.scoreSummary).to.deep.equal({
+  //       totalProblemCount: 1,
+  //       submittedProblemCount: 1,
+  //       totalScore: 1,
+  //       acceptedTestcaseCountPerProblem: [
+  //         {
+  //           acceptedTestcaseCount: 0,
+  //           problemId: 1,
+  //           totalTestcaseCount: 1
+  //         }
+  //       ]
+  //     })
+  //   })
+  // })
 
   // describe('duplicateContest', () => {
   //   db['$transaction'] = stub().callsFake(async () => {

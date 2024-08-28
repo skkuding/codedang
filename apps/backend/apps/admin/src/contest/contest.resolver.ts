@@ -14,8 +14,14 @@ import {
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
-import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
+import {
+  CursorValidationPipe,
+  GroupIDPipe,
+  IDValidationPipe,
+  RequiredIntPipe
+} from '@libs/pipe'
 import { ContestService } from './contest.service'
+import { ContestSubmissionSummaryForUser } from './model/contest-submission-summary-for-user.model'
 import { ContestWithParticipants } from './model/contest-with-participants.model'
 import { CreateContestInput } from './model/contest.input'
 import { UpdateContestInput } from './model/contest.input'
@@ -219,6 +225,35 @@ export class ContestResolver {
       if (error instanceof EntityNotExistException) {
         throw error.convert2HTTPException()
       }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Query(() => ContestSubmissionSummaryForUser)
+  async getContestSubmissionSummaryByUserId(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args('userId', { type: () => Int }, IDValidationPipe) userId: number,
+    @Args('problemId', { nullable: true, type: () => Int }, IDValidationPipe)
+    problemId: number,
+    @Args(
+      'take',
+      { type: () => Int, defaultValue: 10 },
+      new RequiredIntPipe('take')
+    )
+    take: number,
+    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
+    cursor: number | null
+  ) {
+    try {
+      return await this.contestService.getContestSubmissionSummaryByUserId(
+        take,
+        contestId,
+        userId,
+        problemId,
+        cursor
+      )
+    } catch (error) {
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
