@@ -30,7 +30,10 @@ import { DuplicatedContestResponse } from './model/duplicated-contest-response.o
 import { ProblemScoreInput } from './model/problem-score.input'
 import { PublicizingRequest } from './model/publicizing-request.model'
 import { PublicizingResponse } from './model/publicizing-response.output'
-import { UserContestScoreSummary } from './model/score-summary'
+import {
+  UserContestScoreSummary,
+  UserContestScoreSummaryWithUserInfo
+} from './model/score-summary'
 
 @Resolver(() => Contest)
 export class ContestResolver {
@@ -300,7 +303,7 @@ export class ContestResolver {
     }
   }
 
-  @Query(() => [UserContestScoreSummary])
+  @Query(() => [UserContestScoreSummaryWithUserInfo])
   async getContestScoreSummaries(
     @Args('take', { type: () => Int, defaultValue: 10 }) take: number,
     @Args('contestId', { type: () => Int }) contestId: number,
