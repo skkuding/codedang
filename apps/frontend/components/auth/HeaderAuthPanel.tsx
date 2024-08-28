@@ -47,11 +47,11 @@ export default function HeaderAuthPanel({
   useEffect(() => {
     const checkIfNeedsUpdate = async () => {
       const userResponse = await fetcherWithAuth.get('user')
-      const user: { studentId: string; major: string } =
+      const user: { role: string; studentId: string; major: string } =
         await userResponse.json()
       const updateNeeded =
-        user.studentId === '0000000000' ||
-        user.major === 'Department Information Unavailable / 학과 정보 없음'
+        user.role === 'User' &&
+        (user.studentId === '0000000000' || user.major === 'none')
 
       setNeedsUpdate(updateNeeded)
     }
@@ -127,7 +127,7 @@ export default function HeaderAuthPanel({
                     : 'font-semibold'
                 )}
                 onClick={() => {
-                  signOut()
+                  signOut({ callbackUrl: '/', redirect: true })
                 }}
               >
                 <LogOut className="size-4" /> LogOut
@@ -196,7 +196,7 @@ export default function HeaderAuthPanel({
             <DropdownMenuItem
               className="text-primary flex cursor-pointer items-center gap-1 font-semibold"
               onClick={() => {
-                signOut()
+                signOut({ callbackUrl: '/', redirect: true })
               }}
             >
               {session?.user.username}
@@ -229,7 +229,7 @@ export default function HeaderAuthPanel({
             <DropdownMenuItem
               className="flex cursor-pointer items-center gap-1 font-semibold"
               onClick={() => {
-                signOut()
+                signOut({ callbackUrl: '/', redirect: true })
               }}
             >
               <LogOut className="size-4" /> Log Out
