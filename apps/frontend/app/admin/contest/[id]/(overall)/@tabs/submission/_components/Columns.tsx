@@ -63,7 +63,9 @@ export const columns: ColumnDef<DataTableSubmission>[] = [
           'whitespace-nowrap text-center text-xs',
           row.getValue('result') === 'Accept'
             ? 'text-green-500'
-            : 'text-red-500'
+            : row.getValue('result') === 'Judging'
+              ? 'text-gray-500'
+              : 'text-red-500'
         )}
       >
         {row.getValue('result')}
