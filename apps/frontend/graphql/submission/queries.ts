@@ -19,6 +19,8 @@ const GET_CONTEST_SUBMISSIONS = gql(`
     language
     submissionTime
     codeSize
+    problemId
+    order
     ip
     id
   }

@@ -1,5 +1,6 @@
 'use client'
 
+import type { OverallSubmission } from '@/app/admin/contest/utils'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { Skeleton } from '@/components/ui/skeleton'
 import { GET_CONTEST_SUBMISSIONS } from '@/graphql/submission/queries'
@@ -34,11 +35,13 @@ export default function Submission() {
       ) : (
         <DataTableAdmin
           columns={columns}
-          data={submissions}
+          data={submissions as OverallSubmission[]}
           enableSearch={true}
+          searchColumn="realname"
           enablePagination={true}
           enableFilter={true}
           enableProblemFilter={true}
+          defaultSortColumn={{ id: 'submissionTime', desc: true }}
         />
       )}
     </div>

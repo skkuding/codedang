@@ -9,7 +9,7 @@ import { GET_GROUP_MEMBER } from '@/graphql/user/queries'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
 import { FaAngleLeft } from 'react-icons/fa6'
-import type { ScoreSummary, ProblemData } from '../../../utils'
+import type { ScoreSummary, ProblemData, UserSubmission } from '../../../utils'
 import { scoreColumns } from './_components/ScoreColumns'
 import { submissionColumns } from './_components/SubmissionColumns'
 
@@ -95,11 +95,11 @@ export default function Page({
               />
               <DataTableAdmin
                 columns={submissionColumns}
-                data={submissionsData}
-                enableSearch={true}
+                data={submissionsData as UserSubmission[]}
                 enablePagination={true}
                 enableFilter={true}
                 enableProblemFilter={true}
+                defaultSortColumn={{ id: 'submissionTime', desc: true }}
               />
             </div>
           )}

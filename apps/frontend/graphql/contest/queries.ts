@@ -92,7 +92,9 @@ const GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER =
       language
       submissionTime
       codeSize
+      problemId
       ip
+      order
       id
     }
   }

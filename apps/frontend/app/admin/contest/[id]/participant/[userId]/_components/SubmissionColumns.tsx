@@ -8,11 +8,10 @@ import dayjs from 'dayjs'
 export const submissionColumns: ColumnDef<UserSubmission>[] = [
   {
     accessorKey: 'problemTitle',
-    header: () => (
-      <div className="py-1 pr-4 font-mono text-sm">Problem Title</div>
-    ),
+    header: () => <div className="py-1 font-mono text-sm">Problem Title</div>,
     cell: ({ row }) => (
       <div className="whitespace-nowrap py-1 text-center text-xs">
+        {String.fromCharCode(65 + row.original.order)}.{' '}
         {row.getValue('problemTitle')}
       </div>
     )
@@ -60,7 +59,7 @@ export const submissionColumns: ColumnDef<UserSubmission>[] = [
     header: () => <p className="font-mono text-sm">Code Size</p>,
     cell: ({ row }) => (
       <div className="whitespace-nowrap text-center text-xs">
-        {!row.getValue('codeSize') || `${row.getValue('codeSize')} Bytes`}
+        {row.getValue('codeSize') ? `${row.getValue('codeSize')} B` : 'N/A'}
       </div>
     )
   },

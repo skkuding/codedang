@@ -73,7 +73,7 @@ interface DataTableProps<TData, TValue> {
     [key: string]: string
   }
   onSelectedExport?: (selectedRows: ContestProblem[]) => void
-  defaultSortColumn?: string
+  defaultSortColumn?: { id: string; desc: boolean }
   enableFooter?: boolean
 }
 
@@ -109,7 +109,7 @@ export function DataTableAdmin<TData, TValue>({
   headerStyle = {},
   enableDuplicate = false,
   onSelectedExport = () => {},
-  defaultSortColumn = '',
+  defaultSortColumn = { id: '', desc: false },
   enableFooter = false
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
@@ -127,8 +127,8 @@ export function DataTableAdmin<TData, TValue>({
       maxSize: Number.MAX_SAFE_INTEGER
     },
     state: {
-      sorting: defaultSortColumn
-        ? [{ id: defaultSortColumn, desc: false }]
+      sorting: defaultSortColumn.id
+        ? [{ id: defaultSortColumn.id, desc: defaultSortColumn.desc }]
         : sorting,
       rowSelection,
       columnVisibility: { languages: false }
@@ -266,8 +266,8 @@ export function DataTableAdmin<TData, TValue>({
         enableDelete ||
         enableDuplicate) && (
         <div className="flex justify-between">
-          <div className="flex gap-2">
-            {enableSearch && !enableProblemFilter && (
+          <div className="flex gap-4">
+            {enableSearch && (
               <div className="relative">
                 <IoSearch className="text-muted-foreground absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
                 <Input
@@ -435,6 +435,21 @@ export function DataTableAdmin<TData, TValue>({
                   }
                   if (page === 'problem') {
                     return `/admin/problem/${(row.original as { id: number }).id}` as Route
+                  }
+                  if (page === 'submission') {
+                    const submission = row.original as {
+                      problemId: number
+                      id: number
+                    }
+                    return `/contest/${pathname.split('/')[3]}/problem/${submission.problemId}/submission/${submission.id}` as Route
+                  }
+                  if (pathname.includes('participant')) {
+                    const submission = row.original as {
+                      contestId: number
+                      problemId: number
+                      id: number
+                    }
+                    return `/contest/${submission.contestId}/problem/${submission.problemId}/submission/${submission.id}` as Route
                   }
                   return ''
                 })()
