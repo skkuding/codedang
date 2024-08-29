@@ -213,7 +213,9 @@ export class ProblemRepository {
         order: true,
         problem: {
           select: this.problemsSelectOption
-        }
+        },
+        problemId: true,
+        score: true
       }
     })
   }
