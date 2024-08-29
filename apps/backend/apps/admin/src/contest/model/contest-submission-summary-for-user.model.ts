@@ -49,6 +49,6 @@ export class ContestSubmissionSummaryForOne {
   @Field(() => Int, { nullable: false })
   problemId: number
 
-  @Field(() => Int, { nullable: false })
-  order: number
+  @Field(() => Int, { nullable: true })
+  order: number | null
 }

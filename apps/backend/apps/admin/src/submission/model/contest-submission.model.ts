@@ -36,6 +36,6 @@ export class ContestSubmission {
   @Field(() => Int, { nullable: false })
   problemId!: number
 
-  @Field(() => Int, { nullable: false })
+  @Field(() => Int, { nullable: true })
   order: number | null
 }
