@@ -34,7 +34,7 @@ let publicGroup: Group
 let privateGroup: Group
 const users: User[] = []
 const problems: Problem[] = []
-const problemTestcases: ProblemTestcase[] = []
+let problemTestcases: ProblemTestcase[] = []
 const contests: Contest[] = []
 const endedContests: Contest[] = []
 const ongoingContests: Contest[] = []
@@ -901,23 +901,13 @@ const createProblems = async () => {
         return {
           input: testcase.input,
           output: testcase.output,
-          problemId: parseInt(testcase.id.split(':')[0], 10)
+          problemId: i
         }
       })
     })
   }
 
-  for (const problem of problems) {
-    problemTestcases.push(
-      await prisma.problemTestcase.create({
-        data: {
-          problemId: problem.id,
-          input: `${problem.id}.json`,
-          output: `${problem.id}.json`
-        }
-      })
-    )
-  }
+  problemTestcases = await prisma.problemTestcase.findMany()
 
   const tagNames = [
     'If Statement',
@@ -1361,6 +1351,7 @@ int main(void) {
       }
     })
   )
+
   await prisma.submissionResult.create({
     data: {
       submissionId: submissions[0].id,
