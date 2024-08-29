@@ -90,6 +90,7 @@ export default function TestcaseItem({
             type="number"
             className={cn(
               'h-5 w-8 rounded-sm border text-center text-xs',
+              '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
               isInvalid(scoreWeightField.value)
                 ? 'border-red-500'
                 : 'border-gray-300'
