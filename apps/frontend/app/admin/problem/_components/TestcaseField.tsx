@@ -52,6 +52,14 @@ export default function TestcaseField() {
 
     const remainingScore = 100 - totalAssignedScore
 
+    if (remainingScore < 0) {
+      setDialogDescription(
+        'The scoring ratios have not been specified correctly.\nPlease review and correct them.'
+      )
+      setDialogOpen(true)
+      return
+    }
+
     const unassignedTestcases = currentValues
       .map((tc, index) => ({ ...tc, index }))
       .filter((tc) => isInvalid(tc.scoreWeight))
