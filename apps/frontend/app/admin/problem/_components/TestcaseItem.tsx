@@ -1,6 +1,11 @@
 import { cn } from '@/lib/utils'
-import { FieldErrorsImpl, useController, useFormContext } from 'react-hook-form'
+import {
+  type FieldErrorsImpl,
+  useController,
+  useFormContext
+} from 'react-hook-form'
 import ErrorMessage from '../../_components/ErrorMessage'
+import { isInvalid } from '../_libs/utils'
 import ExampleTextarea from './ExampleTextarea'
 
 interface TestcaseItemProps {
@@ -75,8 +80,9 @@ export default function TestcaseItem({
         <div>
           <input
             {...register(`testcases.${index}.scoreWeight`, {
-              valueAsNumber: true
+              setValueAs: (value) => (isInvalid(value) ? null : Number(value))
             })}
+            type="number"
             className="h-5 w-8 rounded-sm border border-gray-300 text-center text-xs"
           />{' '}
           (%)
