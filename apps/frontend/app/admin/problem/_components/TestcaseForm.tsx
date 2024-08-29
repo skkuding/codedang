@@ -23,7 +23,6 @@ export default function TestcaseField() {
   }
 
   const removeItem = (index: number) => {
-    console.log(errors.testcases)
     const currentValues: Testcase[] = getValues('testcases')
     if (currentValues.length <= 1) {
       toast.warning(`At least 1 testcase is required`)
