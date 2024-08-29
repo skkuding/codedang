@@ -19,14 +19,12 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { S3MediaProvider, S3Provider } from '@libs/storage'
 import { StorageService } from '@libs/storage'
 import { ProblemRepository } from '@client/problem/problem.repository'
 import { Snippet } from '../class/create-submission.dto'
 import { problems } from '../mock/problem.mock'
 import { submissions, submissionDto } from '../mock/submission.mock'
 import { submissionResults } from '../mock/submissionResult.mock'
-import { testcase } from '../mock/testcase.mock'
 import { SubmissionPublicationService } from '../submission-pub.service'
 import { SubmissionService } from '../submission.service'
 
@@ -49,6 +47,9 @@ const db = {
     findUniqueOrThrow: stub(),
     findUnique: stub(),
     update: stub()
+  },
+  problemTestcase: {
+    findMany: stub()
   },
   contest: {
     findFirstOrThrow: stub()
@@ -93,7 +94,6 @@ const USERIP = '127.0.0.1'
 
 describe('SubmissionService', () => {
   let service: SubmissionService
-  let storageService: StorageService
   let problemRepository: ProblemRepository
   let publish: SubmissionPublicationService
 
@@ -113,14 +113,11 @@ describe('SubmissionService', () => {
         {
           provide: SubmissionPublicationService,
           useFactory: () => ({ publishJudgeRequestMessage: () => [] })
-        },
-        S3Provider,
-        S3MediaProvider
+        }
       ]
     }).compile()
 
     service = module.get<SubmissionService>(SubmissionService)
-    storageService = module.get<StorageService>(StorageService)
     problemRepository = module.get<ProblemRepository>(ProblemRepository)
     publish = module.get<SubmissionPublicationService>(
       SubmissionPublicationService
@@ -277,9 +274,6 @@ describe('SubmissionService', () => {
 
     it('should create submission with contestId', async () => {
       const publishSpy = stub(publish, 'publishJudgeRequestMessage')
-      const getSpy = stub(storageService, 'readObject').resolves(
-        JSON.stringify(testcase)
-      )
       const hasPassedSpy = stub(problemRepository, 'hasPassedProblem').resolves(
         false
       )
@@ -288,6 +282,7 @@ describe('SubmissionService', () => {
         ...submissions[0],
         contestId: CONTEST_ID
       })
+      db.problemTestcase.findMany.resolves([{ id: 1 }, { id: 2 }, { id: 3 }])
 
       expect(
         await service.createSubmission(
@@ -299,8 +294,6 @@ describe('SubmissionService', () => {
         )
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
       expect(publishSpy.calledOnce).to.be.true
-      expect(getSpy.calledOnceWith(`${submissions[0].problemId}.json`)).to.be
-        .true
       expect(hasPassedSpy.calledOnce).to.be.true
     })
 
@@ -324,9 +317,7 @@ describe('SubmissionService', () => {
 
     it('should create submission with workbookId', async () => {
       const publishSpy = stub(publish, 'publishJudgeRequestMessage')
-      const getSpy = stub(storageService, 'readObject').resolves(
-        JSON.stringify(testcase)
-      )
+      db.problemTestcase.findMany.resolves([{ id: 1 }, { id: 2 }, { id: 3 }])
       db.problem.findUnique.resolves(problems[0])
       db.submission.create.resolves({
         ...submissions[0],
@@ -343,15 +334,10 @@ describe('SubmissionService', () => {
         )
       ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
       expect(publishSpy.calledOnce).to.be.true
-      expect(getSpy.calledOnceWith(`${submissions[0].problemId}.json`)).to.be
-        .true
     })
 
     it('should create submission with contestId', async () => {
       const publishSpy = stub(publish, 'publishJudgeRequestMessage')
-      const getSpy = stub(storageService, 'readObject').resolves(
-        JSON.stringify(testcase)
-      )
       const hasPassedSpy = stub(problemRepository, 'hasPassedProblem').resolves(
         false
       )
@@ -360,6 +346,7 @@ describe('SubmissionService', () => {
         ...submissions[0],
         contestId: CONTEST_ID
       })
+      db.problemTestcase.findMany.resolves([{ id: 1 }, { id: 2 }, { id: 3 }])
 
       expect(
         await service.createSubmission(
@@ -371,8 +358,6 @@ describe('SubmissionService', () => {
         )
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
       expect(publishSpy.calledOnce).to.be.true
-      expect(getSpy.calledOnceWith(`${submissions[0].problemId}.json`)).to.be
-        .true
       expect(hasPassedSpy.calledOnce).to.be.true
     })
 
@@ -396,14 +381,12 @@ describe('SubmissionService', () => {
 
     it('should create submission with workbookId', async () => {
       const publishSpy = stub(publish, 'publishJudgeRequestMessage')
-      const getSpy = stub(storageService, 'readObject').resolves(
-        JSON.stringify(testcase)
-      )
       db.problem.findUnique.resolves(problems[0])
       db.submission.create.resolves({
         ...submissions[0],
         workbookId: WORKBOOK_ID
       })
+      db.problemTestcase.findMany.resolves([{ id: 1 }, { id: 2 }, { id: 3 }])
       expect(
         await service.createSubmission(
           submissionDto,
@@ -414,8 +397,6 @@ describe('SubmissionService', () => {
         )
       ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
       expect(publishSpy.calledOnce).to.be.true
-      expect(getSpy.calledOnceWith(`${submissions[0].problemId}.json`)).to.be
-        .true
     })
 
     it('should throw exception if the language is not supported', async () => {
