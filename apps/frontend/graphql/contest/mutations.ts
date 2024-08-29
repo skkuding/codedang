@@ -56,15 +56,16 @@ const IMPORT_PROBLEMS_TO_CONTEST = gql(`
   mutation ImportProblemsToContest(
     $groupId: Int!,
     $contestId: Int!,
-    $problemIds: [Int!]!
+    $problemIdsWithScore: [ProblemScoreInput!]!
   ) {
     importProblemsToContest(
       groupId: $groupId,
       contestId: $contestId,
-      problemIds: $problemIds
+      problemIdsWithScore: $problemIdsWithScore
     ) {
       contestId
       problemId
+      score
     }
   }
 `)

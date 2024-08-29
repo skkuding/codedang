@@ -16,8 +16,8 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
-import { PlusCircledIcon } from '@radix-ui/react-icons'
 import { useState, useEffect } from 'react'
+import { IoFilter } from 'react-icons/io5'
 
 interface DataProps<T> {
   title: string
@@ -54,12 +54,12 @@ export default function LanguageSelect<T extends string>({
     <Popover onOpenChange={() => onChange(selectedValues)}>
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
+          variant="filter"
           size={'sm'}
-          className="h-10 border hover:bg-gray-50"
+          className="h-10 border px-5 hover:bg-gray-50"
         >
-          <PlusCircledIcon className="mr-2 h-4 w-4" />
-          <p className="font-bold">{title}</p>
+          <IoFilter className="mr-2 h-4 w-4" />
+          <p className="font-semibold">{title}</p>
           {selectedValues.length > 0 && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />

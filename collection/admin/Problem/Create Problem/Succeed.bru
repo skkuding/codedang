@@ -23,7 +23,8 @@ body:graphql {
       hint
       isVisible
       template
-      samples {
+      testcase {
+        id
         input
         output
       }
@@ -58,16 +59,11 @@ body:graphql:vars {
       "memoryLimit": 0,
       "difficulty": "Level2",
       "source": "source",
-      "samples": [
-        {
-          "input": "1 2",
-          "output": "3"
-        }
-      ],
       "testcases": [
         {
           "input": "input",
-          "output": "output"
+          "output": "output",
+          "isHidden": false
         }
       ],
       "tagIds": [1]
