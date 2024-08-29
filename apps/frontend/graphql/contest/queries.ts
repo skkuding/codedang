@@ -93,6 +93,7 @@ const GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER =
       submissionTime
       codeSize
       ip
+      id
     }
   }
 }`)

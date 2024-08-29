@@ -64,6 +64,7 @@ export interface OverallSubmission {
   submissionTime: string
   codeSize?: number | null
   ip?: string | null
+  id: number
 }
 
 export interface UserSubmission {
@@ -73,4 +74,5 @@ export interface UserSubmission {
   submissionTime: string
   codeSize?: number | null
   ip?: string | null
+  id: number
 }

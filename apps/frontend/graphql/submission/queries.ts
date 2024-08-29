@@ -20,6 +20,7 @@ const GET_CONTEST_SUBMISSIONS = gql(`
     submissionTime
     codeSize
     ip
+    id
   }
 }
 `)
