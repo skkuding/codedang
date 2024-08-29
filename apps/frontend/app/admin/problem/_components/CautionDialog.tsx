@@ -24,7 +24,9 @@ export function CautionDialog({
       <AlertDialogContent className="gap-6">
         <AlertDialogHeader>
           <AlertDialogTitle>Caution</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          <AlertDialogDescription className="whitespace-pre-line">
+            {description}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="sm:justify-center">
           <AlertDialogAction onClick={onClose}>OK</AlertDialogAction>

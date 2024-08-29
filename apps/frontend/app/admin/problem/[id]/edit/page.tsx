@@ -5,7 +5,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
-import type { Template, UpdateProblemInput } from '@generated/graphql'
+import type { Template, Testcase, UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -18,12 +18,14 @@ import DescriptionForm from '../../../_components/DescriptionForm'
 import FormSection from '../../../_components/FormSection'
 import SwitchField from '../../../_components/SwitchField'
 import TitleForm from '../../../_components/TitleForm'
+import { CautionDialog } from '../../_components/CautionDialog'
 import InfoForm from '../../_components/InfoForm'
 import LimitForm from '../../_components/LimitForm'
 import PopoverVisibleInfo from '../../_components/PopoverVisibleInfo'
 import TemplateField from '../../_components/TemplateField'
 import TestcaseField from '../../_components/TestcaseField'
 import VisibleForm from '../../_components/VisibleForm'
+import { validateScoreWeight } from '../../_libs/utils'
 import { editSchema } from '../../utils'
 
 export default function Page({ params }: { params: { id: string } }) {
@@ -41,6 +43,8 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const [showHint, setShowHint] = useState<boolean>(false)
   const [showSource, setShowSource] = useState<boolean>(false)
+  const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
+  const [dialogDescription, setDialogDescription] = useState<string>('')
 
   useQuery(GET_PROBLEM, {
     variables: {
@@ -91,7 +95,16 @@ export default function Page({ params }: { params: { id: string } }) {
   })
 
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
+
   const onSubmit = async (input: UpdateProblemInput) => {
+    const testcases = getValues('testcases') as Testcase[]
+    if (validateScoreWeight(testcases) === false) {
+      setDialogDescription(
+        'The scoring ratios have not been specified correctly.\nPlease review and correct them.'
+      )
+      setDialogOpen(true)
+      return
+    }
     const tagsToDelete = getValues('tags.delete')
     const tagsToCreate = getValues('tags.create')
     input.tags!.create = tagsToCreate.filter(
@@ -201,6 +214,11 @@ export default function Page({ params }: { params: { id: string } }) {
         </form>
       </main>
       <ScrollBar orientation="horizontal" />
+      <CautionDialog
+        isOpen={isDialogOpen}
+        onClose={() => setDialogOpen(false)}
+        description={dialogDescription}
+      />
     </ScrollArea>
   )
 }

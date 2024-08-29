@@ -17,16 +17,20 @@ import DescriptionForm from '../../_components/DescriptionForm'
 import FormSection from '../../_components/FormSection'
 import SwitchField from '../../_components/SwitchField'
 import TitleForm from '../../_components/TitleForm'
+import { CautionDialog } from '../_components/CautionDialog'
 import InfoForm from '../_components/InfoForm'
 import LimitForm from '../_components/LimitForm'
 import PopoverVisibleInfo from '../_components/PopoverVisibleInfo'
 import TemplateField from '../_components/TemplateField'
 import TestcaseField from '../_components/TestcaseField'
 import VisibleForm from '../_components/VisibleForm'
+import { validateScoreWeight } from '../_libs/utils'
 import { createSchema } from '../utils'
 
 export default function Page() {
   const [isCreating, setIsCreating] = useState(false)
+  const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
+  const [dialogDescription, setDialogDescription] = useState<string>('')
 
   const router = useRouter()
 
@@ -46,11 +50,21 @@ export default function Page() {
     }
   })
 
-  const { handleSubmit } = methods
+  const { handleSubmit, getValues } = methods
 
   const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
+
   const onSubmit = async (input: CreateProblemInput) => {
     setIsCreating(true)
+    const testcases = getValues('testcases')
+    if (validateScoreWeight(testcases) === false) {
+      setDialogDescription(
+        'The scoring ratios have not been specified correctly.\nPlease review and correct them.'
+      )
+      setDialogOpen(true)
+      setIsCreating(false)
+      return
+    }
     await createProblem({
       variables: {
         groupId: 1,
@@ -143,6 +157,11 @@ export default function Page() {
         </form>
       </main>
       <ScrollBar orientation="horizontal" />
+      <CautionDialog
+        isOpen={isDialogOpen}
+        onClose={() => setDialogOpen(false)}
+        description={dialogDescription}
+      />
     </ScrollArea>
   )
 }
