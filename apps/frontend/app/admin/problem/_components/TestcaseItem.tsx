@@ -28,6 +28,11 @@ export default function TestcaseItem({
     control
   })
 
+  const { field: scoreWeightField } = useController({
+    name: `testcases.${index}.scoreWeight`,
+    control
+  })
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
@@ -83,7 +88,12 @@ export default function TestcaseItem({
               setValueAs: (value) => (isInvalid(value) ? null : Number(value))
             })}
             type="number"
-            className="h-5 w-8 rounded-sm border border-gray-300 text-center text-xs"
+            className={cn(
+              'h-5 w-8 rounded-sm border text-center text-xs',
+              isInvalid(scoreWeightField.value)
+                ? 'border-red-500'
+                : 'border-gray-300'
+            )}
           />{' '}
           (%)
         </div>
