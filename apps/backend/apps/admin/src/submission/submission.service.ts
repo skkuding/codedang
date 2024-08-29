@@ -53,7 +53,8 @@ export class SubmissionService {
         language: c.language as Language,
         submissionTime: c.createTime,
         codeSize: c.codeSize ?? null,
-        ip: c.userIp ?? 'Unknown'
+        ip: c.userIp ?? 'Unknown',
+        id: c.id
       }
     })
 
