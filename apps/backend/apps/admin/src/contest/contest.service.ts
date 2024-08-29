@@ -531,7 +531,8 @@ export class ContestService {
         language: submission.language,
         submissionTime: submission.createTime,
         codeSize: submission.codeSize,
-        ip: submission.userIp
+        ip: submission.userIp,
+        id: submission.id
       }
     })
 

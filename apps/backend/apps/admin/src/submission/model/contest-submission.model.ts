@@ -29,4 +29,7 @@ export class ContestSubmission {
 
   @Field(() => String, { nullable: true })
   ip: string | null
+
+  @Field(() => Int, { nullable: false })
+  id!: number
 }
