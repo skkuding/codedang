@@ -1,10 +1,9 @@
 import { Testcase } from '@generated/graphql'
 import { type FieldErrorsImpl, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
-import ErrorMessage from '../../_components/ErrorMessage'
 import Label from '../../_components/Label'
 import AddBadge from './AddBadge'
-import ExampleTextarea from './ExampleTextarea'
+import TestcaseItem from './TestcaseItem'
 
 export default function TestcaseField() {
   const {
@@ -37,53 +36,35 @@ export default function TestcaseField() {
   const itemErrors = errors.testcases as FieldErrorsImpl
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2">
-          <Label required={false}>Sample Testcase</Label>
-        </div>
+    <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-4">
+        <Label required={false}>Sample Testcase</Label>
         {watchedItems.map(
           (item, index) =>
             !item.isHidden && (
-              <div key={index} className="flex flex-col gap-1">
-                <input
-                  {...register(`testcases.${index}.scoreWeight`, {
-                    valueAsNumber: true
-                  })}
-                />
-                <ExampleTextarea
-                  onRemove={() => removeItem(index)}
-                  inputName={`testcases.${index}.input`}
-                  outputName={`testcases.${index}.output`}
-                  register={register}
-                />
-                {itemErrors && itemErrors[index] && <ErrorMessage />}
-              </div>
+              <TestcaseItem
+                key={index}
+                index={index}
+                itemError={itemErrors}
+                onRemove={() => removeItem(index)}
+                register={register}
+              />
             )
         )}
         <AddBadge onClick={() => addTestcase(false)} />
       </div>
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2">
-          <Label required={false}>Hidden Testcase</Label>
-        </div>
+      <div className="flex flex-col gap-4">
+        <Label required={false}>Hidden Testcase</Label>
         {watchedItems.map(
           (item, index) =>
             item.isHidden && (
-              <div key={index} className="flex flex-col gap-1">
-                <input
-                  {...register(`testcases.${index}.scoreWeight`, {
-                    valueAsNumber: true
-                  })}
-                />
-                <ExampleTextarea
-                  onRemove={() => removeItem(index)}
-                  inputName={`testcases.${index}.input`}
-                  outputName={`testcases.${index}.output`}
-                  register={register}
-                />
-                {itemErrors && itemErrors[index] && <ErrorMessage />}
-              </div>
+              <TestcaseItem
+                key={index}
+                index={index}
+                itemError={itemErrors}
+                onRemove={() => removeItem(index)}
+                register={register}
+              />
             )
         )}
         <AddBadge onClick={() => addTestcase(true)} />
