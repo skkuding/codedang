@@ -91,6 +91,41 @@ export const contestProblems = [
   }
 ] satisfies Array<ContestProblem & { contest: Partial<Contest> }>
 
+export const contestProblemsWithScore = [
+  {
+    order: 1,
+    contestId: 1,
+    problemId: 1,
+    score: null,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    contest: {
+      startTime: new Date()
+    },
+    maxScore: 0,
+    submissionTime: null
+  },
+  {
+    order: 2,
+    contestId: 1,
+    problemId: 2,
+    score: null,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    contest: {
+      startTime: new Date()
+    },
+    maxScore: 0,
+    submissionTime: null
+  }
+] satisfies Array<
+  Omit<ContestProblem, 'score'> & { contest: Partial<Contest> } & {
+    maxScore: number
+    submissionTime: Date | null
+    score: number | null
+  }
+>
+
 export const workbookProblems = [
   {
     order: 1,
