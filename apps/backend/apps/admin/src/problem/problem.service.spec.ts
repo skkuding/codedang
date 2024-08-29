@@ -133,7 +133,6 @@ describe('ProblemService', () => {
     }
 
     it('should return created problem', async () => {
-      const uploadSpy = stub(storageService, 'uploadObject').resolves()
       db.problem.create.resolves(problems[0])
       db.problemTestcase.create.resolves({ index: 1, id: 1 })
 
@@ -143,7 +142,6 @@ describe('ProblemService', () => {
         groupId
       )
       expect(result).to.deep.equal(problemsWithIsVisible[0])
-      expect(uploadSpy.calledOnce).to.be.true
     })
 
     it('should reject if languages is empty', async () => {
@@ -177,7 +175,6 @@ describe('ProblemService', () => {
     it('shoule return imported problems', async () => {
       const userId = 2
       const groupId = 2
-      const s3UploadCache = stub(storageService, 'uploadObject').resolves()
       const createTestcasesSpy = spy(service, 'createTestcases')
       db.problem.create.resetHistory()
       db.problem.create.onCall(0).resolves(importedProblems[0])
@@ -186,7 +183,6 @@ describe('ProblemService', () => {
 
       const res = await service.uploadProblems(fileUploadInput, userId, groupId)
 
-      expect(s3UploadCache.calledTwice).to.be.true
       expect(createTestcasesSpy.calledTwice).to.be.true
       expect(res).to.deep.equal(importedProblemsWithIsVisible)
     })

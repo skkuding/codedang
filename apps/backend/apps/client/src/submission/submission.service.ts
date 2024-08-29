@@ -18,14 +18,12 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { StorageService } from '@libs/storage'
 import { ProblemRepository } from '@client/problem/problem.repository'
 import {
   type CreateSubmissionDto,
   Snippet,
   Template
 } from './class/create-submission.dto'
-import type { TestcaseDTO } from './interface/testcase.dto'
 import { SubmissionPublicationService } from './submission-pub.service'
 
 @Injectable()
@@ -36,7 +34,6 @@ export class SubmissionService {
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
-    private readonly storageService: StorageService,
     private readonly problemRepository: ProblemRepository,
     private readonly publish: SubmissionPublicationService
   ) {}
@@ -272,18 +269,19 @@ export class SubmissionService {
 
   @Span()
   async createSubmissionResults(submission: Submission): Promise<void> {
-    const rawTestcase = await this.storageService.readObject(
-      `${submission.problemId}.json`
-    )
-
-    const testcases = JSON.parse(rawTestcase) as TestcaseDTO[]
+    const testcases = await this.prisma.problemTestcase.findMany({
+      where: {
+        problemId: submission.problemId
+      },
+      select: { id: true }
+    })
 
     await this.prisma.submissionResult.createMany({
       data: testcases.map((testcase) => {
         return {
           submissionId: submission.id,
           result: ResultStatus.Judging,
-          problemTestcaseId: parseInt(testcase.id.split(':')[1], 10)
+          problemTestcaseId: testcase.id
         }
       })
     })
