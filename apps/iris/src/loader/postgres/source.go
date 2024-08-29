@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strconv"
 
 	_ "github.com/lib/pq"
 	"github.com/skkuding/codedang/apps/iris/src/loader"
@@ -47,7 +48,7 @@ func (p *postgres) Get(key string) ([]loader.Element, error) {
 		}
 
 		result = append(result, loader.Element{
-			Id:  string(id),
+			Id:  strconv.Itoa(id),
 			In:  input,
 			Out: output,
 		})
