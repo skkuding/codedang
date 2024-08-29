@@ -122,7 +122,6 @@ const problem: Problem = {
   visibleLockTime: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  samples: [],
   submissionCount: 0,
   acceptedCount: 0,
   acceptedRate: 0,

@@ -7,7 +7,6 @@ import { useMutation } from '@apollo/client'
 import {
   Level,
   type CreateProblemInput,
-  type Sample,
   type Testcase
 } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -41,7 +40,6 @@ export default function Page() {
     defaultValues: {
       difficulty: Level.Level1,
       tagIds: [],
-      samples: [{ input: '', output: '' }],
       testcases: [{ input: '', output: '' }],
       hint: '',
       source: '',
@@ -71,7 +69,7 @@ export default function Page() {
     router.refresh()
   }
 
-  const addExample = (type: 'samples' | 'testcases') => {
+  const addExample = (type: 'testcases') => {
     setValue(type, [...getValues(type), { input: '', output: '' }])
   }
 
@@ -121,15 +119,6 @@ export default function Page() {
                 </FormSection>
               </div>
             </div>
-
-            <FormSection title="Sample">
-              <AddBadge onClick={() => addExample('samples')} />
-              <AddableForm<Sample>
-                type="samples"
-                fieldName="samples"
-                minimumRequired={1}
-              />
-            </FormSection>
 
             <FormSection title="Testcases">
               <AddBadge onClick={() => addExample('testcases')} />

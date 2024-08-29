@@ -16,10 +16,6 @@ const CREATE_PROBLEM = gql(`
       description
       inputDescription
       outputDescription
-      samples {
-        input
-        output
-      }
       problemTestcase {
         input
         output
@@ -52,10 +48,6 @@ const UPDATE_PROBLEM = gql(`
       description
       inputDescription
       outputDescription
-      samples {
-        input
-        output
-      }
       problemTestcase {
         input
         output
