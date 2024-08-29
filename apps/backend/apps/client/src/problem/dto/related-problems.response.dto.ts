@@ -18,8 +18,7 @@ class Problem {
   order: number
 
   @Expose()
-  @Transform(({ obj }) => obj.problem.id, { toClassOnly: true })
-  id: number
+  problemId: number
 
   @Expose()
   @Transform(({ obj }) => obj.problem.title, { toClassOnly: true })
@@ -48,7 +47,4 @@ class Problem {
   @Expose()
   @IsOptional()
   submissionTime: Date | null
-
-  @Expose()
-  problemId: number
 }
