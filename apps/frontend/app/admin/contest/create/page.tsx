@@ -232,6 +232,7 @@ export default function Page() {
                 columns={columns(problems, setProblems) as any[]}
                 data={problems as ContestProblem[]}
                 defaultSortColumn="order"
+                enableFooter={true}
               />
             </div>
             <Button

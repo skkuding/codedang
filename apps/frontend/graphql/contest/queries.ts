@@ -48,4 +48,30 @@ const GET_BELONGED_CONTESTS =
   }
 }`)
 
-export { GET_CONTEST, GET_CONTESTS, GET_BELONGED_CONTESTS }
+const GET_CONTEST_SCORE_SUMMARIES =
+  gql(`query GetContestScoreSummaries($contestId: Int!, $take: Int!) {
+    getContestScoreSummaries(
+      contestId: $contestId,
+      take: $take
+    ) {
+      submittedProblemCount
+      totalProblemCount
+      userContestScore
+      contestPerfectScore
+      problemScores {
+        problemId
+        score
+        maxScore
+      }
+      username
+      studentId
+      realName
+    }
+  }`)
+
+export {
+  GET_CONTEST,
+  GET_CONTESTS,
+  GET_BELONGED_CONTESTS,
+  GET_CONTEST_SCORE_SUMMARIES
+}

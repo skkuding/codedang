@@ -60,6 +60,7 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   enableSearch?: boolean // Enable search title
+  searchColumn?: string
   enableFilter?: boolean // Enable filter for languages and tags
   enableProblemFilter?: boolean // Enable filter for problems
   enableDelete?: boolean // Enable delete selected rows
@@ -73,6 +74,7 @@ interface DataTableProps<TData, TValue> {
   }
   onSelectedExport?: (selectedRows: ContestProblem[]) => void
   defaultSortColumn?: string
+  enableFooter?: boolean
 }
 
 interface ContestProblem {
@@ -96,6 +98,7 @@ export function DataTableAdmin<TData, TValue>({
   columns,
   data,
   enableSearch = false,
+  searchColumn = 'title',
   enableFilter = false,
   enableProblemFilter = false,
   enableDelete = false,
@@ -106,7 +109,8 @@ export function DataTableAdmin<TData, TValue>({
   headerStyle = {},
   enableDuplicate = false,
   onSelectedExport = () => {},
-  defaultSortColumn = ''
+  defaultSortColumn = '',
+  enableFooter = false
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])
@@ -295,10 +299,14 @@ export function DataTableAdmin<TData, TValue>({
                 <Input
                   placeholder="Search"
                   value={
-                    (table.getColumn('title')?.getFilterValue() as string) ?? ''
+                    (table
+                      .getColumn(searchColumn)
+                      ?.getFilterValue() as string) ?? ''
                   }
                   onChange={(event) => {
-                    table.getColumn('title')?.setFilterValue(event.target.value)
+                    table
+                      .getColumn(searchColumn)
+                      ?.setFilterValue(event.target.value)
                     table.setPageIndex(0)
                   }}
                   className="h-10 w-[150px] bg-transparent pl-8 lg:w-[250px]"
@@ -479,7 +487,7 @@ export function DataTableAdmin<TData, TValue>({
               </TableRow>
             )}
           </TableBody>
-          {!enableImport && pathname.includes('/admin/contest/') && (
+          {enableFooter && (
             <TableFooter>
               {table.getFooterGroups().map((footerGroup) => (
                 <TableRow key={footerGroup.id}>
