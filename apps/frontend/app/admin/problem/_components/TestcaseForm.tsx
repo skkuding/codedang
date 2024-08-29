@@ -44,9 +44,9 @@ export default function TestcaseField() {
 
     const remainingScore = 100 - totalAssignedScore
 
-    const unassignedTestcases = currentValues.filter((tc) =>
-      isInvalid(tc.scoreWeight)
-    )
+    const unassignedTestcases = currentValues
+      .map((tc, index) => ({ ...tc, index }))
+      .filter((tc) => isInvalid(tc.scoreWeight))
     const unassignedCount = unassignedTestcases.length
 
     if (unassignedCount === 0) {
@@ -57,10 +57,12 @@ export default function TestcaseField() {
     const baseScore = Math.floor(remainingScore / unassignedCount)
     const extraScore = remainingScore - baseScore * unassignedCount
 
+    const lastUnassignedIndex = unassignedTestcases[unassignedCount - 1].index
+
     const updatedTestcases = currentValues.map((tc, index) => {
       if (isInvalid(tc.scoreWeight)) {
         const newScore =
-          baseScore + (index === currentValues.length - 1 ? extraScore : 0)
+          baseScore + (index === lastUnassignedIndex ? extraScore : 0)
         return { ...tc, scoreWeight: newScore }
       }
       return tc
