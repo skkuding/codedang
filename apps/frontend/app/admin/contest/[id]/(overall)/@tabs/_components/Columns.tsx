@@ -1,32 +1,12 @@
 'use client'
 
+import type { ScoreSummary, ProblemData } from '@/app/admin/contest/utils'
 import { DataTableColumnHeader } from '@/components/DataTableColumnHeader'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 
-interface DataTableScoreSummaries {
-  studentId: string
-  realName?: string | null
-  username: string
-  submittedProblemCount: number
-  totalProblemCount: number
-  userContestScore: number
-  contestPerfectScore: number
-  problemScores: {
-    problemId: number
-    score: number
-    maxScore: number
-  }[]
-}
-
-interface ProblemData {
-  order: number
-  score: number
-  problemId: number
-}
-
 export const columns = (
   problemData: ProblemData[]
-): ColumnDef<DataTableScoreSummaries>[] => {
+): ColumnDef<ScoreSummary>[] => {
   return [
     {
       accessorKey: 'studentId',
@@ -98,7 +78,7 @@ export const columns = (
           {String.fromCharCode(Number(65 + i))}
         </p>
       ),
-      cell: ({ row }: { row: Row<DataTableScoreSummaries> }) => {
+      cell: ({ row }: { row: Row<ScoreSummary> }) => {
         const problemScore = row.original.problemScores.find(
           (ps) => ps.problemId === problem.problemId
         )

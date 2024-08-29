@@ -201,32 +201,6 @@ export function DataTableAdmin<TData, TValue>({
     const selectedRows = table.getSelectedRowModel().rows as {
       original: { id: number }
     }[]
-    if (pathname === '/admin/contest/create') {
-      const storedValue = localStorage.getItem('importProblems')
-      const problems = storedValue ? JSON.parse(storedValue) : []
-      const newProblems = problems.filter(
-        (problem: ContestProblem) =>
-          !selectedRows.some((row) => row.original.id === problem.id)
-      )
-      localStorage.setItem('importProblems', JSON.stringify(newProblems))
-      // router.refresh 해도 새로고침이 안돼서 location.reload()로 대체
-      location.reload()
-      return
-    } else if (pathname.includes('/admin/contest/')) {
-      const contestId = page
-      const storedValue = localStorage.getItem(`importProblems-${contestId}`)
-      const problems = storedValue ? JSON.parse(storedValue) : []
-      const newProblems = problems.filter(
-        (problem: ContestProblem) =>
-          !selectedRows.some((row) => row.original.id === problem.id)
-      )
-      localStorage.setItem(
-        `importProblems-${contestId}`,
-        JSON.stringify(newProblems)
-      )
-      location.reload()
-      return
-    }
     const deletePromise = selectedRows.map((row) => {
       if (page === 'problem') {
         return deleteProblem({
@@ -330,7 +304,12 @@ export function DataTableAdmin<TData, TValue>({
                   />
                 )}
                 {enableProblemFilter && (
-                  <DataTableProblemFilter column={table.getColumn('title')} />
+                  <DataTableProblemFilter
+                    column={
+                      table.getColumn('title') ??
+                      table.getColumn('problemTitle')
+                    }
+                  />
                 )}
               </div>
             )}
@@ -446,10 +425,19 @@ export function DataTableAdmin<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => {
-                const href =
-                  page === 'contest'
-                    ? (`/admin/contest/${(row.original as { id: number }).id}` as Route)
-                    : (`/admin/problem/${(row.original as { id: number }).id}` as Route)
+                const participantRegex = /^\/admin\/contest\/\d+$/
+                const href = (() => {
+                  if (participantRegex.test(pathname)) {
+                    return `${pathname}/participant/${(row.original as { userId: number }).userId}` as Route
+                  }
+                  if (page === 'contest') {
+                    return `/admin/contest/${(row.original as { id: number }).id}` as Route
+                  }
+                  if (page === 'problem') {
+                    return `/admin/problem/${(row.original as { id: number }).id}` as Route
+                  }
+                  return ''
+                })()
                 return (
                   <TableRow
                     key={row.id}
@@ -463,8 +451,7 @@ export function DataTableAdmin<TData, TValue>({
                         onClick={() => {
                           enableImport
                             ? row.toggleSelected(!row.getIsSelected())
-                            : !pathname.includes('/admin/contest/') &&
-                              router.push(href)
+                            : href && router.push(href)
                         }}
                       >
                         {flexRender(

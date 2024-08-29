@@ -36,9 +36,7 @@ export default function Submission() {
           columns={columns}
           data={submissions}
           enableSearch={true}
-          enableDelete={true}
           enablePagination={true}
-          enableDuplicate={true}
           enableFilter={true}
           enableProblemFilter={true}
         />

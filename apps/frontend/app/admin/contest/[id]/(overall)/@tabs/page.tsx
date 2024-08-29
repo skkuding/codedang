@@ -6,28 +6,8 @@ import { GET_CONTEST_SCORE_SUMMARIES } from '@/graphql/contest/queries'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useQuery } from '@apollo/client'
 import { useParams } from 'next/navigation'
+import type { ScoreSummary, ProblemData } from '../../../utils'
 import { columns } from './_components/Columns'
-
-interface DataTableScoreSummaries {
-  studentId: string
-  realName?: string | null
-  username: string
-  submittedProblemCount: number
-  totalProblemCount: number
-  userContestScore: number
-  contestPerfectScore: number
-  problemScores: {
-    problemId: number
-    score: number
-    maxScore: number
-  }[]
-}
-
-interface ProblemData {
-  order: number
-  score: number
-  problemId: number
-}
 
 export default function Submission() {
   const { id } = useParams()
@@ -63,7 +43,7 @@ export default function Submission() {
       ) : (
         <DataTableAdmin
           columns={columns(problemData as ProblemData[])}
-          data={summariesData as DataTableScoreSummaries[]}
+          data={summariesData as ScoreSummary[]}
           enableSearch={true}
           searchColumn="realName"
           enablePagination={true}

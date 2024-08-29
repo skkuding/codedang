@@ -63,15 +63,44 @@ const GET_CONTEST_SCORE_SUMMARIES =
         score
         maxScore
       }
+      userId
       username
       studentId
       realName
     }
   }`)
 
+const GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER =
+  gql(`query getContestSubmissionSummariesByUserId($contestId: Int!, $userId: Int!) {
+  getContestSubmissionSummaryByUserId(contestId: $contestId, userId: $userId) {
+    scoreSummary {
+      contestPerfectScore
+      problemScores {
+        problemId
+        score
+      }
+      submittedProblemCount
+      totalProblemCount
+      userContestScore
+    }
+    submissions {
+      contestId
+      problemTitle
+      studentId
+      username
+      submissionResult
+      language
+      submissionTime
+      codeSize
+      ip
+    }
+  }
+}`)
+
 export {
   GET_CONTEST,
   GET_CONTESTS,
   GET_BELONGED_CONTESTS,
-  GET_CONTEST_SCORE_SUMMARIES
+  GET_CONTEST_SCORE_SUMMARIES,
+  GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER
 }
