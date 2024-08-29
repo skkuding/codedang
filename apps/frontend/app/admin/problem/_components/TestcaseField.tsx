@@ -1,6 +1,12 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 import type { Testcase } from '@generated/graphql'
 import { useState } from 'react'
 import { type FieldErrorsImpl, useFormContext } from 'react-hook-form'
@@ -123,14 +129,24 @@ export default function TestcaseField() {
         <AddBadge onClick={() => addTestcase(true)} />
       </div>
       <div className="flex w-full justify-end">
-        <Button
-          className="flex h-9 w-40 items-center gap-2 px-0"
-          type="button"
-          onClick={equalDistribution}
-        >
-          <IoIosCheckmarkCircle fontSize={20} />
-          <p>Equal Distribution</p>
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                className="flex h-9 w-40 items-center gap-2 px-0"
+                type="button"
+                onClick={equalDistribution}
+              >
+                <IoIosCheckmarkCircle fontSize={20} />
+                <p>Equal Distribution</p>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="bg-white text-black shadow-sm">
+              Click to equally distribute the scoring ratio for testcases where
+              the percentage is not specified.
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
       <CautionDialog
         isOpen={isDialogOpen}
