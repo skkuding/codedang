@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os"
+	"strings"
 
 	_ "github.com/lib/pq"
 	"github.com/skkuding/codedang/apps/iris/src/loader"
@@ -15,8 +17,10 @@ type postgres struct {
 }
 
 func NewPostgresDataSource(ctx context.Context) *postgres {
-	connStr := "postgresql://postgres:1234@127.0.0.1:5433/skkuding?sslmode=disable"
-	db, err := sql.Open("postgres", connStr)
+	// 새로운 ENV 추가 필요
+	connStr := os.Getenv("DATABASE_URL")
+	data := strings.Replace(connStr, "schema=public", "sslmode=disable", 1)
+	db, err := sql.Open("postgres", data)
 
 	if err != nil {
 		panic(fmt.Errorf("cannot access database: %w", err))
