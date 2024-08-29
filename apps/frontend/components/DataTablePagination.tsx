@@ -31,7 +31,7 @@ export function DataTablePagination<TData>({
           `${table.getFilteredSelectedRowModel().rows.length} of${' '}
           ${table.getFilteredRowModel().rows.length} row(s) selected`}
       </div>
-      <div className="flex gap-5">
+      <div className="absolute left-1/2 flex -translate-x-1/2 transform gap-5">
         <button
           className={cn(
             '-mr-1',

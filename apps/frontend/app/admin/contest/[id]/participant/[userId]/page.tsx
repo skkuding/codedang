@@ -5,8 +5,9 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER } from '@/graphql/contest/queries'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
+import { GET_GROUP_MEMBER } from '@/graphql/user/queries'
 import { useQuery } from '@apollo/client'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { FaAngleLeft } from 'react-icons/fa6'
 import type { ScoreSummary, ProblemData } from '../../../utils'
 import { scoreColumns } from './_components/ScoreColumns'
@@ -17,21 +18,21 @@ export default function Page({
 }: {
   params: { id: string; userId: string }
 }) {
-  const router = useRouter()
-
   const { id, userId } = params
 
-  const Submissions = useQuery(GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER, {
-    variables: { contestId: Number(id), userId: Number(userId) },
-    onCompleted: (data) =>
-      console.log(data.getContestSubmissionSummaryByUserId.scoreSummary)
+  const user = useQuery(GET_GROUP_MEMBER, {
+    variables: { groupId: 1, userId: Number(userId) }
   })
+  const userData = user.data?.getGroupMember
 
-  const submissionsLoading = Submissions.loading
+  const submissions = useQuery(GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER, {
+    variables: { contestId: Number(id), userId: Number(userId) }
+  })
+  const submissionsLoading = submissions.loading
   const scoreData =
-    Submissions.data?.getContestSubmissionSummaryByUserId.scoreSummary || []
+    submissions.data?.getContestSubmissionSummaryByUserId.scoreSummary || []
   const submissionsData =
-    Submissions.data?.getContestSubmissionSummaryByUserId.submissions || []
+    submissions.data?.getContestSubmissionSummaryByUserId.submissions || []
 
   const problems =
     useQuery(GET_CONTEST_PROBLEMS, {
@@ -48,25 +49,25 @@ export default function Page({
       <main className="flex flex-col gap-6 px-20 py-16">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button onClick={() => router.back()}>
+            <Link href={`/admin/contest/${id}`}>
               <FaAngleLeft className="h-12 hover:text-gray-700/80" />
-            </button>
-            <span className="text-4xl font-bold">Thomas (2000000000)</span>
+            </Link>
+            <span className="text-4xl font-bold">
+              {userData?.name} ({userData?.studentId})
+            </span>
           </div>
         </div>
         <div className="prose mb-4 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12">
           <div className="flex flex-col gap-4">
-            <div className="font-semibold">
-              Computer Science and Engineering / 소프트웨어학과
-            </div>
+            <div className="font-semibold">{userData?.major}</div>
             <div className="flex space-x-4">
               <div className="flex flex-col gap-4 font-medium">
                 <span>User ID</span>
                 <span>Student ID</span>
               </div>
               <div className="flex flex-col gap-4">
-                <span>user01</span>
-                <span>2024300123</span>
+                <span>{userData?.username}</span>
+                <span>{userData?.studentId}</span>
               </div>
             </div>
           </div>
