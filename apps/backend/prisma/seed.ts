@@ -22,6 +22,7 @@ import { join } from 'path'
 
 const prisma = new PrismaClient()
 const fixturePath = join(__dirname, '__fixtures__')
+const problemTestcasesPath = join(__dirname, 'problem-testcases')
 
 const MIN_DATE: Date = new Date('2000-01-01T00:00:00.000Z')
 const MAX_DATE: Date = new Date('2999-12-31T00:00:00.000Z')
@@ -886,7 +887,26 @@ const createProblems = async () => {
     })
   )
 
-  // add simple testcases
+  // add testcases
+  for (let i = 1; i < 9; i++) {
+    const data = await readFile(
+      join(problemTestcasesPath, `${i}.json`),
+      'utf-8'
+    )
+    const testcases: { id: string; input: string; output: string }[] =
+      JSON.parse(data)
+
+    await prisma.problemTestcase.createMany({
+      data: testcases.map((testcase) => {
+        return {
+          input: testcase.input,
+          output: testcase.output,
+          problemId: parseInt(testcase.id.split(':')[0], 10)
+        }
+      })
+    })
+  }
+
   for (const problem of problems) {
     problemTestcases.push(
       await prisma.problemTestcase.create({
