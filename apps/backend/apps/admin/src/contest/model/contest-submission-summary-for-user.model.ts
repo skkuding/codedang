@@ -42,4 +42,7 @@ export class ContestSubmissionSummaryForOne {
 
   @Field(() => String, { nullable: true })
   ip?: string
+
+  @Field(() => Int, { nullable: false })
+  id: number
 }
