@@ -21,7 +21,7 @@ import compileIcon from '@/public/compileVersion.svg'
 import copyIcon from '@/public/copy.svg'
 import copyCompleteIcon from '@/public/copyComplete.svg'
 import type { ContestProblem, ProblemDetail } from '@/types/type'
-import { Level } from '@/types/type'
+import type { Level } from '@/types/type'
 import { motion } from 'framer-motion'
 import { sanitize } from 'isomorphic-dompurify'
 import { FileText } from 'lucide-react'
@@ -133,7 +133,7 @@ export function EditorDescription({
               <h2 className="mb-2 font-bold">Sample</h2>
 
               <div className="flex space-x-2 text-base">
-                <div className="w-full space-y-2">
+                <div className="w-1/2 space-y-2">
                   <div className="flex items-center space-x-3">
                     <h3 className="select-none text-sm font-semibold">
                       Input {index + 1}
@@ -186,7 +186,7 @@ export function EditorDescription({
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <div className="bg-[#222939 w-full rounded-md border border-[#555C66]">
+                  <div className="rounded-md border border-[#555C66]">
                     <pre
                       className="h-24 w-full select-none overflow-auto px-4 py-2 font-mono text-sm"
                       dangerouslySetInnerHTML={{
@@ -196,7 +196,7 @@ export function EditorDescription({
                   </div>
                 </div>
 
-                <div className="w-full space-y-2">
+                <div className="w-1/2 space-y-2">
                   <div className="flex items-center space-x-3">
                     <h3 className="select-none text-sm font-semibold">
                       Output {index + 1}
@@ -249,7 +249,7 @@ export function EditorDescription({
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <div className="bg-[#222939 w-full rounded-md border-[1px] border-[#555C66]">
+                  <div className="rounded-md border-[1px] border-[#555C66]">
                     <pre
                       className="h-24 w-full select-none overflow-auto px-4 py-2 font-mono text-sm"
                       dangerouslySetInnerHTML={{
