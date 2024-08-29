@@ -21,7 +21,7 @@ import InfoForm from '../_components/InfoForm'
 import LimitForm from '../_components/LimitForm'
 import PopoverVisibleInfo from '../_components/PopoverVisibleInfo'
 import TemplateField from '../_components/TemplateField'
-import TestcaseField from '../_components/TestcaseForm'
+import TestcaseField from '../_components/TestcaseField'
 import VisibleForm from '../_components/VisibleForm'
 import { createSchema } from '../utils'
 
