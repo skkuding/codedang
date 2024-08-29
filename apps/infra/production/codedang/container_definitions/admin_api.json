@@ -60,7 +60,7 @@
     },
     {
       "name": "USERNAME_FOR_LOAD_TEST",
-      "value": "${usernmae_for_load_test}"
+      "value": "${username_for_load_test}"
     },
     {
       "name": "EMAIL_FOR_LOAD_TEST",
