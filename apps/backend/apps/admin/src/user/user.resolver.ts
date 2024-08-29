@@ -8,6 +8,7 @@ import {
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { UserGroup } from '@generated'
 import { User } from '@generated'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { GroupMember } from './model/groupMember.model'
@@ -42,6 +43,29 @@ export class UserResolver {
       take,
       leaderOnly
     )
+  }
+
+  @Query(() => GroupMember)
+  async getGroupMember(
+    @Args(
+      'groupId',
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
+      GroupIDPipe
+    )
+    groupId: number,
+    @Args('userId', { type: () => Int }, new RequiredIntPipe('userId'))
+    userId: number
+  ) {
+    try {
+      return await this.userService.getGroupMember(groupId, userId)
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code == 'P2025'
+      ) {
+        throw new NotFoundException(error.message)
+      }
+    }
   }
 
   @Mutation(() => UserGroup)
