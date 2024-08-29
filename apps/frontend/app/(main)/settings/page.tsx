@@ -58,14 +58,6 @@ type UpdatePayload = Partial<{
   major: string
 }>
 
-// const schemaUpdate = z.object({
-//   studentId: z.string().optional(),
-//   password: z.string().optional(),
-//   newPassword: z.string().optional(),
-//   realName: z.string().optional(),
-//   major: z.string().optional()
-// })
-
 const schemaSettings = (updateNow: boolean) =>
   z.object({
     currentPassword: z.string().min(1, { message: 'Required' }).optional(),
