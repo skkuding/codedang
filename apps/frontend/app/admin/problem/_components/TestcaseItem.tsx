@@ -12,24 +12,17 @@ interface TestcaseItemProps {
   index: number
   itemError: FieldErrorsImpl | undefined
   onRemove: () => void
-  register: ReturnType<typeof useFormContext>['register']
 }
 
 export default function TestcaseItem({
   index,
   itemError,
-  onRemove,
-  register
+  onRemove
 }: TestcaseItemProps) {
-  const { control } = useFormContext()
+  const { control, getValues, register } = useFormContext()
 
   const { field: isHiddenField } = useController({
     name: `testcases.${index}.isHidden`,
-    control
-  })
-
-  const { field: scoreWeightField } = useController({
-    name: `testcases.${index}.scoreWeight`,
     control
   })
 
@@ -91,7 +84,7 @@ export default function TestcaseItem({
             className={cn(
               'h-5 w-8 rounded-sm border text-center text-xs',
               '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
-              isInvalid(scoreWeightField.value)
+              isInvalid(getValues('testcases')[index].scoreWeight)
                 ? 'border-red-500'
                 : 'border-gray-300'
             )}

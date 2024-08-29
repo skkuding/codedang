@@ -12,7 +12,6 @@ export default function TestcaseField() {
   const {
     formState: { errors },
     watch,
-    register,
     getValues,
     setValue
   } = useFormContext()
@@ -87,7 +86,6 @@ export default function TestcaseField() {
                 index={index}
                 itemError={itemErrors}
                 onRemove={() => removeItem(index)}
-                register={register}
               />
             )
         )}
@@ -103,7 +101,6 @@ export default function TestcaseField() {
                 index={index}
                 itemError={itemErrors}
                 onRemove={() => removeItem(index)}
-                register={register}
               />
             )
         )}
