@@ -1,7 +1,7 @@
 package loader
 
 type Element struct {
-	Id  string
+	Id  int
 	In  string
 	Out string
 }
