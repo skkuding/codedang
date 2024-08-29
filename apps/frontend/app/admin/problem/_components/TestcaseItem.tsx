@@ -94,7 +94,7 @@ export default function TestcaseItem({
         outputName={`testcases.${index}.output`}
         register={register}
       />
-      {itemError && <ErrorMessage />}
+      {itemError && itemError[index] && <ErrorMessage />}
     </div>
   )
 }
