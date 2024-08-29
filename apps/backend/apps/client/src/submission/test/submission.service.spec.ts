@@ -21,6 +21,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { S3MediaProvider, S3Provider } from '@libs/storage'
 import { StorageService } from '@libs/storage'
+import { ProblemRepository } from '@client/problem/problem.repository'
 import { Snippet } from '../class/create-submission.dto'
 import { problems } from '../mock/problem.mock'
 import { submissions, submissionDto } from '../mock/submission.mock'
@@ -93,6 +94,7 @@ const USERIP = '127.0.0.1'
 describe('SubmissionService', () => {
   let service: SubmissionService
   let storageService: StorageService
+  let problemRepository: ProblemRepository
   let publish: SubmissionPublicationService
 
   beforeEach(async () => {
@@ -105,6 +107,10 @@ describe('SubmissionService', () => {
         TraceService,
         { provide: StorageService, useValue: { readObject: () => [] } },
         {
+          provide: ProblemRepository,
+          useValue: { hasPassedProblem: () => [] }
+        },
+        {
           provide: SubmissionPublicationService,
           useFactory: () => ({ publishJudgeRequestMessage: () => [] })
         },
@@ -115,6 +121,7 @@ describe('SubmissionService', () => {
 
     service = module.get<SubmissionService>(SubmissionService)
     storageService = module.get<StorageService>(StorageService)
+    problemRepository = module.get<ProblemRepository>(ProblemRepository)
     publish = module.get<SubmissionPublicationService>(
       SubmissionPublicationService
     )
@@ -273,12 +280,14 @@ describe('SubmissionService', () => {
       const getSpy = stub(storageService, 'readObject').resolves(
         JSON.stringify(testcase)
       )
+      const hasPassedSpy = stub(problemRepository, 'hasPassedProblem').resolves(
+        false
+      )
       db.problem.findUnique.resolves(problems[0])
       db.submission.create.resolves({
         ...submissions[0],
         contestId: CONTEST_ID
       })
-      db.submission.findMany.resolves(submissions)
 
       expect(
         await service.createSubmission(
@@ -292,6 +301,7 @@ describe('SubmissionService', () => {
       expect(publishSpy.calledOnce).to.be.true
       expect(getSpy.calledOnceWith(`${submissions[0].problemId}.json`)).to.be
         .true
+      expect(hasPassedSpy.calledOnce).to.be.true
     })
 
     it('should throw conflict found exception if user has already gotten AC', async () => {
@@ -342,12 +352,14 @@ describe('SubmissionService', () => {
       const getSpy = stub(storageService, 'readObject').resolves(
         JSON.stringify(testcase)
       )
+      const hasPassedSpy = stub(problemRepository, 'hasPassedProblem').resolves(
+        false
+      )
       db.problem.findUnique.resolves(problems[0])
       db.submission.create.resolves({
         ...submissions[0],
         contestId: CONTEST_ID
       })
-      db.submission.findMany.resolves(submissions)
 
       expect(
         await service.createSubmission(
@@ -361,6 +373,7 @@ describe('SubmissionService', () => {
       expect(publishSpy.calledOnce).to.be.true
       expect(getSpy.calledOnceWith(`${submissions[0].problemId}.json`)).to.be
         .true
+      expect(hasPassedSpy.calledOnce).to.be.true
     })
 
     it('should throw conflict found exception if user has already gotten AC', async () => {
@@ -474,7 +487,7 @@ describe('SubmissionService', () => {
         }
       })
 
-      const passSpy = spy(service, 'hasPassedProblem')
+      const passSpy = spy(problemRepository, 'hasPassedProblem')
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.submission.findFirstOrThrow.resolves({
         ...submissions[0],
@@ -544,10 +557,11 @@ describe('SubmissionService', () => {
     })
 
     it("should throw exception if submission is not user's and user has not passed this problem", async () => {
-      const passSpy = spy(service, 'hasPassedProblem')
+      const passSpy = stub(problemRepository, 'hasPassedProblem').resolves(
+        false
+      )
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.submission.findFirstOrThrow.resolves({ ...submissions[0], userId: 2 })
-      db.submission.findMany.resolves([{ result: ResultStatus.WrongAnswer }])
 
       await expect(
         service.getSubmission(
@@ -559,7 +573,7 @@ describe('SubmissionService', () => {
           null
         )
       ).to.be.rejectedWith(ForbiddenAccessException)
-      expect(await passSpy.returnValues[0]).to.be.false
+      expect(passSpy.calledOnce).to.be.true
     })
   })
 

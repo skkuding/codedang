@@ -37,7 +37,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
-import { IoPlayCircleOutline } from 'react-icons/io5'
+//import { IoPlayCircleOutline } from 'react-icons/io5'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
 import { useStore } from 'zustand'
@@ -182,7 +182,8 @@ export default function Editor({
         </AlertDialog>
       </div>
       <div className="flex items-center gap-3">
-        {/* TODO: Add Test function */}
+        {/* TODO: Add Test function
+
         <Button
           variant={'secondary'}
           className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
@@ -190,6 +191,7 @@ export default function Editor({
           <IoPlayCircleOutline size={22} />
           Test
         </Button>
+        */}
         <Button
           className="h-8 shrink-0 gap-1 rounded-[4px] px-2 font-normal"
           disabled={loading}

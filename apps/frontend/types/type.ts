@@ -55,7 +55,7 @@ export interface ProblemDetail {
   description: string
   inputDescription: string
   outputDescription: string
-  samples: {
+  problemTestcase: {
     id: number
     input: string
     output: string

@@ -340,7 +340,7 @@ describe('SubmissionSubscriptionService', () => {
         .stub(service, 'calculateSubmissionScore')
         .resolves()
       const problemScoreSpy = sandbox
-        .stub(service, 'calculateProblemScore')
+        .stub(service, 'updateProblemScore')
         .resolves()
       const acceptSpy = sandbox
         .stub(service, 'updateProblemAccepted')
@@ -417,7 +417,7 @@ describe('SubmissionSubscriptionService', () => {
         service,
         'calculateSubmissionScore'
       )
-      const problemScoreSpy = sandbox.stub(service, 'calculateProblemScore')
+      const problemScoreSpy = sandbox.stub(service, 'updateProblemScore')
 
       await service.updateSubmissionResult(1)
 

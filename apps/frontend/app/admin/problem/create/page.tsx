@@ -3,12 +3,10 @@
 import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { CREATE_PROBLEM } from '@/graphql/problem/mutations'
-import { GET_TAGS } from '@/graphql/problem/queries'
-import { useMutation, useQuery } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 import {
   Level,
   type CreateProblemInput,
-  type Sample,
   type Testcase
 } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -33,10 +31,6 @@ import VisibleForm from '../_components/VisibleForm'
 import { createSchema } from '../utils'
 
 export default function Page() {
-  const { data: tagsData } = useQuery(GET_TAGS)
-  const tags =
-    tagsData?.getTags.map(({ id, name }) => ({ id: Number(id), name })) ?? []
-
   const [isCreating, setIsCreating] = useState(false)
 
   const router = useRouter()
@@ -46,7 +40,6 @@ export default function Page() {
     defaultValues: {
       difficulty: Level.Level1,
       tagIds: [],
-      samples: [{ input: '', output: '' }],
       testcases: [{ input: '', output: '' }],
       hint: '',
       source: '',
@@ -76,14 +69,14 @@ export default function Page() {
     router.refresh()
   }
 
-  const addExample = (type: 'samples' | 'testcases') => {
+  const addExample = (type: 'testcases') => {
     setValue(type, [...getValues(type), { input: '', output: '' }])
   }
 
   return (
     <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
-        <div className="flex items-center gap-4">
+        <div className="-ml-8 flex items-center gap-4">
           <Link href="/admin/problem">
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
@@ -95,9 +88,9 @@ export default function Page() {
           className="flex w-[760px] flex-col gap-6"
         >
           <FormProvider {...methods}>
-            <div className="flex gap-6">
+            <div className="flex gap-32">
               <FormSection title="Title">
-                <TitleForm placeholder="Name your problem" />
+                <TitleForm placeholder="Enter a problem name" />
               </FormSection>
 
               <FormSection title="Visible">
@@ -106,8 +99,8 @@ export default function Page() {
               </FormSection>
             </div>
 
-            <FormSection title="info">
-              <InfoForm tags={tags} tagName="tagIds" />
+            <FormSection title="Info">
+              <InfoForm />
             </FormSection>
 
             <FormSection title="Description">
@@ -127,15 +120,6 @@ export default function Page() {
               </div>
             </div>
 
-            <FormSection title="Sample">
-              <AddBadge onClick={() => addExample('samples')} />
-              <AddableForm<Sample>
-                type="samples"
-                fieldName="samples"
-                minimumRequired={1}
-              />
-            </FormSection>
-
             <FormSection title="Testcases">
               <AddBadge onClick={() => addExample('testcases')} />
               <AddableForm<Testcase>
@@ -149,20 +133,16 @@ export default function Page() {
               <LimitForm />
             </FormSection>
 
-            <SwitchField
-              name="hint"
-              title="Hint"
-              placeholder="Enter a hint"
-              formElement="textarea"
-            />
+            <TemplateField />
+
+            <SwitchField name="hint" title="Hint" placeholder="Enter a hint" />
+
             <SwitchField
               name="source"
               title="Source"
               placeholder="Enter a source"
               formElement="input"
             />
-
-            <TemplateField />
 
             <Button
               type="submit"
