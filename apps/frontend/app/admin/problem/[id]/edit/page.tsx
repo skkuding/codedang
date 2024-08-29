@@ -5,7 +5,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
-import type { Template, Testcase, UpdateProblemInput } from '@generated/graphql'
+import type { Template, UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -18,12 +18,11 @@ import DescriptionForm from '../../../_components/DescriptionForm'
 import FormSection from '../../../_components/FormSection'
 import SwitchField from '../../../_components/SwitchField'
 import TitleForm from '../../../_components/TitleForm'
-import AddBadge from '../../_components/AddBadge'
-import AddableForm from '../../_components/AddableForm'
 import InfoForm from '../../_components/InfoForm'
 import LimitForm from '../../_components/LimitForm'
 import PopoverVisibleInfo from '../../_components/PopoverVisibleInfo'
 import TemplateField from '../../_components/TemplateField'
+import TestcaseField from '../../_components/TestcaseForm'
 import VisibleForm from '../../_components/VisibleForm'
 import { editSchema } from '../../utils'
 
@@ -117,12 +116,6 @@ export default function Page({ params }: { params: { id: string } }) {
     router.refresh()
   }
 
-  const addTestcase = () => {
-    const values = getValues('testcases') ?? []
-    const newTestcase = { input: '', output: '' }
-    setValue('testcases', [...values, newTestcase])
-  }
-
   return (
     <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
@@ -176,16 +169,7 @@ export default function Page({ params }: { params: { id: string } }) {
               </div>
             </div>
 
-            <FormSection title="Testcases">
-              <AddBadge onClick={addTestcase} />
-              {getValues('testcases') && (
-                <AddableForm<Testcase>
-                  type="testcase"
-                  fieldName="testcases"
-                  minimumRequired={1}
-                />
-              )}
-            </FormSection>
+            {getValues('testcases') && <TestcaseField />}
 
             <FormSection title="Limit">
               <LimitForm />

@@ -22,7 +22,9 @@ const commonSchema = z.object({
     .array(
       z.object({
         input: z.string().min(1),
-        output: z.string().min(1)
+        output: z.string().min(1),
+        isHidden: z.boolean(),
+        scoreWeight: z.number()
       })
     )
     .min(1),
