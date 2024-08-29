@@ -51,6 +51,9 @@ module "client_api" {
         kakao_client_secret             = var.kakao_client_secret,
         otel_exporter_otlp_endpoint_url = var.otel_exporter_otlp_endpoint_url,
         loki_url                        = var.loki_url,
+        username_for_load_test          = var.username_for_load_test,
+        email_for_load_test             = var.email_for_load_test,
+        pin_for_load_test               = var.pin_for_load_test
       })),
       jsondecode(file("container_definitions/log_router.json"))
     ])
