@@ -86,7 +86,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     const submissionResult = {
       submissionId: msg.submissionId,
-      problemTestcaseId: parseInt(msg.judgeResult.testcaseId.split(':')[1], 10),
+      problemTestcaseId: msg.judgeResult.testcaseId,
       result: status,
       cpuTime: BigInt(msg.judgeResult.cpuTime),
       memoryUsage: msg.judgeResult.memory

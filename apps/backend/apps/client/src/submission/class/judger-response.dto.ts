@@ -9,7 +9,7 @@ import {
 } from 'class-validator'
 
 class JudgeResult {
-  testcaseId: string
+  testcaseId: number
   resultCode: number
   cpuTime: number
   realTime: number

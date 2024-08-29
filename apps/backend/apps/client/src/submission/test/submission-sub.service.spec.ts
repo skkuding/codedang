@@ -24,7 +24,7 @@ import { submissionResults } from '../mock/submissionResult.mock'
 import { SubmissionSubscriptionService } from '../submission-sub.service'
 
 const judgeResult = {
-  testcaseId: '1',
+  testcaseId: 1,
   resultCode: 1,
   cpuTime: 100000,
   realTime: 120000,
@@ -167,10 +167,7 @@ describe('SubmissionSubscriptionService', () => {
       expect(
         spy.calledOnceWithExactly({
           submissionId: msg.submissionId,
-          problemTestcaseId: parseInt(
-            msg.judgeResult.testcaseId.split(':')[1],
-            10
-          ),
+          problemTestcaseId: msg.judgeResult.testcaseId,
           result: Status(msg.judgeResult.resultCode),
           cpuTime: BigInt(msg.judgeResult.cpuTime),
           memoryUsage: msg.judgeResult.memory
