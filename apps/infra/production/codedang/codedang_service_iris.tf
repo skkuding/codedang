@@ -14,14 +14,12 @@ module "iris" {
     container_definitions = jsonencode([
       jsondecode(templatefile("container_definitions/iris.json", {
         ecr_uri                         = data.aws_ecr_repository.iris.repository_url,
-        testcase_bucket_name            = var.testcase_bucket_name,
+        database_url                    = var.database_url,
         rabbitmq_host                   = "${aws_mq_broker.judge_queue.id}.mq.ap-northeast-2.amazonaws.com",
         rabbitmq_port                   = var.rabbitmq_port,
         rabbitmq_username               = var.rabbitmq_username,
         rabbitmq_password               = random_password.rabbitmq_password.result,
         rabbitmq_vhost                  = rabbitmq_vhost.vh.name,
-        redis_host                      = var.redis_host,
-        redis_port                      = var.redis_port,
         otel_exporter_otlp_endpoint_url = var.otel_exporter_otlp_endpoint_url,
         loki_url                        = var.loki_url,
       })),
