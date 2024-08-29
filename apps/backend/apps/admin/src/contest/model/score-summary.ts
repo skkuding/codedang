@@ -20,6 +20,9 @@ export class UserContestScoreSummary {
 
 @ObjectType()
 export class UserContestScoreSummaryWithUserInfo {
+  @Field(() => Int)
+  userId: number
+
   @Field(() => String)
   username: string
 
