@@ -166,6 +166,10 @@ export default function Page() {
         href: string,
         options?: NavigateOptions | undefined
       ): void => {
+        if (updateNow === 'true') {
+          toast.error('You cannot leave the page without saving your changes')
+          return
+        }
         if (!bypassConfirmation) {
           const isConfirmed = window.confirm(
             'Are you sure you want to leave?\nYour changes have not been saved.\nIf you leave this page, all changes will be lost.\nDo you still want to proceed?'
