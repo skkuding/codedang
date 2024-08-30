@@ -443,7 +443,7 @@ export function DataTableAdmin<TData, TValue>({
                     }
                     return `/contest/${pathname.split('/')[3]}/problem/${submission.problemId}/submission/${submission.id}` as Route
                   }
-                  if (pathname.includes('participant')) {
+                  if (pathname.includes('participant') && enableProblemFilter) {
                     const submission = row.original as {
                       contestId: number
                       problemId: number

@@ -68,7 +68,7 @@ export const submissionColumns: ColumnDef<UserSubmission>[] = [
     header: () => <p className="font-mono text-sm">IP</p>,
     cell: ({ row }) => (
       <div className="whitespace-nowrap text-center text-xs">
-        {row.getValue('ip')}
+        {row.getValue('ip') ?? 'Unknown'}
       </div>
     )
   }
