@@ -1,5 +1,6 @@
 'use client'
 
+import { useConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
 import DescriptionForm from '@/app/admin/_components/DescriptionForm'
 import FormSection from '@/app/admin/_components/FormSection'
 import SwitchField from '@/app/admin/_components/SwitchField'
@@ -38,7 +39,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
@@ -63,39 +64,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const shouldSkipWarning = useRef(false)
   const router = useRouter()
 
-  const useConfirmNavigation = () => {
-    const router = useRouter()
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      event.preventDefault()
-      event.returnValue = ''
-    }
-
-    useEffect(() => {
-      window.addEventListener('beforeunload', handleBeforeUnload)
-
-      const originalPush = router.push
-
-      router.push = (href, ...args) => {
-        if (shouldSkipWarning.current) {
-          originalPush(href, ...args)
-          return
-        }
-        const shouldWarn = window.confirm(
-          'Are you sure you want to leave this page? Changes you made may not be saved.'
-        )
-        if (shouldWarn) {
-          originalPush(href, ...args)
-        }
-      }
-
-      return () => {
-        window.removeEventListener('beforeunload', handleBeforeUnload)
-        router.push = originalPush
-      }
-    }, [router])
-  }
-
-  useConfirmNavigation()
+  useConfirmNavigation(shouldSkipWarning.current)
 
   const methods = useForm<UpdateContestInput>({
     resolver: zodResolver(editSchema),

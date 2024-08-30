@@ -18,11 +18,12 @@ import { Level, type CreateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { toast } from 'sonner'
+import { useConfirmNavigation } from '../../_components/ConfirmNavigation'
 import DescriptionForm from '../../_components/DescriptionForm'
 import FormSection from '../../_components/FormSection'
 import SwitchField from '../../_components/SwitchField'
@@ -39,44 +40,14 @@ import { createSchema } from '../utils'
 
 export default function Page() {
   const [isCreating, setIsCreating] = useState(false)
+  const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
+  const [dialogDescription, setDialogDescription] = useState<string>('')
   const [showCreateModal, setShowCreateModal] = useState(false)
 
   const shouldSkipWarning = useRef(false)
   const router = useRouter()
 
-  const useConfirmNavigation = () => {
-    const router = useRouter()
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      event.preventDefault()
-      event.returnValue = ''
-    }
-
-    useEffect(() => {
-      window.addEventListener('beforeunload', handleBeforeUnload)
-
-      const originalPush = router.push
-
-      router.push = (href, ...args) => {
-        if (shouldSkipWarning.current) {
-          originalPush(href, ...args)
-          return
-        }
-        const shouldWarn = window.confirm(
-          'Are you sure you want to leave this page? Changes you made may not be saved.'
-        )
-        if (shouldWarn) {
-          originalPush(href, ...args)
-        }
-      }
-
-      return () => {
-        window.removeEventListener('beforeunload', handleBeforeUnload)
-        router.push = originalPush
-      }
-    }, [router])
-  }
-
-  useConfirmNavigation()
+  useConfirmNavigation(shouldSkipWarning.current)
 
   const methods = useForm<CreateProblemInput>({
     resolver: zodResolver(createSchema),
