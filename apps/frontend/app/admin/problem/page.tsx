@@ -131,9 +131,8 @@ export default function Page({
             data={problems}
             enableSearch={true}
             enableFilter={true}
-            enableDelete={importProblem ? false : true}
+            enableDelete={true}
             enablePagination={true}
-            enableImport={importProblem ? true : false}
           />
         )}
       </div>

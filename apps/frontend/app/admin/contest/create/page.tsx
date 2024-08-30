@@ -231,7 +231,8 @@ export default function Page() {
                 // eslint-disable-next-line
                 columns={columns(problems, setProblems) as any[]}
                 data={problems as ContestProblem[]}
-                defaultSortColumn="order"
+                defaultSortColumn={{ id: 'order', desc: false }}
+                enableFooter={true}
               />
             </div>
             <Button
