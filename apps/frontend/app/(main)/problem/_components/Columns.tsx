@@ -30,7 +30,7 @@ export const columns: ColumnDef<Problem>[] = [
     cell: ({ row }) => row.original.submissionCount
   },
   {
-    header: () => <SortButton order="acrate">Solved</SortButton>,
+    header: () => <SortButton order="acrate">Success Rate</SortButton>,
     accessorKey: 'acceptedRate',
     cell: ({ row }) => `${(row.original.acceptedRate * 100).toFixed(2)}%`
   },
