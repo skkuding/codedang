@@ -1,5 +1,6 @@
 'use client'
 
+import { useConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
 import DescriptionForm from '@/app/admin/_components/DescriptionForm'
 import FormSection from '@/app/admin/_components/FormSection'
 import SwitchField from '@/app/admin/_components/SwitchField'
@@ -38,7 +39,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
@@ -60,7 +61,10 @@ export default function Page({ params }: { params: { id: string } }) {
   const [showImportDialog, setShowImportDialog] = useState<boolean>(false)
   const { id } = params
 
+  const shouldSkipWarning = useRef(false)
   const router = useRouter()
+
+  useConfirmNavigation(shouldSkipWarning)
 
   const methods = useForm<UpdateContestInput>({
     resolver: zodResolver(editSchema),
@@ -178,6 +182,8 @@ export default function Page({ params }: { params: { id: string } }) {
         orders: orderArray
       }
     })
+
+    shouldSkipWarning.current = true
     toast.success('Contest updated successfully')
     router.push('/admin/contest')
     router.refresh()

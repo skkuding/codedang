@@ -1,5 +1,6 @@
 'use client'
 
+import { useConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
 import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
@@ -9,7 +10,7 @@ import type { Template, Testcase, UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
@@ -30,7 +31,10 @@ import { editSchema } from '../../utils'
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params
+  const shouldSkipWarning = useRef(false)
   const router = useRouter()
+
+  useConfirmNavigation(shouldSkipWarning)
 
   const methods = useForm<UpdateProblemInput>({
     resolver: zodResolver(editSchema),
@@ -124,6 +128,7 @@ export default function Page({ params }: { params: { id: string } }) {
       toast.error('Failed to update problem')
       return
     }
+    shouldSkipWarning.current = true
     toast.success('Succesfully updated problem')
     router.push('/admin/problem')
     router.refresh()

@@ -1,5 +1,15 @@
 'use client'
 
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { CREATE_PROBLEM } from '@/graphql/problem/mutations'
@@ -8,11 +18,12 @@ import { Level, type CreateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { toast } from 'sonner'
+import { useConfirmNavigation } from '../../_components/ConfirmNavigation'
 import DescriptionForm from '../../_components/DescriptionForm'
 import FormSection from '../../_components/FormSection'
 import SwitchField from '../../_components/SwitchField'
@@ -31,8 +42,12 @@ export default function Page() {
   const [isCreating, setIsCreating] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
   const [dialogDescription, setDialogDescription] = useState<string>('')
+  const [showCreateModal, setShowCreateModal] = useState(false)
 
+  const shouldSkipWarning = useRef(false)
   const router = useRouter()
+
+  useConfirmNavigation(shouldSkipWarning)
 
   const methods = useForm<CreateProblemInput>({
     resolver: zodResolver(createSchema),
@@ -53,8 +68,8 @@ export default function Page() {
   const { handleSubmit, getValues } = methods
 
   const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
-
-  const onSubmit = async (input: CreateProblemInput) => {
+  const onSubmit = async () => {
+    const input = methods.getValues()
     setIsCreating(true)
     const testcases = getValues('testcases')
     if (validateScoreWeight(testcases) === false) {
@@ -76,6 +91,8 @@ export default function Page() {
       setIsCreating(false)
       return
     }
+
+    shouldSkipWarning.current = true
     toast.success('Problem created successfully')
     router.push('/admin/problem')
     router.refresh()
@@ -92,7 +109,9 @@ export default function Page() {
         </div>
 
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(() => {
+            setShowCreateModal(true)
+          })}
           className="flex w-[760px] flex-col gap-6"
         >
           <FormProvider {...methods}>
@@ -153,6 +172,35 @@ export default function Page() {
               <IoMdCheckmarkCircleOutline fontSize={20} />
               <div className="mb-[2px] text-base">Create</div>
             </Button>
+            <AlertDialog open={showCreateModal}>
+              <AlertDialogContent className="p-8">
+                <AlertDialogHeader className="gap-2">
+                  <AlertDialogTitle>Create Contest?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Once user submit any coding, the testcases{' '}
+                    <span className="underline">cannot</span> be modified.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel
+                    type="button"
+                    className="rounded-md px-4 py-2"
+                    onClick={() => setShowCreateModal(false)}
+                  >
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction asChild>
+                    <Button
+                      type="button"
+                      disabled={isCreating}
+                      onClick={() => onSubmit()}
+                    >
+                      Create
+                    </Button>
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </FormProvider>
         </form>
       </main>
