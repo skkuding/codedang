@@ -108,6 +108,7 @@ export default function Page() {
     const fetchDefaultProfile = async () => {
       try {
         const data: getProfile = await safeFetcherWithAuth.get('user').json()
+        console.log(data)
         setMajorValue(data.major)
         setdefaultProfileValues(data)
         setIsLoading(false)
@@ -128,7 +129,7 @@ export default function Page() {
     watch,
     formState: { errors, isDirty }
   } = useForm<SettingsFormat>({
-    resolver: zodResolver(schemaSettings(updateNow === 'true')),
+    resolver: zodResolver(schemaSettings(!!updateNow)),
     mode: 'onChange',
     defaultValues: {
       currentPassword: '',
@@ -158,7 +159,7 @@ export default function Page() {
         href: string,
         options?: NavigateOptions | undefined
       ): void => {
-        if (updateNow === 'true') {
+        if (updateNow) {
           toast.error('You cannot leave the page without saving your changes')
           return
         }
@@ -166,9 +167,11 @@ export default function Page() {
           const isConfirmed = window.confirm(
             'Are you sure you want to leave?\nYour changes have not been saved.\nIf you leave this page, all changes will be lost.\nDo you still want to proceed?'
           )
-          if (isConfirmed) return
+          if (isConfirmed) {
+            originalPush(href as Route, options)
+            return
+          }
         }
-        originalPush(href as Route, options)
       }
       router.push = newPush
       // window.onbeforeunload = beforeUnloadHandler
@@ -235,7 +238,7 @@ export default function Page() {
       if (data.newPassword !== 'tmppassword1') {
         updatePayload.newPassword = data.newPassword
       }
-      if (updateNow === 'true' && data.studentId !== '0000000000') {
+      if (updateNow && data.studentId !== '0000000000') {
         updatePayload.studentId = data.studentId
       }
 
@@ -246,7 +249,7 @@ export default function Page() {
         toast.success('Successfully updated your information')
         setBypassConfirmation(true)
         setTimeout(() => {
-          updateNow === 'true' ? router.push('/') : window.location.reload()
+          updateNow ? router.push('/') : window.location.reload()
         }, 1500)
       }
     } catch (error) {
