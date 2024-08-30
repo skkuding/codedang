@@ -201,9 +201,11 @@ export class ProblemService {
         testcaseInput.push({
           input: inputs[i],
           output: outputs[i],
-          scoreWeight: parseInt(scoreWeights[i]) || undefined
+          scoreWeight: parseInt(scoreWeights[i]) || undefined,
+          isHidden: false
         })
       }
+
       problems.push({
         title,
         description,
@@ -688,15 +690,9 @@ export class ProblemService {
   }
 
   async getProblemTestcases(problemId: number) {
-    const testcases: Array<Testcase & { id: string }> = JSON.parse(
-      await this.storageService.readObject(`${problemId}.json`)
-    )
-
-    // TODO: Remove this code after refactoring iris code
-    return testcases.map((tc) => {
-      return {
-        ...tc,
-        id: tc.id.split(':')[1]
+    return await this.prisma.problemTestcase.findMany({
+      where: {
+        problemId
       }
     })
   }
