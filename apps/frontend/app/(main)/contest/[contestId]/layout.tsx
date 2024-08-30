@@ -56,14 +56,16 @@ export default async function Layout({
               {contest?.title}
             </h2>
             <div className="flex items-center gap-2">
-              {isRegistered && isJudgeResultVisible && (
+              {isRegistered && (
                 <>
                   <Image src={CheckIcon} alt="check" width={24} height={24} />
                   <p className="text-primary-light text-sm font-bold">
                     Total score
                   </p>
                   <p className="text-primary-strong font-bold">
-                    {totalScore} / {totalMaxScore}
+                    {isJudgeResultVisible
+                      ? `${totalScore} / ${totalMaxScore}`
+                      : '-'}
                   </p>
                 </>
               )}
