@@ -11,15 +11,14 @@ post {
 }
 
 body:graphql {
-  query GetGroupMembers($groupId: Int!, $cursor: Int, $take: Int!, $leaderOnly: Boolean!) {
-    getGroupMembers(groupId: $groupId, cursor: $cursor, take: $take, leaderOnly: $leaderOnly) {
+  query GetGroupMember($groupId: Int!, $userId: Int!) {
+    getGroupMember(groupId: $groupId, userId: $userId) {
     	username
       userId
       name
       email
-      username
-      major
       studentId
+      major
       role
     }
   }
@@ -28,9 +27,7 @@ body:graphql {
 body:graphql:vars {
   {
     "groupId": 1,
-    "cursor": 1,
-    "take": 5,
-    "leaderOnly": false
+    "userId": 1
   }
 }
 
@@ -43,17 +40,15 @@ assert {
 
 docs {
   ## Get Group Members
-  특정 GroupId에 해당되는 Member들을 가져옵니다.
-  
+  특정 GroupId, 특정 UserId에 해당하는 Member을 가져옵니다.
+
   ### Args / Query / Params / Body
   | 이름 | 타입 | 설명 |
   |--|--|--|
-  |take|Int|한번에 가져올 데이터의 수, 기본값은 10.|
   |groupId|Int|포함하지 않으면 Open Space에 대한 요청이 된다. 기본값은 1.|
-  |cursor|Int?|cursor값.|
-  |leaderOnly|Boolean|해당 Group 내 Leader만을 반환할 것인지의 여부, 기본값은 false.|
-  
-  
+  |userId|Int!|필수|
+
+
   ### Error Case
   해당 없음 (존재하지 않은 groupId일 때에는 []를 반환합니다.)
 }

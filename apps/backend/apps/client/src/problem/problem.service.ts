@@ -5,6 +5,7 @@ import {
   ForbiddenAccessException,
   EntityNotExistException
 } from '@libs/exception'
+import { PrismaService } from '@libs/prisma'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
 import { CodeDraftResponseDto } from './dto/code-draft.response.dto'
@@ -78,6 +79,7 @@ export class ProblemService {
 @Injectable()
 export class ContestProblemService {
   constructor(
+    private readonly prisma: PrismaService,
     private readonly problemRepository: ProblemRepository,
     private readonly contestService: ContestService
   ) {}
@@ -97,7 +99,7 @@ export class ContestProblemService {
     const now = new Date()
     if (contest.isRegistered && contest.startTime > now) {
       throw new ForbiddenAccessException(
-        'Cannot access to problems before the contest starts.'
+        'Cannot access problems before the contest starts.'
       )
     } else if (!contest.isRegistered && contest.endTime > now) {
       throw new ForbiddenAccessException(
@@ -105,16 +107,54 @@ export class ContestProblemService {
       )
     }
 
-    const data = await this.problemRepository.getContestProblems(
-      contestId,
-      cursor,
-      take
-    )
+    const [contestProblems, submissions] = await Promise.all([
+      this.problemRepository.getContestProblems(contestId, cursor, take),
+      this.prisma.submission.findMany({
+        where: {
+          userId,
+          contestId
+        },
+        select: {
+          problemId: true,
+          score: true,
+          createTime: true
+        },
+        orderBy: {
+          createTime: 'desc'
+        }
+      })
+    ])
+
+    const submissionMap = new Map<number, { score: number; createTime: Date }>()
+    for (const submission of submissions) {
+      if (!submissionMap.has(submission.problemId)) {
+        submissionMap.set(submission.problemId, submission)
+      }
+    }
+
+    const contestProblemsWithScore = contestProblems.map((contestProblem) => {
+      const submission = submissionMap.get(contestProblem.problemId)
+      if (!submission) {
+        return {
+          ...contestProblem,
+          maxScore: contestProblem.score,
+          score: null,
+          submissionTime: null
+        }
+      }
+      return {
+        ...contestProblem,
+        maxScore: contestProblem.score,
+        score: ((submission.score * contestProblem.score) / 100).toFixed(0),
+        submissionTime: submission.createTime ?? null
+      }
+    })
+
     const total =
       await this.problemRepository.getContestProblemTotalCount(contestId)
 
     return plainToInstance(RelatedProblemsResponseDto, {
-      data,
+      data: contestProblemsWithScore,
       total
     })
   }

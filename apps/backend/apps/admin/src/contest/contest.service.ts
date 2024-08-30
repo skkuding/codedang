@@ -509,7 +509,13 @@ export class ContestService {
       include: {
         problem: {
           select: {
-            title: true
+            title: true,
+            contestProblem: {
+              where: {
+                contestId,
+                problemId: problemId ?? undefined
+              }
+            }
           }
         },
         user: {
@@ -531,7 +537,12 @@ export class ContestService {
         language: submission.language,
         submissionTime: submission.createTime,
         codeSize: submission.codeSize,
-        ip: submission.userIp
+        ip: submission.userIp,
+        id: submission.id,
+        problemId: submission.problemId,
+        order: submission.problem.contestProblem.length
+          ? submission.problem.contestProblem[0].order
+          : null
       }
     })
 

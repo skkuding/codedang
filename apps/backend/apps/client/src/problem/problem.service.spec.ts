@@ -28,7 +28,8 @@ import {
   mockUser,
   mockTemplate,
   tag,
-  mockCodeDraft
+  mockCodeDraft,
+  contestProblemsWithScore
 } from './mock/problem.mock'
 import { ProblemRepository } from './problem.repository'
 import {
@@ -68,6 +69,9 @@ const db = {
   },
   user: {
     findUniqueOrThrow: stub()
+  },
+  submission: {
+    findMany: stub()
   },
   codeDraft: {
     findMany: stub(),
@@ -109,6 +113,20 @@ const mockContestProblem = {
 const mockContestProblems = contestProblems.map((contestProblem) => {
   return { ...contestProblem, problem: Object.assign({}, mockProblems[0]) }
 })
+
+const mockContestProblemsWithScore = contestProblemsWithScore.map(
+  (contestProblem) => {
+    return {
+      ...contestProblem,
+      problem: Object.assign({}, mockProblems[0]),
+      contest: {
+        startTime: new Date()
+      },
+      maxScore: 0,
+      submissionTime: null
+    }
+  }
+)
 
 const mockWorkbookProblem = {
   ...Object.assign({}, workbookProblems[0]),
@@ -271,6 +289,7 @@ describe('ContestProblemService', () => {
         isRegistered: true
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
+      db.submission.findMany.resolves([])
 
       // when
       const result = await service.getContestProblems(contestId, userId, 1, 1)
@@ -278,7 +297,7 @@ describe('ContestProblemService', () => {
       // then
       expect(result).to.deep.equal(
         plainToInstance(RelatedProblemsResponseDto, {
-          data: mockContestProblems,
+          data: mockContestProblemsWithScore,
           total: 2
         })
       )
@@ -306,7 +325,7 @@ describe('ContestProblemService', () => {
       // then
       expect(result).to.deep.equal(
         plainToInstance(RelatedProblemsResponseDto, {
-          data: mockContestProblems,
+          data: mockContestProblemsWithScore,
           total: 2
         })
       )
