@@ -108,7 +108,6 @@ export default function Page() {
     const fetchDefaultProfile = async () => {
       try {
         const data: getProfile = await safeFetcherWithAuth.get('user').json()
-        console.log(data)
         setMajorValue(data.major)
         setdefaultProfileValues(data)
         setIsLoading(false)
@@ -159,27 +158,21 @@ export default function Page() {
         href: string,
         options?: NavigateOptions | undefined
       ): void => {
-        // updateNow && (bypassConfirmation ? originalPush())
-        if (updateNow && !bypassConfirmation) {
-          console.log('실행됨0')
-          toast.error('You cannot leave the page without saving your changes')
+        if (updateNow) {
+          !bypassConfirmation
+            ? toast.error('You must update your information')
+            : originalPush(href as Route, options)
           return
         }
         if (!bypassConfirmation) {
-          console.log('실행됨1')
           const isConfirmed = window.confirm(
             'Are you sure you want to leave?\nYour changes have not been saved.\nIf you leave this page, all changes will be lost.\nDo you still want to proceed?'
           )
-          if (isConfirmed) {
-            console.log('실행됨2')
-            originalPush(href as Route, options)
-            return
-          }
+          isConfirmed ? originalPush(href as Route, options) : null
+          return
         }
-        console.log('실행됨3')
         originalPush(href as Route, options)
       }
-      console.log('실행됨')
       router.push = newPush
       // window.onbeforeunload = beforeUnloadHandler
       return () => {
@@ -188,6 +181,43 @@ export default function Page() {
       }
     }, [router, isDirty, bypassConfirmation])
   }
+
+  // const useConfirmNavigation = () => {
+  //   useEffect(() => {
+  //     const originalPush = router.push
+  //     const newPush = (
+  //       href: string,
+  //       options?: NavigateOptions | undefined
+  //     ): void => {
+  //       // updateNow && (bypassConfirmation ? originalPush())
+  //       if (updateNow && !bypassConfirmation) {
+  //         console.log('실행됨0')
+  //         toast.error('You cannot leave the page without saving your changes')
+  //         return
+  //       }
+  //       if (!bypassConfirmation) {
+  //         console.log('실행됨1')
+  //         const isConfirmed = window.confirm(
+  //           'Are you sure you want to leave?\nYour changes have not been saved.\nIf you leave this page, all changes will be lost.\nDo you still want to proceed?'
+  //         )
+  //         if (isConfirmed) {
+  //           console.log('실행됨2')
+  //           originalPush(href as Route, options)
+  //           return
+  //         }
+  //       }
+  //       console.log('실행됨3')
+  //       originalPush(href as Route, options)
+  //     }
+  //     console.log('실행됨')
+  //     router.push = newPush
+  //     // window.onbeforeunload = beforeUnloadHandler
+  //     return () => {
+  //       router.push = originalPush
+  //       // window.onbeforeunload = null
+  //     }
+  //   }, [router, isDirty, bypassConfirmation])
+  // }
 
   useConfirmNavigation()
 

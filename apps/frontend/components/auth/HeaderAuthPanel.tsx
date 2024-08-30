@@ -58,7 +58,7 @@ export default function HeaderAuthPanel({
     if (session) {
       checkIfNeedsUpdate()
     }
-  }, [session])
+  }, [session, pathname])
 
   const shouldShowDialog =
     needsUpdate && pathname.split('/').pop() !== 'settings'
