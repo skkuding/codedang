@@ -182,43 +182,6 @@ export default function Page() {
     }, [router, isDirty, bypassConfirmation])
   }
 
-  // const useConfirmNavigation = () => {
-  //   useEffect(() => {
-  //     const originalPush = router.push
-  //     const newPush = (
-  //       href: string,
-  //       options?: NavigateOptions | undefined
-  //     ): void => {
-  //       // updateNow && (bypassConfirmation ? originalPush())
-  //       if (updateNow && !bypassConfirmation) {
-  //         console.log('실행됨0')
-  //         toast.error('You cannot leave the page without saving your changes')
-  //         return
-  //       }
-  //       if (!bypassConfirmation) {
-  //         console.log('실행됨1')
-  //         const isConfirmed = window.confirm(
-  //           'Are you sure you want to leave?\nYour changes have not been saved.\nIf you leave this page, all changes will be lost.\nDo you still want to proceed?'
-  //         )
-  //         if (isConfirmed) {
-  //           console.log('실행됨2')
-  //           originalPush(href as Route, options)
-  //           return
-  //         }
-  //       }
-  //       console.log('실행됨3')
-  //       originalPush(href as Route, options)
-  //     }
-  //     console.log('실행됨')
-  //     router.push = newPush
-  //     // window.onbeforeunload = beforeUnloadHandler
-  //     return () => {
-  //       router.push = originalPush
-  //       // window.onbeforeunload = null
-  //     }
-  //   }, [router, isDirty, bypassConfirmation])
-  // }
-
   useConfirmNavigation()
 
   const [isCheckButtonClicked, setIsCheckButtonClicked] =
