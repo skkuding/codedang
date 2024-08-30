@@ -47,7 +47,7 @@ export default function EditorMainResizablePanel({
     >
       <ResizablePanel
         defaultSize={35}
-        style={{ minWidth: '400px' }}
+        style={{ minWidth: '500px' }}
         minSize={20}
       >
         <div className="grid-rows-editor grid h-full grid-cols-1">

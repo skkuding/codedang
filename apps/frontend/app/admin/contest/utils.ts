@@ -32,3 +32,49 @@ export interface ContestProblem {
   difficulty: string
   score: number
 }
+
+export interface ScoreSummary {
+  studentId: string
+  realName?: string | null
+  username: string
+  submittedProblemCount: number
+  totalProblemCount: number
+  userContestScore: number
+  contestPerfectScore: number
+  problemScores: {
+    problemId: number
+    score: number
+    maxScore: number
+  }[]
+}
+
+export interface ProblemData {
+  order: number
+  score: number
+  problemId: number
+}
+
+export interface OverallSubmission {
+  title: string
+  studentId: string
+  realname?: string | null
+  username: string
+  result: string
+  language: string
+  submissionTime: string
+  codeSize?: number | null
+  ip?: string | null
+  id: number
+  order: number
+}
+
+export interface UserSubmission {
+  problemTitle: string
+  submissionResult: string
+  language: string
+  submissionTime: string
+  codeSize?: number | null
+  ip?: string | null
+  id: number
+  order: number
+}

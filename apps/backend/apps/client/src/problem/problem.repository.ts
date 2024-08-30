@@ -51,14 +51,17 @@ export class ProblemRepository {
     memoryLimit: true,
     source: true,
     acceptedCount: true,
-    samples: {
+    template: true,
+    problemTestcase: {
+      where: {
+        isHidden: false
+      },
       select: {
         id: true,
         input: true,
         output: true
       }
-    },
-    template: true
+    }
   }
 
   private readonly codeDraftSelectOption = {
@@ -213,7 +216,9 @@ export class ProblemRepository {
         order: true,
         problem: {
           select: this.problemsSelectOption
-        }
+        },
+        problemId: true,
+        score: true
       }
     })
   }

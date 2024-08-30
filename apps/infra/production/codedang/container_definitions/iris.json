@@ -8,8 +8,8 @@
       "value": "production"
     },
     {
-      "name": "TESTCASE_BUCKET_NAME",
-      "value": "${testcase_bucket_name}"
+      "name": "DATABASE_URL",
+      "value": "${database_url}"
     },
     {
       "name": "RABBITMQ_SSL",
@@ -34,14 +34,6 @@
     {
       "name": "RABBITMQ_DEFAULT_VHOST",
       "value": "${rabbitmq_vhost}"
-    },
-    {
-      "name": "REDIS_HOST",
-      "value": "${redis_host}"
-    },
-    {
-      "name": "REDIS_PORT",
-      "value": "${redis_port}"
     },
     {
       "name": "OTEL_EXPORTER_OTLP_ENDPOINT_URL",

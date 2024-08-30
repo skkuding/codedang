@@ -56,15 +56,7 @@ export class ProblemService {
     userId: number,
     groupId: number
   ) {
-    const {
-      languages,
-      template,
-      tagIds,
-      samples,
-      testcases,
-      isVisible,
-      ...data
-    } = input
+    const { languages, template, tagIds, testcases, isVisible, ...data } = input
     if (!languages.length) {
       throw new UnprocessableDataException(
         'A problem should support at least one language'
@@ -82,9 +74,6 @@ export class ProblemService {
       data: {
         ...data,
         visibleLockTime: isVisible ? MIN_DATE : MAX_DATE,
-        samples: {
-          create: samples
-        },
         groupId,
         createdById: userId,
         languages,
@@ -94,44 +83,28 @@ export class ProblemService {
             return { tagId }
           })
         }
-      },
-      include: {
-        samples: true
       }
     })
     await this.createTestcases(problem.id, testcases)
     return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
-  // TODO: 테스트케이스별로 파일 따로 업로드 -> 수정 시 updateTestcases, deleteProblem 로직 함께 정리
+  // TODO: updateTestcases, deleteProblem 로직 함께 정리
   async createTestcases(problemId: number, testcases: Array<Testcase>) {
-    const filename = `${problemId}.json`
-    const testcaseIds = await Promise.all(
+    await Promise.all(
       testcases.map(async (tc, index) => {
         const problemTestcase = await this.prisma.problemTestcase.create({
           data: {
             problemId,
-            input: filename,
-            output: filename,
-            scoreWeight: tc.scoreWeight
+            input: tc.input,
+            output: tc.output,
+            scoreWeight: tc.scoreWeight,
+            isHidden: tc.isHidden
           }
         })
         return { index, id: problemTestcase.id }
       })
     )
-
-    //TODO: iris testcaseId return 문제가 해결되면 밑 코드 없앨 예정
-    const data = JSON.stringify(
-      testcases.map((tc, index) => {
-        const testcaseId = testcaseIds.find((record) => record.index === index)
-        return {
-          id: `${problemId}:${testcaseId!.id}`,
-          input: tc.input,
-          output: tc.output
-        }
-      })
-    )
-    await this.storageService.uploadObject(filename, data, 'json')
   }
 
   async uploadProblems(
@@ -252,8 +225,7 @@ export class ProblemService {
         difficulty: level,
         source: '',
         testcases: testcaseInput,
-        tagIds: [],
-        samples: []
+        tagIds: []
       })
     })
     return await Promise.all(
@@ -404,16 +376,8 @@ export class ProblemService {
   }
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
-    const {
-      id,
-      languages,
-      template,
-      tags,
-      testcases,
-      samples,
-      isVisible,
-      ...data
-    } = input
+    const { id, languages, template, tags, testcases, isVisible, ...data } =
+      input
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
         id,
@@ -454,14 +418,6 @@ export class ProblemService {
       where: { id },
       data: {
         ...data,
-        samples: {
-          create: samples?.create,
-          delete: samples?.delete.map((deleteId) => {
-            return {
-              id: deleteId
-            }
-          })
-        },
         ...(isVisible != undefined && {
           visibleLockTime: isVisible ? MIN_DATE : MAX_DATE
         }),
@@ -741,14 +697,6 @@ export class ProblemService {
       throw new EntityNotExistException('problem')
     }
     return tag
-  }
-
-  async getProblemSamples(problemId: number) {
-    return await this.prisma.exampleIO.findMany({
-      where: {
-        problemId
-      }
-    })
   }
 
   async getProblemTags(problemId: number) {

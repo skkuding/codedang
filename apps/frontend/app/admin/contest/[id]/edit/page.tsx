@@ -215,12 +215,12 @@ export default function Page({ params }: { params: { id: string } }) {
             </FormSection>
             <SwitchField
               name="enableCopyPaste"
-              title="Disable participants from Copy/Pasting"
+              title="Enable participants Copy/Pasting"
               hasValue={enableCopyPaste}
             />
             <SwitchField
               name="isJudgeResultVisible"
-              title="Hide scores from participants"
+              title="Reveal scores to participants"
               hasValue={isJudgeResultVisible}
             />
             <SwitchField
@@ -292,7 +292,8 @@ export default function Page({ params }: { params: { id: string } }) {
                 // eslint-disable-next-line
                 columns={columns(problems, setProblems) as any[]}
                 data={problems as ContestProblem[]}
-                defaultSortColumn="order"
+                defaultSortColumn={{ id: 'order', desc: false }}
+                enableFooter={true}
               />
             </div>
             <Button

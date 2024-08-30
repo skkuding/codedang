@@ -17,20 +17,16 @@ export default function VisibleForm() {
   return (
     <>
       <div className="mt-3 flex items-center gap-2">
-        <div className="flex gap-6">
+        <div className="flex gap-14">
           <label className="flex gap-2">
             <input
               type="radio"
               onBlur={isVisibleField.onBlur}
               onChange={() => isVisibleField.onChange(true)}
               checked={isVisibleField.value === true}
-              className="accent-black"
+              className="text-primary-light"
             />
-            <FaEye
-              className={
-                isVisibleField.value === true ? 'text-black' : 'text-gray-400'
-              }
-            />
+            <FaEye className="text-gray-400" size={18} />
           </label>
           <label className="flex gap-2">
             <input
@@ -38,13 +34,9 @@ export default function VisibleForm() {
               onBlur={isVisibleField.onBlur}
               onChange={() => isVisibleField.onChange(false)}
               checked={isVisibleField.value === false}
-              className="accent-black"
+              className="text-primary-light"
             />
-            <FaEyeSlash
-              className={
-                isVisibleField.value === false ? 'text-black' : 'text-gray-400'
-              }
-            />
+            <FaEyeSlash className="text-gray-400" size={18} />
           </label>
         </div>
       </div>

@@ -16,10 +16,7 @@ import {
   RESULT_QUEUE,
   Status
 } from '@libs/constants'
-import {
-  EntityNotExistException,
-  UnprocessableDataException
-} from '@libs/exception'
+import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { JudgerResponse } from './class/judger-response.dto'
 
@@ -89,7 +86,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     const submissionResult = {
       submissionId: msg.submissionId,
-      problemTestcaseId: parseInt(msg.judgeResult.testcaseId.split(':')[1], 10),
+      problemTestcaseId: msg.judgeResult.testcaseId,
       result: status,
       cpuTime: BigInt(msg.judgeResult.cpuTime),
       memoryUsage: msg.judgeResult.memory
@@ -219,7 +216,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     if (submission.userId && submission.contestId)
       await this.calculateSubmissionScore(submission, allAccepted)
 
-    await this.calculateProblemScore(submission.id)
+    await this.updateProblemScore(submission.id)
     await this.updateProblemAccepted(submission.problemId, allAccepted)
   }
 
@@ -290,8 +287,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     })
   }
 
-  async calculateProblemScore(id: number) {
-    const submission = await this.prisma.submission.findFirst({
+  async updateProblemScore(id: number) {
+    const submission = await this.prisma.submission.findUniqueOrThrow({
       where: {
         id
       },
@@ -305,14 +302,10 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
     })
 
-    if (!submission) {
-      throw new EntityNotExistException('submission')
-    }
-
-    let newScore = 0
+    let score = 0
     submission.submissionResult.map((submissionResult) => {
       if (submissionResult.result === 'Accepted') {
-        newScore += submissionResult.problemTestcase.scoreWeight
+        score += submissionResult.problemTestcase.scoreWeight
       }
     })
 
@@ -321,7 +314,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         id
       },
       data: {
-        score: newScore
+        score
       }
     })
   }

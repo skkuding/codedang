@@ -4,14 +4,8 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
-import { GET_TAGS } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
-import type {
-  Sample,
-  Template,
-  Testcase,
-  UpdateProblemInput
-} from '@generated/graphql'
+import type { Template, Testcase, UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -24,27 +18,23 @@ import DescriptionForm from '../../../_components/DescriptionForm'
 import FormSection from '../../../_components/FormSection'
 import SwitchField from '../../../_components/SwitchField'
 import TitleForm from '../../../_components/TitleForm'
-import AddBadge from '../../_components/AddBadge'
-import AddableForm from '../../_components/AddableForm'
+import { CautionDialog } from '../../_components/CautionDialog'
 import InfoForm from '../../_components/InfoForm'
 import LimitForm from '../../_components/LimitForm'
 import PopoverVisibleInfo from '../../_components/PopoverVisibleInfo'
 import TemplateField from '../../_components/TemplateField'
+import TestcaseField from '../../_components/TestcaseField'
 import VisibleForm from '../../_components/VisibleForm'
+import { validateScoreWeight } from '../../_libs/utils'
 import { editSchema } from '../../utils'
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params
-  const { data: tagsData } = useQuery(GET_TAGS)
-  const tags =
-    tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
-
   const router = useRouter()
 
   const methods = useForm<UpdateProblemInput>({
     resolver: zodResolver(editSchema),
     defaultValues: {
-      samples: { create: [], delete: [] },
       template: []
     }
   })
@@ -53,6 +43,8 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const [showHint, setShowHint] = useState<boolean>(false)
   const [showSource, setShowSource] = useState<boolean>(false)
+  const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
+  const [dialogDescription, setDialogDescription] = useState<string>('')
 
   useQuery(GET_PROBLEM, {
     variables: {
@@ -77,8 +69,6 @@ export default function Page({ params }: { params: { id: string } }) {
       setValue('description', data.description)
       setValue('inputDescription', data.inputDescription)
       setValue('outputDescription', data.outputDescription)
-      setValue('samples.create', data?.samples || [])
-      setValue('samples.delete', data.samples?.map(({ id }) => +id) || [])
       setValue('testcases', data.testcase)
       setValue('timeLimit', data.timeLimit)
       setValue('memoryLimit', data.memoryLimit)
@@ -105,7 +95,16 @@ export default function Page({ params }: { params: { id: string } }) {
   })
 
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
+
   const onSubmit = async (input: UpdateProblemInput) => {
+    const testcases = getValues('testcases') as Testcase[]
+    if (validateScoreWeight(testcases) === false) {
+      setDialogDescription(
+        'The scoring ratios have not been specified correctly.\nPlease review and correct them.'
+      )
+      setDialogOpen(true)
+      return
+    }
     const tagsToDelete = getValues('tags.delete')
     const tagsToCreate = getValues('tags.create')
     input.tags!.create = tagsToCreate.filter(
@@ -130,22 +129,10 @@ export default function Page({ params }: { params: { id: string } }) {
     router.refresh()
   }
 
-  const addSample = () => {
-    const values = getValues('samples.create')
-    const newSample = { input: '', output: '' }
-    setValue('samples.create', [...values, newSample])
-  }
-
-  const addTestcase = () => {
-    const values = getValues('testcases') ?? []
-    const newTestcase = { input: '', output: '' }
-    setValue('testcases', [...values, newTestcase])
-  }
-
   return (
     <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
-        <div className="flex items-center gap-4">
+        <div className="-ml-8 flex items-center gap-4">
           <Link href={`/admin/problem/${id}`}>
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
@@ -157,9 +144,9 @@ export default function Page({ params }: { params: { id: string } }) {
           className="flex w-[760px] flex-col gap-6"
         >
           <FormProvider {...methods}>
-            <div className="flex gap-6">
+            <div className="flex gap-32">
               <FormSection title="Title">
-                <TitleForm placeholder="Name your problem" />
+                <TitleForm placeholder="Enter a problem name" />
               </FormSection>
 
               <FormSection title="Visible">
@@ -168,8 +155,8 @@ export default function Page({ params }: { params: { id: string } }) {
               </FormSection>
             </div>
 
-            <FormSection title="info">
-              <InfoForm tags={tags} tagName="tags.create" />
+            <FormSection title="Info">
+              <InfoForm />
             </FormSection>
 
             <FormSection title="Description">
@@ -195,32 +182,12 @@ export default function Page({ params }: { params: { id: string } }) {
               </div>
             </div>
 
-            <FormSection title="Sample">
-              <AddBadge onClick={addSample} />
-              {getValues('samples.create') && (
-                <AddableForm<Sample>
-                  type="sample"
-                  fieldName="samples.create"
-                  minimumRequired={1}
-                />
-              )}
-            </FormSection>
-
-            <FormSection title="Testcases">
-              <AddBadge onClick={addTestcase} />
-              {getValues('testcases') && (
-                <AddableForm<Testcase>
-                  type="testcase"
-                  fieldName="testcases"
-                  minimumRequired={1}
-                />
-              )}
-            </FormSection>
+            {getValues('testcases') && <TestcaseField />}
 
             <FormSection title="Limit">
               <LimitForm />
             </FormSection>
-
+            <TemplateField />
             <SwitchField
               name="hint"
               title="Hint"
@@ -235,7 +202,6 @@ export default function Page({ params }: { params: { id: string } }) {
               formElement="input"
               hasValue={showSource}
             />
-            <TemplateField />
 
             <Button
               type="submit"
@@ -248,6 +214,11 @@ export default function Page({ params }: { params: { id: string } }) {
         </form>
       </main>
       <ScrollBar orientation="horizontal" />
+      <CautionDialog
+        isOpen={isDialogOpen}
+        onClose={() => setDialogOpen(false)}
+        description={dialogDescription}
+      />
     </ScrollArea>
   )
 }
