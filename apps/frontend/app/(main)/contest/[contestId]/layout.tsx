@@ -1,11 +1,13 @@
 import ContestStatusTimeDiff from '@/components/ContestStatusTimeDiff'
-import { fetcher } from '@/lib/utils'
+import { auth } from '@/lib/auth'
+import { fetcher, fetcherWithAuth } from '@/lib/utils'
 import { dateFormatter } from '@/lib/utils'
 import Calendar from '@/public/20_calendar.svg'
 import CheckIcon from '@/public/check_blue.svg'
 import type { Contest } from '@/types/type'
 import Image from 'next/image'
 import ContestTabs from '../_components/ContestTabs'
+import { calculateContestScore } from '../utils'
 
 interface ContestDetailProps {
   params: {
@@ -21,7 +23,11 @@ export default async function Layout({
   tabs: React.ReactNode
 }) {
   const { contestId } = params
-  const res = await fetcher.get(`contest/${contestId}`)
+  const session = await auth()
+
+  const res = await (session ? fetcherWithAuth : fetcher).get(
+    `contest/${contestId}`
+  )
   if (res.ok) {
     const contest: Contest = await res.json()
     const formattedStartTime = dateFormatter(
@@ -32,6 +38,15 @@ export default async function Layout({
       contest.endTime,
       'YYYY-MM-DD HH:mm:ss'
     )
+    const isJudgeResultVisible = contest.isJudgeResultVisible
+    const isRegistered = contest.isRegistered
+    let totalScore = 0
+    let totalMaxScore = 0
+    if (isRegistered && isJudgeResultVisible) {
+      const [score, maxScore] = await calculateContestScore({ contestId })
+      totalScore = score
+      totalMaxScore = maxScore
+    }
 
     return (
       <article>
@@ -41,11 +56,17 @@ export default async function Layout({
               {contest?.title}
             </h2>
             <div className="flex items-center gap-2">
-              <Image src={CheckIcon} alt="check" width={24} height={24} />
-              <p className="text-primary-light text-sm font-bold">
-                Total score
-              </p>
-              <p className="text-primary-strong font-bold">100/100</p>
+              {isRegistered && isJudgeResultVisible && (
+                <>
+                  <Image src={CheckIcon} alt="check" width={24} height={24} />
+                  <p className="text-primary-light text-sm font-bold">
+                    Total score
+                  </p>
+                  <p className="text-primary-strong font-bold">
+                    {totalScore} / {totalMaxScore}
+                  </p>
+                </>
+              )}
             </div>
           </div>
           <div className="flex flex-col items-end gap-4">
