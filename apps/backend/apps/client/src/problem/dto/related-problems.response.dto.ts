@@ -18,7 +18,8 @@ class Problem {
   order: number
 
   @Expose()
-  problemId: number
+  @Transform(({ obj }) => obj.problem.id, { toClassOnly: true })
+  id: number
 
   @Expose()
   @Transform(({ obj }) => obj.problem.title, { toClassOnly: true })
