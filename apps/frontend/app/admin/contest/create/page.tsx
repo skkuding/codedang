@@ -56,7 +56,7 @@ export default function Page() {
   const shouldSkipWarning = useRef(false)
   const router = useRouter()
 
-  useConfirmNavigation(shouldSkipWarning.current)
+  useConfirmNavigation(shouldSkipWarning)
 
   const methods = useForm<CreateContestInput>({
     resolver: zodResolver(createSchema),

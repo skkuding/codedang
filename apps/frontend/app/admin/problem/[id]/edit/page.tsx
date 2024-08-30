@@ -34,7 +34,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const shouldSkipWarning = useRef(false)
   const router = useRouter()
 
-  useConfirmNavigation(shouldSkipWarning.current)
+  useConfirmNavigation(shouldSkipWarning)
 
   const methods = useForm<UpdateProblemInput>({
     resolver: zodResolver(editSchema),

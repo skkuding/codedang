@@ -1,7 +1,10 @@
 import { useRouter } from 'next/navigation'
+import type { MutableRefObject } from 'react'
 import { useEffect } from 'react'
 
-export const useConfirmNavigation = (shouldSkipWarning: boolean) => {
+export const useConfirmNavigation = (
+  shouldSkipWarningRef: MutableRefObject<boolean>
+) => {
   const router = useRouter()
   const handleBeforeUnload = (event: BeforeUnloadEvent) => {
     event.preventDefault()
@@ -14,7 +17,7 @@ export const useConfirmNavigation = (shouldSkipWarning: boolean) => {
     const originalPush = router.push
 
     router.push = (href, ...args) => {
-      if (shouldSkipWarning) {
+      if (shouldSkipWarningRef.current) {
         originalPush(href, ...args)
         return
       }
@@ -30,5 +33,5 @@ export const useConfirmNavigation = (shouldSkipWarning: boolean) => {
       window.removeEventListener('beforeunload', handleBeforeUnload)
       router.push = originalPush
     }
-  }, [router, shouldSkipWarning])
+  }, [router, shouldSkipWarningRef.current])
 }
