@@ -603,18 +603,10 @@ describe('ProblemService', () => {
 
   describe('getProblemTestcases', () => {
     it('should return a problem testcase array', async () => {
-      const readSpy = stub(storageService, 'readObject').resolves(
-        JSON.stringify(exampleProblemTestcases)
-      )
+      db.problemTestcase.findMany.resolves(exampleProblemTestcases)
       expect(await service.getProblemTestcases(1)).to.deep.equal(
-        exampleProblemTestcases.map((tc) => {
-          return {
-            ...tc,
-            id: tc.id.split(':')[1]
-          }
-        })
+        exampleProblemTestcases
       )
-      expect(readSpy.calledOnce).to.be.true
     })
   })
 })
