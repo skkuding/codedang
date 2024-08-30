@@ -12,5 +12,14 @@ export class GroupMember {
   name?: string
 
   @Field(() => String)
-  email?: string
+  email: string
+
+  @Field(() => String)
+  studentId?: string
+
+  @Field(() => String)
+  major?: string
+
+  @Field(() => String)
+  role: string
 }

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "3:1",
+    "input": "TEST\n",
+    "output": "NO\n"
+  },
+  {
+    "id": "3:2",
+    "input": "HOISIN\n",
+    "output": "YES\n"
+  },
+  {
+    "id": "3:3",
+    "input": "NOZ\n",
+    "output": "YES\n"
+  },
+  {
+    "id": "3:4",
+    "input": "ZZZABC\n",
+    "output": "NO\n"
+  },
+  {
+    "id": "3:5",
+    "input": "ABCDE\n",
+    "output": "NO\n"
+  },
+  {
+    "id": "3:6",
+    "input": "IOI\n",
+    "output": "YES\n"
+  },
+  {
+    "id": "3:7",
+    "input": "HI\n",
+    "output": "YES\n"
+  },
+  {
+    "id": "3:8",
+    "input": "AXE\n",
+    "output": "NO\n"
+  },
+  {
+    "id": "3:9",
+    "input": "IIOOSSHHZZXXNN\n",
+    "output": "YES\n"
+  },
+  {
+    "id": "3:10",
+    "input": "IOSHZXNQ\n",
+    "output": "NO\n"
+  }
+]

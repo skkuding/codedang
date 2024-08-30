@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import CodedangLogo from '@/public/codedang.svg'
+import type { Route } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { IoWarningOutline } from 'react-icons/io5'
@@ -38,7 +39,13 @@ export default function UpdateInformation() {
       </ul>
       <Button
         className="mt-10 w-full bg-red-500 font-semibold hover:bg-red-600"
-        onClick={() => router.push('/settings')}
+        onClick={() => {
+          router.push(
+            ('/settings' +
+              '?' +
+              new URLSearchParams({ updateNow: 'true' })) as Route
+          )
+        }}
       >
         Update Now
       </Button>

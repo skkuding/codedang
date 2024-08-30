@@ -25,7 +25,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import type { Route } from 'next'
 import type { NavigateOptions } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -58,33 +58,28 @@ type UpdatePayload = Partial<{
   major: string
 }>
 
-// const schemaUpdate = z.object({
-//   studentId: z.string().optional(),
-//   password: z.string().optional(),
-//   newPassword: z.string().optional(),
-//   realName: z.string().optional(),
-//   major: z.string().optional()
-// })
-
-const schemaSettings = z.object({
-  currentPassword: z.string().min(1, { message: 'Required' }).optional(),
-  newPassword: z
-    .string()
-    .min(1)
-    .min(8)
-    .max(20)
-    .refine((data) => {
-      const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
-      return !invalidPassword.test(data)
-    })
-    .optional(),
-  confirmPassword: z.string().optional(),
-  realName: z
-    .string()
-    .regex(/^[a-zA-Z\s]+$/, { message: 'Only English Allowed' })
-    .optional(),
-  studentId: z.string().optional()
-})
+const schemaSettings = (updateNow: boolean) =>
+  z.object({
+    currentPassword: z.string().min(1, { message: 'Required' }).optional(),
+    newPassword: z
+      .string()
+      .min(1)
+      .min(8)
+      .max(20)
+      .refine((data) => {
+        const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
+        return !invalidPassword.test(data)
+      })
+      .optional(),
+    confirmPassword: z.string().optional(),
+    realName: z
+      .string()
+      .regex(/^[a-zA-Z\s]+$/, { message: 'Only English Allowed' })
+      .optional(),
+    studentId: updateNow
+      ? z.string().regex(/^\d{10}$/, { message: 'Only 10 numbers' })
+      : z.string().optional()
+  })
 
 function requiredMessage(message?: string) {
   return (
@@ -95,6 +90,11 @@ function requiredMessage(message?: string) {
 }
 
 export default function Page() {
+  const searchParams = useSearchParams()
+  const updateNow = searchParams.get('updateNow')
+  const router = useRouter()
+  const [bypassConfirmation, setBypassConfirmation] = useState<boolean>(false)
+
   const [defaultProfileValues, setdefaultProfileValues] = useState<getProfile>({
     username: '',
     userProfile: {
@@ -128,7 +128,7 @@ export default function Page() {
     watch,
     formState: { errors, isDirty }
   } = useForm<SettingsFormat>({
-    resolver: zodResolver(schemaSettings),
+    resolver: zodResolver(schemaSettings(!!updateNow)),
     mode: 'onChange',
     defaultValues: {
       currentPassword: '',
@@ -152,20 +152,26 @@ export default function Page() {
    * Prompt the user with a confirmation dialog when they try to navigate away from the page.
    */
   const useConfirmNavigation = () => {
-    const router = useRouter()
     useEffect(() => {
       const originalPush = router.push
       const newPush = (
         href: string,
         options?: NavigateOptions | undefined
       ): void => {
-        const isConfirmed = window.confirm(
-          'Are you sure you want to leave?\nYour changes have not been saved.\nIf you leave this page, all changes will be lost.\nDo you still want to proceed?'
-        )
-        // Error occurs if I just put 'href' without 'href === ...' code..
-        if (isConfirmed) {
-          originalPush(href as Route, options)
+        if (updateNow) {
+          !bypassConfirmation
+            ? toast.error('You must update your information')
+            : originalPush(href as Route, options)
+          return
         }
+        if (!bypassConfirmation) {
+          const isConfirmed = window.confirm(
+            'Are you sure you want to leave?\nYour changes have not been saved.\nIf you leave this page, all changes will be lost.\nDo you still want to proceed?'
+          )
+          isConfirmed ? originalPush(href as Route, options) : null
+          return
+        }
+        originalPush(href as Route, options)
       }
       router.push = newPush
       // window.onbeforeunload = beforeUnloadHandler
@@ -173,8 +179,45 @@ export default function Page() {
         router.push = originalPush
         // window.onbeforeunload = null
       }
-    }, [router, isDirty])
+    }, [router, isDirty, bypassConfirmation])
   }
+
+  // const useConfirmNavigation = () => {
+  //   useEffect(() => {
+  //     const originalPush = router.push
+  //     const newPush = (
+  //       href: string,
+  //       options?: NavigateOptions | undefined
+  //     ): void => {
+  //       // updateNow && (bypassConfirmation ? originalPush())
+  //       if (updateNow && !bypassConfirmation) {
+  //         console.log('실행됨0')
+  //         toast.error('You cannot leave the page without saving your changes')
+  //         return
+  //       }
+  //       if (!bypassConfirmation) {
+  //         console.log('실행됨1')
+  //         const isConfirmed = window.confirm(
+  //           'Are you sure you want to leave?\nYour changes have not been saved.\nIf you leave this page, all changes will be lost.\nDo you still want to proceed?'
+  //         )
+  //         if (isConfirmed) {
+  //           console.log('실행됨2')
+  //           originalPush(href as Route, options)
+  //           return
+  //         }
+  //       }
+  //       console.log('실행됨3')
+  //       originalPush(href as Route, options)
+  //     }
+  //     console.log('실행됨')
+  //     router.push = newPush
+  //     // window.onbeforeunload = beforeUnloadHandler
+  //     return () => {
+  //       router.push = originalPush
+  //       // window.onbeforeunload = null
+  //     }
+  //   }, [router, isDirty, bypassConfirmation])
+  // }
 
   useConfirmNavigation()
 
@@ -191,9 +234,10 @@ export default function Page() {
   const newPassword = watch('newPassword')
   const confirmPassword = watch('confirmPassword')
   const realName = watch('realName')
+  const studentId = watch('studentId')
   const isPasswordsMatch = newPassword === confirmPassword && newPassword !== ''
   const [isLoading, setIsLoading] = useState<boolean>(true)
-  // saveAble1, saveAble2 둘 중 하나라도 true 면 Save 버튼 활성화
+
   const saveAblePassword: boolean =
     !!currentPassword &&
     !!newPassword &&
@@ -203,7 +247,12 @@ export default function Page() {
     isPasswordsMatch
   const saveAbleOthers: boolean =
     !!realName || !!(majorValue !== defaultProfileValues.major)
-  const saveAble = saveAblePassword || saveAbleOthers
+  const saveAble =
+    (saveAblePassword || saveAbleOthers) &&
+    ((isPasswordsMatch && !errors.newPassword) ||
+      (!newPassword && !confirmPassword))
+  const saveAbleUpdateNow =
+    !!studentId && majorValue !== 'none' && !errors.studentId
 
   // New Password Input 창과 Re-enter Password Input 창의 border 색상을, 일치하는지 여부에 따라 바꿈
   useEffect(() => {
@@ -229,14 +278,18 @@ export default function Page() {
       if (data.newPassword !== 'tmppassword1') {
         updatePayload.newPassword = data.newPassword
       }
+      if (updateNow && data.studentId !== '0000000000') {
+        updatePayload.studentId = data.studentId
+      }
 
       const response = await safeFetcherWithAuth.patch('user', {
         json: updatePayload
       })
       if (response.ok) {
         toast.success('Successfully updated your information')
+        setBypassConfirmation(true)
         setTimeout(() => {
-          window.location.reload()
+          updateNow ? router.push('/') : window.location.reload()
         }, 1500)
       }
     } catch (error) {
@@ -312,7 +365,9 @@ export default function Page() {
       >
         <h1 className="-mb-1 text-center text-2xl font-bold">Settings</h1>
         <p className="text-center text-sm text-neutral-500">
-          You can change your information
+          {updateNow
+            ? 'You must update your information'
+            : 'You can change your information'}
         </p>
 
         {/* ID */}
@@ -331,8 +386,15 @@ export default function Page() {
               type={passwordShow ? 'text' : 'password'}
               placeholder="Current password"
               {...register('currentPassword')}
-              disabled={isCheckButtonClicked && isPasswordCorrect}
-              className={`flex justify-stretch text-neutral-600 placeholder:text-neutral-300 disabled:text-neutral-400 ${errors.currentPassword && 'border-red-500'} ${isCheckButtonClicked ? (isPasswordCorrect ? 'border-primary' : 'border-red-500') : ''} ring-0 focus-visible:ring-0`}
+              disabled={
+                updateNow ? true : isCheckButtonClicked && isPasswordCorrect
+              }
+              className={cn(
+                'flex justify-stretch border-neutral-300 text-neutral-600 ring-0 placeholder:text-neutral-400 focus-visible:ring-0 disabled:bg-neutral-200 disabled:text-neutral-400',
+                errors.currentPassword && 'border-red-500',
+                isCheckButtonClicked &&
+                  (isPasswordCorrect ? 'border-primary' : 'border-red-500')
+              )}
             />
             <span
               className="absolute right-0 top-0 flex h-full items-center p-3"
@@ -374,7 +436,7 @@ export default function Page() {
             <Input
               type={newPasswordShow ? 'text' : 'password'}
               placeholder="New password"
-              disabled={!newPasswordAble}
+              disabled={updateNow ? true : !newPasswordAble}
               {...register('newPassword')}
               className={`flex justify-stretch border-neutral-300 ring-0 placeholder:text-neutral-400 focus-visible:ring-0 disabled:bg-neutral-200 ${
                 isPasswordsMatch
@@ -395,7 +457,7 @@ export default function Page() {
             </span>
           </div>
         </div>
-        {errors.newPassword && (
+        {errors.newPassword && newPasswordAble && (
           <div
             className={`-mt-3 inline-flex items-center text-xs ${newPassword && 'text-red-500'}`}
           >
@@ -415,7 +477,7 @@ export default function Page() {
             <Input
               type={confirmPasswordShow ? 'text' : 'password'}
               placeholder="Re-enter new password"
-              disabled={!newPasswordAble}
+              disabled={updateNow ? true : !newPasswordAble}
               {...register('confirmPassword', {
                 validate: (val: string) => {
                   if (watch('newPassword') != val) {
@@ -462,8 +524,9 @@ export default function Page() {
               ? 'Loading...'
               : defaultProfileValues.userProfile?.realName
           }
+          disabled={!!updateNow}
           {...register('realName')}
-          className={`${realName && (errors.realName ? 'border-red-500' : 'border-primary')} placeholder:text-neutral-300 focus-visible:ring-0`}
+          className={`${realName && (errors.realName ? 'border-red-500' : 'border-primary')} placeholder:text-neutral-400 focus-visible:ring-0 disabled:bg-neutral-200`}
         />
         {realName &&
           errors.realName &&
@@ -473,12 +536,24 @@ export default function Page() {
         <label className="-mb-4 mt-2 text-xs">Student ID</label>
         <Input
           placeholder={
-            isLoading ? 'Loading...' : defaultProfileValues.studentId
+            updateNow
+              ? '2024123456'
+              : isLoading
+                ? 'Loading...'
+                : defaultProfileValues.studentId
           }
-          disabled={true}
+          disabled={!updateNow}
           {...register('studentId')}
-          className="border-neutral-300 text-neutral-600 placeholder:text-neutral-400 disabled:bg-neutral-200"
+          className={cn(
+            'text-neutral-600 placeholder:text-neutral-400 focus-visible:ring-0',
+            updateNow
+              ? errors.studentId || !studentId
+                ? 'border-red-500'
+                : 'border-primary'
+              : 'border-neutral-300 disabled:bg-neutral-200'
+          )}
         />
+        {errors.studentId && requiredMessage(errors.studentId.message)}
 
         {/* First Major */}
         <label className="-mb-4 mt-2 text-xs">First Major</label>
@@ -491,16 +566,22 @@ export default function Page() {
                 role="combobox"
                 className={cn(
                   'justify-between border-gray-200 font-normal text-neutral-600 hover:bg-white',
-                  majorValue === defaultProfileValues.major
-                    ? 'text-neutral-300'
-                    : 'border-primary'
+                  updateNow
+                    ? `${majorValue === 'none' || isLoading ? 'border-red-500 text-neutral-400' : 'border-primary'}`
+                    : majorValue === defaultProfileValues.major
+                      ? 'text-neutral-400'
+                      : 'border-primary'
                 )}
               >
                 {isLoading
                   ? 'Loading...'
-                  : !majorValue
-                    ? defaultProfileValues.major
-                    : majorValue}
+                  : updateNow
+                    ? majorValue === 'none'
+                      ? 'Department Information Unavailable / 학과 정보 없음'
+                      : majorValue
+                    : !majorValue
+                      ? defaultProfileValues.major
+                      : majorValue}
                 <FaChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
@@ -540,7 +621,7 @@ export default function Page() {
         {/* Save Button */}
         <div className="mt-2 text-end">
           <Button
-            disabled={!saveAble}
+            disabled={updateNow ? !saveAbleUpdateNow : !saveAble}
             type="submit"
             className="font-semibold disabled:bg-neutral-300 disabled:text-neutral-500"
             onClick={onSubmitClick()}

@@ -1,5 +1,6 @@
 import { Level } from '@prisma/client'
 import { Exclude, Expose, Transform, Type } from 'class-transformer'
+import { IsOptional } from 'class-validator'
 
 @Exclude()
 export class RelatedProblemsResponseDto {
@@ -35,4 +36,16 @@ class Problem {
   @Expose()
   @Transform(({ obj }) => obj.problem.acceptedRate, { toClassOnly: true })
   acceptedRate: number
+
+  @Expose()
+  @IsOptional()
+  maxScore: number | null
+
+  @Expose()
+  @IsOptional()
+  score: string | null
+
+  @Expose()
+  @IsOptional()
+  submissionTime: Date | null
 }

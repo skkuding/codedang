@@ -170,7 +170,10 @@ describe('UserService', () => {
             userProfile: {
               realName: undefined
             },
-            email: user1.email
+            email: user1.email,
+            studentId: 2020000000,
+            major: 'Computer Science',
+            role: Role.User
           }
         }
       ]
@@ -182,7 +185,10 @@ describe('UserService', () => {
           username: user1.username,
           userId: userGroup1.userId,
           name: '',
-          email: user1.email
+          email: user1.email,
+          studentId: 2020000000,
+          major: 'Computer Science',
+          role: Role.User
         }
       ])
     })
@@ -196,7 +202,10 @@ describe('UserService', () => {
             userProfile: {
               realName: undefined
             },
-            email: user2.email
+            email: user2.email,
+            studentId: 2020000000,
+            major: 'Computer Science',
+            role: Role.User
           }
         }
       ]
@@ -208,7 +217,10 @@ describe('UserService', () => {
           username: user2.username,
           userId: userGroup2.userId,
           name: '',
-          email: user2.email
+          email: user2.email,
+          studentId: 2020000000,
+          major: 'Computer Science',
+          role: Role.User
         }
       ])
     })

@@ -20,6 +20,8 @@ const GET_PROBLEM = gql(`
         id
         input
         output
+        isHidden
+        scoreWeight
       }
       timeLimit
       memoryLimit

@@ -14,11 +14,7 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { CREATE_PROBLEM } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
-import {
-  Level,
-  type CreateProblemInput,
-  type Testcase
-} from '@generated/graphql'
+import { Level, type CreateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -31,13 +27,14 @@ import DescriptionForm from '../../_components/DescriptionForm'
 import FormSection from '../../_components/FormSection'
 import SwitchField from '../../_components/SwitchField'
 import TitleForm from '../../_components/TitleForm'
-import AddBadge from '../_components/AddBadge'
-import AddableForm from '../_components/AddableForm'
+import { CautionDialog } from '../_components/CautionDialog'
 import InfoForm from '../_components/InfoForm'
 import LimitForm from '../_components/LimitForm'
 import PopoverVisibleInfo from '../_components/PopoverVisibleInfo'
 import TemplateField from '../_components/TemplateField'
+import TestcaseField from '../_components/TestcaseField'
 import VisibleForm from '../_components/VisibleForm'
+import { validateScoreWeight } from '../_libs/utils'
 import { createSchema } from '../utils'
 
 export default function Page() {
@@ -86,7 +83,10 @@ export default function Page() {
     defaultValues: {
       difficulty: Level.Level1,
       tagIds: [],
-      testcases: [{ input: '', output: '' }],
+      testcases: [
+        { input: '', output: '', isHidden: false, scoreWeight: null },
+        { input: '', output: '', isHidden: true, scoreWeight: null }
+      ],
       hint: '',
       source: '',
       template: [],
@@ -94,12 +94,21 @@ export default function Page() {
     }
   })
 
-  const { handleSubmit, setValue, getValues } = methods
+  const { handleSubmit, getValues } = methods
 
   const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
   const onSubmit = async () => {
     const input = methods.getValues()
     setIsCreating(true)
+    const testcases = getValues('testcases')
+    if (validateScoreWeight(testcases) === false) {
+      setDialogDescription(
+        'The scoring ratios have not been specified correctly.\nPlease review and correct them.'
+      )
+      setDialogOpen(true)
+      setIsCreating(false)
+      return
+    }
     await createProblem({
       variables: {
         groupId: 1,
@@ -116,10 +125,6 @@ export default function Page() {
     toast.success('Problem created successfully')
     router.push('/admin/problem')
     router.refresh()
-  }
-
-  const addExample = (type: 'testcases') => {
-    setValue(type, [...getValues(type), { input: '', output: '' }])
   }
 
   return (
@@ -171,14 +176,7 @@ export default function Page() {
               </div>
             </div>
 
-            <FormSection title="Testcases">
-              <AddBadge onClick={() => addExample('testcases')} />
-              <AddableForm<Testcase>
-                type="testcases"
-                fieldName="testcases"
-                minimumRequired={1}
-              />
-            </FormSection>
+            <TestcaseField />
 
             <FormSection title="Limit">
               <LimitForm />
@@ -236,6 +234,11 @@ export default function Page() {
         </form>
       </main>
       <ScrollBar orientation="horizontal" />
+      <CautionDialog
+        isOpen={isDialogOpen}
+        onClose={() => setDialogOpen(false)}
+        description={dialogDescription}
+      />
     </ScrollArea>
   )
 }

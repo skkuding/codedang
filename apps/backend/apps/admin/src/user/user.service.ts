@@ -53,7 +53,10 @@ export class UserService {
                 realName: true
               }
             },
-            email: true
+            email: true,
+            studentId: true,
+            major: true,
+            role: true
           }
         }
       }
@@ -63,12 +66,48 @@ export class UserService {
       return {
         username: userGroup.user.username,
         userId: userGroup.user.id,
-        name: userGroup.user.userProfile?.realName
-          ? userGroup.user.userProfile.realName
-          : '',
-        email: userGroup.user.email
+        name: userGroup.user.userProfile?.realName ?? '',
+        email: userGroup.user.email,
+        studentId: userGroup.user.studentId,
+        major: userGroup.user.major,
+        role: userGroup.user.role
       }
     })
+  }
+
+  async getGroupMember(groupId: number, userId: number) {
+    const userGroup = await this.prisma.userGroup.findFirstOrThrow({
+      where: {
+        groupId,
+        userId
+      },
+      select: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            userProfile: {
+              select: {
+                realName: true
+              }
+            },
+            email: true,
+            studentId: true,
+            major: true,
+            role: true
+          }
+        }
+      }
+    })
+    return {
+      username: userGroup.user.username,
+      userId: userGroup.user.id,
+      name: userGroup.user.userProfile?.realName ?? '',
+      email: userGroup.user.email,
+      studentId: userGroup.user.studentId,
+      major: userGroup.user.major,
+      role: userGroup.user.role
+    }
   }
 
   async updateGroupRole(

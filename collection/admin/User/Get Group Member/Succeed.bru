@@ -1,0 +1,54 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetGroupMember($groupId: Int!, $userId: Int!) {
+    getGroupMember(groupId: $groupId, userId: $userId) {
+    	username
+      userId
+      name
+      email
+      studentId
+      major
+      role
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "userId": 1
+  }
+}
+
+assert {
+  res.body.data.getGroupMembers[0].username: isString
+  res.body.data.getGroupMembers[0].userId: isNumber
+  res.body.data.getGroupMembers[0].name: isString
+  res.body.data.getGroupMembers[0].email: isString
+}
+
+docs {
+  ## Get Group Members
+  특정 GroupId, 특정 UserId에 해당하는 Member을 가져옵니다.
+
+  ### Args / Query / Params / Body
+  | 이름 | 타입 | 설명 |
+  |--|--|--|
+  |groupId|Int|포함하지 않으면 Open Space에 대한 요청이 된다. 기본값은 1.|
+  |userId|Int!|필수|
+
+
+  ### Error Case
+  해당 없음 (존재하지 않은 groupId일 때에는 []를 반환합니다.)
+}
