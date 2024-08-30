@@ -243,7 +243,7 @@ export default function SignUpRegister() {
     !isUsernameChecked && !errors.username && getValues('username')
 
   return (
-    <div className="mb-5 mt-12 flex w-full flex-col py-4">
+    <div className="mb-5 mt-12 flex w-[278px] flex-col py-4">
       <form
         className="flex w-full flex-col gap-4"
         onSubmit={handleSubmit(onSubmit)}
@@ -539,7 +539,9 @@ export default function SignUpRegister() {
                     'border-0 ring-1 ring-red-500'
                 )}
               >
-                {!majorValue ? 'First Major' : majorValue}
+                <p className="overflow-hidden text-ellipsis whitespace-nowrap">
+                  {!majorValue ? 'First Major' : majorValue}
+                </p>
                 <FaChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
@@ -565,7 +567,9 @@ export default function SignUpRegister() {
                               majorValue === major ? 'opacity-100' : 'opacity-0'
                             )}
                           />
-                          {major}
+                          <p className="w-[230px] overflow-hidden text-ellipsis whitespace-nowrap">
+                            {major}
+                          </p>
                         </CommandItem>
                       ))}
                     </CommandList>

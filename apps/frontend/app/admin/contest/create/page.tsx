@@ -31,11 +31,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { toast } from 'sonner'
+import { useConfirmNavigation } from '../../_components/ConfirmNavigation'
 import DescriptionForm from '../../_components/DescriptionForm'
 import FormSection from '../../_components/FormSection'
 import SwitchField from '../../_components/SwitchField'
@@ -50,8 +51,12 @@ export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [isCreating, setIsCreating] = useState<boolean>(false)
   const [showImportDialog, setShowImportDialog] = useState<boolean>(false)
+  const [showCreateModal, setShowCreateModal] = useState(false)
 
+  const shouldSkipWarning = useRef(false)
   const router = useRouter()
+
+  useConfirmNavigation(shouldSkipWarning)
 
   const methods = useForm<CreateContestInput>({
     resolver: zodResolver(createSchema),
@@ -71,7 +76,7 @@ export default function Page() {
     UPDATE_CONTEST_PROBLEMS_ORDER
   )
 
-  const onSubmit = async (input: CreateContestInput) => {
+  const isSubmittable = (input: CreateContestInput) => {
     if (input.startTime >= input.endTime) {
       toast.error('Start time must be less than end time')
       return
@@ -83,8 +88,13 @@ export default function Page() {
       toast.error('Duplicate problem order found')
       return
     }
+    setShowCreateModal(true)
+  }
 
+  const onSubmit = async () => {
+    const input = methods.getValues()
     setIsCreating(true)
+
     const { data } = await createContest({
       variables: {
         groupId: 1,
@@ -110,7 +120,6 @@ export default function Page() {
         })
       }
     })
-
     const orderArray = problems
       .sort((a, b) => a.order - b.order)
       .map((problem) => problem.id)
@@ -121,6 +130,8 @@ export default function Page() {
         orders: orderArray
       }
     })
+
+    shouldSkipWarning.current = true
     toast.success('Contest created successfully')
     router.push('/admin/contest')
     router.refresh()
@@ -136,7 +147,7 @@ export default function Page() {
           <span className="text-4xl font-bold">Create Contest</span>
         </div>
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(isSubmittable)}
           className="flex w-[760px] flex-col gap-6"
         >
           <FormProvider {...methods}>
@@ -231,17 +242,46 @@ export default function Page() {
                 // eslint-disable-next-line
                 columns={columns(problems, setProblems) as any[]}
                 data={problems as ContestProblem[]}
-                defaultSortColumn="order"
+                defaultSortColumn={{ id: 'order', desc: false }}
+                enableFooter={true}
               />
             </div>
             <Button
               type="submit"
               className="flex h-[36px] w-[100px] items-center gap-2 px-0"
-              disabled={isCreating}
             >
               <IoMdCheckmarkCircleOutline fontSize={20} />
               <div className="mb-[2px] text-base">Create</div>
             </Button>
+            <AlertDialog open={showCreateModal}>
+              <AlertDialogContent className="p-8">
+                <AlertDialogHeader className="gap-2">
+                  <AlertDialogTitle>Create Contest?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Once user submit any coding, the contest problem list and
+                    score <span className="underline">cannot</span> be modified.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel
+                    type="button"
+                    className="rounded-md px-4 py-2"
+                    onClick={() => setShowCreateModal(false)}
+                  >
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction asChild>
+                    <Button
+                      type="button"
+                      disabled={isCreating}
+                      onClick={() => onSubmit()}
+                    >
+                      Create
+                    </Button>
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </FormProvider>
         </form>
       </main>

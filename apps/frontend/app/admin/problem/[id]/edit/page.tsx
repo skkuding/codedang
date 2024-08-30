@@ -1,5 +1,6 @@
 'use client'
 
+import { useConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
 import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
@@ -9,7 +10,7 @@ import type { Template, Testcase, UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
@@ -18,18 +19,22 @@ import DescriptionForm from '../../../_components/DescriptionForm'
 import FormSection from '../../../_components/FormSection'
 import SwitchField from '../../../_components/SwitchField'
 import TitleForm from '../../../_components/TitleForm'
-import AddBadge from '../../_components/AddBadge'
-import AddableForm from '../../_components/AddableForm'
+import { CautionDialog } from '../../_components/CautionDialog'
 import InfoForm from '../../_components/InfoForm'
 import LimitForm from '../../_components/LimitForm'
 import PopoverVisibleInfo from '../../_components/PopoverVisibleInfo'
 import TemplateField from '../../_components/TemplateField'
+import TestcaseField from '../../_components/TestcaseField'
 import VisibleForm from '../../_components/VisibleForm'
+import { validateScoreWeight } from '../../_libs/utils'
 import { editSchema } from '../../utils'
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params
+  const shouldSkipWarning = useRef(false)
   const router = useRouter()
+
+  useConfirmNavigation(shouldSkipWarning)
 
   const methods = useForm<UpdateProblemInput>({
     resolver: zodResolver(editSchema),
@@ -42,6 +47,8 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const [showHint, setShowHint] = useState<boolean>(false)
   const [showSource, setShowSource] = useState<boolean>(false)
+  const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
+  const [dialogDescription, setDialogDescription] = useState<string>('')
 
   useQuery(GET_PROBLEM, {
     variables: {
@@ -92,7 +99,16 @@ export default function Page({ params }: { params: { id: string } }) {
   })
 
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
+
   const onSubmit = async (input: UpdateProblemInput) => {
+    const testcases = getValues('testcases') as Testcase[]
+    if (validateScoreWeight(testcases) === false) {
+      setDialogDescription(
+        'The scoring ratios have not been specified correctly.\nPlease review and correct them.'
+      )
+      setDialogOpen(true)
+      return
+    }
     const tagsToDelete = getValues('tags.delete')
     const tagsToCreate = getValues('tags.create')
     input.tags!.create = tagsToCreate.filter(
@@ -112,15 +128,10 @@ export default function Page({ params }: { params: { id: string } }) {
       toast.error('Failed to update problem')
       return
     }
+    shouldSkipWarning.current = true
     toast.success('Succesfully updated problem')
     router.push('/admin/problem')
     router.refresh()
-  }
-
-  const addTestcase = () => {
-    const values = getValues('testcases') ?? []
-    const newTestcase = { input: '', output: '' }
-    setValue('testcases', [...values, newTestcase])
   }
 
   return (
@@ -176,16 +187,7 @@ export default function Page({ params }: { params: { id: string } }) {
               </div>
             </div>
 
-            <FormSection title="Testcases">
-              <AddBadge onClick={addTestcase} />
-              {getValues('testcases') && (
-                <AddableForm<Testcase>
-                  type="testcase"
-                  fieldName="testcases"
-                  minimumRequired={1}
-                />
-              )}
-            </FormSection>
+            {getValues('testcases') && <TestcaseField />}
 
             <FormSection title="Limit">
               <LimitForm />
@@ -217,6 +219,11 @@ export default function Page({ params }: { params: { id: string } }) {
         </form>
       </main>
       <ScrollBar orientation="horizontal" />
+      <CautionDialog
+        isOpen={isDialogOpen}
+        onClose={() => setDialogOpen(false)}
+        description={dialogDescription}
+      />
     </ScrollArea>
   )
 }

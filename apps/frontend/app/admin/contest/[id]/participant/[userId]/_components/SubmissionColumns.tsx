@@ -1,64 +1,36 @@
 'use client'
 
-import type { OverallSubmission } from '@/app/admin/contest/utils'
+import type { UserSubmission } from '@/app/admin/contest/utils'
 import { cn } from '@/lib/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 import dayjs from 'dayjs'
 
-export const columns: ColumnDef<OverallSubmission>[] = [
+export const submissionColumns: ColumnDef<UserSubmission>[] = [
   {
-    accessorKey: 'title',
-    header: () => (
-      <div className="border-r py-1 font-mono text-sm">Problem Title</div>
-    ),
+    accessorKey: 'problemTitle',
+    header: () => <div className="py-1 font-mono text-sm">Problem Title</div>,
     cell: ({ row }) => (
-      <div className="whitespace-nowrap border-r py-1 text-center text-xs">
-        {String.fromCharCode(65 + row.original.order)}. {row.getValue('title')}
+      <div className="whitespace-nowrap py-1 text-center text-xs">
+        {String.fromCharCode(65 + row.original.order)}.{' '}
+        {row.getValue('problemTitle')}
       </div>
     )
   },
   {
-    accessorKey: 'studentId',
-    header: () => <p className="font-mono text-sm">Student ID</p>,
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs font-medium">
-        {row.getValue('studentId')}
-      </div>
-    )
-  },
-  {
-    accessorKey: 'realname',
-    header: () => <p className="font-mono text-sm">Name</p>,
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs font-medium">
-        {row.getValue('realname')}
-      </div>
-    )
-  },
-  {
-    accessorKey: 'username',
-    header: () => <p className="border-r py-1 font-mono text-sm">User ID</p>,
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap border-r py-1 text-center text-xs font-medium">
-        {row.getValue('username')}
-      </div>
-    )
-  },
-  {
-    accessorKey: 'result',
+    accessorKey: 'submissionResult',
     header: () => <p className="font-mono text-sm">Result</p>,
     cell: ({ row }) => (
       <div
         className={cn(
           'whitespace-nowrap text-center text-xs',
-          row.getValue('result') === 'Accept'
+          row.getValue('submissionResult') === 'Accept'
             ? 'text-green-500'
-            : row.getValue('result') === 'Judging'
+            : row.getValue('submissionResult') === 'Judging'
               ? 'text-gray-500'
               : 'text-red-500'
         )}
       >
-        {row.getValue('result')}
+        {row.getValue('submissionResult')}
       </div>
     )
   },
@@ -96,7 +68,7 @@ export const columns: ColumnDef<OverallSubmission>[] = [
     header: () => <p className="font-mono text-sm">IP</p>,
     cell: ({ row }) => (
       <div className="whitespace-nowrap text-center text-xs">
-        {row.getValue('ip')}
+        {row.getValue('ip') ?? 'Unknown'}
       </div>
     )
   }

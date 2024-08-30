@@ -60,6 +60,7 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   enableSearch?: boolean // Enable search title
+  searchColumn?: string
   enableFilter?: boolean // Enable filter for languages and tags
   enableProblemFilter?: boolean // Enable filter for problems
   enableDelete?: boolean // Enable delete selected rows
@@ -72,7 +73,8 @@ interface DataTableProps<TData, TValue> {
     [key: string]: string
   }
   onSelectedExport?: (selectedRows: ContestProblem[]) => void
-  defaultSortColumn?: string
+  defaultSortColumn?: { id: string; desc: boolean }
+  enableFooter?: boolean
 }
 
 interface ContestProblem {
@@ -96,6 +98,7 @@ export function DataTableAdmin<TData, TValue>({
   columns,
   data,
   enableSearch = false,
+  searchColumn = 'title',
   enableFilter = false,
   enableProblemFilter = false,
   enableDelete = false,
@@ -106,7 +109,8 @@ export function DataTableAdmin<TData, TValue>({
   headerStyle = {},
   enableDuplicate = false,
   onSelectedExport = () => {},
-  defaultSortColumn = ''
+  defaultSortColumn = { id: '', desc: false },
+  enableFooter = false
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])
@@ -123,8 +127,8 @@ export function DataTableAdmin<TData, TValue>({
       maxSize: Number.MAX_SAFE_INTEGER
     },
     state: {
-      sorting: defaultSortColumn
-        ? [{ id: defaultSortColumn, desc: false }]
+      sorting: defaultSortColumn.id
+        ? [{ id: defaultSortColumn.id, desc: defaultSortColumn.desc }]
         : sorting,
       rowSelection,
       columnVisibility: { languages: false }
@@ -197,32 +201,6 @@ export function DataTableAdmin<TData, TValue>({
     const selectedRows = table.getSelectedRowModel().rows as {
       original: { id: number }
     }[]
-    if (pathname === '/admin/contest/create') {
-      const storedValue = localStorage.getItem('importProblems')
-      const problems = storedValue ? JSON.parse(storedValue) : []
-      const newProblems = problems.filter(
-        (problem: ContestProblem) =>
-          !selectedRows.some((row) => row.original.id === problem.id)
-      )
-      localStorage.setItem('importProblems', JSON.stringify(newProblems))
-      // router.refresh 해도 새로고침이 안돼서 location.reload()로 대체
-      location.reload()
-      return
-    } else if (pathname.includes('/admin/contest/')) {
-      const contestId = page
-      const storedValue = localStorage.getItem(`importProblems-${contestId}`)
-      const problems = storedValue ? JSON.parse(storedValue) : []
-      const newProblems = problems.filter(
-        (problem: ContestProblem) =>
-          !selectedRows.some((row) => row.original.id === problem.id)
-      )
-      localStorage.setItem(
-        `importProblems-${contestId}`,
-        JSON.stringify(newProblems)
-      )
-      location.reload()
-      return
-    }
     const deletePromise = selectedRows.map((row) => {
       if (page === 'problem') {
         return deleteProblem({
@@ -288,17 +266,21 @@ export function DataTableAdmin<TData, TValue>({
         enableDelete ||
         enableDuplicate) && (
         <div className="flex justify-between">
-          <div className="flex gap-2">
-            {enableSearch && !enableProblemFilter && (
+          <div className="flex gap-4">
+            {enableSearch && (
               <div className="relative">
                 <IoSearch className="text-muted-foreground absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
                 <Input
                   placeholder="Search"
                   value={
-                    (table.getColumn('title')?.getFilterValue() as string) ?? ''
+                    (table
+                      .getColumn(searchColumn)
+                      ?.getFilterValue() as string) ?? ''
                   }
                   onChange={(event) => {
-                    table.getColumn('title')?.setFilterValue(event.target.value)
+                    table
+                      .getColumn(searchColumn)
+                      ?.setFilterValue(event.target.value)
                     table.setPageIndex(0)
                   }}
                   className="h-10 w-[150px] bg-transparent pl-8 lg:w-[250px]"
@@ -322,7 +304,12 @@ export function DataTableAdmin<TData, TValue>({
                   />
                 )}
                 {enableProblemFilter && (
-                  <DataTableProblemFilter column={table.getColumn('title')} />
+                  <DataTableProblemFilter
+                    column={
+                      table.getColumn('title') ??
+                      table.getColumn('problemTitle')
+                    }
+                  />
                 )}
               </div>
             )}
@@ -438,10 +425,34 @@ export function DataTableAdmin<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => {
-                const href =
-                  page === 'contest'
-                    ? (`/admin/contest/${(row.original as { id: number }).id}` as Route)
-                    : (`/admin/problem/${(row.original as { id: number }).id}` as Route)
+                const participantRegex = /^\/admin\/contest\/\d+$/
+                const href = (() => {
+                  if (participantRegex.test(pathname)) {
+                    return `${pathname}/participant/${(row.original as { userId: number }).userId}` as Route
+                  }
+                  if (page === 'contest') {
+                    return `/admin/contest/${(row.original as { id: number }).id}` as Route
+                  }
+                  if (page === 'problem') {
+                    return `/admin/problem/${(row.original as { id: number }).id}` as Route
+                  }
+                  if (page === 'submission') {
+                    const submission = row.original as {
+                      problemId: number
+                      id: number
+                    }
+                    return `/contest/${pathname.split('/')[3]}/problem/${submission.problemId}/submission/${submission.id}` as Route
+                  }
+                  if (pathname.includes('participant') && enableProblemFilter) {
+                    const submission = row.original as {
+                      contestId: number
+                      problemId: number
+                      id: number
+                    }
+                    return `/contest/${submission.contestId}/problem/${submission.problemId}/submission/${submission.id}` as Route
+                  }
+                  return ''
+                })()
                 return (
                   <TableRow
                     key={row.id}
@@ -455,8 +466,7 @@ export function DataTableAdmin<TData, TValue>({
                         onClick={() => {
                           enableImport
                             ? row.toggleSelected(!row.getIsSelected())
-                            : !pathname.includes('/admin/contest/') &&
-                              router.push(href)
+                            : href && router.push(href)
                         }}
                       >
                         {flexRender(
@@ -479,7 +489,7 @@ export function DataTableAdmin<TData, TValue>({
               </TableRow>
             )}
           </TableBody>
-          {!enableImport && pathname.includes('/admin/contest/') && (
+          {enableFooter && (
             <TableFooter>
               {table.getFooterGroups().map((footerGroup) => (
                 <TableRow key={footerGroup.id}>

@@ -58,7 +58,7 @@ export default function HeaderAuthPanel({
     if (session) {
       checkIfNeedsUpdate()
     }
-  }, [session])
+  }, [session, pathname])
 
   const shouldShowDialog =
     needsUpdate && pathname.split('/').pop() !== 'settings'
@@ -226,6 +226,18 @@ export default function HeaderAuthPanel({
                 </DropdownMenuItem>
               </Link>
             )}
+            <Link href="/settings">
+              <DropdownMenuItem
+                className={cn(
+                  'flex cursor-pointer items-center gap-1',
+                  isEditor
+                    ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
+                    : 'font-semibold'
+                )}
+              >
+                <UserRoundCog className="size-4" /> Settings
+              </DropdownMenuItem>
+            </Link>
             <DropdownMenuItem
               className="flex cursor-pointer items-center gap-1 font-semibold"
               onClick={() => {

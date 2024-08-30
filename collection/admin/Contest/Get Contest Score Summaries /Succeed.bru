@@ -23,10 +23,13 @@ body:graphql {
       problemScores {
         problemId
         score
+        maxScore
       }
+      username
+      studentId
+      realName
     }
   }
-
 }
 
 body:graphql:vars {
@@ -39,7 +42,7 @@ body:graphql:vars {
 docs {
   ## Get Contest Score Summaries of User
   유저의 특정 Contest에 대한 점수 요약 List를 반환합니다.
-
+  
   - username
     - 유저의 이름
   - studentId
