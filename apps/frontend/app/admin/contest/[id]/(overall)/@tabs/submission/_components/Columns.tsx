@@ -1,29 +1,19 @@
 'use client'
 
+import type { OverallSubmission } from '@/app/admin/contest/utils'
 import { cn } from '@/lib/utils'
 import type { ColumnDef } from '@tanstack/react-table'
+import dayjs from 'dayjs'
 
-interface DataTableSubmission {
-  title: string
-  studentId: string
-  realname?: string | null
-  username: string
-  result: string
-  language: string
-  submissionTime: string
-  codeSize?: number | null
-  ip?: string | null
-}
-
-export const columns: ColumnDef<DataTableSubmission>[] = [
+export const columns: ColumnDef<OverallSubmission>[] = [
   {
     accessorKey: 'title',
     header: () => (
-      <div className="border-r py-1 pr-4 font-mono text-sm">Problem Title</div>
+      <div className="border-r py-1 font-mono text-sm">Problem Title</div>
     ),
     cell: ({ row }) => (
       <div className="whitespace-nowrap border-r py-1 text-center text-xs">
-        {row.getValue('title')}
+        {String.fromCharCode(65 + row.original.order)}. {row.getValue('title')}
       </div>
     )
   },
@@ -86,7 +76,9 @@ export const columns: ColumnDef<DataTableSubmission>[] = [
     header: () => <p className="font-mono text-sm">Submission Time</p>,
     cell: ({ row }) => (
       <div className="whitespace-nowrap text-center text-xs">
-        {row.getValue('submissionTime')}
+        {dayjs(new Date(parseInt(row.getValue('submissionTime'), 10))).format(
+          'YYYY-MM-DD HH:mm:ss'
+        )}
       </div>
     )
   },
@@ -95,7 +87,7 @@ export const columns: ColumnDef<DataTableSubmission>[] = [
     header: () => <p className="font-mono text-sm">Code Size</p>,
     cell: ({ row }) => (
       <div className="whitespace-nowrap text-center text-xs">
-        {row.getValue('codeSize')}
+        {row.getValue('codeSize') ? `${row.getValue('codeSize')} B` : 'N/A'}
       </div>
     )
   },

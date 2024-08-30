@@ -37,7 +37,13 @@ export class SubmissionService {
         },
         problem: {
           select: {
-            title: true
+            title: true,
+            contestProblem: {
+              where: {
+                contestId,
+                problemId: problemId ?? undefined
+              }
+            }
           }
         }
       }
@@ -53,7 +59,12 @@ export class SubmissionService {
         language: c.language as Language,
         submissionTime: c.createTime,
         codeSize: c.codeSize ?? null,
-        ip: c.userIp ?? 'Unknown'
+        ip: c.userIp ?? 'Unknown',
+        id: c.id,
+        problemId: c.problemId,
+        order: c.problem.contestProblem.length
+          ? c.problem.contestProblem[0].order
+          : null
       }
     })
 

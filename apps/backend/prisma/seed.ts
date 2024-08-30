@@ -22,6 +22,7 @@ import { join } from 'path'
 
 const prisma = new PrismaClient()
 const fixturePath = join(__dirname, '__fixtures__')
+const problemTestcasesPath = join(__dirname, 'problem-testcases')
 
 const MIN_DATE: Date = new Date('2000-01-01T00:00:00.000Z')
 const MAX_DATE: Date = new Date('2999-12-31T00:00:00.000Z')
@@ -33,7 +34,7 @@ let publicGroup: Group
 let privateGroup: Group
 const users: User[] = []
 const problems: Problem[] = []
-const problemTestcases: ProblemTestcase[] = []
+let problemTestcases: ProblemTestcase[] = []
 const contests: Contest[] = []
 const endedContests: Contest[] = []
 const ongoingContests: Contest[] = []
@@ -886,18 +887,27 @@ const createProblems = async () => {
     })
   )
 
-  // add simple testcases
-  for (const problem of problems) {
-    problemTestcases.push(
-      await prisma.problemTestcase.create({
-        data: {
-          problemId: problem.id,
-          input: `${problem.id}.json`,
-          output: `${problem.id}.json`
+  // add testcases
+  for (let i = 1; i < 9; i++) {
+    const data = await readFile(
+      join(problemTestcasesPath, `${i}.json`),
+      'utf-8'
+    )
+    const testcases: { id: string; input: string; output: string }[] =
+      JSON.parse(data)
+
+    await prisma.problemTestcase.createMany({
+      data: testcases.map((testcase) => {
+        return {
+          input: testcase.input,
+          output: testcase.output,
+          problemId: i
         }
       })
-    )
+    })
   }
+
+  problemTestcases = await prisma.problemTestcase.findMany()
 
   const tagNames = [
     'If Statement',
@@ -1341,6 +1351,7 @@ int main(void) {
       }
     })
   )
+
   await prisma.submissionResult.create({
     data: {
       submissionId: submissions[0].id,

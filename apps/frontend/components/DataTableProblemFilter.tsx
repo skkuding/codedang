@@ -34,9 +34,13 @@ export default function DataTableLevelFilter<TData, TValue>({
     variables: { groupId: 1, contestId: Number(id) },
     onCompleted: (problemData) => {
       const data = problemData.getContestProblems
+      const sortedData = data.slice().sort((a, b) => a.order - b.order)
       setProblems([
         'All Problems',
-        ...data.map((problem) => problem.problem.title)
+        ...sortedData.map(
+          (problem) =>
+            `${String.fromCharCode(65 + problem.order)}. ${problem.problem.title}`
+        )
       ])
     }
   })
