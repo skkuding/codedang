@@ -219,52 +219,18 @@ export class SubmissionService {
       ...data
     }
 
-    // idOptions Object가 undefined이거나 contestId와 workbookId가 모두 없는 경우
-    if (
-      idOptions === undefined ||
-      (!idOptions.contestId && !idOptions.workbookId)
-    ) {
-      const submission = await this.prisma.submission.create({
-        data: submissionData
-      })
-
-      await this.createSubmissionResults(submission)
-
-      await this.publish.publishJudgeRequestMessage(code, submission)
-      return submission
-    }
-
-    if (idOptions.contestId) {
-      // 해당 contestId에 해당하는 Contest에서 해당 problemId에 해당하는 문제로 AC를 받은 submission이 있는지 확인
-      const hasPassed = await this.problemRepository.hasPassedProblem(userId, {
-        problemId: problem.id,
-        contestId: idOptions.contestId
-      })
-      if (hasPassed) {
-        throw new ConflictFoundException(
-          'You have already gotten AC for this problem'
-        )
+    const submission = await this.prisma.submission.create({
+      data: {
+        ...submissionData,
+        contestId: idOptions?.contestId,
+        workbookId: idOptions?.workbookId
       }
-      const submission = await this.prisma.submission.create({
-        data: { ...submissionData, contestId: idOptions.contestId }
-      })
+    })
 
-      await this.createSubmissionResults(submission)
+    await this.createSubmissionResults(submission)
 
-      await this.publish.publishJudgeRequestMessage(code, submission)
-      return submission
-    }
-
-    if (idOptions.workbookId) {
-      const submission = await this.prisma.submission.create({
-        data: { ...submissionData, workbookId: idOptions.workbookId }
-      })
-
-      await this.createSubmissionResults(submission)
-
-      await this.publish.publishJudgeRequestMessage(code, submission)
-      return submission
-    }
+    await this.publish.publishJudgeRequestMessage(code, submission)
+    return submission
   }
 
   @Span()
