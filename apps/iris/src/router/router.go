@@ -38,11 +38,11 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte) {
 	judgeChan := make(chan handler.JudgeResultMessage)
 	switch path {
 	case Judge:
-		go r.judgeHandler.Handle(id, data, judgeChan)
+		go r.judgeHandler.Handle(id, data, true, judgeChan)
 	case SpecialJudge:
 		// special-judge handler
 	case Run:
-		// custom-testcase handler
+		go r.judgeHandler.Handle(id, data, false, judgeChan)
 	default:
 		err := fmt.Errorf("invalid request type: %s", path)
 		r.errHandle(err)
