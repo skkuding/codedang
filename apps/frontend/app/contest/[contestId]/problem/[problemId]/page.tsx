@@ -18,6 +18,7 @@ export default async function DescriptionPage({
     <EditorDescription
       problem={contestProblem.problem}
       contestProblems={contestProblems.problems}
+      isContest={true}
     />
   )
 }

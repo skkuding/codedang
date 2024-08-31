@@ -47,6 +47,9 @@ export interface WorkbookProblem extends Omit<Problem, 'tags' | 'info'> {
 
 export interface ContestProblem extends Omit<Problem, 'tags' | 'info'> {
   order: number
+  maxScore: number
+  score?: string
+  submissionTime?: Date
 }
 
 export interface ProblemDetail {
@@ -81,6 +84,7 @@ export interface Contest {
     id: string
     groupName: string
   }
+  isJudgeResultVisible: boolean
   enableCopyPaste: boolean
   status: ContestStatus
   participants: number

@@ -68,6 +68,7 @@ export default function RegisterButton({
         } else {
           toast.success(`Registered ${state} test successfully`)
           router.push(`/contest/${contestId}/problem`)
+          router.refresh() // to update register state
         }
       })
       .catch((err) => console.log(err))

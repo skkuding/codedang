@@ -59,10 +59,12 @@ const useCopy = () => {
 
 export function EditorDescription({
   problem,
-  contestProblems
+  contestProblems,
+  isContest = false
 }: {
   problem: ProblemDetail
   contestProblems?: ContestProblem[]
+  isContest?: boolean
 }) {
   const { copiedID, copy } = useCopy()
 
@@ -80,12 +82,14 @@ export function EditorDescription({
       <div className="px-6">
         <div className="flex max-h-24 justify-between gap-4">
           <h1 className="mb-3 overflow-hidden text-ellipsis whitespace-nowrap text-xl font-bold">{`#${contestProblems ? convertToLetter(contestProblems.find((item) => item.id === problem.id)?.order as number) : problem.id}. ${problem.title}`}</h1>
-          <Badge
-            className="h-6 w-[52px] whitespace-nowrap rounded-[4px] bg-neutral-500 p-[6px] text-xs font-medium hover:bg-neutral-500"
-            textColors={level as Level}
-          >
-            {`Level ${levelNumber}`}
-          </Badge>
+          {!isContest && (
+            <Badge
+              className="h-6 w-[52px] whitespace-nowrap rounded-[4px] bg-neutral-500 p-[6px] text-xs font-medium hover:bg-neutral-500"
+              textColors={level as Level}
+            >
+              {`Level ${levelNumber}`}
+            </Badge>
+          )}
         </div>
         <div className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300">
           {katexContent}
