@@ -1,7 +1,8 @@
 package loader
 
 type Element struct {
-	Id  int
-	In  string
-	Out string
+	Id     int
+	In     string
+	Out    string
+	Hidden bool
 }
