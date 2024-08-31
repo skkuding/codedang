@@ -10,7 +10,8 @@ import {
   Logger,
   Query,
   DefaultValuePipe,
-  Headers
+  Headers,
+  ParseBoolPipe
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
@@ -42,7 +43,8 @@ export class SubmissionController {
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('contestId', IDValidationPipe) contestId: number | null,
-    @Query('workbookId', IDValidationPipe) workbookId: number | null
+    @Query('workbookId', IDValidationPipe) workbookId: number | null,
+    @Query('isTest', ParseBoolPipe) isTest: boolean
   ) {
     try {
       if (!contestId && !workbookId) {
@@ -51,7 +53,8 @@ export class SubmissionController {
           userIp,
           req.user.id,
           problemId,
-          groupId
+          groupId,
+          isTest || false
         )
       } else if (contestId) {
         return await this.submissionService.submitToContest(
@@ -60,7 +63,8 @@ export class SubmissionController {
           req.user.id,
           problemId,
           contestId,
-          groupId
+          groupId,
+          isTest || false
         )
       } else if (workbookId) {
         return await this.submissionService.submitToWorkbook(
@@ -69,7 +73,8 @@ export class SubmissionController {
           req.user.id,
           problemId,
           workbookId,
-          groupId
+          groupId,
+          isTest || false
         )
       }
     } catch (error) {

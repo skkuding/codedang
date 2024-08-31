@@ -44,7 +44,8 @@ export class SubmissionService {
     userIp: string,
     userId: number,
     problemId: number,
-    groupId = OPEN_SPACE_ID
+    groupId = OPEN_SPACE_ID,
+    isTest = false
   ) {
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
@@ -59,7 +60,8 @@ export class SubmissionService {
       submissionDto,
       problem,
       userId,
-      userIp
+      userIp,
+      isTest
     )
 
     if (submission) {
@@ -77,7 +79,8 @@ export class SubmissionService {
     userId: number,
     problemId: number,
     contestId: number,
-    groupId = OPEN_SPACE_ID
+    groupId = OPEN_SPACE_ID,
+    isTest = false
   ) {
     const now = new Date()
     await this.prisma.contest.findFirstOrThrow({
@@ -136,6 +139,7 @@ export class SubmissionService {
       problem,
       userId,
       userIp,
+      isTest,
       {
         contestId
       }
@@ -151,7 +155,8 @@ export class SubmissionService {
     userId: number,
     problemId: number,
     workbookId: number,
-    groupId = OPEN_SPACE_ID
+    groupId = OPEN_SPACE_ID,
+    isTest = false
   ) {
     const { problem } = await this.prisma.workbookProblem.findUniqueOrThrow({
       where: {
@@ -177,6 +182,7 @@ export class SubmissionService {
       problem,
       userId,
       userIp,
+      isTest,
       {
         workbookId
       }
@@ -191,6 +197,7 @@ export class SubmissionService {
     problem: Problem,
     userId: number,
     userIp: string,
+    isTest = false,
     idOptions?: { contestId?: number; workbookId?: number }
   ) {
     if (!problem.languages.includes(submissionDto.language)) {
@@ -229,7 +236,7 @@ export class SubmissionService {
 
     await this.createSubmissionResults(submission)
 
-    await this.publish.publishJudgeRequestMessage(code, submission)
+    await this.publish.publishJudgeRequestMessage(code, submission, isTest)
     return submission
   }
 
