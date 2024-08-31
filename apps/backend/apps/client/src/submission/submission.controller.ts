@@ -44,7 +44,8 @@ export class SubmissionController {
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('contestId', IDValidationPipe) contestId: number | null,
     @Query('workbookId', IDValidationPipe) workbookId: number | null,
-    @Query('isTest', ParseBoolPipe) isTest: boolean
+    @Query('isTest', new ParseBoolPipe({ optional: true }))
+    isTest?: boolean
   ) {
     try {
       if (!contestId && !workbookId) {
