@@ -64,7 +64,7 @@ export function EditorDescription({
 }: {
   problem: ProblemDetail
   contestProblems?: ContestProblem[]
-  isContest: boolean
+  isContest?: boolean
 }) {
   const { copiedID, copy } = useCopy()
 
