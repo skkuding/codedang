@@ -155,7 +155,12 @@ export default function Page() {
 
             <TemplateField />
 
-            <SwitchField name="hint" title="Hint" placeholder="Enter a hint" />
+            <SwitchField
+              name="hint"
+              title="Hint"
+              formElement="textarea"
+              placeholder="Enter a hint"
+            />
 
             <SwitchField
               name="source"
