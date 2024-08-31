@@ -551,9 +551,10 @@ export const exampleOrderUpdatedContestProblems: ContestProblem[] = [
 
 export const exampleProblemTestcases = [
   {
-    id: '1:1',
+    id: '1',
     input: '1',
-    output: '1'
+    output: '1',
+    isHidden: false
   }
 ]
 

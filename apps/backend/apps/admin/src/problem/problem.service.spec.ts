@@ -207,7 +207,6 @@ describe('ProblemService', () => {
   describe('updateProblem', () => {
     const testcase = { ...testcaseInput, id: 1 }
     it('should return updated problem', async () => {
-      const uploadSpy = stub(storageService, 'uploadObject').resolves()
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.problem.update.resolves({ ...problems[0], title: 'revised' })
       db.problemTestcase.deleteMany.resolves()
@@ -226,7 +225,6 @@ describe('ProblemService', () => {
         ...problemsWithIsVisible[0],
         title: 'revised'
       })
-      expect(uploadSpy.calledOnce).to.be.true
     })
 
     it('should throw error because languages is empty', async () => {
@@ -277,12 +275,10 @@ describe('ProblemService', () => {
 
   describe('deleteProblem', () => {
     it('should return deleted problem', async () => {
-      const deleteSpy = stub(storageService, 'deleteObject').resolves()
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.problem.delete.resolves(problems[0])
       const result = await service.deleteProblem(problemId, groupId)
       expect(result).to.deep.equal(problems[0])
-      expect(deleteSpy.calledOnce).to.be.true
     })
   })
 
@@ -607,18 +603,10 @@ describe('ProblemService', () => {
 
   describe('getProblemTestcases', () => {
     it('should return a problem testcase array', async () => {
-      const readSpy = stub(storageService, 'readObject').resolves(
-        JSON.stringify(exampleProblemTestcases)
-      )
+      db.problemTestcase.findMany.resolves(exampleProblemTestcases)
       expect(await service.getProblemTestcases(1)).to.deep.equal(
-        exampleProblemTestcases.map((tc) => {
-          return {
-            ...tc,
-            id: tc.id.split(':')[1]
-          }
-        })
+        exampleProblemTestcases
       )
-      expect(readSpy.calledOnce).to.be.true
     })
   })
 })

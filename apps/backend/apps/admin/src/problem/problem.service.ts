@@ -36,12 +36,6 @@ import type { ProblemWithIsVisible } from './model/problem.output'
 import type { Template } from './model/template.input'
 import type { Testcase } from './model/testcase.input'
 
-type TestCaseInFile = {
-  id: string
-  input: string
-  output: string
-}
-
 @Injectable()
 export class ProblemService {
   constructor(
@@ -89,7 +83,6 @@ export class ProblemService {
     return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
-  // TODO: updateTestcases, deleteProblem 로직 함께 정리
   async createTestcases(problemId: number, testcases: Array<Testcase>) {
     await Promise.all(
       testcases.map(async (tc, index) => {
@@ -208,9 +201,11 @@ export class ProblemService {
         testcaseInput.push({
           input: inputs[i],
           output: outputs[i],
-          scoreWeight: parseInt(scoreWeights[i]) || undefined
+          scoreWeight: parseInt(scoreWeights[i]) || undefined,
+          isHidden: false
         })
       }
+
       problems.push({
         title,
         description,
@@ -469,31 +464,20 @@ export class ProblemService {
         where: {
           problemId
         }
-      }),
-      this.cacheManager.del(`${problemId}`)
+      })
     ])
 
-    const filename = `${problemId}.json`
-    const toBeUploaded: Array<TestCaseInFile> = []
-
     for (const tc of testcases) {
-      const problemTestcase = await this.prisma.problemTestcase.create({
+      await this.prisma.problemTestcase.create({
         data: {
           problemId,
-          input: filename,
-          output: filename,
-          scoreWeight: tc.scoreWeight
+          input: tc.input,
+          output: tc.output,
+          scoreWeight: tc.scoreWeight,
+          isHidden: tc.isHidden
         }
       })
-      toBeUploaded.push({
-        id: `${problemId}:${problemTestcase.id}`,
-        input: tc.input,
-        output: tc.output
-      })
     }
-
-    const data = JSON.stringify(toBeUploaded)
-    await this.storageService.uploadObject(filename, data, 'json')
   }
 
   async deleteProblem(id: number, groupId: number) {
@@ -504,11 +488,7 @@ export class ProblemService {
       }
     })
 
-    const result = await this.prisma.problem.delete({
-      where: { id }
-    })
-    await this.storageService.deleteObject(`${id}.json`)
-
+    // Problem description에 이미지가 포함되어 있다면 삭제
     const uuidImageFileNames = this.extractUUIDs(problem.description)
     if (uuidImageFileNames) {
       await this.prisma.image.deleteMany({
@@ -526,7 +506,9 @@ export class ProblemService {
       await Promise.all(deleteFromS3Results)
     }
 
-    return result
+    return await this.prisma.problem.delete({
+      where: { id }
+    })
   }
 
   extractUUIDs(input: string) {
@@ -708,15 +690,9 @@ export class ProblemService {
   }
 
   async getProblemTestcases(problemId: number) {
-    const testcases: Array<Testcase & { id: string }> = JSON.parse(
-      await this.storageService.readObject(`${problemId}.json`)
-    )
-
-    // TODO: Remove this code after refactoring iris code
-    return testcases.map((tc) => {
-      return {
-        ...tc,
-        id: tc.id.split(':')[1]
+    return await this.prisma.problemTestcase.findMany({
+      where: {
+        problemId
       }
     })
   }
