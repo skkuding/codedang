@@ -53,4 +53,6 @@ module "codedang_api" {
       ]
     }
   }
+
+  instance_type = "t3a.medium"
 }

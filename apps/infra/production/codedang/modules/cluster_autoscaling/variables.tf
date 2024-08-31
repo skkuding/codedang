@@ -1,3 +1,9 @@
+variable "instance_type" {
+  description = "The instance type for the EC2 instances in the launch template"
+  type        = string
+  default     = "t3a.small"
+}
+
 variable "launch_template" {
   type = object({
     name     = string

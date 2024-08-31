@@ -50,4 +50,6 @@ module "codedang_iris" {
       cidr_blocks = ["0.0.0.0/0"]
     }
   }
+
+  instance_type = "t3a.small"
 }

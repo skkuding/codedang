@@ -1,7 +1,7 @@
 resource "aws_launch_template" "this" {
   name          = var.launch_template.name
   image_id      = "ami-05db432abf706dc01"
-  instance_type = "t3a.small"
+  instance_type = var.instance_type
   key_name      = var.launch_template.key_name
   user_data = base64encode(templatefile("${path.module}/launch_template/user_data.sh", {
     cluster_name = aws_ecs_cluster.this.name
