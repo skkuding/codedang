@@ -203,7 +203,10 @@ export class ContestResolver {
         problemIdsWithScore
       )
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
+      if (
+        error instanceof EntityNotExistException ||
+        error instanceof UnprocessableDataException
+      ) {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
@@ -225,7 +228,10 @@ export class ContestResolver {
         problemIds
       )
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
+      if (
+        error instanceof EntityNotExistException ||
+        error instanceof UnprocessableDataException
+      ) {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
