@@ -2,13 +2,7 @@ import { HttpModule } from '@nestjs/axios'
 import { NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
-import {
-  Language,
-  ResultStatus,
-  Role,
-  type Contest,
-  type User
-} from '@prisma/client'
+import { Language, Role, type Contest, type User } from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
@@ -274,9 +268,6 @@ describe('SubmissionService', () => {
 
     it('should create submission with contestId', async () => {
       const publishSpy = stub(publish, 'publishJudgeRequestMessage')
-      const hasPassedSpy = stub(problemRepository, 'hasPassedProblem').resolves(
-        false
-      )
       db.problem.findUnique.resolves(problems[0])
       db.submission.create.resolves({
         ...submissions[0],
@@ -294,25 +285,6 @@ describe('SubmissionService', () => {
         )
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
       expect(publishSpy.calledOnce).to.be.true
-      expect(hasPassedSpy.calledOnce).to.be.true
-    })
-
-    it('should throw conflict found exception if user has already gotten AC', async () => {
-      const publishSpy = stub(publish, 'publishJudgeRequestMessage')
-      db.problem.findUnique.resolves(problems[0])
-      db.submission.create.resolves(submissions[0])
-      db.submission.findMany.resolves([{ result: ResultStatus.Accepted }])
-
-      await expect(
-        service.createSubmission(
-          submissionDto,
-          problems[0],
-          submissions[0].userId,
-          USERIP,
-          { contestId: CONTEST_ID }
-        )
-      ).to.be.rejectedWith(ConflictFoundException)
-      expect(publishSpy.calledOnce).to.be.false
     })
 
     it('should create submission with workbookId', async () => {
@@ -338,9 +310,6 @@ describe('SubmissionService', () => {
 
     it('should create submission with contestId', async () => {
       const publishSpy = stub(publish, 'publishJudgeRequestMessage')
-      const hasPassedSpy = stub(problemRepository, 'hasPassedProblem').resolves(
-        false
-      )
       db.problem.findUnique.resolves(problems[0])
       db.submission.create.resolves({
         ...submissions[0],
@@ -358,25 +327,6 @@ describe('SubmissionService', () => {
         )
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
       expect(publishSpy.calledOnce).to.be.true
-      expect(hasPassedSpy.calledOnce).to.be.true
-    })
-
-    it('should throw conflict found exception if user has already gotten AC', async () => {
-      const publishSpy = stub(publish, 'publishJudgeRequestMessage')
-      db.problem.findUnique.resolves(problems[0])
-      db.submission.create.resolves(submissions[0])
-      db.submission.findMany.resolves([{ result: ResultStatus.Accepted }])
-
-      await expect(
-        service.createSubmission(
-          submissionDto,
-          problems[0],
-          submissions[0].userId,
-          USERIP,
-          { contestId: CONTEST_ID }
-        )
-      ).to.be.rejectedWith(ConflictFoundException)
-      expect(publishSpy.calledOnce).to.be.false
     })
 
     it('should create submission with workbookId', async () => {

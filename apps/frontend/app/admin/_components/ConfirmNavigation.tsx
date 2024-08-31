@@ -33,5 +33,5 @@ export const useConfirmNavigation = (
       window.removeEventListener('beforeunload', handleBeforeUnload)
       router.push = originalPush
     }
-  }, [router, shouldSkipWarningRef.current])
+  }, [router, shouldSkipWarningRef])
 }
