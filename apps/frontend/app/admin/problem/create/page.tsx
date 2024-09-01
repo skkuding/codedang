@@ -58,6 +58,8 @@ export default function Page() {
         { input: '', output: '', isHidden: false, scoreWeight: null },
         { input: '', output: '', isHidden: true, scoreWeight: null }
       ],
+      timeLimit: 2000,
+      memoryLimit: 512,
       hint: '',
       source: '',
       template: [],
