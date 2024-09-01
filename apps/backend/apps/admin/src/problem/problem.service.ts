@@ -135,7 +135,7 @@ export class ProblemService {
       header['OutputFileName'],
       header['OutputFilePath']
     ]
-    worksheet.eachRow(async function (row, rowNumber) {
+    worksheet.eachRow(function (row, rowNumber) {
       for (const colNumber of unsupportedFields) {
         if (row.getCell(colNumber).text !== '')
           throw new UnprocessableFileDataException(
