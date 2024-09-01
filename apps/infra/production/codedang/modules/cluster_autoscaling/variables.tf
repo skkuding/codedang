@@ -13,6 +13,7 @@ variable "autoscaling_group" {
   type = object({
     name     = string
     max_size = number
+    desired_capacity = number
   })
   description = "The autoscaling group. e.g. {name='codedang-asg', max_size=7}"
 }
