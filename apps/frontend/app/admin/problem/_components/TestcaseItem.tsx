@@ -81,6 +81,7 @@ export default function TestcaseItem({
               setValueAs: (value) => (isInvalid(value) ? null : Number(value))
             })}
             type="number"
+            min={0}
             className={cn(
               'h-5 w-8 rounded-sm border text-center text-xs',
               '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',

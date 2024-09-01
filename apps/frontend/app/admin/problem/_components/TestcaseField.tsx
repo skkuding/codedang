@@ -54,7 +54,15 @@ export default function TestcaseField() {
     const totalAssignedScore = currentValues
       .map((tc) => tc.scoreWeight)
       .filter((score) => !isInvalid(score))
-      .reduce((acc: number, score) => acc + score!, 0)
+      .reduce((acc: number, score) => {
+        if (score! < 0) {
+          setDialogDescription(
+            'The scoring ratios contain negative value(s).\nPlease review and correct them.'
+          )
+          setDialogOpen(true)
+        }
+        return acc + score!
+      }, 0)
 
     const remainingScore = 100 - totalAssignedScore
 
