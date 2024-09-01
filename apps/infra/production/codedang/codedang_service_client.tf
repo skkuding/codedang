@@ -94,7 +94,7 @@ module "client_api" {
   }
 
   appautoscaling_target = {
-    min_capacity = 1
+    min_capacity = 2
     max_capacity = 8
     resource_id = {
       cluster_name = module.codedang_api.ecs_cluster.name
