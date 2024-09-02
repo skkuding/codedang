@@ -30,10 +30,7 @@ import { DuplicatedContestResponse } from './model/duplicated-contest-response.o
 import { ProblemScoreInput } from './model/problem-score.input'
 import { PublicizingRequest } from './model/publicizing-request.model'
 import { PublicizingResponse } from './model/publicizing-response.output'
-import {
-  UserContestScoreSummary,
-  UserContestScoreSummaryWithUserInfo
-} from './model/score-summary'
+import { UserContestScoreSummaryWithUserInfo } from './model/score-summary'
 
 @Resolver(() => Contest)
 export class ContestResolver {
@@ -239,6 +236,12 @@ export class ContestResolver {
     }
   }
 
+  /**
+   * 특정 User의 Contest 제출 내용 요약 정보를 가져옵니다.
+   *
+   * Contest Overall 페이지에서 특정 유저를 선택했을 때 사용
+   * https://github.com/skkuding/codedang/pull/1894
+   */
   @Query(() => ContestSubmissionSummaryForUser)
   async getContestSubmissionSummaryByUserId(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
@@ -293,22 +296,12 @@ export class ContestResolver {
     }
   }
 
-  @Query(() => UserContestScoreSummary)
-  async getContestScoreSummary(
-    @Args('userId', { type: () => Int }) userId: number,
-    @Args('contestId', { type: () => Int }) contestId: number
-  ) {
-    try {
-      return await this.contestService.getContestScoreSummary(userId, contestId)
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-
+  /**
+   * Contest에 참여한 User와, 점수 요약을 함께 불러옵니다.
+   *
+   * Contest Overall 페이지의 Participants 탭의 정보
+   * https://github.com/skkuding/codedang/pull/2029
+   */
   @Query(() => [UserContestScoreSummaryWithUserInfo])
   async getContestScoreSummaries(
     @Args('take', { type: () => Int, defaultValue: 10 }) take: number,

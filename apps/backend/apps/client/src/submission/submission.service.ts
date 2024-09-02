@@ -487,7 +487,11 @@ export class SubmissionService {
       results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
 
       if (contestId && !isJudgeResultVisible) {
-        results.map((r) => (r.result = 'Blind'))
+        results.map((r) => {
+          r.result = 'Blind'
+          r.cpuTime = null
+          r.memoryUsage = null
+        })
       }
 
       return {

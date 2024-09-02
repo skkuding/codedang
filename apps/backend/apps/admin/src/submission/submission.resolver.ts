@@ -11,6 +11,12 @@ export class SubmissionResolver {
   private readonly logger = new Logger(SubmissionResolver.name)
   constructor(private readonly submissionService: SubmissionService) {}
 
+  /**
+   * 특정 Contest의 모든 제출 내역에 대한 요약을 불러옵니다.
+   *
+   * Contest Overall page의 'All submission' 탭에서 보여지는 정보를 불러오는 API
+   * https://github.com/skkuding/codedang/pull/1924
+   */
   @Query(() => [ContestSubmission])
   async getContestSubmissions(
     @Args('input', {
