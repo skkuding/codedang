@@ -402,12 +402,12 @@ export class ProblemService {
         )
       }
     })
-    const submissions = await this.prisma.submission.findMany({
+    const submission = await this.prisma.submission.findFirst({
       where: {
         problemId: id
       }
     })
-    if (submissions.length && testcases?.length) {
+    if (submission && testcases) {
       throw new UnprocessableDataException(
         'Cannot update testcases if submission exists'
       )
