@@ -475,7 +475,9 @@ export function DataTableAdmin<TData, TValue>({
                             if (selectedRowCount < 20 || row.getIsSelected()) {
                               row.toggleSelected(!row.getIsSelected())
                             } else {
-                              toast.error('Maximum number of problems is 20.')
+                              toast.error(
+                                'You can only import up to 20 problems in a contest'
+                              )
                             }
                           } else {
                             href && router.push(href)

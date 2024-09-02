@@ -27,7 +27,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
             row.getIsSelected()
           ).length
           table.getSelectedRowModel().rows.length - currentSelectedCount > 15
-            ? toast.error('Maximum number of problems is 20.')
+            ? toast.error('You can only import up to 20 problems in a contest')
             : table.toggleAllPageRowsSelected(!!value)
         }}
         aria-label="Select all"
