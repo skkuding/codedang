@@ -180,7 +180,7 @@ export default function Page() {
             <AlertDialog open={showCreateModal}>
               <AlertDialogContent className="p-8">
                 <AlertDialogHeader className="gap-2">
-                  <AlertDialogTitle>Create Contest?</AlertDialogTitle>
+                  <AlertDialogTitle>Create Problem?</AlertDialogTitle>
                   <AlertDialogDescription>
                     Once user submit any coding, the testcases{' '}
                     <span className="underline">cannot</span> be modified.

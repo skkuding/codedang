@@ -7,6 +7,7 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
+import { ScrollArea } from './ui/scroll-area'
 
 interface OptionSelectProps {
   options: string[] | readonly string[]
@@ -34,17 +35,19 @@ export default function OptionSelect({
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent className="w-[115px] bg-white">
-        <SelectGroup>
-          {options.map((option) => (
-            <SelectItem
-              key={option}
-              value={option}
-              className="cursor-pointer hover:bg-gray-100/80"
-            >
-              {option}
-            </SelectItem>
-          ))}
-        </SelectGroup>
+        <ScrollArea>
+          <SelectGroup className="max-h-40">
+            {options.map((option) => (
+              <SelectItem
+                key={option}
+                value={option}
+                className="cursor-pointer hover:bg-gray-100/80"
+              >
+                {option}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </ScrollArea>
       </SelectContent>
     </Select>
   )

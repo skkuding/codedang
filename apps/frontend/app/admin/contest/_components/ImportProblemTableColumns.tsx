@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import type { Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
+import { toast } from 'sonner'
 
 interface DataTableProblem {
   id: number
@@ -16,25 +17,39 @@ interface DataTableProblem {
 
 export const columns: ColumnDef<DataTableProblem>[] = [
   {
-    id: 'select',
+    accessorKey: 'select',
     header: ({ table }) => (
       <Checkbox
         checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        onCheckedChange={(value) => {
+          const currentPageRows = table.getRowModel().rows
+          const currentSelectedCount = currentPageRows.filter((row) =>
+            row.getIsSelected()
+          ).length
+          table.getSelectedRowModel().rows.length - currentSelectedCount > 15
+            ? toast.error('Maximum number of problems is 20.')
+            : table.toggleAllPageRowsSelected(!!value)
+        }}
         aria-label="Select all"
         className="translate-y-[2px]"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
-        onClick={(e) => e.stopPropagation()}
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
         className="translate-y-[2px]"
       />
     ),
-    enableSorting: false,
+    sortingFn: (rowA, rowB) => {
+      const aSelected = rowA.getIsSelected()
+      const bSelected = rowB.getIsSelected()
+
+      if (aSelected === bSelected) {
+        return 0
+      }
+      return aSelected ? 1 : -1
+    },
     enableHiding: false
   },
   {
@@ -49,7 +64,6 @@ export const columns: ColumnDef<DataTableProblem>[] = [
         </div>
       )
     },
-    enableSorting: false,
     enableHiding: false
   },
   {

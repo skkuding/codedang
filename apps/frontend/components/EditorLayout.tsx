@@ -38,7 +38,9 @@ export default async function EditorLayout({
 
   if (contestId) {
     // for getting contest info and problems list
-    problems = await fetcherWithAuth.get(`contest/${contestId}/problem`).json()
+    problems = await fetcherWithAuth
+      .get(`contest/${contestId}/problem?take=20`)
+      .json()
     const ContestProblem: { problem: ProblemDetail } = await fetcherWithAuth
       .get(`contest/${contestId}/problem/${problemId}`)
       .json()
