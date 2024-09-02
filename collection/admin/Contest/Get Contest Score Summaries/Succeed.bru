@@ -1,0 +1,47 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetContestScoreSummaries($contestId: Int!, $take: Int, $cursor: Int) {
+    getContestScoreSummaries(contestId:$contestId, take: $take, cursor: $cursor) {
+      userId
+      username
+      studentId
+      realName
+      submittedProblemCount
+      totalProblemCount
+      userContestScore
+      contestPerfectScore
+      problemScores {
+        problemId
+        score
+        maxScore
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 1,
+    "userId": 4
+    // "problemId": 1
+  }
+}
+
+docs {
+  ## Get Contest Submission Summaries of Users
+  
+  * Contest에 참여한 User와, 점수 요약을 함께 불러옵니다.
+  * Contest Overall 페이지의 Participants 탭의 정보
+  * https://github.com/skkuding/codedang/pull/2029
+}
