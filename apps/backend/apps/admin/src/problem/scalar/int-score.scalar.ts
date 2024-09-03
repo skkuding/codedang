@@ -5,7 +5,7 @@ import { UnprocessableDataException } from '@libs/exception'
 @Scalar('IntScore', () => IntScoreScalar)
 export class IntScoreScalar implements CustomScalar<number, number> {
   parseValue(value: number) {
-    if (typeof value !== 'number' || value < 0 || !Number.isInteger(value)) {
+    if (value < 0 || !Number.isInteger(value)) {
       throw new UnprocessableDataException(
         'Score(ScoreWeight) must be a non-negative integer.'
       )
