@@ -26,7 +26,9 @@ export default function DataTableLevelFilter<TData, TValue>({
   column
 }: DataTableProblemFilterProps<TData, TValue>) {
   const { id } = useParams()
-  const selectedValue = column?.getFilterValue() as string | undefined
+  const [selectedValue, setSelectedValue] = useState<string | undefined>(
+    undefined
+  )
   const [problemFilterOpen, setProblemFilterOpen] = useState(false)
   const [problems, setProblems] = useState<string[]>([])
 
@@ -72,8 +74,9 @@ export default function DataTableLevelFilter<TData, TValue>({
                   onSelect={() => {
                     option === 'All Problems'
                       ? column?.setFilterValue(null)
-                      : column?.setFilterValue(option)
+                      : column?.setFilterValue(option.slice(3))
                     setProblemFilterOpen(false)
+                    setSelectedValue(option)
                   }}
                 >
                   <p className="overflow-hidden text-ellipsis whitespace-nowrap text-xs">
