@@ -86,6 +86,9 @@ const db = {
   image: {
     deleteMany: stub()
   },
+  submission: {
+    findFirst: stub()
+  },
   getPaginator: PrismaService.prototype.getPaginator
 }
 
@@ -213,6 +216,7 @@ describe('ProblemService', () => {
       db.problemTestcase.findMany.resolves([])
       db.problemTestcase.update.resolves()
       db.problemTestcase.update.resolves(testcase)
+      db.submission.findFirst.resolves(null)
       const result = await service.updateProblem(
         {
           id: problemId,
