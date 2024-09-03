@@ -7,9 +7,10 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 import type { Testcase } from '@generated/graphql'
-import { useState } from 'react'
-import { type FieldErrorsImpl, useFormContext } from 'react-hook-form'
+import { useEffect, useState } from 'react'
+import { type FieldErrorsImpl, useFormContext, useWatch } from 'react-hook-form'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import Label from '../../_components/Label'
 import { isInvalid } from '../_libs/utils'
@@ -20,13 +21,23 @@ import TestcaseItem from './TestcaseItem'
 export default function TestcaseField() {
   const {
     formState: { errors },
-    watch,
     getValues,
-    setValue
+    setValue,
+    control
   } = useFormContext()
+
+  const watchedItems: Testcase[] = useWatch({ name: 'testcases', control })
+
+  const itemErrors = errors.testcases as FieldErrorsImpl
 
   const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
   const [dialogDescription, setDialogDescription] = useState<string>('')
+  const [disableDistribution, setDisableDistribution] = useState<boolean>(false)
+
+  useEffect(() => {
+    const allFilled = watchedItems.every((item) => !isInvalid(item.scoreWeight))
+    setDisableDistribution(allFilled)
+  }, [watchedItems])
 
   const addTestcase = (isHidden: boolean) => {
     setValue('testcases', [
@@ -54,7 +65,15 @@ export default function TestcaseField() {
     const totalAssignedScore = currentValues
       .map((tc) => tc.scoreWeight)
       .filter((score) => !isInvalid(score))
-      .reduce((acc: number, score) => acc + score!, 0)
+      .reduce((acc: number, score) => {
+        if (score! < 0) {
+          setDialogDescription(
+            'The scoring ratios contain negative value(s).\nPlease review and correct them.'
+          )
+          setDialogOpen(true)
+        }
+        return acc + score!
+      }, 0)
 
     const remainingScore = 100 - totalAssignedScore
 
@@ -91,10 +110,6 @@ export default function TestcaseField() {
 
     setValue('testcases', updatedTestcases)
   }
-
-  const watchedItems: Testcase[] = watch('testcases')
-
-  const itemErrors = errors.testcases as FieldErrorsImpl
 
   return (
     <div className="flex flex-col gap-10">
@@ -133,11 +148,18 @@ export default function TestcaseField() {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                className="flex h-9 w-40 items-center gap-2 px-0"
+                className={cn(
+                  'flex h-9 w-40 items-center gap-2 px-0',
+                  disableDistribution && 'bg-gray-300 text-gray-600'
+                )}
                 type="button"
                 onClick={equalDistribution}
+                disabled={disableDistribution}
               >
-                <IoIosCheckmarkCircle fontSize={20} />
+                <IoIosCheckmarkCircle
+                  fontSize={20}
+                  className={cn(disableDistribution && 'text-gray-600')}
+                />
                 <p>Equal Distribution</p>
               </Button>
             </TooltipTrigger>
