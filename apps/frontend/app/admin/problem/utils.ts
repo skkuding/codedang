@@ -2,7 +2,10 @@ import { levels, languages } from '@/lib/constants'
 import { z } from 'zod'
 
 const commonSchema = z.object({
-  title: z.string().min(1, { message: 'required' }).max(200),
+  title: z
+    .string()
+    .min(1, 'The title must contain at least 1 character(s)')
+    .max(200, 'The title can only be up to 200 characters long'),
   isVisible: z.boolean().optional(),
   difficulty: z.enum(levels),
   languages: z.array(z.enum(languages)).min(1),

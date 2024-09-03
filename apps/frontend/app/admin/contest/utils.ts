@@ -3,8 +3,8 @@ import { z } from 'zod'
 export const createSchema = z.object({
   title: z
     .string()
-    .min(1)
-    .max(100, 'The title can only be up to 100 characters long'),
+    .min(1, 'The title must contain at least 1 character(s)')
+    .max(200, 'The title can only be up to 200 characters long'),
   isRankVisible: z.boolean(),
   isVisible: z.boolean(),
   description: z
