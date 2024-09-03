@@ -336,11 +336,22 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
     }
 
+    const problem = await this.prisma.problem.findFirstOrThrow({
+      where: {
+        id
+      }
+    })
+
     await this.prisma.problem.update({
       where: {
         id
       },
-      data
+      data: {
+        ...data,
+        acceptedRate: isAccepted
+          ? (problem.acceptedCount + 1) / (problem.submissionCount + 1)
+          : problem.acceptedCount / (problem.submissionCount + 1)
+      }
     })
   }
 }
