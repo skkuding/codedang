@@ -8,6 +8,7 @@ import {
   WorkbookProblemResolver
 } from './problem.resolver'
 import { ProblemService } from './problem.service'
+import { IntScoreScalar } from './scalar/int-score.scalar'
 
 @Module({
   imports: [StorageModule, ConfigModule],
@@ -17,7 +18,9 @@ import { ProblemService } from './problem.service'
     TagResolver,
     ProblemService,
     ContestProblemResolver,
-    WorkbookProblemResolver
-  ]
+    WorkbookProblemResolver,
+    IntScoreScalar
+  ],
+  exports: [IntScoreScalar]
 })
 export class ProblemModule {}
