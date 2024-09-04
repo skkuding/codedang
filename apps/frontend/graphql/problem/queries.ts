@@ -47,7 +47,7 @@ const GET_PROBLEMS = gql(`
     ) {
       id
       title
-      createTime
+      updateTime
       difficulty
       submissionCount
       acceptedRate
