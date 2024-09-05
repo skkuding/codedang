@@ -32,11 +32,6 @@ export const columns: ColumnDef<Contest>[] = [
     cell: ({ row }) => row.original.participants
   },
   {
-    header: 'Total score',
-    accessorKey: 'totalScore',
-    cell: () => '000/000'
-  },
-  {
     header: 'Period',
     accessorKey: 'period',
     cell: ({ row }) =>
