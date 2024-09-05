@@ -18,6 +18,7 @@ import {
 } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { problems } from '@admin/problem/mock/mock'
 import { contestRecord } from '../mock/contestRecord.mock'
 import { submissions } from '../mock/submission.mock'
 import { submissionResults } from '../mock/submissionResult.mock'
@@ -75,7 +76,8 @@ const db = {
     findFirstOrThrow: mockFunc
   },
   problem: {
-    update: mockFunc
+    update: mockFunc,
+    findFirstOrThrow: mockFunc
   }
 }
 
@@ -552,6 +554,7 @@ describe('SubmissionSubscriptionService', () => {
   describe('updateProblemAccepted', () => {
     it('should update submissionCount', async () => {
       const updateSpy = sandbox.stub(db.problem, 'update').resolves()
+      sandbox.stub(db.problem, 'findFirstOrThrow').resolves(problems[0])
       const id = 1
       const isAccepted = false
 
@@ -564,7 +567,9 @@ describe('SubmissionSubscriptionService', () => {
           data: {
             submissionCount: {
               increment: 1
-            }
+            },
+            acceptedRate:
+              problems[0].acceptedCount / (problems[0].submissionCount + 1)
           }
         })
       ).to.be.true
@@ -572,6 +577,7 @@ describe('SubmissionSubscriptionService', () => {
 
     it('should update submissionCount and acceptedCount', async () => {
       const updateSpy = sandbox.stub(db.problem, 'update').resolves()
+      sandbox.stub(db.problem, 'findFirstOrThrow').resolves(problems[0])
       const id = 1
       const isAccepted = true
 
@@ -587,7 +593,10 @@ describe('SubmissionSubscriptionService', () => {
             },
             acceptedCount: {
               increment: 1
-            }
+            },
+            acceptedRate:
+              (problems[0].acceptedCount + 1) /
+              (problems[0].submissionCount + 1)
           }
         })
       ).to.be.true
