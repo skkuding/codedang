@@ -286,7 +286,9 @@ describe('ContestProblemService', () => {
       getContestSpy.resolves({
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        isRegistered: true
+        isRegistered: true,
+        invitationCodeExists: true,
+        isJudgeResultVisible: true
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
       db.submission.findMany.resolves([])
@@ -309,7 +311,9 @@ describe('ContestProblemService', () => {
       getContestSpy.resolves({
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        isRegistered: true
+        isRegistered: true,
+        invitationCodeExists: true,
+        isJudgeResultVisible: true
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
 
@@ -347,7 +351,9 @@ describe('ContestProblemService', () => {
       getContestSpy.resolves({
         startTime: faker.date.future(),
         endTime: faker.date.future(),
-        isRegistered: true
+        isRegistered: true,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
 
@@ -361,7 +367,9 @@ describe('ContestProblemService', () => {
       getContestSpy.resolves({
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        isRegistered: false
+        isRegistered: false,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
 
@@ -378,7 +386,9 @@ describe('ContestProblemService', () => {
       getContestSpy.resolves({
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        isRegistered: true
+        isRegistered: true,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
 
@@ -401,7 +411,9 @@ describe('ContestProblemService', () => {
       getContestSpy.resolves({
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        isRegistered: true
+        isRegistered: true,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
 
@@ -434,7 +446,9 @@ describe('ContestProblemService', () => {
       getContestSpy.resolves({
         startTime: faker.date.future(),
         endTime: faker.date.future(),
-        isRegistered: true
+        isRegistered: true,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       await expect(
@@ -447,7 +461,9 @@ describe('ContestProblemService', () => {
       getContestSpy.resolves({
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        isRegistered: false
+        isRegistered: false,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       await expect(
