@@ -281,6 +281,7 @@ describe('SubmissionService', () => {
           problems[0],
           submissions[0].userId,
           USERIP,
+          false,
           { contestId: CONTEST_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
@@ -302,6 +303,7 @@ describe('SubmissionService', () => {
           problems[0],
           submissions[0].userId,
           USERIP,
+          false,
           { workbookId: WORKBOOK_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
@@ -323,6 +325,7 @@ describe('SubmissionService', () => {
           problems[0],
           submissions[0].userId,
           USERIP,
+          false,
           { contestId: CONTEST_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
@@ -343,6 +346,7 @@ describe('SubmissionService', () => {
           problems[0],
           submissions[0].userId,
           USERIP,
+          false,
           { workbookId: WORKBOOK_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
