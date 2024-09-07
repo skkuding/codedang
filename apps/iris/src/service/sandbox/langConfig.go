@@ -69,7 +69,7 @@ func NewLangConfig(file file.FileManager, javaPolicyPath string) *langConfig {
 		MaxCompileMemory:   256 * 1024 * 1024,
 		CompilerPath:       "/usr/bin/gcc",
 		CompileArgs: "-DONLINE_JUDGE " +
-			"-O2 -w -fmax-errors=3 -std=c11 " +
+			"-O2 -fmax-errors=3 -std=c11 " +
 			"{srcPath} -lm -o {exePath}",
 		RunCommand:            "{exePath}",
 		RunArgs:               "",

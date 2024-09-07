@@ -223,6 +223,7 @@ export class SubmissionService {
       userIp,
       problemId: problem.id,
       codeSize: new TextEncoder().encode(code[0].text).length,
+      isTest,
       ...data
     }
 
@@ -353,7 +354,8 @@ export class SubmissionService {
       ...paginator,
       take,
       where: {
-        problemId
+        problemId,
+        isTest: false
       },
       select: {
         id: true,

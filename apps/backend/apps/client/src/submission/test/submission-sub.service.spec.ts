@@ -46,7 +46,8 @@ const submission: Submission & { submissionResult: SubmissionResult[] } = {
   ...submissions[0],
   codeSize: 1000,
   submissionResult: [submissionResults[0], submissionResults[1]],
-  score: 100
+  score: 100,
+  isTest: false
 }
 
 const contestSubmission = {
