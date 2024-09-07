@@ -191,7 +191,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           select: {
             result: true
           }
-        }
+        },
+        isTest: true
       }
     })
 
@@ -212,6 +213,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       where: { id: submissionId },
       data: { result: submissionResult }
     })
+
+    if (submission.isTest) return
 
     if (submission.userId && submission.contestId)
       await this.calculateSubmissionScore(submission, allAccepted)
