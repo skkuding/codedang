@@ -97,11 +97,11 @@ export class ContestProblemService {
       userId
     )
     const now = new Date()
-    if (contest.isRegistered && contest.startTime > now) {
+    if (contest.isRegistered && contest.startTime! > now) {
       throw new ForbiddenAccessException(
         'Cannot access problems before the contest starts.'
       )
-    } else if (!contest.isRegistered && contest.endTime > now) {
+    } else if (!contest.isRegistered && contest.endTime! > now) {
       throw new ForbiddenAccessException(
         'Register to access the problems of this contest.'
       )
@@ -137,15 +137,17 @@ export class ContestProblemService {
       if (!submission) {
         return {
           ...contestProblem,
-          maxScore: contestProblem.score,
+          maxScore: contest.isJudgeResultVisible ? contestProblem.score : null,
           score: null,
           submissionTime: null
         }
       }
       return {
         ...contestProblem,
-        maxScore: contestProblem.score,
-        score: ((submission.score * contestProblem.score) / 100).toFixed(0),
+        maxScore: contest.isJudgeResultVisible ? contestProblem.score : null,
+        score: contest.isJudgeResultVisible
+          ? ((submission.score * contestProblem.score) / 100).toFixed(0)
+          : null,
         submissionTime: submission.createTime ?? null
       }
     })
@@ -171,11 +173,11 @@ export class ContestProblemService {
       userId
     )
     const now = new Date()
-    if (contest.isRegistered && contest.startTime > now) {
+    if (contest.isRegistered && contest.startTime! > now) {
       throw new ForbiddenAccessException(
         'Cannot access to problems before the contest starts.'
       )
-    } else if (!contest.isRegistered && contest.endTime > now) {
+    } else if (!contest.isRegistered && contest.endTime! > now) {
       throw new ForbiddenAccessException('Register to access this problem.')
     }
 

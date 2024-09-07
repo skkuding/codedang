@@ -366,8 +366,13 @@ describe('ContestService', () => {
   })
 
   describe('importProblemsToContest', () => {
+    const contestWithEmptySubmissions = {
+      ...contest,
+      submission: []
+    }
+
     it('should return created ContestProblems', async () => {
-      db.contest.findUnique.resolves(contest)
+      db.contest.findUnique.resolves(contestWithEmptySubmissions)
       db.problem.update.resolves(problem)
       db.contestProblem.create.resolves(contestProblem)
       db.contestProblem.findFirst.resolves(null)
@@ -382,7 +387,7 @@ describe('ContestService', () => {
     })
 
     it('should return an empty array when the problem already exists in contest', async () => {
-      db.contest.findUnique.resolves(contest)
+      db.contest.findUnique.resolves(contestWithEmptySubmissions)
       db.problem.update.resolves(problem)
       db.contestProblem.findFirst.resolves(ContestProblem)
 

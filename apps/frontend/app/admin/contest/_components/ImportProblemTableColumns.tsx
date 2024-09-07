@@ -7,7 +7,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 interface DataTableProblem {
   id: number
   title: string
-  createTime: string
+  updateTime: string
   difficulty: string
   submissionCount: number
   acceptedRate: number
@@ -69,13 +69,12 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     }
   },
   {
-    accessorKey: 'createTime',
+    accessorKey: 'updateTime',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Update" />
     ),
     cell: ({ row }) => {
-      const updateTime: string = row.getValue('createTime')
-      return <div>{updateTime.substring(2, 10)}</div>
+      return <div>{row.original.updateTime.substring(2, 10)}</div>
     }
   },
   {

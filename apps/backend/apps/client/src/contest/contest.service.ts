@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
+import { Prisma, type Contest } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -328,7 +328,7 @@ export class ContestService {
     // check if the user has already registered this contest
     // initial value is false
     let isRegistered = false
-    let contest
+    let contest: Partial<Contest>
     if (userId) {
       const hasRegistered = await this.prisma.contestRecord.findFirst({
         where: { userId, contestId: id }

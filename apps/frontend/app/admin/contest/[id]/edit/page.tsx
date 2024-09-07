@@ -208,10 +208,10 @@ export default function Page({ params }: { params: { id: string } }) {
             </FormSection>
             <div className="flex gap-6">
               <FormSection title="Start Time">
-                <TimeForm name="startTime" />
+                {getValues('startTime') && <TimeForm name="startTime" />}
               </FormSection>
               <FormSection title="End Time">
-                <TimeForm name="endTime" />
+                {getValues('endTime') && <TimeForm name="endTime" />}
               </FormSection>
             </div>
             <FormSection title="Description">

@@ -44,11 +44,11 @@ export default async function ContestProblem({ params }: ContestProblemProps) {
       data={problems.data}
       columns={columns}
       headerStyle={{
-        order: 'w-[8%]',
+        order: 'w-[8%] ',
         title: 'text-left w-[50%]',
-        difficulty: 'w-[14%]',
-        submissionCount: 'w-[14%]',
-        acceptedRate: 'w-[14%]'
+        submit: 'w-[11%]',
+        submissionTime: 'w-[20%]',
+        score: 'w-[11%]'
       }}
       linked
     />

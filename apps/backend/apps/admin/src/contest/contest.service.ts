@@ -350,10 +350,22 @@ export class ContestService {
       where: {
         id: contestId,
         groupId
+      },
+      include: {
+        submission: {
+          select: {
+            id: true
+          }
+        }
       }
     })
     if (!contest) {
       throw new EntityNotExistException('contest')
+    }
+    if (contest.submission.length) {
+      throw new UnprocessableDataException(
+        'Cannot import problems if submission exists'
+      )
     }
 
     const contestProblems: ContestProblem[] = []
@@ -422,10 +434,22 @@ export class ContestService {
       where: {
         id: contestId,
         groupId
+      },
+      include: {
+        submission: {
+          select: {
+            id: true
+          }
+        }
       }
     })
     if (!contest) {
       throw new EntityNotExistException('contest')
+    }
+    if (contest.submission.length) {
+      throw new UnprocessableDataException(
+        'Cannot delete problems if submission exists'
+      )
     }
 
     const contestProblems: ContestProblem[] = []

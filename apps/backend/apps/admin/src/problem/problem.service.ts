@@ -135,7 +135,7 @@ export class ProblemService {
       header['OutputFileName'],
       header['OutputFilePath']
     ]
-    worksheet.eachRow(async function (row, rowNumber) {
+    worksheet.eachRow(function (row, rowNumber) {
       for (const colNumber of unsupportedFields) {
         if (row.getCell(colNumber).text !== '')
           throw new UnprocessableFileDataException(
@@ -402,6 +402,16 @@ export class ProblemService {
         )
       }
     })
+    const submission = await this.prisma.submission.findFirst({
+      where: {
+        problemId: id
+      }
+    })
+    if (submission && testcases) {
+      throw new UnprocessableDataException(
+        'Cannot update testcases if submission exists'
+      )
+    }
 
     const problemTag = tags ? await this.updateProblemTag(id, tags) : undefined
 
