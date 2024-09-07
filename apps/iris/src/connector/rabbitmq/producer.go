@@ -10,7 +10,7 @@ import (
 
 type Producer interface {
 	OpenChannel() error
-	Publish([]byte, context.Context) error
+	Publish([]byte, context.Context, string) error
 	CleanUp() error
 }
 
@@ -99,7 +99,7 @@ func (p *producer) confirmHandler(confirms chan amqp.Confirmation) {
 	}
 }
 
-func (p *producer) Publish(result []byte, ctx context.Context) error {
+func (p *producer) Publish(result []byte, ctx context.Context, messageType string) error {
 
 	seqNo := p.channel.GetNextPublishSeqNo()
 	p.logger.Log(logger.INFO, fmt.Sprintf("publishing %dB body", len(result)))
@@ -117,7 +117,8 @@ func (p *producer) Publish(result []byte, ctx context.Context) error {
 			ContentEncoding: "",
 			Body:            result,
 			DeliveryMode:    amqp.Persistent, // 1=non-persistent, 2=persistent
-			Priority:        0,               // 0-9
+			Priority:        0,
+			Type:            messageType, // 0-9
 		},
 	); err != nil {
 		return fmt.Errorf("exchange publish: %s", err)
