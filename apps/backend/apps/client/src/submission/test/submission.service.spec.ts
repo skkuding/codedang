@@ -1,8 +1,10 @@
 import { HttpModule } from '@nestjs/axios'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { Language, Role, type Contest, type User } from '@prisma/client'
+import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
@@ -90,6 +92,7 @@ describe('SubmissionService', () => {
   let service: SubmissionService
   let problemRepository: ProblemRepository
   let publish: SubmissionPublicationService
+  let cache: Cache
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -107,6 +110,17 @@ describe('SubmissionService', () => {
         {
           provide: SubmissionPublicationService,
           useFactory: () => ({ publishJudgeRequestMessage: () => [] })
+        },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => [],
+            del: () => [],
+            store: {
+              keys: () => []
+            }
+          })
         }
       ]
     }).compile()
@@ -116,6 +130,9 @@ describe('SubmissionService', () => {
     publish = module.get<SubmissionPublicationService>(
       SubmissionPublicationService
     )
+    cache = module.get<Cache>(CACHE_MANAGER)
+    stub(cache, 'set').resolves()
+    stub(cache, 'get').resolves([])
   })
 
   it('should be defined', () => {
@@ -281,7 +298,6 @@ describe('SubmissionService', () => {
           problems[0],
           submissions[0].userId,
           USERIP,
-          false,
           { contestId: CONTEST_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
@@ -303,7 +319,6 @@ describe('SubmissionService', () => {
           problems[0],
           submissions[0].userId,
           USERIP,
-          false,
           { workbookId: WORKBOOK_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
@@ -325,7 +340,6 @@ describe('SubmissionService', () => {
           problems[0],
           submissions[0].userId,
           USERIP,
-          false,
           { contestId: CONTEST_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
@@ -346,7 +360,6 @@ describe('SubmissionService', () => {
           problems[0],
           submissions[0].userId,
           USERIP,
-          false,
           { workbookId: WORKBOOK_ID }
         )
       ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })

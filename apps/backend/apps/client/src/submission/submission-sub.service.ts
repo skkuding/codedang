@@ -1,20 +1,25 @@
-import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { Inject, Injectable, Logger, type OnModuleInit } from '@nestjs/common'
 import { Nack, AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import {
   ResultStatus,
   type Submission,
   type SubmissionResult
 } from '@prisma/client'
+import type { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
 import { validateOrReject, ValidationError } from 'class-validator'
 import { Span } from 'nestjs-otel'
+import { testKey } from '@libs/cache'
 import {
   CONSUME_CHANNEL,
   EXCHANGE,
   ORIGIN_HANDLER_NAME,
   RESULT_KEY,
   RESULT_QUEUE,
-  Status
+  RUN_MESSAGE_TYPE,
+  Status,
+  TEST_SUBMISSION_EXPIRE_TIME
 } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -26,14 +31,23 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpConnection: AmqpConnection
+    private readonly amqpConnection: AmqpConnection,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
   onModuleInit() {
     this.amqpConnection.createSubscriber(
-      async (msg: object) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async (msg: object, raw: any) => {
         try {
           const res = await this.validateJudgerResponse(msg)
+
+          if (raw.properties.type === RUN_MESSAGE_TYPE) {
+            const testRequestedUserId = res.submissionId // test용 submissionId == test를 요청한 userId
+            await this.updateTestResult(res, testRequestedUserId)
+            return
+          }
+
           await this.handleJudgerMessage(res)
         } catch (error) {
           if (
@@ -59,6 +73,28 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       },
       ORIGIN_HANDLER_NAME
     )
+  }
+
+  async updateTestResult(msg: JudgerResponse, userId: number): Promise<void> {
+    const key = testKey(userId)
+    const status = Status(msg.resultCode)
+    const testcaseId = msg.judgeResult?.testcaseId
+
+    const testcases =
+      (await this.cacheManager.get<
+        {
+          id: number
+          result: ResultStatus
+        }[]
+      >(key)) ?? []
+
+    testcases.forEach((tc) => {
+      if (tc.id === testcaseId) {
+        tc.result = status
+      }
+    })
+
+    await this.cacheManager.set(key, testcases, TEST_SUBMISSION_EXPIRE_TIME)
   }
 
   async validateJudgerResponse(msg: object): Promise<JudgerResponse> {
@@ -191,8 +227,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           select: {
             result: true
           }
-        },
-        isTest: true
+        }
       }
     })
 
@@ -213,8 +248,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       where: { id: submissionId },
       data: { result: submissionResult }
     })
-
-    if (submission.isTest) return
 
     if (submission.userId && submission.contestId)
       await this.calculateSubmissionScore(submission, allAccepted)

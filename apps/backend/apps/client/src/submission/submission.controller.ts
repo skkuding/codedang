@@ -10,8 +10,7 @@ import {
   Logger,
   Query,
   DefaultValuePipe,
-  Headers,
-  ParseBoolPipe
+  Headers
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
@@ -43,9 +42,7 @@ export class SubmissionController {
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('contestId', IDValidationPipe) contestId: number | null,
-    @Query('workbookId', IDValidationPipe) workbookId: number | null,
-    @Query('isTest', new ParseBoolPipe({ optional: true }))
-    isTest?: boolean
+    @Query('workbookId', IDValidationPipe) workbookId: number | null
   ) {
     try {
       if (!contestId && !workbookId) {
@@ -54,8 +51,7 @@ export class SubmissionController {
           userIp,
           req.user.id,
           problemId,
-          groupId,
-          isTest || false
+          groupId
         )
       } else if (contestId) {
         return await this.submissionService.submitToContest(
@@ -64,8 +60,7 @@ export class SubmissionController {
           req.user.id,
           problemId,
           contestId,
-          groupId,
-          isTest || false
+          groupId
         )
       } else if (workbookId) {
         return await this.submissionService.submitToWorkbook(
@@ -74,8 +69,7 @@ export class SubmissionController {
           req.user.id,
           problemId,
           workbookId,
-          groupId,
-          isTest || false
+          groupId
         )
       }
     } catch (error) {
@@ -92,6 +86,43 @@ export class SubmissionController {
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
+  }
+
+  /**
+   * Open Testcase에 대해 채점하는 Test를 요청합니다.
+   * 채점 결과는 Cache에 저장됩니다.
+   */
+  @Post('test')
+  async requestTest(
+    @Req() req: AuthenticatedRequest,
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
+    @Body() submissionDto: CreateSubmissionDto
+  ) {
+    try {
+      return await this.submissionService.requestTest(
+        req.user.id,
+        problemId,
+        submissionDto
+      )
+    } catch (error) {
+      if (
+        error instanceof EntityNotExistException ||
+        error instanceof ConflictFoundException
+      ) {
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  /**
+   * requestTest의 반환으로 받은 key를 통해 Test 결과를 조회합니다.
+   * @returns Testcase별 결과가 담겨있는 Object
+   */
+  @Get('test')
+  async getTestResult(@Req() req: AuthenticatedRequest) {
+    return await this.submissionService.getTestResult(req.user.id)
   }
 
   @Get('delay-cause')

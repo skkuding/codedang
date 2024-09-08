@@ -30,8 +30,7 @@ const submission: Submission & { submissionResult: SubmissionResult[] } = {
   ...submissions[0],
   codeSize: 1000,
   submissionResult: [],
-  score: 100,
-  isTest: false
+  score: 100
 }
 
 describe('SubmissionPublicationService', () => {

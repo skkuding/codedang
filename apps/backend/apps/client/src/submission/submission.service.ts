@@ -1,5 +1,6 @@
 import { HttpService } from '@nestjs/axios'
-import { Injectable, Logger } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
   ResultStatus,
@@ -9,9 +10,15 @@ import {
   Role
 } from '@prisma/client'
 import type { AxiosRequestConfig } from 'axios'
+import type { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
 import { Span } from 'nestjs-otel'
-import { MIN_DATE, OPEN_SPACE_ID } from '@libs/constants'
+import { testKey } from '@libs/cache'
+import {
+  MIN_DATE,
+  OPEN_SPACE_ID,
+  TEST_SUBMISSION_EXPIRE_TIME
+} from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -35,7 +42,8 @@ export class SubmissionService {
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
     private readonly problemRepository: ProblemRepository,
-    private readonly publish: SubmissionPublicationService
+    private readonly publish: SubmissionPublicationService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
   @Span()
@@ -44,8 +52,7 @@ export class SubmissionService {
     userIp: string,
     userId: number,
     problemId: number,
-    groupId = OPEN_SPACE_ID,
-    isTest = false
+    groupId = OPEN_SPACE_ID
   ) {
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
@@ -60,8 +67,7 @@ export class SubmissionService {
       submissionDto,
       problem,
       userId,
-      userIp,
-      isTest
+      userIp
     )
 
     if (submission) {
@@ -79,8 +85,7 @@ export class SubmissionService {
     userId: number,
     problemId: number,
     contestId: number,
-    groupId = OPEN_SPACE_ID,
-    isTest = false
+    groupId = OPEN_SPACE_ID
   ) {
     const now = new Date()
     await this.prisma.contest.findFirstOrThrow({
@@ -139,7 +144,6 @@ export class SubmissionService {
       problem,
       userId,
       userIp,
-      isTest,
       {
         contestId
       }
@@ -155,8 +159,7 @@ export class SubmissionService {
     userId: number,
     problemId: number,
     workbookId: number,
-    groupId = OPEN_SPACE_ID,
-    isTest = false
+    groupId = OPEN_SPACE_ID
   ) {
     const { problem } = await this.prisma.workbookProblem.findUniqueOrThrow({
       where: {
@@ -182,7 +185,6 @@ export class SubmissionService {
       problem,
       userId,
       userIp,
-      isTest,
       {
         workbookId
       }
@@ -197,7 +199,6 @@ export class SubmissionService {
     problem: Problem,
     userId: number,
     userIp: string,
-    isTest = false,
     idOptions?: { contestId?: number; workbookId?: number }
   ) {
     if (!problem.languages.includes(submissionDto.language)) {
@@ -223,7 +224,6 @@ export class SubmissionService {
       userIp,
       problemId: problem.id,
       codeSize: new TextEncoder().encode(code[0].text).length,
-      isTest,
       ...data
     }
 
@@ -237,7 +237,7 @@ export class SubmissionService {
 
     await this.createSubmissionResults(submission)
 
-    await this.publish.publishJudgeRequestMessage(code, submission, isTest)
+    await this.publish.publishJudgeRequestMessage(code, submission)
     return submission
   }
 
@@ -290,6 +290,92 @@ export class SubmissionService {
     return Math.floor(Math.random() * 16777215)
       .toString(16)
       .padStart(6, '0')
+  }
+
+  async requestTest(
+    userId: number,
+    problemId: number,
+    submissionDto: CreateSubmissionDto
+  ) {
+    const problem = await this.prisma.problem.findFirst({
+      where: {
+        id: problemId
+      }
+    })
+
+    if (!problem) {
+      throw new EntityNotExistException('problem')
+    }
+
+    if (!problem.languages.includes(submissionDto.language)) {
+      throw new ConflictFoundException(
+        `This problem does not support language ${submissionDto.language}`
+      )
+    }
+    const { code } = submissionDto
+    if (
+      !this.isValidCode(
+        code,
+        submissionDto.language,
+        plainToInstance(Template, problem.template)
+      )
+    ) {
+      throw new ConflictFoundException('Modifying template is not allowed')
+    }
+
+    const testSubmission: Submission = {
+      code: [],
+      language: submissionDto.language,
+      id: userId, // test용 submission끼리의 구분을 위해 submission의 id를 요청 User의 id로 지정
+      problemId,
+      result: 'Judging',
+      score: 0,
+      userId,
+      userIp: null,
+      contestId: null,
+      workbookId: null,
+      codeSize: null,
+      createTime: new Date(),
+      updateTime: new Date()
+    }
+
+    const rawTestcases = await this.prisma.problemTestcase.findMany({
+      where: {
+        problemId,
+        isHidden: false
+      }
+    })
+
+    const testcases: {
+      id: number
+      result: ResultStatus
+    }[] = []
+
+    for (const testcase of rawTestcases) {
+      testcases.push({
+        id: testcase.id,
+        result: 'Judging'
+      })
+    }
+
+    await this.publish.publishJudgeRequestMessage(
+      submissionDto.code,
+      testSubmission,
+      true
+    )
+
+    const key = testKey(userId)
+    await this.cacheManager.set(key, testcases, TEST_SUBMISSION_EXPIRE_TIME)
+  }
+
+  async getTestResult(userId: number) {
+    const key = testKey(userId)
+    return await this.cacheManager.get<
+      {
+        id: number
+        result: ResultStatus
+      }[]
+    >(key)
   }
 
   @Span()
@@ -354,8 +440,7 @@ export class SubmissionService {
       ...paginator,
       take,
       where: {
-        problemId,
-        isTest: false
+        problemId
       },
       select: {
         id: true,

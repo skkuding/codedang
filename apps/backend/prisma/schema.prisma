@@ -391,7 +391,6 @@ model Submission {
   language   Language
   result     ResultStatus
   score      Int          @default(0) /// 100점 만점 기준 점수
-  isTest     Boolean      @default(false) @map("is_test")
   createTime DateTime     @default(now()) @map("create_time")
   updateTime DateTime     @updatedAt @map("update_time")
 
