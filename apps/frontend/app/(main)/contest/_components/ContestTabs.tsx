@@ -20,7 +20,7 @@ export default function ContestTabs({ contestId }: { contestId: string }) {
         <Link
           href={`/contest/${id}` as Route}
           className={cn(
-            'flex w-1/3 justify-center text-lg text-gray-400',
+            'flex w-1/2 justify-center text-lg text-gray-400',
             isCurrentTab('') && 'text-primary'
           )}
         >
@@ -29,13 +29,13 @@ export default function ContestTabs({ contestId }: { contestId: string }) {
         <Link
           href={`/contest/${id}/problem` as Route}
           className={cn(
-            'flex w-1/3 justify-center text-lg text-gray-400',
+            'flex w-1/2 justify-center text-lg text-gray-400',
             isCurrentTab('problem') && 'text-primary'
           )}
         >
           Problem
         </Link>
-        <Link
+        {/* <Link
           href={`/contest/${id}/announcement` as Route}
           className={cn(
             'flex w-1/3 justify-center text-lg text-gray-400',
@@ -45,7 +45,7 @@ export default function ContestTabs({ contestId }: { contestId: string }) {
           Clarification
         </Link>
       </div>
-      {/* <Link
+       <Link
         href={`/contest/${id}/standings` as Route}
         className={cn(
           'text-lg text-gray-400',
@@ -54,6 +54,7 @@ export default function ContestTabs({ contestId }: { contestId: string }) {
       >
         Standings
       </Link> */}
+      </div>
     </div>
   )
 }

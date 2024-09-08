@@ -58,11 +58,10 @@ export default async function RegisteredContestTable({
         data={data}
         columns={columns}
         headerStyle={{
-          title: 'text-left w-2/5 md:w-1/3',
+          title: 'text-left w-2/5 md:w-1/2',
           status: 'w-1/5 md:w-1/6',
           participants: 'w-1/5 md:w-1/6',
-          totalScore: 'w-1/5 md:w-1/6',
-          period: 'w-1/5 md:w-1/4'
+          period: 'w-1/5 md:w-1/3'
         }}
         linked
       />
