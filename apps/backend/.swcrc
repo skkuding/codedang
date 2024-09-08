@@ -5,25 +5,19 @@
   "jsc": {
     "parser": {
       "syntax": "typescript",
-      "decorators": true
+      "decorators": true,
+      "dynamicImport": true
     },
-    "transform": {
-      "legacyDecorator": true,
-      "decoratorMetadata": true
-    },
+    "baseUrl": "./",
     "paths": {
       "@admin/*": ["./apps/admin/src/*"],
       "@client/*": ["./apps/client/src/*"],
       "@libs/prisma": ["./libs/prisma/src/index.ts"],
       "@libs/cache": ["./libs/cache/src/index.ts"],
-      "@libs/auth": ["libs/auth/src/index.ts"],
-      "@libs/exception": ["libs/exception/src/index.ts"],
-      "@libs/pipe": ["libs/pipe/src/index.ts"],
-      "@libs/constants": ["libs/constants/src/index.ts"]
+      "@libs/auth": ["./libs/auth/src/index.ts"],
+      "@libs/exception": ["./libs/exception/src/index.ts"],
+      "@libs/pipe": ["./libs/pipe/src/index.ts"],
+      "@libs/constants": ["./libs/constants/src/index.ts"]
     }
-  },
-  "module": {
-    "type": "commonjs",
-    "noInterop": true
   }
 }

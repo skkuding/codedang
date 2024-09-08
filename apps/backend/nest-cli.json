@@ -9,9 +9,16 @@
       }
     ],
     "watchAssets": true,
+    "webpack": true,
     "deleteOutDir": true,
     "plugins": ["@nestjs/swagger"],
-    "builder": "webpack",
+    "builder": {
+      "type": "swc",
+      "options": {
+        "swcrcPath": ".swcrc"
+      }
+    },
+    "webpackConfigPath": "webpack.config.js",
     "tsConfigPath": "apps/client/tsconfig.app.json"
   },
   "monorepo": true,
