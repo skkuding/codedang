@@ -1,7 +1,7 @@
 ### BUILDER ###
 ARG app_env=production
 
-FROM golang:1.23 AS builder
+FROM golang:1.22 AS builder
 
 COPY . /build
 WORKDIR /build
