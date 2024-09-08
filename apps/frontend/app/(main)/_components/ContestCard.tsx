@@ -5,7 +5,6 @@ import { cn, dateFormatter } from '@/lib/utils'
 import CalendarIcon from '@/public/20_calendar.svg'
 import type { Contest } from '@/types/type'
 import Image from 'next/image'
-import { CircularProgressbar } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 import StatusBadge from './StatusBadge'
 
@@ -64,12 +63,6 @@ export default function ContestCard({ contest }: Props) {
             inContestEditor={false}
           />
         </div>
-        {(contest.status == 'ongoing' ||
-          contest.status == 'registeredOngoing') && (
-          <div className="hidden h-12 w-12 min-[400px]:block">
-            <CircularProgressbar value={60} text="60%" />
-          </div>
-        )}
       </div>
     </div>
   )
