@@ -277,7 +277,11 @@ export function DataTableAdmin<TData, TValue>({
               <div className="relative">
                 <IoSearch className="text-muted-foreground absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
                 <Input
-                  placeholder="Search"
+                  placeholder={
+                    /^\/admin\/contest\/\d+$/.test(pathname)
+                      ? 'Search Name'
+                      : 'Search'
+                  }
                   value={
                     (table
                       .getColumn(searchColumn)

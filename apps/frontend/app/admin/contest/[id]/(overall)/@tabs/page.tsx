@@ -1,6 +1,7 @@
 'use client'
 
 import { DataTableAdmin } from '@/components/DataTableAdmin'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { GET_CONTEST_SCORE_SUMMARIES } from '@/graphql/contest/queries'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
@@ -41,13 +42,25 @@ export default function Submission() {
           ))}
         </>
       ) : (
-        <DataTableAdmin
-          columns={columns(problemData as ProblemData[])}
-          data={summariesData as ScoreSummary[]}
-          enableSearch={true}
-          searchColumn="realName"
-          enablePagination={true}
-        />
+        <>
+          <p className="mb-3 font-medium">
+            <span className="text-primary font-bold">
+              {summariesData?.length}
+            </span>{' '}
+            Participants
+          </p>
+          <ScrollArea>
+            <DataTableAdmin
+              columns={columns(problemData as ProblemData[])}
+              data={summariesData as ScoreSummary[]}
+              enableSearch={true}
+              searchColumn="realName"
+              enablePagination={true}
+            />
+            <div className="mt-6" />
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </>
       )}
     </div>
   )
