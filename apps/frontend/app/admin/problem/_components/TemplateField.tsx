@@ -7,7 +7,7 @@ import { useFormContext } from 'react-hook-form'
 import Label from '../../_components/Label'
 
 export default function TemplateField() {
-  const { register, unregister, watch, getValues, setValue } = useFormContext()
+  const { register, unregister, watch, setValue } = useFormContext()
   const watchedLanguages: Language[] = watch('languages') ?? []
   const watchedTemplates: Template[] = watch('template') ?? []
   const previousLanguagesRef = useRef<Language[]>([])
@@ -34,7 +34,7 @@ export default function TemplateField() {
     setValue('template', filteredTemplates)
 
     previousLanguagesRef.current = watchedLanguages
-  }, [watchedLanguages, unregister, getValues])
+  }, [watchedLanguages, unregister])
 
   return (
     <div className="flex flex-col gap-6">
