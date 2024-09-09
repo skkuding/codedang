@@ -1,3 +1,4 @@
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Select,
   SelectContent,
@@ -7,7 +8,6 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
-import { ScrollArea } from './ui/scroll-area'
 
 interface OptionSelectProps {
   options: string[] | readonly string[]
