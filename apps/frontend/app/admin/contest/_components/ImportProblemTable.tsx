@@ -95,6 +95,7 @@ export default function ImportProblemTable({
             })
             onSelectedExport(problemsWithOrder)
           }}
+          defaultPageSize={5}
         />
       )}
     </>

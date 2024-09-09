@@ -43,7 +43,7 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import { CopyIcon, PlusCircleIcon } from 'lucide-react'
+import { CopyIcon } from 'lucide-react'
 import type { Route } from 'next'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
@@ -75,6 +75,7 @@ interface DataTableProps<TData, TValue> {
   onSelectedExport?: (selectedRows: ContestProblem[]) => void
   defaultSortColumn?: { id: string; desc: boolean }
   enableFooter?: boolean
+  defaultPageSize?: number
 }
 
 interface ContestProblem {
@@ -110,10 +111,17 @@ export function DataTableAdmin<TData, TValue>({
   enableDuplicate = false,
   onSelectedExport = () => {},
   defaultSortColumn = { id: '', desc: false },
-  enableFooter = false
+  enableFooter = false,
+  defaultPageSize = 10
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])
+  const [defaultSortExists, setDefaultExists] = useState(defaultSortColumn.id)
+  useEffect(() => {
+    if (defaultSortExists)
+      setSorting([{ id: defaultSortColumn.id, desc: defaultSortColumn.desc }])
+    setDefaultExists('')
+  }, [defaultSortExists, defaultSortColumn])
   const pathname = usePathname()
   const page = pathname.split('/').pop()
   const router = useRouter()
@@ -127,8 +135,8 @@ export function DataTableAdmin<TData, TValue>({
       maxSize: Number.MAX_SAFE_INTEGER
     },
     state: {
-      sorting: defaultSortColumn.id
-        ? [{ id: defaultSortColumn.id, desc: defaultSortColumn.desc }]
+      sorting: enableImport
+        ? [{ id: 'select', desc: true }, ...sorting]
         : sorting,
       rowSelection,
       columnVisibility: { languages: false }
@@ -146,10 +154,8 @@ export function DataTableAdmin<TData, TValue>({
   })
 
   useEffect(() => {
-    if (enableImport) {
-      table.setPageSize(5)
-    }
-  }, [enableImport, table])
+    table.setPageSize(defaultPageSize)
+  }, [defaultPageSize, table])
 
   let deletingObject
   if (pathname === '/admin/contest') {
@@ -317,8 +323,7 @@ export function DataTableAdmin<TData, TValue>({
           <div className="flex gap-2">
             {enableImport ? (
               <Button onClick={() => handleImportProblems()}>
-                <PlusCircleIcon className="mr-2 h-4 w-4" />
-                Import
+                Import / Edit
               </Button>
             ) : null}
             {enableDuplicate ? (
@@ -464,9 +469,19 @@ export function DataTableAdmin<TData, TValue>({
                         key={cell.id}
                         className="text-center md:p-4"
                         onClick={() => {
-                          enableImport
-                            ? row.toggleSelected(!row.getIsSelected())
-                            : href && router.push(href)
+                          if (enableImport) {
+                            const selectedRowCount =
+                              table.getSelectedRowModel().rows.length
+                            if (selectedRowCount < 20 || row.getIsSelected()) {
+                              row.toggleSelected(!row.getIsSelected())
+                            } else {
+                              toast.error(
+                                'You can only import up to 20 problems in a contest'
+                              )
+                            }
+                          } else {
+                            href && router.push(href)
+                          }
                         }}
                       >
                         {flexRender(

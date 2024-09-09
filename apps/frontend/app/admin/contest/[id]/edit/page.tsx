@@ -244,10 +244,12 @@ export default function Page({ params }: { params: { id: string } }) {
                   <AlertDialogTrigger asChild>
                     <Button
                       type="button"
-                      className="flex h-[36px] w-36 items-center gap-2 px-0"
+                      className="flex h-[36px] w-48 items-center gap-2 px-0"
                     >
                       <PlusCircleIcon className="h-4 w-4" />
-                      <div className="mb-[2px] text-sm">Import Problem</div>
+                      <div className="mb-[2px] text-sm">
+                        Import · Edit problem
+                      </div>
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent className="p-8">
@@ -300,6 +302,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 data={problems as ContestProblem[]}
                 defaultSortColumn={{ id: 'order', desc: false }}
                 enableFooter={true}
+                defaultPageSize={20}
               />
             </div>
             <Button

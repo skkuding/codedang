@@ -26,7 +26,9 @@ export default function DataTableLevelFilter<TData, TValue>({
   column
 }: DataTableProblemFilterProps<TData, TValue>) {
   const { id } = useParams()
-  const selectedValue = column?.getFilterValue() as string | undefined
+  const [selectedValue, setSelectedValue] = useState<string | undefined>(
+    undefined
+  )
   const [problemFilterOpen, setProblemFilterOpen] = useState(false)
   const [problems, setProblems] = useState<string[]>([])
 
@@ -47,18 +49,20 @@ export default function DataTableLevelFilter<TData, TValue>({
 
   return (
     <Popover open={problemFilterOpen} onOpenChange={setProblemFilterOpen}>
-      <PopoverTrigger className="w-44 p-0" asChild>
+      <PopoverTrigger className="w-[250px] p-0" asChild>
         <Button
           variant="outline"
           size={'sm'}
           className="flex h-10 justify-between border px-4 hover:bg-gray-50"
         >
-          <p className="font-bold">{selectedValue ?? 'All Problems'}</p>
+          <p className="overflow-hidden text-ellipsis whitespace-nowrap font-bold">
+            {selectedValue ?? 'All Problems'}
+          </p>
           <FaChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-44 p-0" align="start">
+      <PopoverContent className="w-[250px] p-0" align="start">
         <Command>
           <CommandList>
             <CommandGroup>
@@ -66,18 +70,21 @@ export default function DataTableLevelFilter<TData, TValue>({
                 <CommandItem
                   key={option}
                   value={option}
-                  className="flex justify-between text-xs"
+                  className="flex items-center justify-between"
                   onSelect={() => {
                     option === 'All Problems'
                       ? column?.setFilterValue(null)
-                      : column?.setFilterValue(option)
+                      : column?.setFilterValue(option.slice(3))
                     setProblemFilterOpen(false)
+                    setSelectedValue(option)
                   }}
                 >
-                  {option}
+                  <p className="overflow-hidden text-ellipsis whitespace-nowrap text-xs">
+                    {option}
+                  </p>
                   <FaCheck
                     className={cn(
-                      'h-4 w-4',
+                      'h-4 w-4 flex-shrink-0',
                       selectedValue === option ||
                         (!selectedValue && option == 'All Problems')
                         ? 'opacity-100'
