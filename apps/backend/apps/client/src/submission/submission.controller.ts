@@ -93,13 +93,13 @@ export class SubmissionController {
    * 채점 결과는 Cache에 저장됩니다.
    */
   @Post('test')
-  async requestTest(
+  async submitTest(
     @Req() req: AuthenticatedRequest,
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Body() submissionDto: CreateSubmissionDto
   ) {
     try {
-      return await this.submissionService.requestTest(
+      return await this.submissionService.submitTest(
         req.user.id,
         problemId,
         submissionDto

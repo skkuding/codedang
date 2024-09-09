@@ -292,7 +292,7 @@ export class SubmissionService {
       .padStart(6, '0')
   }
 
-  async requestTest(
+  async submitTest(
     userId: number,
     problemId: number,
     submissionDto: CreateSubmissionDto

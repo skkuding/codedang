@@ -44,7 +44,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
           if (raw.properties.type === RUN_MESSAGE_TYPE) {
             const testRequestedUserId = res.submissionId // test용 submissionId == test를 요청한 userId
-            await this.updateTestResult(res, testRequestedUserId)
+            await this.handleRunMessage(res, testRequestedUserId)
             return
           }
 
@@ -75,7 +75,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     )
   }
 
-  async updateTestResult(msg: JudgerResponse, userId: number): Promise<void> {
+  async handleRunMessage(msg: JudgerResponse, userId: number): Promise<void> {
     const key = testKey(userId)
     const status = Status(msg.resultCode)
     const testcaseId = msg.judgeResult?.testcaseId
