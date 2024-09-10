@@ -1,14 +1,13 @@
 'use client'
 
+import KatexContent from '@/components/KatexContent'
 import { Button } from '@/components/ui/button'
 import { GET_CONTEST } from '@/graphql/contest/queries'
-import { renderKatex } from '@/lib/renderKatex'
 import { dateFormatter } from '@/lib/utils'
 import Period from '@/public/period.svg'
 import { useQuery } from '@apollo/client'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useRef } from 'react'
 import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
 import ContestOverallTabs from '../_components/ContestOverallTabs'
 
@@ -26,18 +25,6 @@ export default function Layout({
       contestId: Number(id)
     }
   }).data?.getContest
-
-  const katexRef = useRef<HTMLDivElement>(null)!
-  useEffect(() => {
-    renderKatex(contestData?.description, katexRef)
-  }, [contestData?.description, katexRef])
-
-  const katexContent = (
-    <div
-      className="prose mb-4 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12"
-      ref={katexRef}
-    />
-  )
 
   return (
     <main className="flex flex-col gap-6 px-20 py-16">
@@ -67,7 +54,10 @@ export default function Layout({
           </p>
         </div>
       </div>
-      {katexContent}
+      <KatexContent
+        content={contestData?.description}
+        classname="prose mb-4 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12"
+      />
       <ContestOverallTabs contestId={id} />
       {tabs}
     </main>
