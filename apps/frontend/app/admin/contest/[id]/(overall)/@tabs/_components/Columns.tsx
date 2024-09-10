@@ -30,7 +30,8 @@ export const columns = (
         <div className="whitespace-nowrap text-center text-xs font-medium">
           {row.original.realName}
         </div>
-      )
+      ),
+      filterFn: 'includesString'
     },
     {
       accessorKey: 'username',

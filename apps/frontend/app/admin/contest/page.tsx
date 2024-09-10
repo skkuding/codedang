@@ -69,6 +69,7 @@ export default function Page() {
               isVisible: 'px-0 w-1/12'
             }}
             enableDuplicate={true}
+            defaultSortColumn={{ id: 'startTime', desc: true }}
           />
         )}
       </div>

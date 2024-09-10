@@ -71,8 +71,8 @@ const GET_CONTEST_SCORE_SUMMARIES =
   }`)
 
 const GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER =
-  gql(`query getContestSubmissionSummariesByUserId($contestId: Int!, $userId: Int!) {
-  getContestSubmissionSummaryByUserId(contestId: $contestId, userId: $userId) {
+  gql(`query getContestSubmissionSummariesByUserId($contestId: Int!, $userId: Int!, $take: Int!) {
+  getContestSubmissionSummaryByUserId(contestId: $contestId, userId: $userId, take: $take) {
     scoreSummary {
       contestPerfectScore
       problemScores {

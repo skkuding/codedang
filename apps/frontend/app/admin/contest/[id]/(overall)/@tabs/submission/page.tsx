@@ -15,7 +15,7 @@ export default function Submission() {
       input: {
         contestId: Number(id)
       },
-      take: 10
+      take: 1000
     }
   })
   const submissions = data?.getContestSubmissions || []
