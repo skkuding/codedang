@@ -188,7 +188,6 @@ export default function TextEditor({
     },
     onUpdate({ editor }) {
       onChange(editor.getHTML())
-      console.log(editor.getHTML())
     },
     content: defaultValue
   })
