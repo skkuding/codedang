@@ -171,10 +171,8 @@ export default function TextEditor({
       StarterKit,
       MathExtension as Extension,
       Placeholder.configure({
-        placeholder: ({ editor }) => {
-          if (editor.getHTML() === '<p></p>') return placeholder
-          else return ''
-        },
+        placeholder: ({ editor }) =>
+          editor.getHTML() === '<p></p>' ? placeholder : '',
         emptyEditorClass:
           'before:absolute before:text-gray-300 before:float-left before:content-[attr(data-placeholder)] before:pointer-events-none'
       }),
