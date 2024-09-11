@@ -1,5 +1,6 @@
 'use client'
 
+import { CautionDialog } from '@/app/admin/problem/_components/CautionDialog'
 import {
   Dialog,
   DialogContent,
@@ -159,6 +160,9 @@ export default function TextEditor({
   const [url, setUrl] = useState('')
   const [imageUrl, setImageUrl] = useState<string | undefined>('')
   const [equation, setEquation] = useState('')
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [dialogDescription, setDialogDescription] = useState<string>('')
+
   const handleEquation = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setEquation(event.target.value)
@@ -247,7 +251,13 @@ export default function TextEditor({
       })
       setImageUrl(data?.uploadImage.src)
     } catch (error) {
-      console.error('Error uploading file:', error)
+      if (error instanceof Error) {
+        const errorMessage = error.message
+        if (errorMessage === 'File size exceeds maximum limit') {
+          setDialogDescription('Images larger than 5MB cannot be uploaded.')
+          setIsDialogOpen(true)
+        }
+      }
     }
   }
 
@@ -389,6 +399,11 @@ export default function TextEditor({
           </DialogContent>
         </Dialog>
       </div>
+      <CautionDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        description={dialogDescription}
+      />
       <EditorContent className="prose max-w-5xl" editor={editor} />
     </div>
   )
