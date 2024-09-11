@@ -6,7 +6,6 @@ const commonSchema = z.object({
     .string()
     .min(1, 'The title must contain at least 1 character(s)')
     .max(200, 'The title can only be up to 200 characters long'),
-  isVisible: z.boolean().optional(),
   difficulty: z.enum(levels),
   languages: z.array(z.enum(languages)).min(1),
   description: z
@@ -62,11 +61,13 @@ const commonSchema = z.object({
 
 export const editSchema = commonSchema.extend({
   id: z.number(),
+  isVisible: z.boolean().nullish(),
   tags: z
     .object({ create: z.array(z.number()), delete: z.array(z.number()) })
     .optional()
 })
 
 export const createSchema = commonSchema.extend({
+  isVisible: z.boolean(),
   tagIds: z.array(z.number())
 })
