@@ -199,13 +199,10 @@ export default function TextEditor({
   const setLink = useCallback(
     (linkUrl: string | null) => {
       if (!editor) return null
-
       // cancelled
       if (linkUrl === null) {
         return
       }
-      console.log('실행됨')
-      console.log('url: ' + linkUrl)
       // empty
       if (linkUrl === '') {
         editor.chain().focus().extendMarkRange('link').unsetLink().run()
@@ -296,7 +293,6 @@ export default function TextEditor({
         >
           <ListOrdered className="h-[14px] w-[14px]" />
         </Toggle>
-
         <Dialog>
           <DialogTrigger asChild>
             <Toggle size="sm" pressed={editor?.isActive('link')}>
