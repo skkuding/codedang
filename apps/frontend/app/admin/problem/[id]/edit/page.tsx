@@ -156,7 +156,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
               <FormSection title="Visible">
                 <PopoverVisibleInfo />
-                <VisibleForm />
+                <VisibleForm blockEdit={getValues('isVisible') === null} />
               </FormSection>
             </div>
 
