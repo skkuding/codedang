@@ -2,7 +2,11 @@ import { useFormContext, useController } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import ErrorMessage from '../../_components/ErrorMessage'
 
-export default function VisibleForm({ blockEdit }: { blockEdit: boolean }) {
+export default function VisibleForm({
+  blockEdit = false
+}: {
+  blockEdit?: boolean
+}) {
   const {
     control,
     formState: { errors }
