@@ -530,6 +530,7 @@ describe('SubmissionService', () => {
 
       expect(
         await service.getContestSubmissions({
+          userRole: 'Admin',
           problemId: problems[0].id,
           contestId: 1,
           userId: submissions[0].userId
@@ -545,6 +546,7 @@ describe('SubmissionService', () => {
 
       await expect(
         service.getContestSubmissions({
+          userRole: 'User',
           problemId: problems[0].id,
           contestId: 1,
           userId: submissions[0].userId
@@ -560,6 +562,7 @@ describe('SubmissionService', () => {
 
       await expect(
         service.getContestSubmissions({
+          userRole: 'Admin',
           problemId: problems[0].id,
           contestId: 1,
           userId: submissions[0].userId
