@@ -1,6 +1,6 @@
 import ContestStatusTimeDiff from '@/components/ContestStatusTimeDiff'
 import { auth } from '@/lib/auth'
-import { fetcher, fetcherWithAuth } from '@/lib/utils'
+import { fetcher, fetcherWithAuth, getStatusWithStartEnd } from '@/lib/utils'
 import { dateFormatter } from '@/lib/utils'
 import Calendar from '@/public/20_calendar.svg'
 import CheckIcon from '@/public/check_blue.svg'
@@ -40,9 +40,14 @@ export default async function Layout({
     )
     const isJudgeResultVisible = contest.isJudgeResultVisible
     const isRegistered = contest.isRegistered
+    const contestStatus = getStatusWithStartEnd(
+      formattedStartTime,
+      formattedEndTime
+    )
+
     let totalScore = 0
     let totalMaxScore = 0
-    if (isRegistered && isJudgeResultVisible) {
+    if (isRegistered && isJudgeResultVisible && contestStatus !== 'upcoming') {
       const [score, maxScore] = await calculateContestScore({ contestId })
       totalScore = score
       totalMaxScore = maxScore
@@ -56,7 +61,7 @@ export default async function Layout({
               {contest?.title}
             </h2>
             <div className="flex items-center gap-2">
-              {isRegistered && (
+              {isRegistered && contestStatus !== 'upcoming' && (
                 <>
                   <Image src={CheckIcon} alt="check" width={24} height={24} />
                   <p className="text-primary-light text-sm font-bold">
