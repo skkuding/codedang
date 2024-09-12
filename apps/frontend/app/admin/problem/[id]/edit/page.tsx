@@ -71,8 +71,14 @@ export default function Page({ params }: { params: { id: string } }) {
         data.tag.map(({ tag }) => Number(tag.id))
       )
       setValue('description', data.description)
-      setValue('inputDescription', data.inputDescription ?? '<p></p>')
-      setValue('outputDescription', data.outputDescription ?? '<p></p>')
+      setValue(
+        'inputDescription',
+        data.inputDescription || '<p>Change this</p>'
+      )
+      setValue(
+        'outputDescription',
+        data.outputDescription || '<p>Change this</p>'
+      )
       setValue('testcases', data.testcase)
       setValue('timeLimit', data.timeLimit)
       setValue('memoryLimit', data.memoryLimit)
