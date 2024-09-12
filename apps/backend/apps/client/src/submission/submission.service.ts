@@ -320,11 +320,13 @@ export class SubmissionService {
   // FIXME: Workbook 구분
   @Span()
   async getSubmissions({
+    userRole,
     problemId,
     groupId = OPEN_SPACE_ID,
     cursor = null,
     take = 10
   }: {
+    userRole?: Role
     problemId: number
     groupId?: number
     cursor?: number | null
@@ -332,15 +334,17 @@ export class SubmissionService {
   }) {
     const paginator = this.prisma.getPaginator(cursor)
 
-    await this.prisma.problem.findFirstOrThrow({
-      where: {
-        id: problemId,
-        groupId,
-        visibleLockTime: {
-          equals: MIN_DATE
+    if (!(userRole === 'Admin' || userRole === 'SuperAdmin')) {
+      await this.prisma.problem.findFirstOrThrow({
+        where: {
+          id: problemId,
+          groupId,
+          visibleLockTime: {
+            equals: MIN_DATE
+          }
         }
-      }
-    })
+      })
+    }
 
     const submissions = await this.prisma.submission.findMany({
       ...paginator,
@@ -515,6 +519,7 @@ export class SubmissionService {
 
   @Span()
   async getContestSubmissions({
+    userRole,
     problemId,
     contestId,
     userId,
@@ -522,6 +527,7 @@ export class SubmissionService {
     cursor = null,
     take = 10
   }: {
+    userRole: Role
     problemId: number
     contestId: number
     userId: number
@@ -531,12 +537,7 @@ export class SubmissionService {
   }) {
     const paginator = this.prisma.getPaginator(cursor)
 
-    const isAdmin = await this.prisma.user.findFirst({
-      where: {
-        id: userId,
-        role: 'Admin'
-      }
-    })
+    const isAdmin = userRole === 'Admin' || userRole === 'SuperAdmin'
 
     if (!isAdmin) {
       await this.prisma.contestRecord.findUniqueOrThrow({

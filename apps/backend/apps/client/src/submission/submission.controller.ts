@@ -13,7 +13,10 @@ import {
   Headers
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
+import {
+  AuthenticatedRequest,
+  UserNullWhenAuthFailedIfOpenSpace
+} from '@libs/auth'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -94,8 +97,9 @@ export class SubmissionController {
   }
 
   @Get()
-  @AuthNotNeededIfOpenSpace()
+  @UserNullWhenAuthFailedIfOpenSpace()
   async getSubmissions(
+    @Req() req: AuthenticatedRequest,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number,
@@ -104,6 +108,7 @@ export class SubmissionController {
   ) {
     try {
       return await this.submissionService.getSubmissions({
+        userRole: req.user?.role,
         cursor,
         take,
         problemId,
@@ -173,6 +178,7 @@ export class ContestSubmissionController {
   ) {
     try {
       return await this.submissionService.getContestSubmissions({
+        userRole: req.user.role,
         cursor,
         take,
         problemId,
