@@ -32,7 +32,7 @@ func NewPostgresDataSource(ctx context.Context) *postgres {
 func (p *postgres) Get(key string) ([]loader.Element, error) {
 	// logProvider := logger.NewLogger(logger.Console, false)
 
-	rows, err := p.client.Query(`SELECT id, input, output FROM public.problem_testcase WHERE problem_id = $1`, key)
+	rows, err := p.client.Query(`SELECT id, input, output, is_hidden_testcase FROM public.problem_testcase WHERE problem_id = $1`, key)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get key: %w", err)
 	}
@@ -45,15 +45,17 @@ func (p *postgres) Get(key string) ([]loader.Element, error) {
 		var id int
 		var input string
 		var output string
+		var is_hidden_testacase bool
 
-		if err := rows.Scan(&id, &input, &output); err != nil {
+		if err := rows.Scan(&id, &input, &output, &is_hidden_testacase); err != nil {
 			return nil, fmt.Errorf("database fetch error: %w", err)
 		}
 
 		result = append(result, loader.Element{
-			Id:  id,
-			In:  input,
-			Out: output,
+			Id:     id,
+			In:     input,
+			Out:    output,
+			Hidden: is_hidden_testacase,
 		})
 	}
 

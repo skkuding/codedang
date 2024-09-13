@@ -88,6 +88,43 @@ export class SubmissionController {
     }
   }
 
+  /**
+   * Open Testcase에 대해 채점하는 Test를 요청합니다.
+   * 채점 결과는 Cache에 저장됩니다.
+   */
+  @Post('test')
+  async submitTest(
+    @Req() req: AuthenticatedRequest,
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
+    @Body() submissionDto: CreateSubmissionDto
+  ) {
+    try {
+      return await this.submissionService.submitTest(
+        req.user.id,
+        problemId,
+        submissionDto
+      )
+    } catch (error) {
+      if (
+        error instanceof EntityNotExistException ||
+        error instanceof ConflictFoundException
+      ) {
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  /**
+   * requestTest의 반환으로 받은 key를 통해 Test 결과를 조회합니다.
+   * @returns Testcase별 결과가 담겨있는 Object
+   */
+  @Get('test')
+  async getTestResult(@Req() req: AuthenticatedRequest) {
+    return await this.submissionService.getTestResult(req.user.id)
+  }
+
   @Get('delay-cause')
   async checkDelay() {
     return await this.submissionService.checkDelay()

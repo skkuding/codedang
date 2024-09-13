@@ -1,0 +1,15 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/submission/test
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  await require("./login").loginAdmin(req);
+}

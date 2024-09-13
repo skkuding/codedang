@@ -1,3 +1,4 @@
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
@@ -6,6 +7,7 @@ import {
   type Submission,
   type SubmissionResult
 } from '@prisma/client'
+import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import * as sinon from 'sinon'
 import {
@@ -84,6 +86,7 @@ const db = {
 describe('SubmissionSubscriptionService', () => {
   let service: SubmissionSubscriptionService
   let amqpConnection: AmqpConnection
+  let cache: Cache
 
   const sandbox = sinon.createSandbox()
 
@@ -101,6 +104,17 @@ describe('SubmissionSubscriptionService', () => {
           useFactory: () => ({
             createSubscriber: () => []
           })
+        },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => [],
+            del: () => [],
+            store: {
+              keys: () => []
+            }
+          })
         }
       ]
     }).compile()
@@ -109,6 +123,8 @@ describe('SubmissionSubscriptionService', () => {
       SubmissionSubscriptionService
     )
     amqpConnection = module.get<AmqpConnection>(AmqpConnection)
+    cache = module.get<Cache>(CACHE_MANAGER)
+    sandbox.stub(cache, 'get').resolves([])
   })
 
   afterEach(() => {
