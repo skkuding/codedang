@@ -30,7 +30,7 @@ export default function TestcaseTable({ data }: { data: TestResult[] }) {
         {data.map((testResult) => (
           <TableRow
             key={testResult.id}
-            className="rounded-t-md border-b border-b-slate-600 text-center hover:bg-slate-800"
+            className="border-b border-b-slate-600 text-center hover:bg-slate-700"
           >
             <TableCell className="p-3 md:p-3">{testResult.id}</TableCell>
             <TableCell className="p-3 md:p-3">{testResult.input}</TableCell>
