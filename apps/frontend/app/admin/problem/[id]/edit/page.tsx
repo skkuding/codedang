@@ -71,8 +71,14 @@ export default function Page({ params }: { params: { id: string } }) {
         data.tag.map(({ tag }) => Number(tag.id))
       )
       setValue('description', data.description)
-      setValue('inputDescription', data.inputDescription)
-      setValue('outputDescription', data.outputDescription)
+      setValue(
+        'inputDescription',
+        data.inputDescription || '<p>Change this</p>'
+      )
+      setValue(
+        'outputDescription',
+        data.outputDescription || '<p>Change this</p>'
+      )
       setValue('testcases', data.testcase)
       setValue('timeLimit', data.timeLimit)
       setValue('memoryLimit', data.memoryLimit)
@@ -156,7 +162,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
               <FormSection title="Visible">
                 <PopoverVisibleInfo />
-                <VisibleForm />
+                <VisibleForm blockEdit={getValues('isVisible') === null} />
               </FormSection>
             </div>
 

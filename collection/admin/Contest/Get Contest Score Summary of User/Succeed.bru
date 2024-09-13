@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  query getContestSubmissionSummariesByUserId($contestId: Int!, $userId: Int!) {
-    getContestSubmissionSummaryByUserId(contestId: $contestId, userId: $userId) {
+  query getContestSubmissionSummariesByUserId($contestId: Int!, $userId: Int!, $take: Int!) {
+    getContestSubmissionSummaryByUserId(contestId: $contestId, userId: $userId, take: $take) {
       scoreSummary {
         contestPerfectScore
         problemScores {
@@ -39,13 +39,14 @@ body:graphql {
       }
     }
   }
-  
+
 }
 
 body:graphql:vars {
   {
     "contestId": 1,
-    "userId": 4
+    "userId": 4,
+    "take": 500
     // "problemId": 1
   }
 }
@@ -53,10 +54,10 @@ body:graphql:vars {
 docs {
   ## Get Contest Score Summary of User
   유저의 특정 Contest에 대한 점수 요약을 반환합니다.
-  
+
   Contest Overall 페이지에서 특정 유저를 선택했을 때 사용
   https://github.com/skkuding/codedang/pull/1894
-  
+
   - submittedProblemCount
     - 제출된 문제의 개수(정답 여부와 관계 없음)
   - totalProblemCount

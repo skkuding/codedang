@@ -61,10 +61,10 @@ export default function ContestStatusTimeDiff({
 
     if (inContestEditor) {
       if (days === 0 && hours === 0 && minutes === 5 && seconds === 0) {
-        toast.error('Contest ends in 5 minutes.')
+        toast.error('Contest ends in 5 minutes.', { duration: 10000 })
       }
       if (days === 0 && hours === 0 && minutes === 1 && seconds === 0) {
-        toast.error('Contest ends in 1 minute.')
+        toast.error('Contest ends in 1 minute.', { duration: 10000 })
       }
     }
 
