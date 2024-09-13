@@ -6,7 +6,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup
 } from '@/components/ui/resizable'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CodeContext, createCodeStore, useLanguageStore } from '@/stores/editor'
 import type { Language, ProblemDetail, Template } from '@/types/type'
@@ -17,6 +17,7 @@ import { Suspense, useContext, useEffect } from 'react'
 import { useStore } from 'zustand'
 import Loading from '../app/problem/[problemId]/loading'
 import EditorHeader from './EditorHeader'
+import TestcasePanel from './TestcasePanel'
 
 interface ProblemEditorProps {
   problem: ProblemDetail
@@ -97,10 +98,32 @@ export default function EditorMainResizablePanel({
               contestId={contestId}
               templateString={problem.template[0]}
             />
-            <CodeEditorInEditorResizablePanel
-              templateString={problem.template[0]}
-              enableCopyPaste={enableCopyPaste}
-            />
+
+            <ResizablePanelGroup direction="vertical" className="h-32">
+              <ResizablePanel
+                defaultSize={60}
+                className="!overflow-x-auto !overflow-y-auto"
+              >
+                {/* TODO: replace default scrollbar with shadcn scrollbar */}
+                <ScrollArea>
+                  <CodeEditorInEditorResizablePanel
+                    templateString={problem.template[0]}
+                    enableCopyPaste={enableCopyPaste}
+                  />
+                  <ScrollBar orientation="horizontal" />
+                  <ScrollBar orientation="vertical" />
+                </ScrollArea>
+              </ResizablePanel>
+
+              <ResizableHandle
+                withHandle
+                className="border-[0.5px] border-slate-700"
+              />
+
+              <ResizablePanel defaultSize={40}>
+                <TestcasePanel />
+              </ResizablePanel>
+            </ResizablePanelGroup>
           </CodeContext.Provider>
         </div>
       </ResizablePanel>
