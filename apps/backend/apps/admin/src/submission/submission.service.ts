@@ -81,10 +81,12 @@ export class SubmissionService {
       },
       include: {
         user: {
-          select: {
-            username: true
+          include: {
+            userProfile: true
           }
         },
+        problem: true,
+        contest: true,
         submissionResult: true
       }
     })
@@ -103,14 +105,12 @@ export class SubmissionService {
     })
     results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { submissionResult, user, ...submissionWithoutResultAndUser } =
-      submission
+    const { submissionResult, ...submissionWithoutResult } = submission
 
     return {
-      ...submissionWithoutResultAndUser,
+      ...submissionWithoutResult,
       code: code.map((snippet) => snippet.text).join('\n'),
-      testcaseResult: results,
-      username: submission.user?.username ?? null
+      testcaseResult: results
     }
   }
 }

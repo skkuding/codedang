@@ -31,12 +31,8 @@ class TestCaseResult {
 
 @ObjectType()
 export class SubmissionDetail extends OmitType(Submission, [
-  'user',
   'submissionResult',
   'code',
-  'problem',
-  'contest',
-  'workbook',
   '_count'
 ] as const) {
   @Field(() => String)
@@ -44,7 +40,4 @@ export class SubmissionDetail extends OmitType(Submission, [
 
   @Field(() => [TestCaseResult])
   testcaseResult: TestCaseResult[]
-
-  @Field(() => String, { nullable: true })
-  username: string | null
 }
