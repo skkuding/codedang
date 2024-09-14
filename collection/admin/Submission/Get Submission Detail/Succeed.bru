@@ -38,7 +38,22 @@ body:graphql {
         createTime
         updateTime
       }
-      username
+      user {
+        id
+        studentId
+        userProfile {
+          realName
+        }
+      }
+      contest {
+        id
+        title
+      }
+      problem {
+        id
+        title
+        
+      }
     }
   }
   
