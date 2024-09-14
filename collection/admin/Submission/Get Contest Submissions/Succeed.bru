@@ -40,7 +40,9 @@ body:graphql {
 body:graphql:vars {
   {
     "input": {
-      "contestId": 1
+      "contestId": 1,
+      "problemId": 1,
+      "searchingName": "kim"
     },
     "take": 10
   }
@@ -53,7 +55,13 @@ docs {
   - https://github.com/skkuding/codedang/pull/1924
   
   #### 필요 인자
-  |`input`|`take`|`cursor`|
-  |----------|----------|----------|
-  | `contestId`: 제출 내역을 불러올 Contest의 ID입니다.  `problemId?`: 제출된 내역 중 특정 Problem의 제출만을 필터링 할 수 있습니다.| pagination 구현을 위함 | pagination 구현을 위함 |
+  | `input`  | `take` | `cursor` |
+  |----------|--------|----------|
+  | 밑에서 설명 | Pagination 구현을 위함 | Pagination 구현을 위함 |
+  
+  `input`
+  - `contestId`: 제출 내역을 불러올 Contest의 ID
+  - `problemId?`: 제출된 내역 중 특정 Problem의 제출만 필터링
+  - `searchingName?`: 필터링할 User의 realName(없으면 모든 유저)
+  
 }
