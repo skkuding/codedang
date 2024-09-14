@@ -31,18 +31,17 @@ body:graphql {
       score
       createTime
       updateTime
-      problem {
+      testcaseResult {
+        cpuTime
         id
+        submissionId
+        problemTestcaseId
+        result
+        memoryUsage
+        createTime
+        updateTime
       }
-      contest {
-        id
-      }
-      workbook {
-        id
-      }
-      _count {
-        submissionResult
-      }
+      username
     }
   }
   
