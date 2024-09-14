@@ -58,16 +58,11 @@ export class SubmissionResolver {
     @Args('contestId', { nullable: true, type: () => Int })
     contestId: number | null
   ): Promise<SubmissionDetail> {
-    try {
-      return await this.submissionService.getSubmission(
-        id,
-        problemId,
-        groupId,
-        contestId
-      )
-    } catch (error) {
-      this.logger.error(error.error)
-      throw new InternalServerErrorException()
-    }
+    return await this.submissionService.getSubmission(
+      id,
+      problemId,
+      groupId,
+      contestId
+    )
   }
 }

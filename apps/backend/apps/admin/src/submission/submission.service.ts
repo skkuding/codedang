@@ -90,7 +90,7 @@ export class SubmissionService {
       throw new EntityNotExistException('Problem not found')
     }
 
-    const submission = await this.prisma.submission.findFirstOrThrow({
+    const submission = await this.prisma.submission.findFirst({
       where: {
         id,
         problemId,
@@ -105,6 +105,9 @@ export class SubmissionService {
         submissionResult: true
       }
     })
+    if (!submission) {
+      throw new EntityNotExistException('Submission')
+    }
     const code = plainToInstance(Snippet, submission.code)
     const results = submission.submissionResult.map((result) => {
       return {
