@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common'
+import { plainToInstance } from 'class-transformer'
+import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { Language, ResultStatus } from '@admin/@generated'
+import { Snippet } from '@admin/problem/model/template.input'
 import type { GetContestSubmissionsInput } from './model/get-contest-submission.input'
 
 @Injectable()
@@ -69,5 +72,59 @@ export class SubmissionService {
     })
 
     return results
+  }
+
+  async getSubmission(
+    id: number,
+    problemId: number,
+    groupId: number,
+    contestId: number | null
+  ) {
+    const problem = await this.prisma.problem.findFirst({
+      where: {
+        id: problemId,
+        groupId
+      }
+    })
+    if (!problem) {
+      throw new EntityNotExistException('Problem not found')
+    }
+
+    const submission = await this.prisma.submission.findFirstOrThrow({
+      where: {
+        id,
+        problemId,
+        contestId
+      },
+      include: {
+        user: {
+          select: {
+            username: true
+          }
+        },
+        submissionResult: true
+      }
+    })
+    const code = plainToInstance(Snippet, submission.code)
+    const results = submission.submissionResult.map((result) => {
+      return {
+        ...result,
+        cpuTime:
+          result.cpuTime || result.cpuTime === BigInt(0)
+            ? result.cpuTime.toString()
+            : null
+      }
+    })
+    results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { submissionResult, user, ...submissionWithoutResultAndUser } =
+      submission
+
+    return {
+      ...submissionWithoutResultAndUser,
+      code: code.map((snippet) => snippet.text).join('\n'),
+      testcaseResult: results,
+      username: submission.user?.username ?? null
+    }
   }
 }

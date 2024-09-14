@@ -1,0 +1,58 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetSubmission(
+    $id: Int!
+    $problemId: Int!
+    $groupId: Int!
+    $contestId: Int
+  ) {
+    getSubmission(id: $id, problemId: $problemId, groupId: $groupId, contestId: $contestId) {
+      id
+      userId
+      userIp
+      problemId
+      contestId
+      workbookId
+      code
+      codeSize
+      language
+      result
+      score
+      createTime
+      updateTime
+      problem {
+        id
+      }
+      contest {
+        id
+      }
+      workbook {
+        id
+      }
+      _count {
+        submissionResult
+      }
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "id": 1,
+    "problemId": 1,
+    "contestId": 1,
+    "groupId": 1
+  }
+}
