@@ -1,0 +1,62 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetSubmission(
+    $id: Int!
+  ) {
+    getSubmission(id: $id) {
+      id
+      userId
+      userIp
+      problemId
+      contestId
+      workbookId
+      code
+      codeSize
+      language
+      result
+      score
+      createTime
+      updateTime
+      testcaseResult {
+        cpuTime
+        id
+        submissionId
+        problemTestcaseId
+        result
+        memoryUsage
+        createTime
+        updateTime
+      }
+      username
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "id": 1
+  }
+}
+
+docs {
+  ## Get Submission by id
+  
+  - Admin에서 submission id(id)를 이용하여 Submission detail을 가져옵니다.
+  
+  #### 필요 인자
+  |`id`|
+  |----------|
+  |`id`: 제출 내역을 불러올 Submission ID입니다. |
+}
