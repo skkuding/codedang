@@ -13,11 +13,8 @@ post {
 body:graphql {
   query GetSubmission(
     $id: Int!
-    $problemId: Int!
-    $groupId: Int
-    $contestId: Int
   ) {
-    getSubmission(id: $id, problemId: $problemId, groupId: $groupId, contestId: $contestId) {
+    getSubmission(id: $id) {
       id
       userId
       userIp
@@ -49,19 +46,17 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "id": 1,
-    "problemId": 1,
-    "contestId": 1
+    "id": 1
   }
 }
 
 docs {
   ## Get Submission by id
   
-  - Admin에서 submission id(id), problemId, contestId, groupId를 이용하여 Submission detail을 가져옵니다.
+  - Admin에서 submission id(id)를 이용하여 Submission detail을 가져옵니다.
   
   #### 필요 인자
-  |`id`|`problemId`|`contestId`|`groupId`|
-  |----------|----------|----------|--------------|
-  | `contestId?`: 제출 내역을 불러올 Contest의 ID입니다. Contest의 Submission이 아닌 경우 비워둘 수 있습니다.. | `problemId`: 제출 내역을 불러올 수 Problem의 ID 입니다. | `groupId`: 제출 내역을 불러올 Group의 ID 입니다. 주어지지 않을 경우 OPEN_SPACE_ID입니다.| 
+  |`id`|
+  |----------|
+  |`id`: 제출 내역을 불러올 Submission ID입니다. |
 }

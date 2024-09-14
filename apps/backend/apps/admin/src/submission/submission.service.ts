@@ -74,27 +74,10 @@ export class SubmissionService {
     return results
   }
 
-  async getSubmission(
-    id: number,
-    problemId: number,
-    groupId: number,
-    contestId: number | null
-  ) {
-    const problem = await this.prisma.problem.findFirst({
-      where: {
-        id: problemId,
-        groupId
-      }
-    })
-    if (!problem) {
-      throw new EntityNotExistException('Problem not found')
-    }
-
+  async getSubmission(id: number) {
     const submission = await this.prisma.submission.findFirst({
       where: {
-        id,
-        problemId,
-        contestId
+        id
       },
       include: {
         user: {

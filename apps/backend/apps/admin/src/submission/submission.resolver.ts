@@ -1,7 +1,6 @@
 import { InternalServerErrorException, Logger } from '@nestjs/common'
 import { Args, Int, Query, Resolver } from '@nestjs/graphql'
-import { OPEN_SPACE_ID } from '@libs/constants'
-import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
+import { CursorValidationPipe } from '@libs/pipe'
 import { Submission } from '@admin/@generated'
 import { ContestSubmission } from './model/contest-submission.model'
 import { GetContestSubmissionsInput } from './model/get-contest-submission.input'
@@ -47,22 +46,8 @@ export class SubmissionResolver {
    */
   @Query(() => SubmissionDetail)
   async getSubmission(
-    @Args('id', { type: () => Int }) id: number,
-    @Args('problemId', { type: () => Int }) problemId: number,
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
-    groupId: number,
-    @Args('contestId', { nullable: true, type: () => Int })
-    contestId: number | null
+    @Args('id', { type: () => Int }) id: number
   ): Promise<SubmissionDetail> {
-    return await this.submissionService.getSubmission(
-      id,
-      problemId,
-      groupId,
-      contestId
-    )
+    return await this.submissionService.getSubmission(id)
   }
 }
