@@ -7,15 +7,9 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
+import type { TestcaseResult } from '@/types/type'
 
-interface TestResult {
-  id: number
-  input: string
-  output: string
-  result: string
-}
-
-export default function TestcaseTable({ data }: { data: TestResult[] }) {
+export default function TestcaseTable({ data }: { data: TestcaseResult[] }) {
   return (
     <Table className="rounded-t-md">
       <TableHeader className="bg-[#121728] [&_tr]:border-b-slate-600">

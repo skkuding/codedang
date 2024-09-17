@@ -169,3 +169,14 @@ export interface SubmissionDetail {
     updateTime: Date
   }[]
 }
+
+// Test type definition
+
+export interface TestcaseResult {
+  id: number
+  input: string
+  output: string
+  result: string
+}
+
+export interface TestResult extends Omit<TestcaseResult, 'input' | 'output'> {}

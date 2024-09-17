@@ -24,12 +24,17 @@ import { auth } from '@/lib/auth'
 import { fetcherWithAuth } from '@/lib/utils'
 import submitIcon from '@/public/submit.svg'
 import useAuthModalStore from '@/stores/authModal'
-import { CodeContext, useLanguageStore } from '@/stores/editor'
+import {
+  CodeContext,
+  TestResultsContext,
+  useLanguageStore
+} from '@/stores/editor'
 import type {
   Language,
   ProblemDetail,
   Submission,
-  Template
+  Template,
+  TestResult
 } from '@/types/type'
 import JSConfetti from 'js-confetti'
 import type { Route } from 'next'
@@ -41,11 +46,6 @@ import { IoPlayCircleOutline } from 'react-icons/io5'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
 import { useStore } from 'zustand'
-
-interface TestResult {
-  id: number
-  result: string
-}
 
 interface ProblemEditorProps {
   problem: ProblemDetail
@@ -59,9 +59,12 @@ export default function Editor({
   templateString
 }: ProblemEditorProps) {
   const { language, setLanguage } = useLanguageStore()
-  const store = useContext(CodeContext)
-  if (!store) throw new Error('CodeContext is not provided')
-  const { code, setCode } = useStore(store)
+  const codeStore = useContext(CodeContext)
+  if (!codeStore) throw new Error('CodeContext is not provided')
+  const { code, setCode } = useStore(codeStore)
+  const testResultStore = useContext(TestResultsContext)
+  if (!testResultStore) throw new Error('TestResultsContext is not provided')
+  const { setTestResults } = useStore(testResultStore)
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
   const [templateCode, setTemplateCode] = useState<string | null>(null)
@@ -202,6 +205,8 @@ export default function Editor({
       if (res.ok) {
         const resultArray: TestResult[] = await res.json()
 
+        setTestResults(resultArray)
+
         const allJudged = resultArray.every(
           (submission: TestResult) => submission.result !== 'Judging'
         )
@@ -267,6 +272,7 @@ export default function Editor({
           variant="secondary"
           className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
           onClick={submitTest}
+          disabled={loading}
         >
           <IoPlayCircleOutline size={22} />
           Test

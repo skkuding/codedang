@@ -8,7 +8,12 @@ import {
 } from '@/components/ui/resizable'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { CodeContext, createCodeStore, useLanguageStore } from '@/stores/editor'
+import {
+  CodeContext,
+  TestResultsContext,
+  createCodeStore,
+  useLanguageStore
+} from '@/stores/editor'
 import type { Language, ProblemDetail, Template } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
@@ -35,7 +40,18 @@ export default function EditorMainResizablePanel({
   const pathname = usePathname()
   const base = contestId ? `/contest/${contestId}` : ''
   const { language, setLanguage } = useLanguageStore()
-  const store = createCodeStore(language, problem.id, contestId)
+  const codeStore = createCodeStore(language, problem.id, contestId)
+  const testResultStore = useContext(TestResultsContext)
+  if (!testResultStore) throw new Error('TestResultsContext is not provided')
+  const { testResults } = useStore(testResultStore)
+  const testcases = problem.problemTestcase
+  const testResultData =
+    testResults.length > 0
+      ? testcases.map((testcase, index) => ({
+          ...testcase,
+          result: testResults[index]?.result
+        }))
+      : null
   useEffect(() => {
     if (!problem.languages.includes(language)) {
       setLanguage(problem.languages[0])
@@ -92,7 +108,7 @@ export default function EditorMainResizablePanel({
 
       <ResizablePanel defaultSize={65} className="bg-[#222939]">
         <div className="grid-rows-editor grid h-full">
-          <CodeContext.Provider value={store}>
+          <CodeContext.Provider value={codeStore}>
             <EditorHeader
               problem={problem}
               contestId={contestId}
@@ -104,8 +120,7 @@ export default function EditorMainResizablePanel({
                 defaultSize={60}
                 className="!overflow-x-auto !overflow-y-auto"
               >
-                {/* TODO: replace default scrollbar with shadcn scrollbar */}
-                <ScrollArea>
+                <ScrollArea className="h-full bg-[#121728]">
                   <CodeEditorInEditorResizablePanel
                     templateString={problem.template[0]}
                     enableCopyPaste={enableCopyPaste}
@@ -114,15 +129,17 @@ export default function EditorMainResizablePanel({
                   <ScrollBar orientation="vertical" />
                 </ScrollArea>
               </ResizablePanel>
-
-              <ResizableHandle
-                withHandle
-                className="border-[0.5px] border-slate-700"
-              />
-
-              <ResizablePanel defaultSize={40}>
-                <TestcasePanel />
-              </ResizablePanel>
+              {testResultData && (
+                <>
+                  <ResizableHandle
+                    withHandle
+                    className="border-[0.5px] border-slate-700"
+                  />
+                  <ResizablePanel defaultSize={40}>
+                    <TestcasePanel data={testResultData} />
+                  </ResizablePanel>
+                </>
+              )}
             </ResizablePanelGroup>
           </CodeContext.Provider>
         </div>

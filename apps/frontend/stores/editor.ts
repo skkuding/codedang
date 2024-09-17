@@ -1,4 +1,4 @@
-import type { Language } from '@/types/type'
+import type { Language, TestResult } from '@/types/type'
 import { createContext } from 'react'
 import { create, createStore } from 'zustand'
 import { persist } from 'zustand/middleware'
@@ -50,3 +50,32 @@ export const createCodeStore = (
 }
 
 export const CodeContext = createContext<CodeStore | null>(null)
+
+interface TestResultsState {
+  testResults: TestResult[]
+  setTestResults: (results: TestResult[]) => void
+}
+
+type TestResultsStore = ReturnType<typeof createTestResultsStore>
+
+export const createTestResultsStore = (
+  problemId: number,
+  contestId?: number
+) => {
+  const problemKey = `${problemId}${contestId ? `_${contestId}` : ''}_test_results`
+  return createStore<TestResultsState>()(
+    persist<TestResultsState>(
+      (set) => ({
+        testResults: [],
+        setTestResults: (results) => {
+          set({ testResults: results })
+        }
+      }),
+      {
+        name: problemKey
+      }
+    )
+  )
+}
+
+export const TestResultsContext = createContext<TestResultsStore | null>(null)
