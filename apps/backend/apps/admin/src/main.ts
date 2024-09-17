@@ -1,6 +1,6 @@
 import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
-import { NestExpressApplication } from '@nestjs/platform-express'
+import type { NestExpressApplication } from '@nestjs/platform-express'
 import { graphqlUploadExpress } from 'graphql-upload'
 import { Logger, LoggerErrorInterceptor } from 'nestjs-pino'
 import { AdminModule } from './admin.module'
