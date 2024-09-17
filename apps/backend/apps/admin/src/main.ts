@@ -1,5 +1,6 @@
 import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
+import { NestExpressApplication } from '@nestjs/platform-express'
 import { graphqlUploadExpress } from 'graphql-upload'
 import { Logger, LoggerErrorInterceptor } from 'nestjs-pino'
 import { AdminModule } from './admin.module'
@@ -20,7 +21,9 @@ const bootstrap = async () => {
     }
   }
 
-  const app = await NestFactory.create(AdminModule, { bufferLogs: true })
+  const app = await NestFactory.create<NestExpressApplication>(AdminModule, {
+    bufferLogs: true
+  })
 
   if (process.env.APP_ENV !== 'production' && process.env.APP_ENV !== 'stage') {
     app.enableCors({
@@ -32,11 +35,11 @@ const bootstrap = async () => {
     })
   }
 
+  app.useBodyParser('json', { limit: '10mb' })
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 2 }))
   app.useLogger(app.get(Logger))
   app.useGlobalInterceptors(new LoggerErrorInterceptor())
   app.useGlobalPipes(new ValidationPipe())
-
   await app.listen(3000)
 }
 
