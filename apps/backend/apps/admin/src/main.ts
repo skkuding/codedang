@@ -35,6 +35,7 @@ const bootstrap = async () => {
     })
   }
 
+  // default body parser limit: 100KB. Increase the limit to 10MB ()
   app.useBodyParser('json', { limit: '10mb' })
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 2 }))
   app.useLogger(app.get(Logger))
