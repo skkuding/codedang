@@ -61,6 +61,7 @@ export default function Editor({
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
   const [templateCode, setTemplateCode] = useState<string | null>(null)
+  const [userName, setUserName] = useState('')
   const router = useRouter()
   const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
   useInterval(
@@ -96,11 +97,17 @@ export default function Editor({
     auth().then((session) => {
       if (!session) {
         toast.info('Log in to use submission & auto save feature')
+      } else {
+        setUserName(session.user.username)
       }
     })
-    const storedCode = localStorage.getItem('code')
-    setCode(storedCode ? storedCode : '')
   }, [])
+
+  useEffect(() => {
+    const storageKey = `${userName}_${problem.id}${contestId ? `_${contestId}` : ''}_${language}`
+    const storedCode = localStorage.getItem(storageKey)
+    setCode(storedCode ? storedCode : '')
+  }, [userName, language])
 
   useEffect(() => {
     if (!templateString) return
@@ -156,7 +163,9 @@ export default function Editor({
     if (!session) {
       toast.error('Log in first to save your code')
     } else {
-      localStorage.setItem('code', code)
+      const userName = session.user.username
+      const storageKey = `${userName}_${problem.id}${contestId ? `_${contestId}` : ''}_${language}`
+      localStorage.setItem(storageKey, code)
     }
   }
 
