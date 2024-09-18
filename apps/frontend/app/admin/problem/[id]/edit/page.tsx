@@ -4,9 +4,8 @@ import { useConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
 import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
-import { GET_PROBLEM, GET_PROBLEMS } from '@/graphql/problem/queries'
+import { GET_PROBLEM } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
-import { Language, Level } from '@generated/graphql'
 import type { Template, Testcase, UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
@@ -44,6 +43,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const { handleSubmit, setValue, getValues } = methods
 
+  const [blockEdit, setBlockEdit] = useState<boolean>(false)
   const [showHint, setShowHint] = useState<boolean>(false)
   const [showSource, setShowSource] = useState<boolean>(false)
   const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
@@ -56,6 +56,9 @@ export default function Page({ params }: { params: { id: string } }) {
     },
     onCompleted: (problemData) => {
       const data = problemData.getProblem
+
+      if (data.submissionCount > 0) setBlockEdit(true)
+
       setValue('id', +id)
       setValue('title', data.title)
       setValue('isVisible', data.isVisible)
@@ -132,28 +135,6 @@ export default function Page({ params }: { params: { id: string } }) {
     router.push('/admin/problem')
     router.refresh()
   }
-
-  const [blockEdit, setBlockEdit] = useState<boolean>(false)
-
-  useQuery(GET_PROBLEMS, {
-    variables: {
-      groupId: 1,
-      take: 500,
-      input: {
-        difficulty: [
-          Level.Level1,
-          Level.Level2,
-          Level.Level3,
-          Level.Level4,
-          Level.Level5
-        ],
-        languages: [Language.C, Language.Cpp, Language.Java, Language.Python3]
-      }
-    },
-    onCompleted: (data) => {
-      if (data.getProblems[0].submissionCount > 0) setBlockEdit(true)
-    }
-  })
 
   return (
     <ScrollArea className="shrink-0">

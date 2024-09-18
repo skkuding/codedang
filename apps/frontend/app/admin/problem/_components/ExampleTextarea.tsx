@@ -10,7 +10,7 @@ interface ExampleTextareaProps {
   // TODO: any를 다른 type으로 대체
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   register: any
-  blockEdit: boolean
+  blockEdit?: boolean
 }
 export default function ExampleTextarea({
   onRemove,

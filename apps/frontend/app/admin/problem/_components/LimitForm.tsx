@@ -4,7 +4,7 @@ import { useFormContext } from 'react-hook-form'
 import ErrorMessage from '../../_components/ErrorMessage'
 import { inputStyle } from '../../utils'
 
-export default function LimitForm({ blockEdit }: { blockEdit: boolean }) {
+export default function LimitForm({ blockEdit }: { blockEdit?: boolean }) {
   const {
     formState: { errors },
     register

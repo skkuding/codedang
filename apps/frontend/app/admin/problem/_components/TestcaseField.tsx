@@ -18,7 +18,7 @@ import AddBadge from './AddBadge'
 import { CautionDialog } from './CautionDialog'
 import TestcaseItem from './TestcaseItem'
 
-export default function TestcaseField({ blockEdit }: { blockEdit: boolean }) {
+export default function TestcaseField({ blockEdit }: { blockEdit?: boolean }) {
   const {
     formState: { errors },
     getValues,

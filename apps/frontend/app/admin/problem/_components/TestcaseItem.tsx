@@ -9,7 +9,7 @@ import { isInvalid } from '../_libs/utils'
 import ExampleTextarea from './ExampleTextarea'
 
 interface TestcaseItemProps {
-  blockEdit: boolean
+  blockEdit?: boolean
   index: number
   itemError: FieldErrorsImpl | undefined
   onRemove: () => void
