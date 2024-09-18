@@ -32,6 +32,7 @@ import type {
   Template
 } from '@/types/type'
 import JSConfetti from 'js-confetti'
+import { Save } from 'lucide-react'
 import type { Route } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -97,6 +98,8 @@ export default function Editor({
         toast.info('Log in to use submission & auto save feature')
       }
     })
+    const storedCode = localStorage.getItem('code')
+    setCode(storedCode ? storedCode : '')
   }, [])
 
   useEffect(() => {
@@ -136,6 +139,7 @@ export default function Editor({
       }
     })
     if (res.ok) {
+      saveCode()
       const submission: Submission = await res.json()
       setSubmissionId(submission.id)
     } else {
@@ -144,6 +148,15 @@ export default function Editor({
         showSignIn()
         toast.error('Log in first to submit your code')
       } else toast.error('Please try again later.')
+    }
+  }
+
+  const saveCode = async () => {
+    const session = await auth()
+    if (!session) {
+      toast.error('Log in first to save your code')
+    } else {
+      localStorage.setItem('code', code)
     }
   }
 
@@ -173,7 +186,10 @@ export default function Editor({
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-red-500 hover:bg-red-600"
-                onClick={() => setCode(templateCode ?? '')}
+                onClick={() => {
+                  setCode(templateCode ?? '')
+                  localStorage.setItem('code', '')
+                }}
               >
                 Reset
               </AlertDialogAction>
@@ -182,6 +198,14 @@ export default function Editor({
         </AlertDialog>
       </div>
       <div className="flex items-center gap-3">
+        <Button
+          size="icon"
+          className="text-white-500 size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-slate-600 font-normal hover:bg-slate-700"
+          onClick={saveCode}
+        >
+          <Save className="stroke-1" />
+          Save
+        </Button>
         {/* TODO: Add Test function
 
         <Button
