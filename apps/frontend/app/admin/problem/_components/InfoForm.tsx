@@ -1,3 +1,5 @@
+'use client'
+
 import CheckboxSelect from '@/components/CheckboxSelect'
 import OptionSelect from '@/components/OptionSelect'
 import { languages, levels } from '@/lib/constants'
