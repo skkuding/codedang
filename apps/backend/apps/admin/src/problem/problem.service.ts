@@ -402,16 +402,19 @@ export class ProblemService {
         )
       }
     })
-    const submission = await this.prisma.submission.findFirst({
-      where: {
-        problemId: id
-      }
-    })
-    if (submission && testcases) {
-      throw new UnprocessableDataException(
-        'Cannot update testcases if submission exists'
-      )
-    }
+
+    // TODO: Problem Edit API 호출 방식 수정 후 롤백 예정
+    // const submission = await this.prisma.submission.findFirst({
+    //   where: {
+    //     problemId: id
+    //   }
+    // })
+
+    // if (submission && testcases) {
+    //   throw new UnprocessableDataException(
+    //     'Cannot update testcases if submission exists'
+    //   )
+    // }
 
     const problemTag = tags ? await this.updateProblemTag(id, tags) : undefined
 
