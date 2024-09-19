@@ -1,19 +1,8 @@
-import {
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-  ParseBoolPipe
-} from '@nestjs/common'
+import { ParseBoolPipe } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { Contest, ContestProblem } from '@generated'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import {
-  ConflictFoundException,
-  EntityNotExistException,
-  UnprocessableDataException
-} from '@libs/exception'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -34,7 +23,6 @@ import { UserContestScoreSummaryWithUserInfo } from './model/score-summary'
 
 @Resolver(() => Contest)
 export class ContestResolver {
-  private readonly logger = new Logger(ContestResolver.name)
   constructor(private readonly contestService: ContestService) {}
 
   @Query(() => [ContestWithParticipants])
@@ -62,16 +50,7 @@ export class ContestResolver {
     @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
     contestId: number
   ) {
-    try {
-      return await this.contestService.getContest(contestId)
-    } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code == 'P2025'
-      ) {
-        throw new NotFoundException(error.message)
-      }
-    }
+    return await this.contestService.getContest(contestId)
   }
 
   @Mutation(() => Contest)
@@ -85,22 +64,7 @@ export class ContestResolver {
     groupId: number,
     @Context('req') req: AuthenticatedRequest
   ) {
-    try {
-      return await this.contestService.createContest(
-        groupId,
-        req.user.id,
-        input
-      )
-    } catch (error) {
-      if (
-        error instanceof UnprocessableDataException ||
-        error instanceof EntityNotExistException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.createContest(groupId, req.user.id, input)
   }
 
   @Mutation(() => Contest)
@@ -108,18 +72,7 @@ export class ContestResolver {
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('input') input: UpdateContestInput
   ) {
-    try {
-      return await this.contestService.updateContest(groupId, input)
-    } catch (error) {
-      if (
-        error instanceof EntityNotExistException ||
-        error instanceof UnprocessableDataException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.updateContest(groupId, input)
   }
 
   @Mutation(() => Contest)
@@ -127,15 +80,7 @@ export class ContestResolver {
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('contestId', { type: () => Int }) contestId: number
   ) {
-    try {
-      return await this.contestService.deleteContest(groupId, contestId)
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.deleteContest(groupId, contestId)
   }
 
   @Query(() => [PublicizingRequest])
@@ -149,21 +94,10 @@ export class ContestResolver {
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('contestId', { type: () => Int }) contestId: number
   ) {
-    try {
-      return await this.contestService.createPublicizingRequest(
-        groupId,
-        contestId
-      )
-    } catch (error) {
-      if (
-        error instanceof EntityNotExistException ||
-        error instanceof ConflictFoundException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.createPublicizingRequest(
+      groupId,
+      contestId
+    )
   }
 
   @Mutation(() => PublicizingResponse)
@@ -172,18 +106,10 @@ export class ContestResolver {
     @Args('contestId', { type: () => Int }) contestId: number,
     @Args('isAccepted', ParseBoolPipe) isAccepted: boolean
   ) {
-    try {
-      return await this.contestService.handlePublicizingRequest(
-        contestId,
-        isAccepted
-      )
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.handlePublicizingRequest(
+      contestId,
+      isAccepted
+    )
   }
 
   @Mutation(() => [ContestProblem])
@@ -193,22 +119,11 @@ export class ContestResolver {
     @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
     problemIdsWithScore: ProblemScoreInput[]
   ) {
-    try {
-      return await this.contestService.importProblemsToContest(
-        groupId,
-        contestId,
-        problemIdsWithScore
-      )
-    } catch (error) {
-      if (
-        error instanceof EntityNotExistException ||
-        error instanceof UnprocessableDataException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.importProblemsToContest(
+      groupId,
+      contestId,
+      problemIdsWithScore
+    )
   }
 
   @Mutation(() => [ContestProblem])
@@ -218,22 +133,11 @@ export class ContestResolver {
     contestId: number,
     @Args('problemIds', { type: () => [Int] }) problemIds: number[]
   ) {
-    try {
-      return await this.contestService.removeProblemsFromContest(
-        groupId,
-        contestId,
-        problemIds
-      )
-    } catch (error) {
-      if (
-        error instanceof EntityNotExistException ||
-        error instanceof UnprocessableDataException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.removeProblemsFromContest(
+      groupId,
+      contestId,
+      problemIds
+    )
   }
 
   /**
@@ -257,18 +161,13 @@ export class ContestResolver {
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null
   ) {
-    try {
-      return await this.contestService.getContestSubmissionSummaryByUserId(
-        take,
-        contestId,
-        userId,
-        problemId,
-        cursor
-      )
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.getContestSubmissionSummaryByUserId(
+      take,
+      contestId,
+      userId,
+      problemId,
+      cursor
+    )
   }
 
   @Mutation(() => DuplicatedContestResponse)
@@ -278,22 +177,11 @@ export class ContestResolver {
     contestId: number,
     @Context('req') req: AuthenticatedRequest
   ) {
-    try {
-      return await this.contestService.duplicateContest(
-        groupId,
-        contestId,
-        req.user.id
-      )
-    } catch (error) {
-      if (
-        error instanceof UnprocessableDataException ||
-        error instanceof EntityNotExistException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.duplicateContest(
+      groupId,
+      contestId,
+      req.user.id
+    )
   }
 
   /**
@@ -308,33 +196,17 @@ export class ContestResolver {
     @Args('contestId', { type: () => Int }) contestId: number,
     @Args('cursor', { type: () => Int, nullable: true }) cursor: number | null
   ) {
-    try {
-      return await this.contestService.getContestScoreSummaries(
-        take,
-        contestId,
-        cursor
-      )
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.getContestScoreSummaries(
+      take,
+      contestId,
+      cursor
+    )
   }
 
   @Query(() => ContestsGroupedByStatus)
   async getContestsByProblemId(
     @Args('problemId', { type: () => Int }) problemId: number
   ) {
-    try {
-      return await this.contestService.getContestsByProblemId(problemId)
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.getContestsByProblemId(problemId)
   }
 }
