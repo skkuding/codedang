@@ -43,13 +43,12 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const methods = useForm<UpdateProblemInput>({
     resolver: zodResolver(editSchema),
-    defaultValues: {
-      template: []
-    }
+    defaultValues: { template: [] }
   })
 
   const { handleSubmit, setValue, getValues } = methods
 
+  const [blockEdit, setBlockEdit] = useState<boolean>(false)
   const [showHint, setShowHint] = useState<boolean>(false)
   const [showSource, setShowSource] = useState<boolean>(false)
   const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
@@ -64,7 +63,11 @@ export default function Page({ params }: { params: { id: string } }) {
     },
     onCompleted: (problemData) => {
       const data = problemData.getProblem
+
+      if (data.submissionCount > 0) setBlockEdit(true)
+
       setInitialData(data)
+
       setValue('id', +id)
       setValue('title', data.title)
       setValue('isVisible', data.isVisible)
@@ -249,10 +252,10 @@ export default function Page({ params }: { params: { id: string } }) {
               </div>
             </div>
 
-            {getValues('testcases') && <TestcaseField />}
+            {getValues('testcases') && <TestcaseField blockEdit={blockEdit} />}
 
             <FormSection title="Limit">
-              <LimitForm />
+              <LimitForm blockEdit={blockEdit} />
             </FormSection>
             <TemplateField />
             <SwitchField
