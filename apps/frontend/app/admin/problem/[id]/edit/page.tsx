@@ -6,7 +6,12 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
-import type { Template, Testcase, UpdateProblemInput } from '@generated/graphql'
+import type {
+  GetProblemQuery,
+  Template,
+  Testcase,
+  UpdateProblemInput
+} from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -49,6 +54,8 @@ export default function Page({ params }: { params: { id: string } }) {
   const [showSource, setShowSource] = useState<boolean>(false)
   const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
   const [dialogDescription, setDialogDescription] = useState<string>('')
+  const [initialData, setInitialData] =
+    useState<GetProblemQuery['getProblem']>()
 
   useQuery(GET_PROBLEM, {
     variables: {
@@ -57,6 +64,7 @@ export default function Page({ params }: { params: { id: string } }) {
     },
     onCompleted: (problemData) => {
       const data = problemData.getProblem
+      setInitialData(data)
       setValue('id', +id)
       setValue('title', data.title)
       setValue('isVisible', data.isVisible)
@@ -104,9 +112,57 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   })
 
+  // TODO: refactor after discussing schema ProblemWithIsVisible and UpdateProblemInput
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getChangedFields = (initial: any, current: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const changedFields: any = {}
+
+    // Define a map of fields that need to be renamed for comparison
+    const fieldMapping: Record<string, string> = {
+      testcases: 'testcase'
+    }
+
+    for (const key in current) {
+      const mappedKey = fieldMapping[key] || key
+      if (JSON.stringify(current[key]) !== JSON.stringify(initial[mappedKey])) {
+        changedFields[key] = current[key]
+      }
+    }
+    return changedFields
+  }
+
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
 
   const onSubmit = async (input: UpdateProblemInput) => {
+    // TODO: need to check tags and templates from input
+    const currentValues = getValues()
+    const changedFields = getChangedFields(initialData, currentValues)
+
+    // remove id and __typename from testcases
+    if (changedFields.testcases) {
+      changedFields.testcases = changedFields.testcases.map(
+        ({
+          id,
+          __typename,
+          ...rest
+        }: {
+          id: number
+          __typename: string
+          input: string
+          output: string
+          isHidden: boolean
+          scoreWeight: number
+        }) => {
+          void id
+          void __typename
+          return rest
+        }
+      )
+    }
+
+    changedFields['id'] = Number(id)
+
     const testcases = getValues('testcases') as Testcase[]
     if (validateScoreWeight(testcases) === false) {
       setDialogDescription(
@@ -127,7 +183,7 @@ export default function Page({ params }: { params: { id: string } }) {
     await updateProblem({
       variables: {
         groupId: 1,
-        input
+        input: changedFields
       }
     })
     if (error) {
