@@ -198,15 +198,19 @@ export class ContestService {
       }
     }
 
-    return await this.prisma.contest.update({
-      where: {
-        id: contest.id
-      },
-      data: {
-        title: contest.title,
-        ...contest
-      }
-    })
+    try {
+      return await this.prisma.contest.update({
+        where: {
+          id: contest.id
+        },
+        data: {
+          title: contest.title,
+          ...contest
+        }
+      })
+    } catch (error) {
+      throw new UnprocessableDataException(error.message)
+    }
   }
 
   async deleteContest(groupId: number, contestId: number) {
