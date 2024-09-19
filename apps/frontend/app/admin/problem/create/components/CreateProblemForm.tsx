@@ -40,7 +40,7 @@ export default function CreateProblemForm({
 
   const validate = () => {
     const testcases = methods.getValues('testcases')
-    if (validateScoreWeight(testcases) === false) {
+    if (!validateScoreWeight(testcases)) {
       setShowCautionModal(true)
       setMessage(
         'The scoring ratios have not been specified correctly.\nPlease review and correct them.'
@@ -51,8 +51,7 @@ export default function CreateProblemForm({
   }
 
   const onSubmit = methods.handleSubmit(() => {
-    const isValidated = validate()
-    if (!isValidated) return
+    if (!validate()) return
     setShowCreateModal(true)
   })
 
