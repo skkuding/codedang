@@ -14,7 +14,7 @@ import PopoverVisibleInfo from '../_components/PopoverVisibleInfo'
 import TemplateField from '../_components/TemplateField'
 import TestcaseField from '../_components/TestcaseField'
 import VisibleForm from '../_components/VisibleForm'
-import CreateProblemForm from './components/CreateProblemForm'
+import CreateProblemForm from './_components/CreateProblemForm'
 
 export default function Page() {
   return (
