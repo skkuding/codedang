@@ -1,14 +1,14 @@
-import DataTable from '@/components/DataTable'
 import { fetcherWithAuth } from '@/lib/utils'
 import type { ContestProblem } from '@/types/type'
-import { columns } from './_components/Columns'
+import type { ContestProblemRowData } from './_components/Columns'
+import ContestProblemTable from './_components/ContestProblemTable'
 
 interface ContestProblemProps {
   params: { contestId: string }
 }
 
 interface ContestApiResponse {
-  data: ContestProblem[]
+  data: ContestProblemRowData[]
   total: number
 }
 
@@ -39,18 +39,5 @@ export default async function ContestProblem({ params }: ContestProblemProps) {
 
   const problems: ContestApiResponse = await res.json()
 
-  return (
-    <DataTable
-      data={problems.data}
-      columns={columns}
-      headerStyle={{
-        order: 'w-[8%] ',
-        title: 'text-left w-[50%]',
-        submit: 'w-[11%]',
-        submissionTime: 'w-[20%]',
-        score: 'w-[11%]'
-      }}
-      linked
-    />
-  )
+  return <ContestProblemTable data={problems.data} contestId={contestId} />
 }

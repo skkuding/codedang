@@ -6,7 +6,11 @@ import type { ContestProblem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
 
-export const columns: ColumnDef<ContestProblem>[] = [
+export interface ContestProblemRowData extends ContestProblem {
+  isVisible: null | boolean
+}
+
+export const columns: ColumnDef<ContestProblemRowData>[] = [
   {
     header: '#',
     accessorKey: 'order',
