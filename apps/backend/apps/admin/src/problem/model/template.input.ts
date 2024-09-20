@@ -2,7 +2,7 @@ import { Field, InputType, Int } from '@nestjs/graphql'
 import { Language } from '@generated'
 
 @InputType()
-class Snippet {
+export class Snippet {
   @Field(() => Int, { nullable: false })
   id!: number
 

@@ -89,7 +89,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       >(key)) ?? []
 
     testcases.forEach((tc) => {
-      if (tc.id === testcaseId) {
+      if (!testcaseId || tc.id === testcaseId) {
         tc.result = status
       }
     })
