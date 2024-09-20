@@ -23,7 +23,7 @@ interface Item {
   id: number
 }
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData, TValue, TRoute extends string> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   headerStyle: {
@@ -31,6 +31,7 @@ interface DataTableProps<TData, TValue> {
   }
   linked?: boolean
   emptyMessage?: string
+  getHref?: (rowData: TData) => Route<TRoute> | undefined
 }
 
 /**
@@ -42,6 +43,8 @@ interface DataTableProps<TData, TValue> {
  * tailwindcss class name for each header
  * @param name
  * name of the table, used for routing
+ * @param getHref
+ * the function to return the href for routing dynamically
  * @param linked
  * if true, each row is linked to the detail page
  * @example
@@ -70,13 +73,18 @@ interface DataTableProps<TData, TValue> {
  * ```
  */
 
-export default function DataTable<TData extends Item, TValue>({
+export default function DataTable<
+  TData extends Item,
+  TValue,
+  TRoute extends string
+>({
   columns,
   data,
   headerStyle,
+  getHref,
   linked = false,
   emptyMessage = 'No results.'
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData, TValue, TRoute>) {
   const table = useReactTable({
     data,
     columns,
@@ -112,10 +120,13 @@ export default function DataTable<TData extends Item, TValue>({
         ))}
       </TableHeader>
       <TableBody>
-        {table.getRowModel().rows?.length ? (
+        {table.getRowModel().rows.length > 0 ? (
           table.getRowModel().rows.map((row) => {
-            const href = `${currentPath}/${row.original.id}` as Route
-            const handleClick = linked
+            const href = linked
+              ? (`${currentPath}/${row.original.id}` as Route)
+              : getHref?.(row.original)
+
+            const handleClick = href
               ? () => {
                   router.push(href)
                 }
@@ -138,7 +149,7 @@ export default function DataTable<TData extends Item, TValue>({
                       )}
                     </div>
                     {/* for prefetch */}
-                    <Link href={href} />
+                    {href && <Link href={href} />}
                   </TableCell>
                 ))}
               </TableRow>
