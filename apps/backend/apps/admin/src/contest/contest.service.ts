@@ -766,17 +766,24 @@ export class ContestService {
       const problemId = submission.problemId
       if (problemId in latestSubmissions) continue
 
-      const maxScore = (
-        await this.prisma.contestProblem.findUniqueOrThrow({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            contestId_problemId: {
-              contestId: submission.contestId!,
-              problemId: submission.problemId
-            }
+      const contestProblem = await this.prisma.contestProblem.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_problemId: {
+            contestId: submission.contestId!,
+            problemId: submission.problemId
           }
-        })
-      ).score
+        },
+        select: {
+          score: true
+        }
+      })
+
+      if (!contestProblem) {
+        throw new EntityNotExistException('contestProblem')
+      }
+
+      const maxScore = contestProblem.score
 
       latestSubmissions[problemId] = {
         result: submission.result as ResultStatus,
@@ -789,9 +796,10 @@ export class ContestService {
   }
 
   async getContestScoreSummaries(
-    take: number,
     contestId: number,
-    cursor: number | null
+    take: number,
+    cursor: number | null,
+    searchingName?: string
   ) {
     const paginator = this.prisma.getPaginator(cursor)
 
@@ -801,7 +809,17 @@ export class ContestService {
         contestId,
         userId: {
           not: null
-        }
+        },
+        user: searchingName
+          ? {
+              userProfile: {
+                realName: {
+                  contains: searchingName,
+                  mode: 'insensitive'
+                }
+              }
+            }
+          : undefined
       },
       take,
       include: {
