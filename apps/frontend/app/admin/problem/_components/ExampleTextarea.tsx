@@ -10,13 +10,15 @@ interface ExampleTextareaProps {
   // TODO: any를 다른 type으로 대체
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   register: any
+  blockEdit?: boolean
 }
 export default function ExampleTextarea({
   onRemove,
   inputName,
   outputName,
   className,
-  register
+  register,
+  blockEdit
 }: ExampleTextareaProps) {
   return (
     <div
@@ -30,11 +32,13 @@ export default function ExampleTextarea({
         onClick={() => onRemove()}
       />
       <Textarea
+        disabled={blockEdit}
         placeholder="Input"
         className="resize-none border-0 px-4 py-0 shadow-none focus-visible:ring-0"
         {...register(inputName)}
       />
       <Textarea
+        disabled={blockEdit}
         placeholder="Output"
         className="min-h-[120px] rounded-none border-l border-transparent border-l-gray-200 px-4 py-0 shadow-none focus-visible:ring-0"
         {...register(outputName)}

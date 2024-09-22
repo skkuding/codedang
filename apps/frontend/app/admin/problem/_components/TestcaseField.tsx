@@ -18,7 +18,7 @@ import AddBadge from './AddBadge'
 import { CautionDialog } from './CautionDialog'
 import TestcaseItem from './TestcaseItem'
 
-export default function TestcaseField() {
+export default function TestcaseField({ blockEdit }: { blockEdit?: boolean }) {
   const {
     formState: { errors },
     getValues,
@@ -119,6 +119,7 @@ export default function TestcaseField() {
           (item, index) =>
             !item.isHidden && (
               <TestcaseItem
+                blockEdit={blockEdit}
                 key={index}
                 index={index}
                 itemError={itemErrors}
@@ -134,6 +135,7 @@ export default function TestcaseField() {
           (item, index) =>
             item.isHidden && (
               <TestcaseItem
+                blockEdit={blockEdit}
                 key={index}
                 index={index}
                 itemError={itemErrors}
