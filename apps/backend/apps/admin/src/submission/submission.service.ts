@@ -17,41 +17,50 @@ export class SubmissionService {
   ) {
     const paginator = this.prisma.getPaginator(cursor)
 
-    const { contestId, problemId } = input
-    try {
-      const contestSubmissions = await this.prisma.submission.findMany({
-        ...paginator,
-        take,
-        where: {
-          contestId,
-          problemId
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              username: true,
-              studentId: true,
+    const { contestId, problemId, searchingName } = input
+    const contestSubmissions = await this.prisma.submission.findMany({
+      ...paginator,
+      take,
+      where: {
+        contestId,
+        problemId,
+        user: searchingName
+          ? {
               userProfile: {
-                select: {
-                  realName: true
+                realName: {
+                  contains: searchingName,
+                  mode: 'insensitive'
                 }
               }
             }
-          },
-          problem: {
-            select: {
-              title: true,
-              contestProblem: {
-                where: {
-                  contestId,
-                  problemId: problemId ?? undefined
-                }
+          : undefined
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            studentId: true,
+            userProfile: {
+              select: {
+                realName: true
+              }
+            }
+          }
+        },
+        problem: {
+          select: {
+            title: true,
+            contestProblem: {
+              where: {
+                contestId,
+                problemId
               }
             }
           }
         }
-      })
+      }
+    })
 
       const results = contestSubmissions.map((c) => {
         return {
