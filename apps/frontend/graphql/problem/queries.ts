@@ -16,6 +16,7 @@ const GET_PROBLEM = gql(`
       description
       inputDescription
       outputDescription
+      submissionCount
       testcase {
         id
         input
