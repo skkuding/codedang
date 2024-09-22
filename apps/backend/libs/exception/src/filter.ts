@@ -24,7 +24,7 @@ export class AdminExceptionFilter implements GqlExceptionFilter {
       return exception.convert2HTTPException()
     } else if (exception instanceof PrismaClientKnownRequestError) {
       this.logger.log(exception)
-      return convertPrismaError2HttpException(exception)
+      return convertPrismaError2HTTPException(exception)
     } else if (exception instanceof HttpException) {
       this.logger.log(exception)
       return exception
@@ -44,7 +44,7 @@ export class ClientExceptionFilter extends BaseExceptionFilter {
       super.catch(exception.convert2HTTPException(), host)
     } else if (exception instanceof PrismaClientKnownRequestError) {
       this.logger.log(exception)
-      super.catch(convertPrismaError2HttpException(exception), host)
+      super.catch(convertPrismaError2HTTPException(exception), host)
     } else if (exception instanceof HttpException) {
       this.logger.log(exception)
       super.catch(exception, host)
@@ -55,7 +55,7 @@ export class ClientExceptionFilter extends BaseExceptionFilter {
   }
 }
 
-const convertPrismaError2HttpException = (
+const convertPrismaError2HTTPException = (
   exception: PrismaClientKnownRequestError
 ) => {
   switch (exception.code) {
