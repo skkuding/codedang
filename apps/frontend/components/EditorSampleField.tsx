@@ -1,3 +1,5 @@
+'use client'
+
 import CopyIcon from '@/public/24_copy.svg'
 import copyIcon from '@/public/copy.svg'
 import copyCompleteIcon from '@/public/copyComplete.svg'
