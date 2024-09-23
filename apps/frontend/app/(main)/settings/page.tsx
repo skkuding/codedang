@@ -20,26 +20,19 @@ import { majors } from '@/lib/constants'
 import { cn, safeFetcher, safeFetcherWithAuth } from '@/lib/utils'
 import invisible from '@/public/24_invisible.svg'
 import visible from '@/public/24_visible.svg'
-import codedangSymbol from '@/public/codedang-editor.svg'
+import type { SettingsFormat } from '@/types/type'
 import { zodResolver } from '@hookform/resolvers/zod'
-import type { Route } from 'next'
-import type { NavigateOptions } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaCheck, FaChevronDown } from 'react-icons/fa6'
 import { toast } from 'sonner'
 import { z } from 'zod'
-
-interface SettingsFormat {
-  currentPassword: string
-  newPassword: string
-  confirmPassword: string
-  realName: string
-  studentId: string
-}
+import { useConfirmNavigation } from './_components/ConfirmNavigation'
+import IdSection from './_components/IdSection'
+import LogoSection from './_components/LogoSection'
 
 interface getProfile {
   username: string // ID
@@ -93,8 +86,7 @@ export default function Page() {
   const searchParams = useSearchParams()
   const updateNow = searchParams.get('updateNow')
   const router = useRouter()
-  const [bypassConfirmation, setBypassConfirmation] = useState<boolean>(false)
-
+  const bypassConfirmation = useRef<boolean>(false)
   const [defaultProfileValues, setdefaultProfileValues] = useState<getProfile>({
     username: '',
     userProfile: {
@@ -120,13 +112,15 @@ export default function Page() {
     fetchDefaultProfile()
   }, [])
 
+  useConfirmNavigation(bypassConfirmation, !!updateNow)
+
   const {
     register,
     handleSubmit,
     getValues,
     setValue,
     watch,
-    formState: { errors, isDirty }
+    formState: { errors }
   } = useForm<SettingsFormat>({
     resolver: zodResolver(schemaSettings(!!updateNow)),
     mode: 'onChange',
@@ -138,51 +132,6 @@ export default function Page() {
       studentId: defaultProfileValues.studentId
     }
   })
-
-  // const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
-  //   // Recommended
-  //   event.preventDefault()
-
-  //   // Included for legacy support, e.g. Chrome/Edge < 119
-  //   event.returnValue = true
-  //   return true
-  // }
-
-  /**
-   * Prompt the user with a confirmation dialog when they try to navigate away from the page.
-   */
-  const useConfirmNavigation = () => {
-    useEffect(() => {
-      const originalPush = router.push
-      const newPush = (
-        href: string,
-        options?: NavigateOptions | undefined
-      ): void => {
-        if (updateNow) {
-          !bypassConfirmation
-            ? toast.error('You must update your information')
-            : originalPush(href as Route, options)
-          return
-        }
-        if (!bypassConfirmation) {
-          const isConfirmed = window.confirm(
-            'Are you sure you want to leave?\nYour changes have not been saved.\nIf you leave this page, all changes will be lost.\nDo you still want to proceed?'
-          )
-          isConfirmed ? originalPush(href as Route, options) : null
-          return
-        }
-        originalPush(href as Route, options)
-      }
-      router.push = newPush
-      // window.onbeforeunload = beforeUnloadHandler
-      return () => {
-        router.push = originalPush
-        // window.onbeforeunload = null
-      }
-    }, [router, isDirty, bypassConfirmation])
-  }
-
-  useConfirmNavigation()
 
   const [isCheckButtonClicked, setIsCheckButtonClicked] =
     useState<boolean>(false)
@@ -217,7 +166,7 @@ export default function Page() {
   const saveAbleUpdateNow =
     !!studentId && majorValue !== 'none' && !errors.studentId
 
-  // New Password Input 창과 Re-enter Password Input 창의 border 색상을, 일치하는지 여부에 따라 바꿈
+  // 일치 여부에 따라 New Password Input, Re-enter Password Input 창의 border 색상을 바꿈
   useEffect(() => {
     if (isPasswordsMatch) {
       setValue('newPassword', newPassword)
@@ -250,9 +199,13 @@ export default function Page() {
       })
       if (response.ok) {
         toast.success('Successfully updated your information')
-        setBypassConfirmation(true)
+        bypassConfirmation.current = true
         setTimeout(() => {
-          updateNow ? router.push('/') : window.location.reload()
+          if (updateNow) {
+            router.push('/')
+          } else {
+            window.location.reload()
+          }
         }, 1500)
       }
     } catch (error) {
@@ -306,21 +259,7 @@ export default function Page() {
 
   return (
     <div className="flex w-full gap-20 py-6">
-      <div
-        className="flex h-svh max-h-[846px] w-full flex-col items-center justify-center gap-3 rounded-2xl"
-        style={{
-          background: `var(--banner,
-            linear-gradient(325deg, rgba(79, 86, 162, 0.00) 28.16%, rgba(79, 86, 162, 0.50) 93.68%),
-            linear-gradient(90deg, #3D63B8 0%, #0E1322 100%)
-          )`
-        }}
-      >
-        <div className="flex items-center gap-3">
-          <Image src={codedangSymbol} alt="codedang" width={65} />
-          <p className="font-mono text-[40px] font-bold text-white">CODEDANG</p>
-        </div>
-        <p className="font-medium text-white">Online Judge Platform for SKKU</p>
-      </div>
+      <LogoSection />
 
       <form
         onSubmit={handleSubmit(onSubmit)}
@@ -334,11 +273,9 @@ export default function Page() {
         </p>
 
         {/* ID */}
-        <label className="-mb-4 text-xs">ID</label>
-        <Input
-          placeholder={isLoading ? 'Loading...' : defaultProfileValues.username}
-          disabled={true}
-          className="border-neutral-300 text-neutral-600 placeholder:text-neutral-400 disabled:bg-neutral-200"
+        <IdSection
+          isLoading={isLoading}
+          defaultUsername={defaultProfileValues.username}
         />
 
         {/* Current password */}
