@@ -159,16 +159,20 @@ export default function Page() {
         options?: NavigateOptions | undefined
       ): void => {
         if (updateNow) {
-          !bypassConfirmation
-            ? toast.error('You must update your information')
-            : originalPush(href as Route, options)
+          if (!bypassConfirmation) {
+            toast.error('You must update your information')
+          } else {
+            originalPush(href as Route, options)
+          }
           return
         }
         if (!bypassConfirmation) {
           const isConfirmed = window.confirm(
             'Are you sure you want to leave?\nYour changes have not been saved.\nIf you leave this page, all changes will be lost.\nDo you still want to proceed?'
           )
-          isConfirmed ? originalPush(href as Route, options) : null
+          if (isConfirmed) {
+            originalPush(href as Route, options)
+          }
           return
         }
         originalPush(href as Route, options)
@@ -252,7 +256,11 @@ export default function Page() {
         toast.success('Successfully updated your information')
         setBypassConfirmation(true)
         setTimeout(() => {
-          updateNow ? router.push('/') : window.location.reload()
+          if (updateNow) {
+            router.push('/')
+          } else {
+            window.location.reload()
+          }
         }, 1500)
       }
     } catch (error) {
@@ -324,7 +332,7 @@ export default function Page() {
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex h-svh max-h-[846px] w-full flex-col justify-between gap-4 px-4"
+        className="flex h-svh max-h-[846px] w-full flex-col justify-between gap-4 overflow-y-auto px-4"
       >
         <h1 className="-mb-1 text-center text-2xl font-bold">Settings</h1>
         <p className="text-center text-sm text-neutral-500">
@@ -551,10 +559,10 @@ export default function Page() {
             <PopoverContent className="w-[555px] p-0">
               <Command>
                 <CommandInput placeholder="Search major..." />
-                <ScrollArea className="h-40">
+                <ScrollArea>
                   <CommandEmpty>No major found.</CommandEmpty>
                   <CommandGroup>
-                    <CommandList>
+                    <CommandList className="h-40">
                       {majors?.map((major) => (
                         <CommandItem
                           key={major}
