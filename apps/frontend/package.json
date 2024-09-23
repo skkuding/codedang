@@ -57,7 +57,7 @@
     "@uiw/react-codemirror": "^4.23.0",
     "apollo-upload-client": "^18.0.1",
     "cmdk": "^1.0.0",
-    "date-fns": "^3.6.0",
+    "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",
     "embla-carousel-react": "8.2.0",
