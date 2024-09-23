@@ -3,8 +3,7 @@ import {
   BadRequestException,
   ConflictException,
   Inject,
-  Injectable,
-  NotFoundException
+  Injectable
 } from '@nestjs/common'
 import type { UserGroup } from '@generated'
 import { Role } from '@prisma/client'
@@ -93,7 +92,7 @@ export class UserService {
     })
 
     if (groupMember === null) {
-      throw new NotFoundException(
+      throw new EntityNotExistException(
         `userId ${userId} is not a group member of groupId ${groupId}`
       )
     }
@@ -244,7 +243,7 @@ export class UserService {
       })
 
       if (!requestedUser) {
-        throw new NotFoundException(`userId ${userId} not found`)
+        throw new EntityNotExistException(`userId ${userId} not found`)
       }
 
       return await this.prisma.userGroup.create({

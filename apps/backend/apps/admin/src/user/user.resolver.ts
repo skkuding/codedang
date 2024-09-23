@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   InternalServerErrorException,
-  ConflictException,
   Logger,
   NotFoundException
 } from '@nestjs/common'
@@ -9,6 +8,10 @@ import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { UserGroup } from '@generated'
 import { User } from '@generated'
 import { OPEN_SPACE_ID } from '@libs/constants'
+import {
+  ConflictFoundException,
+  DuplicateFoundException
+} from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { GroupMember } from './model/groupMember.model'
 import { UserService } from './user.service'
@@ -109,8 +112,10 @@ export class UserResolver {
     try {
       return await this.userService.handleJoinRequest(groupId, userId, isAccept)
     } catch (error) {
-      if (error instanceof ConflictException) {
-        throw new ConflictException(error.message)
+      if (error instanceof ConflictFoundException) {
+        throw new ConflictFoundException(error.message)
+      } else if (error instanceof DuplicateFoundException) {
+        throw new DuplicateFoundException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
