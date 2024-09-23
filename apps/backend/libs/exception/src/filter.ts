@@ -55,15 +55,20 @@ export class ClientExceptionFilter extends BaseExceptionFilter {
   }
 }
 
+/**
+ * 데이터가 존재하지 않는 경우, Unique Constraint 위반 등의 사유로 발생하는 PrismaClientKnownRequestError를 HTTP Exception으로 변환
+ * @param exception PrismaClientKnownRequestError
+ * @returns HTTP Exception
+ */
 const convertPrismaError2HTTPException = (
   exception: PrismaClientKnownRequestError
 ) => {
   switch (exception.code) {
-    case 'P2002':
+    case 'P2002': // Unique Constraint violation
       return new ConflictException(exception.message)
-    case 'P2025':
+    case 'P2025': // Record not found
       return new NotFoundException(exception.message)
-    case 'P2003':
+    case 'P2003': // Foreign key constraint violation
       return new UnprocessableEntityException(exception.message)
     default:
       return new BadRequestException(exception.message)
