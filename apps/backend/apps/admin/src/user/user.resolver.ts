@@ -10,6 +10,7 @@ import { UserGroup } from '@generated'
 import { User } from '@generated'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { OPEN_SPACE_ID } from '@libs/constants'
+import { EntityNotExistException } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { GroupMember } from './model/groupMember.model'
 import { UserService } from './user.service'
@@ -63,7 +64,7 @@ export class UserResolver {
         error instanceof PrismaClientKnownRequestError &&
         error.code == 'P2025'
       ) {
-        throw new NotFoundException(error.message)
+        throw new EntityNotExistException(error.message)
       }
     }
   }
@@ -85,7 +86,7 @@ export class UserResolver {
       if (error instanceof BadRequestException) {
         throw new BadRequestException(error.message)
       } else if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message)
+        throw new EntityNotExistException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -104,7 +105,7 @@ export class UserResolver {
       if (error instanceof BadRequestException) {
         throw new BadRequestException(error.message)
       } else if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message)
+        throw new EntityNotExistException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException()

@@ -1,17 +1,19 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import {
   BadRequestException,
-  ConflictException,
   Inject,
   Injectable,
   NotFoundException
 } from '@nestjs/common'
-import type { UserGroup } from '@generated'
+import { UserGroup } from '@generated'
 import { Role } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
-import { EntityNotExistException } from '@libs/exception'
+import {
+  ConflictFoundException,
+  EntityNotExistException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { GroupJoinRequest } from '@libs/types'
 
@@ -62,21 +64,25 @@ export class UserService {
       }
     })
 
-    return userGroups.map((userGroup) => {
-      return {
-        username: userGroup.user.username,
-        userId: userGroup.user.id,
-        name: userGroup.user.userProfile?.realName ?? '',
-        email: userGroup.user.email,
-        studentId: userGroup.user.studentId,
-        major: userGroup.user.major,
-        role: userGroup.user.role
-      }
-    })
+    if (userGroups != null) {
+      return userGroups.map((userGroup) => {
+        return {
+          username: userGroup.user.username,
+          userId: userGroup.user.id,
+          name: userGroup.user.userProfile?.realName ?? '',
+          email: userGroup.user.email,
+          studentId: userGroup.user.studentId,
+          major: userGroup.user.major,
+          role: userGroup.user.role
+        }
+      })
+    } else if (userGroups == null) {
+      throw new EntityNotExistException(userGroups)
+    }
   }
 
   async getGroupMember(groupId: number, userId: number) {
-    const userGroup = await this.prisma.userGroup.findFirstOrThrow({
+    const userGroup = await this.prisma.userGroup.findFirst({
       where: {
         groupId,
         userId
@@ -99,14 +105,18 @@ export class UserService {
         }
       }
     })
-    return {
-      username: userGroup.user.username,
-      userId: userGroup.user.id,
-      name: userGroup.user.userProfile?.realName ?? '',
-      email: userGroup.user.email,
-      studentId: userGroup.user.studentId,
-      major: userGroup.user.major,
-      role: userGroup.user.role
+    if (userGroup != null) {
+      return {
+        username: userGroup.user.username,
+        userId: userGroup.user.id,
+        name: userGroup.user.userProfile?.realName ?? '',
+        email: userGroup.user.email,
+        studentId: userGroup.user.studentId,
+        major: userGroup.user.major,
+        role: userGroup.user.role
+      }
+    } else if (userGroup == null) {
+      new EntityNotExistException(userGroup)
     }
   }
 
@@ -196,7 +206,7 @@ export class UserService {
     )
 
     if (!isGroupMember) {
-      throw new BadRequestException(
+      throw new EntityNotExistException(
         `userId ${userId} is not a group member of groupId ${groupId}`
       )
     }
@@ -258,7 +268,7 @@ export class UserService {
     const userRequested = validRequests.find((req) => req.userId === userId)
 
     if (!userRequested) {
-      throw new ConflictException(
+      throw new ConflictFoundException(
         `userId ${userId} didn't request join to groupId ${groupId}`
       )
     }
@@ -283,7 +293,7 @@ export class UserService {
       })
 
       if (!requestedUser) {
-        throw new NotFoundException(`userId ${userId} not found`)
+        throw new EntityNotExistException(`userId ${userId}`)
       }
 
       return await this.prisma.userGroup.create({

@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 /* eslint-disable @typescript-eslint/naming-convention */
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
 import { Cache } from 'cache-manager'
@@ -13,6 +15,7 @@ import {
   REFRESH_TOKEN_EXPIRE_TIME
 } from '@libs/constants'
 import {
+  EntityNotExistException,
   InvalidJwtTokenException,
   UnidentifiedException
 } from '@libs/exception'
@@ -103,9 +106,13 @@ export class AuthService {
   }
 
   async deleteRefreshToken(userId: number, refreshToken: string) {
-    return await this.cacheManager.del(
-      refreshTokenCacheKey(userId, refreshToken)
-    )
+    try {
+      return await this.cacheManager.del(
+        refreshTokenCacheKey(userId, refreshToken)
+      )
+    } catch (error) {
+      throw new EntityNotExistException(error.mesage)
+    }
   }
 
   async githubLogin(res: Response, githubUser: GithubUser) {
