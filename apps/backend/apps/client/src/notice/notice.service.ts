@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { OPEN_SPACE_ID } from '@libs/constants'
+import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 
 @Injectable()
@@ -20,7 +21,6 @@ export class NoticeService {
     groupId?: number
   }) {
     const paginator = this.prisma.getPaginator(cursor)
-
     const notices = await this.prisma.notice.findMany({
       ...paginator,
       where: {
@@ -53,7 +53,6 @@ export class NoticeService {
         createdBy: notice.createdBy?.username
       }
     })
-
     const total = await this.prisma.notice.count({
       where: {
         groupId,
@@ -70,28 +69,29 @@ export class NoticeService {
   }
 
   async getNoticeByID(id: number, groupId = OPEN_SPACE_ID) {
-    const current = await this.prisma.notice
-      .findUniqueOrThrow({
-        where: {
-          id,
-          groupId,
-          isVisible: true
-        },
-        select: {
-          title: true,
-          content: true,
-          createTime: true,
-          updateTime: true,
-          createdBy: {
-            select: {
-              username: true
-            }
+    const notice = await this.prisma.notice.findUnique({
+      where: {
+        id,
+        groupId,
+        isVisible: true
+      },
+      select: {
+        title: true,
+        content: true,
+        createTime: true,
+        updateTime: true,
+        createdBy: {
+          select: {
+            username: true
           }
         }
-      })
-      .then((notice) => {
-        return { ...notice, createdBy: notice.createdBy?.username }
-      })
+      }
+    })
+
+    if (!notice) {
+      throw new EntityNotExistException('notice')
+    }
+    const current = { ...notice, createdBy: notice.createdBy?.username }
 
     const navigate = (pos: 'prev' | 'next') => {
       type Order = 'asc' | 'desc'
@@ -115,10 +115,20 @@ export class NoticeService {
       }
     }
 
+    const prev = await this.prisma.notice.findFirst(navigate('prev'))
+    const next = await this.prisma.notice.findFirst(navigate('next'))
+
+    if (!prev) {
+      throw new EntityNotExistException('prev notice')
+    }
+    if (!next) {
+      throw new EntityNotExistException('next notice')
+    }
+
     return {
       current,
-      prev: await this.prisma.notice.findFirst(navigate('prev')),
-      next: await this.prisma.notice.findFirst(navigate('next'))
+      prev,
+      next
     }
   }
 }
