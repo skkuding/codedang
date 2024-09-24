@@ -3,7 +3,6 @@ import {
   Get,
   Query,
   Param,
-  Logger,
   DefaultValuePipe,
   ParseBoolPipe
 } from '@nestjs/common'
@@ -14,8 +13,6 @@ import { NoticeService } from './notice.service'
 @Controller('notice')
 @AuthNotNeededIfOpenSpace()
 export class NoticeController {
-  private readonly logger = new Logger(NoticeController.name)
-
   constructor(private readonly noticeService: NoticeService) {}
 
   @Get()

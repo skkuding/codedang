@@ -115,20 +115,10 @@ export class NoticeService {
       }
     }
 
-    const prev = await this.prisma.notice.findFirst(navigate('prev'))
-    const next = await this.prisma.notice.findFirst(navigate('next'))
-
-    if (!prev) {
-      throw new EntityNotExistException('prev notice')
-    }
-    if (!next) {
-      throw new EntityNotExistException('next notice')
-    }
-
     return {
       current,
-      prev,
-      next
+      prev: await this.prisma.notice.findFirst(navigate('prev')),
+      next: await this.prisma.notice.findFirst(navigate('next'))
     }
   }
 }

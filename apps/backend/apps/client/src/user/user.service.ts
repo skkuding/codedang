@@ -584,14 +584,10 @@ export class UserService {
         throw new UnprocessableDataException('Bad new password')
       }
 
-      try {
-        encryptedNewPassword = await hash(
-          updateUserDto.newPassword,
-          ARGON2_HASH_OPTION
-        )
-      } catch (error) {
-        throw new UnprocessableDataException(error.message)
-      }
+      encryptedNewPassword = await hash(
+        updateUserDto.newPassword,
+        ARGON2_HASH_OPTION
+      )
     }
 
     const updateData = {
