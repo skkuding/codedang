@@ -140,7 +140,7 @@ export default function ResetPasswordEmailVerify() {
       <Input
         type="number"
         className={cn(
-          '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+          'hide-spin-button',
           inputFocused && 'ring-1 focus-visible:ring-1 disabled:ring-0',
           errors.verificationCode || codeError
             ? 'ring-red-500 focus-visible:ring-red-500'
