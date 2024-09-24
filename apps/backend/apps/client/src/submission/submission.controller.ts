@@ -1,4 +1,3 @@
-// submission.controller.ts
 import {
   Controller,
   Get,
@@ -63,6 +62,10 @@ export class SubmissionController {
     }
   }
 
+  /**
+   * Open Testcase에 대해 채점하는 Test를 요청합니다.
+   * 채점 결과는 Cache에 저장됩니다.
+   */
   @Post('test')
   async submitTest(
     @Req() req: AuthenticatedRequest,
@@ -76,6 +79,10 @@ export class SubmissionController {
     )
   }
 
+  /**
+   * requestTest의 반환으로 받은 key를 통해 Test 결과를 조회합니다.
+   * @returns Testcase별 결과가 담겨있는 Object
+   */
   @Get('test')
   async getTestResult(@Req() req: AuthenticatedRequest) {
     return await this.submissionService.getTestResult(req.user.id)
