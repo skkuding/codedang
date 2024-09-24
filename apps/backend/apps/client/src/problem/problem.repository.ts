@@ -246,6 +246,7 @@ export class ProblemRepository {
   async getContestProblem(contestId: number, problemId: number) {
     const contestProblem = await this.prisma.contestProblem.findUnique({
       where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_problemId: {
           contestId,
           problemId
@@ -309,6 +310,7 @@ export class ProblemRepository {
   async getWorkbookProblem(workbookId: number, problemId: number) {
     const workbookProblem = await this.prisma.workbookProblem.findUnique({
       where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         workbookId_problemId: {
           workbookId,
           problemId
