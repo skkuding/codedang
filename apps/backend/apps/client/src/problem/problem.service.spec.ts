@@ -1,8 +1,8 @@
+// problem.service.spec.ts
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Test, type TestingModule } from '@nestjs/testing'
+import { Test, TestingModule } from '@nestjs/testing'
 import { faker } from '@faker-js/faker'
-import { Prisma, ResultStatus } from '@prisma/client'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
+import { ResultStatus } from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { stub } from 'sinon'
@@ -43,19 +43,17 @@ const db = {
   problem: {
     findMany: stub(),
     findFirst: stub(),
-    findUniqueOrThrow: stub(),
+    findUnique: stub(),
     count: stub().resolves(2)
   },
   contestProblem: {
     findMany: stub(),
     findUnique: stub(),
-    findUniqueOrThrow: stub(),
     count: stub().resolves(2)
   },
   workbookProblem: {
     findMany: stub(),
     findUnique: stub(),
-    findUniqueOrThrow: stub(),
     count: stub().resolves(2)
   },
   tag: {
@@ -76,9 +74,6 @@ const db = {
   codeDraft: {
     findMany: stub(),
     findUnique: stub(),
-    findUniqueOrThrow: stub(),
-    create: stub(),
-    update: stub(),
     upsert: stub()
   },
   getPaginator: PrismaService.prototype.getPaginator
@@ -207,7 +202,7 @@ describe('ProblemService', () => {
   describe('getProblem', () => {
     it('should return the public problem', async () => {
       // given
-      db.problem.findUniqueOrThrow.resolves(mockProblem)
+      db.problem.findUnique.resolves(mockProblem)
       db.problemTag.findMany.resolves([mockProblemTag])
 
       // when
@@ -222,18 +217,13 @@ describe('ProblemService', () => {
       )
     })
 
-    it('should throw error when the problem does not exist', async () => {
+    it('should throw EntityNotExistException when the problem does not exist', async () => {
       // given
-      db.problem.findUniqueOrThrow.rejects(
-        new Prisma.PrismaClientKnownRequestError('problem', {
-          code: 'P2002',
-          clientVersion: '5.1.1'
-        })
-      )
+      db.problem.findUnique.resolves(null)
 
       // then
       await expect(service.getProblem(problemId)).to.be.rejectedWith(
-        Prisma.PrismaClientKnownRequestError
+        EntityNotExistException
       )
     })
   })
@@ -335,7 +325,7 @@ describe('ContestProblemService', () => {
       )
     })
 
-    it('should throw error when the contest is not visible', async () => {
+    it('should throw EntityNotExistException when the contest is not visible', async () => {
       // given
       const getContestSpy = stub(contestService, 'getContest')
       getContestSpy.rejects(new EntityNotExistException('Contest'))
@@ -346,7 +336,7 @@ describe('ContestProblemService', () => {
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
-    it('should throw error when the user is registered but contest is not started', async () => {
+    it('should throw ForbiddenAccessException when the user is registered but contest is not started', async () => {
       const getContestSpy = stub(contestService, 'getContest')
       getContestSpy.resolves({
         startTime: faker.date.future(),
@@ -362,7 +352,7 @@ describe('ContestProblemService', () => {
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
 
-    it('should throw error when the user is not registered and contest is not ended', async () => {
+    it('should throw ForbiddenAccessException when the user is not registered and contest is not ended', async () => {
       const getContestSpy = stub(contestService, 'getContest')
       getContestSpy.resolves({
         startTime: faker.date.past(),
@@ -390,7 +380,7 @@ describe('ContestProblemService', () => {
         isJudgeResultVisible: true,
         invitationCodeExists: true
       })
-      db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
+      db.contestProblem.findUnique.resolves(mockContestProblem)
 
       // when
       const result = await service.getContestProblem(
@@ -415,7 +405,7 @@ describe('ContestProblemService', () => {
         isJudgeResultVisible: true,
         invitationCodeExists: true
       })
-      db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
+      db.contestProblem.findUnique.resolves(mockContestProblem)
 
       // when
       const result = await service.getContestProblem(
@@ -430,7 +420,7 @@ describe('ContestProblemService', () => {
       )
     })
 
-    it('should throw error when the contest is not visible', async () => {
+    it('should throw EntityNotExistException when the contest is not visible', async () => {
       // given
       const getContestSpy = stub(contestService, 'getContest')
       getContestSpy.rejects(new EntityNotExistException('Contest'))
@@ -441,7 +431,7 @@ describe('ContestProblemService', () => {
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
-    it('should throw error when the user is registered but contest is not started', async () => {
+    it('should throw ForbiddenAccessException when the user is registered but contest is not started', async () => {
       const getContestSpy = stub(contestService, 'getContest')
       getContestSpy.resolves({
         startTime: faker.date.future(),
@@ -450,13 +440,13 @@ describe('ContestProblemService', () => {
         isJudgeResultVisible: true,
         invitationCodeExists: true
       })
-      db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
+      db.contestProblem.findUnique.resolves(mockContestProblem)
       await expect(
         service.getContestProblem(contestId, problemId, userId)
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
 
-    it('should throw error when the user is not registered and contest is not ended', async () => {
+    it('should throw ForbiddenAccessException when the user is not registered and contest is not ended', async () => {
       const getContestSpy = stub(contestService, 'getContest')
       getContestSpy.resolves({
         startTime: faker.date.past(),
@@ -465,7 +455,7 @@ describe('ContestProblemService', () => {
         isJudgeResultVisible: true,
         invitationCodeExists: true
       })
-      db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
+      db.contestProblem.findUnique.resolves(mockContestProblem)
       await expect(
         service.getContestProblem(contestId, problemId, userId)
       ).to.be.rejectedWith(ForbiddenAccessException)
@@ -557,14 +547,14 @@ describe('WorkbookProblemService', () => {
       )
     })
 
-    it('should throw error when the workbook is not visible', async () => {
+    it('should throw ForbiddenAccessException when the workbook is not visible', async () => {
       // given
       stub(workbookService, 'isVisible').resolves(false)
 
       // then
       await expect(
         service.getWorkbookProblems(workbookId, 1, 1)
-      ).to.be.rejectedWith(EntityNotExistException)
+      ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })
 
@@ -572,7 +562,7 @@ describe('WorkbookProblemService', () => {
     it('should return the public workbook problem', async () => {
       // given
       stub(workbookService, 'isVisible').resolves(true)
-      db.workbookProblem.findUniqueOrThrow.resolves(mockWorkbookProblem)
+      db.workbookProblem.findUnique.resolves(mockWorkbookProblem)
 
       // when
       const result = await service.getWorkbookProblem(workbookId, problemId)
@@ -586,7 +576,7 @@ describe('WorkbookProblemService', () => {
     it('should return the group workbook problem', async () => {
       // given
       stub(workbookService, 'isVisible').resolves(true)
-      db.workbookProblem.findUniqueOrThrow.resolves(mockWorkbookProblem)
+      db.workbookProblem.findUnique.resolves(mockWorkbookProblem)
 
       // when
       const result = await service.getWorkbookProblem(
@@ -601,109 +591,103 @@ describe('WorkbookProblemService', () => {
       )
     })
 
-    it('should throw error when the workbook is not visible', async () => {
+    it('should throw ForbiddenAccessException when the workbook is not visible', async () => {
       // given
       stub(workbookService, 'isVisible').resolves(false)
 
       // then
       await expect(
-        service.getWorkbookProblem(contestId, problemId)
+        service.getWorkbookProblem(workbookId, problemId)
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+  })
+})
+
+describe('CodeDraftService', () => {
+  let service: CodeDraftService
+  let problemRepository: ProblemRepository
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        CodeDraftService,
+        ProblemRepository,
+        { provide: PrismaService, useValue: db },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => [],
+            del: () => [],
+            store: {
+              keys: () => []
+            }
+          })
+        }
+      ]
+    }).compile()
+
+    service = module.get<CodeDraftService>(CodeDraftService)
+    problemRepository = module.get<ProblemRepository>(ProblemRepository)
+  })
+
+  it('should be defined', () => {
+    expect(service).to.be.ok
+  })
+
+  it('should be defined', () => {
+    expect(problemRepository).to.be.ok
+  })
+
+  describe('getCodeDraft', () => {
+    it('should return Code Draft', async () => {
+      // given
+      db.codeDraft.findUnique.resolves(mockCodeDraft)
+      // when
+      const result = await service.getCodeDraft(mockUser.id, mockProblem.id)
+
+      // then
+      expect(result).to.deep.equal(
+        plainToInstance(CodeDraftResponseDto, mockCodeDraft)
+      )
+    })
+
+    it('should throw EntityNotExistException when the code draft does not exist', async () => {
+      // given
+      db.codeDraft.findUnique.resolves(null)
+      // then
+      await expect(
+        service.getCodeDraft(mockUser.id, mockProblem.id)
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 
-  describe('CodeDraftService', () => {
-    let service: CodeDraftService
-    let problemRepository: ProblemRepository
+  describe('upsertCodeDraft', () => {
+    it('should upsert code draft', async () => {
+      // given
+      db.codeDraft.upsert.resolves(mockCodeDraft)
+      // when
+      const result = await service.upsertCodeDraft(
+        mockUser.id,
+        mockProblem.id,
+        mockTemplate
+      )
 
-    beforeEach(async () => {
-      const module: TestingModule = await Test.createTestingModule({
-        providers: [
-          CodeDraftService,
-          ProblemRepository,
-          { provide: PrismaService, useValue: db },
-          {
-            provide: CACHE_MANAGER,
-            useFactory: () => ({
-              set: () => [],
-              get: () => [],
-              del: () => [],
-              store: {
-                keys: () => []
-              }
-            })
-          }
-        ]
-      }).compile()
-
-      service = module.get<CodeDraftService>(CodeDraftService)
-      problemRepository = module.get<ProblemRepository>(ProblemRepository)
+      // then
+      expect(result).to.deep.equal(
+        plainToInstance(CodeDraftResponseDto, mockCodeDraft)
+      )
     })
 
-    it('should be defined', () => {
-      expect(service).to.be.ok
-    })
-
-    it('should be defined', () => {
-      expect(problemRepository).to.be.ok
-    })
-
-    describe('getCodeDraft', () => {
-      it('should return Code Draft', async () => {
-        // given
-        db.codeDraft.findUniqueOrThrow.resolves(mockCodeDraft)
-        // when
-        const result = await service.getCodeDraft(mockUser.id, mockProblem.id)
-
-        // then
-        expect(result).to.deep.equal(
-          plainToInstance(CodeDraftResponseDto, mockCodeDraft)
-        )
-      })
-      it('should throw error when the problem does not exist', async () => {
-        // given
-        db.codeDraft.findUniqueOrThrow.rejects(
-          new Prisma.PrismaClientKnownRequestError('problem', {
-            code: 'P2025',
-            clientVersion: '5.1.1'
-          })
-        )
-        // then
-        await expect(
-          service.getCodeDraft(mockUser.id, mockProblem.id)
-        ).to.be.rejectedWith(PrismaClientKnownRequestError)
-      })
-    })
-    describe('upsertCodeDraft', () => {
-      it('should upsert code draft', async () => {
-        // given
-        db.codeDraft.upsert.resolves(mockCodeDraft)
-        // when
-        const result = await service.upsertCodeDraft(
-          mockUser.id,
-          mockProblem.id,
-          mockTemplate
-        )
-
-        // then
-        expect(result).to.deep.equal(
-          plainToInstance(CodeDraftResponseDto, mockCodeDraft)
-        )
-      })
-      it('should throw error when the problem does not exist', async () => {
-        // given
-        db.codeDraft.upsert.rejects(
-          new Prisma.PrismaClientKnownRequestError('problem', {
-            code: 'P2003',
-            clientVersion: '5.1.1'
-          })
-        )
-
-        // then
-        await expect(
-          service.upsertCodeDraft(mockUser.id, mockProblem.id, mockTemplate)
-        ).to.be.rejectedWith(PrismaClientKnownRequestError)
-      })
+    it('should throw EntityNotExistException when the user or problem does not exist', async () => {
+      // given
+      db.codeDraft.upsert.rejects(
+        new EntityNotExistException('User or Problem')
+      )
+      // then
+      await expect(
+        service.upsertCodeDraft(mockUser.id, mockProblem.id, mockTemplate)
+      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 })
