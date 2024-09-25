@@ -6,7 +6,6 @@ import {
   InternalServerErrorException,
   ConflictException,
   NotFoundException,
-  BadRequestException,
   UnprocessableEntityException
 } from '@nestjs/common'
 import { BaseExceptionFilter } from '@nestjs/core'
@@ -63,14 +62,32 @@ export class ClientExceptionFilter extends BaseExceptionFilter {
 const convertPrismaError2HTTPException = (
   exception: PrismaClientKnownRequestError
 ) => {
+  const meta = exception.meta as {
+    cause?: string
+    model?: string
+  }
+
+  /*
+    TODO: 특정 상황에서 `meta`가 undefined로 반환되는 문제가 있는 것으로 보임.
+    해당 문제 해결되면 exception.message가 아닌 `meta`를 활용한 통일된 에러 메세지를 전달하도록 수정
+    참고: https://github.com/prisma/prisma/issues/24449
+  */
+  const extraDescription = meta?.model
+    ? ` : on model "${meta.model}", during "${meta.cause}"`
+    : ''
+
   switch (exception.code) {
     case 'P2002': // Unique Constraint violation
-      return new ConflictException(exception.message)
+      return new ConflictException(exception.message + extraDescription)
     case 'P2025': // Record not found
-      return new NotFoundException(exception.message)
+      return new NotFoundException(exception.message + extraDescription)
     case 'P2003': // Foreign key constraint violation
-      return new UnprocessableEntityException(exception.message)
+      return new UnprocessableEntityException(
+        exception.message + extraDescription
+      )
     default:
-      return new BadRequestException(exception.message)
+      return new InternalServerErrorException(
+        exception.message + extraDescription
+      )
   }
 }
