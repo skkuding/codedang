@@ -358,14 +358,17 @@ export class SubmissionService {
       })
     }
 
+    await this.cacheManager.set(
+      testKey(userId),
+      testcases,
+      TEST_SUBMISSION_EXPIRE_TIME
+    )
+
     await this.publish.publishJudgeRequestMessage(
       submissionDto.code,
       testSubmission,
       true
     )
-
-    const key = testKey(userId)
-    await this.cacheManager.set(key, testcases, TEST_SUBMISSION_EXPIRE_TIME)
   }
 
   async getTestResult(userId: number) {
