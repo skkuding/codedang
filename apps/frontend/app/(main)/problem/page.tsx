@@ -22,7 +22,7 @@ export default function Problem() {
             <>
               <div className="mt-4 flex">
                 <span className="w-5/12">
-                  ssss
+                  ssss dd
                   <Skeleton className="h-6 w-20" />
                 </span>
                 <span className="w-2/12">
