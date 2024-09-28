@@ -106,13 +106,9 @@ export class AuthService {
   }
 
   async deleteRefreshToken(userId: number, refreshToken: string) {
-    try {
-      return await this.cacheManager.del(
-        refreshTokenCacheKey(userId, refreshToken)
-      )
-    } catch (error) {
-      throw new EntityNotExistException(error.mesage)
-    }
+    return await this.cacheManager.del(
+      refreshTokenCacheKey(userId, refreshToken)
+    )
   }
 
   async githubLogin(res: Response, githubUser: GithubUser) {

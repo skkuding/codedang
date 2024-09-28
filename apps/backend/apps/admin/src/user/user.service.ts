@@ -64,7 +64,7 @@ export class UserService {
       }
     })
 
-    if (userGroups != null) {
+    if (userGroups) {
       return userGroups.map((userGroup) => {
         return {
           username: userGroup.user.username,
@@ -76,7 +76,7 @@ export class UserService {
           role: userGroup.user.role
         }
       })
-    } else if (userGroups == null) {
+    } else if (!userGroups) {
       throw new EntityNotExistException(userGroups)
     }
   }
@@ -105,7 +105,7 @@ export class UserService {
         }
       }
     })
-    if (userGroup != null) {
+    if (userGroup) {
       return {
         username: userGroup.user.username,
         userId: userGroup.user.id,
@@ -115,7 +115,7 @@ export class UserService {
         major: userGroup.user.major,
         role: userGroup.user.role
       }
-    } else if (userGroup == null) {
+    } else if (!userGroup) {
       new EntityNotExistException(userGroup)
     }
   }
