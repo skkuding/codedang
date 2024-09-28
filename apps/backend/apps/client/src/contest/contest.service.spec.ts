@@ -20,6 +20,7 @@ import {
   type FlatTransactionClient
 } from '@libs/prisma'
 import { ContestService, type ContestResult } from './contest.service'
+import type { OngoingUpcomingContestsWithRegistered } from './type/contests.type'
 
 const contestId = 1
 const user01Id = 4
@@ -141,6 +142,7 @@ describe('ContestService', () => {
   })
 
   it('should be defined', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     expect(service).to.be.ok
   })
 
@@ -168,7 +170,10 @@ describe('ContestService', () => {
     })
 
     it('should return ongoing, upcoming, registered ongoing, registered upcoming contests when userId is provided', async () => {
-      const contests = await service.getContestsByGroupId(groupId, user01Id)
+      const contests = (await service.getContestsByGroupId(
+        groupId,
+        user01Id
+      )) as OngoingUpcomingContestsWithRegistered
       expect(contests.ongoing).to.have.lengthOf(2)
       expect(contests.upcoming).to.have.lengthOf(1)
       expect(contests.registeredOngoing).to.have.lengthOf(2)
@@ -176,7 +181,10 @@ describe('ContestService', () => {
     })
 
     it('a contest should contain following fields when userId is provided', async () => {
-      const contests = await service.getContestsByGroupId(groupId, user01Id)
+      const contests = (await service.getContestsByGroupId(
+        groupId,
+        user01Id
+      )) as OngoingUpcomingContestsWithRegistered
       expect(contests.ongoing[0]).to.have.property('title')
       expect(contests.ongoing[0]).to.have.property('startTime')
       expect(contests.ongoing[0]).to.have.property('endTime')
@@ -343,6 +351,7 @@ describe('ContestService', () => {
     })
 
     it('should return contest', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       expect(await service.getContest(contestId, groupId, user01Id)).to.be.ok
     })
   })
@@ -361,7 +370,7 @@ describe('ContestService', () => {
     it('should throw error when the contest does not exist', async () => {
       await expect(
         service.createContestRecord(999, user01Id, invitationCode)
-      ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
+      ).to.be.rejectedWith(EntityNotExistException)
     })
 
     it('should throw error when user is participated in contest again', async () => {

@@ -1,27 +1,17 @@
 import {
   Controller,
-  InternalServerErrorException,
-  NotFoundException,
   Param,
   Post,
   Req,
   Get,
   Query,
-  Logger,
   DefaultValuePipe,
   Delete
 } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
 import {
-  AuthNotNeededIfOpenSpace,
   AuthenticatedRequest,
   UserNullWhenAuthFailedIfOpenSpace
 } from '@libs/auth'
-import {
-  ConflictFoundException,
-  EntityNotExistException,
-  ForbiddenAccessException
-} from '@libs/exception'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -32,39 +22,43 @@ import { ContestService } from './contest.service'
 
 @Controller('contest')
 export class ContestController {
-  private readonly logger = new Logger(ContestController.name)
-
   constructor(private readonly contestService: ContestService) {}
 
+  /**
+   * 진행 중인 대회와 진행 예정인 대회를 불러옵니다.
+   * 로그인 상태인 경우 유저가 등록한 대회를 함께 불러옵니다.
+   */
   @Get('ongoing-upcoming')
-  @AuthNotNeededIfOpenSpace()
+  @UserNullWhenAuthFailedIfOpenSpace()
   async getOngoingUpcomingContests(
-    @Query('groupId', GroupIDPipe) groupId: number
-  ) {
-    try {
-      return await this.contestService.getContestsByGroupId(groupId)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get('ongoing-upcoming-with-registered')
-  async getOngoingUpcomingContestsWithRegistered(
     @Req() req: AuthenticatedRequest,
     @Query('groupId', GroupIDPipe) groupId: number
   ) {
-    try {
-      return await this.contestService.getContestsByGroupId(
-        groupId,
-        req.user.id
-      )
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.getContestsByGroupId(groupId, req.user?.id)
   }
 
+  /**
+   * 진행 중이거나 진행 예정이면서, 유저가 등록한 대회를 불러옵니다.
+   * @param search 대회 제목에서 검색할 문자열 (optional)
+   */
+  @Get('registered-ongoing-upcoming')
+  async getRegisteredOngoingUpcomingContests(
+    @Req() req: AuthenticatedRequest,
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query('search') search?: string
+  ) {
+    return await this.contestService.getRegisteredOngoingUpcomingContests(
+      groupId,
+      req.user.id,
+      search
+    )
+  }
+
+  /**
+   * 종료된 대회를 불러옵니다.
+   * 유저가 등록했는지 여부를 함께 표시합니다.
+   * @param search 대회 제목에서 검색할 문자열 (optional)
+   */
   @Get('finished')
   @UserNullWhenAuthFailedIfOpenSpace()
   async getFinishedContests(
@@ -75,20 +69,19 @@ export class ContestController {
     take: number,
     @Query('search') search?: string
   ) {
-    try {
-      return await this.contestService.getFinishedContestsByGroupId(
-        req.user?.id,
-        cursor,
-        take,
-        groupId,
-        search
-      )
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.getFinishedContestsByGroupId(
+      req.user?.id,
+      cursor,
+      take,
+      groupId,
+      search
+    )
   }
 
+  /**
+   * 종료된 대회 중, 유저가 등록한 대회를 불러옵니다.
+   * @param search 대회 제목에서 검색할 문자열 (optional)
+   */
   @Get('registered-finished')
   async getRegisteredFinishedContests(
     @Req() req: AuthenticatedRequest,
@@ -98,38 +91,19 @@ export class ContestController {
     take: number,
     @Query('search') search?: string
   ) {
-    try {
-      return await this.contestService.getRegisteredFinishedContests(
-        cursor,
-        take,
-        groupId,
-        req.user.id,
-        search
-      )
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.getRegisteredFinishedContests(
+      cursor,
+      take,
+      groupId,
+      req.user.id,
+      search
+    )
   }
 
-  @Get('registered-ongoing-upcoming')
-  async getRegisteredOngoingUpcomingContests(
-    @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number,
-    @Query('search') search?: string
-  ) {
-    try {
-      return await this.contestService.getRegisteredOngoingUpcomingContests(
-        groupId,
-        req.user.id,
-        search
-      )
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-
+  /**
+   * groupId와 id(contestId)에 맞는 Contest 정보를 불러옵니다.
+   * 유저가 등록했는지 여부, 초대코드가 존재하는지 여부를 함께 반환합니다.
+   */
   @Get(':id')
   @UserNullWhenAuthFailedIfOpenSpace()
   async getContest(
@@ -137,17 +111,12 @@ export class ContestController {
     @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', new RequiredIntPipe('id')) id: number
   ) {
-    try {
-      return await this.contestService.getContest(id, groupId, req.user?.id)
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.getContest(id, groupId, req.user?.id)
   }
 
+  /**
+   * 유저를 Contest에 등록합니다.
+   */
   @Post(':id/participation')
   async createContestRecord(
     @Req() req: AuthenticatedRequest,
@@ -155,49 +124,28 @@ export class ContestController {
     @Param('id', IDValidationPipe) contestId: number,
     @Query('invitationCode') invitationCode?: string
   ) {
-    try {
-      return await this.contestService.createContestRecord(
-        contestId,
-        req.user.id,
-        invitationCode,
-        groupId
-      )
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name === 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      } else if (error instanceof ConflictFoundException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException(error.message)
-    }
+    return await this.contestService.createContestRecord(
+      contestId,
+      req.user.id,
+      invitationCode,
+      groupId
+    )
   }
 
-  // unregister only for upcoming contest
+  /**
+   * Contest에 등록된 사용자를 등록 취소합니다.
+   * 등록 취소는 아직 시작되지 않은 대회에서만 가능합니다.
+   */
   @Delete(':id/participation')
   async deleteContestRecord(
     @Req() req: AuthenticatedRequest,
     @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', IDValidationPipe) contestId: number
   ) {
-    try {
-      return await this.contestService.deleteContestRecord(
-        contestId,
-        req.user.id,
-        groupId
-      )
-    } catch (error) {
-      if (
-        error instanceof ForbiddenAccessException ||
-        error instanceof EntityNotExistException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException(error.message)
-    }
+    return await this.contestService.deleteContestRecord(
+      contestId,
+      req.user.id,
+      groupId
+    )
   }
 }
