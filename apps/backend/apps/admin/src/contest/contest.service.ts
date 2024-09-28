@@ -807,6 +807,9 @@ export class ContestService {
             contestId: submission.contestId!,
             problemId: submission.problemId
           }
+        },
+        select: {
+          score: true
         }
       })
 
@@ -827,9 +830,10 @@ export class ContestService {
   }
 
   async getContestScoreSummaries(
-    take: number,
     contestId: number,
-    cursor: number | null
+    take: number,
+    cursor: number | null,
+    searchingName?: string
   ) {
     const paginator = this.prisma.getPaginator(cursor)
 
@@ -839,7 +843,17 @@ export class ContestService {
         contestId,
         userId: {
           not: null
-        }
+        },
+        user: searchingName
+          ? {
+              userProfile: {
+                realName: {
+                  contains: searchingName,
+                  mode: 'insensitive'
+                }
+              }
+            }
+          : undefined
       },
       take,
       include: {

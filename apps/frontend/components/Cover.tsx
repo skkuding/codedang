@@ -25,12 +25,12 @@ const icons: { [key: string]: string } = {
  */
 export default function Cover({ title, description }: CoverProps) {
   return (
-    <div className="flex-col">
-      <div className="absolute top-0 z-[10] h-16 w-full bg-white" />
+    <div className="w-screen">
+      <div className="absolute left-0 top-0 z-[10] h-16 w-full bg-white" />
       <div
         className={cn(
           bgColors[title.toLowerCase()],
-          'z-[-10] flex h-[200px] w-screen items-center justify-center'
+          'z-[-10] flex h-[200px] w-full items-center justify-center'
         )}
       >
         <Image

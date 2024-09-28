@@ -1,10 +1,12 @@
+'use client'
+
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { useFormContext } from 'react-hook-form'
 import ErrorMessage from '../../_components/ErrorMessage'
 import { inputStyle } from '../../utils'
 
-export default function LimitForm() {
+export default function LimitForm({ blockEdit }: { blockEdit?: boolean }) {
   const {
     formState: { errors },
     register
@@ -15,6 +17,7 @@ export default function LimitForm() {
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <Input
+            disabled={blockEdit}
             id="time"
             type="number"
             min={0}
@@ -32,6 +35,7 @@ export default function LimitForm() {
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <Input
+            disabled={blockEdit}
             id="memory"
             type="number"
             min={0}

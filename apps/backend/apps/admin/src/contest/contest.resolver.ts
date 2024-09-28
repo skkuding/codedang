@@ -192,14 +192,20 @@ export class ContestResolver {
    */
   @Query(() => [UserContestScoreSummaryWithUserInfo])
   async getContestScoreSummaries(
-    @Args('take', { type: () => Int, defaultValue: 10 }) take: number,
-    @Args('contestId', { type: () => Int }) contestId: number,
-    @Args('cursor', { type: () => Int, nullable: true }) cursor: number | null
+    @Args('contestId', { type: () => Int, nullable: false }, IDValidationPipe)
+    contestId: number,
+    @Args('take', { type: () => Int, defaultValue: 10 })
+    take: number,
+    @Args('cursor', { type: () => Int, nullable: true }, CursorValidationPipe)
+    cursor: number | null,
+    @Args('searchingName', { type: () => String, nullable: true })
+    searchingName?: string
   ) {
     return await this.contestService.getContestScoreSummaries(
-      take,
       contestId,
-      cursor
+      take,
+      cursor,
+      searchingName
     )
   }
 
