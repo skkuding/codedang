@@ -112,6 +112,8 @@ export default function Page() {
     }
   })
 
+  useConfirmNavigation()
+
   const [isCheckButtonClicked, setIsCheckButtonClicked] =
     useState<boolean>(false)
   const [isPasswordCorrect, setIsPasswordCorrect] = useState<boolean>(false)
@@ -245,7 +247,7 @@ export default function Page() {
       {/* Form */}
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex h-svh max-h-[846px] w-full flex-col justify-between gap-4 px-4"
+        className="flex h-svh max-h-[846px] w-full flex-col justify-between gap-4 overflow-y-auto px-4"
       >
         {/* Topic */}
         <TopicSection updateNow={!!updateNow} />
