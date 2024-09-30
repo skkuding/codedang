@@ -1,6 +1,5 @@
 import codedangSymbol from '@/public/codedang-editor.svg'
 import Image from 'next/image'
-import React from 'react'
 
 export default function LogoSection() {
   return (
