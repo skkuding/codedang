@@ -9,7 +9,26 @@ import {
 import { cn } from '@/lib/utils'
 import type { TestcaseResult } from '@/types/type'
 
-export default function TestcaseTable({ data }: { data: TestcaseResult[] }) {
+export default function TestcaseTable({
+  data,
+  testcaseTabList,
+  setTestcaseTabList,
+  setCurrentTab
+}: {
+  data: TestcaseResult[]
+  testcaseTabList: TestcaseResult[]
+  setTestcaseTabList: (data: TestcaseResult[]) => void
+  setCurrentTab: (data: number) => void
+}) {
+  function handleRowClick(index: number) {
+    setCurrentTab(index + 1)
+    const updatedList = [...testcaseTabList, data[index]]
+    const uniqueList = updatedList.filter(
+      (item, index, self) => index === self.findIndex((t) => t.id === item.id)
+    )
+    setTestcaseTabList(uniqueList)
+  }
+
   return (
     <Table className="rounded-t-md">
       <TableHeader className="bg-[#121728] [&_tr]:border-b-slate-600">
@@ -21,10 +40,13 @@ export default function TestcaseTable({ data }: { data: TestcaseResult[] }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.map((testResult) => (
+        {data.map((testResult, index) => (
           <TableRow
             key={testResult.id}
             className="border-b border-b-slate-600 text-left hover:bg-slate-700"
+            onClick={() => {
+              handleRowClick(index)
+            }}
           >
             <TableCell className="p-3 text-left md:p-3">
               Sample #{testResult.id}
