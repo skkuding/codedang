@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -18,60 +18,64 @@ export class SubmissionService {
     const paginator = this.prisma.getPaginator(cursor)
 
     const { contestId, problemId } = input
-    const contestSubmissions = await this.prisma.submission.findMany({
-      ...paginator,
-      take,
-      where: {
-        contestId,
-        problemId
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            studentId: true,
-            userProfile: {
-              select: {
-                realName: true
+    try {
+      const contestSubmissions = await this.prisma.submission.findMany({
+        ...paginator,
+        take,
+        where: {
+          contestId,
+          problemId
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              studentId: true,
+              userProfile: {
+                select: {
+                  realName: true
+                }
               }
             }
-          }
-        },
-        problem: {
-          select: {
-            title: true,
-            contestProblem: {
-              where: {
-                contestId,
-                problemId: problemId ?? undefined
+          },
+          problem: {
+            select: {
+              title: true,
+              contestProblem: {
+                where: {
+                  contestId,
+                  problemId: problemId ?? undefined
+                }
               }
             }
           }
         }
-      }
-    })
+      })
 
-    const results = contestSubmissions.map((c) => {
-      return {
-        title: c.problem.title,
-        studentId: c.user?.studentId ?? 'Unknown',
-        realname: c.user?.userProfile?.realName ?? 'Unknown',
-        username: c.user?.username ?? 'Unknown',
-        result: c.result as ResultStatus,
-        language: c.language as Language,
-        submissionTime: c.createTime,
-        codeSize: c.codeSize ?? null,
-        ip: c.userIp ?? 'Unknown',
-        id: c.id,
-        problemId: c.problemId,
-        order: c.problem.contestProblem.length
-          ? c.problem.contestProblem[0].order
-          : null
-      }
-    })
+      const results = contestSubmissions.map((c) => {
+        return {
+          title: c.problem.title,
+          studentId: c.user?.studentId ?? 'Unknown',
+          realname: c.user?.userProfile?.realName ?? 'Unknown',
+          username: c.user?.username ?? 'Unknown',
+          result: c.result as ResultStatus,
+          language: c.language as Language,
+          submissionTime: c.createTime,
+          codeSize: c.codeSize ?? null,
+          ip: c.userIp ?? 'Unknown',
+          id: c.id,
+          problemId: c.problemId,
+          order: c.problem.contestProblem.length
+            ? c.problem.contestProblem[0].order
+            : null
+        }
+      })
 
-    return results
+      return results
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
   async getSubmission(id: number) {

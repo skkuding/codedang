@@ -1,4 +1,3 @@
-import { InternalServerErrorException, Logger } from '@nestjs/common'
 import { Args, Int, Query, Resolver } from '@nestjs/graphql'
 import { CursorValidationPipe } from '@libs/pipe'
 import { Submission } from '@admin/@generated'
@@ -9,7 +8,6 @@ import { SubmissionService } from './submission.service'
 
 @Resolver(() => Submission)
 export class SubmissionResolver {
-  private readonly logger = new Logger(SubmissionResolver.name)
   constructor(private readonly submissionService: SubmissionService) {}
 
   /**
@@ -30,16 +28,11 @@ export class SubmissionResolver {
     @Args('take', { nullable: true, defaultValue: 10, type: () => Int })
     take: number
   ): Promise<ContestSubmission[]> {
-    try {
-      return await this.submissionService.getContestSubmissions(
-        input,
-        take,
-        cursor
-      )
-    } catch (error) {
-      this.logger.error(error.error)
-      throw new InternalServerErrorException()
-    }
+    return await this.submissionService.getContestSubmissions(
+      input,
+      take,
+      cursor
+    )
   }
   /**
    * 특정 Contest의 특정 제출 내역에 대한 상세 정보를 불러옵니다.
