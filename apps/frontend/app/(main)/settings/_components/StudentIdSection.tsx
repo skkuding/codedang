@@ -1,7 +1,6 @@
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import type { SettingsFormat } from '@/types/type'
-import React from 'react'
 import type { FieldErrors, UseFormRegister } from 'react-hook-form'
 
 interface StudentIdSectionProps {

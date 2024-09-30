@@ -1,6 +1,5 @@
 import { Input } from '@/components/ui/input'
 import type { SettingsFormat } from '@/types/type'
-import React from 'react'
 import type { FieldErrors, UseFormRegister } from 'react-hook-form'
 
 interface NameSectionProps {
