@@ -81,15 +81,6 @@ export default function SubmissionDetailAdmin({
             </div>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
-          <div>
-            <h2 className="mb-3 font-bold">Source Code</h2>
-            <CodeEditor
-              value={submission?.code}
-              language={submission?.language as Language}
-              readOnly
-              className="max-h-96 min-h-16 w-full"
-            />
-          </div>
           {submission?.testcaseResult.length !== 0 && (
             <div>
               <h2 className="font-bold">Test case</h2>
@@ -102,7 +93,7 @@ export default function SubmissionDetailAdmin({
                     <TableHead className="text-black">Memory</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
+                <TableBody className="text-slate-400">
                   {submission?.testcaseResult.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell>{item.id}</TableCell>
@@ -129,6 +120,15 @@ export default function SubmissionDetailAdmin({
               </Table>
             </div>
           )}
+          <div>
+            <h2 className="mb-3 font-bold">Source Code</h2>
+            <CodeEditor
+              value={submission?.code}
+              language={submission?.language as Language}
+              readOnly
+              className="max-h-96 min-h-16 w-full"
+            />
+          </div>
         </div>
       )}
     </ScrollArea>
