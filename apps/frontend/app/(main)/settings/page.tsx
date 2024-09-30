@@ -112,7 +112,7 @@ export default function Page() {
     }
   })
 
-  useConfirmNavigation()
+  useConfirmNavigation(bypassConfirmation, !!updateNow)
 
   const [isCheckButtonClicked, setIsCheckButtonClicked] =
     useState<boolean>(false)
