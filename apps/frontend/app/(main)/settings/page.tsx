@@ -1,38 +1,25 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList
-} from '@/components/ui/command'
-import { Input } from '@/components/ui/input'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { majors } from '@/lib/constants'
-import { cn, safeFetcher, safeFetcherWithAuth } from '@/lib/utils'
-import invisible from '@/public/24_invisible.svg'
-import visible from '@/public/24_visible.svg'
+import { safeFetcher, safeFetcherWithAuth } from '@/lib/utils'
 import type { SettingsFormat } from '@/types/type'
 import { zodResolver } from '@hookform/resolvers/zod'
-import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useEffect, useRef } from 'react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { FaCheck, FaChevronDown } from 'react-icons/fa6'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { useConfirmNavigation } from './_components/ConfirmNavigation'
+import CurrentPwSection from './_components/CurrentPWSection'
 import IdSection from './_components/IdSection'
 import LogoSection from './_components/LogoSection'
+import MajorSection from './_components/MajorSection'
+import NameSection from './_components/NameSection'
+import NewPwSection from './_components/NewPWSection'
+import ReEnterNewPwSection from './_components/ReEnterNewPWSection'
+import SaveButton from './_components/SaveButton'
+import StudentIdSection from './_components/StudentIdSection'
+import TopicSection from './_components/TopicSection'
 
 interface getProfile {
   username: string // ID
@@ -73,14 +60,6 @@ const schemaSettings = (updateNow: boolean) =>
       ? z.string().regex(/^\d{10}$/, { message: 'Only 10 numbers' })
       : z.string().optional()
   })
-
-function requiredMessage(message?: string) {
-  return (
-    <div className="-mt-4 inline-flex items-center text-xs text-red-500">
-      {message}
-    </div>
-  )
-}
 
 export default function Page() {
   const searchParams = useSearchParams()
@@ -142,14 +121,15 @@ export default function Page() {
   const [confirmPasswordShow, setConfirmPasswordShow] = useState<boolean>(false)
   const [majorOpen, setMajorOpen] = useState<boolean>(false)
   const [majorValue, setMajorValue] = useState<string>('')
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+
   const currentPassword = watch('currentPassword')
   const newPassword = watch('newPassword')
   const confirmPassword = watch('confirmPassword')
   const realName = watch('realName')
   const studentId = watch('studentId')
-  const isPasswordsMatch = newPassword === confirmPassword && newPassword !== ''
-  const [isLoading, setIsLoading] = useState<boolean>(true)
 
+  const isPasswordsMatch = newPassword === confirmPassword && newPassword !== ''
   const saveAblePassword: boolean =
     !!currentPassword &&
     !!newPassword &&
@@ -259,276 +239,92 @@ export default function Page() {
 
   return (
     <div className="flex w-full gap-20 py-6">
+      {/* Logo */}
       <LogoSection />
 
+      {/* Form */}
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="flex h-svh max-h-[846px] w-full flex-col justify-between gap-4 px-4"
       >
-        <h1 className="-mb-1 text-center text-2xl font-bold">Settings</h1>
-        <p className="text-center text-sm text-neutral-500">
-          {updateNow
-            ? 'You must update your information'
-            : 'You can change your information'}
-        </p>
-
+        {/* Topic */}
+        <TopicSection updateNow={!!updateNow} />
         {/* ID */}
         <IdSection
           isLoading={isLoading}
           defaultUsername={defaultProfileValues.username}
         />
-
         {/* Current password */}
-        <label className="-mb-4 mt-4 text-xs">Password</label>
-        <div className="flex items-center gap-2">
-          <div className="relative w-full justify-between">
-            <Input
-              type={passwordShow ? 'text' : 'password'}
-              placeholder="Current password"
-              {...register('currentPassword')}
-              disabled={
-                updateNow ? true : isCheckButtonClicked && isPasswordCorrect
-              }
-              className={cn(
-                'flex justify-stretch border-neutral-300 text-neutral-600 ring-0 placeholder:text-neutral-400 focus-visible:ring-0 disabled:bg-neutral-200 disabled:text-neutral-400',
-                errors.currentPassword && 'border-red-500',
-                isCheckButtonClicked &&
-                  (isPasswordCorrect ? 'border-primary' : 'border-red-500')
-              )}
-            />
-            <span
-              className="absolute right-0 top-0 flex h-full items-center p-3"
-              onClick={() => setPasswordShow(!passwordShow)}
-            >
-              {passwordShow ? (
-                <Image src={visible} alt="visible" />
-              ) : (
-                <Image src={invisible} alt="invisible" />
-              )}
-            </span>
-          </div>
-          <Button
-            disabled={!currentPassword}
-            className="h-4/5 px-2 disabled:bg-neutral-400"
-            onClick={checkPassword}
-          >
-            <FaCheck size={20} />
-          </Button>
-        </div>
-        {errors.currentPassword &&
-          errors.currentPassword.message === 'Required' &&
-          requiredMessage('Required')}
-        {!errors.currentPassword &&
-          isCheckButtonClicked &&
-          (isPasswordCorrect ? (
-            <div className="text-primary -mt-4 inline-flex items-center text-xs">
-              Correct
-            </div>
-          ) : (
-            <div className="-mt-4 inline-flex items-center text-xs text-red-500">
-              Incorrect
-            </div>
-          ))}
-
+        <CurrentPwSection
+          currentPassword={currentPassword}
+          isCheckButtonClicked={isCheckButtonClicked}
+          isPasswordCorrect={isPasswordCorrect}
+          setPasswordShow={setPasswordShow}
+          passwordShow={passwordShow}
+          checkPassword={checkPassword}
+          register={register}
+          errors={errors}
+          updateNow={!!updateNow}
+        />
         {/* New password */}
-        <div className="flex items-center gap-2">
-          <div className="relative w-full justify-between">
-            <Input
-              type={newPasswordShow ? 'text' : 'password'}
-              placeholder="New password"
-              disabled={updateNow ? true : !newPasswordAble}
-              {...register('newPassword')}
-              className={`flex justify-stretch border-neutral-300 ring-0 placeholder:text-neutral-400 focus-visible:ring-0 disabled:bg-neutral-200 ${
-                isPasswordsMatch
-                  ? 'border-primary'
-                  : (errors.newPassword && newPassword && 'border-red-500') ||
-                    (confirmPassword && 'border-red-500')
-              } `}
-            />
-            <span
-              className="absolute right-0 top-0 flex h-full items-center p-3"
-              onClick={() => setNewPasswordShow(!newPasswordShow)}
-            >
-              {newPasswordShow ? (
-                <Image src={visible} alt="visible" />
-              ) : (
-                <Image src={invisible} alt="invisible" />
-              )}
-            </span>
-          </div>
-        </div>
-        {errors.newPassword && newPasswordAble && (
-          <div
-            className={`-mt-3 inline-flex items-center text-xs ${newPassword && 'text-red-500'}`}
-          >
-            <ul>
-              <li>8-20 characters</li>
-              <li>
-                Include two of the following: capital letters, small letters,
-                numbers
-              </li>
-            </ul>
-          </div>
-        )}
-
+        <NewPwSection
+          newPasswordShow={newPasswordShow}
+          setNewPasswordShow={setNewPasswordShow}
+          newPasswordAble={newPasswordAble}
+          isPasswordsMatch={isPasswordsMatch}
+          newPassword={newPassword}
+          confirmPassword={confirmPassword}
+          updateNow={!!updateNow}
+          register={register}
+          errors={errors}
+        />
         {/* Re-enter new password */}
-        <div className="flex items-center gap-2">
-          <div className="relative w-full justify-between">
-            <Input
-              type={confirmPasswordShow ? 'text' : 'password'}
-              placeholder="Re-enter new password"
-              disabled={updateNow ? true : !newPasswordAble}
-              {...register('confirmPassword', {
-                validate: (val: string) => {
-                  if (watch('newPassword') != val) {
-                    return 'Incorrect'
-                  }
-                }
-              })}
-              className={`flex justify-stretch border-neutral-300 ring-0 placeholder:text-neutral-400 focus-visible:ring-0 disabled:bg-neutral-200 ${
-                isPasswordsMatch
-                  ? 'border-primary'
-                  : confirmPassword && 'border-red-500'
-              } `}
-            />
-            <span
-              className="absolute right-0 top-0 flex h-full items-center p-3"
-              onClick={() => setConfirmPasswordShow(!confirmPasswordShow)}
-            >
-              {confirmPasswordShow ? (
-                <Image src={visible} alt="visible" />
-              ) : (
-                <Image src={invisible} alt="invisible" />
-              )}
-            </span>
-          </div>
-        </div>
-        {getValues('confirmPassword') &&
-          (isPasswordsMatch ? (
-            <div className="text-primary -mt-4 inline-flex items-center text-xs">
-              Correct
-            </div>
-          ) : (
-            <div className="-mt-4 inline-flex items-center text-xs text-red-500">
-              Incorrect
-            </div>
-          ))}
-
+        <ReEnterNewPwSection
+          confirmPasswordShow={confirmPasswordShow}
+          setConfirmPasswordShow={setConfirmPasswordShow}
+          newPasswordAble={newPasswordAble}
+          updateNow={!!updateNow}
+          register={register}
+          getValues={getValues}
+          confirmPassword={confirmPassword}
+          isPasswordsMatch={isPasswordsMatch}
+        />
         <hr className="my-4 border-neutral-200" />
-
         {/* Name */}
-        <label className="-mb-4 text-xs">Name</label>
-        <Input
-          placeholder={
-            isLoading
-              ? 'Loading...'
-              : defaultProfileValues.userProfile?.realName
-          }
-          disabled={!!updateNow}
-          {...register('realName')}
-          className={`${realName && (errors.realName ? 'border-red-500' : 'border-primary')} placeholder:text-neutral-400 focus-visible:ring-0 disabled:bg-neutral-200`}
+        <NameSection
+          isLoading={isLoading}
+          updateNow={!!updateNow}
+          defaultProfileValues={defaultProfileValues}
+          register={register}
+          errors={errors}
+          realName={realName}
         />
-        {realName &&
-          errors.realName &&
-          requiredMessage(errors.realName.message)}
-
         {/* Student ID */}
-        <label className="-mb-4 mt-2 text-xs">Student ID</label>
-        <Input
-          placeholder={
-            updateNow
-              ? '2024123456'
-              : isLoading
-                ? 'Loading...'
-                : defaultProfileValues.studentId
-          }
-          disabled={!updateNow}
-          {...register('studentId')}
-          className={cn(
-            'text-neutral-600 placeholder:text-neutral-400 focus-visible:ring-0',
-            updateNow
-              ? errors.studentId || !studentId
-                ? 'border-red-500'
-                : 'border-primary'
-              : 'border-neutral-300 disabled:bg-neutral-200'
-          )}
+        <StudentIdSection
+          studentId={studentId}
+          updateNow={!!updateNow}
+          isLoading={isLoading}
+          errors={errors}
+          register={register}
+          defaultProfileValues={defaultProfileValues}
         />
-        {errors.studentId && requiredMessage(errors.studentId.message)}
-
-        {/* First Major */}
-        <label className="-mb-4 mt-2 text-xs">First Major</label>
-        <div className="flex flex-col gap-1">
-          <Popover open={majorOpen} onOpenChange={setMajorOpen} modal={true}>
-            <PopoverTrigger asChild>
-              <Button
-                aria-expanded={majorOpen}
-                variant="outline"
-                role="combobox"
-                className={cn(
-                  'justify-between border-gray-200 font-normal text-neutral-600 hover:bg-white',
-                  updateNow
-                    ? `${majorValue === 'none' || isLoading ? 'border-red-500 text-neutral-400' : 'border-primary'}`
-                    : majorValue === defaultProfileValues.major
-                      ? 'text-neutral-400'
-                      : 'border-primary'
-                )}
-              >
-                {isLoading
-                  ? 'Loading...'
-                  : updateNow
-                    ? majorValue === 'none'
-                      ? 'Department Information Unavailable / 학과 정보 없음'
-                      : majorValue
-                    : !majorValue
-                      ? defaultProfileValues.major
-                      : majorValue}
-                <FaChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[555px] p-0">
-              <Command>
-                <CommandInput placeholder="Search major..." />
-                <ScrollArea className="h-40">
-                  <CommandEmpty>No major found.</CommandEmpty>
-                  <CommandGroup>
-                    <CommandList>
-                      {majors?.map((major) => (
-                        <CommandItem
-                          key={major}
-                          value={major}
-                          onSelect={(currentValue) => {
-                            setMajorValue(currentValue)
-                            setMajorOpen(false)
-                          }}
-                        >
-                          <FaCheck
-                            className={cn(
-                              'mr-2 h-4 w-4',
-                              majorValue === major ? 'opacity-100' : 'opacity-0'
-                            )}
-                          />
-                          {major}
-                        </CommandItem>
-                      ))}
-                    </CommandList>
-                  </CommandGroup>
-                </ScrollArea>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        </div>
-
+        {/* Major */}
+        <MajorSection
+          majorOpen={majorOpen}
+          setMajorOpen={setMajorOpen}
+          majorValue={majorValue}
+          setMajorValue={setMajorValue}
+          updateNow={!!updateNow}
+          isLoading={isLoading}
+          defaultProfileValues={defaultProfileValues}
+        />
         {/* Save Button */}
-        <div className="mt-2 text-end">
-          <Button
-            disabled={updateNow ? !saveAbleUpdateNow : !saveAble}
-            type="submit"
-            className="font-semibold disabled:bg-neutral-300 disabled:text-neutral-500"
-            onClick={onSubmitClick()}
-          >
-            Save
-          </Button>
-        </div>
+        <SaveButton
+          updateNow={!!updateNow}
+          saveAble={saveAble}
+          saveAbleUpdateNow={saveAbleUpdateNow}
+          onSubmitClick={onSubmitClick}
+        />
       </form>
     </div>
   )
