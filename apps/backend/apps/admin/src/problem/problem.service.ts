@@ -642,34 +642,34 @@ export class ProblemService {
       throw new EntityNotExistException('workbook')
     }
 
-    // workbookId를 가지고 있는 workbookProblem을 모두 가져옴
-    const workbookProblemsToBeUpdated =
-      await this.prisma.workbookProblem.findMany({
-        where: { workbookId }
-      })
-    // orders 길이와  찾은 workbookProblem 길이가 같은지 확인
-    if (orders.length !== workbookProblemsToBeUpdated.length) {
-      throw new UnprocessableDataException(
-        'the len of orders and the len of workbookProblem are not equal.'
-      )
-    }
-    //problemId 기준으로 오름차순 정렬
-    workbookProblemsToBeUpdated.sort((a, b) => a.problemId - b.problemId)
-    const queries = workbookProblemsToBeUpdated.map((record) => {
-      const newOrder = orders.indexOf(record.problemId) + 1
-      return this.prisma.workbookProblem.update({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          workbookId_problemId: {
-            workbookId,
-            problemId: record.problemId
-          }
-        },
-        data: { order: newOrder }
-      })
-    })
-
     try {
+      // workbookId를 가지고 있는 workbookProblem을 모두 가져옴
+      const workbookProblemsToBeUpdated =
+        await this.prisma.workbookProblem.findMany({
+          where: { workbookId }
+        })
+      // orders 길이와  찾은 workbookProblem 길이가 같은지 확인
+      if (orders.length !== workbookProblemsToBeUpdated.length) {
+        throw new UnprocessableDataException(
+          'the len of orders and the len of workbookProblem are not equal.'
+        )
+      }
+      //problemId 기준으로 오름차순 정렬
+      workbookProblemsToBeUpdated.sort((a, b) => a.problemId - b.problemId)
+      const queries = workbookProblemsToBeUpdated.map((record) => {
+        const newOrder = orders.indexOf(record.problemId) + 1
+        return this.prisma.workbookProblem.update({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            workbookId_problemId: {
+              workbookId,
+              problemId: record.problemId
+            }
+          },
+          data: { order: newOrder }
+        })
+      })
+
       return await this.prisma.$transaction(queries)
     } catch (error) {
       throw new InternalServerErrorException(error)
@@ -680,13 +680,22 @@ export class ProblemService {
     groupId: number,
     contestId: number
   ): Promise<Partial<ContestProblem>[]> {
-    await this.prisma.contest.findFirstOrThrow({
+    await this.prisma.contest.findFirst({
       where: { id: contestId, groupId }
     })
-    const contestProblems = await this.prisma.contestProblem.findMany({
-      where: { contestId }
-    })
-    return contestProblems
+
+    if (!contestId) {
+      throw new EntityNotExistException('contest')
+    }
+
+    try {
+      const contestProblems = await this.prisma.contestProblem.findMany({
+        where: { contestId }
+      })
+      return contestProblems
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
   async updateContestProblemsOrder(
@@ -694,35 +703,38 @@ export class ProblemService {
     contestId: number,
     orders: number[]
   ): Promise<Partial<ContestProblem>[]> {
-    await this.prisma.contest.findFirstOrThrow({
+    await this.prisma.contest.findFirst({
       where: { id: contestId, groupId }
     })
 
-    const contestProblems = await this.prisma.contestProblem.findMany({
-      where: { contestId }
-    })
-
-    if (orders.length !== contestProblems.length) {
-      throw new UnprocessableDataException(
-        'the length of orders and the length of contestProblem are not equal.'
-      )
+    if (!contestId) {
+      throw new EntityNotExistException('contest')
     }
 
-    const queries = contestProblems.map((record) => {
-      const newOrder = orders.indexOf(record.problemId)
-      return this.prisma.contestProblem.update({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          contestId_problemId: {
-            contestId,
-            problemId: record.problemId
-          }
-        },
-        data: { order: newOrder }
-      })
-    })
-
     try {
+      const contestProblems = await this.prisma.contestProblem.findMany({
+        where: { contestId }
+      })
+
+      if (orders.length !== contestProblems.length) {
+        throw new UnprocessableDataException(
+          'the length of orders and the length of contestProblem are not equal.'
+        )
+      }
+
+      const queries = contestProblems.map((record) => {
+        const newOrder = orders.indexOf(record.problemId)
+        return this.prisma.contestProblem.update({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            contestId_problemId: {
+              contestId,
+              problemId: record.problemId
+            }
+          },
+          data: { order: newOrder }
+        })
+      })
       return await this.prisma.$transaction(queries)
     } catch (error) {
       throw new InternalServerErrorException(error)
@@ -770,7 +782,11 @@ export class ProblemService {
     })
   }
   async getTags(): Promise<Partial<Tag>[]> {
-    return await this.prisma.tag.findMany()
+    try {
+      return await this.prisma.tag.findMany()
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
   async getTag(tagId: number) {
@@ -786,19 +802,27 @@ export class ProblemService {
   }
 
   async getProblemTags(problemId: number) {
-    return await this.prisma.problemTag.findMany({
-      where: {
-        problemId
-      }
-    })
+    try {
+      return await this.prisma.problemTag.findMany({
+        where: {
+          problemId
+        }
+      })
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
   async getProblemTestcases(problemId: number) {
-    return await this.prisma.problemTestcase.findMany({
-      where: {
-        problemId
-      }
-    })
+    try {
+      return await this.prisma.problemTestcase.findMany({
+        where: {
+          problemId
+        }
+      })
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
   changeVisibleLockTimeToIsVisible(
