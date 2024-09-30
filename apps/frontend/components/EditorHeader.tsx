@@ -215,14 +215,12 @@ export default function Editor({
           if (attempts < maxAttempts) {
             attempts += 1
             setTimeout(poll, pollingInterval)
-            console.log('Polling...', attempts)
           } else {
             setLoading(false)
             toast.error('Judging took too long. Please try again later.')
           }
         } else {
           setLoading(false)
-          console.log(resultArray)
         }
       } else {
         setLoading(false)
