@@ -76,6 +76,7 @@
     "pino-http": "^10.3.0",
     "pino-pretty": "^11.2.2",
     "reflect-metadata": "^0.2.1",
+    "rxjs": "^7.8.1",
     "sql-formatter": "^15.4.2",
     "zod": "^3.23.8"
   },

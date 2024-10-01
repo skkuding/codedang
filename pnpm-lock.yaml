@@ -239,6 +239,9 @@ importers:
       reflect-metadata:
         specifier: ^0.2.1
         version: 0.2.2
+      rxjs:
+        specifier: ^7.8.1
+        version: 7.8.1
       sql-formatter:
         specifier: ^15.4.2
         version: 15.4.2
