@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import type { TestcaseResult } from '@/types/type'
 import { sanitize } from 'isomorphic-dompurify'
 import { useState } from 'react'
+import { IoMdClose } from 'react-icons/io'
 import TestcaseTable from './TestcaseTable'
 import { ScrollArea } from './ui/scroll-area'
 
@@ -26,12 +27,23 @@ export default function TestcasePanel({ testResult }: TestcasePanelProps) {
     .map((testcase, index) => (testcase.result !== 'Accepted' ? index : -1))
     .filter((index) => index !== -1)
   const tabLength = testcaseTabList.length
+
+  function handleDelete(testcase: TestcaseResult) {
+    const updatedList = testcaseTabList.filter(
+      (item) => item.id !== testcase.id
+    )
+    setTestcaseTabList(updatedList)
+    if (currentTab === testcase.id) {
+      setCurrentTab(0)
+    }
+  }
+
   return dataWithIndex.length !== 0 ? (
     <>
       <div className="flex h-12">
         <div
           className={cn(
-            'w-48 content-center text-center',
+            'w-44 content-center text-center',
             currentTab === 0 ? 'bg-[#222939]' : 'bg-[#121728]',
             currentTab === 1 && 'rounded-br-xl'
           )}
@@ -44,17 +56,22 @@ export default function TestcasePanel({ testResult }: TestcasePanelProps) {
             <div
               key={testcase.id}
               className={cn(
-                'w-48 border-l border-[#222939] bg-[#121728]',
+                'relative w-44 border-l border-[#222939] bg-[#121728]',
                 currentTab === 0 && index == 0 && 'rounded-bl-xl',
                 currentTab === testcaseTabList[index - 1]?.id &&
                   'rounded-bl-xl',
                 currentTab === testcaseTabList[index + 1]?.id && 'rounded-br-xl'
               )}
             >
+              <IoMdClose
+                className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer text-gray-300"
+                size={18}
+                onClick={() => handleDelete(testcase)}
+              />
               <div
                 key={testcase.id}
                 className={cn(
-                  'h-full content-center text-center',
+                  'h-full content-center pr-6 text-center',
                   currentTab === testcase.id && 'bg-[#222939]'
                 )}
                 onClick={() => setCurrentTab(testcase.id)}
