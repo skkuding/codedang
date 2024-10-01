@@ -2,18 +2,23 @@
 
 import { cn } from '@/lib/utils'
 import type { TestcaseResult } from '@/types/type'
+import { sanitize } from 'isomorphic-dompurify'
 import { useState } from 'react'
 import TestcaseTable from './TestcaseTable'
 import { ScrollArea } from './ui/scroll-area'
 
-export default function TestcasePanel({ data }: { data: TestcaseResult[] }) {
+interface TestcasePanelProps {
+  testResult: TestcaseResult[]
+}
+
+export default function TestcasePanel({ testResult }: TestcasePanelProps) {
   const [testcaseTabList, setTestcaseTabList] = useState<TestcaseResult[]>([])
   const [currentTab, setCurrentTab] = useState<number>(0)
-  const acceptedConunt = data.filter(
+  const acceptedCount = testResult.filter(
     (testcase) => testcase.result === 'Accepted'
   ).length
-  const total = data.length
-  const dataWithIndex = data.map((testcase, index) => ({
+  const total = testResult.length
+  const dataWithIndex = testResult.map((testcase, index) => ({
     ...testcase,
     id: index + 1
   }))
@@ -63,7 +68,8 @@ export default function TestcasePanel({ data }: { data: TestcaseResult[] }) {
           className={cn(
             'flex-grow border-l border-[#222939] bg-[#121728]',
             currentTab === testcaseTabList[testcaseTabList.length - 1]?.id &&
-              'rounded-bl-xl'
+              'rounded-bl-xl',
+            currentTab === 0 && tabLength === 0 && 'rounded-bl-xl'
           )}
         />
       </div>
@@ -75,7 +81,7 @@ export default function TestcasePanel({ data }: { data: TestcaseResult[] }) {
                 <tr>
                   <td className="py-1 text-slate-400">Correct Testcase</td>
                   <td className="py-1 text-white">
-                    {acceptedConunt}/{total}
+                    {acceptedCount}/{total}
                   </td>
                 </tr>
                 {notAcceptedIndexes.length > 0 && (
@@ -100,12 +106,49 @@ export default function TestcasePanel({ data }: { data: TestcaseResult[] }) {
             />
           </div>
         ) : (
-          <>
-            <p>{dataWithIndex[currentTab].id}</p>
-            <p>{dataWithIndex[currentTab].result}</p>
-          </>
+          <div className="px-8 pt-5">
+            <div className="flex w-full gap-4 rounded-md bg-[#121728] px-6 py-3 font-light text-neutral-400">
+              Result
+              <span
+                className={cn(
+                  dataWithIndex[currentTab - 1].result === 'Accepted'
+                    ? 'text-green-500'
+                    : dataWithIndex[currentTab - 1].result === 'Judging'
+                      ? 'text-neutral-400'
+                      : 'text-red-500'
+                )}
+              >
+                {dataWithIndex[currentTab - 1].result}
+              </span>
+            </div>
+            <div className="flex gap-4">
+              <LabeledField
+                label="Input"
+                text={dataWithIndex[currentTab - 1].input}
+              />
+              <LabeledField
+                label="Expected Output"
+                text={dataWithIndex[currentTab - 1].output}
+              />
+            </div>
+          </div>
         )}
       </ScrollArea>
     </>
   ) : null
+}
+
+function LabeledField({ label, text }: { label: string; text: string }) {
+  return (
+    <div className="flex min-w-96 flex-col gap-4 p-4">
+      <p className="text-slate-400">{label}</p>
+      <hr className="border-[#303333]/50" />
+      <pre
+        className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
+        dangerouslySetInnerHTML={{
+          __html: sanitize(text)
+        }}
+      />
+    </div>
+  )
 }

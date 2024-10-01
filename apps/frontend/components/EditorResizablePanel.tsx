@@ -136,7 +136,7 @@ export default function EditorMainResizablePanel({
                     className="border-[0.5px] border-slate-700"
                   />
                   <ResizablePanel defaultSize={40}>
-                    <TestcasePanel data={testResultData} />
+                    <TestcasePanel testResult={testResultData} />
                   </ResizablePanel>
                 </>
               )}
