@@ -21,8 +21,9 @@ export const columns: ColumnDef<SubmissionItem>[] = [
     cell: ({ row }) => {
       return row.original.result === 'Accepted' ? (
         <p className="text-green-500">{row.original.result}</p>
-      ) : row.original.result === 'Judging' ? (
-        <p className="text-gray-300">{row.original.result}</p>
+      ) : row.original.result === 'Judging' ||
+        row.original.result === 'Blind' ? (
+        <p className="text-[#9B9B9B]">{row.original.result}</p>
       ) : (
         <p className="text-red-500">{row.original.result}</p>
       )
