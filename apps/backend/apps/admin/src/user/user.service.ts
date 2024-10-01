@@ -64,21 +64,17 @@ export class UserService {
       }
     })
 
-    if (userGroups) {
-      return userGroups.map((userGroup) => {
-        return {
-          username: userGroup.user.username,
-          userId: userGroup.user.id,
-          name: userGroup.user.userProfile?.realName ?? '',
-          email: userGroup.user.email,
-          studentId: userGroup.user.studentId,
-          major: userGroup.user.major,
-          role: userGroup.user.role
-        }
-      })
-    } else if (!userGroups) {
-      throw new EntityNotExistException(userGroups)
-    }
+    return userGroups.map((userGroup) => {
+      return {
+        username: userGroup.user.username,
+        userId: userGroup.user.id,
+        name: userGroup.user.userProfile?.realName ?? '',
+        email: userGroup.user.email,
+        studentId: userGroup.user.studentId,
+        major: userGroup.user.major,
+        role: userGroup.user.role
+      }
+    })
   }
 
   async getGroupMember(groupId: number, userId: number) {
@@ -105,7 +101,9 @@ export class UserService {
         }
       }
     })
-    if (userGroup) {
+    if (!userGroup) {
+      throw new EntityNotExistException(userGroup)
+    } else if (userGroup) {
       return {
         username: userGroup.user.username,
         userId: userGroup.user.id,
@@ -115,8 +113,6 @@ export class UserService {
         major: userGroup.user.major,
         role: userGroup.user.role
       }
-    } else if (!userGroup) {
-      new EntityNotExistException(userGroup)
     }
   }
 
@@ -206,7 +202,7 @@ export class UserService {
     )
 
     if (!isGroupMember) {
-      throw new EntityNotExistException(
+      throw new BadRequestException(
         `userId ${userId} is not a group member of groupId ${groupId}`
       )
     }

@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable, NotFoundException } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
 import { Cache } from 'cache-manager'
@@ -15,7 +15,6 @@ import {
   REFRESH_TOKEN_EXPIRE_TIME
 } from '@libs/constants'
 import {
-  EntityNotExistException,
   InvalidJwtTokenException,
   UnidentifiedException
 } from '@libs/exception'
