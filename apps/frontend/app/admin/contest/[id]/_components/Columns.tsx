@@ -5,7 +5,6 @@ import OptionSelect from '@/components/OptionSelect'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
-import { cn } from '@/lib/utils'
 import type { Level } from '@/types/type'
 import { useQuery } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
@@ -72,10 +71,7 @@ export const columns = (
       <div className="flex justify-center">
         <Input
           defaultValue={row.getValue('score')}
-          className={cn(
-            'w-[70px] focus-visible:ring-0',
-            '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
-          )}
+          className="hide-spin-button w-[70px] focus-visible:ring-0"
           type="number"
           min={0}
           onKeyDown={(e) => {
