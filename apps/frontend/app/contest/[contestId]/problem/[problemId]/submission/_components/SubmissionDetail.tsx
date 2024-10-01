@@ -52,7 +52,9 @@ export default async function SubmissionDetail({
               className={
                 submission.result === 'Accepted'
                   ? '!text-green-500'
-                  : '!text-red-500'
+                  : submission.result === 'Blind'
+                    ? '!text-[#9B9B9B]'
+                    : '!text-red-500'
               }
             >
               {submission.result}
@@ -97,8 +99,10 @@ export default async function SubmissionDetail({
                   <TableCell
                     className={
                       item.result === 'Accepted'
-                        ? 'text-green-500'
-                        : 'text-red-500'
+                        ? '!text-green-500'
+                        : submission.result === 'Blind'
+                          ? '!text-[#9B9B9B]'
+                          : '!text-red-500'
                     }
                   >
                     {item.result}
