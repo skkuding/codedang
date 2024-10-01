@@ -45,7 +45,7 @@ export default function TestcasePanel({ testResult }: TestcasePanelProps) {
           className={cn(
             'w-44 content-center text-center',
             currentTab === 0 ? 'bg-[#222939]' : 'bg-[#121728]',
-            currentTab === 1 && 'rounded-br-xl'
+            currentTab === testcaseTabList[0].id && 'rounded-br-xl'
           )}
           onClick={() => setCurrentTab(0)}
         >
