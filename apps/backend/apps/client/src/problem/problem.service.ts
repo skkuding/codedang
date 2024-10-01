@@ -1,20 +1,17 @@
 import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import {
-  ForbiddenAccessException,
-  EntityNotExistException
-} from '@libs/exception'
+import { ForbiddenAccessException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
 import { CodeDraftResponseDto } from './dto/code-draft.response.dto'
-import type { CreateTemplateDto } from './dto/create-code-draft.dto'
+import { CreateTemplateDto } from './dto/create-code-draft.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
-import type { ProblemOrder } from './enum/problem-order.enum'
+import { ProblemOrder } from './enum/problem-order.enum'
 import { ProblemRepository } from './problem.repository'
 
 @Injectable()
@@ -202,8 +199,11 @@ export class WorkbookProblemService {
     take: number,
     groupId = OPEN_SPACE_ID
   ) {
-    if (!(await this.workbookService.isVisible(workbookId, groupId))) {
-      throw new EntityNotExistException('Workbook')
+    const isVisible = await this.workbookService.isVisible(workbookId, groupId)
+    if (!isVisible) {
+      throw new ForbiddenAccessException(
+        'You do not have access to this workbook.'
+      )
     }
     const data = await this.problemRepository.getWorkbookProblems(
       workbookId,
@@ -225,8 +225,11 @@ export class WorkbookProblemService {
     problemId: number,
     groupId = OPEN_SPACE_ID
   ) {
-    if (!(await this.workbookService.isVisible(workbookId, groupId))) {
-      throw new EntityNotExistException('Workbook')
+    const isVisible = await this.workbookService.isVisible(workbookId, groupId)
+    if (!isVisible) {
+      throw new ForbiddenAccessException(
+        'You do not have access to this workbook.'
+      )
     }
     const data = await this.problemRepository.getWorkbookProblem(
       workbookId,
