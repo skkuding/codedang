@@ -60,7 +60,7 @@ importers:
         specifier: ^10.9.2
         version: 10.9.2(@swc/core@1.7.26(@swc/helpers@0.5.13))(@types/node@22.5.4)(typescript@5.6.2)
       typescript:
-        specifier: ^5.6.2
+        specifier: ^5.5.4
         version: 5.6.2
 
   apps/backend:
