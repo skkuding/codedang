@@ -20,32 +20,52 @@ export default function TestcasePanel({ data }: { data: TestcaseResult[] }) {
   const notAcceptedIndexes = dataWithIndex
     .map((testcase, index) => (testcase.result !== 'Accepted' ? index : -1))
     .filter((index) => index !== -1)
+  const tabLength = testcaseTabList.length
   return dataWithIndex.length !== 0 ? (
     <>
-      <div className="flex h-12 bg-[#121728]">
+      <div className="flex h-12">
         <div
           className={cn(
             'w-48 content-center text-center',
-            currentTab === 0 && 'bg-[#222939]'
+            currentTab === 0 ? 'bg-[#222939]' : 'bg-[#121728]',
+            currentTab === 1 && 'rounded-br-xl'
           )}
           onClick={() => setCurrentTab(0)}
         >
-          Testcase Result
+          {tabLength < 7 ? 'Testcase Result' : 'TC Res'}
         </div>
-        {testcaseTabList.map((testcase) => {
+        {testcaseTabList.map((testcase, index) => {
           return (
             <div
               key={testcase.id}
               className={cn(
-                'w-48 content-center border-l border-[#222939] text-center',
-                currentTab === testcase.id && 'bg-[#222939]'
+                'w-48 border-l border-[#222939] bg-[#121728]',
+                currentTab === 0 && index == 0 && 'rounded-bl-xl',
+                currentTab === testcaseTabList[index - 1]?.id &&
+                  'rounded-bl-xl',
+                currentTab === testcaseTabList[index + 1]?.id && 'rounded-br-xl'
               )}
-              onClick={() => setCurrentTab(testcase.id)}
             >
-              Sample #{testcase.id}
+              <div
+                key={testcase.id}
+                className={cn(
+                  'h-full content-center text-center',
+                  currentTab === testcase.id && 'bg-[#222939]'
+                )}
+                onClick={() => setCurrentTab(testcase.id)}
+              >
+                {tabLength < 7 ? 'Samples' : 'S'} #{testcase.id}
+              </div>
             </div>
           )
         })}
+        <div
+          className={cn(
+            'flex-grow border-l border-[#222939] bg-[#121728]',
+            currentTab === testcaseTabList[testcaseTabList.length - 1]?.id &&
+              'rounded-bl-xl'
+          )}
+        />
       </div>
       <ScrollArea className="h-full">
         {currentTab === 0 ? (
