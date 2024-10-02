@@ -16327,7 +16327,7 @@ snapshots:
   '@types/express-serve-static-core@5.0.0':
     dependencies:
       '@types/node': 20.16.10
-      '@types/qs': 6.9.15
+      '@types/qs': 6.9.16
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
 
@@ -16342,7 +16342,7 @@ snapshots:
     dependencies:
       '@types/body-parser': 1.19.5
       '@types/express-serve-static-core': 5.0.0
-      '@types/qs': 6.9.15
+      '@types/qs': 6.9.16
       '@types/serve-static': 1.15.7
 
   '@types/extract-files@13.0.1': {}
