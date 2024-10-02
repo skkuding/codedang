@@ -67,6 +67,9 @@ pnpm exec lefthook install
 # Init MinIO
 pnpm run init:storage
 
+# Set NODE_OPTIONS to increase memory limit for frontend build (next build)
+echo "export NODE_OPTIONS=--max-old-space-size=4096" >> ~/.bashrc
+
 # Enable git auto completion
 if ! grep -q "bash-completion/completions/git" ~/.bashrc
 then
