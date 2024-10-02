@@ -2,6 +2,28 @@ data "aws_ecr_repository" "iris" {
   name = "codedang-iris"
 }
 
+resource "aws_ecr_lifecycle_policy" "iris_repository_policy" {
+  repository = data.aws_ecr_repository.iris.name
+  policy     = <<EOF
+    {
+        "rules": [
+        {
+            "rulePriority": 1,
+            "description": "Keep the last 2 multi-architecture sets (1 image index, 2 architecture images).",
+            "selection": {
+            "tagStatus": "any",
+            "countType": "imageCountMoreThan",
+            "countNumber": 6
+            },
+            "action": {
+            "type": "expire"
+            }
+        }
+        ]
+    }
+    EOF
+}
+
 module "iris" {
   source = "./modules/service_autoscaling"
 

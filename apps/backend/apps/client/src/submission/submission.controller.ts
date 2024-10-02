@@ -5,20 +5,11 @@ import {
   Param,
   Body,
   Req,
-  NotFoundException,
-  InternalServerErrorException,
-  Logger,
   Query,
   DefaultValuePipe,
   Headers
 } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
-import {
-  ConflictFoundException,
-  EntityNotExistException,
-  ForbiddenAccessException
-} from '@libs/exception'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -30,8 +21,6 @@ import { SubmissionService } from './submission.service'
 
 @Controller('submission')
 export class SubmissionController {
-  private readonly logger = new Logger(SubmissionController.name)
-
   constructor(private readonly submissionService: SubmissionService) {}
 
   @Post()
@@ -44,47 +33,32 @@ export class SubmissionController {
     @Query('contestId', IDValidationPipe) contestId: number | null,
     @Query('workbookId', IDValidationPipe) workbookId: number | null
   ) {
-    try {
-      if (!contestId && !workbookId) {
-        return await this.submissionService.submitToProblem(
-          submissionDto,
-          userIp,
-          req.user.id,
-          problemId,
-          groupId
-        )
-      } else if (contestId) {
-        return await this.submissionService.submitToContest(
-          submissionDto,
-          userIp,
-          req.user.id,
-          problemId,
-          contestId,
-          groupId
-        )
-      } else if (workbookId) {
-        return await this.submissionService.submitToWorkbook(
-          submissionDto,
-          userIp,
-          req.user.id,
-          problemId,
-          workbookId,
-          groupId
-        )
-      }
-    } catch (error) {
-      if (error instanceof ConflictFoundException) {
-        throw error.convert2HTTPException()
-      }
-      if (
-        (error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.name == 'NotFoundError') ||
-        error instanceof EntityNotExistException
-      ) {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
+    if (!contestId && !workbookId) {
+      return await this.submissionService.submitToProblem(
+        submissionDto,
+        userIp,
+        req.user.id,
+        problemId,
+        groupId
+      )
+    } else if (contestId) {
+      return await this.submissionService.submitToContest(
+        submissionDto,
+        userIp,
+        req.user.id,
+        problemId,
+        contestId,
+        groupId
+      )
+    } else if (workbookId) {
+      return await this.submissionService.submitToWorkbook(
+        submissionDto,
+        userIp,
+        req.user.id,
+        problemId,
+        workbookId,
+        groupId
+      )
     }
   }
 
@@ -98,22 +72,11 @@ export class SubmissionController {
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Body() submissionDto: CreateSubmissionDto
   ) {
-    try {
-      return await this.submissionService.submitTest(
-        req.user.id,
-        problemId,
-        submissionDto
-      )
-    } catch (error) {
-      if (
-        error instanceof EntityNotExistException ||
-        error instanceof ConflictFoundException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.submissionService.submitTest(
+      req.user.id,
+      problemId,
+      submissionDto
+    )
   }
 
   /**
@@ -139,24 +102,12 @@ export class SubmissionController {
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number
   ) {
-    try {
-      return await this.submissionService.getSubmissions({
-        cursor,
-        take,
-        problemId,
-        groupId
-      })
-    } catch (error) {
-      if (
-        (error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.name == 'NotFoundError') ||
-        error instanceof EntityNotExistException
-      ) {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.submissionService.getSubmissions({
+      cursor,
+      take,
+      problemId,
+      groupId
+    })
   }
 
   @Get(':id')
@@ -167,35 +118,19 @@ export class SubmissionController {
     @Query('contestId', IDValidationPipe) contestId: number | null,
     @Param('id', new RequiredIntPipe('id')) id: number
   ) {
-    try {
-      return await this.submissionService.getSubmission(
-        id,
-        problemId,
-        req.user.id,
-        req.user.role,
-        groupId,
-        contestId
-      )
-    } catch (error) {
-      if (
-        (error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.name == 'NotFoundError') ||
-        error instanceof EntityNotExistException
-      ) {
-        throw new NotFoundException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.submissionService.getSubmission(
+      id,
+      problemId,
+      req.user.id,
+      req.user.role,
+      groupId,
+      contestId
+    )
   }
 }
 
 @Controller('contest/:contestId/submission')
 export class ContestSubmissionController {
-  private readonly logger = new Logger(ContestSubmissionController.name)
-
   constructor(private readonly submissionService: SubmissionService) {}
 
   @Get()
@@ -208,24 +143,13 @@ export class ContestSubmissionController {
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number
   ) {
-    try {
-      return await this.submissionService.getContestSubmissions({
-        cursor,
-        take,
-        problemId,
-        contestId,
-        userId: req.user.id,
-        groupId
-      })
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name == 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.submissionService.getContestSubmissions({
+      cursor,
+      take,
+      problemId,
+      contestId,
+      userId: req.user.id,
+      groupId
+    })
   }
 }
