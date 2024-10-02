@@ -55,7 +55,7 @@ function FinishedContestTableFallback() {
 
 export default async function Contest({ searchParams }: ContestProps) {
   const session = await auth()
-  const registered = searchParams.registered === 'true' ?? false
+  const registered = searchParams.registered === 'true'
   if (!session && registered) {
     redirect('/contest')
   }
