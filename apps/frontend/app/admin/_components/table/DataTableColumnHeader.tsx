@@ -9,10 +9,11 @@ import { cn } from '@/lib/utils'
 import { TriangleDownIcon, TriangleUpIcon } from '@radix-ui/react-icons'
 import type { Column } from '@tanstack/react-table'
 
+const VISIBLE_COLUMN_TITLE = 'Visible'
 interface DataTableColumnHeaderProps<TData, TValue>
-  extends React.HTMLAttributes<HTMLDivElement> {
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
   column: Column<TData, TValue>
-  title: string
+  title: typeof VISIBLE_COLUMN_TITLE | (string & NonNullable<unknown>)
 }
 
 export default function DataTableColumnHeader<TData, TValue>({
@@ -57,11 +58,11 @@ export default function DataTableColumnHeader<TData, TValue>({
         <DropdownMenuContent align="start">
           <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
             <TriangleUpIcon className="text-muted-foreground/70 mr-2 h-3.5 w-3.5" />
-            {title === 'Visible' ? 'Hidden first' : 'Asc'}
+            {title === VISIBLE_COLUMN_TITLE ? 'Hidden first' : 'Asc'}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
             <TriangleDownIcon className="text-muted-foreground/70 mr-2 h-3.5 w-3.5" />
-            {title === 'Visible' ? 'Visible first' : 'Desc'}
+            {title === VISIBLE_COLUMN_TITLE ? 'Visible first' : 'Desc'}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
