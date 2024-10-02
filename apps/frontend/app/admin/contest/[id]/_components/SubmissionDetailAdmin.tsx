@@ -23,9 +23,6 @@ export default function SubmissionDetailAdmin({
   const { data, loading } = useQuery(GET_SUBMISSION, {
     variables: {
       id: Number(submissionId)
-    },
-    onCompleted: (data) => {
-      console.log(data)
     }
   })
   const submission = data?.getSubmission
