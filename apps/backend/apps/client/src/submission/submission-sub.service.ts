@@ -80,6 +80,10 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     const status = Status(msg.resultCode)
     const testcaseId = msg.judgeResult?.testcaseId
 
+    this.logger.debug(msg)
+
+    return
+
     const testcases =
       (await this.cacheManager.get<
         {
