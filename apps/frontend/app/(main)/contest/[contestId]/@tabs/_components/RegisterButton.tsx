@@ -181,7 +181,7 @@ export default function RegisterButton({
                   })}
                   type="number"
                   className={cn(
-                    'h-12 w-full [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+                    'hide-spin-button h-12 w-full',
                     errors.invitationCode &&
                       'border-red-500 focus-visible:ring-red-500'
                   )}
