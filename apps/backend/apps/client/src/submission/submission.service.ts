@@ -406,6 +406,7 @@ export class SubmissionService {
       {
         id: number
         result: ResultStatus
+        output?: string
       }[]
     >(key)
   }
