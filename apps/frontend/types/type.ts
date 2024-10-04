@@ -169,3 +169,11 @@ export interface SubmissionDetail {
     updateTime: Date
   }[]
 }
+
+export interface SettingsFormat {
+  currentPassword: string
+  newPassword: string
+  confirmPassword: string
+  realName: string
+  studentId: string
+}
