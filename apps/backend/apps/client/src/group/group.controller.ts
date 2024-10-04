@@ -3,26 +3,18 @@ import {
   DefaultValuePipe,
   Delete,
   Get,
-  InternalServerErrorException,
   Logger,
-  NotFoundException,
   Param,
   Post,
   Query,
   Req,
   UseGuards
 } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
 import {
   AuthenticatedRequest,
   AuthNotNeededIfOpenSpace,
   GroupMemberGuard
 } from '@libs/auth'
-import {
-  ConflictFoundException,
-  EntityNotExistException,
-  ForbiddenAccessException
-} from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { GroupService } from './group.service'
 
@@ -39,22 +31,12 @@ export class GroupController {
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number
   ) {
-    try {
-      return await this.groupService.getGroups(cursor, take)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.groupService.getGroups(cursor, take)
   }
 
   @Get('joined')
   async getJoinedGroups(@Req() req: AuthenticatedRequest) {
-    try {
-      return await this.groupService.getJoinedGroups(req.user.id)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.groupService.getJoinedGroups(req.user.id)
   }
 
   @Get(':groupId')
@@ -62,18 +44,7 @@ export class GroupController {
     @Req() req: AuthenticatedRequest,
     @Param('groupId', GroupIDPipe) groupId: number
   ) {
-    try {
-      return await this.groupService.getGroup(groupId, req.user.id)
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name === 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.groupService.getGroup(groupId, req.user.id)
   }
 
   @Get('invite/:invitation')
@@ -81,23 +52,7 @@ export class GroupController {
     @Req() req: AuthenticatedRequest,
     @Param('invitation') invitation: string
   ) {
-    try {
-      return await this.groupService.getGroupByInvitation(
-        invitation,
-        req.user.id
-      )
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name === 'NotFoundError'
-      ) {
-        throw new NotFoundException('Invalid invitation')
-      } else if (error instanceof EntityNotExistException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.groupService.getGroupByInvitation(invitation, req.user.id)
   }
 
   @Post(':groupId/join')
@@ -106,27 +61,11 @@ export class GroupController {
     @Param('groupId', GroupIDPipe) groupId: number,
     @Query('invitation') invitation?: string
   ) {
-    try {
-      return await this.groupService.joinGroupById(
-        req.user.id,
-        groupId,
-        invitation
-      )
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name === 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      } else if (
-        error instanceof ForbiddenAccessException ||
-        error instanceof ConflictFoundException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.groupService.joinGroupById(
+      req.user.id,
+      groupId,
+      invitation
+    )
   }
 
   @Delete(':groupId/leave')
@@ -135,37 +74,18 @@ export class GroupController {
     @Req() req: AuthenticatedRequest,
     @Param('groupId', GroupIDPipe) groupId: number
   ) {
-    try {
-      return await this.groupService.leaveGroup(req.user.id, groupId)
-    } catch (error) {
-      if (error instanceof ConflictFoundException) {
-        throw error.convert2HTTPException()
-      }
-
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.groupService.leaveGroup(req.user.id, groupId)
   }
 
   @Get(':groupId/leaders')
   @UseGuards(GroupMemberGuard)
   async getGroupLeaders(@Param('groupId', GroupIDPipe) groupId: number) {
-    try {
-      return await this.groupService.getGroupLeaders(groupId)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.groupService.getGroupLeaders(groupId)
   }
 
   @Get(':groupId/members')
   @UseGuards(GroupMemberGuard)
   async getGroupMembers(@Param('groupId', GroupIDPipe) groupId: number) {
-    try {
-      return await this.groupService.getGroupMembers(groupId)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.groupService.getGroupMembers(groupId)
   }
 }
