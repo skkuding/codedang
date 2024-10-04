@@ -24,15 +24,14 @@ export default function UpdateInformation() {
         <p className="pl-2">Update Information</p>
       </div>
       <div className="mt-5 text-center text-xs text-neutral-700">
-        <p>To continue using the service,</p>
+        <p>To continue using our service,</p>
         <p>you must update your information.</p>
       </div>
       <div className="text-center text-xs text-neutral-700">
-        <p>Your account will be DELETED if you do not </p>
-        <p>update your information by August 31.</p>
+        <p>You must your information by October 31.</p>
       </div>
       <div className="my-8 w-36 border-b" />
-      <p className="text-xs font-medium">We need the information</p>
+      <p className="text-xs font-bold">Your information</p>
       <ul className="mt-1 text-xs font-medium text-neutral-700">
         <li>Your Student ID</li>
         <li>Your First Major</li>
