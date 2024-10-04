@@ -17,6 +17,7 @@ class JudgeResult {
   signal: number
   exitCode: number
   errorCode: number
+  output?: string
 }
 
 export class JudgerResponse {
