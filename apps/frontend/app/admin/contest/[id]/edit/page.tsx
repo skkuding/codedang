@@ -171,7 +171,7 @@ export default function Page({ params }: { params: { id: string } }) {
     if (hasSubmission.current) {
       await new Promise<void>((resolve) => {
         toast.warning(
-          'Submissions exist. Only Contest information will be updated.',
+          'Submissions exist. Only contest changes, excluding changes to the contest problems, will be saved.',
           {
             onAutoClose: () => {
               resolve()
