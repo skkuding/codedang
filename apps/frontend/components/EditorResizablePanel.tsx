@@ -8,13 +8,12 @@ import {
 } from '@/components/ui/resizable'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { CodeContext, createCodeStore, useLanguageStore } from '@/stores/editor'
+import { createCodeStore, useLanguageStore } from '@/stores/editor'
 import type { Language, ProblemDetail, Template } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Suspense, useContext, useEffect } from 'react'
-import { useStore } from 'zustand'
+import { Suspense, useEffect } from 'react'
 import Loading from '../app/problem/[problemId]/loading'
 import EditorHeader from './EditorHeader'
 
@@ -34,7 +33,7 @@ export default function EditorMainResizablePanel({
   const pathname = usePathname()
   const base = contestId ? `/contest/${contestId}` : ''
   const { language, setLanguage } = useLanguageStore()
-  const store = createCodeStore(language, problem.id, contestId)
+
   useEffect(() => {
     if (!problem.languages.includes(language)) {
       setLanguage(problem.languages[0])
@@ -91,17 +90,15 @@ export default function EditorMainResizablePanel({
 
       <ResizablePanel defaultSize={65} className="bg-[#222939]">
         <div className="grid-rows-editor grid h-full">
-          <CodeContext.Provider value={store}>
-            <EditorHeader
-              problem={problem}
-              contestId={contestId}
-              templateString={problem.template[0]}
-            />
-            <CodeEditorInEditorResizablePanel
-              templateString={problem.template[0]}
-              enableCopyPaste={enableCopyPaste}
-            />
-          </CodeContext.Provider>
+          <EditorHeader
+            problem={problem}
+            contestId={contestId}
+            templateString={problem.template[0]}
+          />
+          <CodeEditorInEditorResizablePanel
+            templateString={problem.template[0]}
+            enableCopyPaste={enableCopyPaste}
+          />
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>
@@ -118,9 +115,7 @@ function CodeEditorInEditorResizablePanel({
   enableCopyPaste
 }: CodeEditorInEditorResizablePanelProps) {
   const { language } = useLanguageStore()
-  const store = useContext(CodeContext)
-  if (!store) throw new Error('CodeContext is not provided')
-  const { code, setCode } = useStore(store)
+  const { code, setCode } = createCodeStore((state) => state)
 
   useEffect(() => {
     if (!templateString) return

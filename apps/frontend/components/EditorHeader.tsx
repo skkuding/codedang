@@ -24,7 +24,13 @@ import { auth } from '@/lib/auth'
 import { fetcherWithAuth } from '@/lib/utils'
 import submitIcon from '@/public/submit.svg'
 import useAuthModalStore from '@/stores/authModal'
-import { CodeContext, useLanguageStore } from '@/stores/editor'
+import {
+  createCodeStore,
+  useLanguageStore,
+  getKey,
+  setItem,
+  getItem
+} from '@/stores/editor'
 import type {
   Language,
   ProblemDetail,
@@ -36,12 +42,11 @@ import { Save } from 'lucide-react'
 import type { Route } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
 //import { IoPlayCircleOutline } from 'react-icons/io5'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
-import { useStore } from 'zustand'
 
 interface ProblemEditorProps {
   problem: ProblemDetail
@@ -55,15 +60,16 @@ export default function Editor({
   templateString
 }: ProblemEditorProps) {
   const { language, setLanguage } = useLanguageStore()
-  const store = useContext(CodeContext)
-  if (!store) throw new Error('CodeContext is not provided')
-  const { code, setCode } = useStore(store)
+  // const store = useContext(CodeContext)
+  // if (!store) throw new Error('CodeContext is not provided')
+  const { code, setCode } = createCodeStore((state) => state)
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
   const [templateCode, setTemplateCode] = useState<string | null>(null)
   const [userName, setUserName] = useState('')
   const router = useRouter()
   const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
+
   useInterval(
     async () => {
       const res = await fetcherWithAuth(`submission/${submissionId}`, {
@@ -92,22 +98,33 @@ export default function Editor({
     loading && submissionId ? 500 : null
   )
 
-  const { showSignIn } = useAuthModalStore((state) => state)
+  const { currentModal, showSignIn } = useAuthModalStore((state) => state)
+
   useEffect(() => {
     auth().then((session) => {
       if (!session) {
-        toast.info('Log in to use submission & auto save feature')
+        toast.info('Log in to use submission & save feature')
       } else {
         setUserName(session.user.username)
+        getLocalstorageCode()
+      }
+    })
+  }, [currentModal, language])
+
+  useEffect(() => {
+    auth().then((session) => {
+      if (!session) {
+        toast.info('Log in to use submission & save feature')
+      } else {
+        setUserName(session.user.username)
+        getLocalstorageCode()
       }
     })
   }, [])
 
   useEffect(() => {
-    const storageKey = `${userName}_${problem.id}${contestId ? `_${contestId}` : ''}_${language}`
-    const storedCode = localStorage.getItem(storageKey)
-    setCode(storedCode ? storedCode : '')
-  }, [userName, language])
+    getLocalstorageCode()
+  }, [userName])
 
   useEffect(() => {
     if (!templateString) return
@@ -163,10 +180,35 @@ export default function Editor({
     if (!session) {
       toast.error('Log in first to save your code')
     } else {
-      const userName = session.user.username
-      const storageKey = `${userName}_${problem.id}${contestId ? `_${contestId}` : ''}_${language}`
-      localStorage.setItem(storageKey, code)
+      if (storeCodeToLocalstorage())
+        toast.success('Successfully saved the code')
+      else toast.error('Failed to save the code')
     }
+  }
+
+  const storeCodeToLocalstorage = () => {
+    const key = getKey(language, problem.id, userName, contestId)
+    if (key !== undefined) {
+      setItem(key, code)
+      return true
+    }
+    return false
+  }
+
+  const getLocalstorageCode = () => {
+    const key = getKey(language, problem.id, userName, contestId)
+    if (key !== undefined) {
+      const storedCode = getItem(key)
+      setCode(storedCode ? JSON.parse(storedCode) : '')
+    }
+  }
+
+  const resetCode = () => {
+    const key = getKey(language, problem.id, userName, contestId)
+    if (key !== undefined) {
+      setItem(key, templateCode ?? '')
+      toast.success('Successfully reset the code')
+    } else toast.error('Failed to reset the code')
   }
 
   return (
@@ -195,10 +237,7 @@ export default function Editor({
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-red-500 hover:bg-red-600"
-                onClick={() => {
-                  setCode(templateCode ?? '')
-                  localStorage.setItem('code', '')
-                }}
+                onClick={resetCode}
               >
                 Reset
               </AlertDialogAction>
@@ -209,10 +248,10 @@ export default function Editor({
       <div className="flex items-center gap-3">
         <Button
           size="icon"
-          className="text-white-500 size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-slate-600 font-normal hover:bg-slate-700"
+          className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-[#D7E5FE] font-medium text-[#484C4D] hover:bg-[#c6d3ea]"
           onClick={saveCode}
         >
-          <Save className="stroke-1" />
+          <Save className="stroke-1" size={22} />
           Save
         </Button>
         {/* TODO: Add Test function

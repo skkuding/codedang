@@ -26,7 +26,8 @@ interface Inputs {
 export default function SignIn() {
   const [disableButton, setDisableButton] = useState(false)
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
-  const { showSignUp, showRecoverAccount } = useAuthModalStore((state) => state)
+  const { initCurrentModal, showSignUp, showRecoverAccount } =
+    useAuthModalStore((state) => state)
   const router = useRouter()
   const { register, handleSubmit, watch } = useForm<Inputs>()
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
@@ -40,6 +41,7 @@ export default function SignIn() {
 
       if (!res?.error) {
         router.refresh()
+        initCurrentModal()
         toast.success(`Welcome back, ${data.username}!`)
       } else {
         toast.error('Failed to log in')
@@ -51,6 +53,7 @@ export default function SignIn() {
       setDisableButton(false)
     }
   }
+
   return (
     <div className="flex h-full w-full flex-col justify-between">
       <div className="flex justify-center pt-4">

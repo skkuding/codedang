@@ -2,6 +2,7 @@ import { create } from 'zustand'
 
 interface AuthModalStore {
   currentModal: string
+  initCurrentModal: () => void
   showSignIn: () => void
   showSignUp: () => void
   showRecoverAccount: () => void
@@ -10,6 +11,7 @@ interface AuthModalStore {
 const useAuthModalStore = create<AuthModalStore>(
   (set: (arg: { currentModal: string }) => void) => ({
     currentModal: '',
+    initCurrentModal: () => set({ currentModal: '' }),
     hideModal: () => set({ currentModal: '' }),
     showSignIn: () => {
       set({ currentModal: '' })

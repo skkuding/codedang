@@ -1,7 +1,6 @@
-import { auth } from '@/lib/auth'
 import type { Language } from '@/types/type'
 import { createContext } from 'react'
-import { create, createStore } from 'zustand'
+import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 interface LanguageStore {
@@ -26,29 +25,36 @@ interface CodeState {
   code: string
   setCode: (code: string) => void
 }
-
 type CodeStore = ReturnType<typeof createCodeStore>
 
-export const createCodeStore = (
+export const createCodeStore = create<CodeState>((set) => ({
+  code: '',
+  setCode: (code) => {
+    set({ code })
+  }
+}))
+
+export const getKey = (
   language: Language,
   problemId: number,
+  userName: string,
   contestId?: number
 ) => {
-  const userName = auth().then((data) => data?.user.username)
+  if (userName === '') return undefined
   const problemKey = `${userName}_${problemId}${contestId ? `_${contestId}` : ''}_${language}`
-  return createStore<CodeState>()(
-    persist<CodeState>(
-      (set) => ({
-        code: '',
-        setCode: (code) => {
-          set({ code })
-        }
-      }),
-      {
-        name: problemKey
-      }
-    )
-  )
+  return problemKey
 }
+
+export const getItem = (name: string) => {
+  const str = localStorage.getItem(name)
+  if (!str) return null
+  return str
+}
+
+export const setItem = (name: string, value: string) => {
+  localStorage.setItem(name, JSON.stringify(value))
+}
+
+export const removeItem = (name: string) => localStorage.removeItem(name)
 
 export const CodeContext = createContext<CodeStore | null>(null)
