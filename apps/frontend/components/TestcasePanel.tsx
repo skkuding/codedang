@@ -150,7 +150,7 @@ function LabeledField({ label, text }: { label: string; text: string }) {
       <p className="text-slate-400">{label}</p>
       <hr className="border-[#303333]/50" />
       <pre
-        className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
+        className="prose prose-invert overflow-auto whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-300"
         dangerouslySetInnerHTML={{
           __html: sanitize(text)
         }}
