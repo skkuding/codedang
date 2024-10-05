@@ -1,5 +1,4 @@
 import type { Language } from '@/types/type'
-import { createContext } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
@@ -25,7 +24,6 @@ interface CodeState {
   code: string
   setCode: (code: string) => void
 }
-type CodeStore = ReturnType<typeof createCodeStore>
 
 export const createCodeStore = create<CodeState>((set) => ({
   code: '',
@@ -56,5 +54,3 @@ export const setItem = (name: string, value: string) => {
 }
 
 export const removeItem = (name: string) => localStorage.removeItem(name)
-
-export const CodeContext = createContext<CodeStore | null>(null)

@@ -60,8 +60,6 @@ export default function Editor({
   templateString
 }: ProblemEditorProps) {
   const { language, setLanguage } = useLanguageStore()
-  // const store = useContext(CodeContext)
-  // if (!store) throw new Error('CodeContext is not provided')
   const { code, setCode } = createCodeStore((state) => state)
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
