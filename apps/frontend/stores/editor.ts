@@ -1,5 +1,6 @@
 import type { Language } from '@/types/type'
-import { create } from 'zustand'
+import { createContext } from 'react'
+import { create, createStore } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 interface LanguageStore {
@@ -20,17 +21,20 @@ export const useLanguageStore = create(
     }
   )
 )
+type CodeStore = ReturnType<typeof createCodeStore>
 interface CodeState {
   code: string
   setCode: (code: string) => void
 }
 
-export const createCodeStore = create<CodeState>((set) => ({
-  code: '',
-  setCode: (code) => {
-    set({ code })
-  }
-}))
+export const createCodeStore = () => {
+  return createStore<CodeState>()((set) => ({
+    code: '',
+    setCode: (code) => {
+      set({ code })
+    }
+  }))
+}
 
 export const getKey = (
   language: Language,
@@ -54,3 +58,5 @@ export const setItem = (name: string, value: string) => {
 }
 
 export const removeItem = (name: string) => localStorage.removeItem(name)
+
+export const CodeContext = createContext<CodeStore | null>(null)

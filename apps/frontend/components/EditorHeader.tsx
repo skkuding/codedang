@@ -25,11 +25,11 @@ import { fetcherWithAuth } from '@/lib/utils'
 import submitIcon from '@/public/submit.svg'
 import useAuthModalStore from '@/stores/authModal'
 import {
-  createCodeStore,
   useLanguageStore,
   getKey,
   setItem,
-  getItem
+  getItem,
+  CodeContext
 } from '@/stores/editor'
 import type {
   Language,
@@ -42,11 +42,12 @@ import { Save } from 'lucide-react'
 import type { Route } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
 //import { IoPlayCircleOutline } from 'react-icons/io5'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
+import { useStore } from 'zustand'
 
 interface ProblemEditorProps {
   problem: ProblemDetail
@@ -60,13 +61,17 @@ export default function Editor({
   templateString
 }: ProblemEditorProps) {
   const { language, setLanguage } = useLanguageStore()
-  const { code, setCode } = createCodeStore((state) => state)
+  const store = useContext(CodeContext)
+  if (!store) throw new Error('CodeContext is not provided')
+  const { code, setCode } = useStore(store)
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
   const [templateCode, setTemplateCode] = useState<string | null>(null)
   const [userName, setUserName] = useState('')
   const router = useRouter()
   const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
+  const storageKey = useRef(getKey(language, problem.id, userName, contestId))
+  const { currentModal, showSignIn } = useAuthModalStore((state) => state)
 
   useInterval(
     async () => {
@@ -96,17 +101,6 @@ export default function Editor({
     loading && submissionId ? 500 : null
   )
 
-  const { currentModal, showSignIn } = useAuthModalStore((state) => state)
-
-  useEffect(() => {
-    auth().then((session) => {
-      if (session) {
-        setUserName(session.user.username)
-        getLocalstorageCode()
-      }
-    })
-  }, [currentModal, language])
-
   useEffect(() => {
     auth().then((session) => {
       if (!session) {
@@ -116,13 +110,11 @@ export default function Editor({
         getLocalstorageCode()
       }
     })
-  }, [])
+  }, [currentModal])
 
   useEffect(() => {
-    getLocalstorageCode()
-  }, [userName])
+    storageKey.current = getKey(language, problem.id, userName, contestId)
 
-  useEffect(() => {
     if (!templateString) return
     const parsedTemplates = JSON.parse(templateString)
     const filteredTemplate = parsedTemplates.filter(
@@ -131,6 +123,11 @@ export default function Editor({
     if (filteredTemplate.length === 0) return
     setTemplateCode(filteredTemplate[0].code[0].text)
   }, [language])
+
+  useEffect(() => {
+    storageKey.current = getKey(language, problem.id, userName, contestId)
+    getLocalstorageCode()
+  }, [userName, problem, contestId, templateCode])
 
   const submit = async () => {
     if (code === '') {
@@ -183,26 +180,24 @@ export default function Editor({
   }
 
   const storeCodeToLocalstorage = () => {
-    const key = getKey(language, problem.id, userName, contestId)
-    if (key !== undefined) {
-      setItem(key, code)
+    if (storageKey.current !== undefined) {
+      setItem(storageKey.current, code)
       return true
     }
     return false
   }
 
   const getLocalstorageCode = () => {
-    const key = getKey(language, problem.id, userName, contestId)
-    if (key !== undefined) {
-      const storedCode = getItem(key)
-      setCode(storedCode ? JSON.parse(storedCode) : '')
+    if (storageKey.current !== undefined) {
+      const storedCode = getItem(storageKey.current) ?? ''
+      setCode(storedCode ? JSON.parse(storedCode) : templateCode)
     }
   }
 
   const resetCode = () => {
-    const key = getKey(language, problem.id, userName, contestId)
-    if (key !== undefined) {
-      setItem(key, templateCode ?? '')
+    if (storageKey.current !== undefined) {
+      setItem(storageKey.current, templateCode ?? '')
+      setCode(templateCode ?? '')
       toast.success('Successfully reset the code')
     } else toast.error('Failed to reset the code')
   }
