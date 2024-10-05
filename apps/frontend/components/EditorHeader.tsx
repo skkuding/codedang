@@ -25,9 +25,12 @@ import { fetcherWithAuth } from '@/lib/utils'
 import submitIcon from '@/public/submit.svg'
 import useAuthModalStore from '@/stores/authModal'
 import {
-  CodeContext,
   TestResultsContext,
-  useLanguageStore
+  useLanguageStore,
+  getKey,
+  setItem,
+  getItem,
+  CodeContext
 } from '@/stores/editor'
 import type {
   Language,
@@ -37,10 +40,11 @@ import type {
   TestResult
 } from '@/types/type'
 import JSConfetti from 'js-confetti'
+import { Save } from 'lucide-react'
 import type { Route } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
 import { IoPlayCircleOutline } from 'react-icons/io5'
 import { useInterval } from 'react-use'
@@ -68,8 +72,12 @@ export default function Editor({
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
   const [templateCode, setTemplateCode] = useState<string | null>(null)
+  const [userName, setUserName] = useState('')
   const router = useRouter()
   const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
+  const storageKey = useRef(getKey(language, problem.id, userName, contestId))
+  const { currentModal, showSignIn } = useAuthModalStore((state) => state)
+
   useInterval(
     async () => {
       const res = await fetcherWithAuth(`submission/${submissionId}`, {
@@ -98,14 +106,15 @@ export default function Editor({
     loading && submissionId ? 500 : null
   )
 
-  const { showSignIn } = useAuthModalStore((state) => state)
   useEffect(() => {
     auth().then((session) => {
       if (!session) {
-        toast.info('Log in to use submission & auto save feature')
+        toast.info('Log in to use submission & save feature')
+      } else {
+        setUserName(session.user.username)
       }
     })
-  }, [])
+  }, [currentModal])
 
   useEffect(() => {
     if (!templateString) return
@@ -116,6 +125,11 @@ export default function Editor({
     if (filteredTemplate.length === 0) return
     setTemplateCode(filteredTemplate[0].code[0].text)
   }, [language])
+
+  useEffect(() => {
+    storageKey.current = getKey(language, problem.id, userName, contestId)
+    getLocalstorageCode()
+  }, [userName, problem, contestId, language, templateCode])
 
   const submit = async () => {
     if (code === '') {
@@ -144,6 +158,7 @@ export default function Editor({
       }
     })
     if (res.ok) {
+      saveCode()
       const submission: Submission = await res.json()
       setSubmissionId(submission.id)
     } else {
@@ -231,6 +246,40 @@ export default function Editor({
     poll()
   }
 
+  const saveCode = async () => {
+    const session = await auth()
+    if (!session) {
+      toast.error('Log in first to save your code')
+    } else {
+      if (storeCodeToLocalstorage())
+        toast.success('Successfully saved the code')
+      else toast.error('Failed to save the code')
+    }
+  }
+
+  const storeCodeToLocalstorage = () => {
+    if (storageKey.current !== undefined) {
+      setItem(storageKey.current, code)
+      return true
+    }
+    return false
+  }
+
+  const getLocalstorageCode = () => {
+    if (storageKey.current !== undefined) {
+      const storedCode = getItem(storageKey.current) ?? ''
+      setCode(storedCode ? JSON.parse(storedCode) : templateCode)
+    }
+  }
+
+  const resetCode = () => {
+    if (storageKey.current !== undefined) {
+      setItem(storageKey.current, templateCode ?? '')
+      setCode(templateCode ?? '')
+      toast.success('Successfully reset the code')
+    } else toast.error('Failed to reset the code')
+  }
+
   return (
     <div className="flex shrink-0 items-center justify-between border-b border-b-slate-700 bg-[#222939] px-6">
       <div>
@@ -257,7 +306,7 @@ export default function Editor({
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-red-500 hover:bg-red-600"
-                onClick={() => setCode(templateCode ?? '')}
+                onClick={resetCode}
               >
                 Reset
               </AlertDialogAction>
@@ -266,6 +315,14 @@ export default function Editor({
         </AlertDialog>
       </div>
       <div className="flex items-center gap-3">
+        <Button
+          size="icon"
+          className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-[#D7E5FE] font-medium text-[#484C4D] hover:bg-[#c6d3ea]"
+          onClick={saveCode}
+        >
+          <Save className="stroke-1" size={22} />
+          Save
+        </Button>
         <Button
           variant="secondary"
           className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"

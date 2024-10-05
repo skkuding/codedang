@@ -14,7 +14,7 @@ import {
   createCodeStore,
   useLanguageStore
 } from '@/stores/editor'
-import type { Language, ProblemDetail, Template } from '@/types/type'
+import type { Language, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -40,7 +40,7 @@ export default function EditorMainResizablePanel({
   const pathname = usePathname()
   const base = contestId ? `/contest/${contestId}` : ''
   const { language, setLanguage } = useLanguageStore()
-  const codeStore = createCodeStore(language, problem.id, contestId)
+  const codeStore = createCodeStore()
   const testResultStore = useContext(TestResultsContext)
   if (!testResultStore) throw new Error('TestResultsContext is not provided')
   const { testResults } = useStore(testResultStore)
@@ -125,7 +125,6 @@ export default function EditorMainResizablePanel({
               >
                 <ScrollArea className="h-full bg-[#121728]">
                   <CodeEditorInEditorResizablePanel
-                    templateString={problem.template[0]}
                     enableCopyPaste={enableCopyPaste}
                   />
                   <ScrollBar orientation="horizontal" />
@@ -152,12 +151,10 @@ export default function EditorMainResizablePanel({
 }
 
 interface CodeEditorInEditorResizablePanelProps {
-  templateString: string
   enableCopyPaste: boolean
 }
 
 function CodeEditorInEditorResizablePanel({
-  templateString,
   enableCopyPaste
 }: CodeEditorInEditorResizablePanelProps) {
   const { language } = useLanguageStore()
@@ -165,21 +162,9 @@ function CodeEditorInEditorResizablePanel({
   if (!store) throw new Error('CodeContext is not provided')
   const { code, setCode } = useStore(store)
 
-  useEffect(() => {
-    if (!templateString) return
-    const parsedTemplates = JSON.parse(templateString)
-    const filteredTemplate = parsedTemplates.filter(
-      (template: Template) => template.language === language
-    )
-    if (!code) {
-      if (filteredTemplate.length === 0) return
-      setCode(filteredTemplate[0].code[0].text)
-    }
-  }, [language])
-
   return (
     <CodeEditor
-      value={code}
+      value={code ?? ''}
       language={language as Language}
       onChange={setCode}
       enableCopyPaste={enableCopyPaste}
