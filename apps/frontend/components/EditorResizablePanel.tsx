@@ -9,7 +9,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CodeContext, createCodeStore, useLanguageStore } from '@/stores/editor'
-import type { Language, ProblemDetail, Template } from '@/types/type'
+import type { Language, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -34,7 +34,7 @@ export default function EditorMainResizablePanel({
   const pathname = usePathname()
   const base = contestId ? `/contest/${contestId}` : ''
   const { language, setLanguage } = useLanguageStore()
-  const store = createCodeStore(language, problem.id, contestId)
+  const store = createCodeStore()
   useEffect(() => {
     if (!problem.languages.includes(language)) {
       setLanguage(problem.languages[0])
@@ -114,25 +114,12 @@ interface CodeEditorInEditorResizablePanelProps {
 }
 
 function CodeEditorInEditorResizablePanel({
-  templateString,
   enableCopyPaste
 }: CodeEditorInEditorResizablePanelProps) {
   const { language } = useLanguageStore()
   const store = useContext(CodeContext)
   if (!store) throw new Error('CodeContext is not provided')
   const { code, setCode } = useStore(store)
-
-  useEffect(() => {
-    if (!templateString) return
-    const parsedTemplates = JSON.parse(templateString)
-    const filteredTemplate = parsedTemplates.filter(
-      (template: Template) => template.language === language
-    )
-    if (!code) {
-      if (filteredTemplate.length === 0) return
-      setCode(filteredTemplate[0].code[0].text)
-    }
-  }, [language])
 
   return (
     <CodeEditor
