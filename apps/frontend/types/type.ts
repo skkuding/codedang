@@ -182,3 +182,11 @@ export interface TestResultDetail extends TestResult {
   input: string
   expectedOutput: string
 }
+
+export interface SettingsFormat {
+  currentPassword: string
+  newPassword: string
+  confirmPassword: string
+  realName: string
+  studentId: string
+}

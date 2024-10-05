@@ -17,13 +17,23 @@ export class SubmissionService {
   ) {
     const paginator = this.prisma.getPaginator(cursor)
 
-    const { contestId, problemId } = input
+    const { contestId, problemId, searchingName } = input
     const contestSubmissions = await this.prisma.submission.findMany({
       ...paginator,
       take,
       where: {
         contestId,
-        problemId
+        problemId,
+        user: searchingName
+          ? {
+              userProfile: {
+                realName: {
+                  contains: searchingName,
+                  mode: 'insensitive'
+                }
+              }
+            }
+          : undefined
       },
       include: {
         user: {
@@ -44,7 +54,7 @@ export class SubmissionService {
             contestProblem: {
               where: {
                 contestId,
-                problemId: problemId ?? undefined
+                problemId
               }
             }
           }

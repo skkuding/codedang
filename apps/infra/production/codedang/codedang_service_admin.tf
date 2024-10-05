@@ -2,6 +2,28 @@ data "aws_ecr_repository" "admin_api" {
   name = "codedang-admin-api"
 }
 
+resource "aws_ecr_lifecycle_policy" "admin_api_repository_policy" {
+  repository = data.aws_ecr_repository.admin_api.name
+  policy     = <<EOF
+    {
+        "rules": [
+        {
+            "rulePriority": 1,
+            "description": "Keep the last 2 multi-architecture sets (1 image index, 2 architecture images).",
+            "selection": {
+            "tagStatus": "any",
+            "countType": "imageCountMoreThan",
+            "countNumber": 6
+            },
+            "action": {
+            "type": "expire"
+            }
+        }
+        ]
+    }
+    EOF
+}
+
 module "admin_api_loadbalancer" {
   source = "./modules/loadbalancing"
 

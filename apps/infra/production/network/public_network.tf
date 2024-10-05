@@ -6,20 +6,6 @@ resource "aws_internet_gateway" "main" {
   }
 }
 
-resource "aws_eip" "for_nat" {
-  domain = "vpc"
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  depends_on = [aws_internet_gateway.main]
-
-  tags = {
-    Name = "Codedang-NatEIP"
-  }
-}
-
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 

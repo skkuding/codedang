@@ -7,4 +7,7 @@ export class GetContestSubmissionsInput {
 
   @Field(() => Int, { nullable: true })
   problemId?: number
+
+  @Field(() => String, { nullable: true })
+  searchingName?: string
 }
