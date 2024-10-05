@@ -102,9 +102,7 @@ export default function Editor({
 
   useEffect(() => {
     auth().then((session) => {
-      if (!session) {
-        toast.info('Log in to use submission & save feature')
-      } else {
+      if (session) {
         setUserName(session.user.username)
         getLocalstorageCode()
       }
