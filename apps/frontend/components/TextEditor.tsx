@@ -1,5 +1,6 @@
 'use client'
 
+import { CautionDialog } from '@/app/admin/problem/_components/CautionDialog'
 import {
   Dialog,
   DialogContent,
@@ -37,6 +38,7 @@ import {
   ImagePlus
 } from 'lucide-react'
 import { useCallback, useState } from 'react'
+import InsertDialog from './InsertDialog'
 import { Button } from './ui/button'
 
 function MathPreview(props: NodeViewWrapperProps) {
@@ -159,6 +161,9 @@ export default function TextEditor({
   const [url, setUrl] = useState('')
   const [imageUrl, setImageUrl] = useState<string | undefined>('')
   const [equation, setEquation] = useState('')
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [dialogDescription, setDialogDescription] = useState<string>('')
+
   const handleEquation = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setEquation(event.target.value)
@@ -171,7 +176,8 @@ export default function TextEditor({
       StarterKit,
       MathExtension as Extension,
       Placeholder.configure({
-        placeholder,
+        placeholder: ({ editor }) =>
+          editor.getHTML() === '<p></p>' ? placeholder : '',
         emptyEditorClass:
           'before:absolute before:text-gray-300 before:float-left before:content-[attr(data-placeholder)] before:pointer-events-none'
       }),
@@ -193,14 +199,12 @@ export default function TextEditor({
 
   const setLink = useCallback(
     (linkUrl: string | null) => {
+      console.log(linkUrl)
       if (!editor) return null
-
       // cancelled
       if (linkUrl === null) {
         return
       }
-      console.log('실행됨')
-      console.log('url: ' + linkUrl)
       // empty
       if (linkUrl === '') {
         editor.chain().focus().extendMarkRange('link').unsetLink().run()
@@ -219,6 +223,7 @@ export default function TextEditor({
 
   const addImage = useCallback(
     (imageUrl: string | undefined) => {
+      console.log(imageUrl)
       if (!editor) return null
       if (imageUrl === null) {
         return
@@ -244,9 +249,16 @@ export default function TextEditor({
           input: { file }
         }
       })
-      setImageUrl(data?.uploadImage.src)
+      console.log('data', data)
+      setImageUrl(data?.uploadImage.src ?? '')
     } catch (error) {
-      console.error('Error uploading file:', error)
+      if (error instanceof Error) {
+        const errorMessage = error.message
+        if (errorMessage === 'File size exceeds maximum limit') {
+          setDialogDescription('Images larger than 5MB cannot be uploaded.')
+          setIsDialogOpen(true)
+        }
+      }
     }
   }
 
@@ -286,91 +298,45 @@ export default function TextEditor({
           <ListOrdered className="h-[14px] w-[14px]" />
         </Toggle>
 
-        <Dialog>
-          <DialogTrigger asChild>
-            <Toggle size="sm" pressed={editor?.isActive('link')}>
-              <LinkIcon className="h-[14px] w-[14px]" />
-            </Toggle>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Insert URL</DialogTitle>
-            </DialogHeader>
-            <DialogDescription>
-              <Input
-                placeholder="Enter URL"
-                onChange={(e) => {
-                  setUrl(e.target.value)
-                }}
-              />
-            </DialogDescription>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button
-                  onClick={() => {
-                    setLink(url)
-                  }}
-                >
-                  Insert
-                </Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <InsertDialog
+          editor={editor}
+          activeType="link"
+          title="Insert Link"
+          description={
+            <Input
+              placeholder="Enter URL"
+              onChange={(e) => setUrl(e.target.value)}
+            />
+          }
+          triggerIcon={<LinkIcon className="h-[14px] w-[14px]" />}
+          onInsert={() => setLink(url)}
+        />
 
-        <Dialog>
-          <DialogTrigger asChild>
-            <Toggle
-              size="sm"
-              pressed={editor?.isActive('katex')}
-              onPressedChange={() => {
-                setEquation('')
-              }}
-            >
-              <Pi className="h-[14px] w-[14px]" />
-            </Toggle>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Insert Equation</DialogTitle>
-            </DialogHeader>
-            <DialogDescription>
-              <Input placeholder="Enter Equation" onChange={handleEquation} />
-              <Tex block className="text-black">
-                {equation}
-              </Tex>
-            </DialogDescription>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button
-                  onClick={() => {
-                    editor
-                      ?.chain()
-                      .focus()
-                      .insertContent(
-                        `<math-component content="${equation}"></math-component>`
-                      )
-                      .run()
-                  }}
-                >
-                  Insert
-                </Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <InsertDialog
+          editor={editor}
+          activeType="katex"
+          title="Insert Equation"
+          description={
+            <Input placeholder="Enter Equation" onChange={handleEquation} />
+          }
+          triggerIcon={<Pi className="h-[14px] w-[14px]" />}
+          onInsert={() => {
+            editor
+              ?.chain()
+              .focus()
+              .insertContent(
+                `<math-component content="${equation}"></math-component>`
+              )
+              .run()
+          }}
+        />
 
-        <Dialog>
-          <DialogTrigger asChild>
-            <Toggle size="sm" pressed={editor?.isActive('image')}>
-              <ImagePlus className="h-[14px] w-[14px]" />
-            </Toggle>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Upload Image</DialogTitle>
-            </DialogHeader>
-            <DialogDescription className="flex-col gap-1">
+        <InsertDialog
+          editor={editor}
+          activeType="image"
+          title="Upload Image"
+          description={
+            <>
               <Input
                 type="file"
                 accept="image/*"
@@ -379,15 +345,18 @@ export default function TextEditor({
                 }}
               />
               <p className="text-sm"> * Image must be under 5MB</p>
-            </DialogDescription>
-            <DialogFooter className="flex items-center justify-between">
-              <DialogClose asChild>
-                <Button onClick={() => addImage(imageUrl)}>Insert</Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </>
+          }
+          triggerIcon={<ImagePlus className="h-[14px] w-[14px]" />}
+          onInsert={() => addImage(imageUrl)}
+          onToggleClick={() => setImageUrl('')}
+        />
       </div>
+      <CautionDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        description={dialogDescription}
+      />
       <EditorContent className="prose max-w-5xl" editor={editor} />
     </div>
   )

@@ -16,6 +16,7 @@ const GET_PROBLEM = gql(`
       description
       inputDescription
       outputDescription
+      submissionCount
       testcase {
         id
         input
@@ -47,7 +48,7 @@ const GET_PROBLEMS = gql(`
     ) {
       id
       title
-      createTime
+      updateTime
       difficulty
       submissionCount
       acceptedRate

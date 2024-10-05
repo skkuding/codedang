@@ -9,12 +9,14 @@ import { isInvalid } from '../_libs/utils'
 import ExampleTextarea from './ExampleTextarea'
 
 interface TestcaseItemProps {
+  blockEdit?: boolean
   index: number
   itemError: FieldErrorsImpl | undefined
   onRemove: () => void
 }
 
 export default function TestcaseItem({
+  blockEdit,
   index,
   itemError,
   onRemove
@@ -77,13 +79,14 @@ export default function TestcaseItem({
 
         <div>
           <input
+            disabled={blockEdit}
             {...register(`testcases.${index}.scoreWeight`, {
               setValueAs: (value) => (isInvalid(value) ? null : Number(value))
             })}
             type="number"
+            min={0}
             className={cn(
-              'h-5 w-8 rounded-sm border text-center text-xs',
-              '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+              'hide-spin-button h-5 w-8 rounded-sm border text-center text-xs',
               isInvalid(getValues('testcases')[index].scoreWeight)
                 ? 'border-red-500'
                 : 'border-gray-300'
@@ -93,6 +96,7 @@ export default function TestcaseItem({
         </div>
       </div>
       <ExampleTextarea
+        blockEdit={blockEdit}
         onRemove={onRemove}
         inputName={`testcases.${index}.input`}
         outputName={`testcases.${index}.output`}

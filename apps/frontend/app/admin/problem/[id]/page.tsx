@@ -1,16 +1,14 @@
 'use client'
 
+import KatexContent from '@/components/KatexContent'
 import Paginator from '@/components/Paginator'
 import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { GET_PROBLEM_DETAIL } from '@/graphql/problem/queries'
 import { usePagination } from '@/lib/pagination'
-import { renderKatex } from '@/lib/renderKatex'
 import type { SubmissionItem } from '@/types/type'
 import { useQuery } from '@apollo/client'
-// import { sanitize } from 'isomorphic-dompurify'
 import Link from 'next/link'
-import { useEffect, useRef } from 'react'
 import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
 import { columns } from './_components/Columns'
 import DataTable from './_components/DataTable'
@@ -30,17 +28,6 @@ export default function Page({ params }: { params: { id: string } }) {
     20
   )
 
-  const katexRef = useRef<HTMLDivElement>(null)!
-  useEffect(() => {
-    renderKatex(problemData?.description, katexRef)
-  }, [problemData?.description, katexRef])
-
-  const katexContent = (
-    <div
-      className="prose mb-12 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12"
-      ref={katexRef}
-    />
-  )
   return (
     <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
@@ -58,7 +45,10 @@ export default function Page({ params }: { params: { id: string } }) {
             </Button>
           </Link>
         </div>
-        {katexContent}
+        <KatexContent
+          content={problemData?.description}
+          classname="prose mb-12 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12"
+        />
 
         <p className="text-xl font-bold">Submission</p>
         <DataTable

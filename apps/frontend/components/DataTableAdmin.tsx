@@ -1,5 +1,6 @@
 'use client'
 
+import SubmissionDetailAdmin from '@/app/admin/contest/[id]/_components/SubmissionDetailAdmin'
 import DuplicateContest from '@/app/admin/contest/_components/DuplicateContest'
 import {
   AlertDialog,
@@ -12,6 +13,7 @@ import {
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import {
   Table,
   TableBody,
@@ -43,7 +45,7 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import { CopyIcon, PlusCircleIcon } from 'lucide-react'
+import { CopyIcon } from 'lucide-react'
 import type { Route } from 'next'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
@@ -75,6 +77,7 @@ interface DataTableProps<TData, TValue> {
   onSelectedExport?: (selectedRows: ContestProblem[]) => void
   defaultSortColumn?: { id: string; desc: boolean }
   enableFooter?: boolean
+  defaultPageSize?: number
 }
 
 interface ContestProblem {
@@ -110,10 +113,17 @@ export function DataTableAdmin<TData, TValue>({
   enableDuplicate = false,
   onSelectedExport = () => {},
   defaultSortColumn = { id: '', desc: false },
-  enableFooter = false
+  enableFooter = false,
+  defaultPageSize = 10
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])
+  const [defaultSortExists, setDefaultExists] = useState(defaultSortColumn.id)
+  useEffect(() => {
+    if (defaultSortExists)
+      setSorting([{ id: defaultSortColumn.id, desc: defaultSortColumn.desc }])
+    setDefaultExists('')
+  }, [defaultSortExists, defaultSortColumn])
   const pathname = usePathname()
   const page = pathname.split('/').pop()
   const router = useRouter()
@@ -127,8 +137,8 @@ export function DataTableAdmin<TData, TValue>({
       maxSize: Number.MAX_SAFE_INTEGER
     },
     state: {
-      sorting: defaultSortColumn.id
-        ? [{ id: defaultSortColumn.id, desc: defaultSortColumn.desc }]
+      sorting: enableImport
+        ? [{ id: 'select', desc: true }, ...sorting]
         : sorting,
       rowSelection,
       columnVisibility: { languages: false }
@@ -146,10 +156,8 @@ export function DataTableAdmin<TData, TValue>({
   })
 
   useEffect(() => {
-    if (enableImport) {
-      table.setPageSize(5)
-    }
-  }, [enableImport, table])
+    table.setPageSize(defaultPageSize)
+  }, [defaultPageSize, table])
 
   let deletingObject
   if (pathname === '/admin/contest') {
@@ -161,6 +169,8 @@ export function DataTableAdmin<TData, TValue>({
   const [deleteProblem] = useMutation(DELETE_PROBLEM)
   const [deleteContest] = useMutation(DELETE_CONTEST)
   const [isDeleteAlertDialogOpen, setIsDeleteAlertDialogOpen] = useState(false)
+  const [isSubmissionDialogOpen, setIsSubmissionDialogOpen] = useState(false)
+  const [submissionId, setSubmissionId] = useState(0)
 
   useEffect(() => {
     if (checkedRows.length !== 0) {
@@ -271,7 +281,11 @@ export function DataTableAdmin<TData, TValue>({
               <div className="relative">
                 <IoSearch className="text-muted-foreground absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
                 <Input
-                  placeholder="Search"
+                  placeholder={
+                    /^\/admin\/contest\/\d+$/.test(pathname)
+                      ? 'Search Name'
+                      : 'Search'
+                  }
                   value={
                     (table
                       .getColumn(searchColumn)
@@ -317,8 +331,7 @@ export function DataTableAdmin<TData, TValue>({
           <div className="flex gap-2">
             {enableImport ? (
               <Button onClick={() => handleImportProblems()}>
-                <PlusCircleIcon className="mr-2 h-4 w-4" />
-                Import
+                Import / Edit
               </Button>
             ) : null}
             {enableDuplicate ? (
@@ -464,9 +477,27 @@ export function DataTableAdmin<TData, TValue>({
                         key={cell.id}
                         className="text-center md:p-4"
                         onClick={() => {
-                          enableImport
-                            ? row.toggleSelected(!row.getIsSelected())
-                            : href && router.push(href)
+                          if (enableImport) {
+                            const selectedRowCount =
+                              table.getSelectedRowModel().rows.length
+                            if (selectedRowCount < 20 || row.getIsSelected()) {
+                              row.toggleSelected(!row.getIsSelected())
+                            } else {
+                              toast.error(
+                                'You can only import up to 20 problems in a contest'
+                              )
+                            }
+                          } else {
+                            if (href) {
+                              if (href.includes('submission')) {
+                                const submissionId = Number(href.split('/')[6])
+                                setSubmissionId(submissionId)
+                                setIsSubmissionDialogOpen(true)
+                              } else {
+                                router.push(href)
+                              }
+                            }
+                          }
                         }}
                       >
                         {flexRender(
@@ -520,6 +551,16 @@ export function DataTableAdmin<TData, TValue>({
           showRowsPerPage={enableRowsPerpage}
         />
       )}
+      <Dialog
+        open={isSubmissionDialogOpen}
+        onOpenChange={() => {
+          setIsSubmissionDialogOpen(false)
+        }}
+      >
+        <DialogContent className="max-h-[620px] max-w-[620px] justify-center">
+          <SubmissionDetailAdmin submissionId={submissionId} />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

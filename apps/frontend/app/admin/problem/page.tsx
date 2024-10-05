@@ -133,6 +133,7 @@ export default function Page({
             enableFilter={true}
             enableDelete={true}
             enablePagination={true}
+            defaultSortColumn={{ id: 'updateTime', desc: true }}
           />
         )}
       </div>

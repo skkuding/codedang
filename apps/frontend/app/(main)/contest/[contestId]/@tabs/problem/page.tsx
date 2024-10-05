@@ -16,7 +16,7 @@ export default async function ContestProblem({ params }: ContestProblemProps) {
   const { contestId } = params
   const res = await fetcherWithAuth.get(`contest/${contestId}/problem`, {
     searchParams: {
-      take: 10
+      take: 20
     }
   })
 

@@ -27,4 +27,51 @@ const GET_CONTEST_SUBMISSIONS = gql(`
 }
 `)
 
-export { GET_CONTEST_SUBMISSIONS }
+const GET_SUBMISSION = gql(`query GetSubmission(
+  $id: Int!
+) {
+  getSubmission(id: $id) {
+    id
+    userId
+    userIp
+    problemId
+    contestId
+    workbookId
+    code
+    codeSize
+    language
+    result
+    score
+    createTime
+    updateTime
+    testcaseResult {
+      cpuTime
+      id
+      submissionId
+      problemTestcaseId
+      result
+      memoryUsage
+      createTime
+      updateTime
+    }
+    user {
+      id
+      studentId
+      username
+      userProfile {
+        realName
+      }
+    }
+    contest {
+      id
+      title
+    }
+    problem {
+      id
+      title
+
+    }
+  }
+}`)
+
+export { GET_CONTEST_SUBMISSIONS, GET_SUBMISSION }

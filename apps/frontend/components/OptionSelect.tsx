@@ -1,3 +1,4 @@
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Select,
   SelectContent,
@@ -34,17 +35,19 @@ export default function OptionSelect({
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent className="w-[115px] bg-white">
-        <SelectGroup>
-          {options.map((option) => (
-            <SelectItem
-              key={option}
-              value={option}
-              className="cursor-pointer hover:bg-gray-100/80"
-            >
-              {option}
-            </SelectItem>
-          ))}
-        </SelectGroup>
+        <ScrollArea>
+          <SelectGroup className="max-h-40">
+            {options.map((option) => (
+              <SelectItem
+                key={option}
+                value={option}
+                className="cursor-pointer hover:bg-gray-100/80"
+              >
+                {option}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </ScrollArea>
       </SelectContent>
     </Select>
   )

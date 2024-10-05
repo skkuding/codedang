@@ -4,7 +4,6 @@ import { faker } from '@faker-js/faker'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { expect } from 'chai'
 import { stub } from 'sinon'
-import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 import { NoticeService } from './notice.service'
@@ -49,6 +48,7 @@ const db = {
   notice: {
     findFirst: stub(),
     findMany: stub(),
+    findUniqueOrThrow: stub(),
     create: stub(),
     delete: stub(),
     update: stub()
@@ -86,6 +86,7 @@ describe('NoticeService', () => {
   afterEach(() => {
     db.notice.findFirst.reset()
     db.notice.findMany.reset()
+    db.notice.findUniqueOrThrow.reset()
     db.notice.create.reset()
     db.notice.delete.reset()
     db.notice.update.reset()
@@ -107,7 +108,7 @@ describe('NoticeService', () => {
       db.notice.create.rejects(foreignKeyFailedPrismaError)
       await expect(
         service.createNotice(failGroupId, userId, createNoticeInput)
-      ).to.be.rejectedWith(EntityNotExistException)
+      ).to.be.rejectedWith(PrismaClientKnownRequestError)
     })
   })
 
@@ -123,7 +124,7 @@ describe('NoticeService', () => {
       db.notice.update.rejects(relatedRecordsNotFoundPrismaError)
       await expect(
         service.updateNotice(failGroupId, noticeId, updateNoticeInput)
-      ).to.be.rejectedWith(EntityNotExistException)
+      ).to.be.rejectedWith(PrismaClientKnownRequestError)
     })
   })
 
@@ -139,7 +140,7 @@ describe('NoticeService', () => {
       db.notice.delete.rejects(relatedRecordsNotFoundPrismaError)
       await expect(
         service.deleteNotice(failGroupId, noticeId)
-      ).to.be.rejectedWith(EntityNotExistException)
+      ).to.be.rejectedWith(PrismaClientKnownRequestError)
     })
   })
 
@@ -153,13 +154,14 @@ describe('NoticeService', () => {
 
   describe('getNotice', () => {
     it('should return a notice', async () => {
-      db.notice.findFirst.resolves(notice)
+      db.notice.findUniqueOrThrow.resolves(notice)
       expect(await service.getNotice(groupId, noticeId)).to.deep.equal(notice)
     })
 
     it('should throw error when notice not found', async () => {
+      db.notice.findUniqueOrThrow.rejects(relatedRecordsNotFoundPrismaError)
       await expect(service.getNotice(failGroupId, noticeId)).to.be.rejectedWith(
-        EntityNotExistException
+        PrismaClientKnownRequestError
       )
     })
   })

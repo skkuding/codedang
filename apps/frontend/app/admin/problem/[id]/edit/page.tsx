@@ -38,13 +38,12 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const methods = useForm<UpdateProblemInput>({
     resolver: zodResolver(editSchema),
-    defaultValues: {
-      template: []
-    }
+    defaultValues: { template: [] }
   })
 
   const { handleSubmit, setValue, getValues } = methods
 
+  const [blockEdit, setBlockEdit] = useState<boolean>(false)
   const [showHint, setShowHint] = useState<boolean>(false)
   const [showSource, setShowSource] = useState<boolean>(false)
   const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
@@ -57,6 +56,9 @@ export default function Page({ params }: { params: { id: string } }) {
     },
     onCompleted: (problemData) => {
       const data = problemData.getProblem
+
+      if (data.submissionCount > 0) setBlockEdit(true)
+
       setValue('id', +id)
       setValue('title', data.title)
       setValue('isVisible', data.isVisible)
@@ -71,8 +73,14 @@ export default function Page({ params }: { params: { id: string } }) {
         data.tag.map(({ tag }) => Number(tag.id))
       )
       setValue('description', data.description)
-      setValue('inputDescription', data.inputDescription)
-      setValue('outputDescription', data.outputDescription)
+      setValue(
+        'inputDescription',
+        data.inputDescription || '<p>Change this</p>'
+      )
+      setValue(
+        'outputDescription',
+        data.outputDescription || '<p>Change this</p>'
+      )
       setValue('testcases', data.testcase)
       setValue('timeLimit', data.timeLimit)
       setValue('memoryLimit', data.memoryLimit)
@@ -156,7 +164,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
               <FormSection title="Visible">
                 <PopoverVisibleInfo />
-                <VisibleForm />
+                <VisibleForm blockEdit={getValues('isVisible') === null} />
               </FormSection>
             </div>
 
@@ -187,10 +195,10 @@ export default function Page({ params }: { params: { id: string } }) {
               </div>
             </div>
 
-            {getValues('testcases') && <TestcaseField />}
+            {getValues('testcases') && <TestcaseField blockEdit={blockEdit} />}
 
             <FormSection title="Limit">
-              <LimitForm />
+              <LimitForm blockEdit={blockEdit} />
             </FormSection>
             <TemplateField />
             <SwitchField

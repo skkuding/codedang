@@ -210,7 +210,7 @@ export class ProblemService {
         title,
         description,
         inputDescription: '',
-        isVisible: true,
+        isVisible: false,
         outputDescription: '',
         hint: '',
         template,
@@ -263,18 +263,19 @@ export class ProblemService {
       )
     }
 
-    const baseUrlForImage =
-      this.config.get('APP_ENV') == 'stage'
-        ? 'https://stage.codedang.com/bucket'
-        : this.config.get('STORAGE_BUCKET_ENDPOINT_URL')
+    const APP_ENV = this.config.get('APP_ENV')
+    const MEDIA_BUCKET_NAME = this.config.get('MEDIA_BUCKET_NAME')
+    const STORAGE_BUCKET_ENDPOINT_URL = this.config.get(
+      'STORAGE_BUCKET_ENDPOINT_URL'
+    )
 
     return {
       src:
-        baseUrlForImage +
-        '/' +
-        this.config.get('MEDIA_BUCKET_NAME') +
-        '/' +
-        newFilename
+        APP_ENV === 'production'
+          ? `https://${MEDIA_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/${newFilename}`
+          : APP_ENV === 'stage'
+            ? `https://stage.codedang.com/bucket/${MEDIA_BUCKET_NAME}/${newFilename}`
+            : `${STORAGE_BUCKET_ENDPOINT_URL}/${MEDIA_BUCKET_NAME}/${newFilename}`
     }
   }
 
@@ -402,6 +403,19 @@ export class ProblemService {
         )
       }
     })
+
+    // TODO: Problem Edit API 호출 방식 수정 후 롤백 예정
+    // const submission = await this.prisma.submission.findFirst({
+    //   where: {
+    //     problemId: id
+    //   }
+    // })
+
+    // if (submission && testcases) {
+    //   throw new UnprocessableDataException(
+    //     'Cannot update testcases if submission exists'
+    //   )
+    // }
 
     const problemTag = tags ? await this.updateProblemTag(id, tags) : undefined
 

@@ -1,6 +1,6 @@
+import KatexContent from '@/components/KatexContent'
 import { auth } from '@/lib/auth'
 import { fetcherWithAuth } from '@/lib/utils'
-import { sanitize } from 'isomorphic-dompurify'
 import RegisterButton from './_components/RegisterButton'
 
 interface ContestTop {
@@ -37,9 +37,9 @@ export default async function ContestTop({ params }: ContestTopProps) {
 
   return (
     <>
-      <main
-        className="prose w-full max-w-full border-b-2 border-b-gray-300 p-5 py-12"
-        dangerouslySetInnerHTML={{ __html: sanitize(data.description) }}
+      <KatexContent
+        content={data.description}
+        classname="prose w-full max-w-full border-b-2 border-b-gray-300 p-5 py-12"
       />
       {session && state !== 'Finished' && (
         <div className="mt-10 flex justify-center">

@@ -1,3 +1,5 @@
+'use client'
+
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
@@ -59,11 +61,7 @@ export default function SwitchField({
             id={name}
             type={type}
             placeholder={placeholder}
-            className={cn(
-              inputStyle,
-              'h-[36px] w-[380px]',
-              '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
-            )}
+            className={cn(inputStyle, 'hide-spin-button h-[36px] w-[380px]')}
             {...register(name, {
               onChange: () => trigger(name)
             })}

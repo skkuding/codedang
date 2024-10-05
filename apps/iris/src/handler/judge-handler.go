@@ -55,6 +55,7 @@ func (r Request) Validate() (*Request, error) {
 type JudgeResult struct {
 	TestcaseId int             `json:"testcaseId"`
 	ResultCode JudgeResultCode `json:"resultCode"`
+	Output     string          `json:"output"`
 	CpuTime    int             `json:"cpuTime"`
 	RealTime   int             `json:"realTime"`
 	Memory     int             `json:"memory"`
@@ -138,7 +139,7 @@ func NewJudgeHandler(
 }
 
 // handle top layer logical flow
-func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessage) {
+func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan JudgeResultMessage) {
 	startedAt := time.Now()
 	tracer := otel.Tracer("Handle Tracer")
 	handleCtx, span := tracer.Start(
@@ -218,7 +219,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 
 	// err = j.judger.Judge(task)
 	testcaseOutCh := make(chan result.ChResult)
-	go j.getTestcase(handleCtx, testcaseOutCh, strconv.Itoa(validReq.ProblemId))
+	go j.getTestcase(handleCtx, testcaseOutCh, strconv.Itoa(validReq.ProblemId), hidden)
 	compileOutCh := make(chan result.ChResult)
 	go j.compile(handleCtx, compileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.Language)})
 
@@ -299,12 +300,13 @@ func (j *JudgeHandler) compile(traceCtx context.Context, out chan<- result.ChRes
 }
 
 // wrapper to use goroutine
-func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.ChResult, problemId string) {
+func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.ChResult, problemId string, hidden bool) {
 	tracer := otel.Tracer("GetTestcase Tracer")
 	_, span := tracer.Start(traceCtx, "go:goroutine:getTestcase")
 	defer span.End()
 
-	res, err := j.testcaseManager.GetTestcase(problemId)
+	res, err := j.testcaseManager.GetTestcase(problemId, hidden)
+
 	if err != nil {
 		out <- result.ChResult{Err: err}
 		return
@@ -338,6 +340,7 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 
 	res.TestcaseId = tc.Id
 	res.SetJudgeExecResult(runResult.ExecResult)
+	res.Output = string(runResult.Output)
 
 	if runResult.ExecResult.ResultCode != sandbox.RUN_SUCCESS {
 		res.SetJudgeResultCode(SandboxResultCodeToJudgeResultCode(runResult.ExecResult.ResultCode))

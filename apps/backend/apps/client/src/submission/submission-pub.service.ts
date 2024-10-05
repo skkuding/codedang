@@ -2,7 +2,12 @@ import { Injectable } from '@nestjs/common'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import type { Submission } from '@prisma/client'
 import { Span, TraceService } from 'nestjs-otel'
-import { EXCHANGE, PUBLISH_TYPE, SUBMISSION_KEY } from '@libs/constants'
+import {
+  EXCHANGE,
+  JUDGE_MESSAGE_TYPE,
+  RUN_MESSAGE_TYPE,
+  SUBMISSION_KEY
+} from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { Snippet } from './class/create-submission.dto'
@@ -17,7 +22,11 @@ export class SubmissionPublicationService {
   ) {}
 
   @Span()
-  async publishJudgeRequestMessage(code: Snippet[], submission: Submission) {
+  async publishJudgeRequestMessage(
+    code: Snippet[],
+    submission: Submission,
+    isTest = false
+  ) {
     const problem = await this.prisma.problem.findUnique({
       where: { id: submission.problemId },
       select: {
@@ -41,7 +50,7 @@ export class SubmissionPublicationService {
     await this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
       messageId: String(submission.id),
       persistent: true,
-      type: PUBLISH_TYPE
+      type: isTest ? RUN_MESSAGE_TYPE : JUDGE_MESSAGE_TYPE
     })
     span.end()
   }

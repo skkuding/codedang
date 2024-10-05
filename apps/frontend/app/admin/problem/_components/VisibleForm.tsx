@@ -1,8 +1,14 @@
+'use client'
+
 import { useFormContext, useController } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import ErrorMessage from '../../_components/ErrorMessage'
 
-export default function VisibleForm() {
+export default function VisibleForm({
+  blockEdit = false
+}: {
+  blockEdit?: boolean
+}) {
   const {
     control,
     formState: { errors }
@@ -25,6 +31,7 @@ export default function VisibleForm() {
               onChange={() => isVisibleField.onChange(true)}
               checked={isVisibleField.value === true}
               className="text-primary-light"
+              disabled={blockEdit}
             />
             <FaEye className="text-gray-400" size={18} />
           </label>
@@ -35,6 +42,7 @@ export default function VisibleForm() {
               onChange={() => isVisibleField.onChange(false)}
               checked={isVisibleField.value === false}
               className="text-primary-light"
+              disabled={blockEdit}
             />
             <FaEyeSlash className="text-gray-400" size={18} />
           </label>

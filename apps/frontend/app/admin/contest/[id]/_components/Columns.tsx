@@ -71,7 +71,9 @@ export const columns = (
       <div className="flex justify-center">
         <Input
           defaultValue={row.getValue('score')}
-          className="w-[70px] focus-visible:ring-0"
+          className="hide-spin-button w-[70px] focus-visible:ring-0"
+          type="number"
+          min={0}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault()

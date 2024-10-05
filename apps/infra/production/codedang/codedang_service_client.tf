@@ -2,6 +2,28 @@ data "aws_ecr_repository" "client_api" {
   name = "codedang-client-api"
 }
 
+resource "aws_ecr_lifecycle_policy" "client_api_repository_policy" {
+  repository = data.aws_ecr_repository.client_api.name
+  policy     = <<EOF
+    {
+        "rules": [
+        {
+            "rulePriority": 1,
+            "description": "Keep the last 2 multi-architecture sets (1 image index, 2 architecture images).",
+            "selection": {
+            "tagStatus": "any",
+            "countType": "imageCountMoreThan",
+            "countNumber": 6
+            },
+            "action": {
+            "type": "expire"
+            }
+        }
+        ]
+    }
+    EOF
+}
+
 module "client_api_loadbalancer" {
   source = "./modules/loadbalancing"
 

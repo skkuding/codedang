@@ -1,5 +1,6 @@
 'use client'
 
+import KatexContent from '@/components/KatexContent'
 import {
   Accordion,
   AccordionContent,
@@ -14,7 +15,6 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog'
-import { renderKatex } from '@/lib/renderKatex'
 import { convertToLetter } from '@/lib/utils'
 import CopyIcon from '@/public/24_copy.svg'
 import compileIcon from '@/public/compileVersion.svg'
@@ -26,7 +26,7 @@ import { motion } from 'framer-motion'
 import { sanitize } from 'isomorphic-dompurify'
 import { FileText } from 'lucide-react'
 import Image from 'next/image'
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import useCopyToClipboard from 'react-use/lib/useCopyToClipboard'
 import { toast } from 'sonner'
 import {
@@ -68,13 +68,6 @@ export function EditorDescription({
 }) {
   const { copiedID, copy } = useCopy()
 
-  const katexRef = useRef<HTMLDivElement>(null)!
-  useEffect(() => {
-    renderKatex(problem.description, katexRef)
-    console.log(level)
-  }, [problem.description, katexRef])
-
-  const katexContent = <div ref={katexRef} />
   const level = problem.difficulty
   const levelNumber = level.slice(-1)
   return (
@@ -92,7 +85,7 @@ export function EditorDescription({
           )}
         </div>
         <div className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300">
-          {katexContent}
+          <KatexContent content={problem.description} />
         </div>
         <hr className="border-slate-700" />
       </div>

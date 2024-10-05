@@ -4,6 +4,7 @@ import { CursorValidationPipe } from '@libs/pipe'
 import { Submission } from '@admin/@generated'
 import { ContestSubmission } from './model/contest-submission.model'
 import { GetContestSubmissionsInput } from './model/get-contest-submission.input'
+import { SubmissionDetail } from './model/submission-detail.output'
 import { SubmissionService } from './submission.service'
 
 @Resolver(() => Submission)
@@ -39,5 +40,14 @@ export class SubmissionResolver {
       this.logger.error(error.error)
       throw new InternalServerErrorException()
     }
+  }
+  /**
+   * 특정 Contest의 특정 제출 내역에 대한 상세 정보를 불러옵니다.
+   */
+  @Query(() => SubmissionDetail)
+  async getSubmission(
+    @Args('id', { type: () => Int }) id: number
+  ): Promise<SubmissionDetail> {
+    return await this.submissionService.getSubmission(id)
   }
 }

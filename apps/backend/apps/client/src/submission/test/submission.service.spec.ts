@@ -1,8 +1,9 @@
 import { HttpModule } from '@nestjs/axios'
-import { NotFoundException } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
-import { Test, type TestingModule } from '@nestjs/testing'
-import { Language, Role, type Contest, type User } from '@prisma/client'
+import { Test, TestingModule } from '@nestjs/testing'
+import { Language, Role, Contest, User } from '@prisma/client'
+import { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
@@ -25,7 +26,7 @@ import { SubmissionService } from '../submission.service'
 const db = {
   submission: {
     findMany: stub(),
-    findFirstOrThrow: stub(),
+    findFirst: stub(),
     findUnique: stub(),
     create: stub(),
     update: stub(),
@@ -37,8 +38,7 @@ const db = {
     updateMany: stub()
   },
   problem: {
-    findFirstOrThrow: stub(),
-    findUniqueOrThrow: stub(),
+    findFirst: stub(),
     findUnique: stub(),
     update: stub()
   },
@@ -46,21 +46,20 @@ const db = {
     findMany: stub()
   },
   contest: {
-    findFirstOrThrow: stub()
+    findFirst: stub()
   },
   contestProblem: {
-    findUniqueOrThrow: stub(),
-    findFirstOrThrow: stub()
+    findUnique: stub(),
+    findFirst: stub()
   },
   workbookProblem: {
-    findUniqueOrThrow: stub()
+    findUnique: stub()
   },
   contestRecord: {
-    findUniqueOrThrow: stub(),
+    findUnique: stub(),
     update: stub()
   },
   user: {
-    findFirstOrThrow: stub(),
     findFirst: stub()
   },
   getPaginator: PrismaService.prototype.getPaginator
@@ -90,6 +89,7 @@ describe('SubmissionService', () => {
   let service: SubmissionService
   let problemRepository: ProblemRepository
   let publish: SubmissionPublicationService
+  let cache: Cache
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -107,6 +107,17 @@ describe('SubmissionService', () => {
         {
           provide: SubmissionPublicationService,
           useFactory: () => ({ publishJudgeRequestMessage: () => [] })
+        },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => [],
+            del: () => [],
+            store: {
+              keys: () => []
+            }
+          })
         }
       ]
     }).compile()
@@ -116,6 +127,9 @@ describe('SubmissionService', () => {
     publish = module.get<SubmissionPublicationService>(
       SubmissionPublicationService
     )
+    cache = module.get<Cache>(CACHE_MANAGER)
+    stub(cache, 'set').resolves()
+    stub(cache, 'get').resolves([])
   })
 
   it('should be defined', () => {
@@ -124,22 +138,21 @@ describe('SubmissionService', () => {
 
   describe('submitToProblem', () => {
     it('should call createSubmission', async () => {
-      db.problem.findFirstOrThrow.resolves(problems[0])
+      db.problem.findFirst.resolves(problems[0])
       const createSpy = stub(service, 'createSubmission')
 
       await service.submitToProblem(
         submissionDto,
         USERIP,
         submissions[0].userId,
+        problems[0].id,
         problems[0].groupId
       )
       expect(createSpy.calledOnce).to.be.true
     })
 
     it('should throw exception if problem is not found', async () => {
-      db.problem.findFirstOrThrow.rejects(
-        new NotFoundException('No problem found error')
-      )
+      db.problem.findFirst.resolves(null)
       const createSpy = stub(service, 'createSubmission')
 
       await expect(
@@ -147,9 +160,10 @@ describe('SubmissionService', () => {
           submissionDto,
           USERIP,
           submissions[0].userId,
+          problems[0].id,
           problems[0].groupId
         )
-      ).to.be.rejectedWith(NotFoundException)
+      ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
     })
   })
@@ -157,15 +171,15 @@ describe('SubmissionService', () => {
   describe('submitToContest', () => {
     it('should call createSubmission', async () => {
       const createSpy = stub(service, 'createSubmission')
-      db.contest.findFirstOrThrow(mockContest)
-      db.contestRecord.findUniqueOrThrow.resolves({
+      db.contest.findFirst.resolves(mockContest)
+      db.contestRecord.findUnique.resolves({
         contest: {
           groupId: 1,
           startTime: new Date(Date.now() - 10000),
           endTime: new Date(Date.now() + 10000)
         }
       })
-      db.contestProblem.findUniqueOrThrow.resolves({ problem: problems[0] })
+      db.contestProblem.findUnique.resolves({ problem: problems[0] })
 
       await service.submitToContest(
         submissionDto,
@@ -180,19 +194,7 @@ describe('SubmissionService', () => {
 
     it('should throw exception if contest is not ongoing', async () => {
       const createSpy = stub(service, 'createSubmission')
-      db.contestRecord.findUniqueOrThrow.resolves({
-        contest: {
-          groupId: 1,
-          startTime: new Date(Date.now() - 10000),
-          endTime: new Date(Date.now() - 10000)
-        }
-      })
-      db.contestProblem.findUniqueOrThrow.resolves({
-        problem: {
-          ...problems[0],
-          visibleLockTime: new Date(Date.now() + 10000)
-        }
-      })
+      db.contest.findFirst.resolves(null)
 
       await expect(
         service.submitToContest(
@@ -203,7 +205,7 @@ describe('SubmissionService', () => {
           CONTEST_ID,
           problems[0].groupId
         )
-      ).to.be.rejectedWith(ConflictFoundException)
+      ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
     })
   })
@@ -211,7 +213,7 @@ describe('SubmissionService', () => {
   describe('submitToWorkbook', () => {
     it('should call createSubmission', async () => {
       const createSpy = stub(service, 'createSubmission')
-      db.workbookProblem.findUniqueOrThrow.resolves({ problem: problems[0] })
+      db.workbookProblem.findUnique.resolves({ problem: problems[0] })
 
       await service.submitToWorkbook(
         submissionDto,
@@ -226,12 +228,7 @@ describe('SubmissionService', () => {
 
     it('should throw exception if groupId does not match or problem is not exposed', async () => {
       const createSpy = stub(service, 'createSubmission')
-      db.workbookProblem.findUniqueOrThrow.resolves({
-        problem: {
-          ...problems[0],
-          visibleLockTime: new Date(Date.now() + 10000)
-        }
-      })
+      db.workbookProblem.findUnique.resolves(null)
 
       await expect(
         service.submitToWorkbook(
@@ -251,7 +248,6 @@ describe('SubmissionService', () => {
     it('should create submission', async () => {
       const createSpy = stub(service, 'createSubmissionResults')
       const publishSpy = stub(publish, 'publishJudgeRequestMessage')
-      db.problem.findUnique.resolves(problems[0])
       db.submission.create.resolves(submissions[0])
 
       expect(
@@ -261,7 +257,7 @@ describe('SubmissionService', () => {
           submissions[0].userId,
           USERIP
         )
-      ).to.be.deep.equal(submissions[0])
+      ).to.deep.equal(submissions[0])
       expect(createSpy.calledOnceWith(submissions[0])).to.be.true
       expect(publishSpy.calledOnce).to.be.true
     })
@@ -351,7 +347,6 @@ describe('SubmissionService', () => {
 
     it('should throw exception if the language is not supported', async () => {
       const publishSpy = stub(publish, 'publishJudgeRequestMessage')
-      db.problem.findUnique.resolves(problems[0])
 
       await expect(
         service.createSubmission(
@@ -367,7 +362,6 @@ describe('SubmissionService', () => {
     it('should throw error if locked code is modified', async () => {
       const validateSpy = spy(service, 'isValidCode')
       const publishSpy = stub(publish, 'publishJudgeRequestMessage')
-      db.problem.findUnique.resolves(problems[0])
 
       await expect(
         service.createSubmission(
@@ -387,22 +381,20 @@ describe('SubmissionService', () => {
 
   describe('getSubmissions', () => {
     it('should return submissions', async () => {
-      db.problem.findFirstOrThrow.resolves(problems[0])
+      db.problem.findFirst.resolves(problems[0])
       db.submission.findMany.resolves(submissions)
 
       expect(
         await service.getSubmissions({ problemId: problems[0].id })
-      ).to.be.deep.equal({ data: submissions, total: 1 })
+      ).to.deep.equal({ data: submissions, total: 1 })
     })
 
     it('should throw not found error', async () => {
-      db.problem.findFirstOrThrow.rejects(
-        new NotFoundException('No problem found error')
-      )
+      db.problem.findFirst.resolves(null)
 
       await expect(
         service.getSubmissions({ problemId: problems[0].id })
-      ).to.be.rejectedWith(NotFoundException)
+      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 
@@ -419,13 +411,13 @@ describe('SubmissionService', () => {
       })
 
       const passSpy = spy(problemRepository, 'hasPassedProblem')
-      db.problem.findFirstOrThrow.resolves(problems[0])
-      db.submission.findFirstOrThrow.resolves({
+      db.problem.findFirst.resolves(problems[0])
+      db.submission.findFirst.resolves({
         ...submissions[0],
         user: { username: 'username' },
         submissionResult: submissionResults
       })
-      db.user.findFirstOrThrow.resolves({
+      db.user.findFirst.resolves({
         username: 'username',
         id: submissions[0].userId,
         role: Role.User
@@ -440,7 +432,7 @@ describe('SubmissionService', () => {
           undefined,
           null
         )
-      ).to.be.deep.equal({
+      ).to.deep.equal({
         problemId: problems[0].id,
         username: 'username',
         code: submissions[0].code.map((snippet) => snippet.text).join('\n'),
@@ -453,9 +445,7 @@ describe('SubmissionService', () => {
     })
 
     it('should throw exception if problem is not found', async () => {
-      db.problem.findFirstOrThrow.rejects(
-        new NotFoundException('No problem found error')
-      )
+      db.problem.findFirst.resolves(null)
 
       await expect(
         service.getSubmission(
@@ -466,14 +456,12 @@ describe('SubmissionService', () => {
           undefined,
           null
         )
-      ).to.be.rejectedWith(NotFoundException)
+      ).to.be.rejectedWith(EntityNotExistException)
     })
 
     it('should throw exception if submission is not found', async () => {
-      db.problem.findFirstOrThrow.resolves(problems[0])
-      db.submission.findFirstOrThrow.rejects(
-        new NotFoundException('No submission found error')
-      )
+      db.problem.findFirst.resolves(problems[0])
+      db.submission.findFirst.resolves(null)
 
       await expect(
         service.getSubmission(
@@ -484,15 +472,15 @@ describe('SubmissionService', () => {
           undefined,
           null
         )
-      ).to.be.rejectedWith(NotFoundException)
+      ).to.be.rejectedWith(EntityNotExistException)
     })
 
     it("should throw exception if submission is not user's and user has not passed this problem", async () => {
       const passSpy = stub(problemRepository, 'hasPassedProblem').resolves(
         false
       )
-      db.problem.findFirstOrThrow.resolves(problems[0])
-      db.submission.findFirstOrThrow.resolves({ ...submissions[0], userId: 2 })
+      db.problem.findFirst.resolves(problems[0])
+      db.submission.findFirst.resolves({ ...submissions[0], userId: 2 })
 
       await expect(
         service.getSubmission(
@@ -522,52 +510,48 @@ describe('SubmissionService', () => {
         studentId: null,
         major: null
       }
-      db.contestRecord.findUniqueOrThrow.resolves()
-      db.contestProblem.findFirstOrThrow.resolves()
-      db.submission.findMany.resolves(submissions)
       db.user.findFirst.resolves(adminUser)
-      db.contest.findFirstOrThrow.resolves({ isJudgeVisible: true })
+      db.contestRecord.findUnique.resolves({})
+      db.contestProblem.findFirst.resolves({})
+      db.submission.findMany.resolves(submissions)
+      db.contest.findFirst.resolves({ isJudgeResultVisible: true })
 
       expect(
         await service.getContestSubmissions({
           problemId: problems[0].id,
-          contestId: 1,
+          contestId: CONTEST_ID,
           userId: submissions[0].userId
         })
-      ).to.be.deep.equal({ data: submissions, total: 1 })
+      ).to.deep.equal({ data: submissions, total: 1 })
     })
 
     it('should throw exception if user is not registered to contest', async () => {
       db.user.findFirst.resolves(null)
-      db.contestRecord.findUniqueOrThrow.rejects(
-        new NotFoundException('No contestRecord found error')
-      )
+      db.contestRecord.findUnique.resolves(null)
 
       await expect(
         service.getContestSubmissions({
           problemId: problems[0].id,
-          contestId: 1,
+          contestId: CONTEST_ID,
           userId: submissions[0].userId
         })
-      ).to.be.rejectedWith(NotFoundException)
+      ).to.be.rejectedWith(EntityNotExistException)
     })
 
     it("should throw exception if contest doesn't have this problem", async () => {
-      db.contestRecord.findUniqueOrThrow.resolves()
-      db.contestProblem.findFirstOrThrow.rejects(
-        new NotFoundException('No contestProblem found error')
-      )
+      db.user.findFirst.resolves({})
+      db.contestRecord.findUnique.resolves({})
+      db.contestProblem.findFirst.resolves(null)
 
       await expect(
         service.getContestSubmissions({
           problemId: problems[0].id,
-          contestId: 1,
+          contestId: CONTEST_ID,
           userId: submissions[0].userId
         })
-      ).to.be.rejectedWith(NotFoundException)
+      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
-
   // TODO: 기획 문의 / 확정 후 Test DB 기반으로 재작성 예정
   // describe('getContestSubmisssion', () => {
   //   it('should return submission', async () => {
