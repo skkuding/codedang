@@ -16,6 +16,7 @@ import {
   useReactTable,
   type ColumnDef
 } from '@tanstack/react-table'
+import { DEFAULT_COLUMN_VISIBILITY } from './constants'
 
 interface DataTableFallbackProps<TData> {
   withSearchBar?: boolean
@@ -44,6 +45,9 @@ export function TableFallback<TData>({
   const table = useReactTable({
     data: [],
     columns,
+    initialState: {
+      columnVisibility: DEFAULT_COLUMN_VISIBILITY
+    },
     getCoreRowModel: getCoreRowModel()
   })
 
@@ -66,7 +70,6 @@ export function TableFallback<TData>({
             </TableRow>
           ))}
         </TableHeader>
-
         <TableBody>
           {Array(defaultPageSize)
             .fill('')

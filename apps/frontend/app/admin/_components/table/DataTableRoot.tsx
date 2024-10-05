@@ -11,6 +11,7 @@ import {
   type ColumnDef
 } from '@tanstack/react-table'
 import type { ReactNode } from 'react'
+import { DEFAULT_COLUMN_VISIBILITY } from './constants'
 import { Provider } from './context'
 
 interface DataTableRootProps<TData extends { id: number }, TValue> {
@@ -48,7 +49,7 @@ export default function DataTableRoot<TData extends { id: number }, TValue>({
         pageSize: defaultPageSize
       },
       rowSelection: defaultRowSelection,
-      columnVisibility: { languages: false }
+      columnVisibility: DEFAULT_COLUMN_VISIBILITY
     },
     autoResetPageIndex: false,
     enableRowSelection: true,
