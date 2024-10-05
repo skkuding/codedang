@@ -67,7 +67,7 @@ export default function TestcasePanel({ testResult }: TestcasePanelProps) {
       </div>
       <ScrollArea className="h-full">
         {currentTab === 0 ? (
-          <div className="flex flex-col gap-6 p-5">
+          <div className="flex flex-col gap-6 p-5 pb-14">
             <TestSummary
               acceptedCount={acceptedCount}
               total={total}

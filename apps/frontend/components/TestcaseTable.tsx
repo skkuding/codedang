@@ -51,10 +51,13 @@ export default function TestcaseTable({
             <TableCell className="p-3 text-left md:p-3">
               Sample #{testResult.id}
             </TableCell>
-            <TableCell className="p-3 md:p-3">{testResult.input}</TableCell>
-            <TableCell className="p-3 md:p-3">
+            <TableCell className="max-w-96 overflow-hidden text-ellipsis whitespace-nowrap p-3 md:p-3">
+              {testResult.input}
+            </TableCell>
+            <TableCell className="max-w-96 overflow-hidden text-ellipsis whitespace-nowrap p-3 md:p-3">
               {testResult.expectedOutput}
             </TableCell>
+
             <TableCell
               className={cn(
                 'p-3 text-left md:p-3',
