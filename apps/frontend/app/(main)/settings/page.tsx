@@ -2,13 +2,13 @@
 
 import { safeFetcher, safeFetcherWithAuth } from '@/lib/utils'
 import type { SettingsFormat } from '@/types/type'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { useConfirmNavigation } from './_components/ConfirmNavigation'
 import CurrentPwSection from './_components/CurrentPwSection'
 import IdSection from './_components/IdSection'
@@ -38,27 +38,27 @@ type UpdatePayload = Partial<{
   major: string
 }>
 
-const schemaSettings = (updateNow: boolean) =>
-  z.object({
-    currentPassword: z.string().min(1, { message: 'Required' }).optional(),
-    newPassword: z
-      .string()
-      .min(1)
-      .min(8)
-      .max(20)
-      .refine((data) => {
-        const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
-        return !invalidPassword.test(data)
-      })
-      .optional(),
-    confirmPassword: z.string().optional(),
-    realName: z
-      .string()
-      .regex(/^[a-zA-Z\s]+$/, { message: 'Only English Allowed' })
-      .optional(),
+const getSchema = (updateNow: boolean) =>
+  v.object({
+    currentPassword: v.optional(v.pipe(v.string(), v.minLength(1, 'Required'))),
+    newPassword: v.optional(
+      v.pipe(
+        v.string(),
+        v.minLength(8),
+        v.maxLength(20),
+        v.check((input) => {
+          const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
+          return !invalidPassword.test(input)
+        })
+      )
+    ),
+    confirmPassword: v.optional(v.string()),
+    realName: v.optional(
+      v.pipe(v.string(), v.regex(/^[a-zA-Z\s]+$/, 'Only English Allowed'))
+    ),
     studentId: updateNow
-      ? z.string().regex(/^\d{10}$/, { message: 'Only 10 numbers' })
-      : z.string().optional()
+      ? v.pipe(v.string(), v.regex(/^\d{10}$/, 'Only 10 numbers'))
+      : v.optional(v.string())
   })
 
 export default function Page() {
@@ -101,7 +101,7 @@ export default function Page() {
     watch,
     formState: { errors }
   } = useForm<SettingsFormat>({
-    resolver: zodResolver(schemaSettings(!!updateNow)),
+    resolver: valibotResolver(getSchema(!!updateNow)),
     mode: 'onChange',
     defaultValues: {
       currentPassword: '',

@@ -3,22 +3,22 @@ import { Input } from '@/components/ui/input'
 import { baseUrl } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import useSignUpModalStore from '@/stores/signUpModal'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import React, { useState, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import * as v from 'valibot'
 
 interface EmailVerifyInput {
   email: string
   verificationCode: string
 }
 
-const schema = z.object({
-  email: z.string().email({ message: 'Invalid email address' }),
-  verificationCode: z
-    .string()
-    .min(6, { message: 'Code must be 6 characters long' })
-    .max(6, { message: 'Code must be 6 characters long' })
+const schema = v.object({
+  email: v.pipe(v.string(), v.email('Invalid email address')),
+  verificationCode: v.pipe(
+    v.string(),
+    v.length(6, 'Code must be 6 characters long')
+  )
 })
 
 const timeLimit = 300
@@ -37,7 +37,7 @@ export default function SignUpEmailVerify() {
     clearErrors,
     formState: { errors }
   } = useForm<EmailVerifyInput>({
-    resolver: zodResolver(schema)
+    resolver: valibotResolver(schema)
   })
   const [sentEmail, setSentEmail] = useState<boolean>(false)
   const [emailError, setEmailError] = useState<string>('')

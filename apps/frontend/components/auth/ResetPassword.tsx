@@ -2,38 +2,40 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn, fetcher } from '@/lib/utils'
 import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { toast } from 'sonner'
-import { z } from 'zod'
+import * as v from 'valibot'
 
 interface ResetPasswordInput {
   password: string
   passwordAgain: string
 }
 
-const schema = z
-  .object({
-    password: z
-      .string()
-      .min(8)
-      .max(20)
-      .refine((data) => {
+const schema = v.pipe(
+  v.object({
+    password: v.pipe(
+      v.string(),
+      v.minLength(8),
+      v.minLength(20),
+      v.check((value) => {
         const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
-        return !invalidPassword.test(data)
-      }),
-    passwordAgain: z.string()
-  })
-  .refine(
-    (data: { password: string; passwordAgain: string }) =>
-      data.password === data.passwordAgain,
-    {
-      message: 'Incorrect',
-      path: ['passwordAgain']
-    }
+        return !invalidPassword.test(value)
+      })
+    ),
+    passwordAgain: v.string()
+  }),
+  v.forward(
+    v.partialCheck(
+      [['password'], ['passwordAgain']],
+      (input) => input.password === input.passwordAgain,
+      'Incorrect'
+    ),
+    ['passwordAgain']
   )
+)
 
 export default function ResetPassword() {
   const {
@@ -44,7 +46,7 @@ export default function ResetPassword() {
     watch,
     formState: { errors, isValid }
   } = useForm<ResetPasswordInput>({
-    resolver: zodResolver(schema)
+    resolver: valibotResolver(schema)
   })
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)

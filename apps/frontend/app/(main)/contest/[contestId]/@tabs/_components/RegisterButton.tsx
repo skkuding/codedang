@@ -10,19 +10,19 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { cn, fetcherWithAuth } from '@/lib/utils'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { z } from 'zod'
+import * as v from 'valibot'
 
 interface InvitationCodeInput {
   invitationCode: string
 }
 
-const schema = z.object({
-  invitationCode: z.string().length(6)
+const schema = v.object({
+  invitationCode: v.pipe(v.string(), v.length(6))
 })
 
 const getFirstProblemId = async (contestId: string) => {
@@ -104,7 +104,7 @@ export default function RegisterButton({
     getValues,
     formState: { errors }
   } = useForm<InvitationCodeInput>({
-    resolver: zodResolver(schema)
+    resolver: valibotResolver(schema)
   })
 
   const onSubmit = async () => {

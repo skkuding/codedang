@@ -7,7 +7,7 @@ import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { Template, Testcase, UpdateProblemInput } from '@generated/graphql'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
@@ -37,7 +37,7 @@ export default function Page({ params }: { params: { id: string } }) {
   useConfirmNavigation(shouldSkipWarning)
 
   const methods = useForm<UpdateProblemInput>({
-    resolver: zodResolver(editSchema),
+    resolver: valibotResolver(editSchema),
     defaultValues: { template: [] }
   })
 
