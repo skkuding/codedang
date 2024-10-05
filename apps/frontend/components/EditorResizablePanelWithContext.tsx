@@ -2,7 +2,7 @@
 
 import EditorResizablePanel from '@/components/EditorResizablePanel'
 import { TestResultsContext, createTestResultsStore } from '@/stores/editor'
-import { Contest, ProblemDetail } from '@/types/type'
+import type { Contest, ProblemDetail } from '@/types/type'
 
 export default function EditorResizablePanelWithContext({
   problem,
