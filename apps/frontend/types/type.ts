@@ -172,11 +172,13 @@ export interface SubmissionDetail {
 
 // Test type definition
 
-export interface TestcaseResult {
+export interface TestResult {
   id: number
-  input: string
   output: string
   result: string
 }
 
-export interface TestResult extends Omit<TestcaseResult, 'input' | 'output'> {}
+export interface TestResultDetail extends TestResult {
+  input: string
+  expectedOutput: string
+}

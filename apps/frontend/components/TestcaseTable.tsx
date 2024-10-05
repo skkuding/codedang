@@ -7,7 +7,7 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
-import type { TestcaseResult } from '@/types/type'
+import type { TestResultDetail } from '@/types/type'
 
 export default function TestcaseTable({
   data,
@@ -15,9 +15,9 @@ export default function TestcaseTable({
   setTestcaseTabList,
   setCurrentTab
 }: {
-  data: TestcaseResult[]
-  testcaseTabList: TestcaseResult[]
-  setTestcaseTabList: (data: TestcaseResult[]) => void
+  data: TestResultDetail[]
+  testcaseTabList: TestResultDetail[]
+  setTestcaseTabList: (data: TestResultDetail[]) => void
   setCurrentTab: (data: number) => void
 }) {
   function handleRowClick(index: number) {
@@ -52,7 +52,9 @@ export default function TestcaseTable({
               Sample #{testResult.id}
             </TableCell>
             <TableCell className="p-3 md:p-3">{testResult.input}</TableCell>
-            <TableCell className="p-3 md:p-3">{testResult.output}</TableCell>
+            <TableCell className="p-3 md:p-3">
+              {testResult.expectedOutput}
+            </TableCell>
             <TableCell
               className={cn(
                 'p-3 text-left md:p-3',

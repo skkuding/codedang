@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import type { TestcaseResult } from '@/types/type'
+import type { TestResultDetail } from '@/types/type'
 import { sanitize } from 'isomorphic-dompurify'
 import { useState } from 'react'
 import { IoMdClose } from 'react-icons/io'
@@ -9,11 +9,11 @@ import TestcaseTable from './TestcaseTable'
 import { ScrollArea } from './ui/scroll-area'
 
 interface TestcasePanelProps {
-  testResult: TestcaseResult[]
+  testResult: TestResultDetail[]
 }
 
 export default function TestcasePanel({ testResult }: TestcasePanelProps) {
-  const [testcaseTabList, setTestcaseTabList] = useState<TestcaseResult[]>([])
+  const [testcaseTabList, setTestcaseTabList] = useState<TestResultDetail[]>([])
   const [currentTab, setCurrentTab] = useState<number>(0)
   const acceptedCount = testResult.filter(
     (testcase) => testcase.result === 'Accepted'
@@ -99,14 +99,14 @@ function TestcaseTab({
   testcase,
   index
 }: {
-  testcaseTabList: TestcaseResult[]
-  setTestcaseTabList: (data: TestcaseResult[]) => void
+  testcaseTabList: TestResultDetail[]
+  setTestcaseTabList: (data: TestResultDetail[]) => void
   currentTab: number
   setCurrentTab: (data: number) => void
-  testcase: TestcaseResult
+  testcase: TestResultDetail
   index: number
 }) {
-  function handleDelete(testcase: TestcaseResult) {
+  function handleDelete(testcase: TestResultDetail) {
     const updatedList = testcaseTabList.filter(
       (item) => item.id !== testcase.id
     )
@@ -198,7 +198,7 @@ function TestResultDetail({
   dataWithIndex,
   currentTab
 }: {
-  dataWithIndex: TestcaseResult[]
+  dataWithIndex: TestResultDetail[]
   currentTab: number
 }) {
   return (
@@ -224,6 +224,10 @@ function TestResultDetail({
         />
         <LabeledField
           label="Expected Output"
+          text={dataWithIndex[currentTab - 1].expectedOutput}
+        />
+        <LabeledField
+          label="Output"
           text={dataWithIndex[currentTab - 1].output}
         />
       </div>

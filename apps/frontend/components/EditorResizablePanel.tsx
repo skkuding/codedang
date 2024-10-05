@@ -48,7 +48,10 @@ export default function EditorMainResizablePanel({
   const testResultData =
     testResults.length > 0
       ? testcases.map((testcase, index) => ({
-          ...testcase,
+          id: testcase.id,
+          input: testcase.input,
+          expectedOutput: testcase.output,
+          output: testResults[index]?.output,
           result: testResults[index]?.result
         }))
       : null
