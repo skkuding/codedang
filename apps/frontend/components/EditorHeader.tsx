@@ -107,14 +107,11 @@ export default function Editor({
         toast.info('Log in to use submission & save feature')
       } else {
         setUserName(session.user.username)
-        getLocalstorageCode()
       }
     })
   }, [currentModal])
 
   useEffect(() => {
-    storageKey.current = getKey(language, problem.id, userName, contestId)
-
     if (!templateString) return
     const parsedTemplates = JSON.parse(templateString)
     const filteredTemplate = parsedTemplates.filter(
@@ -127,7 +124,7 @@ export default function Editor({
   useEffect(() => {
     storageKey.current = getKey(language, problem.id, userName, contestId)
     getLocalstorageCode()
-  }, [userName, problem, contestId, templateCode])
+  }, [userName, problem, contestId, language, templateCode])
 
   const submit = async () => {
     if (code === '') {
