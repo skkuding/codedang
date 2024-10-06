@@ -25,6 +25,7 @@ import { fetcherWithAuth } from '@/lib/utils'
 import submitIcon from '@/public/submit.svg'
 import useAuthModalStore from '@/stores/authModal'
 import {
+  TestResultsContext,
   useLanguageStore,
   getKey,
   setItem,
@@ -35,7 +36,8 @@ import type {
   Language,
   ProblemDetail,
   Submission,
-  Template
+  Template,
+  TestResult
 } from '@/types/type'
 import JSConfetti from 'js-confetti'
 import { Save } from 'lucide-react'
@@ -44,7 +46,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
-//import { IoPlayCircleOutline } from 'react-icons/io5'
+import { IoPlayCircleOutline } from 'react-icons/io5'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
 import { useStore } from 'zustand'
@@ -61,9 +63,12 @@ export default function Editor({
   templateString
 }: ProblemEditorProps) {
   const { language, setLanguage } = useLanguageStore()
-  const store = useContext(CodeContext)
-  if (!store) throw new Error('CodeContext is not provided')
-  const { code, setCode } = useStore(store)
+  const codeStore = useContext(CodeContext)
+  if (!codeStore) throw new Error('CodeContext is not provided')
+  const { code, setCode } = useStore(codeStore)
+  const testResultStore = useContext(TestResultsContext)
+  if (!testResultStore) throw new Error('TestResultsContext is not provided')
+  const { setTestResults } = useStore(testResultStore)
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
   const [templateCode, setTemplateCode] = useState<string | null>(null)
@@ -165,6 +170,82 @@ export default function Editor({
     }
   }
 
+  const submitTest = async () => {
+    if (code === '') {
+      toast.error('Please write code before test')
+      return
+    }
+    setLoading(true)
+    const res = await fetcherWithAuth.post('submission/test', {
+      json: {
+        language,
+        code: [
+          {
+            id: 1,
+            text: code,
+            locked: false
+          }
+        ]
+      },
+      searchParams: {
+        problemId: problem.id
+      },
+      next: {
+        revalidate: 0
+      }
+    })
+    if (res.ok) {
+      pollTestResult()
+    } else {
+      setLoading(false)
+      if (res.status === 401) {
+        showSignIn()
+        toast.error('Log in first to test your code')
+      } else toast.error('Please try again later.')
+    }
+  }
+
+  const pollTestResult = async () => {
+    let attempts = 0
+    const maxAttempts = 10
+    const pollingInterval = 2000
+
+    const poll = async () => {
+      const res = await fetcherWithAuth.get('submission/test', {
+        next: {
+          revalidate: 0
+        }
+      })
+
+      if (res.ok) {
+        const resultArray: TestResult[] = await res.json()
+
+        setTestResults(resultArray)
+
+        const allJudged = resultArray.every(
+          (submission: TestResult) => submission.result !== 'Judging'
+        )
+
+        if (!allJudged) {
+          if (attempts < maxAttempts) {
+            attempts += 1
+            setTimeout(poll, pollingInterval)
+          } else {
+            setLoading(false)
+            toast.error('Judging took too long. Please try again later.')
+          }
+        } else {
+          setLoading(false)
+        }
+      } else {
+        setLoading(false)
+        toast.error('Please try again later.')
+      }
+    }
+
+    poll()
+  }
+
   const saveCode = async () => {
     const session = await auth()
     if (!session) {
@@ -242,16 +323,15 @@ export default function Editor({
           <Save className="stroke-1" size={22} />
           Save
         </Button>
-        {/* TODO: Add Test function
-
         <Button
-          variant={'secondary'}
+          variant="secondary"
           className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
+          onClick={submitTest}
+          disabled={loading}
         >
           <IoPlayCircleOutline size={22} />
           Test
         </Button>
-        */}
         <Button
           className="h-8 shrink-0 gap-1 rounded-[4px] px-2 font-normal"
           disabled={loading}
