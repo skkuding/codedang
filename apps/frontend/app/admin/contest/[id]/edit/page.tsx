@@ -33,6 +33,7 @@ import {
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
+import { GET_CONTEST_SUBMISSIONS_COUNT } from '@/graphql/submission/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -62,6 +63,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const { id } = params
 
   const shouldSkipWarning = useRef(false)
+  const hasSubmission = useRef(false)
   const router = useRouter()
 
   useConfirmNavigation(shouldSkipWarning)
@@ -75,6 +77,20 @@ export default function Page({ params }: { params: { id: string } }) {
   })
 
   const { handleSubmit, getValues, setValue } = methods
+
+  useQuery(GET_CONTEST_SUBMISSIONS_COUNT, {
+    variables: {
+      input: {
+        contestId: Number(id)
+      },
+      take: 2
+    },
+    onCompleted: (data) => {
+      if (data.getContestSubmissions.length !== 0) {
+        hasSubmission.current = true
+      }
+    }
+  })
 
   useQuery(GET_CONTEST, {
     variables: { contestId: Number(id) },
@@ -152,36 +168,49 @@ export default function Page({ params }: { params: { id: string } }) {
       return
     }
 
-    await removeProblemsFromContest({
-      variables: {
-        groupId: 1,
-        contestId: Number(id),
-        problemIds: prevProblemIds
-      }
-    })
-    await importProblemsToContest({
-      variables: {
-        groupId: 1,
-        contestId: Number(id),
-        problemIdsWithScore: problems.map((problem) => {
-          return {
-            problemId: problem.id,
-            score: problem.score
+    if (hasSubmission.current) {
+      await new Promise<void>((resolve) => {
+        toast.warning(
+          'Submissions exist. Only contest changes, excluding changes to the contest problems, will be saved.',
+          {
+            onAutoClose: () => {
+              resolve()
+            },
+            duration: 4000
           }
-        })
-      }
-    })
-
-    const orderArray = problems
-      .sort((a, b) => a.order - b.order)
-      .map((problem) => problem.id)
-    await updateContestProblemsOrder({
-      variables: {
-        groupId: 1,
-        contestId: Number(id),
-        orders: orderArray
-      }
-    })
+        )
+      })
+    } else {
+      await removeProblemsFromContest({
+        variables: {
+          groupId: 1,
+          contestId: Number(id),
+          problemIds: prevProblemIds
+        }
+      })
+      await importProblemsToContest({
+        variables: {
+          groupId: 1,
+          contestId: Number(id),
+          problemIdsWithScore: problems.map((problem) => {
+            return {
+              problemId: problem.id,
+              score: problem.score
+            }
+          })
+        }
+      })
+      const orderArray = problems
+        .sort((a, b) => a.order - b.order)
+        .map((problem) => problem.id)
+      await updateContestProblemsOrder({
+        variables: {
+          groupId: 1,
+          contestId: Number(id),
+          orders: orderArray
+        }
+      })
+    }
 
     shouldSkipWarning.current = true
     toast.success('Contest updated successfully')
