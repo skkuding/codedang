@@ -72,47 +72,13 @@ export default function EditorSampleField({
               <h3 className="select-none text-sm font-semibold">
                 Input {index + 1}
               </h3>
-              <TooltipProvider delayDuration={300}>
-                <Tooltip>
-                  <motion.div
-                    key={copiedID == `input-${id}` ? 'check' : 'clipboard'}
-                    initial={{ y: 10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -10, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {copiedID == `input-${id}` ? (
-                      <Image src={copyCompleteIcon} alt="copy" width={24} />
-                    ) : (
-                      <TooltipTrigger asChild>
-                        <Image
-                          onClick={() => {
-                            copy(input + '\n\n', `input-${id}`) // add newline to the end for easy testing
-                            toast('Successfully copied', {
-                              unstyled: true,
-                              closeButton: false,
-                              icon: <Image src={CopyIcon} alt="copy" />,
-                              style: { backgroundColor: '#f0f8ff' },
-                              classNames: {
-                                toast:
-                                  'inline-flex items-center py-2 px-3 rounded gap-2',
-                                title: 'text-primary font-medium'
-                              }
-                            })
-                          }}
-                          className="cursor-pointer transition-opacity hover:opacity-60"
-                          src={copyIcon}
-                          alt="copy"
-                          width={24}
-                        />
-                      </TooltipTrigger>
-                    )}
-                  </motion.div>
-                  <TooltipContent>
-                    <p>Copy</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <CopyButton
+                id={id}
+                title="input"
+                content={input}
+                copiedID={copiedID}
+                copy={copy}
+              />
             </div>
             <div className="rounded-md border border-[#555C66]">
               <pre
@@ -129,47 +95,13 @@ export default function EditorSampleField({
               <h3 className="select-none text-sm font-semibold">
                 Output {index + 1}
               </h3>
-              <TooltipProvider delayDuration={300}>
-                <Tooltip>
-                  <motion.div
-                    key={copiedID == `output-${id}` ? 'check' : 'clipboard'}
-                    initial={{ y: 10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -10, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {copiedID == `output-${id}` ? (
-                      <Image src={copyCompleteIcon} alt="copy" width={24} />
-                    ) : (
-                      <TooltipTrigger asChild>
-                        <Image
-                          onClick={() => {
-                            copy(output + '\n\n', `output-${id}`) // add newline to the end for easy testing
-                            toast('Successfully copied', {
-                              unstyled: true,
-                              closeButton: false,
-                              icon: <Image src={CopyIcon} alt="copy" />,
-                              style: { backgroundColor: '#f0f8ff' },
-                              classNames: {
-                                toast:
-                                  'inline-flex items-center py-2 px-3 rounded gap-2',
-                                title: 'text-primary font-medium'
-                              }
-                            })
-                          }}
-                          className="cursor-pointer transition-opacity hover:opacity-60"
-                          src={copyIcon}
-                          alt="copy"
-                          width={24}
-                        />
-                      </TooltipTrigger>
-                    )}
-                  </motion.div>
-                  <TooltipContent>
-                    <p>Copy</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <CopyButton
+                id={id}
+                title="output"
+                content={output}
+                copiedID={copiedID}
+                copy={copy}
+              />
             </div>
             <div className="rounded-md border-[1px] border-[#555C66]">
               <pre
@@ -184,4 +116,61 @@ export default function EditorSampleField({
       </div>
     )
   })
+}
+
+function CopyButton({
+  id,
+  title,
+  content,
+  copiedID,
+  copy
+}: {
+  id: number
+  title: string
+  content: string
+  copiedID: string
+  copy: (value: string, id: string) => void
+}) {
+  return (
+    <TooltipProvider delayDuration={300}>
+      <Tooltip>
+        <motion.div
+          key={copiedID == `${title}-${id}` ? 'check' : 'clipboard'}
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -10, opacity: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          {copiedID == `${title}-${id}` ? (
+            <Image src={copyCompleteIcon} alt="copy" width={24} />
+          ) : (
+            <TooltipTrigger asChild>
+              <Image
+                onClick={() => {
+                  copy(content + '\n\n', `${title}-${id}`) // add newline to the end for easy testing
+                  toast('Successfully copied', {
+                    unstyled: true,
+                    closeButton: false,
+                    icon: <Image src={CopyIcon} alt="copy" />,
+                    style: { backgroundColor: '#f0f8ff' },
+                    classNames: {
+                      toast: 'inline-flex items-center py-2 px-3 rounded gap-2',
+                      title: 'text-primary font-medium'
+                    }
+                  })
+                }}
+                className="cursor-pointer transition-opacity hover:opacity-60"
+                src={copyIcon}
+                alt="copy"
+                width={24}
+              />
+            </TooltipTrigger>
+          )}
+        </motion.div>
+        <TooltipContent>
+          <p>Copy</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
 }
