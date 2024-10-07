@@ -193,7 +193,7 @@ export default function SignUpEmailVerify() {
           <Input
             type="number"
             className={cn(
-              'mt-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+              'hide-spin-button mt-2',
               'focus-visible:border-primary w-full focus-visible:ring-0',
               (errors.verificationCode || expired || codeError) &&
                 'border-red-500 focus-visible:border-red-500'
