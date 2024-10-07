@@ -8,6 +8,7 @@ import { motion } from 'framer-motion'
 import { sanitize } from 'isomorphic-dompurify'
 import Image from 'next/image'
 import { useState } from 'react'
+import { useRef } from 'react'
 import { useCopyToClipboard } from 'react-use'
 import { toast } from 'sonner'
 import {
@@ -26,7 +27,7 @@ const useCopy = () => {
 
   // copiedID is used to show the checkmark icon when the user copies the input/output
   const [copiedID, setCopiedID] = useState('')
-  const [timeoutID, setTimeoutID] = useState<NodeJS.Timeout | null>(null)
+  const timeoutIDRef = useRef<NodeJS.Timeout | null>(null)
 
   const copy = (value: string, id: string) => {
     copyToClipboard(value)
@@ -34,10 +35,13 @@ const useCopy = () => {
 
     // Clear the timeout if it's already set
     // This will prevent the previous setTimeout from executing
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    timeoutID && clearTimeout(timeoutID)
-    const timeout = setTimeout(() => setCopiedID(''), 2000)
-    setTimeoutID(timeout)
+    if (timeoutIDRef.current) {
+      clearTimeout(timeoutIDRef.current)
+    }
+    timeoutIDRef.current = setTimeout(() => {
+      setCopiedID('')
+      timeoutIDRef.current = null
+    }, 2000)
   }
 
   return { copiedID, copy }

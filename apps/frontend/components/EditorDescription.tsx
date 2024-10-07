@@ -67,15 +67,15 @@ export function EditorDescription({
       <hr className="border-4 border-[#121728]" />
 
       <div className="flex shrink-0 gap-11 px-6 text-base">
-        <div className="space-y-2">
-          <h2 className="text-nowrap">Time Limit</h2>
-          <h2 className="text-nowrap">Memory Limit</h2>
-          <h2 className="text-nowrap">Source</h2>
+        <div className="space-y-2 text-nowrap">
+          <h2>Time Limit</h2>
+          <h2>Memory Limit</h2>
+          <h2>Source</h2>
         </div>
-        <div className="space-y-2">
-          <p className="text-slate-400">{problem.timeLimit} ms</p>
-          <p className="text-slate-400">{problem.memoryLimit} MB</p>
-          <p className="text-slate-400">{problem.source}</p>
+        <div className="space-y-2 text-slate-300">
+          <p>{problem.timeLimit} ms</p>
+          <p>{problem.memoryLimit} MB</p>
+          <p>{problem.source}</p>
         </div>
       </div>
 
