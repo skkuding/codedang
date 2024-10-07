@@ -129,7 +129,7 @@ export default function Editor({
   useEffect(() => {
     storageKey.current = getKey(language, problem.id, userName, contestId)
     getLocalstorageCode()
-  }, [userName, problem, contestId, language, templateCode])
+  }, [userName, problem, contestId, language, templateCode, loading])
 
   const submit = async () => {
     if (code === '') {
@@ -162,12 +162,12 @@ export default function Editor({
       const submission: Submission = await res.json()
       setSubmissionId(submission.id)
     } else {
-      setLoading(false)
       if (res.status === 401) {
         showSignIn()
         toast.error('Log in first to submit your code')
       } else toast.error('Please try again later.')
     }
+    setLoading(false)
   }
 
   const submitTest = async () => {
