@@ -53,6 +53,8 @@ export default function DataTableDeleteButton<
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const handleDeleteButtonClick = async () => {
+    if (table.getSelectedRowModel().rows.length === 0) return
+
     if (!getCanDelete) {
       setIsDialogOpen(true)
       return
@@ -84,7 +86,7 @@ export default function DataTableDeleteButton<
     }
   }
 
-  return table.getSelectedRowModel().rows.length !== 0 ? (
+  return (
     <>
       <Button
         variant="outline"
@@ -117,9 +119,5 @@ export default function DataTableDeleteButton<
         </AlertDialogContent>
       </AlertDialog>
     </>
-  ) : (
-    <Button variant="outline" type="button" className={className}>
-      <PiTrashLight fontSize={18} />
-    </Button>
   )
 }
