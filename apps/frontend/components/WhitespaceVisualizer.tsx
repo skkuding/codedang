@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils'
 import { sanitize } from 'isomorphic-dompurify'
 
 export function WhitespaceVisualizer({
-  text,
+  text = '',
   isTruncated = false,
   className
 }: {
