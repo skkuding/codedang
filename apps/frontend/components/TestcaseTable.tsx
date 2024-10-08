@@ -43,7 +43,7 @@ export default function TestcaseTable({
         {data.map((testResult, index) => (
           <TableRow
             key={testResult.id}
-            className="border-b border-b-slate-600 text-left hover:bg-slate-700"
+            className="cursor-pointer border-b border-b-slate-600 text-left hover:bg-slate-700"
             onClick={() => {
               handleRowClick(index)
             }}

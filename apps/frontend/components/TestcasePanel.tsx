@@ -33,7 +33,7 @@ export default function TestcasePanel({ testResult }: TestcasePanelProps) {
       <div className="flex h-12">
         <div
           className={cn(
-            'w-44 content-center text-center',
+            'w-44 cursor-pointer content-center text-center',
             currentTab === 0 ? 'bg-[#222939]' : 'bg-[#121728]',
             tabLength > 0 &&
               currentTab === testcaseTabList[0].id &&
@@ -119,7 +119,7 @@ function TestcaseTab({
   return (
     <div
       className={cn(
-        'relative w-44 border-l border-[#222939] bg-[#121728]',
+        'relative w-44 cursor-pointer border-l border-[#222939] bg-[#121728]',
         currentTab === 0 && index == 0 && 'rounded-bl-xl',
         currentTab === testcaseTabList[index - 1]?.id && 'rounded-bl-xl',
         currentTab === testcaseTabList[index + 1]?.id && 'rounded-br-xl'
