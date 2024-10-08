@@ -20,7 +20,7 @@ import { FaCheck, FaChevronDown } from 'react-icons/fa'
 import { PROBLEM_COLUMN_ID } from './constants'
 import { useDataTable } from './context'
 
-const ALL_OPTION = 'All Problems'
+const ALL_OPTION_LABEL = 'All Problems'
 
 /**
  * 어드민 테이블의 문제 필터
@@ -35,12 +35,12 @@ export default function DataTableProblemFilter({
 }) {
   const { table } = useDataTable()
   const column = table.getColumn(PROBLEM_COLUMN_ID)
+  const selectedValue = getSelectedValue(column?.getFilterValue())
 
-  const [selectedValue, setSelectedValue] = useState<string | undefined>(
-    undefined
-  )
-  const [problemFilterOpen, setProblemFilterOpen] = useState(false)
-  const [problems, setProblems] = useState<string[]>([])
+  const [open, setOpen] = useState(false)
+  const [options, setOptions] = useState<
+    { value: string | null; label: string }[]
+  >([])
 
   const { data } = useQuery(GET_CONTEST_PROBLEMS, {
     variables: { groupId: 1, contestId }
@@ -49,17 +49,17 @@ export default function DataTableProblemFilter({
   useEffect(() => {
     const sortedProblems =
       data?.getContestProblems.slice().sort((a, b) => a.order - b.order) ?? []
-    setProblems([
-      'All Problems',
-      ...sortedProblems.map(
-        (problem) =>
-          `${String.fromCharCode(65 + problem.order)}. ${problem.problem.title}`
-      )
+    setOptions([
+      { value: null, label: ALL_OPTION_LABEL },
+      ...sortedProblems.map((problem) => ({
+        value: problem.problem.title,
+        label: `${String.fromCharCode(65 + problem.order)}. ${problem.problem.title}`
+      }))
     ])
   }, [data])
 
   return (
-    <Popover open={problemFilterOpen} onOpenChange={setProblemFilterOpen}>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger className="w-[250px] p-0" asChild>
         <Button
           variant="outline"
@@ -67,7 +67,7 @@ export default function DataTableProblemFilter({
           className="flex h-10 justify-between border px-4 hover:bg-gray-50"
         >
           <p className="overflow-hidden text-ellipsis whitespace-nowrap font-bold">
-            {selectedValue ?? 'All Problems'}
+            {selectedValue || 'All Problems'}
           </p>
           <FaChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -77,29 +77,22 @@ export default function DataTableProblemFilter({
         <Command>
           <CommandList>
             <CommandGroup>
-              {problems.map((option) => (
+              {options.map(({ value, label }) => (
                 <CommandItem
-                  key={option}
-                  value={option}
+                  key={value}
                   className="flex items-center justify-between"
                   onSelect={() => {
-                    option === 'All Problems'
-                      ? column?.setFilterValue(null)
-                      : column?.setFilterValue(option.slice(3))
-                    setProblemFilterOpen(false)
-                    setSelectedValue(option)
+                    column?.setFilterValue(value)
+                    setOpen(false)
                   }}
                 >
                   <p className="overflow-hidden text-ellipsis whitespace-nowrap text-xs">
-                    {option}
+                    {label}
                   </p>
                   <FaCheck
                     className={cn(
                       'h-4 w-4 flex-shrink-0',
-                      selectedValue === option ||
-                        (!selectedValue && option === ALL_OPTION)
-                        ? 'opacity-100'
-                        : 'opacity-0'
+                      selectedValue === value ? 'opacity-100' : 'opacity-0'
                     )}
                   />
                 </CommandItem>
@@ -110,4 +103,9 @@ export default function DataTableProblemFilter({
       </PopoverContent>
     </Popover>
   )
+}
+
+const getSelectedValue = (data: unknown): string | null => {
+  if (typeof data !== 'string') return null
+  return data
 }
