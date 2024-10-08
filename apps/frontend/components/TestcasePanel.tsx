@@ -1,10 +1,12 @@
 'use client'
 
 import { cn } from '@/lib/utils'
+import { TestResultsContext } from '@/stores/editor'
 import type { TestResultDetail } from '@/types/type'
 import { sanitize } from 'isomorphic-dompurify'
-import { useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { IoMdClose } from 'react-icons/io'
+import { useStore } from 'zustand'
 import TestcaseTable from './TestcaseTable'
 import { ScrollArea } from './ui/scroll-area'
 
@@ -27,6 +29,24 @@ export default function TestcasePanel({ testResult }: TestcasePanelProps) {
     .map((testcase, index) => (testcase.result !== 'Accepted' ? index : -1))
     .filter((index) => index !== -1)
   const tabLength = testcaseTabList.length
+
+  const testResultStore = useContext(TestResultsContext)
+  if (!testResultStore) throw new Error('TestResultsContext is not provided')
+  const { setTestResults } = useStore(testResultStore)
+
+  const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    event.preventDefault()
+    event.returnValue = ''
+    setTestResults([])
+  }
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [])
 
   return dataWithIndex.length !== 0 ? (
     <>
