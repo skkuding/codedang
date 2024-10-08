@@ -9,6 +9,12 @@ interface SearchBarProps extends InputProps {
   columndId: string
 }
 
+/**
+ * 어드민 테이블의 검색창 컴포넌트
+ * @description 기본 Input 컴포넌트의 props을 상속받습니다.
+ * @param columnId
+ * 검색 필터를 적용할 컬럼 아이디
+ */
 export default function DataTableSearchBar({
   placeholder,
   className,

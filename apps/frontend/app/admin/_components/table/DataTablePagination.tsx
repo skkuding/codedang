@@ -12,7 +12,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 import { useDataTable } from './context'
 
 interface DataTablePaginationProps {
-  enableSelection?: boolean
+  showSelection?: boolean
   showRowsPerPage?: boolean
 }
 
@@ -22,15 +22,22 @@ function getPageArray(m: number, n: number) {
     .map((_, i) => m + i)
 }
 
+/**
+ * 어드민 테이블의 페이지네이션 컴포넌트
+ * @param showSelection
+ * 몇개의 row가 선택되었는지 보여주는 텍스트 표시 여부 (기본값: false)
+ * @param showRowsPerPage
+ * 페이지당 보여줄 행을 선택하는 셀렉트 박스 표시 여부 (기본값: true)
+ */
 export default function DataTablePagination({
-  enableSelection = false,
+  showSelection = false,
   showRowsPerPage = true
 }: DataTablePaginationProps) {
   const { table } = useDataTable()
   return (
     <div className="flex items-center justify-between px-2">
       <div className="text-muted-foreground text-xs text-neutral-600">
-        {enableSelection &&
+        {showSelection &&
           `${table.getFilteredSelectedRowModel().rows.length} of${' '}
           ${table.getFilteredRowModel().rows.length} row(s) selected`}
       </div>

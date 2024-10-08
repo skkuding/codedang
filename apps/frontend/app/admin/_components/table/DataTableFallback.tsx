@@ -22,9 +22,20 @@ interface DataTableFallbackProps<TData> {
   withSearchBar?: boolean
   columns: ColumnDef<TData, unknown>[]
   headerStyle?: Record<string, string>
-  defaultPageSize?: number
+  rowCount?: number
 }
 
+/**
+ * 어드민 테이블의 loading UI 컴포넌트
+ * @param withSearchBar
+ * 검색창 스켈레톤 포함 여부
+ * @param columns
+ * header, cell, footer가 정의된 컬럼 목록
+ * @param headerStyle
+ * header별 tailwind classname을 정의한 객체
+ * @param rowCount
+ * 스켈레톤을 보여줄 행 개수 (기본값: 10)
+ */
 export default function DataTableFallback<TData>({
   withSearchBar = true,
   ...props
@@ -40,7 +51,7 @@ export default function DataTableFallback<TData>({
 export function TableFallback<TData>({
   columns,
   headerStyle = {},
-  defaultPageSize = 10
+  rowCount = 10
 }: Omit<DataTableFallbackProps<TData>, 'withSearchBar'>) {
   const table = useReactTable({
     data: [],
@@ -71,7 +82,7 @@ export function TableFallback<TData>({
           ))}
         </TableHeader>
         <TableBody>
-          {Array(defaultPageSize)
+          {Array(rowCount)
             .fill('')
             .map((_, index) => (
               <TableRow key={index}>

@@ -28,6 +28,17 @@ interface DataTableMultiSelectFilterProps<TData, TValue> {
   emptyMessage?: string
 }
 
+/**
+ * 어드민 테이블의 다중 선택 필터 컴포넌트
+ * @param column
+ * 컬럼 정보가 담긴 객체
+ * @param title
+ * 드롭다운 트리거 버튼에 표시될 텍스트
+ * @param options
+ * 값과 라벨을 포함한 옵션 목록
+ * @param emptyMessage
+ * 옵션이 없을 경우 보여줄 텍스트
+ */
 export default function DataTableMultiSelectFilter<TData, TValue>({
   column,
   title,

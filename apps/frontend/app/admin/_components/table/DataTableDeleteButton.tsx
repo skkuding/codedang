@@ -24,6 +24,20 @@ interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
   className?: string
 }
 
+/**
+ * 어드민 테이블의 삭제 버튼 컴포넌트
+ * @desctiption 선택된 행들을 삭제하는 기능
+ * @param target
+ * 삭제 대상 (problem or contest)
+ * @param deleteTarget
+ * 아이디를 전달받아 삭제 요청하는 함수
+ * @param getCanDelete
+ * 선택된 행들이 삭제 가능한지를 반환하는 함수
+ * @param onSuccess
+ * 삭제 성공 시 호출되는 함수
+ * @param className
+ * tailwind 클래스명
+ */
 export default function DataTableDeleteButton<
   TData extends { id: number },
   TPromise

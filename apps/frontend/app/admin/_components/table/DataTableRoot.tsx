@@ -23,6 +23,20 @@ interface DataTableRootProps<TData extends { id: number }, TValue> {
   children: ReactNode
 }
 
+/**
+ * 어드민 테이블 최상위 컴포넌트
+ * @description Table instance를 생성하고 Context를 이용해 하위 컴포넌트에게 table instance를 제공합니다.
+ * @param columns
+ * header, cell, footer가 정의된 컬럼 목록
+ * @param data
+ * 테이블에서 보여줄 데이터
+ * @param defaultPageSize
+ * 한 페이지 당 보여줄 행 개수 (기본값: 10)
+ * @param defaultSortState
+ * 기본 정렬 상태
+ * @param selectedRowIds
+ * 선택된 행들의 아이디 목록
+ */
 export default function DataTableRoot<TData extends { id: number }, TValue>({
   data,
   columns,

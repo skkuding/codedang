@@ -22,6 +22,12 @@ import { useDataTable } from './context'
 
 const ALL_OPTION = 'All Problems'
 
+/**
+ * 어드민 테이블의 문제 필터
+ * @description 컬럼 아이디가 "problemTitle" 여야 합니다.
+ * @param contestId
+ * 문제를 가져올 대회의 아이디
+ */
 export default function DataTableProblemFilter({
   contestId
 }: {

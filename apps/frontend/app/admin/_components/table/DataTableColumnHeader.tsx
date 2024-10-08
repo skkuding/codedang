@@ -16,6 +16,13 @@ interface DataTableColumnHeaderProps<TData, TValue>
   title: typeof VISIBLE_COLUMN_TITLE | (string & NonNullable<unknown>)
 }
 
+/**
+ * 어드민 테이블의 컬럼 헤더 컴포넌트
+ * @param column
+ * 컬럼 정보가 담긴 객체
+ * @param title
+ * 헤더에 표시할 텍스트
+ */
 export default function DataTableColumnHeader<TData, TValue>({
   column,
   title,
