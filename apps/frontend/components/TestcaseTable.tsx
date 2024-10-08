@@ -57,18 +57,21 @@ export default function TestcaseTable({
               <WhitespaceVisualizer
                 text={testResult.input}
                 isTruncated={true}
+                className="h-fit max-h-24"
               />
             </TableCell>
             <TableCell className="max-w-96 truncate p-3 md:p-3">
               <WhitespaceVisualizer
                 text={testResult.expectedOutput}
                 isTruncated={true}
+                className="h-fit max-h-24"
               />
             </TableCell>
             <TableCell className="max-w-96 truncate p-3 md:p-3">
               <WhitespaceVisualizer
                 text={testResult.output}
                 isTruncated={true}
+                className="h-fit max-h-24"
               />
             </TableCell>
             <TableCell
