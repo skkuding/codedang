@@ -8,7 +8,8 @@ import {
   ConflictFoundException,
   DuplicateFoundException,
   EntityNotExistException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { CreateGroupInput, UpdateGroupInput } from './model/group.input'
@@ -33,25 +34,29 @@ export class GroupService {
       input.config.allowJoinFromSearch = false
     }
 
-    const group = await this.prisma.group.create({
-      data: {
-        groupName: input.groupName,
-        description: input.description,
-        config: JSON.stringify(input.config)
-      }
-    })
-    await this.prisma.userGroup.create({
-      data: {
-        user: {
-          connect: { id: userId }
-        },
-        group: {
-          connect: { id: group.id }
-        },
-        isGroupLeader: true
-      }
-    })
-    return group
+    try {
+      const group = await this.prisma.group.create({
+        data: {
+          groupName: input.groupName,
+          description: input.description,
+          config: JSON.stringify(input.config)
+        }
+      })
+      await this.prisma.userGroup.create({
+        data: {
+          user: {
+            connect: { id: userId }
+          },
+          group: {
+            connect: { id: group.id }
+          },
+          isGroupLeader: true
+        }
+      })
+      return group
+    } catch (error) {
+      throw new UnprocessableDataException(error.message)
+    }
   }
 
   async getGroups(cursor: number | null, take: number) {
@@ -133,16 +138,21 @@ export class GroupService {
     if (!input.config.showOnList) {
       input.config.allowJoinFromSearch = false
     }
-    return await this.prisma.group.update({
-      where: {
-        id
-      },
-      data: {
-        groupName: input.groupName,
-        description: input.description,
-        config: JSON.stringify(input.config)
-      }
-    })
+
+    try {
+      return await this.prisma.group.update({
+        where: {
+          id
+        },
+        data: {
+          groupName: input.groupName,
+          description: input.description,
+          config: JSON.stringify(input.config)
+        }
+      })
+    } catch (error) {
+      throw new UnprocessableDataException(error.message)
+    }
   }
 
   async deleteGroup(id: number, user: AuthenticatedUser) {
