@@ -187,15 +187,15 @@ function TestSummary({
     <table className="min-w-full">
       <tbody>
         <tr>
-          <td className="py-1 text-slate-400">Correct Testcase</td>
+          <td className="py-1 text-slate-400">Correct Testcase:</td>
           <td className="py-1 text-white">
             {acceptedCount}/{total}
           </td>
         </tr>
         {notAcceptedIndexes.length > 0 && (
           <tr>
-            <td className="min-w-52 py-1 align-top text-slate-400">
-              Wrong Testcase Number
+            <td className="w-52 py-1 align-top text-slate-400">
+              Wrong Testcase Number:
             </td>
             <td className="py-1 text-white">
               {notAcceptedIndexes
