@@ -73,10 +73,10 @@ export default function MajorSection({
           <PopoverContent className="w-[555px] p-0">
             <Command>
               <CommandInput placeholder="Search major..." />
-              <ScrollArea className="h-40">
+              <ScrollArea>
                 <CommandEmpty>No major found.</CommandEmpty>
                 <CommandGroup>
-                  <CommandList>
+                  <CommandList className="h-40">
                     {majors?.map((major) => (
                       <CommandItem
                         key={major}
