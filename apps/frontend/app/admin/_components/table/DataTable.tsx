@@ -117,6 +117,7 @@ export default function DataTable<
             </TableRow>
           )}
         </TableBody>
+
         {showFooter && (
           <TableFooter>
             {table.getFooterGroups().map((footerGroup) => (
