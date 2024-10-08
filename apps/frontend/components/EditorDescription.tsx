@@ -286,7 +286,7 @@ export function EditorDescription({
           <AccordionContent>
             <pre
               dangerouslySetInnerHTML={{ __html: sanitize(problem.hint) }}
-              className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
+              className="prose prose-invert max-w-full whitespace-pre-wrap break-keep text-sm leading-relaxed text-slate-300"
             />
           </AccordionContent>
         </AccordionItem>
