@@ -3,11 +3,11 @@
 import { cn } from '@/lib/utils'
 import { TestResultsContext } from '@/stores/editor'
 import type { TestResultDetail } from '@/types/type'
-import { sanitize } from 'isomorphic-dompurify'
 import { useContext, useEffect, useState } from 'react'
 import { IoMdClose } from 'react-icons/io'
 import { useStore } from 'zustand'
 import TestcaseTable from './TestcaseTable'
+import { WhitespaceVisualizer } from './WhitespaceVisualizer'
 import { ScrollArea } from './ui/scroll-area'
 
 interface TestcasePanelProps {
@@ -46,7 +46,7 @@ export default function TestcasePanel({ testResult }: TestcasePanelProps) {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }
-  }, [])
+  }, [handleBeforeUnload])
 
   return dataWithIndex.length !== 0 ? (
     <>
@@ -169,12 +169,7 @@ function LabeledField({ label, text }: { label: string; text: string }) {
     <div className="flex min-w-96 flex-col gap-4 p-4">
       <p className="text-slate-400">{label}</p>
       <hr className="border-[#303333]/50" />
-      <pre
-        className="prose prose-invert overflow-auto whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-300"
-        dangerouslySetInnerHTML={{
-          __html: sanitize(text)
-        }}
-      />
+      <WhitespaceVisualizer text={text} className="h-fit text-slate-300" />
     </div>
   )
 }

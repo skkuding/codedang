@@ -29,6 +29,7 @@ import Image from 'next/image'
 import { useState } from 'react'
 import useCopyToClipboard from 'react-use/lib/useCopyToClipboard'
 import { toast } from 'sonner'
+import { WhitespaceVisualizer } from './WhitespaceVisualizer'
 import {
   Tooltip,
   TooltipContent,
@@ -115,16 +116,6 @@ export function EditorDescription({
 
       <div>
         {problem.problemTestcase.map(({ id, input, output }, index) => {
-          const whitespaceStyle =
-            'color: rgb(53, 129, 250); min-width: 0.5em; display: inline-block;'
-          const changedInput = input
-            .replaceAll(/ /g, `<span style="${whitespaceStyle}">␣</span>`)
-            .replaceAll(/\n/g, `<span style="${whitespaceStyle}">↵</span>\n`)
-            .replaceAll(/\t/g, `<span style="${whitespaceStyle}">↹</span>`)
-          const changedOutput = output
-            .replaceAll(/ /g, `<span style="${whitespaceStyle}">␣</span>`)
-            .replaceAll(/\n/g, `<span style="${whitespaceStyle}">↵</span>\n`)
-            .replaceAll(/\t/g, `<span style="${whitespaceStyle}">↹</span>`)
           return (
             <div key={id} className="mb-2 px-6">
               <h2 className="mb-2 font-bold">Sample</h2>
@@ -184,12 +175,7 @@ export function EditorDescription({
                     </TooltipProvider>
                   </div>
                   <div className="rounded-md border border-[#555C66]">
-                    <pre
-                      className="h-24 w-full select-none overflow-auto px-4 py-2 font-mono text-sm"
-                      dangerouslySetInnerHTML={{
-                        __html: sanitize(changedInput)
-                      }}
-                    />
+                    <WhitespaceVisualizer text={input} className="px-4 py-2" />
                   </div>
                 </div>
 
@@ -247,12 +233,7 @@ export function EditorDescription({
                     </TooltipProvider>
                   </div>
                   <div className="rounded-md border-[1px] border-[#555C66]">
-                    <pre
-                      className="h-24 w-full select-none overflow-auto px-4 py-2 font-mono text-sm"
-                      dangerouslySetInnerHTML={{
-                        __html: sanitize(changedOutput)
-                      }}
-                    />
+                    <WhitespaceVisualizer text={output} className="px-4 py-2" />
                   </div>
                 </div>
               </div>
