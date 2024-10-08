@@ -9,10 +9,9 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
-  CodeContext,
-  TestResultsContext,
+  useLanguageStore,
   createCodeStore,
-  useLanguageStore
+  TestResultsContext
 } from '@/stores/editor'
 import type { Language, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
@@ -40,7 +39,6 @@ export default function EditorMainResizablePanel({
   const pathname = usePathname()
   const base = contestId ? `/contest/${contestId}` : ''
   const { language, setLanguage } = useLanguageStore()
-  const codeStore = createCodeStore()
   const testResultStore = useContext(TestResultsContext)
   if (!testResultStore) throw new Error('TestResultsContext is not provided')
   const { testResults } = useStore(testResultStore)
@@ -60,6 +58,7 @@ export default function EditorMainResizablePanel({
       setLanguage(problem.languages[0])
     }
   }, [problem.languages, language, setLanguage])
+
   return (
     <ResizablePanelGroup
       direction="horizontal"
@@ -111,39 +110,37 @@ export default function EditorMainResizablePanel({
 
       <ResizablePanel defaultSize={65} className="bg-[#222939]">
         <div className="grid-rows-editor grid h-full">
-          <CodeContext.Provider value={codeStore}>
-            <EditorHeader
-              problem={problem}
-              contestId={contestId}
-              templateString={problem.template[0]}
-            />
+          <EditorHeader
+            problem={problem}
+            contestId={contestId}
+            templateString={problem.template[0]}
+          />
 
-            <ResizablePanelGroup direction="vertical" className="h-32">
-              <ResizablePanel
-                defaultSize={60}
-                className="!overflow-x-auto !overflow-y-auto"
-              >
-                <ScrollArea className="h-full bg-[#121728]">
-                  <CodeEditorInEditorResizablePanel
-                    enableCopyPaste={enableCopyPaste}
-                  />
-                  <ScrollBar orientation="horizontal" />
-                  <ScrollBar orientation="vertical" />
-                </ScrollArea>
-              </ResizablePanel>
-              {testResultData && (
-                <>
-                  <ResizableHandle
-                    withHandle
-                    className="border-[0.5px] border-slate-700"
-                  />
-                  <ResizablePanel defaultSize={40}>
-                    <TestcasePanel testResult={testResultData} />
-                  </ResizablePanel>
-                </>
-              )}
-            </ResizablePanelGroup>
-          </CodeContext.Provider>
+          <ResizablePanelGroup direction="vertical" className="h-32">
+            <ResizablePanel
+              defaultSize={60}
+              className="!overflow-x-auto !overflow-y-auto"
+            >
+              <ScrollArea className="h-full bg-[#121728]">
+                <CodeEditorInEditorResizablePanel
+                  enableCopyPaste={enableCopyPaste}
+                />
+                <ScrollBar orientation="horizontal" />
+                <ScrollBar orientation="vertical" />
+              </ScrollArea>
+            </ResizablePanel>
+            {testResultData && (
+              <>
+                <ResizableHandle
+                  withHandle
+                  className="border-[0.5px] border-slate-700"
+                />
+                <ResizablePanel defaultSize={40}>
+                  <TestcasePanel testResult={testResultData} />
+                </ResizablePanel>
+              </>
+            )}
+          </ResizablePanelGroup>
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>
@@ -158,9 +155,7 @@ function CodeEditorInEditorResizablePanel({
   enableCopyPaste
 }: CodeEditorInEditorResizablePanelProps) {
   const { language } = useLanguageStore()
-  const store = useContext(CodeContext)
-  if (!store) throw new Error('CodeContext is not provided')
-  const { code, setCode } = useStore(store)
+  const { code, setCode } = createCodeStore()
 
   return (
     <CodeEditor
