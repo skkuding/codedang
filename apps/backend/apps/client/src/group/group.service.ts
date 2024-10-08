@@ -77,7 +77,6 @@ export class GroupService {
 
   async getGroupByInvitation(code: string, userId: number) {
     const groupId = await this.cacheManager.get<number>(invitationCodeKey(code))
-
     if (!groupId) {
       throw new EntityNotExistException('Invalid invitation')
     }
@@ -329,7 +328,7 @@ export class GroupService {
   }
 
   async createUserGroup(userGroupData: UserGroupData): Promise<UserGroup> {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUniqueOrThrow({
       where: {
         id: userGroupData.userId
       }
