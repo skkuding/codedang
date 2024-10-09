@@ -3,6 +3,7 @@ import {
   IsEmail,
   IsNotEmpty,
   IsNumberString,
+  IsOptional,
   IsString,
   Matches
 } from 'class-validator'
@@ -24,9 +25,11 @@ export class SignUpDto {
   @IsNotEmpty()
   readonly realName: string
 
+  @IsOptional()
   @IsNumberString()
   readonly studentId?: string
 
+  @IsOptional()
   @IsString()
   readonly major?: string
 }
