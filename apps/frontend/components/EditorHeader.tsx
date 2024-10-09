@@ -25,12 +25,12 @@ import { fetcherWithAuth } from '@/lib/utils'
 import submitIcon from '@/public/submit.svg'
 import useAuthModalStore from '@/stores/authModal'
 import {
-  TestResultsContext,
   useLanguageStore,
+  createCodeStore,
   getKey,
   setItem,
   getItem,
-  CodeContext
+  TestResultsContext
 } from '@/stores/editor'
 import type {
   Language,
@@ -63,12 +63,13 @@ export default function Editor({
   templateString
 }: ProblemEditorProps) {
   const { language, setLanguage } = useLanguageStore()
-  const codeStore = useContext(CodeContext)
-  if (!codeStore) throw new Error('CodeContext is not provided')
-  const { code, setCode } = useStore(codeStore)
+  const { code, setCode } = createCodeStore((state) => state)
   const testResultStore = useContext(TestResultsContext)
   if (!testResultStore) throw new Error('TestResultsContext is not provided')
-  const { setTestResults } = useStore(testResultStore)
+  const { testResults, setTestResults } = useStore(
+    testResultStore,
+    (state) => state
+  )
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
   const [templateCode, setTemplateCode] = useState<string | null>(null)
@@ -129,7 +130,7 @@ export default function Editor({
   useEffect(() => {
     storageKey.current = getKey(language, problem.id, userName, contestId)
     getLocalstorageCode()
-  }, [userName, problem, contestId, language, templateCode, loading])
+  }, [userName, problem, contestId, language, templateCode, testResults])
 
   const submit = async () => {
     if (code === '') {
@@ -195,6 +196,7 @@ export default function Editor({
       }
     })
     if (res.ok) {
+      saveCode()
       pollTestResult()
     } else {
       setLoading(false)

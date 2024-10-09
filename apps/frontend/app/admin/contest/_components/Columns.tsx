@@ -164,7 +164,7 @@ export const columns: ColumnDef<DataTableContest>[] = [
     ),
     cell: ({ row }) => (
       <p className="overflow-hidden whitespace-nowrap text-center font-normal">
-        {`${dateFormatter(row.original.startTime, 'YY-MM-DD hh:mm')} ~ ${dateFormatter(row.original.endTime, 'YY-MM-DD hh:mm')}`}
+        {`${dateFormatter(row.original.startTime, 'YY-MM-DD HH:mm')} ~ ${dateFormatter(row.original.endTime, 'YY-MM-DD HH:mm')}`}
       </p>
     ),
     size: 250
