@@ -187,7 +187,7 @@ function TestSummary({
     <table className="min-w-full">
       <tbody>
         <tr>
-          <td className="py-1 text-slate-400">Correct Testcase:</td>
+          <td className="w-52 py-1 text-slate-400">Correct Testcase:</td>
           <td className="py-1 text-white">
             {acceptedCount}/{total}
           </td>
