@@ -1,4 +1,4 @@
-import type { Language } from '@/types/type'
+import type { Language, TestResult } from '@/types/type'
 import { createContext } from 'react'
 import { create, createStore } from 'zustand'
 import { persist } from 'zustand/middleware'
@@ -26,20 +26,54 @@ interface CodeState {
   setCode: (code: string) => void
 }
 
-type CodeStore = ReturnType<typeof createCodeStore>
+export const createCodeStore = create<CodeState>((set) => ({
+  code: '',
+  setCode: (code) => {
+    set({ code })
+  }
+}))
 
-export const createCodeStore = (
+export const getKey = (
   language: Language,
+  problemId: number,
+  userName: string,
+  contestId?: number
+) => {
+  if (userName === '') return undefined
+  const problemKey = `${userName}_${problemId}${contestId ? `_${contestId}` : ''}_${language}`
+  return problemKey
+}
+
+export const getItem = (name: string) => {
+  const str = localStorage.getItem(name)
+  if (!str) return null
+  return str
+}
+
+export const setItem = (name: string, value: string) => {
+  localStorage.setItem(name, JSON.stringify(value))
+}
+
+export const removeItem = (name: string) => localStorage.removeItem(name)
+
+interface TestResultsState {
+  testResults: TestResult[]
+  setTestResults: (results: TestResult[]) => void
+}
+
+type TestResultsStore = ReturnType<typeof createTestResultsStore>
+
+export const createTestResultsStore = (
   problemId: number,
   contestId?: number
 ) => {
-  const problemKey = `${problemId}${contestId ? `_${contestId}` : ''}_${language}`
-  return createStore<CodeState>()(
-    persist<CodeState>(
+  const problemKey = `${problemId}${contestId ? `_${contestId}` : ''}_test_results`
+  return createStore<TestResultsState>()(
+    persist<TestResultsState>(
       (set) => ({
-        code: '',
-        setCode: (code) => {
-          set({ code })
+        testResults: [],
+        setTestResults: (results) => {
+          set({ testResults: results })
         }
       }),
       {
@@ -49,4 +83,4 @@ export const createCodeStore = (
   )
 }
 
-export const CodeContext = createContext<CodeStore | null>(null)
+export const TestResultsContext = createContext<TestResultsStore | null>(null)

@@ -1,4 +1,3 @@
-import EditorResizablePanel from '@/components/EditorResizablePanel'
 import HeaderAuthPanel from '@/components/auth/HeaderAuthPanel'
 import { auth } from '@/lib/auth'
 import { convertToLetter, fetcher, fetcherWithAuth } from '@/lib/utils'
@@ -9,6 +8,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { FaSortDown } from 'react-icons/fa'
 import ContestStatusTimeDiff from './ContestStatusTimeDiff'
+import EditorResizablePanelWithContext from './EditorResizablePanelWithContext'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -106,13 +106,13 @@ export default async function EditorLayout({
           <HeaderAuthPanel session={session} group={'editor'} />
         </div>
       </header>
-      <EditorResizablePanel
+      <EditorResizablePanelWithContext
+        contest={contest}
         problem={problem}
         contestId={contestId}
-        enableCopyPaste={contest ? contest.enableCopyPaste : true}
       >
         {children}
-      </EditorResizablePanel>
+      </EditorResizablePanelWithContext>
     </div>
   )
 }

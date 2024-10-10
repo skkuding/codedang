@@ -170,6 +170,19 @@ export interface SubmissionDetail {
   }[]
 }
 
+// Test type definition
+
+export interface TestResult {
+  id: number
+  output: string
+  result: string
+}
+
+export interface TestResultDetail extends TestResult {
+  input: string
+  expectedOutput: string
+}
+
 export interface SettingsFormat {
   currentPassword: string
   newPassword: string
