@@ -1,5 +1,7 @@
 'use client'
 
+import { FeedbackInputField } from '@/components/FeedbackInputField'
+import InputMessage from '@/components/InputMessage'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -8,7 +10,6 @@ import {
   CommandInput,
   CommandItem
 } from '@/components/ui/command'
-import { Input } from '@/components/ui/input'
 import {
   Popover,
   PopoverContent,
@@ -25,12 +26,11 @@ import { CommandList } from 'cmdk'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { FaCheck, FaChevronDown, FaEye, FaEyeSlash } from 'react-icons/fa'
-import { IoWarningOutline } from 'react-icons/io5'
+import { FaCheck, FaChevronDown } from 'react-icons/fa'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-interface SignUpFormInput {
+export interface SignUpFormInput {
   username: string
   email: string
   verificationCode: string
@@ -42,7 +42,7 @@ interface SignUpFormInput {
   passwordAgain: string
 }
 
-const FIELD_NAMES = [
+export const FIELD_NAMES = [
   'username',
   'password',
   'passwordAgain',
@@ -51,7 +51,7 @@ const FIELD_NAMES = [
   'studentId',
   'major'
 ] as const
-type Field = (typeof FIELD_NAMES)[number]
+export type Field = (typeof FIELD_NAMES)[number]
 const fields: Field[] = [...FIELD_NAMES]
 
 const schema = z
@@ -92,55 +92,28 @@ const schema = z
     }
   )
 
-export function requiredMessage(message?: string) {
-  return (
-    <div className="inline-flex items-center text-xs text-red-500">
-      {message === 'Required' && <IoWarningOutline />}
-      <p className={cn(message === 'Required' && 'pl-1')}>{message}</p>
-    </div>
-  )
-}
-
 export default function SignUpRegister() {
   const formData = useSignUpModalStore((state) => state.formData)
-  const [passwordShow, setPasswordShow] = useState<boolean>(false)
-  const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
-  const [inputFocus, setInputFocus] = useState<number>(0)
-  const [focusedList, setFocusedList] = useState<Array<boolean>>([
-    true,
-    ...Array(7).fill(false)
-  ])
+  const [majorHasBeenFocused, setMajorHasBeenFocused] = useState<boolean>(false)
   const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean>(false)
   const [checkedUsername, setCheckedUsername] = useState<string>('')
   const [signUpDisable, setSignUpDisable] = useState<boolean>(false)
   const [majorOpen, setMajorOpen] = React.useState<boolean>(false)
   const [majorValue, setMajorValue] = React.useState<string>('')
 
-  const updateFocus = (n: number) => {
-    setInputFocus(n)
-    setFocusedList((prevList) =>
-      prevList.map((focused, index) => (index === n ? true : focused))
-    )
-    if (n > 0) {
-      trigger(fields[n - 1])
-    }
-  }
+  const formMethods = useForm<SignUpFormInput>({
+    resolver: zodResolver(schema),
+    shouldFocusError: false
+  })
 
   const {
     handleSubmit,
-    register,
+    setValue,
     getValues,
     watch,
     trigger,
     formState: { errors, isDirty }
-  } = useForm<SignUpFormInput>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      username: '',
-      password: ''
-    },
-    shouldFocusError: false
-  })
+  } = formMethods
 
   const watchedPassword = watch('password')
   const watchedPasswordAgain = watch('passwordAgain')
@@ -152,11 +125,11 @@ export default function SignUpRegister() {
   }, [watchedPassword, watchedPasswordAgain, trigger])
 
   function onSubmitClick() {
-    setInputFocus(0)
-    setFocusedList(Array(8).fill(true))
     fields.map((field) => {
+      setValue(field, getValues(field), { shouldDirty: true })
       trigger(field)
     })
+    setMajorHasBeenFocused(true)
   }
 
   const onSubmit = async (data: {
@@ -198,15 +171,11 @@ export default function SignUpRegister() {
           toast.success('Sign up succeeded!')
         }
       })
-    } catch (error) {
+    } catch {
       toast.error('Sign up failed!')
       setSignUpDisable(false)
     }
   }
-  const validation = async (field: string) => {
-    await trigger(field as keyof SignUpFormInput)
-  }
-
   const checkUserName = async () => {
     const username = getValues('username')
     await trigger('username')
@@ -226,7 +195,6 @@ export default function SignUpRegister() {
         console.log(err)
       }
     }
-    updateFocus(0)
   }
 
   const isRequiredError =
@@ -248,276 +216,147 @@ export default function SignUpRegister() {
         className="flex w-full flex-col gap-4"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <Input
-              placeholder="User ID"
-              className={cn(
-                'focus-visible:ring-0',
-                !focusedList[1]
-                  ? ''
-                  : errors.username &&
-                      (getValues('username') || inputFocus !== 1)
-                    ? 'border-red-500 focus-visible:border-red-500'
-                    : 'border-primary',
-
-                !isUsernameAvailable &&
-                  getValues('username') &&
-                  (checkedUsername === getValues('username') ||
-                    inputFocus !== 1) &&
-                  'border-red-500 focus-visible:border-red-500'
-              )}
-              {...register('username', {
-                onChange: () => {
-                  validation('username')
-                  setIsUsernameAvailable(false)
-                },
-                validate: (value) =>
-                  value === checkedUsername && isUsernameAvailable
-                    ? true
-                    : 'Check user ID'
-              })}
-              onFocus={() => {
-                trigger('username')
-                updateFocus(1)
-              }}
-            />
-            <Button
-              onClick={() => {
-                checkUserName()
-              }}
-              type="button"
-              className={cn(
-                ((isUsernameAvailable &&
-                  checkedUsername == getValues('username')) ||
-                  errors.username) &&
-                  'bg-gray-400',
-                'flex h-8 w-11 items-center justify-center rounded-md'
-              )}
-              disabled={
-                (isUsernameAvailable &&
-                  checkedUsername == getValues('username')) ||
-                errors.username
-                  ? true
-                  : false
+        <div className="flex justify-between gap-2">
+          <FeedbackInputField
+            placeholder="User ID"
+            fieldName="username"
+            isError={!isAvailable}
+            Messages={[
+              {
+                type: 'error',
+                text: 'Required',
+                isVisible: !!isRequiredError
+              },
+              {
+                type: 'error',
+                text: '  ·  User ID used for log in\n  ·  3-10 characters of small letters, numbers',
+                isVisible: !!isInvalidFormatError
+              },
+              {
+                type: 'description',
+                text: '  ·  User ID used for log in\n  ·  3-10 characters of small letters, numbers',
+                isVisible: !getValues('username')
+              },
+              {
+                type: 'error',
+                text: 'This ID is already in use',
+                isVisible: !!isUnavailable
+              },
+              {
+                type: 'error',
+                text: 'Check user ID',
+                isVisible: !!shouldCheckUserId
+              },
+              {
+                type: 'available',
+                text: 'Available',
+                isVisible: !!isAvailable
               }
-              size="icon"
-            >
-              <Image src={checkIcon} alt="check" />
-            </Button>
-          </div>
-          <div className="text-xs">
-            {inputFocus !== 1 && (
-              <>
-                {isRequiredError && requiredMessage('Required')}
-                {isInvalidFormatError && (
-                  <ul className="list-disc pl-4 text-red-500">
-                    <li>User ID used for log in</li>
-                    <li>3-10 characters of small letters, numbers</li>
-                  </ul>
-                )}
-                {isAvailable && (
-                  <p className="text-xs text-blue-500">Available</p>
-                )}
-                {isUnavailable && (
-                  <p className="text-red-500">This ID is already in use</p>
-                )}
-                {shouldCheckUserId && (
-                  <p className="text-red-500">Check user ID</p>
-                )}
-              </>
+            ]}
+            formMethods={formMethods}
+          />
+          <Button
+            onClick={() => {
+              checkUserName()
+            }}
+            type="button"
+            className={cn(
+              ((isUsernameAvailable &&
+                checkedUsername == getValues('username')) ||
+                errors.username) &&
+                'bg-gray-400',
+              'mt-0.5 flex h-9 w-12 items-center justify-center rounded-md'
             )}
-            {inputFocus === 1 &&
-              (!isUsernameAvailable &&
-              checkedUsername === getValues('username') &&
-              getValues('username') ? (
-                <p className="text-red-500">This ID is already in use</p>
-              ) : (
-                <div
-                  className={cn(
-                    errors.username && getValues('username')
-                      ? 'text-red-500'
-                      : 'text-gray-700'
-                  )}
-                >
-                  <ul className="list-disc pl-4">
-                    <li>User ID used for log in</li>
-                    <li>3-10 characters of small letters, numbers</li>
-                  </ul>
-                </div>
-              ))}
-          </div>
+            disabled={
+              (isUsernameAvailable &&
+                checkedUsername == getValues('username')) ||
+              errors.username
+                ? true
+                : false
+            }
+            size="icon"
+          >
+            <Image src={checkIcon} alt="check" />
+          </Button>
         </div>
-
-        <div className="flex flex-col gap-1">
-          <div className="relative flex justify-between gap-2">
-            <Input
-              placeholder="Password"
-              className={cn(
-                'focus-visible:ring-0',
-                !focusedList[2]
-                  ? ''
-                  : errors.password &&
-                      (getValues('password') || inputFocus !== 2)
-                    ? 'border-red-500 focus-visible:border-red-500'
-                    : 'border-primary'
-              )}
-              {...register('password', {
-                onChange: () => validation('password')
-              })}
-              type={passwordShow ? 'text' : 'password'}
-              onFocus={() => {
-                updateFocus(2)
-              }}
-            />
-            <span
-              className="absolute right-0 top-0 flex h-full p-3"
-              onClick={() => setPasswordShow(!passwordShow)}
-            >
-              {passwordShow ? (
-                <FaEye className="text-gray-400" />
-              ) : (
-                <FaEyeSlash className="text-gray-400" />
-              )}
-            </span>
-          </div>
-          {inputFocus === 2 &&
-            (errors.password || !getValues('password') ? (
-              <div
-                className={cn(
-                  !getValues('password') ? 'text-gray-700' : 'text-red-500'
-                )}
-              >
-                <ul className="pl-4 text-xs">
-                  <li className="list-disc">8-20 characters</li>
-                  <li className="list-disc">Include two of the followings:</li>
-                  <li>capital letters, small letters, numbers</li>
-                </ul>
-              </div>
-            ) : (
-              <p className="text-xs text-blue-500">Available</p>
-            ))}
-          {inputFocus !== 2 &&
-            errors.password &&
-            (errors.password.message == 'Required' ? (
-              requiredMessage('Required')
-            ) : (
-              <ul className="pl-4 text-xs text-red-500">
-                <li className="list-disc">8-20 characters</li>
-                <li className="list-disc">Include two of the followings:</li>
-                <li>capital letters, small letters, numbers</li>
-              </ul>
-            ))}
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <div className="relative flex justify-between gap-2">
-            <Input
-              {...register('passwordAgain', {
-                onChange: () => validation('passwordAgain')
-              })}
-              className={cn(
-                'focus-visible:ring-0',
-                !focusedList[3]
-                  ? ''
-                  : errors.passwordAgain &&
-                      (getValues('passwordAgain') || inputFocus !== 3)
-                    ? 'border-red-500 focus-visible:border-red-500'
-                    : 'border-primary'
-              )}
-              placeholder="Re-enter password"
-              type={passwordAgainShow ? 'text' : 'password'}
-              onFocus={() => {
-                updateFocus(3)
-              }}
-            />
-            <span
-              className="absolute right-0 top-0 flex h-full p-3"
-              onClick={() => setPasswordAgainShow(!passwordAgainShow)}
-            >
-              {passwordAgainShow ? (
-                <FaEye className="text-gray-400" />
-              ) : (
-                <FaEyeSlash className="text-gray-400" />
-              )}
-            </span>
-          </div>
-          {errors.passwordAgain &&
-            (getValues('passwordAgain') || inputFocus !== 3) &&
-            requiredMessage(errors.passwordAgain.message)}
-        </div>
+        <FeedbackInputField
+          placeholder="Password"
+          fieldName="password"
+          isError={!!errors.password}
+          Messages={[
+            {
+              type: 'error',
+              text:
+                errors.password?.message == 'Required'
+                  ? 'Required'
+                  : '  ·  8-20 characters\n  ·  Include two of the followings:\n     capital letters, small letters, numbers',
+              isVisible: !!errors.password
+            },
+            {
+              type: 'description',
+              text: '  ·  8-20 characters\n  ·  Include two of the followings:\n     capital letters, small letters, numbers',
+              isVisible: !getValues('password')
+            }
+          ]}
+          formMethods={formMethods}
+          enableShowToggle={true}
+        />
+        <FeedbackInputField
+          placeholder="Re-enter password"
+          fieldName="passwordAgain"
+          isError={!!errors.passwordAgain}
+          Messages={[
+            {
+              type: 'error',
+              text: errors.passwordAgain?.message as string,
+              isVisible: !!errors.passwordAgain
+            }
+          ]}
+          formMethods={formMethods}
+          enableShowToggle={true}
+        />
         <div className="my-2 border-b" />
         <div className="flex justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <Input
-              placeholder="First name (이름)"
-              {...register('firstName', {
-                onChange: () => validation('firstName')
-              })}
-              className={cn(
-                'focus-visible:ring-0',
-                !focusedList[4]
-                  ? ''
-                  : errors.firstName &&
-                      (getValues('firstName') || inputFocus !== 4)
-                    ? 'border-red-500 focus-visible:border-red-500'
-                    : 'border-primary'
-              )}
-              onFocus={() => {
-                updateFocus(4)
-              }}
-            />
-            {errors.firstName &&
-              (getValues('firstName') || inputFocus !== 4) &&
-              requiredMessage(errors.firstName.message)}
-          </div>
-          <div className="flex flex-col gap-1">
-            <Input
-              placeholder="Last name (성)"
-              {...register('lastName', {
-                onChange: () => validation('lastName')
-              })}
-              className={cn(
-                'focus-visible:ring-0',
-                !focusedList[5]
-                  ? ''
-                  : errors.lastName &&
-                      (getValues('lastName') || inputFocus !== 5)
-                    ? 'border-red-500 focus-visible:border-red-500'
-                    : 'border-primary'
-              )}
-              onFocus={() => {
-                updateFocus(5)
-              }}
-            />
-            {errors.lastName &&
-              (getValues('lastName') || inputFocus !== 5) &&
-              requiredMessage(errors.lastName.message)}
-          </div>
-        </div>
-        <div className="flex flex-col gap-1">
-          <Input
-            placeholder="Student ID (2024123456)"
-            {...register('studentId', {
-              onChange: () => validation('studentId')
-            })}
-            className={cn(
-              'focus-visible:ring-0',
-              !focusedList[6]
-                ? ''
-                : errors.studentId &&
-                    (getValues('studentId') || inputFocus !== 6)
-                  ? 'border-red-500 focus-visible:border-red-500'
-                  : 'border-primary'
-            )}
-            onFocus={() => {
-              updateFocus(6)
-            }}
+          <FeedbackInputField
+            placeholder="First name (이름)"
+            fieldName="firstName"
+            isError={!!errors.firstName}
+            Messages={[
+              {
+                type: 'error',
+                text: errors.firstName?.message as string,
+                isVisible: !!errors.firstName
+              }
+            ]}
+            formMethods={formMethods}
           />
-          {errors.studentId &&
-            (getValues('studentId') || inputFocus !== 6) &&
-            requiredMessage(errors.studentId.message)}
+          <FeedbackInputField
+            placeholder="Last name (성)"
+            fieldName="lastName"
+            isError={!!errors.lastName}
+            Messages={[
+              {
+                type: 'error',
+                text: errors.lastName?.message as string,
+                isVisible: !!errors.lastName
+              }
+            ]}
+            formMethods={formMethods}
+          />
         </div>
+        <FeedbackInputField
+          placeholder="Student ID (2024123456)"
+          fieldName="studentId"
+          isError={!!errors.studentId}
+          Messages={[
+            {
+              type: 'error',
+              text: errors.studentId?.message as string,
+              isVisible: !!errors.studentId
+            }
+          ]}
+          formMethods={formMethods}
+        />
         <div className="flex flex-col gap-1">
           <Popover open={majorOpen} onOpenChange={setMajorOpen} modal={true}>
             <PopoverTrigger asChild>
@@ -526,7 +365,7 @@ export default function SignUpRegister() {
                 variant="outline"
                 role="combobox"
                 onClick={() => {
-                  updateFocus(7)
+                  setMajorHasBeenFocused(true)
                 }}
                 className={cn(
                   'justify-between border-gray-200 font-normal text-black',
@@ -534,7 +373,7 @@ export default function SignUpRegister() {
                     ? 'text-gray-500'
                     : 'ring-primary border-0 ring-1',
                   !majorValue &&
-                    focusedList[7] &&
+                    majorHasBeenFocused &&
                     !majorOpen &&
                     'border-0 ring-1 ring-red-500'
                 )}
@@ -579,9 +418,9 @@ export default function SignUpRegister() {
             </PopoverContent>
           </Popover>
           {!majorValue &&
-            focusedList[7] &&
+            majorHasBeenFocused &&
             !majorOpen &&
-            requiredMessage('Required')}
+            InputMessage('Required')}
         </div>
 
         <Button
