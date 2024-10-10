@@ -38,7 +38,7 @@ export default function EditorMainResizablePanel({
 }: ProblemEditorProps) {
   const pathname = usePathname()
   const base = contestId ? `/contest/${contestId}` : ''
-  const { language, setLanguage } = useLanguageStore()
+  const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
   const testResultStore = useContext(TestResultsContext)
   if (!testResultStore) throw new Error('TestResultsContext is not provided')
   const { testResults } = useStore(testResultStore)
@@ -123,6 +123,8 @@ export default function EditorMainResizablePanel({
             >
               <ScrollArea className="h-full bg-[#121728]">
                 <CodeEditorInEditorResizablePanel
+                  problemId={problem.id}
+                  contestId={contestId}
                   enableCopyPaste={enableCopyPaste}
                 />
                 <ScrollBar orientation="horizontal" />
@@ -148,13 +150,17 @@ export default function EditorMainResizablePanel({
 }
 
 interface CodeEditorInEditorResizablePanelProps {
+  problemId: number
+  contestId?: number
   enableCopyPaste: boolean
 }
 
 function CodeEditorInEditorResizablePanel({
+  problemId,
+  contestId,
   enableCopyPaste
 }: CodeEditorInEditorResizablePanelProps) {
-  const { language } = useLanguageStore()
+  const { language } = useLanguageStore(problemId, contestId)()
   const { code, setCode } = createCodeStore()
 
   return (

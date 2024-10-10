@@ -62,7 +62,7 @@ export default function Editor({
   contestId,
   templateString
 }: ProblemEditorProps) {
-  const { language, setLanguage } = useLanguageStore()
+  const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
   const { code, setCode } = createCodeStore((state) => state)
   const testResultStore = useContext(TestResultsContext)
   if (!testResultStore) throw new Error('TestResultsContext is not provided')
