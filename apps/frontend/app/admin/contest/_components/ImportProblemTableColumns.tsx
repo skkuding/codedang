@@ -13,6 +13,7 @@ interface DataTableProblem {
   submissionCount: number
   acceptedRate: number
   languages: string[]
+  score?: number
 }
 
 export const columns: ColumnDef<DataTableProblem>[] = [
