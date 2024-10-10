@@ -1,10 +1,15 @@
+data "aws_route_table" "private" {
+  vpc_id = data.aws_vpc.main.id
+  tags = {
+    Name = "Codedang-Private-RT"
+  }
+}
+
 resource "aws_vpc_endpoint" "s3_endpoint" {
-
   vpc_id            = data.aws_vpc.main.id
-  service_name      = "com.amazonaws.ap-northeast-2.s3"
+  service_name      = "com.amazonaws.${var.region}.s3"
   vpc_endpoint_type = "Gateway"
-  route_table_ids   = [data.aws_vpc.main.main_route_table_id]
-
+  route_table_ids   = [data.aws_route_table.private.id]
 
   policy = jsonencode({
     Version = "2008-10-17"
@@ -19,7 +24,7 @@ resource "aws_vpc_endpoint" "s3_endpoint" {
   })
 
   tags = {
-    "Name" = "s3-endpoint"
+    "Name" = "S3-Gateway-Endpoint-for-Private-RT"
   }
 }
 
