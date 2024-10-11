@@ -18,7 +18,11 @@ import AddBadge from './AddBadge'
 import { CautionDialog } from './CautionDialog'
 import TestcaseItem from './TestcaseItem'
 
-export default function TestcaseField({ blockEdit }: { blockEdit?: boolean }) {
+export default function TestcaseField({
+  blockEdit = false
+}: {
+  blockEdit?: boolean
+}) {
   const {
     formState: { errors },
     getValues,
@@ -127,7 +131,7 @@ export default function TestcaseField({ blockEdit }: { blockEdit?: boolean }) {
               />
             )
         )}
-        <AddBadge onClick={() => addTestcase(false)} />
+        {!blockEdit && <AddBadge onClick={() => addTestcase(false)} />}
       </div>
       <div className="flex flex-col gap-4">
         <Label required={false}>Hidden Testcase</Label>
@@ -143,7 +147,7 @@ export default function TestcaseField({ blockEdit }: { blockEdit?: boolean }) {
               />
             )
         )}
-        <AddBadge onClick={() => addTestcase(true)} />
+        {!blockEdit && <AddBadge onClick={() => addTestcase(true)} />}
       </div>
       <div className="flex w-full justify-end">
         <TooltipProvider>
