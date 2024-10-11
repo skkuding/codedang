@@ -166,10 +166,12 @@ function TestcaseTab({
 
 function LabeledField({ label, text }: { label: string; text: string }) {
   return (
-    <div className="flex flex-col gap-4 p-4">
-      <p className="text-slate-400">{label}</p>
-      <hr className="border-[#303333]/50" />
-      <WhitespaceVisualizer text={text} className="h-fit text-slate-300" />
+    <div className="min-w-40 flex-1">
+      <div className="flex flex-col gap-4 p-4">
+        <p className="text-slate-400">{label}</p>
+        <hr className="border-[#303333]/50" />
+        <WhitespaceVisualizer text={text} className="h-fit text-slate-300" />
+      </div>
     </div>
   )
 }
@@ -233,24 +235,18 @@ function TestResultDetail({
         </span>
       </div>
       <div className="flex gap-4">
-        <div className="min-w-40 flex-1">
-          <LabeledField
-            label="Input"
-            text={dataWithIndex[currentTab - 1].input}
-          />
-        </div>
-        <div className="min-w-40 flex-1">
-          <LabeledField
-            label="Expected Output"
-            text={dataWithIndex[currentTab - 1].expectedOutput}
-          />
-        </div>
-        <div className="min-w-40 flex-1">
-          <LabeledField
-            label="Output"
-            text={dataWithIndex[currentTab - 1].output}
-          />
-        </div>
+        <LabeledField
+          label="Input"
+          text={dataWithIndex[currentTab - 1].input}
+        />
+        <LabeledField
+          label="Expected Output"
+          text={dataWithIndex[currentTab - 1].expectedOutput}
+        />
+        <LabeledField
+          label="Output"
+          text={dataWithIndex[currentTab - 1].output}
+        />
       </div>
     </div>
   )
