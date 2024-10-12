@@ -8,6 +8,7 @@ import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import type { Level } from '@/types/type'
 import { useQuery } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
+import { toast } from 'sonner'
 import type { ContestProblem } from '../../utils'
 
 function Included({ row }: { row: Row<ContestProblem> }) {
@@ -25,7 +26,8 @@ function Included({ row }: { row: Row<ContestProblem> }) {
 
 export const columns = (
   problems: ContestProblem[],
-  setProblems: React.Dispatch<React.SetStateAction<ContestProblem[]>>
+  setProblems: React.Dispatch<React.SetStateAction<ContestProblem[]>>,
+  disableInput: boolean
 ): ColumnDef<ContestProblem>[] => [
   // {
   //   id: 'select',
@@ -68,11 +70,20 @@ export const columns = (
     accessorKey: 'score',
     header: () => <p className="text-center text-sm">Score</p>,
     cell: ({ row }) => (
-      <div className="flex justify-center">
+      <div
+        className="flex justify-center"
+        onClick={() => {
+          if (disableInput) {
+            toast.error('Problem scoring cannot be edited')
+          }
+        }}
+      >
         <Input
+          disabled={disableInput}
           defaultValue={row.getValue('score')}
           className="hide-spin-button w-[70px] focus-visible:ring-0"
           type="number"
+          style={{ pointerEvents: disableInput ? 'none' : 'auto' }}
           min={0}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -117,25 +128,35 @@ export const columns = (
         String.fromCharCode(65 + index)
       )
       return (
-        <div className="flex justify-center">
-          <OptionSelect
-            value={
-              row.original.order !== undefined
-                ? String.fromCharCode(Number(65 + row.original.order))
-                : String.fromCharCode(Number(65 + row.index))
+        <div
+          className="flex justify-center"
+          onClick={() => {
+            if (disableInput) {
+              toast.error('Problem order cannot be edited')
             }
-            options={alphabetArray}
-            onChange={(selectedOrder) => {
-              setProblems((prevProblems: ContestProblem[]) =>
-                prevProblems.map((problem) =>
-                  problem.id === row.original.id
-                    ? { ...problem, order: selectedOrder.charCodeAt(0) - 65 }
-                    : problem
+          }}
+        >
+          <div style={{ pointerEvents: disableInput ? 'none' : 'auto' }}>
+            <OptionSelect
+              value={
+                row.original.order !== undefined
+                  ? String.fromCharCode(Number(65 + row.original.order))
+                  : String.fromCharCode(Number(65 + row.index))
+              }
+              options={alphabetArray}
+              onChange={(selectedOrder) => {
+                setProblems((prevProblems: ContestProblem[]) =>
+                  prevProblems.map((problem) =>
+                    problem.id === row.original.id
+                      ? { ...problem, order: selectedOrder.charCodeAt(0) - 65 }
+                      : problem
+                  )
                 )
-              )
-            }}
-            className="w-[70px]"
-          />
+              }}
+              className="w-[70px]"
+              disabled={disableInput}
+            />
+          </div>
         </div>
       )
     }
