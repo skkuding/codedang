@@ -7,19 +7,22 @@ interface LanguageStore {
   setLanguage: (language: Language) => void
 }
 
-export const useLanguageStore = create(
-  persist<LanguageStore>(
-    (set) => ({
-      language: 'C',
-      setLanguage: (language) => {
-        set({ language })
+export const useLanguageStore = (problemId: number, contestId?: number) => {
+  const languageKey = `${problemId}${contestId ? `_${contestId}` : ''}_language`
+  return create(
+    persist<LanguageStore>(
+      (set) => ({
+        language: 'C',
+        setLanguage: (language) => {
+          set({ language })
+        }
+      }),
+      {
+        name: languageKey
       }
-    }),
-    {
-      name: 'language'
-    }
+    )
   )
-)
+}
 interface CodeState {
   code: string
   setCode: (code: string) => void

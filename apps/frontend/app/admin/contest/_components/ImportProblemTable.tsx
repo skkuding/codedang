@@ -9,6 +9,7 @@ interface ContestProblem {
   id: number
   title: string
   difficulty: string
+  score: number
 }
 
 interface OrderContestProblem {
@@ -56,8 +57,11 @@ export default function ImportProblemTable({
           ...tag,
           id: +tag.id
         }
-      }))
+      })),
+      score: checkedProblems.find((item) => item.id === Number(problem.id))
+        ?.score
     })) ?? []
+
   return (
     <>
       {loading ? (

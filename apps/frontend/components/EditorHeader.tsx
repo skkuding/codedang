@@ -62,7 +62,7 @@ export default function Editor({
   templateString,
   setTestResults
 }: ProblemEditorProps) {
-  const { language, setLanguage } = useLanguageStore()
+  const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
   const { code, setCode } = createCodeStore((state) => state)
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
