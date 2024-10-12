@@ -27,7 +27,7 @@ export default function SubmissionDetailAdmin({
   })
   const submission = data?.getSubmission
   return (
-    <ScrollArea className="mt-5 w-[580px]">
+    <ScrollArea className="mt-5 max-h-[540px] w-[580px]">
       {!loading && (
         <div className="ml-20 flex w-[432px] flex-col gap-4">
           <h1 className="flex text-lg font-semibold">
@@ -80,20 +80,26 @@ export default function SubmissionDetailAdmin({
           </ScrollArea>
           {submission?.testcaseResult.length !== 0 && (
             <div>
-              <h2 className="font-bold">Test case</h2>
-              <Table className="[&_*]:text-center [&_*]:text-sm [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:border-slate-600">
+              <h2 className="font-bold">Testcase</h2>
+              <Table className="[&_*]:text-center [&_*]:text-xs [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:!border-neutral-200">
                 <TableHeader>
                   <TableRow>
                     <TableHead></TableHead>
-                    <TableHead className="text-black">Result</TableHead>
-                    <TableHead className="text-black">Runtime</TableHead>
-                    <TableHead className="text-black">Memory</TableHead>
+                    <TableHead className="!text-sm text-black">
+                      Result
+                    </TableHead>
+                    <TableHead className="!text-sm text-black">
+                      Runtime
+                    </TableHead>
+                    <TableHead className="!text-sm text-black">
+                      Memory
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody className="text-slate-400">
                   {submission?.testcaseResult.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell>{item.id}</TableCell>
+                      <TableCell className="!py-4">{item.id}</TableCell>
                       <TableCell
                         className={
                           item.result === 'Accepted'
