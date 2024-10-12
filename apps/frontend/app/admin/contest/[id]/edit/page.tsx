@@ -60,10 +60,10 @@ export default function Page({ params }: { params: { id: string } }) {
     useState<boolean>(false)
   const [showInvitationCode, setShowInvitationCode] = useState<boolean>(false)
   const [showImportDialog, setShowImportDialog] = useState<boolean>(false)
+  const [hasSubmission, setHasSubmission] = useState<boolean>(false)
   const { id } = params
 
   const shouldSkipWarning = useRef(false)
-  const hasSubmission = useRef(false)
   const router = useRouter()
 
   useConfirmNavigation(shouldSkipWarning)
@@ -87,7 +87,7 @@ export default function Page({ params }: { params: { id: string } }) {
     },
     onCompleted: (data) => {
       if (data.getContestSubmissions.length !== 0) {
-        hasSubmission.current = true
+        setHasSubmission(true)
       }
     }
   })
@@ -168,19 +168,7 @@ export default function Page({ params }: { params: { id: string } }) {
       return
     }
 
-    if (hasSubmission.current) {
-      await new Promise<void>((resolve) => {
-        toast.warning(
-          'Submissions exist. Only contest changes, excluding changes to the contest problems, will be saved.',
-          {
-            onAutoClose: () => {
-              resolve()
-            },
-            duration: 4000
-          }
-        )
-      })
-    } else {
+    if (!hasSubmission) {
       await removeProblemsFromContest({
         variables: {
           groupId: 1,
@@ -271,15 +259,17 @@ export default function Page({ params }: { params: { id: string } }) {
                 <ContestProblemListLabel />
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button
-                      type="button"
-                      className="flex h-[36px] w-48 items-center gap-2 px-0"
-                    >
-                      <PlusCircleIcon className="h-4 w-4" />
-                      <div className="mb-[2px] text-sm">
-                        Import · Edit problem
-                      </div>
-                    </Button>
+                    {hasSubmission ? null : (
+                      <Button
+                        type="button"
+                        className="flex h-[36px] w-48 items-center gap-2 px-0"
+                      >
+                        <PlusCircleIcon className="h-4 w-4" />
+                        <div className="mb-[2px] text-sm">
+                          Import · Edit problem
+                        </div>
+                      </Button>
+                    )}
                   </AlertDialogTrigger>
                   <AlertDialogContent className="p-8">
                     <AlertDialogHeader className="gap-2">
@@ -326,8 +316,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 </Dialog>
               </div>
               <DataTableAdmin
-                // eslint-disable-next-line
-                columns={columns(problems, setProblems) as any[]}
+                columns={columns(problems, setProblems, hasSubmission)}
                 data={problems as ContestProblem[]}
                 defaultSortColumn={{ id: 'order', desc: false }}
                 enableFooter={true}
