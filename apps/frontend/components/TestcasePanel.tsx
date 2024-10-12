@@ -2,10 +2,10 @@
 
 import { cn } from '@/lib/utils'
 import type { TestResultDetail } from '@/types/type'
-import { sanitize } from 'isomorphic-dompurify'
 import { useState } from 'react'
 import { IoMdClose } from 'react-icons/io'
 import TestcaseTable from './TestcaseTable'
+import { WhitespaceVisualizer } from './WhitespaceVisualizer'
 import { ScrollArea } from './ui/scroll-area'
 
 interface TestcasePanelProps {
@@ -33,7 +33,7 @@ export default function TestcasePanel({ testResult }: TestcasePanelProps) {
       <div className="flex h-12">
         <div
           className={cn(
-            'w-44 content-center text-center',
+            'w-44 cursor-pointer content-center text-center',
             currentTab === 0 ? 'bg-[#222939]' : 'bg-[#121728]',
             tabLength > 0 &&
               currentTab === testcaseTabList[0].id &&
@@ -119,7 +119,7 @@ function TestcaseTab({
   return (
     <div
       className={cn(
-        'relative w-44 border-l border-[#222939] bg-[#121728]',
+        'relative w-44 cursor-pointer border-l border-[#222939] bg-[#121728]',
         currentTab === 0 && index == 0 && 'rounded-bl-xl',
         currentTab === testcaseTabList[index - 1]?.id && 'rounded-bl-xl',
         currentTab === testcaseTabList[index + 1]?.id && 'rounded-br-xl'
@@ -146,15 +146,12 @@ function TestcaseTab({
 
 function LabeledField({ label, text }: { label: string; text: string }) {
   return (
-    <div className="flex min-w-96 flex-col gap-4 p-4">
-      <p className="text-slate-400">{label}</p>
-      <hr className="border-[#303333]/50" />
-      <pre
-        className="prose prose-invert overflow-auto whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-300"
-        dangerouslySetInnerHTML={{
-          __html: sanitize(text)
-        }}
-      />
+    <div className="min-w-40 flex-1">
+      <div className="flex flex-col gap-4 p-4">
+        <p className="text-slate-400">{label}</p>
+        <hr className="border-[#303333]/50" />
+        <WhitespaceVisualizer text={text} className="h-fit text-slate-300" />
+      </div>
     </div>
   )
 }
@@ -172,15 +169,15 @@ function TestSummary({
     <table className="min-w-full">
       <tbody>
         <tr>
-          <td className="py-1 text-slate-400">Correct Testcase</td>
+          <td className="w-52 py-1 text-slate-400">Correct Testcase:</td>
           <td className="py-1 text-white">
             {acceptedCount}/{total}
           </td>
         </tr>
         {notAcceptedIndexes.length > 0 && (
           <tr>
-            <td className="min-w-52 py-1 align-top text-slate-400">
-              Wrong Testcase Number
+            <td className="w-52 py-1 align-top text-slate-400">
+              Wrong Testcase Number:
             </td>
             <td className="py-1 text-white">
               {notAcceptedIndexes

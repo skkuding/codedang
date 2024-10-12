@@ -8,7 +8,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { FaSortDown } from 'react-icons/fa'
 import ContestStatusTimeDiff from './ContestStatusTimeDiff'
-import EditorResizablePanelWithContext from './EditorResizablePanelWithContext'
+import EditorMainResizablePanel from './EditorResizablePanel'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -106,13 +106,13 @@ export default async function EditorLayout({
           <HeaderAuthPanel session={session} group={'editor'} />
         </div>
       </header>
-      <EditorResizablePanelWithContext
-        contest={contest}
+      <EditorMainResizablePanel
         problem={problem}
         contestId={contestId}
+        enableCopyPaste={contest ? contest.enableCopyPaste : true}
       >
         {children}
-      </EditorResizablePanelWithContext>
+      </EditorMainResizablePanel>
     </div>
   )
 }
