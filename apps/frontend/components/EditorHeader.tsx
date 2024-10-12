@@ -29,8 +29,7 @@ import {
   createCodeStore,
   getKey,
   setItem,
-  getItem,
-  TestResultsContext
+  getItem
 } from '@/stores/editor'
 import type {
   Language,
@@ -44,32 +43,27 @@ import { Save } from 'lucide-react'
 import type { Route } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
 import { IoPlayCircleOutline } from 'react-icons/io5'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
-import { useStore } from 'zustand'
 
 interface ProblemEditorProps {
   problem: ProblemDetail
   contestId?: number
   templateString: string
+  setTestResults: (testResults: TestResult[]) => void
 }
 
 export default function Editor({
   problem,
   contestId,
-  templateString
+  templateString,
+  setTestResults
 }: ProblemEditorProps) {
   const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
   const { code, setCode } = createCodeStore((state) => state)
-  const testResultStore = useContext(TestResultsContext)
-  if (!testResultStore) throw new Error('TestResultsContext is not provided')
-  const { testResults, setTestResults } = useStore(
-    testResultStore,
-    (state) => state
-  )
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
   const [templateCode, setTemplateCode] = useState<string | null>(null)
@@ -130,7 +124,7 @@ export default function Editor({
   useEffect(() => {
     storageKey.current = getKey(language, problem.id, userName, contestId)
     getLocalstorageCode()
-  }, [userName, problem, contestId, language, templateCode, testResults])
+  }, [userName, problem, contestId, language, templateCode])
 
   const submit = async () => {
     if (code === '') {
@@ -163,12 +157,12 @@ export default function Editor({
       const submission: Submission = await res.json()
       setSubmissionId(submission.id)
     } else {
-      setLoading(false)
       if (res.status === 401) {
         showSignIn()
         toast.error('Log in first to submit your code')
       } else toast.error('Please try again later.')
     }
+    setLoading(false)
   }
 
   const submitTest = async () => {

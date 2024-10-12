@@ -8,17 +8,12 @@ import {
 } from '@/components/ui/resizable'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  useLanguageStore,
-  createCodeStore,
-  TestResultsContext
-} from '@/stores/editor'
-import type { Language, ProblemDetail } from '@/types/type'
+import { useLanguageStore, createCodeStore } from '@/stores/editor'
+import type { Language, ProblemDetail, TestResult } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Suspense, useContext, useEffect } from 'react'
-import { useStore } from 'zustand'
+import { Suspense, useEffect, useState } from 'react'
 import Loading from '../app/problem/[problemId]/loading'
 import EditorHeader from './EditorHeader'
 import TestcasePanel from './TestcasePanel'
@@ -39,9 +34,7 @@ export default function EditorMainResizablePanel({
   const pathname = usePathname()
   const base = contestId ? `/contest/${contestId}` : ''
   const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
-  const testResultStore = useContext(TestResultsContext)
-  if (!testResultStore) throw new Error('TestResultsContext is not provided')
-  const { testResults } = useStore(testResultStore)
+  const [testResults, setTestResults] = useState<TestResult[]>([])
   const testcases = problem.problemTestcase
   const testResultData =
     testResults.length > 0
@@ -114,6 +107,7 @@ export default function EditorMainResizablePanel({
             problem={problem}
             contestId={contestId}
             templateString={problem.template[0]}
+            setTestResults={setTestResults}
           />
 
           <ResizablePanelGroup direction="vertical" className="h-32">
