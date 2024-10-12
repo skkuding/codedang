@@ -1,6 +1,5 @@
-import type { Language, TestResult } from '@/types/type'
-import { createContext } from 'react'
-import { create, createStore } from 'zustand'
+import type { Language } from '@/types/type'
+import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 interface LanguageStore {
@@ -55,32 +54,3 @@ export const setItem = (name: string, value: string) => {
 }
 
 export const removeItem = (name: string) => localStorage.removeItem(name)
-
-interface TestResultsState {
-  testResults: TestResult[]
-  setTestResults: (results: TestResult[]) => void
-}
-
-type TestResultsStore = ReturnType<typeof createTestResultsStore>
-
-export const createTestResultsStore = (
-  problemId: number,
-  contestId?: number
-) => {
-  const problemKey = `${problemId}${contestId ? `_${contestId}` : ''}_test_results`
-  return createStore<TestResultsState>()(
-    persist<TestResultsState>(
-      (set) => ({
-        testResults: [],
-        setTestResults: (results) => {
-          set({ testResults: results })
-        }
-      }),
-      {
-        name: problemKey
-      }
-    )
-  )
-}
-
-export const TestResultsContext = createContext<TestResultsStore | null>(null)
