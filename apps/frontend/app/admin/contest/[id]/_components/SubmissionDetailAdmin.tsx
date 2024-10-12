@@ -27,9 +27,9 @@ export default function SubmissionDetailAdmin({
   })
   const submission = data?.getSubmission
   return (
-    <ScrollArea className="mt-5 max-h-[540px] w-[580px]">
+    <ScrollArea className="mt-5 max-h-[540px] w-[760px]">
       {!loading && (
-        <div className="ml-20 flex w-[432px] flex-col gap-4">
+        <div className="ml-20 flex w-[612px] flex-col gap-4">
           <h1 className="flex text-lg font-semibold">
             <span className="max-w-[30%] truncate text-gray-400">
               {submission?.user?.userProfile?.realName}(
