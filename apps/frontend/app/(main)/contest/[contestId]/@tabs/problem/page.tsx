@@ -48,10 +48,11 @@ export default async function ContestProblem({ params }: ContestProblemProps) {
     if (statusCode === 401) {
       displayMessage = 'Log in first to check the problems.'
     } else {
-      displayMessage =
-        contestStatus === 'ongoing'
-          ? 'Please register first to view the problem list'
-          : 'You can access after the contest started'
+      if (contestStatus === 'ongoing') {
+        displayMessage = 'Please register first to view the problem list'
+      } else {
+        displayMessage = 'You can access after the contest started'
+      }
     }
 
     return (
