@@ -81,9 +81,8 @@ export const columns = (
         <Input
           disabled={disableInput}
           defaultValue={row.getValue('score')}
-          className="hide-spin-button w-[70px] focus-visible:ring-0"
+          className="hide-spin-button w-[70px] focus-visible:ring-0 disabled:pointer-events-none"
           type="number"
-          style={{ pointerEvents: disableInput ? 'none' : 'auto' }}
           min={0}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -136,27 +135,25 @@ export const columns = (
             }
           }}
         >
-          <div style={{ pointerEvents: disableInput ? 'none' : 'auto' }}>
-            <OptionSelect
-              value={
-                row.original.order !== undefined
-                  ? String.fromCharCode(Number(65 + row.original.order))
-                  : String.fromCharCode(Number(65 + row.index))
-              }
-              options={alphabetArray}
-              onChange={(selectedOrder) => {
-                setProblems((prevProblems: ContestProblem[]) =>
-                  prevProblems.map((problem) =>
-                    problem.id === row.original.id
-                      ? { ...problem, order: selectedOrder.charCodeAt(0) - 65 }
-                      : problem
-                  )
+          <OptionSelect
+            value={
+              row.original.order !== undefined
+                ? String.fromCharCode(Number(65 + row.original.order))
+                : String.fromCharCode(Number(65 + row.index))
+            }
+            options={alphabetArray}
+            onChange={(selectedOrder) => {
+              setProblems((prevProblems: ContestProblem[]) =>
+                prevProblems.map((problem) =>
+                  problem.id === row.original.id
+                    ? { ...problem, order: selectedOrder.charCodeAt(0) - 65 }
+                    : problem
                 )
-              }}
-              className="w-[70px]"
-              disabled={disableInput}
-            />
-          </div>
+              )
+            }}
+            className="w-[70px] disabled:pointer-events-none"
+            disabled={disableInput}
+          />
         </div>
       )
     }
