@@ -24,8 +24,7 @@ export default async function ContestProblem({ params }: ContestProblemProps) {
   })
 
   if (!res.ok) {
-    const { statusCode, message }: { statusCode: number; message: string } =
-      await res.json()
+    const { statusCode }: { statusCode: number } = await res.json()
 
     const contest: Contest = await fetcherWithAuth
       .get(`contest/${contestId}`)
