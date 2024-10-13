@@ -241,8 +241,7 @@ export default function Page() {
                 </Dialog>
               </div>
               <DataTableAdmin
-                // eslint-disable-next-line
-                columns={columns(problems, setProblems) as any[]}
+                columns={columns(problems, setProblems, false)}
                 data={problems as ContestProblem[]}
                 defaultSortColumn={{ id: 'order', desc: false }}
                 enableFooter={true}
