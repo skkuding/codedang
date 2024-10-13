@@ -157,12 +157,12 @@ export default function Editor({
       const submission: Submission = await res.json()
       setSubmissionId(submission.id)
     } else {
+      setLoading(false)
       if (res.status === 401) {
         showSignIn()
         toast.error('Log in first to submit your code')
       } else toast.error('Please try again later.')
     }
-    setLoading(false)
   }
 
   const submitTest = async () => {
