@@ -153,7 +153,7 @@ export default function Editor({
       }
     })
     if (res.ok) {
-      saveCode()
+      saveCode(true)
       const submission: Submission = await res.json()
       setSubmissionId(submission.id)
     } else {
@@ -242,14 +242,16 @@ export default function Editor({
     poll()
   }
 
-  const saveCode = async () => {
+  const saveCode = async (isSubmitting?: boolean) => {
     const session = await auth()
     if (!session) {
       toast.error('Log in first to save your code')
     } else {
-      if (storeCodeToLocalstorage())
-        toast.success('Successfully saved the code')
-      else toast.error('Failed to save the code')
+      if (storeCodeToLocalstorage()) {
+        toast.success(
+          `Successfully ${isSubmitting ? 'submitted' : 'saved'} the code`
+        )
+      } else toast.error('Failed to save the code')
     }
   }
 
@@ -314,7 +316,7 @@ export default function Editor({
         <Button
           size="icon"
           className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-[#D7E5FE] font-medium text-[#484C4D] hover:bg-[#c6d3ea]"
-          onClick={saveCode}
+          onClick={() => saveCode()}
         >
           <Save className="stroke-1" size={22} />
           Save
