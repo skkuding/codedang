@@ -198,23 +198,21 @@ export default function Page() {
   }
 
   const onSubmitClick = () => {
-    return () => {
-      // submit 되기위해, watch로 확인되는 값이 default값과 같으면 setValue를 통해서 defaultProfileValues로 변경
-      if (realName === '') {
-        setValue('realName', defaultProfileValues.userProfile?.realName)
-      }
-      if (majorValue === defaultProfileValues.major) {
-        setMajorValue(defaultProfileValues.major)
-      }
-      if (currentPassword === '') {
-        setValue('currentPassword', 'tmppassword1')
-      }
-      if (newPassword === '') {
-        setValue('newPassword', 'tmppassword1')
-      }
-      if (confirmPassword === '') {
-        setValue('confirmPassword', 'tmppassword1')
-      }
+    // submit 되기위해, watch로 확인되는 값이 default값과 같으면 setValue를 통해서 defaultProfileValues로 변경
+    if (realName === '') {
+      setValue('realName', defaultProfileValues.userProfile?.realName)
+    }
+    if (majorValue === defaultProfileValues.major) {
+      setMajorValue(defaultProfileValues.major)
+    }
+    if (currentPassword === '') {
+      setValue('currentPassword', 'tmppassword1')
+    }
+    if (newPassword === '') {
+      setValue('newPassword', 'tmppassword1')
+    }
+    if (confirmPassword === '') {
+      setValue('confirmPassword', 'tmppassword1')
     }
   }
 
