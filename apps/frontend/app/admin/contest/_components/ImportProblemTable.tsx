@@ -10,6 +10,7 @@ interface ContestProblem {
   title: string
   difficulty: string
   score: number
+  order: number
 }
 
 interface OrderContestProblem {
@@ -94,9 +95,18 @@ export default function ImportProblemTable({
           checkedRows={checkedProblems}
           onSelectedExport={(problems) => {
             onCloseDialog()
-            const problemsWithOrder = problems.map((problem, index) => {
-              return { ...problem, order: index }
-            })
+            const problemsWithOrder = problems
+              .map((problem) => ({
+                ...problem,
+                order:
+                  checkedProblems.find((item) => item.id === problem.id)
+                    ?.order ?? Number.MAX_SAFE_INTEGER
+              }))
+              .sort((a, b) => a.order - b.order)
+              .map((problem, index) => ({
+                ...problem,
+                order: index
+              }))
             onSelectedExport(problemsWithOrder)
           }}
           defaultPageSize={5}
