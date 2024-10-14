@@ -6,17 +6,17 @@ import {
   ResizablePanel,
   ResizablePanelGroup
 } from '@/components/ui/resizable'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { CodeContext, createCodeStore, useLanguageStore } from '@/stores/editor'
-import type { Language, ProblemDetail, Template } from '@/types/type'
+import { useLanguageStore, createCodeStore } from '@/stores/editor'
+import type { Language, ProblemDetail, TestResult } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Suspense, useContext, useEffect } from 'react'
-import { useStore } from 'zustand'
+import { Suspense, useEffect, useState } from 'react'
 import Loading from '../app/problem/[problemId]/loading'
 import EditorHeader from './EditorHeader'
+import TestcasePanel from './TestcasePanel'
 
 interface ProblemEditorProps {
   problem: ProblemDetail
@@ -33,13 +33,25 @@ export default function EditorMainResizablePanel({
 }: ProblemEditorProps) {
   const pathname = usePathname()
   const base = contestId ? `/contest/${contestId}` : ''
-  const { language, setLanguage } = useLanguageStore()
-  const store = createCodeStore(language, problem.id, contestId)
+  const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
+  const [testResults, setTestResults] = useState<TestResult[]>([])
+  const testcases = problem.problemTestcase
+  const testResultData =
+    testResults.length > 0
+      ? testcases.map((testcase, index) => ({
+          id: testcase.id,
+          input: testcase.input,
+          expectedOutput: testcase.output,
+          output: testResults[index]?.output,
+          result: testResults[index]?.result
+        }))
+      : null
   useEffect(() => {
     if (!problem.languages.includes(language)) {
       setLanguage(problem.languages[0])
     }
   }, [problem.languages, language, setLanguage])
+
   return (
     <ResizablePanelGroup
       direction="horizontal"
@@ -91,17 +103,40 @@ export default function EditorMainResizablePanel({
 
       <ResizablePanel defaultSize={65} className="bg-[#222939]">
         <div className="grid-rows-editor grid h-full">
-          <CodeContext.Provider value={store}>
-            <EditorHeader
-              problem={problem}
-              contestId={contestId}
-              templateString={problem.template[0]}
-            />
-            <CodeEditorInEditorResizablePanel
-              templateString={problem.template[0]}
-              enableCopyPaste={enableCopyPaste}
-            />
-          </CodeContext.Provider>
+          <EditorHeader
+            problem={problem}
+            contestId={contestId}
+            templateString={problem.template[0]}
+            setTestResults={setTestResults}
+          />
+
+          <ResizablePanelGroup direction="vertical" className="h-32">
+            <ResizablePanel
+              defaultSize={60}
+              className="!overflow-x-auto !overflow-y-auto"
+            >
+              <ScrollArea className="h-full bg-[#121728]">
+                <CodeEditorInEditorResizablePanel
+                  problemId={problem.id}
+                  contestId={contestId}
+                  enableCopyPaste={enableCopyPaste}
+                />
+                <ScrollBar orientation="horizontal" />
+                <ScrollBar orientation="vertical" />
+              </ScrollArea>
+            </ResizablePanel>
+            {testResultData && (
+              <>
+                <ResizableHandle
+                  withHandle
+                  className="border-[0.5px] border-slate-700"
+                />
+                <ResizablePanel defaultSize={40}>
+                  <TestcasePanel testResult={testResultData} />
+                </ResizablePanel>
+              </>
+            )}
+          </ResizablePanelGroup>
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>
@@ -109,34 +144,22 @@ export default function EditorMainResizablePanel({
 }
 
 interface CodeEditorInEditorResizablePanelProps {
-  templateString: string
+  problemId: number
+  contestId?: number
   enableCopyPaste: boolean
 }
 
 function CodeEditorInEditorResizablePanel({
-  templateString,
+  problemId,
+  contestId,
   enableCopyPaste
 }: CodeEditorInEditorResizablePanelProps) {
-  const { language } = useLanguageStore()
-  const store = useContext(CodeContext)
-  if (!store) throw new Error('CodeContext is not provided')
-  const { code, setCode } = useStore(store)
-
-  useEffect(() => {
-    if (!templateString) return
-    const parsedTemplates = JSON.parse(templateString)
-    const filteredTemplate = parsedTemplates.filter(
-      (template: Template) => template.language === language
-    )
-    if (!code) {
-      if (filteredTemplate.length === 0) return
-      setCode(filteredTemplate[0].code[0].text)
-    }
-  }, [language])
+  const { language } = useLanguageStore(problemId, contestId)()
+  const { code, setCode } = createCodeStore()
 
   return (
     <CodeEditor
-      value={code}
+      value={code ?? ''}
       language={language as Language}
       onChange={setCode}
       enableCopyPaste={enableCopyPaste}

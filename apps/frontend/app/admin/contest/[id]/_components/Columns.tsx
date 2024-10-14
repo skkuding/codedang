@@ -8,6 +8,7 @@ import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import type { Level } from '@/types/type'
 import { useQuery } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
+import { toast } from 'sonner'
 import type { ContestProblem } from '../../utils'
 
 function Included({ row }: { row: Row<ContestProblem> }) {
@@ -25,7 +26,8 @@ function Included({ row }: { row: Row<ContestProblem> }) {
 
 export const columns = (
   problems: ContestProblem[],
-  setProblems: React.Dispatch<React.SetStateAction<ContestProblem[]>>
+  setProblems: React.Dispatch<React.SetStateAction<ContestProblem[]>>,
+  disableInput: boolean
 ): ColumnDef<ContestProblem>[] => [
   // {
   //   id: 'select',
@@ -68,10 +70,18 @@ export const columns = (
     accessorKey: 'score',
     header: () => <p className="text-center text-sm">Score</p>,
     cell: ({ row }) => (
-      <div className="flex justify-center">
+      <div
+        className="flex justify-center"
+        onClick={() => {
+          if (disableInput) {
+            toast.error('Problem scoring cannot be edited')
+          }
+        }}
+      >
         <Input
+          disabled={disableInput}
           defaultValue={row.getValue('score')}
-          className="hide-spin-button w-[70px] focus-visible:ring-0"
+          className="hide-spin-button w-[70px] focus-visible:ring-0 disabled:pointer-events-none"
           type="number"
           min={0}
           onKeyDown={(e) => {
@@ -117,7 +127,14 @@ export const columns = (
         String.fromCharCode(65 + index)
       )
       return (
-        <div className="flex justify-center">
+        <div
+          className="flex justify-center"
+          onClick={() => {
+            if (disableInput) {
+              toast.error('Problem order cannot be edited')
+            }
+          }}
+        >
           <OptionSelect
             value={
               row.original.order !== undefined
@@ -134,7 +151,8 @@ export const columns = (
                 )
               )
             }}
-            className="w-[70px]"
+            className="w-[70px] disabled:pointer-events-none"
+            disabled={disableInput}
           />
         </div>
       )

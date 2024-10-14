@@ -1,5 +1,6 @@
 'use client'
 
+import SubmissionDetailAdmin from '@/app/admin/contest/[id]/_components/SubmissionDetailAdmin'
 import DuplicateContest from '@/app/admin/contest/_components/DuplicateContest'
 import {
   AlertDialog,
@@ -12,6 +13,7 @@ import {
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import {
   Table,
   TableBody,
@@ -167,6 +169,8 @@ export function DataTableAdmin<TData, TValue>({
   const [deleteProblem] = useMutation(DELETE_PROBLEM)
   const [deleteContest] = useMutation(DELETE_CONTEST)
   const [isDeleteAlertDialogOpen, setIsDeleteAlertDialogOpen] = useState(false)
+  const [isSubmissionDialogOpen, setIsSubmissionDialogOpen] = useState(false)
+  const [submissionId, setSubmissionId] = useState(0)
 
   useEffect(() => {
     if (checkedRows.length !== 0) {
@@ -484,7 +488,15 @@ export function DataTableAdmin<TData, TValue>({
                               )
                             }
                           } else {
-                            href && router.push(href)
+                            if (href) {
+                              if (href.includes('submission')) {
+                                const submissionId = Number(href.split('/')[6])
+                                setSubmissionId(submissionId)
+                                setIsSubmissionDialogOpen(true)
+                              } else {
+                                router.push(href)
+                              }
+                            }
                           }
                         }}
                       >
@@ -539,6 +551,16 @@ export function DataTableAdmin<TData, TValue>({
           showRowsPerPage={enableRowsPerpage}
         />
       )}
+      <Dialog
+        open={isSubmissionDialogOpen}
+        onOpenChange={() => {
+          setIsSubmissionDialogOpen(false)
+        }}
+      >
+        <DialogContent className="max-h-[620px] max-w-[800px] justify-center">
+          <SubmissionDetailAdmin submissionId={submissionId} />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

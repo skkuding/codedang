@@ -51,7 +51,7 @@ export const columns: ColumnDef<OverallSubmission>[] = [
       <div
         className={cn(
           'whitespace-nowrap text-center text-xs',
-          row.getValue('result') === 'Accept'
+          row.getValue('result') === 'Accepted'
             ? 'text-green-500'
             : row.getValue('result') === 'Judging'
               ? 'text-gray-500'

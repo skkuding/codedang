@@ -33,6 +33,7 @@ import {
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
+import { GET_CONTEST_SUBMISSIONS_COUNT } from '@/graphql/submission/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -59,6 +60,7 @@ export default function Page({ params }: { params: { id: string } }) {
     useState<boolean>(false)
   const [showInvitationCode, setShowInvitationCode] = useState<boolean>(false)
   const [showImportDialog, setShowImportDialog] = useState<boolean>(false)
+  const [hasSubmission, setHasSubmission] = useState<boolean>(false)
   const { id } = params
 
   const shouldSkipWarning = useRef(false)
@@ -75,6 +77,20 @@ export default function Page({ params }: { params: { id: string } }) {
   })
 
   const { handleSubmit, getValues, setValue } = methods
+
+  useQuery(GET_CONTEST_SUBMISSIONS_COUNT, {
+    variables: {
+      input: {
+        contestId: Number(id)
+      },
+      take: 2
+    },
+    onCompleted: (data) => {
+      if (data.getContestSubmissions.length !== 0) {
+        setHasSubmission(true)
+      }
+    }
+  })
 
   useQuery(GET_CONTEST, {
     variables: { contestId: Number(id) },
@@ -152,36 +168,37 @@ export default function Page({ params }: { params: { id: string } }) {
       return
     }
 
-    await removeProblemsFromContest({
-      variables: {
-        groupId: 1,
-        contestId: Number(id),
-        problemIds: prevProblemIds
-      }
-    })
-    await importProblemsToContest({
-      variables: {
-        groupId: 1,
-        contestId: Number(id),
-        problemIdsWithScore: problems.map((problem) => {
-          return {
-            problemId: problem.id,
-            score: problem.score
-          }
-        })
-      }
-    })
-
-    const orderArray = problems
-      .sort((a, b) => a.order - b.order)
-      .map((problem) => problem.id)
-    await updateContestProblemsOrder({
-      variables: {
-        groupId: 1,
-        contestId: Number(id),
-        orders: orderArray
-      }
-    })
+    if (!hasSubmission) {
+      await removeProblemsFromContest({
+        variables: {
+          groupId: 1,
+          contestId: Number(id),
+          problemIds: prevProblemIds
+        }
+      })
+      await importProblemsToContest({
+        variables: {
+          groupId: 1,
+          contestId: Number(id),
+          problemIdsWithScore: problems.map((problem) => {
+            return {
+              problemId: problem.id,
+              score: problem.score
+            }
+          })
+        }
+      })
+      const orderArray = problems
+        .sort((a, b) => a.order - b.order)
+        .map((problem) => problem.id)
+      await updateContestProblemsOrder({
+        variables: {
+          groupId: 1,
+          contestId: Number(id),
+          orders: orderArray
+        }
+      })
+    }
 
     shouldSkipWarning.current = true
     toast.success('Contest updated successfully')
@@ -242,15 +259,17 @@ export default function Page({ params }: { params: { id: string } }) {
                 <ContestProblemListLabel />
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button
-                      type="button"
-                      className="flex h-[36px] w-48 items-center gap-2 px-0"
-                    >
-                      <PlusCircleIcon className="h-4 w-4" />
-                      <div className="mb-[2px] text-sm">
-                        Import · Edit problem
-                      </div>
-                    </Button>
+                    {hasSubmission ? null : (
+                      <Button
+                        type="button"
+                        className="flex h-[36px] w-48 items-center gap-2 px-0"
+                      >
+                        <PlusCircleIcon className="h-4 w-4" />
+                        <div className="mb-[2px] text-sm">
+                          Import · Edit problem
+                        </div>
+                      </Button>
+                    )}
                   </AlertDialogTrigger>
                   <AlertDialogContent className="p-8">
                     <AlertDialogHeader className="gap-2">
@@ -297,8 +316,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 </Dialog>
               </div>
               <DataTableAdmin
-                // eslint-disable-next-line
-                columns={columns(problems, setProblems) as any[]}
+                columns={columns(problems, setProblems, hasSubmission)}
                 data={problems as ContestProblem[]}
                 defaultSortColumn={{ id: 'order', desc: false }}
                 enableFooter={true}

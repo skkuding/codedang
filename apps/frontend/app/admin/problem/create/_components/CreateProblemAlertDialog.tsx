@@ -60,8 +60,12 @@ export default function CreateProblemAlertDialog({
         <AlertDialogHeader className="gap-2">
           <AlertDialogTitle>Create Problem?</AlertDialogTitle>
           <AlertDialogDescription>
-            Once user submit any coding, the testcases{' '}
-            <span className="underline">cannot</span> be modified.
+            Once this problem is included in a contest and a user submit any
+            <br />
+            code in the contest, testcases or time/memory limit{' '}
+            <span className="underline">cannot</span> be
+            <br />
+            modified.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

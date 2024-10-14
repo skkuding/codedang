@@ -9,6 +9,8 @@ interface ContestProblem {
   id: number
   title: string
   difficulty: string
+  score: number
+  order: number
 }
 
 interface OrderContestProblem {
@@ -56,8 +58,11 @@ export default function ImportProblemTable({
           ...tag,
           id: +tag.id
         }
-      }))
+      })),
+      score: checkedProblems.find((item) => item.id === Number(problem.id))
+        ?.score
     })) ?? []
+
   return (
     <>
       {loading ? (
@@ -90,10 +95,34 @@ export default function ImportProblemTable({
           checkedRows={checkedProblems}
           onSelectedExport={(problems) => {
             onCloseDialog()
-            const problemsWithOrder = problems.map((problem, index) => {
-              return { ...problem, order: index }
-            })
-            onSelectedExport(problemsWithOrder)
+
+            const problemsWithOrder = problems
+              .map((problem) => ({
+                ...problem,
+                order:
+                  checkedProblems.find((item) => item.id === problem.id)
+                    ?.order ?? Number.MAX_SAFE_INTEGER
+              }))
+              .sort((a, b) => a.order - b.order)
+
+            let order = 0
+            const exportedProblems = problemsWithOrder.map(
+              (problem, index, arr) => {
+                if (
+                  index > 0 &&
+                  // NOTE: 만약 현재 요소가 새로 추가된 문제이거나 새로 추가된 문제가 아니라면 이전 문제와 기존 순서가 다를 때
+                  (arr[index].order === Number.MAX_SAFE_INTEGER ||
+                    arr[index - 1].order !== arr[index].order)
+                ) {
+                  order++
+                }
+                return {
+                  ...problem,
+                  order
+                }
+              }
+            )
+            onSelectedExport(exportedProblems)
           }}
           defaultPageSize={5}
         />
