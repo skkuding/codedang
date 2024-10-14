@@ -708,7 +708,7 @@ export class ContestService {
    * 특정 user의 특정 Contest에 대한 총점, 통과한 문제 개수와 각 문제별 테스트케이스 통과 개수를 불러옵니다.
    */
   async getContestScoreSummary(userId: number, contestId: number) {
-    const [contestProblems, submissions, contestRecord] = await Promise.all([
+    const [contestProblems, submissions] = await Promise.all([
       this.prisma.contestProblem.findMany({
         where: {
           contestId
@@ -722,19 +722,9 @@ export class ContestService {
         orderBy: {
           createTime: 'desc'
         }
-      }),
-      this.prisma.contestRecord.findFirst({
-        where: {
-          userId,
-          contestId
-        }
       })
     ])
-    if (!contestProblems.length) {
-      throw new EntityNotExistException('ContestProblems')
-    } else if (!contestRecord) {
-      throw new EntityNotExistException('contestRecord')
-    }
+
     if (!submissions.length) {
       return {
         submittedProblemCount: 0,
@@ -747,6 +737,7 @@ export class ContestService {
         problemScores: []
       }
     }
+
     // 하나의 Problem에 대해 여러 개의 Submission이 존재한다면, 마지막에 제출된 Submission만을 점수 계산에 반영함
     const latestSubmissions: {
       [problemId: string]: {
