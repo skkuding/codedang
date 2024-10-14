@@ -1,6 +1,5 @@
-import type { Language, TestResult } from '@/types/type'
-import { createContext } from 'react'
-import { create, createStore } from 'zustand'
+import type { Language } from '@/types/type'
+import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 interface LanguageStore {
@@ -8,19 +7,22 @@ interface LanguageStore {
   setLanguage: (language: Language) => void
 }
 
-export const useLanguageStore = create(
-  persist<LanguageStore>(
-    (set) => ({
-      language: 'C',
-      setLanguage: (language) => {
-        set({ language })
+export const useLanguageStore = (problemId: number, contestId?: number) => {
+  const languageKey = `${problemId}${contestId ? `_${contestId}` : ''}_language`
+  return create(
+    persist<LanguageStore>(
+      (set) => ({
+        language: 'C',
+        setLanguage: (language) => {
+          set({ language })
+        }
+      }),
+      {
+        name: languageKey
       }
-    }),
-    {
-      name: 'language'
-    }
+    )
   )
-)
+}
 interface CodeState {
   code: string
   setCode: (code: string) => void
@@ -55,32 +57,3 @@ export const setItem = (name: string, value: string) => {
 }
 
 export const removeItem = (name: string) => localStorage.removeItem(name)
-
-interface TestResultsState {
-  testResults: TestResult[]
-  setTestResults: (results: TestResult[]) => void
-}
-
-type TestResultsStore = ReturnType<typeof createTestResultsStore>
-
-export const createTestResultsStore = (
-  problemId: number,
-  contestId?: number
-) => {
-  const problemKey = `${problemId}${contestId ? `_${contestId}` : ''}_test_results`
-  return createStore<TestResultsState>()(
-    persist<TestResultsState>(
-      (set) => ({
-        testResults: [],
-        setTestResults: (results) => {
-          set({ testResults: results })
-        }
-      }),
-      {
-        name: problemKey
-      }
-    )
-  )
-}
-
-export const TestResultsContext = createContext<TestResultsStore | null>(null)

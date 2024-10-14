@@ -23,7 +23,7 @@ export const submissionColumns: ColumnDef<UserSubmission>[] = [
       <div
         className={cn(
           'whitespace-nowrap text-center text-xs',
-          row.getValue('submissionResult') === 'Accept'
+          row.getValue('submissionResult') === 'Accepted'
             ? 'text-green-500'
             : row.getValue('submissionResult') === 'Judging'
               ? 'text-gray-500'

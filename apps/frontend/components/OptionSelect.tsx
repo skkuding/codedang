@@ -15,6 +15,7 @@ interface OptionSelectProps {
   value?: string
   placeholder?: string
   className?: string
+  disabled?: boolean
 }
 
 export default function OptionSelect({
@@ -22,10 +23,15 @@ export default function OptionSelect({
   onChange,
   value,
   placeholder,
-  className
+  className,
+  disabled
 }: OptionSelectProps) {
   return (
-    <Select value={value} onValueChange={(value) => onChange(value)}>
+    <Select
+      value={value}
+      onValueChange={(value) => onChange(value)}
+      disabled={disabled}
+    >
       <SelectTrigger
         className={cn(
           'w-[115px] bg-white font-bold hover:bg-gray-50 focus:outline-none focus:ring-0 focus:ring-offset-0',
