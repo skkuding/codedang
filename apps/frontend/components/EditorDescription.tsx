@@ -93,23 +93,17 @@ export function EditorDescription({
 
       <div className="px-6">
         <h2 className="mb-3 font-bold">Input</h2>
-        <div
-          className="prose prose-invert mb-4 max-w-full text-sm leading-relaxed text-slate-300"
-          dangerouslySetInnerHTML={{
-            __html: sanitize(problem.inputDescription)
-          }}
-        />
+        <div className="prose prose-invert mb-4 max-w-full text-sm leading-relaxed text-slate-300">
+          <KatexContent content={problem.inputDescription} />
+        </div>
         <hr className="border-slate-700" />
       </div>
 
       <div className="px-6">
         <h2 className="mb-3 font-bold">Output</h2>
-        <div
-          className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
-          dangerouslySetInnerHTML={{
-            __html: sanitize(problem.outputDescription)
-          }}
-        />
+        <div className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300">
+          <KatexContent content={problem.outputDescription} />
+        </div>
       </div>
 
       <hr className="border-4 border-[#121728]" />
