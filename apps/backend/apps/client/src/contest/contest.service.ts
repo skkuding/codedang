@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma, type Contest } from '@prisma/client'
+import { Prisma, type Contest, type ContestRecord } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -7,6 +7,12 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { PaginatedResult } from '@libs/types'
+import type {
+  OngoingUpcomingContests,
+  OngoingUpcomingContestsWithRegistered,
+  RegisteredOngoingUpcomingContests
+} from './type/contests.type'
 
 const contestSelectOption = {
   id: true,
@@ -37,23 +43,10 @@ export type ContestResult = Omit<ContestSelectResult, '_count'> & {
 export class ContestService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getContestsByGroupId<T extends number | undefined | null>(
+  async getContestsByGroupId(
     groupId: number,
-    userId?: T
-  ): Promise<
-    T extends undefined | null
-      ? {
-          ongoing: ContestResult[]
-          upcoming: ContestResult[]
-        }
-      : {
-          registeredOngoing: ContestResult[]
-          registeredUpcoming: ContestResult[]
-          ongoing: ContestResult[]
-          upcoming: ContestResult[]
-        }
-  >
-  async getContestsByGroupId(groupId: number, userId: number | null = null) {
+    userId: number | null = null
+  ): Promise<OngoingUpcomingContests | OngoingUpcomingContestsWithRegistered> {
     const now = new Date()
     if (userId == null) {
       const contests = await this.prisma.contest.findMany({
@@ -137,7 +130,7 @@ export class ContestService {
     groupId: number,
     userId: number,
     search?: string
-  ) {
+  ): Promise<RegisteredOngoingUpcomingContests> {
     const now = new Date()
     const registeredContestIds = await this.getRegisteredContestIds(userId)
 
@@ -189,7 +182,7 @@ export class ContestService {
     groupId: number,
     userId: number,
     search?: string
-  ) {
+  ): Promise<PaginatedResult<ContestResult>> {
     const now = new Date()
     const paginator = this.prisma.getPaginator(cursor)
 
@@ -239,7 +232,7 @@ export class ContestService {
     take: number,
     groupId: number,
     search?: string
-  ) {
+  ): Promise<PaginatedResult<ContestResult & { isRegistered: boolean }>> {
     const paginator = this.prisma.getPaginator(cursor)
     const now = new Date()
 
@@ -324,11 +317,16 @@ export class ContestService {
     return upcomingContest
   }
 
-  async getContest(id: number, groupId = OPEN_SPACE_ID, userId?: number) {
+  async getContest(
+    id: number,
+    groupId = OPEN_SPACE_ID,
+    userId?: number
+  ): Promise<
+    Partial<Contest> & { invitationCodeExists: boolean; isRegistered: boolean }
+  > {
     // check if the user has already registered this contest
     // initial value is false
     let isRegistered = false
-    let contest: Partial<Contest>
     if (userId) {
       const hasRegistered = await this.prisma.contestRecord.findFirst({
         where: { userId, contestId: id }
@@ -337,27 +335,22 @@ export class ContestService {
         isRegistered = true
       }
     }
-    try {
-      contest = await this.prisma.contest.findUniqueOrThrow({
-        where: {
-          id,
-          groupId,
-          isVisible: true
-        },
-        select: {
-          ...contestSelectOption,
-          description: true
-        }
-      })
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('Contest')
+    const contest = await this.prisma.contest.findUnique({
+      where: {
+        id,
+        groupId,
+        isVisible: true
+      },
+      select: {
+        ...contestSelectOption,
+        description: true
       }
-      throw error
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
     }
+
     /* HACK: standings 업데이트 로직 수정 후 삭제
     // get contest participants ranking using ContestRecord
     const sortedContestRecordsWithUserDetail =
@@ -408,8 +401,8 @@ export class ContestService {
     userId: number,
     invitationCode?: string,
     groupId = OPEN_SPACE_ID
-  ) {
-    const contest = await this.prisma.contest.findUniqueOrThrow({
+  ): Promise<ContestRecord> {
+    const contest = await this.prisma.contest.findUnique({
       where: { id: contestId, groupId },
       select: {
         startTime: true,
@@ -418,6 +411,10 @@ export class ContestService {
         invitationCode: true
       }
     })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
 
     if (contest.invitationCode && contest.invitationCode !== invitationCode) {
       throw new ConflictFoundException('Invalid invitation code')
@@ -453,32 +450,23 @@ export class ContestService {
     contestId: number,
     userId: number,
     groupId = OPEN_SPACE_ID
-  ) {
-    let contest
-    try {
-      contest = await this.prisma.contest.findUniqueOrThrow({
-        where: { id: contestId, groupId }
-      })
-    } catch (err) {
-      if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('Contest')
-      }
+  ): Promise<ContestRecord> {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contestId, groupId }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
     }
-    try {
-      await this.prisma.contestRecord.findFirstOrThrow({
-        where: { userId, contestId }
-      })
-    } catch (err) {
-      if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('ContestRecord')
-      }
+
+    const contestRecord = await this.prisma.contestRecord.findFirst({
+      where: { userId, contestId }
+    })
+
+    if (!contestRecord) {
+      throw new EntityNotExistException('ContestRecord')
     }
+
     const now = new Date()
     if (now >= contest.startTime) {
       throw new ForbiddenAccessException(
@@ -486,18 +474,9 @@ export class ContestService {
       )
     }
 
-    try {
-      return await this.prisma.contestRecord.delete({
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        where: { contestId_userId: { contestId, userId } }
-      })
-    } catch (err) {
-      if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('ContestRecord')
-      }
-    }
+    return await this.prisma.contestRecord.delete({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      where: { contestId_userId: { contestId, userId } }
+    })
   }
 }
