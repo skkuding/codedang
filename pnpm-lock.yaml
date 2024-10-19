@@ -286,8 +286,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
       '@types/graphql-upload':
-        specifier: 8.0.12
-        version: 8.0.12
+        specifier: 16.0.7
+        version: 16.0.7
       '@types/mocha':
         specifier: ^10.0.9
         version: 10.0.9
@@ -4801,8 +4801,8 @@ packages:
   '@types/extract-files@13.0.1':
     resolution: {integrity: sha512-/fRbzc2lAd7jDJSSnxWiUyXWjdUZZ4HbISLJzVgt1AvrdOa7U49YRPcvuCUywkmURZ7uwJOheDjx19itbQ5KvA==}
 
-  '@types/graphql-upload@8.0.12':
-    resolution: {integrity: sha512-M0ZPZqNUzKNB16q5woEzgG/Q8DjICV80K7JvDSRnDmDFfrRdfFX/n6PbmqAN7gCzECcHVnw1gk6N4Cg0FwxCqA==}
+  '@types/graphql-upload@16.0.7':
+    resolution: {integrity: sha512-7vCoxIv2pVTvV8n+miYyfkINdguWsYomAkPlOfHoM6z/qzsiBAdfRb6lNc8PvEUhe7TXaxX4+LHubejw1og1DQ==}
 
   '@types/http-assert@1.5.5':
     resolution: {integrity: sha512-4+tE/lwdAahgZT1g30Jkdm9PzFRde0xwxBNUyRsCitRvCQB90iuA2uJYdUnhnANRcqGXaWOGY4FEoxeElNAK2g==}
@@ -16390,10 +16390,11 @@ snapshots:
 
   '@types/extract-files@13.0.1': {}
 
-  '@types/graphql-upload@8.0.12':
+  '@types/graphql-upload@16.0.7':
     dependencies:
       '@types/express': 5.0.0
       '@types/koa': 2.15.0
+      '@types/node': 20.16.12
       fs-capacitor: 8.0.0
       graphql: 16.9.0
 
