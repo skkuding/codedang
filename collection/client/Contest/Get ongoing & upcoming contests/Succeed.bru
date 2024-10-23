@@ -10,7 +10,7 @@ get {
   auth: none
 }
 
-query {
+params:query {
   ~groupId: 1
 }
 
@@ -30,13 +30,14 @@ assert {
 
 docs {
   ## Get Ongoing & Upcoming Contests
-
-  아직 종료되지 않은 대회들을 가져옵니다. 로그인은 필요하지 않으며, groupId에 해당하는 ongoing 대회와 upcoming 대회를 배열로 가져옵니다. pagination은 수행하지 않습니다.
-
+  
+  아직 종료되지 않은 대회들을 가져옵니다. groupId에 해당하는 ongoing 대회와 upcoming 대회를 배열로 가져옵니다. pagination은 수행하지 않습니다.
+  로그인 상태라면 유저가 등록된 대회를 함께 가져옵니다.
+  
   ### Query
-
+  
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |groupId |Integer|대회가 속한 Group ID (default: 1)|
-
+  
 }
