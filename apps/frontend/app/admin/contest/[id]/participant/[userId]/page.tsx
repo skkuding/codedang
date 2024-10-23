@@ -26,7 +26,7 @@ export default function Page({
   const userData = user.data?.getGroupMember
 
   const submissions = useQuery(GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER, {
-    variables: { contestId: Number(id), userId: Number(userId), take: 1000 }
+    variables: { contestId: Number(id), userId: Number(userId), take: 5000 }
   })
   const submissionsLoading = submissions.loading
   const scoreData =
