@@ -103,16 +103,15 @@ export class UserService {
     })
     if (!userGroup) {
       throw new EntityNotExistException(userGroup)
-    } else if (userGroup) {
-      return {
-        username: userGroup.user.username,
-        userId: userGroup.user.id,
-        name: userGroup.user.userProfile?.realName ?? '',
-        email: userGroup.user.email,
-        studentId: userGroup.user.studentId,
-        major: userGroup.user.major,
-        role: userGroup.user.role
-      }
+    }
+    return {
+      username: userGroup.user.username,
+      userId: userGroup.user.id,
+      name: userGroup.user.userProfile?.realName ?? '',
+      email: userGroup.user.email,
+      studentId: userGroup.user.studentId,
+      major: userGroup.user.major,
+      role: userGroup.user.role
     }
   }
 

@@ -99,11 +99,6 @@ export class UserResolver {
     userId: number,
     @Args('isAccept') isAccept: boolean
   ) {
-    try {
-      return await this.userService.handleJoinRequest(groupId, userId, isAccept)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.userService.handleJoinRequest(groupId, userId, isAccept)
   }
 }
