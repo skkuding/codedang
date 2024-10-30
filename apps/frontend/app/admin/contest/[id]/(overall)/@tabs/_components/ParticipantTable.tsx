@@ -49,11 +49,9 @@ export function ParticipantTable({ contestId }: { contestId: number }) {
 
 export function ParticipantTableFallback() {
   return (
-    <>
-      <div className="flex gap-4">
-        <Skeleton className="h-[24px] w-2/12" />
-      </div>
+    <div>
+      <Skeleton className="mb-3 h-[24px] w-2/12" />
       <DataTableFallback columns={createColumns([])} />
-    </>
+    </div>
   )
 }
