@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button'
 import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
@@ -10,14 +9,14 @@ import DataTableLevelFilter from '../../_components/table/DataTableLevelFilter'
 import DataTablePagination from '../../_components/table/DataTablePagination'
 import DataTableRoot from '../../_components/table/DataTableRoot'
 import DataTableSearchBar from '../../_components/table/DataTableSearchBar'
-import { useDataTable } from '../../_components/table/context'
 import type { ContestProblem } from '../utils'
+import ImportProblemButton from './ImportProblemButton'
 import {
   columns,
   DEFAULT_PAGE_SIZE,
+  DEFAULT_SORTING,
   ERROR_MESSAGE,
-  MAX_SELECTED_ROW_COUNT,
-  type DataTableProblem
+  MAX_SELECTED_ROW_COUNT
 } from './ImportProblemTableColumns'
 
 export function ImportProblemTable({
@@ -69,7 +68,7 @@ export function ImportProblemTable({
       columns={columns}
       selectedRowIds={selectedProblemIds}
       defaultPageSize={DEFAULT_PAGE_SIZE}
-      defaultSortState={[{ id: 'select', desc: true }]}
+      defaultSortState={DEFAULT_SORTING}
     >
       <div className="flex gap-4">
         <DataTableSearchBar columndId="title" />
@@ -85,6 +84,7 @@ export function ImportProblemTable({
             row.getIsSelected()
           ) {
             row.toggleSelected()
+            table.setSorting(DEFAULT_SORTING) // NOTE: force to trigger sortingFn
           } else {
             toast.error(ERROR_MESSAGE)
           }
@@ -92,51 +92,6 @@ export function ImportProblemTable({
       />
       <DataTablePagination showSelection showRowsPerPage={false} />
     </DataTableRoot>
-  )
-}
-
-interface ImportProblemButtonProps {
-  onSelectedExport: (data: ContestProblem[]) => void
-}
-
-function ImportProblemButton({ onSelectedExport }: ImportProblemButtonProps) {
-  const { table } = useDataTable<DataTableProblem>()
-
-  const handleImportProblems = () => {
-    const selectedRows = table
-      .getSelectedRowModel()
-      .rows.map((row) => row.original)
-
-    const problems = selectedRows
-      .map((problem) => ({
-        ...problem,
-        score: problem?.score ?? 0,
-        order: problem?.order ?? Number.MAX_SAFE_INTEGER
-      }))
-      .sort((a, b) => a.order - b.order)
-
-    let order = 0
-    const exportedProblems = problems.map((problem, index, arr) => {
-      if (
-        index > 0 &&
-        // NOTE: 만약 현재 요소가 새로 추가된 문제이거나 새로 추가된 문제가 아니라면 이전 문제와 기존 순서가 다를 때
-        (arr[index].order === Number.MAX_SAFE_INTEGER ||
-          arr[index - 1].order !== arr[index].order)
-      ) {
-        order++
-      }
-      return {
-        ...problem,
-        order
-      }
-    })
-    onSelectedExport(exportedProblems)
-  }
-
-  return (
-    <Button onClick={handleImportProblems} className="ml-auto">
-      Import / Edit
-    </Button>
   )
 }
 
