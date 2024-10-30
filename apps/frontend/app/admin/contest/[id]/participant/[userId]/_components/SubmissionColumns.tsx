@@ -11,7 +11,7 @@ export const submissionColumns: ColumnDef<UserSubmission>[] = [
     header: () => <div className="py-1 font-mono text-sm">Problem Title</div>,
     cell: ({ row }) => (
       <div className="whitespace-nowrap py-1 text-center text-xs">
-        {String.fromCharCode(65 + row.original.order)}.{' '}
+        {String.fromCharCode(65 + (row.original.order ?? 0))}.{' '}
         {row.getValue('problemTitle')}
       </div>
     )
