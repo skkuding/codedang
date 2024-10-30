@@ -93,8 +93,8 @@ function EnabledDuplicateButton({
         })
         table.resetRowSelection()
       },
-      onError: (error) => {
-        console.log(error)
+      onError: () => {
+        toast.error('Failed to duplicate the contest')
       }
     })
   }
