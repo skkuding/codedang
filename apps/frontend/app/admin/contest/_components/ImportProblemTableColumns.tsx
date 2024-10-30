@@ -18,7 +18,6 @@ export interface DataTableProblem {
 }
 
 export const DEFAULT_PAGE_SIZE = 5
-export const DEFAULT_SORTING = [{ id: 'select', desc: true }]
 export const MAX_SELECTED_ROW_COUNT = 20
 export const ERROR_MESSAGE = `You can only import up to ${MAX_SELECTED_ROW_COUNT} problems in a contest`
 export const columns: ColumnDef<DataTableProblem>[] = [
@@ -38,7 +37,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
             MAX_SELECTED_ROW_COUNT
           ) {
             table.toggleAllPageRowsSelected()
-            table.setSorting(DEFAULT_SORTING) // NOTE: force to trigger sortingFn
+            table.setSorting([{ id: 'select', desc: true }]) // NOTE: force to trigger sortingFn
           } else {
             toast.error(ERROR_MESSAGE)
           }

@@ -14,7 +14,6 @@ import ImportProblemButton from './ImportProblemButton'
 import {
   columns,
   DEFAULT_PAGE_SIZE,
-  DEFAULT_SORTING,
   ERROR_MESSAGE,
   MAX_SELECTED_ROW_COUNT
 } from './ImportProblemTableColumns'
@@ -68,7 +67,7 @@ export function ImportProblemTable({
       columns={columns}
       selectedRowIds={selectedProblemIds}
       defaultPageSize={DEFAULT_PAGE_SIZE}
-      defaultSortState={DEFAULT_SORTING}
+      defaultSortState={[{ id: 'select', desc: true }]}
     >
       <div className="flex gap-4">
         <DataTableSearchBar columndId="title" />
@@ -84,7 +83,7 @@ export function ImportProblemTable({
             row.getIsSelected()
           ) {
             row.toggleSelected()
-            table.setSorting(DEFAULT_SORTING) // NOTE: force to trigger sortingFn
+            table.setSorting([{ id: 'select', desc: true }]) // NOTE: force to trigger sortingFn
           } else {
             toast.error(ERROR_MESSAGE)
           }
