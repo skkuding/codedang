@@ -1,6 +1,6 @@
 'use client'
 
-import SubmissionDetailAdmin from '@/app/admin/contest/[id]/_components/SubmissionDetailAdmin'
+import SubmissionDetailAdmin from '@/app/admin/contest/[id]/(overall)/@tabs/submission/_components/SubmissionDetailAdmin'
 import DuplicateContest from '@/app/admin/contest/_components/DuplicateContest'
 import {
   AlertDialog,
