@@ -4,28 +4,12 @@ import ContainedContests from '@/app/admin/problem/_components/ContainedContests
 import OptionSelect from '@/components/OptionSelect'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import type { Level } from '@/types/type'
-import { useQuery } from '@apollo/client'
-import type { ColumnDef, Row } from '@tanstack/react-table'
+import type { ColumnDef } from '@tanstack/react-table'
 import { toast } from 'sonner'
-import type { ContestProblem } from '../../utils'
+import type { ContestProblem } from '../utils'
 
-function Included({ row }: { row: Row<ContestProblem> }) {
-  const contestData = useQuery(GET_BELONGED_CONTESTS, {
-    variables: {
-      problemId: Number(row.original.id)
-    }
-  }).data
-  return (
-    <div className="flex justify-center">
-      {contestData && <ContainedContests data={contestData} />}
-    </div>
-  )
-}
-
-export const columns = (
-  problems: ContestProblem[],
+export const createColumns = (
   setProblems: React.Dispatch<React.SetStateAction<ContestProblem[]>>,
   disableInput: boolean
 ): ColumnDef<ContestProblem>[] => [
@@ -103,15 +87,15 @@ export const columns = (
         />
       </div>
     ),
-    footer: () => (
+    footer: ({ table }) => (
       <div className="flex justify-center">
         <Input
           disabled={true}
           className="w-[70px] focus-visible:ring-0"
-          defaultValue={problems.reduce(
-            (total, problem) => total + problem.score,
-            0
-          )}
+          defaultValue={table
+            .getCoreRowModel()
+            .rows.map((row) => row.original)
+            .reduce((total, problem) => total + problem.score, 0)}
         />
       </div>
     ),
@@ -180,7 +164,11 @@ export const columns = (
   {
     accessorKey: 'included',
     header: () => <p className="text-center text-sm">Included</p>,
-    cell: ({ row }) => <Included row={row} />,
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <ContainedContests problemId={row.original.id} />
+      </div>
+    ),
     enableSorting: false
   }
 ]

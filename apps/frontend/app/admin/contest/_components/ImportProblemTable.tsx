@@ -1,35 +1,33 @@
-import { DataTableAdmin } from '@/components/DataTableAdmin'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
 import { GET_PROBLEMS } from '@/graphql/problem/queries'
-import { useQuery } from '@apollo/client'
+import { useSuspenseQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
-import { columns } from './ImportProblemTableColumns'
+import { toast } from 'sonner'
+import DataTable from '../../_components/table/DataTable'
+import DataTableFallback from '../../_components/table/DataTableFallback'
+import DataTableLangFilter from '../../_components/table/DataTableLangFilter'
+import DataTableLevelFilter from '../../_components/table/DataTableLevelFilter'
+import DataTablePagination from '../../_components/table/DataTablePagination'
+import DataTableRoot from '../../_components/table/DataTableRoot'
+import DataTableSearchBar from '../../_components/table/DataTableSearchBar'
+import { useDataTable } from '../../_components/table/context'
+import type { ContestProblem } from '../utils'
+import {
+  columns,
+  DEFAULT_PAGE_SIZE,
+  ERROR_MESSAGE,
+  MAX_SELECTED_ROW_COUNT,
+  type DataTableProblem
+} from './ImportProblemTableColumns'
 
-interface ContestProblem {
-  id: number
-  title: string
-  difficulty: string
-  score: number
-  order: number
-}
-
-interface OrderContestProblem {
-  id: number
-  title: string
-  difficulty: string
-  order: number
-}
-
-export default function ImportProblemTable({
+export function ImportProblemTable({
   checkedProblems,
-  onSelectedExport,
-  onCloseDialog
+  onSelectedExport
 }: {
   checkedProblems: ContestProblem[]
-  onSelectedExport: (selectedRows: OrderContestProblem[]) => void
-  onCloseDialog: () => void
+  onSelectedExport: (selectedRows: ContestProblem[]) => void
 }) {
-  const { data, loading } = useQuery(GET_PROBLEMS, {
+  const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       groupId: 1,
       take: 500,
@@ -46,87 +44,102 @@ export default function ImportProblemTable({
     }
   })
 
-  const problems =
-    data?.getProblems.map((problem) => ({
-      ...problem,
-      id: Number(problem.id),
-      isVisible: problem.isVisible !== undefined ? problem.isVisible : null,
-      languages: problem.languages ?? [],
-      tag: problem.tag.map(({ id, tag }) => ({
-        id: +id,
-        tag: {
-          ...tag,
-          id: +tag.id
-        }
-      })),
-      score: checkedProblems.find((item) => item.id === Number(problem.id))
-        ?.score
-    })) ?? []
+  const problems = data.getProblems.map((problem) => ({
+    ...problem,
+    id: Number(problem.id),
+    isVisible: problem.isVisible !== undefined ? problem.isVisible : null,
+    languages: problem.languages ?? [],
+    tag: problem.tag.map(({ id, tag }) => ({
+      id: +id,
+      tag: {
+        ...tag,
+        id: Number(tag.id)
+      }
+    })),
+    score: checkedProblems.find((item) => item.id === Number(problem.id))
+      ?.score,
+    order: checkedProblems.find((item) => item.id === Number(problem.id))?.order
+  }))
+
+  const selectedProblemIds = checkedProblems.map((problem) => problem.id)
 
   return (
-    <>
-      {loading ? (
-        <>
-          <div className="mb-16 flex gap-4">
-            <span className="w-2/12">
-              <Skeleton className="h-10 w-full" />
-            </span>
-            <span className="w-1/12">
-              <Skeleton className="h-10 w-full" />
-            </span>
-            <span className="w-1/12">
-              <Skeleton className="h-10 w-full" />
-            </span>
-          </div>
-          {[...Array(10)].map((_, i) => (
-            <Skeleton key={i} className="my-2 flex h-12 w-full rounded-xl" />
-          ))}
-        </>
-      ) : (
-        <DataTableAdmin
-          columns={columns}
-          data={problems}
-          enableSearch={true}
-          enableFilter={true}
-          enableDelete={false}
-          enablePagination={true}
-          enableRowsPerpage={false}
-          enableImport={true}
-          checkedRows={checkedProblems}
-          onSelectedExport={(problems) => {
-            onCloseDialog()
-
-            const problemsWithOrder = problems
-              .map((problem) => ({
-                ...problem,
-                order:
-                  checkedProblems.find((item) => item.id === problem.id)
-                    ?.order ?? Number.MAX_SAFE_INTEGER
-              }))
-              .sort((a, b) => a.order - b.order)
-
-            let order = 0
-            const exportedProblems = problemsWithOrder.map(
-              (problem, index, arr) => {
-                if (
-                  index > 0 &&
-                  // NOTE: 만약 현재 요소가 새로 추가된 문제이거나 새로 추가된 문제가 아니라면 이전 문제와 기존 순서가 다를 때
-                  (arr[index].order === Number.MAX_SAFE_INTEGER ||
-                    arr[index - 1].order !== arr[index].order)
-                ) {
-                  order++
-                }
-                return {
-                  ...problem,
-                  order
-                }
-              }
-            )
-            onSelectedExport(exportedProblems)
-          }}
-          defaultPageSize={5}
-        />
-      )}
-    </>
+    <DataTableRoot
+      data={problems}
+      columns={columns}
+      selectedRowIds={selectedProblemIds}
+      defaultPageSize={DEFAULT_PAGE_SIZE}
+      defaultSortState={[{ id: 'select', desc: true }]}
+    >
+      <div className="flex gap-4">
+        <DataTableSearchBar columndId="title" />
+        <DataTableLangFilter />
+        <DataTableLevelFilter />
+        <ImportProblemButton onSelectedExport={onSelectedExport} />
+      </div>
+      <DataTable
+        onRowClick={(table, row) => {
+          const selectedRowCount = table.getSelectedRowModel().rows.length
+          if (
+            selectedRowCount < MAX_SELECTED_ROW_COUNT ||
+            row.getIsSelected()
+          ) {
+            row.toggleSelected()
+          } else {
+            toast.error(ERROR_MESSAGE)
+          }
+        }}
+      />
+      <DataTablePagination showSelection showRowsPerPage={false} />
+    </DataTableRoot>
   )
+}
+
+interface ImportProblemButtonProps {
+  onSelectedExport: (data: ContestProblem[]) => void
+}
+
+function ImportProblemButton({ onSelectedExport }: ImportProblemButtonProps) {
+  const { table } = useDataTable<DataTableProblem>()
+
+  const handleImportProblems = () => {
+    const selectedRows = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original)
+
+    const problems = selectedRows
+      .map((problem) => ({
+        ...problem,
+        score: problem?.score ?? 0,
+        order: problem?.order ?? Number.MAX_SAFE_INTEGER
+      }))
+      .sort((a, b) => a.order - b.order)
+
+    let order = 0
+    const exportedProblems = problems.map((problem, index, arr) => {
+      if (
+        index > 0 &&
+        // NOTE: 만약 현재 요소가 새로 추가된 문제이거나 새로 추가된 문제가 아니라면 이전 문제와 기존 순서가 다를 때
+        (arr[index].order === Number.MAX_SAFE_INTEGER ||
+          arr[index - 1].order !== arr[index].order)
+      ) {
+        order++
+      }
+      return {
+        ...problem,
+        order
+      }
+    })
+    onSelectedExport(exportedProblems)
+  }
+
+  return (
+    <Button onClick={handleImportProblems} className="ml-auto">
+      Import / Edit
+    </Button>
+  )
+}
+
+export function ImportProblemTableFallback() {
+  return <DataTableFallback columns={columns} rowCount={DEFAULT_PAGE_SIZE} />
 }

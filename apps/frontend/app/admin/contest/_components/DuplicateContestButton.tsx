@@ -37,9 +37,6 @@ export default function DuplicateContestButton() {
         table.getSelectedRowModel().rows[0].original.startTime,
         table.getSelectedRowModel().rows[0].original.endTime
       )}
-      onCompleted={() => {
-        table.resetRowSelection()
-      }}
     />
   ) : (
     <DisabledDuplicateButton />
@@ -66,13 +63,13 @@ function DisabledDuplicateButton() {
 
 function EnabledDuplicateButton({
   contestId,
-  contestStatus,
-  onCompleted
+  contestStatus
 }: {
   contestId: number
   contestStatus: string
-  onCompleted?: () => void
 }) {
+  const { table } = useDataTable<DataTableContest>()
+
   const client = useApolloClient()
   const [duplicateContest] = useMutation(DUPLICATE_CONTEST)
 
@@ -91,10 +88,10 @@ function EnabledDuplicateButton({
             id: toastId
           }
         )
-        onCompleted?.()
         client.refetchQueries({
           include: [GET_CONTESTS]
         })
+        table.resetRowSelection()
       },
       onError: (error) => {
         console.log(error)
