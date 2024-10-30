@@ -84,6 +84,7 @@ export default function DataTableProblemFilter({
                   onSelect={() => {
                     column?.setFilterValue(value)
                     setOpen(false)
+                    table.resetPageIndex()
                   }}
                 >
                   <p className="overflow-hidden text-ellipsis whitespace-nowrap text-xs">
