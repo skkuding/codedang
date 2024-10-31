@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { dateFormatter, fetcherWithAuth } from '@/lib/utils'
+import { dateFormatter, fetcherWithAuth, getResultColor } from '@/lib/utils'
 import type { SubmissionDetail } from '@/types/type'
 import { revalidateTag } from 'next/cache'
 import { IoIosLock } from 'react-icons/io'
@@ -48,15 +48,7 @@ export default async function SubmissionDetail({
           </div>
           <div>
             <h2>Result</h2>
-            <p
-              className={
-                submission.result === 'Accepted'
-                  ? '!text-green-500'
-                  : submission.result === 'Blind'
-                    ? '!text-[#9B9B9B]'
-                    : '!text-red-500'
-              }
-            >
+            <p className={getResultColor(submission.result)}>
               {submission.result}
             </p>
           </div>
@@ -98,11 +90,9 @@ export default async function SubmissionDetail({
                   <TableCell>{item.id}</TableCell>
                   <TableCell
                     className={
-                      item.result === 'Accepted'
-                        ? '!text-green-500'
-                        : submission.result === 'Blind'
-                          ? '!text-[#9B9B9B]'
-                          : '!text-red-500'
+                      submission.result === 'Blind'
+                        ? 'text-neutral-400'
+                        : getResultColor(item.result)
                     }
                   >
                     {item.result}
