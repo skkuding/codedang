@@ -1,6 +1,6 @@
 'use client'
 
-import { dateFormatter } from '@/lib/utils'
+import { dateFormatter, getResultColor } from '@/lib/utils'
 import type { SubmissionItem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 
@@ -25,12 +25,10 @@ export const columns: ColumnDef<SubmissionItem>[] = [
     header: () => 'Result',
     accessorKey: 'result',
     cell: ({ row }) => {
-      return row.original.result === 'Accepted' ? (
-        <p className="text-green-500">{row.original.result}</p>
-      ) : row.original.result === 'Judging' ? (
-        <p className="text-gray-500">{row.original.result}</p>
-      ) : (
-        <p className="text-red-500">{row.original.result}</p>
+      return (
+        <p className={getResultColor(row.original.result)}>
+          {row.original.result}
+        </p>
       )
     }
   },
