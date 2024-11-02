@@ -22,3 +22,12 @@ export class JudgeRequest {
     this.memoryLimit = calculateMemoryLimit(language, problem.memoryLimit)
   }
 }
+
+export class UserTestcaseJudgeRequest extends JudgeRequest {
+  codes: {
+    id: number
+    in: string
+    out: string
+    hidden: boolean
+  }[]
+}
