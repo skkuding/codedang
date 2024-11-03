@@ -41,14 +41,14 @@ export default function DataTableFallback<TData>({
   ...props
 }: DataTableFallbackProps<TData>) {
   return (
-    <>
+    <div className="space-y-4">
       {withSearchBar && <Skeleton className="h-10 w-[250px]" />}
       <TableFallback {...props} />
-    </>
+    </div>
   )
 }
 
-export function TableFallback<TData>({
+function TableFallback<TData>({
   columns,
   headerStyle = {},
   rowCount = 10

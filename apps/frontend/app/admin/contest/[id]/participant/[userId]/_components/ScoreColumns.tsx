@@ -3,9 +3,24 @@
 import type { ProblemData, ScoreSummary } from '@/app/admin/contest/utils'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 
-export const scoreColumns = (
+interface DataTableScoreSummary
+  extends Pick<
+    ScoreSummary,
+    | 'contestPerfectScore'
+    | 'submittedProblemCount'
+    | 'userContestScore'
+    | 'totalProblemCount'
+  > {
+  id: number
+  problemScores: {
+    problemId: number
+    score: number
+  }[]
+}
+
+export const createColumns = (
   problemData: ProblemData[]
-): ColumnDef<ScoreSummary>[] => {
+): ColumnDef<DataTableScoreSummary>[] => {
   return [
     {
       accessorKey: 'submittedProblemCount',
@@ -32,7 +47,7 @@ export const scoreColumns = (
           {String.fromCharCode(Number(65 + i))}
         </p>
       ),
-      cell: ({ row }: { row: Row<ScoreSummary> }) => {
+      cell: ({ row }: { row: Row<DataTableScoreSummary> }) => {
         const problemScore = row.original.problemScores.find(
           (ps) => ps.problemId === problem.problemId
         )
