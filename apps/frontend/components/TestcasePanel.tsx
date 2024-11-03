@@ -1,6 +1,6 @@
 'use client'
 
-import { cn } from '@/lib/utils'
+import { cn, getResultColor } from '@/lib/utils'
 import type { TestResultDetail } from '@/types/type'
 import { useState } from 'react'
 import { IoMdClose } from 'react-icons/io'
@@ -202,15 +202,7 @@ function TestResultDetail({
     <div className="px-8 pt-5">
       <div className="flex w-full gap-4 rounded-md bg-[#121728] px-6 py-3 font-light text-neutral-400">
         Result
-        <span
-          className={cn(
-            dataWithIndex[currentTab - 1].result === 'Accepted'
-              ? 'text-green-500'
-              : dataWithIndex[currentTab - 1].result === 'Judging'
-                ? 'text-neutral-400'
-                : 'text-red-500'
-          )}
-        >
+        <span className={getResultColor(dataWithIndex[currentTab - 1].result)}>
           {dataWithIndex[currentTab - 1].result}
         </span>
       </div>

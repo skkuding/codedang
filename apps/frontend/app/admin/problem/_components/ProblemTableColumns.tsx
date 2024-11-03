@@ -1,11 +1,10 @@
-import { DataTableColumnHeader } from '@/components/DataTableColumnHeader'
+import DataTableColumnHeader from '@/app/admin/_components/table/DataTableColumnHeader'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
-import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
 import type { Level } from '@/types/type'
-import { useMutation, useQuery } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import ContainedContests from './ContainedContests'
 
@@ -14,7 +13,7 @@ interface Tag {
   name: string
 }
 
-interface DataTableProblem {
+export interface DataTableProblem {
   id: number
   title: string
   updateTime: string
@@ -28,11 +27,7 @@ interface DataTableProblem {
 
 function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
   const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
-  const contestData = useQuery(GET_BELONGED_CONTESTS, {
-    variables: {
-      problemId: Number(row.original.id)
-    }
-  }).data
+
   return (
     <div className="ml-8 flex items-center space-x-2">
       <Switch
@@ -53,7 +48,7 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
           })
         }}
       />
-      {contestData && <ContainedContests data={contestData} />}
+      <ContainedContests problemId={row.original.id} />
     </div>
   )
 }

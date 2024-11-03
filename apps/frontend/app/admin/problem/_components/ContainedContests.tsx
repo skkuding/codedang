@@ -4,14 +4,16 @@ import {
   DialogContent,
   DialogHeader
 } from '@/components/ui/dialog'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import FileInfoIcon from '@/public/24_compile.svg'
-import type { GetContestsByProblemIdQuery } from '@generated/graphql'
+import { useQuery } from '@apollo/client'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -38,20 +40,31 @@ function ContestSection({
 }
 
 export default function ContainedContests({
-  data
+  problemId
 }: {
-  data: GetContestsByProblemIdQuery
+  problemId: number
 }) {
   const [isTooltipOpen, setIsTooltipOpen] = useState(false)
-  const contestData = data.getContestsByProblemId
+  const { data, loading } = useQuery(GET_BELONGED_CONTESTS, {
+    variables: {
+      problemId
+    }
+  })
 
-  return (
+  const contestData = data?.getContestsByProblemId
+
+  if (loading) {
+    return <Skeleton className="size-[25px]" />
+  }
+
+  return contestData ? (
     <Dialog onOpenChange={() => setIsTooltipOpen(false)}>
       <TooltipProvider>
         <Tooltip>
           <DialogTrigger asChild>
             <TooltipTrigger asChild>
               <button
+                type="button"
                 className="justify-centert flex items-center"
                 onClick={(e) => {
                   e.stopPropagation()
@@ -75,10 +88,7 @@ export default function ContainedContests({
         </Tooltip>
       </TooltipProvider>
       <div onClick={(e) => e.stopPropagation()}>
-        <DialogContent
-          className="sm:max-w-[425px]"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <p className="text-lg font-semibold">
               Contests which include this problem
@@ -99,5 +109,5 @@ export default function ContainedContests({
         </DialogContent>
       </div>
     </Dialog>
-  )
+  ) : null
 }

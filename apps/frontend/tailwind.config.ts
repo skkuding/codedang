@@ -87,5 +87,6 @@ export default {
         }
       })
     }
-  ]
+  ],
+  safelist: ['!text-green-500', '!text-neutral-400', '!text-red-500']
 } satisfies Config
