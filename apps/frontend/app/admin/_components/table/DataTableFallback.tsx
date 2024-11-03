@@ -48,7 +48,7 @@ export default function DataTableFallback<TData>({
   )
 }
 
-export function TableFallback<TData>({
+function TableFallback<TData>({
   columns,
   headerStyle = {},
   rowCount = 10
