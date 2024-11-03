@@ -1,6 +1,5 @@
 'use client'
 
-import { DataTableAdmin } from '@/components/DataTableAdmin'
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -31,7 +30,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState, useRef } from 'react'
+import { useState, useRef, Suspense } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
@@ -41,9 +40,12 @@ import DescriptionForm from '../../_components/DescriptionForm'
 import FormSection from '../../_components/FormSection'
 import SwitchField from '../../_components/SwitchField'
 import TitleForm from '../../_components/TitleForm'
-import { columns } from '../[id]/_components/Columns'
 import ContestProblemListLabel from '../_components/ContestProblemListLabel'
-import ImportProblemTable from '../_components/ImportProblemTable'
+import ContestProblemTable from '../_components/ContestProblemTable'
+import {
+  ImportProblemTable,
+  ImportProblemTableFallback
+} from '../_components/ImportProblemTable'
 import TimeForm from '../_components/TimeForm'
 import { type ContestProblem, createSchema } from '../utils'
 
@@ -230,22 +232,22 @@ export default function Page() {
                     <DialogHeader>
                       <DialogTitle>Import Problem</DialogTitle>
                     </DialogHeader>
-                    <ImportProblemTable
-                      checkedProblems={problems as ContestProblem[]}
-                      onSelectedExport={(problems) =>
-                        setProblems(problems as ContestProblem[])
-                      }
-                      onCloseDialog={() => setShowImportDialog(false)}
-                    />
+                    <Suspense fallback={<ImportProblemTableFallback />}>
+                      <ImportProblemTable
+                        checkedProblems={problems}
+                        onSelectedExport={(problems) => {
+                          setProblems(problems)
+                          setShowImportDialog(false)
+                        }}
+                      />
+                    </Suspense>
                   </DialogContent>
                 </Dialog>
               </div>
-              <DataTableAdmin
-                columns={columns(problems, setProblems, false)}
-                data={problems as ContestProblem[]}
-                defaultSortColumn={{ id: 'order', desc: false }}
-                enableFooter={true}
-                defaultPageSize={20}
+              <ContestProblemTable
+                problems={problems}
+                setProblems={setProblems}
+                disableInput={false}
               />
             </div>
             <Button
