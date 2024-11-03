@@ -65,7 +65,8 @@ export interface OverallSubmission {
   codeSize?: number | null
   ip?: string | null
   id: number
-  order: number
+  order?: number | null
+  problemId: number
 }
 
 export interface UserSubmission {
@@ -76,5 +77,5 @@ export interface UserSubmission {
   codeSize?: number | null
   ip?: string | null
   id: number
-  order: number
+  order?: number | null
 }
