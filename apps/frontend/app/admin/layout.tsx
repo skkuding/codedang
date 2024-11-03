@@ -32,8 +32,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Link> */}
         </nav>
         <Separator orientation="vertical" />
-
-        <div className="relative w-full overflow-y-auto">{children}</div>
+        {/*NOTE: full width - sidebar width */}
+        <div className="relative w-[calc(100%-15rem)] overflow-y-auto">
+          {children}
+        </div>
       </div>
     </ClientApolloProvider>
   )

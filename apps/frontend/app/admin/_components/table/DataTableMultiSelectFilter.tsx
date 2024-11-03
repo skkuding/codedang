@@ -17,6 +17,7 @@ import { Separator } from '@/components/ui/separator'
 import type { Column } from '@tanstack/react-table'
 import type { ReactNode } from 'react'
 import { IoFilter } from 'react-icons/io5'
+import { useDataTable } from './context'
 
 interface DataTableMultiSelectFilterProps<TData, TValue> {
   column?: Column<TData, TValue>
@@ -45,6 +46,7 @@ export default function DataTableMultiSelectFilter<TData, TValue>({
   options,
   emptyMessage
 }: DataTableMultiSelectFilterProps<TData, TValue>) {
+  const { table } = useDataTable()
   const selectedValues = getSelectedValues(column?.getFilterValue())
 
   return (
@@ -109,6 +111,7 @@ export default function DataTableMultiSelectFilter<TData, TValue>({
                     column?.setFilterValue(
                       filterValues.length ? filterValues : undefined
                     )
+                    table.resetPageIndex()
                   }}
                 >
                   <Checkbox checked={selectedValues.has(value)} />
