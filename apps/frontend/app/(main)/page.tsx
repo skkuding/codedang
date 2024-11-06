@@ -3,13 +3,7 @@ import type { Route } from 'next'
 import Link from 'next/link'
 import Carousel from './_components/Carousel'
 import ContestCards from './_components/ContestCards'
-// import ContestCards from './_components/ContestCards'
 import ProblemCards from './_components/ProblemCards'
-
-// FIXME: Build error occurs when using static routes
-// Disable static routes as a workaround for now
-// https://github.com/vercel/next.js/issues/54961
-export const dynamic = 'force-dynamic'
 
 const slides = [
   {
