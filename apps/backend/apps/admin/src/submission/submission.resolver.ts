@@ -33,7 +33,7 @@ export class SubmissionResolver {
       { nullable: true, type: () => String },
       ContestSubmissionOrderPipe
     )
-    order?: ContestSubmissionOrder
+    order: ContestSubmissionOrder | null
   ): Promise<ContestSubmission[]> {
     return await this.submissionService.getContestSubmissions(
       input,

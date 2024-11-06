@@ -9,7 +9,7 @@ import { ContestSubmissionOrder } from '@admin/submission/enum/contest-submissio
 export class ContestSubmissionOrderPipe implements PipeTransform {
   transform(value: unknown) {
     if (!value) {
-      return undefined
+      return null
     } else if (
       !Object.values(ContestSubmissionOrder).includes(
         value as ContestSubmissionOrder

@@ -16,7 +16,7 @@ export class SubmissionService {
     input: GetContestSubmissionsInput,
     take: number,
     cursor: number | null,
-    order?: ContestSubmissionOrder
+    order: ContestSubmissionOrder | null
   ) {
     const paginator = this.prisma.getPaginator(cursor)
 
