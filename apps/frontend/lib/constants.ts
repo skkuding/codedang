@@ -26,7 +26,7 @@ export const ACCESS_TOKEN_EXPIRE_TIME = 30 * MILLSECONDS_PER_MINUTE
  * The meta base URL for open graph and twitter card.
  * @constant
  */
-export const metaBaseUrl = process.env.VERCEL_URL || process.env.NEXT_URL
+export const metaBaseUrl = process.env.NEXT_URL
 
 /**
  * The languages that are supported by the grading system.
