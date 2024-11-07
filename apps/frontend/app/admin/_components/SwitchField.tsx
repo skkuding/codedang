@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { inputStyle } from '../utils'
+import { inputStyle } from '../_libs/utils'
 import ErrorMessage from './ErrorMessage'
 import Label from './Label'
 
