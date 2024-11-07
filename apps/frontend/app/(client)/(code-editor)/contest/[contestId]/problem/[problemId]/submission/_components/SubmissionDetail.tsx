@@ -12,7 +12,7 @@ import { dateFormatter, fetcherWithAuth, getResultColor } from '@/lib/utils'
 import type { SubmissionDetail } from '@/types/type'
 import { revalidateTag } from 'next/cache'
 import { IoIosLock } from 'react-icons/io'
-import dataIfError from './dataIfError'
+import dataIfError from '../_libs/dataIfError'
 
 interface Props {
   problemId: number
