@@ -15,7 +15,7 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog'
-import { convertToLetter } from '@/lib/utils'
+import { convertToLetter } from '@/libs/utils'
 import CopyIcon from '@/public/24_copy.svg'
 import compileIcon from '@/public/compileVersion.svg'
 import copyIcon from '@/public/copy.svg'

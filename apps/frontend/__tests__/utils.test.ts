@@ -1,4 +1,4 @@
-import { convertToLetter, dateFormatter } from '@/lib/utils'
+import { convertToLetter, dateFormatter } from '@/libs/utils'
 import { test, expect } from 'vitest'
 
 test('convertToLetter', () => {

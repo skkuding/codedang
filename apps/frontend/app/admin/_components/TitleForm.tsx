@@ -1,7 +1,7 @@
 'use client'
 
 import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import { useFormContext } from 'react-hook-form'
 import { inputStyle } from '../utils'
 import ErrorMessage from './ErrorMessage'

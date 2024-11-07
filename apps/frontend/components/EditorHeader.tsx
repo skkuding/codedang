@@ -21,7 +21,7 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { auth } from '@/lib/auth'
-import { fetcherWithAuth } from '@/lib/utils'
+import { fetcherWithAuth } from '@/libs/utils'
 import submitIcon from '@/public/submit.svg'
 import useAuthModalStore from '@/stores/authModal'
 import {

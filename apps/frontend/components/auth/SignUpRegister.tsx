@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/tooltip'
 import { baseUrl } from '@/lib/constants'
 import { majors } from '@/lib/constants'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import checkIcon from '@/public/check.svg'
 import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'

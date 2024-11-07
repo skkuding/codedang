@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 // import { Separator } from '@/components/ui/separator'
 import CodedangLogo from '@/public/codedang.svg'
 // import KakaotalkLogo from '@/public/kakaotalk.svg'

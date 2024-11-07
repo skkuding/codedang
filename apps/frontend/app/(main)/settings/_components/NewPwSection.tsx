@@ -1,5 +1,5 @@
 import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import invisible from '@/public/24_invisible.svg'
 import visible from '@/public/24_visible.svg'
 import type { SettingsFormat } from '@/types/type'

@@ -1,6 +1,6 @@
 import KatexContent from '@/components/KatexContent'
 import { auth } from '@/lib/auth'
-import { fetcherWithAuth } from '@/lib/utils'
+import { fetcherWithAuth } from '@/libs/utils'
 import RegisterButton from './_components/RegisterButton'
 
 interface ContestTop {

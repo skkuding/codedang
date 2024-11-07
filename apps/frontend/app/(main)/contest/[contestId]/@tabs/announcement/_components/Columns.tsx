@@ -1,6 +1,6 @@
 'use client'
 
-import { convertToLetter, dateFormatter } from '@/lib/utils'
+import { convertToLetter, dateFormatter } from '@/libs/utils'
 import type { ContestAnnouncement } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import './styles.css'

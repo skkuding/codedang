@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu'
-import { cn, fetcherWithAuth } from '@/lib/utils'
+import { cn, fetcherWithAuth } from '@/libs/utils'
 import useAuthModalStore from '@/stores/authModal'
 import { LogOut, UserRoundCog, ChevronDown } from 'lucide-react'
 import type { Session } from 'next-auth'

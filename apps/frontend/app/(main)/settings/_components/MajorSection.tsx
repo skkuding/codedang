@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { majors } from '@/lib/constants'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import React from 'react'
 import { FaChevronDown, FaCheck } from 'react-icons/fa6'
 

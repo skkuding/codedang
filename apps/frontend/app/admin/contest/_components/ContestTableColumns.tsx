@@ -10,7 +10,7 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { UPDATE_CONTEST_VISIBLE } from '@/graphql/contest/mutations'
-import { cn, dateFormatter } from '@/lib/utils'
+import { cn, dateFormatter } from '@/libs/utils'
 import InvisibleIcon from '@/public/24_invisible.svg'
 import VisibleIcon from '@/public/24_visible.svg'
 import { useMutation } from '@apollo/client'

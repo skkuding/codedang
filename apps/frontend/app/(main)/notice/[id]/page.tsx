@@ -1,5 +1,5 @@
 import { baseUrl } from '@/lib/constants'
-import { dateFormatter } from '@/lib/utils'
+import { dateFormatter } from '@/libs/utils'
 import { sanitize } from 'isomorphic-dompurify'
 import Link from 'next/link'
 import { RxHamburgerMenu } from 'react-icons/rx'

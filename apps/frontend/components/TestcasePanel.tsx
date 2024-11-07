@@ -1,6 +1,6 @@
 'use client'
 
-import { cn, getResultColor } from '@/lib/utils'
+import { cn, getResultColor } from '@/libs/utils'
 import type { TestResultDetail } from '@/types/type'
 import { useState } from 'react'
 import { IoMdClose } from 'react-icons/io'

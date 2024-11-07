@@ -1,7 +1,7 @@
 'use client'
 
 import type { UserSubmission } from '@/app/admin/contest/utils'
-import { cn, getResultColor } from '@/lib/utils'
+import { cn, getResultColor } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 import dayjs from 'dayjs'
 
