@@ -47,7 +47,7 @@ import {
   ImportProblemTableFallback
 } from '../_components/ImportProblemTable'
 import TimeForm from '../_components/TimeForm'
-import { type ContestProblem, createSchema } from '../utils'
+import { type ContestProblem, createSchema } from '../_libs/schemas'
 
 export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
