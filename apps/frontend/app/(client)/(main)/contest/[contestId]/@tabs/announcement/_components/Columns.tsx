@@ -3,7 +3,6 @@
 import { convertToLetter, dateFormatter } from '@/lib/utils'
 import type { ContestAnnouncement } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
-import './styles.css'
 
 export const columns: ColumnDef<ContestAnnouncement>[] = [
   {
@@ -21,7 +20,9 @@ export const columns: ColumnDef<ContestAnnouncement>[] = [
     header: () => 'Description',
     accessorKey: 'content',
     cell: ({ row }) => (
-      <div className="expandable text-left">{row.original.content}</div>
+      <div className="text-left [tr:not(.expanded)_&]:truncate">
+        {row.original.content}
+      </div>
     )
   },
   {
