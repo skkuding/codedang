@@ -1,6 +1,6 @@
 'use client'
 
-import { createSchema } from '@/app/admin/problem/utils'
+import { createSchema } from '@/app/admin/problem/_libs/schemas'
 import { Level, type CreateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState, type ReactNode } from 'react'

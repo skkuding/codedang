@@ -3,7 +3,7 @@
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { useFormContext } from 'react-hook-form'
-import { inputStyle } from '../utils'
+import { inputStyle } from '../_libs/utils'
 import ErrorMessage from './ErrorMessage'
 
 export default function TitleForm({ placeholder }: { placeholder: string }) {
