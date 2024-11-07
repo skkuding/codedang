@@ -51,7 +51,7 @@ import {
   ImportProblemTableFallback
 } from '../../_components/ImportProblemTable'
 import TimeForm from '../../_components/TimeForm'
-import { type ContestProblem, editSchema } from '../../utils'
+import { type ContestProblem, editSchema } from '../../_libs/schemas'
 
 export default function Page({ params }: { params: { id: string } }) {
   const [prevProblemIds, setPrevProblemIds] = useState<number[]>([])

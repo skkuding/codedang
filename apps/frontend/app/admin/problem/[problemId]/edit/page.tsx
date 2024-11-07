@@ -26,8 +26,8 @@ import PopoverVisibleInfo from '../../_components/PopoverVisibleInfo'
 import TemplateField from '../../_components/TemplateField'
 import TestcaseField from '../../_components/TestcaseField'
 import VisibleForm from '../../_components/VisibleForm'
+import { editSchema } from '../../_libs/schemas'
 import { validateScoreWeight } from '../../_libs/utils'
-import { editSchema } from '../../utils'
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params

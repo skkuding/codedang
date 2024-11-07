@@ -1,6 +1,6 @@
 'use client'
 
-import type { OverallSubmission } from '@/app/admin/contest/utils'
+import type { OverallSubmission } from '@/app/admin/contest/_libs/schemas'
 import { cn, getResultColor } from '@/lib/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 import dayjs from 'dayjs'
