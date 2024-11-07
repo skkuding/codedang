@@ -1,6 +1,6 @@
 import HeaderAuthPanel from '@/components/auth/HeaderAuthPanel'
 import { auth } from '@/lib/auth'
-import CodedangLogo from '@/public/codedang.svg'
+import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import Image from 'next/image'
 import Link from 'next/link'
 import NavLink from './NavLink'
@@ -14,7 +14,7 @@ export default async function Header() {
         <div className="flex min-w-fit items-center justify-between gap-8 text-[16px]">
           <Link href="/">
             <Image
-              src={CodedangLogo}
+              src={codedangLogo}
               alt="코드당"
               width={135.252}
               height={28}

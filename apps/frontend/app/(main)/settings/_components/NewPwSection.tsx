@@ -1,7 +1,7 @@
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-import invisible from '@/public/24_invisible.svg'
-import visible from '@/public/24_visible.svg'
+import invisibleIcon from '@/public/icons/invisible.svg'
+import visibleIcon from '@/public/icons/visible.svg'
 import type { SettingsFormat } from '@/types/type'
 import Image from 'next/image'
 import React from 'react'
@@ -52,7 +52,7 @@ export default function NewPwSection({
             onClick={() => setNewPasswordShow(!newPasswordShow)}
           >
             <Image
-              src={newPasswordShow ? visible : invisible}
+              src={newPasswordShow ? visibleIcon : invisibleIcon}
               alt={newPasswordShow ? 'visible' : 'invisible'}
             />
           </span>
