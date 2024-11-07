@@ -1,55 +1,36 @@
 'use client'
 
-import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
-import { Skeleton } from '@/components/ui/skeleton'
-import { GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER } from '@/graphql/contest/queries'
-import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { GET_GROUP_MEMBER } from '@/graphql/user/queries'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { FaAngleLeft } from 'react-icons/fa6'
-import type { ScoreSummary, ProblemData, UserSubmission } from '../../../utils'
-import { scoreColumns } from './_components/ScoreColumns'
-import { submissionColumns } from './_components/SubmissionColumns'
+import { ScoreTable, ScoreTableFallback } from './_components/ScoreTable'
+import {
+  SubmissionTable,
+  SubmissionTableFallback
+} from './_components/SubmissionTable'
 
 export default function Page({
   params
 }: {
   params: { id: string; userId: string }
 }) {
-  const { id, userId } = params
+  const contestId = Number(params.id)
+  const userId = Number(params.userId)
 
   const user = useQuery(GET_GROUP_MEMBER, {
-    variables: { groupId: 1, userId: Number(userId) }
+    variables: { groupId: 1, userId }
   })
   const userData = user.data?.getGroupMember
-
-  const submissions = useQuery(GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER, {
-    variables: { contestId: Number(id), userId: Number(userId), take: 5000 }
-  })
-  const submissionsLoading = submissions.loading
-  const scoreData =
-    submissions.data?.getContestSubmissionSummaryByUserId.scoreSummary || []
-  const submissionsData =
-    submissions.data?.getContestSubmissionSummaryByUserId.submissions || []
-
-  const problems =
-    useQuery(GET_CONTEST_PROBLEMS, {
-      variables: { groupId: 1, contestId: Number(id) },
-      onCompleted: (data) => console.log(data.getContestProblems)
-    }) || []
-  const problemData = problems.data?.getContestProblems
-    .slice()
-    .sort((a, b) => a.order - b.order)
-  const problemLoading = problems.loading
 
   return (
     <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href={`/admin/contest/${id}`}>
+            <Link href={`/admin/contest/${contestId}`}>
               <FaAngleLeft className="h-12 hover:text-gray-700/80" />
             </Link>
             <span className="text-4xl font-bold">
@@ -72,37 +53,13 @@ export default function Page({
             </div>
           </div>
         </div>
-        <div>
-          {submissionsLoading || problemLoading ? (
-            <>
-              <div className="mb-16 flex gap-4">
-                <span className="w-2/12">
-                  <Skeleton className="h-10 w-full" />
-                </span>
-              </div>
-              {[...Array(8)].map((_, i) => (
-                <Skeleton
-                  key={i}
-                  className="my-2 flex h-12 w-full rounded-xl"
-                />
-              ))}
-            </>
-          ) : (
-            <div className="flex flex-col gap-4">
-              <DataTableAdmin
-                columns={scoreColumns(problemData as ProblemData[])}
-                data={[scoreData] as ScoreSummary[]}
-              />
-              <DataTableAdmin
-                columns={submissionColumns}
-                data={submissionsData as UserSubmission[]}
-                enablePagination={true}
-                enableFilter={true}
-                enableProblemFilter={true}
-                defaultSortColumn={{ id: 'submissionTime', desc: true }}
-              />
-            </div>
-          )}
+        <div className="flex flex-col gap-4">
+          <Suspense fallback={<ScoreTableFallback />}>
+            <ScoreTable contestId={contestId} userId={userId} />
+          </Suspense>
+          <Suspense fallback={<SubmissionTableFallback />}>
+            <SubmissionTable contestId={contestId} userId={userId} />
+          </Suspense>
         </div>
       </main>
       <ScrollBar orientation="horizontal" />

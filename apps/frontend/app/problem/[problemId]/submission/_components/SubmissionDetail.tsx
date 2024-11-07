@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { dateFormatter, fetcherWithAuth } from '@/lib/utils'
+import { dateFormatter, fetcherWithAuth, getResultColor } from '@/lib/utils'
 import type { SubmissionDetail } from '@/types/type'
 import { revalidateTag } from 'next/cache'
 import dataIfError from './dataIfError'
@@ -45,13 +45,7 @@ export default async function SubmissionDetail({
           </div>
           <div>
             <h2>Result</h2>
-            <p
-              className={
-                submission.result === 'Accepted'
-                  ? '!text-green-500'
-                  : '!text-red-500'
-              }
-            >
+            <p className={getResultColor(submission.result)}>
               {submission.result}
             </p>
           </div>
@@ -91,13 +85,7 @@ export default async function SubmissionDetail({
               {submission.testcaseResult.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.problemTestcaseId.toString()}</TableCell>
-                  <TableCell
-                    className={
-                      item.result === 'Accepted'
-                        ? 'text-green-500'
-                        : 'text-red-500'
-                    }
-                  >
+                  <TableCell className={getResultColor(item.result)}>
                     {item.result}
                   </TableCell>
                   <TableCell>{item.cpuTime} ms</TableCell>

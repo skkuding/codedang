@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { cn } from '@/lib/utils'
+import { cn, getResultColor } from '@/lib/utils'
 import type { TestResultDetail } from '@/types/type'
 import { WhitespaceVisualizer } from './WhitespaceVisualizer'
 
@@ -77,11 +77,7 @@ export default function TestcaseTable({
             <TableCell
               className={cn(
                 'p-3 text-left md:p-3',
-                testResult.result === 'Accepted'
-                  ? 'text-green-500'
-                  : testResult.result === 'Judging'
-                    ? 'text-gray-300'
-                    : 'text-red-500'
+                getResultColor(testResult.result)
               )}
             >
               {testResult.result}

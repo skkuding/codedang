@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTableColumnHeader } from '@/components/DataTableColumnHeader'
+import DataTableColumnHeader from '@/app/admin/_components/table/DataTableColumnHeader'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
 import {
@@ -19,7 +19,7 @@ import type { ColumnDef, Row } from '@tanstack/react-table'
 import Image from 'next/image'
 import { toast } from 'sonner'
 
-interface DataTableContest {
+export interface DataTableContest {
   id: number
   title: string
   startTime: string
@@ -77,6 +77,7 @@ function VisibleCell({ row }: { row: Row<DataTableContest> }) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
+                  type="button"
                   onClick={(e) => e.stopPropagation()}
                   className="h-6 w-6"
                 >

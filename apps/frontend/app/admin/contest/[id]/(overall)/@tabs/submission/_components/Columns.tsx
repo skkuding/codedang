@@ -1,19 +1,21 @@
 'use client'
 
 import type { OverallSubmission } from '@/app/admin/contest/utils'
-import { cn } from '@/lib/utils'
+import { cn, getResultColor } from '@/lib/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 import dayjs from 'dayjs'
 
 export const columns: ColumnDef<OverallSubmission>[] = [
   {
     accessorKey: 'title',
+    id: 'problemTitle',
     header: () => (
       <div className="border-r py-1 font-mono text-sm">Problem Title</div>
     ),
     cell: ({ row }) => (
       <div className="whitespace-nowrap border-r py-1 text-center text-xs">
-        {String.fromCharCode(65 + row.original.order)}. {row.getValue('title')}
+        {String.fromCharCode(65 + (row.original.order ?? 0))}.{' '}
+        {row.getValue('problemTitle')}
       </div>
     )
   },
@@ -51,11 +53,7 @@ export const columns: ColumnDef<OverallSubmission>[] = [
       <div
         className={cn(
           'whitespace-nowrap text-center text-xs',
-          row.getValue('result') === 'Accepted'
-            ? 'text-green-500'
-            : row.getValue('result') === 'Judging'
-              ? 'text-gray-500'
-              : 'text-red-500'
+          getResultColor(row.getValue('result'))
         )}
       >
         {row.getValue('result')}

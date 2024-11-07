@@ -11,7 +11,7 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { GET_SUBMISSION } from '@/graphql/submission/queries'
-import { dateFormatter } from '@/lib/utils'
+import { dateFormatter, getResultColor } from '@/lib/utils'
 import type { Language } from '@/types/type'
 import { useQuery } from '@apollo/client'
 
@@ -51,13 +51,7 @@ export default function SubmissionDetailAdmin({
               </div>
               <div>
                 <h2>Result</h2>
-                <p
-                  className={
-                    submission?.result === 'Accepted'
-                      ? '!text-green-500'
-                      : '!text-red-500'
-                  }
-                >
+                <p className={getResultColor(submission?.result)}>
                   {submission?.result}
                 </p>
               </div>
@@ -100,13 +94,7 @@ export default function SubmissionDetailAdmin({
                   {submission?.testcaseResult.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell className="!py-4">{item.id}</TableCell>
-                      <TableCell
-                        className={
-                          item.result === 'Accepted'
-                            ? 'text-green-500'
-                            : 'text-red-500'
-                        }
-                      >
+                      <TableCell className={getResultColor(item.result)}>
                         {item.result}
                       </TableCell>
                       <TableCell>{item.cpuTime} ms</TableCell>
