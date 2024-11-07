@@ -1,6 +1,9 @@
 'use client'
 
-import type { ProblemData, ScoreSummary } from '@/app/admin/contest/utils'
+import type {
+  ProblemData,
+  ScoreSummary
+} from '@/app/admin/contest/_libs/schemas'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 
 interface DataTableScoreSummary

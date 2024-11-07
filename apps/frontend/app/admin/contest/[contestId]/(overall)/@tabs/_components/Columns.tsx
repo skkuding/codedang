@@ -1,7 +1,10 @@
 'use client'
 
 import DataTableColumnHeader from '@/app/admin/_components/table/DataTableColumnHeader'
-import type { ScoreSummary, ProblemData } from '@/app/admin/contest/utils'
+import type {
+  ScoreSummary,
+  ProblemData
+} from '@/app/admin/contest/_libs/schemas'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 
 interface DataTableScoreSummary extends ScoreSummary {
