@@ -7,7 +7,7 @@ import CheckIcon from '@/public/check_blue.svg'
 import type { Contest } from '@/types/type'
 import Image from 'next/image'
 import ContestTabs from '../_components/ContestTabs'
-import { calculateContestScore } from '../utils'
+import { calculateContestScore } from '../_libs/utils'
 
 interface ContestDetailProps {
   params: {
