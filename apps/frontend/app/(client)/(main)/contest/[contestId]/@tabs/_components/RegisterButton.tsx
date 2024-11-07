@@ -9,7 +9,7 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { cn, fetcherWithAuth } from '@/lib/utils'
+import { cn, fetcherWithAuth } from '@/libs/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'

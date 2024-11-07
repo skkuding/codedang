@@ -3,7 +3,7 @@
 import DataTable from '@/components/DataTable'
 import SearchBar from '@/components/SearchBar'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
+import { useInfiniteScroll } from '@/libs/useInfiniteScroll'
 import type { Problem } from '@/types/type'
 import { useSearchParams } from 'next/navigation'
 import { columns } from './Columns'

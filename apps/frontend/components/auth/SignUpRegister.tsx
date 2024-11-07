@@ -21,9 +21,9 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { baseUrl } from '@/lib/constants'
-import { majors } from '@/lib/constants'
-import { cn } from '@/lib/utils'
+import { baseUrl } from '@/libs/constants'
+import { majors } from '@/libs/constants'
+import { cn } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-white.svg'
 import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'

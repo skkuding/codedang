@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import invisibleIcon from '@/public/icons/invisible.svg'
 import visibleIcon from '@/public/icons/visible.svg'
 import type { SettingsFormat } from '@/types/type'

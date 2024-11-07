@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { dateFormatter } from '@/lib/utils'
+import { dateFormatter } from '@/libs/utils'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
