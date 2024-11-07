@@ -1,4 +1,4 @@
-import ContestCard from '@/app/(main)/_components/ContestCard'
+import ContestCard from '@/app/(client)/(main)/_components/ContestCard'
 import {
   Carousel,
   CarouselContent,
