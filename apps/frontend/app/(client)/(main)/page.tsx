@@ -11,7 +11,7 @@ const slides = [
     topTitle: 'Welcome to',
     bottomTitle: 'CODEDANG',
     sub: 'Online Judge Platform for SKKU',
-    img: '/logos/codedang-carousel.png',
+    img: '/banners/codedang-carousel.png',
     imgAlt: 'Codedang',
     href: '/problem'
   },
@@ -29,7 +29,7 @@ const slides = [
     topTitle: 'SKKUDING',
     bottomTitle: 'Beta Service',
     sub: "Feel free to contact us if there's any bug",
-    img: '/banners/bug-carousel.png',
+    img: '/banners/bug.png',
     imgAlt: 'Bug',
     href: 'https://pf.kakao.com/_UKraK/chat'
   }

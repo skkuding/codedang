@@ -13,9 +13,9 @@ const bgColors: { [key: string]: string } = {
 }
 
 const icons: { [key: string]: string } = {
-  problem: '/logos/codedang.png',
-  notice: '/logos/notice.png',
-  contest: '/logos/contest.png'
+  problem: '/banners/codedang.png',
+  notice: '/banners/notice.png',
+  contest: '/banners/contest.png'
 }
 
 /**
