@@ -78,6 +78,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   async handleRunMessage(msg: JudgerResponse, userId: number): Promise<void> {
     const status = Status(msg.resultCode)
     const testcaseId = msg.judgeResult?.testcaseId
+    const output = this.parseError(msg, status)
     if (!testcaseId) {
       const key = userTestcasesKey(userId)
       const testcaseIds = (await this.cacheManager.get<number[]>(key)) ?? []
@@ -85,7 +86,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       for (const testcaseId of testcaseIds) {
         await this.cacheManager.set(
           testKey(userId, testcaseId),
-          { id: testcaseId, result: status },
+          { id: testcaseId, result: status, output },
           TEST_SUBMISSION_EXPIRE_TIME
         )
       }
@@ -93,8 +94,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     }
 
     const key = testKey(userId, testcaseId)
-    const output = this.parseError(msg, status)
-
     const testcase = await this.cacheManager.get<{
       id: number
       result: ResultStatus
