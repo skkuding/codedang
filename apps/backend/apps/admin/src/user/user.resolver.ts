@@ -1,4 +1,3 @@
-import { InternalServerErrorException, Logger } from '@nestjs/common'
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { UserGroup } from '@generated'
 import { User } from '@generated'
@@ -10,7 +9,6 @@ import { UserService } from './user.service'
 @Resolver(() => User)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
-  private readonly logger = new Logger(UserResolver.name)
 
   @Query(() => [GroupMember])
   async getGroupMembers(
@@ -72,24 +70,14 @@ export class UserResolver {
     userId: number,
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
   ) {
-    try {
-      return await this.userService.deleteGroupMember(userId, groupId)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.userService.deleteGroupMember(userId, groupId)
   }
 
   @Query(() => [User])
   async getJoinRequests(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
   ) {
-    try {
-      return await this.userService.getJoinRequests(groupId)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.userService.getJoinRequests(groupId)
   }
 
   @Mutation(() => UserGroup)
