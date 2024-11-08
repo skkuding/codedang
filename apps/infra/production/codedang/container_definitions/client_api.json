@@ -77,6 +77,18 @@
     {
       "name": "OTEL_EXPORTER_OTLP_ENDPOINT_URL",
       "value": "${otel_exporter_otlp_endpoint_url}"
+    },
+    {
+      "name": "USERNAME_FOR_LOAD_TEST",
+      "value": "${username_for_load_test}"
+    },
+    {
+      "name": "EMAIL_FOR_LOAD_TEST",
+      "value": "${email_for_load_test}"
+    },
+    {
+      "name": "PIN_FOR_LOAD_TEST",
+      "value": "${pin_for_load_test}"
     }
   ],
   "logConfiguration": {
