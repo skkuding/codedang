@@ -1,11 +1,11 @@
-import { DataTableColumnHeader } from '@/components/DataTableColumnHeader'
+import DataTableColumnHeader from '@/app/admin/_components/table/DataTableColumnHeader'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import type { Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import { toast } from 'sonner'
 
-interface DataTableProblem {
+export interface DataTableProblem {
   id: number
   title: string
   updateTime: string
@@ -13,22 +13,34 @@ interface DataTableProblem {
   submissionCount: number
   acceptedRate: number
   languages: string[]
+  score?: number
+  order?: number
 }
 
+export const DEFAULT_PAGE_SIZE = 5
+export const MAX_SELECTED_ROW_COUNT = 20
+export const ERROR_MESSAGE = `You can only import up to ${MAX_SELECTED_ROW_COUNT} problems in a contest`
 export const columns: ColumnDef<DataTableProblem>[] = [
   {
     accessorKey: 'select',
     header: ({ table }) => (
       <Checkbox
         checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => {
-          const currentPageRows = table.getRowModel().rows
-          const currentSelectedCount = currentPageRows.filter((row) =>
-            row.getIsSelected()
-          ).length
-          table.getSelectedRowModel().rows.length - currentSelectedCount > 15
-            ? toast.error('You can only import up to 20 problems in a contest')
-            : table.toggleAllPageRowsSelected(!!value)
+        onCheckedChange={() => {
+          const currentPageNotSelectedCount = table
+            .getRowModel()
+            .rows.filter((row) => !row.getIsSelected()).length
+          const selectedRowCount = table.getSelectedRowModel().rows.length
+
+          if (
+            selectedRowCount + currentPageNotSelectedCount <=
+            MAX_SELECTED_ROW_COUNT
+          ) {
+            table.toggleAllPageRowsSelected()
+            table.setSorting([{ id: 'select', desc: true }]) // NOTE: force to trigger sortingFn
+          } else {
+            toast.error(ERROR_MESSAGE)
+          }
         }}
         aria-label="Select all"
         className="translate-y-[2px]"

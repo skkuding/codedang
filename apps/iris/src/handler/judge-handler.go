@@ -55,6 +55,7 @@ func (r Request) Validate() (*Request, error) {
 type JudgeResult struct {
 	TestcaseId int             `json:"testcaseId"`
 	ResultCode JudgeResultCode `json:"resultCode"`
+	Output     string          `json:"output"`
 	CpuTime    int             `json:"cpuTime"`
 	RealTime   int             `json:"realTime"`
 	Memory     int             `json:"memory"`
@@ -339,6 +340,7 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 
 	res.TestcaseId = tc.Id
 	res.SetJudgeExecResult(runResult.ExecResult)
+	res.Output = string(runResult.Output)
 
 	if runResult.ExecResult.ResultCode != sandbox.RUN_SUCCESS {
 		res.SetJudgeResultCode(SandboxResultCodeToJudgeResultCode(runResult.ExecResult.ResultCode))

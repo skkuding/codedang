@@ -34,7 +34,8 @@ const judgeResult = {
   memory: 10000000,
   signal: 0,
   exitCode: 0,
-  errorCode: 0
+  errorCode: 0,
+  output: undefined
 }
 
 const msg = {

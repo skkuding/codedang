@@ -79,22 +79,40 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     const key = testKey(userId)
     const status = Status(msg.resultCode)
     const testcaseId = msg.judgeResult?.testcaseId
+    const output = this.parseError(msg, status)
 
     const testcases =
       (await this.cacheManager.get<
         {
           id: number
           result: ResultStatus
+          output?: string
         }[]
       >(key)) ?? []
 
     testcases.forEach((tc) => {
       if (!testcaseId || tc.id === testcaseId) {
         tc.result = status
+        tc.output = output
       }
     })
 
     await this.cacheManager.set(key, testcases, TEST_SUBMISSION_EXPIRE_TIME)
+  }
+
+  parseError(msg: JudgerResponse, status: ResultStatus): string {
+    if (msg.judgeResult?.output) return msg.judgeResult.output
+
+    switch (status) {
+      case ResultStatus.CompileError:
+        return msg.error ?? ''
+      case ResultStatus.SegmentationFaultError:
+        return 'Segmentation Fault'
+      case ResultStatus.RuntimeError:
+        return 'Value Error'
+      default:
+        return ''
+    }
   }
 
   async validateJudgerResponse(msg: object): Promise<JudgerResponse> {

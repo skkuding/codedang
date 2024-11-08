@@ -86,3 +86,28 @@ export const getStatusWithStartEnd = (startTime: string, endTime: string) => {
     return 'ongoing'
   }
 }
+
+/**
+ * Returns the appropriate color class based on the result status.
+ *
+ * @param {string} result - The result status to be evaluated.
+ * @returns {string} The corresponding color class name based on the result status:
+ *   - '!text-green-500' for 'Accepted'.
+ *   - '!text-neutral-400' for 'Judging' or 'Blind' or null or undefined.
+ *   - '!text-red-500' for any other result status.
+ * @see tailwind.config.ts - Refer to the safelist section in the TailwindCSS configuration file.
+ */
+export const getResultColor = (result: string | null | undefined): string => {
+  if (result === 'Accepted') {
+    return '!text-green-500'
+  } else if (
+    result === 'Judging' ||
+    result === 'Blind' ||
+    result === null ||
+    result === undefined
+  ) {
+    return '!text-neutral-400'
+  } else {
+    return '!text-red-500'
+  }
+}
