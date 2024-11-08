@@ -6,8 +6,6 @@ import {
   Req,
   Res,
   UnauthorizedException,
-  InternalServerErrorException,
-  Logger,
   UseGuards
 } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
@@ -18,18 +16,12 @@ import {
   type JwtTokens
 } from '@libs/auth'
 import { REFRESH_TOKEN_COOKIE_OPTIONS } from '@libs/constants'
-import {
-  InvalidJwtTokenException,
-  UnidentifiedException
-} from '@libs/exception'
 import { AuthService } from './auth.service'
 import { LoginUserDto } from './dto/login-user.dto'
 import type { GithubUser, KakaoUser } from './interface/social-user.interface'
 
 @Controller('auth')
 export class AuthController {
-  private readonly logger = new Logger(AuthController.name)
-
   constructor(private readonly authService: AuthService) {}
 
   setJwtResponse = (res: Response, jwtTokens: JwtTokens) => {
@@ -47,16 +39,8 @@ export class AuthController {
     @Body() loginUserDto: LoginUserDto,
     @Res({ passthrough: true }) res: Response
   ) {
-    try {
-      const jwtTokens = await this.authService.issueJwtTokens(loginUserDto)
-      this.setJwtResponse(res, jwtTokens)
-    } catch (error) {
-      if (error instanceof UnidentifiedException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException('Login failed')
-    }
+    const jwtTokens = await this.authService.issueJwtTokens(loginUserDto)
+    this.setJwtResponse(res, jwtTokens)
   }
 
   @Post('logout')
@@ -68,13 +52,9 @@ export class AuthController {
     // FIX ME: refreshToken이 없을 때 에러를 던지는 것이 맞는지 확인
     // 일단은 refreshToken이 없을 때는 무시하도록 함
     if (!refreshToken) return
-    try {
-      await this.authService.deleteRefreshToken(req.user.id, refreshToken)
-      res.clearCookie('refresh_token', REFRESH_TOKEN_COOKIE_OPTIONS)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+
+    await this.authService.deleteRefreshToken(req.user.id, refreshToken)
+    res.clearCookie('refresh_token', REFRESH_TOKEN_COOKIE_OPTIONS)
   }
 
   @AuthNotNeededIfOpenSpace()
@@ -86,16 +66,8 @@ export class AuthController {
     const refreshToken = req.cookies['refresh_token']
     if (!refreshToken) throw new UnauthorizedException('Invalid Token')
 
-    try {
-      const newJwtTokens = await this.authService.updateJwtTokens(refreshToken)
-      this.setJwtResponse(res, newJwtTokens)
-    } catch (error) {
-      if (error instanceof InvalidJwtTokenException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException('Failed to reissue tokens')
-    }
+    const newJwtTokens = await this.authService.updateJwtTokens(refreshToken)
+    this.setJwtResponse(res, newJwtTokens)
   }
 
   @AuthNotNeededIfOpenSpace()
@@ -113,16 +85,8 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @Req() req: Request
   ) {
-    try {
-      const githubUser = req.user as GithubUser
-      return await this.authService.githubLogin(res, githubUser)
-    } catch (error) {
-      if (error instanceof UnidentifiedException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException('Login failed')
-    }
+    const githubUser = req.user as GithubUser
+    return await this.authService.githubLogin(res, githubUser)
   }
 
   /** Kakao Login page로 이동 */
@@ -141,15 +105,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @Req() req: Request
   ) {
-    try {
-      const kakaoUser = req.user as KakaoUser
-      return await this.authService.kakaoLogin(res, kakaoUser)
-    } catch (error) {
-      if (error instanceof UnidentifiedException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException('Login failed')
-    }
+    const kakaoUser = req.user as KakaoUser
+    return await this.authService.kakaoLogin(res, kakaoUser)
   }
 }
