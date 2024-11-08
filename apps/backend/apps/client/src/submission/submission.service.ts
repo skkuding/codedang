@@ -14,7 +14,7 @@ import { AxiosRequestConfig } from 'axios'
 import { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
 import { Span } from 'nestjs-otel'
-import { testKey } from '@libs/cache'
+import { testKey, userTestcasesKey } from '@libs/cache'
 import {
   MIN_DATE,
   OPEN_SPACE_ID,
@@ -375,23 +375,16 @@ export class SubmissionService {
       }
     })
 
-    const testcases: {
-      id: number
-      result: ResultStatus
-    }[] = []
-
-    for (const testcase of rawTestcases) {
-      testcases.push({
-        id: testcase.id,
-        result: 'Judging'
-      })
+    const testcaseIds: number[] = []
+    for (const rawTestcase of rawTestcases) {
+      await this.cacheManager.set(
+        testKey(userId, rawTestcase.id),
+        { id: rawTestcase.id, result: 'Judging' },
+        TEST_SUBMISSION_EXPIRE_TIME
+      )
+      testcaseIds.push(rawTestcase.id)
     }
-
-    await this.cacheManager.set(
-      testKey(userId),
-      testcases,
-      TEST_SUBMISSION_EXPIRE_TIME
-    )
+    await this.cacheManager.set(userTestcasesKey(userId), testcaseIds)
 
     await this.publish.publishJudgeRequestMessage(
       submissionDto.code,
@@ -401,14 +394,23 @@ export class SubmissionService {
   }
 
   async getTestResult(userId: number) {
-    const key = testKey(userId)
-    return await this.cacheManager.get<
-      {
+    const testCasesKey = userTestcasesKey(userId)
+    const testcases =
+      (await this.cacheManager.get<number[]>(testCasesKey)) ?? []
+
+    const results: { id: number; result: ResultStatus; output?: string }[] = []
+    for (const testcaseId of testcases) {
+      const key = testKey(userId, testcaseId)
+      const testcase = await this.cacheManager.get<{
         id: number
         result: ResultStatus
         output?: string
-      }[]
-    >(key)
+      }>(key)
+      if (testcase) {
+        results.push(testcase)
+      }
+    }
+    return results
   }
 
   @Span()

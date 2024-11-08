@@ -10,7 +10,7 @@ import type { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
 import { validateOrReject, ValidationError } from 'class-validator'
 import { Span } from 'nestjs-otel'
-import { testKey } from '@libs/cache'
+import { testKey, userTestcasesKey } from '@libs/cache'
 import {
   CONSUME_CHANNEL,
   EXCHANGE,
@@ -76,28 +76,36 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   }
 
   async handleRunMessage(msg: JudgerResponse, userId: number): Promise<void> {
-    const key = testKey(userId)
     const status = Status(msg.resultCode)
     const testcaseId = msg.judgeResult?.testcaseId
     const output = this.parseError(msg, status)
+    if (!testcaseId) {
+      const key = userTestcasesKey(userId)
+      const testcaseIds = (await this.cacheManager.get<number[]>(key)) ?? []
 
-    const testcases =
-      (await this.cacheManager.get<
-        {
-          id: number
-          result: ResultStatus
-          output?: string
-        }[]
-      >(key)) ?? []
-
-    testcases.forEach((tc) => {
-      if (!testcaseId || tc.id === testcaseId) {
-        tc.result = status
-        tc.output = output
+      for (const testcaseId of testcaseIds) {
+        await this.cacheManager.set(
+          testKey(userId, testcaseId),
+          { id: testcaseId, result: status, output },
+          TEST_SUBMISSION_EXPIRE_TIME
+        )
       }
-    })
+      return
+    }
 
-    await this.cacheManager.set(key, testcases, TEST_SUBMISSION_EXPIRE_TIME)
+    const key = testKey(userId, testcaseId)
+    const testcase = await this.cacheManager.get<{
+      id: number
+      result: ResultStatus
+      output?: string
+    }>(key)
+    if (testcase) {
+      testcase.id = testcaseId
+      testcase.result = status
+      testcase.output = output
+    }
+
+    await this.cacheManager.set(key, testcase, TEST_SUBMISSION_EXPIRE_TIME)
   }
 
   parseError(msg: JudgerResponse, status: ResultStatus): string {
