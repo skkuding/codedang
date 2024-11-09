@@ -4,7 +4,7 @@ import KatexContent from '@/components/KatexContent'
 import { Button } from '@/components/ui/button'
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { dateFormatter } from '@/lib/utils'
-import Period from '@/public/period.svg'
+import periodIcon from '@/public/icons/period.svg'
 import { useQuery } from '@apollo/client'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -47,7 +47,7 @@ export default function Layout({
           Invitation code: {contestData?.invitationCode}
         </p>
         <div className="flex items-center gap-2">
-          <Image src={Period} alt="period" width={22} />
+          <Image src={periodIcon} alt="period" width={22} />
           <p className="font-semibold">
             {dateFormatter(contestData?.startTime, 'YY-MM-DD HH:mm')} ~{' '}
             {dateFormatter(contestData?.endTime, 'YY-MM-DD HH:mm')}

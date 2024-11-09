@@ -1,5 +1,5 @@
 import { Separator } from '@/components/ui/separator'
-import CodedangLogo from '@/public/codedang.svg'
+import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import Image from 'next/image'
 import Link from 'next/link'
 import ClientApolloProvider from './_components/ApolloProvider'
@@ -14,7 +14,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* <GroupSelect /> */}
           <Link href="/" className="ml-6">
             <Image
-              src={CodedangLogo}
+              src={codedangLogo}
               alt="코드당"
               width={135.252}
               height={28}

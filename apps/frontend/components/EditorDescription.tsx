@@ -16,10 +16,10 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog'
 import { convertToLetter } from '@/lib/utils'
-import CopyIcon from '@/public/24_copy.svg'
-import compileIcon from '@/public/compileVersion.svg'
-import copyIcon from '@/public/copy.svg'
-import copyCompleteIcon from '@/public/copyComplete.svg'
+import compileIcon from '@/public/icons/compile-version.svg'
+import copyBlueIcon from '@/public/icons/copy-blue.svg'
+import copyCompleteIcon from '@/public/icons/copy-complete.svg'
+import copyIcon from '@/public/icons/copy.svg'
 import type { ContestProblem, ProblemDetail } from '@/types/type'
 import type { Level } from '@/types/type'
 import { motion } from 'framer-motion'
@@ -145,7 +145,9 @@ export function EditorDescription({
                                   toast('Successfully copied', {
                                     unstyled: true,
                                     closeButton: false,
-                                    icon: <Image src={CopyIcon} alt="copy" />,
+                                    icon: (
+                                      <Image src={copyBlueIcon} alt="copy" />
+                                    ),
                                     style: { backgroundColor: '#f0f8ff' },
                                     classNames: {
                                       toast:
@@ -203,7 +205,9 @@ export function EditorDescription({
                                   toast('Successfully copied', {
                                     unstyled: true,
                                     closeButton: false,
-                                    icon: <Image src={CopyIcon} alt="copy" />,
+                                    icon: (
+                                      <Image src={copyBlueIcon} alt="copy" />
+                                    ),
                                     style: { backgroundColor: '#f0f8ff' },
                                     classNames: {
                                       toast:

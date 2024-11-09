@@ -1,4 +1,4 @@
-import codedangSymbol from '@/public/codedang-editor.svg'
+import codedangSymbol from '@/public/logos/codedang-editor.svg'
 import Image from 'next/image'
 
 export default function LogoSection() {
