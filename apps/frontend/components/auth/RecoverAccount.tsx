@@ -1,6 +1,6 @@
 'use client'
 
-import CodedangLogo from '@/public/codedang.svg'
+import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import useAuthModalStore from '@/stores/authModal'
 import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
 import Image from 'next/image'
@@ -23,7 +23,7 @@ export default function RecoverAccount() {
       </button>
       <Image
         className="absolute top-4"
-        src={CodedangLogo}
+        src={codedangLogo}
         alt="codedang"
         width={100}
       />

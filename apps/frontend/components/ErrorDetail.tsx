@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import ErrorImg from '@/public/error.webp'
+import errorImg from '@/public/logos/error.webp'
 import Image from 'next/image'
 
 interface ErrorDetailProps {
@@ -24,7 +24,7 @@ export default function Error({ errorDetail, error }: ErrorDetailProps) {
         Reload
       </Button>
       <Image
-        src={ErrorImg}
+        src={errorImg}
         alt="Unexpected Error"
         height={240}
         className="mt-8"

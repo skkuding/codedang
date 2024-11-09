@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import ClockIcon from '@/public/20_clock.svg'
+import ClockIcon from '@/public/icons/clock.svg'
 import type { Contest } from '@/types/type'
 import type { ContestStatus } from '@/types/type'
 import dayjs from 'dayjs'

@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import CodedangLogo from '@/public/codedang.svg'
+import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import type { Route } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -14,7 +14,7 @@ export default function UpdateInformation() {
       <div className="flex justify-center pt-4">
         <Image
           className="absolute top-4"
-          src={CodedangLogo}
+          src={codedangLogo}
           alt="codedang"
           width={100}
         />
