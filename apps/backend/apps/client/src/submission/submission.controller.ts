@@ -7,7 +7,8 @@ import {
   Req,
   Query,
   DefaultValuePipe,
-  Headers
+  Headers,
+  ParseIntPipe
 } from '@nestjs/common'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
 import {
@@ -68,12 +69,12 @@ export class SubmissionController {
    */
   @Post('test')
   async submitTest(
-    @Req() req: AuthenticatedRequest,
+    @Query('userId', ParseIntPipe) userId: number, // 로드테스트용
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Body() submissionDto: CreateSubmissionDto
   ) {
     return await this.submissionService.submitTest(
-      req.user.id,
+      userId,
       problemId,
       submissionDto
     )
@@ -84,8 +85,9 @@ export class SubmissionController {
    * @returns Testcase별 결과가 담겨있는 Object
    */
   @Get('test')
-  async getTestResult(@Req() req: AuthenticatedRequest) {
-    return await this.submissionService.getTestResult(req.user.id)
+  async getTestResult(@Query('userId', ParseIntPipe) userId: number) {
+    // 로드테스트용
+    return await this.submissionService.getTestResult(userId)
   }
 
   @Get('delay-cause')
