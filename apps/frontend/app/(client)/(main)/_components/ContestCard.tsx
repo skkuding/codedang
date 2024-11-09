@@ -2,7 +2,7 @@
 
 import ContestStatusTimeDiff from '@/components/ContestStatusTimeDiff'
 import { cn, dateFormatter } from '@/libs/utils'
-import calendarIcon from '@/public/icons/calendar.svg'
+import CalendarIcon from '@/public/20_calendar.svg'
 import type { Contest } from '@/types/type'
 import Image from 'next/image'
 import 'react-circular-progressbar/dist/styles.css'

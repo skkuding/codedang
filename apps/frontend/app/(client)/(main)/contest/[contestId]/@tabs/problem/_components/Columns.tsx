@@ -1,7 +1,7 @@
 'use client'
 
 import { convertToLetter, dateFormatter } from '@/libs/utils'
-import checkIcon from '@/public/icons/check-green.svg'
+import CheckIcon from '@/public/check-green.svg'
 import type { ContestProblem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'

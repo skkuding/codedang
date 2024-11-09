@@ -1,7 +1,7 @@
 import { cn } from '@/libs/utils'
-import finishedIcon from '@/public/icons/finished.svg'
-import ongoingIcon from '@/public/icons/ongoing.svg'
-import upcomingIcon from '@/public/icons/upcoming.svg'
+import FinishedIcon from '@/public/20_finished.svg'
+import OngoingIcon from '@/public/20_ongoing.svg'
+import UpcomingIcon from '@/public/20_upcoming.svg'
 import Image from 'next/image'
 import React from 'react'
 

@@ -24,7 +24,7 @@ import {
 import { baseUrl } from '@/libs/constants'
 import { majors } from '@/libs/constants'
 import { cn } from '@/libs/utils'
-import checkIcon from '@/public/icons/check-white.svg'
+import checkIcon from '@/public/check.svg'
 import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CommandList } from 'cmdk'

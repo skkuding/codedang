@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/select'
 import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
-import submitIcon from '@/public/icons/submit.svg'
+import submitIcon from '@/public/submit.svg'
 import useAuthModalStore from '@/stores/authModal'
 import {
   useLanguageStore,
