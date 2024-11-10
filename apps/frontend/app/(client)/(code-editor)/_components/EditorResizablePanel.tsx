@@ -5,16 +5,16 @@ import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup
-} from '@/components/ui/resizable'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+} from '@/components/shadcn/resizable'
+import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
 import { useLanguageStore, createCodeStore } from '@/stores/editor'
 import type { Language, ProblemDetail, TestResult } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
-import Loading from '../app/(client)/(code-editor)/problem/[problemId]/loading'
+import Loading from '../problem/[problemId]/loading'
 import EditorHeader from './EditorHeader'
 import TestcasePanel from './TestcasePanel'
 

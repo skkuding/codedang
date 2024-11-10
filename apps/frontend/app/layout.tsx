@@ -1,4 +1,4 @@
-import { Toaster } from '@/components/ui/sonner'
+import { Toaster } from '@/components/shadcn/sonner'
 import { metaBaseUrl } from '@/lib/constants'
 import type { Metadata, Viewport } from 'next'
 import { IBM_Plex_Mono } from 'next/font/google'

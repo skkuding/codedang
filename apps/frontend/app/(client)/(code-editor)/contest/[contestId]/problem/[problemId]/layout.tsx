@@ -1,4 +1,4 @@
-import EditorLayout from '@/components/EditorLayout'
+import EditorLayout from '@/app/(client)/(code-editor)/_components/EditorLayout'
 
 export default async function layout({
   params,

@@ -1,9 +1,9 @@
 'use client'
 
-import SortButton from '@/components/SortButton'
-import { Badge } from '@/components/ui/badge'
+import { Badge } from '@/components/shadcn/badge'
 import type { Level, Problem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
+import SortButton from './SortButton'
 
 export const columns: ColumnDef<Problem>[] = [
   {

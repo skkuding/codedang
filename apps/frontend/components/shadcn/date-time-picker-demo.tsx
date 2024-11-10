@@ -1,25 +1,25 @@
 'use client'
 
-import { TimePickerDemo } from '@/components/time-picker-demo'
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
+import { Button } from '@/components/shadcn/button'
+import { Calendar } from '@/components/shadcn/calendar'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger
-} from '@/components/ui/popover'
+} from '@/components/shadcn/popover'
+import { TimePickerDemo } from '@/components/shadcn/time-picker-demo'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { Calendar as CalendarIcon } from 'lucide-react'
 import * as React from 'react'
 
-export function DateTimePickerDemo({
+export const DateTimePickerDemo = ({
   onChange,
   defaultValue
 }: {
   onChange: (date: Date) => void
   defaultValue?: Date
-}) {
+}) => {
   const [date, setDate] = React.useState<Date>()
 
   React.useEffect(() => {

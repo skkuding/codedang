@@ -1,6 +1,6 @@
 import SearchBar from '@/components/SearchBar'
-import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Separator } from '@/components/shadcn/separator'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'

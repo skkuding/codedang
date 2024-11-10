@@ -1,10 +1,10 @@
 'use client'
 
+import { Button } from '@/components/shadcn/button'
 import { cn } from '@/lib/utils'
 import type { Route } from 'next'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { FaSortDown, FaSortUp } from 'react-icons/fa'
-import { Button } from './ui/button'
 
 interface SortButtonProps {
   children: React.ReactNode

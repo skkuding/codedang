@@ -1,7 +1,7 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/components/shadcn/button'
+import { Input } from '@/components/shadcn/input'
 import { cn } from '@/lib/utils'
 // import { Separator } from '@/components/ui/separator'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'

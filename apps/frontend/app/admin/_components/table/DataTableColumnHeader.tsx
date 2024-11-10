@@ -1,10 +1,10 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+} from '@/components/shadcn/dropdown-menu'
 import { cn } from '@/lib/utils'
 import { TriangleDownIcon, TriangleUpIcon } from '@radix-ui/react-icons'
 import type { Column } from '@tanstack/react-table'

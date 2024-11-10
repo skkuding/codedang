@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import { cn } from '@/lib/utils'
 import type { Route } from 'next'
 import Image from 'next/image'

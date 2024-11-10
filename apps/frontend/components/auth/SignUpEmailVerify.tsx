@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/components/shadcn/button'
+import { Input } from '@/components/shadcn/input'
 import { baseUrl } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import useSignUpModalStore from '@/stores/signUpModal'

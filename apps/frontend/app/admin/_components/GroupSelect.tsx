@@ -1,18 +1,18 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandItem,
   CommandList
-} from '@/components/ui/command'
+} from '@/components/shadcn/command'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger
-} from '@/components/ui/popover'
+} from '@/components/shadcn/popover'
 import { cn } from '@/lib/utils'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import * as React from 'react'

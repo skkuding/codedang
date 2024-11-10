@@ -5,7 +5,7 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from '@/components/ui/table'
+} from '@/components/shadcn/table'
 import { cn, getResultColor } from '@/lib/utils'
 import type { TestResultDetail } from '@/types/type'
 import { WhitespaceVisualizer } from './WhitespaceVisualizer'

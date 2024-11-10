@@ -7,14 +7,14 @@ import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { FaSortDown } from 'react-icons/fa'
-import ContestStatusTimeDiff from './ContestStatusTimeDiff'
-import EditorMainResizablePanel from './EditorResizablePanel'
+import ContestStatusTimeDiff from '../../../../components/ContestStatusTimeDiff'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
-} from './ui/dropdown-menu'
+} from '../../../../components/shadcn/dropdown-menu'
+import EditorMainResizablePanel from './EditorResizablePanel'
 
 interface EditorLayoutProps {
   contestId?: number

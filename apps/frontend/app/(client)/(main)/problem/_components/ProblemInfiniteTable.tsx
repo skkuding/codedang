@@ -2,7 +2,7 @@
 
 import DataTable from '@/components/DataTable'
 import SearchBar from '@/components/SearchBar'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
 import type { Problem } from '@/types/type'
 import { useSearchParams } from 'next/navigation'

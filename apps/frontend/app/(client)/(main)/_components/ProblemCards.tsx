@@ -1,6 +1,6 @@
 'use client'
 
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import { fetcher } from '@/lib/utils'
 import type { WorkbookProblem } from '@/types/type'
 import type { Route } from 'next'

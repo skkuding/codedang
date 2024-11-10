@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import {
   Command,
   CommandInput,
@@ -6,13 +6,13 @@ import {
   CommandItem,
   CommandList,
   CommandEmpty
-} from '@/components/ui/command'
+} from '@/components/shadcn/command'
 import {
   Popover,
   PopoverTrigger,
   PopoverContent
-} from '@/components/ui/popover'
-import { ScrollArea } from '@/components/ui/scroll-area'
+} from '@/components/shadcn/popover'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { majors } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import React from 'react'

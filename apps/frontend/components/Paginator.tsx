@@ -4,7 +4,7 @@ import {
   PaginationContent,
   PaginationNext,
   PaginationPrevious
-} from '@/components/ui/pagination'
+} from '@/components/shadcn/pagination'
 
 interface Props {
   page: {
