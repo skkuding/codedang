@@ -183,13 +183,19 @@ export class ContestService {
     return registeredContestRecords.map((obj) => obj.contestId)
   }
 
-  async getRegisteredFinishedContests(
-    cursor: number | null,
-    take: number,
-    groupId: number,
-    userId: number,
+  async getRegisteredFinishedContests({
+    cursor,
+    take,
+    groupId,
+    userId,
+    search
+  }: {
+    cursor: number | null
+    take: number
+    groupId: number
+    userId: number
     search?: string
-  ) {
+  }) {
     const now = new Date()
     const paginator = this.prisma.getPaginator(cursor)
 
@@ -233,13 +239,19 @@ export class ContestService {
     return { data: this.renameToParticipants(contests), total }
   }
 
-  async getFinishedContestsByGroupId(
-    userId: number | null,
-    cursor: number | null,
-    take: number,
-    groupId: number,
+  async getFinishedContestsByGroupId({
+    userId,
+    cursor,
+    take,
+    groupId,
+    search
+  }: {
+    userId: number | null
+    cursor: number | null
+    take: number
+    groupId: number
     search?: string
-  ) {
+  }) {
     const paginator = this.prisma.getPaginator(cursor)
     const now = new Date()
 
@@ -403,12 +415,17 @@ export class ContestService {
     }
   }
 
-  async createContestRecord(
-    contestId: number,
-    userId: number,
-    invitationCode?: string,
+  async createContestRecord({
+    contestId,
+    userId,
+    invitationCode,
     groupId = OPEN_SPACE_ID
-  ) {
+  }: {
+    contestId: number
+    userId: number
+    invitationCode?: string
+    groupId?: number
+  }) {
     const contest = await this.prisma.contest.findUniqueOrThrow({
       where: { id: contestId, groupId },
       select: {

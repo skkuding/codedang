@@ -76,13 +76,13 @@ export class ContestController {
     @Query('search') search?: string
   ) {
     try {
-      return await this.contestService.getFinishedContestsByGroupId(
-        req.user?.id,
+      return await this.contestService.getFinishedContestsByGroupId({
+        userId: req.user?.id,
         cursor,
         take,
         groupId,
         search
-      )
+      })
     } catch (error) {
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -99,13 +99,13 @@ export class ContestController {
     @Query('search') search?: string
   ) {
     try {
-      return await this.contestService.getRegisteredFinishedContests(
+      return await this.contestService.getRegisteredFinishedContests({
         cursor,
         take,
         groupId,
-        req.user.id,
+        userId: req.user.id,
         search
-      )
+      })
     } catch (error) {
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -156,12 +156,12 @@ export class ContestController {
     @Query('invitationCode') invitationCode?: string
   ) {
     try {
-      return await this.contestService.createContestRecord(
+      return await this.contestService.createContestRecord({
         contestId,
-        req.user.id,
+        userId: req.user.id,
         invitationCode,
         groupId
-      )
+      })
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
