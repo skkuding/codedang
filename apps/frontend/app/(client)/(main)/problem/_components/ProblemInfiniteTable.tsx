@@ -1,11 +1,11 @@
 'use client'
 
 import DataTable from '@/components/DataTable'
-import SearchBar from '@/components/SearchBar'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
 import type { Problem } from '@/types/type'
 import { useSearchParams } from 'next/navigation'
+import SearchBar from '../../_components/SearchBar'
 import { columns } from './Columns'
 
 export default function ProblemInfiniteTable() {

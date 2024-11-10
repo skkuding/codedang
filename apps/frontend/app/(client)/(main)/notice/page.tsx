@@ -1,7 +1,7 @@
-import SearchBar from '@/components/SearchBar'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import type { Notice } from '@/types/type'
 import { Suspense } from 'react'
+import SearchBar from '../_components/SearchBar'
 import NoticeTable from './_components/NoticeTable'
 
 interface NoticeProps {
