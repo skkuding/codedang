@@ -13,7 +13,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
-} from '../../../../components/shadcn/dropdown-menu'
+} from '@/components/shadcn/dropdown-menu'
 import EditorMainResizablePanel from './EditorResizablePanel'
 
 interface EditorLayoutProps {
