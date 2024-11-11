@@ -6,7 +6,7 @@ import { RxHamburgerMenu } from 'react-icons/rx'
 
 interface NoticeDetailProps {
   params: {
-    id: string
+    noticeId: string
   }
   searchParams: {
     page: string | undefined
@@ -17,13 +17,14 @@ export default async function NoticeDetail({
   params,
   searchParams
 }: NoticeDetailProps) {
-  const { id } = params
+  const { noticeId } = params
   const { page } = searchParams
   const {
     current: { title, content, createTime, createdBy },
     prev,
     next
-  } = await fetch(baseUrl + `/notice/${id}`).then((res) => res.json())
+  } = await fetch(baseUrl + `/notice/${noticeId}`).then((res) => res.json())
+
   return (
     <article>
       <header className="border-b border-b-gray-200 p-5 py-4">
