@@ -1,6 +1,7 @@
 import HeaderAuthPanel from '@/components/auth/HeaderAuthPanel'
 import { auth } from '@/lib/auth'
-import { convertToLetter, fetcher, fetcherWithAuth } from '@/lib/utils'
+import { cn, convertToLetter, fetcher, fetcherWithAuth } from '@/lib/utils'
+import checkIcon from '@/public/icons/check-green.svg'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import type { Contest, ContestProblem, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
@@ -82,8 +83,24 @@ export default async function EditorLayout({
                         key={p.id}
                         href={`/contest/${contestId}/problem/${p.id}` as Route}
                       >
-                        <DropdownMenuItem className="text-white hover:cursor-pointer focus:bg-slate-800 focus:text-white">
+                        <DropdownMenuItem
+                          className={cn(
+                            'flex justify-between text-white hover:cursor-pointer focus:bg-slate-800 focus:text-white',
+                            problem.id === p.id &&
+                              'text-primary-light focus:text-primary-light'
+                          )}
+                        >
                           {`${convertToLetter(p.order)}. ${p.title}`}
+                          {p.submissionTime && (
+                            <div className="flex items-center justify-center pl-2">
+                              <Image
+                                src={checkIcon}
+                                alt="check"
+                                width={16}
+                                height={16}
+                              />
+                            </div>
+                          )}
                         </DropdownMenuItem>
                       </Link>
                     ))}
