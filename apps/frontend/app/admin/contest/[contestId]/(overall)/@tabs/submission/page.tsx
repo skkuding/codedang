@@ -7,11 +7,11 @@ import {
 export default function Submission({
   params
 }: {
-  params: { constestId: string }
+  params: { contestId: string }
 }) {
   return (
     <Suspense fallback={<SubmissionTableFallback />}>
-      <SubmissionTable contestId={Number(params.constestId)} />
+      <SubmissionTable contestId={Number(params.contestId)} />
     </Suspense>
   )
 }
