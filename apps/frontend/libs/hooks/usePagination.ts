@@ -1,4 +1,4 @@
-import { fetcher, fetcherWithAuth } from '@/lib/utils'
+import { fetcher, fetcherWithAuth } from '@/libs/utils'
 import { useEffect, useState, useRef, useCallback } from 'react'
 
 interface Item {

@@ -2,7 +2,7 @@ import { useSuspenseInfiniteQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useInView } from 'react-intersection-observer'
 import type { URLSearchParams } from 'url'
-import { fetcher, fetcherWithAuth } from './utils'
+import { fetcher, fetcherWithAuth } from '../utils'
 
 interface Item {
   id: number
