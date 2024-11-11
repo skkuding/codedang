@@ -15,9 +15,9 @@ import {
 export default function Page({
   params
 }: {
-  params: { id: string; userId: string }
+  params: { contestId: string; userId: string }
 }) {
-  const contestId = Number(params.id)
+  const contestId = Number(params.contestId)
   const userId = Number(params.userId)
 
   const user = useQuery(GET_GROUP_MEMBER, {

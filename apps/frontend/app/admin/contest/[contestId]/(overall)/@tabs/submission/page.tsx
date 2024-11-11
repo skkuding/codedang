@@ -4,10 +4,14 @@ import {
   SubmissionTableFallback
 } from './_components/SubmissionTable'
 
-export default function Submission({ params }: { params: { id: string } }) {
+export default function Submission({
+  params
+}: {
+  params: { constestId: string }
+}) {
   return (
     <Suspense fallback={<SubmissionTableFallback />}>
-      <SubmissionTable contestId={Number(params.id)} />
+      <SubmissionTable contestId={Number(params.constestId)} />
     </Suspense>
   )
 }
