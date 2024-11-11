@@ -3,6 +3,7 @@
 import { cn, getResultColor } from '@/lib/utils'
 import type { TestResultDetail } from '@/types/type'
 import { useState } from 'react'
+import { CiSquarePlus } from 'react-icons/ci'
 import { IoMdClose } from 'react-icons/io'
 import TestcaseTable from './TestcaseTable'
 import { WhitespaceVisualizer } from './WhitespaceVisualizer'
@@ -26,45 +27,59 @@ export default function TestcasePanel({ testResult }: TestcasePanelProps) {
   const notAcceptedIndexes = dataWithIndex
     .map((testcase, index) => (testcase.result !== 'Accepted' ? index : -1))
     .filter((index) => index !== -1)
-  const tabLength = testcaseTabList.length
 
-  return dataWithIndex.length !== 0 ? (
+  // Add User Testcase Button Click Handler
+  const handleAddUserTestcase = () => {
+    console.log('Add User Testcase clicked')
+    // Here you would add logic to handle adding a new user testcase
+  }
+
+  return (
     <>
       <div className="flex h-12">
         <div
           className={cn(
             'w-44 cursor-pointer content-center text-center',
             currentTab === 0 ? 'bg-[#222939]' : 'bg-[#121728]',
-            tabLength > 0 &&
+            testcaseTabList.length > 0 &&
               currentTab === testcaseTabList[0].id &&
               'rounded-br-xl'
           )}
           onClick={() => setCurrentTab(0)}
         >
-          {tabLength < 7 ? 'Testcase Result' : 'TC Res'}
+          {testcaseTabList.length < 7 ? 'Testcase Result' : 'TC Res'}
         </div>
-        {testcaseTabList.map((testcase, index) => {
-          return (
-            <TestcaseTab
-              testcaseTabList={testcaseTabList}
-              setTestcaseTabList={setTestcaseTabList}
-              currentTab={currentTab}
-              setCurrentTab={setCurrentTab}
-              testcase={testcase}
-              index={index}
-              key={testcase.id}
-            />
-          )
-        })}
+        {testcaseTabList.map((testcase, index) => (
+          <TestcaseTab
+            testcaseTabList={testcaseTabList}
+            setTestcaseTabList={setTestcaseTabList}
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
+            testcase={testcase}
+            index={index}
+            key={testcase.id}
+          />
+        ))}
         <div
           className={cn(
-            'flex-grow border-l border-[#222939] bg-[#121728]',
+            'flex flex-grow border-l border-[#222939] bg-[#121728]',
             currentTab === testcaseTabList[testcaseTabList.length - 1]?.id &&
               'rounded-bl-xl',
-            currentTab === 0 && tabLength === 0 && 'rounded-bl-xl'
+            currentTab === 0 && testcaseTabList.length === 0 && 'rounded-bl-xl'
           )}
-        />
+        >
+          <div className="ml-auto mr-2">
+            <button
+              onClick={handleAddUserTestcase}
+              className="my-2 flex h-8 items-center justify-end gap-1 rounded-[5px] bg-slate-600 px-2 py-2 text-white"
+            >
+              <CiSquarePlus className="mr-2" />
+              Add User Testcase
+            </button>
+          </div>
+        </div>
       </div>
+
       <ScrollArea className="h-full">
         {currentTab === 0 ? (
           <div className="flex flex-col gap-6 p-5 pb-14">
@@ -88,7 +103,7 @@ export default function TestcasePanel({ testResult }: TestcasePanelProps) {
         )}
       </ScrollArea>
     </>
-  ) : null
+  )
 }
 
 function TestcaseTab({
