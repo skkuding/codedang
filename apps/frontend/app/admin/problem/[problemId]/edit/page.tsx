@@ -29,8 +29,8 @@ import VisibleForm from '../../_components/VisibleForm'
 import { editSchema } from '../../_libs/schemas'
 import { validateScoreWeight } from '../../_libs/utils'
 
-export default function Page({ params }: { params: { id: string } }) {
-  const { id } = params
+export default function Page({ params }: { params: { problemId: string } }) {
+  const { problemId } = params
   const shouldSkipWarning = useRef(false)
   const router = useRouter()
 
@@ -52,14 +52,14 @@ export default function Page({ params }: { params: { id: string } }) {
   useQuery(GET_PROBLEM, {
     variables: {
       groupId: 1,
-      id: +id
+      id: Number(problemId)
     },
     onCompleted: (problemData) => {
       const data = problemData.getProblem
 
       if (data.submissionCount > 0) setBlockEdit(true)
 
-      setValue('id', +id)
+      setValue('id', Number(problemId))
       setValue('title', data.title)
       setValue('isVisible', data.isVisible)
       setValue('difficulty', data.difficulty)
@@ -146,7 +146,7 @@ export default function Page({ params }: { params: { id: string } }) {
     <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
         <div className="-ml-8 flex items-center gap-4">
-          <Link href={`/admin/problem/${id}`}>
+          <Link href={`/admin/problem/${problemId}`}>
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
           <span className="text-4xl font-bold">Edit Problem</span>
