@@ -1,4 +1,4 @@
-import DataTable from '@/components/DataTable'
+import DataTable from '@/app/(client)/(main)/_components/DataTable'
 import { fetcherWithAuth } from '@/lib/utils'
 import { getStatusWithStartEnd } from '@/lib/utils'
 import { dateFormatter } from '@/lib/utils'

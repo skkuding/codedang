@@ -1,6 +1,6 @@
 'use client'
 
-import DataTable from '@/components/DataTable'
+import DataTable from '@/app/(client)/(main)/_components/DataTable'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
 import type { Problem } from '@/types/type'
