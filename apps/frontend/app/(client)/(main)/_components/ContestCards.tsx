@@ -1,4 +1,4 @@
-import { fetcher } from '@/lib/utils'
+import { fetcher } from '@/libs/utils'
 import type { Contest } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'

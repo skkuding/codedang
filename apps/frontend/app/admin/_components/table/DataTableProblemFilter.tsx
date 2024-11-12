@@ -13,7 +13,7 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
 import { useEffect, useState } from 'react'
 import { FaCheck, FaChevronDown } from 'react-icons/fa'

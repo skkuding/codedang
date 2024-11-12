@@ -1,7 +1,7 @@
 import SearchBar from '@/components/SearchBar'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
-import { auth } from '@/lib/auth'
+import { auth } from '@/libs/auth'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import ContestCardList from './_components/ContestCardList'

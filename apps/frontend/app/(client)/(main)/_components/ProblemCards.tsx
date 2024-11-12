@@ -1,7 +1,7 @@
 'use client'
 
 import { Skeleton } from '@/components/ui/skeleton'
-import { fetcher } from '@/lib/utils'
+import { fetcher } from '@/libs/utils'
 import type { WorkbookProblem } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'

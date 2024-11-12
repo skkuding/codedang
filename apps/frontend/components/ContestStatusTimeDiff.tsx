@@ -1,6 +1,6 @@
 'use client'
 
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import ClockIcon from '@/public/icons/clock.svg'
 import type { Contest } from '@/types/type'
 import type { ContestStatus } from '@/types/type'

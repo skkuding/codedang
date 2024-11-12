@@ -1,6 +1,6 @@
 'use client'
 
-import { dateFormatter } from '@/lib/utils'
+import { dateFormatter } from '@/libs/utils'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import StatusBadge from '../../_components/StatusBadge'

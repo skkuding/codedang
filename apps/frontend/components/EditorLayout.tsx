@@ -1,6 +1,6 @@
 import HeaderAuthPanel from '@/components/auth/HeaderAuthPanel'
-import { auth } from '@/lib/auth'
-import { convertToLetter, fetcher, fetcherWithAuth } from '@/lib/utils'
+import { auth } from '@/libs/auth'
+import { convertToLetter, fetcher, fetcherWithAuth } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import type { Contest, ContestProblem, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'

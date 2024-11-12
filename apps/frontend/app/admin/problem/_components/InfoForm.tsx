@@ -2,7 +2,7 @@
 
 import CheckboxSelect from '@/components/CheckboxSelect'
 import OptionSelect from '@/components/OptionSelect'
-import { languages, levels } from '@/lib/constants'
+import { languages, levels } from '@/libs/constants'
 import type { Template } from '@generated/graphql'
 import type { Language } from '@generated/graphql'
 import { useEffect } from 'react'

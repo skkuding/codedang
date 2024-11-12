@@ -1,5 +1,5 @@
 import { EditorDescription } from '@/components/EditorDescription'
-import { fetcherWithAuth } from '@/lib/utils'
+import { fetcherWithAuth } from '@/libs/utils'
 import type { ContestProblem, ProblemDetail } from '@/types/type'
 
 export default async function DescriptionPage({

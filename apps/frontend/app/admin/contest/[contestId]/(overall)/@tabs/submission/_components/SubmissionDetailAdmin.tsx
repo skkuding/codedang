@@ -11,7 +11,7 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { GET_SUBMISSION } from '@/graphql/submission/queries'
-import { dateFormatter, getResultColor } from '@/lib/utils'
+import { dateFormatter, getResultColor } from '@/libs/utils'
 import type { Language } from '@/types/type'
 import { useQuery } from '@apollo/client'
 
