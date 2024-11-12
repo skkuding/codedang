@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -62,29 +62,26 @@ export class SubmissionService {
       }
     })
 
-      const results = contestSubmissions.map((c) => {
-        return {
-          title: c.problem.title,
-          studentId: c.user?.studentId ?? 'Unknown',
-          realname: c.user?.userProfile?.realName ?? 'Unknown',
-          username: c.user?.username ?? 'Unknown',
-          result: c.result as ResultStatus,
-          language: c.language as Language,
-          submissionTime: c.createTime,
-          codeSize: c.codeSize ?? null,
-          ip: c.userIp ?? 'Unknown',
-          id: c.id,
-          problemId: c.problemId,
-          order: c.problem.contestProblem.length
-            ? c.problem.contestProblem[0].order
-            : null
-        }
-      })
+    const results = contestSubmissions.map((c) => {
+      return {
+        title: c.problem.title,
+        studentId: c.user?.studentId ?? 'Unknown',
+        realname: c.user?.userProfile?.realName ?? 'Unknown',
+        username: c.user?.username ?? 'Unknown',
+        result: c.result as ResultStatus,
+        language: c.language as Language,
+        submissionTime: c.createTime,
+        codeSize: c.codeSize ?? null,
+        ip: c.userIp ?? 'Unknown',
+        id: c.id,
+        problemId: c.problemId,
+        order: c.problem.contestProblem.length
+          ? c.problem.contestProblem[0].order
+          : null
+      }
+    })
 
-      return results
-    } catch (error) {
-      throw new InternalServerErrorException(error)
-    }
+    return results
   }
 
   async getSubmission(id: number) {
