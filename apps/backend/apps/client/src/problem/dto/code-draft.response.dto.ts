@@ -1,9 +1,9 @@
-import type { CreateTemplateDto } from './create-code-draft.dto'
+import type { JsonValue } from '@prisma/client/runtime/library'
 
 export class CodeDraftResponseDto {
-  userId: string
-  problemId: string
-  template: CreateTemplateDto
-  createTime: string
-  updateTime: string
+  userId: number
+  problemId: number
+  template: JsonValue
+  createTime: Date
+  updateTime: Date
 }
