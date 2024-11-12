@@ -1,16 +1,16 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from '@nestjs/cache-manager'
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException
-} from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Language } from '@generated'
-import type { ContestProblem, Problem, Tag, WorkbookProblem } from '@generated'
-import { Level } from '@generated'
-import type { ProblemWhereInput } from '@generated'
-import { Prisma } from '@prisma/client'
+import {
+  Language,
+  Level,
+  Prisma,
+  type ContestProblem,
+  type Problem,
+  type Tag,
+  type WorkbookProblem
+} from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
 import { Workbook } from 'exceljs'
@@ -23,6 +23,7 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { ProblemWhereInput } from '@admin/@generated'
 import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from './model/problem.constants'
 import type {
@@ -56,10 +57,12 @@ export class ProblemService {
         'A problem should support at least one language'
       )
     }
-    template.forEach((template) => {
-      if (!languages.includes(template.language)) {
+
+    // Check if the problem supports the language in the template
+    template.forEach((template: Template) => {
+      if (!languages.includes(template.language as Language)) {
         throw new UnprocessableDataException(
-          `This problem does not support ${template.language}`
+          `This problem does not support ${template.language as Language}`
         )
       }
     })
@@ -431,9 +434,9 @@ export class ProblemService {
     }
     const supportedLangs = languages ?? problem.languages
     template?.forEach((template) => {
-      if (!supportedLangs.includes(template.language)) {
+      if (!supportedLangs.includes(template.language as Language)) {
         throw new UnprocessableDataException(
-          `This problem does not support ${template.language}`
+          `This problem does not support ${template.language as Language}`
         )
       }
     })
@@ -749,7 +752,7 @@ export class ProblemService {
    * @throws DuplicateFoundException - 이미 존재하는 태그일 경우
    */
   async createTag(tagName: string): Promise<Tag> {
-    // throw error if tag already exists
+    // 존재하는 태그일 경우 에러를 throw합니다
     try {
       return await this.prisma.tag.create({
         data: {
@@ -763,7 +766,7 @@ export class ProblemService {
       )
         throw new DuplicateFoundException('tag')
 
-      throw new InternalServerErrorException(error)
+      throw error
     }
   }
 
