@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import type { Prisma } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { ForbiddenAccessException } from '@libs/exception'
@@ -16,7 +17,52 @@ import { ProblemRepository } from './problem.repository'
 
 @Injectable()
 export class ProblemService {
-  constructor(private readonly problemRepository: ProblemRepository) {}
+  constructor(private readonly prisma: PrismaService) {}
+
+  private readonly problemsSelectOption: Prisma.ProblemSelect = {
+    id: true,
+    title: true,
+    engTitle: true,
+    difficulty: true,
+    acceptedRate: true,
+    submissionCount: true,
+    languages: true
+  }
+
+  private readonly problemSelectOption: Prisma.ProblemSelect = {
+    ...this.problemsSelectOption,
+    description: true,
+    inputDescription: true,
+    outputDescription: true,
+    hint: true,
+    engDescription: true,
+    engInputDescription: true,
+    engOutputDescription: true,
+    engHint: true,
+    timeLimit: true,
+    memoryLimit: true,
+    source: true,
+    acceptedCount: true,
+    template: true,
+    problemTestcase: {
+      where: {
+        isHidden: false
+      },
+      select: {
+        id: true,
+        input: true,
+        output: true
+      }
+    }
+  }
+
+  private readonly codeDraftSelectOption = {
+    userId: true,
+    problemId: true,
+    template: true,
+    createTime: true,
+    updateTime: true
+  }
 
   async getProblems(options: {
     userId: number | null
