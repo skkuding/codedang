@@ -16,7 +16,10 @@ import {
   IDValidationPipe,
   RequiredIntPipe
 } from '@libs/pipe'
-import { CreateSubmissionDto } from './class/create-submission.dto'
+import {
+  CreateSubmissionDto,
+  type CreateUserTestSubmissionDto
+} from './class/create-submission.dto'
 import { SubmissionService } from './submission.service'
 
 @Controller('submission')
@@ -86,6 +89,33 @@ export class SubmissionController {
   @Get('test')
   async getTestResult(@Req() req: AuthenticatedRequest) {
     return await this.submissionService.getTestResult(req.user.id)
+  }
+
+  /**
+   * 유저가 생성한 테스트케이스에 대해 실행을 요청합니다.
+   * 채점 결과는 Cache에 저장됩니다.
+   */
+  @Post('user-test')
+  async submitUserTest(
+    @Req() req: AuthenticatedRequest,
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
+    @Body() userTestSubmissionDto: CreateUserTestSubmissionDto
+  ) {
+    return await this.submissionService.submitTest(
+      req.user.id,
+      problemId,
+      userTestSubmissionDto,
+      true
+    )
+  }
+
+  /**
+   * 유저가 생성한 테스트케이스에 대한 실행 결과를 조회합니다.
+   * @returns Testcase별 결과가 담겨있는 Object
+   */
+  @Get('user-test')
+  async getUserTestResult(@Req() req: AuthenticatedRequest) {
+    return await this.submissionService.getTestResult(req.user.id, true)
   }
 
   @Get('delay-cause')

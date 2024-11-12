@@ -24,10 +24,22 @@ export class JudgeRequest {
 }
 
 export class UserTestcaseJudgeRequest extends JudgeRequest {
-  codes: {
+  userTestcases: {
     id: number
     in: string
     out: string
     hidden: boolean
   }[]
+
+  constructor(
+    code: Snippet[],
+    language: Language,
+    problem: { id: number; timeLimit: number; memoryLimit: number },
+    userTestcases: { id: number; in: string; out: string }[]
+  ) {
+    super(code, language, problem)
+    this.userTestcases = userTestcases.map((tc) => {
+      return { ...tc, hidden: false }
+    })
+  }
 }

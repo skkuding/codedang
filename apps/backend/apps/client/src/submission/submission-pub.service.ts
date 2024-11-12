@@ -6,12 +6,13 @@ import {
   EXCHANGE,
   JUDGE_MESSAGE_TYPE,
   RUN_MESSAGE_TYPE,
-  SUBMISSION_KEY
+  SUBMISSION_KEY,
+  USER_TESTCASE_MESSAGE_TYPE
 } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { Snippet } from './class/create-submission.dto'
-import { JudgeRequest } from './class/judge-request'
+import { JudgeRequest, UserTestcaseJudgeRequest } from './class/judge-request'
 
 @Injectable()
 export class SubmissionPublicationService {
@@ -25,7 +26,9 @@ export class SubmissionPublicationService {
   async publishJudgeRequestMessage(
     code: Snippet[],
     submission: Submission,
-    isTest = false
+    isTest = false, // Open Testcase 채점 여부
+    isUserTest = false, // User Testcase 채점 여부
+    userTestcases?: { id: number; in: string; out: string }[] // User Testcases
   ) {
     const problem = await this.prisma.problem.findUnique({
       where: { id: submission.problemId },
@@ -40,17 +43,29 @@ export class SubmissionPublicationService {
       throw new EntityNotExistException('problem')
     }
 
-    const judgeRequest = new JudgeRequest(code, submission.language, problem)
+    const judgeRequest = isUserTest
+      ? new UserTestcaseJudgeRequest(
+          code,
+          submission.language,
+          problem,
+          userTestcases!
+        )
+      : new JudgeRequest(code, submission.language, problem)
 
     const span = this.traceService.startSpan(
       'publishJudgeRequestMessage.publish'
     )
     span.setAttributes({ submissionId: submission.id })
 
+    console.log('pubpub', judgeRequest)
     await this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
       messageId: String(submission.id),
       persistent: true,
-      type: isTest ? RUN_MESSAGE_TYPE : JUDGE_MESSAGE_TYPE
+      type: isTest
+        ? RUN_MESSAGE_TYPE
+        : isUserTest
+          ? USER_TESTCASE_MESSAGE_TYPE
+          : JUDGE_MESSAGE_TYPE
     })
     span.end()
   }
