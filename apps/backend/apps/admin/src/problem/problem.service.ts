@@ -67,54 +67,38 @@ export class ProblemService {
       }
     })
 
-    try {
-      const problem = await this.prisma.problem.create({
-        data: {
-          ...data,
-          visibleLockTime: isVisible ? MIN_DATE : MAX_DATE,
-          groupId,
-          createdById: userId,
-          languages,
-          template: [JSON.stringify(template)],
-          problemTag: {
-            create: tagIds.map((tagId) => {
-              return { tagId }
-            })
-          }
+    const problem = await this.prisma.problem.create({
+      data: {
+        ...data,
+        visibleLockTime: isVisible ? MIN_DATE : MAX_DATE,
+        groupId,
+        createdById: userId,
+        languages,
+        template: [JSON.stringify(template)],
+        problemTag: {
+          create: tagIds.map((tagId) => {
+            return { tagId }
+          })
         }
-      })
-      await this.createTestcases(problem.id, testcases)
-      return this.changeVisibleLockTimeToIsVisible(problem)
-    } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      ) {
-        throw new DuplicateFoundException('problem')
       }
-      throw new InternalServerErrorException(error)
-    }
+    })
+    await this.createTestcases(problem.id, testcases)
+    return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
   async createTestcases(problemId: number, testcases: Array<Testcase>) {
     await Promise.all(
       testcases.map(async (tc, index) => {
-        try {
-          const problemTestcase = await this.prisma.problemTestcase.create({
-            data: {
-              problemId,
-              input: tc.input,
-              output: tc.output,
-              scoreWeight: tc.scoreWeight,
-              isHidden: tc.isHidden
-            }
-          })
-          return { index, id: problemTestcase.id }
-        } catch (error) {
-          throw new InternalServerErrorException(
-            error.message + ` at testcase ${index + 1}`
-          )
-        }
+        const problemTestcase = await this.prisma.problemTestcase.create({
+          data: {
+            problemId,
+            input: tc.input,
+            output: tc.output,
+            scoreWeight: tc.scoreWeight,
+            isHidden: tc.isHidden
+          }
+        })
+        return { index, id: problemTestcase.id }
       })
     )
   }
@@ -360,63 +344,45 @@ export class ProblemService {
       whereOptions.languages = { hasSome: input.languages }
     }
 
-    try {
-      const problems: Problem[] = await this.prisma.problem.findMany({
-        ...paginator,
-        where: {
-          ...whereOptions,
-          groupId
-        },
-        take
-      })
-      return this.changeVisibleLockTimeToIsVisible(problems)
-    } catch (error) {
-      throw new InternalServerErrorException(error)
-    }
+    const problems: Problem[] = await this.prisma.problem.findMany({
+      ...paginator,
+      where: {
+        ...whereOptions,
+        groupId
+      },
+      take
+    })
+    return this.changeVisibleLockTimeToIsVisible(problems)
   }
 
   async getProblem(id: number, groupId: number) {
-    const problem = await this.prisma.problem.findFirst({
+    const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
         id,
         groupId
       }
     })
-
-    if (!problem) {
-      throw new EntityNotExistException('problem')
-    }
-
     return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
   async getProblemById(id: number) {
-    const problem = await this.prisma.problem.findFirst({
+    const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
         id
       }
     })
-
-    if (!problem) {
-      throw new EntityNotExistException('problem')
-    }
-
     return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
     const { id, languages, template, tags, testcases, isVisible, ...data } =
       input
-    const problem = await this.prisma.problem.findFirst({
+    const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
         id,
         groupId
       }
     })
-
-    if (!problem) {
-      throw new EntityNotExistException('problem')
-    }
 
     if (languages && !languages.length) {
       throw new UnprocessableDataException(
@@ -460,33 +426,21 @@ export class ProblemService {
       await this.updateTestcases(id, testcases)
     }
 
-    try {
-      const updatedProblem = await this.prisma.problem.update({
-        where: { id },
-        data: {
-          ...data,
-          ...(isVisible != undefined && {
-            visibleLockTime: isVisible ? MIN_DATE : MAX_DATE
-          }),
-          ...(languages && { languages }),
-          ...(template && { template: [JSON.stringify(template)] }),
-          problemTag
-        }
-      })
-      return this.changeVisibleLockTimeToIsVisible(updatedProblem)
-    } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      ) {
-        throw new UnprocessableDataException(error.message)
+    const updatedProblem = await this.prisma.problem.update({
+      where: { id },
+      data: {
+        ...data,
+        ...(isVisible != undefined && {
+          visibleLockTime: isVisible ? MIN_DATE : MAX_DATE
+        }),
+        ...(languages && { languages }),
+        ...(template && { template: [JSON.stringify(template)] }),
+        problemTag
       }
-    }
+    })
+    return this.changeVisibleLockTimeToIsVisible(updatedProblem)
   }
 
-  /**
-   * problemId에 해당하는 problem의 tag의 중복을 확인하고, prisma에 넣을 수 있도록 수정합니다.
-   */
   async updateProblemTag(
     problemId: number,
     problemTags: UpdateProblemTagInput
@@ -505,18 +459,13 @@ export class ProblemService {
     })
 
     const deleteIds = problemTags.delete.map(async (tagId) => {
-      const check = await this.prisma.problemTag.findFirst({
+      const check = await this.prisma.problemTag.findFirstOrThrow({
         where: {
           tagId,
           problemId
         },
         select: { id: true }
       })
-
-      if (!check) {
-        throw new EntityNotExistException(`${tagId} tag`)
-      }
-
       return { id: check.id }
     })
 
@@ -527,57 +476,45 @@ export class ProblemService {
   }
 
   async updateTestcases(problemId: number, testcases: Array<Testcase>) {
-    try {
-      await Promise.all([
-        this.prisma.problemTestcase.deleteMany({
-          where: {
-            problemId
-          }
-        })
-      ])
+    await Promise.all([
+      this.prisma.problemTestcase.deleteMany({
+        where: {
+          problemId
+        }
+      })
+    ])
 
-      for (const tc of testcases) {
-        await this.prisma.problemTestcase.create({
-          data: {
-            problemId,
-            input: tc.input,
-            output: tc.output,
-            scoreWeight: tc.scoreWeight,
-            isHidden: tc.isHidden
-          }
-        })
-      }
-    } catch (error) {
-      throw new InternalServerErrorException(error)
+    for (const tc of testcases) {
+      await this.prisma.problemTestcase.create({
+        data: {
+          problemId,
+          input: tc.input,
+          output: tc.output,
+          scoreWeight: tc.scoreWeight,
+          isHidden: tc.isHidden
+        }
+      })
     }
   }
 
   async deleteProblem(id: number, groupId: number) {
-    const problem = await this.prisma.problem.findFirst({
+    const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
         id,
         groupId
       }
     })
 
-    if (!problem) {
-      throw new EntityNotExistException('problem')
-    }
-
     // Problem description에 이미지가 포함되어 있다면 삭제
     const uuidImageFileNames = this.extractUUIDs(problem.description)
     if (uuidImageFileNames) {
-      try {
-        await this.prisma.image.deleteMany({
-          where: {
-            filename: {
-              in: uuidImageFileNames
-            }
+      await this.prisma.image.deleteMany({
+        where: {
+          filename: {
+            in: uuidImageFileNames
           }
-        })
-      } catch (error) {
-        throw new InternalServerErrorException(error)
-      }
+        }
+      })
 
       const deleteFromS3Results = uuidImageFileNames.map((filename: string) => {
         return this.storageService.deleteImage(filename)
@@ -586,15 +523,9 @@ export class ProblemService {
       await Promise.all(deleteFromS3Results)
     }
 
-    try {
-      await this.prisma.problem.delete({
-        where: {
-          id
-        }
-      })
-    } catch (error) {
-      throw new InternalServerErrorException(error)
-    }
+    return await this.prisma.problem.delete({
+      where: { id }
+    })
   }
 
   extractUUIDs(input: string) {
@@ -613,22 +544,14 @@ export class ProblemService {
   ): Promise<Partial<WorkbookProblem>[]> {
     // id를 받은 workbook이 현재 접속된 group의 것인지 확인
     // 아니면 에러 throw
-    const workbook = await this.prisma.workbook.findFirst({
+    await this.prisma.workbook.findFirstOrThrow({
       where: { id: workbookId, groupId }
     })
+    const workbookProblems = await this.prisma.workbookProblem.findMany({
+      where: { workbookId }
+    })
 
-    if (!workbook) {
-      throw new EntityNotExistException('workbook')
-    }
-
-    try {
-      const workbookProblems = await this.prisma.workbookProblem.findMany({
-        where: { workbookId }
-      })
-      return workbookProblems
-    } catch (error) {
-      throw new InternalServerErrorException(error)
-    }
+    return workbookProblems
   }
 
   async updateWorkbookProblemsOrder(
@@ -638,68 +561,49 @@ export class ProblemService {
     orders: number[]
   ): Promise<Partial<WorkbookProblem>[]> {
     // id를 받은 workbook이 현재 접속된 group의 것인지 확인
-    const workbook = await this.prisma.workbook.findFirst({
+    await this.prisma.workbook.findFirstOrThrow({
       where: { id: workbookId, groupId }
     })
-
-    if (!workbook) {
-      throw new EntityNotExistException('workbook')
-    }
-
-    try {
-      // workbookId를 가지고 있는 workbookProblem을 모두 가져옴
-      const workbookProblemsToBeUpdated =
-        await this.prisma.workbookProblem.findMany({
-          where: { workbookId }
-        })
-      // orders 길이와  찾은 workbookProblem 길이가 같은지 확인
-      if (orders.length !== workbookProblemsToBeUpdated.length) {
-        throw new UnprocessableDataException(
-          'the len of orders and the len of workbookProblem are not equal.'
-        )
-      }
-      //problemId 기준으로 오름차순 정렬
-      workbookProblemsToBeUpdated.sort((a, b) => a.problemId - b.problemId)
-      const queries = workbookProblemsToBeUpdated.map((record) => {
-        const newOrder = orders.indexOf(record.problemId) + 1
-        return this.prisma.workbookProblem.update({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            workbookId_problemId: {
-              workbookId,
-              problemId: record.problemId
-            }
-          },
-          data: { order: newOrder }
-        })
+    // workbookId를 가지고 있는 workbookProblem을 모두 가져옴
+    const workbookProblemsToBeUpdated =
+      await this.prisma.workbookProblem.findMany({
+        where: { workbookId }
       })
-
-      return await this.prisma.$transaction(queries)
-    } catch (error) {
-      throw new InternalServerErrorException(error)
+    // orders 길이와  찾은 workbookProblem 길이가 같은지 확인
+    if (orders.length !== workbookProblemsToBeUpdated.length) {
+      throw new UnprocessableDataException(
+        'the len of orders and the len of workbookProblem are not equal.'
+      )
     }
+    //problemId 기준으로 오름차순 정렬
+    workbookProblemsToBeUpdated.sort((a, b) => a.problemId - b.problemId)
+    const queries = workbookProblemsToBeUpdated.map((record) => {
+      const newOrder = orders.indexOf(record.problemId) + 1
+      return this.prisma.workbookProblem.update({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          workbookId_problemId: {
+            workbookId,
+            problemId: record.problemId
+          }
+        },
+        data: { order: newOrder }
+      })
+    })
+    return await this.prisma.$transaction(queries)
   }
 
   async getContestProblems(
     groupId: number,
     contestId: number
   ): Promise<Partial<ContestProblem>[]> {
-    await this.prisma.contest.findFirst({
+    await this.prisma.contest.findFirstOrThrow({
       where: { id: contestId, groupId }
     })
-
-    if (!contestId) {
-      throw new EntityNotExistException('contest')
-    }
-
-    try {
-      const contestProblems = await this.prisma.contestProblem.findMany({
-        where: { contestId }
-      })
-      return contestProblems
-    } catch (error) {
-      throw new InternalServerErrorException(error)
-    }
+    const contestProblems = await this.prisma.contestProblem.findMany({
+      where: { contestId }
+    })
+    return contestProblems
   }
 
   async updateContestProblemsOrder(
@@ -707,42 +611,35 @@ export class ProblemService {
     contestId: number,
     orders: number[]
   ): Promise<Partial<ContestProblem>[]> {
-    await this.prisma.contest.findFirst({
+    await this.prisma.contest.findFirstOrThrow({
       where: { id: contestId, groupId }
     })
 
-    if (!contestId) {
-      throw new EntityNotExistException('contest')
+    const contestProblems = await this.prisma.contestProblem.findMany({
+      where: { contestId }
+    })
+
+    if (orders.length !== contestProblems.length) {
+      throw new UnprocessableDataException(
+        'the length of orders and the length of contestProblem are not equal.'
+      )
     }
 
-    try {
-      const contestProblems = await this.prisma.contestProblem.findMany({
-        where: { contestId }
+    const queries = contestProblems.map((record) => {
+      const newOrder = orders.indexOf(record.problemId)
+      return this.prisma.contestProblem.update({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_problemId: {
+            contestId,
+            problemId: record.problemId
+          }
+        },
+        data: { order: newOrder }
       })
+    })
 
-      if (orders.length !== contestProblems.length) {
-        throw new UnprocessableDataException(
-          'the length of orders and the length of contestProblem are not equal.'
-        )
-      }
-
-      const queries = contestProblems.map((record) => {
-        const newOrder = orders.indexOf(record.problemId)
-        return this.prisma.contestProblem.update({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            contestId_problemId: {
-              contestId,
-              problemId: record.problemId
-            }
-          },
-          data: { order: newOrder }
-        })
-      })
-      return await this.prisma.$transaction(queries)
-    } catch (error) {
-      throw new InternalServerErrorException(error)
-    }
+    return await this.prisma.$transaction(queries)
   }
 
   /**
@@ -786,11 +683,7 @@ export class ProblemService {
     })
   }
   async getTags(): Promise<Partial<Tag>[]> {
-    try {
-      return await this.prisma.tag.findMany()
-    } catch (error) {
-      throw new InternalServerErrorException(error)
-    }
+    return await this.prisma.tag.findMany()
   }
 
   async getTag(tagId: number) {
@@ -806,27 +699,19 @@ export class ProblemService {
   }
 
   async getProblemTags(problemId: number) {
-    try {
-      return await this.prisma.problemTag.findMany({
-        where: {
-          problemId
-        }
-      })
-    } catch (error) {
-      throw new InternalServerErrorException(error)
-    }
+    return await this.prisma.problemTag.findMany({
+      where: {
+        problemId
+      }
+    })
   }
 
   async getProblemTestcases(problemId: number) {
-    try {
-      return await this.prisma.problemTestcase.findMany({
-        where: {
-          problemId
-        }
-      })
-    } catch (error) {
-      throw new InternalServerErrorException(error)
-    }
+    return await this.prisma.problemTestcase.findMany({
+      where: {
+        problemId
+      }
+    })
   }
 
   changeVisibleLockTimeToIsVisible(
