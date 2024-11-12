@@ -53,7 +53,7 @@ import {
 import TimeForm from '../../_components/TimeForm'
 import { type ContestProblem, editSchema } from '../../_libs/schemas'
 
-export default function Page({ params }: { params: { id: string } }) {
+export default function Page({ params }: { params: { contestId: string } }) {
   const [prevProblemIds, setPrevProblemIds] = useState<number[]>([])
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -63,7 +63,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [showInvitationCode, setShowInvitationCode] = useState<boolean>(false)
   const [showImportDialog, setShowImportDialog] = useState<boolean>(false)
   const [hasSubmission, setHasSubmission] = useState<boolean>(false)
-  const { id } = params
+  const { contestId } = params
 
   const shouldSkipWarning = useRef(false)
   const router = useRouter()
@@ -83,7 +83,7 @@ export default function Page({ params }: { params: { id: string } }) {
   useQuery(GET_CONTEST_SUBMISSIONS_COUNT, {
     variables: {
       input: {
-        contestId: Number(id)
+        contestId: Number(contestId)
       },
       take: 2
     },
@@ -95,9 +95,9 @@ export default function Page({ params }: { params: { id: string } }) {
   })
 
   useQuery(GET_CONTEST, {
-    variables: { contestId: Number(id) },
+    variables: { contestId: Number(contestId) },
     onCompleted: (contestData) => {
-      setValue('id', Number(id))
+      setValue('id', Number(contestId))
       const data = contestData.getContest
       setValue('title', data.title)
       setValue('description', data.description)
@@ -120,7 +120,7 @@ export default function Page({ params }: { params: { id: string } }) {
   })
 
   useQuery(GET_CONTEST_PROBLEMS, {
-    variables: { groupId: 1, contestId: Number(id) },
+    variables: { groupId: 1, contestId: Number(contestId) },
     onCompleted: (problemData) => {
       const data = problemData.getContestProblems
 
@@ -174,14 +174,14 @@ export default function Page({ params }: { params: { id: string } }) {
       await removeProblemsFromContest({
         variables: {
           groupId: 1,
-          contestId: Number(id),
+          contestId: Number(contestId),
           problemIds: prevProblemIds
         }
       })
       await importProblemsToContest({
         variables: {
           groupId: 1,
-          contestId: Number(id),
+          contestId: Number(contestId),
           problemIdsWithScore: problems.map((problem) => {
             return {
               problemId: problem.id,
@@ -196,7 +196,7 @@ export default function Page({ params }: { params: { id: string } }) {
       await updateContestProblemsOrder({
         variables: {
           groupId: 1,
-          contestId: Number(id),
+          contestId: Number(contestId),
           orders: orderArray
         }
       })
