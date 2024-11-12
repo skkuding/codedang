@@ -13,6 +13,11 @@ interface TestcasePanelProps {
   testResult: TestResultDetail[]
 }
 
+function handleClick() {
+  console.log('You have cliked the button!!')
+}
+//shadcn dialog trigger dialog content check
+
 export default function TestcasePanel({ testResult }: TestcasePanelProps) {
   const [testcaseTabList, setTestcaseTabList] = useState<TestResultDetail[]>([])
   const [currentTab, setCurrentTab] = useState<number>(0)
@@ -27,12 +32,6 @@ export default function TestcasePanel({ testResult }: TestcasePanelProps) {
   const notAcceptedIndexes = dataWithIndex
     .map((testcase, index) => (testcase.result !== 'Accepted' ? index : -1))
     .filter((index) => index !== -1)
-
-  // Add User Testcase Button Click Handler
-  const handleAddUserTestcase = () => {
-    console.log('Add User Testcase clicked')
-    // Here you would add logic to handle adding a new user testcase
-  }
 
   return (
     <>
@@ -49,17 +48,7 @@ export default function TestcasePanel({ testResult }: TestcasePanelProps) {
         >
           {testcaseTabList.length < 7 ? 'Testcase Result' : 'TC Res'}
         </div>
-        {testcaseTabList.map((testcase, index) => (
-          <TestcaseTab
-            testcaseTabList={testcaseTabList}
-            setTestcaseTabList={setTestcaseTabList}
-            currentTab={currentTab}
-            setCurrentTab={setCurrentTab}
-            testcase={testcase}
-            index={index}
-            key={testcase.id}
-          />
-        ))}
+
         <div
           className={cn(
             'flex flex-grow border-l border-[#222939] bg-[#121728]',
@@ -68,9 +57,29 @@ export default function TestcasePanel({ testResult }: TestcasePanelProps) {
             currentTab === 0 && testcaseTabList.length === 0 && 'rounded-bl-xl'
           )}
         >
+          <div
+            className="w-[412px]" /*이렇게 roughf하게 잡는게 좋은 방법인가?*/
+          >
+            <ScrollArea className="w-full">
+              <div className="flex h-12 flex-row overflow-x-scroll">
+                {testcaseTabList.map((testcase, index) => (
+                  <TestcaseTab
+                    testcaseTabList={testcaseTabList}
+                    setTestcaseTabList={setTestcaseTabList}
+                    currentTab={currentTab}
+                    setCurrentTab={setCurrentTab}
+                    testcase={testcase}
+                    index={index}
+                    key={testcase.id}
+                  />
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+
           <div className="ml-auto mr-2">
             <button
-              onClick={handleAddUserTestcase}
+              onClick={handleClick}
               className="my-2 flex h-8 items-center justify-end gap-1 rounded-[5px] bg-slate-600 px-2 py-2 text-white"
             >
               <CiSquarePlus className="mr-2" />
