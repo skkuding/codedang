@@ -14,7 +14,7 @@ import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
-import Loading from '../app/problem/[problemId]/loading'
+import Loading from '../app/(client)/(code-editor)/problem/[problemId]/loading'
 import EditorHeader from './EditorHeader'
 import TestcasePanel from './TestcasePanel'
 

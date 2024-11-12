@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 // import { Separator } from '@/components/ui/separator'
-import CodedangLogo from '@/public/codedang.svg'
+import codedangLogo from '@/public/logos/codedang-with-text.svg'
 // import KakaotalkLogo from '@/public/kakaotalk.svg'
 import useAuthModalStore from '@/stores/authModal'
 import { signIn } from 'next-auth/react'
@@ -60,7 +60,7 @@ export default function SignIn() {
       <div className="flex justify-center pt-4">
         <Image
           className="absolute top-4"
-          src={CodedangLogo}
+          src={codedangLogo}
           alt="codedang"
           width={100}
         />
