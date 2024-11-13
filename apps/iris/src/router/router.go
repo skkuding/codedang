@@ -41,6 +41,7 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte) {
 	case Judge:
 		go r.judgeHandler.Handle(id, data, true, judgeChan)
 	case UserTestCase:
+		go r.judgeHandler.Handle(id, data, false, judgeChan)
 	case Run:
 		go r.judgeHandler.Handle(id, data, false, judgeChan)
 	case SpecialJudge:
