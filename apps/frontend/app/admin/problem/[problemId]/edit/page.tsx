@@ -28,6 +28,7 @@ import TestcaseField from '../../_components/TestcaseField'
 import VisibleForm from '../../_components/VisibleForm'
 import { editSchema } from '../../_libs/schemas'
 import { validateScoreWeight } from '../../_libs/utils'
+import { ScoreCautionDialog } from './_components/ScoreCautionDialog'
 
 export default function Page({ params }: { params: { problemId: string } }) {
   const { problemId } = params
@@ -43,11 +44,16 @@ export default function Page({ params }: { params: { problemId: string } }) {
 
   const { handleSubmit, setValue, getValues } = methods
 
-  const [blockEdit, setBlockEdit] = useState<boolean>(false)
   const [showHint, setShowHint] = useState<boolean>(false)
   const [showSource, setShowSource] = useState<boolean>(false)
   const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
   const [dialogDescription, setDialogDescription] = useState<string>('')
+  const [isScoreDialogOpen, setIsScoreDialogOpen] = useState<boolean>(false)
+  const [initialValues, setInitialValues] = useState<{
+    testcases: Testcase[]
+    timeLimit: number
+    memoryLimit: number
+  } | null>(null)
 
   useQuery(GET_PROBLEM, {
     variables: {
@@ -57,7 +63,12 @@ export default function Page({ params }: { params: { problemId: string } }) {
     onCompleted: (problemData) => {
       const data = problemData.getProblem
 
-      if (data.submissionCount > 0) setBlockEdit(true)
+      const initialFormValues = {
+        testcases: data.testcase,
+        timeLimit: data.timeLimit,
+        memoryLimit: data.memoryLimit
+      }
+      setInitialValues(initialFormValues)
 
       setValue('id', Number(problemId))
       setValue('title', data.title)
@@ -117,14 +128,27 @@ export default function Page({ params }: { params: { problemId: string } }) {
       setDialogOpen(true)
       return
     }
-    const tagsToDelete = getValues('tags.delete')
-    const tagsToCreate = getValues('tags.create')
-    input.tags!.create = tagsToCreate.filter(
-      (tag) => !tagsToDelete.includes(tag)
-    )
-    input.tags!.delete = tagsToDelete.filter(
-      (tag) => !tagsToCreate.includes(tag)
-    )
+
+    if (initialValues) {
+      const currentValues = getValues()
+      let scoreCalculationChanged = false
+
+      if (
+        JSON.stringify(currentValues.testcases) !==
+        JSON.stringify(initialValues.testcases)
+      ) {
+        scoreCalculationChanged = true
+      } else if (currentValues.timeLimit !== initialValues.timeLimit) {
+        scoreCalculationChanged = true
+      } else if (currentValues.memoryLimit !== initialValues.memoryLimit) {
+        scoreCalculationChanged = true
+      }
+
+      if (scoreCalculationChanged) {
+        setIsScoreDialogOpen(true)
+        return
+      }
+    }
 
     await updateProblem({
       variables: {
@@ -195,10 +219,10 @@ export default function Page({ params }: { params: { problemId: string } }) {
               </div>
             </div>
 
-            {getValues('testcases') && <TestcaseField blockEdit={blockEdit} />}
+            {getValues('testcases') && <TestcaseField blockEdit={false} />}
 
             <FormSection title="Limit">
-              <LimitForm blockEdit={blockEdit} />
+              <LimitForm blockEdit={false} />
             </FormSection>
             <TemplateField />
             <SwitchField
@@ -231,6 +255,11 @@ export default function Page({ params }: { params: { problemId: string } }) {
         isOpen={isDialogOpen}
         onClose={() => setDialogOpen(false)}
         description={dialogDescription}
+      />
+      <ScoreCautionDialog
+        isOpen={isScoreDialogOpen}
+        onClose={() => setIsScoreDialogOpen(false)}
+        problemId={Number(problemId)}
       />
     </ScrollArea>
   )
