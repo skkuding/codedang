@@ -32,6 +32,9 @@ export class ProblemController {
     private readonly workbookProblemService: WorkbookProblemService
   ) {}
 
+  /**
+   * Get problems either of a group or a workbook.
+   */
   @Get()
   @UserNullWhenAuthFailedIfOpenSpace()
   async getProblems(

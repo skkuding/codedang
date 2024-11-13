@@ -23,6 +23,12 @@ import { SubmissionService } from './submission.service'
 export class SubmissionController {
   constructor(private readonly submissionService: SubmissionService) {}
 
+  /**
+   * 아직 채점되지 않은 제출 기록을 만들고, 채점 서버에 채점 요청을 보냅니다.
+   * 세 가지 제출 유형(일반 문제, 대회 문제, Workbook 문제)에 대해 제출할 수 있습니다.
+   * createSubmission은 제출 유형에 따라 다른 서비스 메소드를 호출합니다.
+   * @returns 아직 채점되지 않은 제출 기록
+   */
   @Post()
   async createSubmission(
     @Req() req: AuthenticatedRequest,
