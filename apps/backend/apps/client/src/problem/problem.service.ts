@@ -81,13 +81,19 @@ export class ContestProblemService {
     private readonly contestService: ContestService
   ) {}
 
-  async getContestProblems(
-    contestId: number,
-    userId: number,
-    cursor: number | null,
-    take: number,
+  async getContestProblems({
+    contestId,
+    userId,
+    cursor,
+    take,
     groupId = OPEN_SPACE_ID
-  ) {
+  }: {
+    contestId: number
+    userId: number
+    cursor: number | null
+    take: number
+    groupId: number
+  }) {
     const contest = await this.contestService.getContest(
       contestId,
       groupId,
@@ -158,12 +164,17 @@ export class ContestProblemService {
     })
   }
 
-  async getContestProblem(
-    contestId: number,
-    problemId: number,
-    userId: number,
+  async getContestProblem({
+    contestId,
+    problemId,
+    userId,
     groupId = OPEN_SPACE_ID
-  ) {
+  }: {
+    contestId: number
+    problemId: number
+    userId: number
+    groupId: number
+  }) {
     const contest = await this.contestService.getContest(
       contestId,
       groupId,
@@ -193,12 +204,17 @@ export class WorkbookProblemService {
     private readonly workbookService: WorkbookService
   ) {}
 
-  async getWorkbookProblems(
-    workbookId: number,
-    cursor: number | null,
-    take: number,
+  async getWorkbookProblems({
+    workbookId,
+    cursor,
+    take,
     groupId = OPEN_SPACE_ID
-  ) {
+  }: {
+    workbookId: number
+    cursor: number | null
+    take: number
+    groupId: number
+  }) {
     const isVisible = await this.workbookService.isVisible(workbookId, groupId)
     if (!isVisible) {
       throw new ForbiddenAccessException(

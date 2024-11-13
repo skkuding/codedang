@@ -68,12 +68,12 @@ export class SubmissionService {
     if (!problem) {
       throw new EntityNotExistException('Problem')
     }
-    const submission = await this.createSubmission(
+    const submission = await this.createSubmission({
       submissionDto,
       problem,
       userId,
       userIp
-    )
+    })
 
     if (submission) {
       this.logger.log(
@@ -84,14 +84,21 @@ export class SubmissionService {
   }
 
   @Span()
-  async submitToContest(
-    submissionDto: CreateSubmissionDto,
-    userIp: string,
-    userId: number,
-    problemId: number,
-    contestId: number,
+  async submitToContest({
+    submissionDto,
+    userIp,
+    userId,
+    problemId,
+    contestId,
     groupId = OPEN_SPACE_ID
-  ) {
+  }: {
+    submissionDto: CreateSubmissionDto
+    userIp: string
+    userId: number
+    problemId: number
+    contestId: number
+    groupId: number
+  }) {
     const now = new Date()
     const contest = await this.prisma.contest.findFirst({
       where: {
@@ -157,28 +164,35 @@ export class SubmissionService {
     }
     const { problem } = contestProblem
 
-    const submission = await this.createSubmission(
+    const submission = await this.createSubmission({
       submissionDto,
       problem,
       userId,
       userIp,
-      {
+      idOptions: {
         contestId
       }
-    )
+    })
 
     return submission
   }
 
   @Span()
-  async submitToWorkbook(
-    submissionDto: CreateSubmissionDto,
-    userIp: string,
-    userId: number,
-    problemId: number,
-    workbookId: number,
+  async submitToWorkbook({
+    submissionDto,
+    userIp,
+    userId,
+    problemId,
+    workbookId,
     groupId = OPEN_SPACE_ID
-  ) {
+  }: {
+    submissionDto: CreateSubmissionDto
+    userIp: string
+    userId: number
+    problemId: number
+    workbookId: number
+    groupId: number
+  }) {
     const workbookProblem = await this.prisma.workbookProblem.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -202,27 +216,33 @@ export class SubmissionService {
       throw new EntityNotExistException('Problem')
     }
 
-    const submission = await this.createSubmission(
+    const submission = await this.createSubmission({
       submissionDto,
       problem,
       userId,
       userIp,
-      {
+      idOptions: {
         workbookId
       }
-    )
+    })
 
     return submission
   }
 
   @Span()
-  async createSubmission(
-    submissionDto: CreateSubmissionDto,
-    problem: Problem,
-    userId: number,
-    userIp: string,
+  async createSubmission({
+    submissionDto,
+    problem,
+    userId,
+    userIp,
+    idOptions
+  }: {
+    submissionDto: CreateSubmissionDto
+    problem: Problem
+    userId: number
+    userIp: string
     idOptions?: { contestId?: number; workbookId?: number }
-  ) {
+  }) {
     if (!problem.languages.includes(submissionDto.language)) {
       throw new ConflictFoundException(
         `This problem does not support language ${submissionDto.language}`
@@ -501,14 +521,21 @@ export class SubmissionService {
   }
 
   @Span()
-  async getSubmission(
-    id: number,
-    problemId: number,
-    userId: number,
-    userRole: Role,
+  async getSubmission({
+    id,
+    problemId,
+    userId,
+    userRole,
     groupId = OPEN_SPACE_ID,
+    contestId
+  }: {
+    id: number
+    problemId: number
+    userId: number
+    userRole: Role
+    groupId: number
     contestId: number | null
-  ) {
+  }) {
     const now = new Date()
     let contest: {
       groupId: number
