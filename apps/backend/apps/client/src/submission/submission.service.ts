@@ -99,6 +99,8 @@ export class SubmissionService {
     groupId = OPEN_SPACE_ID
   ) {
     const now = new Date()
+
+    // 진행 중인 대회인지 확인합니다.
     const contest = await this.prisma.contest.findFirst({
       where: {
         id: contestId,
@@ -114,6 +116,8 @@ export class SubmissionService {
     if (!contest) {
       throw new EntityNotExistException('Contest')
     }
+
+    // 대회에 등록되어 있는지 확인합니다.
     const contestRecord = await this.prisma.contestRecord.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -221,6 +225,10 @@ export class SubmissionService {
     return submission
   }
 
+  /**
+   * 빈 제출 기록을 생성하고 채점 요청을 보냅니다.
+   * @returns 생성된 제출 기록
+   */
   @Span()
   async createSubmission(
     submissionDto: CreateSubmissionDto,
