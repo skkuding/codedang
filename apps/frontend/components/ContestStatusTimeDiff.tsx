@@ -1,9 +1,7 @@
 'use client'
 
-import { cn, fetcher } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import ClockIcon from '@/public/icons/clock.svg'
-import ExitIcon from '@/public/icons/exit.svg'
-import VisitIcon from '@/public/icons/visit.svg'
 import type { Contest } from '@/types/type'
 import type { ContestStatus } from '@/types/type'
 import dayjs from 'dayjs'
@@ -14,7 +12,6 @@ import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
-import { Button } from './ui/button'
 
 dayjs.extend(duration)
 
@@ -90,78 +87,8 @@ export default function ContestStatusTimeDiff({
     updateContestStatus()
   }, 1000)
 
-  const [isProblemPubliclyAvailable, setIsProblemAvailable] = useState<
-    boolean | null
-  >(null)
-
-  useEffect(() => {
-    const checkProblemAvailability = async () => {
-      try {
-        const response = await fetcher.head(`problem/${problemId}`)
-        if (response.status !== 404) {
-          setIsProblemAvailable(true)
-        } else {
-          setIsProblemAvailable(false)
-        }
-      } catch (error) {
-        setIsProblemAvailable(false)
-      }
-    }
-
-    if (inContestEditor && contestStatus === 'finished') {
-      checkProblemAvailability()
-    }
-  }, [inContestEditor, contestStatus, problemId])
-
   if (inContestEditor && contestStatus === 'finished') {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-10 backdrop-blur-md">
-        <div className="text-center">
-          <h1 className="mb-8 font-mono text-2xl">The contest has finished!</h1>
-          {isProblemPubliclyAvailable ? (
-            <>
-              <p className="mb-2 font-sans font-light">
-                You can solve the public problem regardless of scoring,
-              </p>
-              <p className="mb-10 font-sans font-light">
-                or click the exit button below to exit the page.
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="mb-2 font-sans font-light">
-                This problem is now unavailable to students.
-              </p>
-              <p className="mb-10 font-sans font-light">
-                Click the button below to exit the page.
-              </p>
-            </>
-          )}
-          {isProblemPubliclyAvailable && (
-            <Button
-              size="icon"
-              onClick={() => {
-                router.push(`/problem/${problemId}` as Route)
-              }}
-              className="h-10 w-48 shrink-0 gap-[5px] rounded-[4px] border border-blue-500 bg-blue-100 font-sans text-blue-500 hover:bg-blue-300"
-            >
-              <Image src={VisitIcon} alt="exit" width={20} height={20} />
-              Visit Public Problem
-            </Button>
-          )}
-          <Button
-            size="icon"
-            onClick={() => {
-              router.push(`/contest/${contest.id}` as Route)
-            }}
-            className="ml-4 h-10 w-24 shrink-0 gap-[5px] rounded-[4px] bg-blue-500 font-sans hover:bg-blue-700"
-          >
-            <Image src={ExitIcon} alt="exit" width={20} height={20} />
-            Exit
-          </Button>
-        </div>
-      </div>
-    )
+    router.push(`/contest/${contest.id}/problem/${problemId}/finished` as Route)
   }
 
   return (
