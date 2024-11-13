@@ -88,7 +88,7 @@ export default function ContestStatusTimeDiff({
   }, 1000)
 
   if (inContestEditor && contestStatus === 'finished') {
-    router.push(`/contest/${contest.id}/problem/${problemId}/finished` as Route)
+    router.push(`/contest/${contest.id}/finished/problem/${problemId}` as Route)
   }
 
   return (
