@@ -170,11 +170,17 @@ export class ContestProblemService {
       userId
     )
     const now = new Date()
-    if (contest.isRegistered && contest.startTime! > now) {
-      throw new ForbiddenAccessException(
-        'Cannot access to problems before the contest starts.'
-      )
-    } else if (!contest.isRegistered && contest.endTime! > now) {
+    if (contest.isRegistered) {
+      if (now < contest.startTime!) {
+        throw new ForbiddenAccessException(
+          'Cannot access to Contest problem before the contest starts.'
+        )
+      } else if (now > contest.endTime!) {
+        throw new ForbiddenAccessException(
+          'Cannot access to Contest problem after the contest ends.'
+        )
+      }
+    } else {
       throw new ForbiddenAccessException('Register to access this problem.')
     }
 
