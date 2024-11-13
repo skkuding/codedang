@@ -1,9 +1,9 @@
 'use client'
 
 import { cn, fetcher } from '@/lib/utils'
-import ClockIcon from '@/public/20_clock.svg'
-import ExitIcon from '@/public/exit.svg'
-import VisitIcon from '@/public/visit.svg'
+import ClockIcon from '@/public/icons/clock.svg'
+import ExitIcon from '@/public/icons/exit.svg'
+import VisitIcon from '@/public/icons/visit.svg'
 import type { Contest } from '@/types/type'
 import type { ContestStatus } from '@/types/type'
 import dayjs from 'dayjs'
@@ -90,9 +90,9 @@ export default function ContestStatusTimeDiff({
     updateContestStatus()
   }, 1000)
 
-  const [isProblemAvailable, setIsProblemAvailable] = useState<boolean | null>(
-    null
-  )
+  const [isProblemPubliclyAvailable, setIsProblemAvailable] = useState<
+    boolean | null
+  >(null)
 
   useEffect(() => {
     const checkProblemAvailability = async () => {
@@ -118,19 +118,26 @@ export default function ContestStatusTimeDiff({
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-10 backdrop-blur-md">
         <div className="text-center">
           <h1 className="mb-8 font-mono text-2xl">The contest has finished!</h1>
-          {isProblemAvailable ? (
-            <p className="mb-2 font-sans font-light">
-              You can solve the open problem regardless of scoring
-            </p>
+          {isProblemPubliclyAvailable ? (
+            <>
+              <p className="mb-2 font-sans font-light">
+                You can solve the public problem regardless of scoring,
+              </p>
+              <p className="mb-10 font-sans font-light">
+                or click the exit button below to exit the page.
+              </p>
+            </>
           ) : (
-            <p className="mb-2 font-sans font-light">
-              This problem is now unavailable to students.
-            </p>
+            <>
+              <p className="mb-2 font-sans font-light">
+                This problem is now unavailable to students.
+              </p>
+              <p className="mb-10 font-sans font-light">
+                Click the button below to exit the page.
+              </p>
+            </>
           )}
-          <p className="mb-10 font-sans font-light">
-            Click the button below to exit the page.
-          </p>
-          {isProblemAvailable && (
+          {isProblemPubliclyAvailable && (
             <Button
               size="icon"
               onClick={() => {
@@ -139,7 +146,7 @@ export default function ContestStatusTimeDiff({
               className="h-10 w-48 shrink-0 gap-[5px] rounded-[4px] border border-blue-500 bg-blue-100 font-sans text-blue-500 hover:bg-blue-300"
             >
               <Image src={VisitIcon} alt="exit" width={20} height={20} />
-              Visit Open Problem
+              Visit Public Problem
             </Button>
           )}
           <Button
