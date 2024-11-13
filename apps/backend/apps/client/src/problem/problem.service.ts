@@ -18,6 +18,11 @@ import { ProblemRepository } from './problem.repository'
 export class ProblemService {
   constructor(private readonly problemRepository: ProblemRepository) {}
 
+  /**
+   * 주어진 옵션에 따라 문제 목록을 가져옵니다.
+   * 문제, 태그를 가져오고 사용자가 각 문제를 통과했는지 확인합니다.
+   * @returns {ProblemsResponseDto} data: 문제 목록, total: 문제 총 개수
+   */
   async getProblems(options: {
     userId: number | null
     cursor: number | null
@@ -66,6 +71,11 @@ export class ProblemService {
     })
   }
 
+  /**
+   * 특정 문제를 가져옵니다.
+   * 문제와 해당 태그를 가져와서 ProblemResponseDto 인스턴스로 변환합니다.
+   * @returns {ProblemResponseDto} 문제 정보
+   */
   async getProblem(problemId: number, groupId = OPEN_SPACE_ID) {
     const data = await this.problemRepository.getProblem(problemId, groupId)
     const tags = await this.problemRepository.getProblemTags(problemId)
@@ -81,6 +91,18 @@ export class ContestProblemService {
     private readonly contestService: ContestService
   ) {}
 
+  /**
+   * 주어진 옵션에 따라 대회 문제를 여러개 가져옵니다.
+   * 이때, 사용자의 제출기록을 확인하여 각 문제의 점수를 계산합니다.
+   *
+   * 액세스 정책
+   *
+   * 대회 시작 전: 문제 액세스 불가 (Register 안하면 에러 메시지가 다름) //
+   * 대회 진행 중: Register한 경우 문제 액세스 가능 //
+   * 대회 종료 후: 누구나 문제 액세스 가능
+   * @see [Contest Problem 정책](https://www.notion.so/skkuding/Contest-Problem-list-ad4f2718af1748bdaff607abb958ba0b?pvs=4)
+   * @returns {RelatedProblemsResponseDto} data: 대회 문제 목록, total: 대회 문제 총 개수
+   */
   async getContestProblems(
     contestId: number,
     userId: number,
@@ -158,6 +180,17 @@ export class ContestProblemService {
     })
   }
 
+  /**
+   * 특정 대회 문제를 가져옵니다.
+   *
+   * 액세스 정책
+   *
+   * 대회 시작 전: 문제 액세스 불가 (Register 안하면 에러 메시지가 다름) //
+   * 대회 진행 중: Register한 경우 문제 액세스 가능 //
+   * 대회 종료 후: 누구나 문제 액세스 가능
+   * @see [Contest Problem 정책](https://www.notion.so/skkuding/Contest-Problem-list-ad4f2718af1748bdaff607abb958ba0b?pvs=4)
+   * @returns {RelatedProblemResponseDto} problem: 대회 문제 정보, order: 대회 문제 순서
+   */
   async getContestProblem(
     contestId: number,
     problemId: number,
