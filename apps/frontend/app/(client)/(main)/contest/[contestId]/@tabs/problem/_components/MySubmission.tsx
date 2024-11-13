@@ -65,6 +65,7 @@ export default function MySubmission({ problem }: { problem: ContestProblem }) {
               <TooltipTrigger asChild>
                 <Button
                   size="icon"
+                  variant="ghost"
                   onClick={(e) => {
                     e.stopPropagation()
                     setIsTooltipOpen(true)
@@ -91,6 +92,7 @@ export default function MySubmission({ problem }: { problem: ContestProblem }) {
             <SubmissionDetailContent
               submission={submission}
               submissionId={submissionId}
+              problem={problem}
             />
           </DialogContent>
         </div>

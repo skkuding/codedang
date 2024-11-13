@@ -11,25 +11,26 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { dateFormatter, getResultColor } from '@/lib/utils'
-import type { Language, SubmissionDetail } from '@/types/type'
+import type { ContestProblem, Language, SubmissionDetail } from '@/types/type'
 
 export default function SubmissionDetailContent({
   submissionId,
-  submission
+  submission,
+  problem
 }: {
   submissionId: number
   submission: SubmissionDetail
+  problem: ContestProblem
 }) {
   return (
     <ScrollArea className="mt-5 max-h-[540px] w-[760px]">
       <div className="ml-20 flex w-[612px] flex-col gap-4">
         <h1 className="flex text-lg font-semibold">
           <span className="max-w-[30%] truncate text-gray-400">
-            {/* {submission?.user?.userProfile?.realName}(
-            {submission?.user?.studentId}) */}
+            {submission.username}
           </span>
           <span className="max-w-[30%] truncate text-gray-400">
-            {/* &nbsp; &gt; &nbsp;{submission?.problem.title} */}
+            &nbsp; &gt; &nbsp;{problem.order}. {problem.title}
           </span>
           <span className="max-w-[40%] truncate">
             &nbsp; &gt; &nbsp;Submission #{submissionId}
@@ -40,7 +41,7 @@ export default function SubmissionDetailContent({
           <div className="flex items-center justify-around gap-5 bg-gray-100 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
             <div>
               <h2>User</h2>
-              {/* <p>{submission?.user?.username}</p> */}
+              <p>{submission.username}</p>
             </div>
             <div>
               <h2>Result</h2>
