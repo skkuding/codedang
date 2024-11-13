@@ -48,7 +48,6 @@ export default async function EditorLayout({
     )
 
     if (!res.ok && res.status === 403) {
-      console.log(res.status)
       redirect(`/contest/${contestId}/finished/problem/${problemId}`)
     }
     const ContestProblem: { problem: ProblemDetail } = await res.json()
