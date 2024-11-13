@@ -12,3 +12,4 @@ export const ORIGIN_HANDLER_NAME = 'codedang-handler'
 
 export const JUDGE_MESSAGE_TYPE = 'judge'
 export const RUN_MESSAGE_TYPE = 'run'
+export const USER_TESTCASE_MESSAGE_TYPE = 'userTestCase'

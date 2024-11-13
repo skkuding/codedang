@@ -23,11 +23,12 @@ import (
 )
 
 type Request struct {
-	Code        string `json:"code"`
-	Language    string `json:"language"`
-	ProblemId   int    `json:"problemId"`
-	TimeLimit   int    `json:"timeLimit"`
-	MemoryLimit int    `json:"memoryLimit"`
+	Code          string            `json:"code"`
+	Language      string            `json:"language"`
+	ProblemId     int               `json:"problemId"`
+	TimeLimit     int               `json:"timeLimit"`
+	MemoryLimit   int               `json:"memoryLimit"`
+	UserTestcases *[]loader.Element `json:"userTestcases,omitempty"` // 사용자 테스트 케이스
 }
 
 func (r Request) Validate() (*Request, error) {
@@ -217,35 +218,43 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 		return
 	}
 
-	// err = j.judger.Judge(task)
-	testcaseOutCh := make(chan result.ChResult)
-	go j.getTestcase(handleCtx, testcaseOutCh, strconv.Itoa(validReq.ProblemId), hidden)
+	var tc testcase.Testcase
+
+	if req.UserTestcases != nil {
+		tc = testcase.Testcase{Elements: *req.UserTestcases}
+	} else {
+		testcaseOutCh := make(chan result.ChResult)
+		go j.getTestcase(handleCtx, testcaseOutCh, strconv.Itoa(validReq.ProblemId), hidden)
+
+		testcaseOut := <-testcaseOutCh
+
+		if testcaseOut.Err != nil {
+			out <- JudgeResultMessage{nil, &HandlerError{
+				caller:  "handle",
+				err:     fmt.Errorf("%w: %s", ErrTestcaseGet, testcaseOut.Err),
+				level:   logger.ERROR,
+				Message: testcaseOut.Err.Error(),
+			}}
+			return
+		}
+
+		var ok bool
+
+		tc, ok = testcaseOut.Data.(testcase.Testcase)
+		if !ok {
+			out <- JudgeResultMessage{nil, &HandlerError{
+				caller: "handle",
+				err:    fmt.Errorf("%w: Testcase", ErrTypeAssertionFail),
+				level:  logger.ERROR,
+			}}
+			return
+		}
+	}
+
 	compileOutCh := make(chan result.ChResult)
 	go j.compile(handleCtx, compileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.Language)})
 
-	testcaseOut := <-testcaseOutCh
 	compileOut := <-compileOutCh
-
-	if testcaseOut.Err != nil {
-		out <- JudgeResultMessage{nil, &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("%w: %s", ErrTestcaseGet, testcaseOut.Err),
-			level:   logger.ERROR,
-			Message: testcaseOut.Err.Error(),
-		}}
-		return
-	}
-	// elements, ok := testcaseOut.Data.([]testcase.Element)
-	// tc := testcase.Testcase{Elements: elements}
-	tc, ok := testcaseOut.Data.(testcase.Testcase)
-	if !ok {
-		out <- JudgeResultMessage{nil, &HandlerError{
-			caller: "handle",
-			err:    fmt.Errorf("%w: Testcase", ErrTypeAssertionFail),
-			level:  logger.ERROR,
-		}}
-		return
-	}
 
 	if compileOut.Err != nil {
 		// 컴파일러 실행 과정이나 이후 처리 과정에서 오류가 생긴 경우
