@@ -1,5 +1,13 @@
 'use client'
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
 import { cn, getResultColor } from '@/lib/utils'
 import type { TestResultDetail } from '@/types/type'
 import { useState } from 'react'
@@ -12,11 +20,6 @@ import { ScrollArea } from './ui/scroll-area'
 interface TestcasePanelProps {
   testResult: TestResultDetail[]
 }
-
-function handleClick() {
-  console.log('You have cliked the button!!')
-}
-//shadcn dialog trigger dialog content check
 
 export default function TestcasePanel({ testResult }: TestcasePanelProps) {
   const [testcaseTabList, setTestcaseTabList] = useState<TestResultDetail[]>([])
@@ -77,14 +80,24 @@ export default function TestcasePanel({ testResult }: TestcasePanelProps) {
             </ScrollArea>
           </div>
 
-          <div className="ml-auto mr-2">
-            <button
-              onClick={handleClick}
-              className="my-2 flex h-8 items-center justify-end gap-1 rounded-[5px] bg-slate-600 px-2 py-2 text-white"
-            >
-              <CiSquarePlus className="mr-2" />
-              Add User Testcase
-            </button>
+          <div className="mx-2 ml-auto">
+            <Dialog>
+              <DialogTrigger asChild>
+                <button className="my-2 flex h-8 w-[148px] items-center justify-center gap-2 rounded-[5px] bg-slate-600 p-2 text-white">
+                  <CiSquarePlus size={24} />
+                  Add Testcase
+                </button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add User Testcase</DialogTitle>
+                  <DialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    your account and remove your data from our servers.
+                  </DialogDescription>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
