@@ -1,17 +1,21 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
 import { cn, getResultColor } from '@/lib/utils'
 import type { TestResultDetail } from '@/types/type'
 import { useState } from 'react'
 import { CiSquarePlus } from 'react-icons/ci'
+import { FaCircleCheck } from 'react-icons/fa6'
+import { FaPlus } from 'react-icons/fa6'
+import { IoIosClose } from 'react-icons/io'
 import { IoMdClose } from 'react-icons/io'
 import TestcaseTable from './TestcaseTable'
 import { WhitespaceVisualizer } from './WhitespaceVisualizer'
@@ -21,9 +25,19 @@ interface TestcasePanelProps {
   testResult: TestResultDetail[]
 }
 
+interface UserTestcaseProps {
+  id: number
+  input: string
+  output: string
+}
+
 export default function TestcasePanel({ testResult }: TestcasePanelProps) {
   const [testcaseTabList, setTestcaseTabList] = useState<TestResultDetail[]>([])
   const [currentTab, setCurrentTab] = useState<number>(0)
+  const sampleTestcase = testResult.map((testcase) => ({
+    input: testcase.input,
+    output: testcase.expectedOutput
+  }))
   const acceptedCount = testResult.filter(
     (testcase) => testcase.result === 'Accepted'
   ).length
@@ -35,6 +49,15 @@ export default function TestcasePanel({ testResult }: TestcasePanelProps) {
   const notAcceptedIndexes = dataWithIndex
     .map((testcase, index) => (testcase.result !== 'Accepted' ? index : -1))
     .filter((index) => index !== -1)
+  const [userTestcase, setUserTestcase] = useState<UserTestcaseProps[]>([])
+  function handleAddClick() {
+    const newUserTestcase: UserTestcaseProps = {
+      id: userTestcase.length + 1,
+      input: 'demo user input',
+      output: 'demo user output'
+    }
+    setUserTestcase([...userTestcase, newUserTestcase])
+  }
 
   return (
     <>
@@ -88,14 +111,51 @@ export default function TestcasePanel({ testResult }: TestcasePanelProps) {
                   Add Testcase
                 </button>
               </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add User Testcase</DialogTitle>
-                  <DialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    your account and remove your data from our servers.
-                  </DialogDescription>
-                </DialogHeader>
+
+              <DialogContent className="w-[700px] max-w-[700px] bg-[#121728] px-14 pt-[70px]">
+                <ScrollArea className="h-[600px]">
+                  <DialogHeader>
+                    <DialogTitle className="mb-8 text-white">
+                      Add User Testcase
+                    </DialogTitle>
+                  </DialogHeader>
+
+                  <div className="flex flex-col gap-6">
+                    {sampleTestcase.map((testcase, index) => (
+                      <div key={index} className="flex flex-col gap-2">
+                        <p className="text-[#C4CACC]">
+                          Sample #{(index + 1).toString().padStart(2, '0')}
+                        </p>
+                        <SampleTestcase testcase={testcase} />
+                      </div>
+                    ))}
+                    {userTestcase.map((testcase, index) => (
+                      <UserTestcaseField
+                        key={index}
+                        testcase={testcase}
+                        index={index}
+                      />
+                    ))}
+
+                    <UserTestcaseField
+                      index={0}
+                      testcase={{ id: 0, input: 'Input', output: 'Output' }}
+                    />
+                    <div>
+                      <Button
+                        onClick={handleAddClick}
+                        className="flex w-full gap-2 bg-[#555C66] text-[#C4CACC]"
+                      >
+                        <FaPlus />
+                        Add
+                      </Button>
+                    </div>
+                    <div className="mt-3 flex flex-row justify-end gap-3">
+                      <CancelButton />
+                      <SaveButton />
+                    </div>
+                  </div>
+                </ScrollArea>
               </DialogContent>
             </Dialog>
           </div>
@@ -257,6 +317,87 @@ function TestResultDetail({
           text={dataWithIndex[currentTab - 1].output}
         />
       </div>
+    </div>
+  )
+}
+
+function SampleTestcase({
+  testcase
+}: {
+  testcase: { input: string; output: string }
+}) {
+  return (
+    <div
+      className={cn(
+        'relative flex min-h-[80px] w-full rounded-md border border-[#313744] bg-[#222939] py-3 font-mono shadow-sm'
+      )}
+    >
+      <Textarea
+        value={testcase.input}
+        className="resize-none border-0 px-4 py-0 text-white shadow-none focus-visible:ring-0"
+      />
+      <Textarea
+        value={testcase.output}
+        className="min-h-[80px] rounded-none border-l border-transparent border-l-[#313744] px-4 py-0 text-white shadow-none focus-visible:ring-0"
+      />
+    </div>
+  )
+}
+
+function UserTestcaseField({
+  testcase,
+  index
+}: {
+  testcase: UserTestcaseProps
+  index: number
+}) {
+  function handleDeleteClick() {
+    //X아이콘을 누르면 호출되는 함수
+    //X아이콘을 누르면 setUserTestcase 스테이트 핸들러 함수를 이용해서 userTestcase 배열에서 해당 테스트케이스를 삭제
+  }
+  return (
+    <div>
+      <p className="mb-2 text-[#619CFB]">
+        User Testcase #{(index + 1).toString().padStart(2, '0')}
+      </p>
+      <div
+        className={cn(
+          'relative flex min-h-[80px] w-full rounded-md border border-[#DFDFDF] bg-white py-3 font-mono text-[#C2C2C2] shadow-sm'
+        )}
+      >
+        <Textarea
+          value={testcase.input}
+          className="z-10 resize-none border-0 px-4 py-0 shadow-none focus-visible:ring-0"
+        />
+        <Textarea
+          value={testcase.output}
+          className="z-10 min-h-[80px] rounded-none border-l border-transparent border-l-gray-200 px-4 py-0 shadow-none focus-visible:ring-0"
+        />
+        <div className="absolute right-4 z-20 text-[#9B9B9B]">
+          <IoIosClose size={25} onClick={handleDeleteClick} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function CancelButton() {
+  return (
+    <div>
+      <Button className="h-[40px] w-[78px] bg-[#DCE3E5] text-[#787E80]">
+        Cancel
+      </Button>
+    </div>
+  )
+}
+
+function SaveButton() {
+  return (
+    <div>
+      <Button className="flex h-[40px] w-[95px] gap-2 bg-[#3581FA] text-white">
+        <FaCircleCheck />
+        Save
+      </Button>
     </div>
   )
 }
