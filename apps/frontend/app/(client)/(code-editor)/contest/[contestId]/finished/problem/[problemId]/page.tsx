@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import { fetcher } from '@/lib/utils'
 import exitIcon from '@/public/icons/exit.svg'
 import visitIcon from '@/public/icons/visit.svg'

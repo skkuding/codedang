@@ -1,11 +1,15 @@
-import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog'
-import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent
+} from '@/components/shadcn/dialog'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@/components/ui/tooltip'
+} from '@/components/shadcn/tooltip'
 import { fetcherWithAuth } from '@/lib/utils'
 import seeSubmissionIcon from '@/public/icons/see-submission.svg'
 import type { SubmissionDetail, Submission, ContestProblem } from '@/types/type'
