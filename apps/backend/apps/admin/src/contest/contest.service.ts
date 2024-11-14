@@ -857,7 +857,8 @@ export class ContestService {
               select: {
                 realName: true
               }
-            }
+            },
+            major: true
           }
         }
       },
@@ -875,6 +876,7 @@ export class ContestService {
           username: record.user?.username,
           studentId: record.user?.studentId,
           realName: record.user?.userProfile?.realName,
+          major: record.user?.major,
           ...(await this.getContestScoreSummary(
             record.userId as number,
             contestId
