@@ -1,0 +1,1 @@
+docker compose --profile devcontainer up --force-recreate

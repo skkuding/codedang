@@ -62,7 +62,9 @@ npm install -g pnpm@latest
 pnpm install
 
 # Install lefthook for git hook
-pnpm exec lefthook install
+# pnpm exec lefthook install
+
+# echo "done" asdfasfd 
 
 # Init MinIO
 pnpm run init:storage
