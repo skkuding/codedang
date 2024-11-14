@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button'
 import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -8,13 +7,13 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { fetcherWithAuth } from '@/lib/utils'
-// import seeSubmission from '@/public/icons/see-submission.svg'
+import seeSubmission from '@/public/icons/see-submission.svg'
 import type { SubmissionDetail, Submission, ContestProblem } from '@/types/type'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
-// import Image from 'next/image'`
+import Image from 'next/image'
+// import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { FaFileAlt } from 'react-icons/fa'
 import SubmissionDetailContent from './SubmissionDetailContent'
 
 interface SubmissionsResponse {
@@ -63,18 +62,18 @@ export default function MySubmission({ problem }: { problem: ContestProblem }) {
           <Tooltip>
             <DialogTrigger asChild>
               <TooltipTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="ghost"
+                <Image
+                  src={seeSubmission}
+                  width={20}
+                  height={20}
+                  alt={'See submission'}
                   onClick={(e) => {
                     e.stopPropagation()
                     setIsTooltipOpen(true)
                   }}
                   onMouseEnter={() => setIsTooltipOpen(true)}
                   onMouseLeave={() => setIsTooltipOpen(false)}
-                >
-                  <FaFileAlt />
-                </Button>
+                />
               </TooltipTrigger>
             </DialogTrigger>
             {isTooltipOpen && (

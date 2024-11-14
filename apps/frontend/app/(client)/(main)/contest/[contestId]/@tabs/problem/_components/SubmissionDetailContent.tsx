@@ -30,7 +30,8 @@ export default function SubmissionDetailContent({
             {submission.username}
           </span>
           <span className="max-w-[30%] truncate text-gray-400">
-            &nbsp; &gt; &nbsp;{problem.order}. {problem.title}
+            &nbsp; &gt; &nbsp;{String.fromCharCode(65 + problem.order)}.{' '}
+            {problem.title}
           </span>
           <span className="max-w-[40%] truncate">
             &nbsp; &gt; &nbsp;Submission #{submissionId}
@@ -66,38 +67,47 @@ export default function SubmissionDetailContent({
           </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
-        {submission?.testcaseResult.length !== 0 && (
-          <div>
-            <h2 className="font-bold">Testcase</h2>
-            <Table className="[&_*]:text-center [&_*]:text-xs [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:!border-neutral-200">
-              <TableHeader>
-                <TableRow>
-                  <TableHead></TableHead>
-                  <TableHead className="!text-sm text-black">Result</TableHead>
-                  <TableHead className="!text-sm text-black">Runtime</TableHead>
-                  <TableHead className="!text-sm text-black">Memory</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="text-slate-400">
-                {submission?.testcaseResult.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="!py-4">{item.id}</TableCell>
-                    <TableCell className={getResultColor(item.result)}>
-                      {item.result}
-                    </TableCell>
-                    <TableCell>{item.cpuTime} ms</TableCell>
-                    <TableCell>
-                      {((item?.memoryUsage as number) / (1024 * 1024)).toFixed(
-                        2
-                      )}{' '}
-                      MB
-                    </TableCell>
+        {submission?.testcaseResult.length !== 0 &&
+          submission?.result !== 'Judging' &&
+          submission?.result !== 'Blind' && (
+            <div>
+              <h2 className="font-bold">Testcase</h2>
+              <Table className="[&_*]:text-center [&_*]:text-xs [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:!border-neutral-200">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead></TableHead>
+                    <TableHead className="!text-sm text-black">
+                      Result
+                    </TableHead>
+                    <TableHead className="!text-sm text-black">
+                      Runtime
+                    </TableHead>
+                    <TableHead className="!text-sm text-black">
+                      Memory
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
+                </TableHeader>
+                <TableBody className="text-slate-400">
+                  {submission?.testcaseResult.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="!py-4">{item.id}</TableCell>
+                      <TableCell className={getResultColor(item.result)}>
+                        {item.result}
+                      </TableCell>
+                      <TableCell>{item.cpuTime} ms</TableCell>
+                      <TableCell>
+                        {(
+                          (item?.memoryUsage as number) /
+                          (1024 * 1024)
+                        ).toFixed(2)}{' '}
+                        MB
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         <div>
           <h2 className="mb-3 font-bold">Source Code</h2>
           <CodeEditor
