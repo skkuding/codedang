@@ -28,17 +28,23 @@ export function BelongedContestTable({ problemId }: { problemId: number }) {
     ...data.getContestsByProblemId.upcoming.map((contest) => ({
       id: Number(contest.id),
       title: contest.title,
-      state: 'Upcoming'
+      state: 'Upcoming',
+      problemScore: contest.problemScore,
+      totalScore: contest.totalScore
     })),
     ...data.getContestsByProblemId.ongoing.map((contest) => ({
       id: Number(contest.id),
       title: contest.title,
-      state: 'Ongoing'
+      state: 'Ongoing',
+      problemScore: contest.problemScore,
+      totalScore: contest.totalScore
     })),
     ...data.getContestsByProblemId.finished.map((contest) => ({
       id: Number(contest.id),
       title: contest.title,
-      state: 'Finished'
+      state: 'Finished',
+      problemScore: contest.problemScore,
+      totalScore: contest.totalScore
     }))
   ]
 

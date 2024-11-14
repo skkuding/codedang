@@ -8,6 +8,8 @@ export interface BelongedContest {
   id: number
   title: string
   state: string
+  problemScore: number
+  totalScore: number
 }
 
 export const columns: ColumnDef<BelongedContest>[] = [
@@ -49,13 +51,31 @@ export const columns: ColumnDef<BelongedContest>[] = [
   },
   {
     accessorKey: 'state',
-    header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="State" />
-      </div>
+    header: () => (
+      <p className="text-center font-mono text-sm font-medium">State</p>
     ),
     cell: ({ row }) => (
       <p className="text-center font-normal">{row.getValue('state')}</p>
+    )
+  },
+  {
+    accessorKey: 'problemScore',
+    header: () => (
+      <p className="text-center font-mono text-sm font-medium">Problem Score</p>
+    ),
+    cell: ({ row }) => (
+      <p className="text-center font-normal">{row.getValue('problemScore')}</p>
+    )
+  },
+  {
+    accessorKey: 'totalScore',
+    header: () => (
+      <p className="text-center font-mono text-sm font-medium">Total Score</p>
+    ),
+    cell: ({ row }) => (
+      <p className="text-center font-normal">
+        {row.getValue('problemScore')}/{row.getValue('totalScore')}
+      </p>
     )
   }
 ]

@@ -36,14 +36,20 @@ const GET_BELONGED_CONTESTS =
     upcoming {
       id
       title
+      problemScore
+      totalScore
     }
     ongoing {
       id
       title
+      problemScore
+      totalScore
     }
     finished {
       id
       title
+      problemScore
+      totalScore
     }
   }
 }`)
