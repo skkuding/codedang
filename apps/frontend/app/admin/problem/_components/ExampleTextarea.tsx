@@ -1,4 +1,4 @@
-import { Textarea } from '@/components/ui/textarea'
+import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/lib/utils'
 import { RxCross2 } from 'react-icons/rx'
 

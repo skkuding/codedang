@@ -1,14 +1,15 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger
-} from '@/components/ui/dialog'
-import { Textarea } from '@/components/ui/textarea'
+} from '@/components/shadcn/dialog'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
+import { Textarea } from '@/components/shadcn/textarea'
 import { cn, getResultColor } from '@/lib/utils'
 import type { TestResultDetail } from '@/types/type'
 import { useState } from 'react'
@@ -19,7 +20,6 @@ import { IoIosClose } from 'react-icons/io'
 import { IoMdClose } from 'react-icons/io'
 import TestcaseTable from './TestcaseTable'
 import { WhitespaceVisualizer } from './WhitespaceVisualizer'
-import { ScrollArea } from './ui/scroll-area'
 
 interface TestcasePanelProps {
   testResult: TestResultDetail[]

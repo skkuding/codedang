@@ -1,4 +1,4 @@
-import '@/components/ui/card'
+import '@/components/shadcn/card'
 import type { WorkbookProblem } from '@/types/type'
 
 interface Props {

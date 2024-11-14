@@ -1,4 +1,4 @@
-import { EditorDescription } from '@/components/EditorDescription'
+import { EditorDescription } from '@/app/(client)/(code-editor)/_components/EditorDescription'
 import { fetcher } from '@/lib/utils'
 import type { ProblemDetail } from '@/types/type'
 

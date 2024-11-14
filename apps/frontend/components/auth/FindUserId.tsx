@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/components/shadcn/button'
+import { Input } from '@/components/shadcn/input'
 import { cn, fetcher } from '@/lib/utils'
 import useAuthModalStore from '@/stores/authModal'
 import useRecoverAccountModalStore from '@/stores/recoverAccountModal'

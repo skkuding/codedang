@@ -1,12 +1,12 @@
-import StandingsTable from '@/components/StandingsTable'
 import {
   Pagination,
   PaginationContent,
   PaginationLink,
   PaginationNext,
   PaginationPrevious
-} from '@/components/ui/pagination'
+} from '@/components/shadcn/pagination'
 import type { Standings } from '@/types/type'
+import StandingsTable from './_components/StandingsTable'
 
 // TODO: Standings API 연결되면 dummyData 지우기
 const dummyData: Standings[] = [

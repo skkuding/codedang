@@ -37,3 +37,8 @@ export class CreateSubmissionDto {
   @IsNotEmpty()
   language: Language
 }
+
+export class CreateUserTestSubmissionDto extends CreateSubmissionDto {
+  @IsNotEmpty()
+  userTestcases: { id: number; in: string; out: string }[]
+}

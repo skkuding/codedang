@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense } from 'react'

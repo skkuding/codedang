@@ -1,21 +1,21 @@
 'use client'
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/shadcn/badge'
+import { Button } from '@/components/shadcn/button'
+import { Checkbox } from '@/components/shadcn/checkbox'
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandItem,
   CommandList
-} from '@/components/ui/command'
+} from '@/components/shadcn/command'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger
-} from '@/components/ui/popover'
-import { Separator } from '@/components/ui/separator'
+} from '@/components/shadcn/popover'
+import { Separator } from '@/components/shadcn/separator'
 import { useState, useEffect } from 'react'
 import { IoFilter } from 'react-icons/io5'
 

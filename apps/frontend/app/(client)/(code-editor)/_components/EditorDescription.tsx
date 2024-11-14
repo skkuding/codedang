@@ -6,15 +6,21 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger
-} from '@/components/ui/accordion'
-import { Badge } from '@/components/ui/badge'
+} from '@/components/shadcn/accordion'
+import { Badge } from '@/components/shadcn/badge'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger
-} from '@/components/ui/dialog'
+} from '@/components/shadcn/dialog'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/shadcn/tooltip'
 import { convertToLetter } from '@/lib/utils'
 import compileIcon from '@/public/icons/compile-version.svg'
 import copyBlueIcon from '@/public/icons/copy-blue.svg'
@@ -30,12 +36,6 @@ import { useState } from 'react'
 import useCopyToClipboard from 'react-use/lib/useCopyToClipboard'
 import { toast } from 'sonner'
 import { WhitespaceVisualizer } from './WhitespaceVisualizer'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from './ui/tooltip'
 
 const useCopy = () => {
   const [, copyToClipboard] = useCopyToClipboard()
