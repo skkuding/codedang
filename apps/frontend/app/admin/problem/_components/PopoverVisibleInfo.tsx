@@ -2,7 +2,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger
-} from '@/components/ui/popover'
+} from '@/components/shadcn/popover'
 import { MdHelpOutline } from 'react-icons/md'
 
 export default function PopoverVisibleInfo() {

@@ -1,6 +1,6 @@
 'use client'
 
-import { Input, type InputProps } from '@/components/ui/input'
+import { Input, type InputProps } from '@/components/shadcn/input'
 import { cn } from '@/lib/utils'
 import { IoSearch } from 'react-icons/io5'
 import { useDataTable } from './context'

@@ -10,8 +10,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger
-} from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
+} from '@/components/shadcn/alert-dialog'
+import { Button } from '@/components/shadcn/button'
 import {
   Select,
   SelectContent,
@@ -19,7 +19,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select'
+} from '@/components/shadcn/select'
 import { auth } from '@/lib/auth'
 import { fetcherWithAuth } from '@/lib/utils'
 import submitIcon from '@/public/icons/submit.svg'

@@ -1,6 +1,6 @@
 'use client'
 
-import { Label } from '@/components/ui/label'
+import { Label } from '@/components/shadcn/label'
 import { Clock } from 'lucide-react'
 import * as React from 'react'
 import { TimePickerInput } from './time-picker-input'
@@ -10,7 +10,7 @@ interface TimePickerDemoProps {
   setDate: (date: Date | undefined) => void
 }
 
-export function TimePickerDemo({ date, setDate }: TimePickerDemoProps) {
+export const TimePickerDemo = ({ date, setDate }: TimePickerDemoProps) => {
   const minuteRef = React.useRef<HTMLInputElement>(null)
   const hourRef = React.useRef<HTMLInputElement>(null)
   const secondRef = React.useRef<HTMLInputElement>(null)

@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogClose
-} from '@/components/ui/dialog'
+} from '@/components/shadcn/dialog'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect, Suspense } from 'react'

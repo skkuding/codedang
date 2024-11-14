@@ -1,12 +1,12 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@/components/ui/tooltip'
+} from '@/components/shadcn/tooltip'
 import { cn } from '@/lib/utils'
 import type { Testcase } from '@generated/graphql'
 import { useEffect, useState } from 'react'

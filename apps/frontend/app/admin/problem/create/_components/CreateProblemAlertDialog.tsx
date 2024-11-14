@@ -10,8 +10,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle
-} from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
+} from '@/components/shadcn/alert-dialog'
+import { Button } from '@/components/shadcn/button'
 import { CREATE_PROBLEM } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import type { CreateProblemInput } from '@generated/graphql'

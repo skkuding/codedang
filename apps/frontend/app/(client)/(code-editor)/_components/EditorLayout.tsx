@@ -1,4 +1,11 @@
+import ContestStatusTimeDiff from '@/components/ContestStatusTimeDiff'
 import HeaderAuthPanel from '@/components/auth/HeaderAuthPanel'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/shadcn/dropdown-menu'
 import { auth } from '@/lib/auth'
 import { cn, convertToLetter, fetcher, fetcherWithAuth } from '@/lib/utils'
 import checkIcon from '@/public/icons/check-green.svg'
@@ -9,14 +16,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { FaSortDown } from 'react-icons/fa'
-import ContestStatusTimeDiff from './ContestStatusTimeDiff'
 import EditorMainResizablePanel from './EditorResizablePanel'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from './ui/dropdown-menu'
 
 interface EditorLayoutProps {
   contestId?: number

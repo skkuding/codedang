@@ -14,7 +14,7 @@ import { ContestSubmissionSummaryForUser } from './model/contest-submission-summ
 import { ContestWithParticipants } from './model/contest-with-participants.model'
 import { CreateContestInput } from './model/contest.input'
 import { UpdateContestInput } from './model/contest.input'
-import { ContestsGroupedByStatus } from './model/contests-grouped-by-status'
+import { ContestsGroupedByStatus } from './model/contests-grouped-by-status.output'
 import { DuplicatedContestResponse } from './model/duplicated-contest-response.output'
 import { ProblemScoreInput } from './model/problem-score.input'
 import { PublicizingRequest } from './model/publicizing-request.model'

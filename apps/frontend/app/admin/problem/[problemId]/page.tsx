@@ -2,8 +2,8 @@
 
 import KatexContent from '@/components/KatexContent'
 import Paginator from '@/components/Paginator'
-import { Button } from '@/components/ui/button'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { Button } from '@/components/shadcn/button'
+import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { GET_PROBLEM_DETAIL } from '@/graphql/problem/queries'
 import { usePagination } from '@/lib/pagination'
 import type { SubmissionItem } from '@/types/type'

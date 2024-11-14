@@ -1,14 +1,14 @@
 'use client'
 
 import DataTableColumnHeader from '@/app/admin/_components/table/DataTableColumnHeader'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Switch } from '@/components/ui/switch'
+import { Checkbox } from '@/components/shadcn/checkbox'
+import { Switch } from '@/components/shadcn/switch'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@/components/ui/tooltip'
+} from '@/components/shadcn/tooltip'
 import { UPDATE_CONTEST_VISIBLE } from '@/graphql/contest/mutations'
 import { cn, dateFormatter } from '@/lib/utils'
 import invisibleIcon from '@/public/icons/invisible.svg'

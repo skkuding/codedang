@@ -1,7 +1,7 @@
 'use client'
 
 import KatexContent from '@/components/KatexContent'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { dateFormatter } from '@/lib/utils'
 import periodIcon from '@/public/icons/period.svg'

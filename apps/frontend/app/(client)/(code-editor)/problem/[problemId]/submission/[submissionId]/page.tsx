@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense } from 'react'

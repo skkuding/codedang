@@ -20,6 +20,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { ContestWithScores } from './model/contest-with-scores.model'
 import type { CreateContestInput } from './model/contest.input'
 import type { UpdateContestInput } from './model/contest.input'
 import type { ProblemScoreInput } from './model/problem-score.input'
@@ -891,7 +892,8 @@ export class ContestService {
         problemId
       },
       select: {
-        contest: true
+        contest: true,
+        score: true
       }
     })
 
@@ -899,8 +901,16 @@ export class ContestService {
       throw new EntityNotExistException('Problem or ContestProblem')
     }
 
-    const contests = contestProblems.map(
-      (contestProblem) => contestProblem.contest
+    const contests = await Promise.all(
+      contestProblems.map(async (contestProblem) => {
+        return {
+          ...contestProblem.contest,
+          problemScore: contestProblem.score,
+          totalScore: await this.getTotalScoreOfContest(
+            contestProblem.contest.id
+          )
+        }
+      })
     )
 
     const now = new Date()
@@ -919,12 +929,28 @@ export class ContestService {
         return acc
       },
       {
-        upcoming: [] as Contest[],
-        ongoing: [] as Contest[],
-        finished: [] as Contest[]
+        upcoming: [] as ContestWithScores[],
+        ongoing: [] as ContestWithScores[],
+        finished: [] as ContestWithScores[]
       }
     )
 
     return contestsGroupedByStatus
+  }
+
+  async getTotalScoreOfContest(contestId: number) {
+    const contestProblemScores = await this.prisma.contestProblem.findMany({
+      where: {
+        contestId
+      },
+      select: {
+        score: true
+      }
+    })
+
+    return contestProblemScores.reduce(
+      (total, problem) => total + problem.score,
+      0
+    )
   }
 }

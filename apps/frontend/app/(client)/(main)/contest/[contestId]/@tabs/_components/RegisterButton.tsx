@@ -1,14 +1,14 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
+} from '@/components/shadcn/dialog'
+import { Input } from '@/components/shadcn/input'
 import { cn, fetcherWithAuth } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
