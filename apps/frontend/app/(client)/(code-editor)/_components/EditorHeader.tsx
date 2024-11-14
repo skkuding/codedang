@@ -42,12 +42,13 @@ import JSConfetti from 'js-confetti'
 import { Save } from 'lucide-react'
 import type { Route } from 'next'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
 import { IoPlayCircleOutline } from 'react-icons/io5'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
+import { BackCautionDialog } from './BackCautionDialog'
 
 interface ProblemEditorProps {
   problem: ProblemDetail
@@ -69,9 +70,16 @@ export default function Editor({
   const [templateCode, setTemplateCode] = useState<string | null>(null)
   const [userName, setUserName] = useState('')
   const router = useRouter()
+  const pathname = usePathname()
   const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
   const storageKey = useRef(getKey(language, problem.id, userName, contestId))
   const { currentModal, showSignIn } = useAuthModalStore((state) => state)
+  const [stay, setStay] = useState<boolean>(true)
+  const [showModal, setShowModal] = useState<boolean>(false)
+  const pushed = useRef(false)
+  const whereToPush = useRef('')
+  const isCodeSaved = useRef(false)
+  const isModalConfrimed = useRef(false)
 
   useInterval(
     async () => {
@@ -88,7 +96,8 @@ export default function Editor({
           const href = contestId
             ? `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}`
             : `/problem/${problem.id}/submission/${submissionId}`
-          router.push(href as Route)
+          router.replace(href as Route)
+          window.history.pushState(null, '', '')
           if (submission.result === 'Accepted') {
             confetti?.addConfetti()
           }
@@ -248,6 +257,7 @@ export default function Editor({
       toast.error('Log in first to save your code')
     } else {
       if (storeCodeToLocalstorage()) {
+        isCodeSaved.current = true
         toast.success(
           `Successfully ${isSubmitting ? 'submitted' : 'saved'} the code`
         )
@@ -277,6 +287,76 @@ export default function Editor({
       toast.success('Successfully reset the code')
     } else toast.error('Failed to reset the code')
   }
+
+  const checkSaved = () => {
+    if (storageKey.current !== undefined) {
+      const storedCode = getItem(storageKey.current) ?? ''
+      if (storedCode && JSON.parse(storedCode) === code) return true
+      else if (!storedCode && templateCode === code) return true
+      else return false
+    }
+    return true
+  }
+
+  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    if (!isCodeSaved.current) {
+      e.preventDefault()
+      whereToPush.current = pathname
+    }
+  }
+
+  useEffect(() => {
+    storageKey.current = getKey(language, problem.id, userName, contestId)
+
+    const handlePopState = () => {
+      if (!isCodeSaved.current) {
+        whereToPush.current = contestId ? `/contest/${contestId}` : '/problem'
+        setShowModal(true)
+      } else window.history.back()
+    }
+    if (!pushed.current) {
+      window.history.pushState(null, '', '')
+      pushed.current = true
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    window.addEventListener('popstate', handlePopState)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [])
+
+  useEffect(() => {
+    const originalPush = router.push
+
+    router.push = (href, ...args) => {
+      if (isCodeSaved.current || isModalConfrimed.current) {
+        originalPush(href, ...args)
+        return
+      }
+      isModalConfrimed.current = false
+      const isConfirmed = window.confirm(
+        'Are you sure you want to leave this page? Changes you made may not be saved.'
+      )
+      if (isConfirmed) {
+        originalPush(href, ...args)
+      }
+    }
+
+    return () => {
+      router.push = originalPush
+    }
+  }, [router, isCodeSaved.current])
+
+  useEffect(() => {
+    if (!stay) router.push(whereToPush.current as Route)
+  }, [stay])
+
+  useEffect(() => {
+    if (checkSaved()) isCodeSaved.current = true
+    else isCodeSaved.current = false
+  }, [code])
 
   return (
     <div className="flex shrink-0 items-center justify-between border-b border-b-slate-700 bg-[#222939] px-6">
@@ -369,6 +449,14 @@ export default function Editor({
           </SelectContent>
         </Select>
       </div>
+      <BackCautionDialog
+        confrim={isModalConfrimed}
+        isOpen={showModal}
+        title="Leave this page?"
+        description="Changes you made my not be saved."
+        onClose={() => setShowModal(false)}
+        onBack={() => setStay(false)}
+      />
     </div>
   )
 }

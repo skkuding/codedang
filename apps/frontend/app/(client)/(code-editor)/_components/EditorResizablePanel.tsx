@@ -46,6 +46,7 @@ export default function EditorMainResizablePanel({
           result: testResults[index]?.result
         }))
       : null
+
   useEffect(() => {
     if (!problem.languages.includes(language)) {
       setLanguage(problem.languages[0])
@@ -72,7 +73,7 @@ export default function EditorMainResizablePanel({
               }
             >
               <TabsList className="bg-slate-900">
-                <Link href={`${base}/problem/${problem.id}` as Route}>
+                <Link replace href={`${base}/problem/${problem.id}` as Route}>
                   <TabsTrigger
                     value="Description"
                     className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
@@ -81,6 +82,7 @@ export default function EditorMainResizablePanel({
                   </TabsTrigger>
                 </Link>
                 <Link
+                  replace
                   href={`${base}/problem/${problem.id}/submission` as Route}
                 >
                   <TabsTrigger
