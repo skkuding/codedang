@@ -14,6 +14,7 @@ import type { Contest, ContestProblem, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { FaSortDown } from 'react-icons/fa'
 import EditorMainResizablePanel from './EditorResizablePanel'
 
@@ -42,9 +43,14 @@ export default async function EditorLayout({
     problems = await fetcherWithAuth
       .get(`contest/${contestId}/problem?take=20`)
       .json()
-    const ContestProblem: { problem: ProblemDetail } = await fetcherWithAuth
-      .get(`contest/${contestId}/problem/${problemId}`)
-      .json()
+    const res = await fetcherWithAuth(
+      `contest/${contestId}/problem/${problemId}`
+    )
+
+    if (!res.ok && res.status === 403) {
+      redirect(`/contest/${contestId}/finished/problem/${problemId}`)
+    }
+    const ContestProblem: { problem: ProblemDetail } = await res.json()
     problem = ContestProblem.problem
     contest = await fetcher(`contest/${contestId}`).json()
     contest ? (contest.status = 'ongoing') : null // TODO: refactor this after change status interactively
