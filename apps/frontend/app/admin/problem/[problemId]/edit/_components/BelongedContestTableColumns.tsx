@@ -2,6 +2,7 @@
 
 import DataTableColumnHeader from '@/app/admin/_components/table/DataTableColumnHeader'
 import { Checkbox } from '@/components/ui/checkbox'
+import { cn } from '@/lib/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 
 export interface BelongedContest {
@@ -10,6 +11,7 @@ export interface BelongedContest {
   state: string
   problemScore: number
   totalScore: number
+  isSetToZero: boolean
 }
 
 export const columns: ColumnDef<BelongedContest>[] = [
@@ -64,7 +66,14 @@ export const columns: ColumnDef<BelongedContest>[] = [
       <p className="text-center font-mono text-sm font-medium">Problem Score</p>
     ),
     cell: ({ row }) => (
-      <p className="text-center font-normal">{row.getValue('problemScore')}</p>
+      <p
+        className={cn(
+          'text-center font-normal',
+          row.original.isSetToZero && 'text-primary'
+        )}
+      >
+        {row.getValue('problemScore')}
+      </p>
     )
   },
   {
@@ -73,7 +82,12 @@ export const columns: ColumnDef<BelongedContest>[] = [
       <p className="text-center font-mono text-sm font-medium">Total Score</p>
     ),
     cell: ({ row }) => (
-      <p className="text-center font-normal">
+      <p
+        className={cn(
+          'text-center font-normal',
+          row.original.isSetToZero && 'text-primary'
+        )}
+      >
         {row.getValue('problemScore')}/{row.getValue('totalScore')}
       </p>
     )

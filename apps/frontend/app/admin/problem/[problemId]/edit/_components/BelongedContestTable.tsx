@@ -6,6 +6,7 @@ import DataTablePagination from '@/app/admin/_components/table/DataTablePaginati
 import DataTableRoot from '@/app/admin/_components/table/DataTableRoot'
 import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import { useSuspenseQuery } from '@apollo/client'
+import { useState } from 'react'
 import { columns, type BelongedContest } from './BelongedContestTableColumns'
 import SetToZeroButton from './SetToZeroButton'
 
@@ -17,42 +18,65 @@ const headerStyle = {
   isVisible: 'px-0 w-1/12'
 }
 
-export function BelongedContestTable({ problemId }: { problemId: number }) {
+export function BelongedContestTable({
+  problemId,
+  onSetToZero
+}: {
+  problemId: number
+  onSetToZero: (data: number[]) => void
+}) {
+  const [contests, setContests] = useState<BelongedContest[]>([])
+
   const { data } = useSuspenseQuery(GET_BELONGED_CONTESTS, {
     variables: {
       problemId
     }
   })
 
-  const contests: BelongedContest[] = [
+  const mappedData: BelongedContest[] = [
     ...data.getContestsByProblemId.upcoming.map((contest) => ({
       id: Number(contest.id),
       title: contest.title,
       state: 'Upcoming',
       problemScore: contest.problemScore,
-      totalScore: contest.totalScore
+      totalScore: contest.totalScore,
+      isSetToZero: false
     })),
     ...data.getContestsByProblemId.ongoing.map((contest) => ({
       id: Number(contest.id),
       title: contest.title,
       state: 'Ongoing',
       problemScore: contest.problemScore,
-      totalScore: contest.totalScore
+      totalScore: contest.totalScore,
+      isSetToZero: false
     })),
     ...data.getContestsByProblemId.finished.map((contest) => ({
       id: Number(contest.id),
       title: contest.title,
       state: 'Finished',
       problemScore: contest.problemScore,
-      totalScore: contest.totalScore
+      totalScore: contest.totalScore,
+      isSetToZero: false
     }))
   ]
+  setContests(mappedData)
 
   return (
     <DataTableRoot data={contests} columns={columns}>
       <DataTable />
       <DataTablePagination showSelection />
-      <SetToZeroButton />
+      <SetToZeroButton
+        onSetToZero={(contestsToSetZero) => {
+          setContests((contests) =>
+            contests.map((contest) =>
+              contestsToSetZero.includes(contest.id)
+                ? { ...contest, isSetToZero: true }
+                : contest
+            )
+          )
+          onSetToZero(contestsToSetZero)
+        }}
+      />
     </DataTableRoot>
   )
 }

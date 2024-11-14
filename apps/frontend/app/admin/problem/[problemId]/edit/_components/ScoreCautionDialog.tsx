@@ -8,6 +8,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
+import {
+  IMPORT_PROBLEMS_TO_CONTEST,
+  REMOVE_PROBLEMS_FROM_CONTEST
+} from '@/graphql/contest/mutations'
+import { useMutation } from '@apollo/client'
+import { useState } from 'react'
 import { BelongedContestTable } from './BelongedContestTable'
 
 interface ScoreCautionDialogProps {
@@ -21,6 +27,11 @@ export function ScoreCautionDialog({
   onClose,
   problemId
 }: ScoreCautionDialogProps) {
+  const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
+  const [removeProblemsFromContest] = useMutation(REMOVE_PROBLEMS_FROM_CONTEST)
+
+  const [zeroSetContests, setZeroSetContests] = useState<number[]>([])
+
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent className="h-[627px] max-h-[627px] w-[875px] max-w-[875px] gap-6">
@@ -64,6 +75,7 @@ export function ScoreCautionDialog({
                 </ul>
                 <BelongedContestTable
                   problemId={problemId}
+                  onSetToZero={(contests) => setZeroSetContests(contests)}
                 ></BelongedContestTable>
               </li>
             </ul>
@@ -77,7 +89,29 @@ export function ScoreCautionDialog({
           >
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction onClick={onClose}>OK</AlertDialogAction>
+          <AlertDialogAction
+            onClick={() => {
+              zeroSetContests.map(async (contestId) => {
+                await removeProblemsFromContest({
+                  variables: {
+                    groupId: 1,
+                    contestId: Number(contestId),
+                    problemIds: problemId
+                  }
+                })
+                await importProblemsToContest({
+                  variables: {
+                    groupId: 1,
+                    contestId: Number(contestId),
+                    problemIdsWithScore: [{ problemId, score: 0 }]
+                  }
+                })
+              })
+              onClose
+            }}
+          >
+            Confirm
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
