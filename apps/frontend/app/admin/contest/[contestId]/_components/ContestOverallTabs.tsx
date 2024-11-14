@@ -15,6 +15,11 @@ interface ScoreSummary {
   contestPerfectScore: number
   submittedProblemCount: number
   totalProblemCount: number
+  problemScores: { problemId: number; score: number; maxScore: number }[]
+}
+
+interface SubmissionSummary {
+  problemId: number
 }
 
 export default function ContestOverallTabs({
@@ -39,35 +44,70 @@ export default function ContestOverallTabs({
     }
   )
 
-  const { loading: loadingSubmissions, error: errorSubmissions } = useQuery(
-    GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER,
-    {
-      variables: { contestId: id, userId, take: 300 },
-      skip: !contestId || !userId
-    }
-  )
+  const { loading: loadingSubmissions, error: errorSubmissions } = useQuery<{
+    getContestSubmissionSummaryByUserId: { submissions: SubmissionSummary[] }
+  }>(GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER, {
+    variables: { contestId: id, userId, take: 300 },
+    skip: !contestId || !userId
+  })
 
   if (loadingScores || loadingSubmissions) return <p>Loading...</p>
   if (errorScores) return <p>Error: {errorScores.message}</p>
   if (errorSubmissions) return <p>Error: {errorSubmissions.message}</p>
 
-  const csvData =
-    scoreData?.getContestScoreSummaries.map((user) => ({
-      realName: user.realName,
-      studentId: user.studentId,
-      scoreRatio: `${user.userContestScore}/${user.contestPerfectScore}`,
-      problemRatio:
-        user.submittedProblemCount === user.totalProblemCount
-          ? 'Submit'
-          : `${user.submittedProblemCount}/${user.totalProblemCount}`
-    })) || []
+  // 전체 사용자의 문제 ID 집합을 추출하여 고유한 문제 목록 생성
+  const uniqueProblems = Array.from(
+    new Set(
+      scoreData?.getContestScoreSummaries.flatMap((user) =>
+        user.problemScores.map((score) => score.problemId)
+      ) || []
+    )
+  )
+
+  // 고유한 문제 목록을 기반으로 문제 헤더 생성
+  const problemHeaders = uniqueProblems.flatMap((problemId, index) => [
+    {
+      label: `문제 ${index + 1} 최대 점수`,
+      key: `problems[${index}].maxScore`
+    },
+    {
+      label: `문제 ${index + 1} 획득 점수`,
+      key: `problems[${index}].score`
+    }
+  ])
 
   const headers = [
     { label: '이름', key: 'realName' },
     { label: '학번', key: 'studentId' },
     { label: '점수 비율', key: 'scoreRatio' },
-    { label: '제출 여부', key: 'problemRatio' }
+    { label: '제출 여부', key: 'problemRatio' },
+    ...problemHeaders
   ]
+
+  const csvData =
+    scoreData?.getContestScoreSummaries.map((user) => {
+      const userProblemScores = uniqueProblems.map((problemId) => {
+        const scoreData = user.problemScores.find(
+          (ps) => ps.problemId === problemId
+        )
+
+        return {
+          maxScore: scoreData ? scoreData.maxScore : 0,
+          score: scoreData ? scoreData.score : 0
+        }
+      })
+
+      return {
+        realName: user.realName,
+        studentId: user.studentId,
+        scoreRatio: `${user.userContestScore}/${user.contestPerfectScore}`,
+        problemRatio:
+          user.submittedProblemCount === user.totalProblemCount
+            ? 'Submit'
+            : `${user.submittedProblemCount}/${user.totalProblemCount}`,
+        problems: userProblemScores
+      }
+    }) || []
 
   const isCurrentTab = (tab: string) =>
     pathname.startsWith(`/admin/contest/${id}/${tab}`)
