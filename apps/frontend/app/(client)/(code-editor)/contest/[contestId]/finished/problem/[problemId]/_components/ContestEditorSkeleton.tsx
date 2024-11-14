@@ -1,4 +1,4 @@
-import ClockIcon from '@/public/icons/clock.svg'
+import clockIcon from '@/public/icons/clock.svg'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import Image from 'next/image'
 
@@ -25,7 +25,7 @@ export default function ContestEditorSkeleton() {
         </div>
         <div className="flex items-center gap-1">
           <div className="text-error inline-flex items-center gap-2 whitespace-nowrap text-sm opacity-80">
-            <Image src={ClockIcon} alt="Clock" />
+            <Image src={clockIcon} alt="Clock" />
             Ends in
             <p className="overflow-hidden text-ellipsis whitespace-nowrap">
               365291 DAYS

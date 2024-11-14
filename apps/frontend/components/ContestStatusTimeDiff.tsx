@@ -6,7 +6,6 @@ import type { Contest } from '@/types/type'
 import type { ContestStatus } from '@/types/type'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
-import type { Route } from 'next'
 import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -88,7 +87,7 @@ export default function ContestStatusTimeDiff({
   }, 1000)
 
   if (inContestEditor && contestStatus === 'finished') {
-    router.push(`/contest/${contest.id}/finished/problem/${problemId}` as Route)
+    router.push(`/contest/${contest.id}/finished/problem/${problemId}`)
   }
 
   return (

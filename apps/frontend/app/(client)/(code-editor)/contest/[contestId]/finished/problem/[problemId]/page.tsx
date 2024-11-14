@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { fetcher } from '@/lib/utils'
-import ExitIcon from '@/public/icons/exit.svg'
-import VisitIcon from '@/public/icons/visit.svg'
+import exitIcon from '@/public/icons/exit.svg'
+import visitIcon from '@/public/icons/visit.svg'
 import Image from 'next/image'
 import Link from 'next/link'
 import ContestEditorSkeleton from './_components/ContestEditorSkeleton'
@@ -46,7 +46,7 @@ export default async function ContestFinishedPage({
                 size="icon"
                 className="h-10 w-48 shrink-0 gap-[5px] rounded-[4px] border border-blue-500 bg-blue-100 font-sans text-blue-500 hover:bg-blue-300"
               >
-                <Image src={VisitIcon} alt="exit" width={20} height={20} />
+                <Image src={visitIcon} alt="exit" width={20} height={20} />
                 Visit Public Problem
               </Button>
             </Link>
@@ -56,7 +56,7 @@ export default async function ContestFinishedPage({
               size="icon"
               className="ml-4 h-10 w-24 shrink-0 gap-[5px] rounded-[4px] bg-blue-500 font-sans hover:bg-blue-700"
             >
-              <Image src={ExitIcon} alt="exit" width={20} height={20} />
+              <Image src={exitIcon} alt="exit" width={20} height={20} />
               Exit
             </Button>
           </Link>

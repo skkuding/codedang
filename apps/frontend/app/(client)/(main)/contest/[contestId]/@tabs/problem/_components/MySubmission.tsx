@@ -7,11 +7,10 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { fetcherWithAuth } from '@/lib/utils'
-import seeSubmission from '@/public/icons/see-submission.svg'
+import seeSubmissionIcon from '@/public/icons/see-submission.svg'
 import type { SubmissionDetail, Submission, ContestProblem } from '@/types/type'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import Image from 'next/image'
-// import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import SubmissionDetailContent from './SubmissionDetailContent'
@@ -29,7 +28,6 @@ export default function MySubmission({ problem }: { problem: ContestProblem }) {
 
   useEffect(() => {
     const getSubmission = async () => {
-      console.log(contestId, problem.id)
       const submissions: SubmissionsResponse = await fetcherWithAuth
         .get(`contest/${contestId}/submission`, {
           searchParams: {
@@ -63,7 +61,7 @@ export default function MySubmission({ problem }: { problem: ContestProblem }) {
             <DialogTrigger asChild>
               <TooltipTrigger asChild>
                 <Image
-                  src={seeSubmission}
+                  src={seeSubmissionIcon}
                   width={20}
                   height={20}
                   alt={'See submission'}
