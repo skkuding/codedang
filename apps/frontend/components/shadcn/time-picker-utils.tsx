@@ -1,30 +1,26 @@
 /**
  * regular expression to check for valid hour format (01-23)
  */
-export function isValidHour(value: string) {
-  return /^(0[0-9]|1[0-9]|2[0-3])$/.test(value)
-}
+export const isValidHour = (value: string) =>
+  /^(0[0-9]|1[0-9]|2[0-3])$/.test(value)
 
 /**
  * regular expression to check for valid 12 hour format (01-12)
  */
-export function isValid12Hour(value: string) {
-  return /^(0[1-9]|1[0-2])$/.test(value)
-}
+export const isValid12Hour = (value: string) => /^(0[1-9]|1[0-2])$/.test(value)
 
 /**
  * regular expression to check for valid minute format (00-59)
  */
-export function isValidMinuteOrSecond(value: string) {
-  return /^[0-5][0-9]$/.test(value)
-}
+export const isValidMinuteOrSecond = (value: string) =>
+  /^[0-5][0-9]$/.test(value)
 
 type GetValidNumberConfig = { max: number; min?: number; loop?: boolean }
 
-export function getValidNumber(
+export const getValidNumber = (
   value: string,
   { max, min = 0, loop = false }: GetValidNumberConfig
-) {
+) => {
   let numericValue = parseInt(value, 10)
 
   if (!isNaN(numericValue)) {
@@ -41,17 +37,17 @@ export function getValidNumber(
   return '00'
 }
 
-export function getValidHour(value: string) {
+export const getValidHour = (value: string) => {
   if (isValidHour(value)) return value
   return getValidNumber(value, { max: 23 })
 }
 
-export function getValid12Hour(value: string) {
+export const getValid12Hour = (value: string) => {
   if (isValid12Hour(value)) return value
   return getValidNumber(value, { max: 12 })
 }
 
-export function getValidMinuteOrSecond(value: string) {
+export const getValidMinuteOrSecond = (value: string) => {
   if (isValidMinuteOrSecond(value)) return value
   return getValidNumber(value, { max: 59 })
 }
@@ -62,10 +58,10 @@ type GetValidArrowNumberConfig = {
   step: number
 }
 
-export function getValidArrowNumber(
+export const getValidArrowNumber = (
   value: string,
   { min, max, step }: GetValidArrowNumberConfig
-) {
+) => {
   let numericValue = parseInt(value, 10)
   if (!isNaN(numericValue)) {
     numericValue += step
@@ -74,27 +70,27 @@ export function getValidArrowNumber(
   return '00'
 }
 
-export function getValidArrowHour(value: string, step: number) {
+export const getValidArrowHour = (value: string, step: number) => {
   return getValidArrowNumber(value, { min: 0, max: 23, step })
 }
 
-export function getValidArrowMinuteOrSecond(value: string, step: number) {
+export const getValidArrowMinuteOrSecond = (value: string, step: number) => {
   return getValidArrowNumber(value, { min: 0, max: 59, step })
 }
 
-export function setMinutes(date: Date, value: string) {
+export const setMinutes = (date: Date, value: string) => {
   const minutes = getValidMinuteOrSecond(value)
   date.setMinutes(parseInt(minutes, 10))
   return date
 }
 
-export function setSeconds(date: Date, value: string) {
+export const setSeconds = (date: Date, value: string) => {
   const seconds = getValidMinuteOrSecond(value)
   date.setSeconds(parseInt(seconds, 10))
   return date
 }
 
-export function setHours(date: Date, value: string) {
+export const setHours = (date: Date, value: string) => {
   const hours = getValidHour(value)
   date.setHours(parseInt(hours, 10))
   return date
@@ -102,7 +98,11 @@ export function setHours(date: Date, value: string) {
 
 export type TimePickerType = 'minutes' | 'seconds' | 'hours' // | "12hours";
 
-export function setDateByType(date: Date, value: string, type: TimePickerType) {
+export const setDateByType = (
+  date: Date,
+  value: string,
+  type: TimePickerType
+) => {
   switch (type) {
     case 'minutes':
       return setMinutes(date, value)
@@ -115,7 +115,7 @@ export function setDateByType(date: Date, value: string, type: TimePickerType) {
   }
 }
 
-export function getDateByType(date: Date, type: TimePickerType) {
+export const getDateByType = (date: Date, type: TimePickerType) => {
   switch (type) {
     case 'minutes':
       return getValidMinuteOrSecond(String(date.getMinutes()))
@@ -128,11 +128,11 @@ export function getDateByType(date: Date, type: TimePickerType) {
   }
 }
 
-export function getArrowByType(
+export const getArrowByType = (
   value: string,
   step: number,
   type: TimePickerType
-) {
+) => {
   switch (type) {
     case 'minutes':
       return getValidArrowMinuteOrSecond(value, step)

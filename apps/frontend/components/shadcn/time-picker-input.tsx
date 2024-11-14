@@ -1,6 +1,6 @@
 'use client'
 
-import { Input } from '@/components/ui/input'
+import { Input } from '@/components/shadcn/input'
 import { cn } from '@/lib/utils'
 import React from 'react'
 import type { TimePickerType } from './time-picker-utils'

@@ -1,12 +1,12 @@
 'use client'
 
+import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { cn, getResultColor } from '@/lib/utils'
 import type { TestResultDetail } from '@/types/type'
 import { useState } from 'react'
 import { IoMdClose } from 'react-icons/io'
 import TestcaseTable from './TestcaseTable'
 import { WhitespaceVisualizer } from './WhitespaceVisualizer'
-import { ScrollArea } from './ui/scroll-area'
 
 interface TestcasePanelProps {
   testResult: TestResultDetail[]

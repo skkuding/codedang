@@ -1,6 +1,6 @@
 'use client'
 
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import type { Problem } from '@/types/type'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import { Suspense } from 'react'

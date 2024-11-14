@@ -1,6 +1,6 @@
 'use client'
 
-import { Input } from '@/components/ui/input'
+import { Input } from '@/components/shadcn/input'
 import { cn } from '@/lib/utils'
 import { useFormContext } from 'react-hook-form'
 import { inputStyle } from '../_libs/utils'

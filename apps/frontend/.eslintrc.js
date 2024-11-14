@@ -14,7 +14,7 @@ module.exports = {
   overrides: [
     {
       files: ['*.tsx'],
-      excludedFiles: ['components/ui/*.tsx'],
+      excludedFiles: ['components/shadcn/*.tsx'],
       rules: {
         'react/function-component-definition': [
           'error',

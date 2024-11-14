@@ -1,7 +1,7 @@
 'use client'
 
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
-import { Skeleton } from '@/components/ui/skeleton'
+import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import {
   Table,
   TableHeader,
@@ -9,7 +9,7 @@ import {
   TableHead,
   TableBody,
   TableCell
-} from '@/components/ui/table'
+} from '@/components/shadcn/table'
 import {
   flexRender,
   getCoreRowModel,

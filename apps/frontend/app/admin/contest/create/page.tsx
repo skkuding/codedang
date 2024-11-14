@@ -10,15 +10,15 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogAction
-} from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
+} from '@/components/shadcn/alert-dialog'
+import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle
-} from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
+} from '@/components/shadcn/dialog'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
 import {
   CREATE_CONTEST,
   IMPORT_PROBLEMS_TO_CONTEST

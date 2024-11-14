@@ -1,8 +1,8 @@
 'use client'
 
 import { useConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
-import { Button } from '@/components/ui/button'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { Button } from '@/components/shadcn/button'
+import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
