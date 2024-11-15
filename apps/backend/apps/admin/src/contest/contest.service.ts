@@ -380,11 +380,6 @@ export class ContestService {
     if (!contest) {
       throw new EntityNotExistException('contest')
     }
-    if (contest.submission.length) {
-      throw new UnprocessableDataException(
-        'Cannot import problems if submission exists'
-      )
-    }
 
     const contestProblems: ContestProblem[] = []
 
@@ -467,11 +462,6 @@ export class ContestService {
     })
     if (!contest) {
       throw new EntityNotExistException('contest')
-    }
-    if (contest.submission.length) {
-      throw new UnprocessableDataException(
-        'Cannot delete problems if submission exists'
-      )
     }
 
     const contestProblems: ContestProblem[] = []
@@ -857,7 +847,8 @@ export class ContestService {
               select: {
                 realName: true
               }
-            }
+            },
+            major: true
           }
         }
       },
@@ -875,6 +866,7 @@ export class ContestService {
           username: record.user?.username,
           studentId: record.user?.studentId,
           realName: record.user?.userProfile?.realName,
+          major: record.user?.major,
           ...(await this.getContestScoreSummary(
             record.userId as number,
             contestId

@@ -34,6 +34,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
+import { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { ImageSource } from './model/image.output'
 import {
   CreateProblemInput,
@@ -291,6 +292,20 @@ export class ContestProblemResolver {
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)
     }
+  }
+
+  @Mutation(() => [ContestProblem])
+  async updateContestProblemsScore(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('contestId', { type: () => Int }) contestId: number,
+    @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
+    problemIdsWithScore: ProblemScoreInput[]
+  ) {
+    return await this.problemService.updateContestProblemsScore(
+      groupId,
+      contestId,
+      problemIdsWithScore
+    )
   }
 
   @Mutation(() => [ContestProblem])
