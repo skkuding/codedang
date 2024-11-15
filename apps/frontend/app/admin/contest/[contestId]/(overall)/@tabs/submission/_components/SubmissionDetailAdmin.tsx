@@ -27,9 +27,9 @@ export default function SubmissionDetailAdmin({
   })
   const submission = data?.getSubmission
   return (
-    <ScrollArea className="mt-5 max-h-[540px] w-[760px]">
+    <ScrollArea className="mt-5 max-h-[760px] w-[1000px]">
       {!loading && (
-        <div className="ml-20 flex w-[612px] flex-col gap-4">
+        <div className="mx-14 flex flex-col gap-4">
           <h1 className="flex text-lg font-semibold">
             <span className="max-w-[30%] truncate text-gray-400">
               {submission?.user?.userProfile?.realName}(
@@ -46,7 +46,21 @@ export default function SubmissionDetailAdmin({
           <ScrollArea className="max-w-full shrink-0 rounded-md">
             <div className="flex items-center justify-around gap-5 bg-gray-100 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
               <div>
-                <h2>User</h2>
+                <h2>Name</h2>
+                <p>{submission?.user?.userProfile?.realName}</p>
+              </div>
+              <div>
+                <h2>Student ID</h2>
+                <p>{submission?.user?.studentId}</p>
+              </div>
+              <div>
+                <h2>Major</h2>
+                <p className="max-w-[20ch] truncate">
+                  {submission?.user?.major}
+                </p>
+              </div>
+              <div>
+                <h2>User ID</h2>
                 <p>{submission?.user?.username}</p>
               </div>
               <div>
