@@ -206,8 +206,9 @@ export default function Editor({
   }
 
   const checkSaved = () => {
+    const code = getCode()
     if (storageKey.current !== undefined) {
-      const storedCode = getItem(storageKey.current) ?? ''
+      const storedCode = localStorage.getItem(storageKey.current) ?? ''
       if (storedCode && JSON.parse(storedCode) === code) return true
       else if (!storedCode && templateCode === code) return true
       else return false
