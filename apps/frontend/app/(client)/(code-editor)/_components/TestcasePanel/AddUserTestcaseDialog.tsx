@@ -12,7 +12,7 @@ import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/lib/utils'
 import type { TestcaseItem } from '@/types/type'
 import { AlertTriangle, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ChangeEvent } from 'react'
 import { useForm } from 'react-hook-form'
 import { CiSquarePlus } from 'react-icons/ci'
 import { FaPlus } from 'react-icons/fa'
@@ -21,29 +21,76 @@ import { IoIosClose } from 'react-icons/io'
 import CopyButton from '../CopyButton'
 import { useTestcaseStore } from '../context/TestcaseStoreProvider'
 
+interface EditableTestcaseItem extends TestcaseItem {
+  originalInput: string
+  originalOutput: string
+}
+
+const isEdited = (item: EditableTestcaseItem) =>
+  item.input !== item.originalInput || item.output !== item.originalOutput
+
 export default function AddUserTestcaseDialog() {
   const [open, setOpen] = useState(false)
   const { sampleTestcases, userTestcases, setUserTestcases } = useTestcaseStore(
     (state) => state
   )
 
-  const [testcase, setTestcase] = useState<TestcaseItem[]>(userTestcases)
+  const [testcases, setTestcases] = useState<EditableTestcaseItem[]>(
+    userTestcases.map((item) => ({
+      ...item,
+      originalInput: item.input,
+      originalOutput: item.output
+    }))
+  )
 
   const addTestcase = (testcase: TestcaseItem) => {
-    setTestcase((state) => state.concat(testcase))
+    setTestcases((state) =>
+      state.concat({
+        ...testcase,
+        originalInput: testcase.input,
+        originalOutput: testcase.output
+      })
+    )
+  }
+
+  const editTestcase = (testcase: TestcaseItem) => {
+    setTestcases((state) =>
+      state.map((item) =>
+        item.id === testcase.id
+          ? {
+              ...item,
+              input: testcase.input,
+              output: testcase.output
+            }
+          : item
+      )
+    )
   }
 
   const deleteTestcase = (id: number) => {
-    setTestcase((state) => state.filter((testcase) => testcase.id !== id))
+    setTestcases((state) => state.filter((testcase) => testcase.id !== id))
   }
 
   const saveUserTestcase = () => {
-    setUserTestcases(testcase)
+    setUserTestcases(
+      testcases.map((testcase) => ({
+        // NOTE: testcase가 수정된 경우 이전 테스트 결과를 초기화하기 위해 새로운 아이디를 부여합니다.
+        id: isEdited(testcase) ? new Date().getTime() : testcase.id,
+        input: testcase.input,
+        output: testcase.output
+      }))
+    )
     setOpen(false)
   }
 
   useEffect(() => {
-    setTestcase(userTestcases)
+    setTestcases(
+      userTestcases.map((item) => ({
+        ...item,
+        originalInput: item.input,
+        originalOutput: item.output
+      }))
+    )
   }, [userTestcases])
 
   return (
@@ -80,7 +127,7 @@ export default function AddUserTestcaseDialog() {
               </div>
             ))}
 
-            {testcase.map((testcase, index) => (
+            {testcases.map((testcase, index) => (
               <div key={testcase.id} className="flex flex-col gap-4">
                 <p className="text-primary-light">
                   User Testcase #{(index + 1).toString().padStart(2, '0')}
@@ -89,6 +136,7 @@ export default function AddUserTestcaseDialog() {
                   id={testcase.id}
                   input={testcase.input}
                   output={testcase.output}
+                  editTestcase={editTestcase}
                   deleteTestcase={deleteTestcase}
                 />
               </div>
@@ -97,7 +145,7 @@ export default function AddUserTestcaseDialog() {
             <div className="flex flex-col gap-4">
               <p className="text-primary-light">
                 User Testcase #
-                {(testcase.length + 1).toString().padStart(2, '0')}
+                {(testcases.length + 1).toString().padStart(2, '0')}
               </p>
               <UserTestcaseForm addTestcase={addTestcase} />
             </div>
@@ -152,12 +200,12 @@ function UserTestcaseForm({
       >
         <Textarea
           placeholder="Input"
-          className="z-10 resize-none border-0 px-4 py-0 shadow-none focus-visible:ring-0"
+          className="z-10 resize-none border-0 px-4 py-0 text-black shadow-none placeholder:text-[#3333334D] focus-visible:ring-0"
           {...register('input', { required: true })}
         />
         <Textarea
           placeholder="Output"
-          className="z-10 min-h-[80px] rounded-none border-l border-transparent border-l-gray-200 px-4 py-0 shadow-none focus-visible:ring-0"
+          className="z-10 min-h-[80px] rounded-none border-l border-transparent border-l-gray-200 px-4 py-0 text-black shadow-none placeholder:text-[#3333334D] focus-visible:ring-0"
           {...register('output', { required: true })}
         />
       </div>
@@ -225,13 +273,19 @@ function UserTestcaseItem({
   id,
   input,
   output,
+  editTestcase,
   deleteTestcase
 }: {
   id: number
   input: string
   output: string
+  editTestcase: (testcase: TestcaseItem) => void
   deleteTestcase: (id: number) => void
 }) {
+  const onChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    const { name, value } = e.currentTarget
+    editTestcase({ id, input, output, [name]: value })
+  }
   return (
     <div
       className={cn(
@@ -239,14 +293,16 @@ function UserTestcaseItem({
       )}
     >
       <Textarea
+        name="input"
         value={input}
-        readOnly
-        className="z-10 resize-none border-0 px-4 py-0 shadow-none focus-visible:ring-0"
+        onChange={onChange}
+        className="z-10 resize-none border-0 px-4 py-0 text-black shadow-none placeholder:text-[#3333334D] focus-visible:ring-0"
       />
       <Textarea
+        name="output"
         value={output}
-        readOnly
-        className="z-10 min-h-[80px] rounded-none border-l border-transparent border-l-gray-200 px-4 py-0 shadow-none focus-visible:ring-0"
+        onChange={onChange}
+        className="z-10 min-h-[80px] rounded-none border-l border-transparent border-l-gray-200 px-4 py-0 text-black shadow-none placeholder:text-[#3333334D] focus-visible:ring-0"
       />
       <button
         type="button"
