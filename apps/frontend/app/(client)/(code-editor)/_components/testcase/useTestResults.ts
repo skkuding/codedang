@@ -2,7 +2,7 @@ import { safeFetcherWithAuth } from '@/lib/utils'
 import { useTestcaseStore } from '@/stores/testcase'
 import type { TestResult } from '@/types/type'
 import { useQueries } from '@tanstack/react-query'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 import { create } from 'zustand'
 
@@ -81,19 +81,24 @@ const useGetTestResult = (type: 'sample' | 'user') => {
 export const useTestResults = () => {
   const getSampleTestResult = useGetTestResult('sample')
   const getUserTestResult = useGetTestResult('user')
-  const { samplePollingEnabled, userPollingEnagled } = usePollingTestStore()
+  const {
+    samplePollingEnabled,
+    userPollingEnagled,
+    setIsTesting,
+    stopPolling
+  } = usePollingTestStore()
 
   const { data, isError } = useQueries({
     queries: [
       {
-        queryKey: ['test'],
+        queryKey: ['submittion', 'test'],
         queryFn: getSampleTestResult,
         throwOnError: false,
         refetchInterval: REFETCH_INTERVAL,
         enabled: samplePollingEnabled
       },
       {
-        queryKey: ['user-test'],
+        queryKey: ['submission', 'user-test'],
         queryFn: getUserTestResult,
         throwOnError: false,
         refetchInterval: REFETCH_INTERVAL,
@@ -122,9 +127,14 @@ export const useTestResults = () => {
         })
       : []
 
-  if (isError) {
-    toast.error('Failed to execute some testcases. Please try again later.')
-  }
+  useEffect(() => {
+    if (isError) {
+      toast.error('Failed to execute some testcases. Please try again later.')
+      setIsTesting(false)
+      stopPolling('sample')
+      stopPolling('user')
+    }
+  }, [isError])
 
   return testResults
 }
