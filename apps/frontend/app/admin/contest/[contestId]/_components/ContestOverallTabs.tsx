@@ -7,6 +7,9 @@ import { useQuery } from '@apollo/client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { CSVLink } from 'react-csv'
+import { FaFileExcel } from 'react-icons/fa'
+
+// Import an Excel icon from react-icons
 
 interface ScoreSummary {
   realName: string
@@ -103,7 +106,7 @@ export default function ContestOverallTabs({
     pathname.startsWith(`/admin/contest/${id}/${tab}`)
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center justify-between">
       <div className="flex w-max gap-1 rounded-lg bg-slate-200 p-1">
         <Link
           href={`/admin/contest/${id}`}
@@ -124,13 +127,15 @@ export default function ContestOverallTabs({
           All Submission
         </Link>
       </div>
+
       <CSVLink
         data={csvData}
         headers={headers}
-        filename={`contest-${id}contestData?.title-participants.csv`}
-        className="text-primary ml-auto rounded-md bg-white px-3 py-1.5 text-lg font-bold"
+        filename={`contest-${id}-participants.csv`}
+        className="text-primary flex items-center gap-2 rounded-md bg-blue-100 px-3 py-1.5 text-lg font-semibold hover:bg-blue-200"
       >
-        Export CSV
+        <FaFileExcel className="text-green-600" /> {/* Excel icon */}
+        Export
       </CSVLink>
     </div>
   )
