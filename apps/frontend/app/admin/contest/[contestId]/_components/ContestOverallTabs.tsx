@@ -2,9 +2,9 @@
 
 import {
   GET_CONTEST_SCORE_SUMMARIES,
-  GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER
+  GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER,
+  GET_CONTESTS
 } from '@/graphql/contest/queries'
-import { GET_CONTESTS } from '@/graphql/contest/queries'
 import { cn } from '@/lib/utils'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
