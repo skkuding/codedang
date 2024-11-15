@@ -11,7 +11,7 @@ import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/lib/utils'
 import type { TestcaseItem } from '@/types/type'
-import { X } from 'lucide-react'
+import { AlertTriangle, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { CiSquarePlus } from 'react-icons/ci'
@@ -161,7 +161,12 @@ function UserTestcaseForm({
           {...register('output', { required: true })}
         />
       </div>
-      {hasError && <p className="text-error mt-2">Required</p>}
+      {hasError && (
+        <div className="text-error mt-2 flex items-center gap-1 text-[11px] font-medium leading-[14px]">
+          <AlertTriangle size={12} />
+          Required
+        </div>
+      )}
       <Button
         type="submit"
         className="mt-6 flex w-full gap-2 bg-[#555C66] text-[#C4CACC] hover:bg-[#222939] active:bg-[#222939]"
