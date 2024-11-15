@@ -51,10 +51,11 @@ export const useUserTestcase = () => {
   }
 
   const saveUserTestcases = () => {
+    let baseId = new Date().getTime()
     setUserTestcases(
       testcases.map((testcase) => ({
         // NOTE: testcase가 수정된 경우 이전 테스트 결과를 초기화하기 위해 새로운 아이디를 부여합니다.
-        id: isEdited(testcase) ? new Date().getTime() : testcase.id,
+        id: isEdited(testcase) ? baseId++ : testcase.id,
         input: testcase.input,
         output: testcase.output
       }))
