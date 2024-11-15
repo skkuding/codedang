@@ -26,7 +26,7 @@ import {
 } from '@generated'
 import { Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
-import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
+import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -295,31 +295,17 @@ export class ContestProblemResolver {
   }
 
   @Mutation(() => [ContestProblem])
-  @UseRolesGuard()
   async updateContestProblemsScore(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('contestId', { type: () => Int }) contestId: number,
     @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
     problemIdsWithScore: ProblemScoreInput[]
   ) {
-    try {
-      return await this.problemService.updateConsteProblemsScore(
-        groupId,
-        contestId,
-        problemIdsWithScore
-      )
-    } catch (error) {
-      if (
-        error instanceof UnprocessableDataException ||
-        error instanceof ForbiddenAccessException
-      ) {
-        throw error.convert2HTTPException()
-      } else if (error.code == 'P2025') {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException(error.message)
-    }
+    return await this.problemService.updateContestProblemsScore(
+      groupId,
+      contestId,
+      problemIdsWithScore
+    )
   }
 
   @Mutation(() => [ContestProblem])

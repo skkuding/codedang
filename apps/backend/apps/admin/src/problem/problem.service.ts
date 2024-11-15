@@ -604,7 +604,7 @@ export class ProblemService {
     return contestProblems
   }
 
-  async updateConsteProblemsScore(
+  async updateContestProblemsScore(
     groupId: number,
     contestId: number,
     problemIdsWithScore: ProblemScoreInput[]
