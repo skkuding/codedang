@@ -19,6 +19,7 @@ interface ScoreSummary {
   submittedProblemCount: number
   totalProblemCount: number
   problemScores: { problemId: number; score: number; maxScore: number }[]
+  major: string
 }
 
 interface SubmissionSummary {
@@ -70,10 +71,12 @@ export default function ContestOverallTabs({
   })
 
   const headers = [
+    { label: '전공', key: 'major' },
     { label: '이름', key: 'realName' },
     { label: '학번', key: 'studentId' },
     { label: '총 획득 점수/총점', key: 'scoreRatio' },
     { label: '제출 문제 수/총 문제 수', key: 'problemRatio' },
+
     ...problemHeaders
   ]
 
@@ -91,6 +94,7 @@ export default function ContestOverallTabs({
       })
 
       return {
+        major: user.major,
         realName: user.realName,
         studentId: user.studentId,
         scoreRatio: `${user.userContestScore}/${user.contestPerfectScore}`,
