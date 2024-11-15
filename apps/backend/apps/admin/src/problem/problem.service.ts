@@ -23,6 +23,7 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from './model/problem.constants'
 import type {
@@ -601,6 +602,31 @@ export class ProblemService {
       where: { contestId }
     })
     return contestProblems
+  }
+
+  async updateContestProblemsScore(
+    groupId: number,
+    contestId: number,
+    problemIdsWithScore: ProblemScoreInput[]
+  ): Promise<Partial<ContestProblem>[]> {
+    await this.prisma.contest.findFirstOrThrow({
+      where: { id: contestId, groupId }
+    })
+
+    const queries = problemIdsWithScore.map((record) => {
+      return this.prisma.contestProblem.update({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_problemId: {
+            contestId,
+            problemId: record.problemId
+          }
+        },
+        data: { score: record.score }
+      })
+    })
+
+    return await this.prisma.$transaction(queries)
   }
 
   async updateContestProblemsOrder(

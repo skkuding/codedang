@@ -380,11 +380,6 @@ export class ContestService {
     if (!contest) {
       throw new EntityNotExistException('contest')
     }
-    if (contest.submission.length) {
-      throw new UnprocessableDataException(
-        'Cannot import problems if submission exists'
-      )
-    }
 
     const contestProblems: ContestProblem[] = []
 
@@ -467,11 +462,6 @@ export class ContestService {
     })
     if (!contest) {
       throw new EntityNotExistException('contest')
-    }
-    if (contest.submission.length) {
-      throw new UnprocessableDataException(
-        'Cannot delete problems if submission exists'
-      )
     }
 
     const contestProblems: ContestProblem[] = []
