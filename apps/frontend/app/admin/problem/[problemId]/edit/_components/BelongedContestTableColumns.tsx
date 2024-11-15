@@ -72,7 +72,7 @@ export const columns: ColumnDef<BelongedContest>[] = [
           row.original.isSetToZero && 'text-primary'
         )}
       >
-        {row.getValue('problemScore')}
+        {row.original.isSetToZero ? '0' : row.getValue('problemScore')}
       </p>
     )
   },
@@ -88,7 +88,11 @@ export const columns: ColumnDef<BelongedContest>[] = [
           row.original.isSetToZero && 'text-primary'
         )}
       >
-        {row.getValue('problemScore')}/{row.getValue('totalScore')}
+        {row.original.isSetToZero ? '0' : row.getValue('problemScore')}/
+        {row.original.isSetToZero
+          ? Number(row.getValue('totalScore')) -
+            Number(row.getValue('problemScore'))
+          : row.getValue('totalScore')}
       </p>
     )
   }

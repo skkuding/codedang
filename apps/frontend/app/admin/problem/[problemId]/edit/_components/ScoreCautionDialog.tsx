@@ -1,13 +1,12 @@
+import { Button } from '@/components/ui/button'
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from '@/components/ui/alert-dialog'
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
 import {
   IMPORT_PROBLEMS_TO_CONTEST,
   REMOVE_PROBLEMS_FROM_CONTEST
@@ -33,13 +32,11 @@ export function ScoreCautionDialog({
   const [zeroSetContests, setZeroSetContests] = useState<number[]>([])
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="h-[627px] max-h-[627px] w-[875px] max-w-[875px] gap-6">
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            Are you sure you want to edit this problem?
-          </AlertDialogTitle>
-          <AlertDialogDescription className="gap-4 whitespace-pre-line">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="h-[627px] max-h-[627px] w-[875px] max-w-[875px] gap-6 p-10">
+        <DialogHeader>
+          <DialogTitle>Are you sure you want to edit this problem?</DialogTitle>
+          <DialogDescription className="gap-4 whitespace-pre-line pt-4">
             <ul className="list-decimal space-y-4 pl-4">
               <li className="marker:text-xs marker:font-bold marker:text-black">
                 <p className="text-xs font-bold text-black">
@@ -76,20 +73,23 @@ export function ScoreCautionDialog({
                 <BelongedContestTable
                   problemId={problemId}
                   onSetToZero={(contests) => setZeroSetContests(contests)}
+                  onRevertScore={() => setZeroSetContests([])}
                 ></BelongedContestTable>
+                <div className="my-4 border-b" />
               </li>
             </ul>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter className="sm:justify-center">
-          <AlertDialogCancel
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="sm:justify-end">
+          <Button
             type="button"
+            variant="filter"
             className="rounded-md px-4 py-2"
             onClick={onClose}
           >
             Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction
+          </Button>
+          <Button
             onClick={() => {
               zeroSetContests.map(async (contestId) => {
                 await removeProblemsFromContest({
@@ -107,13 +107,13 @@ export function ScoreCautionDialog({
                   }
                 })
               })
-              onClose
+              onClose()
             }}
           >
             Confirm
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

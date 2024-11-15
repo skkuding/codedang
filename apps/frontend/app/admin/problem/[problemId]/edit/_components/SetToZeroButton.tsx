@@ -6,9 +6,7 @@ interface SetToZeroButtonProps {
   onSetToZero: (data: number[]) => void
 }
 
-export default function ImportProblemButton({
-  onSetToZero
-}: SetToZeroButtonProps) {
+export default function SetToZeroButton({ onSetToZero }: SetToZeroButtonProps) {
   const { table } = useDataTable<BelongedContest>()
 
   const selectedContests = table
@@ -17,11 +15,8 @@ export default function ImportProblemButton({
 
   return (
     <>
-      {selectedContests.length && (
-        <Button
-          onClick={() => onSetToZero(selectedContests)}
-          className="ml-auto"
-        >
+      {selectedContests.length > 0 && (
+        <Button onClick={() => onSetToZero(selectedContests)} variant="outline">
           Set to Zero
         </Button>
       )}
