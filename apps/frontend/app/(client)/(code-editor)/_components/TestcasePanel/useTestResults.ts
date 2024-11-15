@@ -29,17 +29,18 @@ const useGetTestResult = (type: 'sample' | 'user') => {
       (submission) => submission.result !== 'Judging'
     )
 
-    if (!allJudged) {
-      if (attempts.current < MAX_ATTEMPTS) {
-        attempts.current += 1
-      } else {
-        setIsTesting(false)
-        stopPolling(type)
-        toast.error('Judging took too long. Please try again later.')
-      }
-    } else {
+    if (allJudged) {
+      // Test execution is finished
       setIsTesting(false)
       stopPolling(type)
+    } else if (attempts.current < MAX_ATTEMPTS) {
+      // Retry
+      attempts.current += 1
+    } else {
+      // No more retry
+      setIsTesting(false)
+      stopPolling(type)
+      toast.error('Judging took too long. Please try again later.')
     }
 
     return results
