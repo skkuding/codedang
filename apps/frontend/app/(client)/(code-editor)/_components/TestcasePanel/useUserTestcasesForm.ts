@@ -45,8 +45,7 @@ export const useUserTestcasesForm = (options: { onSubmit?: () => void }) => {
   const {
     fields: testcases,
     append,
-    remove,
-    replace
+    remove
   } = useFieldArray({
     control,
     name: 'testcases'
@@ -57,11 +56,7 @@ export const useUserTestcasesForm = (options: { onSubmit?: () => void }) => {
   }
 
   const removeTestcase = (index: number) => {
-    if (testcases.length === 1) {
-      replace(getEmptyTestcase())
-    } else {
-      remove(index)
-    }
+    remove(index)
   }
 
   const onSubmit = handleSubmit(({ testcases }) => {
