@@ -2,6 +2,7 @@ import {
   GET_CONTEST_SCORE_SUMMARIES,
   GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER
 } from '@/graphql/contest/queries'
+import { GET_CONTESTS } from '@/graphql/contest/queries'
 import { cn } from '@/lib/utils'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
@@ -21,7 +22,6 @@ interface ScoreSummary {
   problemScores: { problemId: number; score: number; maxScore: number }[]
   major: string
 }
-
 interface SubmissionSummary {
   problemId: number
 }
@@ -49,6 +49,21 @@ export default function ContestOverallTabs({
     variables: { contestId: id, userId, take: 300 },
     skip: !contestId || !userId
   })
+
+  // Contest Title 가져오기
+  const { data: contestData } = useQuery(GET_CONTESTS, {
+    variables: { groupId: 1, take: 100 }, // groupId 및 take 값을 필요에 맞게 설정
+    skip: !contestId
+  })
+
+  const contestTitle = contestData?.getContests.find(
+    (contest) => contest.id === contestId
+  )?.title
+
+  // CSV 파일 이름 설정
+  const fileName = contestTitle
+    ? `${contestTitle.replace(/\s+/g, '_')}.csv`
+    : `contest-${id}-participants.csv`
 
   // 전체 사용자의 문제 ID 집합을 추출하여 고유한 문제 목록 생성
   const uniqueProblems = Array.from(
@@ -135,7 +150,7 @@ export default function ContestOverallTabs({
       <CSVLink
         data={csvData}
         headers={headers}
-        filename={`contest-${id}-participants.csv`}
+        filename={fileName}
         className="text-primary flex items-center gap-2 rounded-md bg-blue-100 px-3 py-1.5 text-lg font-semibold hover:bg-blue-200"
       >
         <FaFileExcel className="text-green-600" /> {/* Excel icon */}
