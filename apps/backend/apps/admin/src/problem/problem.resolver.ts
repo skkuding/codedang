@@ -26,7 +26,7 @@ import {
 } from '@generated'
 import { Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
-import { AuthenticatedRequest } from '@libs/auth'
+import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -34,6 +34,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
+import { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { ImageSource } from './model/image.output'
 import {
   CreateProblemInput,
@@ -279,6 +280,34 @@ export class ContestProblemResolver {
   ) {
     try {
       return await this.problemService.getContestProblems(groupId, contestId)
+    } catch (error) {
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof ForbiddenAccessException
+      ) {
+        throw error.convert2HTTPException()
+      } else if (error.code == 'P2025') {
+        throw new NotFoundException(error.message)
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException(error.message)
+    }
+  }
+
+  @Mutation(() => [ContestProblem])
+  @UseRolesGuard()
+  async updateContestProblemsScore(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('contestId', { type: () => Int }) contestId: number,
+    @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
+    problemIdsWithScore: ProblemScoreInput[]
+  ) {
+    try {
+      return await this.problemService.updateConsteProblemsScore(
+        groupId,
+        contestId,
+        problemIdsWithScore
+      )
     } catch (error) {
       if (
         error instanceof UnprocessableDataException ||
