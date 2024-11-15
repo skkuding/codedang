@@ -74,11 +74,9 @@ export default function Editor({
   const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
   const storageKey = useRef(getKey(language, problem.id, userName, contestId))
   const { currentModal, showSignIn } = useAuthModalStore((state) => state)
-  const [stay, setStay] = useState<boolean>(true)
   const [showModal, setShowModal] = useState<boolean>(false)
   const pushed = useRef(false)
   const whereToPush = useRef('')
-  const isCodeSaved = useRef(false)
   const isModalConfrimed = useRef(false)
 
   useInterval(
@@ -257,7 +255,6 @@ export default function Editor({
       toast.error('Log in first to save your code')
     } else {
       if (storeCodeToLocalstorage()) {
-        isCodeSaved.current = true
         toast.success(
           `Successfully ${isSubmitting ? 'submitted' : 'saved'} the code`
         )
@@ -299,7 +296,7 @@ export default function Editor({
   }
 
   const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-    if (!isCodeSaved.current) {
+    if (!checkSaved()) {
       e.preventDefault()
       whereToPush.current = pathname
     }
@@ -309,7 +306,7 @@ export default function Editor({
     storageKey.current = getKey(language, problem.id, userName, contestId)
 
     const handlePopState = () => {
-      if (!isCodeSaved.current) {
+      if (!checkSaved()) {
         whereToPush.current = contestId ? `/contest/${contestId}` : '/problem'
         setShowModal(true)
       } else window.history.back()
@@ -331,7 +328,7 @@ export default function Editor({
     const originalPush = router.push
 
     router.push = (href, ...args) => {
-      if (isCodeSaved.current || isModalConfrimed.current) {
+      if (checkSaved() || isModalConfrimed.current) {
         originalPush(href, ...args)
         return
       }
@@ -347,16 +344,7 @@ export default function Editor({
     return () => {
       router.push = originalPush
     }
-  }, [router, isCodeSaved.current])
-
-  useEffect(() => {
-    if (!stay) router.push(whereToPush.current as Route)
-  }, [stay])
-
-  useEffect(() => {
-    if (checkSaved()) isCodeSaved.current = true
-    else isCodeSaved.current = false
-  }, [code])
+  }, [router])
 
   return (
     <div className="flex shrink-0 items-center justify-between border-b border-b-slate-700 bg-[#222939] px-6">
@@ -455,7 +443,7 @@ export default function Editor({
         title="Leave this page?"
         description="Changes you made my not be saved."
         onClose={() => setShowModal(false)}
-        onBack={() => setStay(false)}
+        onBack={() => router.push(whereToPush.current as Route)}
       />
     </div>
   )
