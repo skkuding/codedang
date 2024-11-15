@@ -20,7 +20,7 @@ const createTestPollingStore = () =>
       set((state) => ({
         ...state,
         samplePollingEnabled: true,
-        userPollingEnagled: true
+        userPollingEnabled: true
       }))
     },
     stopPolling: (type) => {
@@ -28,7 +28,7 @@ const createTestPollingStore = () =>
         ...state,
         samplePollingEnabled:
           type === 'sample' ? false : state.samplePollingEnabled,
-        userPollingEnagled: type === 'user' ? false : state.userPollingEnabled
+        userPollingEnabled: type === 'user' ? false : state.userPollingEnabled
       }))
     }
   }))
