@@ -12,12 +12,14 @@ import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/lib/utils'
 import { useTestcaseStore } from '@/stores/testcase'
 import type { TestcaseItem } from '@/types/type'
+import { X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { CiSquarePlus } from 'react-icons/ci'
 import { FaPlus } from 'react-icons/fa'
 import { FaCircleCheck } from 'react-icons/fa6'
 import { IoIosClose } from 'react-icons/io'
+import CopyButton from '../CopyButton'
 
 export default function AddUserTestcaseDialog() {
   const [open, setOpen] = useState(false)
@@ -51,18 +53,23 @@ export default function AddUserTestcaseDialog() {
         Add Testcase
       </DialogTrigger>
 
-      <DialogContent className="w-[700px] max-w-[700px] bg-[#121728] p-0">
-        <ScrollArea className="h-[600px] px-14 pb-[40px] pt-[70px]">
+      <DialogContent
+        className="w-[700px] max-w-[700px] bg-[#121728] p-0"
+        hideCloseButton
+      >
+        <DialogClose className="absolute right-6 top-6 z-10">
+          <X className="h-6 w-6 text-[#b0b0b0]" />
+          <span className="sr-only">Close</span>
+        </DialogClose>
+        <ScrollArea className="h-[600px] px-14">
           <ScrollBar />
-          <DialogHeader>
-            <DialogTitle className="mb-8 text-white">
-              Add User Testcase
-            </DialogTitle>
+          <DialogHeader className="mt-[70px]">
+            <DialogTitle className="text-white">Add User Testcase</DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-6">
+          <div className="my-8 flex flex-col gap-6">
             {sampleTestcases.map((testcase, index) => (
-              <div key={testcase.id} className="flex flex-col gap-2">
+              <div key={testcase.id} className="flex flex-col gap-4">
                 <p className="text-[#C4CACC]">
                   Sample #{(index + 1).toString().padStart(2, '0')}
                 </p>
@@ -74,7 +81,7 @@ export default function AddUserTestcaseDialog() {
             ))}
 
             {testcase.map((testcase, index) => (
-              <div key={testcase.id} className="flex flex-col gap-2">
+              <div key={testcase.id} className="flex flex-col gap-4">
                 <p className="text-primary-light">
                   User Testcase #{(index + 1).toString().padStart(2, '0')}
                 </p>
@@ -87,28 +94,27 @@ export default function AddUserTestcaseDialog() {
               </div>
             ))}
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-4">
               <p className="text-primary-light">
                 User Testcase #
                 {(testcase.length + 1).toString().padStart(2, '0')}
               </p>
               <UserTestcaseForm addTestcase={addTestcase} />
             </div>
-
-            <div className="mt-2 flex flex-row justify-end gap-3">
-              <DialogClose asChild>
-                <Button className="h-[40px] w-[78px] bg-[#DCE3E5] text-[#787E80]">
-                  Cancel
-                </Button>
-              </DialogClose>
-              <Button
-                className="flex h-[40px] w-[95px] gap-2 bg-[#3581FA] text-white"
-                onClick={saveUserTestcase}
-              >
-                <FaCircleCheck />
-                Save
+          </div>
+          <div className="mb-[40px] flex flex-row justify-end gap-3">
+            <DialogClose asChild>
+              <Button className="h-[40px] w-[78px] bg-[#DCE3E5] text-[#787E80] hover:bg-[#C4CACC] hover:text-[#5F6566] active:bg-[#C4CACC] active:text-[#5F6566]">
+                Cancel
               </Button>
-            </div>
+            </DialogClose>
+            <Button
+              className="flex h-[40px] w-[95px] gap-2 text-white hover:text-neutral-200 active:text-neutral-200"
+              onClick={saveUserTestcase}
+            >
+              <FaCircleCheck />
+              Save
+            </Button>
           </div>
         </ScrollArea>
       </DialogContent>
@@ -180,16 +186,32 @@ function SampleTestcaseItem({
         'flex h-[80px] w-full rounded-md border border-[#313744] bg-[#222939] font-mono shadow-sm'
       )}
     >
-      <Textarea
-        value={input}
-        readOnly
-        className="resize-none border-0 px-4 py-3 text-white shadow-none focus-visible:ring-0"
-      />
-      <Textarea
-        value={output}
-        readOnly
-        className="min-h-[80px] rounded-none border-l border-transparent border-l-[#313744] px-4 py-3 text-white shadow-none focus-visible:ring-0"
-      />
+      <div className="relative flex-1">
+        <Textarea
+          value={input}
+          readOnly
+          className="resize-none border-0 px-4 py-3 text-white shadow-none focus-visible:ring-0"
+        />
+        <CopyButton
+          value={input}
+          withTooltip={false}
+          iconSize={16}
+          className="absolute right-4 top-3 z-20 size-6 text-[#AAB1B2]"
+        />
+      </div>
+      <div className="relative flex-1">
+        <Textarea
+          value={output}
+          readOnly
+          className="min-h-[80px] rounded-none border-l border-transparent border-l-[#313744] px-4 py-3 text-white shadow-none focus-visible:ring-0"
+        />
+        <CopyButton
+          value={output}
+          withTooltip={false}
+          iconSize={16}
+          className="absolute right-4 top-3 z-20 size-6 text-[#AAB1B2]"
+        />
+      </div>
     </div>
   )
 }
@@ -221,8 +243,12 @@ function UserTestcaseItem({
         readOnly
         className="z-10 min-h-[80px] rounded-none border-l border-transparent border-l-gray-200 px-4 py-0 shadow-none focus-visible:ring-0"
       />
-      <button type="button" className="absolute right-4 z-20 text-[#9B9B9B]">
-        <IoIosClose size={25} onClick={() => deleteTestcase(id)} />
+      <button
+        type="button"
+        className="absolute right-4 z-20 text-[#9B9B9B]"
+        onClick={() => deleteTestcase(id)}
+      >
+        <IoIosClose size={25} />
       </button>
     </div>
   )
