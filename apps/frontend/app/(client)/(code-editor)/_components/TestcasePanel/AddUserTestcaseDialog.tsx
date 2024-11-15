@@ -12,7 +12,7 @@ import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/lib/utils'
 import type { TestcaseItem } from '@/types/type'
 import { AlertTriangle, X } from 'lucide-react'
-import { useEffect, useState, type ChangeEvent } from 'react'
+import { useState, type ChangeEvent } from 'react'
 import { useForm } from 'react-hook-form'
 import { CiSquarePlus } from 'react-icons/ci'
 import { FaPlus } from 'react-icons/fa'
@@ -20,78 +20,24 @@ import { FaCircleCheck } from 'react-icons/fa6'
 import { IoIosClose } from 'react-icons/io'
 import CopyButton from '../CopyButton'
 import { useTestcaseStore } from '../context/TestcaseStoreProvider'
-
-interface EditableTestcaseItem extends TestcaseItem {
-  originalInput: string
-  originalOutput: string
-}
-
-const isEdited = (item: EditableTestcaseItem) =>
-  item.input !== item.originalInput || item.output !== item.originalOutput
+import { useUserTestcase } from './useUserTestcase'
 
 export default function AddUserTestcaseDialog() {
   const [open, setOpen] = useState(false)
-  const { sampleTestcases, userTestcases, setUserTestcases } = useTestcaseStore(
-    (state) => state
-  )
+  const sampleTestcases = useTestcaseStore((state) => state.sampleTestcases)
 
-  const [testcases, setTestcases] = useState<EditableTestcaseItem[]>(
-    userTestcases.map((item) => ({
-      ...item,
-      originalInput: item.input,
-      originalOutput: item.output
-    }))
-  )
+  const {
+    testcases,
+    addTestcase,
+    editTestcase,
+    deleteTestcase,
+    saveUserTestcases
+  } = useUserTestcase()
 
-  const addTestcase = (testcase: TestcaseItem) => {
-    setTestcases((state) =>
-      state.concat({
-        ...testcase,
-        originalInput: testcase.input,
-        originalOutput: testcase.output
-      })
-    )
-  }
-
-  const editTestcase = (testcase: TestcaseItem) => {
-    setTestcases((state) =>
-      state.map((item) =>
-        item.id === testcase.id
-          ? {
-              ...item,
-              input: testcase.input,
-              output: testcase.output
-            }
-          : item
-      )
-    )
-  }
-
-  const deleteTestcase = (id: number) => {
-    setTestcases((state) => state.filter((testcase) => testcase.id !== id))
-  }
-
-  const saveUserTestcase = () => {
-    setUserTestcases(
-      testcases.map((testcase) => ({
-        // NOTE: testcase가 수정된 경우 이전 테스트 결과를 초기화하기 위해 새로운 아이디를 부여합니다.
-        id: isEdited(testcase) ? new Date().getTime() : testcase.id,
-        input: testcase.input,
-        output: testcase.output
-      }))
-    )
+  const onClickSaveButton = () => {
+    saveUserTestcases()
     setOpen(false)
   }
-
-  useEffect(() => {
-    setTestcases(
-      userTestcases.map((item) => ({
-        ...item,
-        originalInput: item.input,
-        originalOutput: item.output
-      }))
-    )
-  }, [userTestcases])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -158,7 +104,7 @@ export default function AddUserTestcaseDialog() {
             </DialogClose>
             <Button
               className="flex h-[40px] w-[95px] gap-2 text-white hover:text-neutral-200 active:text-neutral-200"
-              onClick={saveUserTestcase}
+              onClick={onClickSaveButton}
             >
               <FaCircleCheck />
               Save
