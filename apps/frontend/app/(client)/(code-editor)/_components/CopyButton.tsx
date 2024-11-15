@@ -8,7 +8,12 @@ import { cn } from '@/lib/utils'
 import copyBlueIcon from '@/public/icons/copy-blue.svg'
 import { LazyMotion, m, domAnimation } from 'framer-motion'
 import Image from 'next/image'
-import { useRef, useState, type ComponentPropsWithoutRef } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ComponentPropsWithoutRef
+} from 'react'
 import { useCopyToClipboard } from 'react-use'
 import { toast } from 'sonner'
 
@@ -50,11 +55,17 @@ export default function CopyButton({
 }: CopyButtonProps) {
   const { copied, copy } = useCopy()
 
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   return (
     <LazyMotion features={domAnimation}>
       <m.div
         key={copied ? 'check' : 'clipboard'}
-        initial={{ y: 10, opacity: 0 }}
+        initial={mounted ? { y: 10, opacity: 0 } : undefined}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: -10, opacity: 0 }}
         transition={{ duration: 0.2 }}
