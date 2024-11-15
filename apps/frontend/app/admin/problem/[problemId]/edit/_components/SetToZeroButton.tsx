@@ -1,5 +1,5 @@
 import { useDataTable } from '@/app/admin/_components/table/context'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import type { BelongedContest } from './BelongedContestTableColumns'
 
 interface SetToZeroButtonProps {

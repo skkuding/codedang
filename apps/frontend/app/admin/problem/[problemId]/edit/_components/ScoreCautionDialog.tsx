@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
   DialogContent,
@@ -6,33 +6,33 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle
-} from '@/components/ui/dialog'
-import {
-  IMPORT_PROBLEMS_TO_CONTEST,
-  REMOVE_PROBLEMS_FROM_CONTEST
-} from '@/graphql/contest/mutations'
+} from '@/components/shadcn/dialog'
+import { UPDATE_CONTEST_PROBLEMS_SCORES } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import { useState } from 'react'
 import { BelongedContestTable } from './BelongedContestTable'
 
 interface ScoreCautionDialogProps {
   isOpen: boolean
-  onClose: () => void
+  onCancel: () => void
+  onConfirm: () => void
   problemId: number
 }
 
 export function ScoreCautionDialog({
   isOpen,
-  onClose,
+  onCancel,
+  onConfirm,
   problemId
 }: ScoreCautionDialogProps) {
-  const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
-  const [removeProblemsFromContest] = useMutation(REMOVE_PROBLEMS_FROM_CONTEST)
+  const [updateContestsProblemsScores] = useMutation(
+    UPDATE_CONTEST_PROBLEMS_SCORES
+  )
 
   const [zeroSetContests, setZeroSetContests] = useState<number[]>([])
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={onCancel}>
       <DialogContent className="h-[627px] max-h-[627px] w-[875px] max-w-[875px] gap-6 p-10">
         <DialogHeader>
           <DialogTitle>Are you sure you want to edit this problem?</DialogTitle>
@@ -85,21 +85,14 @@ export function ScoreCautionDialog({
             type="button"
             variant="filter"
             className="rounded-md px-4 py-2"
-            onClick={onClose}
+            onClick={onCancel}
           >
             Cancel
           </Button>
           <Button
             onClick={() => {
               zeroSetContests.map(async (contestId) => {
-                await removeProblemsFromContest({
-                  variables: {
-                    groupId: 1,
-                    contestId: Number(contestId),
-                    problemIds: problemId
-                  }
-                })
-                await importProblemsToContest({
+                await updateContestsProblemsScores({
                   variables: {
                     groupId: 1,
                     contestId: Number(contestId),
@@ -107,7 +100,7 @@ export function ScoreCautionDialog({
                   }
                 })
               })
-              onClose()
+              onConfirm()
             }}
           >
             Confirm

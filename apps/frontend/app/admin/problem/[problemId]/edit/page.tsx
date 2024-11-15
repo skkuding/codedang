@@ -55,6 +55,10 @@ export default function Page({ params }: { params: { problemId: string } }) {
     memoryLimit: number
   } | null>(null)
 
+  const [pendingInput, setPendingInput] = useState<UpdateProblemInput | null>(
+    null
+  )
+
   useQuery(GET_PROBLEM, {
     variables: {
       groupId: 1,
@@ -119,6 +123,25 @@ export default function Page({ params }: { params: { problemId: string } }) {
 
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
 
+  const handleUpdate = async () => {
+    if (pendingInput) {
+      await updateProblem({
+        variables: {
+          groupId: 1,
+          input: pendingInput
+        }
+      })
+      if (error) {
+        toast.error('Failed to update problem')
+        return
+      }
+      shouldSkipWarning.current = true
+      toast.success('Successfully updated problem')
+      router.push('/admin/problem')
+      router.refresh()
+    }
+  }
+
   const onSubmit = async (input: UpdateProblemInput) => {
     const testcases = getValues('testcases') as Testcase[]
     if (validateScoreWeight(testcases) === false) {
@@ -129,6 +152,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
       return
     }
 
+    setPendingInput(input)
     if (initialValues) {
       const currentValues = getValues()
       let scoreCalculationChanged = false
@@ -149,21 +173,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
         return
       }
     }
-
-    await updateProblem({
-      variables: {
-        groupId: 1,
-        input
-      }
-    })
-    if (error) {
-      toast.error('Failed to update problem')
-      return
-    }
-    shouldSkipWarning.current = true
-    toast.success('Succesfully updated problem')
-    router.push('/admin/problem')
-    router.refresh()
+    await handleUpdate()
   }
 
   return (
@@ -258,7 +268,11 @@ export default function Page({ params }: { params: { problemId: string } }) {
       />
       <ScoreCautionDialog
         isOpen={isScoreDialogOpen}
-        onClose={() => setIsScoreDialogOpen(false)}
+        onCancel={() => setIsScoreDialogOpen(false)}
+        onConfirm={async () => {
+          await handleUpdate()
+          setIsScoreDialogOpen(false)
+        }}
         problemId={Number(problemId)}
       />
     </ScrollArea>

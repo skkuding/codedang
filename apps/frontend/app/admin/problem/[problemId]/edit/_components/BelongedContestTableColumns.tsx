@@ -1,7 +1,7 @@
 'use client'
 
 import DataTableColumnHeader from '@/app/admin/_components/table/DataTableColumnHeader'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Checkbox } from '@/components/shadcn/checkbox'
 import { cn } from '@/lib/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 
