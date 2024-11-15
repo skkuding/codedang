@@ -7,7 +7,7 @@ interface TestcaseState {
   sampleTestcases: TestcaseItem[]
   userTestcases: TestcaseItem[]
   setUserTestcases: (value: TestcaseItem[]) => void
-  getTestcases: () => TestcaseItem[]
+  getTestcases: () => (TestcaseItem & { isUserTestcase: boolean })[]
   getUserTestcases: () => TestcaseItem[]
 }
 
@@ -28,7 +28,16 @@ const createTestcaseStore = (
         getUserTestcases: () => get().userTestcases,
         getTestcases: () => {
           const { sampleTestcases, userTestcases } = get()
-          return sampleTestcases.concat(userTestcases)
+          return [
+            ...sampleTestcases.map((item) => ({
+              ...item,
+              isUserTestcase: false
+            })),
+            ...userTestcases.map((item) => ({
+              ...item,
+              isUserTestcase: true
+            }))
+          ]
         }
       }),
       {

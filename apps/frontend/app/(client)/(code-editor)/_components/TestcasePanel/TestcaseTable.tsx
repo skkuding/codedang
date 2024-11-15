@@ -36,7 +36,7 @@ export default function TestcaseTable({
             onClick={() => moveToDetailTab(testResult)}
           >
             <TableCell className="p-3 text-left md:p-3">
-              Sample #{testResult.id}
+              {testResult.isUserTestcase ? 'User' : 'Sample'} #{testResult.id}
             </TableCell>
             <TableCell className="max-w-96 truncate p-3 md:p-3">
               <WhitespaceVisualizer

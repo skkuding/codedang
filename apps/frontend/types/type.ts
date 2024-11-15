@@ -183,6 +183,7 @@ export interface TestResult {
 export interface TestResultDetail extends TestResult {
   input: string
   expectedOutput: string
+  isUserTestcase: boolean
 }
 
 export interface SettingsFormat {

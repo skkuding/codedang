@@ -2,8 +2,8 @@
 
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { cn, getResultColor } from '@/lib/utils'
-import type { TestResult, TestResultDetail } from '@/types/type'
-import { useState } from 'react'
+import type { TestResultDetail } from '@/types/type'
+import { useState, type ReactNode } from 'react'
 import { IoMdClose } from 'react-icons/io'
 import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
 import AddUserTestcaseDialog from './AddUserTestcaseDialog'
@@ -40,47 +40,56 @@ export default function TestcasePanel() {
   return (
     <>
       <div className="flex h-12 w-full">
-        <div
-          className={cn(
-            'w-44 flex-shrink-0 cursor-pointer content-center text-center',
-            currentTab === 0 ? 'bg-[#222939]' : 'bg-[#121728]',
-            testcaseTabList.length > 0 &&
-              currentTab === testcaseTabList[0].id &&
-              'rounded-br-xl'
-          )}
-          onClick={() => setCurrentTab(0)}
+        <TestcaseTab
+          currentTab={currentTab}
+          onClickTab={() => setCurrentTab(0)}
+          nextTab={testcaseTabList[0]?.id}
+          className="flex-shrink-0"
         >
           {testcaseTabList.length < 7 ? 'Testcase Result' : 'TC Res'}
-        </div>
+        </TestcaseTab>
 
-        <div
+        <ScrollArea
           className={cn(
-            'flex w-[calc(100%-11rem)] gap-2 border-l border-[#222939] bg-[#121728]',
-            currentTab === testcaseTabList[testcaseTabList.length - 1]?.id &&
-              'rounded-bl-xl',
-            currentTab === 0 && testcaseTabList.length === 0 && 'rounded-bl-xl'
+            'relative h-full w-full overflow-x-auto',
+            currentTab === 0 && 'rounded-bl-xl'
           )}
         >
-          <ScrollArea className="h-full w-full overflow-x-auto">
-            <div className="flex h-full">
-              {testcaseTabList.map((testcase, index) => (
-                <TestcaseTab
-                  testcaseTabList={testcaseTabList}
-                  currentTab={currentTab}
-                  setCurrentTab={setCurrentTab}
-                  removeTab={removeTab}
-                  testcaseId={testcase.id}
-                  index={index}
-                  key={testcase.id}
-                />
-              ))}
-            </div>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
-
-          <div className="mx-2 ml-auto">
-            <AddUserTestcaseDialog />
+          <div className="flex h-full">
+            {testcaseTabList.map((testcase, index) => (
+              <TestcaseTab
+                currentTab={currentTab}
+                prevTab={testcaseTabList[index - 1]?.id}
+                nextTab={testcaseTabList[index + 1]?.id}
+                onClickTab={() => setCurrentTab(testcase.id)}
+                onClickCloseButton={() => removeTab(testcase.id)}
+                testcaseId={testcase.id}
+                key={testcase.id}
+              >
+                {
+                  (testcaseTabList.length < 7
+                    ? TAB_CONTENT
+                    : SHORTHAND_TAB_CONTENT)[
+                    testcase.isUserTestcase ? 'user' : 'sample'
+                  ]
+                }{' '}
+                #{testcase.id}
+              </TestcaseTab>
+            ))}
+            <span
+              className={cn(
+                'flex-1 border-l border-[#222939] bg-[#121728] pr-2',
+                currentTab ===
+                  testcaseTabList[testcaseTabList.length - 1]?.id &&
+                  'rounded-bl-xl'
+              )}
+            />
           </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+
+        <div className="flex flex-shrink-0 items-center bg-[#121728] px-2">
+          <AddUserTestcaseDialog />
         </div>
       </div>
 
@@ -94,52 +103,75 @@ export default function TestcasePanel() {
             />
           </div>
         ) : (
-          <TestResultDetail data={testResults} currentTab={currentTab} />
+          <TestResultDetail
+            data={testResults.find((item) => item.id === currentTab)}
+          />
         )}
       </ScrollArea>
     </>
   )
 }
 
+const TAB_CONTENT = {
+  sample: 'Sample',
+  user: 'User'
+}
+
+const SHORTHAND_TAB_CONTENT = {
+  sample: 'S',
+  user: 'U'
+}
+
 function TestcaseTab({
-  testcaseTabList,
+  prevTab,
+  nextTab,
   currentTab,
-  setCurrentTab,
-  testcaseId,
-  index,
-  removeTab
+  testcaseId = 0,
+  className,
+  onClickTab,
+  onClickCloseButton,
+  children
 }: {
-  testcaseTabList: TestResult[]
+  prevTab?: number
+  nextTab?: number
   currentTab: number
-  setCurrentTab: (data: number) => void
-  testcaseId: number
-  index: number
-  removeTab: (id: number) => void
+  testcaseId?: number
+  onClickTab: () => void
+  onClickCloseButton?: () => void
+  className?: string
+  children: ReactNode
 }) {
   return (
-    <div
+    <button
+      type="button"
       className={cn(
-        'relative h-full w-44 cursor-pointer border-l border-[#222939] bg-[#121728]',
-        currentTab === 0 && index == 0 && 'rounded-bl-xl',
-        currentTab === testcaseTabList[index - 1]?.id && 'rounded-bl-xl',
-        currentTab === testcaseTabList[index + 1]?.id && 'rounded-br-xl'
+        'relative h-full w-44 border-l border-[#222939] bg-[#121728]',
+        currentTab === testcaseId && 'bg-[#222939]',
+        currentTab === prevTab && 'rounded-bl-xl',
+        currentTab === nextTab && 'rounded-br-xl',
+        className
       )}
+      onClick={onClickTab}
     >
-      <IoMdClose
-        className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer text-gray-300"
-        size={18}
-        onClick={() => removeTab(testcaseId)}
-      />
+      {onClickCloseButton && (
+        <IoMdClose
+          className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer text-gray-300"
+          size={18}
+          onClick={(e) => {
+            e.stopPropagation()
+            onClickCloseButton()
+          }}
+        />
+      )}
       <div
         className={cn(
-          'h-full content-center pr-6 text-center',
-          currentTab === testcaseId && 'bg-[#222939]'
+          'h-full content-center text-center',
+          onClickCloseButton && 'pr-6'
         )}
-        onClick={() => setCurrentTab(testcaseId)}
       >
-        {testcaseTabList.length < 7 ? 'Samples' : 'S'} #{testcaseId}
+        {children}
       </div>
-    </div>
+    </button>
   )
 }
 
@@ -180,32 +212,19 @@ function TestSummary({ data }: { data: TestResultDetail[] }) {
   )
 }
 
-function TestResultDetail({
-  data,
-  currentTab
-}: {
-  data: TestResultDetail[]
-  currentTab: number
-}) {
-  const currentData = data.find((item) => item.id === currentTab)
-
-  if (currentData === undefined) return null
+function TestResultDetail({ data }: { data: TestResultDetail | undefined }) {
+  if (data === undefined) return null
 
   return (
     <div className="px-8 pt-5">
       <div className="flex w-full gap-4 rounded-md bg-[#121728] px-6 py-3 font-light text-neutral-400">
         Result
-        <span className={getResultColor(currentData.result)}>
-          {currentData.result}
-        </span>
+        <span className={getResultColor(data.result)}>{data.result}</span>
       </div>
       <div className="flex gap-4">
-        <LabeledField label="Input" text={currentData.input} />
-        <LabeledField
-          label="Expected Output"
-          text={currentData.expectedOutput}
-        />
-        <LabeledField label="Output" text={currentData.output} />
+        <LabeledField label="Input" text={data.input} />
+        <LabeledField label="Expected Output" text={data.expectedOutput} />
+        <LabeledField label="Output" text={data.output} />
       </div>
     </div>
   )

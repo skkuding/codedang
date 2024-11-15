@@ -77,14 +77,14 @@ export const useTestResults = () => {
       }
     ],
     combine: (results) => ({
-      data: results.map((result) => result.data ?? []).flat(),
+      data: results.flatMap((result) => result.data ?? []),
       isError: results.some((result) => result.isError)
     })
   })
 
   const testcases = useTestcaseStore((state) => state.getTestcases())
   const testResults =
-    data?.length > 0
+    data.length > 0
       ? testcases.map((testcase, index) => {
           const testResult = data.find((item) => item.id === testcase.id)
           return {
@@ -93,7 +93,8 @@ export const useTestResults = () => {
             input: testcase.input,
             expectedOutput: testcase.output,
             output: testResult?.output ?? '',
-            result: testResult?.result ?? ''
+            result: testResult?.result ?? '',
+            isUserTestcase: testcase.isUserTestcase
           }
         })
       : []
