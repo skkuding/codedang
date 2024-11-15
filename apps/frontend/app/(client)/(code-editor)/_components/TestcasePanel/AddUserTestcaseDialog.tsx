@@ -10,7 +10,6 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/lib/utils'
-import { useTestcaseStore } from '@/stores/testcase'
 import type { TestcaseItem } from '@/types/type'
 import { X } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -20,6 +19,7 @@ import { FaPlus } from 'react-icons/fa'
 import { FaCircleCheck } from 'react-icons/fa6'
 import { IoIosClose } from 'react-icons/io'
 import CopyButton from '../CopyButton'
+import { useTestcaseStore } from '../context/TestcaseStoreProvider'
 
 export default function AddUserTestcaseDialog() {
   const [open, setOpen] = useState(false)
@@ -193,7 +193,7 @@ function SampleTestcaseItem({
           className="resize-none border-0 px-4 py-3 text-white shadow-none focus-visible:ring-0"
         />
         <CopyButton
-          value={input}
+          value={`${input}\n\n`}
           withTooltip={false}
           iconSize={16}
           className="absolute right-4 top-3 z-20 size-6 text-[#AAB1B2]"
@@ -206,7 +206,7 @@ function SampleTestcaseItem({
           className="min-h-[80px] rounded-none border-l border-transparent border-l-[#313744] px-4 py-3 text-white shadow-none focus-visible:ring-0"
         />
         <CopyButton
-          value={output}
+          value={`${output}\n\n`}
           withTooltip={false}
           iconSize={16}
           className="absolute right-4 top-3 z-20 size-6 text-[#AAB1B2]"

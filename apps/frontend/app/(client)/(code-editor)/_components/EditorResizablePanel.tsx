@@ -9,15 +9,16 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
-import { TestcaseStoreProvider } from '@/stores/testcase'
 import type { Language, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Suspense, useEffect } from 'react'
 import Loading from '../problem/[problemId]/loading'
-import EditorHeader from './EditorHeader'
-import TestcasePanel from './testcase/TestcasePanel'
+import EditorHeader from './EditorHeader/EditorHeader'
+import TestcasePanel from './TestcasePanel/TestcasePanel'
+import { TestPollingStoreProvider } from './context/TestPollingStoreProvider'
+import { TestcaseStoreProvider } from './context/TestcaseStoreProvider'
 
 interface ProblemEditorProps {
   problem: ProblemDetail
@@ -97,34 +98,36 @@ export default function EditorMainResizablePanel({
             problemId={problem.id}
             problemTestcase={problem.problemTestcase}
           >
-            <EditorHeader
-              problem={problem}
-              contestId={contestId}
-              templateString={problem.template[0]}
-            />
-            <ResizablePanelGroup direction="vertical" className="h-32">
-              <ResizablePanel
-                defaultSize={60}
-                className="!overflow-x-auto !overflow-y-auto"
-              >
-                <ScrollArea className="h-full bg-[#121728]">
-                  <CodeEditorInEditorResizablePanel
-                    problemId={problem.id}
-                    contestId={contestId}
-                    enableCopyPaste={enableCopyPaste}
-                  />
-                  <ScrollBar orientation="horizontal" />
-                  <ScrollBar orientation="vertical" />
-                </ScrollArea>
-              </ResizablePanel>
-              <ResizableHandle
-                withHandle
-                className="border-[0.5px] border-slate-700"
+            <TestPollingStoreProvider>
+              <EditorHeader
+                problem={problem}
+                contestId={contestId}
+                templateString={problem.template[0]}
               />
-              <ResizablePanel defaultSize={40}>
-                <TestcasePanel />
-              </ResizablePanel>
-            </ResizablePanelGroup>
+              <ResizablePanelGroup direction="vertical" className="h-32">
+                <ResizablePanel
+                  defaultSize={60}
+                  className="!overflow-x-auto !overflow-y-auto"
+                >
+                  <ScrollArea className="h-full bg-[#121728]">
+                    <CodeEditorInEditorResizablePanel
+                      problemId={problem.id}
+                      contestId={contestId}
+                      enableCopyPaste={enableCopyPaste}
+                    />
+                    <ScrollBar orientation="horizontal" />
+                    <ScrollBar orientation="vertical" />
+                  </ScrollArea>
+                </ResizablePanel>
+                <ResizableHandle
+                  withHandle
+                  className="border-[0.5px] border-slate-700"
+                />
+                <ResizablePanel defaultSize={40}>
+                  <TestcasePanel />
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </TestPollingStoreProvider>
           </TestcaseStoreProvider>
         </div>
       </ResizablePanel>

@@ -2,12 +2,12 @@ import { Button, type ButtonProps } from '@/components/shadcn/button'
 import { isHttpError, safeFetcherWithAuth } from '@/lib/utils'
 import useAuthModalStore from '@/stores/authModal'
 import { useCodeStore } from '@/stores/editor'
-import { useTestcaseStore } from '@/stores/testcase'
 import type { TestcaseItem } from '@/types/type'
 import { useMutation } from '@tanstack/react-query'
 import { IoPlayCircleOutline } from 'react-icons/io5'
 import { toast } from 'sonner'
-import { usePollingTestStore } from './useTestResults'
+import { useTestPollingStore } from '../context/TestPollingStoreProvider'
+import { useTestcaseStore } from '../context/TestcaseStoreProvider'
 
 interface RunTestButtonProps extends ButtonProps {
   problemId: number
@@ -21,8 +21,8 @@ export default function RunTestButton({
   saveCode,
   ...props
 }: RunTestButtonProps) {
-  const setIsTesting = usePollingTestStore((state) => state.setIsTesting)
-  const startPolling = usePollingTestStore((state) => state.startPolling)
+  const setIsTesting = useTestPollingStore((state) => state.setIsTesting)
+  const startPolling = useTestPollingStore((state) => state.startPolling)
   const showSignIn = useAuthModalStore((state) => state.showSignIn)
   const getCode = useCodeStore((state) => state.getCode)
   const getUserTestcases = useTestcaseStore((state) => state.getUserTestcases)

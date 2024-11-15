@@ -1,48 +1,18 @@
 import { safeFetcherWithAuth } from '@/lib/utils'
-import { useTestcaseStore } from '@/stores/testcase'
 import type { TestResult } from '@/types/type'
 import { useQueries } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
-import { create } from 'zustand'
+import { useTestPollingStore } from '../context/TestPollingStoreProvider'
+import { useTestcaseStore } from '../context/TestcaseStoreProvider'
 
 const MAX_ATTEMPTS = 10
 const REFETCH_INTERVAL = 2000
 
-interface State {
-  isTesting: boolean
-  setIsTesting: (v: boolean) => void
-  samplePollingEnabled: boolean
-  userPollingEnagled: boolean
-  startPolling: () => void
-  stopPolling: (type: 'sample' | 'user') => void
-}
-
-export const usePollingTestStore = create<State>((set) => ({
-  isTesting: false,
-  setIsTesting: (isTesting) => set((state) => ({ ...state, isTesting })),
-  samplePollingEnabled: false,
-  userPollingEnagled: false,
-  startPolling: () => {
-    set((state) => ({
-      ...state,
-      samplePollingEnabled: true,
-      userPollingEnagled: true
-    }))
-  },
-  stopPolling: (type) => {
-    set((state) => ({
-      ...state,
-      samplePollingEnabled:
-        type === 'sample' ? false : state.samplePollingEnabled,
-      userPollingEnagled: type === 'user' ? false : state.userPollingEnagled
-    }))
-  }
-}))
-
 const useGetTestResult = (type: 'sample' | 'user') => {
   const attempts = useRef(0)
-  const { setIsTesting, stopPolling } = usePollingTestStore()
+  const setIsTesting = useTestPollingStore((state) => state.setIsTesting)
+  const stopPolling = useTestPollingStore((state) => state.stopPolling)
 
   const baseUrl = type === 'sample' ? 'submission/test' : 'submission/user-test'
 
@@ -83,10 +53,10 @@ export const useTestResults = () => {
   const getUserTestResult = useGetTestResult('user')
   const {
     samplePollingEnabled,
-    userPollingEnagled,
+    userPollingEnabled,
     setIsTesting,
     stopPolling
-  } = usePollingTestStore()
+  } = useTestPollingStore((state) => state)
 
   const { data, isError } = useQueries({
     queries: [
@@ -102,7 +72,7 @@ export const useTestResults = () => {
         queryFn: getUserTestResult,
         throwOnError: false,
         refetchInterval: REFETCH_INTERVAL,
-        enabled: userPollingEnagled
+        enabled: userPollingEnabled
       }
     ],
     combine: (results) => ({

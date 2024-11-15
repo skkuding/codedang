@@ -40,8 +40,8 @@ import { useEffect, useRef, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
-import RunTestButton from './testcase/RunTestButton'
-import { usePollingTestStore } from './testcase/useTestResults'
+import { useTestPollingStore } from '../context/TestPollingStoreProvider'
+import RunTestButton from './RunTestButton'
 
 interface ProblemEditorProps {
   problem: ProblemDetail
@@ -58,7 +58,7 @@ export default function Editor({
   const setCode = useCodeStore((state) => state.setCode)
   const getCode = useCodeStore((state) => state.getCode)
 
-  const isTesting = usePollingTestStore((state) => state.isTesting)
+  const isTesting = useTestPollingStore((state) => state.isTesting)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const loading = isTesting || isSubmitting
 
