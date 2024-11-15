@@ -10,8 +10,6 @@ import { usePathname } from 'next/navigation'
 import { CSVLink } from 'react-csv'
 import { FaFileExcel } from 'react-icons/fa'
 
-// Import an Excel icon from react-icons
-
 interface ScoreSummary {
   realName: string
   studentId: string
@@ -50,9 +48,8 @@ export default function ContestOverallTabs({
     skip: !contestId || !userId
   })
 
-  // Contest Title 가져오기
   const { data: contestData } = useQuery(GET_CONTESTS, {
-    variables: { groupId: 1, take: 100 }, // groupId 및 take 값을 필요에 맞게 설정
+    variables: { groupId: 1, take: 100 },
     skip: !contestId
   })
 
@@ -60,12 +57,10 @@ export default function ContestOverallTabs({
     (contest) => contest.id === contestId
   )?.title
 
-  // CSV 파일 이름 설정
   const fileName = contestTitle
     ? `${contestTitle.replace(/\s+/g, '_')}.csv`
     : `contest-${id}-participants.csv`
 
-  // 전체 사용자의 문제 ID 집합을 추출하여 고유한 문제 목록 생성
   const uniqueProblems = Array.from(
     new Set(
       scoreData?.getContestScoreSummaries.flatMap((user) =>
@@ -74,7 +69,6 @@ export default function ContestOverallTabs({
     )
   )
 
-  // 고유한 문제 목록을 기반으로 문제 헤더 생성
   const problemHeaders = uniqueProblems.flatMap((problemId, index) => {
     const problemLabel = String.fromCharCode(65 + index) // 65는 'A'의 ASCII 값입니다
     return [
@@ -151,10 +145,10 @@ export default function ContestOverallTabs({
         data={csvData}
         headers={headers}
         filename={fileName}
-        className="text-primary flex items-center gap-2 rounded-md bg-blue-100 px-3 py-1.5 text-lg font-semibold hover:bg-blue-200"
+        className="flex items-center gap-2 rounded-lg bg-blue-400 px-3 py-1.5 text-lg font-semibold text-white hover:bg-blue-200"
       >
-        <FaFileExcel className="text-green-600" /> {/* Excel icon */}
         Export
+        <FaFileExcel className="rounded-sm bg-white p-1 text-2xl text-green-600" />
       </CSVLink>
     </div>
   )
