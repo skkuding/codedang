@@ -53,12 +53,14 @@ interface ProblemEditorProps {
   problem: ProblemDetail
   contestId?: number
   templateString: string
+  onSubmit: () => void
 }
 
 export default function Editor({
   problem,
   contestId,
-  templateString
+  templateString,
+  onSubmit
 }: ProblemEditorProps) {
   const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
   const setCode = useCodeStore((state) => state.setCode)
@@ -186,6 +188,7 @@ export default function Editor({
       storeCodeToLocalStorage(code)
       const submission: Submission = await res.json()
       setSubmissionId(submission.id)
+      onSubmit()
     } else {
       setIsSubmitting(false)
       if (res.status === 401) {
