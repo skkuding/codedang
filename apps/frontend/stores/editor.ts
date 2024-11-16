@@ -50,8 +50,12 @@ export const getStorageKey = (
 
 export const getCodeFromLocalStorage = (key: string) => {
   const storedCode = localStorage.getItem(key) ?? ''
-  const parsed = storedCode.replaceAll('"', '')
-  localStorage.setItem(key, parsed)
 
-  return parsed
+  try {
+    const parsed = JSON.parse(storedCode)
+    localStorage.setItem(key, parsed)
+    return parsed
+  } catch {
+    return storedCode
+  }
 }
