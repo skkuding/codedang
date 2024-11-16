@@ -67,6 +67,7 @@ const GET_CONTEST_SCORE_SUMMARIES =
       username
       studentId
       realName
+      major
     }
   }`)
 
