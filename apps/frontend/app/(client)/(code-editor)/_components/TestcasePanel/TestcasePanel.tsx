@@ -35,13 +35,13 @@ export default function TestcasePanel() {
     }
   }
 
-  const maxOutputLength = 100000
+  const MAX_OUTPUT_LENGTH = 100000
   const testResults = useTestResults()
   const processedData = testResults.map((testcase) => ({
     ...testcase,
     output:
-      testcase.output.length > maxOutputLength
-        ? testcase.output.slice(0, maxOutputLength)
+      testcase.output.length > MAX_OUTPUT_LENGTH
+        ? testcase.output.slice(0, MAX_OUTPUT_LENGTH)
         : testcase.output
   }))
   const summaryData = processedData.map(({ id, result, isUserTestcase }) => ({
