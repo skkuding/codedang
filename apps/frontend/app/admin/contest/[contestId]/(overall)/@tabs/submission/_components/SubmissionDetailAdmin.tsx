@@ -38,6 +38,33 @@ export default function SubmissionDetailAdmin({
   const [fetchTestcase, { data: testcaseData }] =
     useLazyQuery(GET_PROBLEM_TESTCASE)
 
+  const { correctTestcases, wrongTestcases } = (() => {
+    if (!testcaseData?.getProblem?.testcase || !submission?.testcaseResult) {
+      return { correctTestcases: [], wrongTestcases: [] }
+    }
+
+    let sampleIndex = 1
+    let hiddenIndex = 1
+
+    const correct: string[] = []
+    const wrong: string[] = []
+
+    testcaseData.getProblem.testcase.forEach((testcase, index) => {
+      const label = testcase.isHidden
+        ? `Hidden #${hiddenIndex++}`
+        : `Sample #${sampleIndex++}`
+      const matchingResult = submission.testcaseResult[index]
+
+      if (matchingResult?.result === 'Accepted') {
+        correct.push(label)
+      } else {
+        wrong.push(label)
+      }
+    })
+
+    return { correctTestcases: correct, wrongTestcases: wrong }
+  })()
+
   return (
     <ScrollArea className="mt-5 max-h-[760px] w-[1000px]">
       {!loading && (
@@ -101,6 +128,27 @@ export default function SubmissionDetailAdmin({
           {submission?.testcaseResult.length !== 0 && (
             <div>
               <h2 className="font-bold">Testcase</h2>
+              <table>
+                <tbody className="text-sm font-light">
+                  <tr>
+                    <td className="w-52 py-1">Correct Testcase:</td>
+                    <td className="py-1 text-slate-500">
+                      {correctTestcases.length}/
+                      {testcaseData?.getProblem?.testcase?.length || 0}
+                    </td>
+                  </tr>
+                  {wrongTestcases.length > 0 && (
+                    <tr>
+                      <td className="w-52 py-1 align-top">
+                        Wrong Testcase Number:
+                      </td>
+                      <td className="py-1 text-slate-500">
+                        {wrongTestcases.join(', ') || 'None'}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
               <Table className="[&_*]:text-center [&_*]:text-xs [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:!border-neutral-200">
                 <TableHeader>
                   <TableRow>
