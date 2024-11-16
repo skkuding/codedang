@@ -6,7 +6,7 @@ import {
   GET_CONTESTS
 } from '@/graphql/contest/queries'
 import { cn } from '@/lib/utils'
-import excel from '@/public/icons/excel.svg'
+import excelIcon from '@/public/icons/excel.svg'
 import { useQuery } from '@apollo/client'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -151,11 +151,11 @@ export default function ContestOverallTabs({
       >
         Export
         <Image
-          src={excel} // Use the imported SVG as the source
+          src={excelIcon}
           alt="Excel Icon"
-          width={20} // Set the width for the icon
-          height={20} // Set the height for the icon
-          className="ml-1" // Add margin to separate the text from the icon
+          width={20}
+          height={20}
+          className="ml-1"
         />
       </CSVLink>
     </div>
