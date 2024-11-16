@@ -10,10 +10,11 @@ import {
   TableHeader,
   TableRow
 } from '@/components/shadcn/table'
+import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
 import { GET_SUBMISSION } from '@/graphql/submission/queries'
 import { dateFormatter, getResultColor } from '@/lib/utils'
 import type { Language } from '@/types/type'
-import { useQuery } from '@apollo/client'
+import { useLazyQuery, useQuery } from '@apollo/client'
 
 export default function SubmissionDetailAdmin({
   submissionId
@@ -23,9 +24,20 @@ export default function SubmissionDetailAdmin({
   const { data, loading } = useQuery(GET_SUBMISSION, {
     variables: {
       id: Number(submissionId)
+    },
+    onCompleted: (data) => {
+      if (data?.getSubmission?.problemId) {
+        fetchTestcase({
+          variables: { groupId: 1, id: data.getSubmission.problemId }
+        })
+      }
     }
   })
   const submission = data?.getSubmission
+
+  const [fetchTestcase, { data: testcaseData }] =
+    useLazyQuery(GET_PROBLEM_TESTCASE)
+
   return (
     <ScrollArea className="mt-5 max-h-[760px] w-[1000px]">
       {!loading && (
@@ -105,22 +117,39 @@ export default function SubmissionDetailAdmin({
                   </TableRow>
                 </TableHeader>
                 <TableBody className="text-slate-400">
-                  {submission?.testcaseResult.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="!py-4">{item.id}</TableCell>
-                      <TableCell className={getResultColor(item.result)}>
-                        {item.result}
-                      </TableCell>
-                      <TableCell>{item.cpuTime} ms</TableCell>
-                      <TableCell>
-                        {(
-                          (item?.memoryUsage as number) /
-                          (1024 * 1024)
-                        ).toFixed(2)}{' '}
-                        MB
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {(() => {
+                    let sampleIndex = 1
+                    let hiddenIndex = 1
+
+                    return testcaseData?.getProblem?.testcase?.map(
+                      (testcase, index) => {
+                        const matchingResult = submission?.testcaseResult[index]
+
+                        const label = testcase.isHidden
+                          ? `Hidden #${hiddenIndex++}`
+                          : `Sample #${sampleIndex++}`
+
+                        return (
+                          <TableRow key={testcase.id}>
+                            <TableCell className="!py-4">{label}</TableCell>
+                            <TableCell
+                              className={getResultColor(matchingResult?.result)}
+                            >
+                              {matchingResult?.result || 'N/A'}
+                            </TableCell>
+                            <TableCell>
+                              {matchingResult?.cpuTime || 'N/A'} ms
+                            </TableCell>
+                            <TableCell>
+                              {matchingResult?.memoryUsage
+                                ? `${(matchingResult.memoryUsage / (1024 * 1024)).toFixed(2)} MB`
+                                : 'N/A'}
+                            </TableCell>
+                          </TableRow>
+                        )
+                      }
+                    )
+                  })()}
                 </TableBody>
               </Table>
             </div>
