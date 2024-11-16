@@ -147,7 +147,7 @@ export default function ContestOverallTabs({
         data={csvData}
         headers={headers}
         filename={fileName}
-        className="flex items-center gap-2 rounded-lg bg-blue-400 px-3 py-1.5 text-lg font-semibold text-white hover:bg-blue-200"
+        className="flex items-center gap-2 rounded-lg bg-blue-400 px-3 py-1.5 text-lg font-semibold text-white transition-opacity hover:opacity-85"
       >
         Export
         <Image
