@@ -1,5 +1,5 @@
 import DataTable from '@/app/(client)/(main)/_components/DataTable'
-import { fetcherWithAuth } from '@/lib/utils'
+import { fetcherWithAuth } from '@/libs/utils'
 import type { Contest } from '@/types/type'
 import { columns } from './RegisteredTableColumns'
 

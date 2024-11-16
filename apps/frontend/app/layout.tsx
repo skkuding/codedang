@@ -1,5 +1,5 @@
 import { Toaster } from '@/components/shadcn/sonner'
-import { metaBaseUrl } from '@/lib/constants'
+import { metaBaseUrl } from '@/libs/constants'
 import type { Metadata, Viewport } from 'next'
 import { IBM_Plex_Mono } from 'next/font/google'
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css'

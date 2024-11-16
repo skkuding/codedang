@@ -1,4 +1,4 @@
-import { levels, languages } from '@/lib/constants'
+import { levels, languages } from '@/libs/constants'
 import { z } from 'zod'
 
 const commonSchema = z.object({

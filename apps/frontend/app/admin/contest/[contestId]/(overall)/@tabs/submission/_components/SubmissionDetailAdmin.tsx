@@ -12,7 +12,7 @@ import {
 } from '@/components/shadcn/table'
 import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
 import { GET_SUBMISSION } from '@/graphql/submission/queries'
-import { dateFormatter, getResultColor } from '@/lib/utils'
+import { dateFormatter, getResultColor } from '@/libs/utils'
 import type { Language } from '@/types/type'
 import { useLazyQuery, useQuery } from '@apollo/client'
 

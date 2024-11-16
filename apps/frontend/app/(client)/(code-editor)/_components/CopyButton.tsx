@@ -4,7 +4,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import copyBlueIcon from '@/public/icons/copy-blue.svg'
 import { LazyMotion, m, domAnimation } from 'framer-motion'
 import Image from 'next/image'
