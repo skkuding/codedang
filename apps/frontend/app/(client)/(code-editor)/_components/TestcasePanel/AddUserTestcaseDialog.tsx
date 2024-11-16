@@ -154,7 +154,7 @@ function SampleTestcaseItem({
   return (
     <div
       className={cn(
-        'flex h-[80px] w-full rounded-md border border-[#313744] bg-[#222939] font-mono shadow-sm'
+        'flex min-h-[80px] w-full rounded-md border border-[#313744] bg-[#222939] font-mono shadow-sm'
       )}
     >
       <div className="relative flex-1">

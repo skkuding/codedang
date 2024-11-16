@@ -35,7 +35,20 @@ export default function TestcasePanel() {
     }
   }
 
+  const MAX_OUTPUT_LENGTH = 100000
   const testResults = useTestResults()
+  const processedData = testResults.map((testcase) => ({
+    ...testcase,
+    output:
+      testcase.output.length > MAX_OUTPUT_LENGTH
+        ? testcase.output.slice(0, MAX_OUTPUT_LENGTH)
+        : testcase.output
+  }))
+  const summaryData = processedData.map(({ id, result, isUserTestcase }) => ({
+    id,
+    result,
+    isUserTestcase
+  }))
 
   return (
     <>
@@ -96,15 +109,15 @@ export default function TestcasePanel() {
       <ScrollArea className="h-full">
         {currentTab === 0 ? (
           <div className="flex flex-col gap-6 p-5 pb-14">
-            <TestSummary data={testResults} />
+            <TestSummary data={summaryData} />
             <TestcaseTable
-              data={testResults}
+              data={processedData}
               moveToDetailTab={moveToDetailTab}
             />
           </div>
         ) : (
           <TestResultDetail
-            data={testResults.find((item) => item.id === currentTab)}
+            data={processedData.find((item) => item.id === currentTab)}
           />
         )}
       </ScrollArea>
@@ -175,15 +188,23 @@ function TestcaseTab({
   )
 }
 
-function TestSummary({ data }: { data: TestResultDetail[] }) {
+function TestSummary({
+  data
+}: {
+  data: { id: number; result: string; isUserTestcase: boolean }[]
+}) {
   const acceptedCount = data.filter(
     (testcase) => testcase.result === 'Accepted'
   ).length
 
   const total = data.length
 
-  const notAcceptedIndexes = data
-    .map((testcase, index) => (testcase.result !== 'Accepted' ? index : -1))
+  const notAcceptedTestcases = data
+    .map((testcase, index) =>
+      testcase.result !== 'Accepted'
+        ? `${testcase.isUserTestcase ? 'User' : 'Sample'} #${index + 1}`
+        : -1
+    )
     .filter((index) => index !== -1)
 
   return (
@@ -195,15 +216,13 @@ function TestSummary({ data }: { data: TestResultDetail[] }) {
             {acceptedCount}/{total}
           </td>
         </tr>
-        {notAcceptedIndexes.length > 0 && (
+        {notAcceptedTestcases.length > 0 && (
           <tr>
             <td className="w-52 py-1 align-top text-slate-400">
               Wrong Testcase Number:
             </td>
             <td className="py-1 text-white">
-              {notAcceptedIndexes
-                .map((index) => `Sample #${index + 1}`)
-                .join(', ')}
+              {notAcceptedTestcases.join(', ')}
             </td>
           </tr>
         )}
