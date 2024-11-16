@@ -610,6 +610,9 @@ importers:
       '@types/react-copy-to-clipboard':
         specifier: ^5.0.7
         version: 5.0.7
+      '@types/react-csv':
+        specifier: ^1.1.10
+        version: 1.1.10
       '@types/react-dom':
         specifier: ^18.3.1
         version: 18.3.1
@@ -4763,6 +4766,9 @@ packages:
 
   '@types/react-copy-to-clipboard@5.0.7':
     resolution: {integrity: sha512-Gft19D+as4M+9Whq1oglhmK49vqPhcLzk8WfvfLvaYMIPYanyfLy0+CwFucMJfdKoSFyySPmkkWn8/E6voQXjQ==}
+
+  '@types/react-csv@1.1.10':
+    resolution: {integrity: sha512-PESAyASL7Nfi/IyBR3ufd8qZkyoS+7jOylKmJxRZUZLFASLo4NZaRsJ8rNP8pCcbIziADyWBbLPD1nPddhsL4g==}
 
   '@types/react-dom@18.3.1':
     resolution: {integrity: sha512-qW1Mfv8taImTthu4KoXgDfLuk4bydU6Q/TkADnDWWHwi4NX4BR+LWfTp2sVmTqRrsHvyDDTelgelxJ+SsejKKQ==}
@@ -16150,6 +16156,10 @@ snapshots:
   '@types/range-parser@1.2.7': {}
 
   '@types/react-copy-to-clipboard@5.0.7':
+    dependencies:
+      '@types/react': 18.3.12
+
+  '@types/react-csv@1.1.10':
     dependencies:
       '@types/react': 18.3.12
 
