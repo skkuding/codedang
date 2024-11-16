@@ -49,7 +49,7 @@ export function SubmissionTable({ contestId }: { contestId: number }) {
         open={isSubmissionDialogOpen}
         onOpenChange={setIsSubmissionDialogOpen}
       >
-        <DialogContent className="max-h-[620px] max-w-[800px] justify-center">
+        <DialogContent className="max-h-[840px] max-w-[1000px] justify-center">
           <SubmissionDetailAdmin submissionId={submissionId} />
         </DialogContent>
       </Dialog>

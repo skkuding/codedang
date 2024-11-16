@@ -10,10 +10,11 @@ import {
   TableHeader,
   TableRow
 } from '@/components/shadcn/table'
+import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
 import { GET_SUBMISSION } from '@/graphql/submission/queries'
 import { dateFormatter, getResultColor } from '@/lib/utils'
 import type { Language } from '@/types/type'
-import { useQuery } from '@apollo/client'
+import { useLazyQuery, useQuery } from '@apollo/client'
 
 export default function SubmissionDetailAdmin({
   submissionId
@@ -23,13 +24,51 @@ export default function SubmissionDetailAdmin({
   const { data, loading } = useQuery(GET_SUBMISSION, {
     variables: {
       id: Number(submissionId)
+    },
+    onCompleted: (data) => {
+      if (data?.getSubmission?.problemId) {
+        fetchTestcase({
+          variables: { groupId: 1, id: data.getSubmission.problemId }
+        })
+      }
     }
   })
   const submission = data?.getSubmission
+
+  const [fetchTestcase, { data: testcaseData }] =
+    useLazyQuery(GET_PROBLEM_TESTCASE)
+
+  const { correctTestcases, wrongTestcases } = (() => {
+    if (!testcaseData?.getProblem?.testcase || !submission?.testcaseResult) {
+      return { correctTestcases: [], wrongTestcases: [] }
+    }
+
+    let sampleIndex = 1
+    let hiddenIndex = 1
+
+    const correct: string[] = []
+    const wrong: string[] = []
+
+    testcaseData.getProblem.testcase.forEach((testcase, index) => {
+      const label = testcase.isHidden
+        ? `Hidden #${hiddenIndex++}`
+        : `Sample #${sampleIndex++}`
+      const matchingResult = submission.testcaseResult[index]
+
+      if (matchingResult?.result === 'Accepted') {
+        correct.push(label)
+      } else {
+        wrong.push(label)
+      }
+    })
+
+    return { correctTestcases: correct, wrongTestcases: wrong }
+  })()
+
   return (
-    <ScrollArea className="mt-5 max-h-[540px] w-[760px]">
+    <ScrollArea className="mt-5 max-h-[760px] w-[1000px]">
       {!loading && (
-        <div className="ml-20 flex w-[612px] flex-col gap-4">
+        <div className="mx-14 flex flex-col gap-4">
           <h1 className="flex text-lg font-semibold">
             <span className="max-w-[30%] truncate text-gray-400">
               {submission?.user?.userProfile?.realName}(
@@ -46,7 +85,21 @@ export default function SubmissionDetailAdmin({
           <ScrollArea className="max-w-full shrink-0 rounded-md">
             <div className="flex items-center justify-around gap-5 bg-gray-100 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
               <div>
-                <h2>User</h2>
+                <h2>Name</h2>
+                <p>{submission?.user?.userProfile?.realName}</p>
+              </div>
+              <div>
+                <h2>Student ID</h2>
+                <p>{submission?.user?.studentId}</p>
+              </div>
+              <div>
+                <h2>Major</h2>
+                <p className="max-w-[20ch] truncate">
+                  {submission?.user?.major}
+                </p>
+              </div>
+              <div>
+                <h2>User ID</h2>
                 <p>{submission?.user?.username}</p>
               </div>
               <div>
@@ -75,6 +128,27 @@ export default function SubmissionDetailAdmin({
           {submission?.testcaseResult.length !== 0 && (
             <div>
               <h2 className="font-bold">Testcase</h2>
+              <table>
+                <tbody className="text-sm font-light">
+                  <tr>
+                    <td className="w-52 py-1">Correct Testcase:</td>
+                    <td className="py-1 text-slate-500">
+                      {correctTestcases.length}/
+                      {testcaseData?.getProblem?.testcase?.length || 0}
+                    </td>
+                  </tr>
+                  {wrongTestcases.length > 0 && (
+                    <tr>
+                      <td className="w-52 py-1 align-top">
+                        Wrong Testcase Number:
+                      </td>
+                      <td className="py-1 text-slate-500">
+                        {wrongTestcases.join(', ') || 'None'}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
               <Table className="[&_*]:text-center [&_*]:text-xs [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:!border-neutral-200">
                 <TableHeader>
                   <TableRow>
@@ -91,22 +165,39 @@ export default function SubmissionDetailAdmin({
                   </TableRow>
                 </TableHeader>
                 <TableBody className="text-slate-400">
-                  {submission?.testcaseResult.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="!py-4">{item.id}</TableCell>
-                      <TableCell className={getResultColor(item.result)}>
-                        {item.result}
-                      </TableCell>
-                      <TableCell>{item.cpuTime} ms</TableCell>
-                      <TableCell>
-                        {(
-                          (item?.memoryUsage as number) /
-                          (1024 * 1024)
-                        ).toFixed(2)}{' '}
-                        MB
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {(() => {
+                    let sampleIndex = 1
+                    let hiddenIndex = 1
+
+                    return testcaseData?.getProblem?.testcase?.map(
+                      (testcase, index) => {
+                        const matchingResult = submission?.testcaseResult[index]
+
+                        const label = testcase.isHidden
+                          ? `Hidden #${hiddenIndex++}`
+                          : `Sample #${sampleIndex++}`
+
+                        return (
+                          <TableRow key={testcase.id}>
+                            <TableCell className="!py-4">{label}</TableCell>
+                            <TableCell
+                              className={getResultColor(matchingResult?.result)}
+                            >
+                              {matchingResult?.result || 'N/A'}
+                            </TableCell>
+                            <TableCell>
+                              {matchingResult?.cpuTime || 'N/A'} ms
+                            </TableCell>
+                            <TableCell>
+                              {matchingResult?.memoryUsage
+                                ? `${(matchingResult.memoryUsage / (1024 * 1024)).toFixed(2)} MB`
+                                : 'N/A'}
+                            </TableCell>
+                          </TableRow>
+                        )
+                      }
+                    )
+                  })()}
                 </TableBody>
               </Table>
             </div>
