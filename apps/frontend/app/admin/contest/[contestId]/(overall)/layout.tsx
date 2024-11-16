@@ -13,10 +13,12 @@ import ContestOverallTabs from '../_components/ContestOverallTabs'
 
 export default function Layout({
   params,
-  tabs
+  tabs,
+  userId
 }: {
   params: { contestId: string }
   tabs: React.ReactNode
+  userId: number
 }) {
   const { contestId } = params
 
@@ -58,7 +60,7 @@ export default function Layout({
         content={contestData?.description}
         classname="prose mb-4 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12"
       />
-      <ContestOverallTabs contestId={contestId} />
+      <ContestOverallTabs contestId={contestId} userId={userId} />
       {tabs}
     </main>
   )
