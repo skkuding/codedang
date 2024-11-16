@@ -6,11 +6,12 @@ import {
   GET_CONTESTS
 } from '@/graphql/contest/queries'
 import { cn } from '@/lib/utils'
+import excel from '@/public/icons/excel.svg'
 import { useQuery } from '@apollo/client'
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { CSVLink } from 'react-csv'
-import { FaFileExcel } from 'react-icons/fa'
 
 interface ScoreSummary {
   realName: string
@@ -142,7 +143,6 @@ export default function ContestOverallTabs({
           All Submission
         </Link>
       </div>
-
       <CSVLink
         data={csvData}
         headers={headers}
@@ -150,7 +150,13 @@ export default function ContestOverallTabs({
         className="flex items-center gap-2 rounded-lg bg-blue-400 px-3 py-1.5 text-lg font-semibold text-white hover:bg-blue-200"
       >
         Export
-        <FaFileExcel className="rounded-sm bg-white p-1 text-2xl text-green-600" />
+        <Image
+          src={excel} // Use the imported SVG as the source
+          alt="Excel Icon"
+          width={20} // Set the width for the icon
+          height={20} // Set the height for the icon
+          className="ml-1" // Add margin to separate the text from the icon
+        />
       </CSVLink>
     </div>
   )
