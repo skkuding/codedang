@@ -73,7 +73,7 @@ export default function ContestOverallTabs({
   )
 
   const problemHeaders = uniqueProblems.flatMap((problemId, index) => {
-    const problemLabel = String.fromCharCode(65 + index) // 65는 'A'의 ASCII 값입니다
+    const problemLabel = String.fromCharCode(65 + index)
     return [
       {
         label: `${problemLabel}`,
