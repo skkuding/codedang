@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx'
 import dayjs from 'dayjs'
-import ky, { TimeoutError } from 'ky'
+import ky, { HTTPError, TimeoutError } from 'ky'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 import { auth } from './auth'
@@ -9,6 +9,8 @@ import { baseUrl } from './constants'
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))
 }
+
+export const isHttpError = (error: Error) => error instanceof HTTPError
 
 export const fetcher = ky.create({
   prefixUrl: baseUrl,

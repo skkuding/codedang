@@ -8,28 +8,15 @@ import {
 } from '@/components/shadcn/table'
 import { cn, getResultColor } from '@/lib/utils'
 import type { TestResultDetail } from '@/types/type'
-import { WhitespaceVisualizer } from './WhitespaceVisualizer'
+import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
 
 export default function TestcaseTable({
   data,
-  testcaseTabList,
-  setTestcaseTabList,
-  setCurrentTab
+  moveToDetailTab
 }: {
   data: TestResultDetail[]
-  testcaseTabList: TestResultDetail[]
-  setTestcaseTabList: (data: TestResultDetail[]) => void
-  setCurrentTab: (data: number) => void
+  moveToDetailTab: (tab: TestResultDetail) => void
 }) {
-  function handleRowClick(index: number) {
-    setCurrentTab(index + 1)
-    const updatedList = [...testcaseTabList, data[index]]
-    const uniqueList = updatedList.filter(
-      (item, index, self) => index === self.findIndex((t) => t.id === item.id)
-    )
-    setTestcaseTabList(uniqueList)
-  }
-
   return (
     <Table className="rounded-t-md">
       <TableHeader className="bg-[#121728] [&_tr]:border-b-slate-600">
@@ -42,16 +29,14 @@ export default function TestcaseTable({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.map((testResult, index) => (
+        {data.map((testResult) => (
           <TableRow
             key={testResult.id}
             className="cursor-pointer border-b border-b-slate-600 text-left hover:bg-slate-700"
-            onClick={() => {
-              handleRowClick(index)
-            }}
+            onClick={() => moveToDetailTab(testResult)}
           >
             <TableCell className="p-3 text-left md:p-3">
-              Sample #{testResult.id}
+              {testResult.isUserTestcase ? 'User' : 'Sample'} #{testResult.id}
             </TableCell>
             <TableCell className="max-w-96 truncate p-3 md:p-3">
               <WhitespaceVisualizer

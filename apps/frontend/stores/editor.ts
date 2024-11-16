@@ -26,13 +26,15 @@ export const useLanguageStore = (problemId: number, contestId?: number) => {
 interface CodeState {
   code: string
   setCode: (code: string) => void
+  getCode: () => string
 }
 
-export const createCodeStore = create<CodeState>((set) => ({
+export const useCodeStore = create<CodeState>((set, get) => ({
   code: '',
   setCode: (code) => {
     set({ code })
-  }
+  },
+  getCode: () => get().code
 }))
 
 export const getKey = (
@@ -45,15 +47,3 @@ export const getKey = (
   const problemKey = `${userName}_${problemId}${contestId ? `_${contestId}` : ''}_${language}`
   return problemKey
 }
-
-export const getItem = (name: string) => {
-  const str = localStorage.getItem(name)
-  if (!str) return null
-  return str
-}
-
-export const setItem = (name: string, value: string) => {
-  localStorage.setItem(name, JSON.stringify(value))
-}
-
-export const removeItem = (name: string) => localStorage.removeItem(name)

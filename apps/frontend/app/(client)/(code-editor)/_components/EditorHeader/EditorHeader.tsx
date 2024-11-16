@@ -24,19 +24,12 @@ import { auth } from '@/lib/auth'
 import { fetcherWithAuth } from '@/lib/utils'
 import submitIcon from '@/public/icons/submit.svg'
 import useAuthModalStore from '@/stores/authModal'
-import {
-  useLanguageStore,
-  createCodeStore,
-  getKey,
-  setItem,
-  getItem
-} from '@/stores/editor'
+import { useLanguageStore, useCodeStore, getKey } from '@/stores/editor'
 import type {
   Language,
   ProblemDetail,
   Submission,
-  Template,
-  TestResult
+  Template
 } from '@/types/type'
 import JSConfetti from 'js-confetti'
 import { Save } from 'lucide-react'
@@ -45,27 +38,31 @@ import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
-import { IoPlayCircleOutline } from 'react-icons/io5'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
+import { useTestPollingStore } from '../context/TestPollingStoreProvider'
 import { BackCautionDialog } from './BackCautionDialog'
+import RunTestButton from './RunTestButton'
 
 interface ProblemEditorProps {
   problem: ProblemDetail
   contestId?: number
   templateString: string
-  setTestResults: (testResults: TestResult[]) => void
 }
 
 export default function Editor({
   problem,
   contestId,
-  templateString,
-  setTestResults
+  templateString
 }: ProblemEditorProps) {
   const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
-  const { code, setCode } = createCodeStore((state) => state)
-  const [loading, setLoading] = useState(false)
+  const setCode = useCodeStore((state) => state.setCode)
+  const getCode = useCodeStore((state) => state.getCode)
+
+  const isTesting = useTestPollingStore((state) => state.isTesting)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const loading = isTesting || isSubmitting
+
   const [submissionId, setSubmissionId] = useState<number | null>(null)
   const [templateCode, setTemplateCode] = useState<string | null>(null)
   const [userName, setUserName] = useState('')
@@ -90,7 +87,7 @@ export default function Editor({
       if (res.ok) {
         const submission: Submission = await res.json()
         if (submission.result !== 'Judging') {
-          setLoading(false)
+          setIsSubmitting(false)
           const href = contestId
             ? `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}`
             : `/problem/${problem.id}/submission/${submissionId}`
@@ -101,7 +98,7 @@ export default function Editor({
           }
         }
       } else {
-        setLoading(false)
+        setIsSubmitting(false)
         toast.error('Please try again later.')
       }
     },
@@ -130,16 +127,29 @@ export default function Editor({
 
   useEffect(() => {
     storageKey.current = getKey(language, problem.id, userName, contestId)
-    getLocalstorageCode()
+    if (storageKey.current !== undefined) {
+      const storedCode = localStorage.getItem(storageKey.current)
+      setCode(storedCode ?? templateCode ?? '')
+    }
   }, [userName, problem, contestId, language, templateCode])
 
+  const storeCodeToLocalStorage = (code: string) => {
+    if (storageKey.current !== undefined) {
+      localStorage.setItem(storageKey.current, code)
+    } else {
+      toast.error('Failed to save the code')
+    }
+  }
   const submit = async () => {
+    const code = getCode()
+
     if (code === '') {
       toast.error('Please write code before submission')
       return
     }
+
     setSubmissionId(null)
-    setLoading(true)
+    setIsSubmitting(true)
     const res = await fetcherWithAuth.post('submission', {
       json: {
         language,
@@ -160,11 +170,12 @@ export default function Editor({
       }
     })
     if (res.ok) {
-      saveCode(true)
+      toast.success('Successfully submitted the code')
+      storeCodeToLocalStorage(code)
       const submission: Submission = await res.json()
       setSubmissionId(submission.id)
     } else {
-      setLoading(false)
+      setIsSubmitting(false)
       if (res.status === 401) {
         showSignIn()
         toast.error('Log in first to submit your code')
@@ -172,122 +183,32 @@ export default function Editor({
     }
   }
 
-  const submitTest = async () => {
-    if (code === '') {
-      toast.error('Please write code before test')
-      return
-    }
-    setLoading(true)
-    const res = await fetcherWithAuth.post('submission/test', {
-      json: {
-        language,
-        code: [
-          {
-            id: 1,
-            text: code,
-            locked: false
-          }
-        ]
-      },
-      searchParams: {
-        problemId: problem.id
-      },
-      next: {
-        revalidate: 0
-      }
-    })
-    if (res.ok) {
-      saveCode()
-      pollTestResult()
-    } else {
-      setLoading(false)
-      if (res.status === 401) {
-        showSignIn()
-        toast.error('Log in first to test your code')
-      } else toast.error('Please try again later.')
-    }
-  }
-
-  const pollTestResult = async () => {
-    let attempts = 0
-    const maxAttempts = 10
-    const pollingInterval = 2000
-
-    const poll = async () => {
-      const res = await fetcherWithAuth.get('submission/test', {
-        next: {
-          revalidate: 0
-        }
-      })
-
-      if (res.ok) {
-        const resultArray: TestResult[] = await res.json()
-
-        setTestResults(resultArray)
-
-        const allJudged = resultArray.every(
-          (submission: TestResult) => submission.result !== 'Judging'
-        )
-
-        if (!allJudged) {
-          if (attempts < maxAttempts) {
-            attempts += 1
-            setTimeout(poll, pollingInterval)
-          } else {
-            setLoading(false)
-            toast.error('Judging took too long. Please try again later.')
-          }
-        } else {
-          setLoading(false)
-        }
-      } else {
-        setLoading(false)
-        toast.error('Please try again later.')
-      }
-    }
-
-    poll()
-  }
-
-  const saveCode = async (isSubmitting?: boolean) => {
+  const saveCode = async () => {
     const session = await auth()
+    const code = getCode()
+
     if (!session) {
       toast.error('Log in first to save your code')
+    } else if (storageKey.current !== undefined) {
+      localStorage.setItem(storageKey.current, code)
+      toast.success('Successfully saved the code')
     } else {
-      if (storeCodeToLocalstorage()) {
-        toast.success(
-          `Successfully ${isSubmitting ? 'submitted' : 'saved'} the code`
-        )
-      } else toast.error('Failed to save the code')
-    }
-  }
-
-  const storeCodeToLocalstorage = () => {
-    if (storageKey.current !== undefined) {
-      setItem(storageKey.current, code)
-      return true
-    }
-    return false
-  }
-
-  const getLocalstorageCode = () => {
-    if (storageKey.current !== undefined) {
-      const storedCode = getItem(storageKey.current) ?? ''
-      setCode(storedCode ? JSON.parse(storedCode) : templateCode)
+      toast.error('Failed to save the code')
     }
   }
 
   const resetCode = () => {
     if (storageKey.current !== undefined) {
-      setItem(storageKey.current, templateCode ?? '')
+      localStorage.setItem(storageKey.current, templateCode ?? '')
       setCode(templateCode ?? '')
       toast.success('Successfully reset the code')
     } else toast.error('Failed to reset the code')
   }
 
   const checkSaved = () => {
+    const code = getCode()
     if (storageKey.current !== undefined) {
-      const storedCode = getItem(storageKey.current) ?? ''
+      const storedCode = localStorage.getItem(storageKey.current) ?? ''
       if (storedCode && JSON.parse(storedCode) === code) return true
       else if (!storedCode && templateCode === code) return true
       else return false
@@ -384,20 +305,17 @@ export default function Editor({
         <Button
           size="icon"
           className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-[#D7E5FE] font-medium text-[#484C4D] hover:bg-[#c6d3ea]"
-          onClick={() => saveCode()}
+          onClick={saveCode}
         >
           <Save className="stroke-1" size={22} />
           Save
         </Button>
-        <Button
-          variant="secondary"
-          className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
-          onClick={submitTest}
+        <RunTestButton
+          problemId={problem.id}
+          language={language}
           disabled={loading}
-        >
-          <IoPlayCircleOutline size={22} />
-          Test
-        </Button>
+          saveCode={storeCodeToLocalStorage}
+        />
         <Button
           className="h-8 shrink-0 gap-1 rounded-[4px] px-2 font-normal"
           disabled={loading}
