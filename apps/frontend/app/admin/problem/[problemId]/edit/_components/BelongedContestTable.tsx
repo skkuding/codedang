@@ -10,14 +10,6 @@ import { columns, type BelongedContest } from './BelongedContestTableColumns'
 import RevertScoreButton from './RevertScoreButton'
 import SetToZeroButton from './SetToZeroButton'
 
-const headerStyle = {
-  select: '',
-  title: 'w-3/5',
-  startTime: 'px-0 w-1/5',
-  participants: 'px-0 w-1/12',
-  isVisible: 'px-0 w-1/12'
-}
-
 export function BelongedContestTable({
   problemId,
   onSetToZero,
@@ -94,6 +86,6 @@ export function BelongedContestTable({
   )
 }
 
-export function ContestTableFallback() {
-  return <DataTableFallback columns={columns} headerStyle={headerStyle} />
+export function BelongedContestTableFallback() {
+  return <DataTableFallback withSearchBar={false} columns={columns} />
 }

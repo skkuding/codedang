@@ -9,8 +9,11 @@ import {
 } from '@/components/shadcn/dialog'
 import { UPDATE_CONTEST_PROBLEMS_SCORES } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
-import { useState } from 'react'
-import { BelongedContestTable } from './BelongedContestTable'
+import { Suspense, useState } from 'react'
+import {
+  BelongedContestTable,
+  BelongedContestTableFallback
+} from './BelongedContestTable'
 
 interface ScoreCautionDialogProps {
   isOpen: boolean
@@ -70,11 +73,13 @@ export function ScoreCautionDialog({
                     on grading results.
                   </li>
                 </ul>
-                <BelongedContestTable
-                  problemId={problemId}
-                  onSetToZero={(contests) => setZeroSetContests(contests)}
-                  onRevertScore={() => setZeroSetContests([])}
-                ></BelongedContestTable>
+                <Suspense fallback={<BelongedContestTableFallback />}>
+                  <BelongedContestTable
+                    problemId={problemId}
+                    onSetToZero={(contests) => setZeroSetContests(contests)}
+                    onRevertScore={() => setZeroSetContests([])}
+                  ></BelongedContestTable>
+                </Suspense>
                 <div className="my-4 border-b" />
               </li>
             </ul>
@@ -90,16 +95,18 @@ export function ScoreCautionDialog({
             Cancel
           </Button>
           <Button
-            onClick={() => {
-              zeroSetContests.map(async (contestId) => {
-                await updateContestsProblemsScores({
-                  variables: {
-                    groupId: 1,
-                    contestId: Number(contestId),
-                    problemIdsWithScore: [{ problemId, score: 0 }]
-                  }
-                })
-              })
+            onClick={async () => {
+              await Promise.all(
+                zeroSetContests.map((contestId) =>
+                  updateContestsProblemsScores({
+                    variables: {
+                      groupId: 1,
+                      contestId: Number(contestId),
+                      problemIdsWithScore: [{ problemId, score: 0 }]
+                    }
+                  })
+                )
+              )
               onConfirm()
             }}
           >

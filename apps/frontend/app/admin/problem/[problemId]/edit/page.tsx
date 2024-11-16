@@ -49,15 +49,13 @@ export default function Page({ params }: { params: { problemId: string } }) {
   const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
   const [dialogDescription, setDialogDescription] = useState<string>('')
   const [isScoreDialogOpen, setIsScoreDialogOpen] = useState<boolean>(false)
-  const [initialValues, setInitialValues] = useState<{
+  const initialValues = useRef<{
     testcases: Testcase[]
     timeLimit: number
     memoryLimit: number
   } | null>(null)
 
-  const [pendingInput, setPendingInput] = useState<UpdateProblemInput | null>(
-    null
-  )
+  const pendingInput = useRef<UpdateProblemInput | null>(null)
 
   useQuery(GET_PROBLEM, {
     variables: {
@@ -72,7 +70,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
         timeLimit: data.timeLimit,
         memoryLimit: data.memoryLimit
       }
-      setInitialValues(initialFormValues)
+      initialValues.current = initialFormValues
 
       setValue('id', Number(problemId))
       setValue('title', data.title)
@@ -124,11 +122,11 @@ export default function Page({ params }: { params: { problemId: string } }) {
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
 
   const handleUpdate = async () => {
-    if (pendingInput) {
+    if (pendingInput.current) {
       await updateProblem({
         variables: {
           groupId: 1,
-          input: pendingInput
+          input: pendingInput.current
         }
       })
       if (error) {
@@ -152,19 +150,21 @@ export default function Page({ params }: { params: { problemId: string } }) {
       return
     }
 
-    setPendingInput(input)
-    if (initialValues) {
+    pendingInput.current = input
+    if (initialValues.current) {
       const currentValues = getValues()
       let scoreCalculationChanged = false
 
       if (
         JSON.stringify(currentValues.testcases) !==
-        JSON.stringify(initialValues.testcases)
+        JSON.stringify(initialValues.current.testcases)
       ) {
         scoreCalculationChanged = true
-      } else if (currentValues.timeLimit !== initialValues.timeLimit) {
+      } else if (currentValues.timeLimit !== initialValues.current.timeLimit) {
         scoreCalculationChanged = true
-      } else if (currentValues.memoryLimit !== initialValues.memoryLimit) {
+      } else if (
+        currentValues.memoryLimit !== initialValues.current.memoryLimit
+      ) {
         scoreCalculationChanged = true
       }
 
