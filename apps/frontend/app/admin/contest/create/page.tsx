@@ -53,7 +53,6 @@ export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [isCreating, setIsCreating] = useState<boolean>(false)
   const [showImportDialog, setShowImportDialog] = useState<boolean>(false)
-  const [showCreateModal, setShowCreateModal] = useState(false)
 
   const shouldSkipWarning = useRef(false)
   const router = useRouter()
@@ -90,7 +89,7 @@ export default function Page() {
       toast.error('Duplicate problem order found')
       return
     }
-    setShowCreateModal(true)
+    onSubmit()
   }
 
   const onSubmit = async () => {
@@ -253,39 +252,11 @@ export default function Page() {
             <Button
               type="submit"
               className="flex h-[36px] w-[100px] items-center gap-2 px-0"
+              disabled={isCreating}
             >
               <IoMdCheckmarkCircleOutline fontSize={20} />
               <div className="mb-[2px] text-base">Create</div>
             </Button>
-            <AlertDialog open={showCreateModal}>
-              <AlertDialogContent className="p-8">
-                <AlertDialogHeader className="gap-2">
-                  <AlertDialogTitle>Create Contest?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Once user submit any coding, the contest problem list and
-                    score <span className="underline">cannot</span> be modified.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel
-                    type="button"
-                    className="rounded-md px-4 py-2"
-                    onClick={() => setShowCreateModal(false)}
-                  >
-                    Cancel
-                  </AlertDialogCancel>
-                  <AlertDialogAction asChild>
-                    <Button
-                      type="button"
-                      disabled={isCreating}
-                      onClick={() => onSubmit()}
-                    >
-                      Create
-                    </Button>
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
           </FormProvider>
         </form>
       </main>
