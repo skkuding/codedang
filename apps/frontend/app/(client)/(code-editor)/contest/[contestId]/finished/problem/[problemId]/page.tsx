@@ -1,5 +1,5 @@
 import { Button } from '@/components/shadcn/button'
-import { fetcher } from '@/lib/utils'
+import { fetcher } from '@/libs/utils'
 import exitIcon from '@/public/icons/exit.svg'
 import visitIcon from '@/public/icons/visit.svg'
 import Image from 'next/image'

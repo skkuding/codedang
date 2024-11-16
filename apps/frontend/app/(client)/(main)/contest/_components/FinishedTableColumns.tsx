@@ -1,6 +1,6 @@
 'use client'
 
-import { dateFormatter } from '@/lib/utils'
+import { dateFormatter } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-gray.svg'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'

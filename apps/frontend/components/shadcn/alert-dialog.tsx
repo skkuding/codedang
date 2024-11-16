@@ -1,7 +1,7 @@
 'use client'
 
 import { buttonVariants } from '@/components/shadcn/button'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog'
 import * as React from 'react'
 

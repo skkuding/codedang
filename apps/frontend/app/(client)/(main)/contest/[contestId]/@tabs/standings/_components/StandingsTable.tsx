@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/shadcn/table'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import type { Standings } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {

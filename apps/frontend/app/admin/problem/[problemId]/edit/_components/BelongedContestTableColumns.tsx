@@ -2,7 +2,7 @@
 
 import DataTableColumnHeader from '@/app/admin/_components/table/DataTableColumnHeader'
 import { Checkbox } from '@/components/shadcn/checkbox'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 
 export interface BelongedContest {

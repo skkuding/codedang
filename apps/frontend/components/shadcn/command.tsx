@@ -1,7 +1,7 @@
 'use client'
 
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import type { DialogProps } from '@radix-ui/react-dialog'
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { Command as CommandPrimitive } from 'cmdk'

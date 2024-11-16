@@ -20,8 +20,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
-import { auth } from '@/lib/auth'
-import { fetcherWithAuth } from '@/lib/utils'
+import { auth } from '@/libs/auth'
+import { fetcherWithAuth } from '@/libs/utils'
 import submitIcon from '@/public/icons/submit.svg'
 import useAuthModalStore from '@/stores/authModal'
 import {

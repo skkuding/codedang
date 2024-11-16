@@ -1,7 +1,7 @@
 'use client'
 
 import OptionSelect from '@/app/admin/_components/OptionSelect'
-import { languages, levels } from '@/lib/constants'
+import { languages, levels } from '@/libs/constants'
 import type { Template } from '@generated/graphql'
 import type { Language } from '@generated/graphql'
 import { useEffect } from 'react'

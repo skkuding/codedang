@@ -3,7 +3,7 @@
 import { Input } from '@/components/shadcn/input'
 import { Switch } from '@/components/shadcn/switch'
 import { Textarea } from '@/components/shadcn/textarea'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { inputStyle } from '../_libs/utils'

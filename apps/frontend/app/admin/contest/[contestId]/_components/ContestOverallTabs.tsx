@@ -5,7 +5,7 @@ import {
   GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER,
   GET_CONTESTS
 } from '@/graphql/contest/queries'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import excelIcon from '@/public/icons/excel.svg'
 import { useQuery } from '@apollo/client'
 import Image from 'next/image'

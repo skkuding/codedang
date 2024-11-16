@@ -1,5 +1,5 @@
 import { EditorDescription } from '@/app/(client)/(code-editor)/_components/EditorDescription'
-import { fetcherWithAuth } from '@/lib/utils'
+import { fetcherWithAuth } from '@/libs/utils'
 import type { ContestProblem, ProblemDetail } from '@/types/type'
 import { redirect } from 'next/navigation'
 

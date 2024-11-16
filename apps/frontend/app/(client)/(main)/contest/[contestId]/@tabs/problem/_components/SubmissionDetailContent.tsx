@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/shadcn/table'
-import { dateFormatter, getResultColor } from '@/lib/utils'
+import { dateFormatter, getResultColor } from '@/libs/utils'
 import type { ContestProblem, Language, SubmissionDetail } from '@/types/type'
 
 export default function SubmissionDetailContent({
