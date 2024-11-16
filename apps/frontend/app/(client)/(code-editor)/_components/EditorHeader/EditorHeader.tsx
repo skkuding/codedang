@@ -24,7 +24,12 @@ import { auth } from '@/lib/auth'
 import { fetcherWithAuth } from '@/lib/utils'
 import submitIcon from '@/public/icons/submit.svg'
 import useAuthModalStore from '@/stores/authModal'
-import { useLanguageStore, useCodeStore, getKey } from '@/stores/editor'
+import {
+  useLanguageStore,
+  useCodeStore,
+  getStorageKey,
+  getCodeFromLocalStorage
+} from '@/stores/editor'
 import type {
   Language,
   ProblemDetail,
@@ -69,7 +74,9 @@ export default function Editor({
   const router = useRouter()
   const pathname = usePathname()
   const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
-  const storageKey = useRef(getKey(language, problem.id, userName, contestId))
+  const storageKey = useRef(
+    getStorageKey(language, problem.id, userName, contestId)
+  )
   const { currentModal, showSignIn } = useAuthModalStore((state) => state)
   const [showModal, setShowModal] = useState<boolean>(false)
   const pushed = useRef(false)
@@ -126,10 +133,15 @@ export default function Editor({
   }, [language])
 
   useEffect(() => {
-    storageKey.current = getKey(language, problem.id, userName, contestId)
+    storageKey.current = getStorageKey(
+      language,
+      problem.id,
+      userName,
+      contestId
+    )
     if (storageKey.current !== undefined) {
-      const storedCode = localStorage.getItem(storageKey.current)
-      setCode(storedCode ?? templateCode ?? '')
+      const storedCode = getCodeFromLocalStorage(storageKey.current)
+      setCode(storedCode || (templateCode ?? ''))
     }
   }, [userName, problem, contestId, language, templateCode])
 
@@ -208,8 +220,8 @@ export default function Editor({
   const checkSaved = () => {
     const code = getCode()
     if (storageKey.current !== undefined) {
-      const storedCode = localStorage.getItem(storageKey.current) ?? ''
-      if (storedCode && JSON.parse(storedCode) === code) return true
+      const storedCode = getCodeFromLocalStorage(storageKey.current)
+      if (storedCode && storedCode === code) return true
       else if (!storedCode && templateCode === code) return true
       else return false
     }
@@ -224,7 +236,12 @@ export default function Editor({
   }
 
   useEffect(() => {
-    storageKey.current = getKey(language, problem.id, userName, contestId)
+    storageKey.current = getStorageKey(
+      language,
+      problem.id,
+      userName,
+      contestId
+    )
 
     const handlePopState = () => {
       if (!checkSaved()) {

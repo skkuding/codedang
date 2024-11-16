@@ -37,7 +37,7 @@ export const useCodeStore = create<CodeState>((set, get) => ({
   getCode: () => get().code
 }))
 
-export const getKey = (
+export const getStorageKey = (
   language: Language,
   problemId: number,
   userName: string,
@@ -46,4 +46,12 @@ export const getKey = (
   if (userName === '') return undefined
   const problemKey = `${userName}_${problemId}${contestId ? `_${contestId}` : ''}_${language}`
   return problemKey
+}
+
+export const getCodeFromLocalStorage = (key: string) => {
+  const storedCode = localStorage.getItem(key) ?? ''
+  const parsed = storedCode.replaceAll('"', '')
+  localStorage.setItem(key, parsed)
+
+  return parsed
 }
