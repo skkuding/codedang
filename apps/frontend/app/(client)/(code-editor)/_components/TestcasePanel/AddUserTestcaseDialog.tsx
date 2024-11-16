@@ -87,12 +87,14 @@ export default function AddUserTestcaseDialog() {
                       {...register(`testcases.${index}.input`, {
                         required: true
                       })}
+                      placeholder="Input"
                       className="z-10 resize-none border-0 px-4 py-0 text-black shadow-none placeholder:text-[#3333334D] focus-visible:ring-0"
                     />
                     <Textarea
                       {...register(`testcases.${index}.output`, {
                         required: true
                       })}
+                      placeholder="Output"
                       className="z-10 min-h-[80px] rounded-none border-l border-transparent border-l-gray-200 px-4 py-0 text-black shadow-none placeholder:text-[#3333334D] focus-visible:ring-0"
                     />
                     <button
