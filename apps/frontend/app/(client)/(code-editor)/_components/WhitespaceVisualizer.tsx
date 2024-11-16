@@ -12,6 +12,8 @@ export function WhitespaceVisualizer({
 }) {
   const whitespaceStyle =
     'color: rgb(53, 129, 250); min-width: 0.5em; display: inline-block;'
+
+  // NOTE: Skip highlighting if text exceeds 100,000 characters to avoid performance issues.
   const highlightedWhitespaceText =
     text.length >= 100000
       ? text
