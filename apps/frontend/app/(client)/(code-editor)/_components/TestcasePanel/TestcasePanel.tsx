@@ -35,8 +35,16 @@ export default function TestcasePanel() {
     }
   }
 
+  const maxOutputLength = 100000
   const testResults = useTestResults()
-  const summaryData = testResults.map(({ id, result, isUserTestcase }) => ({
+  const processedData = testResults.map((testcase) => ({
+    ...testcase,
+    output:
+      testcase.output.length > maxOutputLength
+        ? testcase.output.slice(0, maxOutputLength)
+        : testcase.output
+  }))
+  const summaryData = processedData.map(({ id, result, isUserTestcase }) => ({
     id,
     result,
     isUserTestcase
@@ -103,13 +111,13 @@ export default function TestcasePanel() {
           <div className="flex flex-col gap-6 p-5 pb-14">
             <TestSummary data={summaryData} />
             <TestcaseTable
-              data={testResults}
+              data={processedData}
               moveToDetailTab={moveToDetailTab}
             />
           </div>
         ) : (
           <TestResultDetail
-            data={testResults.find((item) => item.id === currentTab)}
+            data={processedData.find((item) => item.id === currentTab)}
           />
         )}
       </ScrollArea>
