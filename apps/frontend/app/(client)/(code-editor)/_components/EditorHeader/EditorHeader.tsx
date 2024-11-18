@@ -321,10 +321,10 @@ export default function Editor({
       <div className="flex items-center gap-3">
         <Button
           size="icon"
-          className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-[#D7E5FE] font-medium text-[#484C4D] hover:bg-[#c6d3ea]"
+          className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-[#fafafa] font-medium text-[#484C4D] hover:bg-[#e1e1e1]"
           onClick={saveCode}
         >
-          <Save className="stroke-1" size={22} />
+          <Save className="stroke-[1.3]" size={22} />
           Save
         </Button>
         <RunTestButton
