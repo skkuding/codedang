@@ -5,6 +5,7 @@ import {
   GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER,
   GET_CONTESTS
 } from '@/graphql/contest/queries'
+import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { cn } from '@/libs/utils'
 import excelIcon from '@/public/icons/excel.svg'
 import { useQuery } from '@apollo/client'
@@ -56,6 +57,11 @@ export default function ContestOverallTabs({
     skip: !contestId
   })
 
+  const { data: problemData } = useQuery(GET_CONTEST_PROBLEMS, {
+    variables: { groupId: 1, contestId: id },
+    skip: !contestId
+  })
+
   const contestTitle = contestData?.getContests.find(
     (contest) => contest.id === contestId
   )?.title
@@ -64,22 +70,23 @@ export default function ContestOverallTabs({
     ? `${contestTitle.replace(/\s+/g, '_')}.csv`
     : `contest-${id}-participants.csv`
 
-  const uniqueProblems = Array.from(
-    new Set(
-      scoreData?.getContestScoreSummaries.flatMap((user) =>
-        user.problemScores.map((score) => score.problemId)
-      ) || []
-    )
-  )
+  const completeProblemList =
+    problemData?.getContestProblems
+      .slice()
+      .sort((a, b) => a.order - b.order)
+      .map((problem) => ({
+        problemId: problem.problemId,
+        maxScore: problem.score,
+        title: problem.problem.title,
+        order: problem.order
+      })) || []
 
-  const problemHeaders = uniqueProblems.flatMap((problemId, index) => {
-    const problemLabel = String.fromCharCode(65 + index)
-    return [
-      {
-        label: `${problemLabel}`,
-        key: `problems[${index}].maxScore`
-      }
-    ]
+  const problemHeaders = completeProblemList.map((problem, index) => {
+    const problemLabel = String.fromCharCode(65 + index) // A, B, C, ...
+    return {
+      label: `${problemLabel}. ${problem.title}`,
+      key: `problems[${index}].maxScore`
+    }
   })
 
   const headers = [
@@ -94,14 +101,13 @@ export default function ContestOverallTabs({
 
   const csvData =
     scoreData?.getContestScoreSummaries.map((user) => {
-      const userProblemScores = uniqueProblems.map((problemId) => {
+      const userProblemScores = completeProblemList.map((problem) => {
         const scoreData = user.problemScores.find(
-          (ps) => ps.problemId === problemId
+          (ps) => ps.problemId === problem.problemId
         )
 
         return {
-          maxScore: `${scoreData ? scoreData.score : 0}/${scoreData ? scoreData.maxScore : 0}`,
-          score: `${scoreData ? scoreData.score : 0}/${scoreData ? scoreData.maxScore : 0}`
+          maxScore: `${scoreData ? scoreData.score : 0}/${problem.maxScore}`
         }
       })
 
