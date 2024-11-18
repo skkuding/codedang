@@ -70,7 +70,7 @@ export default function ContestOverallTabs({
     ? `${contestTitle.replace(/\s+/g, '_')}.csv`
     : `contest-${id}-participants.csv`
 
-  const completeProblemList =
+  const problemList =
     problemData?.getContestProblems
       .slice()
       .sort((a, b) => a.order - b.order)
@@ -81,7 +81,7 @@ export default function ContestOverallTabs({
         order: problem.order
       })) || []
 
-  const problemHeaders = completeProblemList.map((problem, index) => {
+  const problemHeaders = problemList.map((problem, index) => {
     const problemLabel = String.fromCharCode(65 + index)
     return {
       label: problemLabel,
@@ -101,7 +101,7 @@ export default function ContestOverallTabs({
 
   const csvData =
     scoreData?.getContestScoreSummaries.map((user) => {
-      const userProblemScores = completeProblemList.map((problem) => {
+      const userProblemScores = problemList.map((problem) => {
         const scoreData = user.problemScores.find(
           (ps) => ps.problemId === problem.problemId
         )
