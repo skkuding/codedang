@@ -20,15 +20,15 @@ export default function TestcasePanel() {
         .concat(result)
         .filter(
           (item, index, self) =>
-            index === self.findIndex((t) => t.id === item.id)
+            index === self.findIndex((t) => t.originalId === item.originalId)
         )
     )
-    setCurrentTab(result.id)
+    setCurrentTab(result.originalId)
   }
 
   const removeTab = (testcaseId: number) => {
     setTestcaseTabList((state) =>
-      state.filter((item) => item.id !== testcaseId)
+      state.filter((item) => item.originalId !== testcaseId)
     )
     if (currentTab === testcaseId) {
       setCurrentTab(0)
@@ -44,11 +44,20 @@ export default function TestcasePanel() {
         ? testcase.output.slice(0, MAX_OUTPUT_LENGTH)
         : testcase.output
   }))
-  const summaryData = processedData.map(({ id, result, isUserTestcase }) => ({
-    id,
-    result,
-    isUserTestcase
-  }))
+  let usertestcaseCnt = 1
+  let sampletestcaseCnt = 1
+  const summaryData = processedData.map(({ id, result, isUserTestcase }) => {
+    if (isUserTestcase) {
+      id = usertestcaseCnt++
+    } else {
+      id = sampletestcaseCnt++
+    }
+    return {
+      id,
+      result,
+      isUserTestcase
+    }
+  })
 
   return (
     <>
@@ -72,12 +81,12 @@ export default function TestcasePanel() {
             {testcaseTabList.map((testcase, index) => (
               <TestcaseTab
                 currentTab={currentTab}
-                prevTab={testcaseTabList[index - 1]?.id}
-                nextTab={testcaseTabList[index + 1]?.id}
-                onClickTab={() => setCurrentTab(testcase.id)}
-                onClickCloseButton={() => removeTab(testcase.id)}
-                testcaseId={testcase.id}
-                key={testcase.id}
+                prevTab={testcaseTabList[index - 1]?.originalId}
+                nextTab={testcaseTabList[index + 1]?.originalId}
+                onClickTab={() => setCurrentTab(testcase.originalId)}
+                onClickCloseButton={() => removeTab(testcase.originalId)}
+                testcaseId={testcase.originalId}
+                key={testcase.originalId}
               >
                 {
                   (testcaseTabList.length < 7
@@ -117,7 +126,7 @@ export default function TestcasePanel() {
           </div>
         ) : (
           <TestResultDetail
-            data={processedData.find((item) => item.id === currentTab)}
+            data={processedData.find((item) => item.originalId === currentTab)}
           />
         )}
       </ScrollArea>
@@ -200,9 +209,9 @@ function TestSummary({
   const total = data.length
 
   const notAcceptedTestcases = data
-    .map((testcase, index) =>
+    .map((testcase) =>
       testcase.result !== 'Accepted'
-        ? `${testcase.isUserTestcase ? 'User' : 'Sample'} #${index + 1}`
+        ? `${testcase.isUserTestcase ? 'User' : 'Sample'} #${testcase.id}`
         : -1
     )
     .filter((index) => index !== -1)

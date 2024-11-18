@@ -17,6 +17,15 @@ export default function TestcaseTable({
   data: TestResultDetail[]
   moveToDetailTab: (tab: TestResultDetail) => void
 }) {
+  let usertestcaseCnt = 1
+  let sampletestcaseCnt = 1
+  data.map((testResult) => {
+    if (testResult.isUserTestcase) {
+      testResult.id = usertestcaseCnt++
+    } else {
+      testResult.id = sampletestcaseCnt++
+    }
+  })
   return (
     <Table className="rounded-t-md">
       <TableHeader className="bg-[#121728] [&_tr]:border-b-slate-600">
