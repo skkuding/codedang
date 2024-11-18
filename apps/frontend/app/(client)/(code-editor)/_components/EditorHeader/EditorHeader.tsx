@@ -221,9 +221,8 @@ export default function Editor({
     const code = getCode()
     if (storageKey.current !== undefined) {
       const storedCode = getCodeFromLocalStorage(storageKey.current)
-      console.log(!storedCode, templateCode, code, templateCode === code)
       if (storedCode && storedCode === code) return true
-      //else if (!storedCode && templateCode === code) return true
+      else if (!storedCode && templateCode === code) return true
       else return false
     }
     return true
