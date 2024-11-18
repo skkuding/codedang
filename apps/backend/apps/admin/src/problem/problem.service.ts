@@ -241,12 +241,12 @@ export class ProblemService {
 
     const fileSize = await this.getFileSize(createReadStream())
     try {
-      await this.storageService.uploadImage(
-        newFilename,
-        fileSize,
-        createReadStream(),
-        mimetype
-      )
+      await this.storageService.uploadImage({
+        filename: newFilename,
+        fileSize: fileSize,
+        content: createReadStream(),
+        type: mimetype
+      })
       await this.prisma.image.create({
         data: {
           filename: newFilename,
@@ -323,12 +323,17 @@ export class ProblemService {
     })
   }
 
-  async getProblems(
-    input: FilterProblemsInput,
-    groupId: number,
-    cursor: number | null,
+  async getProblems({
+    input,
+    groupId,
+    cursor,
+    take
+  }: {
+    input: FilterProblemsInput
+    groupId: number
+    cursor: number | null
     take: number
-  ) {
+  }) {
     const paginator = this.prisma.getPaginator(cursor)
 
     const whereOptions: ProblemWhereInput = {}

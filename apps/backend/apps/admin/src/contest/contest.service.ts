@@ -544,13 +544,19 @@ export class ContestService {
     return contestProblems
   }
 
-  async getContestSubmissionSummaryByUserId(
-    take: number,
-    contestId: number,
-    userId: number,
-    problemId: number | null,
+  async getContestSubmissionSummaryByUserId({
+    take,
+    contestId,
+    userId,
+    problemId,
+    cursor
+  }: {
+    take: number
+    contestId: number
+    userId: number
+    problemId: number | null
     cursor: number | null
-  ) {
+  }) {
     const paginator = this.prisma.getPaginator(cursor)
     const submissions = await this.prisma.submission.findMany({
       ...paginator,
@@ -820,12 +826,17 @@ export class ContestService {
     return latestSubmissions
   }
 
-  async getContestScoreSummaries(
-    contestId: number,
-    take: number,
-    cursor: number | null,
+  async getContestScoreSummaries({
+    contestId,
+    take,
+    cursor,
+    searchingName
+  }: {
+    contestId: number
+    take: number
+    cursor: number | null
     searchingName?: string
-  ) {
+  }) {
     const paginator = this.prisma.getPaginator(cursor)
 
     const contestRecords = await this.prisma.contestRecord.findMany({

@@ -28,12 +28,17 @@ export class StorageService {
     )
   }
 
-  async uploadImage(
-    filename: string,
-    fileSize: number,
-    content: ReadStream,
+  async uploadImage({
+    filename,
+    fileSize,
+    content,
+    type
+  }: {
+    filename: string
+    fileSize: number
+    content: ReadStream
     type: string
-  ) {
+  }) {
     await this.mediaClient.send(
       new PutObjectCommand({
         Bucket: this.config.get('MEDIA_BUCKET_NAME'),
