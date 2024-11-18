@@ -84,7 +84,7 @@ export default function ContestOverallTabs({
   const problemHeaders = completeProblemList.map((problem, index) => {
     const problemLabel = String.fromCharCode(65 + index) // A, B, C, ...
     return {
-      label: `${problemLabel}. ${problem.title}`,
+      label: problemLabel,
       key: `problems[${index}].maxScore`
     }
   })
