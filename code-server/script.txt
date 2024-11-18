@@ -1,0 +1,14 @@
+sudo -E go run main.go
+
+type judge
+message_id 1
+{
+"problemId": 1,
+"code": "#include<stdio.h>\n\n int main(){\nint a;\n
+scanf(\"%d\\n\", &a);\n printf(\"%d\\n\", a);\n return 0;}",
+"language": "C",
+"timeLimit": 1000,
+"memoryLimit": 268435156
+}
+ALLOWED_COMMANDS=("ls" "pwd" "date" "whoami")
+for var in "${array[@]}"

@@ -8,14 +8,20 @@ fi
 
 
 # git set up
-git config --global --add safe.directory /workspace
-git fetch origin
+cd /workspace
+source ./code-server/git.sh
 
 # install golang
-cd /workspace
+rm -rf /usr/local/go
+rm -rf /workspace/go1.23.3.*
 wget https://go.dev/dl/go1.23.3.linux-amd64.tar.gz
 sudo tar -C /usr/local -xzf go1.23.3.linux-amd64.tar.gz
-export PATH=$PATH:/usr/local/go/bin
+echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.bashrc
+source ~/.bashrc
+
+# postcreated script
+source ./scripts/setup.sh
 
 # code-server start
+./code-server/extensions.sh
 code-server --config /workspace/code-server/config.yaml /workspace

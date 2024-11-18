@@ -19,8 +19,6 @@ services:
     environment:
       DEVCONTAINER: 1
     network_mode: host
-    # ports:
-    #   - 1234:1234
     entrypoint: sh -c "/workspace/code-server/code-server.sh"
 
   local-storage:
