@@ -69,7 +69,7 @@ export default function Editor({
   const loading = isTesting || isSubmitting
 
   const [submissionId, setSubmissionId] = useState<number | null>(null)
-  const [templateCode, setTemplateCode] = useState<string | null>(null)
+  const [templateCode, setTemplateCode] = useState<string>('')
   const [userName, setUserName] = useState('')
   const router = useRouter()
   const pathname = usePathname()
@@ -141,7 +141,7 @@ export default function Editor({
     )
     if (storageKey.current !== undefined) {
       const storedCode = getCodeFromLocalStorage(storageKey.current)
-      setCode(storedCode || (templateCode ?? ''))
+      setCode(storedCode || templateCode)
     }
   }, [userName, problem, contestId, language, templateCode])
 
@@ -211,8 +211,8 @@ export default function Editor({
 
   const resetCode = () => {
     if (storageKey.current !== undefined) {
-      localStorage.setItem(storageKey.current, templateCode ?? '')
-      setCode(templateCode ?? '')
+      localStorage.setItem(storageKey.current, templateCode)
+      setCode(templateCode)
       toast.success('Successfully reset the code')
     } else toast.error('Failed to reset the code')
   }
