@@ -583,6 +583,7 @@ export class UserService {
       if (!this.isValidPassword(updateUserDto.newPassword)) {
         throw new UnprocessableDataException('Bad new password')
       }
+
       encryptedNewPassword = await hash(
         updateUserDto.newPassword,
         ARGON2_HASH_OPTION
@@ -598,20 +599,23 @@ export class UserService {
       }
     }
 
-    const updatedUser = await this.prisma.user.update({
-      where: { id: req.user.id },
-      data: updateData,
-      select: {
-        // don't select password for security
-        studentId: true,
-        major: true,
-        userProfile: {
-          select: {
-            realName: true
+    try {
+      return await this.prisma.user.update({
+        where: { id: req.user.id },
+        data: updateData,
+        select: {
+          // don't select password for security
+          studentId: true,
+          major: true,
+          userProfile: {
+            select: {
+              realName: true
+            }
           }
         }
-      }
-    })
-    return updatedUser
+      })
+    } catch (error) {
+      throw new UnprocessableDataException(error.message)
+    }
   }
 }
