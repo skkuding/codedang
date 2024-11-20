@@ -183,7 +183,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, execType constants.ExecTyp
 
 	dir := utils.RandString(constants.DIR_NAME_LEN) + id
 	defer func() {
-		// j.file.RemoveDir(dir)
+		j.file.RemoveDir(dir)
 		close(out)
 		j.logger.Log(logger.DEBUG, fmt.Sprintf("task %s done: total time: %s", dir, time.Since(startedAt)))
 	}()
@@ -360,7 +360,6 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 		TimeLimit:   validReq.TimeLimit,
 		MemoryLimit: validReq.MemoryLimit,
 	}, []byte(tc.In))
-
 	if err != nil {
 		j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
 		res.ResultCode = SYSTEM_ERROR
@@ -368,12 +367,12 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 		goto Send
 	}
 
+	// Todo: implement loading judge script
 	if execType == constants.T_SpecialJudge {
-		err = j.createSpecialFiles(idx, dir, tc.In, tc.Out)
-		if err != nil {
+		if err := j.createSpecialFiles(idx, dir, tc.In, tc.Out); err != nil {
 			j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
 			res.ResultCode = SYSTEM_ERROR
-			res.Error = "Cannot create input or(and) answer files"
+			res.Error = "Cannot create files for special judge"
 			goto Send
 		}
 	}
