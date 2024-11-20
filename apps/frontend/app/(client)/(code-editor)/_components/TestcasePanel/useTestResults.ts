@@ -1,4 +1,4 @@
-import { safeFetcherWithAuth } from '@/lib/utils'
+import { safeFetcherWithAuth } from '@/libs/utils'
 import type { TestResult } from '@/types/type'
 import { useQueries } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'

@@ -1,5 +1,5 @@
 import { Button, type ButtonProps } from '@/components/shadcn/button'
-import { isHttpError, safeFetcherWithAuth } from '@/lib/utils'
+import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
 import useAuthModalStore from '@/stores/authModal'
 import { useCodeStore } from '@/stores/editor'
 import type { TestcaseItem } from '@/types/type'
@@ -64,7 +64,11 @@ export default function RunTestButton({
                 locked: false
               }
             ],
-            userTestcases: testcases
+            userTestcases: testcases.map((testcase) => ({
+              id: testcase.id,
+              in: testcase.input,
+              out: testcase.output
+            }))
           },
           searchParams: {
             problemId

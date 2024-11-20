@@ -20,8 +20,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
-import { auth } from '@/lib/auth'
-import { fetcherWithAuth } from '@/lib/utils'
+import { auth } from '@/libs/auth'
+import { fetcherWithAuth } from '@/libs/utils'
 import submitIcon from '@/public/icons/submit.svg'
 import useAuthModalStore from '@/stores/authModal'
 import {
@@ -71,7 +71,7 @@ export default function Editor({
   const loading = isTesting || isSubmitting
 
   const [submissionId, setSubmissionId] = useState<number | null>(null)
-  const [templateCode, setTemplateCode] = useState<string | null>(null)
+  const [templateCode, setTemplateCode] = useState<string>('')
   const [userName, setUserName] = useState('')
   const router = useRouter()
   const pathname = usePathname()
@@ -143,7 +143,7 @@ export default function Editor({
     )
     if (storageKey.current !== undefined) {
       const storedCode = getCodeFromLocalStorage(storageKey.current)
-      setCode(storedCode || (templateCode ?? ''))
+      setCode(storedCode || templateCode)
     }
   }, [userName, problem, contestId, language, templateCode])
 
@@ -214,8 +214,8 @@ export default function Editor({
 
   const resetCode = () => {
     if (storageKey.current !== undefined) {
-      localStorage.setItem(storageKey.current, templateCode ?? '')
-      setCode(templateCode ?? '')
+      localStorage.setItem(storageKey.current, templateCode)
+      setCode(templateCode)
       toast.success('Successfully reset the code')
     } else toast.error('Failed to reset the code')
   }
@@ -324,10 +324,10 @@ export default function Editor({
       <div className="flex items-center gap-3">
         <Button
           size="icon"
-          className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-[#D7E5FE] font-medium text-[#484C4D] hover:bg-[#c6d3ea]"
+          className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-[#fafafa] font-medium text-[#484C4D] hover:bg-[#e1e1e1]"
           onClick={saveCode}
         >
-          <Save className="stroke-1" size={22} />
+          <Save className="stroke-[1.3]" size={22} />
           Save
         </Button>
         <RunTestButton

@@ -15,7 +15,7 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/shadcn/dialog'
-import { convertToLetter } from '@/lib/utils'
+import { convertToLetter } from '@/libs/utils'
 import compileIcon from '@/public/icons/compile-version.svg'
 import type { ContestProblem, ProblemDetail } from '@/types/type'
 import type { Level } from '@/types/type'

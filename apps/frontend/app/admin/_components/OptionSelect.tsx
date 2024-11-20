@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 
 interface OptionSelectProps {
   options: string[] | readonly string[]

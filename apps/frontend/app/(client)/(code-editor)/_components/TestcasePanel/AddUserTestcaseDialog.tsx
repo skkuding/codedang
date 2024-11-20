@@ -9,7 +9,7 @@ import {
 } from '@/components/shadcn/dialog'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Textarea } from '@/components/shadcn/textarea'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import { AlertTriangle, X } from 'lucide-react'
 import { useState } from 'react'
 import { CiSquarePlus } from 'react-icons/ci'
@@ -154,7 +154,7 @@ function SampleTestcaseItem({
   return (
     <div
       className={cn(
-        'flex h-[80px] w-full rounded-md border border-[#313744] bg-[#222939] font-mono shadow-sm'
+        'flex min-h-[80px] w-full rounded-md border border-[#313744] bg-[#222939] font-mono shadow-sm'
       )}
     >
       <div className="relative flex-1">

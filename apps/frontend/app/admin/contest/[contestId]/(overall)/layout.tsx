@@ -3,7 +3,7 @@
 import KatexContent from '@/components/KatexContent'
 import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST } from '@/graphql/contest/queries'
-import { dateFormatter } from '@/lib/utils'
+import { dateFormatter } from '@/libs/utils'
 import periodIcon from '@/public/icons/period.svg'
 import { useQuery } from '@apollo/client'
 import Image from 'next/image'

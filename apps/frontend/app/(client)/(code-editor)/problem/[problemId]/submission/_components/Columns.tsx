@@ -1,6 +1,6 @@
 'use client'
 
-import { dateFormatter, getResultColor } from '@/lib/utils'
+import { dateFormatter, getResultColor } from '@/libs/utils'
 import type { SubmissionItem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { cn, dateFormatter } from '@/lib/utils'
+import { cn, dateFormatter } from '@/libs/utils'
 import type { Notice } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import { PiPushPinFill } from 'react-icons/pi'

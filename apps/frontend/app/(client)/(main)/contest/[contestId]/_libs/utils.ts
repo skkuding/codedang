@@ -1,4 +1,4 @@
-import { safeFetcherWithAuth } from '@/lib/utils'
+import { safeFetcherWithAuth } from '@/libs/utils'
 import type { ContestProblem } from '@/types/type'
 
 interface ContestProblemsApiRes {
