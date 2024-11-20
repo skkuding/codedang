@@ -60,4 +60,5 @@ const (
 	T_Judge ExecType = iota
 	T_Run
 	T_SpecialJudge
+	T_SpecialRun
 )

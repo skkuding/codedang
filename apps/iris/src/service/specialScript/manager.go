@@ -5,7 +5,7 @@ import (
 )
 
 type SpecialScriptManager interface {
-	GetSpecialScript(problemId string) (SpecialScript, error)
+	GetSpecialScript(problemId string) (string, error)
 }
 
 type specialScriptManager struct {
@@ -16,11 +16,11 @@ func NewSpecialScriptManager(database loader.Read) *specialScriptManager {
 	return &specialScriptManager{database: database}
 }
 
-func (t *specialScriptManager) GetSpecialScript(problemId string) (SpecialScript, error) {
+func (t *specialScriptManager) GetSpecialScript(problemId string) (string, error) {
 	// data, err := t.database.Get(problemId)
 	// if err != nil {
 	// 	return "", fmt.Errorf("GetSpecialScript: %w", err)
 	// }
 
-	return "helloworld", nil
+	return "#include <stdio.h> \n int main(void){ printf(\" helloworld \"); return 0;}", nil
 }
