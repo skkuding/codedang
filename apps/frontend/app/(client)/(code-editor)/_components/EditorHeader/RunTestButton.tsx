@@ -64,7 +64,11 @@ export default function RunTestButton({
                 locked: false
               }
             ],
-            userTestcases: testcases
+            userTestcases: testcases.map((testcase) => ({
+              id: testcase.id,
+              in: testcase.input,
+              out: testcase.output
+            }))
           },
           searchParams: {
             problemId
