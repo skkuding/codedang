@@ -97,7 +97,7 @@ export default async function EditorLayout({
       <EditorMainResizablePanel
         problem={problem}
         contestId={contestId}
-        enableCopyPaste //</div>={contest ? contest.enableCopyPaste : true}
+        enableCopyPaste={contest ? contest.enableCopyPaste : true}
       >
         {children}
       </EditorMainResizablePanel>
