@@ -47,8 +47,8 @@ function DisabledDuplicateButton() {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger asChild>
-          <Button className="ml-auto" variant="default" size="default" disabled>
+        <TooltipTrigger className="ml-auto cursor-not-allowed self-end">
+          <Button variant="default" size="default" disabled>
             <CopyIcon className="mr-2 h-4 w-4" />
             Duplicate
           </Button>
