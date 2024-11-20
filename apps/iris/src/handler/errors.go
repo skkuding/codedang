@@ -45,6 +45,7 @@ var (
 	ErrValidate            = errors.New("validation error")
 	ErrSandbox             = errors.New("sandbox error")
 	ErrTestcaseGet         = errors.New("testcase get error")
+	ErrSpecialScriptGet    = errors.New("specialScript get error")
 	ErrCompile             = errors.New("compile error")
 	ErrWrongAnswer         = errors.New("wrong answer")
 	ErrCpuTimeLimitExceed  = errors.New("cputime limit exceeded")

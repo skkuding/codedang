@@ -15,6 +15,7 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/grader"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
+	"github.com/skkuding/codedang/apps/iris/src/service/specialScript"
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"github.com/skkuding/codedang/apps/iris/src/utils"
 	"go.opentelemetry.io/otel"
@@ -113,18 +114,20 @@ const (
 )
 
 type JudgeHandler struct {
-	compiler        sandbox.Compiler
-	runner          sandbox.Runner
-	testcaseManager testcase.TestcaseManager
-	langConfig      sandbox.LangConfig
-	file            file.FileManager
-	logger          logger.Logger
+	compiler             sandbox.Compiler
+	runner               sandbox.Runner
+	testcaseManager      testcase.TestcaseManager
+	specialScriptManager specialScript.SpecialScriptManager
+	langConfig           sandbox.LangConfig
+	file                 file.FileManager
+	logger               logger.Logger
 }
 
 func NewJudgeHandler(
 	compiler sandbox.Compiler,
 	runner sandbox.Runner,
 	testcaseManager testcase.TestcaseManager,
+	specialScriptManager specialScript.SpecialScriptManager,
 	langConfig sandbox.LangConfig,
 	file file.FileManager,
 	logger logger.Logger,
@@ -133,6 +136,7 @@ func NewJudgeHandler(
 		compiler,
 		runner,
 		testcaseManager,
+		specialScriptManager,
 		langConfig,
 		file,
 		logger,
@@ -231,14 +235,11 @@ func (j *JudgeHandler) Handle(id string, data []byte, execType constants.ExecTyp
 		go j.getTestcase(handleCtx, testcaseOutCh, strconv.Itoa(validReq.ProblemId), execType)
 	}
 
-
-	// if execType == constants.T_SpecialJudge {
-	// 	specialScriptCh := make(chan result.ChResult)
-	// 	go j.getSpecialScript(handleCtx, specialScriptCh, strconv.Itoa(validReq.ProblemId))
-	// }
-
-	// compileOutCh := make(chan result.ChResult)
-	// go j.compile(handleCtx, compileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.Language)})
+	var ss specialScript.SpecialScript
+	specialScriptCh := make(chan result.ChResult)
+	if execType == constants.T_SpecialJudge {
+		go j.getSpecialScript(handleCtx, specialScriptCh, strconv.Itoa(validReq.ProblemId))
+	}
 
 	compileOut := <-compileOutCh
 	if compileOut.Err != nil {
@@ -268,7 +269,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, execType constants.ExecTyp
 		return
 	}
 
-  if req.UserTestcases == nil {
+	if req.UserTestcases == nil {
 		testcaseOut := <-testcaseOutCh
 		if testcaseOut.Err != nil {
 			out <- JudgeResultMessage{nil, &HandlerError{
@@ -291,6 +292,20 @@ func (j *JudgeHandler) Handle(id string, data []byte, execType constants.ExecTyp
 			}}
 			return
 		}
+	}
+
+	if execType == constants.T_SpecialJudge {
+		specialScriptOut := <-specialScriptCh
+		if specialScriptOut.Err != nil {
+			out <- JudgeResultMessage{nil, &HandlerError{
+				caller:  "handle",
+				err:     fmt.Errorf("%w: %s", ErrSpecialScriptGet, specialScriptOut.Err),
+				level:   logger.ERROR,
+				Message: specialScriptOut.Err.Error(),
+			}}
+		}
+		ss = specialScriptOut.Data.(specialScript.SpecialScript)
+		// fmt.Println(ss)
 	}
 
 	tcNum := tc.Count()
@@ -334,19 +349,19 @@ func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.C
 }
 
 // wrapper to use goroutine
-// func (j *JudgeHandler) getSpecialScript(traceCtx context.Context, out chan<- result.ChResult, problemId string) {
-// 	tracer := otel.Tracer("GetTestcase Tracer")
-// 	_, span := tracer.Start(traceCtx, "go:goroutine:getTestcase")
-// 	defer span.End()
+func (j *JudgeHandler) getSpecialScript(traceCtx context.Context, out chan<- result.ChResult, problemId string) {
+	tracer := otel.Tracer("GetSpecialScript Tracer")
+	_, span := tracer.Start(traceCtx, "go:goroutine:getSpecialScript")
+	defer span.End()
 
-// 	res, err := j.testcaseManager.GetTestcase(problemId, execType != constants.T_Run)
+	res, err := j.specialScriptManager.GetSpecialScript(problemId)
 
-// 	if err != nil {
-// 		out <- result.ChResult{Err: err}
-// 		return
-// 	}
-// 	out <- result.ChResult{Data: res}
-// }
+	if err != nil {
+		out <- result.ChResult{Err: err}
+		return
+	}
+	out <- result.ChResult{Data: res}
+}
 
 func (j *JudgeHandler) createSpecialFiles(idx int, dir string, input string, answer string) error {
 	inputPath, err := j.file.MakeInPath(dir, idx)
