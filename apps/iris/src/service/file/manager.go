@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 )
@@ -13,6 +14,8 @@ type FileManager interface {
 	RemoveDir(dir string) error
 	CreateFile(path string, data string) error
 	ReadFile(path string) ([]byte, error)
+	MakeInPath(dir string, id int) (string, error)
+	MakeAnsPath(dir string, id int) (string, error)
 	MakeFilePath(dir string, fileName string) *bytes.Buffer
 }
 
@@ -53,6 +56,16 @@ func (f *fileManager) ReadFile(path string) ([]byte, error) {
 		return nil, fmt.Errorf("failed to read file: %s: %w", path, err)
 	}
 	return data, nil
+}
+
+func (f *fileManager) MakeInPath(dir string, id int) (string, error) {
+	fileName := strconv.Itoa(id) + ".in"
+	return f.MakeFilePath(dir, fileName).String(), nil
+}
+
+func (f *fileManager) MakeAnsPath(dir string, id int) (string, error) {
+	fileName := strconv.Itoa(id) + ".ans"
+	return f.MakeFilePath(dir, fileName).String(), nil
 }
 
 func (f *fileManager) MakeFilePath(dir string, fileName string) *bytes.Buffer {

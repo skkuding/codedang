@@ -48,6 +48,7 @@ type LangConfig interface {
 	MakeSrcPath(dir string, language Language) (string, error)
 	ToCompileExecArgs(dir string, language Language) (ExecArgs, error)
 	ToRunExecArgs(dir string, language Language, order int, limit Limit, fileIo bool) (ExecArgs, error)
+	// ToSpecialRunExecArgs(dir string, language Language, order int, limit Limit, fileIo bool) (ExecArgs, error)
 }
 
 type langConfig struct {

@@ -53,3 +53,11 @@ const (
 	EXCHANGE   = "judger-exchange"
 	RESULT_KEY = "result"
 )
+
+type ExecType uint
+
+const (
+	T_Judge ExecType = iota
+	T_Run
+	T_SpecialJudge
+)

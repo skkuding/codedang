@@ -140,7 +140,8 @@ func NewJudgeHandler(
 }
 
 // handle top layer logical flow
-func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan JudgeResultMessage) {
+// func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan JudgeResultMessage) {
+func (j *JudgeHandler) Handle(id string, data []byte, execType constants.ExecType, out chan JudgeResultMessage) {
 	startedAt := time.Now()
 	tracer := otel.Tracer("Handle Tracer")
 	handleCtx, span := tracer.Start(
@@ -182,7 +183,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 
 	dir := utils.RandString(constants.DIR_NAME_LEN) + id
 	defer func() {
-		j.file.RemoveDir(dir)
+		// j.file.RemoveDir(dir)
 		close(out)
 		j.logger.Log(logger.DEBUG, fmt.Sprintf("task %s done: total time: %s", dir, time.Since(startedAt)))
 	}()
@@ -224,7 +225,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 		tc = testcase.Testcase{Elements: *req.UserTestcases}
 	} else {
 		testcaseOutCh := make(chan result.ChResult)
-		go j.getTestcase(handleCtx, testcaseOutCh, strconv.Itoa(validReq.ProblemId), hidden)
+		go j.getTestcase(handleCtx, testcaseOutCh, strconv.Itoa(validReq.ProblemId), execType)
 
 		testcaseOut := <-testcaseOutCh
 
@@ -286,7 +287,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 	tcNum := tc.Count()
 	cnt := make(chan int)
 	for i := 0; i < tcNum; i++ {
-		go j.judgeTestcase(i, dir, validReq, tc.Elements[i], out, cnt)
+		go j.judgeTestcase(i, dir, validReq, tc.Elements[i], out, cnt, execType)
 	}
 
 	for i := 0; i < tcNum; i++ {
@@ -309,12 +310,12 @@ func (j *JudgeHandler) compile(traceCtx context.Context, out chan<- result.ChRes
 }
 
 // wrapper to use goroutine
-func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.ChResult, problemId string, hidden bool) {
+func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.ChResult, problemId string, execType constants.ExecType) {
 	tracer := otel.Tracer("GetTestcase Tracer")
 	_, span := tracer.Start(traceCtx, "go:goroutine:getTestcase")
 	defer span.End()
 
-	res, err := j.testcaseManager.GetTestcase(problemId, hidden)
+	res, err := j.testcaseManager.GetTestcase(problemId, execType == constants.T_Judge)
 
 	if err != nil {
 		out <- result.ChResult{Err: err}
@@ -323,8 +324,28 @@ func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.C
 	out <- result.ChResult{Data: res}
 }
 
+func (j *JudgeHandler) createSpecialFiles(idx int, dir string, input string, output string) error {
+	inputPath, err := j.file.MakeInPath(dir, idx)
+	if err != nil {
+		return fmt.Errorf("input: %w", err)
+	}
+	if err := j.file.CreateFile(inputPath, input); err != nil {
+		return fmt.Errorf("input: %w", err)
+	}
+
+	ansPath, err := j.file.MakeAnsPath(dir, idx)
+	if err != nil {
+		return fmt.Errorf("answer: %w", err)
+	}
+	if err := j.file.CreateFile(ansPath, output); err != nil {
+		return fmt.Errorf("answer: %w", err)
+	}
+
+	return nil
+}
+
 func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
-	tc loader.Element, out chan JudgeResultMessage, cnt chan int) {
+	tc loader.Element, out chan JudgeResultMessage, cnt chan int, execType constants.ExecType) {
 
 	var accepted bool
 
@@ -347,6 +368,16 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 		goto Send
 	}
 
+	if execType == constants.T_SpecialJudge {
+		err = j.createSpecialFiles(idx, dir, tc.In, tc.Out)
+		if err != nil {
+			j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
+			res.ResultCode = SYSTEM_ERROR
+			res.Error = "Cannot create input or(and) answer files"
+			goto Send
+		}
+	}
+
 	res.TestcaseId = tc.Id
 	res.SetJudgeExecResult(runResult.ExecResult)
 	res.Output = string(runResult.Output)
@@ -359,7 +390,7 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 	// 하나당 약 50microsec 10개 채점시 500microsec.
 	// output이 커지면 더 길어짐 -> FIXME: 최적화 과정에서 goroutine으로 수정
 	// st := time.Now()
-	accepted = grader.Grade([]byte(tc.Out), runResult.Output)
+	accepted = grader.Grade([]byte(tc.Out), runResult.Output, execType == constants.T_SpecialJudge)
 
 	if accepted {
 		res.SetJudgeResultCode(ACCEPTED)
