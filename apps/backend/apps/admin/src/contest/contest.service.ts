@@ -664,7 +664,8 @@ export class ContestService {
                 data: {
                   order: contestProblem.order,
                   contestId: newContest.id,
-                  problemId: contestProblem.problemId
+                  problemId: contestProblem.problemId,
+                  score: contestProblem.score
                 }
               })
             )
