@@ -25,14 +25,12 @@ interface ProblemEditorProps {
   children: React.ReactNode
   contestId?: number
   enableCopyPaste?: boolean
-  onSubmit: () => void
 }
 
 export default function EditorMainResizablePanel({
   problem,
   contestId,
   enableCopyPaste = true,
-  onSubmit,
   children
 }: ProblemEditorProps) {
   const pathname = usePathname()
@@ -106,7 +104,6 @@ export default function EditorMainResizablePanel({
                 problem={problem}
                 contestId={contestId}
                 templateString={problem.template[0]}
-                onSubmit={onSubmit}
               />
               <ResizablePanelGroup direction="vertical" className="h-32">
                 <ResizablePanel
