@@ -219,44 +219,28 @@ func (j *JudgeHandler) Handle(id string, data []byte, execType constants.ExecTyp
 		return
 	}
 
+	compileOutCh := make(chan result.ChResult)
+	go j.compile(handleCtx, compileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.Language)})
+
 	var tc testcase.Testcase
+	testcaseOutCh := make(chan result.ChResult)
 
 	if req.UserTestcases != nil {
 		tc = testcase.Testcase{Elements: *req.UserTestcases}
 	} else {
-		testcaseOutCh := make(chan result.ChResult)
 		go j.getTestcase(handleCtx, testcaseOutCh, strconv.Itoa(validReq.ProblemId), execType)
-
-		testcaseOut := <-testcaseOutCh
-
-		if testcaseOut.Err != nil {
-			out <- JudgeResultMessage{nil, &HandlerError{
-				caller:  "handle",
-				err:     fmt.Errorf("%w: %s", ErrTestcaseGet, testcaseOut.Err),
-				level:   logger.ERROR,
-				Message: testcaseOut.Err.Error(),
-			}}
-			return
-		}
-
-		var ok bool
-
-		tc, ok = testcaseOut.Data.(testcase.Testcase)
-		if !ok {
-			out <- JudgeResultMessage{nil, &HandlerError{
-				caller: "handle",
-				err:    fmt.Errorf("%w: Testcase", ErrTypeAssertionFail),
-				level:  logger.ERROR,
-			}}
-			return
-		}
 	}
 
-	compileOutCh := make(chan result.ChResult)
-	go j.compile(handleCtx, compileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.Language)})
+
+	// if execType == constants.T_SpecialJudge {
+	// 	specialScriptCh := make(chan result.ChResult)
+	// 	go j.getSpecialScript(handleCtx, specialScriptCh, strconv.Itoa(validReq.ProblemId))
+	// }
+
+	// compileOutCh := make(chan result.ChResult)
+	// go j.compile(handleCtx, compileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.Language)})
 
 	compileOut := <-compileOutCh
-
 	if compileOut.Err != nil {
 		// 컴파일러 실행 과정이나 이후 처리 과정에서 오류가 생긴 경우
 		out <- JudgeResultMessage{nil, &HandlerError{
@@ -282,6 +266,31 @@ func (j *JudgeHandler) Handle(id string, data []byte, execType constants.ExecTyp
 			err: ErrCompile, Message: compileResult.ErrOutput,
 		}}
 		return
+	}
+
+  if req.UserTestcases == nil {
+		testcaseOut := <-testcaseOutCh
+		if testcaseOut.Err != nil {
+			out <- JudgeResultMessage{nil, &HandlerError{
+				caller:  "handle",
+				err:     fmt.Errorf("%w: %s", ErrTestcaseGet, testcaseOut.Err),
+				level:   logger.ERROR,
+				Message: testcaseOut.Err.Error(),
+			}}
+			return
+		}
+
+		var ok bool
+
+		tc, ok = testcaseOut.Data.(testcase.Testcase)
+		if !ok {
+			out <- JudgeResultMessage{nil, &HandlerError{
+				caller: "handle",
+				err:    fmt.Errorf("%w: Testcase", ErrTypeAssertionFail),
+				level:  logger.ERROR,
+			}}
+			return
+		}
 	}
 
 	tcNum := tc.Count()
@@ -315,7 +324,7 @@ func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.C
 	_, span := tracer.Start(traceCtx, "go:goroutine:getTestcase")
 	defer span.End()
 
-	res, err := j.testcaseManager.GetTestcase(problemId, execType == constants.T_Judge)
+	res, err := j.testcaseManager.GetTestcase(problemId, execType != constants.T_Run)
 
 	if err != nil {
 		out <- result.ChResult{Err: err}
@@ -324,7 +333,22 @@ func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.C
 	out <- result.ChResult{Data: res}
 }
 
-func (j *JudgeHandler) createSpecialFiles(idx int, dir string, input string, output string) error {
+// wrapper to use goroutine
+// func (j *JudgeHandler) getSpecialScript(traceCtx context.Context, out chan<- result.ChResult, problemId string) {
+// 	tracer := otel.Tracer("GetTestcase Tracer")
+// 	_, span := tracer.Start(traceCtx, "go:goroutine:getTestcase")
+// 	defer span.End()
+
+// 	res, err := j.testcaseManager.GetTestcase(problemId, execType != constants.T_Run)
+
+// 	if err != nil {
+// 		out <- result.ChResult{Err: err}
+// 		return
+// 	}
+// 	out <- result.ChResult{Data: res}
+// }
+
+func (j *JudgeHandler) createSpecialFiles(idx int, dir string, input string, answer string) error {
 	inputPath, err := j.file.MakeInPath(dir, idx)
 	if err != nil {
 		return fmt.Errorf("input: %w", err)
@@ -337,7 +361,7 @@ func (j *JudgeHandler) createSpecialFiles(idx int, dir string, input string, out
 	if err != nil {
 		return fmt.Errorf("answer: %w", err)
 	}
-	if err := j.file.CreateFile(ansPath, output); err != nil {
+	if err := j.file.CreateFile(ansPath, answer); err != nil {
 		return fmt.Errorf("answer: %w", err)
 	}
 
@@ -376,6 +400,8 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 			goto Send
 		}
 	}
+
+	// validReq.ProblemId
 
 	res.TestcaseId = tc.Id
 	res.SetJudgeExecResult(runResult.ExecResult)
