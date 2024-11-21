@@ -67,10 +67,11 @@ export default function ContestOverallTabs({
     const truncatedScore = Math.floor(score * 1000) / 1000
     return truncatedScore % 1 === 0
       ? truncatedScore.toFixed(0)
-      : (truncatedScore * 10) % 1 === 0
-        ? truncatedScore.toFixed(1)
+      : Math.floor(truncatedScore * 10) % 10 === 0
+        ? (Math.floor(truncatedScore * 10) / 10).toFixed(1)
         : truncatedScore.toString()
   }
+
   const contestTitle = contestData?.getContests.find(
     (contest) => contest.id === contestId
   )?.title
