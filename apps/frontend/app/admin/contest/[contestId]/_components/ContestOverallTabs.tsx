@@ -124,8 +124,10 @@ export default function ContestOverallTabs({
       }
     }) || []
 
-  const isCurrentTab = (tab: string) =>
-    pathname.startsWith(`/admin/contest/${id}/${tab}`)
+  const isCurrentTab = (tab: string) => {
+    if (tab === '') return pathname === `/admin/contest/${id}`
+    return pathname.startsWith(`/admin/contest/${id}/${tab}`)
+  }
 
   return (
     <div className="flex items-center justify-between">
