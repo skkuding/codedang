@@ -28,8 +28,7 @@ import {
   useLanguageStore,
   useCodeStore,
   getStorageKey,
-  getCodeFromLocalStorage,
-  useSubsmissionResultStore
+  getCodeFromLocalStorage
 } from '@/stores/editor'
 import type {
   Language,
@@ -37,6 +36,7 @@ import type {
   Submission,
   Template
 } from '@/types/type'
+import { useQueryClient } from '@tanstack/react-query'
 import JSConfetti from 'js-confetti'
 import { Save } from 'lucide-react'
 import type { Route } from 'next'
@@ -64,7 +64,6 @@ export default function Editor({
   const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
   const setCode = useCodeStore((state) => state.setCode)
   const getCode = useCodeStore((state) => state.getCode)
-  const { setSubmissionResult } = useSubsmissionResultStore((state) => state)
 
   const isTesting = useTestPollingStore((state) => state.isTesting)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -85,6 +84,8 @@ export default function Editor({
   const whereToPush = useRef('')
   const isModalConfrimed = useRef(false)
 
+  const queryClient = useQueryClient()
+
   useInterval(
     async () => {
       const res = await fetcherWithAuth(`submission/${submissionId}`, {
@@ -103,7 +104,6 @@ export default function Editor({
           router.replace(href as Route)
           window.history.pushState(null, '', '')
           if (submission.result === 'Accepted') {
-            setSubmissionResult(problem.id, 'Accepted')
             confetti?.addConfetti()
             queryClient.refetchQueries({
               queryKey: ['contest', contestId, 'problems']

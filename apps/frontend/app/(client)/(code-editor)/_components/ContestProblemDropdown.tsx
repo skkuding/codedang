@@ -6,14 +6,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
-import { cn, convertToLetter } from '@/libs/utils'
+import { cn, convertToLetter, fetcherWithAuth } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-green.svg'
-import { useSubsmissionResultStore } from '@/stores/editor'
 import type { ContestProblem, ProblemDetail } from '@/types/type'
+import { useQuery } from '@tanstack/react-query'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect } from 'react'
 import { FaSortDown } from 'react-icons/fa'
 
 interface ContestProblemProps {
@@ -34,24 +33,14 @@ export default function ContestProblemDropdown({
   problemId,
   contestId
 }: ContestProblemDropdownProps) {
-  const {
-    submissionResult,
-    setSubmissionResult,
-    setSubmissionResultToLocalStorage,
-    getSubmissionResultFromLocalStorage
-  } = useSubsmissionResultStore((state) => state)
+  const { data, isSuccess } = useQuery<ContestProblemProps | undefined>({
+    queryKey: ['contest', contestId, 'problems'],
+    queryFn: () =>
+      fetcherWithAuth.get(`contest/${contestId}/problem?take=20`).json(),
+    enabled: false
+  })
 
-  useEffect(() => {
-    const storedSubmission = getSubmissionResultFromLocalStorage(
-      contestId,
-      problemId
-    )
-    if (!storedSubmission) setSubmissionResult(problemId, storedSubmission)
-    return () => {
-      setSubmissionResultToLocalStorage(contestId, problemId, submissionResult)
-      setSubmissionResult(problemId, '')
-    }
-  }, [])
+  if (isSuccess) problems = data
 
   return (
     <DropdownMenu>
@@ -73,8 +62,7 @@ export default function ContestProblemDropdown({
               )}
             >
               {`${convertToLetter(p.order)}. ${p.title}`}
-              {submissionResult.find((item) => item.problemId === p.id)
-                ?.result === 'Accepted' && (
+              {p.submissionTime && (
                 <div className="flex items-center justify-center pl-2">
                   <Image src={checkIcon} alt="check" width={16} height={16} />
                 </div>

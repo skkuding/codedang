@@ -24,56 +24,6 @@ export const useLanguageStore = (problemId: number, contestId?: number) => {
   )
 }
 
-interface SubsmissionResult {
-  problemId: number
-  result: string
-}
-interface SubsmissionResultState {
-  submissionResult: SubsmissionResult[]
-  setSubmissionResult: (problemId: number, result: string) => void
-  getSubmissionResult: () => SubsmissionResult[]
-  setSubmissionResultToLocalStorage: (
-    contestId: number,
-    problemId: number,
-    result: SubsmissionResult[]
-  ) => void
-  getSubmissionResultFromLocalStorage: (
-    contestId: number,
-    problemId: number
-  ) => SubsmissionResult[]
-}
-
-export const useSubsmissionResultStore = create<SubsmissionResultState>(
-  (set, get) => ({
-    submissionResult: [],
-    setSubmissionResult: (problemId, result) =>
-      set((prev) => {
-        const exist = prev.submissionResult.find(
-          (item) => item.problemId === problemId
-        )
-        if (!exist || exist.result !== 'Accepted') {
-          return {
-            submissionResult: [...prev.submissionResult, { problemId, result }]
-          }
-        }
-        return {}
-      }),
-    getSubmissionResult: () => get().submissionResult,
-    setSubmissionResultToLocalStorage: (contestId, problemId, result) =>
-      localStorage.setItem(
-        `${contestId}_${problemId}_result`,
-        JSON.stringify(result)
-      ),
-    getSubmissionResultFromLocalStorage: (contestId, problemId) => {
-      const storedResult = localStorage.getItem(
-        `${contestId}_${problemId}_result`
-      )
-      if (storedResult) return JSON.parse(storedResult)
-      else return []
-    }
-  })
-)
-
 interface CodeState {
   code: string
   setCode: (code: string) => void
