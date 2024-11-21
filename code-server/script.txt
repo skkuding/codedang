@@ -12,3 +12,13 @@ scanf(\"%d\\n\", &a);\n printf(\"%d\\n\", a);\n return 0;}",
 }
 ALLOWED_COMMANDS=("ls" "pwd" "date" "whoami")
 for var in "${array[@]}"
+
+{
+"problemId":1,
+"code":"#include <stdio.h> \n int main(int argc, char *argv[]) { \n int j; \n for (j = 0; j < argc; j++) \n printf(\" argv[%d]: %s \\n \" , j, argv[j]);\nreturn 0; \n }",
+"language": "C",
+"timeLimit": 1000,
+"memoryLimit": 268435156,
+"specialLanguage": "CPP",
+"specialCode":"#include <testlib.h> \n int main(void){ printf(\" helloworld \"); return 0;}"
+}
