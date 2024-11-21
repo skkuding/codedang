@@ -1,4 +1,4 @@
-import welcomeLogo from '@/public/welcome.svg'
+import welcomeLogo from '@/public/logos/welcome.png'
 import Image from 'next/image'
 
 export default function Page() {

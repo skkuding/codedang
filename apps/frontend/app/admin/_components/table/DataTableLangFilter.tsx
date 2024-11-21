@@ -1,6 +1,6 @@
 'use client'
 
-import { languages } from '@/lib/constants'
+import { languages } from '@/libs/constants'
 import DataTableMultiSelectFilter from './DataTableMultiSelectFilter'
 import { LANG_COLUMN_ID } from './constants'
 import { useDataTable } from './context'

@@ -1,10 +1,10 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
   DialogClose,
   DialogContent,
   DialogTrigger
-} from '@/components/ui/dialog'
+} from '@/components/shadcn/dialog'
 import { UPLOAD_PROBLEMS } from '@/graphql/problem/mutations'
 import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useApolloClient, useMutation } from '@apollo/client'

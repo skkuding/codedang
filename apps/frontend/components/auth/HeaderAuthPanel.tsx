@@ -1,15 +1,19 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import { Button } from '@/components/shadcn/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger
+} from '@/components/shadcn/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
   DropdownMenuSeparator
-} from '@/components/ui/dropdown-menu'
-import { cn, fetcherWithAuth } from '@/lib/utils'
+} from '@/components/shadcn/dropdown-menu'
+import { cn, fetcherWithAuth } from '@/libs/utils'
 import useAuthModalStore from '@/stores/authModal'
 import { LogOut, UserRoundCog, ChevronDown } from 'lucide-react'
 import type { Session } from 'next-auth'

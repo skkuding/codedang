@@ -1,0 +1,35 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/submission/user-test?problemId=7
+  body: json
+  auth: none
+}
+
+params:query {
+  problemId: 7
+}
+
+body:json {
+  {
+    "code": [
+      {
+        "id": 1,
+        "text": "#include <stdio.h>\nint main() { int a, b; scanf(\"%d%d\", &a, &b); printf(\"%d\\n\", a + b);}",
+        "locked": false
+      }
+    ],
+    "language": "Cpp",
+    "userTestcases": [
+      {
+        "id": 1,
+        "in": "1 1",
+        "out": "2"
+      }
+    ]
+  }
+}

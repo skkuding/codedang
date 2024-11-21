@@ -3,16 +3,16 @@ import {
   DialogTrigger,
   DialogContent,
   DialogHeader
-} from '@/components/ui/dialog'
-import { Skeleton } from '@/components/ui/skeleton'
+} from '@/components/shadcn/dialog'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@/components/ui/tooltip'
+} from '@/components/shadcn/tooltip'
 import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
-import FileInfoIcon from '@/public/24_compile.svg'
+import fileInfoIcon from '@/public/icons/file-info.svg'
 import { useQuery } from '@apollo/client'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import Image from 'next/image'
@@ -73,7 +73,7 @@ export default function ContainedContests({
                 onMouseEnter={() => setIsTooltipOpen(true)}
                 onMouseLeave={() => setIsTooltipOpen(false)}
               >
-                <Image src={FileInfoIcon} alt="fileinfo" />
+                <Image src={fileInfoIcon} alt="fileinfo" />
               </button>
             </TooltipTrigger>
           </DialogTrigger>

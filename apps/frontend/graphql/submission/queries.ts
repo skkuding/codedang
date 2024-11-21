@@ -73,6 +73,7 @@ const GET_SUBMISSION = gql(`query GetSubmission(
     user {
       id
       studentId
+      major
       username
       userProfile {
         realName

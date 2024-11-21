@@ -1,13 +1,13 @@
 'use client'
 
+import OptionSelect from '@/app/admin/_components/OptionSelect'
 import ContainedContests from '@/app/admin/problem/_components/ContainedContests'
-import OptionSelect from '@/components/OptionSelect'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/shadcn/badge'
+import { Input } from '@/components/shadcn/input'
 import type { Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import { toast } from 'sonner'
-import type { ContestProblem } from '../utils'
+import type { ContestProblem } from '../_libs/schemas'
 
 export const createColumns = (
   setProblems: React.Dispatch<React.SetStateAction<ContestProblem[]>>,

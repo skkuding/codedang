@@ -1,18 +1,18 @@
 'use client'
 
 import DataTableColumnHeader from '@/app/admin/_components/table/DataTableColumnHeader'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Switch } from '@/components/ui/switch'
+import { Checkbox } from '@/components/shadcn/checkbox'
+import { Switch } from '@/components/shadcn/switch'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@/components/ui/tooltip'
+} from '@/components/shadcn/tooltip'
 import { UPDATE_CONTEST_VISIBLE } from '@/graphql/contest/mutations'
-import { cn, dateFormatter } from '@/lib/utils'
-import InvisibleIcon from '@/public/24_invisible.svg'
-import VisibleIcon from '@/public/24_visible.svg'
+import { cn, dateFormatter } from '@/libs/utils'
+import invisibleIcon from '@/public/icons/invisible.svg'
+import visibleIcon from '@/public/icons/visible.svg'
 import { useMutation } from '@apollo/client'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import type { ColumnDef, Row } from '@tanstack/react-table'
@@ -82,9 +82,9 @@ function VisibleCell({ row }: { row: Row<DataTableContest> }) {
                   className="h-6 w-6"
                 >
                   {row.original.isVisible ? (
-                    <Image src={VisibleIcon} alt="Visible" />
+                    <Image src={visibleIcon} alt="Visible" />
                   ) : (
-                    <Image src={InvisibleIcon} alt="Invisible" />
+                    <Image src={invisibleIcon} alt="Invisible" />
                   )}
                 </button>
               </TooltipTrigger>

@@ -9,7 +9,7 @@ import DataTableLevelFilter from '../../_components/table/DataTableLevelFilter'
 import DataTablePagination from '../../_components/table/DataTablePagination'
 import DataTableRoot from '../../_components/table/DataTableRoot'
 import DataTableSearchBar from '../../_components/table/DataTableSearchBar'
-import type { ContestProblem } from '../utils'
+import type { ContestProblem } from '../_libs/schemas'
 import ImportProblemButton from './ImportProblemButton'
 import {
   columns,

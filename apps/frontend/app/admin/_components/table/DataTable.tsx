@@ -1,6 +1,6 @@
 'use client'
 
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import {
   TableBody,
   TableCell,
@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
   Table
-} from '@/components/ui/table'
+} from '@/components/shadcn/table'
 import {
   flexRender,
   type Row,

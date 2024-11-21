@@ -20,6 +20,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { ContestWithScores } from './model/contest-with-scores.model'
 import type { CreateContestInput } from './model/contest.input'
 import type { UpdateContestInput } from './model/contest.input'
 import type { ProblemScoreInput } from './model/problem-score.input'
@@ -379,11 +380,6 @@ export class ContestService {
     if (!contest) {
       throw new EntityNotExistException('contest')
     }
-    if (contest.submission.length) {
-      throw new UnprocessableDataException(
-        'Cannot import problems if submission exists'
-      )
-    }
 
     const contestProblems: ContestProblem[] = []
 
@@ -466,11 +462,6 @@ export class ContestService {
     })
     if (!contest) {
       throw new EntityNotExistException('contest')
-    }
-    if (contest.submission.length) {
-      throw new UnprocessableDataException(
-        'Cannot delete problems if submission exists'
-      )
     }
 
     const contestProblems: ContestProblem[] = []
@@ -708,7 +699,7 @@ export class ContestService {
    * 특정 user의 특정 Contest에 대한 총점, 통과한 문제 개수와 각 문제별 테스트케이스 통과 개수를 불러옵니다.
    */
   async getContestScoreSummary(userId: number, contestId: number) {
-    const [contestProblems, submissions] = await Promise.all([
+    const [contestProblems, rawSubmissions] = await Promise.all([
       this.prisma.contestProblem.findMany({
         where: {
           contestId
@@ -724,6 +715,14 @@ export class ContestService {
         }
       })
     ])
+
+    // 오직 현재 Contest에 남아있는 문제들의 제출에 대해서만 ScoreSummary 계산
+    const contestProblemIds = contestProblems.map(
+      (contestProblem) => contestProblem.problemId
+    )
+    const submissions = rawSubmissions.filter((submission) =>
+      contestProblemIds.includes(submission.problemId)
+    )
 
     if (!submissions.length) {
       return {
@@ -856,7 +855,8 @@ export class ContestService {
               select: {
                 realName: true
               }
-            }
+            },
+            major: true
           }
         }
       },
@@ -874,6 +874,7 @@ export class ContestService {
           username: record.user?.username,
           studentId: record.user?.studentId,
           realName: record.user?.userProfile?.realName,
+          major: record.user?.major,
           ...(await this.getContestScoreSummary(
             record.userId as number,
             contestId
@@ -891,7 +892,8 @@ export class ContestService {
         problemId
       },
       select: {
-        contest: true
+        contest: true,
+        score: true
       }
     })
 
@@ -899,8 +901,16 @@ export class ContestService {
       throw new EntityNotExistException('Problem or ContestProblem')
     }
 
-    const contests = contestProblems.map(
-      (contestProblem) => contestProblem.contest
+    const contests = await Promise.all(
+      contestProblems.map(async (contestProblem) => {
+        return {
+          ...contestProblem.contest,
+          problemScore: contestProblem.score,
+          totalScore: await this.getTotalScoreOfContest(
+            contestProblem.contest.id
+          )
+        }
+      })
     )
 
     const now = new Date()
@@ -919,12 +929,28 @@ export class ContestService {
         return acc
       },
       {
-        upcoming: [] as Contest[],
-        ongoing: [] as Contest[],
-        finished: [] as Contest[]
+        upcoming: [] as ContestWithScores[],
+        ongoing: [] as ContestWithScores[],
+        finished: [] as ContestWithScores[]
       }
     )
 
     return contestsGroupedByStatus
+  }
+
+  async getTotalScoreOfContest(contestId: number) {
+    const contestProblemScores = await this.prisma.contestProblem.findMany({
+      where: {
+        contestId
+      },
+      select: {
+        score: true
+      }
+    })
+
+    return contestProblemScores.reduce(
+      (total, problem) => total + problem.score,
+      0
+    )
   }
 }

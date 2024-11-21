@@ -155,7 +155,7 @@ jobs:
         working-directory: ./apps/iris
 
       - name: Lint (Node.js)
-        run: git diff --name-only --diff-filter=ACMRUXB origin/main | grep -E "(.ts$|.tsx$|.js$|.jsx$)" | xargs -r pnpm eslint
+        run: git diff --name-only --diff-filter=ACMRUXB origin/main | grep -E "(.ts$|.tsx$|.js$|.jsx$)" | grep -v 'next.config.js$' | xargs -r pnpm eslint
 
   test-backend:
     name: Test Backend
