@@ -84,7 +84,7 @@ export default function ContestOverallTabs({
   const problemHeaders = problemList.map((problem, index) => {
     const problemLabel = String.fromCharCode(65 + index)
     return {
-      label: problemLabel,
+      label: `${problemLabel}(배점 ${problem.maxScore})`,
       key: `problems[${index}].maxScore`
     }
   })
@@ -93,8 +93,14 @@ export default function ContestOverallTabs({
     { label: '전공', key: 'major' },
     { label: '이름', key: 'realName' },
     { label: '학번', key: 'studentId' },
-    { label: '총 획득 점수/총점', key: 'scoreRatio' },
-    { label: '제출 문제 수/총 문제 수', key: 'problemRatio' },
+    {
+      label: `총 획득 점수(만점 ${scoreData?.getContestScoreSummaries[0]?.contestPerfectScore || 0})`,
+      key: 'score'
+    },
+    {
+      label: `제출 문제 수(총 ${scoreData?.getContestScoreSummaries[0]?.totalProblemCount || 0})`,
+      key: 'problemRatio'
+    },
 
     ...problemHeaders
   ]
@@ -107,19 +113,18 @@ export default function ContestOverallTabs({
         )
 
         return {
-          maxScore: `${scoreData ? scoreData.score : 0}/${problem.maxScore}`
+          maxScore: `${scoreData ? scoreData.score : '-'}`
         }
       })
 
       return {
         major: user.major,
-        realName: user.realName,
         studentId: user.studentId,
-        scoreRatio: `${user.userContestScore}/${user.contestPerfectScore}`,
-        problemRatio:
-          user.submittedProblemCount === user.totalProblemCount
-            ? 'Submit'
-            : `${user.submittedProblemCount}/${user.totalProblemCount}`,
+        realName: user.realName,
+        problemRatio: user.submittedProblemCount
+          ? `${user.submittedProblemCount}`
+          : '-',
+        score: user.userContestScore,
         problems: userProblemScores
       }
     }) || []
