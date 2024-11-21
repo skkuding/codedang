@@ -65,13 +65,8 @@ export default function ContestOverallTabs({
 
   const formatScore = (score: number): string => {
     const fixedScore = Math.floor(score * 1000) / 1000
-    return fixedScore % 1 === 0
-      ? fixedScore.toFixed(0)
-      : Math.floor(fixedScore * 10) % 10 === 0
-        ? (Math.floor(fixedScore * 10) / 10).toFixed(1)
-        : fixedScore.toString()
+    return fixedScore.toString()
   }
-
   const contestTitle = contestData?.getContests.find(
     (contest) => contest.id === contestId
   )?.title
