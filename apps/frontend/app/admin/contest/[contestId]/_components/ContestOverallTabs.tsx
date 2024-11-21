@@ -63,6 +63,14 @@ export default function ContestOverallTabs({
     skip: !contestId
   })
 
+  const formatScore = (score: number): string => {
+    const truncatedScore = Math.floor(score * 1000) / 1000
+    return truncatedScore % 1 === 0
+      ? truncatedScore.toFixed(0)
+      : (truncatedScore * 10) % 1 === 0
+        ? truncatedScore.toFixed(1)
+        : truncatedScore.toString()
+  }
   const contestTitle = contestData?.getContests.find(
     (contest) => contest.id === contestId
   )?.title
@@ -116,7 +124,7 @@ export default function ContestOverallTabs({
         )
 
         return {
-          maxScore: `${scoreData ? scoreData.score : '-'}`
+          maxScore: scoreData ? formatScore(scoreData.score) : '-' // formatScore 적용
         }
       })
 
@@ -128,7 +136,7 @@ export default function ContestOverallTabs({
         problemRatio: user.submittedProblemCount
           ? `${user.submittedProblemCount}`
           : '-',
-        score: user.userContestScore,
+        score: formatScore(user.userContestScore),
         problems: userProblemScores
       }
     }) || []
