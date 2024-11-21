@@ -51,7 +51,7 @@ export default async function ContestFinishedPage({
               </Button>
             </Link>
           )}
-          <Link href={`/contest/${contestId}`}>
+          <Link href={`/contest/${contestId}/problem`}>
             <Button
               size="icon"
               className="ml-4 h-10 w-24 shrink-0 gap-[5px] rounded-[4px] bg-blue-500 font-sans hover:bg-blue-700"
