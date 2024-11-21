@@ -91,17 +91,18 @@ export default function ContestOverallTabs({
   })
 
   const headers = [
+    { label: '학번', key: 'studentId' },
+
     { label: '전공', key: 'major' },
     { label: '이름', key: 'realName' },
     { label: '아이디', key: 'username' },
-    { label: '학번', key: 'studentId' },
-    {
-      label: `총 획득 점수(만점 ${scoreData?.getContestScoreSummaries[0]?.contestPerfectScore || 0})`,
-      key: 'score'
-    },
     {
       label: `제출 문제 수(총 ${scoreData?.getContestScoreSummaries[0]?.totalProblemCount || 0})`,
       key: 'problemRatio'
+    },
+    {
+      label: `총 획득 점수(만점 ${scoreData?.getContestScoreSummaries[0]?.contestPerfectScore || 0})`,
+      key: 'score'
     },
 
     ...problemHeaders
@@ -120,8 +121,8 @@ export default function ContestOverallTabs({
       })
 
       return {
-        major: user.major,
         studentId: user.studentId,
+        major: user.major,
         realName: user.realName,
         username: user.username,
         problemRatio: user.submittedProblemCount
