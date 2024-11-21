@@ -9,6 +9,7 @@ import {
 import { cn, getResultColor } from '@/libs/utils'
 import type { TestResultDetail } from '@/types/type'
 import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
+import { useTestPollingStore } from '../context/TestPollingStoreProvider'
 
 export default function TestcaseTable({
   data,
@@ -17,6 +18,7 @@ export default function TestcaseTable({
   data: TestResultDetail[]
   moveToDetailTab: (tab: TestResultDetail) => void
 }) {
+  const isTesting = useTestPollingStore((state) => state.isTesting)
   return (
     <Table className="rounded-t-md">
       <TableHeader className="bg-[#121728] [&_tr]:border-b-slate-600">
@@ -62,10 +64,10 @@ export default function TestcaseTable({
             <TableCell
               className={cn(
                 'p-3 text-left md:p-3',
-                getResultColor(testResult.result)
+                getResultColor(isTesting ? null : testResult.result)
               )}
             >
-              {testResult.result}
+              {isTesting ? 'Judging' : testResult.result}
             </TableCell>
           </TableRow>
         ))}
