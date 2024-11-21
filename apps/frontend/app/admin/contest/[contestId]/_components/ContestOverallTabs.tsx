@@ -64,12 +64,12 @@ export default function ContestOverallTabs({
   })
 
   const formatScore = (score: number): string => {
-    const truncatedScore = Math.floor(score * 1000) / 1000
-    return truncatedScore % 1 === 0
-      ? truncatedScore.toFixed(0)
-      : Math.floor(truncatedScore * 10) % 10 === 0
-        ? (Math.floor(truncatedScore * 10) / 10).toFixed(1)
-        : truncatedScore.toString()
+    const fixedScore = Math.floor(score * 1000) / 1000
+    return fixedScore % 1 === 0
+      ? fixedScore.toFixed(0)
+      : Math.floor(fixedScore * 10) % 10 === 0
+        ? (Math.floor(fixedScore * 10) / 10).toFixed(1)
+        : fixedScore.toString()
   }
 
   const contestTitle = contestData?.getContests.find(
@@ -125,7 +125,7 @@ export default function ContestOverallTabs({
         )
 
         return {
-          maxScore: scoreData ? formatScore(scoreData.score) : '-' // formatScore 적용
+          maxScore: scoreData ? formatScore(scoreData.score) : '-'
         }
       })
 
