@@ -105,9 +105,6 @@ export default function Editor({
           window.history.pushState(null, '', '')
           if (submission.result === 'Accepted') {
             confetti?.addConfetti()
-            queryClient.refetchQueries({
-              queryKey: ['contest', contestId, 'problems']
-            })
           }
         }
       } else {
@@ -192,6 +189,9 @@ export default function Editor({
       storeCodeToLocalStorage(code)
       const submission: Submission = await res.json()
       setSubmissionId(submission.id)
+      queryClient.refetchQueries({
+        queryKey: ['contest', contestId, 'problems']
+      })
     } else {
       setIsSubmitting(false)
       if (res.status === 401) {
