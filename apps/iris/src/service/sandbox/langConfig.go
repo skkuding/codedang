@@ -47,7 +47,7 @@ type LangConfig interface {
 	GetConfig(language Language, isSpecial bool) (config, error)
 	MakeSrcPath(dir string, language Language, isSpecial bool) (string, error)
 	ToCompileExecArgs(dir string, language Language, isSpecial bool) (ExecArgs, error)
-	ToRunExecArgs(dir string, language Language, order int, limit Limit, fileIo bool, isSpecial bool) (ExecArgs, error)
+	ToRunExecArgs(dir string, language Language, order int, limit Limit, fileIo bool, isSpecial bool, idx int) (ExecArgs, error)
 }
 
 type langConfig struct {
@@ -110,6 +110,7 @@ func NewLangConfig(file file.FileManager, javaPolicyPath string) *langConfig {
 	cppSpecialConfig := cppConfig
 	cppSpecialConfig.SrcName = "judge.cpp"
 	cppSpecialConfig.ExeName = "judge"
+	// cppSpecialConfig.CompileArgs += "-I/usr/include/testlib.h"
 
 	javaConfig := config{
 		Language:           JAVA,
@@ -263,7 +264,7 @@ func (l *langConfig) ToCompileExecArgs(dir string, language Language, isSpecial 
 	}, nil
 }
 
-func (l *langConfig) ToRunExecArgs(dir string, language Language, order int, limit Limit, fileIo bool, isSpecial bool) (ExecArgs, error) {
+func (l *langConfig) ToRunExecArgs(dir string, language Language, order int, limit Limit, fileIo bool, isSpecial bool, idx int) (ExecArgs, error) {
 	c, err := l.GetConfig(language, isSpecial)
 	if err != nil {
 		return ExecArgs{}, err
@@ -275,9 +276,18 @@ func (l *langConfig) ToRunExecArgs(dir string, language Language, order int, lim
 	errorPath := l.file.MakeFilePath(dir, strconv.Itoa(order)+".error").String()
 
 	// run args 설정
-	args := strings.Replace(c.RunArgs, "{maxMemory}", strconv.Itoa(limit.Memory), 1)
+	var args string
+	if isSpecial {
+		args += strconv.Itoa(idx) + ".in "
+		args += strconv.Itoa(idx) + ".out"
+		args += strconv.Itoa(idx) + ".ans"
+	}
+	args += c.RunArgs
+	args = strings.Replace(args, "{maxMemory}", strconv.Itoa(limit.Memory), 1)
 	args = strings.Replace(args, "{exePath}", exePath, 1)
 	args = strings.Replace(args, "{exeDir}", exeDir, 1)
+
+	fmt.Println(args)
 
 	var argSlice []string
 	if args != "" {

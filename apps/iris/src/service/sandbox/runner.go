@@ -24,7 +24,7 @@ type RunRequest struct {
 }
 
 type Runner interface {
-	Run(dto RunRequest, input []byte, isSpecial bool) (RunResult, error)
+	Run(dto RunRequest, input []byte, isSpecial bool, idx int) (RunResult, error)
 }
 
 type runner struct {
@@ -38,7 +38,7 @@ func NewRunner(sandbox Sandbox, langConfig LangConfig, file file.FileManager, lo
 	return &runner{sandbox, langConfig, file, logger}
 }
 
-func (r *runner) Run(req RunRequest, input []byte, isSpecial bool) (RunResult, error) {
+func (r *runner) Run(req RunRequest, input []byte, isSpecial bool, idx int) (RunResult, error) {
 
 	execArgs, err := r.langConfig.ToRunExecArgs(
 		req.Dir,
@@ -49,7 +49,7 @@ func (r *runner) Run(req RunRequest, input []byte, isSpecial bool) (RunResult, e
 			RealTime: req.TimeLimit * 3,
 			Memory:   req.MemoryLimit,
 		},
-		false, isSpecial,
+		false, isSpecial, idx,
 	)
 	if err != nil {
 		return RunResult{}, err

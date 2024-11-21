@@ -271,7 +271,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, execType constants.ExecTyp
 			return
 		}
 
-		go j.compile(handleCtx, ssCompileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.Language)}, true)
+		go j.compile(handleCtx, ssCompileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.SpecialLanguage)}, true)
 	}
 
 	compileResult := validateCompile(compileOutCh)
@@ -308,7 +308,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, execType constants.ExecTyp
 	if isSpecial {
 		ssCompileResult := validateCompile(ssCompileOutCh)
 		if ssCompileResult.Err != nil {
-			out <- compileResult
+			out <- ssCompileResult
 			return
 		}
 	}
@@ -416,25 +416,13 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 		Language:    sandbox.Language(validReq.Language),
 		TimeLimit:   validReq.TimeLimit,
 		MemoryLimit: validReq.MemoryLimit,
-	}, []byte(tc.In), isSpecial)
+	}, []byte(tc.In), false, idx)
 	if err != nil {
 		j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
 		res.ResultCode = SYSTEM_ERROR
 		res.Error = string(runResult.ErrOutput)
 		goto Send
 	}
-
-	// Todo: implement loading judge script
-	if isSpecial {
-		if err := j.createSpecialFiles(idx, dir, tc.In, tc.Out); err != nil {
-			j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
-			res.ResultCode = SYSTEM_ERROR
-			res.Error = "Cannot create files for special judge"
-			goto Send
-		}
-	}
-
-	// validReq.ProblemId
 
 	res.TestcaseId = tc.Id
 	res.SetJudgeExecResult(runResult.ExecResult)
@@ -445,10 +433,38 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 		goto Send
 	}
 
+	if !isSpecial {
+		accepted = grader.Grade([]byte(tc.Out), runResult.Output)
+	}
+
+	// Todo: implement loading judge script
+	if isSpecial {
+		if err := j.createSpecialFiles(idx, dir, tc.In, tc.Out); err != nil {
+			j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
+			res.ResultCode = SYSTEM_ERROR
+			res.Error = "Cannot create files for special judge"
+			goto Send
+		}
+
+		//hererer
+		runResult, err := j.runner.Run(sandbox.RunRequest{
+			Order:       idx,
+			Dir:         dir,
+			Language:    sandbox.Language(validReq.Language),
+			TimeLimit:   validReq.TimeLimit,
+			MemoryLimit: validReq.MemoryLimit,
+		}, []byte(nil), true, idx)
+		if err != nil {
+			j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
+			res.ResultCode = SYSTEM_ERROR
+			res.Error = string(runResult.ErrOutput)
+			goto Send
+		}
+	}
+
 	// 하나당 약 50microsec 10개 채점시 500microsec.
 	// output이 커지면 더 길어짐 -> FIXME: 최적화 과정에서 goroutine으로 수정
 	// st := time.Now()
-	accepted = grader.Grade([]byte(tc.Out), runResult.Output, isSpecial)
 
 	if accepted {
 		res.SetJudgeResultCode(ACCEPTED)
