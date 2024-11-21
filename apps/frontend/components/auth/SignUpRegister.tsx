@@ -1,30 +1,30 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem
-} from '@/components/ui/command'
-import { Input } from '@/components/ui/input'
+} from '@/components/shadcn/command'
+import { Input } from '@/components/shadcn/input'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger
-} from '@/components/ui/popover'
-import { ScrollArea } from '@/components/ui/scroll-area'
+} from '@/components/shadcn/popover'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@/components/ui/tooltip'
-import { baseUrl } from '@/lib/constants'
-import { majors } from '@/lib/constants'
-import { cn } from '@/lib/utils'
-import checkIcon from '@/public/check.svg'
+} from '@/components/shadcn/tooltip'
+import { baseUrl } from '@/libs/constants'
+import { majors } from '@/libs/constants'
+import { cn } from '@/libs/utils'
+import checkIcon from '@/public/icons/check-white.svg'
 import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CommandList } from 'cmdk'

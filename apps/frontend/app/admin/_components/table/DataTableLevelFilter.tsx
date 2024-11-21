@@ -1,6 +1,6 @@
 'use client'
 
-import { levels } from '@/lib/constants'
+import { levels } from '@/libs/constants'
 import DataTableMultiSelectFilter from './DataTableMultiSelectFilter'
 import { LEVEL_COLUMN_ID } from './constants'
 import { useDataTable } from './context'

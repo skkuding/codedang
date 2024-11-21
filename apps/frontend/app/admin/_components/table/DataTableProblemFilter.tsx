@@ -1,19 +1,19 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import {
   Command,
   CommandGroup,
   CommandItem,
   CommandList
-} from '@/components/ui/command'
+} from '@/components/shadcn/command'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger
-} from '@/components/ui/popover'
+} from '@/components/shadcn/popover'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
 import { useEffect, useState } from 'react'
 import { FaCheck, FaChevronDown } from 'react-icons/fa'

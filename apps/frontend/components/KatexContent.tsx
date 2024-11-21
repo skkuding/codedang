@@ -1,6 +1,6 @@
 'use client'
 
-import { renderKatex } from '@/lib/renderKatex'
+import { renderKatex } from '@/libs/renderKatex'
 import { useEffect, useRef } from 'react'
 
 export default function KatexContent({

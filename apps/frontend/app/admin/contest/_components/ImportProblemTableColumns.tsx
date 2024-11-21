@@ -1,6 +1,6 @@
 import DataTableColumnHeader from '@/app/admin/_components/table/DataTableColumnHeader'
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/shadcn/badge'
+import { Checkbox } from '@/components/shadcn/checkbox'
 import type { Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import { toast } from 'sonner'

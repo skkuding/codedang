@@ -32,6 +32,9 @@ export class UserContestScoreSummaryWithUserInfo {
   @Field(() => String, { nullable: true })
   realName: string
 
+  @Field(() => String)
+  major: string
+
   @Field(() => Int)
   submittedProblemCount: number
 
