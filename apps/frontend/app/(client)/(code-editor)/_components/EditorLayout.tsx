@@ -75,7 +75,7 @@ export default async function EditorLayout({
                   problems={problems}
                   problem={problem}
                   problemId={problemId}
-                  contestId={contestId}
+                  contestId={contestId!}
                 />
               </>
             ) : (

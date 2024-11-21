@@ -699,7 +699,7 @@ export class ContestService {
    * 특정 user의 특정 Contest에 대한 총점, 통과한 문제 개수와 각 문제별 테스트케이스 통과 개수를 불러옵니다.
    */
   async getContestScoreSummary(userId: number, contestId: number) {
-    const [contestProblems, submissions] = await Promise.all([
+    const [contestProblems, rawSubmissions] = await Promise.all([
       this.prisma.contestProblem.findMany({
         where: {
           contestId
@@ -715,6 +715,14 @@ export class ContestService {
         }
       })
     ])
+
+    // 오직 현재 Contest에 남아있는 문제들의 제출에 대해서만 ScoreSummary 계산
+    const contestProblemIds = contestProblems.map(
+      (contestProblem) => contestProblem.problemId
+    )
+    const submissions = rawSubmissions.filter((submission) =>
+      contestProblemIds.includes(submission.problemId)
+    )
 
     if (!submissions.length) {
       return {
