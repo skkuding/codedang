@@ -192,6 +192,7 @@ export default function Editor({
       queryClient.refetchQueries({
         queryKey: ['contest', contestId, 'problems']
       })
+      console.log('call refetch')
     } else {
       setIsSubmitting(false)
       if (res.status === 401) {

@@ -3,7 +3,7 @@ import HeaderAuthPanel from '@/components/auth/HeaderAuthPanel'
 import { auth } from '@/libs/auth'
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
-import type { Contest, ContestProblem, ProblemDetail } from '@/types/type'
+import type { Contest, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -17,25 +17,16 @@ interface EditorLayoutProps {
   children: React.ReactNode
 }
 
-interface ContestProblemProps {
-  data: ContestProblem[]
-  total: number
-}
-
 export default async function EditorLayout({
   contestId,
   problemId,
   children
 }: EditorLayoutProps) {
-  let problems: ContestProblemProps | undefined
   let contest: Contest | undefined
   let problem: ProblemDetail
 
   if (contestId) {
     // for getting contest info and problems list
-    problems = await fetcherWithAuth
-      .get(`contest/${contestId}/problem?take=20`)
-      .json()
     const res = await fetcherWithAuth(
       `contest/${contestId}/problem/${problemId}`
     )
@@ -72,7 +63,6 @@ export default async function EditorLayout({
                 </Link>
                 <p className="mx-2"> / </p>
                 <ContestProblemDropdown
-                  problems={problems}
                   problem={problem}
                   problemId={problemId}
                   contestId={contestId!}

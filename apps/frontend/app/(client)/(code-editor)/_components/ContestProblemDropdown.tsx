@@ -21,35 +21,30 @@ interface ContestProblemProps {
 }
 
 interface ContestProblemDropdownProps {
-  problems: ContestProblemProps | undefined
   problem: ProblemDetail
   problemId: number
   contestId: number
 }
 
 export default function ContestProblemDropdown({
-  problems,
   problem,
   problemId,
   contestId
 }: ContestProblemDropdownProps) {
-  const { data, isSuccess } = useQuery<ContestProblemProps | undefined>({
+  const { data: contestProblems } = useQuery<ContestProblemProps | undefined>({
     queryKey: ['contest', contestId, 'problems'],
     queryFn: () =>
-      fetcherWithAuth.get(`contest/${contestId}/problem?take=20`).json(),
-    enabled: false
+      fetcherWithAuth.get(`contest/${contestId}/problem?take=20`).json()
   })
-
-  if (isSuccess) problems = data
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
-        <h1>{`${convertToLetter(problems?.data.find((item) => item.id === Number(problemId))?.order as number)}. ${problem.title}`}</h1>
+        <h1>{`${convertToLetter(contestProblems?.data.find((item) => item.id === Number(problemId))?.order as number)}. ${problem.title}`}</h1>
         <FaSortDown />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="border-slate-700 bg-slate-900">
-        {problems?.data.map((p: ContestProblem) => (
+        {contestProblems?.data.map((p: ContestProblem) => (
           <Link
             key={p.id}
             href={`/contest/${contestId}/problem/${p.id}` as Route}
