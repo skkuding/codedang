@@ -34,7 +34,7 @@ export const useUserTestcasesForm = (options: { onSubmit?: () => void }) => {
   const userTestcases = useTestcaseStore((state) => state.userTestcases)
   const setUserTestcases = useTestcaseStore((state) => state.setUserTestcases)
 
-  const { control, register, setValue, formState, handleSubmit } = useForm<{
+  const form = useForm<{
     testcases: EditableTestcaseItem[]
   }>({
     defaultValues: {
@@ -47,7 +47,7 @@ export const useUserTestcasesForm = (options: { onSubmit?: () => void }) => {
     append,
     remove
   } = useFieldArray({
-    control,
+    control: form.control,
     name: 'testcases'
   })
 
@@ -59,7 +59,7 @@ export const useUserTestcasesForm = (options: { onSubmit?: () => void }) => {
     remove(index)
   }
 
-  const onSubmit = handleSubmit(({ testcases }) => {
+  const onSubmit = form.handleSubmit(({ testcases }) => {
     let baseId = new Date().getTime()
     setUserTestcases(
       testcases.map((testcase) => ({
@@ -72,15 +72,20 @@ export const useUserTestcasesForm = (options: { onSubmit?: () => void }) => {
     options.onSubmit?.()
   })
 
+  const reset = () => {
+    form.reset({ testcases: getDefaultTestcases(userTestcases) })
+  }
+
   useEffect(() => {
-    setValue('testcases', getDefaultTestcases(userTestcases))
+    form.setValue('testcases', getDefaultTestcases(userTestcases))
   }, [userTestcases])
 
   return {
-    formState,
+    formState: form.formState,
     testcases,
+    reset,
     onSubmit,
-    register,
+    register: form.register,
     addTestcase,
     removeTestcase
   }
