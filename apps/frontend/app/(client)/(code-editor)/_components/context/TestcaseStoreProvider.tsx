@@ -13,9 +13,12 @@ interface TestcaseState {
 
 const createTestcaseStore = (
   problemId: number,
-  sampleTestcases: TestcaseItem[]
+  sampleTestcases: TestcaseItem[],
+  contestId?: number
 ) => {
-  const storageKey = `user_testcase_${problemId}`
+  const storageKey = contestId
+    ? `user_testcase_${problemId}_${contestId}`
+    : `user_testcase_${problemId}`
 
   return createStore<TestcaseState>()(
     persist(
@@ -54,16 +57,22 @@ const TestcaseStoreContext = createContext<TestcaseStore | null>(null)
 
 export function TestcaseStoreProvider({
   problemId,
+  contestId,
   problemTestcase,
   children
 }: {
   problemId: number
+  contestId?: number
   problemTestcase: TestcaseItem[]
   children: ReactNode
 }) {
   const storeRef = useRef<TestcaseStore>()
   if (!storeRef.current) {
-    storeRef.current = createTestcaseStore(problemId, problemTestcase)
+    storeRef.current = createTestcaseStore(
+      problemId,
+      problemTestcase,
+      contestId
+    )
   }
 
   return (
