@@ -47,11 +47,13 @@ function DisabledDuplicateButton() {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger className="ml-auto cursor-not-allowed self-end">
-          <Button variant="default" size="default" disabled>
-            <CopyIcon className="mr-2 h-4 w-4" />
-            Duplicate
-          </Button>
+        <TooltipTrigger asChild>
+          <span tabIndex={0} className="ml-auto cursor-not-allowed self-end">
+            <Button variant="default" size="default" disabled>
+              <CopyIcon className="mr-2 h-4 w-4" />
+              Duplicate
+            </Button>
+          </span>
         </TooltipTrigger>
         <TooltipContent>
           <p> Select only one contest to duplicate</p>
