@@ -15,6 +15,7 @@ import { usePathname } from 'next/navigation'
 import { CSVLink } from 'react-csv'
 
 interface ScoreSummary {
+  username: string
   realName: string
   studentId: string
   userContestScore: number
@@ -92,6 +93,7 @@ export default function ContestOverallTabs({
   const headers = [
     { label: '전공', key: 'major' },
     { label: '이름', key: 'realName' },
+    { label: '아이디', key: 'username' },
     { label: '학번', key: 'studentId' },
     {
       label: `총 획득 점수(만점 ${scoreData?.getContestScoreSummaries[0]?.contestPerfectScore || 0})`,
@@ -121,6 +123,7 @@ export default function ContestOverallTabs({
         major: user.major,
         studentId: user.studentId,
         realName: user.realName,
+        username: user.username,
         problemRatio: user.submittedProblemCount
           ? `${user.submittedProblemCount}`
           : '-',
