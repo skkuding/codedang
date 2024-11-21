@@ -56,7 +56,7 @@ export default async function EditorLayout({
           <div className="flex items-center gap-1 font-medium">
             {contest ? <>Contest</> : <Link href="/problem">Problem</Link>}
             <p className="mx-2"> / </p>
-            {contest ? (
+            {contest && contestId ? (
               <>
                 <Link href={`/contest/${contestId}` as Route}>
                   {contest.title}
@@ -65,7 +65,7 @@ export default async function EditorLayout({
                 <ContestProblemDropdown
                   problem={problem}
                   problemId={problemId}
-                  contestId={contestId!}
+                  contestId={contestId}
                 />
               </>
             ) : (

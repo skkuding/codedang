@@ -10,12 +10,11 @@ import { cn, convertToLetter, fetcherWithAuth } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-green.svg'
 import type { ContestProblem, ProblemDetail } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
-import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { FaSortDown } from 'react-icons/fa'
 
-interface ContestProblemProps {
+interface ContestProblemsResponse {
   data: ContestProblem[]
   total: number
 }
@@ -31,7 +30,9 @@ export default function ContestProblemDropdown({
   problemId,
   contestId
 }: ContestProblemDropdownProps) {
-  const { data: contestProblems } = useQuery<ContestProblemProps | undefined>({
+  const { data: contestProblems } = useQuery<
+    ContestProblemsResponse | undefined
+  >({
     queryKey: ['contest', contestId, 'problems'],
     queryFn: () =>
       fetcherWithAuth.get(`contest/${contestId}/problem?take=20`).json()
@@ -45,10 +46,7 @@ export default function ContestProblemDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent className="border-slate-700 bg-slate-900">
         {contestProblems?.data.map((p: ContestProblem) => (
-          <Link
-            key={p.id}
-            href={`/contest/${contestId}/problem/${p.id}` as Route}
-          >
+          <Link key={p.id} href={`/contest/${contestId}/problem/${p.id}`}>
             <DropdownMenuItem
               className={cn(
                 'flex justify-between text-white hover:cursor-pointer focus:bg-slate-800 focus:text-white',
