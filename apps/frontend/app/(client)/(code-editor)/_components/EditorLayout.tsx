@@ -7,11 +7,8 @@ import type { Contest, ProblemDetail } from '@/types/type'
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Suspense } from 'react'
 import type { GetContestProblemDetailResponse } from '../../_libs/apis/contestProblem'
-import ContestProblemDropdown, {
-  ContestProblemDropdownFallback
-} from './ContestProblemDropdown'
+import ContestProblemDropdown from './ContestProblemDropdown'
 import EditorMainResizablePanel from './EditorResizablePanel'
 
 interface EditorLayoutProps {
@@ -64,19 +61,10 @@ export default async function EditorLayout({
               <>
                 <Link href={`/contest/${contest.id}`}>{contest.title}</Link>
                 <p className="mx-2"> / </p>
-                {/**TODO: add error boundary */}
-                <Suspense
-                  fallback={
-                    <ContestProblemDropdownFallback
-                      problemTitle={problem.title}
-                    />
-                  }
-                >
-                  <ContestProblemDropdown
-                    problem={problem}
-                    contestId={contest.id}
-                  />
-                </Suspense>
+                <ContestProblemDropdown
+                  problem={problem}
+                  contestId={contest.id}
+                />
               </>
             ) : (
               <h1 className="w-[1024px] overflow-hidden text-ellipsis whitespace-nowrap text-lg font-medium text-white">{`#${problem.id}. ${problem.title}`}</h1>
