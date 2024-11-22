@@ -15,6 +15,7 @@ import { usePathname } from 'next/navigation'
 import { CSVLink } from 'react-csv'
 
 interface ScoreSummary {
+  username: string
   realName: string
   studentId: string
   userContestScore: number
@@ -62,6 +63,10 @@ export default function ContestOverallTabs({
     skip: !contestId
   })
 
+  const formatScore = (score: number): string => {
+    const fixedScore = Math.floor(score * 1000) / 1000
+    return fixedScore.toString()
+  }
   const contestTitle = contestData?.getContests.find(
     (contest) => contest.id === contestId
   )?.title
@@ -84,17 +89,25 @@ export default function ContestOverallTabs({
   const problemHeaders = problemList.map((problem, index) => {
     const problemLabel = String.fromCharCode(65 + index)
     return {
-      label: problemLabel,
+      label: `${problemLabel}(배점 ${problem.maxScore})`,
       key: `problems[${index}].maxScore`
     }
   })
 
   const headers = [
+    { label: '학번', key: 'studentId' },
+
     { label: '전공', key: 'major' },
     { label: '이름', key: 'realName' },
-    { label: '학번', key: 'studentId' },
-    { label: '총 획득 점수/총점', key: 'scoreRatio' },
-    { label: '제출 문제 수/총 문제 수', key: 'problemRatio' },
+    { label: '아이디', key: 'username' },
+    {
+      label: `제출 문제 수(총 ${scoreData?.getContestScoreSummaries[0]?.totalProblemCount || 0})`,
+      key: 'problemRatio'
+    },
+    {
+      label: `총 획득 점수(만점 ${scoreData?.getContestScoreSummaries[0]?.contestPerfectScore || 0})`,
+      key: 'score'
+    },
 
     ...problemHeaders
   ]
@@ -107,25 +120,27 @@ export default function ContestOverallTabs({
         )
 
         return {
-          maxScore: `${scoreData ? scoreData.score : 0}/${problem.maxScore}`
+          maxScore: scoreData ? formatScore(scoreData.score) : '-'
         }
       })
 
       return {
+        studentId: user.studentId,
         major: user.major,
         realName: user.realName,
-        studentId: user.studentId,
-        scoreRatio: `${user.userContestScore}/${user.contestPerfectScore}`,
-        problemRatio:
-          user.submittedProblemCount === user.totalProblemCount
-            ? 'Submit'
-            : `${user.submittedProblemCount}/${user.totalProblemCount}`,
+        username: user.username,
+        problemRatio: user.submittedProblemCount
+          ? `${user.submittedProblemCount}`
+          : '-',
+        score: formatScore(user.userContestScore),
         problems: userProblemScores
       }
     }) || []
 
-  const isCurrentTab = (tab: string) =>
-    pathname.startsWith(`/admin/contest/${id}/${tab}`)
+  const isCurrentTab = (tab: string) => {
+    if (tab === '') return pathname === `/admin/contest/${id}`
+    return pathname.startsWith(`/admin/contest/${id}/${tab}`)
+  }
 
   return (
     <div className="flex items-center justify-between">
