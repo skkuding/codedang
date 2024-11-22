@@ -36,6 +36,7 @@ import type {
   Submission,
   Template
 } from '@/types/type'
+import { useQueryClient } from '@tanstack/react-query'
 import JSConfetti from 'js-confetti'
 import { Save } from 'lucide-react'
 import type { Route } from 'next'
@@ -82,6 +83,8 @@ export default function Editor({
   const pushed = useRef(false)
   const whereToPush = useRef('')
   const isModalConfrimed = useRef(false)
+
+  const queryClient = useQueryClient()
 
   useInterval(
     async () => {
@@ -186,6 +189,9 @@ export default function Editor({
       storeCodeToLocalStorage(code)
       const submission: Submission = await res.json()
       setSubmissionId(submission.id)
+      queryClient.refetchQueries({
+        queryKey: ['contest', contestId, 'problems']
+      })
     } else {
       setIsSubmitting(false)
       if (res.status === 401) {
