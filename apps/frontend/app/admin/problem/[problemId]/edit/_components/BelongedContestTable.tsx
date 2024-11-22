@@ -24,8 +24,7 @@ export function BelongedContestTable({
   const { data } = useSuspenseQuery(GET_BELONGED_CONTESTS, {
     variables: {
       problemId
-    },
-    fetchPolicy: 'network-only'
+    }
   })
 
   useEffect(() => {
