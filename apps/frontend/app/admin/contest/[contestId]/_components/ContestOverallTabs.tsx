@@ -30,14 +30,21 @@ interface SubmissionSummary {
 }
 
 export default function ContestOverallTabs({
-  contestId,
-  userId
+  contestId
 }: {
   contestId: string
-  userId: number
 }) {
   const id = parseInt(contestId, 10)
   const pathname = usePathname()
+
+  const { data: userData } = useQuery<{
+    getUserIdByContest: { userId: number }
+  }>(GET_CONTEST_SCORE_SUMMARIES, {
+    variables: { contestId: id },
+    skip: !contestId
+  })
+
+  const userId = userData?.getUserIdByContest?.userId
 
   const { data: scoreData } = useQuery<{
     getContestScoreSummaries: ScoreSummary[]
