@@ -4,10 +4,10 @@ export default async function layout({
   params,
   children
 }: {
-  params: { problemId: number }
+  params: { problemId: string }
   children: React.ReactNode
 }) {
   const { problemId } = params
 
-  return <EditorLayout problemId={problemId}>{children}</EditorLayout>
+  return <EditorLayout problemId={Number(problemId)}>{children}</EditorLayout>
 }
