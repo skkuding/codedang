@@ -34,7 +34,7 @@ export function ScoreCautionDialog({
     {
       refetchQueries: [
         {
-          GET_BELONGED_CONTESTS,
+          query: GET_BELONGED_CONTESTS,
           variables: { problemId }
         }
       ]
