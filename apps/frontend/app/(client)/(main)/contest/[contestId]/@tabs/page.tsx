@@ -1,6 +1,11 @@
 import KatexContent from '@/components/KatexContent'
 import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
+import { Suspense } from 'react'
+import {
+  GoToFirstProblemButton,
+  GoToFirstProblemButtonFallback
+} from './_components/GoToFirstProblemButton'
 import RegisterButton from './_components/RegisterButton'
 
 interface ContestTop {
@@ -43,13 +48,19 @@ export default async function ContestTop({ params }: ContestTopProps) {
       />
       {session && state !== 'Finished' && (
         <div className="mt-10 flex justify-center">
-          <RegisterButton
-            id={contestId}
-            registered={data.isRegistered}
-            state={state}
-            title={data.title}
-            invitationCodeExists={data.invitationCodeExists}
-          />
+          {data.isRegistered ? (
+            // TODO: add error boundary
+            <Suspense fallback={<GoToFirstProblemButtonFallback />}>
+              <GoToFirstProblemButton contestId={Number(contestId)} />
+            </Suspense>
+          ) : (
+            <RegisterButton
+              id={contestId}
+              state={state}
+              title={data.title}
+              invitationCodeExists={data.invitationCodeExists}
+            />
+          )}
         </div>
       )}
     </>
