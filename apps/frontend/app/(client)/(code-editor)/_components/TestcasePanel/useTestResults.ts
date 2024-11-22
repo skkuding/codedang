@@ -83,13 +83,20 @@ export const useTestResults = () => {
   })
 
   const testcases = useTestcaseStore((state) => state.getTestcases())
+  let usertestcaseCount = 1
+  let sampletestcaseCount = 1
   const testResults =
     data.length > 0
       ? testcases.map((testcase, index) => {
           const testResult = data.find((item) => item.id === testcase.id)
+          if (testcase.isUserTestcase) {
+            testcase.id = usertestcaseCount++
+          } else {
+            testcase.id = sampletestcaseCount++
+          }
           return {
-            id: index + 1,
-            originalId: testcase.id,
+            id: testcase.id,
+            originalId: index + 1,
             input: testcase.input,
             expectedOutput: testcase.output,
             output: testResult?.output ?? '',

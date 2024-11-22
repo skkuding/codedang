@@ -44,20 +44,11 @@ export default function TestcasePanel() {
         ? testcase.output.slice(0, MAX_OUTPUT_LENGTH)
         : testcase.output
   }))
-  let usertestcaseCnt = 1
-  let sampletestcaseCnt = 1
-  const summaryData = processedData.map(({ id, result, isUserTestcase }) => {
-    if (isUserTestcase) {
-      id = usertestcaseCnt++
-    } else {
-      id = sampletestcaseCnt++
-    }
-    return {
-      id,
-      result,
-      isUserTestcase
-    }
-  })
+  const summaryData = processedData.map(({ id, result, isUserTestcase }) => ({
+    id,
+    result,
+    isUserTestcase
+  }))
 
   return (
     <>
@@ -65,7 +56,7 @@ export default function TestcasePanel() {
         <TestcaseTab
           currentTab={currentTab}
           onClickTab={() => setCurrentTab(0)}
-          nextTab={testcaseTabList[0]?.id}
+          nextTab={testcaseTabList[0]?.originalId}
           className="flex-shrink-0"
         >
           {testcaseTabList.length < 7 ? 'Testcase Result' : 'TC Res'}
@@ -126,7 +117,7 @@ export default function TestcasePanel() {
           </div>
         ) : (
           <TestResultDetail
-            data={processedData.find((item) => item.originalId === currentTab)}
+            data={processedData.find((item) => item.id === currentTab)}
           />
         )}
       </ScrollArea>
