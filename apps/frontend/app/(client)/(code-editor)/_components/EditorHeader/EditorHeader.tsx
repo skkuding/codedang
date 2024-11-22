@@ -102,7 +102,7 @@ export default function Editor({
             ? `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}`
             : `/problem/${problem.id}/submission/${submissionId}`
           router.replace(href as Route)
-          window.history.pushState(null, '', location.href)
+          window.history.pushState(null, '', window.location.href)
           if (submission.result === 'Accepted') {
             confetti?.addConfetti()
           }
@@ -258,7 +258,7 @@ export default function Editor({
       } else window.history.back()
     }
     if (!pushed.current) {
-      window.history.pushState(null, '', location.href)
+      window.history.pushState(null, '', window.location.href)
       pushed.current = true
     }
     window.addEventListener('beforeunload', handleBeforeUnload)
