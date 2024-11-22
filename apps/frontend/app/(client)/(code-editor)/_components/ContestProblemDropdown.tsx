@@ -45,7 +45,7 @@ export default function ContestProblemDropdown({
         <FaSortDown />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="border-slate-700 bg-slate-900">
-        {contestProblems?.data.map((p: ContestProblem) => (
+        {contestProblems?.data.map((p) => (
           <Link key={p.id} href={`/contest/${contestId}/problem/${p.id}`}>
             <DropdownMenuItem
               className={cn(
