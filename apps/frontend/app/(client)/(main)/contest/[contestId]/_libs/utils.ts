@@ -1,15 +1,10 @@
-import { safeFetcherWithAuth } from '@/libs/utils'
-import type { ContestProblem } from '@/types/type'
-
-interface ContestProblemsApiRes {
-  data: ContestProblem[]
-}
+import { getContestProblemList } from '@/app/(client)/_libs/apis/contestProblem'
 
 const calculateContestScore = async ({ contestId }: { contestId: string }) => {
   try {
-    const contestProblems: ContestProblemsApiRes = await safeFetcherWithAuth
-      .get(`contest/${contestId}/problem`)
-      .json()
+    const contestProblems = await getContestProblemList({
+      contestId: Number(contestId)
+    })
 
     const { totalScore, totalMaxScore } = contestProblems.data.reduce(
       (acc, curr) => {
