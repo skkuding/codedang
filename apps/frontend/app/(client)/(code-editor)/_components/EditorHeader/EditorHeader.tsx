@@ -1,5 +1,6 @@
 'use client'
 
+import { contestProblemQueries } from '@/app/(client)/_libs/queries/contestProblem'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -189,9 +190,11 @@ export default function Editor({
       storeCodeToLocalStorage(code)
       const submission: Submission = await res.json()
       setSubmissionId(submission.id)
-      queryClient.refetchQueries({
-        queryKey: ['contest', contestId, 'problems']
-      })
+      if (contestId) {
+        queryClient.invalidateQueries({
+          queryKey: contestProblemQueries.lists(contestId)
+        })
+      }
     } else {
       setIsSubmitting(false)
       if (res.status === 401) {
