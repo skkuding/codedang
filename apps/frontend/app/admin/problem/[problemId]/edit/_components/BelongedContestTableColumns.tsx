@@ -57,7 +57,7 @@ export const columns: ColumnDef<BelongedContest>[] = [
       <p className="text-center font-mono text-sm font-medium">State</p>
     ),
     cell: ({ row }) => (
-      <p className="text-center font-normal text-black">
+      <p className="text-center font-light text-black">
         {row.getValue('state')}
       </p>
     )
@@ -70,7 +70,7 @@ export const columns: ColumnDef<BelongedContest>[] = [
     cell: ({ row }) => (
       <p
         className={cn(
-          'text-center font-normal text-black',
+          'text-center font-light text-black',
           row.original.isSetToZero && 'text-primary'
         )}
       >
@@ -86,7 +86,7 @@ export const columns: ColumnDef<BelongedContest>[] = [
     cell: ({ row }) => (
       <p
         className={cn(
-          'text-center font-normal text-black',
+          'text-center font-light text-black',
           row.original.isSetToZero && 'text-primary'
         )}
       >
