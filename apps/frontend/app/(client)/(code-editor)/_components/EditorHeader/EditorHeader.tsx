@@ -249,6 +249,8 @@ export default function Editor({
       contestId
     )
 
+    // TODO: 배포 후 뒤로 가기 로직 재구현
+
     // const handlePopState = () => {
     //   if (!checkSaved()) {
     //     whereToPush.current = contestId
