@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/shadcn/dialog'
-import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import { UPDATE_CONTEST_PROBLEMS_SCORES } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import { Suspense, useState } from 'react'
@@ -30,15 +29,7 @@ export function ScoreCautionDialog({
   problemId
 }: ScoreCautionDialogProps) {
   const [updateContestsProblemsScores] = useMutation(
-    UPDATE_CONTEST_PROBLEMS_SCORES,
-    {
-      refetchQueries: [
-        {
-          query: GET_BELONGED_CONTESTS,
-          variables: { problemId }
-        }
-      ]
-    }
+    UPDATE_CONTEST_PROBLEMS_SCORES
   )
 
   const [zeroSetContests, setZeroSetContests] = useState<number[]>([])
