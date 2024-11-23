@@ -6,12 +6,12 @@ import DataTablePagination from '@/app/admin/_components/table/DataTablePaginati
 import DataTableProblemFilter from '@/app/admin/_components/table/DataTableProblemFilter'
 import DataTableRoot from '@/app/admin/_components/table/DataTableRoot'
 import DataTableSearchBar from '@/app/admin/_components/table/DataTableSearchBar'
+import SubmissionDetailAdmin from '@/app/admin/contest/[contestId]/_components/SubmissionDetailAdmin'
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { GET_CONTEST_SUBMISSIONS } from '@/graphql/submission/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { useState } from 'react'
 import { columns } from './Columns'
-import SubmissionDetailAdmin from './SubmissionDetailAdmin'
 
 export function SubmissionTable({ contestId }: { contestId: number }) {
   const { data } = useSuspenseQuery(GET_CONTEST_SUBMISSIONS, {
