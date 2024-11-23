@@ -83,16 +83,16 @@ export const useTestResults = () => {
   })
 
   const testcases = useTestcaseStore((state) => state.getTestcases())
-  let usertestcaseCount = 1
-  let sampletestcaseCount = 1
+  let userTestcaseCount = 1
+  let sampleTestcaseCount = 1
   const testResults =
     data.length > 0
       ? testcases.map((testcase, index) => {
           const testResult = data.find((item) => item.id === testcase.id)
           if (testcase.isUserTestcase) {
-            testcase.id = usertestcaseCount++
+            testcase.id = userTestcaseCount++
           } else {
-            testcase.id = sampletestcaseCount++
+            testcase.id = sampleTestcaseCount++
           }
           return {
             id: testcase.id,

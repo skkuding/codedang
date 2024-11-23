@@ -117,7 +117,7 @@ export default function TestcasePanel() {
           </div>
         ) : (
           <TestResultDetail
-            data={processedData.find((item) => item.id === currentTab)}
+            data={processedData.find((item) => item.originalId === currentTab)}
           />
         )}
       </ScrollArea>
