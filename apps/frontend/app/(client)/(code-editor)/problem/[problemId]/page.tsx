@@ -1,5 +1,5 @@
 import { EditorDescription } from '@/app/(client)/(code-editor)/_components/EditorDescription'
-import { fetcher } from '@/lib/utils'
+import { fetcher } from '@/libs/utils'
 import type { ProblemDetail } from '@/types/type'
 
 export default async function DescriptionPage({

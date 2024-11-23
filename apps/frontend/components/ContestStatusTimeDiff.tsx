@@ -1,14 +1,13 @@
 'use client'
 
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import ClockIcon from '@/public/icons/clock.svg'
 import type { Contest } from '@/types/type'
 import type { ContestStatus } from '@/types/type'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
-import type { Route } from 'next'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
@@ -25,6 +24,8 @@ export default function ContestStatusTimeDiff({
   inContestEditor: boolean
 }) {
   const router = useRouter()
+  const { problemId } = useParams()
+
   const [contestStatus, setContestStatus] = useState<
     ContestStatus | undefined | null
   >(contest.status)
@@ -86,25 +87,7 @@ export default function ContestStatusTimeDiff({
   }, 1000)
 
   if (inContestEditor && contestStatus === 'finished') {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-25 font-mono backdrop-blur-md">
-        <div className="text-center">
-          <h1 className="mb-4 text-2xl font-bold">The contest has finished!</h1>
-          <p className="mb-4">Click the button below to exit the page.</p>
-          <p className="mb-4">
-            The scoring results may not be released immediately.
-          </p>
-          <button
-            className="rounded bg-blue-600 px-4 py-2 text-white"
-            onClick={() => {
-              router.push(`/contest/${contest.id}` as Route)
-            }}
-          >
-            Exit
-          </button>
-        </div>
-      </div>
-    )
+    router.push(`/contest/${contest.id}/finished/problem/${problemId}`)
   }
 
   return (

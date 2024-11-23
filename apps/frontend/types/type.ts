@@ -52,17 +52,19 @@ export interface ContestProblem extends Omit<Problem, 'tags' | 'info'> {
   submissionTime?: Date
 }
 
+export interface TestcaseItem {
+  id: number
+  input: string
+  output: string
+}
+
 export interface ProblemDetail {
   id: number
   title: string
   description: string
   inputDescription: string
   outputDescription: string
-  problemTestcase: {
-    id: number
-    input: string
-    output: string
-  }[]
+  problemTestcase: TestcaseItem[]
   languages: Language[]
   timeLimit: number
   memoryLimit: number
@@ -181,6 +183,8 @@ export interface TestResult {
 export interface TestResultDetail extends TestResult {
   input: string
   expectedOutput: string
+  isUserTestcase: boolean
+  originalId: number
 }
 
 export interface SettingsFormat {

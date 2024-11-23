@@ -28,6 +28,7 @@ import TestcaseField from '../../_components/TestcaseField'
 import VisibleForm from '../../_components/VisibleForm'
 import { editSchema } from '../../_libs/schemas'
 import { validateScoreWeight } from '../../_libs/utils'
+import { ScoreCautionDialog } from './_components/ScoreCautionDialog'
 
 export default function Page({ params }: { params: { problemId: string } }) {
   const { problemId } = params
@@ -43,11 +44,18 @@ export default function Page({ params }: { params: { problemId: string } }) {
 
   const { handleSubmit, setValue, getValues } = methods
 
-  const [blockEdit, setBlockEdit] = useState<boolean>(false)
   const [showHint, setShowHint] = useState<boolean>(false)
   const [showSource, setShowSource] = useState<boolean>(false)
   const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
   const [dialogDescription, setDialogDescription] = useState<string>('')
+  const [isScoreDialogOpen, setIsScoreDialogOpen] = useState<boolean>(false)
+  const initialValues = useRef<{
+    testcases: Testcase[]
+    timeLimit: number
+    memoryLimit: number
+  } | null>(null)
+
+  const pendingInput = useRef<UpdateProblemInput | null>(null)
 
   useQuery(GET_PROBLEM, {
     variables: {
@@ -57,7 +65,12 @@ export default function Page({ params }: { params: { problemId: string } }) {
     onCompleted: (problemData) => {
       const data = problemData.getProblem
 
-      if (data.submissionCount > 0) setBlockEdit(true)
+      const initialFormValues = {
+        testcases: data.testcase,
+        timeLimit: data.timeLimit,
+        memoryLimit: data.memoryLimit
+      }
+      initialValues.current = initialFormValues
 
       setValue('id', Number(problemId))
       setValue('title', data.title)
@@ -108,6 +121,25 @@ export default function Page({ params }: { params: { problemId: string } }) {
 
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
 
+  const handleUpdate = async () => {
+    if (pendingInput.current) {
+      await updateProblem({
+        variables: {
+          groupId: 1,
+          input: pendingInput.current
+        }
+      })
+      if (error) {
+        toast.error('Failed to update problem')
+        return
+      }
+      shouldSkipWarning.current = true
+      toast.success('Successfully updated problem')
+      router.push('/admin/problem')
+      router.refresh()
+    }
+  }
+
   const onSubmit = async (input: UpdateProblemInput) => {
     const testcases = getValues('testcases') as Testcase[]
     if (validateScoreWeight(testcases) === false) {
@@ -117,29 +149,31 @@ export default function Page({ params }: { params: { problemId: string } }) {
       setDialogOpen(true)
       return
     }
-    const tagsToDelete = getValues('tags.delete')
-    const tagsToCreate = getValues('tags.create')
-    input.tags!.create = tagsToCreate.filter(
-      (tag) => !tagsToDelete.includes(tag)
-    )
-    input.tags!.delete = tagsToDelete.filter(
-      (tag) => !tagsToCreate.includes(tag)
-    )
 
-    await updateProblem({
-      variables: {
-        groupId: 1,
-        input
+    pendingInput.current = input
+    if (initialValues.current) {
+      const currentValues = getValues()
+      let scoreCalculationChanged = false
+
+      if (
+        JSON.stringify(currentValues.testcases) !==
+        JSON.stringify(initialValues.current.testcases)
+      ) {
+        scoreCalculationChanged = true
+      } else if (currentValues.timeLimit !== initialValues.current.timeLimit) {
+        scoreCalculationChanged = true
+      } else if (
+        currentValues.memoryLimit !== initialValues.current.memoryLimit
+      ) {
+        scoreCalculationChanged = true
       }
-    })
-    if (error) {
-      toast.error('Failed to update problem')
-      return
+
+      if (scoreCalculationChanged) {
+        setIsScoreDialogOpen(true)
+        return
+      }
     }
-    shouldSkipWarning.current = true
-    toast.success('Succesfully updated problem')
-    router.push('/admin/problem')
-    router.refresh()
+    await handleUpdate()
   }
 
   return (
@@ -195,10 +229,10 @@ export default function Page({ params }: { params: { problemId: string } }) {
               </div>
             </div>
 
-            {getValues('testcases') && <TestcaseField blockEdit={blockEdit} />}
+            {getValues('testcases') && <TestcaseField blockEdit={false} />}
 
             <FormSection title="Limit">
-              <LimitForm blockEdit={blockEdit} />
+              <LimitForm blockEdit={false} />
             </FormSection>
             <TemplateField />
             <SwitchField
@@ -231,6 +265,15 @@ export default function Page({ params }: { params: { problemId: string } }) {
         isOpen={isDialogOpen}
         onClose={() => setDialogOpen(false)}
         description={dialogDescription}
+      />
+      <ScoreCautionDialog
+        isOpen={isScoreDialogOpen}
+        onCancel={() => setIsScoreDialogOpen(false)}
+        onConfirm={async () => {
+          await handleUpdate()
+          setIsScoreDialogOpen(false)
+        }}
+        problemId={Number(problemId)}
       />
     </ScrollArea>
   )

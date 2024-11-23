@@ -1,6 +1,6 @@
 'use client'
 
-import { safeFetcher, safeFetcherWithAuth } from '@/lib/utils'
+import { safeFetcher, safeFetcherWithAuth } from '@/libs/utils'
 import type { SettingsFormat } from '@/types/type'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'

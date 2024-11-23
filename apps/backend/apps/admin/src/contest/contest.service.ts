@@ -380,11 +380,6 @@ export class ContestService {
     if (!contest) {
       throw new EntityNotExistException('contest')
     }
-    if (contest.submission.length) {
-      throw new UnprocessableDataException(
-        'Cannot import problems if submission exists'
-      )
-    }
 
     const contestProblems: ContestProblem[] = []
 
@@ -467,11 +462,6 @@ export class ContestService {
     })
     if (!contest) {
       throw new EntityNotExistException('contest')
-    }
-    if (contest.submission.length) {
-      throw new UnprocessableDataException(
-        'Cannot delete problems if submission exists'
-      )
     }
 
     const contestProblems: ContestProblem[] = []
@@ -674,7 +664,8 @@ export class ContestService {
                 data: {
                   order: contestProblem.order,
                   contestId: newContest.id,
-                  problemId: contestProblem.problemId
+                  problemId: contestProblem.problemId,
+                  score: contestProblem.score
                 }
               })
             )
@@ -709,7 +700,7 @@ export class ContestService {
    * 특정 user의 특정 Contest에 대한 총점, 통과한 문제 개수와 각 문제별 테스트케이스 통과 개수를 불러옵니다.
    */
   async getContestScoreSummary(userId: number, contestId: number) {
-    const [contestProblems, submissions] = await Promise.all([
+    const [contestProblems, rawSubmissions] = await Promise.all([
       this.prisma.contestProblem.findMany({
         where: {
           contestId
@@ -725,6 +716,14 @@ export class ContestService {
         }
       })
     ])
+
+    // 오직 현재 Contest에 남아있는 문제들의 제출에 대해서만 ScoreSummary 계산
+    const contestProblemIds = contestProblems.map(
+      (contestProblem) => contestProblem.problemId
+    )
+    const submissions = rawSubmissions.filter((submission) =>
+      contestProblemIds.includes(submission.problemId)
+    )
 
     if (!submissions.length) {
       return {
@@ -857,7 +856,8 @@ export class ContestService {
               select: {
                 realName: true
               }
-            }
+            },
+            major: true
           }
         }
       },
@@ -875,6 +875,7 @@ export class ContestService {
           username: record.user?.username,
           studentId: record.user?.studentId,
           realName: record.user?.userProfile?.realName,
+          major: record.user?.major,
           ...(await this.getContestScoreSummary(
             record.userId as number,
             contestId

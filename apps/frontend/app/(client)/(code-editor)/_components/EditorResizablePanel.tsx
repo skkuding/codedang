@@ -8,15 +8,17 @@ import {
 } from '@/components/shadcn/resizable'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
-import { useLanguageStore, createCodeStore } from '@/stores/editor'
-import type { Language, ProblemDetail, TestResult } from '@/types/type'
+import { useLanguageStore, useCodeStore } from '@/stores/editor'
+import type { Language, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect } from 'react'
 import Loading from '../problem/[problemId]/loading'
-import EditorHeader from './EditorHeader'
-import TestcasePanel from './TestcasePanel'
+import EditorHeader from './EditorHeader/EditorHeader'
+import TestcasePanel from './TestcasePanel/TestcasePanel'
+import { TestPollingStoreProvider } from './context/TestPollingStoreProvider'
+import { TestcaseStoreProvider } from './context/TestcaseStoreProvider'
 
 interface ProblemEditorProps {
   problem: ProblemDetail
@@ -34,18 +36,7 @@ export default function EditorMainResizablePanel({
   const pathname = usePathname()
   const base = contestId ? `/contest/${contestId}` : ''
   const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
-  const [testResults, setTestResults] = useState<TestResult[]>([])
-  const testcases = problem.problemTestcase
-  const testResultData =
-    testResults.length > 0
-      ? testcases.map((testcase, index) => ({
-          id: testcase.id,
-          input: testcase.input,
-          expectedOutput: testcase.output,
-          output: testResults[index]?.output,
-          result: testResults[index]?.result
-        }))
-      : null
+
   useEffect(() => {
     if (!problem.languages.includes(language)) {
       setLanguage(problem.languages[0])
@@ -72,7 +63,7 @@ export default function EditorMainResizablePanel({
               }
             >
               <TabsList className="bg-slate-900">
-                <Link href={`${base}/problem/${problem.id}` as Route}>
+                <Link replace href={`${base}/problem/${problem.id}` as Route}>
                   <TabsTrigger
                     value="Description"
                     className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
@@ -81,6 +72,7 @@ export default function EditorMainResizablePanel({
                   </TabsTrigger>
                 </Link>
                 <Link
+                  replace
                   href={`${base}/problem/${problem.id}/submission` as Route}
                 >
                   <TabsTrigger
@@ -103,40 +95,42 @@ export default function EditorMainResizablePanel({
 
       <ResizablePanel defaultSize={65} className="bg-[#222939]">
         <div className="grid-rows-editor grid h-full">
-          <EditorHeader
-            problem={problem}
+          <TestcaseStoreProvider
+            problemId={problem.id}
             contestId={contestId}
-            templateString={problem.template[0]}
-            setTestResults={setTestResults}
-          />
-
-          <ResizablePanelGroup direction="vertical" className="h-32">
-            <ResizablePanel
-              defaultSize={60}
-              className="!overflow-x-auto !overflow-y-auto"
-            >
-              <ScrollArea className="h-full bg-[#121728]">
-                <CodeEditorInEditorResizablePanel
-                  problemId={problem.id}
-                  contestId={contestId}
-                  enableCopyPaste={enableCopyPaste}
-                />
-                <ScrollBar orientation="horizontal" />
-                <ScrollBar orientation="vertical" />
-              </ScrollArea>
-            </ResizablePanel>
-            {testResultData && (
-              <>
+            problemTestcase={problem.problemTestcase}
+          >
+            <TestPollingStoreProvider>
+              <EditorHeader
+                problem={problem}
+                contestId={contestId}
+                templateString={problem.template[0]}
+              />
+              <ResizablePanelGroup direction="vertical" className="h-32">
+                <ResizablePanel
+                  defaultSize={60}
+                  className="!overflow-x-auto !overflow-y-auto"
+                >
+                  <ScrollArea className="h-full bg-[#121728]">
+                    <CodeEditorInEditorResizablePanel
+                      problemId={problem.id}
+                      contestId={contestId}
+                      enableCopyPaste={enableCopyPaste}
+                    />
+                    <ScrollBar orientation="horizontal" />
+                    <ScrollBar orientation="vertical" />
+                  </ScrollArea>
+                </ResizablePanel>
                 <ResizableHandle
                   withHandle
                   className="border-[0.5px] border-slate-700"
                 />
                 <ResizablePanel defaultSize={40}>
-                  <TestcasePanel testResult={testResultData} />
+                  <TestcasePanel />
                 </ResizablePanel>
-              </>
-            )}
-          </ResizablePanelGroup>
+              </ResizablePanelGroup>
+            </TestPollingStoreProvider>
+          </TestcaseStoreProvider>
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>
@@ -155,7 +149,7 @@ function CodeEditorInEditorResizablePanel({
   enableCopyPaste
 }: CodeEditorInEditorResizablePanelProps) {
   const { language } = useLanguageStore(problemId, contestId)()
-  const { code, setCode } = createCodeStore()
+  const { code, setCode } = useCodeStore()
 
   return (
     <CodeEditor

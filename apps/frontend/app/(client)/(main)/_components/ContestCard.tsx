@@ -1,7 +1,7 @@
 'use client'
 
 import ContestStatusTimeDiff from '@/components/ContestStatusTimeDiff'
-import { cn, dateFormatter } from '@/lib/utils'
+import { cn, dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import type { Contest } from '@/types/type'
 import Image from 'next/image'

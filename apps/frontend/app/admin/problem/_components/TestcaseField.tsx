@@ -7,7 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import type { Testcase } from '@generated/graphql'
 import { useEffect, useState } from 'react'
 import { type FieldErrorsImpl, useFormContext, useWatch } from 'react-hook-form'

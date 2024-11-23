@@ -13,7 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '@/components/shadcn/popover'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import * as React from 'react'
 

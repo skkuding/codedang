@@ -15,48 +15,15 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/shadcn/dialog'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/shadcn/tooltip'
-import { convertToLetter } from '@/lib/utils'
+import { convertToLetter } from '@/libs/utils'
 import compileIcon from '@/public/icons/compile-version.svg'
-import copyBlueIcon from '@/public/icons/copy-blue.svg'
-import copyCompleteIcon from '@/public/icons/copy-complete.svg'
-import copyIcon from '@/public/icons/copy.svg'
 import type { ContestProblem, ProblemDetail } from '@/types/type'
 import type { Level } from '@/types/type'
-import { motion } from 'framer-motion'
 import { sanitize } from 'isomorphic-dompurify'
 import { FileText } from 'lucide-react'
 import Image from 'next/image'
-import { useState } from 'react'
-import useCopyToClipboard from 'react-use/lib/useCopyToClipboard'
-import { toast } from 'sonner'
+import CopyButton from './CopyButton'
 import { WhitespaceVisualizer } from './WhitespaceVisualizer'
-
-const useCopy = () => {
-  const [, copyToClipboard] = useCopyToClipboard()
-
-  // copiedID is used to show the checkmark icon when the user copies the input/output
-  const [copiedID, setCopiedID] = useState('')
-  const [timeoutID, setTimeoutID] = useState<NodeJS.Timeout | null>(null)
-
-  const copy = (value: string, id: string) => {
-    copyToClipboard(value)
-    setCopiedID(id)
-
-    // Clear the timeout if it's already set
-    // This will prevent the previous setTimeout from executing
-    timeoutID && clearTimeout(timeoutID)
-    const timeout = setTimeout(() => setCopiedID(''), 2000)
-    setTimeoutID(timeout)
-  }
-
-  return { copiedID, copy }
-}
 
 export function EditorDescription({
   problem,
@@ -67,8 +34,6 @@ export function EditorDescription({
   contestProblems?: ContestProblem[]
   isContest?: boolean
 }) {
-  const { copiedID, copy } = useCopy()
-
   const level = problem.difficulty
   const levelNumber = level.slice(-1)
   return (
@@ -120,55 +85,7 @@ export function EditorDescription({
                     <h3 className="select-none text-sm font-semibold">
                       Input {index + 1}
                     </h3>
-                    <TooltipProvider delayDuration={300}>
-                      <Tooltip>
-                        <motion.div
-                          key={
-                            copiedID == `input-${id}` ? 'check' : 'clipboard'
-                          }
-                          initial={{ y: 10, opacity: 0 }}
-                          animate={{ y: 0, opacity: 1 }}
-                          exit={{ y: -10, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          {copiedID == `input-${id}` ? (
-                            <Image
-                              src={copyCompleteIcon}
-                              alt="copy"
-                              width={24}
-                            />
-                          ) : (
-                            <TooltipTrigger asChild>
-                              <Image
-                                onClick={() => {
-                                  copy(input + '\n\n', `input-${id}`) // add newline to the end for easy testing
-                                  toast('Successfully copied', {
-                                    unstyled: true,
-                                    closeButton: false,
-                                    icon: (
-                                      <Image src={copyBlueIcon} alt="copy" />
-                                    ),
-                                    style: { backgroundColor: '#f0f8ff' },
-                                    classNames: {
-                                      toast:
-                                        'inline-flex items-center py-2 px-3 rounded gap-2',
-                                      title: 'text-primary font-medium'
-                                    }
-                                  })
-                                }}
-                                className="cursor-pointer transition-opacity hover:opacity-60"
-                                src={copyIcon}
-                                alt="copy"
-                                width={24}
-                              />
-                            </TooltipTrigger>
-                          )}
-                        </motion.div>
-                        <TooltipContent>
-                          <p>Copy</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <CopyButton value={input} />
                   </div>
                   <div className="rounded-md border border-[#555C66]">
                     <WhitespaceVisualizer text={input} className="px-4 py-2" />
@@ -180,55 +97,7 @@ export function EditorDescription({
                     <h3 className="select-none text-sm font-semibold">
                       Output {index + 1}
                     </h3>
-                    <TooltipProvider delayDuration={300}>
-                      <Tooltip>
-                        <motion.div
-                          key={
-                            copiedID == `output-${id}` ? 'check' : 'clipboard'
-                          }
-                          initial={{ y: 10, opacity: 0 }}
-                          animate={{ y: 0, opacity: 1 }}
-                          exit={{ y: -10, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          {copiedID == `output-${id}` ? (
-                            <Image
-                              src={copyCompleteIcon}
-                              alt="copy"
-                              width={24}
-                            />
-                          ) : (
-                            <TooltipTrigger asChild>
-                              <Image
-                                onClick={() => {
-                                  copy(output + '\n\n', `output-${id}`) // add newline to the end for easy testing
-                                  toast('Successfully copied', {
-                                    unstyled: true,
-                                    closeButton: false,
-                                    icon: (
-                                      <Image src={copyBlueIcon} alt="copy" />
-                                    ),
-                                    style: { backgroundColor: '#f0f8ff' },
-                                    classNames: {
-                                      toast:
-                                        'inline-flex items-center py-2 px-3 rounded gap-2',
-                                      title: 'text-primary font-medium'
-                                    }
-                                  })
-                                }}
-                                className="cursor-pointer transition-opacity hover:opacity-60"
-                                src={copyIcon}
-                                alt="copy"
-                                width={24}
-                              />
-                            </TooltipTrigger>
-                          )}
-                        </motion.div>
-                        <TooltipContent>
-                          <p>Copy</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <CopyButton value={output} />
                   </div>
                   <div className="rounded-md border-[1px] border-[#555C66]">
                     <WhitespaceVisualizer text={output} className="px-4 py-2" />
