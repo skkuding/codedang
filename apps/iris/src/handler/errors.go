@@ -53,4 +53,6 @@ var (
 	ErrMemoryLimitExceed   = errors.New("memory limit exceeded")
 	ErrRuntime             = errors.New("runtime error")
 	ErrSegFault            = errors.New("segmentation fault")
+	ErrSpecialPE           = errors.New("segmentation fault")
+	ErrSpecialFail         = errors.New("segmentation fault")
 )

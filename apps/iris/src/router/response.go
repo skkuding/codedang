@@ -28,6 +28,8 @@ const (
 	TESTCASE_ERROR
 	SEGMENTATION_FAULT_ERROR
 	SERVER_ERROR
+	SPECIAL_PE
+	SPECIAL_FAIL
 )
 
 func NewResponse(id string, data json.RawMessage, err error) *Response {
@@ -99,6 +101,12 @@ func ErrorToResultCode(err error) ResultCode {
 	}
 	if errors.Is(err, handler.ErrSegFault) {
 		return SEGMENTATION_FAULT_ERROR
+	}
+	if errors.Is(err, handler.ErrSpecialPE) {
+		return SPECIAL_PE
+	}
+	if errors.Is(err, handler.ErrSpecialFail) {
+		return SPECIAL_FAIL
 	}
 	return SERVER_ERROR
 }

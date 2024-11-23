@@ -12,6 +12,8 @@ RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" 
   fi
 RUN chmod 750 /app/sandbox/libjudger.so
 
+RUN curl -L "https://github.com/MikeMirzayanov/testlib/raw/refs/heads/master/testlib.h" -o "/usr/include/testlib.h"
+
 # Install dependencies
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
   && apt-get -y install --no-install-recommends netcat direnv

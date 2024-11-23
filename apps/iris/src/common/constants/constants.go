@@ -62,3 +62,7 @@ const (
 	T_SpecialJudge
 	T_SpecialRun
 )
+
+// To be changed
+const MAX_SPECIAL_MEMORY = 256 * 1024 * 1024
+const MAX_SPECIAL_TIME = 10000

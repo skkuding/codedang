@@ -63,7 +63,7 @@ pnpm install
 # Install lefthook for git hook
 pnpm exec lefthook install
 
-# echo "done" asdfasfd 
+# echo "done" asdfasfd
 
 # Init MinIO
 pnpm run init:storage
@@ -87,6 +87,9 @@ do
   echo -e '\n⚠️ Failed to migrate. Waiting for db to be ready...\n'
   sleep 5
 done
+
+# Import testlib.h for Special Judge
+curl -L "https://github.com/MikeMirzayanov/testlib/raw/refs/heads/master/testlib.h" -o "/usr/include/testlib.h"
 
 # Install Go dependencies
 cd $BASEDIR/apps/iris

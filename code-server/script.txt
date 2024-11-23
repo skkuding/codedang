@@ -19,6 +19,16 @@ for var in "${array[@]}"
 "language": "C",
 "timeLimit": 1000,
 "memoryLimit": 268435156,
-"specialLanguage": "CPP",
-"specialCode":"#include <testlib.h> \n int main(void){ printf(\" helloworld \"); return 0;}"
+"specialLanguage": "Cpp",
+"specialCode":"#include <testlib.h> \n int main(int argc, char* argv[]){registerTestlibCmd(argc, argv); int s = ouf.readInt();\n printf(\" output : %d \", s); quit(_ok, \"passed\");}"
+}
+
+{
+"problemId":1,
+"code":"#include <stdio.h> \n int main(int argc, char *argv[]) { \n int j; printf(\"1\");\n return 0; \n }",
+"language": "C",
+"timeLimit": 1000,
+"memoryLimit": 268435156,
+"specialLanguage": "Cpp",
+"specialCode":"#include <testlib.h> \n int main(int argc, char* argv[]){registerTestlibCmd(argc, argv); int s = ouf.readInt();\n printf(\" output : %d \", s); quit(_ok, \"passed\");}"
 }

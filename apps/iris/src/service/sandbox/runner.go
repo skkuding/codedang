@@ -70,8 +70,14 @@ func (r *runner) Run(req RunRequest, input []byte, isSpecial bool, idx int) (Run
 	}
 
 	orderStr := strconv.Itoa(req.Order)
+	var errExtension string
+	if !isSpecial {
+		errExtension = ".error"
+	} else {
+		errExtension = ".sperror"
+	}
 	if execResult.ResultCode != RUN_SUCCESS {
-		errorPath := r.file.MakeFilePath(req.Dir, orderStr+".error").String()
+		errorPath := r.file.MakeFilePath(req.Dir, orderStr+errExtension).String()
 		errData, err := r.file.ReadFile(errorPath)
 		if err != nil {
 			return runResult, fmt.Errorf("reading error output file: %w", err)

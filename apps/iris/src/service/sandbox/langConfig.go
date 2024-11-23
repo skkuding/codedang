@@ -272,22 +272,26 @@ func (l *langConfig) ToRunExecArgs(dir string, language Language, order int, lim
 
 	exePath := l.file.MakeFilePath(dir, c.ExeName).String()
 	exeDir := l.file.MakeFilePath(dir, "").String()
-	outputPath := l.file.MakeFilePath(dir, strconv.Itoa(order)+".out").String()
-	errorPath := l.file.MakeFilePath(dir, strconv.Itoa(order)+".error").String()
+	var outputPath, errorPath string
+	if !isSpecial {
+		outputPath = l.file.MakeFilePath(dir, strconv.Itoa(order)+".out").String()
+		errorPath = l.file.MakeFilePath(dir, strconv.Itoa(order)+".error").String()
+	} else {
+		outputPath = l.file.MakeFilePath(dir, strconv.Itoa(order)+".spout").String()
+		errorPath = l.file.MakeFilePath(dir, strconv.Itoa(order)+".sperror").String()
+	}
 
 	// run args 설정
 	var args string
 	if isSpecial {
-		args += strconv.Itoa(idx) + ".in "
-		args += strconv.Itoa(idx) + ".out"
-		args += strconv.Itoa(idx) + ".ans"
+		args += l.file.MakeFilePath(dir, strconv.Itoa(idx)+".in ").String()
+		args += l.file.MakeFilePath(dir, strconv.Itoa(idx)+".out ").String()
+		args += l.file.MakeFilePath(dir, strconv.Itoa(idx)+".ans").String()
 	}
 	args += c.RunArgs
 	args = strings.Replace(args, "{maxMemory}", strconv.Itoa(limit.Memory), 1)
 	args = strings.Replace(args, "{exePath}", exePath, 1)
 	args = strings.Replace(args, "{exeDir}", exeDir, 1)
-
-	fmt.Println(args)
 
 	var argSlice []string
 	if args != "" {
