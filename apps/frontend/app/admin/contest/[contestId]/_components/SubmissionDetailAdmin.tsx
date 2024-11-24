@@ -1,6 +1,7 @@
 'use client'
 
 import CodeEditor from '@/components/CodeEditor'
+import { Alert, AlertDescription, AlertTitle } from '@/components/shadcn/alert'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import {
   Table,
@@ -15,6 +16,7 @@ import { GET_SUBMISSION } from '@/graphql/submission/queries'
 import { dateFormatter, getResultColor } from '@/libs/utils'
 import type { Language } from '@/types/type'
 import { useLazyQuery, useQuery } from '@apollo/client'
+import { IoWarning } from 'react-icons/io5'
 
 export default function SubmissionDetailAdmin({
   submissionId
@@ -125,9 +127,10 @@ export default function SubmissionDetailAdmin({
             </div>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
-          {submission?.testcaseResult.length !== 0 && (
-            <div>
-              <h2 className="font-bold">Testcase</h2>
+
+          <h2 className="mt-4 font-bold">Testcase</h2>
+          {submission?.testcaseResult.length !== 0 ? (
+            <div className="flex flex-col gap-4">
               <table>
                 <tbody className="text-sm font-light">
                   <tr>
@@ -201,16 +204,22 @@ export default function SubmissionDetailAdmin({
                 </TableBody>
               </Table>
             </div>
+          ) : (
+            <Alert variant="default">
+              <IoWarning className="mr-2 h-4 w-4" />
+              <AlertTitle>Testcase Judge Results Not Available</AlertTitle>
+              <AlertDescription>
+                The testcases have been recently updated and are now outdated.
+              </AlertDescription>
+            </Alert>
           )}
-          <div>
-            <h2 className="mb-3 font-bold">Source Code</h2>
-            <CodeEditor
-              value={submission?.code}
-              language={submission?.language as Language}
-              readOnly
-              className="max-h-96 min-h-16 w-full"
-            />
-          </div>
+          <h2 className="mt-4 font-bold">Source Code</h2>
+          <CodeEditor
+            value={submission?.code}
+            language={submission?.language as Language}
+            readOnly
+            className="max-h-96 min-h-16 w-full"
+          />
         </div>
       )}
     </ScrollArea>

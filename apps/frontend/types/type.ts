@@ -184,6 +184,7 @@ export interface TestResultDetail extends TestResult {
   input: string
   expectedOutput: string
   isUserTestcase: boolean
+  originalId: number
 }
 
 export interface SettingsFormat {

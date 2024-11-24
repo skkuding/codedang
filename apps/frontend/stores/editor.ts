@@ -23,6 +23,7 @@ export const useLanguageStore = (problemId: number, contestId?: number) => {
     )
   )
 }
+
 interface CodeState {
   code: string
   setCode: (code: string) => void

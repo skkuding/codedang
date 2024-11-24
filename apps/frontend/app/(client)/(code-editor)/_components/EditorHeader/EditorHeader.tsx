@@ -36,6 +36,7 @@ import type {
   Submission,
   Template
 } from '@/types/type'
+import { useQueryClient } from '@tanstack/react-query'
 import JSConfetti from 'js-confetti'
 import { Save } from 'lucide-react'
 import type { Route } from 'next'
@@ -79,9 +80,11 @@ export default function Editor({
   )
   const { currentModal, showSignIn } = useAuthModalStore((state) => state)
   const [showModal, setShowModal] = useState<boolean>(false)
-  const pushed = useRef(false)
+  //const pushed = useRef(false)
   const whereToPush = useRef('')
   const isModalConfrimed = useRef(false)
+
+  const queryClient = useQueryClient()
 
   useInterval(
     async () => {
@@ -99,7 +102,7 @@ export default function Editor({
             ? `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}`
             : `/problem/${problem.id}/submission/${submissionId}`
           router.replace(href as Route)
-          window.history.pushState(null, '', '')
+          //window.history.pushState(null, '', window.location.href)
           if (submission.result === 'Accepted') {
             confetti?.addConfetti()
           }
@@ -186,6 +189,9 @@ export default function Editor({
       storeCodeToLocalStorage(code)
       const submission: Submission = await res.json()
       setSubmissionId(submission.id)
+      queryClient.refetchQueries({
+        queryKey: ['contest', contestId, 'problems']
+      })
     } else {
       setIsSubmitting(false)
       if (res.status === 401) {
@@ -243,22 +249,26 @@ export default function Editor({
       contestId
     )
 
-    const handlePopState = () => {
-      if (!checkSaved()) {
-        whereToPush.current = contestId ? `/contest/${contestId}` : '/problem'
-        setShowModal(true)
-      } else window.history.back()
-    }
-    if (!pushed.current) {
-      window.history.pushState(null, '', '')
-      pushed.current = true
-    }
+    // TODO: 배포 후 뒤로 가기 로직 재구현
+
+    // const handlePopState = () => {
+    //   if (!checkSaved()) {
+    //     whereToPush.current = contestId
+    //       ? `/contest/${contestId}/problem`
+    //       : '/problem'
+    //     setShowModal(true)
+    //   } else window.history.back()
+    // }
+    // if (!pushed.current) {
+    //   window.history.pushState(null, '', window.location.href)
+    //   pushed.current = true
+    // }
     window.addEventListener('beforeunload', handleBeforeUnload)
-    window.addEventListener('popstate', handlePopState)
+    //window.addEventListener('popstate', handlePopState)
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload)
-      window.removeEventListener('popstate', handlePopState)
+      //window.removeEventListener('popstate', handlePopState)
     }
   }, [])
 
