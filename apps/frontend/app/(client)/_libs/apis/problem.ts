@@ -4,7 +4,7 @@ import type { PaginationQueryParams } from './types'
 
 export interface GetProblemListRequest extends PaginationQueryParams {
   search?: string
-  order?: string
+  order: string
 }
 
 export interface GetProblemListResponse {
@@ -14,7 +14,7 @@ export interface GetProblemListResponse {
 
 export const getProblemList = async ({
   ...searchParams
-}: GetProblemListRequest = {}) => {
+}: GetProblemListRequest) => {
   const response = await safeFetcher.get('problem', {
     searchParams
   })
