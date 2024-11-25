@@ -48,8 +48,8 @@ export interface WorkbookProblem extends Omit<Problem, 'tags' | 'info'> {
 export interface ContestProblem extends Omit<Problem, 'tags' | 'info'> {
   order: number
   maxScore: number
-  score?: string
-  submissionTime?: Date
+  score: string | null
+  submissionTime: string | null
 }
 
 export interface TestcaseItem {
@@ -73,6 +73,7 @@ export interface ProblemDetail {
   hint: string
   template: string[]
   difficulty: Level
+  order?: number
 }
 
 // Contest type definition
