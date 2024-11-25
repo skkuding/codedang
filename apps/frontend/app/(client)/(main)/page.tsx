@@ -1,4 +1,6 @@
+import ErrorFallback from '@/components/ErrorFallback'
 import { Button } from '@/components/shadcn/button'
+import { ErrorBoundary } from '@suspensive/react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import Carousel from './_components/Carousel'
@@ -68,7 +70,9 @@ export default function Home() {
             </Button>
           </Link>
         </div>
-        <ContestCards />
+        <ErrorBoundary fallback={<ErrorFallback />}>
+          <ContestCards />
+        </ErrorBoundary>
       </div>
 
       <div className="flex w-full flex-col gap-6">
@@ -80,7 +84,9 @@ export default function Home() {
             </Button>
           </Link>
         </div>
-        <ProblemCards />
+        <ErrorBoundary fallback={<ErrorFallback />}>
+          <ProblemCards />
+        </ErrorBoundary>
       </div>
     </div>
   )
