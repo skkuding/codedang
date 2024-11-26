@@ -898,10 +898,6 @@ export class ContestService {
       }
     })
 
-    if (!contestProblems.length) {
-      throw new EntityNotExistException('Problem or ContestProblem')
-    }
-
     const contests = await Promise.all(
       contestProblems.map(async (contestProblem) => {
         return {
