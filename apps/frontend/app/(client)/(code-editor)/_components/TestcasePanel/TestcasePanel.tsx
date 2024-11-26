@@ -201,11 +201,11 @@ function TestSummary({
 
   const notAcceptedTestcases = data
     .map((testcase) =>
-      testcase.result !== 'Accepted'
+      testcase.result !== 'Accepted' && testcase.result !== 'Judging'
         ? `${testcase.isUserTestcase ? 'User' : 'Sample'} #${testcase.id}`
-        : -1
+        : undefined
     )
-    .filter((index) => index !== -1)
+    .filter(Boolean)
 
   return (
     <table className="min-w-full">
@@ -216,16 +216,16 @@ function TestSummary({
             {acceptedCount}/{total}
           </td>
         </tr>
-        {notAcceptedTestcases.length > 0 && (
-          <tr>
-            <td className="w-52 py-1 align-top text-slate-400">
-              Wrong Testcase Number:
-            </td>
-            <td className="py-1 text-white">
-              {notAcceptedTestcases.join(', ')}
-            </td>
-          </tr>
-        )}
+        <tr>
+          <td className="w-52 py-1 align-top text-slate-400">
+            Wrong Testcase Number:
+          </td>
+          <td className="py-1 text-white">
+            {notAcceptedTestcases.length > 0
+              ? notAcceptedTestcases.join(', ')
+              : '-'}
+          </td>
+        </tr>
       </tbody>
     </table>
   )

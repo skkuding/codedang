@@ -17,8 +17,7 @@ import {
 } from '@/components/shadcn/dialog'
 import { convertToLetter } from '@/libs/utils'
 import compileIcon from '@/public/icons/compile-version.svg'
-import type { ContestProblem, ProblemDetail } from '@/types/type'
-import type { Level } from '@/types/type'
+import type { ProblemDetail } from '@/types/type'
 import { sanitize } from 'isomorphic-dompurify'
 import { FileText } from 'lucide-react'
 import Image from 'next/image'
@@ -27,24 +26,23 @@ import { WhitespaceVisualizer } from './WhitespaceVisualizer'
 
 export function EditorDescription({
   problem,
-  contestProblems,
   isContest = false
 }: {
   problem: ProblemDetail
-  contestProblems?: ContestProblem[]
   isContest?: boolean
 }) {
   const level = problem.difficulty
   const levelNumber = level.slice(-1)
+
   return (
     <div className="dark flex h-full flex-col gap-6 bg-[#222939] py-6 text-lg">
       <div className="px-6">
         <div className="flex max-h-24 justify-between gap-4">
-          <h1 className="mb-3 overflow-hidden text-ellipsis whitespace-nowrap text-xl font-bold">{`#${contestProblems ? convertToLetter(contestProblems.find((item) => item.id === problem.id)?.order as number) : problem.id}. ${problem.title}`}</h1>
+          <h1 className="mb-3 overflow-hidden text-ellipsis whitespace-nowrap text-xl font-bold">{`#${problem?.order !== undefined ? convertToLetter(problem.order) : problem.id}. ${problem.title}`}</h1>
           {!isContest && (
             <Badge
               className="h-6 w-[52px] whitespace-nowrap rounded-[4px] bg-neutral-500 p-[6px] text-xs font-medium hover:bg-neutral-500"
-              textColors={level as Level}
+              textColors={level}
             >
               {`Level ${levelNumber}`}
             </Badge>
