@@ -97,6 +97,7 @@ export default function EditorMainResizablePanel({
         <div className="grid-rows-editor grid h-full">
           <TestcaseStoreProvider
             problemId={problem.id}
+            contestId={contestId}
             problemTestcase={problem.problemTestcase}
           >
             <TestPollingStoreProvider>

@@ -92,7 +92,7 @@ export const createColumns = (
         <Input
           disabled={true}
           className="w-[70px] focus-visible:ring-0"
-          defaultValue={table
+          value={table
             .getCoreRowModel()
             .rows.map((row) => row.original)
             .reduce((total, problem) => total + problem.score, 0)}

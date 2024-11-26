@@ -36,7 +36,7 @@ export function ScoreCautionDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onCancel}>
-      <DialogContent className="h-[627px] max-h-[627px] w-[875px] max-w-[875px] gap-6 p-10">
+      <DialogContent className="max-h-[627px] w-[875px] max-w-[875px] gap-6 overflow-y-auto p-10">
         <DialogHeader>
           <DialogTitle>Are you sure you want to edit this problem?</DialogTitle>
           <DialogDescription className="gap-4 whitespace-pre-line pt-4">

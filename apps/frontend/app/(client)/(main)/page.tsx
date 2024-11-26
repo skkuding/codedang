@@ -1,5 +1,4 @@
 import { Button } from '@/components/shadcn/button'
-import type { Route } from 'next'
 import Link from 'next/link'
 import Carousel from './_components/Carousel'
 import ContestCards from './_components/ContestCards'
@@ -62,7 +61,7 @@ export default function Home() {
       <div className="flex w-full flex-col gap-6">
         <div className="flex items-center justify-between text-gray-700">
           <p className="text-2xl font-bold">Contest 🏆</p>
-          <Link href={'/contest' as Route}>
+          <Link href={'/contest'}>
             <Button variant="ghost" className="h-8 px-3">
               See More
             </Button>
@@ -74,12 +73,13 @@ export default function Home() {
       <div className="flex w-full flex-col gap-6">
         <div className="flex items-center justify-between text-gray-700">
           <p className="text-2xl font-bold">Problem ✨</p>
-          <Link href={'/problem' as Route}>
+          <Link href={'/problem'}>
             <Button variant="ghost" className="h-8 px-3">
               See More
             </Button>
           </Link>
         </div>
+        {/**TODO: add error boundary */}
         <ProblemCards />
       </div>
     </div>

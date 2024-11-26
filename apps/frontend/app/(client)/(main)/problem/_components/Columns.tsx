@@ -33,10 +33,5 @@ export const columns: ColumnDef<Problem>[] = [
     header: () => <SortButton order="acrate">Success Rate</SortButton>,
     accessorKey: 'acceptedRate',
     cell: ({ row }) => `${(row.original.acceptedRate * 100).toFixed(2)}%`
-  },
-  {
-    header: 'Info',
-    accessorKey: 'info',
-    cell: ({ row }) => row.original.info
   }
 ]
