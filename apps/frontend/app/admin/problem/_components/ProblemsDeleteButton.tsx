@@ -21,7 +21,14 @@ export default function ProblemsDeleteButton() {
     )
 
     const results = await Promise.all(promises)
-    const isAllSafe = results.every(({ data }) => data === undefined)
+    const isAllSafe = results.every(({ data }) => {
+      const contests = data?.getContestsByProblemId
+      return (
+        contests?.finished.length === 0 &&
+        contests.ongoing.length === 0 &&
+        contests.upcoming.length === 0
+      )
+    })
 
     if (isAllSafe) {
       return true
