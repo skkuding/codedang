@@ -10,12 +10,15 @@ export function ContestDetailErrorFallback({
   let title = 'Something went wrong!'
   let message = ''
 
-  if (error.statusCode === 401) {
-    title = 'Log in first to check the problems.'
-  }
   if (error.statusCode === 404) {
     title = 'Contest does not exist'
   }
+
+  if (error.statusCode === 401) {
+    title = 'Access Denied'
+    message = 'Log in first to check the problems.'
+  }
+
   if (
     error.statusCode === 403 &&
     error.message === 'Cannot access problems before the contest starts.'
@@ -32,7 +35,6 @@ export function ContestDetailErrorFallback({
   }
 
   return (
-    /**TODO: use common error fallback */
     <div className="flex h-44 translate-y-[22px] items-center justify-center gap-4">
       <div className="flex flex-col items-center gap-1 font-mono">
         <p className="text-xl font-semibold">{title}</p>
