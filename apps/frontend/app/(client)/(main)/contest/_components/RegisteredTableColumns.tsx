@@ -5,7 +5,7 @@ import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import StatusBadge from '../../_components/StatusBadge'
 
-export const columns: ColumnDef<Contest>[] = [
+export const columns: ColumnDef<Required<Contest>>[] = [
   {
     header: 'Title',
     accessorKey: 'title',

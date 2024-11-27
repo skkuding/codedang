@@ -1,6 +1,5 @@
 import { fetcher } from '@/libs/utils'
 import type { Contest } from '@/types/type'
-import type { Route } from 'next'
 import Link from 'next/link'
 import ContestCard from './ContestCard'
 
@@ -10,13 +9,10 @@ const getContests = async () => {
     upcoming: Contest[]
   } = await fetcher.get('contest/ongoing-upcoming').json()
 
-  data.ongoing.forEach((contest) => {
-    contest.status = 'ongoing'
-  })
-  data.upcoming.forEach((contest) => {
-    contest.status = 'upcoming'
-  })
-  const contests = data.ongoing.concat(data.upcoming)
+  const contests = [
+    ...data.ongoing.map((item) => ({ ...item, status: 'ongoing' as const })),
+    ...data.upcoming.map((item) => ({ ...item, status: 'upcoming' as const }))
+  ]
 
   return contests.slice(0, 3)
 }
@@ -31,7 +27,7 @@ export default async function ContestCards() {
           return (
             <Link
               key={contest.id}
-              href={`/contest/${contest.id}` as Route}
+              href={`/contest/${contest.id}`}
               className="inline-block w-1/2"
             >
               <ContestCard contest={contest} />
@@ -44,7 +40,7 @@ export default async function ContestCards() {
           return (
             <Link
               key={contest.id}
-              href={`/contest/${contest.id}` as Route}
+              href={`/contest/${contest.id}`}
               className="inline-block w-1/3"
             >
               <ContestCard contest={contest} />

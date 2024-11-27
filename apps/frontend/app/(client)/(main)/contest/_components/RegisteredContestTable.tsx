@@ -3,10 +3,6 @@ import { fetcherWithAuth } from '@/libs/utils'
 import type { Contest } from '@/types/type'
 import { columns } from './RegisteredTableColumns'
 
-interface FinishedContestProps {
-  data: Contest[]
-}
-
 const getOngoingUpcomingContests = async (search: string) => {
   const data: {
     registeredOngoing: Contest[]
@@ -19,19 +15,23 @@ const getOngoingUpcomingContests = async (search: string) => {
       }
     })
     .json()
-  data.registeredOngoing.forEach((contest) => {
-    contest.status = 'ongoing'
-  })
-  data.registeredUpcoming.forEach((contest) => {
-    contest.status = 'upcoming'
-  })
-  return data.registeredOngoing.concat(data.registeredUpcoming)
+
+  return [
+    ...data.registeredOngoing.map((item) => ({
+      ...item,
+      status: 'ongoing' as const
+    })),
+    ...data.registeredUpcoming.map((item) => ({
+      ...item,
+      status: 'upcoming' as const
+    }))
+  ]
 }
 
 const getFinishedContests = async (search: string) => {
   const data = await getOngoingUpcomingContests(search)
 
-  const FinishedData: FinishedContestProps = await fetcherWithAuth
+  const finishedData: { data: Contest[] } = await fetcherWithAuth
     .get('contest/registered-finished', {
       searchParams: {
         search,
@@ -39,10 +39,14 @@ const getFinishedContests = async (search: string) => {
       }
     })
     .json()
-  FinishedData.data.forEach((contest) => {
-    contest.status = 'finished'
-  })
-  return data.concat(FinishedData.data)
+
+  return [
+    ...data,
+    ...finishedData.data.map((item) => ({
+      ...item,
+      status: 'finished' as const
+    }))
+  ]
 }
 
 export default async function RegisteredContestTable({

@@ -2,11 +2,11 @@
 
 import { dateFormatter } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-gray.svg'
-import type { Contest } from '@/types/type'
+import type { FinishedContest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
 
-export const columns: ColumnDef<Contest>[] = [
+export const columns: ColumnDef<FinishedContest>[] = [
   {
     header: 'Title',
     accessorKey: 'title',

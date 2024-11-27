@@ -24,7 +24,7 @@ const txtVariants = {
   registeredUpcoming: 'text-red-400'
 }
 interface Props {
-  contest: Contest
+  contest: Required<Contest>
 }
 
 export default function ContestCard({ contest }: Props) {

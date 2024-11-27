@@ -8,7 +8,6 @@ import {
 } from '@/components/shadcn/carousel'
 import { cn, fetcher, fetcherWithAuth } from '@/libs/utils'
 import type { Contest } from '@/types/type'
-import type { Route } from 'next'
 import type { Session } from 'next-auth'
 import Link from 'next/link'
 
@@ -17,13 +16,11 @@ const getContests = async () => {
     ongoing: Contest[]
     upcoming: Contest[]
   } = await fetcher.get('contest/ongoing-upcoming').json()
-  data.ongoing.forEach((contest) => {
-    contest.status = 'ongoing'
-  })
-  data.upcoming.forEach((contest) => {
-    contest.status = 'upcoming'
-  })
-  return data.ongoing.concat(data.upcoming)
+
+  return [
+    ...data.ongoing.map((item) => ({ ...item, status: 'ongoing' as const })),
+    ...data.upcoming.map((item) => ({ ...item, status: 'upcoming' as const }))
+  ]
 }
 
 const getRegisteredContests = async () => {
@@ -35,21 +32,19 @@ const getRegisteredContests = async () => {
   } = await fetcherWithAuth
     .get('contest/ongoing-upcoming-with-registered')
     .json()
-  data.registeredOngoing.forEach((contest) => {
-    contest.status = 'registeredOngoing'
-  })
-  data.registeredUpcoming.forEach((contest) => {
-    contest.status = 'registeredUpcoming'
-  })
-  data.ongoing.forEach((contest) => {
-    contest.status = 'ongoing'
-  })
-  data.upcoming.forEach((contest) => {
-    contest.status = 'upcoming'
-  })
-  return data.ongoing.concat(
-    data.upcoming.concat(data.registeredOngoing.concat(data.registeredUpcoming))
-  )
+
+  return [
+    ...data.ongoing.map((item) => ({ ...item, status: 'ongoing' as const })),
+    ...data.upcoming.map((item) => ({ ...item, status: 'upcoming' as const })),
+    ...data.registeredOngoing.map((item) => ({
+      ...item,
+      status: 'registeredOngoing' as const
+    })),
+    ...data.registeredUpcoming.map((item) => ({
+      ...item,
+      status: 'registeredUpcoming' as const
+    }))
+  ]
 }
 
 type ItemsPerSlide = 2 | 3
@@ -61,7 +56,7 @@ function ContestCardCarousel({
 }: {
   itemsPerSlide: ItemsPerSlide
   title: string
-  data: Contest[]
+  data: Required<Contest>[]
 }) {
   const chunks = []
 
@@ -88,7 +83,7 @@ function ContestCardCarousel({
             {chunk.map((contest) => (
               <Link
                 key={contest.id}
-                href={`/contest/${contest.id}` as Route}
+                href={`/contest/${contest.id}`}
                 className={cn(
                   'block overflow-hidden p-2',
                   itemsPerSlide === 3 ? 'w-1/3' : 'w-1/2'

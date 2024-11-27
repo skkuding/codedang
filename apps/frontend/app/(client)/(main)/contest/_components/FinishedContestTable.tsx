@@ -1,11 +1,11 @@
 import DataTable from '@/app/(client)/(main)/_components/DataTable'
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
-import type { Contest } from '@/types/type'
+import type { FinishedContest } from '@/types/type'
 import type { Session } from 'next-auth'
 import { columns } from './FinishedTableColumns'
 
 interface ContestProps {
-  data: Contest[]
+  data: FinishedContest[]
 }
 
 export default async function FinishedContestTable({
@@ -23,10 +23,6 @@ export default async function FinishedContestTable({
       }
     })
     .json()
-
-  ContestData.data.forEach((contest) => {
-    contest.status = 'finished'
-  })
 
   return (
     <DataTable
