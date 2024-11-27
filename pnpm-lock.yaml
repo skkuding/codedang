@@ -447,6 +447,9 @@ importers:
       '@sentry/nextjs':
         specifier: ^8.38.0
         version: 8.38.0(@opentelemetry/core@1.27.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.54.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.27.0(@opentelemetry/api@1.9.0))(next@14.2.17(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.48.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(webpack@5.96.1(@swc/core@1.9.2(@swc/helpers@0.5.13)))
+      '@suspensive/react':
+        specifier: ^2.18.7
+        version: 2.18.7(react@18.3.1)
       '@tailwindcss/typography':
         specifier: ^0.5.15
         version: 0.5.15(tailwindcss@3.4.14(ts-node@10.9.2(@swc/core@1.9.2(@swc/helpers@0.5.13))(@types/node@20.17.6)(typescript@5.6.3)))
@@ -4223,6 +4226,11 @@ packages:
     resolution: {integrity: sha512-lGFf08pbkEac0NYgVf4hdANpAgApRjNByLXB+WBip3qj1iendOIyAwP2GKkKbQMNVy2r1xxDf0ssfWscoiC+Vw==}
     engines: {node: '>=8.10'}
     hasBin: true
+
+  '@suspensive/react@2.18.7':
+    resolution: {integrity: sha512-phPb6ZM08Koz/dW74Xnk7c6WK43Vz3ftTV/26BIQW7aUXfRHqAZe7dTqvFnkeDbj3jWZ+XcTi6IT3xGYKaTPqA==}
+    peerDependencies:
+      react: ^18
 
   '@swc-node/core@1.13.3':
     resolution: {integrity: sha512-OGsvXIid2Go21kiNqeTIn79jcaX4l0G93X2rAnas4LFoDyA9wAwVK7xZdm+QsKoMn5Mus2yFLCc4OtX2dD/PWA==}
@@ -15543,6 +15551,10 @@ snapshots:
       commander: 4.1.1
       ignore: 5.3.2
       p-map: 4.0.0
+
+  '@suspensive/react@2.18.7(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
 
   '@swc-node/core@1.13.3(@swc/core@1.9.2(@swc/helpers@0.5.13))(@swc/types@0.1.15)':
     dependencies:
