@@ -1,13 +1,16 @@
+import { TanstackQueryErrorBoundary } from '@/components/TanstackQueryErrorBoundary'
 import { Suspense } from 'react'
 import ProblemInfiniteTable, {
+  ProblemInfiniteTableErrorFallback,
   ProblemInfiniteTableFallback
 } from './_components/ProblemInfiniteTable'
 
 export default function ProblemListPage() {
   return (
-    /**TODO: add error boundary */
-    <Suspense fallback={<ProblemInfiniteTableFallback />}>
-      <ProblemInfiniteTable />
-    </Suspense>
+    <TanstackQueryErrorBoundary fallback={ProblemInfiniteTableErrorFallback}>
+      <Suspense fallback={<ProblemInfiniteTableFallback />}>
+        <ProblemInfiniteTable />
+      </Suspense>
+    </TanstackQueryErrorBoundary>
   )
 }

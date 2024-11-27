@@ -3,7 +3,9 @@
 import DataTable from '@/app/(client)/(main)/_components/DataTable'
 import { problemQueries } from '@/app/(client)/_libs/queries/problem'
 import IntersectionArea from '@/components/IntersectionArea'
+import { Button } from '@/components/shadcn/button'
 import { Skeleton } from '@/components/shadcn/skeleton'
+import type { ErrorBoundaryFallbackProps } from '@suspensive/react'
 import { useSuspenseInfiniteQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'next/navigation'
 import SearchBar from '../../_components/SearchBar'
@@ -60,22 +62,24 @@ export function ProblemInfiniteTableFallback() {
         <span className="w-5/12">
           <Skeleton className="h-6 w-20" />
         </span>
-        <span className="w-2/12">
-          <Skeleton className="mx-auto h-6 w-20" />
-        </span>
-        <span className="w-2/12">
-          <Skeleton className="mx-auto h-6 w-20" />
-        </span>
-        <span className="w-2/12">
-          <Skeleton className="mx-auto h-6 w-20" />
-        </span>
-        <span className="w-1/12">
-          <Skeleton className="mx-auto h-6 w-12" />
-        </span>
       </div>
       {[...Array(5)].map((_, i) => (
         <Skeleton key={i} className="my-2 flex h-12 w-full rounded-xl" />
       ))}
     </>
+  )
+}
+
+/**TODO: improve error fallback UI or use common error fallback */
+export function ProblemInfiniteTableErrorFallback({
+  reset
+}: ErrorBoundaryFallbackProps) {
+  return (
+    <div>
+      <p>Something went wrong!</p>
+      <Button className="text-black" variant="outline" onClick={reset}>
+        Reload
+      </Button>
+    </div>
   )
 }
