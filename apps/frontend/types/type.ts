@@ -87,16 +87,16 @@ export interface ProblemDetail {
 export interface Contest {
   id: number
   title: string
-  startTime: Date
-  endTime: Date
+  startTime: string
+  endTime: string
   group: {
-    id: string
+    id: number
     groupName: string
   }
   isJudgeResultVisible: boolean
   enableCopyPaste: boolean
-  status: ContestStatus
-  participants: number
+  description: string
+  invitationCodeExists: boolean
   isRegistered: boolean
 }
 
