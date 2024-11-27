@@ -17,7 +17,7 @@ export async function ContestDetailHeader({
   const contest = await safeGetContestDetail({ contestId: Number(contestId) })
 
   if (isErrorResponse(contest)) {
-    return <p className="text-center">No Results.</p>
+    return null
   }
 
   const formattedStartTime = dateFormatter(

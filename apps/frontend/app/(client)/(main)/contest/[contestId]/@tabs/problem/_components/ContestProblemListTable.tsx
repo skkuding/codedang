@@ -1,7 +1,7 @@
 import DataTable from '@/app/(client)/(main)/_components/DataTable'
 import { safeGetContestProblemList } from '@/app/(client)/_libs/apis/contestProblem'
-import type { ErrorResponse } from '@/app/(client)/_libs/apis/types'
 import { isErrorResponse } from '@/app/(client)/_libs/apis/utils'
+import { ContestDetailErrorFallback } from '../../_components/ContestDetailErrorFallback'
 import { columns } from './Columns'
 
 interface ContestProblemListTableProps {
@@ -17,7 +17,7 @@ export async function ContestProblemListTable({
   })
 
   if (isErrorResponse(contestProblems)) {
-    return <ContestProblemListErrorFallback error={contestProblems} />
+    return <ContestDetailErrorFallback error={contestProblems} />
   }
 
   return (
@@ -33,42 +33,5 @@ export async function ContestProblemListTable({
       }}
       linked
     />
-  )
-}
-
-interface ContestProblemListErrorFallbackProps {
-  error: ErrorResponse
-}
-
-function ContestProblemListErrorFallback({
-  error
-}: ContestProblemListErrorFallbackProps) {
-  let message = 'Something went wrong!'
-  if (error.statusCode === 401) {
-    message = 'Log in first to check the problems.'
-  }
-  if (error.statusCode === 404) {
-    message = 'Contest does not exist'
-  }
-  if (
-    error.statusCode === 403 &&
-    error.message === 'Cannot access problems before the contest starts.'
-  ) {
-    message = 'You can access after the contest started'
-  }
-  if (
-    error.statusCode === 403 &&
-    error.message === 'Register to access the problems of this contest.'
-  ) {
-    message = 'Please register first to view the problem list'
-  }
-
-  return (
-    <div className="flex h-44 translate-y-[22px] items-center justify-center gap-4">
-      <div className="flex flex-col items-center gap-1 font-mono">
-        <p className="text-xl font-semibold">Access Denied</p>
-        <p className="text-gray-500">{message}</p>
-      </div>
-    </div>
   )
 }
