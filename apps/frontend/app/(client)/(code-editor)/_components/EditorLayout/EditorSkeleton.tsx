@@ -2,18 +2,16 @@ import clockIcon from '@/public/icons/clock.svg'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import Image from 'next/image'
 
-export default function ContestEditorSkeleton() {
+export default function EditorSkeleton() {
   return (
     <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
       <header className="flex h-12 justify-between bg-slate-900 px-6">
         <div className="flex items-center justify-center gap-4 text-lg text-[#787E80]">
-          <a href="#">
-            <Image src={codedangLogo} alt="코드당" width={33} />
-          </a>
+          <Image src={codedangLogo} alt="코드당" width={33} />
           <div className="flex items-center gap-1 font-medium">
             Contest
             <p className="mx-2"> / </p>
-            <a href="#">Future Contest</a>
+            Future Contest
             <p className="mx-2"> / </p>
             <button
               type="button"
@@ -35,11 +33,8 @@ export default function ContestEditorSkeleton() {
             <button
               type="button"
               className="hidden items-center gap-2 rounded-md border-0 px-4 py-1 md:flex"
-            ></button>
-            <button
-              type="button"
-              className="flex gap-2 px-4 py-1 md:hidden"
-            ></button>
+            />
+            <button type="button" className="flex gap-2 px-4 py-1 md:hidden" />
           </div>
         </div>
       </header>
@@ -76,25 +71,39 @@ export default function ContestEditorSkeleton() {
             </div>
           </div>
         </div>
-        <div className="relative w-px bg-slate-500" role="separator"></div>
+        <div className="relative w-px bg-slate-500" role="separator" />
         <div className="w-2/3 bg-[#222939]">
           <div className="flex h-12 items-center justify-end border-b border-slate-700 bg-[#222939] px-6">
-            <button className="h-8 w-[77px] rounded-md bg-slate-600 text-red-500">
+            <button
+              type="button"
+              className="h-8 w-[77px] rounded-md bg-slate-600 text-red-500"
+            >
               Reset
             </button>
-            <button className="h-8 w-[77px] rounded-md bg-[#D7E5FE] text-[#484C4D]">
+            <button
+              type="button"
+              className="h-8 w-[77px] rounded-md bg-[#D7E5FE] text-[#484C4D]"
+            >
               Save
             </button>
-            <button className="h-8 w-[77px] rounded-md bg-[#D7E5FE] text-[#484C4D]">
+            <button
+              type="button"
+              className="h-8 w-[77px] rounded-md bg-[#D7E5FE] text-[#484C4D]"
+            >
               Test
             </button>
-            <button className="bg-primary h-8 w-[77px] rounded-md text-gray-50">
+            <button
+              type="button"
+              className="bg-primary h-8 w-[77px] rounded-md text-gray-50"
+            >
               Submit
             </button>
-            <button className="h-8 w-10 rounded-md bg-slate-600">C</button>
+            <button type="button" className="h-8 w-10 rounded-md bg-slate-600">
+              C
+            </button>
           </div>
           <div className="h-full bg-[#121728] p-4">
-            <pre className="h-96 overflow-auto rounded-md bg-[#222939] p-4 font-mono text-sm text-gray-300"></pre>
+            <pre className="h-96 overflow-auto rounded-md bg-[#222939] p-4 font-mono text-sm text-gray-300" />
           </div>
         </div>
       </div>

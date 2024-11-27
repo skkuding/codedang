@@ -1,6 +1,6 @@
+import { getContestDetail } from '@/app/(client)/_libs/apis/contest'
 import KatexContent from '@/components/KatexContent'
 import { auth } from '@/libs/auth'
-import { fetcherWithAuth } from '@/libs/utils'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 import {
@@ -27,9 +27,9 @@ interface ContestTopProps {
 export default async function ContestTop({ params }: ContestTopProps) {
   const session = await auth()
   const { contestId } = params
-  const data: ContestTop = await fetcherWithAuth
-    .get(`contest/${contestId}`)
-    .json()
+
+  /**NOTE: alreay handling error by layout.tsx */
+  const data = await getContestDetail({ contestId: Number(contestId) })
 
   const startTime = new Date(data.startTime)
   const endTime = new Date(data.endTime)

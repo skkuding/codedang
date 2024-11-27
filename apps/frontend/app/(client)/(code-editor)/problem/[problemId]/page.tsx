@@ -1,14 +1,15 @@
 import { EditorDescription } from '@/app/(client)/(code-editor)/_components/EditorDescription'
-import { fetcher } from '@/libs/utils'
-import type { ProblemDetail } from '@/types/type'
+import { getProblemDetail } from '@/app/(client)/_libs/apis/problem'
 
 export default async function DescriptionPage({
   params
 }: {
-  params: { problemId: number }
+  params: { problemId: string }
 }) {
   const { problemId } = params
-  const problem: ProblemDetail = await fetcher(`problem/${problemId}`).json()
+
+  /**NOTE: already handling error by EditorLayout */
+  const problem = await getProblemDetail({ problemId: Number(problemId) })
 
   return <EditorDescription problem={problem} />
 }
