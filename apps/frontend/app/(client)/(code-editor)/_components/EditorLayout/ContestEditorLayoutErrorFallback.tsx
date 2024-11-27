@@ -34,7 +34,7 @@ export async function ContestEditorLayoutErrorFallback({
     error.statusCode === 403 &&
     error.message === 'Register to access this problem.'
   ) {
-    message = 'Register to access this problem.'
+    message = 'Please register contest first to view this problem'
   }
 
   if (
@@ -42,7 +42,7 @@ export async function ContestEditorLayoutErrorFallback({
     error.message ===
       'Cannot access to Contest problem before the contest starts.'
   ) {
-    message = 'Cannot access to contest problem before the contest starts.'
+    message = 'You can access the problem after the contest started'
   }
 
   if (error.statusCode === 404) {
