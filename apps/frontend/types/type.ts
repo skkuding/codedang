@@ -84,7 +84,7 @@ export interface ProblemDetail {
 
 // Contest type definition
 
-export interface Contest {
+export interface ContestDetail {
   id: number
   title: string
   startTime: string
@@ -96,7 +96,28 @@ export interface Contest {
   isJudgeResultVisible: boolean
   enableCopyPaste: boolean
   description: string
+  isRegistered: boolean
+  status?: ContestStatus
   invitationCodeExists: boolean
+}
+
+export interface Contest {
+  id: number
+  title: string
+  startTime: string
+  endTime: string
+  group: {
+    id: number
+    groupName: string
+  }
+  isJudgeResultVisible: boolean
+  enableCopyPaste: boolean
+  invitationCode: string | null
+  participants: number
+  status?: ContestStatus
+}
+
+export interface FinishedContest extends Contest {
   isRegistered: boolean
 }
 

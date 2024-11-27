@@ -1,5 +1,5 @@
 import { safeFetcherWithAuth } from '@/libs/utils'
-import type { Contest } from '@/types/type'
+import type { ContestDetail } from '@/types/type'
 import { createSafeGETAPIResquestFunction } from './utils'
 
 interface GetContestDetailRequest {
@@ -7,7 +7,7 @@ interface GetContestDetailRequest {
   withAuth?: boolean
 }
 
-interface GetContestDetailResponse extends Contest {}
+interface GetContestDetailResponse extends ContestDetail {}
 
 export const getContestDetail = async ({
   contestId
