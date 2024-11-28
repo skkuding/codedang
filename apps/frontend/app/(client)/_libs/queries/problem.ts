@@ -10,6 +10,7 @@ export const problemQueries = {
         getProblemList({
           ...params,
           ...(pageParam ? { cursor: pageParam } : undefined)
-        })
+        }),
+      itemsPerPage: params.take
     })
 }
