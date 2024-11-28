@@ -1,8 +1,4 @@
-'use client'
-
 import { submissionQueries } from '@/app/(client)/_libs/queries/submission'
-//import FetchErrorFallback from '@/components/FetchErrorFallback'
-//import { TanstackQueryErrorBoundary } from '@/components/TanstackQueryErrorBoundary'
 import {
   Dialog,
   DialogTrigger,
@@ -18,10 +14,11 @@ import {
 import seeSubmissionIcon from '@/public/icons/see-submission.svg'
 import type { ContestProblem } from '@/types/type'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
+import { ErrorBoundary } from '@suspensive/react'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import SubmissionDetailContent from './SubmissionDetailContent'
 
 export default function MySubmission({ problem }: { problem: ContestProblem }) {
@@ -58,49 +55,49 @@ export default function MySubmission({ problem }: { problem: ContestProblem }) {
     return null
   }
 
-  //ToDo: Error Handling
   return (
-    //<TanstackQueryErrorBoundary fallback={FetchErrorFallback}>
-    <>
-      <Dialog onOpenChange={() => setIsTooltipOpen(false)}>
-        <TooltipProvider>
-          <Tooltip>
-            <DialogTrigger asChild>
-              <TooltipTrigger asChild>
-                <Image
-                  src={seeSubmissionIcon}
-                  width={20}
-                  height={20}
-                  alt={'See submission'}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setIsTooltipOpen(true)
-                  }}
-                  onMouseEnter={() => setIsTooltipOpen(true)}
-                  onMouseLeave={() => setIsTooltipOpen(false)}
-                />
-              </TooltipTrigger>
-            </DialogTrigger>
-            {isTooltipOpen && (
-              <TooltipContent className="mr-4 bg-white">
-                <p className="text-xs text-neutral-900">
-                  Click to check your latest submission.
-                </p>
-                <TooltipPrimitive.Arrow className="fill-white" />
-              </TooltipContent>
-            )}
-          </Tooltip>
-        </TooltipProvider>
-        <div onClick={(e) => e.stopPropagation()}>
-          <DialogContent className="max-h-[620px] max-w-[800px] justify-center">
-            <SubmissionDetailContent
-              submission={submission}
-              submissionId={latestSubmissionId}
-              problem={problem}
-            />
-          </DialogContent>
-        </div>
-      </Dialog>
-    </>
+    <ErrorBoundary fallback={null}>
+      <Suspense fallback={<Skeleton className="size-[25px]" />}>
+        <Dialog onOpenChange={() => setIsTooltipOpen(false)}>
+          <TooltipProvider>
+            <Tooltip>
+              <DialogTrigger asChild>
+                <TooltipTrigger asChild>
+                  <Image
+                    src={seeSubmissionIcon}
+                    width={20}
+                    height={20}
+                    alt={'See submission'}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setIsTooltipOpen(true)
+                    }}
+                    onMouseEnter={() => setIsTooltipOpen(true)}
+                    onMouseLeave={() => setIsTooltipOpen(false)}
+                  />
+                </TooltipTrigger>
+              </DialogTrigger>
+              {isTooltipOpen && (
+                <TooltipContent className="mr-4 bg-white">
+                  <p className="text-xs text-neutral-900">
+                    Click to check your latest submission.
+                  </p>
+                  <TooltipPrimitive.Arrow className="fill-white" />
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+          <div onClick={(e) => e.stopPropagation()}>
+            <DialogContent className="max-h-[620px] max-w-[800px] justify-center">
+              <SubmissionDetailContent
+                submission={submission}
+                submissionId={latestSubmissionId}
+                problem={problem}
+              />
+            </DialogContent>
+          </div>
+        </Dialog>
+      </Suspense>
+    </ErrorBoundary>
   )
 }
