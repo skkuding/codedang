@@ -1,4 +1,4 @@
-import ErrorFallback from '@/components/ErrorFallback'
+import FetchErrorFallback from '@/components/FetchErrorFallback'
 import { Button } from '@/components/shadcn/button'
 import { ErrorBoundary } from '@suspensive/react'
 import Link from 'next/link'
@@ -69,7 +69,7 @@ export default function Home() {
             </Button>
           </Link>
         </div>
-        <ErrorBoundary fallback={<ErrorFallback />}>
+        <ErrorBoundary fallback={FetchErrorFallback}>
           <ContestCards />
         </ErrorBoundary>
       </div>
@@ -83,7 +83,7 @@ export default function Home() {
             </Button>
           </Link>
         </div>
-        <ErrorBoundary fallback={<ErrorFallback />}>
+        <ErrorBoundary fallback={FetchErrorFallback}>
           <ProblemCards />
         </ErrorBoundary>
       </div>
