@@ -8,12 +8,12 @@ import DescriptionForm from '../../_components/DescriptionForm'
 import FormSection from '../../_components/FormSection'
 import SwitchField from '../../_components/SwitchField'
 import TitleForm from '../../_components/TitleForm'
+import VisibleForm from '../../_components/VisibleForm'
 import InfoForm from '../_components/InfoForm'
 import LimitForm from '../_components/LimitForm'
 import PopoverVisibleInfo from '../_components/PopoverVisibleInfo'
 import TemplateField from '../_components/TemplateField'
 import TestcaseField from '../_components/TestcaseField'
-import VisibleForm from '../_components/VisibleForm'
 import CreateProblemForm from './_components/CreateProblemForm'
 
 export default function Page() {
