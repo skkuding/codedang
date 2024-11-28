@@ -1,0 +1,72 @@
+'use client'
+
+import SubmissionTable, {
+  SubmissionTableFallback
+} from '@/app/(client)/(code-editor)/_components/SubmissionTable'
+import { submissionQueries } from '@/app/(client)/_libs/queries/submission'
+import Paginator from '@/components/PaginatorV2'
+import {
+  usePagination,
+  usePaginationQueryParams
+} from '@/libs/hooks/usePaginationV2'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { columns } from './Columns'
+
+const itemsPerPage = 20
+
+export function SubmissionPaginatedTable({ problemId }: { problemId: number }) {
+  const [{ take, cursor }, setPaginationQueryParams] = usePaginationQueryParams(
+    {
+      itemsPerPage
+    }
+  )
+
+  const { data } = useSuspenseQuery(
+    submissionQueries.problemList({
+      problemId,
+      take,
+      ...(cursor ? { cursor } : undefined)
+    })
+  )
+
+  const {
+    paginatedItems,
+    currentPage,
+    firstPage,
+    pageCount,
+    gotoPage,
+    gotoSlot
+  } = usePagination({
+    data: data.data,
+    itemsPerPage,
+    takeQueryParams: take,
+    setPaginationQueryParams
+  })
+
+  return (
+    <>
+      <SubmissionTable
+        data={paginatedItems}
+        columns={columns}
+        getHref={(row) => `/problem/${problemId}/submission/${row.original.id}`}
+      />
+      <Paginator
+        page={{
+          current: currentPage,
+          first: firstPage,
+          count: pageCount,
+          goto: gotoPage
+        }}
+        slot={{
+          prev: firstPage > 1,
+          next: (firstPage + pageCount - 1) * itemsPerPage < data.total,
+          goto: gotoSlot
+        }}
+      />
+    </>
+  )
+}
+
+export function SubmissionPaginatedTableFallback() {
+  return <SubmissionTableFallback columns={columns} />
+}
