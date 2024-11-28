@@ -27,7 +27,7 @@ import SubmissionDetailContent from './SubmissionDetailContent'
 export default function MySubmission({ problem }: { problem: ContestProblem }) {
   const [isTooltipOpen, setIsTooltipOpen] = useState(false)
   const { contestId: contestIdString } = useParams()
-  const contestId = Number(contestIdString) //submissionQueries에서 contestId number로 정의
+  const contestId = Number(contestIdString)
 
   const { data: latestSubmissionData, isLoading: isLoadingLatest } = useQuery(
     submissionQueries.list({
@@ -38,20 +38,18 @@ export default function MySubmission({ problem }: { problem: ContestProblem }) {
   )
 
   const latestSubmission = latestSubmissionData?.data?.[0]
-  const latestSubmissionId = latestSubmission?.id ?? 0 //타입 에러 떠서 latestSubmissionId가 undefined일 경우 기본값 0으로 설정
+  const latestSubmissionId = latestSubmission?.id ?? 0
 
-  // 최신 제출물의 상세정보 가져오기
   const { data: submission, isLoading: isLoadingDetail } = useQuery({
     ...submissionQueries.detail({
       contestId,
       submissionId: latestSubmissionId,
       problemId: problem.id
     }),
-    enabled: latestSubmissionId !== 0, // 의존적 쿼리, 기본값이 아닌 경우(undefined가 아닌 경우)에만 실행
+    enabled: latestSubmissionId !== 0,
     throwOnError: true
   })
 
-  // 로딩 상태 처리
   if (isLoadingLatest || isLoadingDetail) {
     return <Skeleton className="size-[25px]" />
   }
