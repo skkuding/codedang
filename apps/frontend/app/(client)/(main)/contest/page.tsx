@@ -89,16 +89,17 @@ export default async function Contest({ searchParams }: ContestProps) {
         <h1 className="mb-6 text-2xl font-bold text-gray-700">
           List of Contests
         </h1>
-        <ErrorBoundary fallback={FetchErrorFallback}>
-          <Suspense fallback={<FinishedContestTableFallback />}>
-            {session ? (
-              <TableSwitchButton registered={registered} />
-            ) : (
-              <p className="text-primary-light border-primary-light w-fit border-b-2 p-6 text-xl font-bold md:text-2xl">
-                Finished
-              </p>
-            )}
-            <Separator className="mb-3" />
+
+        <Suspense fallback={<FinishedContestTableFallback />}>
+          {session ? (
+            <TableSwitchButton registered={registered} />
+          ) : (
+            <p className="text-primary-light border-primary-light w-fit border-b-2 p-6 text-xl font-bold md:text-2xl">
+              Finished
+            </p>
+          )}
+          <Separator className="mb-3" />
+          <ErrorBoundary fallback={FetchErrorFallback}>
             <div className="flex justify-end py-8">
               <SearchBar className="w-60" />
             </div>
@@ -107,8 +108,8 @@ export default async function Contest({ searchParams }: ContestProps) {
             ) : (
               <FinishedContestTable search={search} session={session} />
             )}
-          </Suspense>
-        </ErrorBoundary>
+          </ErrorBoundary>
+        </Suspense>
       </div>
     </>
   )
