@@ -30,9 +30,10 @@ export default function CreateNoticeForm({ children }: CreateNoticeFormProps) {
     onError: () => {
       toast.error('Failed to create problem')
     },
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const noticeId = data.createNotice.id
       toast.success('Notice created successfully')
-      router.push('/admin/notice')
+      router.push(`/admin/notice/${noticeId}`)
       router.refresh()
     }
   })
