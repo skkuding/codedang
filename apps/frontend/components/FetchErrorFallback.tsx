@@ -1,6 +1,6 @@
 'use client'
 
-import { ErrorBoundaryFallbackProps } from '@suspensive/react'
+import type { ErrorBoundaryFallbackProps } from '@suspensive/react'
 import { useRouter } from 'next/navigation'
 import { startTransition, useState } from 'react'
 import { RiAlertFill } from 'react-icons/ri'
