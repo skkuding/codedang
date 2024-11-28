@@ -113,3 +113,9 @@ export const getResultColor = (result: string | null | undefined): string => {
     return '!text-red-500'
   }
 }
+
+export const getPageArray = (start: number, end: number) => {
+  return Array(end - start + 1)
+    .fill(0)
+    .map((_, i) => start + i)
+}
