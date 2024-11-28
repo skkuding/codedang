@@ -7,13 +7,10 @@ import { RiAlertFill } from 'react-icons/ri'
 import { Button } from './shadcn/button'
 
 export default function FetchErrorFallback({
-  error,
   reset
 }: ErrorBoundaryFallbackProps) {
   const router = useRouter()
   const [isResetting, setIsResetting] = useState(false)
-
-  console.log(error)
 
   const handleRetry = () => {
     setIsResetting(true)
