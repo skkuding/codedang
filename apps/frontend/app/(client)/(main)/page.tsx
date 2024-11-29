@@ -1,4 +1,6 @@
+import FetchErrorFallback from '@/components/FetchErrorFallback'
 import { Button } from '@/components/shadcn/button'
+import { ErrorBoundary } from '@suspensive/react'
 import Link from 'next/link'
 import Carousel from './_components/Carousel'
 import ContestCards from './_components/ContestCards'
@@ -67,7 +69,9 @@ export default function Home() {
             </Button>
           </Link>
         </div>
-        <ContestCards />
+        <ErrorBoundary fallback={FetchErrorFallback}>
+          <ContestCards />
+        </ErrorBoundary>
       </div>
 
       <div className="flex w-full flex-col gap-6">
@@ -79,8 +83,9 @@ export default function Home() {
             </Button>
           </Link>
         </div>
-        {/**TODO: add error boundary */}
-        <ProblemCards />
+        <ErrorBoundary fallback={FetchErrorFallback}>
+          <ProblemCards />
+        </ErrorBoundary>
       </div>
     </div>
   )
