@@ -6,7 +6,7 @@ interface PaginationQueryParams {
 }
 
 interface Params {
-  itemsPerPage?: number
+  itemsPerPage: number
   pagesPerSlot?: number
 }
 
@@ -20,11 +20,11 @@ interface Params {
  * Say a slot has 5 pages and a page has 10 items,
  * 51 (= 5 * 10 + 1) items should be fetched in total.
  *
- * @param itemsPerPage number of items in a page (default: 10)
+ * @param itemsPerPage number of items in a page
  * @param pagesPerSlot number of pages in a slot (default: 5)
  */
 export const usePaginationQueryParams = ({
-  itemsPerPage = 10,
+  itemsPerPage,
   pagesPerSlot = 5
 }: Params): [
   PaginationQueryParams,
@@ -46,7 +46,7 @@ interface Item {
 
 interface UsePaginationParameters<T extends Item> {
   data: T[]
-  itemsPerPage?: number
+  itemsPerPage: number
   pagesPerSlot?: number
   takeQueryParams: number
   setPaginationQueryParams: (params: PaginationQueryParams) => void
@@ -59,13 +59,13 @@ interface UsePaginationParameters<T extends Item> {
  * @param data the list of items
  * @param takeQueryParams take query parameter
  * @param itemsPerPage number of items in a page
- * @param pagesPerSlot number of pages in a slot
+ * @param pagesPerSlot number of pages in a slot (default: 5)
  * @param setPaginationQueryParams the function of updating pagination query params
  */
 export const usePagination = <T extends Item>({
   data,
   takeQueryParams,
-  itemsPerPage = 10,
+  itemsPerPage,
   pagesPerSlot = 5,
   setPaginationQueryParams
 }: UsePaginationParameters<T>) => {
@@ -118,9 +118,9 @@ export const usePagination = <T extends Item>({
 
   return {
     paginatedItems,
-    pageCount,
-    currentPage: page,
     firstPage,
+    lastPage: firstPage + pageCount - 1,
+    currentPage: page,
     gotoPage,
     gotoSlot
   }

@@ -5,54 +5,81 @@ import {
   PaginationNext,
   PaginationPrevious
 } from '@/components/shadcn/pagination'
-import { getPageArray } from '@/libs/utils'
+import { cn, getPageArray } from '@/libs/utils'
+import type { ReactNode } from 'react'
 
-interface Props {
-  page: {
-    current: number
-    first: number
-    count: number
-    goto: (page: number) => void
-  }
-  slot: {
-    prev: boolean
-    next: boolean
-    goto: (direction: 'prev' | 'next') => void
-  }
-}
-
-export default function Paginator({ page, slot }: Props) {
+export function Paginator({
+  children,
+  className
+}: {
+  children: ReactNode
+  className?: string
+}) {
   return (
-    <Pagination className="py-2">
-      <PaginationContent>
-        <PaginationPrevious
-          onClick={() => {
-            slot.goto('prev')
-          }}
-          isActive={slot.prev}
-          disabled={!slot.prev}
-        />
-        <div className="flex items-center gap-1">
-          {getPageArray(page.first, page.first + page.count - 1).map((item) => (
-            <PaginationButton
-              key={item}
-              isActive={page.current === item}
-              onClick={() => {
-                page.goto(item)
-              }}
-            >
-              {item}
-            </PaginationButton>
-          ))}
-        </div>
-        <PaginationNext
-          onClick={() => {
-            slot.goto('next')
-          }}
-          isActive={slot.next}
-          disabled={!slot.next}
-        />
+    <Pagination>
+      <PaginationContent className={cn('py-2', className)}>
+        {children}
       </PaginationContent>
     </Pagination>
+  )
+}
+
+interface PageNavigationProps {
+  currentPage: number
+  firstPage: number
+  lastPage: number
+  gotoPage: (page: number) => void
+}
+
+export function PageNavigation({
+  currentPage,
+  firstPage,
+  lastPage,
+  gotoPage
+}: PageNavigationProps) {
+  return (
+    <div className="flex items-center gap-1">
+      {getPageArray(firstPage, lastPage).map((item) => (
+        <PaginationButton
+          key={item}
+          isActive={currentPage === item}
+          onClick={() => {
+            gotoPage(item)
+          }}
+        >
+          {item}
+        </PaginationButton>
+      ))}
+    </div>
+  )
+}
+
+type Direction = 'prev' | 'next'
+
+export function SlotNavigation({
+  direction,
+  disabled,
+  gotoSlot
+}: {
+  disabled: boolean
+  gotoSlot: (dir: Direction) => void
+  direction: Direction
+}) {
+  return direction === 'prev' ? (
+    <PaginationPrevious
+      onClick={() => {
+        gotoSlot('prev')
+      }}
+      isActive={!disabled}
+      disabled={disabled}
+    />
+  ) : (
+    <PaginationNext
+      onClick={() => {
+        gotoSlot('next')
+      }}
+      isActive={disabled}
+      disabled={!disabled}
+    />
   )
 }

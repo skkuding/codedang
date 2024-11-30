@@ -4,7 +4,11 @@ import SubmissionTable, {
   SubmissionTableFallback
 } from '@/app/(client)/(code-editor)/_components/SubmissionTable'
 import { submissionQueries } from '@/app/(client)/_libs/queries/submission'
-import Paginator from '@/components/PaginatorV2'
+import {
+  Paginator,
+  PageNavigation,
+  SlotNavigation
+} from '@/components/PaginatorV2'
 import {
   usePagination,
   usePaginationQueryParams
@@ -33,7 +37,7 @@ export function SubmissionPaginatedTable({ problemId }: { problemId: number }) {
     paginatedItems,
     currentPage,
     firstPage,
-    pageCount,
+    lastPage,
     gotoPage,
     gotoSlot
   } = usePagination({
@@ -50,19 +54,24 @@ export function SubmissionPaginatedTable({ problemId }: { problemId: number }) {
         columns={columns}
         getHref={(row) => `/problem/${problemId}/submission/${row.original.id}`}
       />
-      <Paginator
-        page={{
-          current: currentPage,
-          first: firstPage,
-          count: pageCount,
-          goto: gotoPage
-        }}
-        slot={{
-          prev: firstPage > 1,
-          next: (firstPage + pageCount - 1) * itemsPerPage < data.total,
-          goto: gotoSlot
-        }}
-      />
+      <Paginator>
+        <SlotNavigation
+          gotoSlot={gotoSlot}
+          direction="prev"
+          disabled={firstPage > 1}
+        />
+        <PageNavigation
+          gotoPage={gotoPage}
+          firstPage={firstPage}
+          lastPage={lastPage}
+          currentPage={currentPage}
+        />
+        <SlotNavigation
+          gotoSlot={gotoSlot}
+          direction="next"
+          disabled={lastPage * itemsPerPage < data.total}
+        />
+      </Paginator>
     </>
   )
 }
