@@ -7,14 +7,17 @@ import {
 } from '../apis/submission'
 
 export const submissionQueries = {
-  all: (contestId: number) => ['contest', contestId, 'submission'] as const,
-  lists: (contestId: number) =>
-    [...submissionQueries.all(contestId), 'list'] as const,
+  all: ({ contestId, problemId }: { contestId: number; problemId: number }) =>
+    ['submission', 'contest', contestId, { problemId }] as const,
+
+  lists: ({ contestId, problemId }: { contestId: number; problemId: number }) =>
+    [...submissionQueries.all({ contestId, problemId }), 'list'] as const,
+
   list: ({ contestId, problemId, ...searchParams }: GetSubmissionListRequest) =>
     queryOptions({
       queryKey: [
-        ...submissionQueries.lists(contestId),
-        { problemId, ...searchParams }
+        ...submissionQueries.lists({ contestId, problemId }),
+        { ...searchParams }
       ] as const,
       queryFn: () =>
         getSubmissionList({ contestId, problemId, ...searchParams })
@@ -27,10 +30,9 @@ export const submissionQueries = {
   }: GetSubmissionDetailRequest) =>
     queryOptions({
       queryKey: [
-        ...submissionQueries.all(contestId),
+        ...submissionQueries.all({ contestId, problemId }),
         'detail',
-        submissionId,
-        { problemId }
+        submissionId
       ] as const,
       queryFn: () => getSubmissionDetail({ contestId, submissionId, problemId })
     })
