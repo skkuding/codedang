@@ -21,7 +21,7 @@ import { useParams } from 'next/navigation'
 import { useState, Suspense } from 'react'
 import SubmissionDetailContent from './SubmissionDetailContent'
 
-export default function MySubmission({ problem }: { problem: ContestProblem }) {
+function MySubmissionContent({ problem }: { problem: ContestProblem }) {
   const [isTooltipOpen, setIsTooltipOpen] = useState(false)
   const { contestId: contestIdString } = useParams()
   const contestId = Number(contestIdString)
@@ -56,47 +56,53 @@ export default function MySubmission({ problem }: { problem: ContestProblem }) {
   }
 
   return (
+    <Dialog onOpenChange={() => setIsTooltipOpen(false)}>
+      <TooltipProvider>
+        <Tooltip>
+          <DialogTrigger asChild>
+            <TooltipTrigger asChild>
+              <Image
+                src={seeSubmissionIcon}
+                width={20}
+                height={20}
+                alt={'See submission'}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setIsTooltipOpen(true)
+                }}
+                onMouseEnter={() => setIsTooltipOpen(true)}
+                onMouseLeave={() => setIsTooltipOpen(false)}
+              />
+            </TooltipTrigger>
+          </DialogTrigger>
+          {isTooltipOpen && (
+            <TooltipContent className="mr-4 bg-white">
+              <p className="text-xs text-neutral-900">
+                Click to check your latest submission.
+              </p>
+              <TooltipPrimitive.Arrow className="fill-white" />
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
+      <div onClick={(e) => e.stopPropagation()}>
+        <DialogContent className="max-h-[620px] max-w-[800px] justify-center">
+          <SubmissionDetailContent
+            submission={submission}
+            submissionId={latestSubmissionId}
+            problem={problem}
+          />
+        </DialogContent>
+      </div>
+    </Dialog>
+  )
+}
+
+export default function MySubmission({ problem }: { problem: ContestProblem }) {
+  return (
     <ErrorBoundary fallback={null}>
       <Suspense fallback={<Skeleton className="size-[25px]" />}>
-        <Dialog onOpenChange={() => setIsTooltipOpen(false)}>
-          <TooltipProvider>
-            <Tooltip>
-              <DialogTrigger asChild>
-                <TooltipTrigger asChild>
-                  <Image
-                    src={seeSubmissionIcon}
-                    width={20}
-                    height={20}
-                    alt={'See submission'}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setIsTooltipOpen(true)
-                    }}
-                    onMouseEnter={() => setIsTooltipOpen(true)}
-                    onMouseLeave={() => setIsTooltipOpen(false)}
-                  />
-                </TooltipTrigger>
-              </DialogTrigger>
-              {isTooltipOpen && (
-                <TooltipContent className="mr-4 bg-white">
-                  <p className="text-xs text-neutral-900">
-                    Click to check your latest submission.
-                  </p>
-                  <TooltipPrimitive.Arrow className="fill-white" />
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
-          <div onClick={(e) => e.stopPropagation()}>
-            <DialogContent className="max-h-[620px] max-w-[800px] justify-center">
-              <SubmissionDetailContent
-                submission={submission}
-                submissionId={latestSubmissionId}
-                problem={problem}
-              />
-            </DialogContent>
-          </div>
-        </Dialog>
+        <MySubmissionContent problem={problem} />
       </Suspense>
     </ErrorBoundary>
   )
