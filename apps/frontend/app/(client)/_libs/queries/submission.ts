@@ -1,8 +1,8 @@
 import { queryOptions } from '@tanstack/react-query'
 import {
-  getSubmissions,
+  getSubmissionList,
   getSubmissionDetail,
-  type GetSubmissionsRequest,
+  type GetSubmissionListRequest,
   type GetSubmissionDetailRequest
 } from '../apis/submission'
 
@@ -10,13 +10,14 @@ export const submissionQueries = {
   all: (contestId: number) => ['contest', contestId, 'submission'] as const,
   lists: (contestId: number) =>
     [...submissionQueries.all(contestId), 'list'] as const,
-  list: ({ contestId, problemId, ...searchParams }: GetSubmissionsRequest) =>
+  list: ({ contestId, problemId, ...searchParams }: GetSubmissionListRequest) =>
     queryOptions({
       queryKey: [
         ...submissionQueries.lists(contestId),
         { problemId, ...searchParams }
       ] as const,
-      queryFn: () => getSubmissions({ contestId, problemId, ...searchParams })
+      queryFn: () =>
+        getSubmissionList({ contestId, problemId, ...searchParams })
     }),
 
   detail: ({

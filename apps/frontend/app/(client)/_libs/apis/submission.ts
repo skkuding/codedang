@@ -2,28 +2,28 @@ import { safeFetcherWithAuth } from '@/libs/utils'
 import type { Submission, SubmissionDetail } from '@/types/type'
 import type { PaginationQueryParams } from './types'
 
-export interface GetSubmissionsRequest extends PaginationQueryParams {
+export interface GetSubmissionListRequest extends PaginationQueryParams {
   contestId: number
   problemId: number
 }
 
-export interface GetSubmissionsResponse {
+export interface GetSubmissionListResponse {
   data: Submission[]
   total: number
 }
 
-export const getSubmissions = async ({
+export const getSubmissionList = async ({
   contestId,
   problemId,
   ...searchParams
-}: GetSubmissionsRequest): Promise<GetSubmissionsResponse> => {
+}: GetSubmissionListRequest): Promise<GetSubmissionListResponse> => {
   const response = await safeFetcherWithAuth.get(
     `contest/${contestId}/submission`,
     {
       searchParams: { ...searchParams, problemId }
     }
   )
-  const data = await response.json<GetSubmissionsResponse>()
+  const data = await response.json<GetSubmissionListResponse>()
   return data
 }
 
