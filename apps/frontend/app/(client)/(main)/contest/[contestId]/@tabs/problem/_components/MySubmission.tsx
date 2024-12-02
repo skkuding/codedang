@@ -37,21 +37,11 @@ function MySubmissionContent({ problem }: { problem: ContestProblem }) {
   const latestSubmission = latestSubmissionData?.data?.[0]
   const latestSubmissionId = latestSubmission?.id ?? 0
 
-  const { data: submission, isLoading: isLoadingDetail } = useQuery({
-    ...submissionQueries.detail({
-      contestId,
-      submissionId: latestSubmissionId,
-      problemId: problem.id
-    }),
-    enabled: latestSubmissionId !== 0,
-    throwOnError: true
-  })
-
-  if (isLoadingLatest || isLoadingDetail) {
+  if (isLoadingLatest) {
     return <Skeleton className="size-[25px]" />
   }
 
-  if (!submission) {
+  if (!latestSubmissionId) {
     return null
   }
 
@@ -88,7 +78,7 @@ function MySubmissionContent({ problem }: { problem: ContestProblem }) {
       <div onClick={(e) => e.stopPropagation()}>
         <DialogContent className="max-h-[620px] max-w-[800px] justify-center">
           <SubmissionDetailContent
-            submission={submission}
+            contestId={contestId}
             submissionId={latestSubmissionId}
             problem={problem}
           />
