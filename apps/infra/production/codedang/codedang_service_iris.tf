@@ -31,7 +31,7 @@ module "iris" {
   task_definition = {
     family = "Codedang-Iris-Api"
     cpu    = 512
-    memory = 512
+    memory = 1700
 
     container_definitions = jsonencode([
       jsondecode(templatefile("container_definitions/iris.json", {
