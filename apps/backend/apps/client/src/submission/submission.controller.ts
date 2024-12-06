@@ -7,7 +7,8 @@ import {
   Req,
   Query,
   DefaultValuePipe,
-  Headers
+  Headers,
+  ParseIntPipe
 } from '@nestjs/common'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
 import {
@@ -77,12 +78,14 @@ export class SubmissionController {
    */
   @Post('test')
   async submitTest(
-    @Req() req: AuthenticatedRequest,
+    // @Req() req: AuthenticatedRequest,
+    @Query('userId', ParseIntPipe) userId: number, // TODO: 로드테스트용, 테스트 후 삭제
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Body() submissionDto: CreateSubmissionDto
   ) {
     return await this.submissionService.submitTest(
-      req.user.id,
+      // req.user.id,
+      userId,
       problemId,
       submissionDto
     )
@@ -93,8 +96,9 @@ export class SubmissionController {
    * @returns Testcase별 결과가 담겨있는 Object
    */
   @Get('test')
-  async getTestResult(@Req() req: AuthenticatedRequest) {
-    return await this.submissionService.getTestResult(req.user.id)
+  // TODO: 로드테스트용, 테스트 후 삭제 (req 사용으로 되돌리기)
+  async getTestResult(@Query('userId', ParseIntPipe) userId: number) {
+    return await this.submissionService.getTestResult(userId)
   }
 
   /**
@@ -103,12 +107,13 @@ export class SubmissionController {
    */
   @Post('user-test')
   async submitUserTest(
-    @Req() req: AuthenticatedRequest,
+    // @Req() req: AuthenticatedRequest,
+    @Query('userId', ParseIntPipe) userId: number, // TODO: 로드테스트용, 테스트 후 삭제
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Body() userTestSubmissionDto: CreateUserTestSubmissionDto
   ) {
     return await this.submissionService.submitTest(
-      req.user.id,
+      userId,
       problemId,
       userTestSubmissionDto,
       true
@@ -120,8 +125,9 @@ export class SubmissionController {
    * @returns Testcase별 결과가 담겨있는 Object
    */
   @Get('user-test')
-  async getUserTestResult(@Req() req: AuthenticatedRequest) {
-    return await this.submissionService.getTestResult(req.user.id, true)
+  // TODO: 로드테스트용, 테스트 후 삭제 (req 사용으로 되돌리기)
+  async getUserTestResult(@Query('userId', ParseIntPipe) userId: number) {
+    return await this.submissionService.getTestResult(userId, true)
   }
 
   @Get('delay-cause')
