@@ -1,5 +1,6 @@
 'use client'
 
+import { submissionQueries } from '@/app/(client)/_libs/queries/submission'
 import CodeEditor from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import {
@@ -11,17 +12,30 @@ import {
   TableRow
 } from '@/components/shadcn/table'
 import { dateFormatter, getResultColor } from '@/libs/utils'
-import type { ContestProblem, Language, SubmissionDetail } from '@/types/type'
+import type { ContestProblem, Language } from '@/types/type'
+import { ErrorBoundary } from '@suspensive/react'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { Suspense } from 'react'
 
-export default function SubmissionDetailContent({
-  submissionId,
-  submission,
-  problem
-}: {
+interface SubmissionDetailProps {
+  contestId: number
   submissionId: number
-  submission: SubmissionDetail
   problem: ContestProblem
-}) {
+}
+
+function SubmissionDetail({
+  contestId,
+  submissionId,
+  problem
+}: SubmissionDetailProps) {
+  const { data: submission } = useSuspenseQuery(
+    submissionQueries.detail({
+      contestId,
+      submissionId,
+      problemId: problem.id
+    })
+  )
+
   return (
     <ScrollArea className="mt-5 max-h-[540px] w-[760px]">
       <div className="ml-20 flex w-[612px] flex-col gap-4">
@@ -119,5 +133,23 @@ export default function SubmissionDetailContent({
         </div>
       </div>
     </ScrollArea>
+  )
+}
+
+export default function SubmissionDetailContetnt({
+  contestId,
+  submissionId,
+  problem
+}: SubmissionDetailProps) {
+  return (
+    <ErrorBoundary fallback={null}>
+      <Suspense fallback={null}>
+        <SubmissionDetail
+          contestId={contestId}
+          submissionId={submissionId}
+          problem={problem}
+        />
+      </Suspense>
+    </ErrorBoundary>
   )
 }
