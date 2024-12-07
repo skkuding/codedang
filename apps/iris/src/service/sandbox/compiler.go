@@ -19,7 +19,7 @@ type CompileRequest struct {
 }
 
 type Compiler interface {
-	Compile(dto CompileRequest) (CompileResult, error)
+	Compile(dto CompileRequest, isSpecial bool) (CompileResult, error)
 }
 
 type compiler struct {
@@ -33,10 +33,10 @@ func NewCompiler(sandbox Sandbox, langConfig LangConfig, file file.FileManager, 
 	return &compiler{sandbox, langConfig, file, logger}
 }
 
-func (c *compiler) Compile(dto CompileRequest) (CompileResult, error) {
+func (c *compiler) Compile(dto CompileRequest, isSpecial bool) (CompileResult, error) {
 	dir, language := dto.Dir, dto.Language
 
-	execArgs, err := c.langConfig.ToCompileExecArgs(dir, language)
+	execArgs, err := c.langConfig.ToCompileExecArgs(dir, language, isSpecial)
 	if err != nil {
 		return CompileResult{}, err
 	}

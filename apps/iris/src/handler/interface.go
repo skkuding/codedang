@@ -13,6 +13,19 @@ type Handler interface {
 	// error mapper? (han)
 }
 
+func SpecialExitCodeToJudgeResultCode(code int) JudgeResultCode {
+	switch code {
+	case sandbox.SPECIAL_WA:
+		return WRONG_ANSWER
+	case sandbox.SPECAIL_PE:
+		return SPECIAL_PE
+	case sandbox.SPECIAL_FAIL:
+		return SYSTEM_ERROR
+	}
+
+	return ACCEPTED
+}
+
 // FIXME: use more proper name
 // FIXME: refactor
 func SandboxResultCodeToJudgeResultCode(code sandbox.ResultCode) JudgeResultCode {

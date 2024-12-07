@@ -26,3 +26,12 @@ const ( // ResultCode
 	RUNTIME_ERROR
 	SYSTEM_ERROR
 )
+
+// type SpecialExitCode int8
+
+const (
+	SPECIAL_OK int = 0 + iota
+	SPECIAL_WA
+	SPECAIL_PE
+	SPECIAL_FAIL
+)

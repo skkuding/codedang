@@ -14,6 +14,7 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
+	"github.com/skkuding/codedang/apps/iris/src/service/specialScript"
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"github.com/skkuding/codedang/apps/iris/src/utils"
 	"go.opentelemetry.io/otel"
@@ -56,6 +57,7 @@ func main() {
 
 	database := postgres.NewPostgresDataSource(ctx)
 	testcaseManager := testcase.NewTestcaseManager(database)
+	specialScriptManager := specialScript.NewSpecialScriptManager(database)
 
 	fileManager := file.NewFileManager("/app/sandbox/results")
 	langConfig := sandbox.NewLangConfig(fileManager, "/app/sandbox/policy/java_policy")
@@ -68,6 +70,7 @@ func main() {
 		compiler,
 		runner,
 		testcaseManager,
+		specialScriptManager,
 		langConfig,
 		fileManager,
 		logProvider,

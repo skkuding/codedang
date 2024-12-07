@@ -3,6 +3,7 @@ package router
 import (
 	"fmt"
 
+	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/handler"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 )
@@ -39,10 +40,11 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte) {
 	judgeChan := make(chan handler.JudgeResultMessage)
 	switch path {
 	case Judge:
-		go r.judgeHandler.Handle(id, data, true, judgeChan)
-	case Run, UserTestCase:
-		go r.judgeHandler.Handle(id, data, false, judgeChan)
+		go r.judgeHandler.Handle(id, data, constants.T_Judge, judgeChan)
 	case SpecialJudge:
+		go r.judgeHandler.Handle(id, data, constants.T_SpecialJudge, judgeChan)
+	case Run, UserTestCase:
+		go r.judgeHandler.Handle(id, data, constants.T_Run, judgeChan)
 	default:
 		err := fmt.Errorf("invalid request type: %s", path)
 		r.errHandle(err)

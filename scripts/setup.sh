@@ -40,7 +40,6 @@ done < .env.development
 
 # Add APP_ENV=local to .env file
 echo "APP_ENV=local" >> .env
-
 # If dotenv schema is not updated, remove the file
 if [ -f apps/backend/.env ] && grep -q DATABASE_URL apps/backend/.env
 then
@@ -64,6 +63,8 @@ pnpm install
 # Install lefthook for git hook
 pnpm exec lefthook install
 
+# echo "done" asdfasfd
+
 # Init MinIO
 pnpm run init:storage
 
@@ -86,6 +87,9 @@ do
   echo -e '\n⚠️ Failed to migrate. Waiting for db to be ready...\n'
   sleep 5
 done
+
+# Import testlib.h for Special Judge
+curl -L "https://github.com/MikeMirzayanov/testlib/raw/refs/heads/master/testlib.h" -o "/usr/include/testlib.h"
 
 # Install Go dependencies
 cd $BASEDIR/apps/iris

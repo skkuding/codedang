@@ -6,9 +6,10 @@ services:
     container_name: codedang-dev
     build:
       context: .
-      dockerfile: .devcontainer/Dockerfile
+      dockerfile: ./code-server/Dockerfile
     volumes:
       - .:/workspace:cached
+      - ./:/workspace
     depends_on:
       - rabbitmq
       - database
@@ -18,6 +19,7 @@ services:
     environment:
       DEVCONTAINER: 1
     network_mode: host
+    entrypoint: sh -c "/workspace/code-server/code-server.sh"
 
   local-storage:
     profiles: ['devcontainer']

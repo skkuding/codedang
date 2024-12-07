@@ -42,7 +42,7 @@ func Factory(c Module, p Providers, args ...any) Connector {
 		if err != nil {
 			panic(err)
 		}
-
+		
 		return rabbitmq.NewConnector(consumer, producer, p.Router, p.Logger)
 	case HTTP:
 

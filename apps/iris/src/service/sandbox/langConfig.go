@@ -44,23 +44,28 @@ type config struct {
 }
 
 type LangConfig interface {
-	GetConfig(language Language) (config, error)
-	MakeSrcPath(dir string, language Language) (string, error)
-	ToCompileExecArgs(dir string, language Language) (ExecArgs, error)
-	ToRunExecArgs(dir string, language Language, order int, limit Limit, fileIo bool) (ExecArgs, error)
+	GetConfig(language Language, isSpecial bool) (config, error)
+	MakeSrcPath(dir string, language Language, isSpecial bool) (string, error)
+	ToCompileExecArgs(dir string, language Language, isSpecial bool) (ExecArgs, error)
+	ToRunExecArgs(dir string, language Language, order int, limit Limit, fileIo bool, isSpecial bool, idx int) (ExecArgs, error)
 }
 
 type langConfig struct {
-	cConfig    config
-	cppConfig  config
-	javaConfig config
-	pyConfig   config
-	file       file.FileManager
+	cConfig           config
+	cppConfig         config
+	javaConfig        config
+	pyConfig          config
+	cSpecialConfig    config
+	cppSpecialConfig  config
+	javaSpecialConfig config
+	pySpecialConfig   config
+	file              file.FileManager
 }
 
 func NewLangConfig(file file.FileManager, javaPolicyPath string) *langConfig {
 	defaultEnv := []string{"LANG=en_US.UTF-8", "LANGUAGE=en_US:en", "LC_ALL=en_US.UTF-8"}
-	var cConfig = config{
+
+	cConfig := config{
 		Language:           C,
 		SrcName:            "main.c",
 		ExeName:            "main",
@@ -79,7 +84,11 @@ func NewLangConfig(file file.FileManager, javaPolicyPath string) *langConfig {
 		env:                   defaultEnv,
 	}
 
-	var cppConfig = config{
+	cSpecialConfig := cConfig
+	cSpecialConfig.SrcName = "judge.c"
+	cSpecialConfig.ExeName = "judge"
+
+	cppConfig := config{
 		Language:           CPP,
 		SrcName:            "main.cpp",
 		ExeName:            "main",
@@ -98,7 +107,12 @@ func NewLangConfig(file file.FileManager, javaPolicyPath string) *langConfig {
 		env:                   defaultEnv,
 	}
 
-	var javaConfig = config{
+	cppSpecialConfig := cppConfig
+	cppSpecialConfig.SrcName = "judge.cpp"
+	cppSpecialConfig.ExeName = "judge"
+	// cppSpecialConfig.CompileArgs += "-I/usr/include/testlib.h"
+
+	javaConfig := config{
 		Language:           JAVA,
 		SrcName:            "Main.java",
 		ExeName:            "Main",
@@ -121,7 +135,11 @@ func NewLangConfig(file file.FileManager, javaPolicyPath string) *langConfig {
 		env:                   defaultEnv,
 	}
 
-	var pyConfig = config{
+	javaSpecialConfig := javaConfig
+	javaSpecialConfig.SrcName = "Judge.java"
+	javaSpecialConfig.ExeName = "Judge"
+
+	pyConfig := config{
 		Language: PYTHON,
 		SrcName:  "solution.py",
 		// [IMPORTANT] 도커 이미지 변경 시 파이썬 버전도 변경 필요함
@@ -138,33 +156,57 @@ func NewLangConfig(file file.FileManager, javaPolicyPath string) *langConfig {
 		env:                   append(defaultEnv, "PYTHONIOENCODING=utf-8"),
 	}
 
+	pySpecialConfig := pyConfig
+	pySpecialConfig.SrcName = "judge.py"
+	pySpecialConfig.ExeName = "__pycache__/judge.cpython-312.pyc"
+
 	return &langConfig{
-		cConfig:    cConfig,
-		cppConfig:  cppConfig,
-		javaConfig: javaConfig,
-		pyConfig:   pyConfig,
-		file:       file,
+		cConfig:           cConfig,
+		cppConfig:         cppConfig,
+		javaConfig:        javaConfig,
+		pyConfig:          pyConfig,
+		cSpecialConfig:    cSpecialConfig,
+		cppSpecialConfig:  cppSpecialConfig,
+		javaSpecialConfig: javaSpecialConfig,
+		pySpecialConfig:   pySpecialConfig,
+		file:              file,
 	}
 }
 
-func (l *langConfig) GetConfig(language Language) (config, error) {
-	switch language {
-	case C:
-		return l.cConfig, nil
-	case CPP:
-		return l.cppConfig, nil
-	case JAVA:
-		return l.javaConfig, nil
-	// case PYTHON2:
-	// 	return py2Config, nil
-	case PYTHON:
-		return l.pyConfig, nil
+// hereer with main.go make newconfig ...
+func (l *langConfig) GetConfig(language Language, isSpecial bool) (config, error) {
+	if !isSpecial {
+		switch language {
+		case C:
+			return l.cConfig, nil
+		case CPP:
+			return l.cppConfig, nil
+		case JAVA:
+			return l.javaConfig, nil
+		// case PYTHON2:
+		// 	return py2Config, nil
+		case PYTHON:
+			return l.pyConfig, nil
+		}
+	} else {
+		switch language {
+		case C:
+			return l.cSpecialConfig, nil
+		case CPP:
+			return l.cppSpecialConfig, nil
+		case JAVA:
+			return l.javaSpecialConfig, nil
+		// case PYTHON2:
+		// 	return py2Config, nil
+		case PYTHON:
+			return l.pySpecialConfig, nil
+		}
 	}
 	return config{}, fmt.Errorf("unsupported language: %s", language)
 }
 
-func (l *langConfig) MakeSrcPath(dir string, language Language) (string, error) {
-	c, err := l.GetConfig(language)
+func (l *langConfig) MakeSrcPath(dir string, language Language, isSpecial bool) (string, error) {
+	c, err := l.GetConfig(language, isSpecial)
 	if err != nil {
 		return "", err
 	}
@@ -187,8 +229,8 @@ func (l *langConfig) MakeSrcPath(dir string, language Language) (string, error) 
 // 	return file.MakeFilePath(dir, strconv.Itoa(order)+".error").String()
 // }
 
-func (l *langConfig) ToCompileExecArgs(dir string, language Language) (ExecArgs, error) {
-	c, err := l.GetConfig(language)
+func (l *langConfig) ToCompileExecArgs(dir string, language Language, isSpecial bool) (ExecArgs, error) {
+	c, err := l.GetConfig(language, isSpecial)
 	if err != nil {
 		return ExecArgs{}, err
 	}
@@ -222,19 +264,32 @@ func (l *langConfig) ToCompileExecArgs(dir string, language Language) (ExecArgs,
 	}, nil
 }
 
-func (l *langConfig) ToRunExecArgs(dir string, language Language, order int, limit Limit, fileIo bool) (ExecArgs, error) {
-	c, err := l.GetConfig(language)
+func (l *langConfig) ToRunExecArgs(dir string, language Language, order int, limit Limit, fileIo bool, isSpecial bool, idx int) (ExecArgs, error) {
+	c, err := l.GetConfig(language, isSpecial)
 	if err != nil {
 		return ExecArgs{}, err
 	}
 
 	exePath := l.file.MakeFilePath(dir, c.ExeName).String()
 	exeDir := l.file.MakeFilePath(dir, "").String()
-	outputPath := l.file.MakeFilePath(dir, strconv.Itoa(order)+".out").String()
-	errorPath := l.file.MakeFilePath(dir, strconv.Itoa(order)+".error").String()
+	var outputPath, errorPath string
+	if !isSpecial {
+		outputPath = l.file.MakeFilePath(dir, strconv.Itoa(order)+".out").String()
+		errorPath = l.file.MakeFilePath(dir, strconv.Itoa(order)+".error").String()
+	} else {
+		outputPath = l.file.MakeFilePath(dir, strconv.Itoa(order)+".spout").String()
+		errorPath = l.file.MakeFilePath(dir, strconv.Itoa(order)+".sperror").String()
+	}
 
 	// run args 설정
-	args := strings.Replace(c.RunArgs, "{maxMemory}", strconv.Itoa(limit.Memory), 1)
+	var args string
+	if isSpecial {
+		args += l.file.MakeFilePath(dir, strconv.Itoa(idx)+".in ").String()
+		args += l.file.MakeFilePath(dir, strconv.Itoa(idx)+".out ").String()
+		args += l.file.MakeFilePath(dir, strconv.Itoa(idx)+".ans").String()
+	}
+	args += c.RunArgs
+	args = strings.Replace(args, "{maxMemory}", strconv.Itoa(limit.Memory), 1)
 	args = strings.Replace(args, "{exePath}", exePath, 1)
 	args = strings.Replace(args, "{exeDir}", exeDir, 1)
 

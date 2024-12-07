@@ -9,6 +9,10 @@ func Grade(answer []byte, output []byte) bool {
 	return bytes.Equal(TrimWhitespaceBeforeNewline(answer), TrimWhitespaceBeforeNewline(output))
 }
 
+func SpecialGrade(){
+
+}
+
 func TrimWhitespaceBeforeNewline(a []byte) []byte {
 	sep := []byte("\n")
 	b := bytes.Split(bytes.TrimRightFunc(a, unicode.IsSpace), sep)

@@ -72,6 +72,7 @@ func (c *connector) Disconnect() {}
 func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 
 	resultChan := make(chan []byte)
+
 	if message.Type == "" {
 		resultChan <- router.NewResponse("", nil, fmt.Errorf("type(message property) must not be empty")).Marshal()
 		close(resultChan)

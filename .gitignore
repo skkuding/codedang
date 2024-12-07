@@ -1,3 +1,8 @@
+### Code-Server ###
+code-server/git.sh
+code-server/.env.development
+
+
 ### Node ###
 # Logs
 logs

@@ -1,0 +1,5 @@
+bind-addr: 0.0.0.0:1234
+# bind-addr: 127.0.0.1:1234
+auth: password
+password: codedang 
+cert: false

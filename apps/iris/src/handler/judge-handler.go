@@ -15,6 +15,7 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/grader"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
+	"github.com/skkuding/codedang/apps/iris/src/service/specialScript"
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"github.com/skkuding/codedang/apps/iris/src/utils"
 	"go.opentelemetry.io/otel"
@@ -23,15 +24,17 @@ import (
 )
 
 type Request struct {
-	Code          string            `json:"code"`
-	Language      string            `json:"language"`
-	ProblemId     int               `json:"problemId"`
-	TimeLimit     int               `json:"timeLimit"`
-	MemoryLimit   int               `json:"memoryLimit"`
-	UserTestcases *[]loader.Element `json:"userTestcases,omitempty"` // 사용자 테스트 케이스
+	Code            string            `json:"code"`
+	Language        string            `json:"language"`
+	SpecialLanguage string            `json:"specialLanguage"`
+	SpecialCode     string            `json:"specialCode"`
+	ProblemId       int               `json:"problemId"`
+	TimeLimit       int               `json:"timeLimit"`
+	MemoryLimit     int               `json:"memoryLimit"`
+	UserTestcases   *[]loader.Element `json:"userTestcases,omitempty"` // 사용자 테스트 케이스
 }
 
-func (r Request) Validate() (*Request, error) {
+func (r Request) Validate(execType constants.ExecType) (*Request, error) {
 	if r.Code == "" {
 		return nil, fmt.Errorf("code must not be empty")
 	}
@@ -49,6 +52,12 @@ func (r Request) Validate() (*Request, error) {
 	}
 	if r.MemoryLimit <= 0 {
 		return nil, fmt.Errorf("memoryLimit must not be empty or less than 0")
+	}
+	if execType == constants.T_SpecialJudge && r.SpecialLanguage == "" {
+		return nil, fmt.Errorf("spcialLanguage must not be empty")
+	}
+	if execType == constants.T_SpecialJudge && r.SpecialCode == "" {
+		return nil, fmt.Errorf("spcialCode must not be empty")
 	}
 	return &r, nil
 }
@@ -110,21 +119,25 @@ const (
 	RUNTIME_ERROR
 	SYSTEM_ERROR
 	SEGMENATION_FAULT
+	SPECIAL_PE
+	SPECIAL_FAIL
 )
 
 type JudgeHandler struct {
-	compiler        sandbox.Compiler
-	runner          sandbox.Runner
-	testcaseManager testcase.TestcaseManager
-	langConfig      sandbox.LangConfig
-	file            file.FileManager
-	logger          logger.Logger
+	compiler             sandbox.Compiler
+	runner               sandbox.Runner
+	testcaseManager      testcase.TestcaseManager
+	specialScriptManager specialScript.SpecialScriptManager
+	langConfig           sandbox.LangConfig
+	file                 file.FileManager
+	logger               logger.Logger
 }
 
 func NewJudgeHandler(
 	compiler sandbox.Compiler,
 	runner sandbox.Runner,
 	testcaseManager testcase.TestcaseManager,
+	specialScriptManager specialScript.SpecialScriptManager,
 	langConfig sandbox.LangConfig,
 	file file.FileManager,
 	logger logger.Logger,
@@ -133,6 +146,7 @@ func NewJudgeHandler(
 		compiler,
 		runner,
 		testcaseManager,
+		specialScriptManager,
 		langConfig,
 		file,
 		logger,
@@ -140,7 +154,8 @@ func NewJudgeHandler(
 }
 
 // handle top layer logical flow
-func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan JudgeResultMessage) {
+// func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan JudgeResultMessage) {
+func (j *JudgeHandler) Handle(id string, data []byte, execType constants.ExecType, out chan JudgeResultMessage) {
 	startedAt := time.Now()
 	tracer := otel.Tracer("Handle Tracer")
 	handleCtx, span := tracer.Start(
@@ -153,6 +168,9 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 		),
 	)
 	defer span.End()
+
+	isSpecial := execType == constants.T_SpecialJudge || execType == constants.T_SpecialRun
+	isRun := execType == constants.T_Run || execType == constants.T_SpecialRun
 
 	//TODO: validation logic here
 	req := Request{}
@@ -168,7 +186,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 		close(out)
 		return
 	}
-	validReq, err := req.Validate()
+	validReq, err := req.Validate(execType)
 	if err != nil {
 		out <- JudgeResultMessage{nil, &HandlerError{
 			caller:  "request validate",
@@ -182,7 +200,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 
 	dir := utils.RandString(constants.DIR_NAME_LEN) + id
 	defer func() {
-		j.file.RemoveDir(dir)
+		// j.file.RemoveDir(dir)
 		close(out)
 		j.logger.Log(logger.DEBUG, fmt.Sprintf("task %s done: total time: %s", dir, time.Since(startedAt)))
 	}()
@@ -197,7 +215,8 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 		return
 	}
 
-	srcPath, err := j.langConfig.MakeSrcPath(dir, sandbox.Language(validReq.Language))
+	srcPath, err := j.langConfig.MakeSrcPath(dir, sandbox.Language(validReq.Language), false)
+	j.logger.Log(logger.DEBUG, srcPath)
 	if err != nil {
 		out <- JudgeResultMessage{nil, &HandlerError{
 			caller:  "handle",
@@ -218,16 +237,53 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 		return
 	}
 
+	compileOutCh := make(chan result.ChResult)
+	go j.compile(handleCtx, compileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.Language)}, false)
+
 	var tc testcase.Testcase
+	testcaseOutCh := make(chan result.ChResult)
 
 	if req.UserTestcases != nil {
 		tc = testcase.Testcase{Elements: *req.UserTestcases}
 	} else {
-		testcaseOutCh := make(chan result.ChResult)
-		go j.getTestcase(handleCtx, testcaseOutCh, strconv.Itoa(validReq.ProblemId), hidden)
+		go j.getTestcase(handleCtx, testcaseOutCh, strconv.Itoa(validReq.ProblemId), isRun)
+	}
 
+	ssCompileOutCh := make(chan result.ChResult)
+	if isSpecial {
+		ssPath, err := j.langConfig.MakeSrcPath(dir, sandbox.Language(validReq.SpecialLanguage), true)
+		j.logger.Log(logger.DEBUG, ssPath)
+		if err != nil {
+			out <- JudgeResultMessage{nil, &HandlerError{
+				caller:  "handle",
+				err:     fmt.Errorf("creating specialScript src path: %w", err),
+				level:   logger.ERROR,
+				Message: err.Error(),
+			}}
+			return
+		}
+
+		if err := j.file.CreateFile(ssPath, validReq.SpecialCode); err != nil {
+			out <- JudgeResultMessage{nil, &HandlerError{
+				caller:  "handle",
+				err:     fmt.Errorf("creating specialScript src file: %w", err),
+				level:   logger.ERROR,
+				Message: err.Error(),
+			}}
+			return
+		}
+
+		go j.compile(handleCtx, ssCompileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.SpecialLanguage)}, true)
+	}
+
+	compileResult := validateCompile(compileOutCh)
+	if compileResult.Err != nil {
+		out <- compileResult
+		return
+	}
+
+	if req.UserTestcases == nil {
 		testcaseOut := <-testcaseOutCh
-
 		if testcaseOut.Err != nil {
 			out <- JudgeResultMessage{nil, &HandlerError{
 				caller:  "handle",
@@ -251,42 +307,18 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 		}
 	}
 
-	compileOutCh := make(chan result.ChResult)
-	go j.compile(handleCtx, compileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.Language)})
-
-	compileOut := <-compileOutCh
-
-	if compileOut.Err != nil {
-		// 컴파일러 실행 과정이나 이후 처리 과정에서 오류가 생긴 경우
-		out <- JudgeResultMessage{nil, &HandlerError{
-			caller: "handle",
-			err:    fmt.Errorf("%w: %s", ErrSandbox, compileOut.Err),
-			level:  logger.ERROR,
-		}}
-		return
-	}
-	compileResult, ok := compileOut.Data.(sandbox.CompileResult)
-	if !ok {
-		out <- JudgeResultMessage{nil, &HandlerError{
-			caller: "handle",
-			err:    fmt.Errorf("%w: CompileResult", ErrTypeAssertionFail),
-			level:  logger.INFO,
-		}}
-		return
-	}
-	if compileResult.ExecResult.ResultCode != sandbox.SUCCESS {
-		// 컴파일러를 실행했으나 컴파일에 실패한 경우
-		// FIXME: 함수로 분리
-		out <- JudgeResultMessage{nil, &HandlerError{
-			err: ErrCompile, Message: compileResult.ErrOutput,
-		}}
-		return
+	if isSpecial {
+		ssCompileResult := validateCompile(ssCompileOutCh)
+		if ssCompileResult.Err != nil {
+			out <- ssCompileResult
+			return
+		}
 	}
 
 	tcNum := tc.Count()
 	cnt := make(chan int)
 	for i := 0; i < tcNum; i++ {
-		go j.judgeTestcase(i, dir, validReq, tc.Elements[i], out, cnt)
+		go j.judgeTestcase(i, dir, validReq, tc.Elements[i], out, cnt, isSpecial)
 	}
 
 	for i := 0; i < tcNum; i++ {
@@ -295,26 +327,54 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 }
 
 // wrapper to use goroutine
-func (j *JudgeHandler) compile(traceCtx context.Context, out chan<- result.ChResult, dto sandbox.CompileRequest) {
+func (j *JudgeHandler) compile(traceCtx context.Context, out chan<- result.ChResult, dto sandbox.CompileRequest, isSpecial bool) {
 	tracer := otel.Tracer("Compile Tracer")
 	_, span := tracer.Start(traceCtx, "go:goroutine:compile")
 	defer span.End()
 
-	res, err := j.compiler.Compile(dto)
+	res, err := j.compiler.Compile(dto, isSpecial)
 	if err != nil {
 		out <- result.ChResult{Err: err}
 		return
 	}
 	out <- result.ChResult{Data: res}
+}
+
+func validateCompile(compileOutCh <-chan result.ChResult) JudgeResultMessage {
+	compileOut := <-compileOutCh
+	if compileOut.Err != nil {
+		// 컴파일러 실행 과정이나 이후 처리 과정에서 오류가 생긴 경우
+		return JudgeResultMessage{nil, &HandlerError{
+			caller: "handle",
+			err:    fmt.Errorf("%w: %s", ErrSandbox, compileOut.Err),
+			level:  logger.ERROR,
+		}}
+	}
+	compileResult, ok := compileOut.Data.(sandbox.CompileResult)
+	if !ok {
+		return JudgeResultMessage{nil, &HandlerError{
+			caller: "handle",
+			err:    fmt.Errorf("%w: CompileResult", ErrTypeAssertionFail),
+			level:  logger.INFO,
+		}}
+	}
+	if compileResult.ExecResult.ResultCode != sandbox.SUCCESS {
+		// 컴파일러를 실행했으나 컴파일에 실패한 경우
+		// FIXME: 함수로 분리
+		return JudgeResultMessage{nil, &HandlerError{
+			err: ErrCompile, Message: compileResult.ErrOutput,
+		}}
+	}
+
+	return JudgeResultMessage{nil, nil}
 }
 
 // wrapper to use goroutine
-func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.ChResult, problemId string, hidden bool) {
+func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.ChResult, problemId string, isRun bool) {
 	tracer := otel.Tracer("GetTestcase Tracer")
 	_, span := tracer.Start(traceCtx, "go:goroutine:getTestcase")
 	defer span.End()
-
-	res, err := j.testcaseManager.GetTestcase(problemId, hidden)
+	res, err := j.testcaseManager.GetTestcase(problemId, !isRun)
 
 	if err != nil {
 		out <- result.ChResult{Err: err}
@@ -323,10 +383,28 @@ func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.C
 	out <- result.ChResult{Data: res}
 }
 
-func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
-	tc loader.Element, out chan JudgeResultMessage, cnt chan int) {
+func (j *JudgeHandler) createSpecialFiles(idx int, dir string, input string, answer string) error {
+	inputPath, err := j.file.MakeInPath(dir, idx)
+	if err != nil {
+		return fmt.Errorf("input: %w", err)
+	}
+	if err := j.file.CreateFile(inputPath, input); err != nil {
+		return fmt.Errorf("input: %w", err)
+	}
 
-	var accepted bool
+	ansPath, err := j.file.MakeAnsPath(dir, idx)
+	if err != nil {
+		return fmt.Errorf("answer: %w", err)
+	}
+	if err := j.file.CreateFile(ansPath, answer); err != nil {
+		return fmt.Errorf("answer: %w", err)
+	}
+
+	return nil
+}
+
+func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
+	tc loader.Element, out chan JudgeResultMessage, cnt chan int, isSpecial bool) {
 
 	res := JudgeResult{}
 
@@ -338,8 +416,7 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 		Language:    sandbox.Language(validReq.Language),
 		TimeLimit:   validReq.TimeLimit,
 		MemoryLimit: validReq.MemoryLimit,
-	}, []byte(tc.In))
-
+	}, []byte(tc.In), false, idx)
 	if err != nil {
 		j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
 		res.ResultCode = SYSTEM_ERROR
@@ -356,15 +433,38 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 		goto Send
 	}
 
-	// 하나당 약 50microsec 10개 채점시 500microsec.
-	// output이 커지면 더 길어짐 -> FIXME: 최적화 과정에서 goroutine으로 수정
-	// st := time.Now()
-	accepted = grader.Grade([]byte(tc.Out), runResult.Output)
-
-	if accepted {
+	if !isSpecial && grader.Grade([]byte(tc.Out), runResult.Output) {
 		res.SetJudgeResultCode(ACCEPTED)
-	} else {
+	} else if !isSpecial {
 		res.SetJudgeResultCode(WRONG_ANSWER)
+	} else {
+		if err := j.createSpecialFiles(idx, dir, tc.In, tc.Out); err != nil {
+			j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
+			res.ResultCode = SYSTEM_ERROR
+			res.Error = "Cannot create files for special judge"
+			goto Send
+		}
+
+		specialResult, err := j.runner.Run(sandbox.RunRequest{
+			Order:       idx,
+			Dir:         dir,
+			Language:    sandbox.Language(validReq.Language),
+			TimeLimit:   constants.MAX_SPECIAL_TIME,
+			MemoryLimit: constants.MAX_SPECIAL_MEMORY,
+		}, []byte(nil), true, idx)
+		if err != nil {
+			j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
+			res.ResultCode = SYSTEM_ERROR
+			res.Error = string(specialResult.ErrOutput)
+			goto Send
+		}
+
+		if specialResult.ExecResult.ResultCode != sandbox.RUN_SUCCESS {
+			res.Error = string(specialResult.ErrOutput)
+			res.SetJudgeResultCode(SpecialExitCodeToJudgeResultCode(specialResult.ExecResult.ExitCode))
+		} else {
+			res.SetJudgeResultCode(ACCEPTED)
+		}
 	}
 
 	// TODO: ChResult 구조체 활용

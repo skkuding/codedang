@@ -53,3 +53,16 @@ const (
 	EXCHANGE   = "judger-exchange"
 	RESULT_KEY = "result"
 )
+
+type ExecType uint
+
+const (
+	T_Judge ExecType = iota
+	T_Run
+	T_SpecialJudge
+	T_SpecialRun
+)
+
+// To be changed
+const MAX_SPECIAL_MEMORY = 256 * 1024 * 1024
+const MAX_SPECIAL_TIME = 10000

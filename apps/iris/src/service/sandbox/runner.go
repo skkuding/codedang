@@ -24,7 +24,7 @@ type RunRequest struct {
 }
 
 type Runner interface {
-	Run(dto RunRequest, input []byte) (RunResult, error)
+	Run(dto RunRequest, input []byte, isSpecial bool, idx int) (RunResult, error)
 }
 
 type runner struct {
@@ -38,7 +38,7 @@ func NewRunner(sandbox Sandbox, langConfig LangConfig, file file.FileManager, lo
 	return &runner{sandbox, langConfig, file, logger}
 }
 
-func (r *runner) Run(req RunRequest, input []byte) (RunResult, error) {
+func (r *runner) Run(req RunRequest, input []byte, isSpecial bool, idx int) (RunResult, error) {
 
 	execArgs, err := r.langConfig.ToRunExecArgs(
 		req.Dir,
@@ -49,7 +49,7 @@ func (r *runner) Run(req RunRequest, input []byte) (RunResult, error) {
 			RealTime: req.TimeLimit * 3,
 			Memory:   req.MemoryLimit,
 		},
-		false,
+		false, isSpecial, idx,
 	)
 	if err != nil {
 		return RunResult{}, err
@@ -70,8 +70,14 @@ func (r *runner) Run(req RunRequest, input []byte) (RunResult, error) {
 	}
 
 	orderStr := strconv.Itoa(req.Order)
+	var errExtension string
+	if !isSpecial {
+		errExtension = ".error"
+	} else {
+		errExtension = ".sperror"
+	}
 	if execResult.ResultCode != RUN_SUCCESS {
-		errorPath := r.file.MakeFilePath(req.Dir, orderStr+".error").String()
+		errorPath := r.file.MakeFilePath(req.Dir, orderStr+errExtension).String()
 		errData, err := r.file.ReadFile(errorPath)
 		if err != nil {
 			return runResult, fmt.Errorf("reading error output file: %w", err)
