@@ -351,9 +351,8 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 	res.SetJudgeExecResult(runResult.ExecResult)
 	res.Output = string(runResult.Output)
 
-	// Output이 1000자를 넘어가는 경우 1000자까지만 사용
-	if len(res.Output) > 1000 {
-		res.Output = res.Output[:1000]
+	if len(res.Output) > constants.MAX_OUTPUT {
+		res.Output = res.Output[:constants.MAX_OUTPUT]
 	}
 
 	if runResult.ExecResult.ResultCode != sandbox.RUN_SUCCESS {
