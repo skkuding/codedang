@@ -12,7 +12,7 @@ module "codedang_iris" {
   autoscaling_group = {
     name             = "Codedang-AutoScalingGroup-Iris"
     max_size         = 4
-    desired_capacity = 1
+    desired_capacity = 2
   }
 
   autoscaling_policy = {
