@@ -284,13 +284,9 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 	}
 
 	tcNum := tc.Count()
-	cnt := make(chan int)
 	for i := 0; i < tcNum; i++ {
-		go j.judgeTestcase(i, dir, validReq, tc.Elements[i], out, cnt)
-	}
-
-	for i := 0; i < tcNum; i++ {
-		<-cnt
+		j.judgeTestcase(i, dir, validReq, tc.Elements[i], out)
+		// j.logger.Log(logger.DEBUG, fmt.Sprintf("Testcase %d judged", i))
 	}
 }
 
@@ -324,7 +320,7 @@ func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.C
 }
 
 func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
-	tc loader.Element, out chan JudgeResultMessage, cnt chan int) {
+	tc loader.Element, out chan JudgeResultMessage) {
 
 	var accepted bool
 
@@ -376,5 +372,4 @@ Send:
 		// j.logger.Log(logger.DEBUG, string(marshaledRes))
 		out <- JudgeResultMessage{marshaledRes, ParseError(res)}
 	}
-	cnt <- 1
 }
