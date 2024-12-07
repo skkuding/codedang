@@ -53,3 +53,6 @@ const (
 	EXCHANGE   = "judger-exchange"
 	RESULT_KEY = "result"
 )
+
+const DEFAULT_UID = 65534 // nobody user
+const DEFAULT_GID = 65534 // nobody group

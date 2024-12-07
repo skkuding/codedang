@@ -262,6 +262,8 @@ func (l *langConfig) ToRunExecArgs(dir string, language Language, order int, lim
 		ErrorPath:       errorPath, // byte buffer로
 		LogPath:         constants.RUN_LOG_PATH,
 		SeccompRuleName: c.SeccompRule,
+		Uid:             constants.DEFAULT_UID,
+		Gid:             constants.DEFAULT_GID,
 		Args:            argSlice,
 	}, nil
 }
