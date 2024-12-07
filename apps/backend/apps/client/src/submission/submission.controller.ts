@@ -7,8 +7,7 @@ import {
   Req,
   Query,
   DefaultValuePipe,
-  Headers,
-  ParseIntPipe
+  Headers
 } from '@nestjs/common'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
 import {
@@ -78,14 +77,12 @@ export class SubmissionController {
    */
   @Post('test')
   async submitTest(
-    // @Req() req: AuthenticatedRequest,
-    @Query('userId', ParseIntPipe) userId: number, // TODO: 로드테스트용, 테스트 후 삭제
+    @Req() req: AuthenticatedRequest,
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Body() submissionDto: CreateSubmissionDto
   ) {
     return await this.submissionService.submitTest(
-      // req.user.id,
-      userId,
+      req.user.id,
       problemId,
       submissionDto
     )
@@ -96,9 +93,8 @@ export class SubmissionController {
    * @returns Testcase별 결과가 담겨있는 Object
    */
   @Get('test')
-  // TODO: 로드테스트용, 테스트 후 삭제 (req 사용으로 되돌리기)
-  async getTestResult(@Query('userId', ParseIntPipe) userId: number) {
-    return await this.submissionService.getTestResult(userId)
+  async getTestResult(@Req() req: AuthenticatedRequest) {
+    return await this.submissionService.getTestResult(req.user.id)
   }
 
   /**
@@ -107,13 +103,12 @@ export class SubmissionController {
    */
   @Post('user-test')
   async submitUserTest(
-    // @Req() req: AuthenticatedRequest,
-    @Query('userId', ParseIntPipe) userId: number, // TODO: 로드테스트용, 테스트 후 삭제
+    @Req() req: AuthenticatedRequest,
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Body() userTestSubmissionDto: CreateUserTestSubmissionDto
   ) {
     return await this.submissionService.submitTest(
-      userId,
+      req.user.id,
       problemId,
       userTestSubmissionDto,
       true
@@ -125,9 +120,8 @@ export class SubmissionController {
    * @returns Testcase별 결과가 담겨있는 Object
    */
   @Get('user-test')
-  // TODO: 로드테스트용, 테스트 후 삭제 (req 사용으로 되돌리기)
-  async getUserTestResult(@Query('userId', ParseIntPipe) userId: number) {
-    return await this.submissionService.getTestResult(userId, true)
+  async getUserTestResult(@Req() req: AuthenticatedRequest) {
+    return await this.submissionService.getTestResult(req.user.id, true)
   }
 
   @Get('delay-cause')
