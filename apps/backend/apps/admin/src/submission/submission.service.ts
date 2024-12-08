@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common'
+import type { Prisma } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { Language, ResultStatus } from '@admin/@generated'
 import { Snippet } from '@admin/problem/model/template.input'
+import { ContestSubmissionOrder } from './enum/contest-submission-order.enum'
 import type { GetContestSubmissionsInput } from './model/get-contest-submission.input'
 
 @Injectable()
@@ -13,7 +15,8 @@ export class SubmissionService {
   async getContestSubmissions(
     input: GetContestSubmissionsInput,
     take: number,
-    cursor: number | null
+    cursor: number | null,
+    order: ContestSubmissionOrder | null
   ) {
     const paginator = this.prisma.getPaginator(cursor)
 
@@ -59,7 +62,8 @@ export class SubmissionService {
             }
           }
         }
-      }
+      },
+      orderBy: order ? this.getOrderBy(order) : undefined
     })
 
     const results = contestSubmissions.map((c) => {
@@ -82,6 +86,33 @@ export class SubmissionService {
     })
 
     return results
+  }
+
+  getOrderBy(
+    order: ContestSubmissionOrder
+  ): Prisma.SubmissionOrderByWithRelationInput {
+    const [attr, value] = order.split('-')
+
+    switch (order) {
+      case ContestSubmissionOrder.studentIdASC:
+      case ContestSubmissionOrder.studentIdDESC:
+      case ContestSubmissionOrder.usernameASC:
+      case ContestSubmissionOrder.usernameDESC:
+        return {
+          user: {
+            [attr]: value
+          }
+        }
+      case ContestSubmissionOrder.realNameASC:
+      case ContestSubmissionOrder.realNameDESC:
+        return {
+          user: {
+            userProfile: {
+              [attr]: value
+            }
+          }
+        }
+    }
   }
 
   async getSubmission(id: number) {
