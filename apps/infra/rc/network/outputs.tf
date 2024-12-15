@@ -1,20 +1,20 @@
 output "vpc_id" {
-  value = aws_vpc.main.id
+  value     = aws_vpc.main.id
   sensitive = true
 }
 
 output "private_route_table_id" {
-  value = aws_route_table.private.id
+  value     = aws_route_table.private.id
   sensitive = true
 }
 
 output "public_ip" {
-  value = aws_eip.nat_instance.public_ip
+  value     = aws_eip.nat_instance.public_ip
   sensitive = true
 }
 
 output "mq_subnet_id" {
-  value = aws_subnet.private_mq.id
+  value     = aws_subnet.private_mq.id
   sensitive = true
 }
 

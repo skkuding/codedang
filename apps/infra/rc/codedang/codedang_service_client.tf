@@ -6,7 +6,7 @@ module "client_api_loadbalancer" {
   source = "./modules/loadbalancing"
 
   lb = {
-    name = "Codedang-Client-Api-LB"
+    name    = "Codedang-Client-Api-LB"
     subnets = ["public1", "public2"]
   }
 

@@ -12,7 +12,7 @@ resource "aws_lb_target_group" "this" {
   target_type = "instance"
   port        = var.lb_target_group.port
   protocol    = "HTTP"
-  vpc_id = local.network.vpc_id
+  vpc_id      = local.network.vpc_id
 
   health_check {
     interval            = 30

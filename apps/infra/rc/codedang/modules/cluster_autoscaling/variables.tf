@@ -37,11 +37,11 @@ variable "ecs_capacity_provider_name" {
 }
 
 variable "subnets" {
-  type = list(string)
+  type        = list(string)
   description = "List of subnet names. e.g. ['private_api1', 'private_api2']"
 }
 
 variable "security_groups" {
-  type = list(string)
+  type        = list(string)
   description = "List of SG names. e.g. ['sg_db', 'sg_redis']"
 }

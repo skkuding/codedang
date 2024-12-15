@@ -24,7 +24,7 @@ resource "aws_launch_template" "this" {
 }
 
 resource "aws_autoscaling_group" "this" {
-  name = var.autoscaling_group.name
+  name                = var.autoscaling_group.name
   vpc_zone_identifier = [for name in var.subnets : local.network.subnet_ids[name]]
 
   desired_capacity = var.autoscaling_group.desired_capacity

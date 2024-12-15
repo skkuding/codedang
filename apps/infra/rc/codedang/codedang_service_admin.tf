@@ -6,7 +6,7 @@ module "admin_api_loadbalancer" {
   source = "./modules/loadbalancing"
 
   lb = {
-    name = "Codedang-Admin-Api-LB"
+    name    = "Codedang-Admin-Api-LB"
     subnets = ["public1", "public2"]
   }
 

@@ -1,6 +1,6 @@
 data "aws_ecr_repository" "repositories" {
   for_each = toset(var.repository_names)
-  name = each.value
+  name     = each.value
 }
 
 resource "aws_ecr_lifecycle_policy" "repository_policy" {

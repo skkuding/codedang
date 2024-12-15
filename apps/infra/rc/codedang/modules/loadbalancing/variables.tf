@@ -16,6 +16,6 @@ variable "lb_target_group" {
 }
 
 variable "security_groups" {
-  type = list(string)
+  type        = list(string)
   description = "List of SG names. e.g. ['sg_db', 'sg_redis']"
 }

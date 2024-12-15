@@ -67,9 +67,9 @@ resource "aws_cloudfront_distribution" "codedang" {
   }
 
   ordered_cache_behavior {
-    path_pattern    = "/api/*"
-    allowed_methods = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
-    cached_methods  = ["GET", "HEAD", "OPTIONS"]
+    path_pattern             = "/api/*"
+    allowed_methods          = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+    cached_methods           = ["GET", "HEAD", "OPTIONS"]
     target_origin_id         = module.client_api_loadbalancer.aws_lb_id
     viewer_protocol_policy   = "redirect-to-https"
     cache_policy_id          = data.aws_cloudfront_cache_policy.disable.id
@@ -77,9 +77,9 @@ resource "aws_cloudfront_distribution" "codedang" {
   }
 
   ordered_cache_behavior {
-    path_pattern    = "/graphql"
-    allowed_methods = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
-    cached_methods  = ["GET", "HEAD", "OPTIONS"]
+    path_pattern             = "/graphql"
+    allowed_methods          = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+    cached_methods           = ["GET", "HEAD", "OPTIONS"]
     target_origin_id         = module.admin_api_loadbalancer.aws_lb_id
     viewer_protocol_policy   = "redirect-to-https"
     cache_policy_id          = data.aws_cloudfront_cache_policy.disable.id
@@ -101,7 +101,7 @@ resource "aws_cloudfront_distribution" "codedang" {
 }
 
 resource "aws_route53_record" "codedang" {
-  count = var.env == "production" ? 1 : 0
+  count   = var.env == "production" ? 1 : 0
   name    = "codedang.com"
   type    = "A"
   zone_id = var.env == "rc" ? "" : local.network.route53_zone_id
