@@ -49,7 +49,7 @@ services:
 
   database:
     container_name: codedang-database
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     ports:
       - 5433:5432
     environment:
@@ -61,7 +61,7 @@ services:
 
   test-database:
     container_name: codedang-test-database
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     ports:
       - 5434:5432
     environment:
