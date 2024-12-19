@@ -20,9 +20,13 @@ interface BaseModalProps {
   modalBgDarkMode?: boolean
 }
 
-// AlertDialogFooter section (Button section) is separated using ConfirmModal component
-// because its design and functionality vary depending on context (for reusability).
-// * Use BaseModal Component by creating a new component(which includes 'AlertDialogFooter') that extends BaseModal
+/**
+ *
+ * @remarks
+ * * Use BaseModal Component by creating a new component(which includes 'AlertDialogFooter') that extends BaseModal
+ * * AlertDialogFooter section (Button section) is separated using ConfirmModal component
+ * because its design and functionality vary depending on context (for reusability).
+ */
 export default function BaseModal({
   open,
   handleClose,
