@@ -4,7 +4,6 @@ import {
   AlertDialogCancel,
   AlertDialogFooter
 } from '@/components/shadcn/alert-dialog'
-import type { ReactNode } from 'react'
 
 interface ModalProps {
   open: boolean
@@ -12,7 +11,7 @@ interface ModalProps {
   handleClose: () => void
   confirmAction: () => void
   title?: string
-  description?: ReactNode
+  description?: string
 }
 
 /**

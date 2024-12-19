@@ -1,5 +1,5 @@
 import { Loader2 } from 'lucide-react'
-import React, { type ReactNode } from 'react'
+import React from 'react'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -16,7 +16,7 @@ interface BaseModalProps {
   loading?: boolean
   loadingMessage?: string
   title?: string
-  description?: ReactNode
+  description?: string
   modalBgDarkMode?: boolean
 }
 
@@ -37,20 +37,28 @@ export default function BaseModal({
   description = '',
   modalBgDarkMode = false
 }: BaseModalProps) {
+  const formattedDescription =
+    description.split('\n').map((line, index) => (
+      <React.Fragment key={index}>
+        {line}
+        <br />
+      </React.Fragment>
+    )) ?? ''
+
   return (
     <AlertDialog open={open} onOpenChange={handleClose}>
       <AlertDialogOverlay darkMode={modalBgDarkMode} />
       <AlertDialogContent className="max-w-[428px]">
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogDescription className="min-w-72">
             {loading ? (
               <div className="flex flex-col items-center justify-center">
                 <Loader2 size={32} className="animate-spin" />
                 <span className="mt-2 text-sm">{loadingMessage}</span>
               </div>
             ) : (
-              <>{description}</>
+              formattedDescription
             )}
           </AlertDialogDescription>
         </AlertDialogHeader>

@@ -328,15 +328,7 @@ export default function Page() {
 
       <ConfirmModal
         title="Are you sure you want to leave?"
-        description={
-          <div className="min-w-72">
-            Your changes have not been saved.
-            <br />
-            If you leave this page, all changes will be lost.
-            <br />
-            Do you still want to proceed?
-          </div>
-        }
+        description={`Your changes have not been saved.\nIf you leave this page, all changes will be lost.\nDo you still want to proceed?`}
         open={isConfirmModalOpen}
         handleOpen={() => setIsConfirmModalOpen(true)}
         handleClose={() => setIsConfirmModalOpen(false)}
