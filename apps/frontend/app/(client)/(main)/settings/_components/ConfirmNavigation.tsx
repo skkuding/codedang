@@ -2,7 +2,7 @@ import type { Route } from 'next'
 import type { NavigateOptions } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import { useRouter } from 'next/navigation'
 import type { MutableRefObject } from 'react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 // const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
@@ -22,6 +22,9 @@ export const useConfirmNavigation = (
   updateNow: boolean
 ) => {
   const router = useRouter()
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
+  const [confirmAction, setConfirmAction] = useState<() => void>(() => () => {})
+
   useEffect(() => {
     const originalPush = router.push
     const newPush = (
@@ -37,12 +40,11 @@ export const useConfirmNavigation = (
         return
       }
       if (!bypassConfirmation.current) {
-        const isConfirmed = window.confirm(
-          'Are you sure you want to leave?\nYour changes have not been saved.\nIf you leave this page, all changes will be lost.\nDo you still want to proceed?'
-        )
-        if (isConfirmed) {
+        setIsConfirmModalOpen(true)
+        setConfirmAction(() => () => {
+          setIsConfirmModalOpen(false)
           originalPush(href as Route, options)
-        }
+        })
         return
       }
       originalPush(href as Route, options)
@@ -52,4 +54,6 @@ export const useConfirmNavigation = (
       router.push = originalPush
     }
   }, [router, bypassConfirmation.current])
+
+  return { isConfirmModalOpen, setIsConfirmModalOpen, confirmAction }
 }

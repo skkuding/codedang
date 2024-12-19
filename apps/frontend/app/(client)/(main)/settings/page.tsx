@@ -9,6 +9,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
+import ConfirmModal from './_components/ConfirmModal'
 import { useConfirmNavigation } from './_components/ConfirmNavigation'
 import CurrentPwSection from './_components/CurrentPwSection'
 import IdSection from './_components/IdSection'
@@ -91,8 +92,6 @@ export default function Page() {
     fetchDefaultProfile()
   }, [])
 
-  useConfirmNavigation(bypassConfirmation, !!updateNow)
-
   const {
     register,
     handleSubmit,
@@ -112,6 +111,8 @@ export default function Page() {
     }
   })
 
+  const { isConfirmModalOpen, setIsConfirmModalOpen, confirmAction } =
+    useConfirmNavigation(bypassConfirmation, !!updateNow)
   const [isCheckButtonClicked, setIsCheckButtonClicked] =
     useState<boolean>(false)
   const [isPasswordCorrect, setIsPasswordCorrect] = useState<boolean>(false)
@@ -324,6 +325,23 @@ export default function Page() {
           onSubmitClick={onSubmitClick}
         />
       </form>
+
+      <ConfirmModal
+        title="Are you sure you want to leave?"
+        description={
+          <div className="min-w-72">
+            Your changes have not been saved.
+            <br />
+            If you leave this page, all changes will be lost.
+            <br />
+            Do you still want to proceed?
+          </div>
+        }
+        open={isConfirmModalOpen}
+        handleOpen={() => setIsConfirmModalOpen(true)}
+        handleClose={() => setIsConfirmModalOpen(false)}
+        confirmAction={confirmAction}
+      />
     </div>
   )
 }
