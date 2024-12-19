@@ -19,6 +19,8 @@ interface BaseModalProps {
   description?: ReactNode
 }
 
+// AlertDialogFooter section (Button section) is separated using ConfirmModal component
+// because its design and functionality vary depending on context (for reusability).
 export default function BaseModal({
   open,
   handleClose,
