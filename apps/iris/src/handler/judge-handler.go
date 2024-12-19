@@ -347,6 +347,10 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 	res.SetJudgeExecResult(runResult.ExecResult)
 	res.Output = string(runResult.Output)
 
+	if len(res.Output) > constants.MAX_OUTPUT {
+		res.Output = res.Output[:constants.MAX_OUTPUT]
+	}
+
 	if runResult.ExecResult.ResultCode != sandbox.RUN_SUCCESS {
 		res.SetJudgeResultCode(SandboxResultCodeToJudgeResultCode(runResult.ExecResult.ResultCode))
 		goto Send

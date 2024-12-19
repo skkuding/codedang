@@ -31,7 +31,7 @@ module "iris" {
   task_definition = {
     family = "Codedang-Iris-Api"
     cpu    = 512
-    memory = 1700
+    memory = 512
 
     container_definitions = jsonencode([
       jsondecode(templatefile("container_definitions/iris.json", {
@@ -75,12 +75,12 @@ module "iris" {
   ecs_service = {
     name          = "Codedang-Iris-Service"
     cluster_arn   = module.codedang_iris.ecs_cluster.arn
-    desired_count = 2
+    desired_count = 6
   }
 
   appautoscaling_target = {
-    min_capacity = 2
-    max_capacity = 8
+    min_capacity = 6
+    max_capacity = 6
     resource_id = {
       cluster_name = module.codedang_iris.ecs_cluster.name
     }
