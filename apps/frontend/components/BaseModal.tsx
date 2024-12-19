@@ -17,6 +17,7 @@ interface BaseModalProps {
   loadingMessage?: string
   title?: string
   description?: ReactNode
+  modalBgDarkMode?: boolean
 }
 
 // AlertDialogFooter section (Button section) is separated using ConfirmModal component
@@ -28,11 +29,12 @@ export default function BaseModal({
   loading = false,
   loadingMessage = '',
   title = '',
-  description = ''
+  description = '',
+  modalBgDarkMode = false
 }: BaseModalProps) {
   return (
     <AlertDialog open={open} onOpenChange={handleClose}>
-      <AlertDialogOverlay darkMode={false} />
+      <AlertDialogOverlay darkMode={modalBgDarkMode} />
       <AlertDialogContent className="max-w-[428px]">
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>

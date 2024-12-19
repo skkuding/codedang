@@ -42,6 +42,7 @@ export default function ConfirmModal({
       title={title}
       open={open}
       description={description}
+      modalBgDarkMode={false}
     >
       <AlertDialogFooter>
         <AlertDialogAction
