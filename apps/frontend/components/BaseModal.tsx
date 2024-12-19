@@ -5,6 +5,7 @@ import {
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogHeader,
+  AlertDialogOverlay,
   AlertDialogTitle
 } from './shadcn/alert-dialog'
 
@@ -29,6 +30,7 @@ export default function BaseModal({
 }: BaseModalProps) {
   return (
     <AlertDialog open={open} onOpenChange={handleClose}>
+      <AlertDialogOverlay darkMode={false} />
       <AlertDialogContent className="max-w-[428px]">
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
