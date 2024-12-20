@@ -1,5 +1,5 @@
 import { Loader2 } from 'lucide-react'
-import React from 'react'
+import React, { Fragment, type ReactNode } from 'react'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -12,7 +12,7 @@ import {
 interface BaseModalProps {
   open: boolean
   handleClose: () => void
-  children?: React.ReactNode
+  children?: ReactNode
   loading?: boolean
   loadingMessage?: string
   title?: string
@@ -39,10 +39,10 @@ export default function BaseModal({
 }: BaseModalProps) {
   const formattedDescription =
     description.split('\n').map((line, index) => (
-      <React.Fragment key={index}>
+      <Fragment key={index}>
         {line}
         <br />
-      </React.Fragment>
+      </Fragment>
     )) ?? ''
 
   return (
