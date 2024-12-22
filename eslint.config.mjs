@@ -166,7 +166,7 @@ export default eslintTS.config(
   },
   {
     files: ['apps/frontend/**/*.tsx'],
-    ignores: ['apps/frontend/components/ui/*.tsx'],
+    ignores: ['apps/frontend/components/shadcn/*.tsx'],
     rules: {
       'react/function-component-definition': [
         'error',
