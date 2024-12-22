@@ -41,6 +41,9 @@ importers:
       eslint-config-next:
         specifier: ^14.2.17
         version: 14.2.17(eslint@9.12.0(jiti@2.4.0))(typescript@5.6.3)
+      eslint-config-prettier:
+        specifier: ^9.1.0
+        version: 9.1.0(eslint@9.12.0(jiti@2.4.0))
       eslint-plugin-prettier:
         specifier: ^5.2.1
         version: 5.2.1(@types/eslint@9.6.1)(eslint-config-prettier@9.1.0(eslint@9.12.0(jiti@2.4.0)))(eslint@9.12.0(jiti@2.4.0))(prettier@3.3.3)
@@ -18134,7 +18137,6 @@ snapshots:
   eslint-config-prettier@9.1.0(eslint@9.12.0(jiti@2.4.0)):
     dependencies:
       eslint: 9.12.0(jiti@2.4.0)
-    optional: true
 
   eslint-import-resolver-node@0.3.9:
     dependencies:
