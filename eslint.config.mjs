@@ -1,4 +1,3 @@
-import { fixupConfigRules } from '@eslint/compat'
 import { FlatCompat } from '@eslint/eslintrc'
 import eslintJS from '@eslint/js'
 import eslintPluginPrettier from 'eslint-plugin-prettier/recommended'
@@ -12,10 +11,6 @@ const __dirname = path.dirname(__filename)
 const flatCompat = new FlatCompat({
   baseDirectory: __dirname
 })
-
-const patchedNextLintConfig = fixupConfigRules(
-  flatCompat.extends('next/core-web-vitals')
-)
 
 export default eslintTS.config(
   {
@@ -37,7 +32,11 @@ export default eslintTS.config(
   eslintJS.configs.recommended,
   ...eslintTS.configs.recommended,
   {
+    plugins: {
+      '@typescript-eslint': eslintTS.plugin
+    },
     languageOptions: {
+      parser: eslintTS.parser,
       parserOptions: {
         project: true,
         emitDecoratorMetadata: true,
@@ -122,10 +121,14 @@ export default eslintTS.config(
   },
 
   /* Frontend configuration */
-  ...patchedNextLintConfig.map((config) => ({
-    ...config,
-    files: ['apps/frontend/**/*']
-  })),
+  ...flatCompat
+    .config({
+      extends: ['next/core-web-vitals']
+    })
+    .map((config) => ({
+      ...config,
+      files: ['apps/frontend/**/*']
+    })),
   {
     files: ['apps/frontend/**/*'],
     languageOptions: {
