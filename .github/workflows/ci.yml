@@ -129,8 +129,8 @@ jobs:
         with:
           install: 'no'
 
-      - name: Install dev dependencies
-        run: pnpm install --dev
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Set up Go
         uses: actions/setup-go@v5
