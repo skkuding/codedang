@@ -25,8 +25,7 @@ interface ModalProps {
  * @param description - Description of the modal.
  *
  * @remarks
- * * AlertDialogFooter section (Button section) is separated using ConfirmModal component
- * * because its design and functionality vary depending on context (for reusability).
+ * * AlertDialogFooter section (Button section) is separated using ConfirmModal component for reusability.
  */
 export default function ConfirmModal({
   open,
