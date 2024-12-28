@@ -12,6 +12,7 @@ data "aws_cloudfront_origin_request_policy" "exclude_host_header" {
 
 resource "aws_cloudfront_distribution" "codedang" {
   origin {
+    #TODO : RC서버 Amplify 문제 해결
     domain_name = var.env == "production" ? "amplify.codedang.com" : "main.d11kq2upsmcpi9.amplifyapp.com"
     origin_id   = "frontend" # TODO: Add unique ID of Amplify
 
