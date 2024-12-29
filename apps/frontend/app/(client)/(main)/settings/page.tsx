@@ -10,7 +10,6 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import ConfirmModal from './_components/ConfirmModal'
-import { useConfirmNavigation } from './_components/ConfirmNavigation'
 import CurrentPwSection from './_components/CurrentPwSection'
 import IdSection from './_components/IdSection'
 import LogoSection from './_components/LogoSection'
@@ -21,6 +20,7 @@ import ReEnterNewPwSection from './_components/ReEnterNewPwSection'
 import SaveButton from './_components/SaveButton'
 import StudentIdSection from './_components/StudentIdSection'
 import TopicSection from './_components/TopicSection'
+import { useConfirmNavigation } from './_libs/utils'
 
 interface getProfile {
   username: string // ID
