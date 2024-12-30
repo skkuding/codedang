@@ -21,7 +21,7 @@ import StudentIdSection from './_components/StudentIdSection'
 import TopicSection from './_components/TopicSection'
 import { SettingsProvider } from './_components/context'
 import type { GetProfile, SettingsContextType } from './_components/context'
-import { useCheckPassword } from './_components/hooks/useCheckPassword'
+import { useCheckPassword } from './_libs/hooks/useCheckPassword'
 import { schemaSettings } from './_libs/schemas'
 import { useConfirmNavigation } from './_libs/utils'
 
