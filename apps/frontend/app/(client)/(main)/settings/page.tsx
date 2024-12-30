@@ -242,15 +242,15 @@ export default function Page() {
           <NewPwSection
             newPasswordAble={newPasswordAble}
             isPasswordsMatch={isPasswordsMatch}
-            newPassword={newPassword}
             confirmPassword={confirmPassword}
+            newPassword={newPassword}
           />
           {/* Re-enter new password */}
           <ReEnterNewPwSection
             newPasswordAble={newPasswordAble}
-            getValues={getValues}
-            confirmPassword={confirmPassword}
             isPasswordsMatch={isPasswordsMatch}
+            confirmPassword={confirmPassword}
+            getValues={getValues}
           />
 
           <hr className="my-4 border-neutral-200" />
