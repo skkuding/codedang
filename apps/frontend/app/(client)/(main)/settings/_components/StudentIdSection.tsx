@@ -1,27 +1,18 @@
 import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
-import type { SettingsFormat } from '@/types/type'
-import type { FieldErrors, UseFormRegister } from 'react-hook-form'
+import { useSettingsContext } from './context'
 
 interface StudentIdSectionProps {
   studentId: string
-  updateNow: boolean
-  isLoading: boolean
-  errors: FieldErrors<SettingsFormat>
-  register: UseFormRegister<SettingsFormat>
-  defaultProfileValues: {
-    studentId?: string
-  }
 }
 
-export default function StudentIdSection({
-  studentId,
-  updateNow,
-  isLoading,
-  errors,
-  register,
-  defaultProfileValues
-}: StudentIdSectionProps) {
+export default function StudentIdSection({ studentId }: StudentIdSectionProps) {
+  const {
+    isLoading,
+    updateNow,
+    defaultProfileValues,
+    formState: { register, errors }
+  } = useSettingsContext()
   return (
     <>
       <label className="-mb-4 mt-2 text-xs">Student ID</label>
