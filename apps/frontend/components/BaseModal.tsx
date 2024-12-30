@@ -17,13 +17,13 @@ interface BaseModalProps {
   loadingMessage?: string
   title?: string
   description?: string
-  modalBgDarkMode?: boolean
+  darkMode?: boolean
 }
 
 /**
  *
  * @remarks
- * * Use BaseModal Component by creating a new component(which includes 'AlertDialogFooter') that extends BaseModal
+ * * Use BaseModal Component by creating a new component(which includes 'AlertDialogFooter') that extends BaseModal.
  * * AlertDialogFooter section (Button section) is separated using ConfirmModal component for reusability.
  */
 export default function BaseModal({
@@ -34,7 +34,7 @@ export default function BaseModal({
   loadingMessage = '',
   title = '',
   description = '',
-  modalBgDarkMode = false
+  darkMode = false
 }: BaseModalProps) {
   const formattedDescription =
     description.split('\n').map((line, index) => (
@@ -46,7 +46,7 @@ export default function BaseModal({
 
   return (
     <AlertDialog open={open} onOpenChange={handleClose}>
-      <AlertDialogOverlay darkMode={modalBgDarkMode} />
+      <AlertDialogOverlay darkMode={darkMode} />
       <AlertDialogContent className="max-w-[428px]">
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
