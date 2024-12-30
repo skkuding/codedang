@@ -53,7 +53,7 @@ export const useConfirmNavigation = (
     return () => {
       router.push = originalPush
     }
-  }, [router, bypassConfirmation, updateNow])
+  }, [router, bypassConfirmation])
 
   return { isConfirmModalOpen, setIsConfirmModalOpen, confirmAction }
 }
