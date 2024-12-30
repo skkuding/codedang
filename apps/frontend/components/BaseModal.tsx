@@ -1,5 +1,5 @@
 import { Loader2 } from 'lucide-react'
-import React, { Fragment, type ReactNode } from 'react'
+import React, { type ReactNode } from 'react'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -37,12 +37,8 @@ export default function BaseModal({
   darkMode = false
 }: BaseModalProps) {
   const formattedDescription =
-    description.split('\n').map((line, index) => (
-      <Fragment key={index}>
-        {line}
-        <br />
-      </Fragment>
-    )) ?? ''
+    description.split('\n').map((line, index) => <p key={index}>{line}</p>) ??
+    ''
 
   return (
     <AlertDialog open={open} onOpenChange={handleClose}>
