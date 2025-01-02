@@ -1,0 +1,60 @@
+name: RC - Destroy - Target
+
+on:
+  workflow_dispatch:
+    inputs:
+      terraform_project:
+        description: 'Select Terraform Project to Destroy'
+        required: true
+        type: choice
+        options:
+          - 'network'
+          - 'storage'
+          - 'codedang'
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECS_CLUSTER: Codedang-Api
+
+permissions: # permissions to the job (for the OpenID Connection)
+  id-token: write
+  contents: read
+
+jobs:
+  rc-destroy-terraform-target-project:
+    name: RC - Destroy Terraform targeted Project
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY_RC }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.2
+
+      - name: Create Terraform variable file
+        working-directory: ./apps/infra/rc/${{ github.event.inputs.terraform_project }}
+        run: |
+          echo "$TFVARS_RC" >> terraform.tfvars
+          echo "$OAUTH_GITHUB" >> terraform.tfvars
+          echo "$OAUTH_KAKAO" >> terraform.tfvars        
+          echo 'env = "rc"' >> terraform.tfvars
+        env:
+          TFVARS_RC: ${{ secrets.TFVARS_RC }}
+          OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
+          OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
+
+      - name: Destroy
+        working-directory: ./apps/infra/rc/${{ github.event.inputs.terraform_project }}
+        run: |
+          terraform init -backend-config="bucket=codedang-tf-state-rc"
+          terraform destroy -auto-approve

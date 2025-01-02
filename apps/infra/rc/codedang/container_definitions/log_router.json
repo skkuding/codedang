@@ -1,0 +1,18 @@
+{
+  "name": "log_router",
+  "image": "grafana/fluent-bit-plugin-loki:2.0.0-amd64",
+  "cpu": 0,
+  "memoryReservation": 50,
+  "portMappings": [],
+  "essential": true,
+  "environment": [],
+  "mountPoints": [],
+  "volumesFrom": [],
+  "user": "0",
+  "firelensConfiguration": {
+    "type": "fluentbit",
+    "options": {
+      "enable-ecs-log-metadata": "true"
+    }
+  }
+}
