@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from '@generated'
 
 const GET_NOTICE = gql(`
   query GetNotice($groupId: Int!, $noticeId: Int!) {

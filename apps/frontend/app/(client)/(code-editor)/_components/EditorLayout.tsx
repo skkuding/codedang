@@ -40,7 +40,7 @@ export default async function EditorLayout({
     problem = { ...contestProblem.problem, order: contestProblem.order }
 
     contest = await fetcher(`contest/${contestId}`).json()
-    contest ? (contest.status = 'ongoing') : null // TODO: refactor this after change status interactively
+    contest && (contest.status = 'ongoing') // TODO: refactor this after change status interactively
   } else {
     problem = await fetcher(`problem/${problemId}`).json()
   }
