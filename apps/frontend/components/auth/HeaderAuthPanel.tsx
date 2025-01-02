@@ -47,6 +47,8 @@ export default function HeaderAuthPanel({
   const isEditor = group === 'editor'
   const [needsUpdate, setNeedsUpdate] = useState(false)
   const pathname = usePathname()
+  //TODO: add setDropdownOpen
+  //const [dropdownUpdate, setDropdownUpdate] = useState(false)
 
   useEffect(() => {
     const checkIfNeedsUpdate = async () => {
