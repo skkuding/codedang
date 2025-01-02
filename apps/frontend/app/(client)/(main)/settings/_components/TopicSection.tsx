@@ -1,4 +1,8 @@
-export default function TopicSection({ updateNow }: { updateNow: boolean }) {
+import { useSettingsContext } from './context'
+
+export default function TopicSection() {
+  const { updateNow } = useSettingsContext()
+
   return (
     <>
       <h1 className="-mb-1 text-center text-2xl font-bold">Settings</h1>
