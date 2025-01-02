@@ -47,7 +47,7 @@ export default function HeaderAuthPanel({
   const isEditor = group === 'editor'
   const [needsUpdate, setNeedsUpdate] = useState(false)
   const pathname = usePathname()
-  const [dropdownUpdate, setDropdownUpdate] = useState(false)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   useEffect(() => {
     const checkIfNeedsUpdate = async () => {
@@ -72,7 +72,7 @@ export default function HeaderAuthPanel({
     <div className="ml-2 flex items-center gap-2">
       {session ? (
         <>
-          <DropdownMenu onOpenChange={(open) => setDropdownUpdate(open)}>
+          <DropdownMenu onOpenChange={(open) => setIsDropdownOpen(open)}>
             <DropdownMenuTrigger
               className={cn(
                 'hidden items-center gap-2 rounded-md px-4 py-1 md:flex',
@@ -91,7 +91,7 @@ export default function HeaderAuthPanel({
                 </p>
               )}
               <ChevronDown
-                className={cn('w-4 text-white', dropdownUpdate && 'rotate-180')}
+                className={cn('w-4 text-white', isDropdownOpen && 'rotate-180')}
               />
             </DropdownMenuTrigger>
             <DropdownMenuContent
