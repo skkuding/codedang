@@ -161,13 +161,13 @@ export class ContestResolver {
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null
   ) {
-    return await this.contestService.getContestSubmissionSummaryByUserId(
+    return await this.contestService.getContestSubmissionSummaryByUserId({
       take,
       contestId,
       userId,
       problemId,
       cursor
-    )
+    })
   }
 
   @Mutation(() => DuplicatedContestResponse)
@@ -201,12 +201,12 @@ export class ContestResolver {
     @Args('searchingName', { type: () => String, nullable: true })
     searchingName?: string
   ) {
-    return await this.contestService.getContestScoreSummaries(
+    return await this.contestService.getContestScoreSummaries({
       contestId,
       take,
       cursor,
       searchingName
-    )
+    })
   }
 
   @Query(() => ContestsGroupedByStatus)
