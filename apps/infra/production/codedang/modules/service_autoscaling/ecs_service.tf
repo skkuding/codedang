@@ -1,7 +1,7 @@
 resource "aws_ecs_task_definition" "this" {
   family                   = var.task_definition.family
-  requires_compatibilities = ["EC2"]
-  network_mode             = "bridge"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
   cpu                      = var.task_definition.cpu
   memory                   = var.task_definition.memory
   container_definitions    = var.task_definition.container_definitions
@@ -14,7 +14,7 @@ resource "aws_ecs_service" "this" {
   cluster              = var.ecs_service.cluster_arn
   task_definition      = aws_ecs_task_definition.this.family
   desired_count        = var.ecs_service.desired_count
-  launch_type          = "EC2"
+  launch_type          = "FARGATE"
   force_new_deployment = true
 
   dynamic "load_balancer" {
