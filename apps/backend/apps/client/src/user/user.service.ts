@@ -55,7 +55,7 @@ export class UserService {
   ) {}
 
   async getUsernameByEmail({ email }: UserEmailDto) {
-    const username = await this.prisma.user.findUnique({
+    const username = await this.prisma.user.findUniqueOrThrow({
       where: {
         email
       },
@@ -63,9 +63,6 @@ export class UserService {
         username: true
       }
     })
-    if (!username) {
-      throw new EntityNotExistException('User')
-    }
 
     this.logger.debug(username, 'getUsernameByEmail')
     return username
@@ -180,26 +177,17 @@ export class UserService {
     email: string,
     newPassword: string
   ): Promise<User> {
-    try {
-      const user = await this.prisma.user.update({
-        where: {
-          email
-        },
-        data: {
-          password: await hash(newPassword, ARGON2_HASH_OPTION)
-        }
-      })
-      this.logger.debug(user, 'updateUserPasswordInPrisma')
+    const user = await this.prisma.user.update({
+      where: {
+        email
+      },
+      data: {
+        password: await hash(newPassword, ARGON2_HASH_OPTION)
+      }
+    })
+    this.logger.debug(user, 'updateUserPasswordInPrisma')
 
-      return user
-    } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code == 'P2025'
-      )
-        throw new EntityNotExistException('User')
-      throw error
-    }
+    return user
   }
 
   async verifyPinAndIssueJwt({
