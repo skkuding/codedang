@@ -1,24 +1,30 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem
-} from '@/components/ui/command'
-import { Input } from '@/components/ui/input'
+} from '@/components/shadcn/command'
+import { Input } from '@/components/shadcn/input'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger
-} from '@/components/ui/popover'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { baseUrl } from '@/lib/constants'
-import { majors } from '@/lib/constants'
-import { cn } from '@/lib/utils'
-import checkIcon from '@/public/check.svg'
+} from '@/components/shadcn/popover'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/shadcn/tooltip'
+import { baseUrl } from '@/libs/constants'
+import { majors } from '@/libs/constants'
+import { cn } from '@/libs/utils'
+import checkIcon from '@/public/icons/check-white.svg'
 import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CommandList } from 'cmdk'
@@ -551,28 +557,38 @@ export default function SignUpRegister() {
                 <ScrollArea className="h-40">
                   <CommandEmpty>No major found.</CommandEmpty>
                   <CommandGroup>
-                    <CommandList>
-                      {majors?.map((major) => (
-                        <CommandItem
-                          key={major}
-                          value={major}
-                          onSelect={(currentValue) => {
-                            setMajorValue(currentValue)
-                            setMajorOpen(false)
-                          }}
-                        >
-                          <FaCheck
-                            className={cn(
-                              'mr-2 h-4 w-4',
-                              majorValue === major ? 'opacity-100' : 'opacity-0'
-                            )}
-                          />
-                          <p className="w-[230px] overflow-hidden text-ellipsis whitespace-nowrap">
-                            {major}
-                          </p>
-                        </CommandItem>
-                      ))}
-                    </CommandList>
+                    <TooltipProvider>
+                      <CommandList>
+                        {majors?.map((major) => (
+                          <Tooltip key={major}>
+                            <TooltipTrigger>
+                              <CommandItem
+                                value={major}
+                                onSelect={(currentValue) => {
+                                  setMajorValue(currentValue)
+                                  setMajorOpen(false)
+                                }}
+                              >
+                                <FaCheck
+                                  className={cn(
+                                    'mr-2 h-4 w-4',
+                                    majorValue === major
+                                      ? 'opacity-100'
+                                      : 'opacity-0'
+                                  )}
+                                />
+                                <p className="w-[230px] overflow-hidden text-ellipsis whitespace-nowrap text-left">
+                                  {major}
+                                </p>
+                              </CommandItem>
+                            </TooltipTrigger>
+                            <TooltipContent className="bg-blue-600">
+                              <p>{major}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        ))}
+                      </CommandList>
+                    </TooltipProvider>
                   </CommandGroup>
                 </ScrollArea>
               </Command>

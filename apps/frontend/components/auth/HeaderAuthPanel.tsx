@@ -1,15 +1,19 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import { Button } from '@/components/shadcn/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger
+} from '@/components/shadcn/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
   DropdownMenuSeparator
-} from '@/components/ui/dropdown-menu'
-import { cn, fetcherWithAuth } from '@/lib/utils'
+} from '@/components/shadcn/dropdown-menu'
+import { cn, fetcherWithAuth } from '@/libs/utils'
 import useAuthModalStore from '@/stores/authModal'
 import { LogOut, UserRoundCog, ChevronDown } from 'lucide-react'
 import type { Session } from 'next-auth'
@@ -43,6 +47,7 @@ export default function HeaderAuthPanel({
   const isEditor = group === 'editor'
   const [needsUpdate, setNeedsUpdate] = useState(false)
   const pathname = usePathname()
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   useEffect(() => {
     const checkIfNeedsUpdate = async () => {
@@ -67,7 +72,7 @@ export default function HeaderAuthPanel({
     <div className="ml-2 flex items-center gap-2">
       {session ? (
         <>
-          <DropdownMenu>
+          <DropdownMenu onOpenChange={(open) => setIsDropdownOpen(open)}>
             <DropdownMenuTrigger
               className={cn(
                 'hidden items-center gap-2 rounded-md px-4 py-1 md:flex',
@@ -85,7 +90,9 @@ export default function HeaderAuthPanel({
                   {session?.user.username}
                 </p>
               )}
-              <ChevronDown className="w-4" />
+              <ChevronDown
+                className={cn('w-4 text-white', isDropdownOpen && 'rotate-180')}
+              />
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className={cn(

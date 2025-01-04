@@ -14,7 +14,12 @@ import { AxiosRequestConfig } from 'axios'
 import { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
 import { Span } from 'nestjs-otel'
-import { testKey } from '@libs/cache'
+import {
+  testKey,
+  testcasesKey,
+  userTestKey,
+  userTestcasesKey
+} from '@libs/cache'
 import {
   MIN_DATE,
   OPEN_SPACE_ID,
@@ -30,6 +35,7 @@ import { PrismaService } from '@libs/prisma'
 import { ProblemRepository } from '@client/problem/problem.repository'
 import {
   CreateSubmissionDto,
+  CreateUserTestSubmissionDto,
   Snippet,
   Template
 } from './class/create-submission.dto'
@@ -93,6 +99,8 @@ export class SubmissionService {
     groupId = OPEN_SPACE_ID
   ) {
     const now = new Date()
+
+    // 진행 중인 대회인지 확인합니다.
     const contest = await this.prisma.contest.findFirst({
       where: {
         id: contestId,
@@ -108,6 +116,8 @@ export class SubmissionService {
     if (!contest) {
       throw new EntityNotExistException('Contest')
     }
+
+    // 대회에 등록되어 있는지 확인합니다.
     const contestRecord = await this.prisma.contestRecord.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -215,6 +225,10 @@ export class SubmissionService {
     return submission
   }
 
+  /**
+   * 빈 제출 기록을 생성하고 채점 요청을 보냅니다.
+   * @returns 생성된 제출 기록
+   */
   @Span()
   async createSubmission(
     submissionDto: CreateSubmissionDto,
@@ -324,7 +338,8 @@ export class SubmissionService {
   async submitTest(
     userId: number,
     problemId: number,
-    submissionDto: CreateSubmissionDto
+    submissionDto: CreateSubmissionDto,
+    isUserTest = false
   ) {
     const problem = await this.prisma.problem.findFirst({
       where: {
@@ -368,6 +383,32 @@ export class SubmissionService {
       updateTime: new Date()
     }
 
+    // User Testcase에 대한 TEST 요청인 경우
+    if (isUserTest) {
+      await this.publishUserTestMessage(
+        userId,
+        submissionDto.code,
+        testSubmission,
+        (submissionDto as CreateUserTestSubmissionDto).userTestcases
+      )
+      return
+    }
+
+    // Open Testcase에 대한 TEST 요청인 경우
+    await this.publishTestMessage(
+      problemId,
+      userId,
+      submissionDto.code,
+      testSubmission
+    )
+  }
+
+  async publishTestMessage(
+    problemId: number,
+    userId: number,
+    code: Snippet[],
+    testSubmission: Submission
+  ) {
     const rawTestcases = await this.prisma.problemTestcase.findMany({
       where: {
         problemId,
@@ -375,39 +416,69 @@ export class SubmissionService {
       }
     })
 
-    const testcases: {
-      id: number
-      result: ResultStatus
-    }[] = []
-
-    for (const testcase of rawTestcases) {
-      testcases.push({
-        id: testcase.id,
-        result: 'Judging'
-      })
+    const testcaseIds: number[] = []
+    for (const rawTestcase of rawTestcases) {
+      await this.cacheManager.set(
+        testKey(userId, rawTestcase.id),
+        { id: rawTestcase.id, result: 'Judging' },
+        TEST_SUBMISSION_EXPIRE_TIME
+      )
+      testcaseIds.push(rawTestcase.id)
     }
+    await this.cacheManager.set(testcasesKey(userId), testcaseIds)
 
-    await this.cacheManager.set(
-      testKey(userId),
-      testcases,
-      TEST_SUBMISSION_EXPIRE_TIME
-    )
+    await this.publish.publishJudgeRequestMessage(code, testSubmission, true)
+  }
+
+  async publishUserTestMessage(
+    userId: number,
+    code: Snippet[],
+    testSubmission: Submission,
+    userTestcases: { id: number; in: string; out: string }[]
+  ) {
+    const testcaseIds: number[] = []
+    for (const testcase of userTestcases) {
+      await this.cacheManager.set(
+        userTestKey(userId, testcase.id),
+        { id: testcase.id, result: 'Judging' },
+        TEST_SUBMISSION_EXPIRE_TIME
+      )
+      testcaseIds.push(testcase.id)
+    }
+    await this.cacheManager.set(userTestcasesKey(userId), testcaseIds)
 
     await this.publish.publishJudgeRequestMessage(
-      submissionDto.code,
+      code,
       testSubmission,
-      true
+      false,
+      true,
+      userTestcases
     )
   }
 
-  async getTestResult(userId: number) {
-    const key = testKey(userId)
-    return await this.cacheManager.get<
-      {
+  async getTestResult(userId: number, isUserTest = false) {
+    const testCasesKey = isUserTest
+      ? userTestcasesKey(userId)
+      : testcasesKey(userId)
+
+    const testcases =
+      (await this.cacheManager.get<number[]>(testCasesKey)) ?? []
+
+    const results: { id: number; result: ResultStatus; output?: string }[] = []
+    for (const testcaseId of testcases) {
+      const key = isUserTest
+        ? userTestKey(userId, testcaseId)
+        : testKey(userId, testcaseId)
+      const testcase = await this.cacheManager.get<{
         id: number
         result: ResultStatus
-      }[]
-    >(key)
+        output?: string
+      }>(key)
+      if (testcase) {
+        results.push(testcase)
+      }
+    }
+    return results
   }
 
   @Span()

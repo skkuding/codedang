@@ -1,10 +1,10 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { Button } from '@/components/shadcn/button'
+import { Input } from '@/components/shadcn/input'
+import { cn } from '@/libs/utils'
 // import { Separator } from '@/components/ui/separator'
-import CodedangLogo from '@/public/codedang.svg'
+import codedangLogo from '@/public/logos/codedang-with-text.svg'
 // import KakaotalkLogo from '@/public/kakaotalk.svg'
 import useAuthModalStore from '@/stores/authModal'
 import { signIn } from 'next-auth/react'
@@ -26,7 +26,9 @@ interface Inputs {
 export default function SignIn() {
   const [disableButton, setDisableButton] = useState(false)
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
-  const { showSignUp, showRecoverAccount } = useAuthModalStore((state) => state)
+  const { hideModal, showSignUp, showRecoverAccount } = useAuthModalStore(
+    (state) => state
+  )
   const router = useRouter()
   const { register, handleSubmit, watch } = useForm<Inputs>()
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
@@ -40,6 +42,7 @@ export default function SignIn() {
 
       if (!res?.error) {
         router.refresh()
+        hideModal()
         toast.success(`Welcome back, ${data.username}!`)
       } else {
         toast.error('Failed to log in')
@@ -51,12 +54,13 @@ export default function SignIn() {
       setDisableButton(false)
     }
   }
+
   return (
     <div className="flex h-full w-full flex-col justify-between">
       <div className="flex justify-center pt-4">
         <Image
           className="absolute top-4"
-          src={CodedangLogo}
+          src={codedangLogo}
           alt="codedang"
           width={100}
         />

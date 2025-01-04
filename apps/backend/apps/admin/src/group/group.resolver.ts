@@ -1,13 +1,7 @@
-import { InternalServerErrorException, Logger } from '@nestjs/common'
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
 import { Group } from '@generated'
 import { Role } from '@prisma/client'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
-import {
-  ConflictFoundException,
-  DuplicateFoundException,
-  ForbiddenAccessException
-} from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
 import { GroupService } from './group.service'
 import { CreateGroupInput, UpdateGroupInput } from './model/group.input'
@@ -15,8 +9,6 @@ import { DeletedUserGroup, FindGroup } from './model/group.output'
 
 @Resolver(() => Group)
 export class GroupResolver {
-  private readonly logger = new Logger(GroupResolver.name)
-
   constructor(private readonly groupService: GroupService) {}
 
   @Mutation(() => Group)
@@ -25,15 +17,7 @@ export class GroupResolver {
     @Context('req') req: AuthenticatedRequest,
     @Args('input') input: CreateGroupInput
   ) {
-    try {
-      return await this.groupService.createGroup(input, req.user.id)
-    } catch (error) {
-      if (error instanceof DuplicateFoundException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.groupService.createGroup(input, req.user.id)
   }
 
   @Query(() => [FindGroup])
@@ -58,18 +42,7 @@ export class GroupResolver {
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number,
     @Args('input') input: UpdateGroupInput
   ) {
-    try {
-      return await this.groupService.updateGroup(id, input)
-    } catch (error) {
-      if (
-        error instanceof DuplicateFoundException ||
-        error instanceof ForbiddenAccessException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.groupService.updateGroup(id, input)
   }
 
   @Mutation(() => DeletedUserGroup)
@@ -77,41 +50,30 @@ export class GroupResolver {
     @Context('req') req: AuthenticatedRequest,
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
   ) {
-    try {
-      return await this.groupService.deleteGroup(id, req.user)
-    } catch (error) {
-      if (error instanceof ForbiddenAccessException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.groupService.deleteGroup(id, req.user)
   }
 
+  /**
+   * Group 초대코드를 발급합니다.
+   * @param id 초대코드를 발급하는 Group의 ID
+   * @returns 발급된 초대코드
+   */
   @Mutation(() => String)
   async issueInvitation(
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
   ) {
-    try {
-      return await this.groupService.issueInvitation(id)
-    } catch (error) {
-      if (error instanceof ConflictFoundException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.groupService.issueInvitation(id)
   }
 
+  /**
+   * 발급했던 Group 초대코드를 제거합니다.
+   * @param id 초대코드를 제거하는 Group의 ID
+   * @returns 제거된 초대코드
+   */
   @Mutation(() => String)
   async revokeInvitation(
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
   ) {
-    try {
-      return await this.groupService.revokeInvitation(id)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.groupService.revokeInvitation(id)
   }
 }

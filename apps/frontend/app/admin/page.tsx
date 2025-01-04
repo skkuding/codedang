@@ -1,9 +1,9 @@
-import welcomeLogo from '@/public/welcome.svg'
+import welcomeLogo from '@/public/logos/welcome.png'
 import Image from 'next/image'
 
 export default function Page() {
   return (
-    <main className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform">
+    <main className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 transform flex-col items-center">
       <Image
         className="pb-10"
         src={welcomeLogo}

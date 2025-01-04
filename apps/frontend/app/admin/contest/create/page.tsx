@@ -1,6 +1,5 @@
 'use client'
 
-import { DataTableAdmin } from '@/components/DataTableAdmin'
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -11,15 +10,15 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogAction
-} from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
+} from '@/components/shadcn/alert-dialog'
+import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle
-} from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
+} from '@/components/shadcn/dialog'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
 import {
   CREATE_CONTEST,
   IMPORT_PROBLEMS_TO_CONTEST
@@ -31,7 +30,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState, useRef } from 'react'
+import { useState, useRef, Suspense } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
@@ -41,17 +40,19 @@ import DescriptionForm from '../../_components/DescriptionForm'
 import FormSection from '../../_components/FormSection'
 import SwitchField from '../../_components/SwitchField'
 import TitleForm from '../../_components/TitleForm'
-import { columns } from '../[id]/_components/Columns'
 import ContestProblemListLabel from '../_components/ContestProblemListLabel'
-import ImportProblemTable from '../_components/ImportProblemTable'
+import ContestProblemTable from '../_components/ContestProblemTable'
+import {
+  ImportProblemTable,
+  ImportProblemTableFallback
+} from '../_components/ImportProblemTable'
 import TimeForm from '../_components/TimeForm'
-import { type ContestProblem, createSchema } from '../utils'
+import { type ContestProblem, createSchema } from '../_libs/schemas'
 
 export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [isCreating, setIsCreating] = useState<boolean>(false)
   const [showImportDialog, setShowImportDialog] = useState<boolean>(false)
-  const [showCreateModal, setShowCreateModal] = useState(false)
 
   const shouldSkipWarning = useRef(false)
   const router = useRouter()
@@ -88,7 +89,7 @@ export default function Page() {
       toast.error('Duplicate problem order found')
       return
     }
-    setShowCreateModal(true)
+    onSubmit()
   }
 
   const onSubmit = async () => {
@@ -230,61 +231,32 @@ export default function Page() {
                     <DialogHeader>
                       <DialogTitle>Import Problem</DialogTitle>
                     </DialogHeader>
-                    <ImportProblemTable
-                      checkedProblems={problems as ContestProblem[]}
-                      onSelectedExport={(problems) =>
-                        setProblems(problems as ContestProblem[])
-                      }
-                      onCloseDialog={() => setShowImportDialog(false)}
-                    />
+                    <Suspense fallback={<ImportProblemTableFallback />}>
+                      <ImportProblemTable
+                        checkedProblems={problems}
+                        onSelectedExport={(problems) => {
+                          setProblems(problems)
+                          setShowImportDialog(false)
+                        }}
+                      />
+                    </Suspense>
                   </DialogContent>
                 </Dialog>
               </div>
-              <DataTableAdmin
-                // eslint-disable-next-line
-                columns={columns(problems, setProblems) as any[]}
-                data={problems as ContestProblem[]}
-                defaultSortColumn={{ id: 'order', desc: false }}
-                enableFooter={true}
-                defaultPageSize={20}
+              <ContestProblemTable
+                problems={problems}
+                setProblems={setProblems}
+                disableInput={false}
               />
             </div>
             <Button
               type="submit"
               className="flex h-[36px] w-[100px] items-center gap-2 px-0"
+              disabled={isCreating}
             >
               <IoMdCheckmarkCircleOutline fontSize={20} />
               <div className="mb-[2px] text-base">Create</div>
             </Button>
-            <AlertDialog open={showCreateModal}>
-              <AlertDialogContent className="p-8">
-                <AlertDialogHeader className="gap-2">
-                  <AlertDialogTitle>Create Contest?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Once user submit any coding, the contest problem list and
-                    score <span className="underline">cannot</span> be modified.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel
-                    type="button"
-                    className="rounded-md px-4 py-2"
-                    onClick={() => setShowCreateModal(false)}
-                  >
-                    Cancel
-                  </AlertDialogCancel>
-                  <AlertDialogAction asChild>
-                    <Button
-                      type="button"
-                      disabled={isCreating}
-                      onClick={() => onSubmit()}
-                    >
-                      Create
-                    </Button>
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
           </FormProvider>
         </form>
       </main>

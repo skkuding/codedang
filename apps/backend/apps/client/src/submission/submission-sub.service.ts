@@ -10,7 +10,12 @@ import type { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
 import { validateOrReject, ValidationError } from 'class-validator'
 import { Span } from 'nestjs-otel'
-import { testKey } from '@libs/cache'
+import {
+  testKey,
+  testcasesKey,
+  userTestKey,
+  userTestcasesKey
+} from '@libs/cache'
 import {
   CONSUME_CHANNEL,
   EXCHANGE,
@@ -19,7 +24,8 @@ import {
   RESULT_QUEUE,
   RUN_MESSAGE_TYPE,
   Status,
-  TEST_SUBMISSION_EXPIRE_TIME
+  TEST_SUBMISSION_EXPIRE_TIME,
+  USER_TESTCASE_MESSAGE_TYPE
 } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -42,9 +48,16 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         try {
           const res = await this.validateJudgerResponse(msg)
 
-          if (raw.properties.type === RUN_MESSAGE_TYPE) {
+          if (
+            raw.properties.type === RUN_MESSAGE_TYPE ||
+            raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
+          ) {
             const testRequestedUserId = res.submissionId // test용 submissionId == test를 요청한 userId
-            await this.handleRunMessage(res, testRequestedUserId)
+            await this.handleRunMessage(
+              res,
+              testRequestedUserId,
+              raw.properties.type === USER_TESTCASE_MESSAGE_TYPE ? true : false
+            )
             return
           }
 
@@ -75,26 +88,71 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     )
   }
 
-  async handleRunMessage(msg: JudgerResponse, userId: number): Promise<void> {
-    const key = testKey(userId)
+  async handleRunMessage(
+    msg: JudgerResponse,
+    userId: number,
+    isUserTest = false
+  ): Promise<void> {
     const status = Status(msg.resultCode)
     const testcaseId = msg.judgeResult?.testcaseId
+    const output = this.parseError(msg, status)
+    if (!testcaseId) {
+      const key = isUserTest ? userTestcasesKey(userId) : testcasesKey(userId)
+      const testcaseIds = (await this.cacheManager.get<number[]>(key)) ?? []
 
-    const testcases =
-      (await this.cacheManager.get<
-        {
-          id: number
-          result: ResultStatus
-        }[]
-      >(key)) ?? []
-
-    testcases.forEach((tc) => {
-      if (!testcaseId || tc.id === testcaseId) {
-        tc.result = status
+      for (const testcaseId of testcaseIds) {
+        await this.cacheManager.set(
+          isUserTest
+            ? userTestKey(userId, testcaseId)
+            : testKey(userId, testcaseId),
+          {
+            id: testcaseId,
+            // TODO: judgeResult 코드 처리 통합 해야함
+            result: msg.judgeResult
+              ? Status(msg.judgeResult.resultCode)
+              : Status(msg.resultCode),
+            output
+          },
+          TEST_SUBMISSION_EXPIRE_TIME
+        )
       }
-    })
+      return
+    }
 
-    await this.cacheManager.set(key, testcases, TEST_SUBMISSION_EXPIRE_TIME)
+    const key = isUserTest
+      ? userTestKey(userId, testcaseId)
+      : testKey(userId, testcaseId)
+
+    const testcase = await this.cacheManager.get<{
+      id: number
+      result: ResultStatus
+      output?: string
+    }>(key)
+    if (testcase) {
+      testcase.id = testcaseId
+      // TODO: judgeResult 코드 처리 통합 해야함
+      testcase.result = msg.judgeResult
+        ? Status(msg.judgeResult.resultCode)
+        : Status(msg.resultCode)
+      testcase.output = output
+    }
+
+    await this.cacheManager.set(key, testcase, TEST_SUBMISSION_EXPIRE_TIME)
+  }
+
+  parseError(msg: JudgerResponse, status: ResultStatus): string {
+    if (msg.judgeResult?.output) return msg.judgeResult.output
+
+    switch (status) {
+      case ResultStatus.CompileError:
+        return msg.error ?? ''
+      case ResultStatus.SegmentationFaultError:
+        return 'Segmentation Fault'
+      case ResultStatus.RuntimeError:
+        return 'Value Error'
+      default:
+        return ''
+    }
   }
 
   async validateJudgerResponse(msg: object): Promise<JudgerResponse> {
@@ -123,7 +181,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     const submissionResult = {
       submissionId: msg.submissionId,
       problemTestcaseId: msg.judgeResult.testcaseId,
-      result: status,
+      // TODO: judgeResult 코드 처리 통합 해야함
+      result: Status(msg.judgeResult.resultCode),
       cpuTime: BigInt(msg.judgeResult.cpuTime),
       memoryUsage: msg.judgeResult.memory
     }

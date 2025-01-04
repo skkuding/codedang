@@ -1,4 +1,4 @@
-import { DateTimePickerDemo } from '@/components/date-time-picker-demo'
+import { DateTimePickerDemo } from '@/components/shadcn/date-time-picker-demo'
 import { useController, useFormContext } from 'react-hook-form'
 import ErrorMessage from '../../_components/ErrorMessage'
 

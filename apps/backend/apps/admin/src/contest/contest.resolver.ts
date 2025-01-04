@@ -1,19 +1,8 @@
-import {
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-  ParseBoolPipe
-} from '@nestjs/common'
+import { ParseBoolPipe } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { Contest, ContestProblem } from '@generated'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import {
-  ConflictFoundException,
-  EntityNotExistException,
-  UnprocessableDataException
-} from '@libs/exception'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -25,7 +14,7 @@ import { ContestSubmissionSummaryForUser } from './model/contest-submission-summ
 import { ContestWithParticipants } from './model/contest-with-participants.model'
 import { CreateContestInput } from './model/contest.input'
 import { UpdateContestInput } from './model/contest.input'
-import { ContestsGroupedByStatus } from './model/contests-grouped-by-status'
+import { ContestsGroupedByStatus } from './model/contests-grouped-by-status.output'
 import { DuplicatedContestResponse } from './model/duplicated-contest-response.output'
 import { ProblemScoreInput } from './model/problem-score.input'
 import { PublicizingRequest } from './model/publicizing-request.model'
@@ -34,7 +23,6 @@ import { UserContestScoreSummaryWithUserInfo } from './model/score-summary'
 
 @Resolver(() => Contest)
 export class ContestResolver {
-  private readonly logger = new Logger(ContestResolver.name)
   constructor(private readonly contestService: ContestService) {}
 
   @Query(() => [ContestWithParticipants])
@@ -62,16 +50,7 @@ export class ContestResolver {
     @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
     contestId: number
   ) {
-    try {
-      return await this.contestService.getContest(contestId)
-    } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code == 'P2025'
-      ) {
-        throw new NotFoundException(error.message)
-      }
-    }
+    return await this.contestService.getContest(contestId)
   }
 
   @Mutation(() => Contest)
@@ -85,22 +64,7 @@ export class ContestResolver {
     groupId: number,
     @Context('req') req: AuthenticatedRequest
   ) {
-    try {
-      return await this.contestService.createContest(
-        groupId,
-        req.user.id,
-        input
-      )
-    } catch (error) {
-      if (
-        error instanceof UnprocessableDataException ||
-        error instanceof EntityNotExistException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.createContest(groupId, req.user.id, input)
   }
 
   @Mutation(() => Contest)
@@ -108,18 +72,7 @@ export class ContestResolver {
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('input') input: UpdateContestInput
   ) {
-    try {
-      return await this.contestService.updateContest(groupId, input)
-    } catch (error) {
-      if (
-        error instanceof EntityNotExistException ||
-        error instanceof UnprocessableDataException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.updateContest(groupId, input)
   }
 
   @Mutation(() => Contest)
@@ -127,63 +80,52 @@ export class ContestResolver {
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('contestId', { type: () => Int }) contestId: number
   ) {
-    try {
-      return await this.contestService.deleteContest(groupId, contestId)
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.deleteContest(groupId, contestId)
   }
 
+  /**
+   * Contest의 소속 Group을 Open Space(groupId === 1)로 이동시키기 위한 요청(Publicizing Requests)들을 불러옵니다.
+   * @returns Publicizing Request 배열
+   */
   @Query(() => [PublicizingRequest])
   @UseRolesGuard()
   async getPublicizingRequests() {
     return await this.contestService.getPublicizingRequests()
   }
 
+  /**
+   * Contest의 소속 Group을 Open Space(groupId === 1)로 이동시키기 위한 요청(Publicizing Request)를 생성합니다.
+   * @param groupId Contest가 속한 Group의 ID. 이미 Open Space(groupId === 1)이 아니어야 합니다.
+   * @param contestId Contest의 ID
+   * @returns 생성된 Publicizing Request
+   */
   @Mutation(() => PublicizingRequest)
   async createPublicizingRequest(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('contestId', { type: () => Int }) contestId: number
   ) {
-    try {
-      return await this.contestService.createPublicizingRequest(
-        groupId,
-        contestId
-      )
-    } catch (error) {
-      if (
-        error instanceof EntityNotExistException ||
-        error instanceof ConflictFoundException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.createPublicizingRequest(
+      groupId,
+      contestId
+    )
   }
 
+  /**
+   * Contest의 소속 Group을 Open Space(groupId === 1)로 이동시키기 위한 요청(Publicizing Request)을 처리합니다.
+   * @param contestId Publicizing Request를 생성한 contest의 Id
+   * @param isAccepted 요청 수락 여부
+   * @returns
+   */
   @Mutation(() => PublicizingResponse)
   @UseRolesGuard()
   async handlePublicizingRequest(
     @Args('contestId', { type: () => Int }) contestId: number,
     @Args('isAccepted', ParseBoolPipe) isAccepted: boolean
   ) {
-    try {
-      return await this.contestService.handlePublicizingRequest(
-        contestId,
-        isAccepted
-      )
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.handlePublicizingRequest(
+      contestId,
+      isAccepted
+    )
   }
 
   @Mutation(() => [ContestProblem])
@@ -193,22 +135,11 @@ export class ContestResolver {
     @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
     problemIdsWithScore: ProblemScoreInput[]
   ) {
-    try {
-      return await this.contestService.importProblemsToContest(
-        groupId,
-        contestId,
-        problemIdsWithScore
-      )
-    } catch (error) {
-      if (
-        error instanceof EntityNotExistException ||
-        error instanceof UnprocessableDataException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.importProblemsToContest(
+      groupId,
+      contestId,
+      problemIdsWithScore
+    )
   }
 
   @Mutation(() => [ContestProblem])
@@ -218,29 +149,18 @@ export class ContestResolver {
     contestId: number,
     @Args('problemIds', { type: () => [Int] }) problemIds: number[]
   ) {
-    try {
-      return await this.contestService.removeProblemsFromContest(
-        groupId,
-        contestId,
-        problemIds
-      )
-    } catch (error) {
-      if (
-        error instanceof EntityNotExistException ||
-        error instanceof UnprocessableDataException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.removeProblemsFromContest(
+      groupId,
+      contestId,
+      problemIds
+    )
   }
 
   /**
    * 특정 User의 Contest 제출 내용 요약 정보를 가져옵니다.
    *
    * Contest Overall 페이지에서 특정 유저를 선택했을 때 사용
-   * https://github.com/skkuding/codedang/pull/1894
+   * @see https://github.com/skkuding/codedang/pull/1894
    */
   @Query(() => ContestSubmissionSummaryForUser)
   async getContestSubmissionSummaryByUserId(
@@ -257,18 +177,13 @@ export class ContestResolver {
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null
   ) {
-    try {
-      return await this.contestService.getContestSubmissionSummaryByUserId(
-        take,
-        contestId,
-        userId,
-        problemId,
-        cursor
-      )
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.getContestSubmissionSummaryByUserId(
+      take,
+      contestId,
+      userId,
+      problemId,
+      cursor
+    )
   }
 
   @Mutation(() => DuplicatedContestResponse)
@@ -278,29 +193,18 @@ export class ContestResolver {
     contestId: number,
     @Context('req') req: AuthenticatedRequest
   ) {
-    try {
-      return await this.contestService.duplicateContest(
-        groupId,
-        contestId,
-        req.user.id
-      )
-    } catch (error) {
-      if (
-        error instanceof UnprocessableDataException ||
-        error instanceof EntityNotExistException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.duplicateContest(
+      groupId,
+      contestId,
+      req.user.id
+    )
   }
 
   /**
    * Contest에 참여한 User와, 점수 요약을 함께 불러옵니다.
    *
    * Contest Overall 페이지의 Participants 탭의 정보
-   * https://github.com/skkuding/codedang/pull/2029
+   * @see https://github.com/skkuding/codedang/pull/2029
    */
   @Query(() => [UserContestScoreSummaryWithUserInfo])
   async getContestScoreSummaries(
@@ -313,34 +217,18 @@ export class ContestResolver {
     @Args('searchingName', { type: () => String, nullable: true })
     searchingName?: string
   ) {
-    try {
-      return await this.contestService.getContestScoreSummaries(
-        contestId,
-        take,
-        cursor,
-        searchingName
-      )
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.getContestScoreSummaries(
+      contestId,
+      take,
+      cursor,
+      searchingName
+    )
   }
 
   @Query(() => ContestsGroupedByStatus)
   async getContestsByProblemId(
     @Args('problemId', { type: () => Int }) problemId: number
   ) {
-    try {
-      return await this.contestService.getContestsByProblemId(problemId)
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.getContestsByProblemId(problemId)
   }
 }

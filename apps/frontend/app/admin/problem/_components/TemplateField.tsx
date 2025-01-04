@@ -1,6 +1,6 @@
 'use client'
 
-import { Textarea } from '@/components/ui/textarea'
+import { Textarea } from '@/components/shadcn/textarea'
 import type { Template, Language } from '@generated/graphql'
 import { useEffect, useRef } from 'react'
 import { useFormContext } from 'react-hook-form'

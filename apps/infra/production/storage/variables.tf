@@ -18,3 +18,10 @@ variable "redis_port" {
   default     = 6379
   sensitive   = true
 }
+
+variable "region" {
+  type        = string
+  description = "The region for provider"
+  default     = "ap-northeast-2"
+}
+
