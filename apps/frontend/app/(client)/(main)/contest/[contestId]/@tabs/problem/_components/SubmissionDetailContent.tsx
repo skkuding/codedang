@@ -1,6 +1,6 @@
 'use client'
 
-import { submissionQueries } from '@/app/(client)/_libs/queries/submission'
+import { contestSubmissionQueries } from '@/app/(client)/_libs/queries/contestSubmission'
 import CodeEditor from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Skeleton } from '@/components/shadcn/skeleton'
@@ -28,7 +28,7 @@ export function SubmissionDetailContent({
   problem
 }: SubmissionDetailProps) {
   const { data: submission } = useSuspenseQuery(
-    submissionQueries.detail({
+    contestSubmissionQueries.detail({
       contestId,
       submissionId,
       problemId: problem.id
