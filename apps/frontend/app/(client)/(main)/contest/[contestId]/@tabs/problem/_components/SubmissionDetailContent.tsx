@@ -3,6 +3,7 @@
 import { submissionQueries } from '@/app/(client)/_libs/queries/submission'
 import CodeEditor from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import {
   Table,
   TableBody,
@@ -13,9 +14,7 @@ import {
 } from '@/components/shadcn/table'
 import { dateFormatter, getResultColor } from '@/libs/utils'
 import type { ContestProblem, Language } from '@/types/type'
-import { ErrorBoundary } from '@suspensive/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { Suspense } from 'react'
 
 interface SubmissionDetailProps {
   contestId: number
@@ -23,7 +22,7 @@ interface SubmissionDetailProps {
   problem: ContestProblem
 }
 
-function SubmissionDetail({
+export function SubmissionDetailContent({
   contestId,
   submissionId,
   problem
@@ -89,7 +88,7 @@ function SubmissionDetail({
               <Table className="[&_*]:text-center [&_*]:text-xs [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:!border-neutral-200">
                 <TableHeader>
                   <TableRow>
-                    <TableHead></TableHead>
+                    <TableHead />
                     <TableHead className="!text-sm text-black">
                       Result
                     </TableHead>
@@ -136,20 +135,24 @@ function SubmissionDetail({
   )
 }
 
-export default function SubmissionDetailContetnt({
-  contestId,
-  submissionId,
-  problem
-}: SubmissionDetailProps) {
+export function SubmissionDetailContentFallback() {
   return (
-    <ErrorBoundary fallback={null}>
-      <Suspense fallback={null}>
-        <SubmissionDetail
-          contestId={contestId}
-          submissionId={submissionId}
-          problem={problem}
-        />
-      </Suspense>
-    </ErrorBoundary>
+    <ScrollArea className="mt-5 max-h-[540px] w-[760px]">
+      <div className="ml-20 flex w-[612px] flex-col gap-4">
+        <Skeleton className="h-[28px]" />
+        <div>
+          <h2 className="font-bold">Summary</h2>
+          <Skeleton className="h-[76px]" />
+        </div>
+        <div>
+          <h2 className="font-bold">Testcase</h2>
+          <Skeleton className="h-[76px]" />
+        </div>
+        <div>
+          <h2 className="mb-3 font-bold">Source Code</h2>
+          <Skeleton className="h-28" />
+        </div>
+      </div>
+    </ScrollArea>
   )
 }

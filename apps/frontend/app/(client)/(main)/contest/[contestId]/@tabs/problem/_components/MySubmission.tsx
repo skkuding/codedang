@@ -1,4 +1,5 @@
 import { submissionQueries } from '@/app/(client)/_libs/queries/submission'
+import FetchErrorFallback from '@/components/FetchErrorFallback'
 import {
   Dialog,
   DialogTrigger,
@@ -15,18 +16,21 @@ import seeSubmissionIcon from '@/public/icons/see-submission.svg'
 import type { ContestProblem } from '@/types/type'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import { ErrorBoundary } from '@suspensive/react'
-import { useQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useState, Suspense } from 'react'
-import SubmissionDetailContent from './SubmissionDetailContent'
+import {
+  SubmissionDetailContent,
+  SubmissionDetailContentFallback
+} from './SubmissionDetailContent'
 
-function MySubmissionContent({ problem }: { problem: ContestProblem }) {
+export function MySubmission({ problem }: { problem: ContestProblem }) {
   const [isTooltipOpen, setIsTooltipOpen] = useState(false)
   const { contestId: contestIdString } = useParams()
   const contestId = Number(contestIdString)
 
-  const { data: latestSubmissionData, isLoading: isLoadingLatest } = useQuery(
+  const { data: latestSubmissionData } = useSuspenseQuery(
     submissionQueries.list({
       contestId,
       problemId: problem.id,
@@ -36,10 +40,6 @@ function MySubmissionContent({ problem }: { problem: ContestProblem }) {
 
   const latestSubmission = latestSubmissionData?.data?.[0]
   const latestSubmissionId = latestSubmission?.id ?? 0
-
-  if (isLoadingLatest) {
-    return <Skeleton className="size-[25px]" />
-  }
 
   if (!latestSubmissionId) {
     return null
@@ -77,23 +77,21 @@ function MySubmissionContent({ problem }: { problem: ContestProblem }) {
       </TooltipProvider>
       <div onClick={(e) => e.stopPropagation()}>
         <DialogContent className="max-h-[620px] max-w-[800px] justify-center">
-          <SubmissionDetailContent
-            contestId={contestId}
-            submissionId={latestSubmissionId}
-            problem={problem}
-          />
+          <ErrorBoundary fallback={FetchErrorFallback}>
+            <Suspense fallback={<SubmissionDetailContentFallback />}>
+              <SubmissionDetailContent
+                contestId={contestId}
+                submissionId={latestSubmissionId}
+                problem={problem}
+              />
+            </Suspense>
+          </ErrorBoundary>
         </DialogContent>
       </div>
     </Dialog>
   )
 }
 
-export default function MySubmission({ problem }: { problem: ContestProblem }) {
-  return (
-    <ErrorBoundary fallback={null}>
-      <Suspense fallback={<Skeleton className="size-[25px]" />}>
-        <MySubmissionContent problem={problem} />
-      </Suspense>
-    </ErrorBoundary>
-  )
+export function MySubmissionFallback() {
+  return <Skeleton className="size-[25px]" />
 }
