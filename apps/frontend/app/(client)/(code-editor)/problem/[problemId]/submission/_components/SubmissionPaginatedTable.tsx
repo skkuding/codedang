@@ -3,33 +3,28 @@
 import SubmissionTable, {
   SubmissionTableFallback
 } from '@/app/(client)/(code-editor)/_components/SubmissionTable'
-import { submissionQueries } from '@/app/(client)/_libs/queries/submission'
+import { problemSubmissionQueries } from '@/app/(client)/_libs/queries/problemSubmission'
 import {
-  Paginator,
   PageNavigation,
+  Paginator,
   SlotNavigation
 } from '@/components/PaginatorV2'
-import {
-  usePagination,
-  usePaginationQueryParams
-} from '@/libs/hooks/usePaginationV2'
+import { getTakeQueryParam, usePagination } from '@/libs/hooks/usePaginationV2'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { columns } from './Columns'
 
 const itemsPerPage = 20
 
 export function SubmissionPaginatedTable({ problemId }: { problemId: number }) {
-  const [{ take, cursor }, setPaginationQueryParams] = usePaginationQueryParams(
-    {
-      itemsPerPage
-    }
-  )
+  const [queryParams, updateQueryParams] = useState({
+    take: getTakeQueryParam({ itemsPerPage })
+  })
 
   const { data } = useSuspenseQuery(
-    submissionQueries.problemList({
-      problemId,
-      take,
-      ...(cursor ? { cursor } : undefined)
+    problemSubmissionQueries.list({
+      ...queryParams,
+      problemId
     })
   )
 
@@ -39,12 +34,14 @@ export function SubmissionPaginatedTable({ problemId }: { problemId: number }) {
     firstPage,
     lastPage,
     gotoPage,
-    gotoSlot
+    gotoSlot,
+    prevDisabled,
+    nextDisabled
   } = usePagination({
     data: data.data,
+    totalCount: data.total,
     itemsPerPage,
-    takeQueryParams: take,
-    setPaginationQueryParams
+    updateQueryParams
   })
 
   return (
@@ -56,20 +53,20 @@ export function SubmissionPaginatedTable({ problemId }: { problemId: number }) {
       />
       <Paginator>
         <SlotNavigation
-          gotoSlot={gotoSlot}
           direction="prev"
-          disabled={firstPage > 1}
+          gotoSlot={gotoSlot}
+          disabled={prevDisabled}
         />
         <PageNavigation
-          gotoPage={gotoPage}
           firstPage={firstPage}
           lastPage={lastPage}
           currentPage={currentPage}
+          gotoPage={gotoPage}
         />
         <SlotNavigation
-          gotoSlot={gotoSlot}
           direction="next"
-          disabled={lastPage * itemsPerPage < data.total}
+          gotoSlot={gotoSlot}
+          disabled={nextDisabled}
         />
       </Paginator>
     </>

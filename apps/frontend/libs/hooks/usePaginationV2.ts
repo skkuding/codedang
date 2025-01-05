@@ -1,91 +1,53 @@
-import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
+import { useState, type Dispatch, type SetStateAction } from 'react'
 
 interface PaginationQueryParams {
   cursor?: number
   take: number
 }
 
-interface Params {
-  itemsPerPage: number
-  pagesPerSlot?: number
-}
-
-/**
- * Cursor-based pagination query params custom hook.
- * Used for API request query parameter.
- * Use this hook before fetching data.
- *
- * Based on 'slot > page > item' hierarchy,
- * It needs to fetch all items in slot and 1 more to check if next slot exists.
- * Say a slot has 5 pages and a page has 10 items,
- * 51 (= 5 * 10 + 1) items should be fetched in total.
- *
- * @param itemsPerPage number of items in a page
- * @param pagesPerSlot number of pages in a slot (default: 5)
- */
-export const usePaginationQueryParams = ({
-  itemsPerPage,
-  pagesPerSlot = 5
-}: Params): [
-  PaginationQueryParams,
-  Dispatch<SetStateAction<PaginationQueryParams>>
-] => {
-  const [paginationQueryParams, setPaginationQueryParams] =
-    useState<PaginationQueryParams>({
-      take: itemsPerPage * pagesPerSlot + 1
-    })
-
-  return [paginationQueryParams, setPaginationQueryParams]
-}
-
-// -------------------------------------------------------------------
-
 interface Item {
   id: number
 }
 
-interface UsePaginationParameters<T extends Item> {
+interface Params<T extends Item> {
   data: T[]
+  totalCount: number
   itemsPerPage: number
   pagesPerSlot?: number
-  takeQueryParams: number
-  setPaginationQueryParams: (params: PaginationQueryParams) => void
+  updateQueryParams: Dispatch<SetStateAction<PaginationQueryParams>>
 }
 
+const DEFAULT_PAGES_PER_SLOT = 5
+
 /**
- * Custom Hook to get cursor-based paginated items.
+ * Custom Hook for cursor-based pagination.
  * Use this hook after fetching data.
  *
  * @param data the list of items
- * @param takeQueryParams take query parameter
+ * @param totalCount the total count of data
  * @param itemsPerPage number of items in a page
  * @param pagesPerSlot number of pages in a slot (default: 5)
- * @param setPaginationQueryParams the function of updating pagination query params
+ * @param updateQueryParams the function of updating pagination query params
  */
 export const usePagination = <T extends Item>({
   data,
-  takeQueryParams,
+  totalCount,
   itemsPerPage,
-  pagesPerSlot = 5,
-  setPaginationQueryParams
-}: UsePaginationParameters<T>) => {
+  pagesPerSlot = DEFAULT_PAGES_PER_SLOT,
+  updateQueryParams
+}: Params<T>) => {
   const [page, setPage] = useState(1) // TODO: 새로고침 후에 현재 페이지로 돌아갈 수 있도록 수정
   const [slot, setSlot] = useState(0)
-  const firstPage = slot * pagesPerSlot + 1
 
-  const [slotItems, setSlotItems] = useState(
-    getSlotItems(data, takeQueryParams)
-  )
-  const startIndex = ((page - firstPage) % pagesPerSlot) * itemsPerPage
-  const paginatedItems = slotItems.slice(startIndex, startIndex + itemsPerPage)
+  const firstPage = slot * pagesPerSlot + 1
   const pageCount = Math.min(
-    Math.ceil(slotItems.length / itemsPerPage),
+    Math.ceil(data.length / itemsPerPage),
     pagesPerSlot
   )
+  const lastPage = firstPage + pageCount - 1
 
-  useEffect(() => {
-    setSlotItems(getSlotItems(data, takeQueryParams))
-  }, [data, takeQueryParams])
+  const startIndex = ((page - firstPage) % pagesPerSlot) * itemsPerPage
+  const paginatedItems = data.slice(startIndex, startIndex + itemsPerPage)
 
   // handle in-slot navigation
   const gotoPage = (newPage: number) => {
@@ -94,51 +56,43 @@ export const usePagination = <T extends Item>({
 
   // handle across-slot navigation
   const gotoSlot = (direction: 'prev' | 'next') => {
-    const newPage = direction === 'prev' ? firstPage - 1 : firstPage + pageCount
+    const newPage = direction === 'prev' ? firstPage - 1 : lastPage + 1
     setPage(newPage)
     setSlot(Math.floor((newPage - 1) / pagesPerSlot))
 
-    const firstData = slotItems.at(0)
-    const lastData = slotItems.at(-1)
-
     if (direction === 'prev') {
-      setPaginationQueryParams({
-        cursor: firstData?.id,
-        take: -Math.abs(takeQueryParams)
-      })
+      updateQueryParams(({ take }) => ({
+        cursor: data.at(0)?.id,
+        take: -Math.abs(take)
+      }))
     }
 
     if (direction === 'next') {
-      setPaginationQueryParams({
-        cursor: lastData?.id,
-        take: Math.abs(takeQueryParams)
-      })
+      updateQueryParams(({ take }) => ({
+        cursor: data.at(-1)?.id,
+        take: Math.abs(take)
+      }))
     }
   }
 
   return {
     paginatedItems,
     firstPage,
-    lastPage: firstPage + pageCount - 1,
+    lastPage,
     currentPage: page,
+    prevDisabled: firstPage <= 1,
+    nextDisabled: lastPage * itemsPerPage >= totalCount,
     gotoPage,
     gotoSlot
   }
 }
 
-const getSlotItems = <T extends Item>(data: T[], take: number) => {
-  const next = take > 0
-  const full = data.length >= Math.abs(take)
-
-  let newItems = data
-
-  if (full) {
-    if (next) {
-      newItems = data.slice(0, data.length - 1)
-    } else {
-      newItems = data.slice(1)
-    }
-  }
-
-  return newItems
+export const getTakeQueryParam = ({
+  itemsPerPage,
+  pagesPerSlot = DEFAULT_PAGES_PER_SLOT
+}: {
+  itemsPerPage: number
+  pagesPerSlot?: number
+}) => {
+  return itemsPerPage * pagesPerSlot
 }

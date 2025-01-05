@@ -5,66 +5,35 @@ import {
   PaginationNext,
   PaginationPrevious
 } from '@/components/shadcn/pagination'
-import { cn, getPageArray } from '@/libs/utils'
+import { getPageArray } from '@/libs/utils'
 import type { ReactNode } from 'react'
 
-export function Paginator({
-  children,
-  className
-}: {
+interface PaginatorProps {
   children: ReactNode
-  className?: string
-}) {
+}
+
+export function Paginator({ children }: PaginatorProps) {
   return (
     <Pagination>
-      <PaginationContent className={cn('py-2', className)}>
+      <PaginationContent className="flex items-center gap-1 py-2">
         {children}
       </PaginationContent>
     </Pagination>
   )
 }
 
-interface PageNavigationProps {
-  currentPage: number
-  firstPage: number
-  lastPage: number
-  gotoPage: (page: number) => void
-}
-
-export function PageNavigation({
-  currentPage,
-  firstPage,
-  lastPage,
-  gotoPage
-}: PageNavigationProps) {
-  return (
-    <div className="flex items-center gap-1">
-      {getPageArray(firstPage, lastPage).map((item) => (
-        <PaginationButton
-          key={item}
-          isActive={currentPage === item}
-          onClick={() => {
-            gotoPage(item)
-          }}
-        >
-          {item}
-        </PaginationButton>
-      ))}
-    </div>
-  )
-}
-
 type Direction = 'prev' | 'next'
+interface SlotNavigationProps {
+  direction: Direction
+  disabled: boolean
+  gotoSlot: (dir: Direction) => void
+}
 
 export function SlotNavigation({
   direction,
-  disabled,
-  gotoSlot
-}: {
-  disabled: boolean
-  gotoSlot: (dir: Direction) => void
-  direction: Direction
-}) {
+  gotoSlot,
+  disabled
+}: SlotNavigationProps) {
   return direction === 'prev' ? (
     <PaginationPrevious
       onClick={() => {
@@ -78,8 +47,38 @@ export function SlotNavigation({
       onClick={() => {
         gotoSlot('next')
       }}
-      isActive={disabled}
-      disabled={!disabled}
+      isActive={!disabled}
+      disabled={disabled}
     />
+  )
+}
+
+interface PageNavigationProps {
+  firstPage: number
+  lastPage: number
+  currentPage: number
+  gotoPage: (page: number) => void
+}
+
+export function PageNavigation({
+  firstPage,
+  lastPage,
+  currentPage,
+  gotoPage
+}: PageNavigationProps) {
+  return (
+    <>
+      {getPageArray(firstPage, lastPage).map((item) => (
+        <PaginationButton
+          key={item}
+          isActive={currentPage === item}
+          onClick={() => {
+            gotoPage(item)
+          }}
+        >
+          {item}
+        </PaginationButton>
+      ))}
+    </>
   )
 }

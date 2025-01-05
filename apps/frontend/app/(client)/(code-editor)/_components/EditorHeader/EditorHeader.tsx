@@ -1,7 +1,8 @@
 'use client'
 
 import { contestProblemQueries } from '@/app/(client)/_libs/queries/contestProblem'
-import { submissionQueries } from '@/app/(client)/_libs/queries/submission'
+import { contestSubmissionQueries } from '@/app/(client)/_libs/queries/contestSubmission'
+import { problemSubmissionQueries } from '@/app/(client)/_libs/queries/problemSubmission'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -196,11 +197,14 @@ export default function Editor({
           queryKey: contestProblemQueries.lists(contestId)
         })
         queryClient.invalidateQueries({
-          queryKey: submissionQueries.contestLists(contestId)
+          queryKey: contestSubmissionQueries.lists({
+            contestId,
+            problemId: problem.id
+          })
         })
       } else {
         queryClient.invalidateQueries({
-          queryKey: submissionQueries.problemLists(problem.id)
+          queryKey: problemSubmissionQueries.lists(problem.id)
         })
       }
     } else {
