@@ -80,7 +80,7 @@ module "iris" {
 
   appautoscaling_target = {
     min_capacity = 2
-    max_capacity = 8
+    max_capacity = 4
     resource_id = {
       cluster_name = module.codedang_iris.ecs_cluster.name
     }
