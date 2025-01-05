@@ -53,3 +53,5 @@ const (
 	EXCHANGE   = "judger-exchange"
 	RESULT_KEY = "result"
 )
+
+const MAX_OUTPUT = 1048576 // 1MB
