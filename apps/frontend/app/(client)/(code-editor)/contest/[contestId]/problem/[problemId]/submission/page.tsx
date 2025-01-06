@@ -1,3 +1,5 @@
+import FetchErrorFallback from '@/components/FetchErrorFallback'
+import { TanstackQueryErrorBoundary } from '@/components/TanstackQueryErrorBoundary'
 import { Suspense } from 'react'
 import {
   SubmissionPaginatedTable,
@@ -12,11 +14,13 @@ export default function SubmissionPage({
   const { problemId, contestId } = params
 
   return (
-    <Suspense fallback={<SubmissionPaginatedTableFallback />}>
-      <SubmissionPaginatedTable
-        problemId={Number(problemId)}
-        contestId={Number(contestId)}
-      />
-    </Suspense>
+    <TanstackQueryErrorBoundary fallback={FetchErrorFallback}>
+      <Suspense fallback={<SubmissionPaginatedTableFallback />}>
+        <SubmissionPaginatedTable
+          problemId={Number(problemId)}
+          contestId={Number(contestId)}
+        />
+      </Suspense>
+    </TanstackQueryErrorBoundary>
   )
 }
