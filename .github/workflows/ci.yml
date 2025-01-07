@@ -126,6 +126,11 @@ jobs:
           fetch-depth: 0
 
       - uses: ./.github/actions/setup-pnpm
+        with:
+          install: 'no'
+
+      - name: Install root and frontend dependencies
+        run: pnpm install -w --filter frontend
 
       - name: Set up Go
         uses: actions/setup-go@v5
