@@ -4,10 +4,10 @@ import { auth } from '@/libs/auth'
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import type { Contest, ProblemDetail } from '@/types/type'
-import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import type { GetContestProblemDetailResponse } from '../../_libs/apis/contestProblem'
 import ContestProblemDropdown from './ContestProblemDropdown'
 import EditorMainResizablePanel from './EditorResizablePanel'
 
@@ -23,26 +23,27 @@ export default async function EditorLayout({
   children
 }: EditorLayoutProps) {
   let contest: Contest | undefined
-  let problem: ProblemDetail
+  let problem: Required<ProblemDetail>
 
   if (contestId) {
     // for getting contest info and problems list
+
+    // TODO: use `getContestProblemDetail` from _libs/apis folder & use error boundary
     const res = await fetcherWithAuth(
       `contest/${contestId}/problem/${problemId}`
     )
-
     if (!res.ok && res.status === 403) {
       redirect(`/contest/${contestId}/finished/problem/${problemId}`)
     }
-    const ContestProblem: { problem: ProblemDetail } = await res.json()
-    problem = ContestProblem.problem
+
+    const contestProblem = await res.json<GetContestProblemDetailResponse>()
+    problem = { ...contestProblem.problem, order: contestProblem.order }
+
     contest = await fetcher(`contest/${contestId}`).json()
     contest ? (contest.status = 'ongoing') : null // TODO: refactor this after change status interactively
   } else {
     problem = await fetcher(`problem/${problemId}`).json()
   }
-
-  // for getting problem detail
 
   const session = await auth()
 
@@ -56,16 +57,13 @@ export default async function EditorLayout({
           <div className="flex items-center gap-1 font-medium">
             {contest ? <>Contest</> : <Link href="/problem">Problem</Link>}
             <p className="mx-2"> / </p>
-            {contest && contestId ? (
+            {contest ? (
               <>
-                <Link href={`/contest/${contestId}` as Route}>
-                  {contest.title}
-                </Link>
+                <Link href={`/contest/${contest.id}`}>{contest.title}</Link>
                 <p className="mx-2"> / </p>
                 <ContestProblemDropdown
                   problem={problem}
-                  problemId={problemId}
-                  contestId={contestId}
+                  contestId={contest.id}
                 />
               </>
             ) : (

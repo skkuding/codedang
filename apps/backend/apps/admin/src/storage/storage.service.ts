@@ -17,6 +17,14 @@ export class StorageService {
     @Inject('S3_CLIENT_MEDIA') private readonly mediaClient: S3Client
   ) {}
 
+  /**
+   * @deprecated testcase를 더 이상 S3에 저장하지 않습니다.
+   *
+   * Object(testcase)를 업로드합니다.
+   * @param filename 파일 이름
+   * @param content 파일 내용
+   * @param type 업로드할 파일의 MIME type
+   */
   async uploadObject(filename: string, content: string, type: ContentType) {
     await this.client.send(
       new PutObjectCommand({
@@ -28,6 +36,13 @@ export class StorageService {
     )
   }
 
+  /**
+   * 이미지를 S3 Bucket에 업로드합니다.
+   * @param filename 이미지 파일 이름
+   * @param fileSize 이미지 파일 크기 (Byte)
+   * @param content 이미지 파일 내용 (ReadStream type)
+   * @param type 업로드할 이미지 파일의 MIME type
+   */
   async uploadImage(
     filename: string,
     fileSize: number,
@@ -47,6 +62,13 @@ export class StorageService {
 
   // TODO: uploadFile
 
+  /**
+   * @deprecated testcase를 더 이상 S3에 저장하지 않습니다.
+   *
+   * Object(testcase)를 불러옵니다.
+   * @param filename 파일 이름
+   * @returns S3에 저장된 Object
+   */
   async readObject(filename: string) {
     const res = await this.client.send(
       new GetObjectCommand({
@@ -57,6 +79,12 @@ export class StorageService {
     return res.Body?.transformToString() ?? ''
   }
 
+  /**
+   * @deprecated testcase를 더 이상 S3에 저장하지 않습니다.
+   *
+   * S3에 저장된 Object(testcase)를 삭제합니다.
+   * @param filename 파일 이름
+   */
   async deleteObject(filename: string) {
     await this.client.send(
       new DeleteObjectCommand({
@@ -66,6 +94,10 @@ export class StorageService {
     )
   }
 
+  /**
+   * S3에 저장된 이미지를 삭제합니다.
+   * @param filename 이미지 파일 이름
+   */
   async deleteImage(filename: string) {
     await this.mediaClient.send(
       new DeleteObjectCommand({

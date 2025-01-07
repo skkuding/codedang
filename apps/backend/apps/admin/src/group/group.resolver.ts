@@ -53,6 +53,11 @@ export class GroupResolver {
     return await this.groupService.deleteGroup(id, req.user)
   }
 
+  /**
+   * Group 초대코드를 발급합니다.
+   * @param id 초대코드를 발급하는 Group의 ID
+   * @returns 발급된 초대코드
+   */
   @Mutation(() => String)
   async issueInvitation(
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
@@ -60,6 +65,11 @@ export class GroupResolver {
     return await this.groupService.issueInvitation(id)
   }
 
+  /**
+   * 발급했던 Group 초대코드를 제거합니다.
+   * @param id 초대코드를 제거하는 Group의 ID
+   * @returns 제거된 초대코드
+   */
   @Mutation(() => String)
   async revokeInvitation(
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number

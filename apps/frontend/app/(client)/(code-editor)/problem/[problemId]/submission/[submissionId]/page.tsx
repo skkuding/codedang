@@ -8,8 +8,8 @@ export default async function Page({
   params
 }: {
   params: {
-    problemId: number
-    submissionId: number
+    problemId: string
+    submissionId: string
   }
 }) {
   const { submissionId, problemId } = params
@@ -31,7 +31,10 @@ export default async function Page({
           </div>
         }
       >
-        <SubmissionDetail problemId={problemId} submissionId={submissionId} />
+        <SubmissionDetail
+          problemId={Number(problemId)}
+          submissionId={Number(submissionId)}
+        />
       </Suspense>
     </div>
   )

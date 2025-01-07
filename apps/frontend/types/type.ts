@@ -32,8 +32,9 @@ export interface Problem {
   difficulty: Level
   submissionCount: number
   acceptedRate: number
-  tags?: Tag[]
-  info?: string
+  tags: Tag[]
+  languages: Language[]
+  hasPassed: boolean | null
 }
 
 /**
@@ -45,11 +46,16 @@ export interface WorkbookProblem extends Omit<Problem, 'tags' | 'info'> {
   order: number
 }
 
-export interface ContestProblem extends Omit<Problem, 'tags' | 'info'> {
+export interface ContestProblem {
+  id: number
+  title: number
+  difficulty: Level
   order: number
+  submissionCount: number
   maxScore: number
-  score?: string
-  submissionTime?: Date
+  score: string | null
+  submissionTime: string | null
+  acceptedRate: number
 }
 
 export interface TestcaseItem {
@@ -73,6 +79,7 @@ export interface ProblemDetail {
   hint: string
   template: string[]
   difficulty: Level
+  order?: number
 }
 
 // Contest type definition
