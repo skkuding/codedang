@@ -129,6 +129,7 @@ jobs:
         with:
           install: 'no'
 
+      # NOTE: eslint-config-next 에서 next 모듈을 찾지 못하는 에러를 해결하기 위해 프론트엔드 의존성을 설치합니다.
       - name: Install root and frontend dependencies
         run: pnpm install -w --filter frontend
 
