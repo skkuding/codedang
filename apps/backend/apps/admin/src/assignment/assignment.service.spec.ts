@@ -1,8 +1,8 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { ContestProblem, Group, ContestRecord } from '@generated'
+import { AssignmentProblem, Group, AssignmentRecord } from '@generated'
 import { Problem } from '@generated'
-import { Contest } from '@generated'
+import { Assignment } from '@generated'
 import { faker } from '@faker-js/faker'
 import { ResultStatus } from '@prisma/client'
 import type { Cache } from 'cache-manager'
@@ -18,7 +18,7 @@ import type {
 } from './model/assignment.input'
 import type { PublicizingRequest } from './model/publicizing-request.model'
 
-const contestId = 1
+const assignmentId = 1
 const userId = 1
 const groupId = 1
 const problemId = 2
@@ -33,8 +33,8 @@ const problemIdsWithScore = {
 }
 // const duplicatedContestId = 2
 
-const contest: Contest = {
-  id: contestId,
+const assignment: Assignment = {
+  id: assignmentId,
   createdById: userId,
   groupId,
   title: 'title',
@@ -48,11 +48,11 @@ const contest: Contest = {
   createTime,
   updateTime,
   invitationCode,
-  contestProblem: []
+  assignmentProblem: []
 }
 
-const contestWithCount = {
-  id: contestId,
+const assignmentWithCount = {
+  id: assignmentId,
   createdById: userId,
   groupId,
   title: 'title',
@@ -68,12 +68,12 @@ const contestWithCount = {
   invitationCode,
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
-    contestRecord: 10
+    assignmentRecord: 10
   }
 }
 
-const contestWithParticipants: AssignmentWithParticipants = {
-  id: contestId,
+const assignmentWithParticipants: AssignmentWithParticipants = {
+  id: assignmentId,
   createdById: userId,
   groupId,
   title: 'title',
@@ -132,9 +132,9 @@ const problem: Problem = {
   engTitle: null
 }
 
-const contestProblem: ContestProblem = {
+const assignmentProblem: AssignmentProblem = {
   order: 0,
-  contestId,
+  assignmentId,
   problemId,
   score: 50,
   createTime: faker.date.past(),
@@ -146,7 +146,7 @@ const submissionsWithProblemTitleAndUsername = {
   userId: 1,
   userIp: '127.0.0.1',
   problemId: 1,
-  contestId: 1,
+  assignmentId: 1,
   workbookId: 1,
   code: [],
   codeSize: 1,
@@ -177,7 +177,7 @@ const submissionsWithProblemTitleAndUsername = {
 // ]
 
 const publicizingRequest: PublicizingRequest = {
-  contestId,
+  assignmentId,
   userId,
   expireTime: new Date('2050-08-19T07:32:07.533Z')
 }
@@ -205,23 +205,23 @@ const updateInput = {
 } satisfies UpdateAssignmentInput
 
 const db = {
-  contest: {
-    findFirst: stub().resolves(Contest),
-    findUnique: stub().resolves(Contest),
-    findMany: stub().resolves([Contest]),
-    create: stub().resolves(Contest),
-    update: stub().resolves(Contest),
-    delete: stub().resolves(Contest)
+  assignment: {
+    findFirst: stub().resolves(Assignment),
+    findUnique: stub().resolves(Assignment),
+    findMany: stub().resolves([Assignment]),
+    create: stub().resolves(Assignment),
+    update: stub().resolves(Assignment),
+    delete: stub().resolves(Assignment)
   },
-  contestProblem: {
-    create: stub().resolves(ContestProblem),
-    findMany: stub().resolves([ContestProblem]),
-    findFirstOrThrow: stub().resolves(ContestProblem),
-    findFirst: stub().resolves(ContestProblem)
+  assignmentProblem: {
+    create: stub().resolves(AssignmentProblem),
+    findMany: stub().resolves([AssignmentProblem]),
+    findFirstOrThrow: stub().resolves(AssignmentProblem),
+    findFirst: stub().resolves(AssignmentProblem)
   },
-  contestRecord: {
-    findMany: stub().resolves([ContestRecord]),
-    create: stub().resolves(ContestRecord)
+  assignmentRecord: {
+    findMany: stub().resolves([AssignmentRecord]),
+    create: stub().resolves(AssignmentRecord)
   },
   problem: {
     update: stub().resolves(Problem),
@@ -239,13 +239,13 @@ const db = {
   // },
   $transaction: stub().callsFake(async () => {
     const updatedProblem = await db.problem.update()
-    const newContestProblem = await db.contestProblem.create()
-    return [newContestProblem, updatedProblem]
+    const newAssignmentProblem = await db.assignmentProblem.create()
+    return [newAssignmentProblem, updatedProblem]
   }),
   getPaginator: PrismaService.prototype.getPaginator
 }
 
-describe('ContestService', () => {
+describe('AssignmentService', () => {
   let service: AssignmentService
   let cache: Cache
 
@@ -270,19 +270,19 @@ describe('ContestService', () => {
 
     service = module.get<AssignmentService>(AssignmentService)
     cache = module.get<Cache>(CACHE_MANAGER)
-    stub(cache.store, 'keys').resolves(['contest:1:publicize'])
+    stub(cache.store, 'keys').resolves(['assignment:1:publicize'])
   })
 
   it('should be defined', () => {
     expect(service).to.be.ok
   })
 
-  describe('getContests', () => {
-    it('should return an array of contests', async () => {
-      db.contest.findMany.resolves([contestWithCount])
+  describe('getAssignments', () => {
+    it('should return an array of assignments', async () => {
+      db.assignment.findMany.resolves([assignmentWithCount])
 
       const res = await service.getAssignments(5, 2, 0)
-      expect(res).to.deep.equal([contestWithParticipants])
+      expect(res).to.deep.equal([assignmentWithParticipants])
     })
   })
 
@@ -296,42 +296,42 @@ describe('ContestService', () => {
     })
   })
 
-  describe('createContest', () => {
-    it('should return created contest', async () => {
-      db.contest.create.resolves(contest)
+  describe('createAssignment', () => {
+    it('should return created assignment', async () => {
+      db.assignment.create.resolves(assignment)
       db.group.findUnique.resolves(group)
 
       const res = await service.createAssignment(groupId, userId, input)
-      expect(res).to.deep.equal(contest)
+      expect(res).to.deep.equal(assignment)
     })
   })
 
-  describe('updateContest', () => {
-    it('should return updated contest', async () => {
-      db.contest.findFirst.resolves(contest)
-      db.contest.update.resolves(contest)
+  describe('updateAssignment', () => {
+    it('should return updated assignment', async () => {
+      db.assignment.findFirst.resolves(assignment)
+      db.assignment.update.resolves(assignment)
 
       const res = await service.updateAssignment(groupId, updateInput)
-      expect(res).to.deep.equal(contest)
+      expect(res).to.deep.equal(assignment)
     })
 
-    it('should throw error when groupId or contestId not exist', async () => {
+    it('should throw error when groupId or assignmentId not exist', async () => {
       expect(service.updateAssignment(1000, updateInput)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
   })
 
-  describe('deleteContest', () => {
-    it('should return deleted contest', async () => {
-      db.contest.findFirst.resolves(contest)
-      db.contest.delete.resolves(contest)
+  describe('deleteAssignment', () => {
+    it('should return deleted assignment', async () => {
+      db.assignment.findFirst.resolves(assignment)
+      db.assignment.delete.resolves(assignment)
 
-      const res = await service.deleteAssignment(groupId, contestId)
-      expect(res).to.deep.equal(contest)
+      const res = await service.deleteAssignment(groupId, assignmentId)
+      expect(res).to.deep.equal(assignment)
     })
 
-    it('should throw error when groupId or contestId not exist', async () => {
+    it('should throw error when groupId or assignmentId not exist', async () => {
       expect(service.deleteAssignment(1000, 1000)).to.be.rejectedWith(
         EntityNotExistException
       )
@@ -340,65 +340,67 @@ describe('ContestService', () => {
 
   describe('handlePublicizingRequest', () => {
     it('should return accepted state', async () => {
-      db.contest.update.resolves(contest)
+      db.assignment.update.resolves(assignment)
 
       const cacheSpyGet = stub(cache, 'get').resolves([publicizingRequest])
-      const res = await service.handlePublicizingRequest(contestId, true)
+      const res = await service.handlePublicizingRequest(assignmentId, true)
 
       expect(cacheSpyGet.called).to.be.true
       expect(res).to.deep.equal({
-        contestId,
+        assignmentId,
         isAccepted: true
       })
     })
 
-    it('should throw error when groupId or contestId not exist', async () => {
+    it('should throw error when groupId or assignmentId not exist', async () => {
       expect(service.handlePublicizingRequest(1000, true)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
 
-    it('should throw error when the contest is not requested to public', async () => {
+    it('should throw error when the assignment is not requested to public', async () => {
       expect(service.handlePublicizingRequest(3, true)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
   })
 
-  describe('importProblemsToContest', () => {
-    const contestWithEmptySubmissions = {
-      ...contest,
+  describe('importProblemsToAssignment', () => {
+    const assignmentWithEmptySubmissions = {
+      ...assignment,
       submission: []
     }
 
-    it('should return created ContestProblems', async () => {
-      db.contest.findUnique.resolves(contestWithEmptySubmissions)
+    it('should return created AssignmentProblems', async () => {
+      db.assignment.findUnique.resolves(assignmentWithEmptySubmissions)
       db.problem.update.resolves(problem)
-      db.contestProblem.create.resolves(contestProblem)
-      db.contestProblem.findFirst.resolves(null)
+      db.assignmentProblem.create.resolves(assignmentProblem)
+      db.assignmentProblem.findFirst.resolves(null)
 
       const res = await Promise.all(
-        await service.importProblemsToAssignment(groupId, contestId, [
+        await service.importProblemsToAssignment(groupId, assignmentId, [
           problemIdsWithScore
         ])
       )
 
-      expect(res).to.deep.equal([contestProblem])
+      expect(res).to.deep.equal([assignmentProblem])
     })
 
-    it('should return an empty array when the problem already exists in contest', async () => {
-      db.contest.findUnique.resolves(contestWithEmptySubmissions)
+    it('should return an empty array when the problem already exists in assignment', async () => {
+      db.assignment.findUnique.resolves(assignmentWithEmptySubmissions)
       db.problem.update.resolves(problem)
-      db.contestProblem.findFirst.resolves(ContestProblem)
+      db.assignmentProblem.findFirst.resolves(AssignmentProblem)
 
-      const res = await service.importProblemsToAssignment(groupId, contestId, [
-        problemIdsWithScore
-      ])
+      const res = await service.importProblemsToAssignment(
+        groupId,
+        assignmentId,
+        [problemIdsWithScore]
+      )
 
       expect(res).to.deep.equal([])
     })
 
-    it('should throw error when the contestId not exist', async () => {
+    it('should throw error when the assignmentId not exist', async () => {
       expect(
         service.importProblemsToAssignment(groupId, 9999, [problemIdsWithScore])
       ).to.be.rejectedWith(EntityNotExistException)
