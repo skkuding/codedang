@@ -234,3 +234,4 @@ jobs:
       - name: Test (Go)
         if: steps.filter.outputs.iris == 'true'
         run: go test ./...
+        working-directory: ./apps/iris
