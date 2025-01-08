@@ -7,9 +7,14 @@ import {
   Req,
   Query,
   DefaultValuePipe,
-  Headers
+  Headers,
+  Sse,
+  ParseIntPipe
 } from '@nestjs/common'
+import type { EventEmitter2 } from '@nestjs/event-emitter'
+import { Observable } from 'rxjs'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
+import { submissionTestcaseEvent } from '@libs/constants'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -24,7 +29,10 @@ import { SubmissionService } from './submission.service'
 
 @Controller('submission')
 export class SubmissionController {
-  constructor(private readonly submissionService: SubmissionService) {}
+  constructor(
+    private readonly submissionService: SubmissionService,
+    private readonly eventEmitter: EventEmitter2
+  ) {}
 
   /**
    * 아직 채점되지 않은 제출 기록을 만들고, 채점 서버에 채점 요청을 보냅니다.
@@ -162,6 +170,30 @@ export class SubmissionController {
       groupId,
       contestId
     )
+  }
+
+  @Sse('result/:submissionId')
+  async getSubmissionTestcaseResult(
+    @Req() req: AuthenticatedRequest,
+    @Param('submissionId', ParseIntPipe) submissionId: number
+  ): Promise<Observable<MessageEvent>> {
+    const userId = req.user.id
+    await this.submissionService.checkSubmissionId(submissionId, userId)
+
+    return new Observable<MessageEvent>((subscriber) => {
+      const listener = (payload) => {
+        if (payload.submissionId === submissionId) {
+          subscriber.next(payload)
+        }
+      }
+
+      const event = submissionTestcaseEvent(submissionId)
+      this.eventEmitter.on(event, listener)
+      req.on('close', () => {
+        this.eventEmitter.off(event, listener)
+        if (!subscriber.closed) subscriber.complete()
+      })
+    })
   }
 }
 

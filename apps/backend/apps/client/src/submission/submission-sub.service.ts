@@ -1,5 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger, type OnModuleInit } from '@nestjs/common'
+import type { EventEmitter2 } from '@nestjs/event-emitter'
 import { Nack, AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import {
   ResultStatus,
@@ -24,6 +25,7 @@ import {
   RESULT_QUEUE,
   RUN_MESSAGE_TYPE,
   Status,
+  submissionTestcaseEvent,
   TEST_SUBMISSION_EXPIRE_TIME,
   USER_TESTCASE_MESSAGE_TYPE
 } from '@libs/constants'
@@ -38,6 +40,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
     private readonly amqpConnection: AmqpConnection,
+    private readonly eventEmitter: EventEmitter2,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -188,6 +191,11 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     }
 
     await this.updateTestcaseJudgeResult(submissionResult)
+
+    this.eventEmitter.emit(
+      submissionTestcaseEvent(msg.submissionId),
+      submissionResult
+    )
   }
 
   @Span()

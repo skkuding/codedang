@@ -3,6 +3,7 @@ import { CacheModule } from '@nestjs/cache-manager'
 import { Module, type OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD, APP_FILTER, HttpAdapterHost } from '@nestjs/core'
+import { EventEmitterModule } from '@nestjs/event-emitter'
 import type { Server } from 'http'
 import { OpenTelemetryModule } from 'nestjs-otel'
 import { LoggerModule } from 'nestjs-pino'
@@ -50,7 +51,8 @@ import { WorkbookModule } from './workbook/workbook.module'
     AnnouncementModule,
     StorageModule,
     LoggerModule.forRoot(pinoLoggerModuleOption),
-    OpenTelemetryModule.forRoot()
+    OpenTelemetryModule.forRoot(),
+    EventEmitterModule.forRoot()
   ],
   controllers: [AppController],
   providers: [

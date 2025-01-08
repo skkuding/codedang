@@ -825,4 +825,13 @@ export class SubmissionService {
 
     return { data: submissions, total }
   }
+
+  async checkSubmissionId(submissionId: number, userId: number) {
+    await this.prisma.submission.findFirstOrThrow({
+      where: {
+        id: submissionId,
+        userId
+      }
+    })
+  }
 }
