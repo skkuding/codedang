@@ -2,7 +2,7 @@ import type { SettingsFormat } from '@/types/type'
 import { createContext, useContext } from 'react'
 import type { FieldErrors, UseFormRegister } from 'react-hook-form'
 
-export interface GetProfile {
+export interface Profile {
   username: string // ID
   userProfile: {
     realName: string
@@ -33,7 +33,7 @@ interface FormState {
 }
 
 export type SettingsContextType = {
-  defaultProfileValues: GetProfile
+  defaultProfileValues: Profile
   passwordState: PasswordState
   majorState: MajorState
   formState: FormState

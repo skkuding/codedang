@@ -20,7 +20,7 @@ import SaveButton from './_components/SaveButton'
 import StudentIdSection from './_components/StudentIdSection'
 import TopicSection from './_components/TopicSection'
 import { SettingsProvider } from './_components/context'
-import type { GetProfile, SettingsContextType } from './_components/context'
+import type { Profile, SettingsContextType } from './_components/context'
 import { useCheckPassword } from './_libs/hooks/useCheckPassword'
 import { schemaSettings } from './_libs/schemas'
 import { useConfirmNavigation } from './_libs/utils'
@@ -38,7 +38,7 @@ export default function Page() {
   const updateNow = searchParams.get('updateNow')
   const router = useRouter()
   const bypassConfirmation = useRef<boolean>(false)
-  const [defaultProfileValues, setdefaultProfileValues] = useState<GetProfile>({
+  const [defaultProfileValues, setdefaultProfileValues] = useState<Profile>({
     username: '',
     userProfile: {
       realName: ''
@@ -51,7 +51,7 @@ export default function Page() {
   useEffect(() => {
     const fetchDefaultProfile = async () => {
       try {
-        const data: GetProfile = await safeFetcherWithAuth.get('user').json()
+        const data: Profile = await safeFetcherWithAuth.get('user').json()
         setMajorValue(data.major)
         setdefaultProfileValues(data)
         setIsLoading(false)
