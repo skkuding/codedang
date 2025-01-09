@@ -1,3 +1,4 @@
+import Cover from '@/app/(client)/(main)/_components/Cover'
 import FetchErrorFallback from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
@@ -55,15 +56,18 @@ export default async function Course({ searchParams }: CourseProps) {
   const search = searchParams.search ?? ''
   return (
     <>
-      <ErrorBoundary fallback={FetchErrorFallback}>
-        <Suspense fallback={<CourseCardListFallback />}>
-          <CourseCardList
-            title="This is your courses!"
-            type="Ongoing"
-            session={session}
-          />
-        </Suspense>
-      </ErrorBoundary>
+      <Cover title="COURSE" description="Courses of CODEDANG" />
+      <div className="flex w-full max-w-7xl flex-col gap-5 p-5 py-8">
+        <ErrorBoundary fallback={FetchErrorFallback}>
+          <Suspense fallback={<CourseCardListFallback />}>
+            <CourseCardList
+              title="This is your courses!"
+              type="Ongoing"
+              session={session}
+            />
+          </Suspense>
+        </ErrorBoundary>
+      </div>
 
       <Suspense fallback={<FinishedAssignmentTableFallback />}>
         {/* <Separator className="mb-3" /> */}

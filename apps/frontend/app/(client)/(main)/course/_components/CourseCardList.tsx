@@ -88,7 +88,7 @@ function ContestCardCarousel({
             {chunk.map((contest) => (
               <Link
                 key={contest.id}
-                href={`/contest/${contest.id}` as Route}
+                href={`/course/${contest.id}` as Route}
                 className={cn(
                   'block overflow-hidden p-2',
                   itemsPerSlide === 3 ? 'w-1/3' : 'w-1/2'
@@ -104,7 +104,7 @@ function ContestCardCarousel({
   )
 }
 
-export default async function Contest({
+export default async function Course({
   title,
   type,
   session
