@@ -1,4 +1,6 @@
+import FetchErrorFallback from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
+import { ErrorBoundary } from '@suspensive/react'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense } from 'react'
@@ -23,21 +25,23 @@ export default async function Page({
         </Link>
         <h1 className="text-xl font-bold">Submission #{submissionId}</h1>
       </div>
-      <Suspense
-        fallback={
-          <div className="flex h-fit flex-col gap-4 p-2 text-lg">
-            <Skeleton className="h-20 w-full rounded-lg bg-slate-900" />
-            <Skeleton className="h-8 w-3/12 rounded-lg bg-slate-900" />
-            <Skeleton className="h-32 w-full rounded-lg bg-slate-900" />
-          </div>
-        }
-      >
-        <SubmissionDetail
-          problemId={Number(problemId)}
-          contestId={Number(contestId)}
-          submissionId={Number(submissionId)}
-        />
-      </Suspense>
+      <ErrorBoundary fallback={FetchErrorFallback}>
+        <Suspense
+          fallback={
+            <div className="flex h-fit flex-col gap-4 p-2 text-lg">
+              <Skeleton className="h-20 w-full rounded-lg bg-slate-900" />
+              <Skeleton className="h-8 w-3/12 rounded-lg bg-slate-900" />
+              <Skeleton className="h-32 w-full rounded-lg bg-slate-900" />
+            </div>
+          }
+        >
+          <SubmissionDetail
+            problemId={Number(problemId)}
+            contestId={Number(contestId)}
+            submissionId={Number(submissionId)}
+          />
+        </Suspense>
+      </ErrorBoundary>
     </div>
   )
 }
