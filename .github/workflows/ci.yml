@@ -129,8 +129,9 @@ jobs:
         with:
           install: 'no'
 
-      - name: Install dev dependencies
-        run: pnpm install --dev
+      # NOTE: eslint-config-next 에서 next 모듈을 찾지 못하는 에러를 해결하기 위해 프론트엔드 의존성을 설치합니다.
+      - name: Install root and frontend dependencies
+        run: pnpm install -w --filter frontend
 
       - name: Set up Go
         uses: actions/setup-go@v5

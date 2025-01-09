@@ -6,7 +6,7 @@
     "dev": "next dev -p 5525",
     "build": "pnpm run compile && next build",
     "start": "next start --keepAliveTimeout 70000",
-    "lint": "next lint",
+    "lint": "eslint .",
     "compile": "graphql-codegen --require dotenv/config",
     "test": "vitest"
   },
@@ -106,7 +106,6 @@
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "eslint-config-next": "^14.2.22",
     "jsdom": "^25.0.1",
     "lucide-react": "^0.469.0",
     "msw": "^2.7.0",
