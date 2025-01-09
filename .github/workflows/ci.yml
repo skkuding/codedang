@@ -209,3 +209,30 @@ jobs:
       - name: Test
         if: steps.filter.outputs.backend == 'true'
         run: pnpm --filter="@codedang/backend" test
+
+  test-iris:
+    name: Test Iris
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            iris:
+              - 'apps/iris/**'
+
+      - name: Set up Go
+        if: steps.filter.outputs.iris == 'true'
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/iris/go.mod
+          cache-dependency-path: apps/iris/go.sum
+
+      - name: Test (Go)
+        if: steps.filter.outputs.iris == 'true'
+        run: go test ./...
+        working-directory: ./apps/iris
