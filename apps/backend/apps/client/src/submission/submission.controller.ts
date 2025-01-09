@@ -181,10 +181,25 @@ export class SubmissionController {
     await this.submissionService.checkSubmissionId(submissionId, userId)
 
     return new Observable<MessageEvent>((subscriber) => {
-      const listener = (payload) => {
-        if (payload.submissionId === submissionId) {
-          subscriber.next(payload)
+      /*
+        TODO: payload 타입 정의
+
+        payload 구조:
+        {
+          result: ResultStatus
+          testcaseResult: {
+            submissionId: number,
+            problemTestcaseId: number,
+            result: ResultStatus,
+            cpuTime: bigint,
+            memoryUsage: number
+          }
         }
+      */
+      const listener = (payload) => {
+        subscriber.next({
+          data: JSON.stringify(payload)
+        } as MessageEvent)
       }
 
       const event = submissionTestcaseEvent(submissionId)
