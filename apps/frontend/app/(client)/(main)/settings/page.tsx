@@ -20,7 +20,7 @@ import SaveButton from './_components/SaveButton'
 import StudentIdSection from './_components/StudentIdSection'
 import TopicSection from './_components/TopicSection'
 import { SettingsProvider } from './_components/context'
-import type { Profile, SettingsContextType } from './_components/context'
+import type { Profile } from './_components/context'
 import { useCheckPassword } from './_libs/hooks/useCheckPassword'
 import { schemaSettings } from './_libs/schemas'
 import { useConfirmNavigation } from './_libs/utils'
@@ -189,7 +189,7 @@ export default function Page() {
     resetToSubmittableValue('confirmPassword', confirmPassword, 'tmppassword1')
   }
 
-  const settingsContextValue: SettingsContextType = {
+  const settingsContextValue = {
     defaultProfileValues,
     passwordState: {
       passwordShow,
