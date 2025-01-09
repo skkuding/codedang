@@ -3,12 +3,14 @@
 import { DELETE_CONTEST } from '@/graphql/contest/mutations'
 import { GET_CONTESTS } from '@/graphql/contest/queries'
 import { useApolloClient, useMutation, useSuspenseQuery } from '@apollo/client'
-import DataTable from '../../_components/table/DataTable'
-import DataTableDeleteButton from '../../_components/table/DataTableDeleteButton'
-import DataTableFallback from '../../_components/table/DataTableFallback'
-import DataTablePagination from '../../_components/table/DataTablePagination'
-import DataTableRoot from '../../_components/table/DataTableRoot'
-import DataTableSearchBar from '../../_components/table/DataTableSearchBar'
+import {
+  DataTable,
+  DataTableDeleteButton,
+  DataTableFallback,
+  DataTablePagination,
+  DataTableRoot,
+  DataTableSearchBar
+} from '../../_components/table'
 import { columns } from './ContestTableColumns'
 import DuplicateContestButton from './DuplicateContestButton'
 
