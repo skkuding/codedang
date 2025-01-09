@@ -86,7 +86,7 @@
     "sharp": "^0.33.5",
     "sonner": "^1.7.1",
     "zod": "^3.24.1",
-    "zustand": "^4.5.5"
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@codemirror/language": "^6.10.8",
