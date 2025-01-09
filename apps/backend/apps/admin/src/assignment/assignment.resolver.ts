@@ -16,9 +16,9 @@ import { CreateAssignmentInput } from './model/assignment.input'
 import { UpdateAssignmentInput } from './model/assignment.input'
 import { AssignmentsGroupedByStatus } from './model/assignments-grouped-by-status.output'
 import { DuplicatedAssignmentResponse } from './model/duplicated-assignment-response.output'
-import { ProblemScoreInput } from './model/problem-score.input'
-import { PublicizingRequest } from './model/publicizing-request.model'
-import { PublicizingResponse } from './model/publicizing-response.output'
+import { AssignmentProblemScoreInput } from './model/problem-score.input'
+import { AssignmentPublicizingRequest } from './model/publicizing-request.model'
+import { AssignmentPublicizingResponse } from './model/publicizing-response.output'
 import { UserAssignmentScoreSummaryWithUserInfo } from './model/score-summary'
 
 @Resolver(() => Assignment)
@@ -95,7 +95,7 @@ export class AssignmentResolver {
    * Assignment의 소속 Group을 Open Space(groupId === 1)로 이동시키기 위한 요청(Publicizing Requests)들을 불러옵니다.
    * @returns Publicizing Request 배열
    */
-  @Query(() => [PublicizingRequest])
+  @Query(() => [AssignmentPublicizingRequest])
   @UseRolesGuard()
   async getPublicizingRequests() {
     return await this.assignmentService.getPublicizingRequests()
@@ -103,11 +103,11 @@ export class AssignmentResolver {
 
   /**
    * Assignment 소속 Group을 Open Space(groupId === 1)로 이동시키기 위한 요청(Publicizing Request)를 생성합니다.
-   * @param groupId Contest가 속한 Group의 ID. 이미 Open Space(groupId === 1)이 아니어야 합니다.
+   * @param groupId Assignment가 속한 Group의 ID. 이미 Open Space(groupId === 1)이 아니어야 합니다.
    * @param assignemtnId Assignment ID
    * @returns 생성된 Publicizing Request
    */
-  @Mutation(() => PublicizingRequest)
+  @Mutation(() => AssignmentPublicizingRequest)
   async createPublicizingRequest(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('assignmentId', { type: () => Int }) assignmentId: number
@@ -124,7 +124,7 @@ export class AssignmentResolver {
    * @param isAccepted 요청 수락 여부
    * @returns
    */
-  @Mutation(() => PublicizingResponse)
+  @Mutation(() => AssignmentPublicizingResponse)
   @UseRolesGuard()
   async handlePublicizingRequest(
     @Args('assignmentId', { type: () => Int }) assignmentId: number,
@@ -140,8 +140,8 @@ export class AssignmentResolver {
   async importProblemsToAssignment(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('assignmentId', { type: () => Int }) assignmentId: number,
-    @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
-    problemIdsWithScore: ProblemScoreInput[]
+    @Args('problemIdsWithScore', { type: () => [AssignmentProblemScoreInput] })
+    problemIdsWithScore: AssignmentProblemScoreInput[]
   ) {
     return await this.assignmentService.importProblemsToAssignment(
       groupId,

@@ -16,7 +16,7 @@ import type {
   CreateAssignmentInput,
   UpdateAssignmentInput
 } from './model/assignment.input'
-import type { PublicizingRequest } from './model/publicizing-request.model'
+import type { AssignmentPublicizingRequest } from './model/publicizing-request.model'
 
 const assignmentId = 1
 const userId = 1
@@ -31,7 +31,7 @@ const problemIdsWithScore = {
   problemId,
   score: 10
 }
-// const duplicatedContestId = 2
+// const duplicatedAssignmentId = 2
 
 const assignment: Assignment = {
   id: assignmentId,
@@ -176,7 +176,7 @@ const submissionsWithProblemTitleAndUsername = {
 //   }
 // ]
 
-const publicizingRequest: PublicizingRequest = {
+const publicizingRequest: AssignmentPublicizingRequest = {
   assignmentId,
   userId,
   expireTime: new Date('2050-08-19T07:32:07.533Z')
@@ -407,13 +407,13 @@ describe('AssignmentService', () => {
     })
   })
 
-  // describe('getContestSubmissionSummaryByUserId', () => {
-  //   it('should return contest submission summaries', async () => {
-  //     const res = await service.getContestSubmissionSummaryByUserId(10, 1, 1, 1)
+  // describe('getAssignmentSubmissionSummaryByUserId', () => {
+  //   it('should return assignment submission summaries', async () => {
+  //     const res = await service.getAssignmentSubmissionSummaryByUserId(10, 1, 1, 1)
 
   //     expect(res.submissions).to.deep.equal([
   //       {
-  //         contestId: 1,
+  //         assignmentId: 1,
   //         problemTitle: 'submission',
   //         username: 'user01',
   //         studentId: '1234567890',
@@ -439,55 +439,55 @@ describe('AssignmentService', () => {
   //   })
   // })
 
-  // describe('duplicateContest', () => {
+  // describe('duplicateAssignment', () => {
   //   db['$transaction'] = stub().callsFake(async () => {
-  //     const newContest = await db.contest.create()
-  //     const newContestProblem = await db.contestProblem.create()
-  //     const newContestRecord = await db.contestRecord.create()
-  //     return [newContest, newContestProblem, newContestRecord]
+  //     const newAssignment = await db.assignment.create()
+  //     const newAssignmentProblem = await db.assignmentProblem.create()
+  //     const newAssignmentRecord = await db.assignmentRecord.create()
+  //     return [newAssignment, newAssignmentProblem, newAssignmentRecord]
   //   })
 
-  //   it('should return duplicated contest', async () => {
-  //     db.contest.findFirst.resolves(contest)
-  //     db.contestProblem.create.resolves({
-  //       ...contest,
+  //   it('should return duplicated assignment', async () => {
+  //     db.assignment.findFirst.resolves(assignment)
+  //     db.assignmentProblem.create.resolves({
+  //       ...assignment,
   //       createdById: userId,
   //       groupId,
   //       isVisible: false
   //     })
-  //     db.contestProblem.findMany.resolves([contestProblem])
-  //     db.contestProblem.create.resolves({
-  //       ...contestProblem,
-  //       contestId: duplicatedContestId
+  //     db.assignmentProblem.findMany.resolves([assignmentProblem])
+  //     db.assignmentProblem.create.resolves({
+  //       ...assignmentProblem,
+  //       assignmentId: duplicatedAssignmentId
   //     })
-  //     db.contestRecord.findMany.resolves([contestRecord])
-  //     db.contestRecord.create.resolves({
-  //       ...contestRecord,
-  //       contestId: duplicatedContestId
+  //     db.assignmentRecord.findMany.resolves([assignmentRecord])
+  //     db.assignmentRecord.create.resolves({
+  //       ...assignmentRecord,
+  //       assignmentId: duplicatedAssignmentId
   //     })
 
-  //     const res = await service.duplicateContest(groupId, contestId, userId)
-  //     expect(res.contest).to.deep.equal(contest)
+  //     const res = await service.duplicateAssignment(groupId, assignmentId, userId)
+  //     expect(res.assignment).to.deep.equal(assignment)
   //     expect(res.problems).to.deep.equal([
   //       {
-  //         ...contestProblem,
-  //         contestId: duplicatedContestId
+  //         ...assignmentProblem,
+  //         assignmentId: duplicatedAssignmentId
   //       }
   //     ])
   //     expect(res.records).to.deep.equal([
-  //       { ...contestRecord, contestId: duplicatedContestId }
+  //       { ...assignmentRecord, assignmentId: duplicatedAssignmentId }
   //     ])
   //   })
 
-  //   it('should throw error when the contestId not exist', async () => {
+  //   it('should throw error when the assignmentId not exist', async () => {
   //     expect(
-  //       service.duplicateContest(groupId, 9999, userId)
+  //       service.duplicateAssignment(groupId, 9999, userId)
   //     ).to.be.rejectedWith(EntityNotExistException)
   //   })
 
   //   it('should throw error when the groupId not exist', async () => {
   //     expect(
-  //       service.duplicateContest(9999, contestId, userId)
+  //       service.duplicateAssignment(9999, assignmentId, userId)
   //     ).to.be.rejectedWith(EntityNotExistException)
   //   })
   // })

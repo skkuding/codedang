@@ -4,7 +4,12 @@ import {
   Injectable,
   UnprocessableEntityException
 } from '@nestjs/common'
-import { Contest as Assignment, ResultStatus, Submission } from '@generated'
+import {
+  Assignment,
+  ResultStatus,
+  Submission,
+  AssignmentProblem
+} from '@generated'
 import { Cache } from 'cache-manager'
 import {
   OPEN_SPACE_ID,
@@ -22,9 +27,9 @@ import { PrismaService } from '@libs/prisma'
 import type { AssignmentWithScores } from './model/assignment-with-scores.model'
 import type { CreateAssignmentInput } from './model/assignment.input'
 import type { UpdateAssignmentInput } from './model/assignment.input'
-import type { ProblemScoreInput } from './model/problem-score.input'
-import type { PublicizingRequest } from './model/publicizing-request.model'
-import type { PublicizingResponse } from './model/publicizing-response.output'
+import type { AssignmentProblemScoreInput } from './model/problem-score.input'
+import type { AssignmentPublicizingRequest } from './model/publicizing-request.model'
+import type { AssignmentPublicizingResponse } from './model/publicizing-response.output'
 
 @Injectable()
 export class AssignmentService {
@@ -254,9 +259,9 @@ export class AssignmentService {
   }
 
   async getPublicizingRequests() {
-    const requests = await this.cacheManager.get<PublicizingRequest[]>(
-      PUBLICIZING_REQUEST_KEY
-    )
+    const requests = await this.cacheManager.get<
+      AssignmentPublicizingRequest[]
+    >(PUBLICIZING_REQUEST_KEY)
 
     if (!requests) {
       return []
@@ -280,7 +285,7 @@ export class AssignmentService {
   async handlePublicizingRequest(assignmentId: number, isAccepted: boolean) {
     const requests = (await this.cacheManager.get(
       PUBLICIZING_REQUEST_KEY
-    )) as Array<PublicizingRequest>
+    )) as Array<AssignmentPublicizingRequest>
     if (!requests) {
       throw new EntityNotExistException('AssignmentPublicizingRequest')
     }
@@ -312,9 +317,9 @@ export class AssignmentService {
     }
 
     return {
-      assignmentId: assignmentId,
+      assignmentId,
       isAccepted
-    } as PublicizingResponse
+    } as AssignmentPublicizingResponse
   }
 
   async createPublicizingRequest(groupId: number, assignmentId: number) {
@@ -336,7 +341,7 @@ export class AssignmentService {
 
     let requests = (await this.cacheManager.get(
       PUBLICIZING_REQUEST_KEY
-    )) as Array<PublicizingRequest>
+    )) as Array<AssignmentPublicizingRequest>
     if (!requests) {
       requests = []
     }
@@ -348,8 +353,8 @@ export class AssignmentService {
       throw new ConflictFoundException('duplicated publicizing request')
     }
 
-    const newRequest: PublicizingRequest = {
-      assignmentId: assignmentId,
+    const newRequest: AssignmentPublicizingRequest = {
+      assignmentId,
       userId: assignment.createdById!, // TODO: createdById가 null일 경우 예외처리
       expireTime: new Date(Date.now() + PUBLICIZING_REQUEST_EXPIRE_TIME)
     }
@@ -367,7 +372,7 @@ export class AssignmentService {
   async importProblemsToAssignment(
     groupId: number,
     assignmentId: number,
-    problemIdsWithScore: ProblemScoreInput[]
+    problemIdsWithScore: AssignmentProblemScoreInput[]
   ) {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
@@ -392,7 +397,7 @@ export class AssignmentService {
       const isProblemAlreadyImported =
         await this.prisma.assignmentProblem.findFirst({
           where: {
-            assignmentId: assignmentId,
+            assignmentId,
             problemId
           }
         })
@@ -404,10 +409,10 @@ export class AssignmentService {
         const [assignmentProblem] = await this.prisma.$transaction([
           this.prisma.assignmentProblem.create({
             data: {
-              // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
+              // 원래 id: 'temp'이었는데, assignmentProblem db schema field가 바뀌어서
               // 임시 방편으로 order: 0으로 설정합니다.
               order: 0,
-              assignmentId: assignmentId,
+              assignmentId,
               problemId,
               score
             }
@@ -526,7 +531,7 @@ export class AssignmentService {
             where: {
               // eslint-disable-next-line @typescript-eslint/naming-convention
               assignmentId_problemId: {
-                assignmentId: assignmentId,
+                assignmentId,
                 problemId
               }
             }
@@ -555,7 +560,7 @@ export class AssignmentService {
       take,
       where: {
         userId,
-        assignmentId: assignmentId,
+        assignmentId,
         problemId: problemId ?? undefined
       },
       include: {
@@ -564,7 +569,7 @@ export class AssignmentService {
             title: true,
             assignmentProblem: {
               where: {
-                assignmentId: assignmentId,
+                assignmentId,
                 problemId: problemId ?? undefined
               }
             }
@@ -581,7 +586,7 @@ export class AssignmentService {
 
     const mappedSubmission = submissions.map((submission) => {
       return {
-        contestId: submission.contestId,
+        assignmentId: submission.assignmentId,
         problemTitle: submission.problem.title,
         username: submission.user?.username,
         studentId: submission.user?.studentId,
@@ -592,8 +597,8 @@ export class AssignmentService {
         ip: submission.userIp,
         id: submission.id,
         problemId: submission.problemId,
-        order: submission.problem.contestProblem.length
-          ? submission.problem.contestProblem[0].order
+        order: submission.problem.assignmentProblem.length
+          ? submission.problem.assignmentProblem[0].order
           : null
       }
     })
@@ -632,12 +637,12 @@ export class AssignmentService {
         }),
         this.prisma.assignmentProblem.findMany({
           where: {
-            assignmentId: assignmentId
+            assignmentId
           }
         }),
         this.prisma.assignmentRecord.findMany({
           where: {
-            assignmentId: assignmentId
+            assignmentId
           }
         })
       ])
@@ -646,7 +651,7 @@ export class AssignmentService {
       throw new EntityNotExistException('assignment')
     }
 
-    // if contest status is ongoing, visible would be true. else, false
+    // if assignment status is ongoing, visible would be true. else, false
     const now = new Date()
     let newVisible = false
     if (assignmentFound.startTime <= now && now <= assignmentFound.endTime) {
@@ -715,15 +720,15 @@ export class AssignmentService {
    */
   async getAssignmentScoreSummary(userId: number, assignmentId: number) {
     const [assignmentProblems, rawSubmissions] = await Promise.all([
-      this.prisma.assignmentProblems.findMany({
+      this.prisma.assignmentProblem.findMany({
         where: {
-          assignmentId: assignmentId
+          assignmentId
         }
       }),
       this.prisma.submission.findMany({
         where: {
           userId,
-          assignmentId: assignmentId
+          assignmentId
         },
         orderBy: {
           createTime: 'desc'
@@ -778,11 +783,11 @@ export class AssignmentService {
     const scoreSummary = {
       submittedProblemCount: Object.keys(latestSubmissions).length, // Assignment에 존재하는 문제 중 제출된 문제의 개수
       totalProblemCount: assignmentProblems.length, // Assignment에 존재하는 Problem의 총 개수
-      userContestScore: problemScores.reduce(
+      userAssignmentScore: problemScores.reduce(
         (total, { score }) => total + score,
         0
       ), // Assignment에서 유저가 받은 점수
-      contestPerfectScore: assignmentProblems.reduce(
+      assignmentPerfectScore: assignmentProblems.reduce(
         (total, { score }) => total + score,
         0
       ), // Assignment의 만점
@@ -845,7 +850,7 @@ export class AssignmentService {
     const assignmentRecords = await this.prisma.assignmentRecord.findMany({
       ...paginator,
       where: {
-        assignmentId: assignmentId,
+        assignmentId,
         userId: {
           not: null
         },
@@ -953,7 +958,7 @@ export class AssignmentService {
     const assignmentProblemScores =
       await this.prisma.assignmentProblem.findMany({
         where: {
-          contestId: assignmentId
+          assignmentId
         },
         select: {
           score: true

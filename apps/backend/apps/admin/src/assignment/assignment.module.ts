@@ -8,4 +8,4 @@ import { AssignmentService } from './assignment.service'
   imports: [RolesModule, ProblemModule],
   providers: [AssignmentService, AssignmentResolver]
 })
-export class ContestModule {}
+export class AssignmentModule {}

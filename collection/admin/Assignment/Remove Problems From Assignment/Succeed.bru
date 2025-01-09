@@ -14,8 +14,8 @@ body:graphql {
   mutation {
     removeProblemsFromAssignment(
       groupId: 1
-      assignmentId: 6
-      problemIds: [2]
+      assignmentId: 3
+      problemIds: [7]
     ) {
       assignmentId
       problemId
@@ -33,7 +33,7 @@ assert {
 
 docs {
   # remove Problems
-
+  
   - Assignment에 포함된 문제들을 remove합니다..
   - 입력된 problemId, assignmentId, groupId의 조합과 일치하는 문제가 없을 경우 무시됩니다.
 }

@@ -14,8 +14,8 @@ export class UserAssignmentScoreSummary {
   @Field(() => Int)
   assignmentPerfectScore: number
 
-  @Field(() => [ProblemScore])
-  problemScores: ProblemScore[]
+  @Field(() => [AssignmentProblemScore])
+  problemScores: AssignmentProblemScore[]
 }
 
 @ObjectType()
@@ -47,12 +47,12 @@ export class UserAssignmentScoreSummaryWithUserInfo {
   @Field(() => Int)
   assignmentPerfectScore: number
 
-  @Field(() => [ProblemScore])
-  problemScores: ProblemScore[]
+  @Field(() => [AssignmentProblemScore])
+  problemScores: AssignmentProblemScore[]
 }
 
 @ObjectType()
-class ProblemScore {
+class AssignmentProblemScore {
   @Field(() => Int)
   problemId: number
 

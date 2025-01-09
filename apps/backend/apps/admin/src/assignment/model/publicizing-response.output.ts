@@ -1,7 +1,7 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql'
 
 @ObjectType()
-export class PublicizingResponse {
+export class AssignmentPublicizingResponse {
   @Field(() => Int)
   assignmentId: number
 
