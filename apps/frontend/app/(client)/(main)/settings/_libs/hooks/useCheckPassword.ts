@@ -31,10 +31,8 @@ export const useCheckPassword = (
         }
       })
 
-      if (response.status === 201) {
-        setIsPasswordCorrect(true)
-        setNewPasswordAble(true)
-      }
+      setIsPasswordCorrect(true)
+      setNewPasswordAble(true)
     } catch {
       console.error('Failed to check password')
     }
