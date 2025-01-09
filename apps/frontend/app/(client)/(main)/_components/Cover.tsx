@@ -9,13 +9,15 @@ interface CoverProps {
 const bgColors: { [key: string]: string } = {
   contest: 'bg-gradient-to-b from-[#7BD9D3] to-[#A7A5A1]',
   problem: 'bg-gradient-to-b from-[#5861B7] to-[#99978E]',
-  notice: 'bg-gradient-to-b from-[#2F4672] to-[#4671B3]'
+  notice: 'bg-gradient-to-b from-[#2F4672] to-[#4671B3]',
+  course: 'bg-gradient-to-b from-[#7BD9D3] to-[#A7A5A1]'
 }
 
 const icons: { [key: string]: string } = {
   problem: '/banners/codedang.png',
   notice: '/banners/notice.png',
-  contest: '/banners/contest.png'
+  contest: '/banners/contest.png',
+  course: '/banners/contest.png'
 }
 
 /**
