@@ -73,10 +73,6 @@ type JudgeResultMessage struct {
 
 var ErrJudgeEnd = errors.New("judge handle end")
 
-// func (r *Result) Accepted() {
-// 	r.AcceptedNum += 1
-// }
-
 func (r *JudgeResult) SetJudgeResultCode(code JudgeResultCode) {
 	r.ResultCode = code
 }
@@ -89,14 +85,6 @@ func (r *JudgeResult) SetJudgeExecResult(execResult sandbox.ExecResult) {
 	r.ExitCode = execResult.ExitCode
 	r.ErrorCode = execResult.ErrorCode
 }
-
-// func (r *Result) Marshal() (json.RawMessage, error) {
-// 	if res, err := json.Marshal(r); err != nil {
-// 		return nil, &HandlerError{caller: "judge-handler", err: fmt.Errorf("marshaling result: %w", err)}
-// 	} else {
-// 		return res, nil
-// 	}
-// }
 
 // JudgeResult ResultCode
 type JudgeResultCode int8
@@ -284,13 +272,9 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 	}
 
 	tcNum := tc.Count()
-	cnt := make(chan int)
 	for i := 0; i < tcNum; i++ {
-		go j.judgeTestcase(i, dir, validReq, tc.Elements[i], out, cnt)
-	}
-
-	for i := 0; i < tcNum; i++ {
-		<-cnt
+		j.judgeTestcase(i, dir, validReq, tc.Elements[i], out)
+		// j.logger.Log(logger.DEBUG, fmt.Sprintf("Testcase %d judged", i))
 	}
 }
 
@@ -324,7 +308,7 @@ func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.C
 }
 
 func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
-	tc loader.Element, out chan JudgeResultMessage, cnt chan int) {
+	tc loader.Element, out chan JudgeResultMessage) {
 
 	var accepted bool
 
@@ -351,6 +335,10 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 	res.SetJudgeExecResult(runResult.ExecResult)
 	res.Output = string(runResult.Output)
 
+	if len(res.Output) > constants.MAX_OUTPUT {
+		res.Output = res.Output[:constants.MAX_OUTPUT]
+	}
+
 	if runResult.ExecResult.ResultCode != sandbox.RUN_SUCCESS {
 		res.SetJudgeResultCode(SandboxResultCodeToJudgeResultCode(runResult.ExecResult.ResultCode))
 		goto Send
@@ -376,5 +364,4 @@ Send:
 		// j.logger.Log(logger.DEBUG, string(marshaledRes))
 		out <- JudgeResultMessage{marshaledRes, ParseError(res)}
 	}
-	cnt <- 1
 }

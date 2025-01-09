@@ -13,15 +13,10 @@ interface ContestDetailProps {
   params: {
     contestId: string
   }
+  tabs: React.ReactNode
 }
 
-export default async function Layout({
-  params,
-  tabs
-}: {
-  params: ContestDetailProps['params']
-  tabs: React.ReactNode
-}) {
+export default async function Layout({ params, tabs }: ContestDetailProps) {
   const { contestId } = params
   const session = await auth()
 

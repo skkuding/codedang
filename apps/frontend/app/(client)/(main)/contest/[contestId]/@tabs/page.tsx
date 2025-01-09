@@ -1,6 +1,7 @@
 import KatexContent from '@/components/KatexContent'
 import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
+import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 import {
   GoToFirstProblemButton,
@@ -49,10 +50,11 @@ export default async function ContestTop({ params }: ContestTopProps) {
       {session && state !== 'Finished' && (
         <div className="mt-10 flex justify-center">
           {data.isRegistered ? (
-            // TODO: add error boundary
-            <Suspense fallback={<GoToFirstProblemButtonFallback />}>
-              <GoToFirstProblemButton contestId={Number(contestId)} />
-            </Suspense>
+            <ErrorBoundary fallback={null}>
+              <Suspense fallback={<GoToFirstProblemButtonFallback />}>
+                <GoToFirstProblemButton contestId={Number(contestId)} />
+              </Suspense>
+            </ErrorBoundary>
           ) : (
             <RegisterButton
               id={contestId}
