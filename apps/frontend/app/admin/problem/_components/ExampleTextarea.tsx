@@ -1,5 +1,5 @@
-import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
+import { Textarea } from '@/components/shadcn/textarea'
+import { cn } from '@/libs/utils'
 import { RxCross2 } from 'react-icons/rx'
 
 interface ExampleTextareaProps {
@@ -27,10 +27,15 @@ export default function ExampleTextarea({
         className
       )}
     >
-      <RxCross2
-        className="absolute right-2 top-2 w-3 cursor-pointer p-0 text-gray-400"
-        onClick={() => onRemove()}
-      />
+      {!blockEdit && (
+        <button
+          type="button"
+          className="absolute right-2 top-2 w-3 p-0 text-gray-400"
+          onClick={onRemove}
+        >
+          <RxCross2 />
+        </button>
+      )}
       <Textarea
         disabled={blockEdit}
         placeholder="Input"

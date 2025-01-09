@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import typography from '@tailwindcss/typography'
 import type { Config } from 'tailwindcss'
 import animate from 'tailwindcss-animate'
@@ -87,5 +86,6 @@ export default {
         }
       })
     }
-  ]
+  ],
+  safelist: ['!text-green-500', '!text-neutral-400', '!text-red-500']
 } satisfies Config

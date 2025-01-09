@@ -1,5 +1,21 @@
 import { gql } from '@generated'
 
+const GET_CONTEST_SUBMISSIONS_COUNT = gql(`
+  query GetContestSubmissionsCount(
+  $input: GetContestSubmissionsInput!,
+  $cursor: Int,
+  $take: Int
+) {
+  getContestSubmissions(
+    input: $input,
+    cursor: $cursor,
+    take: $take
+  ) {
+    id
+  }
+}
+`)
+
 const GET_CONTEST_SUBMISSIONS = gql(`
   query GetContestSubmissions(
   $input: GetContestSubmissionsInput!,
@@ -57,6 +73,7 @@ const GET_SUBMISSION = gql(`query GetSubmission(
     user {
       id
       studentId
+      major
       username
       userProfile {
         realName
@@ -74,4 +91,8 @@ const GET_SUBMISSION = gql(`query GetSubmission(
   }
 }`)
 
-export { GET_CONTEST_SUBMISSIONS, GET_SUBMISSION }
+export {
+  GET_CONTEST_SUBMISSIONS_COUNT,
+  GET_CONTEST_SUBMISSIONS,
+  GET_SUBMISSION
+}

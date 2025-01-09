@@ -71,7 +71,7 @@ resource "random_password" "postgres_password" {
 resource "aws_db_instance" "postgres" {
   db_name           = "codedang_db"
   engine            = "postgres"
-  engine_version    = "14.10"
+  engine_version    = "14"
   allocated_storage = 5
   instance_class    = "db.t4g.small"
 

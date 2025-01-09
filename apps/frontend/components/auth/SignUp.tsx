@@ -1,7 +1,7 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import CodedangLogo from '@/public/codedang.svg'
+import { Button } from '@/components/shadcn/button'
+import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import useAuthModalStore from '@/stores/authModal'
 import useSignUpModalStore from '@/stores/signUpModal'
 import Image from 'next/image'
@@ -27,7 +27,7 @@ export default function SignUp() {
 
       <Image
         className="absolute top-4"
-        src={CodedangLogo}
+        src={codedangLogo}
         alt="codedang"
         width={100}
       />

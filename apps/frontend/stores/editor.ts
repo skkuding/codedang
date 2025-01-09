@@ -1,6 +1,5 @@
 import type { Language } from '@/types/type'
-import { createContext } from 'react'
-import { create, createStore } from 'zustand'
+import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 interface LanguageStore {
@@ -8,35 +7,38 @@ interface LanguageStore {
   setLanguage: (language: Language) => void
 }
 
-export const useLanguageStore = create(
-  persist<LanguageStore>(
-    (set) => ({
-      language: 'C',
-      setLanguage: (language) => {
-        set({ language })
+export const useLanguageStore = (problemId: number, contestId?: number) => {
+  const languageKey = `${problemId}${contestId ? `_${contestId}` : ''}_language`
+  return create(
+    persist<LanguageStore>(
+      (set) => ({
+        language: 'C',
+        setLanguage: (language) => {
+          set({ language })
+        }
+      }),
+      {
+        name: languageKey
       }
-    }),
-    {
-      name: 'language'
-    }
+    )
   )
-)
-type CodeStore = ReturnType<typeof createCodeStore>
+}
+
 interface CodeState {
   code: string
   setCode: (code: string) => void
+  getCode: () => string
 }
 
-export const createCodeStore = () => {
-  return createStore<CodeState>()((set) => ({
-    code: '',
-    setCode: (code) => {
-      set({ code })
-    }
-  }))
-}
+export const useCodeStore = create<CodeState>((set, get) => ({
+  code: '',
+  setCode: (code) => {
+    set({ code })
+  },
+  getCode: () => get().code
+}))
 
-export const getKey = (
+export const getStorageKey = (
   language: Language,
   problemId: number,
   userName: string,
@@ -47,16 +49,14 @@ export const getKey = (
   return problemKey
 }
 
-export const getItem = (name: string) => {
-  const str = localStorage.getItem(name)
-  if (!str) return null
-  return str
+export const getCodeFromLocalStorage = (key: string) => {
+  const storedCode = localStorage.getItem(key) ?? ''
+
+  try {
+    const parsed = JSON.parse(storedCode)
+    localStorage.setItem(key, parsed)
+    return parsed
+  } catch {
+    return storedCode
+  }
 }
-
-export const setItem = (name: string, value: string) => {
-  localStorage.setItem(name, JSON.stringify(value))
-}
-
-export const removeItem = (name: string) => localStorage.removeItem(name)
-
-export const CodeContext = createContext<CodeStore | null>(null)

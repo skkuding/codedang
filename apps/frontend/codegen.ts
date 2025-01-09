@@ -6,7 +6,6 @@ const config: CodegenConfig = {
   // this assumes that all your source files are in a top-level `src/` directory - you might need to adjust this to your file structure
   documents: ['./**/*.{ts,tsx}'],
   generates: {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     './__generated__/': {
       preset: 'client',
       plugins: [],

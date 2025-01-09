@@ -1,8 +1,10 @@
 import { Language } from '@prisma/client'
 import { Type } from 'class-transformer'
 import {
+  IsArray,
   IsBoolean,
   IsEnum,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsString,
@@ -36,4 +38,25 @@ export class CreateSubmissionDto {
   @IsEnum(Language)
   @IsNotEmpty()
   language: Language
+}
+
+export class CreateUserTestSubmissionDto extends CreateSubmissionDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => UserTestcase)
+  userTestcases: UserTestcase[]
+}
+
+export class UserTestcase {
+  @IsInt()
+  @IsNotEmpty()
+  id: number;
+
+  @IsString()
+  @IsNotEmpty()
+  in: string
+
+  @IsString()
+  @IsNotEmpty()
+  out: string
 }

@@ -1,13 +1,13 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
+} from '@/components/shadcn/tooltip'
+import { cn } from '@/libs/utils'
 import type { Testcase } from '@generated/graphql'
 import { useEffect, useState } from 'react'
 import { type FieldErrorsImpl, useFormContext, useWatch } from 'react-hook-form'
@@ -18,7 +18,11 @@ import AddBadge from './AddBadge'
 import { CautionDialog } from './CautionDialog'
 import TestcaseItem from './TestcaseItem'
 
-export default function TestcaseField({ blockEdit }: { blockEdit?: boolean }) {
+export default function TestcaseField({
+  blockEdit = false
+}: {
+  blockEdit?: boolean
+}) {
   const {
     formState: { errors },
     getValues,
@@ -127,7 +131,7 @@ export default function TestcaseField({ blockEdit }: { blockEdit?: boolean }) {
               />
             )
         )}
-        <AddBadge onClick={() => addTestcase(false)} />
+        {!blockEdit && <AddBadge onClick={() => addTestcase(false)} />}
       </div>
       <div className="flex flex-col gap-4">
         <Label required={false}>Hidden Testcase</Label>
@@ -143,7 +147,7 @@ export default function TestcaseField({ blockEdit }: { blockEdit?: boolean }) {
               />
             )
         )}
-        <AddBadge onClick={() => addTestcase(true)} />
+        {!blockEdit && <AddBadge onClick={() => addTestcase(true)} />}
       </div>
       <div className="flex w-full justify-end">
         <TooltipProvider>
