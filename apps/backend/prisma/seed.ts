@@ -48,7 +48,8 @@ const upcomingContests: Contest[] = []
 const workbooks: Workbook[] = []
 const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
-const announcements: Announcement[] = []
+const assignmentAnnouncements: Announcement[] = []
+const contestAnnouncements: Announcement[] = []
 
 const createUsers = async () => {
   // create super admin user
@@ -1308,7 +1309,7 @@ const createAssignments = async () => {
     // Ongoing Assignments
     {
       data: {
-        title: 'SKKU Coding Platform 모의대회',
+        title: 'SKKU Coding Platform 모의과제',
         description: `<p>
   대통령은 내란 또는 외환의 죄를 범한 경우를 제외하고는 재직중 형사상의 소추를
   받지 아니한다. 모든 국민은 자기의 행위가 아닌 친족의 행위로 인하여 불이익한
@@ -1351,8 +1352,8 @@ const createAssignments = async () => {
     },
     {
       data: {
-        title: '24년도 소프트웨어학과 신입생 입학 테스트1',
-        description: '<p>이 대회는 현재 진행 중입니다 !</p>',
+        title: '24년도 소프트웨어학과 신입생 입학 과제1',
+        description: '<p>이 과제는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
@@ -1365,8 +1366,8 @@ const createAssignments = async () => {
     },
     {
       data: {
-        title: '24년도 소프트웨어학과 신입생 입학 테스트2',
-        description: '<p>이 대회는 현재 진행 중입니다 !</p>',
+        title: '24년도 소프트웨어학과 신입생 입학 과제2',
+        description: '<p>이 과제는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
@@ -1379,8 +1380,8 @@ const createAssignments = async () => {
     },
     {
       data: {
-        title: '24년도 소프트웨어학과 신입생 입학 테스트3',
-        description: '<p>이 대회는 현재 진행 중입니다 !</p>',
+        title: '24년도 소프트웨어학과 신입생 입학 과제3',
+        description: '<p>이 과제는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
@@ -1393,8 +1394,8 @@ const createAssignments = async () => {
     },
     {
       data: {
-        title: '24년도 아늑배 스파게티 코드 만들기 대회',
-        description: '<p>이 대회는 현재 진행 중입니다 ! (private group)</p>',
+        title: '24년도 아늑배 스파게티 코드 만들기 과제',
+        description: '<p>이 과제는 현재 진행 중입니다 ! (private group)</p>',
         createdById: superAdminUser.id,
         groupId: privateGroup.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
@@ -1409,7 +1410,7 @@ const createAssignments = async () => {
     {
       data: {
         title: 'Long Time Ago Assignment',
-        description: '<p>이 대회는 오래 전에 끝났어요</p>',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
@@ -1422,8 +1423,8 @@ const createAssignments = async () => {
     },
     {
       data: {
-        title: '23년도 소프트웨어학과 신입생 입학 테스트',
-        description: '<p>이 대회는 오래 전에 끝났어요</p>',
+        title: '23년도 소프트웨어학과 신입생 입학 과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
@@ -1436,8 +1437,8 @@ const createAssignments = async () => {
     },
     {
       data: {
-        title: '소프트의 아침',
-        description: '<p>이 대회는 오래 전에 끝났어요</p>',
+        title: '소프트의 아침과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
@@ -1450,8 +1451,8 @@ const createAssignments = async () => {
     },
     {
       data: {
-        title: '소프트의 낮',
-        description: '<p>이 대회는 오래 전에 끝났어요</p>',
+        title: '소프트의 낮과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
@@ -1464,8 +1465,8 @@ const createAssignments = async () => {
     },
     {
       data: {
-        title: '소프트의 밤',
-        description: '<p>이 대회는 오래 전에 끝났어요</p>',
+        title: '소프트의 밤과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
@@ -1478,8 +1479,8 @@ const createAssignments = async () => {
     },
     {
       data: {
-        title: '2023 SKKU 프로그래밍 대회',
-        description: '<p>이 대회는 오래 전에 끝났어요</p>',
+        title: '2023 SKKU 프로그래밍 과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
@@ -1492,8 +1493,8 @@ const createAssignments = async () => {
     },
     {
       data: {
-        title: '소프트의 오전',
-        description: '<p>이 대회는 오래 전에 끝났어요</p>',
+        title: '소프트의 오전과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
@@ -1506,8 +1507,8 @@ const createAssignments = async () => {
     },
     {
       data: {
-        title: '소프트의 오후',
-        description: '<p>이 대회는 오래 전에 끝났어요</p>',
+        title: '소프트의 오후과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
@@ -1520,8 +1521,8 @@ const createAssignments = async () => {
     },
     {
       data: {
-        title: '23년도 아늑배 스파게티 코드 만들기 대회',
-        description: '<p>이 대회는 오래 전에 끝났어요 (private group)</p>',
+        title: '23년도 아늑배 스파게티 코드 만들기 과제',
+        description: '<p>이 과제는 오래 전에 끝났어요 (private group)</p>',
         createdById: superAdminUser.id,
         groupId: privateGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
@@ -1536,7 +1537,7 @@ const createAssignments = async () => {
     {
       data: {
         title: 'Future Assignment',
-        description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
+        description: '<p>이 과제는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
@@ -1549,8 +1550,8 @@ const createAssignments = async () => {
     },
     {
       data: {
-        title: '2024 SKKU 프로그래밍 대회',
-        description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
+        title: '2024 SKKU 프로그래밍 과제',
+        description: '<p>이 과제는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
@@ -1563,9 +1564,9 @@ const createAssignments = async () => {
     },
     {
       data: {
-        title: '2024 스꾸딩 프로그래밍 대회',
+        title: '2024 스꾸딩 프로그래밍 과제',
         description:
-          '<p>이 대회는 언젠가 열리겠죠...? isVisible이 false인 assignment입니다</p>',
+          '<p>이 과제는 언젠가 열리겠죠...? isVisible이 false인 assignment입니다</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
@@ -1578,8 +1579,8 @@ const createAssignments = async () => {
     },
     {
       data: {
-        title: '25년도 아늑배 스파게티 코드 만들기 대회',
-        description: '<p>이 대회는 언젠가 열리겠죠...? (private group)</p>',
+        title: '25년도 아늑배 스파게티 코드 만들기 과제',
+        description: '<p>이 과제는 언젠가 열리겠죠...? (private group)</p>',
         createdById: superAdminUser.id,
         groupId: privateGroup.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
@@ -1935,11 +1936,12 @@ int main(void) {
 }
 
 const createAnnouncements = async () => {
+  // For Assignments
   for (let i = 0; i < 5; ++i) {
-    announcements.push(
+    assignmentAnnouncements.push(
       await prisma.announcement.create({
         data: {
-          content: `Announcement_0_${i}`,
+          content: `Announcement(assignment)_0_${i}`,
           assignmentId: ongoingAssignments[i].id
         }
       })
@@ -1947,15 +1949,43 @@ const createAnnouncements = async () => {
   }
 
   for (let i = 0; i < 5; ++i) {
-    announcements.push(
+    assignmentAnnouncements.push(
       await prisma.announcement.create({
         data: {
-          content: `Announcement_1_${i}...
+          content: `Announcement(assignment)_1_${i}...
 아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.
 모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.
 법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.
 일반사면을 명하려면 국회의 동의를 얻어야 한다. 연소자의 근로는 특별한 보호를 받는다.`,
           assignmentId: ongoingAssignments[i].id,
+          problemId: problems[i].id
+        }
+      })
+    )
+  }
+
+  // For Contests
+  for (let i = 0; i < 5; ++i) {
+    contestAnnouncements.push(
+      await prisma.announcement.create({
+        data: {
+          content: `Announcement(contest)_0_${i}`,
+          contestId: ongoingContests[i].id
+        }
+      })
+    )
+  }
+
+  for (let i = 0; i < 5; ++i) {
+    contestAnnouncements.push(
+      await prisma.announcement.create({
+        data: {
+          content: `Announcement(contest)_1_${i}...
+아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.
+모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.
+법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.
+일반사면을 명하려면 국회의 동의를 얻어야 한다. 연소자의 근로는 특별한 보호를 받는다.`,
+          contestId: ongoingContests[i].id,
           problemId: problems[i].id
         }
       })

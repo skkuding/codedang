@@ -256,7 +256,7 @@ describe('AssignmentService', () => {
       )
       expect(
         assignments.registeredOngoing.map((assignment) => assignment.title)
-      ).to.deep.equals(['24년도 소프트웨어학과 신입생 입학 테스트2'])
+      ).to.deep.equals(['24년도 소프트웨어학과 신입생 입학 과제2'])
     })
   })
 
@@ -319,7 +319,7 @@ describe('AssignmentService', () => {
       )
       expect(
         assignments.data.map((assignment) => assignment.title)
-      ).to.deep.equals(['소프트의 낮'])
+      ).to.deep.equals(['소프트의 낮과제'])
     })
   })
 
