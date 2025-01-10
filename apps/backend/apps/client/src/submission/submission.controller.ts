@@ -105,6 +105,40 @@ export class SubmissionController {
     return await this.submissionService.getTestResult(req.user.id)
   }
 
+  @Sse('result/test')
+  async getTestTestcaseResult(
+    @Req() req: AuthenticatedRequest
+  ): Promise<Observable<MessageEvent>> {
+    const userId = req.user.id
+
+    return new Observable<MessageEvent>((subscriber) => {
+      /*
+        TODO: payload 타입 정의
+        payload 구조:
+        {
+          "userTest": true,
+          "testcaseResult": {
+            "id": 1,
+            "result": "Accepted",
+            "output": "Hello World"
+          }
+        }
+      */
+      const listener = (payload) => {
+        subscriber.next({
+          data: JSON.stringify(payload)
+        } as MessageEvent)
+      }
+
+      const event = testTestcaseEvent(userId)
+      this.eventEmitter.on(event, listener)
+      req.on('close', () => {
+        this.eventEmitter.off(event, listener)
+        if (!subscriber.closed) subscriber.complete()
+      })
+    })
+  }
+
   /**
    * 유저가 생성한 테스트케이스에 대해 실행을 요청합니다.
    * 채점 결과는 Cache에 저장됩니다.

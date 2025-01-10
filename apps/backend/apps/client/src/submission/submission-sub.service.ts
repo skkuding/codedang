@@ -141,6 +141,11 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     }
 
     await this.cacheManager.set(key, testcase, TEST_SUBMISSION_EXPIRE_TIME)
+
+    this.eventEmitter.emit(testTestcaseEvent(userId), {
+      userTest: isUserTest,
+      testcaseResult: testcase
+    })
   }
 
   parseError(msg: JudgerResponse, status: ResultStatus): string {

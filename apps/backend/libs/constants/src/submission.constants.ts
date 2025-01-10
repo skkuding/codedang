@@ -48,13 +48,9 @@ export const Status = (code: number) => {
 
 const SUBMISSION_TESTCASE_EVENT = 'submission.submission'
 const TEST_TESTCASE_EVENT = 'submission.test'
-const USERTEST_TESTCASE_EVENT = 'submission.usertest'
 
 export const submissionTestcaseEvent = (submissionId: number) =>
   `${SUBMISSION_TESTCASE_EVENT}:${submissionId}`
 
 export const testTestcaseEvent = (userId: number) =>
   `${TEST_TESTCASE_EVENT}:${userId}`
-
-export const userTestTestcaseEvent = (userId: number) =>
-  `${USERTEST_TESTCASE_EVENT}:${userId}`
