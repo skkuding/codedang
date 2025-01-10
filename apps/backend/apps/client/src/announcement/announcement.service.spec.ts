@@ -54,7 +54,7 @@ describe('AnnouncementService', () => {
 
   describe('getProblemAnnouncements', () => {
     it('should return problem announcements', async () => {
-      const res = await service.getProblemAnnouncements(1, 1, 1)
+      const res = await service.getProblemAnnouncements(1, 1, 1, 1)
       expect(res)
         .excluding(['createTime', 'updateTime', 'content'])
         .to.deep.equal([
