@@ -66,23 +66,23 @@ const useSSE = (endpoint: string) => {
 
 export const useTestResults = () => {
   const testcases = useTestcaseStore((state) => state.getTestcases())
+  const [initialTestcases] = useState(testcases) // 초기 데이터 저장
 
   const { results: sampleResults, isError: sampleError } =
     useSSE('/submission/:id')
   const { results: userResults, isError: userError } =
     useSSE('/submission/test')
-  const [testResults, setTestResults] = useState<TestResultDetail[]>([]) // 타입 명시 에러 해결
+  const [testResults, setTestResults] = useState<TestResultDetail[]>([])
 
   useEffect(() => {
     if (sampleError || userError) {
       toast.error('Failed to execute some testcases. Please try again later.')
     }
   }, [sampleError, userError])
-  //TO-DO: 여기서 지금 루프 에러나는 듯
   useEffect(() => {
     const allResults = [...sampleResults, ...userResults]
 
-    const enrichedResults = testcases.map((testcase, index) => {
+    const enrichedResults = initialTestcases.map((testcase, index) => {
       const testResult = allResults.find((result) => {
         if (result.userTest) {
           return result.testcaseResult.id === testcase.id
@@ -102,13 +102,9 @@ export const useTestResults = () => {
       }
     })
 
-    // 런타임 에러 해결 시도
-    setTestResults((prev) => {
-      const hasChanged =
-        JSON.stringify(prev) !== JSON.stringify(enrichedResults)
-      return hasChanged ? enrichedResults : prev
-    })
-  }, [sampleResults, userResults, testcases])
+    // 런타임 에러는 해결
+    setTestResults(enrichedResults)
+  }, [sampleResults, userResults, initialTestcases])
 
   return testResults
 }
