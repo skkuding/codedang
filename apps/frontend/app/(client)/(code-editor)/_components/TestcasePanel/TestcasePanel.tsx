@@ -2,7 +2,6 @@
 
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { cn, getResultColor } from '@/libs/utils'
-import type { TestResultDetail } from '@/types/type'
 import { useState, type ReactNode } from 'react'
 import { IoMdClose } from 'react-icons/io'
 import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
@@ -10,6 +9,15 @@ import AddUserTestcaseDialog from './AddUserTestcaseDialog'
 import TestcaseTable from './TestcaseTable'
 import { useTestResults } from './useTestResults'
 
+interface TestResultDetail {
+  id: number
+  originalId: number //에러
+  input: string
+  expectedOutput: string // 추가
+  output: string
+  result: string
+  isUserTestcase: boolean
+}
 export default function TestcasePanel() {
   const [testcaseTabList, setTestcaseTabList] = useState<TestResultDetail[]>([])
   const [currentTab, setCurrentTab] = useState<number>(0)
@@ -37,7 +45,7 @@ export default function TestcasePanel() {
 
   const MAX_OUTPUT_LENGTH = 100000
   const testResults = useTestResults()
-  const processedData = testResults.map((testcase) => ({
+  const processedData: TestResultDetail[] = testResults.map((testcase) => ({
     ...testcase,
     output:
       testcase.output.length > MAX_OUTPUT_LENGTH
@@ -46,7 +54,7 @@ export default function TestcasePanel() {
   }))
   const summaryData = processedData.map(({ id, result, isUserTestcase }) => ({
     id,
-    result,
+    result: result || 'Pending', //Pending 문제가 아니라 인터페이스 문제같음
     isUserTestcase
   }))
 
