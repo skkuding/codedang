@@ -132,6 +132,7 @@ export default eslintTS.config(
     })),
   {
     files: ['apps/frontend/**/*'],
+    extends: [eslintPluginPromise.configs['flat/recommended']],
     languageOptions: {
       globals: {
         ...globals.browser
@@ -165,16 +166,7 @@ export default eslintTS.config(
       '@typescript-eslint/no-unused-expressions': [
         'error',
         { allowShortCircuit: true, allowTernary: true }
-      ]
-    }
-  },
-  {
-    files: ['apps/frontend/**/*.tsx'],
-    plugins: {
-      promise: eslintPluginPromise
-    },
-    rules: {
-      ...eslintPluginPromise.configs['flat/recommended'].rules,
+      ],
       'promise/prefer-await-to-then': 'error'
     }
   },
