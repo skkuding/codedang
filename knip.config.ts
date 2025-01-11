@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import type { KnipConfig } from 'knip'
 
 const config: KnipConfig = {

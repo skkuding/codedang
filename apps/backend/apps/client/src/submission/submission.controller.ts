@@ -23,7 +23,7 @@ import {
 } from '@libs/pipe'
 import {
   CreateSubmissionDto,
-  type CreateUserTestSubmissionDto
+  CreateUserTestSubmissionDto
 } from './class/create-submission.dto'
 import { SubmissionService } from './submission.service'
 

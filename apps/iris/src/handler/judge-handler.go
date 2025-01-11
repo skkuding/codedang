@@ -73,10 +73,6 @@ type JudgeResultMessage struct {
 
 var ErrJudgeEnd = errors.New("judge handle end")
 
-// func (r *Result) Accepted() {
-// 	r.AcceptedNum += 1
-// }
-
 func (r *JudgeResult) SetJudgeResultCode(code JudgeResultCode) {
 	r.ResultCode = code
 }
@@ -89,14 +85,6 @@ func (r *JudgeResult) SetJudgeExecResult(execResult sandbox.ExecResult) {
 	r.ExitCode = execResult.ExitCode
 	r.ErrorCode = execResult.ErrorCode
 }
-
-// func (r *Result) Marshal() (json.RawMessage, error) {
-// 	if res, err := json.Marshal(r); err != nil {
-// 		return nil, &HandlerError{caller: "judge-handler", err: fmt.Errorf("marshaling result: %w", err)}
-// 	} else {
-// 		return res, nil
-// 	}
-// }
 
 // JudgeResult ResultCode
 type JudgeResultCode int8

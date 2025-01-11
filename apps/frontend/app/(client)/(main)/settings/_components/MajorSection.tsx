@@ -17,28 +17,16 @@ import { majors } from '@/libs/constants'
 import { cn } from '@/libs/utils'
 import React from 'react'
 import { FaChevronDown, FaCheck } from 'react-icons/fa6'
+import { useSettingsContext } from './context'
 
-interface MajorSectionProps {
-  majorOpen: boolean
-  setMajorOpen: React.Dispatch<React.SetStateAction<boolean>>
-  majorValue: string
-  setMajorValue: React.Dispatch<React.SetStateAction<string>>
-  updateNow: boolean
-  isLoading: boolean
-  defaultProfileValues: {
-    major?: string
-  }
-}
+export default function MajorSection() {
+  const {
+    isLoading,
+    updateNow,
+    majorState: { majorOpen, setMajorOpen, majorValue, setMajorValue },
+    defaultProfileValues
+  } = useSettingsContext()
 
-export default function MajorSection({
-  majorOpen,
-  setMajorOpen,
-  majorValue,
-  setMajorValue,
-  updateNow,
-  isLoading,
-  defaultProfileValues
-}: MajorSectionProps) {
   return (
     <>
       <label className="-mb-4 mt-2 text-xs">First Major</label>
