@@ -3,6 +3,14 @@ package sandbox
 import (
 	"fmt"
 
+	"bytes"
+	"context"
+	"os"
+	"os/exec"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
@@ -42,7 +50,8 @@ func (c *compiler) Compile(dto CompileRequest) (CompileResult, error) {
 	}
 
 	// TODO: 컴파일에 sandbox는 안 써도 되지 않을까요?
-	execResult, err := c.sandbox.Exec(execArgs, nil)
+	execResult, err := c.compileExec(execArgs)
+	// execResult, err := c.sandbox.Exec(execArgs, nil)
 	if err != nil {
 		return CompileResult{}, err
 	}
@@ -69,4 +78,70 @@ func (c *compiler) Compile(dto CompileRequest) (CompileResult, error) {
 		compileResult.ErrOutput = string(data)
 	}
 	return compileResult, nil
+}
+
+func (c *compiler) compileExec(args ExecArgs) (ExecResult, error) {
+	argSlice := makeExecArgs(args)
+	env := "PATH=" + os.Getenv("PATH")
+	argSlice = append(argSlice, env)
+
+	argPrefix := Args
+
+	var compileOptions []string
+	for _, compileOpt := range argSlice {
+		if strings.HasPrefix(compileOpt, argPrefix) {
+			compileOptions = append(compileOptions, strings.TrimPrefix(compileOpt, argPrefix))
+		}
+	}
+
+	var realTimeLimit int
+	for _, l := range argSlice {
+		if strings.HasPrefix(l, MaxRealTime) {
+			realTimeLimit, _ = strconv.Atoi(strings.TrimPrefix(l, MaxRealTime))
+			break
+		}
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(realTimeLimit)*time.Millisecond)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, args.ExePath, compileOptions...)
+	cmd.Env = append(cmd.Env, env)
+
+	outputFile, err := os.Create(args.OutputPath)
+
+	if err != nil {
+		return ExecResult{}, err
+	}
+
+	var stdin bytes.Buffer
+	cmd.Stdin = &stdin
+	cmd.Stdout = outputFile
+	cmd.Stderr = outputFile
+
+	startTime := time.Now()
+	err = cmd.Run()
+
+	if ctx.Err() == context.DeadlineExceeded {
+		return ExecResult{
+			ResultCode: 2,
+		}, nil
+	}
+
+	if err != nil {
+		return ExecResult{
+			ResultCode: 4,
+		}, nil
+	}
+
+	endtime := time.Since(startTime)
+
+	res := ExecResult{
+		RealTime:   int(endtime / time.Second),
+		ExitCode:   0,
+		ErrorCode:  0,
+		ResultCode: 0,
+	}
+
+	return res, nil
 }

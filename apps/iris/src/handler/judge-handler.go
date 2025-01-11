@@ -256,15 +256,26 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 
 	compileOut := <-compileOutCh
 
+	// if compileOut.Err != nil {
+	// 	// 컴파일러 실행 과정이나 이후 처리 과정에서 오류가 생긴 경우
+	// 	out <- JudgeResultMessage{nil, &HandlerError{
+	// 		caller: "handle",
+	// 		err:    fmt.Errorf("%w: %s", ErrSandbox, compileOut.Err),
+	// 		level:  logger.ERROR,
+	// 	}}
+	// 	return
+	// }
+
 	if compileOut.Err != nil {
 		// 컴파일러 실행 과정이나 이후 처리 과정에서 오류가 생긴 경우
 		out <- JudgeResultMessage{nil, &HandlerError{
 			caller: "handle",
-			err:    fmt.Errorf("%w: %s", ErrSandbox, compileOut.Err),
+			err:    fmt.Errorf("%w: %s", ErrCompile, compileOut.Err),
 			level:  logger.ERROR,
 		}}
 		return
 	}
+
 	compileResult, ok := compileOut.Data.(sandbox.CompileResult)
 	if !ok {
 		out <- JudgeResultMessage{nil, &HandlerError{
