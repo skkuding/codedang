@@ -102,7 +102,12 @@ export const useTestResults = () => {
       }
     })
 
-    setTestResults(enrichedResults)
+    // 런타임 에러 해결 시도
+    setTestResults((prev) => {
+      const hasChanged =
+        JSON.stringify(prev) !== JSON.stringify(enrichedResults)
+      return hasChanged ? enrichedResults : prev
+    })
   }, [sampleResults, userResults, testcases])
 
   return testResults
