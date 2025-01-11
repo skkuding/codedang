@@ -1,3 +1,4 @@
+import FetchErrorFallback from '@/components/FetchErrorFallback'
 import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
@@ -9,6 +10,7 @@ import {
 } from '@/components/shadcn/dialog'
 import { UPDATE_CONTEST_PROBLEMS_SCORES } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
+import { ErrorBoundary } from '@suspensive/react'
 import { Suspense, useState } from 'react'
 import {
   BelongedContestTable,
@@ -73,13 +75,15 @@ export function ScoreCautionDialog({
                     on grading results.
                   </li>
                 </ul>
-                <Suspense fallback={<BelongedContestTableFallback />}>
-                  <BelongedContestTable
-                    problemId={problemId}
-                    onSetToZero={(contests) => setZeroSetContests(contests)}
-                    onRevertScore={() => setZeroSetContests([])}
-                  ></BelongedContestTable>
-                </Suspense>
+                <ErrorBoundary fallback={FetchErrorFallback}>
+                  <Suspense fallback={<BelongedContestTableFallback />}>
+                    <BelongedContestTable
+                      problemId={problemId}
+                      onSetToZero={(contests) => setZeroSetContests(contests)}
+                      onRevertScore={() => setZeroSetContests([])}
+                    ></BelongedContestTable>
+                  </Suspense>
+                </ErrorBoundary>
                 <div className="my-4 border-b" />
               </li>
             </ul>
