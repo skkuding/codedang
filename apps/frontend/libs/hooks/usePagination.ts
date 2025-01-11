@@ -119,8 +119,7 @@ export const usePagination = <T extends Item>(
         },
         slot: {
           prev:
-            ((next && slot.current > 0) || (!next && full)) &&
-            firstData !== undefined
+            ((next && slot.current > 0) || (!next && full)) && firstData
               ? `${baseQuery}&cursor=${firstData.id}&take=${-take}`
               : '',
           next:
