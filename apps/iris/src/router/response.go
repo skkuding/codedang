@@ -11,10 +11,10 @@ import (
 
 type ResultCode int8
 type Response struct {
-	SubmissionId int             `json:"submissionId"`
-	ResultCode   ResultCode      `json:"resultCode"`
-	JudgeResult  json.RawMessage `json:"judgeResult"`
-	Error        string          `json:"error"`
+	SubmissionId    int             `json:"submissionId"`
+	JudgeResultCode ResultCode      `json:"resultCode"` // unified resultCode
+	JudgeResult     json.RawMessage `json:"judgeResult"`
+	Error           string          `json:"error"`
 }
 
 const (
@@ -46,10 +46,10 @@ func NewResponse(id string, data json.RawMessage, err error) *Response {
 
 	_id, _ := strconv.Atoi(id)
 	return &Response{
-		SubmissionId: _id,
-		ResultCode:   resultCode,
-		JudgeResult:  data,
-		Error:        errMessage,
+		SubmissionId:    _id,
+		JudgeResultCode: resultCode,
+		JudgeResult:     data,
+		Error:           errMessage,
 	}
 }
 

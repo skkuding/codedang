@@ -52,15 +52,15 @@ func (r Request) Validate() (*Request, error) {
 }
 
 type JudgeResult struct {
-	TestcaseId string          `json:"testcaseId"`
-	ResultCode JudgeResultCode `json:"resultCode"`
-	CpuTime    int             `json:"cpuTime"`
-	RealTime   int             `json:"realTime"`
-	Memory     int             `json:"memory"`
-	Signal     int             `json:"signal"`
-	ExitCode   int             `json:"exitCode"`
-	ErrorCode  int             `json:"errorCode"`
-	Error      string          `json:"error"`
+	TestcaseId      string          `json:"testcaseId"`
+	JudgeResultCode JudgeResultCode `json:"resultCode"`
+	CpuTime         int             `json:"cpuTime"`
+	RealTime        int             `json:"realTime"`
+	Memory          int             `json:"memory"`
+	Signal          int             `json:"signal"`
+	ExitCode        int             `json:"exitCode"`
+	ErrorCode       int             `json:"errorCode"`
+	Error           string          `json:"error"`
 }
 
 type JudgeResultMessage struct {
@@ -75,7 +75,7 @@ var ErrJudgeEnd = errors.New("judge handle end")
 // }
 
 func (r *JudgeResult) SetJudgeResultCode(code JudgeResultCode) {
-	r.ResultCode = code
+	r.JudgeResultCode = code
 }
 
 func (r *JudgeResult) SetJudgeExecResult(execResult sandbox.ExecResult) {
@@ -330,7 +330,7 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 
 	if err != nil {
 		j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
-		res.ResultCode = SYSTEM_ERROR
+		res.JudgeResultCode = SYSTEM_ERROR
 		res.Error = string(runResult.ErrOutput)
 		goto Send
 	}

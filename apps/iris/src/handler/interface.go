@@ -32,15 +32,15 @@ func SandboxResultCodeToJudgeResultCode(code sandbox.ResultCode) JudgeResultCode
 }
 
 func ParseError(j JudgeResult) error {
-	if j.ResultCode != ACCEPTED {
+	if j.JudgeResultCode != ACCEPTED {
 		// TODO : Customizing Results
-		if j.Signal == 11 && j.ResultCode != MEMORY_LIMIT_EXCEEDED {
+		if j.Signal == 11 && j.JudgeResultCode != MEMORY_LIMIT_EXCEEDED {
 			return resultCodeToError(SEGMENATION_FAULT)
 		}
-		if j.RealTime >= 2000 && j.Signal == 9 && j.ResultCode == RUNTIME_ERROR {
+		if j.RealTime >= 2000 && j.Signal == 9 && j.JudgeResultCode == RUNTIME_ERROR {
 			return resultCodeToError(REAL_TIME_LIMIT_EXCEEDED)
 		}
-		return resultCodeToError(j.ResultCode)
+		return resultCodeToError(j.JudgeResultCode)
 	}
 	return nil
 }
