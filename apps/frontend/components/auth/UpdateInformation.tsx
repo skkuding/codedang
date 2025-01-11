@@ -37,9 +37,8 @@ export default function UpdateInformation() {
         className="mt-8 w-full bg-red-500 font-semibold hover:bg-red-600"
         onClick={() => {
           router.push(
-            ('/settings' +
-              '?' +
-              new URLSearchParams({ updateNow: 'true' })) as Route
+            (`/settings` +
+              `?${new URLSearchParams({ updateNow: 'true' })}`) as Route
           )
         }}
       >

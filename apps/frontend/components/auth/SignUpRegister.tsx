@@ -182,7 +182,7 @@ export default function SignUpRegister() {
     const fullName = `${data.firstName} ${data.lastName}`
     try {
       setSignUpDisable(true)
-      await fetch(baseUrl + '/user/sign-up', {
+      await fetch(`${baseUrl}/user/sign-up`, {
         method: 'POST',
         headers: {
           ...formData.headers,
@@ -218,7 +218,7 @@ export default function SignUpRegister() {
     await trigger('username')
     if (!errors.username) {
       try {
-        await fetch(baseUrl + `/user/username-check?username=${username}`, {
+        await fetch(`${baseUrl}/user/username-check?username=${username}`, {
           method: 'GET'
         }).then((res) => {
           setCheckedUsername(username)
@@ -295,14 +295,14 @@ export default function SignUpRegister() {
               type="button"
               className={cn(
                 ((isUsernameAvailable &&
-                  checkedUsername == getValues('username')) ||
+                  checkedUsername === getValues('username')) ||
                   errors.username) &&
                   'bg-gray-400',
                 'flex h-8 w-11 items-center justify-center rounded-md'
               )}
               disabled={
                 (isUsernameAvailable &&
-                  checkedUsername == getValues('username')) ||
+                  checkedUsername === getValues('username')) ||
                 errors.username
                   ? true
                   : false
@@ -405,7 +405,7 @@ export default function SignUpRegister() {
             ))}
           {inputFocus !== 2 &&
             errors.password &&
-            (errors.password.message == 'Required' ? (
+            (errors.password.message === 'Required' ? (
               requiredMessage('Required')
             ) : (
               <ul className="pl-4 text-xs text-red-500">

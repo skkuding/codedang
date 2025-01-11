@@ -95,7 +95,7 @@ export default function SignUpEmailVerify() {
     setEmailError('')
     await trigger('email')
     if (!errors.email) {
-      await fetch(baseUrl + '/email-auth/send-email/register-new', {
+      await fetch(`${baseUrl}/email-auth/send-email/register-new`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -121,7 +121,7 @@ export default function SignUpEmailVerify() {
     await trigger('verificationCode')
     if (!errors.verificationCode) {
       try {
-        const response = await fetch(baseUrl + '/email-auth/verify-pin', {
+        const response = await fetch(`${baseUrl}/email-auth/verify-pin`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -166,7 +166,7 @@ export default function SignUpEmailVerify() {
             placeholder="example@g.skku.edu"
             {...register('email')}
             onFocus={() => clearErrors('email')}
-            onKeyDown={async (e) => {
+            onKeyDown={(e) => {
               if (e.key === 'Enter' && !sendButtonDisabled) {
                 e.preventDefault()
                 setSendButtonDisabled(true)
@@ -246,9 +246,10 @@ export default function SignUpEmailVerify() {
           type="submit"
           className={cn(
             'mt-2 w-full font-semibold',
-            (!emailVerified || !!errors.verificationCode) && 'bg-gray-400'
+            (!emailVerified || Boolean(errors.verificationCode)) &&
+              'bg-gray-400'
           )}
-          disabled={!emailVerified || !!errors.verificationCode}
+          disabled={!emailVerified || Boolean(errors.verificationCode)}
         >
           Next
         </Button>

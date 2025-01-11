@@ -44,7 +44,9 @@ export const getStorageKey = (
   userName: string,
   contestId?: number
 ) => {
-  if (userName === '') return undefined
+  if (userName === '') {
+    return undefined
+  }
   const problemKey = `${userName}_${problemId}${contestId ? `_${contestId}` : ''}_${language}`
   return problemKey
 }

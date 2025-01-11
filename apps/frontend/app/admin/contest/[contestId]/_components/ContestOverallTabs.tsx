@@ -145,7 +145,9 @@ export default function ContestOverallTabs({
     }) || []
 
   const isCurrentTab = (tab: string) => {
-    if (tab === '') return pathname === `/admin/contest/${id}`
+    if (tab === '') {
+      return pathname === `/admin/contest/${id}`
+    }
     return pathname.startsWith(`/admin/contest/${id}/${tab}`)
   }
 

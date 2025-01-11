@@ -29,10 +29,12 @@ export default function SearchBar({ className }: SearchBarProps) {
     // set search data to newParam
     if (data.search) {
       newParam.set('search', data.search)
-    } else newParam.delete('search')
+    } else {
+      newParam.delete('search')
+    }
     const newParamString = newParam.toString()
     router.push(
-      `${pathname}${newParamString ? '?' + newParamString : ''}` as Route,
+      `${pathname}${newParamString ? `?${newParamString}` : ''}` as Route,
       {
         scroll: false
       }

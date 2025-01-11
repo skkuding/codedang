@@ -28,12 +28,7 @@ import UpdateInformation from './UpdateInformation'
 
 interface HeaderAuthPanelProps {
   session: Session | null
-  group?: keyof typeof variants
-}
-
-const variants: { [key: string]: 'outline' | 'slate' } = {
-  default: 'outline',
-  editor: 'slate'
+  group?: 'default' | 'editor'
 }
 
 export default function HeaderAuthPanel({

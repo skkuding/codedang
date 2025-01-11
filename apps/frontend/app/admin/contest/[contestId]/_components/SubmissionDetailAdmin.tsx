@@ -155,7 +155,7 @@ export default function SubmissionDetailAdmin({
               <Table className="[&_*]:text-center [&_*]:text-xs [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:!border-neutral-200">
                 <TableHeader>
                   <TableRow>
-                    <TableHead></TableHead>
+                    <TableHead />
                     <TableHead className="!text-sm text-black">
                       Result
                     </TableHead>

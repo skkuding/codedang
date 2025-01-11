@@ -46,9 +46,13 @@ export default function SwitchField({
         <Label required={false}>{title}</Label>
         <Switch
           onCheckedChange={() => {
-            if (name == 'invitationCode') setValue(name, null)
-            else if (name == 'hint' || name == 'source') setValue(name, '')
-            else setValue(name, !getValues(name))
+            if (name === 'invitationCode') {
+              setValue(name, null)
+            } else if (name === 'hint' || name === 'source') {
+              setValue(name, '')
+            } else {
+              setValue(name, !getValues(name))
+            }
             setIsEnabled(!isEnabled)
           }}
           checked={isEnabled}
@@ -56,7 +60,7 @@ export default function SwitchField({
         />
       </div>
       {isEnabled &&
-        (formElement == 'input' ? (
+        (formElement === 'input' ? (
           <Input
             id={name}
             type={type}
@@ -66,7 +70,7 @@ export default function SwitchField({
               onChange: () => trigger(name)
             })}
           />
-        ) : formElement == 'textarea' ? (
+        ) : formElement === 'textarea' ? (
           <Textarea
             id={name}
             placeholder={placeholder}
@@ -74,7 +78,7 @@ export default function SwitchField({
             {...register(name)}
           />
         ) : null)}
-      {isEnabled && name == 'invitationCode' && errors[name] && (
+      {isEnabled && name === 'invitationCode' && errors[name] && (
         <ErrorMessage message={errors[name]?.message?.toString()} />
       )}
     </div>
