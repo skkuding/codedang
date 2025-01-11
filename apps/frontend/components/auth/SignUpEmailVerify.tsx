@@ -101,7 +101,7 @@ export default function SignUpEmailVerify() {
     }
 
     try {
-      await safeFetcher.post('/email-auth/send-email/register-new', {
+      await safeFetcher.post('email-auth/send-email/register-new', {
         json: { email }
       })
       setSentEmail(true)

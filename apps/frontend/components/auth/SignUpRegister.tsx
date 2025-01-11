@@ -181,7 +181,7 @@ export default function SignUpRegister() {
     const fullName = `${data.firstName} ${data.lastName}`
     try {
       setSignUpDisable(true)
-      await safeFetcher.post('/user/sign-up', {
+      await safeFetcher.post('user/sign-up', {
         headers: {
           ...formData.headers
         },
@@ -217,7 +217,7 @@ export default function SignUpRegister() {
     }
 
     try {
-      await safeFetcher.get(`/user/username-check?username=${username}`)
+      await safeFetcher.get(`user/username-check?username=${username}`)
       setCheckedUsername(username)
       setIsUsernameAvailable(true)
     } catch (error) {
