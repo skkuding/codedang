@@ -146,7 +146,8 @@ export default eslintTS.config(
       curly: 'error',
       'prefer-template': 'error',
       'prefer-const': 'error',
-      // 'no-nested-ternary': 'error',
+      'no-unneeded-ternary': 'error',
+      'no-nested-ternary': 'error',
       'require-await': 'error',
       'no-implicit-coercion': 'error',
       'no-restricted-imports': [

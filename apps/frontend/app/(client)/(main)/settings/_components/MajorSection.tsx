@@ -27,6 +27,16 @@ export default function MajorSection() {
     defaultProfileValues
   } = useSettingsContext()
 
+  const getMajorDisplayValue = () => {
+    if (updateNow) {
+      return majorValue === 'none'
+        ? 'Department Information Unavailable / 학과 정보 없음'
+        : majorValue
+    }
+
+    return majorValue || defaultProfileValues.major
+  }
+
   return (
     <>
       <label className="-mb-4 mt-2 text-xs">First Major</label>
@@ -39,22 +49,19 @@ export default function MajorSection() {
               role="combobox"
               className={cn(
                 'justify-between border-gray-200 font-normal text-neutral-600 hover:bg-white',
-                updateNow
-                  ? `${majorValue === 'none' || isLoading ? 'border-red-500 text-neutral-400' : 'border-primary'}`
-                  : majorValue === defaultProfileValues.major
+                (() => {
+                  if (updateNow) {
+                    return majorValue === 'none' || isLoading
+                      ? 'border-red-500 text-neutral-400'
+                      : 'border-primary'
+                  }
+                  return majorValue === defaultProfileValues.major
                     ? 'text-neutral-400'
                     : 'border-primary'
+                })()
               )}
             >
-              {isLoading
-                ? 'Loading...'
-                : updateNow
-                  ? majorValue === 'none'
-                    ? 'Department Information Unavailable / 학과 정보 없음'
-                    : majorValue
-                  : !majorValue
-                    ? defaultProfileValues.major
-                    : majorValue}
+              {isLoading ? 'Loading...' : getMajorDisplayValue()}
               <FaChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
