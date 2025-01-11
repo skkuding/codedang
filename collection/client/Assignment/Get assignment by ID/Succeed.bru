@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/contest/1?groupId=1
+  url: {{baseUrl}}/assignment/1?groupId=1
   body: none
   auth: none
 }
@@ -24,7 +24,7 @@ assert {
   res("group.groupName"): isString
   res("invitationCodeExists"): isBoolean
   res("description"): isString
-  res("_count.contestRecord"): isNumber
+  res("_count.assignmentRecord"): isNumber
   res("isRegistered"): isBoolean
   res("enableCopyPaste"): isBoolean
   res("isJudgeResultVisible"): isBoolean
@@ -35,14 +35,14 @@ script:pre-request {
 }
 
 docs {
-  ## Get Contest by ID
+  ## Get Assignment by ID
   
-  하나의 대회 정보와 Contest 참여자 정보, 로그인한 유저가 해당 Contest에 참여가능한지 여부에 대한 정보를 가져옵니다. (로그인 하지 않은 유저는 Open Space의 Contest 정보만 볼 수 있고, `isRegistered`는 항상 `false`)
+  하나의 대회 정보와 Assignment 참여자 정보, 로그인한 유저가 해당 Assignment에 참여가능한지 여부에 대한 정보를 가져옵니다. (로그인 하지 않은 유저는 Open Space의 Assignment 정보만 볼 수 있고, `isRegistered`는 항상 `false`)
   ### Path
   
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
-  |id|Integer|Contest(대회) ID|
+  |id|Integer|Assignment(과제) ID|
   
   ### Query
   
@@ -52,7 +52,7 @@ docs {
   
   ### Error Case
   
-  #### [404] Contest does not exist
+  #### [404] Assignment does not exist
   
-  존재하지 않는 ContestID를 Path로 주면 오류가 납니다.
+  존재하지 않는 AssignmentID를 Path로 주면 오류가 납니다.
 }
