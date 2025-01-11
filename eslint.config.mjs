@@ -1,6 +1,7 @@
 import { FlatCompat } from '@eslint/eslintrc'
 import eslintJS from '@eslint/js'
 import eslintPluginPrettier from 'eslint-plugin-prettier/recommended'
+import eslintPluginPromise from 'eslint-plugin-promise'
 import globals from 'globals'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -165,6 +166,16 @@ export default eslintTS.config(
         'error',
         { allowShortCircuit: true, allowTernary: true }
       ]
+    }
+  },
+  {
+    files: ['apps/frontend/**/*.tsx'],
+    plugins: {
+      promise: eslintPluginPromise
+    },
+    rules: {
+      ...eslintPluginPromise.configs['flat/recommended'].rules,
+      'promise/prefer-await-to-then': 'error'
     }
   },
   {
