@@ -79,18 +79,17 @@ export class AnnouncementService {
         },
         orderBy: { updateTime: 'desc' }
       })
-    } else if (assignmentId) {
+    } else {
       return await this.prisma.announcement.findMany({
         where: {
           problemId,
           assignment: {
-            id: assignmentId,
+            id: assignmentId!,
             groupId
           }
         },
         orderBy: { updateTime: 'desc' }
       })
     }
-    return []
   }
 }

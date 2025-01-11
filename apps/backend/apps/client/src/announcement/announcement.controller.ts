@@ -6,7 +6,10 @@ import {
   Query
 } from '@nestjs/common'
 import { AuthNotNeededIfOpenSpace } from '@libs/auth'
-import { EntityNotExistException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from '@libs/exception'
 import { GroupIDPipe, IDValidationPipe } from '@libs/pipe'
 import { AnnouncementService } from './announcement.service'
 
@@ -26,6 +29,11 @@ export class AnnouncementController {
     groupId: number
   ) {
     try {
+      if (!!contestId === !!assignmentId) {
+        throw new UnprocessableDataException(
+          'Either contestId or assignmentId must be provided, but not both.'
+        )
+      }
       if (problemId) {
         return await this.announcementService.getProblemAnnouncements(
           contestId,
@@ -39,17 +47,18 @@ export class AnnouncementController {
             contestId,
             groupId
           )
-        } else if (assignmentId) {
+        } else {
           return await this.announcementService.getAssignmentAnnouncements(
-            assignmentId,
+            assignmentId!,
             groupId
           )
-        } else {
-          return []
         }
       }
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
+      if (
+        error instanceof EntityNotExistException ||
+        error instanceof UnprocessableDataException
+      ) {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
