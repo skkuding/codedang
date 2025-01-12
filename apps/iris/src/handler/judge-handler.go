@@ -54,8 +54,9 @@ func (r Request) Validate() (*Request, error) {
 }
 
 type JudgeResult struct {
-	TestcaseId      string          `json:"testcaseId"`
+	TestcaseId      int             `json:"testcaseId"`
 	JudgeResultCode JudgeResultCode `json:"resultCode"`
+	Output          string          `json:"output"`
 	CpuTime         int             `json:"cpuTime"`
 	RealTime        int             `json:"realTime"`
 	Memory          int             `json:"memory"`
