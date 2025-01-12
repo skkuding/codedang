@@ -9,7 +9,7 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
-import type { Language, ProblemDetail } from '@/types/type'
+import type { ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -154,7 +154,7 @@ function CodeEditorInEditorResizablePanel({
   return (
     <CodeEditor
       value={code ?? ''}
-      language={language as Language}
+      language={language}
       onChange={setCode}
       enableCopyPaste={enableCopyPaste}
       height="100%"

@@ -57,8 +57,11 @@ export default eslintTS.config(
       '@typescript-eslint/no-import-type-side-effects': 'error'
     }
   },
+
+  /* Backend configuration */
+
   {
-    files: ['**/*.ts'],
+    files: ['apps/backend/**/*.ts'],
     rules: {
       '@typescript-eslint/naming-convention': [
         'error',
@@ -89,8 +92,6 @@ export default eslintTS.config(
       ]
     }
   },
-
-  /* Backend configuration */
   {
     files: ['apps/backend/**/*'],
     rules: {
@@ -143,6 +144,14 @@ export default eslintTS.config(
         'error',
         path.join(__dirname, 'apps/frontend/app')
       ],
+      eqeqeq: ['error', 'always'],
+      curly: 'error',
+      'prefer-template': 'error',
+      'prefer-const': 'error',
+      'no-unneeded-ternary': 'error',
+      'no-nested-ternary': 'error',
+      'require-await': 'error',
+      'no-implicit-coercion': 'error',
       'no-restricted-imports': [
         'error',
         {
@@ -159,6 +168,8 @@ export default eslintTS.config(
           message: 'Please use @generated/graphql instead.'
         }
       ],
+      '@typescript-eslint/no-non-null-assertion': 'error',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'error',
       '@typescript-eslint/no-empty-object-type': [
         'error',
         { allowInterfaces: 'with-single-extends' }
@@ -167,7 +178,29 @@ export default eslintTS.config(
         'error',
         { allowShortCircuit: true, allowTernary: true }
       ],
+      'react/jsx-no-useless-fragment': 'error',
+      'react/self-closing-comp': 'error',
       'promise/prefer-await-to-then': 'error'
+    }
+  },
+  {
+    files: ['apps/frontend/**/*.ts?(x)'],
+    rules: {
+      '@typescript-eslint/naming-convention': [
+        'error',
+        {
+          selector: ['import', 'function'],
+          format: ['camelCase', 'PascalCase']
+        },
+        {
+          selector: 'typeLike',
+          format: ['PascalCase']
+        },
+        {
+          selector: 'variable',
+          format: ['camelCase', 'UPPER_CASE', 'PascalCase']
+        }
+      ]
     }
   },
   {

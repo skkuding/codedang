@@ -65,7 +65,7 @@ export default function RegisterButton({
     resolver: zodResolver(schema)
   })
 
-  const onSubmit = async () => {
+  const onSubmit = () => {
     clickRegister(id)
   }
 

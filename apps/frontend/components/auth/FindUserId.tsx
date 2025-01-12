@@ -103,7 +103,7 @@ export default function FindUserId() {
             type="email"
             className={cn(
               inputFocused && 'ring-1 focus-visible:ring-1 disabled:ring-0',
-              errors.email || (emailError && getValues('email') == wrongEmail)
+              errors.email || (emailError && getValues('email') === wrongEmail)
                 ? 'ring-red-500 focus-visible:ring-red-500'
                 : 'focus-visible:ring-primary'
             )}
@@ -113,12 +113,12 @@ export default function FindUserId() {
             })}
             onFocus={() => setInputFocused(true)}
             onBlur={() => trigger('email')}
-            disabled={!!userId}
+            disabled={Boolean(userId)}
           />
           {errors.email && (
             <p className="text-xs text-red-500">{errors.email?.message}</p>
           )}
-          {emailError && getValues('email') == wrongEmail && (
+          {emailError && getValues('email') === wrongEmail && (
             <p className="text-xs text-red-500">{emailError}</p>
           )}
           {userId && (

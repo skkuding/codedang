@@ -11,7 +11,7 @@ import { TimePickerDemo } from '@/components/shadcn/time-picker-demo'
 import { cn } from '@/libs/utils'
 import { format } from 'date-fns'
 import { Calendar as CalendarIcon } from 'lucide-react'
-import * as React from 'react'
+import { useEffect, useState } from 'react'
 
 export const DateTimePickerDemo = ({
   onChange,
@@ -20,16 +20,22 @@ export const DateTimePickerDemo = ({
   onChange: (date: Date) => void
   defaultValue?: Date
 }) => {
-  const [date, setDate] = React.useState<Date>()
+  const [date, setDate] = useState<Date>()
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (defaultValue) {
       setDate(defaultValue)
     }
   }, [defaultValue])
 
   return (
-    <Popover onOpenChange={() => onChange(date!)}>
+    <Popover
+      onOpenChange={() => {
+        if (date) {
+          onChange(date)
+        }
+      }}
+    >
       <PopoverTrigger asChild>
         <Button
           variant={'outline'}

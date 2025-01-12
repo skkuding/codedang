@@ -51,10 +51,8 @@ export const columns: ColumnDef<ContestProblem>[] = [
     header: () => 'Score',
     accessorKey: 'score',
     cell: ({ row }) =>
-      row.original.maxScore != null ? (
-        `${row.original.score ?? '-'} / ${row.original.maxScore}`
-      ) : (
-        <></>
-      )
+      row.original.maxScore !== null
+        ? `${row.original.score ?? '-'} / ${row.original.maxScore}`
+        : null
   }
 ]

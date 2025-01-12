@@ -127,7 +127,11 @@ export default function DataTableMultiSelectFilter<TData, TValue>({
 }
 
 const getSelectedValues = (data: unknown): Set<string> => {
-  if (!Array.isArray(data)) return new Set()
-  if (data.every((item) => typeof item === 'string')) return new Set(data)
+  if (!Array.isArray(data)) {
+    return new Set()
+  }
+  if (data.every((item) => typeof item === 'string')) {
+    return new Set(data)
+  }
   return new Set()
 }

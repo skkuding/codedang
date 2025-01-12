@@ -35,8 +35,9 @@ export const fetcherWithAuth = fetcher.extend({
       async (request) => {
         // Add access token to request header if user is logged in.
         const session = await auth()
-        if (session)
+        if (session) {
           request.headers.set('Authorization', session.token.accessToken)
+        }
       }
     ],
     afterResponse: [

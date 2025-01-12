@@ -46,7 +46,9 @@ export default function UploadDialog() {
 
   const resetFile = () => {
     setFile(null)
-    if (fileRef.current) fileRef.current.value = ''
+    if (fileRef.current) {
+      fileRef.current.value = ''
+    }
   }
 
   const [uploadProblems, { loading }] = useMutation(UPLOAD_PROBLEMS)

@@ -107,6 +107,8 @@ export default function DataTableProblemFilter({
 }
 
 const getSelectedValue = (data: unknown): string | null => {
-  if (typeof data !== 'string') return null
+  if (typeof data !== 'string') {
+    return null
+  }
   return data
 }

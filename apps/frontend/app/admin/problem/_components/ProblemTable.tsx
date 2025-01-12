@@ -35,7 +35,7 @@ export function ProblemTable() {
     isVisible: problem.isVisible !== undefined ? problem.isVisible : null,
     languages: problem.languages ?? [],
     tag: problem.tag.map(({ id, tag }) => ({
-      id: +id,
+      id: Number(id),
       tag: {
         ...tag,
         id: Number(tag.id)
