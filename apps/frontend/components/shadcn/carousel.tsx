@@ -270,7 +270,7 @@ const CarouselPrevGradient = () => {
   return canScrollPrev ? (
     <div className="absolute bottom-[4px] left-0 h-[130px] w-[120px] self-start bg-gradient-to-r from-white/70 to-transparent" />
   ) : (
-    <div> </div>
+    <div />
   )
 }
 CarouselPrevGradient.displayName = 'CarouselPrevGradient'
