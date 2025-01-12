@@ -60,6 +60,7 @@ export default async function Course({ searchParams }: CourseProps) {
       <div className="flex w-full max-w-7xl flex-col gap-5 p-5 py-8">
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<CourseCardListFallback />}>
+            <p>LOL hahah!!</p>
             <CourseCardList
               title="This is your courses!"
               type="Ongoing"

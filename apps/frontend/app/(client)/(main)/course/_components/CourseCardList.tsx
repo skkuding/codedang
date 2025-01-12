@@ -1,4 +1,4 @@
-import ContestCard from '@/app/(client)/(main)/_components/ContestCard'
+import CourseCard from '@/app/(client)/(main)/course/_components/CourseCard'
 import {
   Carousel,
   CarouselContent,
@@ -7,45 +7,46 @@ import {
   CarouselPrevious
 } from '@/components/shadcn/carousel'
 import { cn, fetcher, fetcherWithAuth } from '@/libs/utils'
-import type { Contest } from '@/types/type'
+import type { course } from '@/types/type'
 import type { Route } from 'next'
 import type { Session } from 'next-auth'
 import Link from 'next/link'
 
-const getContests = async () => {
+const getCourses = async () => {
   const data: {
-    ongoing: Contest[]
-    upcoming: Contest[]
-  } = await fetcher.get('contest/ongoing-upcoming').json()
-  data.ongoing.forEach((contest) => {
-    contest.status = 'ongoing'
+    ongoing: course[] //Course type 정의 후 수정
+    upcoming: course[]
+  } = await fetcher.get('assignment/ongoing-upcoming').json() //group으로 해야하나 assignment로 해야하나!!
+  data.ongoing.forEach((Course) => {
+    Course.status = 'ongoing'
   })
-  data.upcoming.forEach((contest) => {
-    contest.status = 'upcoming'
+  data.upcoming.forEach((Course) => {
+    Course.status = 'upcoming'
   })
   return data.ongoing.concat(data.upcoming)
 }
 
-const getRegisteredContests = async () => {
+const getRegisteredCourses = async () => {
+  //현재 등록된 course를 불러온다.
   const data: {
-    registeredOngoing: Contest[]
-    registeredUpcoming: Contest[]
-    ongoing: Contest[]
-    upcoming: Contest[]
+    registeredOngoing: course[] //Course Interface를 정의한 뒤 수정해야한다.
+    registeredUpcoming: course[]
+    ongoing: course[]
+    upcoming: course[]
   } = await fetcherWithAuth
-    .get('contest/ongoing-upcoming-with-registered')
+    .get('assignment/ongoing-upcoming-with-registered')
     .json()
-  data.registeredOngoing.forEach((contest) => {
-    contest.status = 'registeredOngoing'
+  data.registeredOngoing.forEach((Course) => {
+    Course.status = 'registeredOngoing'
   })
-  data.registeredUpcoming.forEach((contest) => {
-    contest.status = 'registeredUpcoming'
+  data.registeredUpcoming.forEach((Course) => {
+    Course.status = 'registeredUpcoming'
   })
-  data.ongoing.forEach((contest) => {
-    contest.status = 'ongoing'
+  data.ongoing.forEach((Course) => {
+    Course.status = 'ongoing'
   })
-  data.upcoming.forEach((contest) => {
-    contest.status = 'upcoming'
+  data.upcoming.forEach((Course) => {
+    Course.status = 'upcoming'
   })
   return data.ongoing.concat(
     data.upcoming.concat(data.registeredOngoing.concat(data.registeredUpcoming))
@@ -54,14 +55,14 @@ const getRegisteredContests = async () => {
 
 type ItemsPerSlide = 2 | 3
 
-function ContestCardCarousel({
+function CourseCardCarousel({
   itemsPerSlide,
   title,
   data
 }: {
   itemsPerSlide: ItemsPerSlide
   title: string
-  data: Contest[]
+  data: course[] //type 수정.
 }) {
   const chunks = []
 
@@ -70,7 +71,8 @@ function ContestCardCarousel({
   } else if (itemsPerSlide === 2) {
     for (let i = 0; i < data.length; i += 2) chunks.push(data.slice(i, i + 2))
   }
-
+  //course를 모두 Course로 바꿈.
+  //courseCard to AssignsmentCard.
   return (
     <Carousel
       className={cn(itemsPerSlide === 3 ? 'max-xl:hidden' : 'xl:hidden')}
@@ -85,16 +87,16 @@ function ContestCardCarousel({
       <CarouselContent className="p-1">
         {chunks.map((chunk) => (
           <CarouselItem key={chunk[0].id} className="flex w-full gap-3">
-            {chunk.map((contest) => (
+            {chunk.map((Course) => (
               <Link
-                key={contest.id}
-                href={`/course/${contest.id}` as Route}
+                key={Course.id}
+                href={`/course/${Course.id}` as Route}
                 className={cn(
                   'block overflow-hidden p-2',
                   itemsPerSlide === 3 ? 'w-1/3' : 'w-1/2'
                 )}
               >
-                <ContestCard contest={contest} />
+                <CourseCard Course={Course} />
               </Link>
             ))}
           </CarouselItem>
@@ -103,7 +105,7 @@ function ContestCardCarousel({
     </Carousel>
   )
 }
-
+//Contest를 Course로 모두 이름 변경!
 export default async function Course({
   title,
   type,
@@ -114,11 +116,11 @@ export default async function Course({
   session?: Session | null
 }) {
   const data = (
-    session ? await getRegisteredContests() : await getContests()
+    session ? await getRegisteredCourses() : await getCourses()
   ).filter(
-    (contest) =>
-      contest.status.toLowerCase() === 'registered' + type.toLowerCase() ||
-      contest.status.toLowerCase() === type.toLowerCase()
+    (course) =>
+      course.status.toLowerCase() === 'registered' + type.toLowerCase() ||
+      course.status.toLowerCase() === type.toLowerCase()
   )
 
   data.sort((a, b) => +new Date(a.startTime) - +new Date(b.startTime))
@@ -127,8 +129,8 @@ export default async function Course({
     <></>
   ) : (
     <>
-      <ContestCardCarousel itemsPerSlide={3} title={title} data={data} />
-      <ContestCardCarousel itemsPerSlide={2} title={title} data={data} />
+      <CourseCardCarousel itemsPerSlide={3} title={title} data={data} />
+      <CourseCardCarousel itemsPerSlide={2} title={title} data={data} />
     </>
   )
 }

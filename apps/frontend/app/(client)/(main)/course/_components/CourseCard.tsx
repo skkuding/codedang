@@ -1,9 +1,11 @@
 'use client'
 
-import ContestStatusTimeDiff from '@/components/ContestStatusTimeDiff'
+//거의 이름만 바꿈.
+import CourseStatusTimeDiff from '@/components/CourseStatusTimeDiff'
+//원래 ContestStatusTimeDiff -> CourseStatusTimeDiff로 이름 바꿈. -> _components에 파일을 만들
 import { cn, dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
-import type { Contest } from '@/types/type'
+import type { course } from '@/types/type'
 import Image from 'next/image'
 import 'react-circular-progressbar/dist/styles.css'
 import StatusBadge from '../../../(main)/_components/StatusBadge'
@@ -24,29 +26,30 @@ const txtVariants = {
   registeredUpcoming: 'text-red-400'
 }
 interface Props {
-  contest: Contest
+  course: course //type 변경 필요.
 }
 
-export default function ContestCard({ contest }: Props) {
-  const startTime = dateFormatter(contest.startTime, 'YYYY-MM-DD')
-  const endTime = dateFormatter(contest.endTime, 'YYYY-MM-DD')
+export default function CourseCard({ course }: Props) {
+  //contest props -> course props로 변경해야..
+  const startTime = dateFormatter(course.startTime, 'YYYY-MM-DD')
+  const endTime = dateFormatter(course.endTime, 'YYYY-MM-DD')
 
   return (
     <div
       className={cn(
         'flex w-full flex-col justify-between gap-4 rounded-md border border-gray-200 px-3 shadow-none transition hover:scale-105 hover:opacity-80',
-        bgVariants[contest.status]
+        bgVariants[course.status]
       )}
     >
       <div
         className={cn(
           'flex flex-col justify-between gap-4 pt-4 uppercase',
-          txtVariants[contest.status]
+          txtVariants[course.status]
         )}
       >
-        <StatusBadge variant={contest.status} />
+        <StatusBadge variant={course.status} />
         <div className="line-clamp-4 text-ellipsis whitespace-pre-wrap text-lg font-semibold leading-tight text-black min-[400px]:line-clamp-2">
-          {contest.title}
+          {course.title}
         </div>
       </div>
       <div className="mb-4 flex items-center justify-between">
@@ -57,10 +60,10 @@ export default function ContestCard({ contest }: Props) {
               {startTime} ~ {endTime}
             </p>
           </div>
-          <ContestStatusTimeDiff
-            contest={contest}
+          <CourseStatusTimeDiff
+            course={course}
             textStyle="text-xs text-gray-800"
-            inContestEditor={false}
+            incourseEditor={false}
           />
         </div>
       </div>
