@@ -1,6 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger, type OnModuleInit } from '@nestjs/common'
-import type { EventEmitter2 } from '@nestjs/event-emitter'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Nack, AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import {
   ResultStatus,
@@ -27,6 +27,7 @@ import {
   Status,
   submissionTestcaseEvent,
   TEST_SUBMISSION_EXPIRE_TIME,
+  testTestcaseEvent,
   USER_TESTCASE_MESSAGE_TYPE
 } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'

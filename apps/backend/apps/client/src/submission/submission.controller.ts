@@ -11,10 +11,10 @@ import {
   Sse,
   ParseIntPipe
 } from '@nestjs/common'
-import type { EventEmitter2 } from '@nestjs/event-emitter'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Observable } from 'rxjs'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
-import { submissionTestcaseEvent } from '@libs/constants'
+import { submissionTestcaseEvent, testTestcaseEvent } from '@libs/constants'
 import {
   CursorValidationPipe,
   GroupIDPipe,
