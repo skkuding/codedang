@@ -9,31 +9,16 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/handler"
 )
 
-type ResultCode int8
 type Response struct {
-	SubmissionId    int             `json:"submissionId"`
-	JudgeResultCode ResultCode      `json:"resultCode"` // unified resultCode
-	JudgeResult     json.RawMessage `json:"judgeResult"`
-	Error           string          `json:"error"`
+	SubmissionId    int                     `json:"submissionId"`
+	JudgeResultCode handler.JudgeResultCode `json:"resultCode"`
+	JudgeResult     json.RawMessage         `json:"judgeResult"`
+	Error           string                  `json:"error"`
 }
 
-const (
-	ACCEPTED ResultCode = 0 + iota
-	WRONG_ANSWER
-	CPU_TIME_LIMIT_EXCEEDED
-	REAL_TIME_LIMIT_EXCEEDED
-	MEMORY_LIMIT_EXCEEDED
-	RUNTIME_ERROR
-	COMPILE_ERROR
-	TESTCASE_ERROR
-	SEGMENTATION_FAULT_ERROR
-	SERVER_ERROR
-)
-
 func NewResponse(id string, data json.RawMessage, err error) *Response {
-	resultCode := ACCEPTED
+	resultCode := handler.ACCEPTED
 	errMessage := ""
-	// var errMessage json.RawMessage
 
 	if err != nil {
 		if handlerErr, ok := err.(*handler.HandlerError); ok {
@@ -75,30 +60,30 @@ func (r *Response) Marshal() []byte {
 	}
 }
 
-func ErrorToResultCode(err error) ResultCode {
+func ErrorToResultCode(err error) handler.JudgeResultCode {
 	if errors.Is(err, handler.ErrWrongAnswer) {
-		return WRONG_ANSWER
+		return handler.WRONG_ANSWER
 	}
 	if errors.Is(err, handler.ErrCpuTimeLimitExceed) {
-		return CPU_TIME_LIMIT_EXCEEDED
+		return handler.CPU_TIME_LIMIT_EXCEEDED
 	}
 	if errors.Is(err, handler.ErrRealTimeLimitExceed) {
-		return REAL_TIME_LIMIT_EXCEEDED
+		return handler.REAL_TIME_LIMIT_EXCEEDED
 	}
 	if errors.Is(err, handler.ErrMemoryLimitExceed) {
-		return MEMORY_LIMIT_EXCEEDED
+		return handler.MEMORY_LIMIT_EXCEEDED
 	}
 	if errors.Is(err, handler.ErrRuntime) {
-		return RUNTIME_ERROR
+		return handler.RUNTIME_ERROR
 	}
 	if errors.Is(err, handler.ErrCompile) {
-		return COMPILE_ERROR
+		return handler.COMPILE_ERROR
 	}
 	if errors.Is(err, handler.ErrTestcaseGet) {
-		return TESTCASE_ERROR
+		return handler.TESTCASE_ERROR
 	}
 	if errors.Is(err, handler.ErrSegFault) {
-		return SEGMENTATION_FAULT_ERROR
+		return handler.SEGMENTATION_FAULT_ERROR
 	}
-	return SERVER_ERROR
+	return handler.SERVER_ERROR
 }

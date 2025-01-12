@@ -9,12 +9,8 @@ import (
 
 type Handler interface {
 	Handle(data interface{}) (json.RawMessage, error)
-	// result code mapper? (sandbox, handler)
-	// error mapper? (han)
 }
 
-// FIXME: use more proper name
-// FIXME: refactor
 func SandboxResultCodeToJudgeResultCode(code sandbox.ResultCode) JudgeResultCode {
 	switch code {
 	case sandbox.CPU_TIME_LIMIT_EXCEEDED:
@@ -26,16 +22,15 @@ func SandboxResultCodeToJudgeResultCode(code sandbox.ResultCode) JudgeResultCode
 	case sandbox.RUNTIME_ERROR:
 		return RUNTIME_ERROR
 	case sandbox.SYSTEM_ERROR:
-		return SYSTEM_ERROR
+		return SERVER_ERROR
 	}
 	return ACCEPTED
 }
 
 func ParseError(j JudgeResult) error {
 	if j.JudgeResultCode != ACCEPTED {
-		// TODO : Customizing Results
 		if j.Signal == 11 && j.JudgeResultCode != MEMORY_LIMIT_EXCEEDED {
-			return resultCodeToError(SEGMENATION_FAULT)
+			return resultCodeToError(SEGMENTATION_FAULT_ERROR)
 		}
 		if j.RealTime >= 2000 && j.Signal == 9 && j.JudgeResultCode == RUNTIME_ERROR {
 			return resultCodeToError(REAL_TIME_LIMIT_EXCEEDED)
@@ -62,7 +57,7 @@ func resultCodeToError(code JudgeResultCode) error {
 		return err.Wrap(ErrMemoryLimitExceed)
 	case RUNTIME_ERROR:
 		return err.Wrap(ErrRuntime)
-	case SEGMENATION_FAULT:
+	case SEGMENTATION_FAULT_ERROR:
 		return err.Wrap(ErrSegFault)
 	}
 	return &HandlerError{caller: caller, err: ErrSandbox, level: logger.ERROR}

@@ -70,10 +70,6 @@ type JudgeResultMessage struct {
 
 var ErrJudgeEnd = errors.New("judge handle end")
 
-// func (r *Result) Accepted() {
-// 	r.AcceptedNum += 1
-// }
-
 func (r *JudgeResult) SetJudgeResultCode(code JudgeResultCode) {
 	r.JudgeResultCode = code
 }
@@ -87,26 +83,19 @@ func (r *JudgeResult) SetJudgeExecResult(execResult sandbox.ExecResult) {
 	r.ErrorCode = execResult.ErrorCode
 }
 
-// func (r *Result) Marshal() (json.RawMessage, error) {
-// 	if res, err := json.Marshal(r); err != nil {
-// 		return nil, &HandlerError{caller: "judge-handler", err: fmt.Errorf("marshaling result: %w", err)}
-// 	} else {
-// 		return res, nil
-// 	}
-// }
-
-// JudgeResult ResultCode
 type JudgeResultCode int8
 
 const (
-	ACCEPTED = 0 + iota
+	ACCEPTED JudgeResultCode = 0 + iota
 	WRONG_ANSWER
 	CPU_TIME_LIMIT_EXCEEDED
 	REAL_TIME_LIMIT_EXCEEDED
 	MEMORY_LIMIT_EXCEEDED
 	RUNTIME_ERROR
-	SYSTEM_ERROR
-	SEGMENATION_FAULT
+	COMPILE_ERROR
+	TESTCASE_ERROR
+	SEGMENTATION_FAULT_ERROR
+	SERVER_ERROR
 )
 
 type JudgeHandler struct {
@@ -330,7 +319,7 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 
 	if err != nil {
 		j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
-		res.JudgeResultCode = SYSTEM_ERROR
+		res.JudgeResultCode = SERVER_ERROR
 		res.Error = string(runResult.ErrOutput)
 		goto Send
 	}
@@ -360,7 +349,6 @@ Send:
 	if err != nil {
 		out <- JudgeResultMessage{nil, &HandlerError{err: ErrMarshalJson, level: logger.ERROR}}
 	} else {
-		// j.logger.Log(logger.DEBUG, string(marshaledRes))
 		out <- JudgeResultMessage{marshaledRes, ParseError(res)}
 	}
 	cnt <- 1
