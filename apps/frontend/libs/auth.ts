@@ -9,5 +9,5 @@ import { getClientSession } from './auth/getClientSession'
  */
 export const auth =
   typeof window === 'undefined'
-    ? async () => getServerSession(authOptions)
+    ? () => getServerSession(authOptions)
     : getClientSession()

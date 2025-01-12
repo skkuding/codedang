@@ -13,13 +13,9 @@ export default function SetToZeroButton({ onSetToZero }: SetToZeroButtonProps) {
     .getSelectedRowModel()
     .rows.map((row) => row.original.id)
 
-  return (
-    <>
-      {selectedContests.length > 0 && (
-        <Button onClick={() => onSetToZero(selectedContests)} variant="outline">
-          Set to Zero
-        </Button>
-      )}
-    </>
-  )
+  return selectedContests.length > 0 ? (
+    <Button onClick={() => onSetToZero(selectedContests)} variant="outline">
+      Set to Zero
+    </Button>
+  ) : null
 }

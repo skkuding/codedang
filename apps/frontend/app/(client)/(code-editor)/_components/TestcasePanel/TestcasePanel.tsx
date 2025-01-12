@@ -232,7 +232,9 @@ function TestSummary({
 }
 
 function TestResultDetail({ data }: { data: TestResultDetail | undefined }) {
-  if (data === undefined) return null
+  if (data === undefined) {
+    return null
+  }
 
   return (
     <div className="px-8 pt-5">

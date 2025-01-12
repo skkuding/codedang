@@ -21,7 +21,7 @@ export const middleware = async (req: NextRequest) => {
   // Handle reissue of access token
   if (token && token.accessTokenExpires <= Date.now()) {
     try {
-      const reissueRes = await fetch(baseUrl + '/auth/reissue', {
+      const reissueRes = await fetch(`${baseUrl}/auth/reissue`, {
         headers: {
           cookie: `refresh_token=${token.refreshToken}`
         },
