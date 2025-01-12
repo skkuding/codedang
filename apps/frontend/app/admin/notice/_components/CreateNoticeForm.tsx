@@ -49,10 +49,8 @@ export default function CreateNoticeForm({ children }: CreateNoticeFormProps) {
   })
 
   return (
-    <>
-      <form className="flex w-[760px] flex-col gap-6" onSubmit={onSubmit}>
-        <FormProvider {...methods}>{children}</FormProvider>
-      </form>
-    </>
+    <form className="flex w-[760px] flex-col gap-6" onSubmit={onSubmit}>
+      <FormProvider {...methods}>{children}</FormProvider>
+    </form>
   )
 }

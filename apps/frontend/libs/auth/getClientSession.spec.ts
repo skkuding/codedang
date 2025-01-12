@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { getClientSession } from './getClientSession'
 
-describe('getClientSession', async () => {
+describe('getClientSession', () => {
   const auth = getClientSession()
 
   beforeEach(() => {

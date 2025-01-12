@@ -53,7 +53,9 @@ export default function DataTableDeleteButton<
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const handleDeleteButtonClick = async () => {
-    if (table.getSelectedRowModel().rows.length === 0) return
+    if (table.getSelectedRowModel().rows.length === 0) {
+      return
+    }
 
     if (!getCanDelete) {
       setIsDialogOpen(true)

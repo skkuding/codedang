@@ -81,7 +81,7 @@ export function ScoreCautionDialog({
                       problemId={problemId}
                       onSetToZero={(contests) => setZeroSetContests(contests)}
                       onRevertScore={() => setZeroSetContests([])}
-                    ></BelongedContestTable>
+                    />
                   </Suspense>
                 </ErrorBoundary>
                 <div className="my-4 border-b" />

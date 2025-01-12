@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import SubmissionDetail from '../_components/SubmissionDetail'
 
-export default async function Page({
+export default function Page({
   params
 }: {
   params: {

@@ -200,7 +200,9 @@ export default function TextEditor({
   const setLink = useCallback(
     (linkUrl: string | null) => {
       console.log(linkUrl)
-      if (!editor) return null
+      if (!editor) {
+        return null
+      }
       // cancelled
       if (linkUrl === null) {
         return
@@ -224,7 +226,9 @@ export default function TextEditor({
   const addImage = useCallback(
     (imageUrl: string | undefined) => {
       console.log(imageUrl)
-      if (!editor) return null
+      if (!editor) {
+        return null
+      }
       if (imageUrl === null) {
         return
       }
@@ -241,7 +245,9 @@ export default function TextEditor({
   const [uploadImage] = useMutation(UPLOAD_IMAGE)
 
   const handleUploadPhoto = async (files: FileList | null) => {
-    if (files === null) return
+    if (files === null) {
+      return
+    }
     const file = files[0]
     try {
       const { data } = await uploadImage({
