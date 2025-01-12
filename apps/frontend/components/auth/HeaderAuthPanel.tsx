@@ -1,15 +1,19 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import { Button } from '@/components/shadcn/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger
+} from '@/components/shadcn/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
   DropdownMenuSeparator
-} from '@/components/ui/dropdown-menu'
-import { cn, fetcherWithAuth } from '@/lib/utils'
+} from '@/components/shadcn/dropdown-menu'
+import { cn, fetcherWithAuth } from '@/libs/utils'
 import useAuthModalStore from '@/stores/authModal'
 import { LogOut, UserRoundCog, ChevronDown } from 'lucide-react'
 import type { Session } from 'next-auth'
@@ -24,12 +28,7 @@ import UpdateInformation from './UpdateInformation'
 
 interface HeaderAuthPanelProps {
   session: Session | null
-  group?: keyof typeof variants
-}
-
-const variants: { [key: string]: 'outline' | 'slate' } = {
-  default: 'outline',
-  editor: 'slate'
+  group?: 'default' | 'editor'
 }
 
 export default function HeaderAuthPanel({
@@ -43,22 +42,23 @@ export default function HeaderAuthPanel({
   const isEditor = group === 'editor'
   const [needsUpdate, setNeedsUpdate] = useState(false)
   const pathname = usePathname()
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   useEffect(() => {
     const checkIfNeedsUpdate = async () => {
       const userResponse = await fetcherWithAuth.get('user')
-      const user: { studentId: string; major: string } =
+      const user: { role: string; studentId: string; major: string } =
         await userResponse.json()
       const updateNeeded =
-        user.studentId === '0000000000' ||
-        user.major === 'Department Information Unavailable / 학과 정보 없음'
+        user.role === 'User' &&
+        (user.studentId === '0000000000' || user.major === 'none')
 
       setNeedsUpdate(updateNeeded)
     }
     if (session) {
       checkIfNeedsUpdate()
     }
-  }, [session])
+  }, [session, pathname])
 
   const shouldShowDialog =
     needsUpdate && pathname.split('/').pop() !== 'settings'
@@ -67,7 +67,7 @@ export default function HeaderAuthPanel({
     <div className="ml-2 flex items-center gap-2">
       {session ? (
         <>
-          <DropdownMenu>
+          <DropdownMenu onOpenChange={(open) => setIsDropdownOpen(open)}>
             <DropdownMenuTrigger
               className={cn(
                 'hidden items-center gap-2 rounded-md px-4 py-1 md:flex',
@@ -85,7 +85,9 @@ export default function HeaderAuthPanel({
                   {session?.user.username}
                 </p>
               )}
-              <ChevronDown className="w-4" />
+              <ChevronDown
+                className={cn('w-4 text-white', isDropdownOpen && 'rotate-180')}
+              />
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className={cn(
@@ -127,7 +129,7 @@ export default function HeaderAuthPanel({
                     : 'font-semibold'
                 )}
                 onClick={() => {
-                  signOut()
+                  signOut({ callbackUrl: '/', redirect: true })
                 }}
               >
                 <LogOut className="size-4" /> LogOut
@@ -196,7 +198,7 @@ export default function HeaderAuthPanel({
             <DropdownMenuItem
               className="text-primary flex cursor-pointer items-center gap-1 font-semibold"
               onClick={() => {
-                signOut()
+                signOut({ callbackUrl: '/', redirect: true })
               }}
             >
               {session?.user.username}
@@ -226,10 +228,22 @@ export default function HeaderAuthPanel({
                 </DropdownMenuItem>
               </Link>
             )}
+            <Link href="/settings">
+              <DropdownMenuItem
+                className={cn(
+                  'flex cursor-pointer items-center gap-1',
+                  isEditor
+                    ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
+                    : 'font-semibold'
+                )}
+              >
+                <UserRoundCog className="size-4" /> Settings
+              </DropdownMenuItem>
+            </Link>
             <DropdownMenuItem
               className="flex cursor-pointer items-center gap-1 font-semibold"
               onClick={() => {
-                signOut()
+                signOut({ callbackUrl: '/', redirect: true })
               }}
             >
               <LogOut className="size-4" /> Log Out

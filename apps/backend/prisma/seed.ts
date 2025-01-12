@@ -8,12 +8,14 @@ import {
   type User,
   type Problem,
   type Tag,
-  type Contest,
+  type Assignment,
   type Workbook,
   type Submission,
   type ProblemTestcase,
   type Announcement,
   type CodeDraft,
+  type AssignmentRecord,
+  type Contest,
   type ContestRecord
 } from '@prisma/client'
 import { hash } from 'argon2'
@@ -22,6 +24,7 @@ import { join } from 'path'
 
 const prisma = new PrismaClient()
 const fixturePath = join(__dirname, '__fixtures__')
+const problemTestcasesPath = join(__dirname, 'problem-testcases')
 
 const MIN_DATE: Date = new Date('2000-01-01T00:00:00.000Z')
 const MAX_DATE: Date = new Date('2999-12-31T00:00:00.000Z')
@@ -33,7 +36,11 @@ let publicGroup: Group
 let privateGroup: Group
 const users: User[] = []
 const problems: Problem[] = []
-const problemTestcases: ProblemTestcase[] = []
+let problemTestcases: ProblemTestcase[] = []
+const assignments: Assignment[] = []
+const endedAssignments: Assignment[] = []
+const ongoingAssignments: Assignment[] = []
+const upcomingAssignments: Assignment[] = []
 const contests: Contest[] = []
 const endedContests: Contest[] = []
 const ongoingContests: Contest[] = []
@@ -41,7 +48,8 @@ const upcomingContests: Contest[] = []
 const workbooks: Workbook[] = []
 const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
-const announcements: Announcement[] = []
+const assignmentAnnouncements: Announcement[] = []
+const contestAnnouncements: Announcement[] = []
 
 const createUsers = async () => {
   // create super admin user
@@ -658,19 +666,7 @@ const createProblems = async () => {
         timeLimit: 2000,
         memoryLimit: 512,
         source: '',
-        samples: {
-          create: [
-            {
-              input: '1 2',
-              output: '3'
-            },
-            {
-              input: '11 12',
-              output: '23'
-            }
-          ]
-        },
-        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
+        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingAssignments[0].endTime
       }
     })
   )
@@ -699,10 +695,7 @@ const createProblems = async () => {
         timeLimit: 2000,
         memoryLimit: 512,
         source: 'Canadian Computing Competition(CCC) 2012 Junior 2번',
-        samples: {
-          create: [{ input: '1\n10\n12\n13', output: 'Uphill' }]
-        },
-        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
+        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingAssignments[0].endTime
       }
     })
   )
@@ -731,14 +724,7 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'Canadian Computing Competition(CCC) 2013 Junior 2번',
-        samples: {
-          create: [
-            { input: 'SHINS', output: 'YES' },
-            { input: 'NO', output: 'YES' },
-            { input: 'SHOW', output: 'NO' }
-          ]
-        },
-        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
+        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingAssignments[0].endTime
       }
     })
   )
@@ -767,10 +753,7 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'USACO 2012 US Open Bronze 1번',
-        samples: {
-          create: [{ input: '9\n2\n7\n3\n7\n7\n3\n7\n5\n7\n', output: '4' }]
-        },
-        visibleLockTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
+        visibleLockTime: new Date('2024-01-01T23:59:59.000Z') //endedAssignments[0].endTime
       }
     })
   )
@@ -799,15 +782,7 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'ICPC Regionals NCPC 2009 B번',
-        samples: {
-          create: [
-            {
-              input: '5 3\n100\n-75\n-25\n-42\n42\n0 1\n1 2\n3 4',
-              output: 'POSSIBLE'
-            }
-          ]
-        },
-        visibleLockTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
+        visibleLockTime: new Date('2024-01-01T23:59:59.000Z') //endedAssignments[0].endTime
       }
     })
   )
@@ -836,7 +811,6 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'USACO November 2011 Silver 3번',
-        samples: { create: [{ input: '3 6', output: '5' }] },
         visibleLockTime: MIN_DATE
       }
     })
@@ -865,20 +839,7 @@ const createProblems = async () => {
         hint: '',
         timeLimit: 2000,
         memoryLimit: 512,
-        source: 'COCI 2019/2020 Contest #3 2번',
-        samples: {
-          create: [
-            { input: 'aaaaa\n2\n1 2\n4 5\n2 4 1 5 3', output: '2' },
-            {
-              input: 'abbabaab\n3\n1 3\n4 7\n3 5\n6 3 5 1 4 2 7 8',
-              output: '5'
-            },
-            {
-              input: 'abcd\n1\n1 4\n1 2 3 4',
-              output: '0'
-            }
-          ]
-        },
+        source: 'COCI 2019/2020 Assignment #3 2번',
         visibleLockTime: MIN_DATE
       }
     })
@@ -908,19 +869,6 @@ const createProblems = async () => {
         timeLimit: 2000,
         memoryLimit: 256,
         source: 'ICPC Regionals SEERC 2019 J번',
-        samples: {
-          create: [
-            {
-              input: '3\n1 2 1\n2 3 1\n3 1 1',
-              output: '3'
-            },
-            {
-              input:
-                '5\n4 5 4\n1 3 4\n1 2 4\n3 2 3\n3 5 2\n1 4 3\n4 2 2\n1 5 4\n5 2 4\n3 4 2',
-              output: '35'
-            }
-          ]
-        },
         visibleLockTime: MAX_DATE
       }
     })
@@ -941,36 +889,32 @@ const createProblems = async () => {
         timeLimit: 2000,
         memoryLimit: 256,
         source: '2024 육군훈련소 입소 코딩 테스트',
-        samples: {
-          create: [
-            {
-              input: '3\n1 2 1\n2 3 1\n3 1 1',
-              output: '3'
-            },
-            {
-              input:
-                '5\n4 5 4\n1 3 4\n1 2 4\n3 2 3\n3 5 2\n1 4 3\n4 2 2\n1 5 4\n5 2 4\n3 4 2',
-              output: '35'
-            }
-          ]
-        },
         visibleLockTime: MAX_DATE
       }
     })
   )
 
-  // add simple testcases
-  for (const problem of problems) {
-    problemTestcases.push(
-      await prisma.problemTestcase.create({
-        data: {
-          problemId: problem.id,
-          input: `${problem.id}.json`,
-          output: `${problem.id}.json`
+  // add testcases
+  for (let i = 1; i < 9; i++) {
+    const data = await readFile(
+      join(problemTestcasesPath, `${i}.json`),
+      'utf-8'
+    )
+    const testcases: { id: string; input: string; output: string }[] =
+      JSON.parse(data)
+
+    await prisma.problemTestcase.createMany({
+      data: testcases.map((testcase) => {
+        return {
+          input: testcase.input,
+          output: testcase.output,
+          problemId: i
         }
       })
-    )
+    })
   }
+
+  problemTestcases = await prisma.problemTestcase.findMany()
 
   const tagNames = [
     'If Statement',
@@ -1124,7 +1068,7 @@ const createContests = async () => {
     // Finished Contests
     {
       data: {
-        title: 'Long Time Ago Contest',
+        title: 'Long Time Ago Assignment',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
@@ -1251,7 +1195,7 @@ const createContests = async () => {
     // Upcoming Contests
     {
       data: {
-        title: 'Future Contest',
+        title: 'Future Assignment',
         description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
@@ -1281,7 +1225,7 @@ const createContests = async () => {
       data: {
         title: '2024 스꾸딩 프로그래밍 대회',
         description:
-          '<p>이 대회는 언젠가 열리겠죠...? isVisible이 false인 contest입니다</p>',
+          '<p>이 대회는 언젠가 열리겠죠...? isVisible이 false인 assignment입니다</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
@@ -1347,6 +1291,347 @@ const createContests = async () => {
   // TODO: add records and ranks
 }
 
+const createAssignments = async () => {
+  const assignmentData: {
+    data: {
+      title: string
+      description: string
+      createdById: number
+      groupId: number
+      startTime: Date
+      endTime: Date
+      isVisible: boolean
+      isRankVisible: boolean
+      invitationCode: string | null
+      enableCopyPaste: boolean
+    }
+  }[] = [
+    // Ongoing Assignments
+    {
+      data: {
+        title: 'SKKU Coding Platform 모의과제',
+        description: `<p>
+  대통령은 내란 또는 외환의 죄를 범한 경우를 제외하고는 재직중 형사상의 소추를
+  받지 아니한다. 모든 국민은 자기의 행위가 아닌 친족의 행위로 인하여 불이익한
+  처우를 받지 아니한다.
+</p>
+
+<p>
+  위원은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니한다.
+  대통령은 국무회의의 의장이 되고, 국무총리는 부의장이 된다. 모든 국민은 헌법과
+  법률이 정한 법관에 의하여 법률에 의한 재판을 받을 권리를 가진다.
+</p>
+
+<p>
+  국회의원은 현행범인인 경우를 제외하고는 회기중 국회의 동의없이 체포 또는
+  구금되지 아니한다. 헌법재판소의 장은 국회의 동의를 얻어 재판관중에서 대통령이
+  임명한다.
+</p>
+
+<p>
+  국가는 지역간의 균형있는 발전을 위하여 지역경제를 육성할 의무를 진다. 제3항의
+  승인을 얻지 못한 때에는 그 처분 또는 명령은 그때부터 효력을 상실한다. 이 경우
+  그 명령에 의하여 개정 또는 폐지되었던 법률은 그 명령이 승인을 얻지 못한 때부터
+  당연히 효력을 회복한다.
+</p>
+
+<p>
+  모든 국민은 신체의 자유를 가진다. 누구든지 법률에 의하지 아니하고는
+  체포·구속·압수·수색 또는 심문을 받지 아니하며, 법률과 적법한 절차에 의하지
+  아니하고는 처벌·보안처분 또는 강제노역을 받지 아니한다.
+</p>`,
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2024-01-01T00:00:00.000Z'),
+        endTime: new Date('2028-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '24년도 소프트웨어학과 신입생 입학 과제1',
+        description: '<p>이 과제는 현재 진행 중입니다 !</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2024-01-01T00:00:00.000Z'),
+        endTime: new Date('2028-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: null,
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '24년도 소프트웨어학과 신입생 입학 과제2',
+        description: '<p>이 과제는 현재 진행 중입니다 !</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2024-01-01T00:00:00.000Z'),
+        endTime: new Date('2028-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '24년도 소프트웨어학과 신입생 입학 과제3',
+        description: '<p>이 과제는 현재 진행 중입니다 !</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2024-01-01T00:00:00.000Z'),
+        endTime: new Date('2028-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: null,
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '24년도 아늑배 스파게티 코드 만들기 과제',
+        description: '<p>이 과제는 현재 진행 중입니다 ! (private group)</p>',
+        createdById: superAdminUser.id,
+        groupId: privateGroup.id,
+        startTime: new Date('2024-01-01T00:00:00.000Z'),
+        endTime: new Date('2028-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: null,
+        enableCopyPaste: true
+      }
+    },
+    // Finished Assignments
+    {
+      data: {
+        title: 'Long Time Ago Assignment',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '23년도 소프트웨어학과 신입생 입학 과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '소프트의 아침과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '소프트의 낮과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '소프트의 밤과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '2023 SKKU 프로그래밍 과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '소프트의 오전과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '소프트의 오후과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
+        invitationCode: null,
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '23년도 아늑배 스파게티 코드 만들기 과제',
+        description: '<p>이 과제는 오래 전에 끝났어요 (private group)</p>',
+        createdById: superAdminUser.id,
+        groupId: privateGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: null,
+        enableCopyPaste: true
+      }
+    },
+    // Upcoming Assignments
+    {
+      data: {
+        title: 'Future Assignment',
+        description: '<p>이 과제는 언젠가 열리겠죠...?</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('3024-01-01T00:00:00.000Z'),
+        endTime: new Date('3025-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '2024 SKKU 프로그래밍 과제',
+        description: '<p>이 과제는 언젠가 열리겠죠...?</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('3024-01-01T00:00:00.000Z'),
+        endTime: new Date('3025-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '2024 스꾸딩 프로그래밍 과제',
+        description:
+          '<p>이 과제는 언젠가 열리겠죠...? isVisible이 false인 assignment입니다</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('3024-01-01T00:00:00.000Z'),
+        endTime: new Date('3025-01-01T23:59:59.000Z'),
+        isVisible: false,
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '25년도 아늑배 스파게티 코드 만들기 과제',
+        description: '<p>이 과제는 언젠가 열리겠죠...? (private group)</p>',
+        createdById: superAdminUser.id,
+        groupId: privateGroup.id,
+        startTime: new Date('3024-01-01T00:00:00.000Z'),
+        endTime: new Date('3025-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: null,
+        enableCopyPaste: true
+      }
+    }
+  ]
+
+  const now = new Date()
+  for (const obj of assignmentData) {
+    const assignment = await prisma.assignment.create(obj)
+    assignments.push(assignment)
+    if (now < obj.data.startTime) {
+      upcomingAssignments.push(assignment)
+    } else if (obj.data.endTime < now) {
+      endedAssignments.push(assignment)
+    } else {
+      ongoingAssignments.push(assignment)
+    }
+  }
+
+  // add problems to ongoing assignment
+  for (const problem of problems.slice(0, 3)) {
+    await prisma.assignmentProblem.create({
+      data: {
+        order: problem.id - 1,
+        assignmentId: ongoingAssignments[0].id,
+        problemId: problem.id,
+        score: problem.id * 10
+      }
+    })
+  }
+
+  // add problems to finished assignment
+  for (const problem of problems.slice(3, 5)) {
+    await prisma.assignmentProblem.create({
+      data: {
+        order: problem.id - 1,
+        assignmentId: endedAssignments[0].id,
+        problemId: problem.id
+      }
+    })
+  }
+
+  // TODO: add records and ranks
+}
+
 const createWorkbooks = async () => {
   for (let i = 1; i <= 3; i++) {
     workbooks.push(
@@ -1397,7 +1682,7 @@ const createSubmissions = async () => {
       data: {
         userId: users[0].id,
         problemId: problems[0].id,
-        contestId: ongoingContests[0].id,
+        assignmentId: ongoingAssignments[0].id,
         code: [
           {
             id: 1,
@@ -1414,6 +1699,7 @@ int main(void) {
       }
     })
   )
+
   await prisma.submissionResult.create({
     data: {
       submissionId: submissions[0].id,
@@ -1435,7 +1721,7 @@ int main(void) {
       data: {
         userId: users[1].id,
         problemId: problems[1].id,
-        contestId: ongoingContests[0].id,
+        assignmentId: ongoingAssignments[0].id,
         code: [
           {
             id: 1,
@@ -1473,7 +1759,7 @@ int main(void) {
       data: {
         userId: users[2].id,
         problemId: problems[2].id,
-        contestId: ongoingContests[0].id,
+        assignmentId: ongoingAssignments[0].id,
         code: [
           {
             id: 1,
@@ -1509,7 +1795,7 @@ int main(void) {
       data: {
         userId: users[3].id,
         problemId: problems[3].id,
-        contestId: ongoingContests[0].id,
+        assignmentId: ongoingAssignments[0].id,
         code: [
           {
             id: 1,
@@ -1543,7 +1829,7 @@ int main(void) {
       data: {
         userId: users[4].id,
         problemId: problems[4].id,
-        contestId: ongoingContests[0].id,
+        assignmentId: ongoingAssignments[0].id,
         code: [
           {
             id: 1,
@@ -1650,11 +1936,40 @@ int main(void) {
 }
 
 const createAnnouncements = async () => {
+  // For Assignments
   for (let i = 0; i < 5; ++i) {
-    announcements.push(
+    assignmentAnnouncements.push(
       await prisma.announcement.create({
         data: {
-          content: `Announcement_0_${i}`,
+          content: `Announcement(assignment)_0_${i}`,
+          assignmentId: ongoingAssignments[i].id
+        }
+      })
+    )
+  }
+
+  for (let i = 0; i < 5; ++i) {
+    assignmentAnnouncements.push(
+      await prisma.announcement.create({
+        data: {
+          content: `Announcement(assignment)_1_${i}...
+아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.
+모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.
+법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.
+일반사면을 명하려면 국회의 동의를 얻어야 한다. 연소자의 근로는 특별한 보호를 받는다.`,
+          assignmentId: ongoingAssignments[i].id,
+          problemId: problems[i].id
+        }
+      })
+    )
+  }
+
+  // For Contests
+  for (let i = 0; i < 5; ++i) {
+    contestAnnouncements.push(
+      await prisma.announcement.create({
+        data: {
+          content: `Announcement(contest)_0_${i}`,
           contestId: ongoingContests[i].id
         }
       })
@@ -1662,10 +1977,10 @@ const createAnnouncements = async () => {
   }
 
   for (let i = 0; i < 5; ++i) {
-    announcements.push(
+    contestAnnouncements.push(
       await prisma.announcement.create({
         data: {
-          content: `Announcement_1_${i}...
+          content: `Announcement(contest)_1_${i}...
 아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.
 모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.
 법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.
@@ -1734,6 +2049,50 @@ const createCodeDrafts = async () => {
   return codeDrafts
 }
 
+const createAssignmentRecords = async () => {
+  const assignmentRecords: AssignmentRecord[] = []
+  // group 1 users
+  const group1Users = await prisma.userGroup.findMany({
+    where: {
+      groupId: 1
+    }
+  })
+  for (const user of group1Users) {
+    const assignmentRecord = await prisma.assignmentRecord.create({
+      data: {
+        userId: user.userId,
+        assignmentId: 1,
+        acceptedProblemNum: 0,
+        totalPenalty: 0
+      }
+    })
+    assignmentRecords.push(assignmentRecord)
+  }
+
+  // upcoming assignment에 참가한 User 1의 assignment register를 un-register하는 기능과,
+  // registered upcoming, ongoing, finished assignment를 조회하는 기능을 확인하기 위함
+  const user01Id = 4
+  for (
+    let assignmentId = 3;
+    assignmentId <= assignments.length;
+    assignmentId += 2
+  ) {
+    assignmentRecords.push(
+      await prisma.assignmentRecord.create({
+        data: {
+          userId: user01Id,
+          assignmentId,
+          acceptedProblemNum: 0,
+          score: 0,
+          totalPenalty: 0
+        }
+      })
+    )
+  }
+
+  return assignmentRecords
+}
+
 const createContestRecords = async () => {
   const contestRecords: ContestRecord[] = []
   // group 1 users
@@ -1779,11 +2138,13 @@ const main = async () => {
   await createGroups()
   await createNotices()
   await createProblems()
+  await createAssignments()
   await createContests()
   await createWorkbooks()
   await createSubmissions()
   await createAnnouncements()
   await createCodeDrafts()
+  await createAssignmentRecords()
   await createContestRecords()
 }
 

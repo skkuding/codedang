@@ -3,15 +3,17 @@ import {
   DialogTrigger,
   DialogContent,
   DialogHeader
-} from '@/components/ui/dialog'
+} from '@/components/shadcn/dialog'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@/components/ui/tooltip'
-import FileInfoIcon from '@/public/24_compile.svg'
-import type { GetContestsByProblemIdQuery } from '@generated/graphql'
+} from '@/components/shadcn/tooltip'
+import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
+import fileInfoIcon from '@/public/icons/file-info.svg'
+import { useQuery } from '@apollo/client'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -23,7 +25,9 @@ function ContestSection({
   title: string
   contests?: { id: string; title: string }[]
 }) {
-  if (!contests || contests.length === 0) return null
+  if (!contests || contests.length === 0) {
+    return null
+  }
 
   return (
     <div>
@@ -38,20 +42,31 @@ function ContestSection({
 }
 
 export default function ContainedContests({
-  data
+  problemId
 }: {
-  data: GetContestsByProblemIdQuery
+  problemId: number
 }) {
   const [isTooltipOpen, setIsTooltipOpen] = useState(false)
-  const contestData = data.getContestsByProblemId
+  const { data, loading } = useQuery(GET_BELONGED_CONTESTS, {
+    variables: {
+      problemId
+    }
+  })
 
-  return (
+  const contestData = data?.getContestsByProblemId
+
+  if (loading) {
+    return <Skeleton className="size-[25px]" />
+  }
+
+  return contestData ? (
     <Dialog onOpenChange={() => setIsTooltipOpen(false)}>
       <TooltipProvider>
         <Tooltip>
           <DialogTrigger asChild>
             <TooltipTrigger asChild>
               <button
+                type="button"
                 className="justify-centert flex items-center"
                 onClick={(e) => {
                   e.stopPropagation()
@@ -60,7 +75,7 @@ export default function ContainedContests({
                 onMouseEnter={() => setIsTooltipOpen(true)}
                 onMouseLeave={() => setIsTooltipOpen(false)}
               >
-                <Image src={FileInfoIcon} alt="fileinfo" />
+                <Image src={fileInfoIcon} alt="fileinfo" />
               </button>
             </TooltipTrigger>
           </DialogTrigger>
@@ -75,10 +90,7 @@ export default function ContainedContests({
         </Tooltip>
       </TooltipProvider>
       <div onClick={(e) => e.stopPropagation()}>
-        <DialogContent
-          className="sm:max-w-[425px]"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <p className="text-lg font-semibold">
               Contests which include this problem
@@ -99,5 +111,5 @@ export default function ContainedContests({
         </DialogContent>
       </div>
     </Dialog>
-  )
+  ) : null
 }

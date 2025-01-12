@@ -16,15 +16,13 @@ const GET_PROBLEM = gql(`
       description
       inputDescription
       outputDescription
-      samples {
-        id
-        input
-        output
-      }
+      submissionCount
       testcase {
         id
         input
         output
+        isHidden
+        scoreWeight
       }
       timeLimit
       memoryLimit
@@ -50,7 +48,7 @@ const GET_PROBLEMS = gql(`
     ) {
       id
       title
-      createTime
+      updateTime
       difficulty
       submissionCount
       acceptedRate
@@ -80,6 +78,7 @@ const GET_CONTEST_PROBLEMS = gql(`
   query GetContestProblems($groupId: Int!, $contestId: Int!) {
     getContestProblems(groupId: $groupId, contestId: $contestId) {
       order
+      score
       problemId
       problem {
         title
@@ -98,10 +97,25 @@ const GET_TAGS = gql(`
   }
 `)
 
+const GET_PROBLEM_TESTCASE = gql(`
+  query GetProblemTestcase($groupId: Int!, $id: Int!) {
+    getProblem(groupId: $groupId, id: $id) {
+      testcase {
+        id
+        input
+        output
+        isHidden
+        scoreWeight
+      }
+    }
+  }
+`)
+
 export {
   GET_PROBLEM,
   GET_PROBLEMS,
   GET_PROBLEM_DETAIL,
   GET_CONTEST_PROBLEMS,
-  GET_TAGS
+  GET_TAGS,
+  GET_PROBLEM_TESTCASE
 }

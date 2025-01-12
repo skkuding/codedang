@@ -20,6 +20,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { ContestWithScores } from './model/contest-with-scores.model'
 import type { CreateContestInput } from './model/contest.input'
 import type { UpdateContestInput } from './model/contest.input'
 import type { ProblemScoreInput } from './model/problem-score.input'
@@ -58,7 +59,7 @@ export class ContestService {
   }
 
   async getContest(contestId: number) {
-    const { _count, ...data } = await this.prisma.contest.findFirstOrThrow({
+    const contest = await this.prisma.contest.findFirst({
       where: {
         id: contestId
       },
@@ -69,6 +70,12 @@ export class ContestService {
         }
       }
     })
+
+    if (!contest) {
+      throw new EntityNotExistException('contest')
+    }
+
+    const { _count, ...data } = contest
 
     return {
       ...data,
@@ -96,15 +103,17 @@ export class ContestService {
       throw new EntityNotExistException('Group')
     }
 
-    const newContest: Contest = await this.prisma.contest.create({
-      data: {
-        createdById: userId,
-        groupId,
-        ...contest
-      }
-    })
-
-    return newContest
+    try {
+      return await this.prisma.contest.create({
+        data: {
+          createdById: userId,
+          groupId,
+          ...contest
+        }
+      })
+    } catch (error) {
+      throw new UnprocessableDataException(error.message)
+    }
   }
 
   async updateContest(
@@ -184,21 +193,25 @@ export class ContestService {
               visibleLockTime
             }
           })
-        } catch (error) {
+        } catch {
           continue
         }
       }
     }
 
-    return await this.prisma.contest.update({
-      where: {
-        id: contest.id
-      },
-      data: {
-        title: contest.title,
-        ...contest
-      }
-    })
+    try {
+      return await this.prisma.contest.update({
+        where: {
+          id: contest.id
+        },
+        data: {
+          title: contest.title,
+          ...contest
+        }
+      })
+    } catch (error) {
+      throw new UnprocessableDataException(error.message)
+    }
   }
 
   async deleteContest(groupId: number, contestId: number) {
@@ -226,11 +239,15 @@ export class ContestService {
       await this.removeProblemsFromContest(groupId, contestId, problemIds)
     }
 
-    return await this.prisma.contest.delete({
-      where: {
-        id: contestId
-      }
-    })
+    try {
+      return await this.prisma.contest.delete({
+        where: {
+          id: contestId
+        }
+      })
+    } catch (error) {
+      throw new UnprocessableDataException(error.message)
+    }
   }
 
   async getPublicizingRequests() {
@@ -277,16 +294,17 @@ export class ContestService {
     )
 
     if (isAccepted) {
-      const updatedContest = await this.prisma.contest.update({
-        where: {
-          id: contestId
-        },
-        data: {
-          groupId: OPEN_SPACE_ID
-        }
-      })
-      if (!updatedContest) {
-        throw new EntityNotExistException('contest')
+      try {
+        await this.prisma.contest.update({
+          where: {
+            id: contestId
+          },
+          data: {
+            groupId: OPEN_SPACE_ID
+          }
+        })
+      } catch (error) {
+        throw new UnprocessableDataException(error.message)
       }
     }
 
@@ -350,6 +368,13 @@ export class ContestService {
       where: {
         id: contestId,
         groupId
+      },
+      include: {
+        submission: {
+          select: {
+            id: true
+          }
+        }
       }
     })
     if (!contest) {
@@ -359,6 +384,17 @@ export class ContestService {
     const contestProblems: ContestProblem[] = []
 
     for (const { problemId, score } of problemIdsWithScore) {
+      const isProblemAlreadyImported =
+        await this.prisma.contestProblem.findFirst({
+          where: {
+            contestId,
+            problemId
+          }
+        })
+      if (isProblemAlreadyImported) {
+        continue
+      }
+
       try {
         const [contestProblem] = await this.prisma.$transaction([
           this.prisma.contestProblem.create({
@@ -371,7 +407,7 @@ export class ContestService {
               score
             }
           }),
-          this.prisma.problem.update({
+          this.prisma.problem.updateMany({
             where: {
               id: problemId,
               OR: [
@@ -399,7 +435,7 @@ export class ContestService {
         ])
         contestProblems.push(contestProblem)
       } catch (error) {
-        continue
+        throw new UnprocessableDataException(error.message)
       }
     }
 
@@ -415,6 +451,13 @@ export class ContestService {
       where: {
         id: contestId,
         groupId
+      },
+      include: {
+        submission: {
+          select: {
+            id: true
+          }
+        }
       }
     })
     if (!contest) {
@@ -424,37 +467,42 @@ export class ContestService {
     const contestProblems: ContestProblem[] = []
 
     for (const problemId of problemIds) {
-      try {
-        // 문제가 포함된 대회 중 가장 늦게 끝나는 대회의 종료시각으로 visibleLockTime 설정 (없을시 비공개 전환)
-        let visibleLockTime = MAX_DATE
+      // 문제가 포함된 대회 중 가장 늦게 끝나는 대회의 종료시각으로 visibleLockTime 설정 (없을시 비공개 전환)
+      let visibleLockTime = MAX_DATE
 
-        const contestIds = (
-          await this.prisma.contestProblem.findMany({
-            where: {
-              problemId
-            }
-          })
-        )
-          .filter((contestProblem) => contestProblem.contestId !== contestId)
-          .map((contestProblem) => contestProblem.contestId)
+      const contestIds = (
+        await this.prisma.contestProblem.findMany({
+          where: {
+            problemId
+          }
+        })
+      )
+        .filter((contestProblem) => contestProblem.contestId !== contestId)
+        .map((contestProblem) => contestProblem.contestId)
 
-        if (contestIds.length) {
-          const latestContest = await this.prisma.contest.findFirstOrThrow({
-            where: {
-              id: {
-                in: contestIds
-              }
-            },
-            orderBy: {
-              endTime: 'desc'
-            },
-            select: {
-              endTime: true
+      if (contestIds.length) {
+        const latestContest = await this.prisma.contest.findFirst({
+          where: {
+            id: {
+              in: contestIds
             }
-          })
-          visibleLockTime = latestContest.endTime
+          },
+          orderBy: {
+            endTime: 'desc'
+          },
+          select: {
+            endTime: true
+          }
+        })
+
+        if (!latestContest) {
+          throw new EntityNotExistException('contest')
         }
 
+        visibleLockTime = latestContest.endTime
+      }
+
+      try {
         const [, contestProblem] = await this.prisma.$transaction([
           this.prisma.problem.updateMany({
             where: {
@@ -480,11 +528,75 @@ export class ContestService {
 
         contestProblems.push(contestProblem)
       } catch (error) {
-        continue
+        throw new UnprocessableDataException(error.message)
       }
     }
 
     return contestProblems
+  }
+
+  async getContestSubmissionSummaryByUserId(
+    take: number,
+    contestId: number,
+    userId: number,
+    problemId: number | null,
+    cursor: number | null
+  ) {
+    const paginator = this.prisma.getPaginator(cursor)
+    const submissions = await this.prisma.submission.findMany({
+      ...paginator,
+      take,
+      where: {
+        userId,
+        contestId,
+        problemId: problemId ?? undefined
+      },
+      include: {
+        problem: {
+          select: {
+            title: true,
+            contestProblem: {
+              where: {
+                contestId,
+                problemId: problemId ?? undefined
+              }
+            }
+          }
+        },
+        user: {
+          select: {
+            username: true,
+            studentId: true
+          }
+        }
+      }
+    })
+
+    const mappedSubmission = submissions.map((submission) => {
+      return {
+        contestId: submission.contestId,
+        problemTitle: submission.problem.title,
+        username: submission.user?.username,
+        studentId: submission.user?.studentId,
+        submissionResult: submission.result,
+        language: submission.language,
+        submissionTime: submission.createTime,
+        codeSize: submission.codeSize,
+        ip: submission.userIp,
+        id: submission.id,
+        problemId: submission.problemId,
+        order: submission.problem.contestProblem.length
+          ? submission.problem.contestProblem[0].order
+          : null
+      }
+    })
+
+    const scoreSummary = await this.getContestScoreSummary(userId, contestId)
+
+    return {
+      scoreSummary,
+      submissions: mappedSubmission
+    }
   }
 
   /**
@@ -531,51 +643,56 @@ export class ContestService {
     const { id, createTime, updateTime, title, ...contestDataToCopy } =
       contestFound
 
-    const [newContest, newContestProblems, newContestRecords] =
-      await this.prisma.$transaction(async (tx) => {
-        // 1. copy contest
-        const newContest = await tx.contest.create({
-          data: {
-            ...contestDataToCopy,
-            title: 'Copy of ' + title,
-            createdById: userId,
-            groupId,
-            isVisible: newVisible
-          }
+    try {
+      const [newContest, newContestProblems, newContestRecords] =
+        await this.prisma.$transaction(async (tx) => {
+          // 1. copy contest
+          const newContest = await tx.contest.create({
+            data: {
+              ...contestDataToCopy,
+              title: 'Copy of ' + title,
+              createdById: userId,
+              groupId,
+              isVisible: newVisible
+            }
+          })
+
+          // 2. copy contest problems
+          const newContestProblems = await Promise.all(
+            contestProblemsFound.map((contestProblem) =>
+              tx.contestProblem.create({
+                data: {
+                  order: contestProblem.order,
+                  contestId: newContest.id,
+                  problemId: contestProblem.problemId,
+                  score: contestProblem.score
+                }
+              })
+            )
+          )
+
+          // 3. copy contest records (users who participated in the contest)
+          const newContestRecords = await Promise.all(
+            userContestRecords.map((userContestRecord) =>
+              tx.contestRecord.create({
+                data: {
+                  contestId: newContest.id,
+                  userId: userContestRecord.userId
+                }
+              })
+            )
+          )
+
+          return [newContest, newContestProblems, newContestRecords]
         })
 
-        // 2. copy contest problems
-        const newContestProblems = await Promise.all(
-          contestProblemsFound.map((contestProblem) =>
-            tx.contestProblem.create({
-              data: {
-                order: contestProblem.order,
-                contestId: newContest.id,
-                problemId: contestProblem.problemId
-              }
-            })
-          )
-        )
-
-        // 3. copy contest records (users who participated in the contest)
-        const newContestRecords = await Promise.all(
-          userContestRecords.map((userContestRecord) =>
-            tx.contestRecord.create({
-              data: {
-                contestId: newContest.id,
-                userId: userContestRecord.userId
-              }
-            })
-          )
-        )
-
-        return [newContest, newContestProblems, newContestRecords]
-      })
-
-    return {
-      contest: newContest,
-      problems: newContestProblems,
-      records: newContestRecords
+      return {
+        contest: newContest,
+        problems: newContestProblems,
+        records: newContestRecords
+      }
+    } catch (error) {
+      throw new UnprocessableDataException(error.message)
     }
   }
 
@@ -583,7 +700,7 @@ export class ContestService {
    * 특정 user의 특정 Contest에 대한 총점, 통과한 문제 개수와 각 문제별 테스트케이스 통과 개수를 불러옵니다.
    */
   async getContestScoreSummary(userId: number, contestId: number) {
-    const [contestProblems, submissions, contestRecord] = await Promise.all([
+    const [contestProblems, rawSubmissions] = await Promise.all([
       this.prisma.contestProblem.findMany({
         where: {
           contestId
@@ -593,53 +710,64 @@ export class ContestService {
         where: {
           userId,
           contestId
-        }
-      }),
-      this.prisma.contestRecord.findFirst({
-        where: {
-          userId,
-          contestId
+        },
+        orderBy: {
+          createTime: 'desc'
         }
       })
     ])
 
+    // 오직 현재 Contest에 남아있는 문제들의 제출에 대해서만 ScoreSummary 계산
+    const contestProblemIds = contestProblems.map(
+      (contestProblem) => contestProblem.problemId
+    )
+    const submissions = rawSubmissions.filter((submission) =>
+      contestProblemIds.includes(submission.problemId)
+    )
+
     if (!submissions.length) {
-      throw new EntityNotExistException('Submissions')
-    } else if (!contestProblems.length) {
-      throw new EntityNotExistException('ContestProblems')
-    } else if (!contestRecord) {
-      throw new EntityNotExistException('contestRecord')
+      return {
+        submittedProblemCount: 0,
+        totalProblemCount: contestProblems.length,
+        userContestScore: 0,
+        contestPerfectScore: contestProblems.reduce(
+          (total, { score }) => total + score,
+          0
+        ),
+        problemScores: []
+      }
     }
 
-    // 하나의 Problem에 대해 여러 개의 Submission이 존재한다면, 더 높은 점수를 갖는 Submission을 반영함
-    const highestScoreSubmissions: {
+    // 하나의 Problem에 대해 여러 개의 Submission이 존재한다면, 마지막에 제출된 Submission만을 점수 계산에 반영함
+    const latestSubmissions: {
       [problemId: string]: {
         result: ResultStatus
-        score: number // Problem에서 획득한 점수
+        score: number // Problem에서 획득한 점수 (maxScore 만점 기준)
+        maxScore: number // Contest에서 Problem이 갖는 배점(만점)
       }
-    } = this.getHighestScoreSubmissions(submissions)
+    } = await this.getlatestSubmissions(submissions)
 
     const problemScores: {
       problemId: number
       score: number
+      maxScore: number
     }[] = []
 
-    for (const problemId in highestScoreSubmissions) {
+    for (const problemId in latestSubmissions) {
       problemScores.push({
         problemId: parseInt(problemId),
-        score: highestScoreSubmissions[problemId].score
+        score: latestSubmissions[problemId].score,
+        maxScore: latestSubmissions[problemId].maxScore
       })
     }
 
-    const userContestScore = await this.calculateUserContestScore(
-      contestId,
-      problemScores
-    )
-
     const scoreSummary = {
-      submittedProblemCount: Object.keys(highestScoreSubmissions).length, // Contest에 존재하는 문제 중 제출된 문제의 개수
+      submittedProblemCount: Object.keys(latestSubmissions).length, // Contest에 존재하는 문제 중 제출된 문제의 개수
       totalProblemCount: contestProblems.length, // Contest에 존재하는 Problem의 총 개수
-      userContestScore, // Contest에서 유저가 받은 점수
+      userContestScore: problemScores.reduce(
+        (total, { score }) => total + score,
+        0
+      ), // Contest에서 유저가 받은 점수
       contestPerfectScore: contestProblems.reduce(
         (total, { score }) => total + score,
         0
@@ -650,69 +778,113 @@ export class ContestService {
     return scoreSummary
   }
 
-  getHighestScoreSubmissions(submissions: Submission[]) {
-    const highestScoreSubmissions: {
+  async getlatestSubmissions(submissions: Submission[]) {
+    const latestSubmissions: {
       [problemId: string]: {
         result: ResultStatus
-        score: number // Problem에서 획득한 점수 (100점 만점 기준)
+        score: number // Problem에서 획득한 점수
+        maxScore: number // Contest에서 Problem이 갖는 배점
       }
     } = {}
 
     for (const submission of submissions) {
       const problemId = submission.problemId
+      if (problemId in latestSubmissions) continue
 
-      if (
-        !(problemId in highestScoreSubmissions) ||
-        (highestScoreSubmissions[problemId].result !== ResultStatus.Accepted &&
-          submission.result === ResultStatus.Accepted)
-      ) {
-        highestScoreSubmissions[problemId] = {
-          result: ResultStatus.Accepted,
-          score: 100
-        }
-      } else {
-        const currentScore = highestScoreSubmissions[problemId].score
-
-        if (submission.score > currentScore) {
-          highestScoreSubmissions[problemId] = {
-            result: submission.result as ResultStatus,
-            score: submission.score
+      const contestProblem = await this.prisma.contestProblem.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_problemId: {
+            contestId: submission.contestId!,
+            problemId: submission.problemId
           }
+        },
+        select: {
+          score: true
         }
+      })
+
+      if (!contestProblem) {
+        throw new EntityNotExistException('contestProblem')
+      }
+
+      const maxScore = contestProblem.score
+
+      latestSubmissions[problemId] = {
+        result: submission.result as ResultStatus,
+        score: (submission.score / 100) * maxScore, // contest에 할당된 Problem의 총점에 맞게 계산
+        maxScore
       }
     }
 
-    return highestScoreSubmissions
+    return latestSubmissions
   }
 
-  async calculateUserContestScore(
+  async getContestScoreSummaries(
     contestId: number,
-    problemScores: {
-      problemId: number
-      score: number
-    }[]
+    take: number,
+    cursor: number | null,
+    searchingName?: string
   ) {
-    let userContestScore = 0
-    for (const problemScore of problemScores) {
-      const contestProblemScore = (
-        await this.prisma.contestProblem.findUniqueOrThrow({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            contestId_problemId: {
-              contestId,
-              problemId: problemScore.problemId
+    const paginator = this.prisma.getPaginator(cursor)
+
+    const contestRecords = await this.prisma.contestRecord.findMany({
+      ...paginator,
+      where: {
+        contestId,
+        userId: {
+          not: null
+        },
+        user: searchingName
+          ? {
+              userProfile: {
+                realName: {
+                  contains: searchingName,
+                  mode: 'insensitive'
+                }
+              }
             }
-          },
+          : undefined
+      },
+      take,
+      include: {
+        user: {
           select: {
-            score: true
+            username: true,
+            studentId: true,
+            userProfile: {
+              select: {
+                realName: true
+              }
+            },
+            major: true
           }
-        })
-      ).score
+        }
+      },
+      orderBy: {
+        user: {
+          studentId: 'asc'
+        }
+      }
+    })
 
-      userContestScore += contestProblemScore * (problemScore.score / 100)
-    }
+    const contestRecordsWithScoreSummary = await Promise.all(
+      contestRecords.map(async (record) => {
+        return {
+          userId: record.userId,
+          username: record.user?.username,
+          studentId: record.user?.studentId,
+          realName: record.user?.userProfile?.realName,
+          major: record.user?.major,
+          ...(await this.getContestScoreSummary(
+            record.userId as number,
+            contestId
+          ))
+        }
+      })
+    )
 
-    return userContestScore
+    return contestRecordsWithScoreSummary
   }
 
   async getContestsByProblemId(problemId: number) {
@@ -721,16 +893,21 @@ export class ContestService {
         problemId
       },
       select: {
-        contest: true
+        contest: true,
+        score: true
       }
     })
 
-    if (!contestProblems.length) {
-      throw new EntityNotExistException('Problem or ContestProblem')
-    }
-
-    const contests = contestProblems.map(
-      (contestProblem) => contestProblem.contest
+    const contests = await Promise.all(
+      contestProblems.map(async (contestProblem) => {
+        return {
+          ...contestProblem.contest,
+          problemScore: contestProblem.score,
+          totalScore: await this.getTotalScoreOfContest(
+            contestProblem.contest.id
+          )
+        }
+      })
     )
 
     const now = new Date()
@@ -749,12 +926,28 @@ export class ContestService {
         return acc
       },
       {
-        upcoming: [] as Contest[],
-        ongoing: [] as Contest[],
-        finished: [] as Contest[]
+        upcoming: [] as ContestWithScores[],
+        ongoing: [] as ContestWithScores[],
+        finished: [] as ContestWithScores[]
       }
     )
 
     return contestsGroupedByStatus
+  }
+
+  async getTotalScoreOfContest(contestId: number) {
+    const contestProblemScores = await this.prisma.contestProblem.findMany({
+      where: {
+        contestId
+      },
+      select: {
+        score: true
+      }
+    })
+
+    return contestProblemScores.reduce(
+      (total, problem) => total + problem.score,
+      0
+    )
   }
 }

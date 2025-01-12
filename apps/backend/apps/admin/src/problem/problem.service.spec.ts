@@ -86,6 +86,9 @@ const db = {
   image: {
     deleteMany: stub()
   },
+  submission: {
+    findFirst: stub()
+  },
   getPaginator: PrismaService.prototype.getPaginator
 }
 
@@ -128,13 +131,11 @@ describe('ProblemService', () => {
       memoryLimit: problems[0].memoryLimit,
       difficulty: Level.Level1,
       source: problems[0].source,
-      samples: problems[0].samples ?? [],
       testcases: [testcaseInput],
       tagIds: [1]
     }
 
     it('should return created problem', async () => {
-      const uploadSpy = stub(storageService, 'uploadObject').resolves()
       db.problem.create.resolves(problems[0])
       db.problemTestcase.create.resolves({ index: 1, id: 1 })
 
@@ -144,7 +145,6 @@ describe('ProblemService', () => {
         groupId
       )
       expect(result).to.deep.equal(problemsWithIsVisible[0])
-      expect(uploadSpy.calledOnce).to.be.true
     })
 
     it('should reject if languages is empty', async () => {
@@ -178,7 +178,6 @@ describe('ProblemService', () => {
     it('shoule return imported problems', async () => {
       const userId = 2
       const groupId = 2
-      const s3UploadCache = stub(storageService, 'uploadObject').resolves()
       const createTestcasesSpy = spy(service, 'createTestcases')
       db.problem.create.resetHistory()
       db.problem.create.onCall(0).resolves(importedProblems[0])
@@ -187,7 +186,6 @@ describe('ProblemService', () => {
 
       const res = await service.uploadProblems(fileUploadInput, userId, groupId)
 
-      expect(s3UploadCache.calledTwice).to.be.true
       expect(createTestcasesSpy.calledTwice).to.be.true
       expect(res).to.deep.equal(importedProblemsWithIsVisible)
     })
@@ -212,13 +210,13 @@ describe('ProblemService', () => {
   describe('updateProblem', () => {
     const testcase = { ...testcaseInput, id: 1 }
     it('should return updated problem', async () => {
-      const uploadSpy = stub(storageService, 'uploadObject').resolves()
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.problem.update.resolves({ ...problems[0], title: 'revised' })
       db.problemTestcase.deleteMany.resolves()
       db.problemTestcase.findMany.resolves([])
       db.problemTestcase.update.resolves()
       db.problemTestcase.update.resolves(testcase)
+      db.submission.findFirst.resolves(null)
       const result = await service.updateProblem(
         {
           id: problemId,
@@ -231,7 +229,6 @@ describe('ProblemService', () => {
         ...problemsWithIsVisible[0],
         title: 'revised'
       })
-      expect(uploadSpy.calledOnce).to.be.true
     })
 
     it('should throw error because languages is empty', async () => {
@@ -282,12 +279,10 @@ describe('ProblemService', () => {
 
   describe('deleteProblem', () => {
     it('should return deleted problem', async () => {
-      const deleteSpy = stub(storageService, 'deleteObject').resolves()
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.problem.delete.resolves(problems[0])
       const result = await service.deleteProblem(problemId, groupId)
       expect(result).to.deep.equal(problems[0])
-      expect(deleteSpy.calledOnce).to.be.true
     })
   })
 
@@ -612,18 +607,10 @@ describe('ProblemService', () => {
 
   describe('getProblemTestcases', () => {
     it('should return a problem testcase array', async () => {
-      const readSpy = stub(storageService, 'readObject').resolves(
-        JSON.stringify(exampleProblemTestcases)
-      )
+      db.problemTestcase.findMany.resolves(exampleProblemTestcases)
       expect(await service.getProblemTestcases(1)).to.deep.equal(
-        exampleProblemTestcases.map((tc) => {
-          return {
-            ...tc,
-            id: tc.id.split(':')[1]
-          }
-        })
+        exampleProblemTestcases
       )
-      expect(readSpy.calledOnce).to.be.true
     })
   })
 })

@@ -1,9 +1,24 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Injectable } from '@nestjs/common'
-import type { Problem, Tag, CodeDraft, Prisma } from '@prisma/client'
+import {
+  type Problem,
+  type Tag,
+  type CodeDraft,
+  Prisma,
+  ResultStatus
+} from '@prisma/client'
+import { Span } from 'nestjs-otel'
 import { MIN_DATE } from '@libs/constants'
+import {
+  ConflictFoundException,
+  EntityNotExistException,
+  UnprocessableDataException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { CodeDraftUpdateInput } from '@admin/@generated'
+import type {
+  CodeDraftCreateInput,
+  CodeDraftUpdateInput
+} from '@admin/@generated'
 import type { CreateTemplateDto } from './dto/create-code-draft.dto'
 import type { ProblemOrder } from './enum/problem-order.enum'
 
@@ -26,7 +41,8 @@ export class ProblemRepository {
     engTitle: true,
     difficulty: true,
     acceptedRate: true,
-    submissionCount: true
+    submissionCount: true,
+    languages: true
   }
 
   private readonly problemSelectOption: Prisma.ProblemSelect = {
@@ -39,19 +55,21 @@ export class ProblemRepository {
     engInputDescription: true,
     engOutputDescription: true,
     engHint: true,
-    languages: true,
     timeLimit: true,
     memoryLimit: true,
     source: true,
     acceptedCount: true,
-    samples: {
+    template: true,
+    problemTestcase: {
+      where: {
+        isHidden: false
+      },
       select: {
         id: true,
         input: true,
         output: true
       }
-    },
-    template: true
+    }
   }
 
   private readonly codeDraftSelectOption = {
@@ -158,7 +176,7 @@ export class ProblemRepository {
     problemId: number,
     groupId: number
   ): Promise<Partial<Problem>> {
-    return await this.prisma.problem.findUniqueOrThrow({
+    const problem = await this.prisma.problem.findUnique({
       where: {
         id: problemId,
         groupId,
@@ -166,6 +184,10 @@ export class ProblemRepository {
       },
       select: this.problemSelectOption
     })
+    if (!problem) {
+      throw new EntityNotExistException('Problem')
+    }
+    return problem
   }
 
   async getProblemsTags(tagIds: number[]) {
@@ -206,7 +228,9 @@ export class ProblemRepository {
         order: true,
         problem: {
           select: this.problemsSelectOption
-        }
+        },
+        problemId: true,
+        score: true
       }
     })
   }
@@ -220,7 +244,7 @@ export class ProblemRepository {
   }
 
   async getContestProblem(contestId: number, problemId: number) {
-    return await this.prisma.contestProblem.findUniqueOrThrow({
+    const contestProblem = await this.prisma.contestProblem.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_problemId: {
@@ -235,6 +259,10 @@ export class ProblemRepository {
         }
       }
     })
+    if (!contestProblem) {
+      throw new EntityNotExistException('ContestProblem')
+    }
+    return contestProblem
   }
 
   async getWorkbookProblems(
@@ -280,7 +308,7 @@ export class ProblemRepository {
   }
 
   async getWorkbookProblem(workbookId: number, problemId: number) {
-    return await this.prisma.workbookProblem.findUniqueOrThrow({
+    const workbookProblem = await this.prisma.workbookProblem.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         workbookId_problemId: {
@@ -298,13 +326,17 @@ export class ProblemRepository {
         }
       }
     })
+    if (!workbookProblem) {
+      throw new EntityNotExistException('WorkbookProblem')
+    }
+    return workbookProblem
   }
 
   async getCodeDraft(
     userId: number,
     problemId: number
   ): Promise<Partial<CodeDraft>> {
-    return await this.prisma.codeDraft.findUniqueOrThrow({
+    const codeDraft = await this.prisma.codeDraft.findUnique({
       where: {
         codeDraftId: {
           userId,
@@ -313,6 +345,10 @@ export class ProblemRepository {
       },
       select: this.codeDraftSelectOption
     })
+    if (!codeDraft) {
+      throw new EntityNotExistException('CodeDraft')
+    }
+    return codeDraft
   }
 
   async upsertCodeDraft(
@@ -320,22 +356,55 @@ export class ProblemRepository {
     problemId: number,
     template: CreateTemplateDto
   ): Promise<Partial<CodeDraft>> {
-    return await this.prisma.codeDraft.upsert({
-      where: {
-        codeDraftId: {
+    try {
+      return await this.prisma.codeDraft.upsert({
+        where: {
+          codeDraftId: {
+            userId,
+            problemId
+          }
+        },
+        update: {
+          template: template.template as CodeDraftUpdateInput['template']
+        },
+        create: {
           userId,
-          problemId
+          problemId,
+          template: template.template as CodeDraftCreateInput['template']
+        },
+        select: this.codeDraftSelectOption
+      })
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new ConflictFoundException('CodeDraft already exists.')
+        } else if (error.code === 'P2003') {
+          throw new EntityNotExistException('User or Problem')
+        } else {
+          throw new UnprocessableDataException('Invalid data provided.')
         }
+      }
+      throw error
+    }
+  }
+
+  @Span()
+  async hasPassedProblem(
+    userId: number,
+    where: { problemId: number; contestId?: number }
+  ): Promise<boolean | null> {
+    const submissions = await this.prisma.submission.findMany({
+      where: {
+        ...where,
+        userId
       },
-      update: {
-        template: template.template as CodeDraftUpdateInput['template']
-      },
-      create: {
-        userId,
-        problemId,
-        template: template.template as CodeDraftUpdateInput['template']
-      },
-      select: this.codeDraftSelectOption
+      select: { result: true }
     })
+
+    return submissions.length
+      ? submissions.some(
+          (submission) => submission.result === ResultStatus.Accepted
+        )
+      : null
   }
 }

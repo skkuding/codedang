@@ -4,7 +4,7 @@ import { ValidatePromise } from 'class-validator'
 import { GraphQLUpload } from 'graphql-upload'
 import type { FileUploadDto } from '../dto/file-upload.dto'
 import { Template } from './template.input'
-import { Sample, Testcase } from './testcase.input'
+import { Testcase } from './testcase.input'
 
 @InputType()
 export class CreateProblemInput {
@@ -44,9 +44,6 @@ export class CreateProblemInput {
   @Field(() => String, { nullable: false })
   source!: string
 
-  @Field(() => [Sample], { nullable: false })
-  samples!: Array<Sample>
-
   @Field(() => [Testcase], { nullable: false })
   testcases!: Array<Testcase>
 
@@ -73,7 +70,6 @@ export interface UploadProblemInput {
   memoryLimit: number
   difficulty: keyof typeof Level
   source: string
-  samples: Array<Sample>
 }
 
 @InputType()
@@ -89,14 +85,6 @@ export class FilterProblemsInput {
 export class UpdateProblemTagInput {
   @Field(() => [Int], { nullable: false })
   create!: Array<number>
-
-  @Field(() => [Int], { nullable: false })
-  delete!: Array<number>
-}
-@InputType()
-export class UpdateSamples {
-  @Field(() => [Sample], { nullable: false })
-  create!: Array<Sample>
 
   @Field(() => [Int], { nullable: false })
   delete!: Array<number>
@@ -142,9 +130,6 @@ export class UpdateProblemInput {
 
   @Field(() => String, { nullable: true })
   source?: string
-
-  @Field(() => UpdateSamples, { nullable: true })
-  samples?: UpdateSamples
 
   @Field(() => [Testcase], { nullable: true })
   testcases?: Array<Testcase>

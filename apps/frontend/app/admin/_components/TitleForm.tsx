@@ -1,7 +1,9 @@
-import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+'use client'
+
+import { Input } from '@/components/shadcn/input'
+import { cn } from '@/libs/utils'
 import { useFormContext } from 'react-hook-form'
-import { inputStyle } from '../utils'
+import { inputStyle } from '../_libs/utils'
 import ErrorMessage from './ErrorMessage'
 
 export default function TitleForm({ placeholder }: { placeholder: string }) {
@@ -15,7 +17,7 @@ export default function TitleForm({ placeholder }: { placeholder: string }) {
         id="title"
         type="text"
         placeholder={placeholder}
-        className={cn(inputStyle, 'w-[380px]')}
+        className={cn(inputStyle, 'w-[500px]')}
         {...register('title', {
           required: true
         })}

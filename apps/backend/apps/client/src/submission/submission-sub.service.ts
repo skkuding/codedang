@@ -1,25 +1,33 @@
-import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { Inject, Injectable, Logger, type OnModuleInit } from '@nestjs/common'
 import { Nack, AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import {
   ResultStatus,
   type Submission,
   type SubmissionResult
 } from '@prisma/client'
+import type { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
 import { validateOrReject, ValidationError } from 'class-validator'
 import { Span } from 'nestjs-otel'
+import {
+  testKey,
+  testcasesKey,
+  userTestKey,
+  userTestcasesKey
+} from '@libs/cache'
 import {
   CONSUME_CHANNEL,
   EXCHANGE,
   ORIGIN_HANDLER_NAME,
   RESULT_KEY,
   RESULT_QUEUE,
-  Status
+  RUN_MESSAGE_TYPE,
+  Status,
+  TEST_SUBMISSION_EXPIRE_TIME,
+  USER_TESTCASE_MESSAGE_TYPE
 } from '@libs/constants'
-import {
-  EntityNotExistException,
-  UnprocessableDataException
-} from '@libs/exception'
+import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { JudgerResponse } from './class/judger-response.dto'
 
@@ -29,14 +37,30 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpConnection: AmqpConnection
+    private readonly amqpConnection: AmqpConnection,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
   onModuleInit() {
     this.amqpConnection.createSubscriber(
-      async (msg: object) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async (msg: object, raw: any) => {
         try {
           const res = await this.validateJudgerResponse(msg)
+
+          if (
+            raw.properties.type === RUN_MESSAGE_TYPE ||
+            raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
+          ) {
+            const testRequestedUserId = res.submissionId // test용 submissionId == test를 요청한 userId
+            await this.handleRunMessage(
+              res,
+              testRequestedUserId,
+              raw.properties.type === USER_TESTCASE_MESSAGE_TYPE ? true : false
+            )
+            return
+          }
+
           await this.handleJudgerMessage(res)
         } catch (error) {
           if (
@@ -64,6 +88,73 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     )
   }
 
+  async handleRunMessage(
+    msg: JudgerResponse,
+    userId: number,
+    isUserTest = false
+  ): Promise<void> {
+    const status = Status(msg.resultCode)
+    const testcaseId = msg.judgeResult?.testcaseId
+    const output = this.parseError(msg, status)
+    if (!testcaseId) {
+      const key = isUserTest ? userTestcasesKey(userId) : testcasesKey(userId)
+      const testcaseIds = (await this.cacheManager.get<number[]>(key)) ?? []
+
+      for (const testcaseId of testcaseIds) {
+        await this.cacheManager.set(
+          isUserTest
+            ? userTestKey(userId, testcaseId)
+            : testKey(userId, testcaseId),
+          {
+            id: testcaseId,
+            // TODO: judgeResult 코드 처리 통합 해야함
+            result: msg.judgeResult
+              ? Status(msg.judgeResult.resultCode)
+              : Status(msg.resultCode),
+            output
+          },
+          TEST_SUBMISSION_EXPIRE_TIME
+        )
+      }
+      return
+    }
+
+    const key = isUserTest
+      ? userTestKey(userId, testcaseId)
+      : testKey(userId, testcaseId)
+
+    const testcase = await this.cacheManager.get<{
+      id: number
+      result: ResultStatus
+      output?: string
+    }>(key)
+    if (testcase) {
+      testcase.id = testcaseId
+      // TODO: judgeResult 코드 처리 통합 해야함
+      testcase.result = msg.judgeResult
+        ? Status(msg.judgeResult.resultCode)
+        : Status(msg.resultCode)
+      testcase.output = output
+    }
+
+    await this.cacheManager.set(key, testcase, TEST_SUBMISSION_EXPIRE_TIME)
+  }
+
+  parseError(msg: JudgerResponse, status: ResultStatus): string {
+    if (msg.judgeResult?.output) return msg.judgeResult.output
+
+    switch (status) {
+      case ResultStatus.CompileError:
+        return msg.error ?? ''
+      case ResultStatus.SegmentationFaultError:
+        return 'Segmentation Fault'
+      case ResultStatus.RuntimeError:
+        return 'Value Error'
+      default:
+        return ''
+    }
+  }
+
   async validateJudgerResponse(msg: object): Promise<JudgerResponse> {
     const res: JudgerResponse = plainToInstance(JudgerResponse, msg)
     await validateOrReject(res)
@@ -89,8 +180,9 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     const submissionResult = {
       submissionId: msg.submissionId,
-      problemTestcaseId: parseInt(msg.judgeResult.testcaseId.split(':')[1], 10),
-      result: status,
+      problemTestcaseId: msg.judgeResult.testcaseId,
+      // TODO: judgeResult 코드 처리 통합 해야함
+      result: Status(msg.judgeResult.resultCode),
       cpuTime: BigInt(msg.judgeResult.cpuTime),
       memoryUsage: msg.judgeResult.memory
     }
@@ -219,7 +311,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     if (submission.userId && submission.contestId)
       await this.calculateSubmissionScore(submission, allAccepted)
 
-    await this.calculateProblemScore(submission.id)
+    await this.updateProblemScore(submission.id)
     await this.updateProblemAccepted(submission.problemId, allAccepted)
   }
 
@@ -290,8 +382,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     })
   }
 
-  async calculateProblemScore(id: number) {
-    const submission = await this.prisma.submission.findFirst({
+  async updateProblemScore(id: number) {
+    const submission = await this.prisma.submission.findUniqueOrThrow({
       where: {
         id
       },
@@ -305,14 +397,10 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
     })
 
-    if (!submission) {
-      throw new EntityNotExistException('submission')
-    }
-
-    let newScore = 0
+    let score = 0
     submission.submissionResult.map((submissionResult) => {
       if (submissionResult.result === 'Accepted') {
-        newScore += submissionResult.problemTestcase.scoreWeight
+        score += submissionResult.problemTestcase.scoreWeight
       }
     })
 
@@ -321,7 +409,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         id
       },
       data: {
-        score: newScore
+        score
       }
     })
   }
@@ -343,11 +431,22 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
     }
 
+    const problem = await this.prisma.problem.findFirstOrThrow({
+      where: {
+        id
+      }
+    })
+
     await this.prisma.problem.update({
       where: {
         id
       },
-      data
+      data: {
+        ...data,
+        acceptedRate: isAccepted
+          ? (problem.acceptedCount + 1) / (problem.submissionCount + 1)
+          : problem.acceptedCount / (problem.submissionCount + 1)
+      }
     })
   }
 }

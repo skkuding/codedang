@@ -1,0 +1,39 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getAssignments(
+      groupId: 1
+      cursor: 1
+      take: 10
+    ) {
+      id
+      title
+      description
+      startTime
+      endTime
+      participants
+    }
+  }
+}
+
+assert {
+  res.body.data.getAssignments: isDefined
+}
+
+docs {
+  # Get Assignments
+  ---
+  - 주어진 Group에 속한 Assignment들을 반환합니다.
+  - `cursor`을 생략하면 처음부터 `take`만큼의 Assignment들을 반환합니다.
+}

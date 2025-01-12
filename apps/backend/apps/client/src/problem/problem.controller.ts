@@ -2,19 +2,15 @@ import {
   Controller,
   DefaultValuePipe,
   Get,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
   Param,
   Query,
   Req
 } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
-import { AuthNotNeededIfOpenSpace, type AuthenticatedRequest } from '@libs/auth'
 import {
-  EntityNotExistException,
-  ForbiddenAccessException
-} from '@libs/exception'
+  AuthNotNeededIfOpenSpace,
+  UserNullWhenAuthFailedIfOpenSpace,
+  AuthenticatedRequest
+} from '@libs/auth'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -30,18 +26,18 @@ import {
 } from './problem.service'
 
 @Controller('problem')
-@AuthNotNeededIfOpenSpace()
 export class ProblemController {
-  private readonly logger = new Logger(ProblemController.name)
-
   constructor(
     private readonly problemService: ProblemService,
     private readonly workbookProblemService: WorkbookProblemService
   ) {}
 
   @Get()
+  @UserNullWhenAuthFailedIfOpenSpace()
   async getProblems(
-    @Query('groupId', GroupIDPipe) groupId: number,
+    @Req() req: AuthenticatedRequest,
+    @Query('groupId', GroupIDPipe)
+    groupId: number,
     @Query('workbookId', IDValidationPipe) workbookId: number | null,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
@@ -50,66 +46,44 @@ export class ProblemController {
     order: ProblemOrder,
     @Query('search') search?: string
   ) {
-    try {
-      if (!workbookId) {
-        return await this.problemService.getProblems({
-          cursor,
-          take,
-          groupId,
-          order,
-          search
-        })
-      }
-      return await this.workbookProblemService.getWorkbookProblems(
-        workbookId!,
+    if (!workbookId) {
+      return await this.problemService.getProblems({
+        userId: req.user?.id ?? null,
         cursor,
         take,
-        groupId
-      )
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name === 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
+        groupId,
+        order,
+        search
+      })
     }
+    return await this.workbookProblemService.getWorkbookProblems(
+      workbookId!,
+      cursor,
+      take,
+      groupId
+    )
   }
 
   @Get(':problemId')
+  @AuthNotNeededIfOpenSpace()
   async getProblem(
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('workbookId', IDValidationPipe) workbookId: number | null,
     @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
-    try {
-      if (!workbookId) {
-        return await this.problemService.getProblem(problemId, groupId)
-      }
-      return await this.workbookProblemService.getWorkbookProblem(
-        workbookId!,
-        problemId,
-        groupId
-      )
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name === 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
+    if (!workbookId) {
+      return await this.problemService.getProblem(problemId, groupId)
     }
+    return await this.workbookProblemService.getWorkbookProblem(
+      workbookId!,
+      problemId,
+      groupId
+    )
   }
 }
 
 @Controller('contest/:contestId/problem')
 export class ContestProblemController {
-  private readonly logger = new Logger(ContestProblemController.name)
-
   constructor(private readonly contestProblemService: ContestProblemService) {}
 
   @Get()
@@ -121,24 +95,13 @@ export class ContestProblemController {
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number
   ) {
-    try {
-      return await this.contestProblemService.getContestProblems(
-        contestId,
-        req.user.id,
-        cursor,
-        take,
-        groupId
-      )
-    } catch (error) {
-      if (
-        error instanceof EntityNotExistException ||
-        error instanceof ForbiddenAccessException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestProblemService.getContestProblems(
+      contestId,
+      req.user.id,
+      cursor,
+      take,
+      groupId
+    )
   }
 
   @Get(':problemId')
@@ -148,25 +111,11 @@ export class ContestProblemController {
     @Param('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number
   ) {
-    try {
-      return await this.contestProblemService.getContestProblem(
-        contestId,
-        problemId,
-        req.user.id,
-        groupId
-      )
-    } catch (error) {
-      if (
-        (error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.name === 'NotFoundError') ||
-        error instanceof EntityNotExistException
-      ) {
-        throw new NotFoundException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestProblemService.getContestProblem(
+      contestId,
+      problemId,
+      req.user.id,
+      groupId
+    )
   }
 }

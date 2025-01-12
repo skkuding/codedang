@@ -4,7 +4,7 @@ import {
   PaginationContent,
   PaginationNext,
   PaginationPrevious
-} from '@/components/ui/pagination'
+} from '@/components/shadcn/pagination'
 
 interface Props {
   page: {
@@ -28,7 +28,7 @@ export default function Paginator({ page, slot }: Props) {
           onClick={() => {
             slot.goto('prev')
           }}
-          isActive={!!slot.prev}
+          isActive={Boolean(slot.prev)}
         />
         <div className="flex items-center gap-1">
           {Array.from({ length: page.count }).map((_, i) => {
@@ -50,7 +50,7 @@ export default function Paginator({ page, slot }: Props) {
           onClick={() => {
             slot.goto('next')
           }}
-          isActive={!!slot.next}
+          isActive={Boolean(slot.next)}
         />
       </PaginationContent>
     </Pagination>

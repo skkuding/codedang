@@ -1,6 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table'
 
 interface DataTableUser {
+  id: number
   username: string
   userId: number
   name: string

@@ -1,6 +1,5 @@
 import type { Language } from '@/types/type'
-import { createContext } from 'react'
-import { create, createStore } from 'zustand'
+import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 interface LanguageStore {
@@ -8,45 +7,58 @@ interface LanguageStore {
   setLanguage: (language: Language) => void
 }
 
-export const useLanguageStore = create(
-  persist<LanguageStore>(
-    (set) => ({
-      language: 'C',
-      setLanguage: (language) => {
-        set({ language })
-      }
-    }),
-    {
-      name: 'language'
-    }
-  )
-)
-interface CodeState {
-  code: string
-  setCode: (code: string) => void
-}
-
-type CodeStore = ReturnType<typeof createCodeStore>
-
-export const createCodeStore = (
-  language: Language,
-  problemId: number,
-  contestId?: number
-) => {
-  const problemKey = `${problemId}${contestId ? `_${contestId}` : ''}_${language}`
-  return createStore<CodeState>()(
-    persist<CodeState>(
+export const useLanguageStore = (problemId: number, contestId?: number) => {
+  const languageKey = `${problemId}${contestId ? `_${contestId}` : ''}_language`
+  return create(
+    persist<LanguageStore>(
       (set) => ({
-        code: '',
-        setCode: (code) => {
-          set({ code })
+        language: 'C',
+        setLanguage: (language) => {
+          set({ language })
         }
       }),
       {
-        name: problemKey
+        name: languageKey
       }
     )
   )
 }
 
-export const CodeContext = createContext<CodeStore | null>(null)
+interface CodeState {
+  code: string
+  setCode: (code: string) => void
+  getCode: () => string
+}
+
+export const useCodeStore = create<CodeState>((set, get) => ({
+  code: '',
+  setCode: (code) => {
+    set({ code })
+  },
+  getCode: () => get().code
+}))
+
+export const getStorageKey = (
+  language: Language,
+  problemId: number,
+  userName: string,
+  contestId?: number
+) => {
+  if (userName === '') {
+    return undefined
+  }
+  const problemKey = `${userName}_${problemId}${contestId ? `_${contestId}` : ''}_${language}`
+  return problemKey
+}
+
+export const getCodeFromLocalStorage = (key: string) => {
+  const storedCode = localStorage.getItem(key) ?? ''
+
+  try {
+    const parsed = JSON.parse(storedCode)
+    localStorage.setItem(key, parsed)
+    return parsed
+  } catch {
+    return storedCode
+  }
+}

@@ -1,18 +1,13 @@
 import { Field, InputType, PickType } from '@nestjs/graphql'
 import { ProblemTestcaseCreateInput } from '@admin/@generated'
-
-@InputType()
-export class Sample {
-  @Field(() => String, { nullable: false })
-  input!: string
-
-  @Field(() => String, { nullable: false })
-  output!: string
-}
+import { IntScoreScalar } from '../scalar/int-score.scalar'
 
 @InputType()
 export class Testcase extends PickType(ProblemTestcaseCreateInput, [
   'input',
   'output',
-  'scoreWeight'
-]) {}
+  'isHidden'
+]) {
+  @Field(() => IntScoreScalar, { nullable: true })
+  scoreWeight?: number
+}

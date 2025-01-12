@@ -9,7 +9,7 @@
     ":label(dependencies)"
   ],
   "constraints": {
-    "go": "1.21"
+    "go": "1.22"
   },
   "rangeStrategy": "bump",
   "lockFileMaintenance": { "enabled": true },

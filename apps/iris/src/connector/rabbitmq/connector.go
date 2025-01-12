@@ -83,7 +83,7 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 	}
 
 	for result := range resultChan {
-		if err := c.producer.Publish(result, ctx); err != nil {
+		if err := c.producer.Publish(result, ctx, message.Type); err != nil {
 			c.logger.Log(logger.ERROR, fmt.Sprintf("failed to publish result: %s: %s", string(result), err))
 			// nack
 		} else {

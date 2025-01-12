@@ -49,7 +49,7 @@ export const judgerResponse: JudgerResponse = {
   submissionId: 1,
   error: '',
   judgeResult: {
-    testcaseId: '1:1',
+    testcaseId: 1,
     resultCode: 0,
     cpuTime: 12345,
     realTime: 20000,

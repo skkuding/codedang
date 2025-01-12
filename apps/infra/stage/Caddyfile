@@ -91,9 +91,8 @@ stage.codedang.com {
 	}
 
 	handle {
-		reverse_proxy https://codedang.vercel.app {
-			# Must override host to avoid Vercel error
-			header_up Host codedang.vercel.app
+		reverse_proxy https://coolify.codedang.com {
+			header_up Host coolify.codedang.com
 		}
 	}
 }

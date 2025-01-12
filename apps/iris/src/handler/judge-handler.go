@@ -10,6 +10,7 @@ import (
 
 	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/common/result"
+	"github.com/skkuding/codedang/apps/iris/src/loader"
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/grader"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
@@ -22,11 +23,12 @@ import (
 )
 
 type Request struct {
-	Code        string `json:"code"`
-	Language    string `json:"language"`
-	ProblemId   int    `json:"problemId"`
-	TimeLimit   int    `json:"timeLimit"`
-	MemoryLimit int    `json:"memoryLimit"`
+	Code          string            `json:"code"`
+	Language      string            `json:"language"`
+	ProblemId     int               `json:"problemId"`
+	TimeLimit     int               `json:"timeLimit"`
+	MemoryLimit   int               `json:"memoryLimit"`
+	UserTestcases *[]loader.Element `json:"userTestcases,omitempty"` // 사용자 테스트 케이스
 }
 
 func (r Request) Validate() (*Request, error) {
@@ -126,7 +128,7 @@ func NewJudgeHandler(
 }
 
 // handle top layer logical flow
-func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessage) {
+func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan JudgeResultMessage) {
 	startedAt := time.Now()
 	tracer := otel.Tracer("Handle Tracer")
 	handleCtx, span := tracer.Start(
@@ -204,35 +206,43 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 		return
 	}
 
-	// err = j.judger.Judge(task)
-	testcaseOutCh := make(chan result.ChResult)
-	go j.getTestcase(handleCtx, testcaseOutCh, strconv.Itoa(validReq.ProblemId))
+	var tc testcase.Testcase
+
+	if req.UserTestcases != nil {
+		tc = testcase.Testcase{Elements: *req.UserTestcases}
+	} else {
+		testcaseOutCh := make(chan result.ChResult)
+		go j.getTestcase(handleCtx, testcaseOutCh, strconv.Itoa(validReq.ProblemId), hidden)
+
+		testcaseOut := <-testcaseOutCh
+
+		if testcaseOut.Err != nil {
+			out <- JudgeResultMessage{nil, &HandlerError{
+				caller:  "handle",
+				err:     fmt.Errorf("%w: %s", ErrTestcaseGet, testcaseOut.Err),
+				level:   logger.ERROR,
+				Message: testcaseOut.Err.Error(),
+			}}
+			return
+		}
+
+		var ok bool
+
+		tc, ok = testcaseOut.Data.(testcase.Testcase)
+		if !ok {
+			out <- JudgeResultMessage{nil, &HandlerError{
+				caller: "handle",
+				err:    fmt.Errorf("%w: Testcase", ErrTypeAssertionFail),
+				level:  logger.ERROR,
+			}}
+			return
+		}
+	}
+
 	compileOutCh := make(chan result.ChResult)
 	go j.compile(handleCtx, compileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.Language)})
 
-	testcaseOut := <-testcaseOutCh
 	compileOut := <-compileOutCh
-
-	if testcaseOut.Err != nil {
-		out <- JudgeResultMessage{nil, &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("%w: %s", ErrTestcaseGet, testcaseOut.Err),
-			level:   logger.ERROR,
-			Message: testcaseOut.Err.Error(),
-		}}
-		return
-	}
-	// elements, ok := testcaseOut.Data.([]testcase.Element)
-	// tc := testcase.Testcase{Elements: elements}
-	tc, ok := testcaseOut.Data.(testcase.Testcase)
-	if !ok {
-		out <- JudgeResultMessage{nil, &HandlerError{
-			caller: "handle",
-			err:    fmt.Errorf("%w: Testcase", ErrTypeAssertionFail),
-			level:  logger.ERROR,
-		}}
-		return
-	}
 
 	if compileOut.Err != nil {
 		// 컴파일러 실행 과정이나 이후 처리 과정에서 오류가 생긴 경우
@@ -262,13 +272,9 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 	}
 
 	tcNum := tc.Count()
-	cnt := make(chan int)
 	for i := 0; i < tcNum; i++ {
-		go j.judgeTestcase(i, dir, validReq, tc.Elements[i], out, cnt)
-	}
-
-	for i := 0; i < tcNum; i++ {
-		<-cnt
+		j.judgeTestcase(i, dir, validReq, tc.Elements[i], out)
+		// j.logger.Log(logger.DEBUG, fmt.Sprintf("Testcase %d judged", i))
 	}
 }
 
@@ -287,12 +293,13 @@ func (j *JudgeHandler) compile(traceCtx context.Context, out chan<- result.ChRes
 }
 
 // wrapper to use goroutine
-func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.ChResult, problemId string) {
+func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.ChResult, problemId string, hidden bool) {
 	tracer := otel.Tracer("GetTestcase Tracer")
 	_, span := tracer.Start(traceCtx, "go:goroutine:getTestcase")
 	defer span.End()
 
-	res, err := j.testcaseManager.GetTestcase(problemId)
+	res, err := j.testcaseManager.GetTestcase(problemId, hidden)
+
 	if err != nil {
 		out <- result.ChResult{Err: err}
 		return
@@ -301,7 +308,7 @@ func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.C
 }
 
 func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
-	tc testcase.Element, out chan JudgeResultMessage, cnt chan int) {
+	tc loader.Element, out chan JudgeResultMessage) {
 
 	var accepted bool
 
@@ -326,6 +333,11 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 
 	res.TestcaseId = tc.Id
 	res.SetJudgeExecResult(runResult.ExecResult)
+	res.Output = string(runResult.Output)
+
+	if len(res.Output) > constants.MAX_OUTPUT {
+		res.Output = res.Output[:constants.MAX_OUTPUT]
+	}
 
 	if runResult.ExecResult.ResultCode != sandbox.RUN_SUCCESS {
 		res.SetJudgeResultCode(SandboxResultCodeToJudgeResultCode(runResult.ExecResult.ResultCode))
@@ -351,5 +363,4 @@ Send:
 	} else {
 		out <- JudgeResultMessage{marshaledRes, ParseError(res)}
 	}
-	cnt <- 1
 }

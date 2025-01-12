@@ -1,3 +1,4 @@
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
@@ -6,6 +7,7 @@ import {
   type Submission,
   type SubmissionResult
 } from '@prisma/client'
+import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import * as sinon from 'sinon'
 import {
@@ -18,20 +20,22 @@ import {
 } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { problems } from '@admin/problem/mock/mock'
 import { contestRecord } from '../mock/contestRecord.mock'
 import { submissions } from '../mock/submission.mock'
 import { submissionResults } from '../mock/submissionResult.mock'
 import { SubmissionSubscriptionService } from '../submission-sub.service'
 
 const judgeResult = {
-  testcaseId: '1',
+  testcaseId: 1,
   resultCode: 1,
   cpuTime: 100000,
   realTime: 120000,
   memory: 10000000,
   signal: 0,
   exitCode: 0,
-  errorCode: 0
+  errorCode: 0,
+  output: undefined
 }
 
 const msg = {
@@ -75,13 +79,15 @@ const db = {
     findFirstOrThrow: mockFunc
   },
   problem: {
-    update: mockFunc
+    update: mockFunc,
+    findFirstOrThrow: mockFunc
   }
 }
 
 describe('SubmissionSubscriptionService', () => {
   let service: SubmissionSubscriptionService
   let amqpConnection: AmqpConnection
+  let cache: Cache
 
   const sandbox = sinon.createSandbox()
 
@@ -99,6 +105,17 @@ describe('SubmissionSubscriptionService', () => {
           useFactory: () => ({
             createSubscriber: () => []
           })
+        },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => [],
+            del: () => [],
+            store: {
+              keys: () => []
+            }
+          })
         }
       ]
     }).compile()
@@ -107,6 +124,8 @@ describe('SubmissionSubscriptionService', () => {
       SubmissionSubscriptionService
     )
     amqpConnection = module.get<AmqpConnection>(AmqpConnection)
+    cache = module.get<Cache>(CACHE_MANAGER)
+    sandbox.stub(cache, 'get').resolves([])
   })
 
   afterEach(() => {
@@ -167,10 +186,7 @@ describe('SubmissionSubscriptionService', () => {
       expect(
         spy.calledOnceWithExactly({
           submissionId: msg.submissionId,
-          problemTestcaseId: parseInt(
-            msg.judgeResult.testcaseId.split(':')[1],
-            10
-          ),
+          problemTestcaseId: msg.judgeResult.testcaseId,
           result: Status(msg.judgeResult.resultCode),
           cpuTime: BigInt(msg.judgeResult.cpuTime),
           memoryUsage: msg.judgeResult.memory
@@ -340,7 +356,7 @@ describe('SubmissionSubscriptionService', () => {
         .stub(service, 'calculateSubmissionScore')
         .resolves()
       const problemScoreSpy = sandbox
-        .stub(service, 'calculateProblemScore')
+        .stub(service, 'updateProblemScore')
         .resolves()
       const acceptSpy = sandbox
         .stub(service, 'updateProblemAccepted')
@@ -417,7 +433,7 @@ describe('SubmissionSubscriptionService', () => {
         service,
         'calculateSubmissionScore'
       )
-      const problemScoreSpy = sandbox.stub(service, 'calculateProblemScore')
+      const problemScoreSpy = sandbox.stub(service, 'updateProblemScore')
 
       await service.updateSubmissionResult(1)
 
@@ -555,6 +571,7 @@ describe('SubmissionSubscriptionService', () => {
   describe('updateProblemAccepted', () => {
     it('should update submissionCount', async () => {
       const updateSpy = sandbox.stub(db.problem, 'update').resolves()
+      sandbox.stub(db.problem, 'findFirstOrThrow').resolves(problems[0])
       const id = 1
       const isAccepted = false
 
@@ -567,7 +584,9 @@ describe('SubmissionSubscriptionService', () => {
           data: {
             submissionCount: {
               increment: 1
-            }
+            },
+            acceptedRate:
+              problems[0].acceptedCount / (problems[0].submissionCount + 1)
           }
         })
       ).to.be.true
@@ -575,6 +594,7 @@ describe('SubmissionSubscriptionService', () => {
 
     it('should update submissionCount and acceptedCount', async () => {
       const updateSpy = sandbox.stub(db.problem, 'update').resolves()
+      sandbox.stub(db.problem, 'findFirstOrThrow').resolves(problems[0])
       const id = 1
       const isAccepted = true
 
@@ -590,7 +610,10 @@ describe('SubmissionSubscriptionService', () => {
             },
             acceptedCount: {
               increment: 1
-            }
+            },
+            acceptedRate:
+              (problems[0].acceptedCount + 1) /
+              (problems[0].submissionCount + 1)
           }
         })
       ).to.be.true

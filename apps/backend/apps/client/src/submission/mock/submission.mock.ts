@@ -20,6 +20,7 @@ export const submissions = [
     userIp: '127.0.0.1',
     problemId: 1,
     contestId: null,
+    assignmentId: null,
     workbookId: null,
     problem: {
       problemTestcase: [
@@ -43,6 +44,7 @@ export const submissions = [
     userIp: '127.0.0.1',
     problemId: 1,
     contestId: null,
+    assignmentId: null,
     workbookId: null,
     problem: {
       problemTestcase: [

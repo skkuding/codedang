@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import typography from '@tailwindcss/typography'
 import type { Config } from 'tailwindcss'
 import animate from 'tailwindcss-animate'
 import defaultTheme from 'tailwindcss/defaultTheme'
+import type { PluginAPI } from 'tailwindcss/types/config'
 
 export default {
   darkMode: ['class'],
@@ -70,5 +70,22 @@ export default {
       }
     }
   },
-  plugins: [animate, typography, require('tailwind-scrollbar-hide')]
+  plugins: [
+    animate,
+    typography,
+    function ({ addUtilities }: { addUtilities: PluginAPI['addUtilities'] }) {
+      addUtilities({
+        '.hide-spin-button': {
+          appearance: 'textfield',
+          '&::-webkit-inner-spin-button': {
+            appearance: 'none'
+          },
+          '&::-webkit-outer-spin-button': {
+            appearance: 'none'
+          }
+        }
+      })
+    }
+  ],
+  safelist: ['!text-green-500', '!text-neutral-400', '!text-red-500']
 } satisfies Config

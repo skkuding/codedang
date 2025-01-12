@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { cn, fetcher } from '@/lib/utils'
+import { Button } from '@/components/shadcn/button'
+import { Input } from '@/components/shadcn/input'
+import { cn, fetcher } from '@/libs/utils'
 import useAuthModalStore from '@/stores/authModal'
 import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -103,7 +103,7 @@ export default function FindUserId() {
             type="email"
             className={cn(
               inputFocused && 'ring-1 focus-visible:ring-1 disabled:ring-0',
-              errors.email || (emailError && getValues('email') == wrongEmail)
+              errors.email || (emailError && getValues('email') === wrongEmail)
                 ? 'ring-red-500 focus-visible:ring-red-500'
                 : 'focus-visible:ring-primary'
             )}
@@ -113,12 +113,12 @@ export default function FindUserId() {
             })}
             onFocus={() => setInputFocused(true)}
             onBlur={() => trigger('email')}
-            disabled={!!userId}
+            disabled={Boolean(userId)}
           />
           {errors.email && (
             <p className="text-xs text-red-500">{errors.email?.message}</p>
           )}
-          {emailError && getValues('email') == wrongEmail && (
+          {emailError && getValues('email') === wrongEmail && (
             <p className="text-xs text-red-500">{emailError}</p>
           )}
           {userId && (

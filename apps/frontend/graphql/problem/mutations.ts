@@ -16,10 +16,6 @@ const CREATE_PROBLEM = gql(`
       description
       inputDescription
       outputDescription
-      samples {
-        input
-        output
-      }
       problemTestcase {
         input
         output
@@ -52,10 +48,6 @@ const UPDATE_PROBLEM = gql(`
       description
       inputDescription
       outputDescription
-      samples {
-        input
-        output
-      }
       problemTestcase {
         input
         output
@@ -84,6 +76,17 @@ const UPDATE_CONTEST_PROBLEMS_ORDER = gql(`
       order
       contestId
       problemId
+    }
+  }
+`)
+
+const UPDATE_CONTEST_PROBLEMS_SCORES = gql(`
+  mutation UpdateContestProblemsScore($groupId: Int!, $contestId: Int!, $problemIdsWithScore: [ProblemScoreInput!]!) {
+    updateContestProblemsScore(groupId: $groupId, contestId: $contestId, problemIdsWithScore: $problemIdsWithScore) {
+      contestId
+      problemId
+      score
+      order
     }
   }
 `)
@@ -117,6 +120,7 @@ export {
   UPDATE_PROBLEM,
   UPDATE_PROBLEM_VISIBLE,
   UPDATE_CONTEST_PROBLEMS_ORDER,
+  UPDATE_CONTEST_PROBLEMS_SCORES,
   DELETE_PROBLEM,
   UPLOAD_PROBLEMS,
   UPLOAD_IMAGE

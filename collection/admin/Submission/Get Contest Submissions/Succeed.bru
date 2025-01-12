@@ -1,0 +1,67 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetContestSubmissions(
+    $input: GetContestSubmissionsInput!,
+    $cursor: Int,
+    $take: Int
+  ) {
+    getContestSubmissions(
+      input: $input,
+      cursor: $cursor,
+      take: $take
+    ) {
+      title
+      studentId
+      realname
+      username
+      result
+      language
+      submissionTime
+      codeSize
+      problemId
+      order
+      ip
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "contestId": 1,
+      "problemId": 1,
+      "searchingName": "lee"
+    },
+    "take": 10
+  }
+}
+
+docs {
+  ## Get Contest Submissions
+  
+  - Contest Overall 페이지 중 All Submissions 탭에서 표시할 데이터를 반환합니다.
+  - https://github.com/skkuding/codedang/pull/1924
+  
+  #### 필요 인자
+  | `input`  | `take` | `cursor` |
+  |----------|--------|----------|
+  | 밑에서 설명 | Pagination 구현을 위함 | Pagination 구현을 위함 |
+  
+  `input`
+  - `contestId`: 제출 내역을 불러올 Contest의 ID
+  - `problemId?`: 제출된 내역 중 특정 Problem의 제출만 필터링
+  - `searchingName?`: 필터링할 User의 realName(없으면 모든 유저)
+  
+}

@@ -1,48 +1,51 @@
-import { Button } from '@/components/ui/button'
-import { PlusCircleIcon } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useFormContext } from 'react-hook-form'
+import { Button } from '@/components/shadcn/button'
+import { useDataTable } from '../../_components/table/context'
+import type { ContestProblem } from '../_libs/schemas'
+import type { DataTableProblem } from './ImportProblemTableColumns'
+
+interface ImportProblemButtonProps {
+  onSelectedExport: (data: ContestProblem[]) => void
+}
 
 export default function ImportProblemButton({
-  disabled,
-  isCreatePage,
-  id
-}: {
-  disabled: boolean
-  isCreatePage: boolean
-  id?: number
-}) {
-  const { getValues } = useFormContext()
-  const router = useRouter()
+  onSelectedExport
+}: ImportProblemButtonProps) {
+  const { table } = useDataTable<DataTableProblem>()
+
+  const handleImportProblems = () => {
+    const selectedRows = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original)
+
+    const problems = selectedRows
+      .map((problem) => ({
+        ...problem,
+        score: problem?.score ?? 0,
+        order: problem?.order ?? Number.MAX_SAFE_INTEGER
+      }))
+      .sort((a, b) => a.order - b.order)
+
+    let order = 0
+    const exportedProblems = problems.map((problem, index, arr) => {
+      if (
+        index > 0 &&
+        // NOTE: 만약 현재 요소가 새로 추가된 문제이거나 새로 추가된 문제가 아니라면 이전 문제와 기존 순서가 다를 때
+        (arr[index].order === Number.MAX_SAFE_INTEGER ||
+          arr[index - 1].order !== arr[index].order)
+      ) {
+        order++
+      }
+      return {
+        ...problem,
+        order
+      }
+    })
+    onSelectedExport(exportedProblems)
+  }
+
   return (
-    <Button
-      type="button"
-      className="flex h-[36px] w-36 items-center gap-2 px-0"
-      disabled={disabled}
-      onClick={() => {
-        const formData = {
-          title: getValues('title'),
-          startTime: getValues('startTime'),
-          endTime: getValues('endTime'),
-          description: getValues('description'),
-          enableCopyPaste: getValues('enableCopyPaste'),
-          isJudgeResultVisible: getValues('isJudgeResultVisible'),
-          invitationCode: getValues('invitationCode')
-        }
-        if (isCreatePage) {
-          localStorage.setItem('contestFormData', JSON.stringify(formData))
-          router.push('/admin/problem?import=true')
-        } else {
-          localStorage.setItem(
-            `contestFormData-${id}`,
-            JSON.stringify(formData)
-          )
-          router.push(`/admin/problem?import=true&contestId=${id}`)
-        }
-      }}
-    >
-      <PlusCircleIcon className="h-4 w-4" />
-      <div className="mb-[2px] text-sm">Import Problem</div>
+    <Button onClick={handleImportProblems} className="ml-auto">
+      Import / Edit
     </Button>
   )
 }

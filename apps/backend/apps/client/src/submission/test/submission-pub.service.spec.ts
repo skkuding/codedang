@@ -4,7 +4,12 @@ import type { Submission, SubmissionResult } from '@prisma/client'
 import { expect } from 'chai'
 import { TraceService } from 'nestjs-otel'
 import * as sinon from 'sinon'
-import { EXCHANGE, PUBLISH_TYPE, SUBMISSION_KEY } from '@libs/constants'
+import {
+  EXCHANGE,
+  JUDGE_MESSAGE_TYPE,
+  RUN_MESSAGE_TYPE,
+  SUBMISSION_KEY
+} from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { JudgeRequest } from '../class/judge-request'
@@ -67,7 +72,7 @@ describe('SubmissionPublicationService', () => {
   })
 
   describe('publishJudgeRequestMessage', () => {
-    it('should publish to RabbitMQ', async () => {
+    it('should publish judge mssage to RabbitMQ', async () => {
       const findSpy = sandbox
         .stub(db.problem, 'findUnique')
         .resolves(problems[0])
@@ -98,7 +103,47 @@ describe('SubmissionPublicationService', () => {
         amqpSpy.calledOnceWith(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
           messageId: String(submission.id),
           persistent: true,
-          type: PUBLISH_TYPE
+          type: JUDGE_MESSAGE_TYPE
+        })
+      ).to.be.true
+    })
+
+    it('should publish run mssage to RabbitMQ', async () => {
+      const findSpy = sandbox
+        .stub(db.problem, 'findUnique')
+        .resolves(problems[0])
+      const amqpSpy = sandbox.stub(amqpConnection, 'publish').resolves()
+      const judgeRequest = new JudgeRequest(
+        submissions[0].code,
+        submission.language,
+        problems[0]
+      )
+
+      await expect(
+        service.publishJudgeRequestMessage(
+          submissions[0].code,
+          submission,
+          true
+        )
+      ).not.to.be.rejected
+
+      expect(
+        findSpy.calledOnceWith({
+          where: {
+            id: submission.id
+          },
+          select: {
+            id: true,
+            timeLimit: true,
+            memoryLimit: true
+          }
+        })
+      ).to.be.true
+      expect(
+        amqpSpy.calledOnceWith(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
+          messageId: String(submission.id),
+          persistent: true,
+          type: RUN_MESSAGE_TYPE
         })
       ).to.be.true
     })

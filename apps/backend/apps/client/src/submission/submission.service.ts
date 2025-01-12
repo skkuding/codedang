@@ -1,30 +1,44 @@
 import { HttpService } from '@nestjs/axios'
-import { Injectable, Logger } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
   ResultStatus,
-  type Submission,
-  type Language,
-  type Problem,
-  Role
+  Submission,
+  Language,
+  Problem,
+  Role,
+  Prisma
 } from '@prisma/client'
-import type { AxiosRequestConfig } from 'axios'
+import { AxiosRequestConfig } from 'axios'
+import { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
 import { Span } from 'nestjs-otel'
-import { MIN_DATE, OPEN_SPACE_ID } from '@libs/constants'
+import {
+  testKey,
+  testcasesKey,
+  userTestKey,
+  userTestcasesKey
+} from '@libs/cache'
+import {
+  MIN_DATE,
+  OPEN_SPACE_ID,
+  TEST_SUBMISSION_EXPIRE_TIME
+} from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { StorageService } from '@libs/storage'
+import { ProblemRepository } from '@client/problem/problem.repository'
 import {
-  type CreateSubmissionDto,
+  CreateSubmissionDto,
+  CreateUserTestSubmissionDto,
   Snippet,
   Template
 } from './class/create-submission.dto'
-import type { TestcaseDTO } from './interface/testcase.dto'
 import { SubmissionPublicationService } from './submission-pub.service'
 
 @Injectable()
@@ -35,8 +49,9 @@ export class SubmissionService {
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
-    private readonly storageService: StorageService,
-    private readonly publish: SubmissionPublicationService
+    private readonly problemRepository: ProblemRepository,
+    private readonly publish: SubmissionPublicationService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
   @Span()
@@ -47,7 +62,7 @@ export class SubmissionService {
     problemId: number,
     groupId = OPEN_SPACE_ID
   ) {
-    const problem = await this.prisma.problem.findFirstOrThrow({
+    const problem = await this.prisma.problem.findFirst({
       where: {
         id: problemId,
         groupId,
@@ -56,6 +71,9 @@ export class SubmissionService {
         }
       }
     })
+    if (!problem) {
+      throw new EntityNotExistException('Problem')
+    }
     const submission = await this.createSubmission(
       submissionDto,
       problem,
@@ -81,7 +99,9 @@ export class SubmissionService {
     groupId = OPEN_SPACE_ID
   ) {
     const now = new Date()
-    await this.prisma.contest.findFirstOrThrow({
+
+    // 진행 중인 대회인지 확인합니다.
+    const contest = await this.prisma.contest.findFirst({
       where: {
         id: contestId,
         groupId,
@@ -93,7 +113,12 @@ export class SubmissionService {
         }
       }
     })
-    const { contest } = await this.prisma.contestRecord.findUniqueOrThrow({
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    // 대회에 등록되어 있는지 확인합니다.
+    const contestRecord = await this.prisma.contestRecord.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_userId: {
@@ -111,15 +136,21 @@ export class SubmissionService {
         }
       }
     })
-    if (contest.groupId !== groupId) {
-      throw new EntityNotExistException('Contest Not Found')
-    } else if (contest.startTime > now || contest.endTime <= now) {
+    if (!contestRecord) {
+      throw new EntityNotExistException('ContestRecord')
+    }
+    if (contestRecord.contest.groupId !== groupId) {
+      throw new EntityNotExistException('Contest')
+    } else if (
+      contestRecord.contest.startTime > now ||
+      contestRecord.contest.endTime <= now
+    ) {
       throw new ConflictFoundException(
         'Submission is only allowed to ongoing contests'
       )
     }
 
-    const { problem } = await this.prisma.contestProblem.findUniqueOrThrow({
+    const contestProblem = await this.prisma.contestProblem.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_problemId: {
@@ -131,6 +162,10 @@ export class SubmissionService {
         problem: true
       }
     })
+    if (!contestProblem) {
+      throw new EntityNotExistException('ContestProblem')
+    }
+    const { problem } = contestProblem
 
     const submission = await this.createSubmission(
       submissionDto,
@@ -154,7 +189,7 @@ export class SubmissionService {
     workbookId: number,
     groupId = OPEN_SPACE_ID
   ) {
-    const { problem } = await this.prisma.workbookProblem.findUniqueOrThrow({
+    const workbookProblem = await this.prisma.workbookProblem.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         workbookId_problemId: {
@@ -166,11 +201,15 @@ export class SubmissionService {
         problem: true
       }
     })
+    if (!workbookProblem) {
+      throw new EntityNotExistException('WorkbookProblem')
+    }
+    const { problem } = workbookProblem
     if (
       problem.groupId !== groupId ||
-      problem.visibleLockTime.getTime() !== MIN_DATE.getTime() // 공개된 problem이 아닐 때
+      problem.visibleLockTime.getTime() !== MIN_DATE.getTime()
     ) {
-      throw new EntityNotExistException('problem')
+      throw new EntityNotExistException('Problem')
     }
 
     const submission = await this.createSubmission(
@@ -186,6 +225,10 @@ export class SubmissionService {
     return submission
   }
 
+  /**
+   * 빈 제출 기록을 생성하고 채점 요청을 보냅니다.
+   * @returns 생성된 제출 기록
+   */
   @Span()
   async createSubmission(
     submissionDto: CreateSubmissionDto,
@@ -220,68 +263,42 @@ export class SubmissionService {
       ...data
     }
 
-    // idOptions Object가 undefined이거나 contestId와 workbookId가 모두 없는 경우
-    if (
-      idOptions === undefined ||
-      (!idOptions.contestId && !idOptions.workbookId)
-    ) {
+    try {
       const submission = await this.prisma.submission.create({
-        data: submissionData
+        data: {
+          ...submissionData,
+          contestId: idOptions?.contestId,
+          workbookId: idOptions?.workbookId
+        }
       })
 
       await this.createSubmissionResults(submission)
 
       await this.publish.publishJudgeRequestMessage(code, submission)
       return submission
-    }
-
-    if (idOptions.contestId) {
-      // 해당 contestId에 해당하는 Contest에서 해당 problemId에 해당하는 문제로 AC를 받은 submission이 있는지 확인
-      const hasPassed = await this.hasPassedProblem(userId, {
-        problemId: problem.id,
-        contestId: idOptions.contestId
-      })
-      if (hasPassed) {
-        throw new ConflictFoundException(
-          'You have already gotten AC for this problem'
-        )
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new UnprocessableDataException('Failed to create submission')
       }
-      const submission = await this.prisma.submission.create({
-        data: { ...submissionData, contestId: idOptions.contestId }
-      })
-
-      await this.createSubmissionResults(submission)
-
-      await this.publish.publishJudgeRequestMessage(code, submission)
-      return submission
-    }
-
-    if (idOptions.workbookId) {
-      const submission = await this.prisma.submission.create({
-        data: { ...submissionData, workbookId: idOptions.workbookId }
-      })
-
-      await this.createSubmissionResults(submission)
-
-      await this.publish.publishJudgeRequestMessage(code, submission)
-      return submission
+      throw error
     }
   }
 
   @Span()
   async createSubmissionResults(submission: Submission): Promise<void> {
-    const rawTestcase = await this.storageService.readObject(
-      `${submission.problemId}.json`
-    )
-
-    const testcases = JSON.parse(rawTestcase) as TestcaseDTO[]
+    const testcases = await this.prisma.problemTestcase.findMany({
+      where: {
+        problemId: submission.problemId
+      },
+      select: { id: true }
+    })
 
     await this.prisma.submissionResult.createMany({
       data: testcases.map((testcase) => {
         return {
           submissionId: submission.id,
           result: ResultStatus.Judging,
-          problemTestcaseId: parseInt(testcase.id.split(':')[1], 10)
+          problemTestcaseId: testcase.id
         }
       })
     })
@@ -316,6 +333,153 @@ export class SubmissionService {
     return Math.floor(Math.random() * 16777215)
       .toString(16)
       .padStart(6, '0')
+  }
+
+  async submitTest(
+    userId: number,
+    problemId: number,
+    submissionDto: CreateSubmissionDto,
+    isUserTest = false
+  ) {
+    const problem = await this.prisma.problem.findFirst({
+      where: {
+        id: problemId
+      }
+    })
+
+    if (!problem) {
+      throw new EntityNotExistException('Problem')
+    }
+
+    if (!problem.languages.includes(submissionDto.language)) {
+      throw new ConflictFoundException(
+        `This problem does not support language ${submissionDto.language}`
+      )
+    }
+    const { code } = submissionDto
+    if (
+      !this.isValidCode(
+        code,
+        submissionDto.language,
+        plainToInstance(Template, problem.template)
+      )
+    ) {
+      throw new ConflictFoundException('Modifying template is not allowed')
+    }
+
+    const testSubmission: Submission = {
+      code: [],
+      language: submissionDto.language,
+      id: userId, // test용 submission끼리의 구분을 위해 submission의 id를 요청 User의 id로 지정
+      problemId,
+      result: 'Judging',
+      score: 0,
+      userId,
+      userIp: null,
+      assignmentId: null,
+      contestId: null,
+      workbookId: null,
+      codeSize: null,
+      createTime: new Date(),
+      updateTime: new Date()
+    }
+
+    // User Testcase에 대한 TEST 요청인 경우
+    if (isUserTest) {
+      await this.publishUserTestMessage(
+        userId,
+        submissionDto.code,
+        testSubmission,
+        (submissionDto as CreateUserTestSubmissionDto).userTestcases
+      )
+      return
+    }
+
+    // Open Testcase에 대한 TEST 요청인 경우
+    await this.publishTestMessage(
+      problemId,
+      userId,
+      submissionDto.code,
+      testSubmission
+    )
+  }
+
+  async publishTestMessage(
+    problemId: number,
+    userId: number,
+    code: Snippet[],
+    testSubmission: Submission
+  ) {
+    const rawTestcases = await this.prisma.problemTestcase.findMany({
+      where: {
+        problemId,
+        isHidden: false
+      }
+    })
+
+    const testcaseIds: number[] = []
+    for (const rawTestcase of rawTestcases) {
+      await this.cacheManager.set(
+        testKey(userId, rawTestcase.id),
+        { id: rawTestcase.id, result: 'Judging' },
+        TEST_SUBMISSION_EXPIRE_TIME
+      )
+      testcaseIds.push(rawTestcase.id)
+    }
+    await this.cacheManager.set(testcasesKey(userId), testcaseIds)
+
+    await this.publish.publishJudgeRequestMessage(code, testSubmission, true)
+  }
+
+  async publishUserTestMessage(
+    userId: number,
+    code: Snippet[],
+    testSubmission: Submission,
+    userTestcases: { id: number; in: string; out: string }[]
+  ) {
+    const testcaseIds: number[] = []
+    for (const testcase of userTestcases) {
+      await this.cacheManager.set(
+        userTestKey(userId, testcase.id),
+        { id: testcase.id, result: 'Judging' },
+        TEST_SUBMISSION_EXPIRE_TIME
+      )
+      testcaseIds.push(testcase.id)
+    }
+    await this.cacheManager.set(userTestcasesKey(userId), testcaseIds)
+
+    await this.publish.publishJudgeRequestMessage(
+      code,
+      testSubmission,
+      false,
+      true,
+      userTestcases
+    )
+  }
+
+  async getTestResult(userId: number, isUserTest = false) {
+    const testCasesKey = isUserTest
+      ? userTestcasesKey(userId)
+      : testcasesKey(userId)
+
+    const testcases =
+      (await this.cacheManager.get<number[]>(testCasesKey)) ?? []
+
+    const results: { id: number; result: ResultStatus; output?: string }[] = []
+    for (const testcaseId of testcases) {
+      const key = isUserTest
+        ? userTestKey(userId, testcaseId)
+        : testKey(userId, testcaseId)
+      const testcase = await this.cacheManager.get<{
+        id: number
+        result: ResultStatus
+        output?: string
+      }>(key)
+      if (testcase) {
+        results.push(testcase)
+      }
+    }
+    return results
   }
 
   @Span()
@@ -366,7 +530,7 @@ export class SubmissionService {
   }) {
     const paginator = this.prisma.getPaginator(cursor)
 
-    await this.prisma.problem.findFirstOrThrow({
+    const problem = await this.prisma.problem.findFirst({
       where: {
         id: problemId,
         groupId,
@@ -375,6 +539,9 @@ export class SubmissionService {
         }
       }
     })
+    if (!problem) {
+      throw new EntityNotExistException('Problem')
+    }
 
     const submissions = await this.prisma.submission.findMany({
       ...paginator,
@@ -421,7 +588,7 @@ export class SubmissionService {
     let isJudgeResultVisible: boolean | null = null
 
     if (contestId) {
-      const contestRecord = await this.prisma.contestRecord.findUniqueOrThrow({
+      const contestRecord = await this.prisma.contestRecord.findUnique({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           contestId_userId: {
@@ -440,15 +607,19 @@ export class SubmissionService {
           }
         }
       })
+      if (!contestRecord) {
+        throw new EntityNotExistException('ContestRecord')
+      }
       if (contestRecord.contest.groupId !== groupId) {
-        throw new EntityNotExistException('contest')
+        throw new EntityNotExistException('Contest')
       }
       contest = contestRecord.contest
       isJudgeResultVisible = contest.isJudgeResultVisible
     }
 
+    let problem
     if (!contestId) {
-      await this.prisma.problem.findFirstOrThrow({
+      problem = await this.prisma.problem.findFirst({
         where: {
           id: problemId,
           groupId,
@@ -457,16 +628,22 @@ export class SubmissionService {
           }
         }
       })
+      if (!problem) {
+        throw new EntityNotExistException('Problem')
+      }
     } else {
-      await this.prisma.problem.findFirstOrThrow({
+      problem = await this.prisma.problem.findFirst({
         where: {
           id: problemId,
           groupId
         }
       })
+      if (!problem) {
+        throw new EntityNotExistException('Problem')
+      }
     }
 
-    const submission = await this.prisma.submission.findFirstOrThrow({
+    const submission = await this.prisma.submission.findFirst({
       where: {
         id,
         problemId,
@@ -487,6 +664,9 @@ export class SubmissionService {
         codeSize: true
       }
     })
+    if (!submission) {
+      throw new EntityNotExistException('Submission')
+    }
 
     if (
       contest &&
@@ -504,7 +684,7 @@ export class SubmissionService {
       submission.userId === userId ||
       userRole === Role.Admin ||
       userRole === Role.SuperAdmin ||
-      (await this.hasPassedProblem(userId, { problemId }))
+      (await this.problemRepository.hasPassedProblem(userId, { problemId }))
     ) {
       const code = plainToInstance(Snippet, submission.code)
       const results = submission.submissionResult.map((result) => {
@@ -521,7 +701,11 @@ export class SubmissionService {
       results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
 
       if (contestId && !isJudgeResultVisible) {
-        results.map((r) => (r.result = 'Blind'))
+        results.map((r) => {
+          r.result = 'Blind'
+          r.cpuTime = null
+          r.memoryUsage = null
+        })
       }
 
       return {
@@ -540,24 +724,6 @@ export class SubmissionService {
 
     throw new ForbiddenAccessException(
       "You must pass the problem first to browse other people's submissions"
-    )
-  }
-
-  @Span()
-  async hasPassedProblem(
-    userId: number,
-    where: { problemId: number; contestId?: number }
-  ): Promise<boolean> {
-    const submissions = await this.prisma.submission.findMany({
-      where: {
-        ...where,
-        userId
-      },
-      select: { result: true }
-    })
-
-    return submissions.some(
-      (submission) => submission.result === ResultStatus.Accepted
     )
   }
 
@@ -587,7 +753,7 @@ export class SubmissionService {
     })
 
     if (!isAdmin) {
-      await this.prisma.contestRecord.findUniqueOrThrow({
+      const contestRecord = await this.prisma.contestRecord.findUnique({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           contestId_userId: {
@@ -596,9 +762,12 @@ export class SubmissionService {
           }
         }
       })
+      if (!contestRecord) {
+        throw new EntityNotExistException('ContestRecord')
+      }
     }
 
-    await this.prisma.contestProblem.findFirstOrThrow({
+    const contestProblem = await this.prisma.contestProblem.findFirst({
       where: {
         problem: {
           id: problemId,
@@ -607,17 +776,22 @@ export class SubmissionService {
         contestId
       }
     })
+    if (!contestProblem) {
+      throw new EntityNotExistException('ContestProblem')
+    }
 
-    const isJudgeResultVisible = (
-      await this.prisma.contest.findFirstOrThrow({
-        where: {
-          id: contestId
-        },
-        select: {
-          isJudgeResultVisible: true
-        }
-      })
-    ).isJudgeResultVisible
+    const contest = await this.prisma.contest.findFirst({
+      where: {
+        id: contestId
+      },
+      select: {
+        isJudgeResultVisible: true
+      }
+    })
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+    const isJudgeResultVisible = contest.isJudgeResultVisible
 
     const submissions = await this.prisma.submission.findMany({
       ...paginator,

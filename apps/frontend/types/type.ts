@@ -32,8 +32,9 @@ export interface Problem {
   difficulty: Level
   submissionCount: number
   acceptedRate: number
-  tags?: Tag[]
-  info?: string
+  tags: Tag[]
+  languages: Language[]
+  hasPassed: boolean | null
 }
 
 /**
@@ -45,8 +46,22 @@ export interface WorkbookProblem extends Omit<Problem, 'tags' | 'info'> {
   order: number
 }
 
-export interface ContestProblem extends Omit<Problem, 'tags' | 'info'> {
+export interface ContestProblem {
+  id: number
+  title: number
+  difficulty: Level
   order: number
+  submissionCount: number
+  maxScore: number | null
+  score: string | null
+  submissionTime: string | null
+  acceptedRate: number
+}
+
+export interface TestcaseItem {
+  id: number
+  input: string
+  output: string
 }
 
 export interface ProblemDetail {
@@ -55,11 +70,7 @@ export interface ProblemDetail {
   description: string
   inputDescription: string
   outputDescription: string
-  samples: {
-    id: number
-    input: string
-    output: string
-  }[]
+  problemTestcase: TestcaseItem[]
   languages: Language[]
   timeLimit: number
   memoryLimit: number
@@ -68,6 +79,7 @@ export interface ProblemDetail {
   hint: string
   template: string[]
   difficulty: Level
+  order?: number
 }
 
 // Contest type definition
@@ -81,6 +93,7 @@ export interface Contest {
     id: string
     groupName: string
   }
+  isJudgeResultVisible: boolean
   enableCopyPaste: boolean
   status: ContestStatus
   participants: number
@@ -164,4 +177,27 @@ export interface SubmissionDetail {
     createTime: Date
     updateTime: Date
   }[]
+}
+
+// Test type definition
+
+export interface TestResult {
+  id: number
+  output: string
+  result: string
+}
+
+export interface TestResultDetail extends TestResult {
+  input: string
+  expectedOutput: string
+  isUserTestcase: boolean
+  originalId: number
+}
+
+export interface SettingsFormat {
+  currentPassword: string
+  newPassword: string
+  confirmPassword: string
+  realName: string
+  studentId: string
 }

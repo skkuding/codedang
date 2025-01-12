@@ -1,14 +1,13 @@
 'use client'
 
-import { cn } from '@/lib/utils'
-import ClockIcon from '@/public/20_clock.svg'
+import { cn } from '@/libs/utils'
+import ClockIcon from '@/public/icons/clock.svg'
 import type { Contest } from '@/types/type'
 import type { ContestStatus } from '@/types/type'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
-import type { Route } from 'next'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
@@ -25,6 +24,8 @@ export default function ContestStatusTimeDiff({
   inContestEditor: boolean
 }) {
   const router = useRouter()
+  const { problemId } = useParams()
+
   const [contestStatus, setContestStatus] = useState<
     ContestStatus | undefined | null
   >(contest.status)
@@ -53,31 +54,32 @@ export default function ContestStatusTimeDiff({
     const diff = dayjs.duration(Math.abs(dayjs(timeRef).diff(now)))
     const days = Math.floor(diff.asDays())
     const hours = Math.floor(diff.asHours() % 24)
-    const hours_str = hours.toString().padStart(2, '0')
+    const hoursStr = hours.toString().padStart(2, '0')
     const minutes = Math.floor(diff.asMinutes() % 60)
-    const minutes_str = minutes.toString().padStart(2, '0')
+    const minutesStr = minutes.toString().padStart(2, '0')
     const seconds = Math.floor(diff.asSeconds() % 60)
-    const seconds_str = seconds.toString().padStart(2, '0')
+    const secondsStr = seconds.toString().padStart(2, '0')
 
     if (inContestEditor) {
       if (days === 0 && hours === 0 && minutes === 5 && seconds === 0) {
-        toast.error('Contest ends in 5 minutes.')
+        toast.error('Contest ends in 5 minutes.', { duration: 10000 })
       }
       if (days === 0 && hours === 0 && minutes === 1 && seconds === 0) {
-        toast.error('Contest ends in 1 minute.')
+        toast.error('Contest ends in 1 minute.', { duration: 10000 })
       }
     }
 
     setTimeDiff({
       days,
-      hours: hours_str,
-      minutes: minutes_str,
-      seconds: seconds_str
+      hours: hoursStr,
+      minutes: minutesStr,
+      seconds: secondsStr
     })
   }
 
   useEffect(() => {
     updateContestStatus()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useInterval(() => {
@@ -85,25 +87,7 @@ export default function ContestStatusTimeDiff({
   }, 1000)
 
   if (inContestEditor && contestStatus === 'finished') {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-25 font-mono backdrop-blur-md">
-        <div className="text-center">
-          <h1 className="mb-4 text-2xl font-bold">The contest has finished!</h1>
-          <p className="mb-4">Click the button below to exit the page.</p>
-          <p className="mb-4">
-            The scoring results may not be released immediately.
-          </p>
-          <button
-            className="rounded bg-blue-600 px-4 py-2 text-white"
-            onClick={() => {
-              router.push(`/contest/${contest.id}` as Route)
-            }}
-          >
-            Exit
-          </button>
-        </div>
-      </div>
-    )
+    router.push(`/contest/${contest.id}/finished/problem/${problemId}`)
   }
 
   return (

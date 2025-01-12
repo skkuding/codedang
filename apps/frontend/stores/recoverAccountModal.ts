@@ -4,7 +4,6 @@ interface FormData {
   email: string
   verificationCode: string
   headers: {
-    /* eslint-disable-next-line @typescript-eslint/naming-convention */
     'email-auth': string
   }
 }
@@ -15,7 +14,6 @@ interface RecoverAccountModalStore {
     email: string
     verificationCode: string
     headers: {
-      /* eslint-disable-next-line @typescript-eslint/naming-convention */
       'email-auth': string
     }
   }
@@ -30,7 +28,6 @@ const useRecoverAccountModalStore = create<RecoverAccountModalStore>((set) => ({
     email: '',
     verificationCode: '',
     headers: {
-      /* eslint-disable-next-line @typescript-eslint/naming-convention */
       'email-auth': ''
     }
   },

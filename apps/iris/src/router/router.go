@@ -12,6 +12,7 @@ const (
 	SpecialJudge = "specialJudge"
 	Run          = "run"
 	Interactive  = "interactive"
+	UserTestCase = "userTestCase"
 )
 
 type Router interface {
@@ -38,11 +39,10 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte) {
 	judgeChan := make(chan handler.JudgeResultMessage)
 	switch path {
 	case Judge:
-		go r.judgeHandler.Handle(id, data, judgeChan)
+		go r.judgeHandler.Handle(id, data, true, judgeChan)
+	case Run, UserTestCase:
+		go r.judgeHandler.Handle(id, data, false, judgeChan)
 	case SpecialJudge:
-		// special-judge handler
-	case Run:
-		// custom-testcase handler
 	default:
 		err := fmt.Errorf("invalid request type: %s", path)
 		r.errHandle(err)

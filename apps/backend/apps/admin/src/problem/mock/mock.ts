@@ -69,7 +69,6 @@ export const problems: Problem[] = [
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     visibleLockTime: MAX_DATE,
-    samples: [],
     engTitle: null,
     engDescription: null,
     engHint: null,
@@ -97,7 +96,6 @@ export const problems: Problem[] = [
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     visibleLockTime: faker.date.future(), //contest endTime
-    samples: [],
     engTitle: null,
     engDescription: null,
     engHint: null,
@@ -158,7 +156,6 @@ export const importedProblems: Problem[] = [
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     visibleLockTime: MIN_DATE,
-    samples: [],
     engTitle: null,
     engDescription: null,
     engHint: null,
@@ -202,7 +199,6 @@ export const importedProblems: Problem[] = [
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     visibleLockTime: MIN_DATE,
-    samples: [],
     engTitle: null,
     engDescription: null,
     engHint: null,
@@ -555,9 +551,10 @@ export const exampleOrderUpdatedContestProblems: ContestProblem[] = [
 
 export const exampleProblemTestcases = [
   {
-    id: '1:1',
+    id: '1',
     input: '1',
-    output: '1'
+    output: '1',
+    isHidden: false
   }
 ]
 
