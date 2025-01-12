@@ -467,31 +467,23 @@ export class AssignmentService {
     userId: number,
     groupId = OPEN_SPACE_ID
   ) {
-    let assignment
-    try {
-      assignment = await this.prisma.assignment.findUniqueOrThrow({
+    const [assignment, assignmentRecord] = await Promise.all([
+      this.prisma.contest.findUnique({
         where: { id: assignmentId, groupId }
-      })
-    } catch (err) {
-      if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('Assignment')
-      }
-    }
-    try {
-      await this.prisma.assignmentRecord.findFirstOrThrow({
+      }),
+      this.prisma.assignmentRecord.findFirst({
         where: { userId, assignmentId }
       })
-    } catch (err) {
-      if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('AssignmentRecord')
-      }
+    ])
+
+    if (!assignment) {
+      throw new EntityNotExistException('Contest')
     }
+
+    if (!assignmentRecord) {
+      throw new EntityNotExistException('ContestRecord')
+    }
+
     const now = new Date()
     if (now >= assignment.startTime) {
       throw new ForbiddenAccessException(
@@ -499,18 +491,9 @@ export class AssignmentService {
       )
     }
 
-    try {
-      return await this.prisma.assignmentRecord.delete({
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        where: { assignmentId_userId: { assignmentId, userId } }
-      })
-    } catch (err) {
-      if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('AssignmentRecord')
-      }
-    }
+    return await this.prisma.assignmentRecord.delete({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      where: { assignmentId_userId: { assignmentId, userId } }
+    })
   }
 }
