@@ -1,9 +1,19 @@
 'use client'
 
+import { checkKyError } from '@/libs/checkError'
+import { safeFetcher } from '@/libs/utils'
 import { startSpan } from '@sentry/nextjs'
+import type { HTTPError, TimeoutError } from 'ky'
 import Head from 'next/head'
 
 export default function Page() {
+  const CauseError = async () => {
+    try {
+      await safeFetcher('sentry-error')
+    } catch (error) {
+      checkKyError(error as HTTPError | TimeoutError | Error)
+    }
+  }
   return (
     <div>
       <Head>
@@ -48,15 +58,13 @@ export default function Page() {
             fontSize: '14px',
             margin: '18px'
           }}
-          onClick={() => {
-            startSpan(
+          onClick={async () => {
+            await startSpan(
               {
                 name: 'Example Frontend Span',
                 op: 'test'
               },
-              async () => {
-                throw new Error('Sentry Example Frontend Error')
-              }
+              async () => await CauseError()
             )
           }}
         >
