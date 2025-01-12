@@ -54,13 +54,12 @@ describe('AnnouncementService', () => {
 
   describe('getProblemAnnouncements', () => {
     it('should return problem announcements', async () => {
-      const res = await service.getProblemAnnouncements(1, null, 1, 1)
+      const res = await service.getProblemAnnouncements(1, 1, 1)
       expect(res)
         .excluding(['createTime', 'updateTime', 'content'])
         .to.deep.equal([
           {
-            id: 16,
-            assignmentId: null,
+            id: 6,
             contestId: 1,
             problemId: 1
           }
@@ -75,37 +74,13 @@ describe('AnnouncementService', () => {
         .excluding(['createTime', 'updateTime', 'content'])
         .to.deep.equal([
           {
-            id: 16,
-            assignmentId: null,
-            contestId: 1,
-            problemId: 0
-          },
-          {
-            id: 11,
-            assignmentId: null,
-            contestId: 1,
-            problemId: null
-          }
-        ])
-    })
-  })
-
-  describe('getAssignmentAnnouncements', () => {
-    it('should return multiple assignment announcements', async () => {
-      const res = await service.getAssignmentAnnouncements(1, 1)
-      expect(res)
-        .excluding(['createTime', 'updateTime', 'content'])
-        .to.deep.equal([
-          {
             id: 6,
-            assignmentId: 1,
-            contestId: null,
+            contestId: 1,
             problemId: 0
           },
           {
             id: 1,
-            assignmentId: 1,
-            contestId: null,
+            contestId: 1,
             problemId: null
           }
         ])

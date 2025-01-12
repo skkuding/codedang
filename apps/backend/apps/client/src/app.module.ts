@@ -15,7 +15,6 @@ import { StorageModule } from '@libs/storage'
 import { AnnouncementModule } from './announcement/announcement.module'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { AssignmentModule } from './assignment/assignment.module'
 import { AuthModule } from './auth/auth.module'
 import { ContestModule } from './contest/contest.module'
 import { EmailModule } from './email/email.module'
@@ -50,7 +49,6 @@ import { WorkbookModule } from './workbook/workbook.module'
     EmailModule,
     AnnouncementModule,
     StorageModule,
-    AssignmentModule,
     LoggerModule.forRoot(pinoLoggerModuleOption),
     OpenTelemetryModule.forRoot()
   ],

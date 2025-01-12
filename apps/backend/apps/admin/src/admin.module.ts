@@ -21,7 +21,6 @@ import { NoticeModule } from '@admin/notice/notice.module'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
 import { AnnouncementModule } from './announcement/announcement.module'
-import { AssignmentModule } from './assignment/assignment.module'
 import { ContestModule } from './contest/contest.module'
 import { GroupModule } from './group/group.module'
 import { ProblemModule } from './problem/problem.module'
@@ -51,7 +50,6 @@ import { UserModule } from './user/user.module'
     RolesModule,
     PrismaModule,
     ContestModule,
-    AssignmentModule,
     ProblemModule,
     StorageModule,
     GroupModule,

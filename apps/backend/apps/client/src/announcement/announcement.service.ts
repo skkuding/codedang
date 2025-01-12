@@ -34,62 +34,20 @@ export class AnnouncementService {
     })
   }
 
-  async getAssignmentAnnouncements(
-    assignmentId: number,
-    groupId: number
-  ): Promise<Announcement[]> {
-    const { assignmentProblem, announcement } =
-      await this.prisma.assignment.findUniqueOrThrow({
-        where: {
-          id: assignmentId,
-          groupId
-        },
-        select: {
-          assignmentProblem: true,
-          announcement: {
-            orderBy: { updateTime: 'desc' }
-          }
-        }
-      })
-
-    return announcement.map((announcement) => {
-      if (announcement.problemId !== null) {
-        announcement.problemId = assignmentProblem.find(
-          (problem) => announcement.problemId === problem.problemId
-        )!.order
-      }
-      return announcement
-    })
-  }
-
   async getProblemAnnouncements(
-    contestId: number | null,
-    assignmentId: number | null,
+    contestId: number,
     problemId: number,
     groupId: number
   ): Promise<Announcement[]> {
-    if (contestId) {
-      return await this.prisma.announcement.findMany({
-        where: {
-          problemId,
-          contest: {
-            id: contestId,
-            groupId
-          }
-        },
-        orderBy: { updateTime: 'desc' }
-      })
-    } else {
-      return await this.prisma.announcement.findMany({
-        where: {
-          problemId,
-          assignment: {
-            id: assignmentId!,
-            groupId
-          }
-        },
-        orderBy: { updateTime: 'desc' }
-      })
-    }
+    return await this.prisma.announcement.findMany({
+      where: {
+        problemId,
+        contest: {
+          id: contestId,
+          groupId
+        }
+      },
+      orderBy: { updateTime: 'desc' }
+    })
   }
 }
