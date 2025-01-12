@@ -1,5 +1,6 @@
 'use client'
 
+import FetchErrorFallback from '@/components/FetchErrorFallback'
 import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
@@ -10,6 +11,7 @@ import {
   DialogTitle,
   DialogClose
 } from '@/components/shadcn/dialog'
+import { ErrorBoundary } from '@suspensive/react'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect, Suspense } from 'react'
@@ -53,9 +55,11 @@ export default function Page({
             </div>
           )}
         </div>
-        <Suspense fallback={<ProblemTableFallback />}>
-          <ProblemTable />
-        </Suspense>
+        <ErrorBoundary fallback={FetchErrorFallback}>
+          <Suspense fallback={<ProblemTableFallback />}>
+            <ProblemTable />
+          </Suspense>
+        </ErrorBoundary>
       </div>
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent className="p-8">

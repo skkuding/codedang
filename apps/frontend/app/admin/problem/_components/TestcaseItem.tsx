@@ -47,7 +47,7 @@ export default function TestcaseItem({
               <p
                 className={cn(
                   'text-sm',
-                  isHiddenField.value == false
+                  isHiddenField.value === false
                     ? 'font-medium text-gray-500'
                     : 'text-gray-400'
                 )}
@@ -66,7 +66,7 @@ export default function TestcaseItem({
               <p
                 className={cn(
                   'text-sm',
-                  isHiddenField.value == true
+                  isHiddenField.value === true
                     ? 'font-medium text-gray-500'
                     : 'text-gray-400'
                 )}

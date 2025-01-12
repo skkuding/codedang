@@ -99,9 +99,16 @@ export const usePagination = <T extends Item>(
       const next = Number(query.get('take')) > 0
       const full = resData.data?.length >= take
       if (full) {
-        if (next) resData.data.pop()
-        else resData.data.shift()
+        if (next) {
+          resData.data.pop()
+        } else {
+          resData.data.shift()
+        }
       }
+
+      const firstData = resData.data.at(0)
+      const lastData = resData.data.at(-1)
+
       nav.current = {
         page: {
           first: slot.current * pagesPerSlot + 1,
@@ -112,12 +119,12 @@ export const usePagination = <T extends Item>(
         },
         slot: {
           prev:
-            (next && slot.current > 0) || (!next && full)
-              ? `${baseQuery}&cursor=${resData.data.at(0)!.id}&take=${-take}`
+            ((next && slot.current > 0) || (!next && full)) && firstData
+              ? `${baseQuery}&cursor=${firstData.id}&take=${-take}`
               : '',
           next:
-            (next && full) || !next
-              ? `${baseQuery}&cursor=${resData.data.at(-1)!.id}&take=${take}`
+            ((next && full) || !next) && lastData
+              ? `${baseQuery}&cursor=${lastData.id}&take=${take}`
               : ''
         }
       }

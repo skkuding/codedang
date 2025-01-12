@@ -10,7 +10,9 @@ export default function ContestTabs({ contestId }: { contestId: string }) {
   const pathname = usePathname()
 
   const isCurrentTab = (tab: string) => {
-    if (tab === '') return pathname === `/contest/${id}`
+    if (tab === '') {
+      return pathname === `/contest/${id}`
+    }
     return pathname.startsWith(`/contest/${id}/${tab}`)
   }
 
