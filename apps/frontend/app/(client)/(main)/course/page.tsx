@@ -4,7 +4,7 @@ import { auth } from '@/libs/auth'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 import CourseCardList from './_components/CourseCardList'
-import FinishedContestTable from './_components/FinishedAssignmentTable'
+import FinishedAssignmentTable from './_components/FinishedAssignmentTable'
 
 interface CourseProps {
   searchParams: {
@@ -68,7 +68,7 @@ export default async function Course({ searchParams }: CourseProps) {
       <Suspense fallback={<FinishedAssignmentTableFallback />}>
         {/* <Separator className="mb-3" /> */}
         <ErrorBoundary fallback={FetchErrorFallback}>
-          <FinishedContestTable search={search} session={session} />
+          <FinishedAssignmentTable search={search} session={session} />
         </ErrorBoundary>
       </Suspense>
     </>
