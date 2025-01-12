@@ -81,10 +81,12 @@ export const useTestResults = () => {
   const testcases = useTestcaseStore((state) => state.getTestcases())
   const [initialTestcases] = useState(testcases) // 초기 데이터 저장
 
-  const { results: sampleResults, isError: sampleError } =
-    useSSE('/submission/:id') //엔드 포인트
-  const { results: userResults, isError: userError } =
-    useSSE('/submission/test')
+  const { results: sampleResults, isError: sampleError } = useSSE(
+    '/submission/result/:submissionId'
+  ) //엔드 포인트
+  const { results: userResults, isError: userError } = useSSE(
+    '/submission/result/test'
+  )
   const [testResults, setTestResults] = useState<TestResultDetail[]>([])
 
   // SSE 에러 발생 시 사용자에게 알림
