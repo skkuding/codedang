@@ -2,6 +2,7 @@ package sandbox
 
 import (
 	"fmt"
+	"log"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -63,7 +64,7 @@ func GetPythonVersion() (string, error) {
 	cmd := exec.Command("python3", "--version")
 	output, err := cmd.Output()
 	if err != nil {
-		return "", err
+		log.Fatal(err)
 	}
 
 	versionParts := strings.Split(string(output), " ")
