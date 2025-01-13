@@ -1,7 +1,7 @@
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
 import { baseUrl } from '@/libs/constants'
-import { cn } from '@/libs/utils'
+import { cn, isHttpError, safeFetcher } from '@/libs/utils'
 import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState, useEffect, useRef } from 'react'
@@ -94,28 +94,29 @@ export default function SignUpEmailVerify() {
     setEmailContent(email)
     setEmailError('')
     await trigger('email')
-    if (!errors.email) {
-      await fetch(`${baseUrl}/email-auth/send-email/register-new`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      })
-        .then((res) => {
-          if (res.status === 409) {
-            setEmailError('You have already signed up')
-            setSendButtonDisabled(false)
-          } else if (res.status === 201) {
-            setSentEmail(true)
-            setEmailError('')
-            setSendButtonDisabled(false)
-          }
-        })
-        .catch(() => {
-          setEmailError('Something went wrong!')
-        })
+
+    if (errors.email) {
+      setSendButtonDisabled(false)
+      return
     }
-    setSendButtonDisabled(false)
+
+    try {
+      await safeFetcher.post('email-auth/send-email/register-new', {
+        json: { email }
+      })
+      setSentEmail(true)
+      setEmailError('')
+    } catch (error) {
+      if (isHttpError(error) && error.response.status === 409) {
+        setEmailError('You have already signed up')
+      } else {
+        setEmailError('Something went wrong!')
+      }
+    } finally {
+      setSendButtonDisabled(false)
+    }
   }
+
   const verifyCode = async () => {
     const { verificationCode } = getValues()
     await trigger('verificationCode')

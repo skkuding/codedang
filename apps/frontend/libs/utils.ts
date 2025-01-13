@@ -10,7 +10,7 @@ export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))
 }
 
-export const isHttpError = (error: Error) => error instanceof HTTPError
+export const isHttpError = (error: unknown) => error instanceof HTTPError
 
 export const fetcher = ky.create({
   prefixUrl: baseUrl,

@@ -116,14 +116,17 @@ export default function Editor({
     loading && submissionId ? 500 : null
   )
 
+  const checkSession = async () => {
+    const session = await auth()
+    if (!session) {
+      toast.info('Log in to use submission & save feature')
+    } else {
+      setUserName(session.user.username)
+    }
+  }
+
   useEffect(() => {
-    auth().then((session) => {
-      if (!session) {
-        toast.info('Log in to use submission & save feature')
-      } else {
-        setUserName(session.user.username)
-      }
-    })
+    checkSession()
   }, [currentModal])
 
   useEffect(() => {
