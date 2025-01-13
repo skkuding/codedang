@@ -25,7 +25,7 @@ export const useCheckPassword = (
   const checkPassword = async () => {
     setIsCheckButtonClicked(true)
     try {
-      const response = await safeFetcher.post('auth/login', {
+      await safeFetcher.post('auth/login', {
         json: {
           username: defaultProfileValues.username,
           password: currentPassword

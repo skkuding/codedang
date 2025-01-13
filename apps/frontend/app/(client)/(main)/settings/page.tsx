@@ -72,7 +72,7 @@ export default function Page() {
     watch,
     formState: { errors }
   } = useForm<SettingsFormat>({
-    resolver: valibotResolver(getSchema(!!updateNow)),
+    resolver: valibotResolver(getSchema(Boolean(updateNow))),
     mode: 'onChange',
     defaultValues: {
       currentPassword: '',
@@ -90,7 +90,7 @@ export default function Page() {
   const studentId = watch('studentId')
 
   const { isConfirmModalOpen, setIsConfirmModalOpen, confirmAction } =
-    useConfirmNavigation(bypassConfirmation, !!updateNow)
+    useConfirmNavigation(bypassConfirmation, Boolean(updateNow))
   const {
     isPasswordCorrect,
     newPasswordAble,
@@ -107,20 +107,20 @@ export default function Page() {
 
   const isPasswordsMatch = newPassword === confirmPassword && newPassword !== ''
   const saveAblePassword: boolean =
-    !!currentPassword &&
-    !!newPassword &&
-    !!confirmPassword &&
+    Boolean(currentPassword) &&
+    Boolean(newPassword) &&
+    Boolean(confirmPassword) &&
     isPasswordCorrect &&
     newPasswordAble &&
     isPasswordsMatch
   const saveAbleOthers: boolean =
-    !!realName || !!(majorValue !== defaultProfileValues.major)
+    Boolean(realName) || Boolean(majorValue !== defaultProfileValues.major)
   const saveAble =
     (saveAblePassword || saveAbleOthers) &&
     ((isPasswordsMatch && !errors.newPassword) ||
       (!newPassword && !confirmPassword))
   const saveAbleUpdateNow =
-    !!studentId && majorValue !== 'none' && !errors.studentId
+    Boolean(studentId) && majorValue !== 'none' && !errors.studentId
   // 일치 여부에 따라 New Password Input, Re-enter Password Input 창의 border 색상을 바꿈
   useEffect(() => {
     if (isPasswordsMatch) {
@@ -175,7 +175,9 @@ export default function Page() {
     value: string | undefined,
     defaultValue: string
   ) => {
-    if (value === '') setValue(field, defaultValue)
+    if (value === '') {
+      setValue(field, defaultValue)
+    }
   }
 
   const onSubmitClick = () => {
@@ -209,7 +211,7 @@ export default function Page() {
       register,
       errors
     },
-    updateNow: !!updateNow,
+    updateNow: Boolean(updateNow),
     isLoading
   }
 

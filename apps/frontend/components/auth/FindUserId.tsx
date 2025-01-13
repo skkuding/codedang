@@ -1,6 +1,6 @@
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
-import { cn, fetcher } from '@/libs/utils'
+import { cn, fetcher, isHttpError, safeFetcher } from '@/libs/utils'
 import useAuthModalStore from '@/stores/authModal'
 import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
@@ -57,7 +57,7 @@ export default function FindUserId() {
     }
   }
 
-  const sendEmail = async () => {
+  const resetPassword = async () => {
     const { email } = getValues()
     setFormData({
       email,
@@ -67,24 +67,24 @@ export default function FindUserId() {
       }
     })
     await trigger('email')
-    if (!errors.email && !sentEmail) {
-      await fetcher
-        .post('email-auth/send-email/password-reset', {
-          json: { email }
-        })
-        .then((res) => {
-          if (res.status === 401) {
-            setEmailError(
-              'Email authentication pin is sent to your email address'
-            )
-          } else if (res.status === 201) {
-            setSentEmail(true)
-            setEmailError('')
-          }
-        })
-        .catch(() => {
-          setEmailError('Something went wrong!')
-        })
+
+    if (errors.email || sentEmail) {
+      return
+    }
+
+    try {
+      await safeFetcher.post('email-auth/send-email/password-reset', {
+        json: { email }
+      })
+      setSentEmail(true)
+      setEmailError('')
+      nextModal()
+    } catch (error) {
+      if (isHttpError(error) && error.response.status === 401) {
+        setEmailError('Email authentication pin is sent to your email address')
+      } else {
+        setEmailError('Something went wrong!')
+      }
     }
   }
 
@@ -103,7 +103,7 @@ export default function FindUserId() {
             type="email"
             className={cn(
               inputFocused && 'ring-1 focus-visible:ring-1 disabled:ring-0',
-              errors.email || (emailError && getValues('email') == wrongEmail)
+              errors.email || (emailError && getValues('email') === wrongEmail)
                 ? 'ring-red-500 focus-visible:ring-red-500'
                 : 'focus-visible:ring-primary'
             )}
@@ -113,12 +113,12 @@ export default function FindUserId() {
             })}
             onFocus={() => setInputFocused(true)}
             onBlur={() => trigger('email')}
-            disabled={!!userId}
+            disabled={Boolean(userId)}
           />
           {errors.email && (
             <p className="text-xs text-red-500">{errors.email?.message}</p>
           )}
-          {emailError && getValues('email') == wrongEmail && (
+          {emailError && getValues('email') === wrongEmail && (
             <p className="text-xs text-red-500">{emailError}</p>
           )}
           {userId && (
@@ -145,15 +145,7 @@ export default function FindUserId() {
           )}
           <Button
             type="button"
-            onClick={() => {
-              sendEmail()
-                .then(() => {
-                  nextModal()
-                })
-                .catch(() => {
-                  console.log('error')
-                })
-            }}
+            onClick={resetPassword}
             className={cn(
               'border bg-white font-semibold',
               userId

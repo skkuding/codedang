@@ -4,7 +4,6 @@ interface FormData {
   email: string
   verificationCode: string
   headers: {
-    /* eslint-disable-next-line @typescript-eslint/naming-convention */
     'email-auth': string
   }
 }
@@ -14,7 +13,6 @@ interface SignUpModalStore {
     email: string
     verificationCode: string
     headers: {
-      /* eslint-disable-next-line @typescript-eslint/naming-convention */
       'email-auth': string
     }
   }
@@ -29,7 +27,6 @@ const useSignUpModalStore = create<SignUpModalStore>((set) => ({
     email: '',
     verificationCode: '',
     headers: {
-      /* eslint-disable-next-line @typescript-eslint/naming-convention */
       'email-auth': ''
     }
   },

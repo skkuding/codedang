@@ -69,7 +69,9 @@ export default function CreateProblemForm({
   }
 
   const onSubmit = methods.handleSubmit(async () => {
-    if (!validate()) return
+    if (!validate()) {
+      return
+    }
     const input = methods.getValues()
     await createProblem({
       variables: {

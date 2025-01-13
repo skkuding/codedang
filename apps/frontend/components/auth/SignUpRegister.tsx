@@ -21,9 +21,8 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
-import { baseUrl } from '@/libs/constants'
 import { majors } from '@/libs/constants'
-import { cn } from '@/libs/utils'
+import { cn, isHttpError, safeFetcher } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-white.svg'
 import useSignUpModalStore from '@/stores/signUpModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
@@ -187,13 +186,11 @@ export default function SignUpRegister() {
     const fullName = `${data.firstName} ${data.lastName}`
     try {
       setSignUpDisable(true)
-      await fetch(baseUrl + '/user/sign-up', {
-        method: 'POST',
+      await safeFetcher.post('user/sign-up', {
         headers: {
-          ...formData.headers,
-          'Content-Type': 'application/json'
+          ...formData.headers
         },
-        body: JSON.stringify({
+        json: {
           password: data.password,
           passwordAgain: data.passwordAgain,
           realName: fullName,
@@ -202,13 +199,10 @@ export default function SignUpRegister() {
           username: data.username,
           email: formData.email,
           verificationCode: formData.verificationCode
-        })
-      }).then((res) => {
-        if (res.status === 201) {
-          document.getElementById('closeDialog')?.click()
-          toast.success('Sign up succeeded!')
         }
       })
+      document.getElementById('closeDialog')?.click()
+      toast.success('Sign up succeeded!')
     } catch (error) {
       toast.error('Sign up failed!')
       setSignUpDisable(false)
@@ -221,23 +215,22 @@ export default function SignUpRegister() {
   const checkUserName = async () => {
     const username = getValues('username')
     await trigger('username')
-    if (!errors.username) {
-      try {
-        await fetch(baseUrl + `/user/username-check?username=${username}`, {
-          method: 'GET'
-        }).then((res) => {
-          setCheckedUsername(username)
-          if (res.status === 200) {
-            setIsUsernameAvailable(true)
-          } else {
-            setIsUsernameAvailable(false)
-          }
-        })
-      } catch (err) {
-        console.log(err)
+
+    if (errors.username) {
+      updateFocus(0)
+      return
+    }
+
+    try {
+      await safeFetcher.get(`user/username-check?username=${username}`)
+      setCheckedUsername(username)
+      setIsUsernameAvailable(true)
+    } catch (error) {
+      if (isHttpError(error)) {
+        setCheckedUsername(username)
+        setIsUsernameAvailable(false)
       }
     }
-    updateFocus(0)
   }
 
   const isRequiredError =
@@ -265,13 +258,12 @@ export default function SignUpRegister() {
               placeholder="User ID"
               className={cn(
                 'focus-visible:ring-0',
-                !focusedList[1]
-                  ? ''
-                  : errors.username &&
-                      (getValues('username') || inputFocus !== 1)
-                    ? 'border-red-500 focus-visible:border-red-500'
-                    : 'border-primary',
-
+                focusedList[1] &&
+                  getInputBorderClassname(
+                    inputFocus === 1,
+                    Boolean(errors.username),
+                    getValues('username')
+                  ),
                 !isUsernameAvailable &&
                   getValues('username') &&
                   (checkedUsername === getValues('username') ||
@@ -300,18 +292,16 @@ export default function SignUpRegister() {
               type="button"
               className={cn(
                 ((isUsernameAvailable &&
-                  checkedUsername == getValues('username')) ||
+                  checkedUsername === getValues('username')) ||
                   errors.username) &&
                   'bg-gray-400',
                 'flex h-8 w-11 items-center justify-center rounded-md'
               )}
-              disabled={
+              disabled={Boolean(
                 (isUsernameAvailable &&
-                  checkedUsername == getValues('username')) ||
-                errors.username
-                  ? true
-                  : false
-              }
+                  checkedUsername === getValues('username')) ||
+                  errors.username
+              )}
               size="icon"
             >
               <Image src={checkIcon} alt="check" />
@@ -366,12 +356,12 @@ export default function SignUpRegister() {
               placeholder="Password"
               className={cn(
                 'focus-visible:ring-0',
-                !focusedList[2]
-                  ? ''
-                  : errors.password &&
-                      (getValues('password') || inputFocus !== 2)
-                    ? 'border-red-500 focus-visible:border-red-500'
-                    : 'border-primary'
+                focusedList[2] &&
+                  getInputBorderClassname(
+                    inputFocus === 2,
+                    Boolean(errors.password),
+                    getValues('password')
+                  )
               )}
               {...register('password', {
                 onChange: () => validation('password')
@@ -410,7 +400,7 @@ export default function SignUpRegister() {
             ))}
           {inputFocus !== 2 &&
             errors.password &&
-            (errors.password.message == 'Required' ? (
+            (errors.password.message === 'Required' ? (
               requiredMessage('Required')
             ) : (
               <ul className="pl-4 text-xs text-red-500">
@@ -429,12 +419,12 @@ export default function SignUpRegister() {
               })}
               className={cn(
                 'focus-visible:ring-0',
-                !focusedList[3]
-                  ? ''
-                  : errors.passwordAgain &&
-                      (getValues('passwordAgain') || inputFocus !== 3)
-                    ? 'border-red-500 focus-visible:border-red-500'
-                    : 'border-primary'
+                focusedList[3] &&
+                  getInputBorderClassname(
+                    inputFocus === 3,
+                    Boolean(errors.passwordAgain),
+                    getValues('passwordAgain')
+                  )
               )}
               placeholder="Re-enter password"
               type={passwordAgainShow ? 'text' : 'password'}
@@ -467,12 +457,12 @@ export default function SignUpRegister() {
               })}
               className={cn(
                 'focus-visible:ring-0',
-                !focusedList[4]
-                  ? ''
-                  : errors.firstName &&
-                      (getValues('firstName') || inputFocus !== 4)
-                    ? 'border-red-500 focus-visible:border-red-500'
-                    : 'border-primary'
+                focusedList[4] &&
+                  getInputBorderClassname(
+                    inputFocus === 4,
+                    Boolean(errors.firstName),
+                    getValues('firstName')
+                  )
               )}
               onFocus={() => {
                 updateFocus(4)
@@ -490,12 +480,12 @@ export default function SignUpRegister() {
               })}
               className={cn(
                 'focus-visible:ring-0',
-                !focusedList[5]
-                  ? ''
-                  : errors.lastName &&
-                      (getValues('lastName') || inputFocus !== 5)
-                    ? 'border-red-500 focus-visible:border-red-500'
-                    : 'border-primary'
+                focusedList[5] &&
+                  getInputBorderClassname(
+                    inputFocus === 5,
+                    Boolean(errors.lastName),
+                    getValues('lastName')
+                  )
               )}
               onFocus={() => {
                 updateFocus(5)
@@ -514,12 +504,12 @@ export default function SignUpRegister() {
             })}
             className={cn(
               'focus-visible:ring-0',
-              !focusedList[6]
-                ? ''
-                : errors.studentId &&
-                    (getValues('studentId') || inputFocus !== 6)
-                  ? 'border-red-500 focus-visible:border-red-500'
-                  : 'border-primary'
+              focusedList[6] &&
+                getInputBorderClassname(
+                  inputFocus === 6,
+                  Boolean(errors.studentId),
+                  getValues('studentId')
+                )
             )}
             onFocus={() => {
               updateFocus(6)
@@ -615,4 +605,18 @@ export default function SignUpRegister() {
       </form>
     </div>
   )
+}
+
+const getInputBorderClassname = (
+  isFocus: boolean,
+  error: boolean,
+  value: string
+) => {
+  let className = 'border-primary'
+
+  if (error && (value || !isFocus)) {
+    className = 'border-red-500 focus-visible:border-red-500'
+  }
+
+  return className
 }
