@@ -1,0 +1,53 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    duplicateAssignment(
+      groupId: 1,
+      assignmentId: 1
+    ) {
+      assignment {
+        id
+        invitationCode
+        isRankVisible
+        isVisible
+        description
+        endTime
+        startTime
+        title
+      }
+      problems {
+        problemId
+        assignmentId
+        order
+
+      }
+      records {
+        id
+        userId
+        score
+      }
+    }
+  }
+}
+
+assert {
+  res.body.data.duplicateAssignment: isDefined
+}
+
+docs {
+  # Duplicate Assignment
+  ---
+  - 선택한 Assignment를 기반으로 새로운 Assignment를 생성합니다.
+  - 등록된 User, AssignmentProblems도 복제됩니다.
+}

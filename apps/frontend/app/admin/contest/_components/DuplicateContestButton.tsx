@@ -75,7 +75,7 @@ function EnabledDuplicateButton({
   const client = useApolloClient()
   const [duplicateContest] = useMutation(DUPLICATE_CONTEST)
 
-  const duplicateContestById = async () => {
+  const duplicateContestById = () => {
     const toastId = toast.loading('Duplicating contest...')
 
     duplicateContest({

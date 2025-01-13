@@ -10,7 +10,7 @@ export default function KatexContent({
   content: string | undefined
   classname?: string
 }) {
-  const katexRef = useRef<HTMLDivElement>(null)!
+  const katexRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     renderKatex(content, katexRef)
   }, [content, katexRef])

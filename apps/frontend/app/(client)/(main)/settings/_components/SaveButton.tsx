@@ -1,18 +1,19 @@
 import { Button } from '@/components/shadcn/button'
+import { useSettingsContext } from './context'
 
 interface SaveButtonProps {
-  updateNow: boolean
   saveAbleUpdateNow: boolean
   saveAble: boolean
   onSubmitClick: () => void
 }
 
 export default function SaveButton({
-  updateNow,
   saveAbleUpdateNow,
   saveAble,
   onSubmitClick
 }: SaveButtonProps) {
+  const { updateNow } = useSettingsContext()
+
   return (
     <div className="mt-2 text-end">
       <Button

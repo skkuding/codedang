@@ -1,0 +1,36 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    deleteAssignment(
+      assignmentId: 3
+      groupId: 2
+    ) {
+      id
+      title
+      description
+      startTime
+      endTime
+    }
+  }
+}
+
+assert {
+  res.body.data.deleteAssignment: isDefined
+}
+
+docs {
+  # Delete Assignment
+  ---
+  - Assignment를 삭제하고 삭제된 Assignment를 반환합니다.
+}

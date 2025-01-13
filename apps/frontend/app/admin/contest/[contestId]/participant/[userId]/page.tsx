@@ -1,8 +1,10 @@
 'use client'
 
+import FetchErrorFallback from '@/components/FetchErrorFallback'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { GET_GROUP_MEMBER } from '@/graphql/user/queries'
 import { useQuery } from '@apollo/client'
+import { ErrorBoundary } from '@suspensive/react'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -54,12 +56,16 @@ export default function Page({
           </div>
         </div>
         <div className="flex flex-col gap-4">
-          <Suspense fallback={<ScoreTableFallback />}>
-            <ScoreTable contestId={contestId} userId={userId} />
-          </Suspense>
-          <Suspense fallback={<SubmissionTableFallback />}>
-            <SubmissionTable contestId={contestId} userId={userId} />
-          </Suspense>
+          <ErrorBoundary fallback={FetchErrorFallback}>
+            <Suspense fallback={<ScoreTableFallback />}>
+              <ScoreTable contestId={contestId} userId={userId} />
+            </Suspense>
+          </ErrorBoundary>
+          <ErrorBoundary fallback={FetchErrorFallback}>
+            <Suspense fallback={<SubmissionTableFallback />}>
+              <SubmissionTable contestId={contestId} userId={userId} />
+            </Suspense>
+          </ErrorBoundary>
         </div>
       </main>
       <ScrollBar orientation="horizontal" />

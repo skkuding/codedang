@@ -98,9 +98,13 @@ export default function Page({ params }: { params: { problemId: string } }) {
       setValue('timeLimit', data.timeLimit)
       setValue('memoryLimit', data.memoryLimit)
       setValue('hint', data.hint)
-      if (data.hint !== '') setShowHint(true)
+      if (data.hint !== '') {
+        setShowHint(true)
+      }
       setValue('source', data.source)
-      if (data.source !== '') setShowSource(true)
+      if (data.source !== '') {
+        setShowSource(true)
+      }
       if (data.template) {
         const templates = JSON.parse(data.template[0])
         templates.map((template: Template, index: number) => {
