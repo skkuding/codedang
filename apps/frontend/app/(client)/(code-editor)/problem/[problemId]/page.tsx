@@ -5,7 +5,7 @@ import type { ProblemDetail } from '@/types/type'
 export default async function DescriptionPage({
   params
 }: {
-  params: { problemId: number }
+  params: { problemId: string }
 }) {
   const { problemId } = params
   const problem: ProblemDetail = await fetcher(`problem/${problemId}`).json()

@@ -21,7 +21,9 @@ export const columns: ColumnDef<BelongedContest>[] = [
       <Checkbox
         onClick={(e) => e.stopPropagation()}
         checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        onCheckedChange={(value) =>
+          table.toggleAllPageRowsSelected(Boolean(value))
+        }
         aria-label="Select all"
         className="translate-y-[2px] bg-white"
       />
@@ -30,7 +32,7 @@ export const columns: ColumnDef<BelongedContest>[] = [
       <Checkbox
         onClick={(e) => e.stopPropagation()}
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
         aria-label="Select row"
         className="translate-y-[2px] bg-white"
       />
@@ -44,7 +46,7 @@ export const columns: ColumnDef<BelongedContest>[] = [
       <DataTableColumnHeader column={column} title="Contest Title" />
     ),
     cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium text-black">
         {row.getValue('title')}
       </p>
     ),
@@ -57,7 +59,9 @@ export const columns: ColumnDef<BelongedContest>[] = [
       <p className="text-center font-mono text-sm font-medium">State</p>
     ),
     cell: ({ row }) => (
-      <p className="text-center font-normal">{row.getValue('state')}</p>
+      <p className="text-center font-light text-black">
+        {row.getValue('state')}
+      </p>
     )
   },
   {
@@ -68,7 +72,7 @@ export const columns: ColumnDef<BelongedContest>[] = [
     cell: ({ row }) => (
       <p
         className={cn(
-          'text-center font-normal',
+          'text-center font-light text-black',
           row.original.isSetToZero && 'text-primary'
         )}
       >
@@ -84,7 +88,7 @@ export const columns: ColumnDef<BelongedContest>[] = [
     cell: ({ row }) => (
       <p
         className={cn(
-          'text-center font-normal',
+          'text-center font-light text-black',
           row.original.isSetToZero && 'text-primary'
         )}
       >

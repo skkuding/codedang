@@ -48,10 +48,12 @@ function DisabledDuplicateButton() {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button className="ml-auto" variant="default" size="default" disabled>
-            <CopyIcon className="mr-2 h-4 w-4" />
-            Duplicate
-          </Button>
+          <span tabIndex={0} className="ml-auto cursor-not-allowed self-end">
+            <Button variant="default" size="default" disabled>
+              <CopyIcon className="mr-2 h-4 w-4" />
+              Duplicate
+            </Button>
+          </span>
         </TooltipTrigger>
         <TooltipContent>
           <p> Select only one contest to duplicate</p>
@@ -73,7 +75,7 @@ function EnabledDuplicateButton({
   const client = useApolloClient()
   const [duplicateContest] = useMutation(DUPLICATE_CONTEST)
 
-  const duplicateContestById = async () => {
+  const duplicateContestById = () => {
     const toastId = toast.loading('Duplicating contest...')
 
     duplicateContest({

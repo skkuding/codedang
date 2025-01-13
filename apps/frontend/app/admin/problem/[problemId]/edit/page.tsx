@@ -19,13 +19,13 @@ import DescriptionForm from '../../../_components/DescriptionForm'
 import FormSection from '../../../_components/FormSection'
 import SwitchField from '../../../_components/SwitchField'
 import TitleForm from '../../../_components/TitleForm'
+import VisibleForm from '../../../_components/VisibleForm'
 import { CautionDialog } from '../../_components/CautionDialog'
 import InfoForm from '../../_components/InfoForm'
 import LimitForm from '../../_components/LimitForm'
 import PopoverVisibleInfo from '../../_components/PopoverVisibleInfo'
 import TemplateField from '../../_components/TemplateField'
 import TestcaseField from '../../_components/TestcaseField'
-import VisibleForm from '../../_components/VisibleForm'
 import { editSchema } from '../../_libs/schemas'
 import { validateScoreWeight } from '../../_libs/utils'
 import { ScoreCautionDialog } from './_components/ScoreCautionDialog'
@@ -98,9 +98,13 @@ export default function Page({ params }: { params: { problemId: string } }) {
       setValue('timeLimit', data.timeLimit)
       setValue('memoryLimit', data.memoryLimit)
       setValue('hint', data.hint)
-      if (data.hint !== '') setShowHint(true)
+      if (data.hint !== '') {
+        setShowHint(true)
+      }
       setValue('source', data.source)
-      if (data.source !== '') setShowSource(true)
+      if (data.source !== '') {
+        setShowSource(true)
+      }
       if (data.template) {
         const templates = JSON.parse(data.template[0])
         templates.map((template: Template, index: number) => {

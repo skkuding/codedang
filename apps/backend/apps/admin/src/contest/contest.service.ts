@@ -664,7 +664,8 @@ export class ContestService {
                 data: {
                   order: contestProblem.order,
                   contestId: newContest.id,
-                  problemId: contestProblem.problemId
+                  problemId: contestProblem.problemId,
+                  score: contestProblem.score
                 }
               })
             )
@@ -896,10 +897,6 @@ export class ContestService {
         score: true
       }
     })
-
-    if (!contestProblems.length) {
-      throw new EntityNotExistException('Problem or ContestProblem')
-    }
 
     const contests = await Promise.all(
       contestProblems.map(async (contestProblem) => {

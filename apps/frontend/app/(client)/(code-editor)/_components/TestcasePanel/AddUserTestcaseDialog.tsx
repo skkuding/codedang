@@ -29,14 +29,22 @@ export default function AddUserTestcaseDialog() {
     testcases,
     onSubmit,
     register,
+    reset,
     addTestcase,
     removeTestcase
   } = useUserTestcasesForm({
     onSubmit: () => setOpen(false)
   })
 
+  const onOpenChange = (open: boolean) => {
+    if (!open) {
+      reset()
+    }
+    setOpen(open)
+  }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger className="flex h-8 w-[148px] items-center justify-center gap-2 rounded-[5px] bg-slate-600 p-2 text-white">
         <CiSquarePlus size={24} />
         Add Testcase

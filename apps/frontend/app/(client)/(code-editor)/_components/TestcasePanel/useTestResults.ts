@@ -31,6 +31,7 @@ const useGetTestResult = (type: 'sample' | 'user') => {
 
     if (allJudged) {
       // Test execution is finished
+      attempts.current = 0
       setIsTesting(false)
       stopPolling(type)
     } else if (attempts.current < MAX_ATTEMPTS) {
@@ -38,6 +39,7 @@ const useGetTestResult = (type: 'sample' | 'user') => {
       attempts.current += 1
     } else {
       // No more retry
+      attempts.current = 0
       setIsTesting(false)
       stopPolling(type)
       toast.error('Judging took too long. Please try again later.')
@@ -62,7 +64,7 @@ export const useTestResults = () => {
   const { data, isError } = useQueries({
     queries: [
       {
-        queryKey: ['submittion', 'test'],
+        queryKey: ['submission', 'test'],
         queryFn: getSampleTestResult,
         throwOnError: false,
         refetchInterval: REFETCH_INTERVAL,
@@ -83,13 +85,20 @@ export const useTestResults = () => {
   })
 
   const testcases = useTestcaseStore((state) => state.getTestcases())
+  let userTestcaseCount = 1
+  let sampleTestcaseCount = 1
   const testResults =
     data.length > 0
       ? testcases.map((testcase, index) => {
           const testResult = data.find((item) => item.id === testcase.id)
+          if (testcase.isUserTestcase) {
+            testcase.id = userTestcaseCount++
+          } else {
+            testcase.id = sampleTestcaseCount++
+          }
           return {
-            id: index + 1,
-            originalId: testcase.id,
+            id: testcase.id,
+            originalId: index + 1,
             input: testcase.input,
             expectedOutput: testcase.output,
             output: testResult?.output ?? '',

@@ -9,7 +9,7 @@ import ContestEditorSkeleton from './_components/ContestEditorSkeleton'
 export default async function ContestFinishedPage({
   params
 }: {
-  params: { problemId: number; contestId: number }
+  params: { problemId: string; contestId: string }
 }) {
   const { problemId, contestId } = params
 
@@ -17,7 +17,7 @@ export default async function ContestFinishedPage({
     (await fetcher.head(`problem/${problemId}`)).status === 200
   return (
     <>
-      <ContestEditorSkeleton></ContestEditorSkeleton>
+      <ContestEditorSkeleton />
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-10 text-white backdrop-blur-md">
         <div className="text-center">
           <h1 className="mb-8 font-mono text-2xl">The contest has finished!</h1>
@@ -51,7 +51,7 @@ export default async function ContestFinishedPage({
               </Button>
             </Link>
           )}
-          <Link href={`/contest/${contestId}`}>
+          <Link href={`/contest/${contestId}/problem`}>
             <Button
               size="icon"
               className="ml-4 h-10 w-24 shrink-0 gap-[5px] rounded-[4px] bg-blue-500 font-sans hover:bg-blue-700"

@@ -23,6 +23,7 @@ export const useLanguageStore = (problemId: number, contestId?: number) => {
     )
   )
 }
+
 interface CodeState {
   code: string
   setCode: (code: string) => void
@@ -43,7 +44,9 @@ export const getStorageKey = (
   userName: string,
   contestId?: number
 ) => {
-  if (userName === '') return undefined
+  if (userName === '') {
+    return undefined
+  }
   const problemKey = `${userName}_${problemId}${contestId ? `_${contestId}` : ''}_${language}`
   return problemKey
 }

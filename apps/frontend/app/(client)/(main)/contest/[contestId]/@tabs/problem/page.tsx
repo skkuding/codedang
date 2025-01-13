@@ -17,12 +17,15 @@ interface ContestApiResponse {
 
 export default async function ContestProblem({ params }: ContestProblemProps) {
   const { contestId } = params
+
+  // TODO: use `getContestProblemList` from _libs/apis folder
   const res = await fetcherWithAuth.get(`contest/${contestId}/problem`, {
     searchParams: {
       take: 20
     }
   })
 
+  // TODO: use error boundary
   if (!res.ok) {
     const { statusCode }: { statusCode: number } = await res.json()
 

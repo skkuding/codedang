@@ -46,9 +46,13 @@ export default function SwitchField({
         <Label required={false}>{title}</Label>
         <Switch
           onCheckedChange={() => {
-            if (name == 'invitationCode') setValue(name, null)
-            else if (name == 'hint' || name == 'source') setValue(name, '')
-            else setValue(name, !getValues(name))
+            if (name === 'invitationCode') {
+              setValue(name, null)
+            } else if (name === 'hint' || name === 'source') {
+              setValue(name, '')
+            } else {
+              setValue(name, !getValues(name))
+            }
             setIsEnabled(!isEnabled)
           }}
           checked={isEnabled}
@@ -56,25 +60,38 @@ export default function SwitchField({
         />
       </div>
       {isEnabled &&
-        (formElement == 'input' ? (
-          <Input
-            id={name}
-            type={type}
-            placeholder={placeholder}
-            className={cn(inputStyle, 'hide-spin-button h-[36px] w-[380px]')}
-            {...register(name, {
-              onChange: () => trigger(name)
-            })}
-          />
-        ) : formElement == 'textarea' ? (
-          <Textarea
-            id={name}
-            placeholder={placeholder}
-            className="min-h-[120px] w-[760px] bg-white"
-            {...register(name)}
-          />
-        ) : null)}
-      {isEnabled && name == 'invitationCode' && errors[name] && (
+        (() => {
+          if (formElement === 'input') {
+            return (
+              <Input
+                id={name}
+                type={type}
+                placeholder={placeholder}
+                className={cn(
+                  inputStyle,
+                  'hide-spin-button h-[36px] w-[380px]'
+                )}
+                {...register(name, {
+                  onChange: () => trigger(name)
+                })}
+              />
+            )
+          }
+
+          if (formElement === 'textarea') {
+            return (
+              <Textarea
+                id={name}
+                placeholder={placeholder}
+                className="min-h-[120px] w-[760px] bg-white"
+                {...register(name)}
+              />
+            )
+          }
+
+          return null
+        })()}
+      {isEnabled && name === 'invitationCode' && errors[name] && (
         <ErrorMessage message={errors[name]?.message?.toString()} />
       )}
     </div>

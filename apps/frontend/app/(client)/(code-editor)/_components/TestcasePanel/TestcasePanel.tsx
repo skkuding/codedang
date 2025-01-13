@@ -20,15 +20,15 @@ export default function TestcasePanel() {
         .concat(result)
         .filter(
           (item, index, self) =>
-            index === self.findIndex((t) => t.id === item.id)
+            index === self.findIndex((t) => t.originalId === item.originalId)
         )
     )
-    setCurrentTab(result.id)
+    setCurrentTab(result.originalId)
   }
 
   const removeTab = (testcaseId: number) => {
     setTestcaseTabList((state) =>
-      state.filter((item) => item.id !== testcaseId)
+      state.filter((item) => item.originalId !== testcaseId)
     )
     if (currentTab === testcaseId) {
       setCurrentTab(0)
@@ -56,7 +56,7 @@ export default function TestcasePanel() {
         <TestcaseTab
           currentTab={currentTab}
           onClickTab={() => setCurrentTab(0)}
-          nextTab={testcaseTabList[0]?.id}
+          nextTab={testcaseTabList[0]?.originalId}
           className="flex-shrink-0"
         >
           {testcaseTabList.length < 7 ? 'Testcase Result' : 'TC Res'}
@@ -72,12 +72,12 @@ export default function TestcasePanel() {
             {testcaseTabList.map((testcase, index) => (
               <TestcaseTab
                 currentTab={currentTab}
-                prevTab={testcaseTabList[index - 1]?.id}
-                nextTab={testcaseTabList[index + 1]?.id}
-                onClickTab={() => setCurrentTab(testcase.id)}
-                onClickCloseButton={() => removeTab(testcase.id)}
-                testcaseId={testcase.id}
-                key={testcase.id}
+                prevTab={testcaseTabList[index - 1]?.originalId}
+                nextTab={testcaseTabList[index + 1]?.originalId}
+                onClickTab={() => setCurrentTab(testcase.originalId)}
+                onClickCloseButton={() => removeTab(testcase.originalId)}
+                testcaseId={testcase.originalId}
+                key={testcase.originalId}
               >
                 {
                   (testcaseTabList.length < 7
@@ -117,7 +117,7 @@ export default function TestcasePanel() {
           </div>
         ) : (
           <TestResultDetail
-            data={processedData.find((item) => item.id === currentTab)}
+            data={processedData.find((item) => item.originalId === currentTab)}
           />
         )}
       </ScrollArea>
@@ -200,12 +200,12 @@ function TestSummary({
   const total = data.length
 
   const notAcceptedTestcases = data
-    .map((testcase, index) =>
-      testcase.result !== 'Accepted'
-        ? `${testcase.isUserTestcase ? 'User' : 'Sample'} #${index + 1}`
-        : -1
+    .map((testcase) =>
+      testcase.result !== 'Accepted' && testcase.result !== 'Judging'
+        ? `${testcase.isUserTestcase ? 'User' : 'Sample'} #${testcase.id}`
+        : undefined
     )
-    .filter((index) => index !== -1)
+    .filter(Boolean)
 
   return (
     <table className="min-w-full">
@@ -216,23 +216,25 @@ function TestSummary({
             {acceptedCount}/{total}
           </td>
         </tr>
-        {notAcceptedTestcases.length > 0 && (
-          <tr>
-            <td className="w-52 py-1 align-top text-slate-400">
-              Wrong Testcase Number:
-            </td>
-            <td className="py-1 text-white">
-              {notAcceptedTestcases.join(', ')}
-            </td>
-          </tr>
-        )}
+        <tr>
+          <td className="w-52 py-1 align-top text-slate-400">
+            Wrong Testcase Number:
+          </td>
+          <td className="py-1 text-white">
+            {notAcceptedTestcases.length > 0
+              ? notAcceptedTestcases.join(', ')
+              : '-'}
+          </td>
+        </tr>
       </tbody>
     </table>
   )
 }
 
 function TestResultDetail({ data }: { data: TestResultDetail | undefined }) {
-  if (data === undefined) return null
+  if (data === undefined) {
+    return null
+  }
 
   return (
     <div className="px-8 pt-5">

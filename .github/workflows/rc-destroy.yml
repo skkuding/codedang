@@ -1,0 +1,74 @@
+name: RC - destroy
+#Except Terraform-Configuration Project
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECS_CLUSTER: Codedang-Api
+
+permissions: # permissions to the job (for the OpenID Connection)
+  id-token: write
+  contents: read
+
+jobs:
+  rc-destroy:
+    name: Destroy
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY_RC }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.2
+
+      - name: Create Terraform variable file (Codedang)
+        working-directory: ./apps/infra/rc/codedang
+        run: |
+          echo "$TFVARS_RC" >> terraform.tfvars
+          echo "$OAUTH_GITHUB" >> terraform.tfvars
+          echo "$OAUTH_KAKAO" >> terraform.tfvars
+          echo 'env = "rc"' >> terraform.tfvars
+        env:
+          TFVARS_RC: ${{ secrets.TFVARS_RC }}
+          OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
+          OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
+
+      - name: Destroy Codedang
+        working-directory: ./apps/infra/rc/codedang
+        run: |
+          terraform init -backend-config="bucket=codedang-tf-state-rc"
+          terraform destroy -auto-approve
+
+      - name: Create Terraform variable file (Storage)
+        working-directory: ./apps/infra/rc/storage
+        run: |
+          echo 'env = "rc"' >> terraform.tfvars
+
+      - name: Destroy Storage
+        working-directory: ./apps/infra/rc/storage
+        run: |
+          terraform init -backend-config="bucket=codedang-tf-state-rc"
+          terraform destroy -auto-approve
+
+      - name: Create Terraform variable file (Network)
+        working-directory: ./apps/infra/rc/network
+        run: |
+          echo 'env = "rc"' >> terraform.tfvars
+
+      - name: Destroy Network
+        working-directory: ./apps/infra/rc/network
+        run: |
+          terraform init -backend-config="bucket=codedang-tf-state-rc"
+          terraform destroy -auto-approve
