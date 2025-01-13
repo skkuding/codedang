@@ -1,0 +1,48 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createAssignment(
+      groupId: 2
+      input: {
+        title: "New Assignment Group 2"
+        description: "thisisnewassignment"
+        startTime: "2024-01-01"
+        endTime: "2030-01-01"
+        isVisible: true
+        isRankVisible: true
+        enableCopyPaste: true
+        isJudgeResultVisible: true
+        invitationCode: "123456"
+      }
+    ) {
+      id
+      title
+      description
+      enableCopyPaste
+      invitationCode
+      isJudgeResultVisible
+    }
+  }
+
+}
+
+assert {
+  res.body.data.createAssignment: isDefined
+}
+
+docs {
+  # Create Assignment
+  ---
+  - 주어진 Group에 새로운 Assignment를 생성합니다.
+}

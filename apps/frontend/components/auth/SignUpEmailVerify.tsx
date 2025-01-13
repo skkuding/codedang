@@ -95,7 +95,7 @@ export default function SignUpEmailVerify() {
     setEmailError('')
     await trigger('email')
     if (!errors.email) {
-      await fetch(baseUrl + '/email-auth/send-email/register-new', {
+      await fetch(`${baseUrl}/email-auth/send-email/register-new`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -121,7 +121,7 @@ export default function SignUpEmailVerify() {
     await trigger('verificationCode')
     if (!errors.verificationCode) {
       try {
-        const response = await fetch(baseUrl + '/email-auth/verify-pin', {
+        const response = await fetch(`${baseUrl}/email-auth/verify-pin`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -166,7 +166,7 @@ export default function SignUpEmailVerify() {
             placeholder="example@g.skku.edu"
             {...register('email')}
             onFocus={() => clearErrors('email')}
-            onKeyDown={async (e) => {
+            onKeyDown={(e) => {
               if (e.key === 'Enter' && !sendButtonDisabled) {
                 e.preventDefault()
                 setSendButtonDisabled(true)
@@ -228,42 +228,52 @@ export default function SignUpEmailVerify() {
           )}
         </div>
       )}
+      {(() => {
+        if (!sentEmail) {
+          return (
+            <Button
+              type="button"
+              className="mt-4 w-full font-semibold"
+              disabled={sendButtonDisabled}
+              onClick={() => {
+                setSendButtonDisabled(true)
+                sendEmail()
+              }}
+            >
+              Send Email
+            </Button>
+          )
+        }
 
-      {!sentEmail ? (
-        <Button
-          type="button"
-          className="mt-4 w-full font-semibold"
-          disabled={sendButtonDisabled}
-          onClick={() => {
-            setSendButtonDisabled(true)
-            sendEmail()
-          }}
-        >
-          Send Email
-        </Button>
-      ) : !expired ? (
-        <Button
-          type="submit"
-          className={cn(
-            'mt-2 w-full font-semibold',
-            (!emailVerified || !!errors.verificationCode) && 'bg-gray-400'
-          )}
-          disabled={!emailVerified || !!errors.verificationCode}
-        >
-          Next
-        </Button>
-      ) : (
-        <Button
-          className="mt-2 w-full font-semibold"
-          onClick={() => {
-            setExpired(false)
-            setTimer(timeLimit)
-            sendEmail()
-          }}
-        >
-          Resend Email
-        </Button>
-      )}
+        if (!expired) {
+          return (
+            <Button
+              type="submit"
+              className={cn(
+                'mt-2 w-full font-semibold',
+                (!emailVerified || Boolean(errors.verificationCode)) &&
+                  'bg-gray-400'
+              )}
+              disabled={!emailVerified || Boolean(errors.verificationCode)}
+            >
+              Next
+            </Button>
+          )
+        }
+
+        return (
+          <Button
+            className="mt-2 w-full font-semibold"
+            onClick={() => {
+              setExpired(false)
+              setTimer(timeLimit)
+              sendEmail()
+            }}
+          >
+            Resend Email
+          </Button>
+        )
+      })()}
     </form>
   )
 }

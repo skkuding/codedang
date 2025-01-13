@@ -34,7 +34,7 @@ export default async function SubmissionDetail({
 
   const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
 
-  if (submission.result == 'Judging') {
+  if (submission.result === 'Judging') {
     revalidateTag(`submission/${submissionId}`)
   }
 
@@ -107,9 +107,7 @@ export default async function SubmissionDetail({
           </Table>
         </div>
       )}
-      {res.ok ? (
-        <></>
-      ) : (
+      {res.ok ? null : (
         <div className="absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1 backdrop-blur">
           <IoIosLock size={100} />
           <p className="mt-4 text-xl font-semibold">Access Denied</p>

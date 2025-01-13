@@ -513,6 +513,7 @@ export class SubmissionService {
       score: 0,
       userId,
       userIp: null,
+      assignmentId: null,
       contestId: null,
       workbookId: null,
       codeSize: null,

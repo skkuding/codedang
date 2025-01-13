@@ -1,4 +1,6 @@
+import FetchErrorFallback from '@/components/FetchErrorFallback'
 import { Button } from '@/components/shadcn/button'
+import { ErrorBoundary } from '@suspensive/react'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense } from 'react'
@@ -21,9 +23,11 @@ export default function Page() {
           </Link>
         </Button>
       </div>
-      <Suspense fallback={<ContestTableFallback />}>
-        <ContestTable />
-      </Suspense>
+      <ErrorBoundary fallback={FetchErrorFallback}>
+        <Suspense fallback={<ContestTableFallback />}>
+          <ContestTable />
+        </Suspense>
+      </ErrorBoundary>
     </div>
   )
 }

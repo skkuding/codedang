@@ -3,35 +3,30 @@ import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
 import invisibleIcon from '@/public/icons/invisible.svg'
 import visibleIcon from '@/public/icons/visible.svg'
-import type { SettingsFormat } from '@/types/type'
 import Image from 'next/image'
 import React from 'react'
-import type { FieldErrors, UseFormRegister } from 'react-hook-form'
 import { FaCheck } from 'react-icons/fa6'
+import { useSettingsContext } from './context'
 
 interface CurrentPwSectionProps {
   currentPassword: string
   isCheckButtonClicked: boolean
   isPasswordCorrect: boolean
-  setPasswordShow: React.Dispatch<React.SetStateAction<boolean>>
-  passwordShow: boolean
   checkPassword: () => Promise<void>
-  register: UseFormRegister<SettingsFormat>
-  errors: FieldErrors<SettingsFormat>
-  updateNow: boolean
 }
 
 export default function CurrentPwSection({
   currentPassword,
   isCheckButtonClicked,
   isPasswordCorrect,
-  setPasswordShow,
-  passwordShow,
-  checkPassword,
-  register,
-  errors,
-  updateNow
+  checkPassword
 }: CurrentPwSectionProps) {
+  const {
+    passwordState: { passwordShow, setPasswordShow },
+    updateNow,
+    formState: { register, errors }
+  } = useSettingsContext()
+
   return (
     <>
       <label className="-mb-4 mt-4 text-xs">Password</label>
