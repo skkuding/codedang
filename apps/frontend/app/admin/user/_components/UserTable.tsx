@@ -2,10 +2,10 @@
 
 import { GET_GROUP_MEMBERS } from '@/graphql/user/queries'
 import { useSuspenseQuery } from '@apollo/client'
-import DataTable from '../../_components/table/DataTable'
-import DataTableFallback from '../../_components/table/DataTableFallback'
-import DataTablePagination from '../../_components/table/DataTablePagination'
-import DataTableRoot from '../../_components/table/DataTableRoot'
+import { DataTable } from '../../_components/table/DataTable'
+import { DataTableFallback } from '../../_components/table/DataTableFallback'
+import { DataTablePagination } from '../../_components/table/DataTablePagination'
+import { DataTableRoot } from '../../_components/table/DataTableRoot'
 import { columns } from './Columns'
 
 export function UserTable() {

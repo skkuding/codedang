@@ -24,7 +24,7 @@ import {
 import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
 import submitIcon from '@/public/icons/submit.svg'
-import useAuthModalStore from '@/stores/authModal'
+import { useAuthModalStore } from '@/stores/authModal'
 import {
   useLanguageStore,
   useCodeStore,
@@ -49,7 +49,7 @@ import { useInterval } from 'react-use'
 import { toast } from 'sonner'
 import { useTestPollingStore } from '../context/TestPollingStoreProvider'
 import { BackCautionDialog } from './BackCautionDialog'
-import RunTestButton from './RunTestButton'
+import { RunTestButton } from './RunTestButton'
 
 interface ProblemEditorProps {
   problem: ProblemDetail
@@ -57,7 +57,7 @@ interface ProblemEditorProps {
   templateString: string
 }
 
-export default function Editor({
+export function EditorHeader({
   problem,
   contestId,
   templateString

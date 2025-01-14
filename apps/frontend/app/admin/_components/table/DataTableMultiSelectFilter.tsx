@@ -40,7 +40,7 @@ interface DataTableMultiSelectFilterProps<TData, TValue> {
  * @param emptyMessage
  * 옵션이 없을 경우 보여줄 텍스트
  */
-export default function DataTableMultiSelectFilter<TData, TValue>({
+export function DataTableMultiSelectFilter<TData, TValue>({
   column,
   title,
   options,

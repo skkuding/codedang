@@ -1,6 +1,6 @@
 'use client'
 
-import FetchErrorFallback from '@/components/FetchErrorFallback'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -38,17 +38,17 @@ import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { toast } from 'sonner'
 import { useConfirmNavigation } from '../../_components/ConfirmNavigation'
-import DescriptionForm from '../../_components/DescriptionForm'
-import FormSection from '../../_components/FormSection'
-import SwitchField from '../../_components/SwitchField'
-import TitleForm from '../../_components/TitleForm'
-import ContestProblemListLabel from '../_components/ContestProblemListLabel'
-import ContestProblemTable from '../_components/ContestProblemTable'
+import { DescriptionForm } from '../../_components/DescriptionForm'
+import { FormSection } from '../../_components/FormSection'
+import { SwitchField } from '../../_components/SwitchField'
+import { TitleForm } from '../../_components/TitleForm'
+import { ContestProblemListLabel } from '../_components/ContestProblemListLabel'
+import { ContestProblemTable } from '../_components/ContestProblemTable'
 import {
   ImportProblemTable,
   ImportProblemTableFallback
 } from '../_components/ImportProblemTable'
-import TimeForm from '../_components/TimeForm'
+import { TimeForm } from '../_components/TimeForm'
 import { type ContestProblem, createSchema } from '../_libs/schemas'
 
 export default function Page() {

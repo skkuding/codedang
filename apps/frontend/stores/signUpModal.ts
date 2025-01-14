@@ -21,7 +21,8 @@ interface SignUpModalStore {
   nextModal: () => void
   backModal: () => void
 }
-const useSignUpModalStore = create<SignUpModalStore>((set) => ({
+
+export const useSignUpModalStore = create<SignUpModalStore>((set) => ({
   modalPage: 0,
   formData: {
     email: '',
@@ -41,5 +42,3 @@ const useSignUpModalStore = create<SignUpModalStore>((set) => ({
       modalPage: state.modalPage - 1
     }))
 }))
-
-export default useSignUpModalStore

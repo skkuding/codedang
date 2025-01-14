@@ -1,6 +1,6 @@
 'use client'
 
-import KatexContent from '@/components/KatexContent'
+import { KatexContent } from '@/components/KatexContent'
 import {
   Accordion,
   AccordionContent,
@@ -21,7 +21,7 @@ import type { ProblemDetail } from '@/types/type'
 import DOMPurify from 'isomorphic-dompurify'
 import { FileText } from 'lucide-react'
 import Image from 'next/image'
-import CopyButton from './CopyButton'
+import { CopyButton } from './CopyButton'
 import { WhitespaceVisualizer } from './WhitespaceVisualizer'
 
 export function EditorDescription({

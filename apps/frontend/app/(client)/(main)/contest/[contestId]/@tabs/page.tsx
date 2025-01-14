@@ -1,4 +1,4 @@
-import KatexContent from '@/components/KatexContent'
+import { KatexContent } from '@/components/KatexContent'
 import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
 import { ErrorBoundary } from '@suspensive/react'
@@ -7,7 +7,7 @@ import {
   GoToFirstProblemButton,
   GoToFirstProblemButtonFallback
 } from './_components/GoToFirstProblemButton'
-import RegisterButton from './_components/RegisterButton'
+import { RegisterButton } from './_components/RegisterButton'
 
 interface ContestTop {
   title: string

@@ -1,4 +1,4 @@
-import KatexContent from '@/components/KatexContent'
+import { KatexContent } from '@/components/KatexContent'
 import { baseUrl } from '@/libs/constants'
 import { dateFormatter } from '@/libs/utils'
 import Link from 'next/link'
