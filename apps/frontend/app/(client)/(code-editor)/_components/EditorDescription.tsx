@@ -71,7 +71,7 @@ export function EditorDescription({
           <h2>Memory Limit</h2>
           <h2>Source</h2>
         </div>
-        <div className="space-y-2 text-slate-300">
+        <div className="space-y-2 text-[#B0B0B0]">
           <p>{problem.timeLimit} ms</p>
           <p>{problem.memoryLimit} MB</p>
           <p>{problem.source}</p>
