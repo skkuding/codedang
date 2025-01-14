@@ -117,13 +117,13 @@ func (c *compiler) compileExec(args ExecArgs) (ExecResult, error) {
 
 	if ctx.Err() == context.DeadlineExceeded {
 		return ExecResult{
-			ResultCode: 2,
+			ResultCode: REAL_TIME_LIMIT_EXCEEDED,
 		}, nil
 	}
 
 	if err != nil {
 		return ExecResult{
-			ResultCode: 4,
+			ResultCode: SYSTEM_ERROR,
 		}, nil
 	}
 
