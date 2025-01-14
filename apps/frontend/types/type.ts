@@ -5,7 +5,12 @@ export type ContestStatus =
   | 'registeredOngoing'
   | 'registeredUpcoming'
 
-export type AssignmentStatus = 'ongoing' | 'upcoming' | 'finished'
+export type AssignmentStatus =
+  | 'ongoing'
+  | 'upcoming'
+  | 'finished'
+  | 'registeredOngoing'
+  | 'registeredUpcoming'
 
 export type CourseStatus = 'ongoing' | 'finished'
 
@@ -218,6 +223,22 @@ export interface Course {
   isJudgeResultVisible: boolean
   enableCopyPaste: boolean
   status: CourseStatus
+  participants: number
+  isRegistered: boolean
+}
+
+export interface Assignment {
+  id: number
+  title: string
+  startTime: Date
+  endTime: Date
+  group: {
+    id: string
+    groupName: string
+  }
+  isJudgeResultVisible: boolean
+  enableCopyPaste: boolean
+  status: AssignmentStatus
   participants: number
   isRegistered: boolean
 }

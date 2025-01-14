@@ -2,8 +2,8 @@
 
 import { cn } from '@/libs/utils'
 import ClockIcon from '@/public/icons/clock.svg'
-import type { Contest } from '@/types/type'
-import type { ContestStatus } from '@/types/type'
+import type { Assignment } from '@/types/type'
+import type { AssignmentStatus } from '@/types/type'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import Image from 'next/image'
@@ -14,21 +14,21 @@ import { toast } from 'sonner'
 
 dayjs.extend(duration)
 
-export default function ContestStatusTimeDiff({
-  contest,
+export default function AssignmentStatusTimeDiff({
+  assignment,
   textStyle,
-  inContestEditor
+  inAssignmentEditor
 }: {
-  contest: Contest
+  assignment: Assignment
   textStyle: string
-  inContestEditor: boolean
+  inAssignmentEditor: boolean
 }) {
   const router = useRouter()
   const { problemId } = useParams()
 
-  const [contestStatus, setContestStatus] = useState<
-    ContestStatus | undefined | null
-  >(contest.status)
+  const [assignmentStatus, setAssignmentStatus] = useState<
+    AssignmentStatus | undefined | null
+  >(assignment.status)
   const [timeDiff, setTimeDiff] = useState({
     days: 0,
     hours: '00',
@@ -36,20 +36,20 @@ export default function ContestStatusTimeDiff({
     seconds: '00'
   })
 
-  const updateContestStatus = () => {
+  const updateAssignmentStatus = () => {
     const now = dayjs()
-    if (now.isAfter(contest.endTime)) {
-      setContestStatus('finished')
-    } else if (now.isAfter(contest.startTime)) {
-      setContestStatus('ongoing')
+    if (now.isAfter(assignment.endTime)) {
+      setAssignmentStatus('finished')
+    } else if (now.isAfter(assignment.startTime)) {
+      setAssignmentStatus('ongoing')
     } else {
-      setContestStatus('upcoming')
+      setAssignmentStatus('upcoming')
     }
 
     const timeRef =
-      contestStatus === 'ongoing' || contestStatus === 'registeredOngoing'
-        ? contest.endTime
-        : contest.startTime
+      assignmentStatus === 'ongoing' || assignmentStatus === 'registeredOngoing'
+        ? assignment.endTime
+        : assignment.startTime
 
     const diff = dayjs.duration(Math.abs(dayjs(timeRef).diff(now)))
     const days = Math.floor(diff.asDays())
@@ -60,12 +60,12 @@ export default function ContestStatusTimeDiff({
     const seconds = Math.floor(diff.asSeconds() % 60)
     const seconds_str = seconds.toString().padStart(2, '0')
 
-    if (inContestEditor) {
+    if (inAssignmentEditor) {
       if (days === 0 && hours === 0 && minutes === 5 && seconds === 0) {
-        toast.error('Contest ends in 5 minutes.', { duration: 10000 })
+        toast.error('Assignment ends in 5 minutes.', { duration: 10000 })
       }
       if (days === 0 && hours === 0 && minutes === 1 && seconds === 0) {
-        toast.error('Contest ends in 1 minute.', { duration: 10000 })
+        toast.error('Assignment ends in 1 minute.', { duration: 10000 })
       }
     }
 
@@ -78,16 +78,16 @@ export default function ContestStatusTimeDiff({
   }
 
   useEffect(() => {
-    updateContestStatus()
+    updateAssignmentStatus()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useInterval(() => {
-    updateContestStatus()
+    updateAssignmentStatus()
   }, 1000)
 
-  if (inContestEditor && contestStatus === 'finished') {
-    router.push(`/contest/${contest.id}/finished/problem/${problemId}`)
+  if (inAssignmentEditor && assignmentStatus === 'finished') {
+    router.push(`/contest/${assignment.id}/finished/problem/${problemId}`)
   }
 
   return (
@@ -97,7 +97,7 @@ export default function ContestStatusTimeDiff({
         textStyle
       )}
     >
-      {contestStatus === 'finished' ? (
+      {assignmentStatus === 'finished' ? (
         <>
           <Image src={ClockIcon} alt="Clock" />
           Finished
@@ -111,7 +111,8 @@ export default function ContestStatusTimeDiff({
       ) : (
         <>
           <Image src={ClockIcon} alt="Clock" />
-          {contestStatus === 'ongoing' || contestStatus === 'registeredOngoing'
+          {assignmentStatus === 'ongoing' ||
+          assignmentStatus === 'registeredOngoing'
             ? 'Ends in'
             : 'Starts in'}
           <p className="overflow-hidden text-ellipsis whitespace-nowrap">

@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
-import CourseCardList from './_components/CourseCardList'
+import AssignmentCardList from './_components/AssignmentCardList'
 import FinishedAssignmentTable from './_components/FinishedAssignmentTable'
 
 interface CourseProps {
@@ -14,7 +14,7 @@ interface CourseProps {
   }
 }
 
-function CourseCardListFallback() {
+function CardListFallback() {
   return (
     <div>
       <Skeleton className="mb-8 h-8 w-24" />
@@ -59,10 +59,9 @@ export default async function Course({ searchParams }: CourseProps) {
       <Cover title="COURSE" description="Courses of CODEDANG" />
       <div className="flex w-full max-w-7xl flex-col gap-5 p-5 py-8">
         <ErrorBoundary fallback={FetchErrorFallback}>
-          <Suspense fallback={<CourseCardListFallback />}>
-            <p>LOL hahah!!</p>
-            <CourseCardList
-              title="This is your courses!"
+          <Suspense fallback={<CardListFallback />}>
+            <AssignmentCardList
+              title="Assignment"
               type="Ongoing"
               session={session}
             />
