@@ -9,7 +9,7 @@ import {
   DialogTrigger
 } from '@/components/shadcn/dialog'
 import { Input } from '@/components/shadcn/input'
-import { cn, fetcherWithAuth } from '@/libs/utils'
+import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
@@ -37,8 +37,8 @@ export default function RegisterButton({
 }) {
   const router = useRouter()
   const clickRegister = async (contestId: string) => {
-    await fetcherWithAuth
-      .post(`contest/${contestId}/participation`, {
+    try {
+      await safeFetcherWithAuth.post(`contest/${contestId}/participation`, {
         searchParams: invitationCodeExists
           ? {
               groupId: 1,
@@ -46,18 +46,13 @@ export default function RegisterButton({
             }
           : { groupId: 1 }
       })
-      .then((res) => {
-        if (!res.ok) {
-          toast.error(
-            invitationCodeExists ? 'Invalid code' : 'Failed to register'
-          )
-        } else {
-          toast.success(`Registered ${state} test successfully`)
-          router.push(`/contest/${contestId}/problem`)
-          router.refresh() // to update register state
-        }
-      })
-      .catch((err) => console.log(err))
+      toast.success(`Registered ${state} test successfully`)
+      router.push(`/contest/${contestId}/problem`)
+      router.refresh() // to update register state
+    } catch (error) {
+      console.error(error)
+      toast.error(invitationCodeExists ? 'Invalid code' : 'Failed to register')
+    }
   }
 
   const {
