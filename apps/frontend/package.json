@@ -2,6 +2,9 @@
   "name": "@codedang/frontend",
   "version": "0.1.0",
   "private": true,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
     "dev": "next dev -p 5525",
     "build": "pnpm run compile && next build",
