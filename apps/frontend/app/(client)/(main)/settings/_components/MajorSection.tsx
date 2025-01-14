@@ -19,12 +19,15 @@ import React from 'react'
 import { FaChevronDown, FaCheck } from 'react-icons/fa6'
 import { useSettingsContext } from './context'
 
-export default function MajorSection() {
+interface MajorSectionProps {
+  major: string
+}
+
+export default function MajorSection({ major }: MajorSectionProps) {
   const {
     isLoading,
     updateNow,
-    majorState: { majorOpen, setMajorOpen, majorValue, setMajorValue },
-    defaultProfileValues
+    majorState: { majorOpen, setMajorOpen, majorValue, setMajorValue }
   } = useSettingsContext()
 
   const getMajorDisplayValue = () => {
@@ -34,7 +37,7 @@ export default function MajorSection() {
         : majorValue
     }
 
-    return majorValue || defaultProfileValues.major
+    return majorValue || major // 외부에서 받은 major를 사용
   }
 
   return (
@@ -55,7 +58,7 @@ export default function MajorSection() {
                       ? 'border-red-500 text-neutral-400'
                       : 'border-primary'
                   }
-                  return majorValue === defaultProfileValues.major
+                  return majorValue === major
                     ? 'text-neutral-400'
                     : 'border-primary'
                 })()

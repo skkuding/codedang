@@ -4,11 +4,13 @@ import { useSettingsContext } from './context'
 interface SaveButtonProps {
   saveAbleUpdateNow: boolean
   saveAble: boolean
+  isLoading: boolean // 로딩 상태 추가
   onSubmitClick: () => void
 }
 
 export default function SaveButton({
   saveAbleUpdateNow,
+  isLoading,
   saveAble,
   onSubmitClick
 }: SaveButtonProps) {
@@ -22,7 +24,8 @@ export default function SaveButton({
         className="font-semibold disabled:bg-neutral-300 disabled:text-neutral-500"
         onClick={onSubmitClick}
       >
-        Save
+        {isLoading ? 'Saving...' : 'Save'}{' '}
+        {/* 로딩 상태에 따라 버튼 텍스트 변경 */}
       </Button>
     </div>
   )
