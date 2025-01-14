@@ -1,0 +1,203 @@
+'use client'
+
+import { useConfirmNavigationContext } from '@/app/admin/_components/ConfirmNavigation'
+import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
+import { GET_PROBLEM } from '@/graphql/problem/queries'
+import { useMutation, useQuery } from '@apollo/client'
+import type { Template, Testcase, UpdateProblemInput } from '@generated/graphql'
+import { useRouter } from 'next/navigation'
+import {
+  useRef,
+  useState,
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction
+} from 'react'
+import { FormProvider, type UseFormReturn } from 'react-hook-form'
+import { toast } from 'sonner'
+import { CautionDialog } from '../../../_components/CautionDialog'
+import { validateScoreWeight } from '../../../_libs/utils'
+import { ScoreCautionDialog } from './ScoreCautionDialog'
+
+interface EditProblemFormProps {
+  problemId: number
+  children: ReactNode
+  methods: UseFormReturn<UpdateProblemInput>
+  setShowHint: Dispatch<SetStateAction<boolean>>
+  setShowSource: Dispatch<SetStateAction<boolean>>
+}
+
+export default function EditProblemForm({
+  problemId,
+  children,
+  methods,
+  setShowHint,
+  setShowSource
+}: EditProblemFormProps) {
+  const [message, setMessage] = useState('')
+  const [showCautionModal, setShowCautionModal] = useState(false)
+  const [showScoreModal, setShowScoreModal] = useState(false)
+
+  const initialValues = useRef<{
+    testcases: Testcase[]
+    timeLimit: number
+    memoryLimit: number
+  } | null>(null)
+  const pendingInput = useRef<UpdateProblemInput | null>(null)
+
+  const { setShouldSkipWarning } = useConfirmNavigationContext()
+  const router = useRouter()
+
+  useQuery(GET_PROBLEM, {
+    variables: {
+      groupId: 1,
+      id: Number(problemId)
+    },
+    onCompleted: (problemData) => {
+      const data = problemData.getProblem
+
+      const initialFormValues = {
+        testcases: data.testcase,
+        timeLimit: data.timeLimit,
+        memoryLimit: data.memoryLimit
+      }
+      initialValues.current = initialFormValues
+
+      methods.setValue('id', Number(problemId))
+      methods.setValue('title', data.title)
+      methods.setValue('isVisible', data.isVisible)
+      methods.setValue('difficulty', data.difficulty)
+      methods.setValue('languages', data.languages ?? [])
+      methods.setValue(
+        'tags.create',
+        data.tag.map(({ tag }) => Number(tag.id))
+      )
+      methods.setValue(
+        'tags.delete',
+        data.tag.map(({ tag }) => Number(tag.id))
+      )
+      methods.setValue('description', data.description)
+      methods.setValue(
+        'inputDescription',
+        data.inputDescription || '<p>Change this</p>'
+      )
+      methods.setValue(
+        'outputDescription',
+        data.outputDescription || '<p>Change this</p>'
+      )
+      methods.setValue('testcases', data.testcase)
+      methods.setValue('timeLimit', data.timeLimit)
+      methods.setValue('memoryLimit', data.memoryLimit)
+      methods.setValue('hint', data.hint)
+      if (data.hint !== '') {
+        setShowHint(true)
+      }
+      methods.setValue('source', data.source)
+      if (data.source !== '') {
+        setShowSource(true)
+      }
+      if (data.template) {
+        const templates = JSON.parse(data.template[0])
+        templates.map((template: Template, index: number) => {
+          methods.setValue(`template.${index}`, {
+            language: template.language,
+            code: [
+              {
+                id: template.code[0].id,
+                text: template.code[0].text,
+                locked: template.code[0].locked
+              }
+            ]
+          })
+        })
+      }
+    }
+  })
+
+  const [updateProblem] = useMutation(UPDATE_PROBLEM, {
+    onError: () => {
+      toast.error('Failed to update problem')
+    },
+    onCompleted: () => {
+      setShouldSkipWarning(true)
+      toast.success('Problem updated successfully')
+      router.push('/admin/problem')
+      router.refresh()
+    }
+  })
+
+  const validate = () => {
+    const testcases = methods.getValues('testcases') as Testcase[]
+    if (!validateScoreWeight(testcases)) {
+      setShowCautionModal(true)
+      setMessage(
+        'The scoring ratios have not been specified correctly.\nPlease review and correct them.'
+      )
+      return false
+    }
+    return true
+  }
+
+  const handleUpdate = async () => {
+    if (pendingInput.current) {
+      await updateProblem({
+        variables: {
+          groupId: 1,
+          input: pendingInput.current
+        }
+      })
+    }
+  }
+
+  const onSubmit = methods.handleSubmit(async (input: UpdateProblemInput) => {
+    if (!validate()) {
+      return
+    }
+    pendingInput.current = input
+    if (initialValues.current) {
+      const currentValues = methods.getValues()
+      let scoreCalculationChanged = false
+
+      if (
+        JSON.stringify(currentValues.testcases) !==
+        JSON.stringify(initialValues.current.testcases)
+      ) {
+        scoreCalculationChanged = true
+      } else if (currentValues.timeLimit !== initialValues.current.timeLimit) {
+        scoreCalculationChanged = true
+      } else if (
+        currentValues.memoryLimit !== initialValues.current.memoryLimit
+      ) {
+        scoreCalculationChanged = true
+      }
+
+      if (scoreCalculationChanged) {
+        setShowScoreModal(true)
+        return
+      }
+    }
+    await handleUpdate()
+  })
+
+  return (
+    <>
+      <form className="flex w-[760px] flex-col gap-6" onSubmit={onSubmit}>
+        <FormProvider {...methods}>{children}</FormProvider>
+      </form>
+      <CautionDialog
+        isOpen={showCautionModal}
+        onClose={() => setShowCautionModal(false)}
+        description={message}
+      />
+      <ScoreCautionDialog
+        isOpen={showScoreModal}
+        onCancel={() => setShowScoreModal(false)}
+        onConfirm={async () => {
+          await handleUpdate()
+          setShowScoreModal(false)
+        }}
+        problemId={problemId}
+      />
+    </>
+  )
+}
