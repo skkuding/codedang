@@ -1,11 +1,11 @@
 'use client'
 
 //거의 이름만 바꿈.
-import CourseStatusTimeDiff from '@/components/CourseStatusTimeDiff'
+import CourseStatusTimeDiff from '@/app/(client)/(main)/course/_components/CourseStatusTimeDiff'
 //원래 ContestStatusTimeDiff -> CourseStatusTimeDiff로 이름 바꿈. -> _components에 파일을 만들
 import { cn, dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
-import type { course } from '@/types/type'
+import type { Course } from '@/types/type'
 import Image from 'next/image'
 import 'react-circular-progressbar/dist/styles.css'
 import StatusBadge from '../../../(main)/_components/StatusBadge'
@@ -26,7 +26,7 @@ const txtVariants = {
   registeredUpcoming: 'text-red-400'
 }
 interface Props {
-  course: course //type 변경 필요.
+  course: Course //type 변경 필요.
 }
 
 export default function CourseCard({ course }: Props) {
@@ -63,7 +63,7 @@ export default function CourseCard({ course }: Props) {
           <CourseStatusTimeDiff
             course={course}
             textStyle="text-xs text-gray-800"
-            incourseEditor={false}
+            inCourseEditor={false}
           />
         </div>
       </div>

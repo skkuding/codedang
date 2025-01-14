@@ -5,6 +5,10 @@ export type ContestStatus =
   | 'registeredOngoing'
   | 'registeredUpcoming'
 
+export type AssignmentStatus = 'ongoing' | 'upcoming' | 'finished'
+
+export type CourseStatus = 'ongoing' | 'finished'
+
 export type Level = 'Level1' | 'Level2' | 'Level3' | 'Level4' | 'Level5'
 
 export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
@@ -200,4 +204,20 @@ export interface SettingsFormat {
   confirmPassword: string
   realName: string
   studentId: string
+}
+
+export interface Course {
+  id: number
+  title: string
+  startTime: Date
+  endTime: Date
+  group: {
+    id: string
+    groupName: string
+  }
+  isJudgeResultVisible: boolean
+  enableCopyPaste: boolean
+  status: CourseStatus
+  participants: number
+  isRegistered: boolean
 }

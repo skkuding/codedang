@@ -2,8 +2,8 @@
 
 import { cn } from '@/libs/utils'
 import ClockIcon from '@/public/icons/clock.svg'
-import type { Contest } from '@/types/type'
-import type { ContestStatus } from '@/types/type'
+import type { Course } from '@/types/type'
+import type { CourseStatus } from '@/types/type'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import Image from 'next/image'
@@ -16,20 +16,20 @@ dayjs.extend(duration)
 
 export default function CourseStatusTimeDiff({
   //이름만 Course로 바꿈.
-  contest,
+  course,
   textStyle,
-  inContestEditor
+  inCourseEditor
 }: {
-  contest: Contest
+  course: Course
   textStyle: string
-  inContestEditor: boolean
+  inCourseEditor: boolean
 }) {
   const router = useRouter()
   const { problemId } = useParams()
 
-  const [contestStatus, setContestStatus] = useState<
-    ContestStatus | undefined | null
-  >(contest.status)
+  const [courseStatus, setCourseStatus] = useState<
+    CourseStatus | undefined | null
+  >(course.status)
   const [timeDiff, setTimeDiff] = useState({
     days: 0,
     hours: '00',
@@ -37,20 +37,16 @@ export default function CourseStatusTimeDiff({
     seconds: '00'
   })
 
-  const updateContestStatus = () => {
+  const updateCourseStatus = () => {
     const now = dayjs()
-    if (now.isAfter(contest.endTime)) {
-      setContestStatus('finished')
-    } else if (now.isAfter(contest.startTime)) {
-      setContestStatus('ongoing')
-    } else {
-      setContestStatus('upcoming')
+    if (now.isAfter(course.endTime)) {
+      setCourseStatus('finished')
+    } else if (now.isAfter(course.startTime)) {
+      setCourseStatus('ongoing')
     }
 
     const timeRef =
-      contestStatus === 'ongoing' || contestStatus === 'registeredOngoing'
-        ? contest.endTime
-        : contest.startTime
+      courseStatus === 'ongoing' ? course.endTime : course.startTime
 
     const diff = dayjs.duration(Math.abs(dayjs(timeRef).diff(now)))
     const days = Math.floor(diff.asDays())
@@ -61,12 +57,12 @@ export default function CourseStatusTimeDiff({
     const seconds = Math.floor(diff.asSeconds() % 60)
     const seconds_str = seconds.toString().padStart(2, '0')
 
-    if (inContestEditor) {
+    if (inCourseEditor) {
       if (days === 0 && hours === 0 && minutes === 5 && seconds === 0) {
-        toast.error('Contest ends in 5 minutes.', { duration: 10000 })
+        toast.error('Course ends in 5 minutes.', { duration: 10000 })
       }
       if (days === 0 && hours === 0 && minutes === 1 && seconds === 0) {
-        toast.error('Contest ends in 1 minute.', { duration: 10000 })
+        toast.error('Course ends in 1 minute.', { duration: 10000 })
       }
     }
 
@@ -79,17 +75,17 @@ export default function CourseStatusTimeDiff({
   }
 
   useEffect(() => {
-    updateContestStatus()
+    updateCourseStatus()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useInterval(() => {
-    updateContestStatus()
+    updateCourseStatus()
   }, 1000)
 
-  if (inContestEditor && contestStatus === 'finished') {
-    router.push(`/contest/${contest.id}/finished/problem/${problemId}`)
-  }
+  // if (inCourseEditor && courseStatus === 'finished') {
+  //   router.push(`/course/${course.id}/finished/problem/${problemId}`)
+  // }
 
   return (
     <div
@@ -98,7 +94,7 @@ export default function CourseStatusTimeDiff({
         textStyle
       )}
     >
-      {contestStatus === 'finished' ? (
+      {courseStatus === 'finished' ? (
         <>
           <Image src={ClockIcon} alt="Clock" />
           Finished
@@ -112,9 +108,7 @@ export default function CourseStatusTimeDiff({
       ) : (
         <>
           <Image src={ClockIcon} alt="Clock" />
-          {contestStatus === 'ongoing' || contestStatus === 'registeredOngoing'
-            ? 'Ends in'
-            : 'Starts in'}
+          {courseStatus === 'ongoing' ? 'Ends in' : 'Starts in'}
           <p className="overflow-hidden text-ellipsis whitespace-nowrap">
             {timeDiff.days > 0
               ? `${timeDiff.days} DAYS`
