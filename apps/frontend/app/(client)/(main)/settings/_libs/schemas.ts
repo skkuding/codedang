@@ -1,24 +1,24 @@
-import { z } from 'zod'
+import * as v from 'valibot'
 
-export const schemaSettings = (updateNow: boolean) =>
-  z.object({
-    currentPassword: z.string().min(1, { message: 'Required' }).optional(),
-    newPassword: z
-      .string()
-      .min(1)
-      .min(8)
-      .max(20)
-      .refine((data) => {
-        const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
-        return !invalidPassword.test(data)
-      })
-      .optional(),
-    confirmPassword: z.string().optional(),
-    realName: z
-      .string()
-      .regex(/^[a-zA-Z\s]+$/, { message: 'Only English Allowed' })
-      .optional(),
+export const getSchema = (updateNow: boolean) =>
+  v.object({
+    currentPassword: v.optional(v.pipe(v.string(), v.minLength(1, 'Required'))),
+    newPassword: v.optional(
+      v.pipe(
+        v.string(),
+        v.minLength(8),
+        v.maxLength(20),
+        v.check((input) => {
+          const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
+          return !invalidPassword.test(input)
+        })
+      )
+    ),
+    confirmPassword: v.optional(v.string()),
+    realName: v.optional(
+      v.pipe(v.string(), v.regex(/^[a-zA-Z\s]+$/, 'Only English Allowed'))
+    ),
     studentId: updateNow
-      ? z.string().regex(/^\d{10}$/, { message: 'Only 10 numbers' })
-      : z.string().optional()
+      ? v.pipe(v.string(), v.regex(/^\d{10}$/, 'Only 10 numbers'))
+      : v.optional(v.string())
   })

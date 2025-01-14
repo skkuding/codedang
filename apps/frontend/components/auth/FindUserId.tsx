@@ -3,16 +3,16 @@ import { Input } from '@/components/shadcn/input'
 import { cn, fetcher, isHttpError, safeFetcher } from '@/libs/utils'
 import useAuthModalStore from '@/stores/authModal'
 import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import * as v from 'valibot'
 
 interface FindUserIdInput {
   email: string
 }
-const schema = z.object({
-  email: z.string().email({ message: 'Invalid email address' })
+const schema = v.object({
+  email: v.pipe(v.string(), v.email('Invalid email address'))
 })
 
 export default function FindUserId() {
@@ -33,7 +33,7 @@ export default function FindUserId() {
     getValues,
     formState: { errors }
   } = useForm<FindUserIdInput>({
-    resolver: zodResolver(schema)
+    resolver: valibotResolver(schema)
   })
 
   const onSubmit = async (data: FindUserIdInput) => {
