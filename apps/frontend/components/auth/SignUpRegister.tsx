@@ -21,9 +21,8 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
-import { baseUrl } from '@/libs/constants'
 import { majors } from '@/libs/constants'
-import { cn } from '@/libs/utils'
+import { cn, isHttpError, safeFetcher } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-white.svg'
 import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -182,13 +181,11 @@ export default function SignUpRegister() {
     const fullName = `${data.firstName} ${data.lastName}`
     try {
       setSignUpDisable(true)
-      await fetch(`${baseUrl}/user/sign-up`, {
-        method: 'POST',
+      await safeFetcher.post('user/sign-up', {
         headers: {
-          ...formData.headers,
-          'Content-Type': 'application/json'
+          ...formData.headers
         },
-        body: JSON.stringify({
+        json: {
           password: data.password,
           passwordAgain: data.passwordAgain,
           realName: fullName,
@@ -197,13 +194,10 @@ export default function SignUpRegister() {
           username: data.username,
           email: formData.email,
           verificationCode: formData.verificationCode
-        })
-      }).then((res) => {
-        if (res.status === 201) {
-          document.getElementById('closeDialog')?.click()
-          toast.success('Sign up succeeded!')
         }
       })
+      document.getElementById('closeDialog')?.click()
+      toast.success('Sign up succeeded!')
     } catch (error) {
       toast.error('Sign up failed!')
       setSignUpDisable(false)
@@ -216,23 +210,22 @@ export default function SignUpRegister() {
   const checkUserName = async () => {
     const username = getValues('username')
     await trigger('username')
-    if (!errors.username) {
-      try {
-        await fetch(`${baseUrl}/user/username-check?username=${username}`, {
-          method: 'GET'
-        }).then((res) => {
-          setCheckedUsername(username)
-          if (res.status === 200) {
-            setIsUsernameAvailable(true)
-          } else {
-            setIsUsernameAvailable(false)
-          }
-        })
-      } catch (err) {
-        console.log(err)
+
+    if (errors.username) {
+      updateFocus(0)
+      return
+    }
+
+    try {
+      await safeFetcher.get(`user/username-check?username=${username}`)
+      setCheckedUsername(username)
+      setIsUsernameAvailable(true)
+    } catch (error) {
+      if (isHttpError(error)) {
+        setCheckedUsername(username)
+        setIsUsernameAvailable(false)
       }
     }
-    updateFocus(0)
   }
 
   const isRequiredError =
