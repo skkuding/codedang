@@ -7,7 +7,6 @@ import (
 	"context"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 	"time"
 
@@ -94,13 +93,7 @@ func (c *compiler) compileExec(args ExecArgs) (ExecResult, error) {
 		}
 	}
 
-	var realTimeLimit int
-	for _, l := range argSlice {
-		if strings.HasPrefix(l, MaxRealTime) {
-			realTimeLimit, _ = strconv.Atoi(strings.TrimPrefix(l, MaxRealTime))
-			break
-		}
-	}
+	realTimeLimit := args.MaxRealTime
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(realTimeLimit)*time.Millisecond)
 	defer cancel()
