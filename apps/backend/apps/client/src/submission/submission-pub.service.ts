@@ -5,6 +5,9 @@ import { Span, TraceService } from 'nestjs-otel'
 import {
   EXCHANGE,
   JUDGE_MESSAGE_TYPE,
+  MESSAGE_PRIORITY_HIGH,
+  MESSAGE_PRIORITY_LOW,
+  MESSAGE_PRIORITY_MIDDLE,
   RUN_MESSAGE_TYPE,
   SUBMISSION_KEY,
   USER_TESTCASE_MESSAGE_TYPE
@@ -106,9 +109,9 @@ export class SubmissionPublicationService {
    * 우선순위 (0 ~ 3, 클 수록 우선순위 높음)
    *
    * - JUDGE_MESSAGE_TYPE: 3
-   * - RUN_MESSAGE_TYPE: 1
-   * - USER_TESTCASE_MESSAGE_TYPE: 1
-   * - DEFAULT: 0
+   * - RUN_MESSAGE_TYPE: 2
+   * - USER_TESTCASE_MESSAGE_TYPE: 2
+   * - DEFAULT: 1
    *
    * @param isTest - 테스트 제출 여부
    * @param isUserTest - 사용자 정의 테스트 케이스 제출 여부
@@ -118,12 +121,12 @@ export class SubmissionPublicationService {
 
     switch (msgType) {
       case JUDGE_MESSAGE_TYPE:
-        return 3
+        return MESSAGE_PRIORITY_HIGH
       case RUN_MESSAGE_TYPE:
       case USER_TESTCASE_MESSAGE_TYPE:
-        return 1
+        return MESSAGE_PRIORITY_MIDDLE
       default:
-        return 0
+        return MESSAGE_PRIORITY_LOW
     }
   }
 }
