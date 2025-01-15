@@ -64,6 +64,7 @@ export default function Page() {
   const methods = useForm<CreateContestInput>({
     resolver: valibotResolver(createSchema),
     defaultValues: {
+      invitationCode: null,
       isRankVisible: true,
       isVisible: true,
       enableCopyPaste: false,
