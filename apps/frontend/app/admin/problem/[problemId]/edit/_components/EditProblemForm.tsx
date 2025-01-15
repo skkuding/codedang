@@ -53,33 +53,26 @@ export default function EditProblemForm({
       }
       initialValues.current = initialFormValues
 
-      methods.setValue('id', Number(problemId))
-      methods.setValue('title', data.title)
-      methods.setValue('isVisible', data.isVisible)
-      methods.setValue('difficulty', data.difficulty)
-      methods.setValue('languages', data.languages ?? [])
-      methods.setValue(
-        'tags.create',
-        data.tag.map(({ tag }) => Number(tag.id))
-      )
-      methods.setValue(
-        'tags.delete',
-        data.tag.map(({ tag }) => Number(tag.id))
-      )
-      methods.setValue('description', data.description)
-      methods.setValue(
-        'inputDescription',
-        data.inputDescription || '<p>Change this</p>'
-      )
-      methods.setValue(
-        'outputDescription',
-        data.outputDescription || '<p>Change this</p>'
-      )
-      methods.setValue('testcases', data.testcase)
-      methods.setValue('timeLimit', data.timeLimit)
-      methods.setValue('memoryLimit', data.memoryLimit)
-      methods.setValue('hint', data.hint)
-      methods.setValue('source', data.source)
+      methods.reset({
+        id: Number(problemId),
+        title: data.title,
+        isVisible: data.isVisible,
+        difficulty: data.difficulty,
+        languages: data.languages ?? [],
+        tags: {
+          create: data.tag.map(({ tag }) => Number(tag.id)),
+          delete: data.tag.map(({ tag }) => Number(tag.id))
+        },
+        description: data.description,
+        inputDescription: data.inputDescription || '<p>Change this</p>',
+        outputDescription: data.outputDescription || '<p>Change this</p>',
+        testcases: data.testcase,
+        timeLimit: data.timeLimit,
+        memoryLimit: data.memoryLimit,
+        hint: data.hint,
+        source: data.source
+      })
+
       if (data.template) {
         const templates = JSON.parse(data.template[0])
         templates.map((template: Template, index: number) => {
