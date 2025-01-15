@@ -3,7 +3,7 @@ import { withScope, captureException } from '@sentry/nextjs'
 import { HTTPError, TimeoutError } from 'ky'
 import { ApiError } from './apiError'
 
-const api = (error: ApiError) => {
+const captureAPIError = (error: ApiError) => {
   withScope((scope) => {
     scope.setLevel('error')
     scope.setContext('API Error Detail', { ...error })
@@ -11,7 +11,7 @@ const api = (error: ApiError) => {
   })
 }
 
-const global = (error: Error) => {
+const captureGlobalError = (error: Error) => {
   withScope((scope) => {
     scope.setLevel('error')
     scope.setContext('Error Detail', { ...error })
@@ -22,20 +22,21 @@ const global = (error: Error) => {
 export const captureError = (e: unknown) => {
   if (e instanceof HTTPError) {
     const apiError = ApiError.convertHttpError(e)
-    api(apiError)
+    captureAPIError(apiError)
   } else if (e instanceof TimeoutError) {
     const apiError = ApiError.convertTimeoutError(e)
-    api(apiError)
+    captureAPIError(apiError)
   } else if (e instanceof ApolloError) {
     const apiError = ApiError.convertApolloError(e)
-    api(apiError)
-  } else {
-    const error = e as Error
-    if (error.message.includes('timed out')) {
-      const apiError = ApiError.convertTimedOutError(error)
-      api(apiError)
+    captureAPIError(apiError)
+  } else if (e instanceof Error) {
+    if (e.message.includes('timed out')) {
+      const apiError = ApiError.convertTimedOutError(e)
+      captureAPIError(apiError)
     } else {
-      global(error)
+      captureGlobalError(e)
     }
+  } else {
+    return
   }
 }
