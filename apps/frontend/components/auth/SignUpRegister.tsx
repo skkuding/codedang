@@ -21,12 +21,11 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
-import { baseUrl } from '@/libs/constants'
 import { majors } from '@/libs/constants'
-import { cn } from '@/libs/utils'
+import { cn, isHttpError, safeFetcher } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-white.svg'
 import useSignUpModalStore from '@/stores/signUpModal'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { CommandList } from 'cmdk'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
@@ -34,7 +33,7 @@ import { useForm } from 'react-hook-form'
 import { FaCheck, FaChevronDown, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { IoWarningOutline } from 'react-icons/io5'
 import { toast } from 'sonner'
-import { z } from 'zod'
+import * as v from 'valibot'
 
 interface SignUpFormInput {
   username: string
@@ -60,43 +59,48 @@ const FIELD_NAMES = [
 type Field = (typeof FIELD_NAMES)[number]
 const fields: Field[] = [...FIELD_NAMES]
 
-const schema = z
-  .object({
-    username: z
-      .string()
-      .min(1, { message: 'Required' })
-      .regex(/^[a-z0-9]{3,10}$/),
-    password: z
-      .string()
-      .min(1, { message: 'Required' })
-      .min(8)
-      .max(20)
-      .refine((data) => {
+const schema = v.pipe(
+  v.object({
+    username: v.pipe(
+      v.string(),
+      v.minLength(1, 'Required'),
+      v.regex(/^[a-z0-9]{3,10}$/)
+    ),
+    password: v.pipe(
+      v.string(),
+      v.minLength(8, 'Required'),
+      v.maxLength(20),
+      v.check((data) => {
         const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
         return !invalidPassword.test(data)
-      }),
-    passwordAgain: z.string().min(1, { message: 'Required' }),
-    studentId: z
-      .string()
-      .min(1, { message: 'Required' })
-      .regex(/^[0-9]{10}$/, { message: 'only 10 numbers' }),
-    firstName: z
-      .string()
-      .min(1, { message: 'Required' })
-      .regex(/^[a-zA-Z]+$/, { message: 'only English supported' }),
-    lastName: z
-      .string()
-      .min(1, { message: 'Required' })
-      .regex(/^[a-zA-Z]+$/, { message: 'only English supported' })
-  })
-  .refine(
-    (data: { password: string; passwordAgain: string }) =>
-      data.password === data.passwordAgain,
-    {
-      message: 'Incorrect',
-      path: ['passwordAgain']
-    }
+      })
+    ),
+    passwordAgain: v.pipe(v.string(), v.minLength(1, 'Required')),
+    studentId: v.pipe(
+      v.string(),
+      v.minLength(1, 'Required'),
+      v.regex(/^[0-9]{10}$/, 'only 10 numbers')
+    ),
+    firstName: v.pipe(
+      v.string(),
+      v.minLength(1, 'Required'),
+      v.regex(/^[a-zA-Z]+$/, 'only English supported')
+    ),
+    lastName: v.pipe(
+      v.string(),
+      v.minLength(1, 'Required'),
+      v.regex(/^[a-zA-Z]+$/, 'only English supported')
+    )
+  }),
+  v.forward(
+    v.partialCheck(
+      [['password'], ['passwordAgain']],
+      (input) => input.password === input.passwordAgain,
+      'Incorrect'
+    ),
+    ['passwordAgain']
   )
+)
 
 export function requiredMessage(message?: string) {
   return (
@@ -140,7 +144,7 @@ export default function SignUpRegister() {
     trigger,
     formState: { errors, isDirty }
   } = useForm<SignUpFormInput>({
-    resolver: zodResolver(schema),
+    resolver: valibotResolver(schema),
     defaultValues: {
       username: '',
       password: ''
@@ -182,13 +186,11 @@ export default function SignUpRegister() {
     const fullName = `${data.firstName} ${data.lastName}`
     try {
       setSignUpDisable(true)
-      await fetch(`${baseUrl}/user/sign-up`, {
-        method: 'POST',
+      await safeFetcher.post('user/sign-up', {
         headers: {
-          ...formData.headers,
-          'Content-Type': 'application/json'
+          ...formData.headers
         },
-        body: JSON.stringify({
+        json: {
           password: data.password,
           passwordAgain: data.passwordAgain,
           realName: fullName,
@@ -197,13 +199,10 @@ export default function SignUpRegister() {
           username: data.username,
           email: formData.email,
           verificationCode: formData.verificationCode
-        })
-      }).then((res) => {
-        if (res.status === 201) {
-          document.getElementById('closeDialog')?.click()
-          toast.success('Sign up succeeded!')
         }
       })
+      document.getElementById('closeDialog')?.click()
+      toast.success('Sign up succeeded!')
     } catch (error) {
       toast.error('Sign up failed!')
       setSignUpDisable(false)
@@ -216,23 +215,22 @@ export default function SignUpRegister() {
   const checkUserName = async () => {
     const username = getValues('username')
     await trigger('username')
-    if (!errors.username) {
-      try {
-        await fetch(`${baseUrl}/user/username-check?username=${username}`, {
-          method: 'GET'
-        }).then((res) => {
-          setCheckedUsername(username)
-          if (res.status === 200) {
-            setIsUsernameAvailable(true)
-          } else {
-            setIsUsernameAvailable(false)
-          }
-        })
-      } catch (err) {
-        console.log(err)
+
+    if (errors.username) {
+      updateFocus(0)
+      return
+    }
+
+    try {
+      await safeFetcher.get(`user/username-check?username=${username}`)
+      setCheckedUsername(username)
+      setIsUsernameAvailable(true)
+    } catch (error) {
+      if (isHttpError(error)) {
+        setCheckedUsername(username)
+        setIsUsernameAvailable(false)
       }
     }
-    updateFocus(0)
   }
 
   const isRequiredError =

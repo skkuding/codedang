@@ -27,7 +27,7 @@ import {
 import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import type { CreateContestInput } from '@generated/graphql'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { ErrorBoundary } from '@suspensive/react'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
@@ -62,8 +62,9 @@ export default function Page() {
   useConfirmNavigation(shouldSkipWarning)
 
   const methods = useForm<CreateContestInput>({
-    resolver: zodResolver(createSchema),
+    resolver: valibotResolver(createSchema),
     defaultValues: {
+      invitationCode: null,
       isRankVisible: true,
       isVisible: true,
       enableCopyPaste: false,
