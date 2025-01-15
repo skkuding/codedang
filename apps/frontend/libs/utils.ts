@@ -1,7 +1,6 @@
 import { type ClassValue, clsx } from 'clsx'
 import dayjs from 'dayjs'
-import ky, { HTTPError, TimeoutError } from 'ky'
-import { toast } from 'sonner'
+import ky, { HTTPError } from 'ky'
 import { twMerge } from 'tailwind-merge'
 import { auth } from './auth'
 import { baseUrl } from './constants'
@@ -17,16 +16,7 @@ export const fetcher = ky.create({
   retry: 0,
   timeout: 5000,
   throwHttpErrors: false,
-  hooks: {
-    beforeError: [
-      (error) => {
-        if (error instanceof TimeoutError) {
-          toast.error('Request timed out. Please try again later.')
-        }
-        return error
-      }
-    ]
-  }
+  hooks: {}
 })
 
 export const fetcherWithAuth = fetcher.extend({

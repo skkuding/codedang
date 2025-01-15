@@ -1,21 +1,22 @@
+import type { ApolloError } from '@apollo/client'
 import type { HTTPError, TimeoutError } from 'ky'
 
-export class KyApiError extends Error {
+export class ApiError extends Error {
   public name: string
-  public statusCode: number
-  public responseData: unknown
-  public url?: string
+  public status?: number
+  public errorMessage: string
+  public responseData?: unknown
+  public url: string
   public method?: string
-  public params?: unknown
 
-  constructor(message: string, statusCode: number) {
+  constructor(name: string, message: string, url: string) {
     super(message)
-    this.statusCode = statusCode
-    this.name = KyApiError.getErrorName(this.statusCode)
+    this.errorMessage = message
+    this.name = name
+    this.url = url
   }
 
-  private static errorMap: Record<number, string> = {
-    /* eslint-disable @typescript-eslint/naming-convention */
+  private static statusName: Record<number, string> = {
     400: 'Bad Request',
     401: 'Unauthorized',
     403: 'Forbidden',
@@ -28,45 +29,55 @@ export class KyApiError extends Error {
   }
 
   private static getErrorName(status: number): string {
-    return `${KyApiError.errorMap[status]} (${status})`
+    return `${ApiError.statusName[status]} (${status})`
   }
 
-  /**
-   * @description
-   * Ky의 HTTPError에서 필요한 정보를 추출하여 ApiError로 변환합니다.
-   */
-  public static fromHttpError(httpError: HTTPError): KyApiError {
+  public static convertHttpError(httpError: HTTPError): ApiError {
     const statusCode = httpError.response.status
-    // params: error.params
-
-    const apiError = new KyApiError(
-      KyApiError.getErrorName(statusCode),
-      statusCode
+    const apiError = new ApiError(
+      httpError.name,
+      `${ApiError.getErrorName(statusCode)}: ${httpError.request.url}`,
+      httpError.request.url
     )
-    apiError.name = httpError.name
-    apiError.statusCode = httpError.response.status
-    apiError.responseData = httpError.response
-      .clone()
-      .json()
-      .catch(() => null)
-    apiError.url = httpError.request.url
+    apiError.status = statusCode
+    apiError.responseData = httpError.response.clone().json()
     apiError.method = httpError.request.method
+    return apiError
+  }
+
+  public static convertTimeoutError(timeoutError: TimeoutError): ApiError {
+    const apiError = new ApiError(
+      'TimeoutError',
+      timeoutError.message,
+      timeoutError.request.url
+    )
+    apiError.method = timeoutError.request.method
 
     return apiError
   }
 
-  /**
-   * @description
-   * Ky의 TimeoutError에서 필요한 정보를 추출하여 ApiError로 변환합니다.
-   */
-  public static fromTimeoutError(
-    timeoutError: TimeoutError,
-    requestUrl: string,
-    method = 'GET'
-  ): KyApiError {
-    const apiError = new KyApiError('Request Timeout', 408)
-    apiError.url = requestUrl
-    apiError.method = method
+  public static convertTimedOutError(timeoutError: Error): ApiError {
+    const apiError = new ApiError('TimeoutError', timeoutError.message, '')
+    const regex = /Request timed out:\s+(\w+)\s+(https?:\/\/[^\s]+)/
+    const match = timeoutError.message.match(regex)
+
+    if (match) {
+      apiError.method = match[1]
+      apiError.url = match[2]
+    }
+
+    return apiError
+  }
+
+  public static convertApolloError(apolloError: ApolloError): ApiError {
+    const e = apolloError.graphQLErrors[0]
+    const apiError = new ApiError(
+      apolloError.name,
+      e.extensions
+        ? `${String(e.extensions.code)}: ${apolloError.message}`
+        : '',
+      e.path ? String(e.path[0]) : ''
+    )
     return apiError
   }
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import ErrorDetail from '@/components/ErrorDetail'
-import { captureException } from '@sentry/nextjs'
+import { captureError } from '@/libs/captureError'
 import { useEffect } from 'react'
 
 interface Props {
@@ -11,7 +11,7 @@ interface Props {
 
 export default function Error({ error }: Props) {
   useEffect(() => {
-    captureException(error)
+    captureError(error)
   }, [error])
 
   return <ErrorDetail errorDetail="Failed to Load Submission!" error={error} />
