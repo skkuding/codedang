@@ -73,10 +73,6 @@ type JudgeResultMessage struct {
 
 var ErrJudgeEnd = errors.New("judge handle end")
 
-// func (r *Result) Accepted() {
-// 	r.AcceptedNum += 1
-// }
-
 func (r *JudgeResult) SetJudgeResultCode(code JudgeResultCode) {
 	r.ResultCode = code
 }
@@ -89,14 +85,6 @@ func (r *JudgeResult) SetJudgeExecResult(execResult sandbox.ExecResult) {
 	r.ExitCode = execResult.ExitCode
 	r.ErrorCode = execResult.ErrorCode
 }
-
-// func (r *Result) Marshal() (json.RawMessage, error) {
-// 	if res, err := json.Marshal(r); err != nil {
-// 		return nil, &HandlerError{caller: "judge-handler", err: fmt.Errorf("marshaling result: %w", err)}
-// 	} else {
-// 		return res, nil
-// 	}
-// }
 
 // JudgeResult ResultCode
 type JudgeResultCode int8
@@ -256,15 +244,16 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 
 	compileOut := <-compileOutCh
 
+	// 컴파일러 실행 과정이나 이후 처리 과정에서 오류가 생긴 경우
 	if compileOut.Err != nil {
-		// 컴파일러 실행 과정이나 이후 처리 과정에서 오류가 생긴 경우
 		out <- JudgeResultMessage{nil, &HandlerError{
 			caller: "handle",
-			err:    fmt.Errorf("%w: %s", ErrSandbox, compileOut.Err),
+			err:    fmt.Errorf("%w: %s", ErrCompile, compileOut.Err),
 			level:  logger.ERROR,
 		}}
 		return
 	}
+
 	compileResult, ok := compileOut.Data.(sandbox.CompileResult)
 	if !ok {
 		out <- JudgeResultMessage{nil, &HandlerError{

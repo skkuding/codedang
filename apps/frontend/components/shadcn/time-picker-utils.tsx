@@ -25,11 +25,19 @@ export const getValidNumber = (
 
   if (!isNaN(numericValue)) {
     if (!loop) {
-      if (numericValue > max) numericValue = max
-      if (numericValue < min) numericValue = min
+      if (numericValue > max) {
+        numericValue = max
+      }
+      if (numericValue < min) {
+        numericValue = min
+      }
     } else {
-      if (numericValue > max) numericValue = min
-      if (numericValue < min) numericValue = max
+      if (numericValue > max) {
+        numericValue = min
+      }
+      if (numericValue < min) {
+        numericValue = max
+      }
     }
     return numericValue.toString().padStart(2, '0')
   }
@@ -38,17 +46,23 @@ export const getValidNumber = (
 }
 
 export const getValidHour = (value: string) => {
-  if (isValidHour(value)) return value
+  if (isValidHour(value)) {
+    return value
+  }
   return getValidNumber(value, { max: 23 })
 }
 
 export const getValid12Hour = (value: string) => {
-  if (isValid12Hour(value)) return value
+  if (isValid12Hour(value)) {
+    return value
+  }
   return getValidNumber(value, { max: 12 })
 }
 
 export const getValidMinuteOrSecond = (value: string) => {
-  if (isValidMinuteOrSecond(value)) return value
+  if (isValidMinuteOrSecond(value)) {
+    return value
+  }
   return getValidNumber(value, { max: 59 })
 }
 

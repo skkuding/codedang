@@ -1,6 +1,6 @@
 import EditorLayout from '@/app/(client)/(code-editor)/_components/EditorLayout'
 
-export default async function layout({
+export default function layout({
   params,
   children
 }: {

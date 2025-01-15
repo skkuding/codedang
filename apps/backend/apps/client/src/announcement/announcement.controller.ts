@@ -6,8 +6,11 @@ import {
   Query
 } from '@nestjs/common'
 import { AuthNotNeededIfOpenSpace } from '@libs/auth'
-import { EntityNotExistException } from '@libs/exception'
-import { GroupIDPipe, IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from '@libs/exception'
+import { GroupIDPipe, IDValidationPipe } from '@libs/pipe'
 import { AnnouncementService } from './announcement.service'
 
 @Controller('announcement')
@@ -20,24 +23,42 @@ export class AnnouncementController {
   @Get()
   async getAnnouncements(
     @Query('problemId', IDValidationPipe) problemId: number | null,
-    @Query('contestId', RequiredIntPipe) contestId: number,
-    @Query('groupId', GroupIDPipe) groupId: number
+    @Query('contestId', IDValidationPipe) contestId: number | null,
+    @Query('assignmentId', IDValidationPipe) assignmentId: number | null,
+    @Query('groupId', GroupIDPipe)
+    groupId: number
   ) {
     try {
+      if (!!contestId === !!assignmentId) {
+        throw new UnprocessableDataException(
+          'Either contestId or assignmentId must be provided, but not both.'
+        )
+      }
       if (problemId) {
         return await this.announcementService.getProblemAnnouncements(
-          problemId,
           contestId,
+          assignmentId,
+          problemId,
           groupId
         )
       } else {
-        return await this.announcementService.getContestAnnouncements(
-          contestId,
-          groupId
-        )
+        if (contestId) {
+          return await this.announcementService.getContestAnnouncements(
+            contestId,
+            groupId
+          )
+        } else {
+          return await this.announcementService.getAssignmentAnnouncements(
+            assignmentId!,
+            groupId
+          )
+        }
       }
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
+      if (
+        error instanceof EntityNotExistException ||
+        error instanceof UnprocessableDataException
+      ) {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)

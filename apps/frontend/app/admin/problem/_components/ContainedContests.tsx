@@ -25,7 +25,9 @@ function ContestSection({
   title: string
   contests?: { id: string; title: string }[]
 }) {
-  if (!contests || contests.length === 0) return null
+  if (!contests || contests.length === 0) {
+    return null
+  }
 
   return (
     <div>

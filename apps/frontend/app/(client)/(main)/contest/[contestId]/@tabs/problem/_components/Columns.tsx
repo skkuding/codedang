@@ -2,8 +2,10 @@
 
 import { convertToLetter, dateFormatter } from '@/libs/utils'
 import type { ContestProblem } from '@/types/type'
+import { ErrorBoundary } from '@suspensive/react'
 import type { ColumnDef } from '@tanstack/react-table'
-import MySubmission from './MySubmission'
+import { Suspense } from 'react'
+import { MySubmissionFallback, MySubmission } from './MySubmission'
 
 export const columns: ColumnDef<ContestProblem>[] = [
   {
@@ -30,7 +32,11 @@ export const columns: ColumnDef<ContestProblem>[] = [
     cell: ({ row }) =>
       row.original.submissionTime && (
         <div className="flex items-center justify-center">
-          <MySubmission problem={row.original} />
+          <ErrorBoundary fallback={null}>
+            <Suspense fallback={<MySubmissionFallback />}>
+              <MySubmission problem={row.original} />
+            </Suspense>
+          </ErrorBoundary>
         </div>
       )
   },
@@ -45,10 +51,8 @@ export const columns: ColumnDef<ContestProblem>[] = [
     header: () => 'Score',
     accessorKey: 'score',
     cell: ({ row }) =>
-      row.original.maxScore != null ? (
-        `${row.original.score ?? '-'} / ${row.original.maxScore}`
-      ) : (
-        <></>
-      )
+      row.original.maxScore !== null
+        ? `${row.original.score ?? '-'} / ${row.original.maxScore}`
+        : null
   }
 ]
