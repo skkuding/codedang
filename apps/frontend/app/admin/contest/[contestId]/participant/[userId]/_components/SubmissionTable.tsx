@@ -1,10 +1,12 @@
 'use client'
 
-import DataTable from '@/app/admin/_components/table/DataTable'
-import DataTableFallback from '@/app/admin/_components/table/DataTableFallback'
-import DataTablePagination from '@/app/admin/_components/table/DataTablePagination'
-import DataTableProblemFilter from '@/app/admin/_components/table/DataTableProblemFilter'
-import DataTableRoot from '@/app/admin/_components/table/DataTableRoot'
+import {
+  DataTableRoot,
+  DataTableProblemFilter,
+  DataTable,
+  DataTablePagination,
+  DataTableFallback
+} from '@/app/admin/_components/table'
 import SubmissionDetailAdmin from '@/app/admin/contest/[contestId]/_components/SubmissionDetailAdmin'
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER } from '@/graphql/contest/queries'

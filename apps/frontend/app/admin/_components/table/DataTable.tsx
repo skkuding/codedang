@@ -50,10 +50,7 @@ interface DataTableProps<TData extends { id: number }, TRoute extends string> {
  * @param onRowClick
  * 행 클릭 시 호출되는 함수
  */
-export default function DataTable<
-  TData extends { id: number },
-  TRoute extends string
->({
+export function DataTable<TData extends { id: number }, TRoute extends string>({
   headerStyle = {},
   showFooter = false,
   getHref,

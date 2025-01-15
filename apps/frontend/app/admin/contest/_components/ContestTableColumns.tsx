@@ -1,6 +1,6 @@
 'use client'
 
-import DataTableColumnHeader from '@/app/admin/_components/table/DataTableColumnHeader'
+import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import { Switch } from '@/components/shadcn/switch'
 import {
