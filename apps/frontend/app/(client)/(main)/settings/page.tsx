@@ -23,11 +23,8 @@ import StudentIdSection from './_components/StudentIdSection'
 import TopicSection from './_components/TopicSection'
 import { SettingsProvider } from './_components/context'
 import type { SettingsContextType } from './_components/context'
-//import type { Profile } from './_components/context'
 import { useCheckPassword } from './_libs/hooks/useCheckPassword'
 import { schemaSettings } from './_libs/schemas'
-
-//import { useConfirmNavigation } from './_libs/utils'
 
 export default function Page() {
   const searchParams = useSearchParams()
@@ -66,7 +63,6 @@ export default function Page() {
     setValue('confirmPassword', '')
   }
 
-  const [passwordShow, setPasswordShow] = useState(false)
   const [newPasswordShow, setNewPasswordShow] = useState(false)
   const [confirmPasswordShow, setConfirmPasswordShow] = useState(false)
 
@@ -82,7 +78,7 @@ export default function Page() {
     defaultProfileValues,
     passwordState: {
       passwordShow: false,
-      setPasswordShow,
+      setPasswordShow: () => {},
       newPasswordShow,
       setNewPasswordShow,
       confirmPasswordShow,
