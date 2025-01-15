@@ -78,12 +78,29 @@ export class SubmissionPublicationService {
     await this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
       messageId: String(submission.id),
       persistent: true,
-      type: isTest
-        ? RUN_MESSAGE_TYPE
-        : isUserTest
-          ? USER_TESTCASE_MESSAGE_TYPE
-          : JUDGE_MESSAGE_TYPE
+      type: this.calculateMessageType(isTest, isUserTest),
+      priority: this.calculateMessagePriority(isTest, isUserTest)
     })
     span.end()
+  }
+
+  private calculateMessageType(isTest: boolean, isUserTest: boolean) {
+    if (isTest) return RUN_MESSAGE_TYPE
+    if (isUserTest) return USER_TESTCASE_MESSAGE_TYPE
+    return JUDGE_MESSAGE_TYPE
+  }
+
+  private calculateMessagePriority(isTest: boolean, isUserTest: boolean) {
+    const msgType = this.calculateMessageType(isTest, isUserTest)
+
+    switch (msgType) {
+      case JUDGE_MESSAGE_TYPE:
+        return 3
+      case RUN_MESSAGE_TYPE:
+      case USER_TESTCASE_MESSAGE_TYPE:
+        return 1
+      default:
+        return 0
+    }
   }
 }
