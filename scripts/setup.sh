@@ -106,7 +106,7 @@ rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_P
 rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
   declare queue name="$JUDGE_RESULT_QUEUE_NAME" durable=true
 rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
-  declare queue name="$JUDGE_SUBMISSION_QUEUE_NAME" durable=true
+  declare queue name="$JUDGE_SUBMISSION_QUEUE_NAME" durable=true arguments='{"x-max-priority": 3}'
 
 # Make bindings
 rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \

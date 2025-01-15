@@ -9,6 +9,14 @@ variable "rabbitmq_port" {
   sensitive = true
 }
 
+variable "rabbitmq_arguments" {
+  default = <<EOF
+{
+  "x-max-priority": 3
+}
+EOF
+}
+
 # TODO: description 넣고 공통부분은 object로 처리
 variable "public_subnet1" { sensitive = true }
 variable "public_subnet2" { sensitive = true }

@@ -7,6 +7,8 @@ import * as sinon from 'sinon'
 import {
   EXCHANGE,
   JUDGE_MESSAGE_TYPE,
+  MESSAGE_PRIORITY_HIGH,
+  MESSAGE_PRIORITY_MIDDLE,
   RUN_MESSAGE_TYPE,
   SUBMISSION_KEY
 } from '@libs/constants'
@@ -103,7 +105,8 @@ describe('SubmissionPublicationService', () => {
         amqpSpy.calledOnceWith(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
           messageId: String(submission.id),
           persistent: true,
-          type: JUDGE_MESSAGE_TYPE
+          type: JUDGE_MESSAGE_TYPE,
+          priority: MESSAGE_PRIORITY_HIGH
         })
       ).to.be.true
     })
@@ -143,7 +146,8 @@ describe('SubmissionPublicationService', () => {
         amqpSpy.calledOnceWith(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
           messageId: String(submission.id),
           persistent: true,
-          type: RUN_MESSAGE_TYPE
+          type: RUN_MESSAGE_TYPE,
+          priority: MESSAGE_PRIORITY_MIDDLE
         })
       ).to.be.true
     })
