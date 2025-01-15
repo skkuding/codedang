@@ -54,16 +54,15 @@ func (r Request) Validate() (*Request, error) {
 }
 
 type JudgeResult struct {
-	TestcaseId      int             `json:"testcaseId"`
-	JudgeResultCode JudgeResultCode `json:"resultCode"`
-	Output          string          `json:"output"`
-	CpuTime         int             `json:"cpuTime"`
-	RealTime        int             `json:"realTime"`
-	Memory          int             `json:"memory"`
-	Signal          int             `json:"signal"`
-	ExitCode        int             `json:"exitCode"`
-	ErrorCode       int             `json:"errorCode"`
-	Error           string          `json:"error"`
+	TestcaseId int    `json:"testcaseId"`
+	Output     string `json:"output"`
+	CpuTime    int    `json:"cpuTime"`
+	RealTime   int    `json:"realTime"`
+	Memory     int    `json:"memory"`
+	Signal     int    `json:"signal"`
+	ExitCode   int    `json:"exitCode"`
+	ErrorCode  int    `json:"errorCode"`
+	Error      string `json:"error"`
 }
 
 type JudgeResultMessage struct {
@@ -72,10 +71,6 @@ type JudgeResultMessage struct {
 }
 
 var ErrJudgeEnd = errors.New("judge handle end")
-
-func (r *JudgeResult) SetJudgeResultCode(code JudgeResultCode) {
-	r.JudgeResultCode = code
-}
 
 func (r *JudgeResult) SetJudgeExecResult(execResult sandbox.ExecResult) {
 	r.CpuTime = execResult.CpuTime
@@ -312,8 +307,6 @@ func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.C
 func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 	tc loader.Element, out chan JudgeResultMessage) {
 
-	var accepted bool
-
 	res := JudgeResult{}
 
 	time.Sleep(time.Millisecond)
@@ -326,9 +319,11 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 		MemoryLimit: validReq.MemoryLimit,
 	}, []byte(tc.In))
 
+	var accepted bool
+	judgeResultCode := SandboxResultCodeToJudgeResultCode(runResult.ExecResult.ResultCode)
+
 	if err != nil {
 		j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
-		res.JudgeResultCode = SERVER_ERROR
 		res.Error = string(runResult.ErrOutput)
 		goto Send
 	}
@@ -341,20 +336,10 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 		res.Output = res.Output[:constants.MAX_OUTPUT]
 	}
 
-	if runResult.ExecResult.ResultCode != sandbox.RUN_SUCCESS {
-		res.SetJudgeResultCode(SandboxResultCodeToJudgeResultCode(runResult.ExecResult.ResultCode))
-		goto Send
-	}
-
-	// 하나당 약 50microsec 10개 채점시 500microsec.
-	// output이 커지면 더 길어짐 -> FIXME: 최적화 과정에서 goroutine으로 수정
-	// st := time.Now()
 	accepted = grader.Grade([]byte(tc.Out), runResult.Output)
 
-	if accepted {
-		res.SetJudgeResultCode(ACCEPTED)
-	} else {
-		res.SetJudgeResultCode(WRONG_ANSWER)
+	if !accepted {
+		judgeResultCode = WRONG_ANSWER
 	}
 
 	// TODO: ChResult 구조체 활용
@@ -362,7 +347,8 @@ Send:
 	marshaledRes, err := json.Marshal(res)
 	if err != nil {
 		out <- JudgeResultMessage{nil, &HandlerError{err: ErrMarshalJson, level: logger.ERROR}}
+		return
 	} else {
-		out <- JudgeResultMessage{marshaledRes, ParseError(res)}
+		out <- JudgeResultMessage{marshaledRes, ParseError(res, judgeResultCode)}
 	}
 }
