@@ -1,14 +1,10 @@
 'use client'
 
-//import { safeFetcherWithAuth } from '@/libs/utils'
 import type { SettingsFormat } from '@/types/type'
 import { zodResolver } from '@hookform/resolvers/zod'
-//import { useSuspenseQuery, useMutation } from '@tanstack/react-query'
 import { useRouter, useSearchParams } from 'next/navigation'
-//import { useEffect, useRef } from 'react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-//import type { UseFormRegister } from 'react-hook-form'
 import { toast } from 'sonner'
 import {
   useFetchUserProfileSuspense,
@@ -53,7 +49,7 @@ export default function Page() {
   } = useForm<SettingsFormat>({
     resolver: zodResolver(schemaSettings(Boolean(updateNow))),
     mode: 'onChange',
-    defaultValues: {} // 초기 값을 비워둠
+    defaultValues: {}
   })
 
   const realName = watch('realName')
@@ -69,7 +65,7 @@ export default function Page() {
     setValue('newPassword', '')
     setValue('confirmPassword', '')
   }
-  // 패스워드 상태 관리
+
   const [passwordShow, setPasswordShow] = useState(false)
   const [newPasswordShow, setNewPasswordShow] = useState(false)
   const [confirmPasswordShow, setConfirmPasswordShow] = useState(false)
@@ -82,7 +78,6 @@ export default function Page() {
   } = useCheckPassword(defaultProfileValues, currentPassword)
   const isPasswordsMatch = newPassword === confirmPassword && newPassword !== ''
 
-  // Context value 정의
   const settingsContextValue: SettingsContextType = {
     defaultProfileValues,
     passwordState: {
@@ -100,8 +95,8 @@ export default function Page() {
       setMajorValue: () => {}
     },
     formState: {
-      register, // useForm에서 가져온 register
-      errors // useForm에서 가져온 errors
+      register,
+      errors
     },
     updateNow: Boolean(updateNow),
     isLoading: false
@@ -177,9 +172,9 @@ export default function Page() {
             <StudentIdSection studentId={studentId} />
             <MajorSection major={defaultProfileValues?.major ?? ''} />
             <SaveButton
-              saveAbleUpdateNow={Boolean(realName || studentId)} // 업데이트 가능한지 여부
+              saveAbleUpdateNow={Boolean(realName || studentId)}
               saveAble={Boolean(realName || studentId)}
-              isLoading={isLoading} // 로딩 상태 전달
+              isLoading={isLoading}
               onSubmitClick={() => console.log('Submitting form...')}
             />
           </form>
