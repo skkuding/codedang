@@ -2,7 +2,7 @@
 
 import { safeFetcherWithAuth } from '@/libs/utils'
 import type { SettingsFormat } from '@/types/type'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import { useState } from 'react'
@@ -22,7 +22,7 @@ import TopicSection from './_components/TopicSection'
 import { SettingsProvider } from './_components/context'
 import type { Profile } from './_components/context'
 import { useCheckPassword } from './_libs/hooks/useCheckPassword'
-import { schemaSettings } from './_libs/schemas'
+import { getSchema } from './_libs/schemas'
 import { useConfirmNavigation } from './_libs/utils'
 
 type UpdatePayload = Partial<{
@@ -72,7 +72,7 @@ export default function Page() {
     watch,
     formState: { errors }
   } = useForm<SettingsFormat>({
-    resolver: zodResolver(schemaSettings(Boolean(updateNow))),
+    resolver: valibotResolver(getSchema(Boolean(updateNow))),
     mode: 'onChange',
     defaultValues: {
       currentPassword: '',
