@@ -1,0 +1,38 @@
+meta {
+  name: [ERR] End Time Earlier than Start Time
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createAssignment(
+      groupId: 2
+      input: {
+        title: "New Assignment Group 2"
+        description: "thisisnewassignment"
+        startTime: "2030-01-01"
+        endTime: "2020-01-01"
+        isVisible: true
+        isRankVisible: true
+        enableCopyPaste: true
+        invitationCode:"123456"
+        isJudgeResultVisible: true
+      }
+    ) {
+      id
+      title
+      description
+    }
+  }
+}
+
+assert {
+  res.body.errors: isDefined
+}

@@ -201,30 +201,26 @@ const CarouselPrevious = React.forwardRef<
   const { orientation, scrollPrev, canScrollPrev, canScrollNext } =
     useCarousel()
 
-  return (
-    <>
-      {(canScrollPrev || canScrollNext) && (
-        <Button
-          ref={ref}
-          variant={variant}
-          size={size}
-          className={cn(
-            'h-8 w-8',
-            orientation === 'horizontal'
-              ? '-right-12 -translate-y-1/2'
-              : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
-            className
-          )}
-          disabled={!canScrollPrev}
-          onClick={scrollPrev}
-          {...props}
-        >
-          <IoIosArrowBack className="h-4 w-4" />
-          <span className="sr-only">Previous slide</span>
-        </Button>
+  return canScrollPrev || canScrollNext ? (
+    <Button
+      ref={ref}
+      variant={variant}
+      size={size}
+      className={cn(
+        'h-8 w-8',
+        orientation === 'horizontal'
+          ? '-right-12 -translate-y-1/2'
+          : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
+        className
       )}
-    </>
-  )
+      disabled={!canScrollPrev}
+      onClick={scrollPrev}
+      {...props}
+    >
+      <IoIosArrowBack className="h-4 w-4" />
+      <span className="sr-only">Previous slide</span>
+    </Button>
+  ) : null
 })
 CarouselPrevious.displayName = 'CarouselPrevious'
 const CarouselNext = React.forwardRef<
@@ -234,44 +230,36 @@ const CarouselNext = React.forwardRef<
   const { orientation, scrollNext, canScrollNext, canScrollPrev } =
     useCarousel()
 
-  return (
-    <>
-      {(canScrollPrev || canScrollNext) && (
-        <Button
-          ref={ref}
-          variant={variant}
-          size={size}
-          className={cn(
-            'h-8 w-8',
-            orientation === 'horizontal'
-              ? '-right-12 top-1/2 -translate-y-1/2'
-              : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90',
-            className
-          )}
-          disabled={!canScrollNext}
-          onClick={scrollNext}
-          {...props}
-        >
-          <IoIosArrowForward className="h-4 w-4" />
-          <span className="sr-only">Next slide</span>
-        </Button>
+  return canScrollPrev || canScrollNext ? (
+    <Button
+      ref={ref}
+      variant={variant}
+      size={size}
+      className={cn(
+        'h-8 w-8',
+        orientation === 'horizontal'
+          ? '-right-12 top-1/2 -translate-y-1/2'
+          : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90',
+        className
       )}
-    </>
-  )
+      disabled={!canScrollNext}
+      onClick={scrollNext}
+      {...props}
+    >
+      <IoIosArrowForward className="h-4 w-4" />
+      <span className="sr-only">Next slide</span>
+    </Button>
+  ) : null
 })
 CarouselNext.displayName = 'CarouselNext'
 
 const CarouselNextGradient = () => {
   const { canScrollNext } = useCarousel()
 
-  return (
-    <>
-      {canScrollNext ? (
-        <div className="absolute bottom-[4px] right-0 h-[130px] w-[120px] self-end bg-gradient-to-r from-transparent to-white/70"></div>
-      ) : (
-        <div></div>
-      )}
-    </>
+  return canScrollNext ? (
+    <div className="absolute bottom-[4px] right-0 h-[130px] w-[120px] self-end bg-gradient-to-r from-transparent to-white/70" />
+  ) : (
+    <div />
   )
 }
 CarouselNextGradient.displayName = 'CarouselNextGradient'
@@ -279,14 +267,10 @@ CarouselNextGradient.displayName = 'CarouselNextGradient'
 const CarouselPrevGradient = () => {
   const { canScrollPrev } = useCarousel()
 
-  return (
-    <>
-      {canScrollPrev ? (
-        <div className="absolute bottom-[4px] left-0 h-[130px] w-[120px] self-start bg-gradient-to-r from-white/70 to-transparent"></div>
-      ) : (
-        <div> </div>
-      )}
-    </>
+  return canScrollPrev ? (
+    <div className="absolute bottom-[4px] left-0 h-[130px] w-[120px] self-start bg-gradient-to-r from-white/70 to-transparent" />
+  ) : (
+    <div />
   )
 }
 CarouselPrevGradient.displayName = 'CarouselPrevGradient'

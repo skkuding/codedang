@@ -1,7 +1,9 @@
 'use client'
 
+import { submissionQueries } from '@/app/(client)/_libs/queries/submission'
 import CodeEditor from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import {
   Table,
   TableBody,
@@ -11,17 +13,28 @@ import {
   TableRow
 } from '@/components/shadcn/table'
 import { dateFormatter, getResultColor } from '@/libs/utils'
-import type { ContestProblem, Language, SubmissionDetail } from '@/types/type'
+import type { ContestProblem } from '@/types/type'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
-export default function SubmissionDetailContent({
-  submissionId,
-  submission,
-  problem
-}: {
+interface SubmissionDetailProps {
+  contestId: number
   submissionId: number
-  submission: SubmissionDetail
   problem: ContestProblem
-}) {
+}
+
+export function SubmissionDetailContent({
+  contestId,
+  submissionId,
+  problem
+}: SubmissionDetailProps) {
+  const { data: submission } = useSuspenseQuery(
+    submissionQueries.detail({
+      contestId,
+      submissionId,
+      problemId: problem.id
+    })
+  )
+
   return (
     <ScrollArea className="mt-5 max-h-[540px] w-[760px]">
       <div className="ml-20 flex w-[612px] flex-col gap-4">
@@ -75,7 +88,7 @@ export default function SubmissionDetailContent({
               <Table className="[&_*]:text-center [&_*]:text-xs [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:!border-neutral-200">
                 <TableHeader>
                   <TableRow>
-                    <TableHead></TableHead>
+                    <TableHead />
                     <TableHead className="!text-sm text-black">
                       Result
                     </TableHead>
@@ -96,11 +109,7 @@ export default function SubmissionDetailContent({
                       </TableCell>
                       <TableCell>{item.cpuTime} ms</TableCell>
                       <TableCell>
-                        {(
-                          (item?.memoryUsage as number) /
-                          (1024 * 1024)
-                        ).toFixed(2)}{' '}
-                        MB
+                        {(item?.memoryUsage / (1024 * 1024)).toFixed(2)} MB
                       </TableCell>
                     </TableRow>
                   ))}
@@ -112,10 +121,32 @@ export default function SubmissionDetailContent({
           <h2 className="mb-3 font-bold">Source Code</h2>
           <CodeEditor
             value={submission?.code}
-            language={submission?.language as Language}
+            language={submission?.language}
             readOnly
             className="max-h-96 min-h-16 w-full"
           />
+        </div>
+      </div>
+    </ScrollArea>
+  )
+}
+
+export function SubmissionDetailContentFallback() {
+  return (
+    <ScrollArea className="mt-5 max-h-[540px] w-[760px]">
+      <div className="ml-20 flex w-[612px] flex-col gap-4">
+        <Skeleton className="h-[28px]" />
+        <div>
+          <h2 className="font-bold">Summary</h2>
+          <Skeleton className="h-[76px]" />
+        </div>
+        <div>
+          <h2 className="font-bold">Testcase</h2>
+          <Skeleton className="h-[76px]" />
+        </div>
+        <div>
+          <h2 className="mb-3 font-bold">Source Code</h2>
+          <Skeleton className="h-28" />
         </div>
       </div>
     </ScrollArea>

@@ -100,7 +100,7 @@ export default function LanguageSelect<T extends string>({
                   <Checkbox
                     checked={selectedValues.includes(option)}
                     onCheckedChange={() => handleCheckboxChange(option)}
-                  ></Checkbox>
+                  />
                   {option}
                 </CommandItem>
               ))}

@@ -14,7 +14,7 @@ import { jwtDecode } from 'jwt-decode'
 export const getJWTExpire = (token: string): number => {
   const decoded = jwtDecode(token)
 
-  if (decoded.exp == null) {
+  if (decoded.exp === null || decoded.exp === undefined) {
     throw new Error('Token does not contain an expiration date')
   }
 

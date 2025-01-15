@@ -6,7 +6,7 @@ interface RouteHandlerContext {
   params: { nextauth: string[] }
 }
 
-const handler = async (req: NextRequest, res: RouteHandlerContext) => {
+const handler = (req: NextRequest, res: RouteHandlerContext) => {
   return NextAuth(req, res, authOptions)
 }
 

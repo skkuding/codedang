@@ -29,8 +29,9 @@ export const columns: ColumnDef<Contest>[] = [
     header: 'Period',
     accessorKey: 'period',
     cell: ({ row }) =>
-      dateFormatter(row.original.startTime, 'YYYY-MM-DD') +
-      ' ~ ' +
-      dateFormatter(row.original.endTime, 'YYYY-MM-DD')
+      `${dateFormatter(row.original.startTime, 'YYYY-MM-DD')} ~ ${dateFormatter(
+        row.original.endTime,
+        'YYYY-MM-DD'
+      )}`
   }
 ]

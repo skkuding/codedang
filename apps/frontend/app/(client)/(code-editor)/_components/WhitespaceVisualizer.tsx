@@ -1,5 +1,5 @@
 import { cn } from '@/libs/utils'
-import { sanitize } from 'isomorphic-dompurify'
+import DOMPurify from 'isomorphic-dompurify'
 
 export function WhitespaceVisualizer({
   text = '',
@@ -26,7 +26,7 @@ export function WhitespaceVisualizer({
   const visibleLines = lines.slice(0, 3).join('\n')
   const truncatedText =
     lines.length > 3
-      ? visibleLines + '\n<span style="color: rgb(150, 150, 150);">...</span>'
+      ? `${visibleLines}\n<span style="color: rgb(150, 150, 150);">...</span>`
       : visibleLines
 
   return (
@@ -37,7 +37,7 @@ export function WhitespaceVisualizer({
         className
       )}
       dangerouslySetInnerHTML={{
-        __html: sanitize(
+        __html: DOMPurify.sanitize(
           isTruncated ? truncatedText : highlightedWhitespaceText
         )
       }}
