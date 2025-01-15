@@ -1,4 +1,4 @@
-import { Separator } from '@/components/ui/separator'
+import { Separator } from '@/components/shadcn/separator'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import Image from 'next/image'
 import Link from 'next/link'

@@ -1,8 +1,8 @@
 'use client'
 
 import { useConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
-import { Button } from '@/components/ui/button'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { Button } from '@/components/shadcn/button'
+import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
@@ -19,18 +19,19 @@ import DescriptionForm from '../../../_components/DescriptionForm'
 import FormSection from '../../../_components/FormSection'
 import SwitchField from '../../../_components/SwitchField'
 import TitleForm from '../../../_components/TitleForm'
+import VisibleForm from '../../../_components/VisibleForm'
 import { CautionDialog } from '../../_components/CautionDialog'
 import InfoForm from '../../_components/InfoForm'
 import LimitForm from '../../_components/LimitForm'
 import PopoverVisibleInfo from '../../_components/PopoverVisibleInfo'
 import TemplateField from '../../_components/TemplateField'
 import TestcaseField from '../../_components/TestcaseField'
-import VisibleForm from '../../_components/VisibleForm'
 import { editSchema } from '../../_libs/schemas'
 import { validateScoreWeight } from '../../_libs/utils'
+import { ScoreCautionDialog } from './_components/ScoreCautionDialog'
 
-export default function Page({ params }: { params: { id: string } }) {
-  const { id } = params
+export default function Page({ params }: { params: { problemId: string } }) {
+  const { problemId } = params
   const shouldSkipWarning = useRef(false)
   const router = useRouter()
 
@@ -43,23 +44,35 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const { handleSubmit, setValue, getValues } = methods
 
-  const [blockEdit, setBlockEdit] = useState<boolean>(false)
   const [showHint, setShowHint] = useState<boolean>(false)
   const [showSource, setShowSource] = useState<boolean>(false)
   const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
   const [dialogDescription, setDialogDescription] = useState<string>('')
+  const [isScoreDialogOpen, setIsScoreDialogOpen] = useState<boolean>(false)
+  const initialValues = useRef<{
+    testcases: Testcase[]
+    timeLimit: number
+    memoryLimit: number
+  } | null>(null)
+
+  const pendingInput = useRef<UpdateProblemInput | null>(null)
 
   useQuery(GET_PROBLEM, {
     variables: {
       groupId: 1,
-      id: +id
+      id: Number(problemId)
     },
     onCompleted: (problemData) => {
       const data = problemData.getProblem
 
-      if (data.submissionCount > 0) setBlockEdit(true)
+      const initialFormValues = {
+        testcases: data.testcase,
+        timeLimit: data.timeLimit,
+        memoryLimit: data.memoryLimit
+      }
+      initialValues.current = initialFormValues
 
-      setValue('id', +id)
+      setValue('id', Number(problemId))
       setValue('title', data.title)
       setValue('isVisible', data.isVisible)
       setValue('difficulty', data.difficulty)
@@ -108,6 +121,25 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
 
+  const handleUpdate = async () => {
+    if (pendingInput.current) {
+      await updateProblem({
+        variables: {
+          groupId: 1,
+          input: pendingInput.current
+        }
+      })
+      if (error) {
+        toast.error('Failed to update problem')
+        return
+      }
+      shouldSkipWarning.current = true
+      toast.success('Successfully updated problem')
+      router.push('/admin/problem')
+      router.refresh()
+    }
+  }
+
   const onSubmit = async (input: UpdateProblemInput) => {
     const testcases = getValues('testcases') as Testcase[]
     if (validateScoreWeight(testcases) === false) {
@@ -117,36 +149,38 @@ export default function Page({ params }: { params: { id: string } }) {
       setDialogOpen(true)
       return
     }
-    const tagsToDelete = getValues('tags.delete')
-    const tagsToCreate = getValues('tags.create')
-    input.tags!.create = tagsToCreate.filter(
-      (tag) => !tagsToDelete.includes(tag)
-    )
-    input.tags!.delete = tagsToDelete.filter(
-      (tag) => !tagsToCreate.includes(tag)
-    )
 
-    await updateProblem({
-      variables: {
-        groupId: 1,
-        input
+    pendingInput.current = input
+    if (initialValues.current) {
+      const currentValues = getValues()
+      let scoreCalculationChanged = false
+
+      if (
+        JSON.stringify(currentValues.testcases) !==
+        JSON.stringify(initialValues.current.testcases)
+      ) {
+        scoreCalculationChanged = true
+      } else if (currentValues.timeLimit !== initialValues.current.timeLimit) {
+        scoreCalculationChanged = true
+      } else if (
+        currentValues.memoryLimit !== initialValues.current.memoryLimit
+      ) {
+        scoreCalculationChanged = true
       }
-    })
-    if (error) {
-      toast.error('Failed to update problem')
-      return
+
+      if (scoreCalculationChanged) {
+        setIsScoreDialogOpen(true)
+        return
+      }
     }
-    shouldSkipWarning.current = true
-    toast.success('Succesfully updated problem')
-    router.push('/admin/problem')
-    router.refresh()
+    await handleUpdate()
   }
 
   return (
     <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
         <div className="-ml-8 flex items-center gap-4">
-          <Link href={`/admin/problem/${id}`}>
+          <Link href={`/admin/problem/${problemId}`}>
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
           <span className="text-4xl font-bold">Edit Problem</span>
@@ -195,10 +229,10 @@ export default function Page({ params }: { params: { id: string } }) {
               </div>
             </div>
 
-            {getValues('testcases') && <TestcaseField blockEdit={blockEdit} />}
+            {getValues('testcases') && <TestcaseField blockEdit={false} />}
 
             <FormSection title="Limit">
-              <LimitForm blockEdit={blockEdit} />
+              <LimitForm blockEdit={false} />
             </FormSection>
             <TemplateField />
             <SwitchField
@@ -231,6 +265,15 @@ export default function Page({ params }: { params: { id: string } }) {
         isOpen={isDialogOpen}
         onClose={() => setDialogOpen(false)}
         description={dialogDescription}
+      />
+      <ScoreCautionDialog
+        isOpen={isScoreDialogOpen}
+        onCancel={() => setIsScoreDialogOpen(false)}
+        onConfirm={async () => {
+          await handleUpdate()
+          setIsScoreDialogOpen(false)
+        }}
+        problemId={Number(problemId)}
       />
     </ScrollArea>
   )

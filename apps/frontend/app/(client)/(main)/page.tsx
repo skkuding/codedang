@@ -1,6 +1,5 @@
-import { Button } from '@/components/ui/button'
-import type { Route } from 'next'
-import Link from 'next/link'
+import FetchErrorFallback from '@/components/FetchErrorFallback'
+import { ErrorBoundary } from '@suspensive/react'
 import Carousel from './_components/Carousel'
 import ContestCards from './_components/ContestCards'
 import ProblemCards from './_components/ProblemCards'
@@ -59,29 +58,13 @@ export default function Home() {
         </div>
       </div> */}
 
-      <div className="flex w-full flex-col gap-6">
-        <div className="flex items-center justify-between text-gray-700">
-          <p className="text-2xl font-bold">Contest 🏆</p>
-          <Link href={'/contest' as Route}>
-            <Button variant="ghost" className="h-8 px-3">
-              See More
-            </Button>
-          </Link>
-        </div>
+      <ErrorBoundary fallback={FetchErrorFallback}>
         <ContestCards />
-      </div>
+      </ErrorBoundary>
 
-      <div className="flex w-full flex-col gap-6">
-        <div className="flex items-center justify-between text-gray-700">
-          <p className="text-2xl font-bold">Problem ✨</p>
-          <Link href={'/problem' as Route}>
-            <Button variant="ghost" className="h-8 px-3">
-              See More
-            </Button>
-          </Link>
-        </div>
+      <ErrorBoundary fallback={FetchErrorFallback}>
         <ProblemCards />
-      </div>
+      </ErrorBoundary>
     </div>
   )
 }

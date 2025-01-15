@@ -1,9 +1,9 @@
 'use client'
 
-import SortButton from '@/components/SortButton'
-import { Badge } from '@/components/ui/badge'
+import { Badge } from '@/components/shadcn/badge'
 import type { Level, Problem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
+import SortButton from './SortButton'
 
 export const columns: ColumnDef<Problem>[] = [
   {
@@ -33,10 +33,5 @@ export const columns: ColumnDef<Problem>[] = [
     header: () => <SortButton order="acrate">Success Rate</SortButton>,
     accessorKey: 'acceptedRate',
     cell: ({ row }) => `${(row.original.acceptedRate * 100).toFixed(2)}%`
-  },
-  {
-    header: 'Info',
-    accessorKey: 'info',
-    cell: ({ row }) => row.original.info
   }
 ]

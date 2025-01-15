@@ -1,5 +1,5 @@
-import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { Input } from '@/components/shadcn/input'
+import { cn } from '@/libs/utils'
 import type { SettingsFormat } from '@/types/type'
 import type { FieldErrors, UseFormRegister } from 'react-hook-form'
 

@@ -1,10 +1,11 @@
 'use client'
 
-import { convertToLetter, dateFormatter } from '@/lib/utils'
-import checkIcon from '@/public/icons/check-green.svg'
+import { convertToLetter, dateFormatter } from '@/libs/utils'
 import type { ContestProblem } from '@/types/type'
+import { ErrorBoundary } from '@suspensive/react'
 import type { ColumnDef } from '@tanstack/react-table'
-import Image from 'next/image'
+import { Suspense } from 'react'
+import { MySubmissionFallback, MySubmission } from './MySubmission'
 
 export const columns: ColumnDef<ContestProblem>[] = [
   {
@@ -26,12 +27,16 @@ export const columns: ColumnDef<ContestProblem>[] = [
     }
   },
   {
-    header: 'Submit',
+    header: 'My Submission',
     accessorKey: 'submit',
     cell: ({ row }) =>
       row.original.submissionTime && (
         <div className="flex items-center justify-center">
-          <Image src={checkIcon} alt="check" width={24} height={24} />
+          <ErrorBoundary fallback={null}>
+            <Suspense fallback={<MySubmissionFallback />}>
+              <MySubmission problem={row.original} />
+            </Suspense>
+          </ErrorBoundary>
         </div>
       )
   },

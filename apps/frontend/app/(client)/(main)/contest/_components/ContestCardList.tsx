@@ -5,8 +5,8 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious
-} from '@/components/ui/carousel'
-import { cn, fetcher, fetcherWithAuth } from '@/lib/utils'
+} from '@/components/shadcn/carousel'
+import { cn, fetcher, fetcherWithAuth } from '@/libs/utils'
 import type { Contest } from '@/types/type'
 import type { Route } from 'next'
 import type { Session } from 'next-auth'

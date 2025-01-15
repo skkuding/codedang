@@ -2,10 +2,10 @@
 
 import KatexContent from '@/components/KatexContent'
 import Paginator from '@/components/Paginator'
-import { Button } from '@/components/ui/button'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { Button } from '@/components/shadcn/button'
+import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { GET_PROBLEM_DETAIL } from '@/graphql/problem/queries'
-import { usePagination } from '@/lib/pagination'
+import { usePagination } from '@/libs/hooks/usePagination'
 import type { SubmissionItem } from '@/types/type'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
@@ -13,18 +13,18 @@ import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
 import { columns } from './_components/Columns'
 import DataTable from './_components/DataTable'
 
-export default function Page({ params }: { params: { id: string } }) {
-  const { id } = params
+export default function Page({ params }: { params: { problemId: string } }) {
+  const { problemId } = params
 
   const problemData = useQuery(GET_PROBLEM_DETAIL, {
     variables: {
       groupId: 1,
-      id: +id
+      id: Number(problemId)
     }
   }).data?.getProblem
 
   const { items, paginator } = usePagination<SubmissionItem>(
-    `submission?problemId=${id}`,
+    `submission?problemId=${problemId}`,
     20
   )
 
@@ -38,7 +38,7 @@ export default function Page({ params }: { params: { id: string } }) {
             </Link>
             <span className="text-4xl font-bold">{problemData?.title}</span>
           </div>
-          <Link href={`/admin/problem/${id}/edit`}>
+          <Link href={`/admin/problem/${problemId}/edit`}>
             <Button variant="default">
               <FaPencil className="mr-2 h-4 w-4" />
               Edit
@@ -62,7 +62,7 @@ export default function Page({ params }: { params: { id: string } }) {
             createTime: 'w-[23%]',
             codeSize: 'w-[13%]'
           }}
-          problemId={Number(id)}
+          problemId={Number(problemId)}
         />
         <Paginator page={paginator.page} slot={paginator.slot} />
       </main>

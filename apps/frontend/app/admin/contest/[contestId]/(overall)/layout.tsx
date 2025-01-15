@@ -1,9 +1,9 @@
 'use client'
 
 import KatexContent from '@/components/KatexContent'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST } from '@/graphql/contest/queries'
-import { dateFormatter } from '@/lib/utils'
+import { dateFormatter } from '@/libs/utils'
 import periodIcon from '@/public/icons/period.svg'
 import { useQuery } from '@apollo/client'
 import Image from 'next/image'
@@ -15,14 +15,14 @@ export default function Layout({
   params,
   tabs
 }: {
-  params: { id: string }
+  params: { contestId: string }
   tabs: React.ReactNode
 }) {
-  const { id } = params
+  const { contestId } = params
 
   const contestData = useQuery(GET_CONTEST, {
     variables: {
-      contestId: Number(id)
+      contestId: Number(contestId)
     }
   }).data?.getContest
 
@@ -35,7 +35,7 @@ export default function Layout({
           </Link>
           <span className="text-4xl font-bold">{contestData?.title}</span>
         </div>
-        <Link href={`/admin/contest/${id}/edit`}>
+        <Link href={`/admin/contest/${contestId}/edit`}>
           <Button variant="default">
             <FaPencil className="mr-2 h-4 w-4" />
             Edit
@@ -58,7 +58,7 @@ export default function Layout({
         content={contestData?.description}
         classname="prose mb-4 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12"
       />
-      <ContestOverallTabs contestId={id} />
+      <ContestOverallTabs contestId={contestId} />
       {tabs}
     </main>
   )

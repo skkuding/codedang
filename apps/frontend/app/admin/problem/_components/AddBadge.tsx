@@ -1,4 +1,4 @@
-import { Badge } from '@/components/ui/badge'
+import { Badge } from '@/components/shadcn/badge'
 
 export default function AddBadge({ onClick }: { onClick: () => void }) {
   return (

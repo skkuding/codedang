@@ -14,7 +14,7 @@ import { ContestSubmissionSummaryForUser } from './model/contest-submission-summ
 import { ContestWithParticipants } from './model/contest-with-participants.model'
 import { CreateContestInput } from './model/contest.input'
 import { UpdateContestInput } from './model/contest.input'
-import { ContestsGroupedByStatus } from './model/contests-grouped-by-status'
+import { ContestsGroupedByStatus } from './model/contests-grouped-by-status.output'
 import { DuplicatedContestResponse } from './model/duplicated-contest-response.output'
 import { ProblemScoreInput } from './model/problem-score.input'
 import { PublicizingRequest } from './model/publicizing-request.model'
@@ -83,12 +83,22 @@ export class ContestResolver {
     return await this.contestService.deleteContest(groupId, contestId)
   }
 
+  /**
+   * Contest의 소속 Group을 Open Space(groupId === 1)로 이동시키기 위한 요청(Publicizing Requests)들을 불러옵니다.
+   * @returns Publicizing Request 배열
+   */
   @Query(() => [PublicizingRequest])
   @UseRolesGuard()
   async getPublicizingRequests() {
     return await this.contestService.getPublicizingRequests()
   }
 
+  /**
+   * Contest의 소속 Group을 Open Space(groupId === 1)로 이동시키기 위한 요청(Publicizing Request)를 생성합니다.
+   * @param groupId Contest가 속한 Group의 ID. 이미 Open Space(groupId === 1)이 아니어야 합니다.
+   * @param contestId Contest의 ID
+   * @returns 생성된 Publicizing Request
+   */
   @Mutation(() => PublicizingRequest)
   async createPublicizingRequest(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
@@ -100,6 +110,12 @@ export class ContestResolver {
     )
   }
 
+  /**
+   * Contest의 소속 Group을 Open Space(groupId === 1)로 이동시키기 위한 요청(Publicizing Request)을 처리합니다.
+   * @param contestId Publicizing Request를 생성한 contest의 Id
+   * @param isAccepted 요청 수락 여부
+   * @returns
+   */
   @Mutation(() => PublicizingResponse)
   @UseRolesGuard()
   async handlePublicizingRequest(
@@ -144,7 +160,7 @@ export class ContestResolver {
    * 특정 User의 Contest 제출 내용 요약 정보를 가져옵니다.
    *
    * Contest Overall 페이지에서 특정 유저를 선택했을 때 사용
-   * https://github.com/skkuding/codedang/pull/1894
+   * @see https://github.com/skkuding/codedang/pull/1894
    */
   @Query(() => ContestSubmissionSummaryForUser)
   async getContestSubmissionSummaryByUserId(
@@ -188,7 +204,7 @@ export class ContestResolver {
    * Contest에 참여한 User와, 점수 요약을 함께 불러옵니다.
    *
    * Contest Overall 페이지의 Participants 탭의 정보
-   * https://github.com/skkuding/codedang/pull/2029
+   * @see https://github.com/skkuding/codedang/pull/2029
    */
   @Query(() => [UserContestScoreSummaryWithUserInfo])
   async getContestScoreSummaries(

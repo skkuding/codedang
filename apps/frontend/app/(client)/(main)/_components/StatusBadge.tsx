@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import finishedIcon from '@/public/icons/finished.svg'
 import ongoingIcon from '@/public/icons/ongoing.svg'
 import upcomingIcon from '@/public/icons/upcoming.svg'

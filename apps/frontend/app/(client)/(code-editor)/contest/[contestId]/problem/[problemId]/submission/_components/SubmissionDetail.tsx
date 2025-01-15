@@ -1,5 +1,5 @@
 import CodeEditor from '@/components/CodeEditor'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import {
   Table,
   TableBody,
@@ -7,8 +7,8 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from '@/components/ui/table'
-import { dateFormatter, fetcherWithAuth, getResultColor } from '@/lib/utils'
+} from '@/components/shadcn/table'
+import { dateFormatter, fetcherWithAuth, getResultColor } from '@/libs/utils'
 import type { SubmissionDetail } from '@/types/type'
 import { revalidateTag } from 'next/cache'
 import { IoIosLock } from 'react-icons/io'

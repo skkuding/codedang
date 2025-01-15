@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense } from 'react'
@@ -8,9 +8,9 @@ export default async function Page({
   params
 }: {
   params: {
-    problemId: number
-    contestId: number
-    submissionId: number
+    problemId: string
+    contestId: string
+    submissionId: string
   }
 }) {
   const { submissionId, problemId, contestId } = params
@@ -33,9 +33,9 @@ export default async function Page({
         }
       >
         <SubmissionDetail
-          problemId={problemId}
-          contestId={contestId}
-          submissionId={submissionId}
+          problemId={Number(problemId)}
+          contestId={Number(contestId)}
+          submissionId={Number(submissionId)}
         />
       </Suspense>
     </div>

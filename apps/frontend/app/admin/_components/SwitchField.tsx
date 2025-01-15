@@ -1,9 +1,9 @@
 'use client'
 
-import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
+import { Input } from '@/components/shadcn/input'
+import { Switch } from '@/components/shadcn/switch'
+import { Textarea } from '@/components/shadcn/textarea'
+import { cn } from '@/libs/utils'
 import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { inputStyle } from '../_libs/utils'

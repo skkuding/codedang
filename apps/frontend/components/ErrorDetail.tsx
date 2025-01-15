@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import errorImg from '@/public/logos/error.webp'
 import Image from 'next/image'
 

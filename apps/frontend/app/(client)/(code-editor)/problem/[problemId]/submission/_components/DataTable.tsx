@@ -7,8 +7,8 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from '@/components/ui/table'
-import { cn } from '@/lib/utils'
+} from '@/components/shadcn/table'
+import { cn } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
@@ -117,7 +117,7 @@ export default function DataTable<TData extends Item, TValue>({
                 data-state={row.getIsSelected() && 'selected'}
                 className="cursor-pointer border-t border-slate-600 text-slate-300 hover:bg-slate-600/50 hover:font-semibold"
                 onClick={() => {
-                  router.push(href)
+                  router.replace(href)
                 }}
               >
                 {row.getVisibleCells().map((cell) => (
@@ -137,7 +137,7 @@ export default function DataTable<TData extends Item, TValue>({
                       )}
                     </div>
                     {/* for prefetch */}
-                    <Link href={href} />
+                    <Link replace href={href} />
                   </TableCell>
                 ))}
               </TableRow>

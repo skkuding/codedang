@@ -1,6 +1,6 @@
 'use client'
 
-import { Input } from '@/components/ui/input'
+import { Input } from '@/components/shadcn/input'
 import {
   Table,
   TableBody,
@@ -8,8 +8,8 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from '@/components/ui/table'
-import { cn } from '@/lib/utils'
+} from '@/components/shadcn/table'
+import { cn } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,

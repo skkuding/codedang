@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 // import { Separator } from '@/components/ui/separator'
 // import KakaotalkLogo from '@/public/kakaotalk.svg'
 import useSignUpModalStore from '@/stores/signUpModal'

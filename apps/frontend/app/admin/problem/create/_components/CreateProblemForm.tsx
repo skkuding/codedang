@@ -1,13 +1,17 @@
 'use client'
 
+import { useConfirmNavigationContext } from '@/app/admin/_components/ConfirmNavigation'
 import { createSchema } from '@/app/admin/problem/_libs/schemas'
+import { CREATE_PROBLEM } from '@/graphql/problem/mutations'
+import { useMutation } from '@apollo/client'
 import { Level, type CreateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useRouter } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { CautionDialog } from '../../_components/CautionDialog'
 import { validateScoreWeight } from '../../_libs/utils'
-import CreateProblemAlertDialog from './CreateProblemAlertDialog'
 
 interface CreateProblemFormProps {
   children: ReactNode
@@ -36,7 +40,21 @@ export default function CreateProblemForm({
 
   const [message, setMessage] = useState('')
   const [showCautionModal, setShowCautionModal] = useState(false)
-  const [showCreateModal, setShowCreateModal] = useState(false)
+
+  const { setShouldSkipWarning } = useConfirmNavigationContext()
+  const router = useRouter()
+
+  const [createProblem] = useMutation(CREATE_PROBLEM, {
+    onError: () => {
+      toast.error('Failed to create problem')
+    },
+    onCompleted: () => {
+      setShouldSkipWarning(true)
+      toast.success('Problem created successfully')
+      router.push('/admin/problem')
+      router.refresh()
+    }
+  })
 
   const validate = () => {
     const testcases = methods.getValues('testcases')
@@ -50,21 +68,21 @@ export default function CreateProblemForm({
     return true
   }
 
-  const onSubmit = methods.handleSubmit(() => {
+  const onSubmit = methods.handleSubmit(async () => {
     if (!validate()) return
-    setShowCreateModal(true)
+    const input = methods.getValues()
+    await createProblem({
+      variables: {
+        groupId: 1,
+        input
+      }
+    })
   })
 
   return (
     <>
       <form className="flex w-[760px] flex-col gap-6" onSubmit={onSubmit}>
-        <FormProvider {...methods}>
-          {children}
-          <CreateProblemAlertDialog
-            open={showCreateModal}
-            onClose={() => setShowCreateModal(false)}
-          />
-        </FormProvider>
+        <FormProvider {...methods}>{children}</FormProvider>
       </form>
       <CautionDialog
         isOpen={showCautionModal}

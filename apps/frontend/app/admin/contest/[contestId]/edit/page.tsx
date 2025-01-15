@@ -15,15 +15,15 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogAction
-} from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
+} from '@/components/shadcn/alert-dialog'
+import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle
-} from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
+} from '@/components/shadcn/dialog'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
 import {
   IMPORT_PROBLEMS_TO_CONTEST,
   UPDATE_CONTEST,
@@ -32,7 +32,6 @@ import {
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
-import { GET_CONTEST_SUBMISSIONS_COUNT } from '@/graphql/submission/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -53,7 +52,7 @@ import {
 import TimeForm from '../../_components/TimeForm'
 import { type ContestProblem, editSchema } from '../../_libs/schemas'
 
-export default function Page({ params }: { params: { id: string } }) {
+export default function Page({ params }: { params: { contestId: string } }) {
   const [prevProblemIds, setPrevProblemIds] = useState<number[]>([])
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -62,8 +61,7 @@ export default function Page({ params }: { params: { id: string } }) {
     useState<boolean>(false)
   const [showInvitationCode, setShowInvitationCode] = useState<boolean>(false)
   const [showImportDialog, setShowImportDialog] = useState<boolean>(false)
-  const [hasSubmission, setHasSubmission] = useState<boolean>(false)
-  const { id } = params
+  const { contestId } = params
 
   const shouldSkipWarning = useRef(false)
   const router = useRouter()
@@ -80,24 +78,10 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const { handleSubmit, getValues, setValue } = methods
 
-  useQuery(GET_CONTEST_SUBMISSIONS_COUNT, {
-    variables: {
-      input: {
-        contestId: Number(id)
-      },
-      take: 2
-    },
-    onCompleted: (data) => {
-      if (data.getContestSubmissions.length !== 0) {
-        setHasSubmission(true)
-      }
-    }
-  })
-
   useQuery(GET_CONTEST, {
-    variables: { contestId: Number(id) },
+    variables: { contestId: Number(contestId) },
     onCompleted: (contestData) => {
-      setValue('id', Number(id))
+      setValue('id', Number(contestId))
       const data = contestData.getContest
       setValue('title', data.title)
       setValue('description', data.description)
@@ -120,7 +104,7 @@ export default function Page({ params }: { params: { id: string } }) {
   })
 
   useQuery(GET_CONTEST_PROBLEMS, {
-    variables: { groupId: 1, contestId: Number(id) },
+    variables: { groupId: 1, contestId: Number(contestId) },
     onCompleted: (problemData) => {
       const data = problemData.getContestProblems
 
@@ -170,37 +154,35 @@ export default function Page({ params }: { params: { id: string } }) {
       return
     }
 
-    if (!hasSubmission) {
-      await removeProblemsFromContest({
-        variables: {
-          groupId: 1,
-          contestId: Number(id),
-          problemIds: prevProblemIds
-        }
-      })
-      await importProblemsToContest({
-        variables: {
-          groupId: 1,
-          contestId: Number(id),
-          problemIdsWithScore: problems.map((problem) => {
-            return {
-              problemId: problem.id,
-              score: problem.score
-            }
-          })
-        }
-      })
-      const orderArray = problems
-        .sort((a, b) => a.order - b.order)
-        .map((problem) => problem.id)
-      await updateContestProblemsOrder({
-        variables: {
-          groupId: 1,
-          contestId: Number(id),
-          orders: orderArray
-        }
-      })
-    }
+    await removeProblemsFromContest({
+      variables: {
+        groupId: 1,
+        contestId: Number(contestId),
+        problemIds: prevProblemIds
+      }
+    })
+    await importProblemsToContest({
+      variables: {
+        groupId: 1,
+        contestId: Number(contestId),
+        problemIdsWithScore: problems.map((problem) => {
+          return {
+            problemId: problem.id,
+            score: problem.score
+          }
+        })
+      }
+    })
+    const orderArray = problems
+      .sort((a, b) => a.order - b.order)
+      .map((problem) => problem.id)
+    await updateContestProblemsOrder({
+      variables: {
+        groupId: 1,
+        contestId: Number(contestId),
+        orders: orderArray
+      }
+    })
 
     shouldSkipWarning.current = true
     toast.success('Contest updated successfully')
@@ -261,17 +243,15 @@ export default function Page({ params }: { params: { id: string } }) {
                 <ContestProblemListLabel />
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    {hasSubmission ? null : (
-                      <Button
-                        type="button"
-                        className="flex h-[36px] w-48 items-center gap-2 px-0"
-                      >
-                        <PlusCircleIcon className="h-4 w-4" />
-                        <div className="mb-[2px] text-sm">
-                          Import · Edit problem
-                        </div>
-                      </Button>
-                    )}
+                    <Button
+                      type="button"
+                      className="flex h-[36px] w-48 items-center gap-2 px-0"
+                    >
+                      <PlusCircleIcon className="h-4 w-4" />
+                      <div className="mb-[2px] text-sm">
+                        Import · Edit problem
+                      </div>
+                    </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent className="p-8">
                     <AlertDialogHeader className="gap-2">
@@ -322,7 +302,7 @@ export default function Page({ params }: { params: { id: string } }) {
               <ContestProblemTable
                 problems={problems}
                 setProblems={setProblems}
-                disableInput={hasSubmission}
+                disableInput={false}
               />
             </div>
             <Button

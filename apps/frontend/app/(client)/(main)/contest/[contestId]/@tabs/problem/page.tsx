@@ -1,7 +1,7 @@
-import DataTable from '@/components/DataTable'
-import { fetcherWithAuth } from '@/lib/utils'
-import { getStatusWithStartEnd } from '@/lib/utils'
-import { dateFormatter } from '@/lib/utils'
+import DataTable from '@/app/(client)/(main)/_components/DataTable'
+import { fetcherWithAuth } from '@/libs/utils'
+import { getStatusWithStartEnd } from '@/libs/utils'
+import { dateFormatter } from '@/libs/utils'
 import type { ContestProblem } from '@/types/type'
 import type { Contest } from '@/types/type'
 import { columns } from './_components/Columns'
@@ -17,12 +17,15 @@ interface ContestApiResponse {
 
 export default async function ContestProblem({ params }: ContestProblemProps) {
   const { contestId } = params
+
+  // TODO: use `getContestProblemList` from _libs/apis folder
   const res = await fetcherWithAuth.get(`contest/${contestId}/problem`, {
     searchParams: {
       take: 20
     }
   })
 
+  // TODO: use error boundary
   if (!res.ok) {
     const { statusCode }: { statusCode: number } = await res.json()
 

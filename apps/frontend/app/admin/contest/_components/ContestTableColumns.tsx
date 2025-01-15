@@ -1,16 +1,16 @@
 'use client'
 
 import DataTableColumnHeader from '@/app/admin/_components/table/DataTableColumnHeader'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Switch } from '@/components/ui/switch'
+import { Checkbox } from '@/components/shadcn/checkbox'
+import { Switch } from '@/components/shadcn/switch'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@/components/ui/tooltip'
+} from '@/components/shadcn/tooltip'
 import { UPDATE_CONTEST_VISIBLE } from '@/graphql/contest/mutations'
-import { cn, dateFormatter } from '@/lib/utils'
+import { cn, dateFormatter } from '@/libs/utils'
 import invisibleIcon from '@/public/icons/invisible.svg'
 import visibleIcon from '@/public/icons/visible.svg'
 import { useMutation } from '@apollo/client'

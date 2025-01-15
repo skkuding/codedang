@@ -1,6 +1,6 @@
 'use client'
 
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { GET_GROUP_MEMBER } from '@/graphql/user/queries'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
@@ -15,9 +15,9 @@ import {
 export default function Page({
   params
 }: {
-  params: { id: string; userId: string }
+  params: { contestId: string; userId: string }
 }) {
-  const contestId = Number(params.id)
+  const contestId = Number(params.contestId)
   const userId = Number(params.userId)
 
   const user = useQuery(GET_GROUP_MEMBER, {

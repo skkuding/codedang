@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import useAuthModalStore from '@/stores/authModal'
 import useSignUpModalStore from '@/stores/signUpModal'

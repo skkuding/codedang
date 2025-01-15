@@ -1,8 +1,8 @@
-import '@/components/ui/card'
-import type { WorkbookProblem } from '@/types/type'
+import '@/components/shadcn/card'
+import type { Problem } from '@/types/type'
 
 interface Props {
-  problem: WorkbookProblem
+  problem: Problem
 }
 
 export default function ProblemCard({ problem }: Props) {
@@ -14,7 +14,7 @@ export default function ProblemCard({ problem }: Props) {
           {problem.title}
         </div>
       </div>
-      <div className="border-t-2"></div>
+      <div className="border-t-2" />
       <div className="grid grid-cols-1 text-xs text-gray-500 min-[400px]:grid-cols-2">
         <div className="flex flex-col items-center gap-2 py-4">
           <p className="text-sm font-medium">Level</p>

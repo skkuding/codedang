@@ -9,9 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Toggle } from '@/components/ui/toggle'
+} from '@/components/shadcn/dialog'
+import { Input } from '@/components/shadcn/input'
+import { Toggle } from '@/components/shadcn/toggle'
 import { UPLOAD_IMAGE } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import Tex from '@matejmazur/react-katex'
@@ -39,7 +39,7 @@ import {
 } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import InsertDialog from './InsertDialog'
-import { Button } from './ui/button'
+import { Button } from './shadcn/button'
 
 function MathPreview(props: NodeViewWrapperProps) {
   const [content, setContent] = useState(props.node.attrs.content)

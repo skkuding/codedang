@@ -23,19 +23,22 @@ export const useLanguageStore = (problemId: number, contestId?: number) => {
     )
   )
 }
+
 interface CodeState {
   code: string
   setCode: (code: string) => void
+  getCode: () => string
 }
 
-export const createCodeStore = create<CodeState>((set) => ({
+export const useCodeStore = create<CodeState>((set, get) => ({
   code: '',
   setCode: (code) => {
     set({ code })
-  }
+  },
+  getCode: () => get().code
 }))
 
-export const getKey = (
+export const getStorageKey = (
   language: Language,
   problemId: number,
   userName: string,
@@ -46,14 +49,14 @@ export const getKey = (
   return problemKey
 }
 
-export const getItem = (name: string) => {
-  const str = localStorage.getItem(name)
-  if (!str) return null
-  return str
-}
+export const getCodeFromLocalStorage = (key: string) => {
+  const storedCode = localStorage.getItem(key) ?? ''
 
-export const setItem = (name: string, value: string) => {
-  localStorage.setItem(name, JSON.stringify(value))
+  try {
+    const parsed = JSON.parse(storedCode)
+    localStorage.setItem(key, parsed)
+    return parsed
+  } catch {
+    return storedCode
+  }
 }
-
-export const removeItem = (name: string) => localStorage.removeItem(name)

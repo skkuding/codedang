@@ -1,12 +1,12 @@
-import { baseUrl } from '@/lib/constants'
-import { dateFormatter } from '@/lib/utils'
-import { sanitize } from 'isomorphic-dompurify'
+import KatexContent from '@/components/KatexContent'
+import { baseUrl } from '@/libs/constants'
+import { dateFormatter } from '@/libs/utils'
 import Link from 'next/link'
 import { RxHamburgerMenu } from 'react-icons/rx'
 
 interface NoticeDetailProps {
   params: {
-    id: string
+    noticeId: string
   }
   searchParams: {
     page: string | undefined
@@ -17,13 +17,14 @@ export default async function NoticeDetail({
   params,
   searchParams
 }: NoticeDetailProps) {
-  const { id } = params
+  const { noticeId } = params
   const { page } = searchParams
   const {
     current: { title, content, createTime, createdBy },
     prev,
     next
-  } = await fetch(baseUrl + `/notice/${id}`).then((res) => res.json())
+  } = await fetch(baseUrl + `/notice/${noticeId}`).then((res) => res.json())
+
   return (
     <article>
       <header className="border-b border-b-gray-200 p-5 py-4">
@@ -33,9 +34,9 @@ export default async function NoticeDetail({
           <p>{dateFormatter(createTime, 'YYYY-MM-DD')}</p>
         </div>
       </header>
-      <main
-        className="prose w-full max-w-full p-5 py-12"
-        dangerouslySetInnerHTML={{ __html: sanitize(content) }}
+      <KatexContent
+        content={content}
+        classname="prose w-full max-w-full p-5 py-12"
       />
       <footer className="flex flex-col">
         <div className="flex justify-end border-b border-b-gray-200 py-1">
