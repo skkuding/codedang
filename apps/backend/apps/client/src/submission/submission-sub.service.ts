@@ -1,5 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger, type OnModuleInit } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Nack, AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import {
   ResultStatus,
@@ -24,7 +25,9 @@ import {
   RESULT_QUEUE,
   RUN_MESSAGE_TYPE,
   Status,
+  submissionTestcaseEvent,
   TEST_SUBMISSION_EXPIRE_TIME,
+  testTestcaseEvent,
   USER_TESTCASE_MESSAGE_TYPE
 } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
@@ -38,6 +41,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
     private readonly amqpConnection: AmqpConnection,
+    private readonly eventEmitter: EventEmitter2,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -138,6 +142,11 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     }
 
     await this.cacheManager.set(key, testcase, TEST_SUBMISSION_EXPIRE_TIME)
+
+    this.eventEmitter.emit(testTestcaseEvent(userId), {
+      userTest: isUserTest,
+      testcaseResult: testcase
+    })
   }
 
   parseError(msg: JudgerResponse, status: ResultStatus): string {
@@ -187,7 +196,12 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       memoryUsage: msg.judgeResult.memory
     }
 
-    await this.updateTestcaseJudgeResult(submissionResult)
+    const resultStatus = await this.updateTestcaseJudgeResult(submissionResult)
+
+    this.eventEmitter.emit(submissionTestcaseEvent(msg.submissionId), {
+      result: resultStatus ? resultStatus : ResultStatus.Judging,
+      testcaseResult: submissionResult
+    })
   }
 
   @Span()
@@ -236,7 +250,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   async updateTestcaseJudgeResult(
     submissionResult: Partial<SubmissionResult> &
       Pick<SubmissionResult, 'result' | 'submissionId'>
-  ): Promise<void> {
+  ): Promise<ResultStatus | void> {
     // TODO: submission의 값들이 아닌 submissionResult의 id 값으로 접근할 수 있도록 수정
     const { id } = await this.prisma.submissionResult.findFirstOrThrow({
       where: {
@@ -259,11 +273,13 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
     })
 
-    await this.updateSubmissionResult(submissionResult.submissionId)
+    return await this.updateSubmissionResult(submissionResult.submissionId)
   }
 
   @Span()
-  async updateSubmissionResult(submissionId: number): Promise<void> {
+  async updateSubmissionResult(
+    submissionId: number
+  ): Promise<ResultStatus | void> {
     const submission = await this.prisma.submission.findUnique({
       where: {
         id: submissionId,
@@ -313,6 +329,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     await this.updateProblemScore(submission.id)
     await this.updateProblemAccepted(submission.problemId, allAccepted)
+
+    return submissionResult
   }
 
   @Span()

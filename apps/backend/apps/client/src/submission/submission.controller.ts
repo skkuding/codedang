@@ -7,9 +7,14 @@ import {
   Req,
   Query,
   DefaultValuePipe,
-  Headers
+  Headers,
+  Sse,
+  ParseIntPipe
 } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
+import { Observable } from 'rxjs'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
+import { submissionTestcaseEvent, testTestcaseEvent } from '@libs/constants'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -24,7 +29,10 @@ import { SubmissionService } from './submission.service'
 
 @Controller('submission')
 export class SubmissionController {
-  constructor(private readonly submissionService: SubmissionService) {}
+  constructor(
+    private readonly submissionService: SubmissionService,
+    private readonly eventEmitter: EventEmitter2
+  ) {}
 
   /**
    * 아직 채점되지 않은 제출 기록을 만들고, 채점 서버에 채점 요청을 보냅니다.
@@ -97,6 +105,40 @@ export class SubmissionController {
     return await this.submissionService.getTestResult(req.user.id)
   }
 
+  @Sse('result/test')
+  async getTestTestcaseResult(
+    @Req() req: AuthenticatedRequest
+  ): Promise<Observable<MessageEvent>> {
+    const userId = req.user.id
+
+    return new Observable<MessageEvent>((subscriber) => {
+      /*
+        TODO: payload 타입 정의
+        payload 구조:
+        {
+          "userTest": true,
+          "testcaseResult": {
+            "id": 1,
+            "result": "Accepted",
+            "output": "Hello World"
+          }
+        }
+      */
+      const listener = (payload) => {
+        subscriber.next({
+          data: JSON.stringify(payload)
+        } as MessageEvent)
+      }
+
+      const event = testTestcaseEvent(userId)
+      this.eventEmitter.on(event, listener)
+      req.on('close', () => {
+        this.eventEmitter.off(event, listener)
+        if (!subscriber.closed) subscriber.complete()
+      })
+    })
+  }
+
   /**
    * 유저가 생성한 테스트케이스에 대해 실행을 요청합니다.
    * 채점 결과는 Cache에 저장됩니다.
@@ -162,6 +204,45 @@ export class SubmissionController {
       groupId,
       contestId
     )
+  }
+
+  @Sse('result/:submissionId')
+  async getSubmissionTestcaseResult(
+    @Req() req: AuthenticatedRequest,
+    @Param('submissionId', ParseIntPipe) submissionId: number
+  ): Promise<Observable<MessageEvent>> {
+    const userId = req.user.id
+    await this.submissionService.checkSubmissionId(submissionId, userId)
+
+    return new Observable<MessageEvent>((subscriber) => {
+      /*
+        TODO: payload 타입 정의
+
+        payload 구조:
+        {
+          result: ResultStatus
+          testcaseResult: {
+            submissionId: number,
+            problemTestcaseId: number,
+            result: ResultStatus,
+            cpuTime: bigint,
+            memoryUsage: number
+          }
+        }
+      */
+      const listener = (payload) => {
+        subscriber.next({
+          data: JSON.stringify(payload)
+        } as MessageEvent)
+      }
+
+      const event = submissionTestcaseEvent(submissionId)
+      this.eventEmitter.on(event, listener)
+      req.on('close', () => {
+        this.eventEmitter.off(event, listener)
+        if (!subscriber.closed) subscriber.complete()
+      })
+    })
   }
 }
 
