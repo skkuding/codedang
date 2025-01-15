@@ -3,11 +3,9 @@ package sandbox
 import (
 	"fmt"
 
-	"bytes"
 	"context"
 	"os"
 	"os/exec"
-	"strings"
 	"time"
 
 	"github.com/skkuding/codedang/apps/iris/src/common/constants"
@@ -48,9 +46,8 @@ func (c *compiler) Compile(dto CompileRequest) (CompileResult, error) {
 		return CompileResult{}, err
 	}
 
-	// TODO: 컴파일에 sandbox는 안 써도 되지 않을까요?
 	execResult, err := c.compileExec(execArgs)
-	// execResult, err := c.sandbox.Exec(execArgs, nil)
+
 	if err != nil {
 		return CompileResult{}, err
 	}
@@ -76,41 +73,26 @@ func (c *compiler) Compile(dto CompileRequest) (CompileResult, error) {
 		}
 		compileResult.ErrOutput = string(data)
 	}
+
 	return compileResult, nil
 }
 
 func (c *compiler) compileExec(args ExecArgs) (ExecResult, error) {
-	argSlice := makeExecArgs(args)
 	env := "PATH=" + os.Getenv("PATH")
-	argSlice = append(argSlice, env)
-
-	argPrefix := Args
-
-	var compileOptions []string
-	for _, compileOpt := range argSlice {
-		if strings.HasPrefix(compileOpt, argPrefix) {
-			compileOptions = append(compileOptions, strings.TrimPrefix(compileOpt, argPrefix))
-		}
-	}
-
-	realTimeLimit := args.MaxRealTime
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(realTimeLimit)*time.Millisecond)
-	defer cancel()
-
-	cmd := exec.CommandContext(ctx, args.ExePath, compileOptions...)
-	cmd.Env = append(cmd.Env, env)
 
 	outputFile, err := os.Create(args.OutputPath)
-
 	if err != nil {
-		return ExecResult{}, err
+		return ExecResult{
+			ResultCode: SYSTEM_ERROR,
+		}, err
 	}
+	defer outputFile.Close()
 
-	var stdin bytes.Buffer
-	cmd.Stdin = &stdin
-	cmd.Stdout = outputFile
-	cmd.Stderr = outputFile
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(args.MaxRealTime)*time.Millisecond)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, args.ExePath, args.Args...)
+	cmd.Env = append(cmd.Env, env)
 
 	startTime := time.Now()
 	err = cmd.Run()
@@ -127,14 +109,14 @@ func (c *compiler) compileExec(args ExecArgs) (ExecResult, error) {
 		}, nil
 	}
 
-	endtime := time.Since(startTime)
+	realTimeSpentMS := int(time.Since(startTime).Milliseconds())
 
-	res := ExecResult{
-		RealTime:   int(endtime / time.Second),
+	c.logger.Log(logger.DEBUG, fmt.Sprintf("compile takes: %d ms", realTimeSpentMS))
+
+	return ExecResult{
+		RealTime:   realTimeSpentMS,
 		ExitCode:   0,
 		ErrorCode:  0,
-		ResultCode: 0,
-	}
-
-	return res, nil
+		ResultCode: RUN_SUCCESS,
+	}, nil
 }
