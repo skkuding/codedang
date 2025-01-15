@@ -10,7 +10,7 @@ export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))
 }
 
-export const isHttpError = (error: Error) => error instanceof HTTPError
+export const isHttpError = (error: unknown) => error instanceof HTTPError
 
 export const fetcher = ky.create({
   prefixUrl: baseUrl,
@@ -35,8 +35,9 @@ export const fetcherWithAuth = fetcher.extend({
       async (request) => {
         // Add access token to request header if user is logged in.
         const session = await auth()
-        if (session)
+        if (session) {
           request.headers.set('Authorization', session.token.accessToken)
+        }
       }
     ],
     afterResponse: [

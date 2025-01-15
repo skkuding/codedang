@@ -471,31 +471,23 @@ export class ContestService {
     userId: number,
     groupId = OPEN_SPACE_ID
   ) {
-    let contest
-    try {
-      contest = await this.prisma.contest.findUniqueOrThrow({
+    const [contest, contestRecord] = await Promise.all([
+      this.prisma.contest.findUnique({
         where: { id: contestId, groupId }
-      })
-    } catch (err) {
-      if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('Contest')
-      }
-    }
-    try {
-      await this.prisma.contestRecord.findFirstOrThrow({
+      }),
+      this.prisma.contestRecord.findFirst({
         where: { userId, contestId }
       })
-    } catch (err) {
-      if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('ContestRecord')
-      }
+    ])
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
     }
+
+    if (!contestRecord) {
+      throw new EntityNotExistException('ContestRecord')
+    }
+
     const now = new Date()
     if (now >= contest.startTime) {
       throw new ForbiddenAccessException(
@@ -503,18 +495,9 @@ export class ContestService {
       )
     }
 
-    try {
-      return await this.prisma.contestRecord.delete({
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        where: { contestId_userId: { contestId, userId } }
-      })
-    } catch (err) {
-      if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('ContestRecord')
-      }
-    }
+    return await this.prisma.contestRecord.delete({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      where: { contestId_userId: { contestId, userId } }
+    })
   }
 }

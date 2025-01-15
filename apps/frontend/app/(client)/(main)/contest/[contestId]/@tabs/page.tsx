@@ -34,12 +34,17 @@ export default async function ContestTop({ params }: ContestTopProps) {
   const startTime = new Date(data.startTime)
   const endTime = new Date(data.endTime)
   const currentTime = new Date()
-  const state =
-    currentTime >= endTime
-      ? 'Finished'
-      : currentTime < startTime
-        ? 'Upcoming'
-        : 'Ongoing'
+  const state = (() => {
+    if (currentTime >= endTime) {
+      return 'Finished'
+    }
+
+    if (currentTime < startTime) {
+      return 'Upcoming'
+    }
+
+    return 'Ongoing'
+  })()
 
   return (
     <>

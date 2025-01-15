@@ -13,20 +13,16 @@ export default function RevertScoreButton({
 
   const selectedContests = table.getSelectedRowModel().rows
 
-  return (
-    <>
-      {selectedContests.length > 0 && (
-        <Button
-          onClick={() => {
-            table.resetRowSelection()
-            onRevertScore()
-          }}
-          variant="filter"
-          className="ml-3"
-        >
-          Revert Score
-        </Button>
-      )}
-    </>
-  )
+  return selectedContests.length > 0 ? (
+    <Button
+      onClick={() => {
+        table.resetRowSelection()
+        onRevertScore()
+      }}
+      variant="filter"
+      className="ml-3"
+    >
+      Revert Score
+    </Button>
+  ) : null
 }

@@ -23,7 +23,7 @@ export default async function NoticeDetail({
     current: { title, content, createTime, createdBy },
     prev,
     next
-  } = await fetch(baseUrl + `/notice/${noticeId}`).then((res) => res.json())
+  } = await fetch(`${baseUrl}/notice/${noticeId}`).then((res) => res.json())
 
   return (
     <article>

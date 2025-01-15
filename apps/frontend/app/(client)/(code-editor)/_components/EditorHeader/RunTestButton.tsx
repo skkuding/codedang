@@ -93,7 +93,7 @@ export default function RunTestButton({
     }
   })
 
-  const submitTest = async () => {
+  const submitTest = () => {
     const code = getCode()
     const testcases = getUserTestcases()
 

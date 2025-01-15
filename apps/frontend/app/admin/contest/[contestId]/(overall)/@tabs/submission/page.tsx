@@ -1,3 +1,5 @@
+import FetchErrorFallback from '@/components/FetchErrorFallback'
+import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 import {
   SubmissionTable,
@@ -10,8 +12,10 @@ export default function Submission({
   params: { contestId: string }
 }) {
   return (
-    <Suspense fallback={<SubmissionTableFallback />}>
-      <SubmissionTable contestId={Number(params.contestId)} />
-    </Suspense>
+    <ErrorBoundary fallback={FetchErrorFallback}>
+      <Suspense fallback={<SubmissionTableFallback />}>
+        <SubmissionTable contestId={Number(params.contestId)} />
+      </Suspense>
+    </ErrorBoundary>
   )
 }

@@ -5,6 +5,7 @@ import DescriptionForm from '@/app/admin/_components/DescriptionForm'
 import FormSection from '@/app/admin/_components/FormSection'
 import SwitchField from '@/app/admin/_components/SwitchField'
 import TitleForm from '@/app/admin/_components/TitleForm'
+import FetchErrorFallback from '@/components/FetchErrorFallback'
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -34,7 +35,8 @@ import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
+import { ErrorBoundary } from '@suspensive/react'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -69,7 +71,7 @@ export default function Page({ params }: { params: { contestId: string } }) {
   useConfirmNavigation(shouldSkipWarning)
 
   const methods = useForm<UpdateContestInput>({
-    resolver: zodResolver(editSchema),
+    resolver: valibotResolver(editSchema),
     defaultValues: {
       isRankVisible: true,
       isVisible: true
@@ -287,15 +289,17 @@ export default function Page({ params }: { params: { contestId: string } }) {
                     <DialogHeader>
                       <DialogTitle>Import Problem</DialogTitle>
                     </DialogHeader>
-                    <Suspense fallback={<ImportProblemTableFallback />}>
-                      <ImportProblemTable
-                        checkedProblems={problems}
-                        onSelectedExport={(problems) => {
-                          setProblems(problems)
-                          setShowImportDialog(false)
-                        }}
-                      />
-                    </Suspense>
+                    <ErrorBoundary fallback={FetchErrorFallback}>
+                      <Suspense fallback={<ImportProblemTableFallback />}>
+                        <ImportProblemTable
+                          checkedProblems={problems}
+                          onSelectedExport={(problems) => {
+                            setProblems(problems)
+                            setShowImportDialog(false)
+                          }}
+                        />
+                      </Suspense>
+                    </ErrorBoundary>
                   </DialogContent>
                 </Dialog>
               </div>

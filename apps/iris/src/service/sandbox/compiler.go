@@ -3,6 +3,11 @@ package sandbox
 import (
 	"fmt"
 
+	"context"
+	"os"
+	"os/exec"
+	"time"
+
 	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
@@ -41,8 +46,8 @@ func (c *compiler) Compile(dto CompileRequest) (CompileResult, error) {
 		return CompileResult{}, err
 	}
 
-	// TODO: 컴파일에 sandbox는 안 써도 되지 않을까요?
-	execResult, err := c.sandbox.Exec(execArgs, nil)
+	execResult, err := c.compileExec(execArgs)
+
 	if err != nil {
 		return CompileResult{}, err
 	}
@@ -68,5 +73,50 @@ func (c *compiler) Compile(dto CompileRequest) (CompileResult, error) {
 		}
 		compileResult.ErrOutput = string(data)
 	}
+
 	return compileResult, nil
+}
+
+func (c *compiler) compileExec(args ExecArgs) (ExecResult, error) {
+	env := "PATH=" + os.Getenv("PATH")
+
+	outputFile, err := os.Create(args.OutputPath)
+	if err != nil {
+		return ExecResult{
+			ResultCode: SYSTEM_ERROR,
+		}, err
+	}
+	defer outputFile.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(args.MaxRealTime)*time.Millisecond)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, args.ExePath, args.Args...)
+	cmd.Env = append(cmd.Env, env)
+
+	startTime := time.Now()
+	err = cmd.Run()
+
+	if ctx.Err() == context.DeadlineExceeded {
+		return ExecResult{
+			ResultCode: REAL_TIME_LIMIT_EXCEEDED,
+		}, nil
+	}
+
+	if err != nil {
+		return ExecResult{
+			ResultCode: SYSTEM_ERROR,
+		}, nil
+	}
+
+	realTimeSpentMS := int(time.Since(startTime).Milliseconds())
+
+	c.logger.Log(logger.DEBUG, fmt.Sprintf("compile takes: %d ms", realTimeSpentMS))
+
+	return ExecResult{
+		RealTime:   realTimeSpentMS,
+		ExitCode:   0,
+		ErrorCode:  0,
+		ResultCode: RUN_SUCCESS,
+	}, nil
 }

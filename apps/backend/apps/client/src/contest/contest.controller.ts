@@ -1,27 +1,18 @@
 import {
   Controller,
-  InternalServerErrorException,
-  NotFoundException,
   Param,
   Post,
   Req,
   Get,
   Query,
-  Logger,
   DefaultValuePipe,
   Delete
 } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
 import {
   AuthNotNeededIfOpenSpace,
   AuthenticatedRequest,
   UserNullWhenAuthFailedIfOpenSpace
 } from '@libs/auth'
-import {
-  ConflictFoundException,
-  EntityNotExistException,
-  ForbiddenAccessException
-} from '@libs/exception'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -32,8 +23,6 @@ import { ContestService } from './contest.service'
 
 @Controller('contest')
 export class ContestController {
-  private readonly logger = new Logger(ContestController.name)
-
   constructor(private readonly contestService: ContestService) {}
 
   @Get('ongoing-upcoming')
@@ -41,12 +30,7 @@ export class ContestController {
   async getOngoingUpcomingContests(
     @Query('groupId', GroupIDPipe) groupId: number
   ) {
-    try {
-      return await this.contestService.getContestsByGroupId(groupId)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.getContestsByGroupId(groupId)
   }
 
   @Get('ongoing-upcoming-with-registered')
@@ -54,15 +38,7 @@ export class ContestController {
     @Req() req: AuthenticatedRequest,
     @Query('groupId', GroupIDPipe) groupId: number
   ) {
-    try {
-      return await this.contestService.getContestsByGroupId(
-        groupId,
-        req.user.id
-      )
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.getContestsByGroupId(groupId, req.user.id)
   }
 
   @Get('finished')
@@ -75,18 +51,13 @@ export class ContestController {
     take: number,
     @Query('search') search?: string
   ) {
-    try {
-      return await this.contestService.getFinishedContestsByGroupId({
-        userId: req.user?.id,
-        cursor,
-        take,
-        groupId,
-        search
-      })
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.getFinishedContestsByGroupId({
+      userId: req.user?.id,
+      cursor,
+      take,
+      groupId,
+      search
+    })
   }
 
   @Get('registered-finished')
@@ -98,18 +69,13 @@ export class ContestController {
     take: number,
     @Query('search') search?: string
   ) {
-    try {
-      return await this.contestService.getRegisteredFinishedContests({
-        cursor,
-        take,
-        groupId,
-        userId: req.user.id,
-        search
-      })
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.getRegisteredFinishedContests({
+      cursor,
+      take,
+      groupId,
+      userId: req.user.id,
+      search
+    })
   }
 
   @Get('registered-ongoing-upcoming')
@@ -118,16 +84,11 @@ export class ContestController {
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('search') search?: string
   ) {
-    try {
-      return await this.contestService.getRegisteredOngoingUpcomingContests(
-        groupId,
-        req.user.id,
-        search
-      )
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.getRegisteredOngoingUpcomingContests(
+      groupId,
+      req.user.id,
+      search
+    )
   }
 
   @Get(':id')
@@ -137,15 +98,7 @@ export class ContestController {
     @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', new RequiredIntPipe('id')) id: number
   ) {
-    try {
-      return await this.contestService.getContest(id, groupId, req.user?.id)
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.contestService.getContest(id, groupId, req.user?.id)
   }
 
   @Post(':id/participation')
@@ -155,25 +108,12 @@ export class ContestController {
     @Param('id', IDValidationPipe) contestId: number,
     @Query('invitationCode') invitationCode?: string
   ) {
-    try {
-      return await this.contestService.createContestRecord({
-        contestId,
-        userId: req.user.id,
-        invitationCode,
-        groupId
-      })
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name === 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      } else if (error instanceof ConflictFoundException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException(error.message)
-    }
+    return await this.contestService.createContestRecord({
+      contestId,
+      userId: req.user.id,
+      invitationCode,
+      groupId
+    })
   }
 
   // unregister only for upcoming contest
@@ -183,21 +123,10 @@ export class ContestController {
     @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', IDValidationPipe) contestId: number
   ) {
-    try {
-      return await this.contestService.deleteContestRecord(
-        contestId,
-        req.user.id,
-        groupId
-      )
-    } catch (error) {
-      if (
-        error instanceof ForbiddenAccessException ||
-        error instanceof EntityNotExistException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException(error.message)
-    }
+    return await this.contestService.deleteContestRecord(
+      contestId,
+      req.user.id,
+      groupId
+    )
   }
 }
