@@ -28,12 +28,12 @@ export class UserResolver {
     take: number,
     @Args('leaderOnly', { defaultValue: false }) leaderOnly: boolean
   ) {
-    return await this.userService.getGroupMembers(
-      groupId,
-      cursor,
-      take,
-      leaderOnly
-    )
+    return await this.userService.getGroupMembers({
+      groupId: groupId,
+      cursor: cursor,
+      take: take,
+      leaderOnly: leaderOnly
+    })
   }
 
   @Query(() => GroupMember)

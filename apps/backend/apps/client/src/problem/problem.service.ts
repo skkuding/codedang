@@ -103,13 +103,19 @@ export class ContestProblemService {
    * @see [Contest Problem 정책](https://www.notion.so/skkuding/Contest-Problem-list-ad4f2718af1748bdaff607abb958ba0b?pvs=4)
    * @returns {RelatedProblemsResponseDto} data: 대회 문제 목록, total: 대회 문제 총 개수
    */
-  async getContestProblems(
-    contestId: number,
-    userId: number,
-    cursor: number | null,
-    take: number,
+  async getContestProblems({
+    contestId,
+    userId,
+    cursor,
+    take,
     groupId = OPEN_SPACE_ID
-  ) {
+  }: {
+    contestId: number
+    userId: number
+    cursor: number | null
+    take: number
+    groupId: number
+  }) {
     const contest = await this.contestService.getContest(
       contestId,
       groupId,
@@ -191,12 +197,17 @@ export class ContestProblemService {
    * @see [Contest Problem 정책](https://www.notion.so/skkuding/Contest-Problem-list-ad4f2718af1748bdaff607abb958ba0b?pvs=4)
    * @returns {RelatedProblemResponseDto} problem: 대회 문제 정보, order: 대회 문제 순서
    */
-  async getContestProblem(
-    contestId: number,
-    problemId: number,
-    userId: number,
+  async getContestProblem({
+    contestId,
+    problemId,
+    userId,
     groupId = OPEN_SPACE_ID
-  ) {
+  }: {
+    contestId: number
+    problemId: number
+    userId: number
+    groupId: number
+  }) {
     const contest = await this.contestService.getContest(
       contestId,
       groupId,
@@ -232,12 +243,17 @@ export class WorkbookProblemService {
     private readonly workbookService: WorkbookService
   ) {}
 
-  async getWorkbookProblems(
-    workbookId: number,
-    cursor: number | null,
-    take: number,
+  async getWorkbookProblems({
+    workbookId,
+    cursor,
+    take,
     groupId = OPEN_SPACE_ID
-  ) {
+  }: {
+    workbookId: number
+    cursor: number | null
+    take: number
+    groupId: number
+  }) {
     const isVisible = await this.workbookService.isVisible(workbookId, groupId)
     if (!isVisible) {
       throw new ForbiddenAccessException(

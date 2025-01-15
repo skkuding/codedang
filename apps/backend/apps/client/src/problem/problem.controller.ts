@@ -56,12 +56,12 @@ export class ProblemController {
         search
       })
     }
-    return await this.workbookProblemService.getWorkbookProblems(
-      workbookId!,
+    return await this.workbookProblemService.getWorkbookProblems({
+      workbookId,
       cursor,
       take,
       groupId
-    )
+    })
   }
 
   @Get(':problemId')
@@ -95,13 +95,13 @@ export class ContestProblemController {
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number
   ) {
-    return await this.contestProblemService.getContestProblems(
+    return await this.contestProblemService.getContestProblems({
       contestId,
-      req.user.id,
+      userId: req.user.id,
       cursor,
       take,
       groupId
-    )
+    })
   }
 
   @Get(':problemId')
@@ -111,11 +111,11 @@ export class ContestProblemController {
     @Param('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number
   ) {
-    return await this.contestProblemService.getContestProblem(
+    return await this.contestProblemService.getContestProblem({
       contestId,
       problemId,
-      req.user.id,
+      userId: req.user.id,
       groupId
-    )
+    })
   }
 }

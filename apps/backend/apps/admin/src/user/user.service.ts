@@ -24,12 +24,17 @@ export class UserService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getGroupMembers(
-    groupId: number,
-    cursor: number | null,
-    take: number,
+  async getGroupMembers({
+    groupId,
+    cursor,
+    take,
+    leaderOnly
+  }: {
+    groupId: number
+    cursor: number | null
+    take: number
     leaderOnly: boolean
-  ) {
+  }) {
     const paginator = this.prisma.getPaginator(cursor, (value) => ({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       userId_groupId: {

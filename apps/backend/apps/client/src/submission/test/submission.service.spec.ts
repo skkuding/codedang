@@ -8,6 +8,7 @@ import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
 import { spy, stub } from 'sinon'
+import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -181,14 +182,14 @@ describe('SubmissionService', () => {
       })
       db.contestProblem.findUnique.resolves({ problem: problems[0] })
 
-      await service.submitToContest(
+      await service.submitToContest({
         submissionDto,
-        USERIP,
-        submissions[0].userId,
-        problems[0].id,
-        CONTEST_ID,
-        problems[0].groupId
-      )
+        userIp: USERIP,
+        userId: submissions[0].userId,
+        problemId: problems[0].id,
+        contestId: CONTEST_ID,
+        groupId: problems[0].groupId
+      })
       expect(createSpy.calledOnce).to.be.true
     })
 
@@ -197,14 +198,14 @@ describe('SubmissionService', () => {
       db.contest.findFirst.resolves(null)
 
       await expect(
-        service.submitToContest(
+        service.submitToContest({
           submissionDto,
-          USERIP,
-          submissions[0].userId,
-          problems[0].id,
-          CONTEST_ID,
-          problems[0].groupId
-        )
+          userIp: USERIP,
+          userId: submissions[0].userId,
+          problemId: problems[0].id,
+          contestId: CONTEST_ID,
+          groupId: problems[0].groupId
+        })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
     })
@@ -215,14 +216,14 @@ describe('SubmissionService', () => {
       const createSpy = stub(service, 'createSubmission')
       db.workbookProblem.findUnique.resolves({ problem: problems[0] })
 
-      await service.submitToWorkbook(
+      await service.submitToWorkbook({
         submissionDto,
-        USERIP,
-        submissions[0].userId,
-        problems[0].id,
-        WORKBOOK_ID,
-        problems[0].groupId
-      )
+        userIp: USERIP,
+        userId: submissions[0].userId,
+        problemId: problems[0].id,
+        workbookId: WORKBOOK_ID,
+        groupId: problems[0].groupId
+      })
       expect(createSpy.calledOnce).to.be.true
     })
 
@@ -231,14 +232,14 @@ describe('SubmissionService', () => {
       db.workbookProblem.findUnique.resolves(null)
 
       await expect(
-        service.submitToWorkbook(
+        service.submitToWorkbook({
           submissionDto,
-          USERIP,
-          submissions[0].userId,
-          problems[0].id,
-          WORKBOOK_ID,
-          problems[0].groupId
-        )
+          userIp: USERIP,
+          userId: submissions[0].userId,
+          problemId: problems[0].id,
+          workbookId: WORKBOOK_ID,
+          groupId: problems[0].groupId
+        })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
     })
@@ -251,12 +252,12 @@ describe('SubmissionService', () => {
       db.submission.create.resolves(submissions[0])
 
       expect(
-        await service.createSubmission(
+        await service.createSubmission({
           submissionDto,
-          problems[0],
-          submissions[0].userId,
-          USERIP
-        )
+          problem: problems[0],
+          userId: submissions[0].userId,
+          userIp: USERIP
+        })
       ).to.deep.equal(submissions[0])
       expect(createSpy.calledOnceWith(submissions[0])).to.be.true
       expect(publishSpy.calledOnce).to.be.true
@@ -272,13 +273,13 @@ describe('SubmissionService', () => {
       db.problemTestcase.findMany.resolves([{ id: 1 }, { id: 2 }, { id: 3 }])
 
       expect(
-        await service.createSubmission(
+        await service.createSubmission({
           submissionDto,
-          problems[0],
-          submissions[0].userId,
-          USERIP,
-          { contestId: CONTEST_ID }
-        )
+          problem: problems[0],
+          userId: submissions[0].userId,
+          userIp: USERIP,
+          idOptions: { contestId: CONTEST_ID }
+        })
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
       expect(publishSpy.calledOnce).to.be.true
     })
@@ -293,13 +294,13 @@ describe('SubmissionService', () => {
       })
 
       expect(
-        await service.createSubmission(
+        await service.createSubmission({
           submissionDto,
-          problems[0],
-          submissions[0].userId,
-          USERIP,
-          { workbookId: WORKBOOK_ID }
-        )
+          problem: problems[0],
+          userId: submissions[0].userId,
+          userIp: USERIP,
+          idOptions: { workbookId: WORKBOOK_ID }
+        })
       ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
       expect(publishSpy.calledOnce).to.be.true
     })
@@ -314,13 +315,13 @@ describe('SubmissionService', () => {
       db.problemTestcase.findMany.resolves([{ id: 1 }, { id: 2 }, { id: 3 }])
 
       expect(
-        await service.createSubmission(
+        await service.createSubmission({
           submissionDto,
-          problems[0],
-          submissions[0].userId,
-          USERIP,
-          { contestId: CONTEST_ID }
-        )
+          problem: problems[0],
+          userId: submissions[0].userId,
+          userIp: USERIP,
+          idOptions: { contestId: CONTEST_ID }
+        })
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
       expect(publishSpy.calledOnce).to.be.true
     })
@@ -334,13 +335,13 @@ describe('SubmissionService', () => {
       })
       db.problemTestcase.findMany.resolves([{ id: 1 }, { id: 2 }, { id: 3 }])
       expect(
-        await service.createSubmission(
+        await service.createSubmission({
           submissionDto,
-          problems[0],
-          submissions[0].userId,
-          USERIP,
-          { workbookId: WORKBOOK_ID }
-        )
+          problem: problems[0],
+          userId: submissions[0].userId,
+          userIp: USERIP,
+          idOptions: { workbookId: WORKBOOK_ID }
+        })
       ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
       expect(publishSpy.calledOnce).to.be.true
     })
@@ -349,12 +350,12 @@ describe('SubmissionService', () => {
       const publishSpy = stub(publish, 'publishJudgeRequestMessage')
 
       await expect(
-        service.createSubmission(
-          { ...submissionDto, language: Language.Python3 },
-          problems[0],
-          submissions[0].userId,
-          USERIP
-        )
+        service.createSubmission({
+          submissionDto: { ...submissionDto, language: Language.Python3 },
+          problem: problems[0],
+          userId: submissions[0].userId,
+          userIp: USERIP
+        })
       ).to.be.rejectedWith(ConflictFoundException)
       expect(publishSpy.calledOnce).to.be.false
     })
@@ -364,15 +365,15 @@ describe('SubmissionService', () => {
       const publishSpy = stub(publish, 'publishJudgeRequestMessage')
 
       await expect(
-        service.createSubmission(
-          {
+        service.createSubmission({
+          submissionDto: {
             ...submissionDto,
             code: plainToInstance(Snippet, submissions[1].code)
           },
-          problems[0],
-          submissions[0].userId,
-          USERIP
-        )
+          problem: problems[0],
+          userId: submissions[0].userId,
+          userIp: USERIP
+        })
       ).to.be.rejectedWith(ConflictFoundException)
       expect(validateSpy.returnValues[0]).to.be.false
       expect(publishSpy.calledOnce).to.be.false
@@ -424,14 +425,14 @@ describe('SubmissionService', () => {
       })
 
       expect(
-        await service.getSubmission(
-          submissions[0].id,
-          problems[0].id,
-          submissions[0].userId,
-          Role.User,
-          undefined,
-          null
-        )
+        await service.getSubmission({
+          id: submissions[0].id,
+          problemId: problems[0].id,
+          userId: submissions[0].userId,
+          userRole: Role.User,
+          groupId: OPEN_SPACE_ID,
+          contestId: null
+        })
       ).to.deep.equal({
         problemId: problems[0].id,
         username: 'username',
@@ -448,14 +449,14 @@ describe('SubmissionService', () => {
       db.problem.findFirst.resolves(null)
 
       await expect(
-        service.getSubmission(
-          submissions[0].id,
-          problems[0].id,
-          submissions[0].userId,
-          Role.User,
-          undefined,
-          null
-        )
+        service.getSubmission({
+          id: submissions[0].id,
+          problemId: problems[0].id,
+          userId: submissions[0].userId,
+          userRole: Role.User,
+          groupId: OPEN_SPACE_ID,
+          contestId: null
+        })
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
@@ -464,14 +465,14 @@ describe('SubmissionService', () => {
       db.submission.findFirst.resolves(null)
 
       await expect(
-        service.getSubmission(
-          submissions[0].id,
-          problems[0].id,
-          submissions[0].userId,
-          Role.User,
-          undefined,
-          null
-        )
+        service.getSubmission({
+          id: submissions[0].id,
+          problemId: problems[0].id,
+          userId: submissions[0].userId,
+          userRole: Role.User,
+          groupId: OPEN_SPACE_ID,
+          contestId: null
+        })
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
@@ -483,14 +484,14 @@ describe('SubmissionService', () => {
       db.submission.findFirst.resolves({ ...submissions[0], userId: 2 })
 
       await expect(
-        service.getSubmission(
-          submissions[0].id,
-          problems[0].id,
-          submissions[0].userId,
-          Role.User,
-          undefined,
-          null
-        )
+        service.getSubmission({
+          id: submissions[0].id,
+          problemId: problems[0].id,
+          userId: submissions[0].userId,
+          userRole: Role.User,
+          groupId: OPEN_SPACE_ID,
+          contestId: null
+        })
       ).to.be.rejectedWith(ForbiddenAccessException)
       expect(passSpy.calledOnce).to.be.true
     })

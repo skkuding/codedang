@@ -179,7 +179,12 @@ describe('UserService', () => {
       ]
       db.userGroup.findMany.resolves(result)
 
-      const res = await service.getGroupMembers(groupId, 0, 2, true)
+      const res = await service.getGroupMembers({
+        groupId,
+        cursor: 0,
+        take: 2,
+        leaderOnly: true
+      })
       expect(res).to.deep.equal([
         {
           username: user1.username,
@@ -211,7 +216,12 @@ describe('UserService', () => {
       ]
       db.userGroup.findMany.resolves(result)
 
-      const res = await service.getGroupMembers(groupId, 1, 2, true)
+      const res = await service.getGroupMembers({
+        groupId,
+        cursor: 1,
+        take: 2,
+        leaderOnly: true
+      })
       expect(res).to.deep.equal([
         {
           username: user2.username,

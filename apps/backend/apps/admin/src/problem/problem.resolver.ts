@@ -92,7 +92,12 @@ export class ProblemResolver {
     @Args('take', { defaultValue: 10, type: () => Int }) take: number,
     @Args('input') input: FilterProblemsInput
   ) {
-    return await this.problemService.getProblems(input, groupId, cursor, take)
+    return await this.problemService.getProblems({
+      input,
+      groupId,
+      cursor,
+      take
+    })
   }
 
   @Query(() => ProblemWithIsVisible)

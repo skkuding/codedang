@@ -43,12 +43,17 @@ export class StorageService {
    * @param content 이미지 파일 내용 (ReadStream type)
    * @param type 업로드할 이미지 파일의 MIME type
    */
-  async uploadImage(
-    filename: string,
-    fileSize: number,
-    content: ReadStream,
+  async uploadImage({
+    filename,
+    fileSize,
+    content,
+    type
+  }: {
+    filename: string
+    fileSize: number
+    content: ReadStream
     type: string
-  ) {
+  }) {
     await this.mediaClient.send(
       new PutObjectCommand({
         Bucket: this.config.get('MEDIA_BUCKET_NAME'),
