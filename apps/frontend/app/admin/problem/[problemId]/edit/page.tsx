@@ -6,7 +6,6 @@ import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import type { UpdateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
@@ -31,9 +30,6 @@ export default function Page({ params }: { params: { problemId: string } }) {
     defaultValues: { template: [] }
   })
 
-  const [showHint, setShowHint] = useState(false)
-  const [showSource, setShowSource] = useState(false)
-
   return (
     <ConfirmNavigation>
       <ScrollArea className="shrink-0">
@@ -45,12 +41,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
             <span className="text-4xl font-bold">Edit Problem</span>
           </div>
 
-          <EditProblemForm
-            problemId={Number(problemId)}
-            methods={methods}
-            setShowHint={setShowHint}
-            setShowSource={setShowSource}
-          >
+          <EditProblemForm problemId={Number(problemId)} methods={methods}>
             <div className="flex gap-32">
               <FormSection title="Title">
                 <TitleForm placeholder="Enter a problem name" />
@@ -106,7 +97,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
               title="Hint"
               placeholder="Enter a hint"
               formElement="textarea"
-              hasValue={showHint}
+              hasValue={methods.getValues('hint') !== ''}
             />
 
             <SwitchField
@@ -114,7 +105,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
               title="Source"
               placeholder="Enter a source"
               formElement="input"
-              hasValue={showSource}
+              hasValue={methods.getValues('source') !== ''}
             />
 
             <Button

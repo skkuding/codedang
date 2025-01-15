@@ -6,13 +6,7 @@ import { GET_PROBLEM } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { Template, Testcase, UpdateProblemInput } from '@generated/graphql'
 import { useRouter } from 'next/navigation'
-import {
-  useRef,
-  useState,
-  type Dispatch,
-  type ReactNode,
-  type SetStateAction
-} from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 import { CautionDialog } from '../../../_components/CautionDialog'
@@ -23,16 +17,12 @@ interface EditProblemFormProps {
   problemId: number
   children: ReactNode
   methods: UseFormReturn<UpdateProblemInput>
-  setShowHint: Dispatch<SetStateAction<boolean>>
-  setShowSource: Dispatch<SetStateAction<boolean>>
 }
 
 export default function EditProblemForm({
   problemId,
   children,
-  methods,
-  setShowHint,
-  setShowSource
+  methods
 }: EditProblemFormProps) {
   const [message, setMessage] = useState('')
   const [showCautionModal, setShowCautionModal] = useState(false)
@@ -89,13 +79,7 @@ export default function EditProblemForm({
       methods.setValue('timeLimit', data.timeLimit)
       methods.setValue('memoryLimit', data.memoryLimit)
       methods.setValue('hint', data.hint)
-      if (data.hint !== '') {
-        setShowHint(true)
-      }
       methods.setValue('source', data.source)
-      if (data.source !== '') {
-        setShowSource(true)
-      }
       if (data.template) {
         const templates = JSON.parse(data.template[0])
         templates.map((template: Template, index: number) => {
