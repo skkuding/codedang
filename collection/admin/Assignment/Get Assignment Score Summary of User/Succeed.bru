@@ -1,0 +1,74 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query getAssignmentSubmissionSummariesByUserId($assignmentId: Int!, $userId: Int!, $take: Int!) {
+    getAssignmentSubmissionSummaryByUserId(assignmentId: $assignmentId, userId: $userId, take: $take) {
+      scoreSummary {
+        assignmentPerfectScore
+        problemScores {
+          problemId
+          score
+        }
+        submittedProblemCount
+        totalProblemCount
+        userAssignmentScore
+      }
+      submissions {
+        assignmentId
+        problemTitle
+        studentId
+        username
+        submissionResult
+        language
+        submissionTime
+        codeSize
+        problemId
+        ip
+        order
+        id
+      }
+    }
+  }
+
+}
+
+body:graphql:vars {
+  {
+    "assignmentId": 1,
+    "userId": 4,
+    "take": 500
+    // "problemId": 1
+  }
+}
+
+docs {
+  ## Get Assignment Score Summary of User
+  유저의 특정 Assignment에 대한 점수 요약을 반환합니다.
+
+  Assignment Overall 페이지에서 특정 유저를 선택했을 때 사용
+  https://github.com/skkuding/codedang/pull/1894
+
+  - submittedProblemCount
+    - 제출된 문제의 개수(정답 여부와 관계 없음)
+  - totalProblemCount
+    - 전체 문제의 개수
+  - userAssignmentScore
+    - 해당 Assignment에서 User가 획득한 총 점수
+  - assignmentPerfectScore
+    - Assignment의 만점
+  - problemScores
+    - 각 문제에서 획득한 점수를 담고 있는 배열 (100점 만점 기준)
+    - 속성
+      - problemId
+      - score
+}

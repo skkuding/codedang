@@ -25,7 +25,7 @@ export default function InfoForm() {
       const templates: Template[] = [] // temp array to store templates
       const savedTemplates: Template[] = getValues('template') // templates saved in form
       watchedLanguages.map((language) => {
-        const temp = savedTemplates!.filter(
+        const temp = savedTemplates.filter(
           (template) => template.language === language
         )
         if (temp.length !== 0) {

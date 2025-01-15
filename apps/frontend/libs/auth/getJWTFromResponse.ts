@@ -26,11 +26,11 @@ export const getJWTFromResponse = (res: Response): JWTs => {
   const accessToken = res.headers.get('authorization')
   const cookies = res.headers.get('set-cookie')
 
-  if (accessToken == null) {
+  if (accessToken === null) {
     throw new Error('Response does not contain an access token')
   }
 
-  if (cookies == null) {
+  if (cookies === null) {
     throw new Error('Response does not contain a cookie')
   }
 
@@ -40,7 +40,7 @@ export const getJWTFromResponse = (res: Response): JWTs => {
   const refreshToken = parsedCookie.get('refresh_token')
   const refreshTokenExpires = parsedCookie.get('Expires')
 
-  if (refreshToken == null || refreshTokenExpires == null) {
+  if (refreshToken === undefined || refreshTokenExpires === undefined) {
     throw new Error(
       'Response does not contain a valid refresh token or expiration date'
     )

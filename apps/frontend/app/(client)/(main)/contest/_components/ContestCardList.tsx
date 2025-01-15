@@ -66,9 +66,13 @@ function ContestCardCarousel({
   const chunks = []
 
   if (itemsPerSlide === 3) {
-    for (let i = 0; i < data.length; i += 3) chunks.push(data.slice(i, i + 3))
+    for (let i = 0; i < data.length; i += 3) {
+      chunks.push(data.slice(i, i + 3))
+    }
   } else if (itemsPerSlide === 2) {
-    for (let i = 0; i < data.length; i += 2) chunks.push(data.slice(i, i + 2))
+    for (let i = 0; i < data.length; i += 2) {
+      chunks.push(data.slice(i, i + 2))
+    }
   }
 
   return (
@@ -117,15 +121,15 @@ export default async function Contest({
     session ? await getRegisteredContests() : await getContests()
   ).filter(
     (contest) =>
-      contest.status.toLowerCase() === 'registered' + type.toLowerCase() ||
+      contest.status.toLowerCase() === `registered${type.toLowerCase()}` ||
       contest.status.toLowerCase() === type.toLowerCase()
   )
 
-  data.sort((a, b) => +new Date(a.startTime) - +new Date(b.startTime))
+  data.sort(
+    (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+  )
 
-  return data.length === 0 ? (
-    <></>
-  ) : (
+  return data.length === 0 ? null : (
     <>
       <ContestCardCarousel itemsPerSlide={3} title={title} data={data} />
       <ContestCardCarousel itemsPerSlide={2} title={title} data={data} />

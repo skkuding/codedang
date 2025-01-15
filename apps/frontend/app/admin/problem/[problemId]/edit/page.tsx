@@ -7,7 +7,7 @@ import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { Template, Testcase, UpdateProblemInput } from '@generated/graphql'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
@@ -38,7 +38,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
   useConfirmNavigation(shouldSkipWarning)
 
   const methods = useForm<UpdateProblemInput>({
-    resolver: zodResolver(editSchema),
+    resolver: valibotResolver(editSchema),
     defaultValues: { template: [] }
   })
 
@@ -98,9 +98,13 @@ export default function Page({ params }: { params: { problemId: string } }) {
       setValue('timeLimit', data.timeLimit)
       setValue('memoryLimit', data.memoryLimit)
       setValue('hint', data.hint)
-      if (data.hint !== '') setShowHint(true)
+      if (data.hint !== '') {
+        setShowHint(true)
+      }
       setValue('source', data.source)
-      if (data.source !== '') setShowSource(true)
+      if (data.source !== '') {
+        setShowSource(true)
+      }
       if (data.template) {
         const templates = JSON.parse(data.template[0])
         templates.map((template: Template, index: number) => {
