@@ -104,7 +104,7 @@ export default function EditProblemForm({
   })
 
   const validate = () => {
-    const testcases = methods.getValues('testcases') as Testcase[]
+    const testcases = methods.getValues('testcases') ?? []
     if (!validateScoreWeight(testcases)) {
       setShowCautionModal(true)
       setMessage(
