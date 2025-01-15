@@ -1,7 +1,7 @@
 'use client'
 
 import { submissionQueries } from '@/app/(client)/_libs/queries/submission'
-import CodeEditor from '@/components/CodeEditor'
+import { CodeEditor } from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import {

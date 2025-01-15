@@ -1,6 +1,6 @@
 import { useSettingsContext } from './context'
 
-export default function TopicSection() {
+export function TopicSection() {
   const { updateNow } = useSettingsContext()
 
   return (

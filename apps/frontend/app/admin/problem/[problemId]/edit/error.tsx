@@ -1,6 +1,6 @@
 'use client'
 
-import ErrorDetail from '@/components/ErrorDetail'
+import { ErrorDetail } from '@/components/ErrorDetail'
 import { captureException } from '@sentry/nextjs'
 import { useEffect } from 'react'
 

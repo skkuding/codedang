@@ -13,7 +13,7 @@ interface NewPwSectionProps {
   confirmPassword: string
 }
 
-export default function NewPwSection({
+export function NewPwSection({
   newPasswordAble,
   isPasswordsMatch,
   newPassword,

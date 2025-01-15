@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator
 } from '@/components/shadcn/dropdown-menu'
 import { cn, fetcherWithAuth } from '@/libs/utils'
-import useAuthModalStore from '@/stores/authModal'
+import { useAuthModalStore } from '@/stores/authModal'
 import { LogOut, UserRoundCog, ChevronDown } from 'lucide-react'
 import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
@@ -23,15 +23,15 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { BiSolidUser } from 'react-icons/bi'
 import { RxHamburgerMenu } from 'react-icons/rx'
-import AuthModal from './AuthModal'
-import UpdateInformation from './UpdateInformation'
+import { AuthModal } from './AuthModal'
+import { UpdateInformation } from './UpdateInformation'
 
 interface HeaderAuthPanelProps {
   session: Session | null
   group?: 'default' | 'editor'
 }
 
-export default function HeaderAuthPanel({
+export function HeaderAuthPanel({
   session,
   group = 'default'
 }: HeaderAuthPanelProps) {

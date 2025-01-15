@@ -9,7 +9,7 @@ import compileIcon from '@/public/icons/compile-version.svg'
 import { FileText } from 'lucide-react'
 import Image from 'next/image'
 
-export default function ReferenceDialog() {
+export function ReferenceDialog() {
   return (
     <div className="flex px-6">
       <Dialog>

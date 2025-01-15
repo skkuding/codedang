@@ -1,14 +1,14 @@
 'use client'
 
-import DataTable from '@/app/admin/_components/table/DataTable'
-import DataTableFallback from '@/app/admin/_components/table/DataTableFallback'
-import DataTableRoot from '@/app/admin/_components/table/DataTableRoot'
+import { DataTable } from '@/app/admin/_components/table/DataTable'
+import { DataTableFallback } from '@/app/admin/_components/table/DataTableFallback'
+import { DataTableRoot } from '@/app/admin/_components/table/DataTableRoot'
 import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { useEffect, useState } from 'react'
 import { columns, type BelongedContest } from './BelongedContestTableColumns'
-import RevertScoreButton from './RevertScoreButton'
-import SetToZeroButton from './SetToZeroButton'
+import { RevertScoreButton } from './RevertScoreButton'
+import { SetToZeroButton } from './SetToZeroButton'
 
 export function BelongedContestTable({
   problemId,

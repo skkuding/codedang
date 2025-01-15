@@ -7,7 +7,7 @@ interface IntersectionAreaProps {
   onIntersect: () => void
 }
 
-export default function IntersectionArea({
+export function IntersectionArea({
   children,
   disabled,
   onIntersect

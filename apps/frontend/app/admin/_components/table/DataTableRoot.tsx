@@ -37,7 +37,7 @@ interface DataTableRootProps<TData extends { id: number }, TValue> {
  * @param selectedRowIds
  * 선택된 행들의 아이디 목록
  */
-export default function DataTableRoot<TData extends { id: number }, TValue>({
+export function DataTableRoot<TData extends { id: number }, TValue>({
   data,
   columns,
   defaultPageSize = 10,

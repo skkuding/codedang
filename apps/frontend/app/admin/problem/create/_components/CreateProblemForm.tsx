@@ -17,9 +17,7 @@ interface CreateProblemFormProps {
   children: ReactNode
 }
 
-export default function CreateProblemForm({
-  children
-}: CreateProblemFormProps) {
+export function CreateProblemForm({ children }: CreateProblemFormProps) {
   const methods = useForm<CreateProblemInput>({
     resolver: valibotResolver(createSchema),
     defaultValues: {

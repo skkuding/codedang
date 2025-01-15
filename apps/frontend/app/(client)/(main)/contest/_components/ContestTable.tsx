@@ -23,7 +23,7 @@ interface ContestTableProps {
   data: Contest[]
 }
 
-export default function ContestTable({ data }: ContestTableProps) {
+export function ContestTable({ data }: ContestTableProps) {
   const columns: ColumnDef<Contest>[] = [
     {
       header: 'Name',

@@ -7,7 +7,7 @@ interface ImportProblemButtonProps {
   onSelectedExport: (data: ContestProblem[]) => void
 }
 
-export default function ImportProblemButton({
+export function ImportProblemButton({
   onSelectedExport
 }: ImportProblemButtonProps) {
   const { table } = useDataTable<DataTableProblem>()

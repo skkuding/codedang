@@ -11,7 +11,7 @@ import type { TestResultDetail } from '@/types/type'
 import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
 import { useTestPollingStore } from '../context/TestPollingStoreProvider'
 
-export default function TestcaseTable({
+export function TestcaseTable({
   data,
   moveToDetailTab
 }: {

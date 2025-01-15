@@ -6,7 +6,7 @@ interface StudentIdSectionProps {
   studentId: string
 }
 
-export default function StudentIdSection({ studentId }: StudentIdSectionProps) {
+export function StudentIdSection({ studentId }: StudentIdSectionProps) {
   const {
     isLoading,
     updateNow,

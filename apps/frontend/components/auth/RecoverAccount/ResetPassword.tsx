@@ -1,7 +1,7 @@
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
 import { cn, fetcher } from '@/libs/utils'
-import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
+import { useRecoverAccountModalStore } from '@/stores/recoverAccountModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -37,7 +37,7 @@ const schema = v.pipe(
   )
 )
 
-export default function ResetPassword() {
+export function ResetPassword() {
   const {
     handleSubmit,
     register,

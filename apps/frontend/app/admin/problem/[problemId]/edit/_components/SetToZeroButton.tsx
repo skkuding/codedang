@@ -6,7 +6,7 @@ interface SetToZeroButtonProps {
   onSetToZero: (data: number[]) => void
 }
 
-export default function SetToZeroButton({ onSetToZero }: SetToZeroButtonProps) {
+export function SetToZeroButton({ onSetToZero }: SetToZeroButtonProps) {
   const { table } = useDataTable<BelongedContest>()
 
   const selectedContests = table

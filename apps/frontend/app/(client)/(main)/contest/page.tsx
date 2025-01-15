@@ -1,15 +1,15 @@
-import FetchErrorFallback from '@/components/FetchErrorFallback'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Separator } from '@/components/shadcn/separator'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
 import { ErrorBoundary } from '@suspensive/react'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
-import SearchBar from '../_components/SearchBar'
-import ContestCardList from './_components/ContestCardList'
-import FinishedContestTable from './_components/FinishedContestTable'
-import RegisteredContestTable from './_components/RegisteredContestTable'
-import TableSwitchButton from './_components/TableSwitchButton'
+import { SearchBar } from '../_components/SearchBar'
+import { ContestCardList } from './_components/ContestCardList'
+import { FinishedContestTable } from './_components/FinishedContestTable'
+import { RegisteredContestTable } from './_components/RegisteredContestTable'
+import { TableSwitchButton } from './_components/TableSwitchButton'
 
 interface ContestProps {
   searchParams: {

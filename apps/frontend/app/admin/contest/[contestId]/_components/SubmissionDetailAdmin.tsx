@@ -1,6 +1,6 @@
 'use client'
 
-import CodeEditor from '@/components/CodeEditor'
+import { CodeEditor } from '@/components/CodeEditor'
 import { Alert, AlertDescription, AlertTitle } from '@/components/shadcn/alert'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import {
@@ -18,7 +18,7 @@ import type { Language } from '@/types/type'
 import { useLazyQuery, useQuery } from '@apollo/client'
 import { IoWarning } from 'react-icons/io5'
 
-export default function SubmissionDetailAdmin({
+export function SubmissionDetailAdmin({
   submissionId
 }: {
   submissionId: number

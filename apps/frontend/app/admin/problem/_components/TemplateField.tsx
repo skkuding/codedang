@@ -4,9 +4,9 @@ import { Textarea } from '@/components/shadcn/textarea'
 import type { Template, Language } from '@generated/graphql'
 import { useEffect, useRef } from 'react'
 import { useFormContext } from 'react-hook-form'
-import Label from '../../_components/Label'
+import { Label } from '../../_components/Label'
 
-export default function TemplateField() {
+export function TemplateField() {
   const { register, unregister, watch, setValue } = useFormContext()
   const watchedLanguages: Language[] = watch('languages') ?? []
   const watchedTemplates: Template[] = watch('template') ?? []

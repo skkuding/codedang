@@ -1,7 +1,7 @@
 'use client'
 
 import { levels } from '@/libs/constants'
-import DataTableMultiSelectFilter from './DataTableMultiSelectFilter'
+import { DataTableMultiSelectFilter } from './DataTableMultiSelectFilter'
 import { LEVEL_COLUMN_ID } from './constants'
 import { useDataTable } from './context'
 
@@ -9,7 +9,7 @@ import { useDataTable } from './context'
  * 어드민 테이블의 Difficulty(Level) 필터
  * @desciption 컬럼 아이디가 "difficulty" 여야 합니다.
  */
-export default function DataTableLevelFilter() {
+export function DataTableLevelFilter() {
   const { table } = useDataTable()
 
   return (

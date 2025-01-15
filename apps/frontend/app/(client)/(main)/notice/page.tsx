@@ -1,10 +1,10 @@
-import FetchErrorFallback from '@/components/FetchErrorFallback'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import type { Notice } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
-import SearchBar from '../_components/SearchBar'
-import NoticeTable from './_components/NoticeTable'
+import { SearchBar } from '../_components/SearchBar'
+import { NoticeTable } from './_components/NoticeTable'
 
 interface NoticeProps {
   searchParams: { search: string }

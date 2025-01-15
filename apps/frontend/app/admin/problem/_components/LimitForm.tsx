@@ -3,10 +3,10 @@
 import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
 import { useFormContext } from 'react-hook-form'
-import ErrorMessage from '../../_components/ErrorMessage'
+import { ErrorMessage } from '../../_components/ErrorMessage'
 import { inputStyle } from '../../_libs/utils'
 
-export default function LimitForm({ blockEdit }: { blockEdit?: boolean }) {
+export function LimitForm({ blockEdit }: { blockEdit?: boolean }) {
   const {
     formState: { errors },
     register

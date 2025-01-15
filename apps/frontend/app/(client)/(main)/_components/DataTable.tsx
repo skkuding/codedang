@@ -70,7 +70,7 @@ interface DataTableProps<TData, TValue> {
  * ```
  */
 
-export default function DataTable<TData extends Item, TValue>({
+export function DataTable<TData extends Item, TValue>({
   columns,
   data,
   headerStyle,

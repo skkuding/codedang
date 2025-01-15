@@ -1,4 +1,4 @@
-import CodeEditor from '@/components/CodeEditor'
+import { CodeEditor } from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import {
   Table,
@@ -12,7 +12,7 @@ import { dateFormatter, fetcherWithAuth, getResultColor } from '@/libs/utils'
 import type { SubmissionDetail } from '@/types/type'
 import { revalidateTag } from 'next/cache'
 import { IoIosLock } from 'react-icons/io'
-import dataIfError from '../_libs/dataIfError'
+import { dataIfError } from '../_libs/dataIfError'
 
 interface Props {
   problemId: number
@@ -20,7 +20,7 @@ interface Props {
   contestId: number
 }
 
-export default async function SubmissionDetail({
+export async function SubmissionDetail({
   problemId,
   submissionId,
   contestId

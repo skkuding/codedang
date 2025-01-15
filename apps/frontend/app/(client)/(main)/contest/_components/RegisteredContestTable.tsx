@@ -1,4 +1,4 @@
-import DataTable from '@/app/(client)/(main)/_components/DataTable'
+import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { fetcherWithAuth } from '@/libs/utils'
 import type { Contest } from '@/types/type'
 import { columns } from './RegisteredTableColumns'
@@ -45,11 +45,7 @@ const getFinishedContests = async (search: string) => {
   return data.concat(FinishedData.data)
 }
 
-export default async function RegisteredContestTable({
-  search
-}: {
-  search: string
-}) {
+export async function RegisteredContestTable({ search }: { search: string }) {
   const data = await getFinishedContests(search)
 
   return (

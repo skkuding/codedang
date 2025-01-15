@@ -1,7 +1,7 @@
 import codedangSymbol from '@/public/logos/codedang-editor.svg'
 import Image from 'next/image'
 
-export default function LogoSection() {
+export function LogoSection() {
   return (
     <div
       className="flex h-svh max-h-[846px] w-full flex-col items-center justify-center gap-3 rounded-2xl"

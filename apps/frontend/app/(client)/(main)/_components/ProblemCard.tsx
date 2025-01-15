@@ -1,11 +1,10 @@
-import '@/components/shadcn/card'
 import type { Problem } from '@/types/type'
 
 interface Props {
   problem: Problem
 }
 
-export default function ProblemCard({ problem }: Props) {
+export function ProblemCard({ problem }: Props) {
   return (
     <div className="flex w-full flex-col justify-between gap-4 rounded-md border border-gray-200 p-4 shadow-none transition hover:scale-105">
       <div className="flex flex-col justify-between gap-4 pt-2">

@@ -1,4 +1,4 @@
-import Cover from '@/app/(client)/(main)/_components/Cover'
+import { Cover } from '@/app/(client)/(main)/_components/Cover'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (

@@ -20,7 +20,7 @@ interface ContestProblemDropdownProps {
   contestId: number
 }
 
-export default function ContestProblemDropdown({
+export function ContestProblemDropdown({
   problem,
   contestId
 }: ContestProblemDropdownProps) {

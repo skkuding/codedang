@@ -4,7 +4,7 @@ import exitIcon from '@/public/icons/exit.svg'
 import visitIcon from '@/public/icons/visit.svg'
 import Image from 'next/image'
 import Link from 'next/link'
-import ContestEditorSkeleton from './_components/ContestEditorSkeleton'
+import { ContestEditorSkeleton } from './_components/ContestEditorSkeleton'
 
 export default async function ContestFinishedPage({
   params

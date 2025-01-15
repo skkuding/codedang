@@ -1,11 +1,7 @@
 import { cn } from '@/libs/utils'
 import Link from 'next/link'
 
-export default function TableSwitchButton({
-  registered
-}: {
-  registered: boolean
-}) {
+export function TableSwitchButton({ registered }: { registered: boolean }) {
   return (
     <div className="flex items-center">
       <Link

@@ -3,13 +3,13 @@
 import { Button } from '@/components/shadcn/button'
 // import { Separator } from '@/components/ui/separator'
 // import KakaotalkLogo from '@/public/kakaotalk.svg'
-import useSignUpModalStore from '@/stores/signUpModal'
+import { useSignUpModalStore } from '@/stores/signUpModal'
 
 // import Image from 'next/image'
 // import { FaGithub } from 'react-icons/fa'
 // import { FcGoogle } from 'react-icons/fc'
 
-export default function SignUpWelcome() {
+export function SignUpWelcome() {
   const { nextModal } = useSignUpModalStore((state) => state)
   return (
     <div className="flex w-full flex-col gap-6">

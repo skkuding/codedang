@@ -24,7 +24,7 @@ const schema = z.object({
   invitationCode: z.string().length(6)
 })
 
-export default function RegisterButton({
+export function RegisterButton({
   id,
   state,
   title,

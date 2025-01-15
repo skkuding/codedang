@@ -184,6 +184,15 @@ export default eslintTS.config(
     }
   },
   {
+    files: ['apps/frontend/**/*'],
+    ignores: [
+      'apps/frontend/app/**/{page,layout,loading,template,error,global-error}.tsx'
+    ],
+    rules: {
+      'import/no-default-export': 'error'
+    }
+  },
+  {
     files: ['apps/frontend/**/*.ts?(x)'],
     rules: {
       '@typescript-eslint/naming-convention': [

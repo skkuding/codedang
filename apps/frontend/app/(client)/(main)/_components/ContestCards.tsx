@@ -3,9 +3,9 @@ import { fetcher } from '@/libs/utils'
 import type { Contest } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
-import ContestCard from './ContestCard'
+import { ContestCard } from './ContestCard'
 
-export default async function ContestCards() {
+export async function ContestCards() {
   const contests = await getContests()
 
   return (

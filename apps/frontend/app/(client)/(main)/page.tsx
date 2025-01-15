@@ -1,8 +1,8 @@
-import FetchErrorFallback from '@/components/FetchErrorFallback'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { ErrorBoundary } from '@suspensive/react'
-import Carousel from './_components/Carousel'
-import ContestCards from './_components/ContestCards'
-import ProblemCards from './_components/ProblemCards'
+import { Carousel } from './_components/Carousel'
+import { ContestCards } from './_components/ContestCards'
+import { ProblemCards } from './_components/ProblemCards'
 
 const slides = [
   {

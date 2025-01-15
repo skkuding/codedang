@@ -37,7 +37,7 @@ interface Props {
   variant: keyof typeof variants
 }
 
-export default function StatusBadge({ variant }: Props) {
+export function StatusBadge({ variant }: Props) {
   const { image, text, color } = variants[variant]
   return (
     <div className="inline-flex items-center gap-2">

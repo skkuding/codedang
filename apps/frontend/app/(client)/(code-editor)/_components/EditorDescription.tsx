@@ -1,6 +1,6 @@
 'use client'
 
-import KatexContent from '@/components/KatexContent'
+import { KatexContent } from '@/components/KatexContent'
 import {
   Accordion,
   AccordionContent,
@@ -11,8 +11,8 @@ import { Badge } from '@/components/shadcn/badge'
 import { convertToLetter } from '@/libs/utils'
 import type { ProblemDetail } from '@/types/type'
 import DOMPurify from 'isomorphic-dompurify'
-import EditorSampleField from './EditorSampleField'
-import ReferenceDialog from './ReferenceDialog'
+import { EditorSampleField } from './EditorSampleField'
+import { ReferenceDialog } from './ReferenceDialog'
 
 export function EditorDescription({
   problem,

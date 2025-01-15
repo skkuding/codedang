@@ -2,15 +2,15 @@
 
 import { Button } from '@/components/shadcn/button'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
-import useAuthModalStore from '@/stores/authModal'
-import useSignUpModalStore from '@/stores/signUpModal'
+import { useAuthModalStore } from '@/stores/authModal'
+import { useSignUpModalStore } from '@/stores/signUpModal'
 import Image from 'next/image'
 import { IoMdArrowBack } from 'react-icons/io'
-import SignUpEmailVerify from './SignUpEmailVerify'
-import SignUpRegister from './SignUpRegister'
-import SignUpWelcome from './SignUpWelcome'
+import { SignUpEmailVerify } from './SignUpEmailVerify'
+import { SignUpRegister } from './SignUpRegister'
+import { SignUpWelcome } from './SignUpWelcome'
 
-export default function SignUp() {
+export function SignUp() {
   const { showSignIn } = useAuthModalStore((state) => state)
   const { modalPage, backModal } = useSignUpModalStore((state) => state)
 

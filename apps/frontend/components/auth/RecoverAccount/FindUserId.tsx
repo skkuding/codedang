@@ -1,8 +1,8 @@
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
 import { cn, fetcher, isHttpError, safeFetcher } from '@/libs/utils'
-import useAuthModalStore from '@/stores/authModal'
-import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
+import { useAuthModalStore } from '@/stores/authModal'
+import { useRecoverAccountModalStore } from '@/stores/recoverAccountModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -15,7 +15,7 @@ const schema = v.object({
   email: v.pipe(v.string(), v.email('Invalid email address'))
 })
 
-export default function FindUserId() {
+export function FindUserId() {
   const [userId, setUserId] = useState<string>('')
   const [emailError, setEmailError] = useState<string>('')
   const [wrongEmail, setWrongEmail] = useState<string>('')

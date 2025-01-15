@@ -1,6 +1,6 @@
 'use client'
 
-import KatexContent from '@/components/KatexContent'
+import { KatexContent } from '@/components/KatexContent'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { GET_NOTICE } from '@/graphql/notice/queries'
 import { useQuery } from '@apollo/client'
