@@ -1,21 +1,22 @@
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
-import { cn, fetcher } from '@/libs/utils'
+import { cn, fetcher, safeFetcher } from '@/libs/utils'
 import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { toast } from 'sonner'
+import * as v from 'valibot'
 
 interface EmailVerifyInput {
   verificationCode: string
 }
 
-const schema = z.object({
-  verificationCode: z
-    .string()
-    .min(6, { message: 'Code must be 6 characters long' })
-    .max(6, { message: 'Code must be 6 characters long' })
+const schema = v.object({
+  verificationCode: v.pipe(
+    v.string(),
+    v.length(6, 'Code must be 6 characters long')
+  )
 })
 
 const timeLimit = 300
@@ -35,7 +36,7 @@ export default function ResetPasswordEmailVerify() {
     trigger,
     formState: { errors }
   } = useForm<EmailVerifyInput>({
-    resolver: zodResolver(schema)
+    resolver: valibotResolver(schema)
   })
   const [emailVerified, setEmailVerified] = useState<boolean>(false)
   const [emailAuthToken, setEmailAuthToken] = useState<string>('')
@@ -86,18 +87,18 @@ export default function ResetPasswordEmailVerify() {
     nextModal()
   }
 
-  const sendEmail = async () => {
+  const resendEmail = async () => {
     const email = formData.email
-    await fetcher
-      .post('email-auth/send-email/password-reset', {
+
+    try {
+      await safeFetcher.post('email-auth/send-email/password-reset', {
         json: { email }
       })
-      .then((res) => {
-        if (res.status === 201) {
-          setExpired(false)
-          setTimer(timeLimit)
-        }
-      })
+      setExpired(false)
+      setTimer(timeLimit)
+    } catch {
+      toast.error('Failed to resend email')
+    }
   }
 
   const verifyCode = async () => {
@@ -181,9 +182,7 @@ export default function ResetPasswordEmailVerify() {
         <Button
           type="button"
           className="mt-4 w-full font-semibold"
-          onClick={() => {
-            sendEmail()
-          }}
+          onClick={resendEmail}
         >
           Resend Email
         </Button>
