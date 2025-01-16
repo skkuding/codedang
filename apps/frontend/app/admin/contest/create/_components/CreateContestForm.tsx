@@ -22,7 +22,7 @@ interface CreateContestFormProps {
   setIsCreating: (isCreating: boolean) => void
 }
 
-export default function CreateContestForm({
+export function CreateContestForm({
   children,
   problems,
   setIsCreating

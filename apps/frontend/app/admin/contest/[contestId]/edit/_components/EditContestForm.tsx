@@ -26,7 +26,7 @@ interface EditContestFormProps {
   methods: UseFormReturn<UpdateContestInput>
 }
 
-export default function EditContestForm({
+export function EditContestForm({
   contestId,
   children,
   problems,

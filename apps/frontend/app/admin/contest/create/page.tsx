@@ -16,7 +16,7 @@ import { ContestProblemTable } from '../_components/ContestProblemTable'
 import { ImportDialog } from '../_components/ImportDialog'
 import { TimeForm } from '../_components/TimeForm'
 import type { ContestProblem } from '../_libs/schemas'
-import CreateContestForm from './_components/CreateContestForm'
+import { CreateContestForm } from './_components/CreateContestForm'
 
 export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
