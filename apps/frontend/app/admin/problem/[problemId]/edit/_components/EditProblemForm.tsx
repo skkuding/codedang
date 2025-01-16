@@ -19,7 +19,7 @@ interface EditProblemFormProps {
   methods: UseFormReturn<UpdateProblemInput>
 }
 
-export default function EditProblemForm({
+export function EditProblemForm({
   problemId,
   children,
   methods

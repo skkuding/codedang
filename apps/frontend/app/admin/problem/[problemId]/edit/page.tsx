@@ -1,6 +1,6 @@
 'use client'
 
-import ConfirmNavigation from '@/app/admin/_components/ConfirmNavigation'
+import { ConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import type { UpdateProblemInput } from '@generated/graphql'
@@ -14,14 +14,13 @@ import { FormSection } from '../../../_components/FormSection'
 import { SwitchField } from '../../../_components/SwitchField'
 import { TitleForm } from '../../../_components/TitleForm'
 import { VisibleForm } from '../../../_components/VisibleForm'
-import { CautionDialog } from '../../_components/CautionDialog'
 import { InfoForm } from '../../_components/InfoForm'
 import { LimitForm } from '../../_components/LimitForm'
 import { PopoverVisibleInfo } from '../../_components/PopoverVisibleInfo'
 import { TemplateField } from '../../_components/TemplateField'
 import { TestcaseField } from '../../_components/TestcaseField'
 import { editSchema } from '../../_libs/schemas'
-import EditProblemForm from './_components/EditProblemForm'
+import { EditProblemForm } from './_components/EditProblemForm'
 
 export default function Page({ params }: { params: { problemId: string } }) {
   const { problemId } = params
