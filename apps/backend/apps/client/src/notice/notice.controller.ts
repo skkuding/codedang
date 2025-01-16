@@ -3,8 +3,6 @@ import {
   Get,
   Query,
   Param,
-  InternalServerErrorException,
-  Logger,
   DefaultValuePipe,
   ParseBoolPipe
 } from '@nestjs/common'
@@ -15,8 +13,6 @@ import { NoticeService } from './notice.service'
 @Controller('notice')
 @AuthNotNeededIfOpenSpace()
 export class NoticeController {
-  private readonly logger = new Logger(NoticeController.name)
-
   constructor(private readonly noticeService: NoticeService) {}
 
   @Get()
@@ -28,18 +24,13 @@ export class NoticeController {
     @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean,
     @Query('search') search?: string
   ) {
-    try {
-      return await this.noticeService.getNotices({
-        cursor,
-        take,
-        fixed,
-        search,
-        groupId
-      })
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.noticeService.getNotices({
+      cursor,
+      take,
+      fixed,
+      search,
+      groupId
+    })
   }
 
   @Get(':id')

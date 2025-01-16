@@ -7,8 +7,8 @@ import { cn } from '@/libs/utils'
 import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { inputStyle } from '../_libs/utils'
-import ErrorMessage from './ErrorMessage'
-import Label from './Label'
+import { ErrorMessage } from './ErrorMessage'
+import { Label } from './Label'
 
 interface SwitchFieldProps {
   name: string
@@ -19,7 +19,7 @@ interface SwitchFieldProps {
   hasValue?: boolean
 }
 
-export default function SwitchField({
+export function SwitchField({
   name,
   title,
   placeholder,

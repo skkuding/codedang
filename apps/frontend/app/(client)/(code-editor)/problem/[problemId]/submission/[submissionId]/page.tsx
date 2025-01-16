@@ -1,10 +1,10 @@
-import FetchErrorFallback from '@/components/FetchErrorFallback'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { ErrorBoundary } from '@suspensive/react'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense } from 'react'
-import SubmissionDetail from '../_components/SubmissionDetail'
+import { SubmissionDetail } from '../_components/SubmissionDetail'
 
 export default function Page({
   params

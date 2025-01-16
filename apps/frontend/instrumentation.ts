@@ -1,8 +1,8 @@
-import * as Sentry from '@sentry/nextjs'
+import { init } from '@sentry/nextjs'
 
 export const register = () => {
   if (['nodejs', 'edge'].includes(process.env.NEXT_RUNTIME ?? '')) {
-    Sentry.init({
+    init({
       dsn: 'https://10bd959e91328cfb75c274af2faa5fac@sentry.codedang.com/10',
 
       // Adjust this value in production, or use tracesSampler for greater control

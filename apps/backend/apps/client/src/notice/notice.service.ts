@@ -20,7 +20,6 @@ export class NoticeService {
     groupId?: number
   }) {
     const paginator = this.prisma.getPaginator(cursor)
-
     const notices = await this.prisma.notice.findMany({
       ...paginator,
       where: {
@@ -53,7 +52,6 @@ export class NoticeService {
         createdBy: notice.createdBy?.username
       }
     })
-
     const total = await this.prisma.notice.count({
       where: {
         groupId,
@@ -70,28 +68,26 @@ export class NoticeService {
   }
 
   async getNoticeByID(id: number, groupId = OPEN_SPACE_ID) {
-    const current = await this.prisma.notice
-      .findUniqueOrThrow({
-        where: {
-          id,
-          groupId,
-          isVisible: true
-        },
-        select: {
-          title: true,
-          content: true,
-          createTime: true,
-          updateTime: true,
-          createdBy: {
-            select: {
-              username: true
-            }
+    const notice = await this.prisma.notice.findUniqueOrThrow({
+      where: {
+        id,
+        groupId,
+        isVisible: true
+      },
+      select: {
+        title: true,
+        content: true,
+        createTime: true,
+        updateTime: true,
+        createdBy: {
+          select: {
+            username: true
           }
         }
-      })
-      .then((notice) => {
-        return { ...notice, createdBy: notice.createdBy?.username }
-      })
+      }
+    })
+
+    const current = { ...notice, createdBy: notice.createdBy?.username }
 
     const navigate = (pos: 'prev' | 'next') => {
       type Order = 'asc' | 'desc'

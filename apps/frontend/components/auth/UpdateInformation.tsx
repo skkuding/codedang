@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { IoWarningOutline } from 'react-icons/io5'
 
-export default function UpdateInformation() {
+export function UpdateInformation() {
   const router = useRouter()
   return (
     <div className="flex w-full flex-col items-center gap-1">

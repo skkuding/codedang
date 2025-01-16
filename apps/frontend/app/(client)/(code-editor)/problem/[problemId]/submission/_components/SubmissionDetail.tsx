@@ -1,4 +1,4 @@
-import CodeEditor from '@/components/CodeEditor'
+import { CodeEditor } from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import {
   Table,
@@ -11,17 +11,14 @@ import {
 import { dateFormatter, fetcherWithAuth, getResultColor } from '@/libs/utils'
 import type { SubmissionDetail } from '@/types/type'
 import { revalidateTag } from 'next/cache'
-import dataIfError from '../_libs/dataIfError'
+import { dataIfError } from '../_libs/dataIfError'
 
 interface Props {
   problemId: number
   submissionId: number
 }
 
-export default async function SubmissionDetail({
-  problemId,
-  submissionId
-}: Props) {
+export async function SubmissionDetail({ problemId, submissionId }: Props) {
   const res = await fetcherWithAuth(`submission/${submissionId}`, {
     searchParams: { problemId },
     next: {
