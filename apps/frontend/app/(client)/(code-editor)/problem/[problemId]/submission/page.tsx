@@ -1,10 +1,10 @@
-'use client'
-
-import { Paginator } from '@/components/Paginator'
-import { usePagination } from '@/libs/hooks/usePagination'
-import type { SubmissionItem } from '@/types/type'
-import { columns } from './_components/Columns'
-import { DataTable } from './_components/DataTable'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
+import { TanstackQueryErrorBoundary } from '@/components/TanstackQueryErrorBoundary'
+import { Suspense } from 'react'
+import {
+  SubmissionPaginatedTable,
+  SubmissionPaginatedTableFallback
+} from './_components/SubmissionPaginatedTable'
 
 export default function Submission({
   params
@@ -13,27 +13,11 @@ export default function Submission({
 }) {
   const { problemId } = params
 
-  const { items, paginator } = usePagination<SubmissionItem>(
-    `submission?problemId=${problemId}`,
-    20
-  )
-
   return (
-    <>
-      <DataTable
-        data={items ?? []}
-        columns={columns}
-        headerStyle={{
-          id: 'w-[8%]',
-          username: 'w-[15%]',
-          result: 'w-[27%]',
-          language: 'w-[14%]',
-          createTime: 'w-[23%]',
-          codeSize: 'w-[13%]'
-        }}
-        problemId={Number(problemId)}
-      />
-      <Paginator page={paginator.page} slot={paginator.slot} />
-    </>
+    <TanstackQueryErrorBoundary fallback={FetchErrorFallback}>
+      <Suspense fallback={<SubmissionPaginatedTableFallback />}>
+        <SubmissionPaginatedTable problemId={Number(problemId)} />
+      </Suspense>
+    </TanstackQueryErrorBoundary>
   )
 }
