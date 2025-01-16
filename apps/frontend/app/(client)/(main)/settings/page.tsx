@@ -3,7 +3,7 @@
 import type { SettingsFormat } from '@/types/type'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -47,7 +47,7 @@ export default function Page() {
   const [majorValue, setMajorValue] = useState<string>(
     defaultProfileValues.major || ''
   )
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  //const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const {
     register,
@@ -106,11 +106,13 @@ export default function Page() {
   const saveAbleUpdateNow =
     Boolean(studentId) && majorValue !== 'none' && !errors.studentId
 
-  // 비밀번호 일치 여부에 따라 값 설정
-  if (isPasswordsMatch) {
-    setValue('newPassword', newPassword)
-    setValue('confirmPassword', confirmPassword)
-  }
+  // 무한 렌더링..
+  useEffect(() => {
+    if (isPasswordsMatch) {
+      setValue('newPassword', newPassword)
+      setValue('confirmPassword', confirmPassword)
+    }
+  }, [isPasswordsMatch, newPassword, confirmPassword, setValue])
 
   const updateUserProfile = useUpdateUserProfile()
 
@@ -194,8 +196,8 @@ export default function Page() {
       register,
       errors
     },
-    updateNow: Boolean(updateNow),
-    isLoading
+    updateNow: Boolean(updateNow)
+    //isLoading
   }
   return (
     <div className="flex w-full gap-20 py-6">
