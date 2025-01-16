@@ -10,10 +10,7 @@ interface NavLinkProps<T extends string> {
   text: string
 }
 
-export default function NavLink<T extends string>({
-  href,
-  text
-}: NavLinkProps<T>) {
+export function NavLink<T extends string>({ href, text }: NavLinkProps<T>) {
   const pathname = usePathname()
 
   return (

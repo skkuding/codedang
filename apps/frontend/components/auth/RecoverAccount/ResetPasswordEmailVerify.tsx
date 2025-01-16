@@ -1,7 +1,7 @@
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
 import { cn, fetcher, safeFetcher } from '@/libs/utils'
-import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
+import { useRecoverAccountModalStore } from '@/stores/recoverAccountModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -21,7 +21,7 @@ const schema = v.object({
 
 const timeLimit = 300
 
-export default function ResetPasswordEmailVerify() {
+export function ResetPasswordEmailVerify() {
   const [timer, setTimer] = useState(timeLimit)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const previousTimeRef = useRef(Date.now())

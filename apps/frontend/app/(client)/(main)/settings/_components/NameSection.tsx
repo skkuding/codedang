@@ -6,7 +6,7 @@ interface NameSectionProps {
   realName: string
 }
 
-export default function NameSection({ realName }: NameSectionProps) {
+export function NameSection({ realName }: NameSectionProps) {
   const {
     isLoading,
     updateNow,

@@ -1,4 +1,4 @@
-import ContestStatusTimeDiff from '@/components/ContestStatusTimeDiff'
+import { ContestStatusTimeDiff } from '@/components/ContestStatusTimeDiff'
 import { auth } from '@/libs/auth'
 import { fetcher, fetcherWithAuth, getStatusWithStartEnd } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
@@ -6,7 +6,7 @@ import calendarIcon from '@/public/icons/calendar.svg'
 import checkIcon from '@/public/icons/check-blue.svg'
 import type { Contest } from '@/types/type'
 import Image from 'next/image'
-import ContestTabs from '../_components/ContestTabs'
+import { ContestTabs } from '../_components/ContestTabs'
 import { calculateContestScore } from './_libs/utils'
 
 interface ContestDetailProps {

@@ -19,7 +19,7 @@ import React from 'react'
 import { FaChevronDown, FaCheck } from 'react-icons/fa6'
 import { useSettingsContext } from './context'
 
-export default function MajorSection() {
+export function MajorSection() {
   const {
     isLoading,
     updateNow,

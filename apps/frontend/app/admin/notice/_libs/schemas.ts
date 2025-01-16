@@ -1,8 +1,8 @@
-import { z } from 'zod'
+import * as v from 'valibot'
 
-export const createSchema = z.object({
-  title: z.string().min(1),
-  content: z.string().min(1),
-  isFixed: z.boolean(),
-  isVisible: z.boolean()
+export const createSchema = v.object({
+  title: v.pipe(v.string(), v.minLength(1)),
+  content: v.pipe(v.string(), v.minLength(1)),
+  isFixed: v.boolean(),
+  isVisible: v.boolean()
 })

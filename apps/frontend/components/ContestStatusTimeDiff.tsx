@@ -14,7 +14,7 @@ import { toast } from 'sonner'
 
 dayjs.extend(duration)
 
-export default function ContestStatusTimeDiff({
+export function ContestStatusTimeDiff({
   contest,
   textStyle,
   inContestEditor

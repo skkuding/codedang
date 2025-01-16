@@ -26,7 +26,7 @@ interface BaseModalProps {
  * * Use BaseModal Component by creating a new component(which includes 'AlertDialogFooter') that extends BaseModal.
  * * AlertDialogFooter section (Button section) is separated using ConfirmModal component for reusability.
  */
-export default function BaseModal({
+export function BaseModal({
   open,
   handleClose,
   children,
