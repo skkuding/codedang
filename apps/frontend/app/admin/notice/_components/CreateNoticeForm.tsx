@@ -14,7 +14,7 @@ interface CreateNoticeFormProps {
   children: ReactNode
 }
 
-export default function CreateNoticeForm({ children }: CreateNoticeFormProps) {
+export function CreateNoticeForm({ children }: CreateNoticeFormProps) {
   const methods = useForm<CreateNoticeInput>({
     resolver: zodResolver(createSchema),
     defaultValues: {
@@ -49,10 +49,8 @@ export default function CreateNoticeForm({ children }: CreateNoticeFormProps) {
   })
 
   return (
-    <>
-      <form className="flex w-[760px] flex-col gap-6" onSubmit={onSubmit}>
-        <FormProvider {...methods}>{children}</FormProvider>
-      </form>
-    </>
+    <form className="flex w-[760px] flex-col gap-6" onSubmit={onSubmit}>
+      <FormProvider {...methods}>{children}</FormProvider>
+    </form>
   )
 }

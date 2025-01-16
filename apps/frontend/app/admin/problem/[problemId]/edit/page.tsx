@@ -7,7 +7,7 @@ import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { Template, Testcase, UpdateProblemInput } from '@generated/graphql'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
@@ -15,17 +15,17 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { toast } from 'sonner'
-import DescriptionForm from '../../../_components/DescriptionForm'
-import FormSection from '../../../_components/FormSection'
-import SwitchField from '../../../_components/SwitchField'
-import TitleForm from '../../../_components/TitleForm'
-import VisibleForm from '../../../_components/VisibleForm'
+import { DescriptionForm } from '../../../_components/DescriptionForm'
+import { FormSection } from '../../../_components/FormSection'
+import { SwitchField } from '../../../_components/SwitchField'
+import { TitleForm } from '../../../_components/TitleForm'
+import { VisibleForm } from '../../../_components/VisibleForm'
 import { CautionDialog } from '../../_components/CautionDialog'
-import InfoForm from '../../_components/InfoForm'
-import LimitForm from '../../_components/LimitForm'
-import PopoverVisibleInfo from '../../_components/PopoverVisibleInfo'
-import TemplateField from '../../_components/TemplateField'
-import TestcaseField from '../../_components/TestcaseField'
+import { InfoForm } from '../../_components/InfoForm'
+import { LimitForm } from '../../_components/LimitForm'
+import { PopoverVisibleInfo } from '../../_components/PopoverVisibleInfo'
+import { TemplateField } from '../../_components/TemplateField'
+import { TestcaseField } from '../../_components/TestcaseField'
 import { editSchema } from '../../_libs/schemas'
 import { validateScoreWeight } from '../../_libs/utils'
 import { ScoreCautionDialog } from './_components/ScoreCautionDialog'
@@ -38,7 +38,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
   useConfirmNavigation(shouldSkipWarning)
 
   const methods = useForm<UpdateProblemInput>({
-    resolver: zodResolver(editSchema),
+    resolver: valibotResolver(editSchema),
     defaultValues: { template: [] }
   })
 
@@ -98,9 +98,13 @@ export default function Page({ params }: { params: { problemId: string } }) {
       setValue('timeLimit', data.timeLimit)
       setValue('memoryLimit', data.memoryLimit)
       setValue('hint', data.hint)
-      if (data.hint !== '') setShowHint(true)
+      if (data.hint !== '') {
+        setShowHint(true)
+      }
       setValue('source', data.source)
-      if (data.source !== '') setShowSource(true)
+      if (data.source !== '') {
+        setShowSource(true)
+      }
       if (data.template) {
         const templates = JSON.parse(data.template[0])
         templates.map((template: Template, index: number) => {

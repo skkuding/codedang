@@ -1,8 +1,0 @@
-dist
-node_modules
-.pnpm-store
-@generated
-collection
-.next
-.eslintrc.js
-*.config.js

@@ -40,7 +40,7 @@ const headerStyle: Record<string, string | undefined> = {
   codeSize: 'w-[13%]'
 }
 
-export default function SubmissionTable<
+export function SubmissionTable<
   TData extends Item,
   TValue,
   TRoute extends string

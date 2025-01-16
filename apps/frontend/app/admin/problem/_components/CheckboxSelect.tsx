@@ -26,7 +26,7 @@ interface DataProps<T> {
   defaultValue?: T[]
 }
 
-export default function LanguageSelect<T extends string>({
+export function CheckboxSelect<T extends string>({
   title,
   options,
   onChange,
@@ -100,7 +100,7 @@ export default function LanguageSelect<T extends string>({
                   <Checkbox
                     checked={selectedValues.includes(option)}
                     onCheckedChange={() => handleCheckboxChange(option)}
-                  ></Checkbox>
+                  />
                   {option}
                 </CommandItem>
               ))}

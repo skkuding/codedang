@@ -1,6 +1,7 @@
 'use client'
 
-import SubmissionTable, {
+import {
+  SubmissionTable,
   SubmissionTableFallback
 } from '@/app/(client)/(code-editor)/_components/SubmissionTable'
 import { problemSubmissionQueries } from '@/app/(client)/_libs/queries/problemSubmission'

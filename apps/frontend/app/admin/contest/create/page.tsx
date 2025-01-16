@@ -1,5 +1,6 @@
 'use client'
 
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -26,7 +27,8 @@ import {
 import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import type { CreateContestInput } from '@generated/graphql'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
+import { ErrorBoundary } from '@suspensive/react'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -36,17 +38,17 @@ import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { toast } from 'sonner'
 import { useConfirmNavigation } from '../../_components/ConfirmNavigation'
-import DescriptionForm from '../../_components/DescriptionForm'
-import FormSection from '../../_components/FormSection'
-import SwitchField from '../../_components/SwitchField'
-import TitleForm from '../../_components/TitleForm'
-import ContestProblemListLabel from '../_components/ContestProblemListLabel'
-import ContestProblemTable from '../_components/ContestProblemTable'
+import { DescriptionForm } from '../../_components/DescriptionForm'
+import { FormSection } from '../../_components/FormSection'
+import { SwitchField } from '../../_components/SwitchField'
+import { TitleForm } from '../../_components/TitleForm'
+import { ContestProblemListLabel } from '../_components/ContestProblemListLabel'
+import { ContestProblemTable } from '../_components/ContestProblemTable'
 import {
   ImportProblemTable,
   ImportProblemTableFallback
 } from '../_components/ImportProblemTable'
-import TimeForm from '../_components/TimeForm'
+import { TimeForm } from '../_components/TimeForm'
 import { type ContestProblem, createSchema } from '../_libs/schemas'
 
 export default function Page() {
@@ -60,8 +62,9 @@ export default function Page() {
   useConfirmNavigation(shouldSkipWarning)
 
   const methods = useForm<CreateContestInput>({
-    resolver: zodResolver(createSchema),
+    resolver: valibotResolver(createSchema),
     defaultValues: {
+      invitationCode: null,
       isRankVisible: true,
       isVisible: true,
       enableCopyPaste: false,
@@ -231,15 +234,17 @@ export default function Page() {
                     <DialogHeader>
                       <DialogTitle>Import Problem</DialogTitle>
                     </DialogHeader>
-                    <Suspense fallback={<ImportProblemTableFallback />}>
-                      <ImportProblemTable
-                        checkedProblems={problems}
-                        onSelectedExport={(problems) => {
-                          setProblems(problems)
-                          setShowImportDialog(false)
-                        }}
-                      />
-                    </Suspense>
+                    <ErrorBoundary fallback={FetchErrorFallback}>
+                      <Suspense fallback={<ImportProblemTableFallback />}>
+                        <ImportProblemTable
+                          checkedProblems={problems}
+                          onSelectedExport={(problems) => {
+                            setProblems(problems)
+                            setShowImportDialog(false)
+                          }}
+                        />
+                      </Suspense>
+                    </ErrorBoundary>
                   </DialogContent>
                 </Dialog>
               </div>

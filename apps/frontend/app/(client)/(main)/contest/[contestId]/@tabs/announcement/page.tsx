@@ -1,4 +1,4 @@
-import DataTable from '@/app/(client)/(main)/_components/DataTable'
+import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { fetcher } from '@/libs/utils'
 import type { ContestAnnouncement } from '@/types/type'
 import { columns } from './_components/Columns'

@@ -1,5 +1,5 @@
 import { contestSubmissionQueries } from '@/app/(client)/_libs/queries/contestSubmission'
-import FetchErrorFallback from '@/components/FetchErrorFallback'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import {
   Dialog,
   DialogTrigger,

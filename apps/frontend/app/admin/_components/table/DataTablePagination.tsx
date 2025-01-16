@@ -23,7 +23,7 @@ interface DataTablePaginationProps {
  * @param showRowsPerPage
  * 페이지당 보여줄 행을 선택하는 셀렉트 박스 표시 여부 (기본값: true)
  */
-export default function DataTablePagination({
+export function DataTablePagination({
   showSelection = false,
   showRowsPerPage = true
 }: DataTablePaginationProps) {

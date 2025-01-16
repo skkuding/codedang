@@ -1,0 +1,32 @@
+meta {
+  name: NOT_FOUND
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetAssignment($assignmentId: Int!) {
+    getAssignment(assignmentId: $assignmentId) {
+      id
+      title
+      participants
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "assignmentId": 99999
+  }
+}
+
+assert {
+  res.body.errors[0].message: eq No Assignment found
+  res.body.errors[0].extensions.code: eq NOT_FOUND
+}

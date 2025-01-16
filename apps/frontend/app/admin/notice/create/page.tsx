@@ -3,12 +3,12 @@ import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import Link from 'next/link'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
-import DescriptionForm from '../../_components/DescriptionForm'
-import FormSection from '../../_components/FormSection'
-import TitleForm from '../../_components/TitleForm'
-import VisibleForm from '../../_components/VisibleForm'
-import CreateNoticeForm from '../_components/CreateNoticeForm'
-import FixedForm from '../_components/FixedForm'
+import { DescriptionForm } from '../../_components/DescriptionForm'
+import { FormSection } from '../../_components/FormSection'
+import { TitleForm } from '../../_components/TitleForm'
+import { VisibleForm } from '../../_components/VisibleForm'
+import { CreateNoticeForm } from '../_components/CreateNoticeForm'
+import { FixedForm } from '../_components/FixedForm'
 
 export default function Page() {
   return (

@@ -38,10 +38,7 @@ interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
  * @param className
  * tailwind 클래스명
  */
-export default function DataTableDeleteButton<
-  TData extends { id: number },
-  TPromise
->({
+export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
   target,
   deleteTarget,
   getCanDelete,
@@ -53,7 +50,9 @@ export default function DataTableDeleteButton<
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const handleDeleteButtonClick = async () => {
-    if (table.getSelectedRowModel().rows.length === 0) return
+    if (table.getSelectedRowModel().rows.length === 0) {
+      return
+    }
 
     if (!getCanDelete) {
       setIsDialogOpen(true)

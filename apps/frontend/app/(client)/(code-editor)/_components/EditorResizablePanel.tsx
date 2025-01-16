@@ -1,6 +1,6 @@
 'use client'
 
-import CodeEditor from '@/components/CodeEditor'
+import { CodeEditor } from '@/components/CodeEditor'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -9,14 +9,14 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
-import type { Language, ProblemDetail } from '@/types/type'
+import type { ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Suspense, useEffect } from 'react'
 import Loading from '../problem/[problemId]/loading'
-import EditorHeader from './EditorHeader/EditorHeader'
-import TestcasePanel from './TestcasePanel/TestcasePanel'
+import { EditorHeader } from './EditorHeader/EditorHeader'
+import { TestcasePanel } from './TestcasePanel/TestcasePanel'
 import { TestPollingStoreProvider } from './context/TestPollingStoreProvider'
 import { TestcaseStoreProvider } from './context/TestcaseStoreProvider'
 
@@ -27,7 +27,7 @@ interface ProblemEditorProps {
   enableCopyPaste?: boolean
 }
 
-export default function EditorMainResizablePanel({
+export function EditorMainResizablePanel({
   problem,
   contestId,
   enableCopyPaste = true,
@@ -154,7 +154,7 @@ function CodeEditorInEditorResizablePanel({
   return (
     <CodeEditor
       value={code ?? ''}
-      language={language as Language}
+      language={language}
       onChange={setCode}
       enableCopyPaste={enableCopyPaste}
       height="100%"
