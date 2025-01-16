@@ -1,10 +1,9 @@
 'use client'
 
-import { safeFetcherWithAuth } from '@/libs/utils'
 import type { SettingsFormat } from '@/types/type'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -20,8 +19,11 @@ import { SaveButton } from './_components/SaveButton'
 import { StudentIdSection } from './_components/StudentIdSection'
 import { TopicSection } from './_components/TopicSection'
 import { SettingsProvider } from './_components/context'
-import type { Profile } from './_components/context'
 import { useCheckPassword } from './_libs/hooks/useCheckPassword'
+import {
+  useFetchUserProfileSuspense,
+  useUpdateUserProfile
+} from './_libs/queries/profile'
 import { getSchema } from './_libs/schemas'
 import { useConfirmNavigation } from './_libs/utils'
 
@@ -38,31 +40,14 @@ export default function Page() {
   const updateNow = searchParams.get('updateNow')
   const router = useRouter()
   const bypassConfirmation = useRef<boolean>(false)
-  const [defaultProfileValues, setdefaultProfileValues] = useState<Profile>({
-    username: '',
-    userProfile: {
-      realName: ''
-    },
-    studentId: '',
-    major: ''
-  })
 
-  // Fetch default profile values
-  useEffect(() => {
-    const fetchDefaultProfile = async () => {
-      try {
-        const data: Profile = await safeFetcherWithAuth.get('user').json()
-        setMajorValue(data.major)
-        setdefaultProfileValues(data)
-        setIsLoading(false)
-      } catch (error) {
-        console.error('Failed to fetch profile:', error)
-        toast.error('Failed to load profile data')
-        setIsLoading(false)
-      }
-    }
-    fetchDefaultProfile()
-  }, [])
+  // React Query를 사용하여 프로필 데이터 가져오기
+  const { data: defaultProfileValues } = useFetchUserProfileSuspense()
+
+  const [majorValue, setMajorValue] = useState<string>(
+    defaultProfileValues.major || ''
+  )
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const {
     register,
@@ -91,6 +76,7 @@ export default function Page() {
 
   const { isConfirmModalOpen, setIsConfirmModalOpen, confirmAction } =
     useConfirmNavigation(bypassConfirmation, Boolean(updateNow))
+
   const {
     isPasswordCorrect,
     newPasswordAble,
@@ -102,8 +88,6 @@ export default function Page() {
   const [newPasswordShow, setNewPasswordShow] = useState<boolean>(false)
   const [confirmPasswordShow, setConfirmPasswordShow] = useState<boolean>(false)
   const [majorOpen, setMajorOpen] = useState<boolean>(false)
-  const [majorValue, setMajorValue] = useState<string>('')
-  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const isPasswordsMatch = newPassword === confirmPassword && newPassword !== ''
   const saveAblePassword: boolean =
@@ -121,17 +105,19 @@ export default function Page() {
       (!newPassword && !confirmPassword))
   const saveAbleUpdateNow =
     Boolean(studentId) && majorValue !== 'none' && !errors.studentId
-  // 일치 여부에 따라 New Password Input, Re-enter Password Input 창의 border 색상을 바꿈
-  useEffect(() => {
-    if (isPasswordsMatch) {
-      setValue('newPassword', newPassword)
-      setValue('confirmPassword', confirmPassword)
-    }
-  }, [isPasswordsMatch, newPassword, confirmPassword])
+
+  // 비밀번호 일치 여부에 따라 값 설정
+  if (isPasswordsMatch) {
+    setValue('newPassword', newPassword)
+    setValue('confirmPassword', confirmPassword)
+  }
+
+  const updateUserProfile = useUpdateUserProfile()
+
   const onSubmit = async (data: SettingsFormat) => {
     try {
-      // 필요 없는 필드 제외 (defaultProfileValues와 값이 같은 것들은 제외)
       const updatePayload: UpdatePayload = {}
+
       if (data.realName !== defaultProfileValues.userProfile?.realName) {
         updatePayload.realName = data.realName
       }
@@ -147,20 +133,17 @@ export default function Page() {
       if (updateNow && data.studentId !== '0000000000') {
         updatePayload.studentId = data.studentId
       }
-      const response = await safeFetcherWithAuth.patch('user', {
-        json: updatePayload
-      })
-      if (response.ok) {
-        toast.success('Successfully updated your information')
-        bypassConfirmation.current = true
-        setTimeout(() => {
-          if (updateNow) {
-            router.push('/')
-          } else {
-            window.location.reload()
-          }
-        }, 1500)
-      }
+
+      await updateUserProfile.mutateAsync(updatePayload)
+      toast.success('Successfully updated your information')
+      bypassConfirmation.current = true
+      setTimeout(() => {
+        if (updateNow) {
+          router.push('/')
+        } else {
+          window.location.reload()
+        }
+      }, 1500)
     } catch (error) {
       console.error(error)
       toast.error('Failed to update your information, Please try again')
@@ -214,7 +197,6 @@ export default function Page() {
     updateNow: Boolean(updateNow),
     isLoading
   }
-
   return (
     <div className="flex w-full gap-20 py-6">
       {/* Logo */}
