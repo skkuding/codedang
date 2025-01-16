@@ -10,6 +10,8 @@ import { VisibleForm } from '../../_components/VisibleForm'
 import { CreateNoticeForm } from '../_components/CreateNoticeForm'
 import { FixedForm } from '../_components/FixedForm'
 
+export const dynamic = 'force-dynamic'
+
 export default function Page() {
   return (
     <ScrollArea className="shrink-0">
