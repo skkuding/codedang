@@ -5,54 +5,42 @@ import {
   CarouselNext,
   CarouselPrevious
 } from '@/components/shadcn/carousel'
-import { cn, fetcher, fetcherWithAuth } from '@/libs/utils'
-import type { Assignment } from '@/types/type'
+import { cn, fetcherWithAuth } from '@/libs/utils'
+import type { Course, RawCourse } from '@/types/type'
 import type { Route } from 'next'
 import type { Session } from 'next-auth'
 import Link from 'next/link'
-import AssignmentCard from '../_components/AssignmentCard'
+import CourseCard from '../_components/CourseCard'
 
-const getAssignments = async () => {
-  const data: {
-    ongoing: Assignment[] //Course type 정의 후 수정
-    upcoming: Assignment[]
-  } = await fetcher.get('assignment/ongoing-upcoming').json() //group으로 해야하나 assignment로 해야하나!!
-  data.ongoing.forEach((assignment) => {
-    assignment.status = 'ongoing'
-  })
-  data.upcoming.forEach((assignment) => {
-    assignment.status = 'upcoming'
-  })
-  return data.ongoing.concat(data.upcoming)
-}
+const getCourses = async () => {
+  const rawData = await fetcherWithAuth.get('group/joined').json()
+  console.log('Raw data:', rawData) // 원본 데이터 로그 출력
 
-const getRegisteredAssignments = async () => {
-  //현재 등록된 assignments를 불러온다.
-  const data: {
-    registeredOngoing: Assignment[] //Course Interface를 정의한 뒤 수정해야한다.
-    registeredUpcoming: Assignment[]
-  } = await fetcherWithAuth
-    .get('assignment/ongoing-upcoming-with-registered')
-    .json()
-  data.registeredOngoing.forEach((assignment) => {
-    assignment.status = 'registeredOngoing'
-  })
-  data.registeredUpcoming.forEach((assignment) => {
-    assignment.status = 'registeredUpcoming'
-  })
-  return data.registeredOngoing.concat(data.registeredUpcoming)
+  // 데이터를 매핑하여 Course 타입으로 변환
+  const data: Course[] = rawData.map((item: RawCourse) => ({
+    id: item.id,
+    groupName: item.groupName,
+    description: item.description,
+    memberNum: item.memberNum,
+    status: 'ongoing',
+    semester: '2025 Spring',
+    professor: 'Ha Jimin'
+  }))
+
+  console.log('Transformed data:', data) // 변환된 데이터 로그 출력
+  return data
 }
 
 type ItemsPerSlide = 2 | 3
 
-function AssignmentCardCarousel({
+function CourseCardCarousel({
   itemsPerSlide,
   title,
   data
 }: {
   itemsPerSlide: ItemsPerSlide
   title: string
-  data: Assignment[] //type 수정.
+  data: Course[] //type 수정.
 }) {
   const chunks = []
 
@@ -75,18 +63,16 @@ function AssignmentCardCarousel({
       <CarouselContent className="p-1">
         {chunks.map((chunk) => (
           <CarouselItem key={chunk[0].id} className="flex w-full gap-3">
-            {chunk.map((assignment) => (
+            {chunk.map((course) => (
               <Link
-                key={assignment.id}
-                href={
-                  `/course/${assignment.group.id}/assignment/${assignment.id}` as Route
-                }
+                key={course.id}
+                href={`/course/${course.id}` as Route}
                 className={cn(
                   'block overflow-hidden p-2',
                   itemsPerSlide === 3 ? 'w-1/3' : 'w-1/2'
                 )}
               >
-                <AssignmentCard assignment={assignment} />
+                <CourseCard course={course} />
               </Link>
             ))}
           </CarouselItem>
@@ -97,31 +83,22 @@ function AssignmentCardCarousel({
 }
 
 //Contest를 Course로 모두 이름 변경!
-export default async function AssignmentCardList({
-  title,
-  type,
-  session
+export default async function CourseCardList({
+  title
 }: {
   type: string
   title: string
   session?: Session | null
 }) {
-  const data = (
-    session ? await getRegisteredAssignments() : await getAssignments()
-  ).filter(
-    (assignment) =>
-      assignment.status.toLowerCase() === 'registered' + type.toLowerCase() ||
-      assignment.status.toLowerCase() === type.toLowerCase()
-  )
-
-  data.sort((a, b) => +new Date(a.startTime) - +new Date(b.startTime))
+  const data = await getCourses()
+  console.log('Courses data:', data)
 
   return data.length === 0 ? (
-    <></>
+    <>No courses have been registered.</>
   ) : (
     <>
-      <AssignmentCardCarousel itemsPerSlide={3} title={title} data={data} />
-      <AssignmentCardCarousel itemsPerSlide={2} title={title} data={data} />
+      <CourseCardCarousel itemsPerSlide={3} title={title} data={data} />
+      <CourseCardCarousel itemsPerSlide={2} title={title} data={data} />
     </>
   )
 }

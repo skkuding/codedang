@@ -1,12 +1,9 @@
 'use client'
 
 //거의 이름만 바꿈.
-import CourseStatusTimeDiff from '@/app/(client)/(main)/course/_components/CourseStatusTimeDiff'
 //원래 ContestStatusTimeDiff -> CourseStatusTimeDiff로 이름 바꿈. -> _components에 파일을 만들
-import { cn, dateFormatter } from '@/libs/utils'
-import calendarIcon from '@/public/icons/calendar.svg'
+import { cn } from '@/libs/utils'
 import type { Course } from '@/types/type'
-import Image from 'next/image'
 import 'react-circular-progressbar/dist/styles.css'
 import StatusBadge from '../../../(main)/_components/StatusBadge'
 
@@ -31,8 +28,6 @@ interface Props {
 
 export default function CourseCard({ course }: Props) {
   //contest props -> course props로 변경해야..
-  const startTime = dateFormatter(course.startTime, 'YYYY-MM-DD')
-  const endTime = dateFormatter(course.endTime, 'YYYY-MM-DD')
 
   return (
     <div
@@ -49,22 +44,21 @@ export default function CourseCard({ course }: Props) {
       >
         <StatusBadge variant={course.status} />
         <div className="line-clamp-4 text-ellipsis whitespace-pre-wrap text-lg font-semibold leading-tight text-black min-[400px]:line-clamp-2">
-          {course.title}
+          {course.groupName}
         </div>
       </div>
       <div className="mb-4 flex items-center justify-between">
         <div className="line-clamp-2 flex flex-col gap-2">
           <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800 opacity-80">
-            <Image src={calendarIcon} alt="Calendar" />
             <p className="overflow-hidden text-ellipsis whitespace-pre-wrap">
-              {startTime} ~ {endTime}
+              2025 Spring
             </p>
           </div>
-          <CourseStatusTimeDiff
-            course={course}
-            textStyle="text-xs text-gray-800"
-            inCourseEditor={false}
-          />
+          <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800 opacity-80">
+            <p className="overflow-hidden text-ellipsis whitespace-pre-wrap">
+              Ha Jimin
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -211,20 +211,22 @@ export interface SettingsFormat {
   studentId: string
 }
 
+export interface RawCourse {
+  id: number
+  groupName: string
+  description: string
+  memberNum: number
+  isGroupLeader: boolean
+}
+
 export interface Course {
   id: number
-  title: string
-  startTime: Date
-  endTime: Date
-  group: {
-    id: string
-    groupName: string
-  }
-  isJudgeResultVisible: boolean
-  enableCopyPaste: boolean
+  groupName: string
+  description: string
+  memberNum: number
   status: CourseStatus
-  participants: number
-  isRegistered: boolean
+  semester: string
+  professor: string
 }
 
 export interface Assignment {
