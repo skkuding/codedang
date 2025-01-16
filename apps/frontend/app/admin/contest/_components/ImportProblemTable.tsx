@@ -12,7 +12,7 @@ import {
   DataTableSearchBar
 } from '../../_components/table'
 import type { ContestProblem } from '../_libs/schemas'
-import ImportProblemButton from './ImportProblemButton'
+import { ImportProblemButton } from './ImportProblemButton'
 import {
   columns,
   DEFAULT_PAGE_SIZE,
@@ -50,7 +50,7 @@ export function ImportProblemTable({
     isVisible: problem.isVisible !== undefined ? problem.isVisible : null,
     languages: problem.languages ?? [],
     tag: problem.tag.map(({ id, tag }) => ({
-      id: +id,
+      id: Number(id),
       tag: {
         ...tag,
         id: Number(tag.id)

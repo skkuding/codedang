@@ -1,7 +1,8 @@
-import FetchErrorFallback from '@/components/FetchErrorFallback'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { TanstackQueryErrorBoundary } from '@/components/TanstackQueryErrorBoundary'
 import { Suspense } from 'react'
-import ProblemInfiniteTable, {
+import {
+  ProblemInfiniteTable,
   ProblemInfiniteTableFallback
 } from './_components/ProblemInfiniteTable'
 

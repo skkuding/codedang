@@ -4,29 +4,28 @@ import visibleIcon from '@/public/icons/visible.svg'
 import type { SettingsFormat } from '@/types/type'
 import Image from 'next/image'
 import React from 'react'
-import type { UseFormRegister, UseFormGetValues } from 'react-hook-form'
+import type { UseFormGetValues } from 'react-hook-form'
+import { useSettingsContext } from './context'
 
 interface ReEnterNewPwSectionProps {
-  confirmPasswordShow: boolean
-  setConfirmPasswordShow: React.Dispatch<React.SetStateAction<boolean>>
   newPasswordAble: boolean
-  updateNow: boolean
-  register: UseFormRegister<SettingsFormat>
   getValues: UseFormGetValues<SettingsFormat>
   confirmPassword: string
   isPasswordsMatch: boolean
 }
 
-export default function ReEnterNewPwSection({
-  confirmPasswordShow,
-  setConfirmPasswordShow,
+export function ReEnterNewPwSection({
   newPasswordAble,
-  updateNow,
-  register,
   getValues,
   confirmPassword,
   isPasswordsMatch
 }: ReEnterNewPwSectionProps) {
+  const {
+    updateNow,
+    passwordState: { confirmPasswordShow, setConfirmPasswordShow },
+    formState: { register }
+  } = useSettingsContext()
+
   return (
     <>
       {/* Re-enter new password */}

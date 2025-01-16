@@ -1,15 +1,15 @@
 'use client'
 
-import DataTable from '@/app/(client)/(main)/_components/DataTable'
+import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { problemQueries } from '@/app/(client)/_libs/queries/problem'
-import IntersectionArea from '@/components/IntersectionArea'
+import { IntersectionArea } from '@/components/IntersectionArea'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { useSuspenseInfiniteQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'next/navigation'
-import SearchBar from '../../_components/SearchBar'
+import { SearchBar } from '../../_components/SearchBar'
 import { columns } from './Columns'
 
-export default function ProblemInfiniteTable() {
+export function ProblemInfiniteTable() {
   const searchParams = useSearchParams()
   const search = searchParams.get('search') ?? ''
   const order = searchParams.get('order') ?? 'id-asc'

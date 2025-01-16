@@ -6,27 +6,21 @@ interface SetToZeroButtonProps {
   onRevertScore: () => void
 }
 
-export default function RevertScoreButton({
-  onRevertScore
-}: SetToZeroButtonProps) {
+export function RevertScoreButton({ onRevertScore }: SetToZeroButtonProps) {
   const { table } = useDataTable<BelongedContest>()
 
   const selectedContests = table.getSelectedRowModel().rows
 
-  return (
-    <>
-      {selectedContests.length > 0 && (
-        <Button
-          onClick={() => {
-            table.resetRowSelection()
-            onRevertScore()
-          }}
-          variant="filter"
-          className="ml-3"
-        >
-          Revert Score
-        </Button>
-      )}
-    </>
-  )
+  return selectedContests.length > 0 ? (
+    <Button
+      onClick={() => {
+        table.resetRowSelection()
+        onRevertScore()
+      }}
+      variant="filter"
+      className="ml-3"
+    >
+      Revert Score
+    </Button>
+  ) : null
 }

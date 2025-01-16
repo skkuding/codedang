@@ -1,6 +1,6 @@
 import { Button, type ButtonProps } from '@/components/shadcn/button'
 import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
-import useAuthModalStore from '@/stores/authModal'
+import { useAuthModalStore } from '@/stores/authModal'
 import { useCodeStore } from '@/stores/editor'
 import type { TestcaseItem } from '@/types/type'
 import { useMutation } from '@tanstack/react-query'
@@ -15,7 +15,7 @@ interface RunTestButtonProps extends ButtonProps {
   saveCode: (code: string) => void
 }
 
-export default function RunTestButton({
+export function RunTestButton({
   problemId,
   language,
   saveCode,
@@ -93,7 +93,7 @@ export default function RunTestButton({
     }
   })
 
-  const submitTest = async () => {
+  const submitTest = () => {
     const code = getCode()
     const testcases = getUserTestcases()
 

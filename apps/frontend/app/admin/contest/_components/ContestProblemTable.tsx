@@ -9,7 +9,7 @@ interface ContestProblemTableProps {
   disableInput: boolean
 }
 
-export default function ContestProblemTable({
+export function ContestProblemTable({
   problems,
   setProblems,
   disableInput

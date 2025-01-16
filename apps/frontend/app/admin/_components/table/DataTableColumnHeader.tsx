@@ -50,16 +50,21 @@ export function DataTableColumnHeader<TData, TValue>({
             )}
           >
             <span>{title}</span>
-            {column.getIsSorted() === 'desc' ? (
-              <TriangleDownIcon className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === 'asc' ? (
-              <TriangleUpIcon className="ml-2 h-4 w-4" />
-            ) : (
-              <div>
-                <TriangleUpIcon className="-mb-2.5 ml-2 h-4 w-4" />
-                <TriangleDownIcon className="-mt- ml-2 h-4 w-4" />
-              </div>
-            )}
+            {(() => {
+              const sort = column.getIsSorted()
+              if (sort === 'desc') {
+                return <TriangleDownIcon className="ml-2 h-4 w-4" />
+              }
+              if (sort === 'asc') {
+                return <TriangleUpIcon className="ml-2 h-4 w-4" />
+              }
+              return (
+                <div>
+                  <TriangleUpIcon className="-mb-2.5 ml-2 h-4 w-4" />
+                  <TriangleDownIcon className="-mt- ml-2 h-4 w-4" />
+                </div>
+              )
+            })()}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">

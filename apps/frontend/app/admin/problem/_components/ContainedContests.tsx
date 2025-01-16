@@ -25,7 +25,9 @@ function ContestSection({
   title: string
   contests?: { id: string; title: string }[]
 }) {
-  if (!contests || contests.length === 0) return null
+  if (!contests || contests.length === 0) {
+    return null
+  }
 
   return (
     <div>
@@ -39,11 +41,7 @@ function ContestSection({
   )
 }
 
-export default function ContainedContests({
-  problemId
-}: {
-  problemId: number
-}) {
+export function ContainedContests({ problemId }: { problemId: number }) {
   const [isTooltipOpen, setIsTooltipOpen] = useState(false)
   const { data, loading } = useQuery(GET_BELONGED_CONTESTS, {
     variables: {

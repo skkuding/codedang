@@ -11,7 +11,7 @@ import {
   DataTableSearchBar
 } from '../../_components/table'
 import { columns } from './ProblemTableColumns'
-import ProblemsDeleteButton from './ProblemsDeleteButton'
+import { ProblemsDeleteButton } from './ProblemsDeleteButton'
 
 export function ProblemTable() {
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
@@ -37,7 +37,7 @@ export function ProblemTable() {
     isVisible: problem.isVisible !== undefined ? problem.isVisible : null,
     languages: problem.languages ?? [],
     tag: problem.tag.map(({ id, tag }) => ({
-      id: +id,
+      id: Number(id),
       tag: {
         ...tag,
         id: Number(tag.id)

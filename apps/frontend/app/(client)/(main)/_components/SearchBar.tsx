@@ -16,7 +16,7 @@ interface SearchBarProps {
   className?: string
 }
 
-export default function SearchBar({ className }: SearchBarProps) {
+export function SearchBar({ className }: SearchBarProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParam = useSearchParams()
@@ -29,10 +29,12 @@ export default function SearchBar({ className }: SearchBarProps) {
     // set search data to newParam
     if (data.search) {
       newParam.set('search', data.search)
-    } else newParam.delete('search')
+    } else {
+      newParam.delete('search')
+    }
     const newParamString = newParam.toString()
     router.push(
-      `${pathname}${newParamString ? '?' + newParamString : ''}` as Route,
+      `${pathname}${newParamString ? `?${newParamString}` : ''}` as Route,
       {
         scroll: false
       }

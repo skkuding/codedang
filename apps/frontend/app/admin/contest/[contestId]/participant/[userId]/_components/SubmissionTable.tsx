@@ -7,7 +7,7 @@ import {
   DataTablePagination,
   DataTableFallback
 } from '@/app/admin/_components/table'
-import SubmissionDetailAdmin from '@/app/admin/contest/[contestId]/_components/SubmissionDetailAdmin'
+import { SubmissionDetailAdmin } from '@/app/admin/contest/[contestId]/_components/SubmissionDetailAdmin'
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER } from '@/graphql/contest/queries'
 import { useSuspenseQuery } from '@apollo/client'

@@ -8,7 +8,7 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
-import SubmissionDetailAdmin from '@/app/admin/contest/[contestId]/_components/SubmissionDetailAdmin'
+import { SubmissionDetailAdmin } from '@/app/admin/contest/[contestId]/_components/SubmissionDetailAdmin'
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { GET_CONTEST_SUBMISSIONS } from '@/graphql/submission/queries'
 import { useSuspenseQuery } from '@apollo/client'

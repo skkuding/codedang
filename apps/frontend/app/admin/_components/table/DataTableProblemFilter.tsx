@@ -103,6 +103,8 @@ export function DataTableProblemFilter({ contestId }: { contestId: number }) {
 }
 
 const getSelectedValue = (data: unknown): string | null => {
-  if (typeof data !== 'string') return null
+  if (typeof data !== 'string') {
+    return null
+  }
   return data
 }

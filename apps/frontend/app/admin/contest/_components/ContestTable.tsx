@@ -12,7 +12,7 @@ import {
   DataTableSearchBar
 } from '../../_components/table'
 import { columns } from './ContestTableColumns'
-import DuplicateContestButton from './DuplicateContestButton'
+import { DuplicateContestButton } from './DuplicateContestButton'
 
 const headerStyle = {
   select: '',
