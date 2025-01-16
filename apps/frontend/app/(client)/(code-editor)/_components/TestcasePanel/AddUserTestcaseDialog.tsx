@@ -16,11 +16,11 @@ import { CiSquarePlus } from 'react-icons/ci'
 import { FaPlus } from 'react-icons/fa'
 import { FaCircleCheck } from 'react-icons/fa6'
 import { IoIosClose } from 'react-icons/io'
-import CopyButton from '../CopyButton'
+import { CopyButton } from '../CopyButton'
 import { useTestcaseStore } from '../context/TestcaseStoreProvider'
 import { useUserTestcasesForm } from './useUserTestcasesForm'
 
-export default function AddUserTestcaseDialog() {
+export function AddUserTestcaseDialog() {
   const [open, setOpen] = useState(false)
   const sampleTestcases = useTestcaseStore((state) => state.sampleTestcases)
 

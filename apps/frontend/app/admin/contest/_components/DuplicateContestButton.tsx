@@ -27,7 +27,7 @@ import { toast } from 'sonner'
 import { useDataTable } from '../../_components/table/context'
 import type { DataTableContest } from './ContestTableColumns'
 
-export default function DuplicateContestButton() {
+export function DuplicateContestButton() {
   const { table } = useDataTable<DataTableContest>()
 
   return table.getSelectedRowModel().rows.length === 1 ? (
