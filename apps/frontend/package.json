@@ -2,6 +2,9 @@
   "name": "@codedang/frontend",
   "version": "0.1.0",
   "private": true,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
     "dev": "next dev -p 5525",
     "build": "pnpm run compile && next build",
@@ -85,7 +88,7 @@
     "react-use": "^17.6.0",
     "sharp": "^0.33.5",
     "sonner": "^1.7.1",
-    "zod": "^3.24.1",
+    "valibot": "1.0.0-beta.12",
     "zustand": "^5.0.3"
   },
   "devDependencies": {
@@ -114,7 +117,6 @@
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.7.2",
-    "valibot": "1.0.0-beta.11",
     "vitest": "^2.1.8"
   },
   "packageManager": "pnpm@9.15.2"

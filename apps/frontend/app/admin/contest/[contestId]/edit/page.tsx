@@ -1,11 +1,11 @@
 'use client'
 
 import { useConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
-import DescriptionForm from '@/app/admin/_components/DescriptionForm'
-import FormSection from '@/app/admin/_components/FormSection'
-import SwitchField from '@/app/admin/_components/SwitchField'
-import TitleForm from '@/app/admin/_components/TitleForm'
-import FetchErrorFallback from '@/components/FetchErrorFallback'
+import { DescriptionForm } from '@/app/admin/_components/DescriptionForm'
+import { FormSection } from '@/app/admin/_components/FormSection'
+import { SwitchField } from '@/app/admin/_components/SwitchField'
+import { TitleForm } from '@/app/admin/_components/TitleForm'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -45,13 +45,13 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { toast } from 'sonner'
-import ContestProblemListLabel from '../../_components/ContestProblemListLabel'
-import ContestProblemTable from '../../_components/ContestProblemTable'
+import { ContestProblemListLabel } from '../../_components/ContestProblemListLabel'
+import { ContestProblemTable } from '../../_components/ContestProblemTable'
 import {
   ImportProblemTable,
   ImportProblemTableFallback
 } from '../../_components/ImportProblemTable'
-import TimeForm from '../../_components/TimeForm'
+import { TimeForm } from '../../_components/TimeForm'
 import { type ContestProblem, editSchema } from '../../_libs/schemas'
 
 export default function Page({ params }: { params: { contestId: string } }) {

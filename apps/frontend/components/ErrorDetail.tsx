@@ -7,7 +7,7 @@ interface ErrorDetailProps {
   error: Error & { digest?: string }
 }
 
-export default function Error({ errorDetail, error }: ErrorDetailProps) {
+export function ErrorDetail({ errorDetail, error }: ErrorDetailProps) {
   return (
     <div className="flex h-full w-full flex-1 flex-col items-center justify-center gap-3 py-12">
       <p className="mt-8 text-2xl font-extrabold">{errorDetail}</p>

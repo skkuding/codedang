@@ -28,11 +28,7 @@ const ALL_OPTION_LABEL = 'All Problems'
  * @param contestId
  * 문제를 가져올 대회의 아이디
  */
-export default function DataTableProblemFilter({
-  contestId
-}: {
-  contestId: number
-}) {
+export function DataTableProblemFilter({ contestId }: { contestId: number }) {
   const { table } = useDataTable()
   const column = table.getColumn(PROBLEM_COLUMN_ID)
   const selectedValue = getSelectedValue(column?.getFilterValue())
