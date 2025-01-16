@@ -1,6 +1,6 @@
 'use client'
 
-import ErrorDetail from '@/components/ErrorDetail'
+import { ErrorDetail } from '@/components/ErrorDetail'
 import { captureError } from '@/libs/captureError'
 import { useEffect } from 'react'
 

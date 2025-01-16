@@ -6,9 +6,7 @@ import { startTransition, useState } from 'react'
 import { RiAlertFill } from 'react-icons/ri'
 import { Button } from './shadcn/button'
 
-export default function FetchErrorFallback({
-  reset
-}: ErrorBoundaryFallbackProps) {
+export function FetchErrorFallback({ reset }: ErrorBoundaryFallbackProps) {
   const router = useRouter()
   const [isResetting, setIsResetting] = useState(false)
 

@@ -19,7 +19,7 @@ interface Props {
   children: React.ReactNode
 }
 
-export default function Badge({ type, children }: Props) {
+export function Badge({ type, children }: Props) {
   return (
     <div
       className={cn(

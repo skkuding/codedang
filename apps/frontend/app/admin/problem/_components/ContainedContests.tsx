@@ -41,11 +41,7 @@ function ContestSection({
   )
 }
 
-export default function ContainedContests({
-  problemId
-}: {
-  problemId: number
-}) {
+export function ContainedContests({ problemId }: { problemId: number }) {
   const [isTooltipOpen, setIsTooltipOpen] = useState(false)
   const { data, loading } = useQuery(GET_BELONGED_CONTESTS, {
     variables: {

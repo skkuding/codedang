@@ -14,7 +14,7 @@ interface CreateNoticeFormProps {
   children: ReactNode
 }
 
-export default function CreateNoticeForm({ children }: CreateNoticeFormProps) {
+export function CreateNoticeForm({ children }: CreateNoticeFormProps) {
   const methods = useForm<CreateNoticeInput>({
     resolver: zodResolver(createSchema),
     defaultValues: {

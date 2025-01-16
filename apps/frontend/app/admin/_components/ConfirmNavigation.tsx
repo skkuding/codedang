@@ -48,9 +48,7 @@ interface Context {
 
 const ConfirmNavigationContext = createContext<Context | undefined>(undefined)
 
-export default function ConfirmNavigation({
-  children
-}: ConfirmNavigationProps) {
+export function ConfirmNavigation({ children }: ConfirmNavigationProps) {
   const shouldSkipWarning = useRef(false)
 
   const router = useRouter()

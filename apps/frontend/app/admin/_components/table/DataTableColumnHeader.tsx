@@ -23,7 +23,7 @@ interface DataTableColumnHeaderProps<TData, TValue>
  * @param title
  * 헤더에 표시할 텍스트
  */
-export default function DataTableColumnHeader<TData, TValue>({
+export function DataTableColumnHeader<TData, TValue>({
   column,
   title,
   className

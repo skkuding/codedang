@@ -1,12 +1,12 @@
 'use client'
 
-import ContestStatusTimeDiff from '@/components/ContestStatusTimeDiff'
+import { ContestStatusTimeDiff } from '@/components/ContestStatusTimeDiff'
 import { cn, dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import type { Contest } from '@/types/type'
 import Image from 'next/image'
 import 'react-circular-progressbar/dist/styles.css'
-import StatusBadge from './StatusBadge'
+import { StatusBadge } from './StatusBadge'
 
 const bgVariants = {
   ongoing: 'bg-gradient-to-b from-blue-100 to-white',
@@ -27,7 +27,7 @@ interface Props {
   contest: Contest
 }
 
-export default function ContestCard({ contest }: Props) {
+export function ContestCard({ contest }: Props) {
   const startTime = dateFormatter(contest.startTime, 'YYYY-MM-DD')
   const endTime = dateFormatter(contest.endTime, 'YYYY-MM-DD')
 
