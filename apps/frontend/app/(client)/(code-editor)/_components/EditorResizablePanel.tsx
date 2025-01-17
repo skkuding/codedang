@@ -37,7 +37,7 @@ export default function EditorMainResizablePanel({
   const base = contestId ? `/contest/${contestId}` : ''
   const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
   const [tabValue, setTabValue] = useState('Description')
-  // TODO: 여기에다가 링크를 보고 tabValue를 바꾸도록 코드를 작성해야함.
+
   useEffect(() => {
     if (pathname.startsWith(`${base}/problem/${problem.id}/submission`)) {
       setTabValue('Submission')
@@ -69,11 +69,11 @@ export default function EditorMainResizablePanel({
         <div className="grid-rows-editor grid h-full grid-cols-1">
           <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
             <Tabs value={tabValue}>
-              <TabsList className="bg-slate-900">
+              <TabsList className="rounded bg-slate-900">
                 <Link replace href={`${base}/problem/${problem.id}` as Route}>
                   <TabsTrigger
                     value="Description"
-                    className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
+                    className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
                   >
                     Description
                   </TabsTrigger>
@@ -84,7 +84,7 @@ export default function EditorMainResizablePanel({
                 >
                   <TabsTrigger
                     value="Submission"
-                    className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
+                    className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
                   >
                     Submissions
                   </TabsTrigger>
@@ -96,7 +96,7 @@ export default function EditorMainResizablePanel({
                   >
                     <TabsTrigger
                       value="Leaderboard"
-                      className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
+                      className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
                     >
                       Leaderboard
                     </TabsTrigger>
