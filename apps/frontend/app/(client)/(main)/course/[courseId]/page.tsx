@@ -1,14 +1,12 @@
 'use client'
 
-// DayGrid 플러그인
 //import bootstrap5Plugin from '@fullcalendar/bootstrap5'
-// Bootstrap5 테마
 //import '@fullcalendar/bootstrap5/main.css'
-// FullCalendar 컴포넌트
+//import 'bootstrap/dist/css/bootstrap.min.css'
+//부트스트랩을 쓰면 완전 좋은데 이게 잘 안 되서 일단 보류.
+//컴포넌트의 세부 요소의 css를 바꾸려면 tailwind에서 자식요소의 스타일 바꾸는 법을 찾아보자.
 import dayGridPlugin from '@fullcalendar/daygrid'
 import FullCalendar from '@fullcalendar/react'
-
-//import 'bootstrap/dist/css/bootstrap.min.css'
 
 export default function Dashboard() {
   return (
