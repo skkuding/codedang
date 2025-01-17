@@ -35,7 +35,7 @@ export default async function Course() {
           </Suspense>
         </ErrorBoundary>
         <Separator className="my-4" />
-        <div className="mb-6">
+        <div className="flex">
           <LuCalendar size={25} className="mr-2 mt-1" />
           <h1 className="text-2xl font-bold text-gray-700">캘린더</h1>
         </div>
