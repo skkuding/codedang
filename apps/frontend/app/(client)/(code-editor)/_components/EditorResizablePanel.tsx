@@ -13,7 +13,7 @@ import type { ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Suspense, useEffect } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Loading from '../problem/[problemId]/loading'
 import EditorHeader from './EditorHeader/EditorHeader'
 import TestcasePanel from './TestcasePanel/TestcasePanel'
@@ -36,6 +36,19 @@ export default function EditorMainResizablePanel({
   const pathname = usePathname()
   const base = contestId ? `/contest/${contestId}` : ''
   const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
+  const [tabValue, setTabValue] = useState('Description')
+  // TODO: 여기에다가 링크를 보고 tabValue를 바꾸도록 코드를 작성해야함.
+  useEffect(() => {
+    if (pathname.startsWith(`${base}/problem/${problem.id}/submission`)) {
+      setTabValue('Submission')
+    } else if (
+      pathname.startsWith(`${base}/problem/${problem.id}/leaderboard`)
+    ) {
+      setTabValue('Leaderboard')
+    } else {
+      setTabValue('Description')
+    }
+  }, [pathname])
 
   useEffect(() => {
     if (!problem.languages.includes(language)) {
@@ -55,13 +68,7 @@ export default function EditorMainResizablePanel({
       >
         <div className="grid-rows-editor grid h-full grid-cols-1">
           <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
-            <Tabs
-              value={
-                pathname.startsWith(`${base}/problem/${problem.id}/submission`)
-                  ? 'Submission'
-                  : 'Description'
-              }
-            >
+            <Tabs value={tabValue}>
               <TabsList className="bg-slate-900">
                 <Link replace href={`${base}/problem/${problem.id}` as Route}>
                   <TabsTrigger
@@ -82,6 +89,19 @@ export default function EditorMainResizablePanel({
                     Submissions
                   </TabsTrigger>
                 </Link>
+                {contestId && (
+                  <Link
+                    replace
+                    href={`${base}/problem/${problem.id}/leaderboard` as Route}
+                  >
+                    <TabsTrigger
+                      value="Leaderboard"
+                      className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
+                    >
+                      Leaderboard
+                    </TabsTrigger>
+                  </Link>
+                )}
               </TabsList>
             </Tabs>
           </div>
