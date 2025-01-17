@@ -1,5 +1,6 @@
 'use client'
 
+import type { CalendarAssignment } from '@/types/type'
 // DayGrid 플러그인
 //import bootstrap5Plugin from '@fullcalendar/bootstrap5'
 // Bootstrap5 테마
@@ -7,11 +8,14 @@
 // FullCalendar 컴포넌트
 import dayGridPlugin from '@fullcalendar/daygrid'
 import FullCalendar from '@fullcalendar/react'
-import { duration } from 'dayjs'
 
 //import 'bootstrap/dist/css/bootstrap.min.css'
 
-export default function Dashboard() {
+export default function DashboardCalendar({
+  data
+}: {
+  data: CalendarAssignment[]
+}) {
   return (
     <div className="container mt-4">
       <FullCalendar
@@ -33,24 +37,7 @@ export default function Dashboard() {
         }}
         weekNumbers={true}
         dayMaxEvents={true}
-        events={[
-          { title: 'All Day Event', start: '2025-01-01' },
-          { title: 'Long Event', start: '2025-01-07', end: '2025-01-10' },
-          { title: 'Repeating Event', start: '2025-01-09T16:00:00' },
-          { title: 'Conference', start: '2025-01-14', end: '2025-01-16' },
-          {
-            title: 'Meeting',
-            start: '2025-01-15T10:30:00',
-            end: '2025-01-15T12:30:00'
-          },
-          { title: 'Lunch', start: '2025-01-15T12:00:00' },
-          { title: 'Birthday Party', start: '2025-01-16T07:00:00' },
-          {
-            title: 'Click for Google',
-            url: 'http://google.com/',
-            start: '2025-01-27'
-          }
-        ]}
+        events={data}
       />
     </div>
   )

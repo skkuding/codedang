@@ -4,8 +4,8 @@ import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
-import Dashboard from './[courseId]/_components/Dashboard'
 import CourseCardList from './_components/CourseCardList'
+import Dashboard from './_components/Dashboard'
 
 function CardListFallback() {
   return (
@@ -32,7 +32,7 @@ export default async function Course() {
         </ErrorBoundary>
       </div>
 
-      <Dashboard />
+      <Dashboard session={session} />
     </>
   )
 }

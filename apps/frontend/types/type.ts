@@ -244,3 +244,9 @@ export interface Assignment {
   participants: number
   isRegistered: boolean
 }
+
+export interface CalendarAssignment {
+  title: string
+  start: string
+  end: string
+}
