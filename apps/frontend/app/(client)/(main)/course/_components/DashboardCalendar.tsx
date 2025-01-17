@@ -1,13 +1,15 @@
 'use client'
 
+// DayGrid 플러그인
 //import bootstrap5Plugin from '@fullcalendar/bootstrap5'
 // Bootstrap5 테마
 //import '@fullcalendar/bootstrap5/main.css'
-//import 'bootstrap/dist/css/bootstrap.min.css'
 // FullCalendar 컴포넌트
 import dayGridPlugin from '@fullcalendar/daygrid'
 import FullCalendar from '@fullcalendar/react'
 import { duration } from 'dayjs'
+
+//import 'bootstrap/dist/css/bootstrap.min.css'
 
 export default function Dashboard() {
   return (

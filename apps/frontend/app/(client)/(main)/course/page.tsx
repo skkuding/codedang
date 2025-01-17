@@ -7,8 +7,9 @@ import { Suspense } from 'react'
 import { LuCalendar } from 'react-icons/lu'
 //import { Separator } from '@radix-ui/react-separator'
 import { Separator } from '../../../../../frontend/components/shadcn/separator'
-import Dashboard from './[courseId]/_components/Dashboard'
+//import Dashboard from './[courseId]/_components/Dashboard'
 import CourseCardList from './_components/CourseCardList'
+import Dashboard from './_components/Dashboard'
 
 function CardListFallback() {
   return (
@@ -40,7 +41,7 @@ export default async function Course() {
         </div>
       </div>
 
-      <Dashboard />
+      <Dashboard session={session} />
     </>
   )
 }

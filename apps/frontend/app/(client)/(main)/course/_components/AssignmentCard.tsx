@@ -1,8 +1,6 @@
 'use client'
 
-//거의 이름만 바꿈.
 import AssignmentStatusTimeDiff from '@/components/AssignmentStatusTimeDiff'
-//원래 ContestStatusTimeDiff -> CourseStatusTimeDiff로 이름 바꿈. -> _components에 파일을 만들
 import { cn, dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import type { Assignment } from '@/types/type'
@@ -26,11 +24,10 @@ const txtVariants = {
   registeredUpcoming: 'text-red-400'
 }
 interface Props {
-  assignment: Assignment //type 변경 필요.
+  assignment: Assignment
 }
 
 export default function AssignmentCard({ assignment }: Props) {
-  //contest props -> course props로 변경해야..
   const startTime = dateFormatter(assignment.startTime, 'YYYY-MM-DD')
   const endTime = dateFormatter(assignment.endTime, 'YYYY-MM-DD')
 

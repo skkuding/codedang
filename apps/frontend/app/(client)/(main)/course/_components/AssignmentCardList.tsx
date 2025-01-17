@@ -14,9 +14,9 @@ import AssignmentCard from '../_components/AssignmentCard'
 
 const getAssignments = async () => {
   const data: {
-    ongoing: Assignment[] //Course type 정의 후 수정
+    ongoing: Assignment[]
     upcoming: Assignment[]
-  } = await fetcher.get('assignment/ongoing-upcoming').json() //group으로 해야하나 assignment로 해야하나!!
+  } = await fetcher.get('assignment/ongoing-upcoming').json()
   data.ongoing.forEach((assignment) => {
     assignment.status = 'ongoing'
   })
@@ -29,7 +29,7 @@ const getAssignments = async () => {
 const getRegisteredAssignments = async () => {
   //현재 등록된 assignments를 불러온다.
   const data: {
-    registeredOngoing: Assignment[] //Course Interface를 정의한 뒤 수정해야한다.
+    registeredOngoing: Assignment[]
     registeredUpcoming: Assignment[]
   } = await fetcherWithAuth
     .get('assignment/ongoing-upcoming-with-registered')
@@ -52,7 +52,7 @@ function AssignmentCardCarousel({
 }: {
   itemsPerSlide: ItemsPerSlide
   title: string
-  data: Assignment[] //type 수정.
+  data: Assignment[]
 }) {
   const chunks = []
 
@@ -96,7 +96,6 @@ function AssignmentCardCarousel({
   )
 }
 
-//Contest를 Course로 모두 이름 변경!
 export default async function AssignmentCardList({
   title,
   type,

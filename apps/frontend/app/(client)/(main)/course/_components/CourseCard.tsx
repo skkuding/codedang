@@ -51,12 +51,12 @@ export default function CourseCard({ course }: Props) {
         <div className="line-clamp-2 flex flex-col gap-2">
           <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800 opacity-80">
             <p className="overflow-hidden text-ellipsis whitespace-pre-wrap">
-              2025 Spring
+              {course.semester}
             </p>
           </div>
           <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800 opacity-80">
             <p className="overflow-hidden text-ellipsis whitespace-pre-wrap">
-              Ha Jimin
+              {course.professor}
             </p>
           </div>
         </div>
