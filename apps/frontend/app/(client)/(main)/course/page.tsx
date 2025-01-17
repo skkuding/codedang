@@ -4,6 +4,9 @@ import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
+import { LuCalendar } from 'react-icons/lu'
+//import { Separator } from '@radix-ui/react-separator'
+import { Separator } from '../../../../../frontend/components/shadcn/separator'
 import Dashboard from './[courseId]/_components/Dashboard'
 import CourseCardList from './_components/CourseCardList'
 
@@ -30,6 +33,11 @@ export default async function Course() {
             <CourseCardList title="My Class" type="Ongoing" session={session} />
           </Suspense>
         </ErrorBoundary>
+        <Separator className="my-4" />
+        <div className="mb-6">
+          <LuCalendar size={25} className="mr-2 mt-1" />
+          <h1 className="text-2xl font-bold text-gray-700">캘린더</h1>
+        </div>
       </div>
 
       <Dashboard />

@@ -1,5 +1,11 @@
-//import 'bootstrap/dist/css/bootstrap.min.css'
+import { Separator } from '@radix-ui/react-dropdown-menu'
 
 export default function Dashboard() {
-  return <Dashboard />
+  return (
+    <>
+      Hello Human!
+      <Separator />
+      <Dashboard />
+    </>
+  )
 }
