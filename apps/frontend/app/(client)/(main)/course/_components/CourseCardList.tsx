@@ -13,21 +13,20 @@ import Link from 'next/link'
 import CourseCard from '../_components/CourseCard'
 
 const getCourses = async () => {
-  const rawData = await fetcherWithAuth.get('group/joined').json()
-  console.log('Raw data:', rawData) // 원본 데이터 로그 출력
+  const rawData: RawCourse[] = await fetcherWithAuth.get('group/joined').json()
 
-  // 데이터를 매핑하여 Course 타입으로 변환
-  const data: Course[] = rawData.map((item: RawCourse) => ({
-    id: item.id,
-    groupName: item.groupName,
-    description: item.description,
-    memberNum: item.memberNum,
-    status: 'ongoing',
-    semester: '2025 Spring',
-    professor: 'Ha Jimin'
-  }))
+  const data: Course[] = rawData
+    ? rawData.map((item: RawCourse) => ({
+        id: item.id,
+        groupName: item.groupName,
+        description: item.description,
+        memberNum: item.memberNum,
+        status: 'ongoing',
+        semester: '2025 Spring',
+        professor: 'Ha Jimin'
+      }))
+    : []
 
-  console.log('Transformed data:', data) // 변환된 데이터 로그 출력
   return data
 }
 
@@ -40,7 +39,7 @@ function CourseCardCarousel({
 }: {
   itemsPerSlide: ItemsPerSlide
   title: string
-  data: Course[] //type 수정.
+  data: Course[]
 }) {
   const chunks = []
 
