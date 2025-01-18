@@ -560,19 +560,19 @@ model TestSubmission {
 }
 
 model TestSubmissionResult {
-  id                 Int              @id @default(autoincrement())
-  testSubmission     TestSubmission   @relation(fields: [testSubmissionId], references: [id], onDelete: Cascade)
-  testSubmissionId   Int              @map("testcase_submission_id")
-  isUserTest         Boolean          @default(false) @map("is_user_test")
-  problemTestcase    ProblemTestcase? @relation(fields: [problemTestcaseId], references: [id], onDelete: Cascade)
-  problemTestcaseId  Int?             @map("problem_test_case_id")
-  userTestcaseInput  String?          @map("user_input")
-  userTestcaseOutput String?          @map("user_output")
-  result             ResultStatus
-  cpuTime            BigInt?          @map("cpu_time")
-  memoryUsage        Int?             @map("memory_usage")
-  createTime         DateTime         @default(now()) @map("create_time")
-  updateTime         DateTime         @updatedAt @map("update_time")
+  id                Int              @id @default(autoincrement())
+  testSubmission    TestSubmission   @relation(fields: [testSubmissionId], references: [id], onDelete: Cascade)
+  testSubmissionId  Int              @map("testcase_submission_id")
+  isUserTest        Boolean          @default(false) @map("is_user_test")
+  problemTestcase   ProblemTestcase? @relation(fields: [problemTestcaseId], references: [id], onDelete: Cascade)
+  problemTestcaseId Int?             @map("problem_test_case_id")
+  TestInput         String          @map("input")
+  TestOutput        String          @map("output")
+  result            ResultStatus
+  cpuTime           BigInt?          @map("cpu_time")
+  memoryUsage       Int?             @map("memory_usage")
+  createTime        DateTime         @default(now()) @map("create_time")
+  updateTime        DateTime         @updatedAt @map("update_time")
 
   @@map("testcase_submission_result")
 }
