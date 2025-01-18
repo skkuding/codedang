@@ -8,7 +8,8 @@ import {
   Language,
   Problem,
   Role,
-  Prisma
+  Prisma,
+  TestSubmission
 } from '@prisma/client'
 import { AxiosRequestConfig } from 'axios'
 import { Cache } from 'cache-manager'
@@ -579,6 +580,7 @@ export class SubmissionService {
       testcaseIds.push(rawTestcase.id)
     }
     await this.cacheManager.set(testcasesKey(userId), testcaseIds)
+    await this.createTestSubmission(testSubmission, code, false)
 
     await this.publish.publishJudgeRequestMessage(code, testSubmission, true)
   }
@@ -616,6 +618,7 @@ export class SubmissionService {
       testcaseIds.push(testcase.id)
     }
     await this.cacheManager.set(userTestcasesKey(userId), testcaseIds)
+    await this.createTestSubmission(testSubmission, code, true, userTestcases)
 
     await this.publish.publishJudgeRequestMessage(
       code,
@@ -624,6 +627,111 @@ export class SubmissionService {
       true,
       userTestcases
     )
+  }
+
+  @Span()
+  async createTestSubmission(
+    testSubmission: Submission,
+    codeSnippet: Snippet[],
+    isUserTest = false,
+    userTestcases: { id: number; in: string; out: string }[] = []
+  ): Promise<TestSubmission> {
+    const problem = await this.prisma.problem.findFirst({
+      where: {
+        id: testSubmission.problemId
+      }
+    })
+
+    if (!problem) {
+      throw new EntityNotExistException('Problem')
+    }
+
+    if (!problem.languages.includes(testSubmission.language)) {
+      throw new ConflictFoundException(
+        `This problem does not support language ${testSubmission.language}`
+      )
+    }
+    if (
+      !this.isValidCode(
+        codeSnippet,
+        testSubmission.language,
+        plainToInstance(Template, problem.template)
+      )
+    ) {
+      throw new ConflictFoundException('Modifying template is not allowed')
+    }
+
+    const submissionData = {
+      code: codeSnippet.map((snippet) => ({ ...snippet })),
+      result: ResultStatus.Judging,
+      userId: testSubmission.userId,
+      userIp: testSubmission.userIp,
+      problemId: testSubmission.problemId,
+      codeSize: new TextEncoder().encode(codeSnippet[0].text).length,
+      language: testSubmission.language
+    }
+
+    try {
+      const submission = await this.prisma.testSubmission.create({
+        data: {
+          ...submissionData,
+          isUserTest
+        }
+      })
+
+      await this.createTestSubmissionResults(submission, userTestcases)
+
+      await this.publish.publishJudgeRequestMessage(codeSnippet, testSubmission)
+      return submission
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new UnprocessableDataException('Failed to create submission')
+      }
+      throw error
+    }
+  }
+
+  @Span()
+  async createTestSubmissionResults(
+    testSubmission: TestSubmission,
+    userTestcases: { id: number; in: string; out: string }[]
+  ): Promise<void> {
+    if (!testSubmission.isUserTest) {
+      const testcases = await this.prisma.problemTestcase.findMany({
+        where: {
+          problemId: testSubmission.problemId
+        },
+        select: {
+          id: true,
+          input: true,
+          output: true
+        }
+      })
+      await this.prisma.testSubmissionResult.createMany({
+        data: testcases.map((testcase) => {
+          return {
+            testSubmissionId: testSubmission.id,
+            result: ResultStatus.Judging,
+            problemTestcaseId: testcase.id,
+            TestInput: testcase.input,
+            TestOutput: testcase.output,
+            isUserTest: false
+          }
+        })
+      })
+    } else {
+      await this.prisma.testSubmissionResult.createMany({
+        data: userTestcases.map((userTestcase) => {
+          return {
+            testSubmissionId: testSubmission.id,
+            result: ResultStatus.Judging,
+            TestInput: userTestcase.in,
+            TestOutput: userTestcase.out,
+            isUserTest: true
+          }
+        })
+      })
+    }
   }
 
   async getTestResult(userId: number, isUserTest = false) {
