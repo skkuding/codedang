@@ -61,6 +61,7 @@ model User {
   Image            Image[]
   contest          Contest[]
   contestRecord    ContestRecord[]
+  TestSubmission   TestSubmission[]
 
   @@map("user")
 }
@@ -195,6 +196,7 @@ model Problem {
   submission        Submission[]
   announcement      Announcement[]
   codeDraft         CodeDraft[]
+  testSubmission    TestSubmission[]
 
   @@map("problem")
 }
@@ -236,7 +238,8 @@ model ProblemTestcase {
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
 
-  submissionResult SubmissionResult[]
+  submissionResult     SubmissionResult[]
+  TestSubmissionResult TestSubmissionResult[]
 
   @@map("problem_testcase")
 }
@@ -284,6 +287,7 @@ model Assignment {
   assignmentRecord  AssignmentRecord[]
   submission        Submission[]
   announcement      Announcement[]
+  TestSubmission    TestSubmission[]
 
   @@map("assignment")
 }
@@ -345,6 +349,7 @@ model Contest {
   contestRecord  ContestRecord[]
   submission     Submission[]
   announcement   Announcement[]
+  TestSubmission TestSubmission[]
 
   @@map("contest")
 }
@@ -416,6 +421,7 @@ model Workbook {
 
   workbookProblem WorkbookProblem[]
   submission      Submission[]
+  TestSubmission  TestSubmission[]
 
   @@map("workbook")
 }
@@ -518,4 +524,55 @@ model CodeDraft {
 
   @@id(name: "codeDraftId", [userId, problemId])
   @@map("code_draft")
+}
+
+model TestSubmission {
+  id           Int          @id @default(autoincrement())
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId       Int?         @map("user_id")
+  userIp       String?      @map("user_ip")
+  problem      Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId    Int          @map("problem_id")
+  assignment   Assignment?  @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId Int?         @map("assignment_id")
+  contest      Contest?     @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId    Int?         @map("contest_id")
+  workbook     Workbook?    @relation(fields: [workbookId], references: [id])
+  workbookId   Int?         @map("workbook_id")
+  /// code item structure
+  /// {
+  ///   "id": number,
+  ///   "text": string,
+  ///   "locked": boolean
+  /// }
+  language     Language
+  code         Json[]
+  codeSize     Int?         @map("code_size")
+  isUserTest   Boolean      @default(false) @map("is_user_test")
+  result       ResultStatus
+  score        Int          @default(0)
+
+  createTime           DateTime               @default(now()) @map("create_time")
+  updateTime           DateTime               @updatedAt @map("update_time")
+  TestSubmissionResult TestSubmissionResult[]
+
+  @@map("testcase_submission")
+}
+
+model TestSubmissionResult {
+  id                 Int              @id @default(autoincrement())
+  testSubmission     TestSubmission   @relation(fields: [testSubmissionId], references: [id], onDelete: Cascade)
+  testSubmissionId   Int              @map("testcase_submission_id")
+  isUserTest         Boolean          @default(false) @map("is_user_test")
+  problemTestcase    ProblemTestcase? @relation(fields: [problemTestcaseId], references: [id], onDelete: Cascade)
+  problemTestcaseId  Int?             @map("problem_test_case_id")
+  userTestcaseInput  String?          @map("user_input")
+  userTestcaseOutput String?          @map("user_output")
+  result             ResultStatus
+  cpuTime            BigInt?          @map("cpu_time")
+  memoryUsage        Int?             @map("memory_usage")
+  createTime         DateTime         @default(now()) @map("create_time")
+  updateTime         DateTime         @updatedAt @map("update_time")
+
+  @@map("testcase_submission_result")
 }
