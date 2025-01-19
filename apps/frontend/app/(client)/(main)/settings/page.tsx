@@ -40,7 +40,7 @@ export default function Page() {
   const router = useRouter()
   const bypassConfirmation = useRef<boolean>(false)
 
-  const { data: defaultProfileValues } = useQuery({
+  const { data: defaultProfileValues, isLoading } = useQuery({
     ...profileQueries.fetch(),
     initialData: {
       username: '',
@@ -54,6 +54,13 @@ export default function Page() {
   })
 
   const [majorValue, setMajorValue] = useState(defaultProfileValues.major)
+
+  useEffect(() => {
+    if (!isLoading && defaultProfileValues.major) {
+      console.log('Setting majorValue:', defaultProfileValues.major)
+      setMajorValue(defaultProfileValues.major)
+    }
+  }, [defaultProfileValues.major, isLoading])
 
   const {
     register,
@@ -186,6 +193,7 @@ export default function Page() {
 
   const settingsContextValue = {
     defaultProfileValues,
+    isLoading,
     passwordState: {
       passwordShow,
       setPasswordShow,
