@@ -1,6 +1,5 @@
 import { useMemo, type Dispatch, type SetStateAction } from 'react'
-import { DataTable } from '../../_components/table/DataTable'
-import { DataTableRoot } from '../../_components/table/DataTableRoot'
+import { DataTable, DataTableRoot } from '../../_components/table'
 import type { ContestProblem } from '../_libs/schemas'
 import { createColumns } from './ContestProblemColumns'
 

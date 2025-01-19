@@ -7,19 +7,13 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
-import { cn } from '@/libs/utils'
+import { cn, getPageArray } from '@/libs/utils'
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 import { useDataTable } from './context'
 
 interface DataTablePaginationProps {
   showSelection?: boolean
   showRowsPerPage?: boolean
-}
-
-function getPageArray(start: number, end: number) {
-  return Array(end - start + 1)
-    .fill(0)
-    .map((_, i) => start + i)
 }
 
 /**

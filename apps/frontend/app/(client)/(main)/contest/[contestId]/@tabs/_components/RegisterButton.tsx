@@ -10,18 +10,18 @@ import {
 } from '@/components/shadcn/dialog'
 import { Input } from '@/components/shadcn/input'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { z } from 'zod'
+import * as v from 'valibot'
 
 interface InvitationCodeInput {
   invitationCode: string
 }
 
-const schema = z.object({
-  invitationCode: z.string().length(6)
+const schema = v.object({
+  invitationCode: v.pipe(v.string(), v.length(6))
 })
 
 export function RegisterButton({
@@ -62,7 +62,7 @@ export function RegisterButton({
     getValues,
     formState: { errors }
   } = useForm<InvitationCodeInput>({
-    resolver: zodResolver(schema)
+    resolver: valibotResolver(schema)
   })
 
   const onSubmit = () => {

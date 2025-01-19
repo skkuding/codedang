@@ -1,4 +1,4 @@
-import { submissionQueries } from '@/app/(client)/_libs/queries/submission'
+import { contestSubmissionQueries } from '@/app/(client)/_libs/queries/contestSubmission'
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import {
   Dialog,
@@ -31,7 +31,7 @@ export function MySubmission({ problem }: { problem: ContestProblem }) {
   const contestId = Number(contestIdString)
 
   const { data: latestSubmissionData } = useSuspenseQuery(
-    submissionQueries.list({
+    contestSubmissionQueries.list({
       contestId,
       problemId: problem.id,
       take: 1
