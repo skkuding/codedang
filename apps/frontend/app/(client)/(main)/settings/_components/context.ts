@@ -38,7 +38,7 @@ export type SettingsContextType = {
   majorState: MajorState
   formState: FormState
   updateNow: boolean
-  //isLoading: boolean
+  isLoading: boolean
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(
