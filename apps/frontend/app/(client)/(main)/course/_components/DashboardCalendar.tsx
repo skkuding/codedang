@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogClose
 } from '@/components/shadcn/dialog'
-import { Label } from '@/components/shadcn/label'
+import { Textarea } from '@/components/shadcn/textarea'
 import { cn, dateFormatter } from '@/libs/utils'
 import type { CalendarAssignment, CalendarAssignmentEvent } from '@/types/type'
 // DayGrid 플러그인
@@ -20,8 +20,10 @@ import type { CalendarAssignment, CalendarAssignmentEvent } from '@/types/type'
 // FullCalendar 컴포넌트
 import dayGridPlugin from '@fullcalendar/daygrid'
 import FullCalendar from '@fullcalendar/react'
-import { title } from 'process'
+import type { Route } from 'next'
+import Link from 'next/link'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 //import { EventDialog } from './EventDialog'
 
@@ -38,12 +40,18 @@ export default function DashboardCalendar({
     //기본 제공 타입인 EventClickArg 말고 CalendarAssignmentEvent 타입 사용.
     setSelectedEvent({
       event: {
+        id: info.event.id,
         title: info.event.title,
         start: info.event.start,
         end: info.event.end
       }
     })
     setIsDialogOpen(true)
+  }
+  const [memo, setMemo] = useState('')
+  const handleSave = () => {
+    //메모 저장시 toast 팝업
+    toast.success(`Saved memo`)
   }
 
   return (
@@ -85,15 +93,44 @@ export default function DashboardCalendar({
               <DialogHeader>
                 <DialogTitle>{SelectedEvent.event.title}</DialogTitle>
                 <DialogDescription>
-                  {`시작: ${dateFormatter(SelectedEvent.event.start, 'YYYY-MM-DD')} 종료: ${dateFormatter(SelectedEvent.event.end, 'YYYY-MM-DD')}`}
+                  {`마감: ${dateFormatter(SelectedEvent.event.end, 'YYYY년 MM월 DD일 hh시 mm분')}`}
                 </DialogDescription>
+                <Link
+                  href={`/contest`} //assignment 경로가 아직 없어서 일단 링크기능 테스트를 위해 contest쪽으로 넘어가게 설정해둠
+                  className={cn(
+                    'border-gray-300 text-sm text-gray-500 dark:text-gray-400'
+                  )}
+                >
+                  See More
+                </Link>
               </DialogHeader>
-              <DialogFooter className="sm:justify-start">
+              <div className="flex items-center space-x-2">
+                <div className="grid flex-1 gap-2">
+                  <Textarea
+                    placeholder="Memo"
+                    value={memo}
+                    onChange={(e) => setMemo(e.target.value)}
+                    className="z-10 h-40 resize-none border-2 border-gray-400 p-3 text-black shadow-none placeholder:text-[#3333334D] focus-visible:ring-0"
+                  />
+                </div>
+              </div>
+              <DialogFooter className="flex">
                 <DialogClose asChild>
-                  <Button type="button" variant="secondary">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="justify-start border-gray-300 hover:text-neutral-400 active:text-neutral-200"
+                  >
                     Close
                   </Button>
                 </DialogClose>
+                <Button
+                  type="button"
+                  onClick={handleSave}
+                  className="justify-end gap-2 text-white hover:text-neutral-200 active:text-neutral-200"
+                >
+                  Save
+                </Button>
               </DialogFooter>
             </>
           ) : (

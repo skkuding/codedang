@@ -255,6 +255,7 @@ export interface CalendarAssignment {
 
 export interface CalendarAssignmentEvent {
   event: {
+    id: number
     title: string
     start: string
     end: string
