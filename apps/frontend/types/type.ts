@@ -1,3 +1,5 @@
+import type { StringDecoder } from 'string_decoder'
+
 export type ContestStatus =
   | 'ongoing'
   | 'upcoming'
@@ -249,4 +251,12 @@ export interface CalendarAssignment {
   title: string
   start: string
   end: string
+}
+
+export interface CalendarAssignmentEvent {
+  event: {
+    title: string
+    start: string
+    end: string
+  }
 }
