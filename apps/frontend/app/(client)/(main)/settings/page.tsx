@@ -2,11 +2,14 @@
 
 import type { SettingsFormat } from '@/types/type'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { updateUserProfile } from '../../_libs/apis/profile'
+import { profileQueries } from '../../_libs/queries/profile'
 import { ConfirmModal } from './_components/ConfirmModal'
 import { CurrentPwSection } from './_components/CurrentPwSection'
 import { IdSection } from './_components/IdSection'
@@ -20,10 +23,6 @@ import { StudentIdSection } from './_components/StudentIdSection'
 import { TopicSection } from './_components/TopicSection'
 import { SettingsProvider } from './_components/context'
 import { useCheckPassword } from './_libs/hooks/useCheckPassword'
-import {
-  useFetchUserProfileSuspense,
-  useUpdateUserProfile
-} from './_libs/queries/profile'
 import { getSchema } from './_libs/schemas'
 import { useConfirmNavigation } from './_libs/utils'
 
@@ -41,13 +40,20 @@ export default function Page() {
   const router = useRouter()
   const bypassConfirmation = useRef<boolean>(false)
 
-  // React Query를 사용하여 프로필 데이터 가져오기
-  const { data: defaultProfileValues } = useFetchUserProfileSuspense()
+  const { data: defaultProfileValues } = useQuery({
+    ...profileQueries.fetch(),
+    initialData: {
+      username: '',
+      userProfile: {
+        realName: ''
+      },
+      studentId: '',
+      major: ''
+    },
+    retry: false
+  })
 
-  const [majorValue, setMajorValue] = useState<string>(
-    defaultProfileValues.major || ''
-  )
-  //const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [majorValue, setMajorValue] = useState(defaultProfileValues.major)
 
   const {
     register,
@@ -106,7 +112,6 @@ export default function Page() {
   const saveAbleUpdateNow =
     Boolean(studentId) && majorValue !== 'none' && !errors.studentId
 
-  // 무한 렌더링..
   useEffect(() => {
     if (isPasswordsMatch) {
       setValue('newPassword', newPassword)
@@ -114,29 +119,16 @@ export default function Page() {
     }
   }, [isPasswordsMatch, newPassword, confirmPassword, setValue])
 
-  const updateUserProfile = useUpdateUserProfile()
-
-  const onSubmit = async (data: SettingsFormat) => {
-    try {
-      const updatePayload: UpdatePayload = {}
-
-      if (data.realName !== defaultProfileValues.userProfile?.realName) {
-        updatePayload.realName = data.realName
-      }
-      if (majorValue !== defaultProfileValues.major) {
-        updatePayload.major = majorValue
-      }
-      if (data.currentPassword !== 'tmppassword1') {
-        updatePayload.password = data.currentPassword
-      }
-      if (data.newPassword !== 'tmppassword1') {
-        updatePayload.newPassword = data.newPassword
-      }
-      if (updateNow && data.studentId !== '0000000000') {
-        updatePayload.studentId = data.studentId
-      }
-
-      await updateUserProfile.mutateAsync(updatePayload)
+  const { mutate } = useMutation({
+    mutationFn: updateUserProfile,
+    onError: (error) => {
+      console.error(error)
+      toast.error('Failed to update your information, Please try again')
+      setTimeout(() => {
+        window.location.reload()
+      }, 1500)
+    },
+    onSuccess: () => {
       toast.success('Successfully updated your information')
       bypassConfirmation.current = true
       setTimeout(() => {
@@ -146,13 +138,29 @@ export default function Page() {
           window.location.reload()
         }
       }, 1500)
-    } catch (error) {
-      console.error(error)
-      toast.error('Failed to update your information, Please try again')
-      setTimeout(() => {
-        window.location.reload()
-      }, 1500)
     }
+  })
+
+  const onSubmit = (data: SettingsFormat) => {
+    const updatePayload: UpdatePayload = {}
+
+    if (data.realName !== defaultProfileValues.userProfile?.realName) {
+      updatePayload.realName = data.realName
+    }
+    if (majorValue !== defaultProfileValues.major) {
+      updatePayload.major = majorValue
+    }
+    if (data.currentPassword !== 'tmppassword1') {
+      updatePayload.password = data.currentPassword
+    }
+    if (data.newPassword !== 'tmppassword1') {
+      updatePayload.newPassword = data.newPassword
+    }
+    if (updateNow && data.studentId !== '0000000000') {
+      updatePayload.studentId = data.studentId
+    }
+
+    mutate(updatePayload)
   }
 
   const resetToSubmittableValue = (
