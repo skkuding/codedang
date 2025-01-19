@@ -49,6 +49,12 @@ export default function DashboardCalendar({
   return (
     <>
       <div className="container mt-4">
+        <style jsx global>{`
+          .fc-button-primary {
+            background-color: #4a90e2 !important;
+            border-color: #4a90e2 !important;
+          }
+        `}</style>
         <FullCalendar
           plugins={[dayGridPlugin]}
           initialView="customTwoWeek"
