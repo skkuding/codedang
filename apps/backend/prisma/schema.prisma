@@ -48,19 +48,17 @@ model User {
   createTime DateTime  @default(now()) @map("create_time")
   updateTime DateTime  @updatedAt @map("update_time")
 
-  userProfile      UserProfile?
-  userGroup        UserGroup[]
-  notice           Notice[]
-  problem          Problem[]
-  assignment       Assignment[]
-  assignmentRecord AssignmentRecord[]
-  workbook         Workbook[]
-  submission       Submission[]
-  useroauth        UserOAuth?
-  CodeDraft        CodeDraft[]
-  Image            Image[]
-  contest          Contest[]
-  contestRecord    ContestRecord[]
+  userProfile   UserProfile?
+  userGroup     UserGroup[]
+  notice        Notice[]
+  problem       Problem[]
+  contest       Contest[]
+  contestRecord ContestRecord[]
+  workbook      Workbook[]
+  submission    Submission[]
+  useroauth     UserOAuth?
+  CodeDraft     CodeDraft[]
+  Image         Image[]
 
   @@map("user")
 }
@@ -345,8 +343,24 @@ model Contest {
   contestRecord  ContestRecord[]
   submission     Submission[]
   announcement   Announcement[]
+  LeaderBoard    LeaderBoard[]
 
   @@map("contest")
+}
+
+model LeaderBoard {
+  id         Int      @id @default(autoincrement())
+  contest    Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId  Int      @map("contest_id")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int      @map("user_id")
+  score      Int      @default(0)
+  rank       Int      @default(0)
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
+
+  @@unique([contestId, userId])
+  @@map("leader_board")
 }
 
 model ContestProblem {
