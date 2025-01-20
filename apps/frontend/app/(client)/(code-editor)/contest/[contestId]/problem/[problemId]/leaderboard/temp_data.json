@@ -1,0 +1,117 @@
+[
+  {
+    "id": "user01",
+    "penalty": 537,
+    "solved": 12
+  },
+  {
+    "id": "user02",
+    "penalty": 199,
+    "solved": 11
+  },
+  {
+    "id": "user03",
+    "penalty": 218,
+    "solved": 11
+  },
+  {
+    "id": "user04",
+    "penalty": 264,
+    "solved": 10
+  },
+  {
+    "id": "user05",
+    "penalty": 304,
+    "solved": 10
+  },
+  {
+    "id": "user06",
+    "penalty": 528,
+    "solved": 9
+  },
+  {
+    "id": "user07",
+    "penalty": 275,
+    "solved": 9
+  },
+  {
+    "id": "user08",
+    "penalty": 282,
+    "solved": 9
+  },
+  {
+    "id": "user09",
+    "penalty": 330,
+    "solved": 9
+  },
+  {
+    "id": "user10",
+    "penalty": 353,
+    "solved": 9
+  },
+  {
+    "id": "user11",
+    "penalty": 452,
+    "solved": 8
+  },
+  {
+    "id": "user12",
+    "penalty": 531,
+    "solved": 8
+  },
+  {
+    "id": "user13",
+    "penalty": 176,
+    "solved": 7
+  },
+  {
+    "id": "user14",
+    "penalty": 178,
+    "solved": 7
+  },
+  {
+    "id": "user15",
+    "penalty": 242,
+    "solved": 7
+  },
+  {
+    "id": "user16",
+    "penalty": 301,
+    "solved": 7
+  },
+  {
+    "id": "user17",
+    "penalty": 348,
+    "solved": 7
+  },
+  {
+    "id": "user18",
+    "penalty": 152,
+    "solved": 6
+  },
+  {
+    "id": "user19",
+    "penalty": 212,
+    "solved": 6
+  },
+  {
+    "id": "user20",
+    "penalty": 238,
+    "solved": 6
+  },
+  {
+    "id": "user21",
+    "penalty": 132,
+    "solved": 5
+  },
+  {
+    "id": "user22",
+    "penalty": 514,
+    "solved": 5
+  },
+  {
+    "id": "user23",
+    "penalty": 34982,
+    "solved": 5
+  }
+]
