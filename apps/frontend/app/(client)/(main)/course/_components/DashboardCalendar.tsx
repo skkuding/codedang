@@ -59,8 +59,11 @@ export default function DashboardCalendar({
       <div className="container mt-4">
         <style jsx global>{`
           .fc-button-primary {
-            background-color: #4a90e2 !important;
-            border-color: #4a90e2 !important;
+            background-color: #9784e4 !important;
+            border-color: #999999 !important;
+          }
+          .fc-day-today {
+            background-color: #cac1ee !important;
           }
         `}</style>
         <FullCalendar

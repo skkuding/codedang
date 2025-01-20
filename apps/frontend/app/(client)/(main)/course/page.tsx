@@ -31,13 +31,17 @@ export default async function Course() {
       <div className="flex w-full max-w-7xl flex-col gap-5 p-5 py-8">
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<CardListFallback />}>
-            <CourseCardList title="My Class" type="Ongoing" session={session} />
+            <CourseCardList
+              title="My Course"
+              type="Ongoing"
+              session={session}
+            />
           </Suspense>
         </ErrorBoundary>
         <Separator className="my-4" />
         <div className="flex">
-          <LuCalendar size={25} className="mr-2 mt-1" />
-          <h1 className="text-2xl font-bold text-gray-700">캘린더</h1>
+          <LuCalendar size={25} className="mr-2 mt-[2px]" />
+          <h1 className="text-2xl font-bold text-gray-700">Calendar</h1>
         </div>
       </div>
 
