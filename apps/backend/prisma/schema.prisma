@@ -48,17 +48,20 @@ model User {
   createTime DateTime  @default(now()) @map("create_time")
   updateTime DateTime  @updatedAt @map("update_time")
 
-  userProfile   UserProfile?
-  userGroup     UserGroup[]
-  notice        Notice[]
-  problem       Problem[]
-  contest       Contest[]
-  contestRecord ContestRecord[]
-  workbook      Workbook[]
-  submission    Submission[]
-  useroauth     UserOAuth?
-  CodeDraft     CodeDraft[]
-  Image         Image[]
+  userProfile      UserProfile?
+  userGroup        UserGroup[]
+  notice           Notice[]
+  problem          Problem[]
+  assignment       Assignment[]
+  assignmentRecord AssignmentRecord[]
+  contest          Contest[]
+  contestRecord    ContestRecord[]
+  leaderBoard      LeaderBoard[]
+  workbook         Workbook[]
+  submission       Submission[]
+  useroauth        UserOAuth?
+  CodeDraft        CodeDraft[]
+  Image            Image[]
 
   @@map("user")
 }
