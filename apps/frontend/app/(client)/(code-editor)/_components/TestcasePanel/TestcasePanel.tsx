@@ -52,19 +52,44 @@ export function TestcasePanel() {
 
   return (
     <>
-      <div className="flex h-12 w-full">
+      <div className="flex h-12 w-full items-center overflow-x-auto">
         <TestcaseTab
           currentTab={currentTab}
           onClickTab={() => setCurrentTab(0)}
           nextTab={testcaseTabList[0]?.originalId}
-          className="flex-shrink-0"
+          className={cn(
+            'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
+            (() => {
+              let widthClass = ''
+              if (testcaseTabList.length < 5) {
+                widthClass = 'w-44' //기본 너비
+              } else if (testcaseTabList.length < 7) {
+                widthClass = 'w-28' //좁은 너비
+              } else {
+                widthClass = 'w-24' //짧은 너비
+              }
+              return widthClass
+            })()
+          )}
         >
-          {testcaseTabList.length < 7 ? 'Testcase Result' : 'TC Res'}
+          <div className="flex h-full w-full items-center justify-center">
+            <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
+              {(() => {
+                if (testcaseTabList.length < 5) {
+                  return 'Testcase Result'
+                } else if (testcaseTabList.length < 7) {
+                  return 'Testcase Result'
+                } else {
+                  return 'TC Res'
+                }
+              })()}
+            </span>
+          </div>
         </TestcaseTab>
 
         <ScrollArea
           className={cn(
-            'relative h-full w-full overflow-x-auto',
+            'relative h-12 w-full overflow-x-auto',
             currentTab === 0 && 'rounded-bl-xl'
           )}
         >
@@ -78,15 +103,31 @@ export function TestcasePanel() {
                 onClickCloseButton={() => removeTab(testcase.originalId)}
                 testcaseId={testcase.originalId}
                 key={testcase.originalId}
+                className={cn(
+                  'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap', // 높이, 말줄임 처리
+                  (() => {
+                    let widthClass = ''
+                    if (testcaseTabList.length < 5) {
+                      widthClass = 'w-44'
+                    } else if (testcaseTabList.length < 7) {
+                      widthClass = 'w-28'
+                    } else {
+                      widthClass = 'w-24'
+                    }
+                    return widthClass
+                  })()
+                )}
               >
-                {
-                  (testcaseTabList.length < 7
-                    ? TAB_CONTENT
-                    : SHORTHAND_TAB_CONTENT)[
-                    testcase.isUserTestcase ? 'user' : 'sample'
-                  ]
-                }{' '}
-                #{testcase.id}
+                <div className="block h-full w-full overflow-hidden text-ellipsis whitespace-nowrap">
+                  {
+                    (testcaseTabList.length < 7
+                      ? TAB_CONTENT
+                      : SHORTHAND_TAB_CONTENT)[
+                      testcase.isUserTestcase ? 'user' : 'sample'
+                    ]
+                  }{' '}
+                  #{testcase.id}
+                </div>
               </TestcaseTab>
             ))}
             <span
