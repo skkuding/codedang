@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "next dev -p 5525",
     "build": "pnpm run compile && next build",
+    "analyze": "ANALYZE=true pnpm build",
     "start": "next start --keepAliveTimeout 70000",
     "lint": "eslint .",
     "compile": "graphql-codegen --require dotenv/config",
