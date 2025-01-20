@@ -65,6 +65,15 @@ export default function DashboardCalendar({
           .fc-day-today {
             background-color: #cac1ee !important;
           }
+          .fc-event {
+            background-color: #e5d9f2 !important;
+            color: #a294f9 !important;
+            border-color: #cdc1ff !important;
+          }
+          .fc-event .fc-event-title,
+          .fc-event .fc-event-time {
+            color: black !important; /* 텍스트 색상 */
+          }
         `}</style>
         <FullCalendar
           plugins={[dayGridPlugin]}
