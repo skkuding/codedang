@@ -7,8 +7,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const nextConfig = {
   experimental: {
     typedRoutes: true,
-    instrumentationHook: true,
-    missingSuspenseWithCSRBailout: false
+    instrumentationHook: true
   },
   output: 'standalone',
   env: {
