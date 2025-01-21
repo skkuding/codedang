@@ -556,23 +556,24 @@ model TestSubmission {
   updateTime           DateTime               @updatedAt @map("update_time")
   TestSubmissionResult TestSubmissionResult[]
 
-  @@map("testcase_submission")
+  @@map("test_submission")
 }
 
 model TestSubmissionResult {
   id                Int              @id @default(autoincrement())
   testSubmission    TestSubmission   @relation(fields: [testSubmissionId], references: [id], onDelete: Cascade)
-  testSubmissionId  Int              @map("testcase_submission_id")
+  testSubmissionId  Int              @map("test_submission_id")
   isUserTest        Boolean          @default(false) @map("is_user_test")
   problemTestcase   ProblemTestcase? @relation(fields: [problemTestcaseId], references: [id], onDelete: Cascade)
   problemTestcaseId Int?             @map("problem_test_case_id")
-  TestInput         String          @map("input")
-  TestOutput        String          @map("output")
+  userTestcaseId    Int?             @map("user_testcase_id")
+  TestInput         String           @map("input")
+  TestOutput        String           @map("output")
   result            ResultStatus
   cpuTime           BigInt?          @map("cpu_time")
   memoryUsage       Int?             @map("memory_usage")
   createTime        DateTime         @default(now()) @map("create_time")
   updateTime        DateTime         @updatedAt @map("update_time")
 
-  @@map("testcase_submission_result")
+  @@map("test_submission_result")
 }
