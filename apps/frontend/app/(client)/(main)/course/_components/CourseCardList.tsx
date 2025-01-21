@@ -75,7 +75,7 @@ const getCourses = async () => {
       memberNum: item.memberNum,
       status: 'ongoing',
       semester: '2025 Spring',
-      professor: 'Ha Jimin'
+      professor: '하지민 회장'
     }))
     return data
   } catch {
@@ -127,7 +127,8 @@ async function CourseCardCarousel({
                 href={`/course/${course.id}` as Route}
                 className={cn(
                   'block overflow-hidden p-2',
-                  itemsPerSlide === 3 ? 'w-1/3' : 'w-1/2'
+                  'w-1/4'
+                  // itemsPerSlide === 3 ? 'w-1/3' : 'w-1/2'
                 )}
               >
                 <CourseCard course={course} color={colors[index]} />
