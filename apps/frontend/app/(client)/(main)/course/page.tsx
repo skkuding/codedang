@@ -45,7 +45,7 @@ export default async function Course() {
           <h1 className="text-2xl font-bold text-gray-700">Calendar</h1>
         </div>
       </div>
-      <div>
+      <div className="w-full">
         <CalendarTable />
         <Dashboard session={session} />
       </div>
