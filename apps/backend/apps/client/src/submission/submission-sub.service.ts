@@ -4,7 +4,9 @@ import { Nack, AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import {
   ResultStatus,
   type Submission,
-  type SubmissionResult
+  type SubmissionResult,
+  type TestSubmission,
+  type TestSubmissionResult
 } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
@@ -96,6 +98,17 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     const status = Status(msg.resultCode)
     const testcaseId = msg.judgeResult?.testcaseId
     const output = this.parseError(msg, status)
+    if (
+      status === ResultStatus.ServerError ||
+      status === ResultStatus.CompileError
+    ) {
+      await this.handleJudgeError(status, msg)
+      return
+    }
+
+    if (!msg.judgeResult) {
+      throw new UnprocessableDataException('judgeResult is empty')
+    }
     if (!testcaseId) {
       const key = isUserTest ? userTestcasesKey(userId) : testcasesKey(userId)
       const testcaseIds = (await this.cacheManager.get<number[]>(key)) ?? []
@@ -118,7 +131,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
       return
     }
-
+    console.log('msg', msg)
     const key = isUserTest
       ? userTestKey(userId, testcaseId)
       : testKey(userId, testcaseId)
@@ -135,6 +148,48 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         ? Status(msg.judgeResult.resultCode)
         : Status(msg.resultCode)
       testcase.output = output
+    }
+
+    const submissionResult = {
+      result: Status(msg.judgeResult.resultCode),
+      cpuTime: BigInt(msg.judgeResult.cpuTime),
+      memoryUsage: msg.judgeResult.memory
+    }
+
+    if (!isUserTest) {
+      const { id } = await this.prisma.testSubmissionResult.findFirstOrThrow({
+        where: {
+          testSubmissionId: msg.submissionId,
+          problemTestcaseId: msg.judgeResult.testcaseId
+        }
+      })
+      await this.prisma.testSubmissionResult.update({
+        where: {
+          id
+        },
+        data: {
+          result: submissionResult.result,
+          cpuTime: submissionResult.cpuTime,
+          memoryUsage: submissionResult.memoryUsage
+        }
+      })
+    } else {
+      const { id } = await this.prisma.testSubmissionResult.findFirstOrThrow({
+        where: {
+          testSubmissionId: msg.submissionId,
+          userTestcaseId: msg.judgeResult.testcaseId
+        }
+      })
+      await this.prisma.testSubmissionResult.update({
+        where: {
+          id
+        },
+        data: {
+          result: submissionResult.result,
+          cpuTime: submissionResult.cpuTime,
+          memoryUsage: submissionResult.memoryUsage
+        }
+      })
     }
 
     await this.cacheManager.set(key, testcase, TEST_SUBMISSION_EXPIRE_TIME)
