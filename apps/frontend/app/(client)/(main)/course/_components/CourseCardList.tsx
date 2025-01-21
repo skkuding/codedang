@@ -12,6 +12,57 @@ import type { Session } from 'next-auth'
 import Link from 'next/link'
 import { CourseCard } from '../_components/CourseCard'
 
+const bgVariants = [
+  'bg-[#fed7de]',
+  'bg-[#c4f2de]',
+  'bg-[#e6ffe2]',
+  'bg-[#e7d9fe]',
+  'bg-[#c4d8f7]',
+  'bg-[#ffef98]'
+]
+
+interface Profile {
+  username: string // ID
+  userProfile: {
+    realName: string
+  }
+  studentId: string
+  major: string
+}
+
+function getRandomColorArray(username: string) {
+  let hash = 0
+  for (let i = 0; i < username.length; i++) {
+    hash = (hash << 5) - hash + username.charCodeAt(i)
+    hash |= 0
+  }
+
+  function pseudoRandom(seed: number) {
+    seed = (seed * 9301 + 49297) % 233280
+    return seed / 233280
+  }
+
+  const array = [...bgVariants]
+
+  let seed = Math.abs(hash)
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(pseudoRandom(seed) * (i + 1))
+    ;[array[i], array[j]] = [array[j], array[i]]
+    seed = seed * 9301 + 49297
+  }
+
+  return array
+}
+
+const getUsername = async () => {
+  try {
+    const data: Profile = await safeFetcherWithAuth.get('user').json()
+    return data.username
+  } catch {
+    return 'unknown'
+  }
+}
+
 const getCourses = async () => {
   try {
     const rawData: RawCourse[] = await safeFetcherWithAuth
@@ -34,7 +85,7 @@ const getCourses = async () => {
 
 type ItemsPerSlide = 2 | 3
 
-function CourseCardCarousel({
+async function CourseCardCarousel({
   itemsPerSlide,
   title,
   data
@@ -43,6 +94,8 @@ function CourseCardCarousel({
   title: string
   data: Course[]
 }) {
+  const colors = getRandomColorArray(await getUsername())
+
   const chunks = []
 
   if (itemsPerSlide === 3) {
@@ -68,7 +121,7 @@ function CourseCardCarousel({
       <CarouselContent className="p-1">
         {chunks.map((chunk) => (
           <CarouselItem key={chunk[0].id} className="flex w-full gap-3">
-            {chunk.map((course) => (
+            {chunk.map((course, index) => (
               <Link
                 key={course.id}
                 href={`/course/${course.id}` as Route}
@@ -77,7 +130,7 @@ function CourseCardCarousel({
                   itemsPerSlide === 3 ? 'w-1/3' : 'w-1/2'
                 )}
               >
-                <CourseCard course={course} />
+                <CourseCard course={course} color={colors[index]} />
               </Link>
             ))}
           </CarouselItem>

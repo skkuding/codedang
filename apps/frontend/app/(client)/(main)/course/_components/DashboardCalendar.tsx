@@ -93,6 +93,7 @@ export function DashboardCalendar({
               contentHeight: 500
             }
           }}
+          displayEventTime={false}
           weekNumbers={true}
           dayMaxEvents={true}
           events={data}
