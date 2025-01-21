@@ -23,7 +23,8 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { ProblemScoreInput } from '@admin/contest//prmodeloblem-score.input'
+import type { ProblemWhereInput } from '@admin/@generated'
+import type { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from './model/problem.constants'
 import type {
