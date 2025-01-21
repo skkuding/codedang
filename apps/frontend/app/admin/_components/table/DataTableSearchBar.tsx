@@ -1,7 +1,7 @@
 'use client'
 
-import { Input, type InputProps } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { Input, type InputProps } from '@/components/shadcn/input'
+import { cn } from '@/libs/utils'
 import { IoSearch } from 'react-icons/io5'
 import { useDataTable } from './context'
 
@@ -15,7 +15,7 @@ interface SearchBarProps extends InputProps {
  * @param columnId
  * 검색 필터를 적용할 컬럼 아이디
  */
-export default function DataTableSearchBar({
+export function DataTableSearchBar({
   placeholder,
   className,
   columndId,

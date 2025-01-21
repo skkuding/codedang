@@ -1,28 +1,24 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
+} from '@/components/shadcn/tooltip'
+import { cn } from '@/libs/utils'
 import type { Testcase } from '@generated/graphql'
 import { useEffect, useState } from 'react'
 import { type FieldErrorsImpl, useFormContext, useWatch } from 'react-hook-form'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
-import Label from '../../_components/Label'
+import { Label } from '../../_components/Label'
 import { isInvalid } from '../_libs/utils'
-import AddBadge from './AddBadge'
+import { AddBadge } from './AddBadge'
 import { CautionDialog } from './CautionDialog'
-import TestcaseItem from './TestcaseItem'
+import { TestcaseItem } from './TestcaseItem'
 
-export default function TestcaseField({
-  blockEdit = false
-}: {
-  blockEdit?: boolean
-}) {
+export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const {
     formState: { errors },
     getValues,
@@ -70,13 +66,13 @@ export default function TestcaseField({
       .map((tc) => tc.scoreWeight)
       .filter((score) => !isInvalid(score))
       .reduce((acc: number, score) => {
-        if (score! < 0) {
+        if (score < 0) {
           setDialogDescription(
             'The scoring ratios contain negative value(s).\nPlease review and correct them.'
           )
           setDialogOpen(true)
         }
-        return acc + score!
+        return acc + score
       }, 0)
 
     const remainingScore = 100 - totalAssignedScore

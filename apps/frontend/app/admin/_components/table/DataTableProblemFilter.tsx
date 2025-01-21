@@ -1,19 +1,19 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import {
   Command,
   CommandGroup,
   CommandItem,
   CommandList
-} from '@/components/ui/command'
+} from '@/components/shadcn/command'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger
-} from '@/components/ui/popover'
+} from '@/components/shadcn/popover'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
 import { useEffect, useState } from 'react'
 import { FaCheck, FaChevronDown } from 'react-icons/fa'
@@ -28,11 +28,7 @@ const ALL_OPTION_LABEL = 'All Problems'
  * @param contestId
  * 문제를 가져올 대회의 아이디
  */
-export default function DataTableProblemFilter({
-  contestId
-}: {
-  contestId: number
-}) {
+export function DataTableProblemFilter({ contestId }: { contestId: number }) {
   const { table } = useDataTable()
   const column = table.getColumn(PROBLEM_COLUMN_ID)
   const selectedValue = getSelectedValue(column?.getFilterValue())
@@ -107,6 +103,8 @@ export default function DataTableProblemFilter({
 }
 
 const getSelectedValue = (data: unknown): string | null => {
-  if (typeof data !== 'string') return null
+  if (typeof data !== 'string') {
+    return null
+  }
   return data
 }

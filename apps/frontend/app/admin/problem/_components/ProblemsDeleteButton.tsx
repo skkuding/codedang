@@ -3,10 +3,10 @@ import { DELETE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useApolloClient, useLazyQuery, useMutation } from '@apollo/client'
 import { toast } from 'sonner'
-import DataTableDeleteButton from '../../_components/table/DataTableDeleteButton'
+import { DataTableDeleteButton } from '../../_components/table/DataTableDeleteButton'
 import type { DataTableProblem } from './ProblemTableColumns'
 
-export default function ProblemsDeleteButton() {
+export function ProblemsDeleteButton() {
   const client = useApolloClient()
   const [deleteProblem] = useMutation(DELETE_PROBLEM)
   const [fetchContests] = useLazyQuery(GET_BELONGED_CONTESTS)
@@ -21,7 +21,14 @@ export default function ProblemsDeleteButton() {
     )
 
     const results = await Promise.all(promises)
-    const isAllSafe = results.every(({ data }) => data === undefined)
+    const isAllSafe = results.every(({ data }) => {
+      const contests = data?.getContestsByProblemId
+      return (
+        contests?.finished.length === 0 &&
+        contests.ongoing.length === 0 &&
+        contests.upcoming.length === 0
+      )
+    })
 
     if (isAllSafe) {
       return true

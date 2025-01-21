@@ -1,13 +1,15 @@
-import SearchBar from '@/components/SearchBar'
-import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
-import { auth } from '@/lib/auth'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
+import { Separator } from '@/components/shadcn/separator'
+import { Skeleton } from '@/components/shadcn/skeleton'
+import { auth } from '@/libs/auth'
+import { ErrorBoundary } from '@suspensive/react'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
-import ContestCardList from './_components/ContestCardList'
-import FinishedContestTable from './_components/FinishedContestTable'
-import RegisteredContestTable from './_components/RegisteredContestTable'
-import TableSwitchButton from './_components/TableSwitchButton'
+import { SearchBar } from '../_components/SearchBar'
+import { ContestCardList } from './_components/ContestCardList'
+import { FinishedContestTable } from './_components/FinishedContestTable'
+import { RegisteredContestTable } from './_components/RegisteredContestTable'
+import { TableSwitchButton } from './_components/TableSwitchButton'
 
 interface ContestProps {
   searchParams: {
@@ -64,25 +66,30 @@ export default async function Contest({ searchParams }: ContestProps) {
   return (
     <>
       <div className="mb-12 flex flex-col gap-12">
-        <Suspense fallback={<ContestCardListFallback />}>
-          <ContestCardList
-            title="Join the contest now!"
-            type="Ongoing"
-            session={session}
-          />
-        </Suspense>
-        <Suspense fallback={<ContestCardListFallback />}>
-          <ContestCardList
-            title="Check out upcoming contests"
-            type="Upcoming"
-            session={session}
-          />
-        </Suspense>
+        <ErrorBoundary fallback={FetchErrorFallback}>
+          <Suspense fallback={<ContestCardListFallback />}>
+            <ContestCardList
+              title="Join the contest now!"
+              type="Ongoing"
+              session={session}
+            />
+          </Suspense>
+        </ErrorBoundary>
+        <ErrorBoundary fallback={FetchErrorFallback}>
+          <Suspense fallback={<ContestCardListFallback />}>
+            <ContestCardList
+              title="Check out upcoming contests"
+              type="Upcoming"
+              session={session}
+            />
+          </Suspense>
+        </ErrorBoundary>
       </div>
       <div className="flex-col">
         <h1 className="mb-6 text-2xl font-bold text-gray-700">
           List of Contests
         </h1>
+
         <Suspense fallback={<FinishedContestTableFallback />}>
           {session ? (
             <TableSwitchButton registered={registered} />
@@ -92,14 +99,16 @@ export default async function Contest({ searchParams }: ContestProps) {
             </p>
           )}
           <Separator className="mb-3" />
-          <div className="flex justify-end py-8">
-            <SearchBar className="w-60" />
-          </div>
-          {session && registered ? (
-            <RegisteredContestTable search={search} />
-          ) : (
-            <FinishedContestTable search={search} session={session} />
-          )}
+          <ErrorBoundary fallback={FetchErrorFallback}>
+            <div className="flex justify-end py-8">
+              <SearchBar className="w-60" />
+            </div>
+            {session && registered ? (
+              <RegisteredContestTable search={search} />
+            ) : (
+              <FinishedContestTable search={search} session={session} />
+            )}
+          </ErrorBoundary>
         </Suspense>
       </div>
     </>

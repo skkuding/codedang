@@ -6,20 +6,14 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select'
-import { cn } from '@/lib/utils'
+} from '@/components/shadcn/select'
+import { cn, getPageArray } from '@/libs/utils'
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 import { useDataTable } from './context'
 
 interface DataTablePaginationProps {
   showSelection?: boolean
   showRowsPerPage?: boolean
-}
-
-function getPageArray(start: number, end: number) {
-  return Array(end - start + 1)
-    .fill(0)
-    .map((_, i) => start + i)
 }
 
 /**
@@ -29,7 +23,7 @@ function getPageArray(start: number, end: number) {
  * @param showRowsPerPage
  * 페이지당 보여줄 행을 선택하는 셀렉트 박스 표시 여부 (기본값: true)
  */
-export default function DataTablePagination({
+export function DataTablePagination({
   showSelection = false,
   showRowsPerPage = true
 }: DataTablePaginationProps) {

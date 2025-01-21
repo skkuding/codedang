@@ -10,7 +10,7 @@ import { createTheme } from '@uiw/codemirror-themes'
 import type { ReactCodeMirrorProps } from '@uiw/react-codemirror'
 import ReactCodeMirror, { EditorView } from '@uiw/react-codemirror'
 import { toast } from 'sonner'
-import { ScrollArea, ScrollBar } from './ui/scroll-area'
+import { ScrollArea, ScrollBar } from './shadcn/scroll-area'
 
 const editorTheme = createTheme({
   settings: {
@@ -84,12 +84,12 @@ const copyPasteHandler = () => {
   })
 }
 
-export default function CodeEditor({
+export function CodeEditor({
   value,
   language,
   onChange,
   enableCopyPaste = true,
-  readOnly: readOnly = false,
+  readOnly = false,
   ...props
 }: Props) {
   return (

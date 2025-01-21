@@ -1,6 +1,7 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
+import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
   DialogContent,
@@ -9,12 +10,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogClose
-} from '@/components/ui/dialog'
+} from '@/components/shadcn/dialog'
+import { ErrorBoundary } from '@suspensive/react'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect, Suspense } from 'react'
 import { ProblemTable, ProblemTableFallback } from './_components/ProblemTable'
-import UploadDialog from './_components/UploadDialog'
+import { UploadDialog } from './_components/UploadDialog'
 
 export default function Page({
   searchParams
@@ -53,9 +55,11 @@ export default function Page({
             </div>
           )}
         </div>
-        <Suspense fallback={<ProblemTableFallback />}>
-          <ProblemTable />
-        </Suspense>
+        <ErrorBoundary fallback={FetchErrorFallback}>
+          <Suspense fallback={<ProblemTableFallback />}>
+            <ProblemTable />
+          </Suspense>
+        </ErrorBoundary>
       </div>
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent className="p-8">

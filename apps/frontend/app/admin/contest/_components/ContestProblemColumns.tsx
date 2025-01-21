@@ -1,9 +1,9 @@
 'use client'
 
-import ContainedContests from '@/app/admin/problem/_components/ContainedContests'
-import OptionSelect from '@/components/OptionSelect'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
+import { OptionSelect } from '@/app/admin/_components/OptionSelect'
+import { ContainedContests } from '@/app/admin/problem/_components/ContainedContests'
+import { Badge } from '@/components/shadcn/badge'
+import { Input } from '@/components/shadcn/input'
 import type { Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import { toast } from 'sonner'
@@ -92,7 +92,7 @@ export const createColumns = (
         <Input
           disabled={true}
           className="w-[70px] focus-visible:ring-0"
-          defaultValue={table
+          value={table
             .getCoreRowModel()
             .rows.map((row) => row.original)
             .reduce((total, problem) => total + problem.score, 0)}

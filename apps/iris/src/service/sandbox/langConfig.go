@@ -2,6 +2,8 @@ package sandbox
 
 import (
 	"fmt"
+	"log"
+	"os/exec"
 	"strconv"
 	"strings"
 
@@ -56,6 +58,18 @@ type langConfig struct {
 	javaConfig config
 	pyConfig   config
 	file       file.FileManager
+}
+
+func GetPythonVersion() (string, error) {
+	cmd := exec.Command("python3", "--version")
+	output, err := cmd.Output()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	versionParts := strings.Split(string(output), " ")
+	version := strings.Split(versionParts[1], ".")
+	return version[0] + version[1], nil
 }
 
 func NewLangConfig(file file.FileManager, javaPolicyPath string) *langConfig {
@@ -121,11 +135,16 @@ func NewLangConfig(file file.FileManager, javaPolicyPath string) *langConfig {
 		env:                   defaultEnv,
 	}
 
+	pythonVersion, err := GetPythonVersion()
+	if err != nil {
+		pythonVersion = "312"
+	}
+
 	var pyConfig = config{
 		Language: PYTHON,
 		SrcName:  "solution.py",
-		// [IMPORTANT] 도커 이미지 변경 시 파이썬 버전도 변경 필요함
-		ExeName:               "__pycache__/solution.cpython-312.pyc", // Default Version on Debian 11 (bullseye)
+		ExeName:  fmt.Sprintf("__pycache__/solution.cpython-%s.pyc", pythonVersion),
+		// ExeName:               "__pycache__/solution.cpython-312.pyc", // Default Version on Debian 11 (bullseye)
 		MaxCompileCpuTime:     3000,
 		MaxCompileRealTime:    10000,
 		MaxCompileMemory:      128 * 1024 * 1024,

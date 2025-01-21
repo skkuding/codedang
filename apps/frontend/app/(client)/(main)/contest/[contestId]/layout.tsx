@@ -1,27 +1,22 @@
-import ContestStatusTimeDiff from '@/components/ContestStatusTimeDiff'
-import { auth } from '@/lib/auth'
-import { fetcher, fetcherWithAuth, getStatusWithStartEnd } from '@/lib/utils'
-import { dateFormatter } from '@/lib/utils'
+import { ContestStatusTimeDiff } from '@/components/ContestStatusTimeDiff'
+import { auth } from '@/libs/auth'
+import { fetcher, fetcherWithAuth, getStatusWithStartEnd } from '@/libs/utils'
+import { dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import checkIcon from '@/public/icons/check-blue.svg'
 import type { Contest } from '@/types/type'
 import Image from 'next/image'
-import ContestTabs from '../_components/ContestTabs'
+import { ContestTabs } from '../_components/ContestTabs'
 import { calculateContestScore } from './_libs/utils'
 
 interface ContestDetailProps {
   params: {
     contestId: string
   }
+  tabs: React.ReactNode
 }
 
-export default async function Layout({
-  params,
-  tabs
-}: {
-  params: ContestDetailProps['params']
-  tabs: React.ReactNode
-}) {
+export default async function Layout({ params, tabs }: ContestDetailProps) {
   const { contestId } = params
   const session = await auth()
 

@@ -9,9 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Toggle } from '@/components/ui/toggle'
+} from '@/components/shadcn/dialog'
+import { Input } from '@/components/shadcn/input'
+import { Toggle } from '@/components/shadcn/toggle'
 import { UPLOAD_IMAGE } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import Tex from '@matejmazur/react-katex'
@@ -38,8 +38,8 @@ import {
   ImagePlus
 } from 'lucide-react'
 import { useCallback, useState } from 'react'
-import InsertDialog from './InsertDialog'
-import { Button } from './ui/button'
+import { InsertDialog } from './InsertDialog'
+import { Button } from './shadcn/button'
 
 function MathPreview(props: NodeViewWrapperProps) {
   const [content, setContent] = useState(props.node.attrs.content)
@@ -149,7 +149,7 @@ export const MathExtension = Node.create({
   }
 })
 
-export default function TextEditor({
+export function TextEditor({
   placeholder,
   onChange,
   defaultValue
@@ -200,7 +200,9 @@ export default function TextEditor({
   const setLink = useCallback(
     (linkUrl: string | null) => {
       console.log(linkUrl)
-      if (!editor) return null
+      if (!editor) {
+        return null
+      }
       // cancelled
       if (linkUrl === null) {
         return
@@ -224,7 +226,9 @@ export default function TextEditor({
   const addImage = useCallback(
     (imageUrl: string | undefined) => {
       console.log(imageUrl)
-      if (!editor) return null
+      if (!editor) {
+        return null
+      }
       if (imageUrl === null) {
         return
       }
@@ -241,7 +245,9 @@ export default function TextEditor({
   const [uploadImage] = useMutation(UPLOAD_IMAGE)
 
   const handleUploadPhoto = async (files: FileList | null) => {
-    if (files === null) return
+    if (files === null) {
+      return
+    }
     const file = files[0]
     try {
       const { data } = await uploadImage({

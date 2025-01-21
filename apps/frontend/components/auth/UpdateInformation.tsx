@@ -1,13 +1,13 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import type { Route } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { IoWarningOutline } from 'react-icons/io5'
 
-export default function UpdateInformation() {
+export function UpdateInformation() {
   const router = useRouter()
   return (
     <div className="flex w-full flex-col items-center gap-1">
@@ -37,9 +37,8 @@ export default function UpdateInformation() {
         className="mt-8 w-full bg-red-500 font-semibold hover:bg-red-600"
         onClick={() => {
           router.push(
-            ('/settings' +
-              '?' +
-              new URLSearchParams({ updateNow: 'true' })) as Route
+            (`/settings` +
+              `?${new URLSearchParams({ updateNow: 'true' })}`) as Route
           )
         }}
       >

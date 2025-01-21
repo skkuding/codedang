@@ -1,5 +1,5 @@
-import DataTable from '@/components/DataTable'
-import { fetcherWithAuth } from '@/lib/utils'
+import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
+import { fetcherWithAuth } from '@/libs/utils'
 import type { Contest } from '@/types/type'
 import { columns } from './RegisteredTableColumns'
 
@@ -45,26 +45,20 @@ const getFinishedContests = async (search: string) => {
   return data.concat(FinishedData.data)
 }
 
-export default async function RegisteredContestTable({
-  search
-}: {
-  search: string
-}) {
+export async function RegisteredContestTable({ search }: { search: string }) {
   const data = await getFinishedContests(search)
 
   return (
-    <>
-      <DataTable
-        data={data}
-        columns={columns}
-        headerStyle={{
-          title: 'text-left w-2/5 md:w-1/2',
-          status: 'w-1/5 md:w-1/6',
-          participants: 'w-1/5 md:w-1/6',
-          period: 'w-1/5 md:w-1/3'
-        }}
-        linked
-      />
-    </>
+    <DataTable
+      data={data}
+      columns={columns}
+      headerStyle={{
+        title: 'text-left w-2/5 md:w-1/2',
+        status: 'w-1/5 md:w-1/6',
+        participants: 'w-1/5 md:w-1/6',
+        period: 'w-1/5 md:w-1/3'
+      }}
+      linked
+    />
   )
 }

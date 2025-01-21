@@ -1,7 +1,7 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { Button } from '@/components/shadcn/button'
+import { cn } from '@/libs/utils'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -27,7 +27,7 @@ const bgColors: { [key: string]: string } = {
   skkuding: 'bg-gradient-to-r from-[#41775D] to-[#123D29]'
 }
 
-export default function Carousel({ slides }: Props) {
+export function Carousel({ slides }: Props) {
   const [facade, setFacade] = useState(0)
 
   useEffect(() => {

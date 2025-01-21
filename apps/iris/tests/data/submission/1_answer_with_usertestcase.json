@@ -1,0 +1,14 @@
+{
+  "problemId": 1,
+  "code": "#include <stdio.h>\n\nint main() {\n    int a, b;\n    scanf(\"%d%d\", &a, &b);\n    printf(\"%d\\n\", a + b);\n    return 0;\n}\n",
+  "language": "C",
+  "timeLimit": 1000,
+  "memoryLimit": 268435456,
+  "userTestcases": [
+    { "id": 11, "in": "1 1", "out": "2", "hidden": false },
+    { "id": 12, "in": "1 2", "out": "3", "hidden": false },
+    { "id": 13, "in": "1 3", "out": "4", "hidden": false },
+    { "id": 14, "in": "4 3", "out": "7", "hidden": false },
+    { "id": 15, "in": "15 21", "out": "36", "hidden": false }
+  ]
+}

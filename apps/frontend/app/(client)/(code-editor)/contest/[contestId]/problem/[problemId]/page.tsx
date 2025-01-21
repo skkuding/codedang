@@ -1,24 +1,22 @@
-import { EditorDescription } from '@/components/EditorDescription'
-import { fetcherWithAuth } from '@/lib/utils'
-import type { ContestProblem, ProblemDetail } from '@/types/type'
+import { EditorDescription } from '@/app/(client)/(code-editor)/_components/EditorDescription'
+import type { GetContestProblemDetailResponse } from '@/app/(client)/_libs/apis/contestProblem'
+import { fetcherWithAuth } from '@/libs/utils'
+import { redirect } from 'next/navigation'
 
 export default async function DescriptionPage({
   params
 }: {
-  params: { problemId: number; contestId: number }
+  params: { problemId: string; contestId: string }
 }) {
   const { problemId, contestId } = params
-  const contestProblem: { problem: ProblemDetail } = await fetcherWithAuth(
-    `contest/${contestId}/problem/${problemId}`
-  ).json()
-  const contestProblems: { problems: ContestProblem[] } = await fetcherWithAuth(
-    `contest/${params.contestId}/problem`
-  ).json()
-  return (
-    <EditorDescription
-      problem={contestProblem.problem}
-      contestProblems={contestProblems.problems}
-      isContest={true}
-    />
-  )
+
+  // TODO: use `getContestProblemDetail` from _libs/apis folder & use error boundary
+  const res = await fetcherWithAuth(`contest/${contestId}/problem/${problemId}`)
+  if (!res.ok && res.status === 403) {
+    redirect(`/contest/${contestId}/finished/problem/${problemId}`)
+  }
+
+  const { problem, order } = await res.json<GetContestProblemDetailResponse>()
+
+  return <EditorDescription problem={{ ...problem, order }} isContest={true} />
 }

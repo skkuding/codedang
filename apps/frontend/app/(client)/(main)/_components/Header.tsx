@@ -1,11 +1,11 @@
-import HeaderAuthPanel from '@/components/auth/HeaderAuthPanel'
-import { auth } from '@/lib/auth'
+import { HeaderAuthPanel } from '@/components/auth/HeaderAuthPanel'
+import { auth } from '@/libs/auth'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import Image from 'next/image'
 import Link from 'next/link'
-import NavLink from './NavLink'
+import { NavLink } from './NavLink'
 
-export default async function Header() {
+export async function Header() {
   const session = await auth()
   return (
     <header className="fixed left-0 z-40 grid h-14 w-full place-items-center bg-white/80">

@@ -1,19 +1,19 @@
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/shadcn/badge'
+import { Button } from '@/components/shadcn/button'
+import { Checkbox } from '@/components/shadcn/checkbox'
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandItem,
   CommandList
-} from '@/components/ui/command'
+} from '@/components/shadcn/command'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger
-} from '@/components/ui/popover'
-import { Separator } from '@/components/ui/separator'
+} from '@/components/shadcn/popover'
+import { Separator } from '@/components/shadcn/separator'
 import type { Column } from '@tanstack/react-table'
 import type { ReactNode } from 'react'
 import { IoFilter } from 'react-icons/io5'
@@ -40,7 +40,7 @@ interface DataTableMultiSelectFilterProps<TData, TValue> {
  * @param emptyMessage
  * 옵션이 없을 경우 보여줄 텍스트
  */
-export default function DataTableMultiSelectFilter<TData, TValue>({
+export function DataTableMultiSelectFilter<TData, TValue>({
   column,
   title,
   options,
@@ -127,7 +127,11 @@ export default function DataTableMultiSelectFilter<TData, TValue>({
 }
 
 const getSelectedValues = (data: unknown): Set<string> => {
-  if (!Array.isArray(data)) return new Set()
-  if (data.every((item) => typeof item === 'string')) return new Set(data)
+  if (!Array.isArray(data)) {
+    return new Set()
+  }
+  if (data.every((item) => typeof item === 'string')) {
+    return new Set(data)
+  }
   return new Set()
 }

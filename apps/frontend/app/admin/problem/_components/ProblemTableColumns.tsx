@@ -1,12 +1,12 @@
-import DataTableColumnHeader from '@/app/admin/_components/table/DataTableColumnHeader'
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Switch } from '@/components/ui/switch'
+import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
+import { Badge } from '@/components/shadcn/badge'
+import { Checkbox } from '@/components/shadcn/checkbox'
+import { Switch } from '@/components/shadcn/switch'
 import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
 import type { Level } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
-import ContainedContests from './ContainedContests'
+import { ContainedContests } from './ContainedContests'
 
 interface Tag {
   id: number
@@ -59,7 +59,9 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     header: ({ table }) => (
       <Checkbox
         checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        onCheckedChange={(value) =>
+          table.toggleAllPageRowsSelected(Boolean(value))
+        }
         aria-label="Select all"
         className="translate-y-[2px]"
       />
@@ -68,7 +70,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
       <Checkbox
         onClick={(e) => e.stopPropagation()}
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
         aria-label="Select row"
         className="translate-y-[2px]"
       />

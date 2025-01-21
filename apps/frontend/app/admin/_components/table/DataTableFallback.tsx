@@ -1,7 +1,7 @@
 'use client'
 
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
-import { Skeleton } from '@/components/ui/skeleton'
+import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import {
   Table,
   TableHeader,
@@ -9,7 +9,7 @@ import {
   TableHead,
   TableBody,
   TableCell
-} from '@/components/ui/table'
+} from '@/components/shadcn/table'
 import {
   flexRender,
   getCoreRowModel,
@@ -36,7 +36,7 @@ interface DataTableFallbackProps<TData> {
  * @param rowCount
  * 스켈레톤을 보여줄 행 개수 (기본값: 10)
  */
-export default function DataTableFallback<TData>({
+export function DataTableFallback<TData>({
   withSearchBar = true,
   ...props
 }: DataTableFallbackProps<TData>) {

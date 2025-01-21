@@ -97,10 +97,25 @@ const GET_TAGS = gql(`
   }
 `)
 
+const GET_PROBLEM_TESTCASE = gql(`
+  query GetProblemTestcase($groupId: Int!, $id: Int!) {
+    getProblem(groupId: $groupId, id: $id) {
+      testcase {
+        id
+        input
+        output
+        isHidden
+        scoreWeight
+      }
+    }
+  }
+`)
+
 export {
   GET_PROBLEM,
   GET_PROBLEMS,
   GET_PROBLEM_DETAIL,
   GET_CONTEST_PROBLEMS,
-  GET_TAGS
+  GET_TAGS,
+  GET_PROBLEM_TESTCASE
 }

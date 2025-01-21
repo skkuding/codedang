@@ -3,8 +3,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  // PostgreSQL full-text search feature를 사요하기 위해 previewFeatures를 추가합니다.
-  previewFeatures = ["fullTextSearch", "tracing"]
+  previewFeatures = ["fullTextSearchPostgres"]
 }
 
 generator graphql {
@@ -15,7 +14,6 @@ generator graphql {
   // emitCompiled       = true
   emitSingle         = true
   reExport           = Single
-  previewFeatures    = ["tracing"]
 }
 
 datasource db {
@@ -50,17 +48,19 @@ model User {
   createTime DateTime  @default(now()) @map("create_time")
   updateTime DateTime  @updatedAt @map("update_time")
 
-  userProfile   UserProfile?
-  userGroup     UserGroup[]
-  notice        Notice[]
-  problem       Problem[]
-  contest       Contest[]
-  contestRecord ContestRecord[]
-  workbook      Workbook[]
-  submission    Submission[]
-  useroauth     UserOAuth?
-  CodeDraft     CodeDraft[]
-  Image         Image[]
+  userProfile      UserProfile?
+  userGroup        UserGroup[]
+  notice           Notice[]
+  problem          Problem[]
+  assignment       Assignment[]
+  assignmentRecord AssignmentRecord[]
+  workbook         Workbook[]
+  submission       Submission[]
+  useroauth        UserOAuth?
+  CodeDraft        CodeDraft[]
+  Image            Image[]
+  contest          Contest[]
+  contestRecord    ContestRecord[]
 
   @@map("user")
 }
@@ -116,11 +116,12 @@ model Group {
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
 
-  userGroup UserGroup[]
-  notice    Notice[]
-  problem   Problem[]
-  contest   Contest[]
-  workbook  Workbook[]
+  userGroup  UserGroup[]
+  notice     Notice[]
+  problem    Problem[]
+  assignment Assignment[]
+  workbook   Workbook[]
+  contest    Contest[]
 
   @@map("group")
 }
@@ -186,13 +187,14 @@ model Problem {
   createTime      DateTime   @default(now()) @map("create_time")
   updateTime      DateTime   @updatedAt @map("update_time")
 
-  problemTestcase ProblemTestcase[]
-  problemTag      ProblemTag[]
-  contestProblem  ContestProblem[]
-  workbookProblem WorkbookProblem[]
-  submission      Submission[]
-  announcement    Announcement[]
-  codeDraft       CodeDraft[]
+  problemTestcase   ProblemTestcase[]
+  problemTag        ProblemTag[]
+  assignmentProblem AssignmentProblem[]
+  workbookProblem   WorkbookProblem[]
+  contestProblem    ContestProblem[]
+  submission        Submission[]
+  announcement      Announcement[]
+  codeDraft         CodeDraft[]
 
   @@map("problem")
 }
@@ -260,6 +262,67 @@ model Tag {
   @@map("tag")
 }
 
+model Assignment {
+  id                   Int      @id @default(autoincrement())
+  createdBy            User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById          Int?     @map("created_by_id")
+  group                Group    @relation(fields: [groupId], references: [id])
+  groupId              Int      @map("group_id")
+  title                String
+  description          String
+  invitationCode       String?  @map("invitation_code")
+  startTime            DateTime @map("start_time")
+  endTime              DateTime @map("end_time")
+  isVisible            Boolean  @default(true) @map("is_visible")
+  isRankVisible        Boolean  @default(true) @map("is_rank_visible")
+  isJudgeResultVisible Boolean  @default(true) @map("is_judge_result_visible") // 이 Assignment에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다.
+  enableCopyPaste      Boolean  @default(true) @map("enable_copy_paste") // 이 Assignment에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다.
+  createTime           DateTime @default(now()) @map("create_time")
+  updateTime           DateTime @updatedAt @map("update_time")
+
+  assignmentProblem AssignmentProblem[]
+  assignmentRecord  AssignmentRecord[]
+  submission        Submission[]
+  announcement      Announcement[]
+
+  @@map("assignment")
+}
+
+model AssignmentProblem {
+  order        Int
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId Int        @map("assignment_id")
+  problem      Problem    @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId    Int        @map("problem_id")
+  // 각 문제의 점수 (비율 아님)
+  score        Int        @default(0)
+  createTime   DateTime   @default(now()) @map("create_time")
+  updateTime   DateTime   @updatedAt @map("update_time")
+
+  @@id([assignmentId, problemId])
+  // @@unique([assignmentId, problemId])
+  @@map("assignment_problem")
+}
+
+model AssignmentRecord {
+  id                 Int        @id @default(autoincrement())
+  assignment         Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId       Int        @map("assignment_id")
+  user               User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId             Int?       @map("user_id")
+  acceptedProblemNum Int        @default(0) @map("accepted_problem_num")
+  score              Int        @default(0)
+  // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각
+  finishTime         DateTime?  @map("finish_time")
+  // totalPenalty: Submission 시, AC를 받지 못했을 때, 올라가는 Counter
+  totalPenalty       Int        @default(0) @map("total_penalty")
+  createTime         DateTime   @default(now()) @map("create_time")
+  updateTime         DateTime   @updatedAt @map("update_time")
+
+  @@unique([assignmentId, userId])
+  @@map("assignment_record")
+}
+
 model Contest {
   id                   Int      @id @default(autoincrement())
   createdBy            User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
@@ -302,20 +365,6 @@ model ContestProblem {
   @@map("contest_problem")
 }
 
-model Announcement {
-  id         Int      @id @default(autoincrement())
-  content    String
-  contest    Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId  Int      @map("contest_id")
-  problem    Problem? @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId  Int?     @map("problem_id")
-  createTime DateTime @default(now()) @map("create_time")
-  updateTime DateTime @updatedAt @map("update_time")
-
-  @@unique([id])
-  @@map("announcement")
-}
-
 model ContestRecord {
   id                 Int       @id @default(autoincrement())
   contest            Contest   @relation(fields: [contestId], references: [id], onDelete: Cascade)
@@ -333,6 +382,24 @@ model ContestRecord {
 
   @@unique([contestId, userId])
   @@map("contest_record")
+}
+
+model Announcement {
+  id           Int         @id @default(autoincrement())
+  content      String
+  // Assignment와 Contest 둘 중 하나만 설정되어 있어야 합니다 (XOR)
+  // 아닐시 DB단에서 에러 반환, 20250108111635_add_contest_tables migration 참고
+  assignment   Assignment? @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId Int?        @map("assignment_id")
+  contest      Contest?    @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId    Int?        @map("contest_id")
+  problem      Problem?    @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId    Int?        @map("problem_id")
+  createTime   DateTime    @default(now()) @map("create_time")
+  updateTime   DateTime    @updatedAt @map("update_time")
+
+  @@unique([id])
+  @@map("announcement")
 }
 
 model Workbook {
@@ -368,31 +435,33 @@ model WorkbookProblem {
 }
 
 model Submission {
-  id         Int          @id @default(autoincrement())
-  user       User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId     Int?         @map("user_id")
-  userIp     String?      @map("user_ip")
-  problem    Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  id           Int          @id @default(autoincrement())
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId       Int?         @map("user_id")
+  userIp       String?      @map("user_ip")
+  problem      Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
   // Todo :
   // Regardless problem deletion, Keeping submission is positive for ranking or something ....
-  problemId  Int          @map("problem_id")
-  contest    Contest?     @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId  Int?         @map("contest_id")
-  workbook   Workbook?    @relation(fields: [workbookId], references: [id])
-  workbookId Int?         @map("workbook_id")
+  problemId    Int          @map("problem_id")
+  assignment   Assignment?  @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId Int?         @map("assignment_id")
+  contest      Contest?     @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId    Int?         @map("contest_id")
+  workbook     Workbook?    @relation(fields: [workbookId], references: [id])
+  workbookId   Int?         @map("workbook_id")
   /// code item structure
   /// {
   ///   "id": number,
   ///   "text": string,
   ///   "locked": boolean
   /// }
-  code       Json[]
-  codeSize   Int?         @map("code_size")
-  language   Language
-  result     ResultStatus
-  score      Int          @default(0) /// 100점 만점 기준 점수
-  createTime DateTime     @default(now()) @map("create_time")
-  updateTime DateTime     @updatedAt @map("update_time")
+  code         Json[]
+  codeSize     Int?         @map("code_size")
+  language     Language
+  result       ResultStatus
+  score        Int          @default(0) /// 100점 만점 기준 점수
+  createTime   DateTime     @default(now()) @map("create_time")
+  updateTime   DateTime     @updatedAt @map("update_time")
 
   submissionResult SubmissionResult[]
 
@@ -425,7 +494,7 @@ enum ResultStatus {
   OutputLimitExceeded
   ServerError
   SegmentationFaultError
-  Blind // isJudgeResultVisible == False로 설정된 contest의 채점 결과를 반환할 때 사용
+  Blind // isJudgeResultVisible == False로 설정된 Assignment/Contest의 채점 결과를 반환할 때 사용
 }
 
 model CodeDraft {

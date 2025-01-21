@@ -1,12 +1,12 @@
 'use client'
 
-import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { Input } from '@/components/shadcn/input'
+import { cn } from '@/libs/utils'
 import { useFormContext } from 'react-hook-form'
 import { inputStyle } from '../_libs/utils'
-import ErrorMessage from './ErrorMessage'
+import { ErrorMessage } from './ErrorMessage'
 
-export default function TitleForm({ placeholder }: { placeholder: string }) {
+export function TitleForm({ placeholder }: { placeholder: string }) {
   const {
     register,
     formState: { errors }

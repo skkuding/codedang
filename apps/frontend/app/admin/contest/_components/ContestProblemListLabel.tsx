@@ -3,11 +3,11 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@/components/ui/tooltip'
+} from '@/components/shadcn/tooltip'
 import { MdHelpOutline } from 'react-icons/md'
-import Label from '../../_components/Label'
+import { Label } from '../../_components/Label'
 
-export default function ContestProblemListLabel() {
+export function ContestProblemListLabel() {
   return (
     <div className="flex items-center gap-2">
       <Label>Contest Problem List</Label>

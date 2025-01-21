@@ -1,10 +1,10 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
   DialogClose,
   DialogContent,
   DialogTrigger
-} from '@/components/ui/dialog'
+} from '@/components/shadcn/dialog'
 import { UPLOAD_PROBLEMS } from '@/graphql/problem/mutations'
 import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useApolloClient, useMutation } from '@apollo/client'
@@ -15,7 +15,7 @@ import { RiFileExcel2Fill } from 'react-icons/ri'
 import { useDrop } from 'react-use'
 import { toast } from 'sonner'
 
-export default function UploadDialog() {
+export function UploadDialog() {
   const client = useApolloClient()
   const [file, setFile] = useState<File | null>(null)
   const fileRef = useRef<HTMLInputElement | null>(null)
@@ -46,7 +46,9 @@ export default function UploadDialog() {
 
   const resetFile = () => {
     setFile(null)
-    if (fileRef.current) fileRef.current.value = ''
+    if (fileRef.current) {
+      fileRef.current.value = ''
+    }
   }
 
   const [uploadProblems, { loading }] = useMutation(UPLOAD_PROBLEMS)

@@ -16,13 +16,22 @@ import {
   IDValidationPipe,
   RequiredIntPipe
 } from '@libs/pipe'
-import { CreateSubmissionDto } from './class/create-submission.dto'
+import {
+  CreateSubmissionDto,
+  CreateUserTestSubmissionDto
+} from './class/create-submission.dto'
 import { SubmissionService } from './submission.service'
 
 @Controller('submission')
 export class SubmissionController {
   constructor(private readonly submissionService: SubmissionService) {}
 
+  /**
+   * 아직 채점되지 않은 제출 기록을 만들고, 채점 서버에 채점 요청을 보냅니다.
+   * 세 가지 제출 유형(일반 문제, 대회 문제, Workbook 문제)에 대해 제출할 수 있습니다.
+   * createSubmission은 제출 유형에 따라 다른 서비스 메소드를 호출합니다.
+   * @returns 아직 채점되지 않은 제출 기록
+   */
   @Post()
   async createSubmission(
     @Req() req: AuthenticatedRequest,
@@ -86,6 +95,33 @@ export class SubmissionController {
   @Get('test')
   async getTestResult(@Req() req: AuthenticatedRequest) {
     return await this.submissionService.getTestResult(req.user.id)
+  }
+
+  /**
+   * 유저가 생성한 테스트케이스에 대해 실행을 요청합니다.
+   * 채점 결과는 Cache에 저장됩니다.
+   */
+  @Post('user-test')
+  async submitUserTest(
+    @Req() req: AuthenticatedRequest,
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
+    @Body() userTestSubmissionDto: CreateUserTestSubmissionDto
+  ) {
+    return await this.submissionService.submitTest(
+      req.user.id,
+      problemId,
+      userTestSubmissionDto,
+      true
+    )
+  }
+
+  /**
+   * 유저가 생성한 테스트케이스에 대한 실행 결과를 조회합니다.
+   * @returns Testcase별 결과가 담겨있는 Object
+   */
+  @Get('user-test')
+  async getUserTestResult(@Req() req: AuthenticatedRequest) {
+    return await this.submissionService.getTestResult(req.user.id, true)
   }
 
   @Get('delay-cause')

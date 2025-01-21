@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import { useDataTable } from '../../_components/table/context'
 import type { ContestProblem } from '../_libs/schemas'
 import type { DataTableProblem } from './ImportProblemTableColumns'
@@ -7,7 +7,7 @@ interface ImportProblemButtonProps {
   onSelectedExport: (data: ContestProblem[]) => void
 }
 
-export default function ImportProblemButton({
+export function ImportProblemButton({
   onSelectedExport
 }: ImportProblemButtonProps) {
   const { table } = useDataTable<DataTableProblem>()

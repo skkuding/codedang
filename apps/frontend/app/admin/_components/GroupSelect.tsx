@@ -1,19 +1,19 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandItem,
   CommandList
-} from '@/components/ui/command'
+} from '@/components/shadcn/command'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger
-} from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
+} from '@/components/shadcn/popover'
+import { cn } from '@/libs/utils'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import * as React from 'react'
 
@@ -36,7 +36,7 @@ const groups = [
   }
 ]
 
-export default function GroupSelect() {
+export function GroupSelect() {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState(groups[0].id)
 

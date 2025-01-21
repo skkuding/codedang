@@ -1,5 +1,5 @@
-import CodeEditor from '@/components/CodeEditor'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { CodeEditor } from '@/components/CodeEditor'
+import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import {
   Table,
   TableBody,
@@ -7,12 +7,12 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from '@/components/ui/table'
-import { dateFormatter, fetcherWithAuth, getResultColor } from '@/lib/utils'
+} from '@/components/shadcn/table'
+import { dateFormatter, fetcherWithAuth, getResultColor } from '@/libs/utils'
 import type { SubmissionDetail } from '@/types/type'
 import { revalidateTag } from 'next/cache'
 import { IoIosLock } from 'react-icons/io'
-import dataIfError from '../_libs/dataIfError'
+import { dataIfError } from '../_libs/dataIfError'
 
 interface Props {
   problemId: number
@@ -20,7 +20,7 @@ interface Props {
   contestId: number
 }
 
-export default async function SubmissionDetail({
+export async function SubmissionDetail({
   problemId,
   submissionId,
   contestId
@@ -34,7 +34,7 @@ export default async function SubmissionDetail({
 
   const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
 
-  if (submission.result == 'Judging') {
+  if (submission.result === 'Judging') {
     revalidateTag(`submission/${submissionId}`)
   }
 
@@ -107,9 +107,7 @@ export default async function SubmissionDetail({
           </Table>
         </div>
       )}
-      {res.ok ? (
-        <></>
-      ) : (
+      {res.ok ? null : (
         <div className="absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1 backdrop-blur">
           <IoIosLock size={100} />
           <p className="mt-4 text-xl font-semibold">Access Denied</p>

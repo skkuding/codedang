@@ -1,12 +1,12 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { Button } from '@/components/shadcn/button'
+import { Input } from '@/components/shadcn/input'
+import { cn } from '@/libs/utils'
 // import { Separator } from '@/components/ui/separator'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
 // import KakaotalkLogo from '@/public/kakaotalk.svg'
-import useAuthModalStore from '@/stores/authModal'
+import { useAuthModalStore } from '@/stores/authModal'
 import { signIn } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -23,7 +23,7 @@ interface Inputs {
   password: string
 }
 
-export default function SignIn() {
+export function SignIn() {
   const [disableButton, setDisableButton] = useState(false)
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const { hideModal, showSignUp, showRecoverAccount } = useAuthModalStore(

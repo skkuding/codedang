@@ -2,15 +2,17 @@ import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
 import { toast } from 'sonner'
-import DataTable from '../../_components/table/DataTable'
-import DataTableFallback from '../../_components/table/DataTableFallback'
-import DataTableLangFilter from '../../_components/table/DataTableLangFilter'
-import DataTableLevelFilter from '../../_components/table/DataTableLevelFilter'
-import DataTablePagination from '../../_components/table/DataTablePagination'
-import DataTableRoot from '../../_components/table/DataTableRoot'
-import DataTableSearchBar from '../../_components/table/DataTableSearchBar'
+import {
+  DataTable,
+  DataTableFallback,
+  DataTableLangFilter,
+  DataTableLevelFilter,
+  DataTablePagination,
+  DataTableRoot,
+  DataTableSearchBar
+} from '../../_components/table'
 import type { ContestProblem } from '../_libs/schemas'
-import ImportProblemButton from './ImportProblemButton'
+import { ImportProblemButton } from './ImportProblemButton'
 import {
   columns,
   DEFAULT_PAGE_SIZE,
@@ -48,7 +50,7 @@ export function ImportProblemTable({
     isVisible: problem.isVisible !== undefined ? problem.isVisible : null,
     languages: problem.languages ?? [],
     tag: problem.tag.map(({ id, tag }) => ({
-      id: +id,
+      id: Number(id),
       tag: {
         ...tag,
         id: Number(tag.id)

@@ -1,16 +1,16 @@
-import EditorLayout from '@/components/EditorLayout'
+import { EditorLayout } from '@/app/(client)/(code-editor)/_components/EditorLayout'
 
-export default async function layout({
+export default function layout({
   params,
   children
 }: {
-  params: { problemId: number; contestId: number }
+  params: { problemId: string; contestId: string }
   children: React.ReactNode
 }) {
   const { problemId, contestId } = params
 
   return (
-    <EditorLayout problemId={problemId} contestId={contestId}>
+    <EditorLayout problemId={Number(problemId)} contestId={Number(contestId)}>
       {children}
     </EditorLayout>
   )

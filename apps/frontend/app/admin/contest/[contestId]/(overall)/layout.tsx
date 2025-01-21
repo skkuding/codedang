@@ -1,15 +1,15 @@
 'use client'
 
-import KatexContent from '@/components/KatexContent'
-import { Button } from '@/components/ui/button'
+import { KatexContent } from '@/components/KatexContent'
+import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST } from '@/graphql/contest/queries'
-import { dateFormatter } from '@/lib/utils'
+import { dateFormatter } from '@/libs/utils'
 import periodIcon from '@/public/icons/period.svg'
 import { useQuery } from '@apollo/client'
 import Image from 'next/image'
 import Link from 'next/link'
 import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
-import ContestOverallTabs from '../_components/ContestOverallTabs'
+import { ContestOverallTabs } from '../_components/ContestOverallTabs'
 
 export default function Layout({
   params,

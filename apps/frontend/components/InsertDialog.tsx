@@ -9,11 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger
-} from '@/components/ui/dialog'
+} from '@/components/shadcn/dialog'
 import type { Editor } from '@tiptap/core'
-import React from 'react'
-import { Button } from './ui/button'
-import { Toggle } from './ui/toggle'
+import { Button } from './shadcn/button'
+import { Toggle } from './shadcn/toggle'
 
 interface InsertDialogProps {
   editor: Editor | null
@@ -25,7 +24,7 @@ interface InsertDialogProps {
   onToggleClick?: () => void
 }
 
-export default function InsertDialog({
+export function InsertDialog({
   editor,
   activeType,
   title,

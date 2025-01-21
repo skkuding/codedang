@@ -1,17 +1,14 @@
-import { Input } from '@/components/ui/input'
+import { Input } from '@/components/shadcn/input'
+import { useSettingsContext } from './context'
 
-export default function IdSection({
-  isLoading,
-  defaultUsername
-}: {
-  isLoading: boolean
-  defaultUsername: string
-}) {
+export function IdSection() {
+  const { isLoading, defaultProfileValues } = useSettingsContext()
+
   return (
     <>
       <label className="-mb-4 text-xs">ID</label>
       <Input
-        placeholder={isLoading ? 'Loading...' : defaultUsername}
+        placeholder={isLoading ? 'Loading...' : defaultProfileValues.username}
         disabled={true}
         className="border-neutral-300 text-neutral-600 placeholder:text-neutral-400 disabled:bg-neutral-200"
       />

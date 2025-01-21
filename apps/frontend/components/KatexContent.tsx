@@ -1,16 +1,16 @@
 'use client'
 
-import { renderKatex } from '@/lib/renderKatex'
+import { renderKatex } from '@/libs/renderKatex'
 import { useEffect, useRef } from 'react'
 
-export default function KatexContent({
+export function KatexContent({
   content,
   classname
 }: {
   content: string | undefined
   classname?: string
 }) {
-  const katexRef = useRef<HTMLDivElement>(null)!
+  const katexRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     renderKatex(content, katexRef)
   }, [content, katexRef])

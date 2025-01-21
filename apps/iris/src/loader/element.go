@@ -1,8 +1,8 @@
 package loader
 
 type Element struct {
-	Id     int
-	In     string
-	Out    string
-	Hidden bool
+	Id     int    `json:"id"`
+	In     string `json:"in"`
+	Out    string `json:"out"`
+	Hidden bool   `json:"hidden"`
 }

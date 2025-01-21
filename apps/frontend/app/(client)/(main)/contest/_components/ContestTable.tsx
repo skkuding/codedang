@@ -7,8 +7,8 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from '@/components/ui/table'
-import { dateFormatter } from '@/lib/utils'
+} from '@/components/shadcn/table'
+import { dateFormatter } from '@/libs/utils'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
@@ -23,7 +23,7 @@ interface ContestTableProps {
   data: Contest[]
 }
 
-export default function ContestTable({ data }: ContestTableProps) {
+export function ContestTable({ data }: ContestTableProps) {
   const columns: ColumnDef<Contest>[] = [
     {
       header: 'Name',

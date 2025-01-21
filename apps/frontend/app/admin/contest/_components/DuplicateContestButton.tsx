@@ -10,24 +10,24 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogAction
-} from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
+} from '@/components/shadcn/alert-dialog'
+import { Button } from '@/components/shadcn/button'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@/components/ui/tooltip'
+} from '@/components/shadcn/tooltip'
 import { DUPLICATE_CONTEST } from '@/graphql/contest/mutations'
 import { GET_CONTESTS } from '@/graphql/contest/queries'
-import { getStatusWithStartEnd } from '@/lib/utils'
+import { getStatusWithStartEnd } from '@/libs/utils'
 import { useApolloClient, useMutation } from '@apollo/client'
 import { CopyIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { useDataTable } from '../../_components/table/context'
 import type { DataTableContest } from './ContestTableColumns'
 
-export default function DuplicateContestButton() {
+export function DuplicateContestButton() {
   const { table } = useDataTable<DataTableContest>()
 
   return table.getSelectedRowModel().rows.length === 1 ? (
@@ -48,10 +48,12 @@ function DisabledDuplicateButton() {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button className="ml-auto" variant="default" size="default" disabled>
-            <CopyIcon className="mr-2 h-4 w-4" />
-            Duplicate
-          </Button>
+          <span tabIndex={0} className="ml-auto cursor-not-allowed self-end">
+            <Button variant="default" size="default" disabled>
+              <CopyIcon className="mr-2 h-4 w-4" />
+              Duplicate
+            </Button>
+          </span>
         </TooltipTrigger>
         <TooltipContent>
           <p> Select only one contest to duplicate</p>
@@ -73,7 +75,7 @@ function EnabledDuplicateButton({
   const client = useApolloClient()
   const [duplicateContest] = useMutation(DUPLICATE_CONTEST)
 
-  const duplicateContestById = async () => {
+  const duplicateContestById = () => {
     const toastId = toast.loading('Duplicating contest...')
 
     duplicateContest({

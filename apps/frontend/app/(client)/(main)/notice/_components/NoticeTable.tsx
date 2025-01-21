@@ -1,5 +1,5 @@
-import DataTable from '@/components/DataTable'
-import { fetcher } from '@/lib/utils'
+import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
+import { fetcher } from '@/libs/utils'
 import type { Notice } from '@/types/type'
 import { columns } from './Columns'
 
@@ -36,7 +36,7 @@ const getNotices = async (search: string) => {
   return noticesRes.data ?? noticesRes
 }
 
-export default async function NoticeTable({ search }: Props) {
+export async function NoticeTable({ search }: Props) {
   const fixedNoticesFetcher: Promise<Notice[]> | Notice[] =
     search !== '' ? [] : getFixedNotices()
 

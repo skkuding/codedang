@@ -1,17 +1,17 @@
 'use client'
 
-import KatexContent from '@/components/KatexContent'
-import Paginator from '@/components/Paginator'
-import { Button } from '@/components/ui/button'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { KatexContent } from '@/components/KatexContent'
+import { Paginator } from '@/components/Paginator'
+import { Button } from '@/components/shadcn/button'
+import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { GET_PROBLEM_DETAIL } from '@/graphql/problem/queries'
-import { usePagination } from '@/lib/pagination'
+import { usePagination } from '@/libs/hooks/usePagination'
 import type { SubmissionItem } from '@/types/type'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
 import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
 import { columns } from './_components/Columns'
-import DataTable from './_components/DataTable'
+import { DataTable } from './_components/DataTable'
 
 export default function Page({ params }: { params: { problemId: string } }) {
   const { problemId } = params

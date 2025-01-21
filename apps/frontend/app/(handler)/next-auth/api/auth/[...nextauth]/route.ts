@@ -1,4 +1,4 @@
-import { authOptions } from '@/lib/auth/authOptions'
+import { authOptions } from '@/libs/auth/authOptions'
 import NextAuth from 'next-auth'
 import type { NextRequest } from 'next/server'
 
@@ -6,7 +6,7 @@ interface RouteHandlerContext {
   params: { nextauth: string[] }
 }
 
-const handler = async (req: NextRequest, res: RouteHandlerContext) => {
+const handler = (req: NextRequest, res: RouteHandlerContext) => {
   return NextAuth(req, res, authOptions)
 }
 

@@ -3,14 +3,14 @@ import {
   DialogTrigger,
   DialogContent,
   DialogHeader
-} from '@/components/ui/dialog'
-import { Skeleton } from '@/components/ui/skeleton'
+} from '@/components/shadcn/dialog'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@/components/ui/tooltip'
+} from '@/components/shadcn/tooltip'
 import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import fileInfoIcon from '@/public/icons/file-info.svg'
 import { useQuery } from '@apollo/client'
@@ -25,7 +25,9 @@ function ContestSection({
   title: string
   contests?: { id: string; title: string }[]
 }) {
-  if (!contests || contests.length === 0) return null
+  if (!contests || contests.length === 0) {
+    return null
+  }
 
   return (
     <div>
@@ -39,11 +41,7 @@ function ContestSection({
   )
 }
 
-export default function ContainedContests({
-  problemId
-}: {
-  problemId: number
-}) {
+export function ContainedContests({ problemId }: { problemId: number }) {
   const [isTooltipOpen, setIsTooltipOpen] = useState(false)
   const { data, loading } = useQuery(GET_BELONGED_CONTESTS, {
     variables: {

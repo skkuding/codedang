@@ -1,6 +1,6 @@
 'use client'
 
-import { dateFormatter } from '@/lib/utils'
+import { dateFormatter } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-gray.svg'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -35,8 +35,9 @@ export const columns: ColumnDef<Contest>[] = [
     header: 'Period',
     accessorKey: 'period',
     cell: ({ row }) =>
-      dateFormatter(row.original.startTime, 'YYYY-MM-DD') +
-      ' ~ ' +
-      dateFormatter(row.original.endTime, 'YYYY-MM-DD')
+      `${dateFormatter(row.original.startTime, 'YYYY-MM-DD')} ~ ${dateFormatter(
+        row.original.endTime,
+        'YYYY-MM-DD'
+      )}`
   }
 ]

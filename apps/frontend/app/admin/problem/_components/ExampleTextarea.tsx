@@ -1,5 +1,5 @@
-import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
+import { Textarea } from '@/components/shadcn/textarea'
+import { cn } from '@/libs/utils'
 import { RxCross2 } from 'react-icons/rx'
 
 interface ExampleTextareaProps {
@@ -12,7 +12,7 @@ interface ExampleTextareaProps {
   register: any
   blockEdit?: boolean
 }
-export default function ExampleTextarea({
+export function ExampleTextarea({
   onRemove,
   inputName,
   outputName,

@@ -1,12 +1,17 @@
 'use client'
 
-import DataTable from '@/app/admin/_components/table/DataTable'
-import DataTableFallback from '@/app/admin/_components/table/DataTableFallback'
-import DataTablePagination from '@/app/admin/_components/table/DataTablePagination'
-import DataTableProblemFilter from '@/app/admin/_components/table/DataTableProblemFilter'
-import DataTableRoot from '@/app/admin/_components/table/DataTableRoot'
+import {
+  DataTableRoot,
+  DataTableProblemFilter,
+  DataTable,
+  DataTablePagination,
+  DataTableFallback
+} from '@/app/admin/_components/table'
+import { SubmissionDetailAdmin } from '@/app/admin/contest/[contestId]/_components/SubmissionDetailAdmin'
+import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER } from '@/graphql/contest/queries'
 import { useSuspenseQuery } from '@apollo/client'
+import { useState } from 'react'
 import { submissionColumns } from './SubmissionColumns'
 
 export function SubmissionTable({
@@ -22,20 +27,37 @@ export function SubmissionTable({
       variables: { contestId, userId, take: 1000 }
     }
   )
+  const [isSubmissionDialogOpen, setIsSubmissionDialogOpen] = useState(false)
+  const [submissionId, setSubmissionId] = useState(0)
 
   const submissionsData =
     submissions.data.getContestSubmissionSummaryByUserId.submissions
 
   return (
-    <DataTableRoot
-      columns={submissionColumns}
-      data={submissionsData}
-      defaultSortState={[{ id: 'submissionTime', desc: true }]}
-    >
-      <DataTableProblemFilter contestId={contestId} />
-      <DataTable />
-      <DataTablePagination />
-    </DataTableRoot>
+    <>
+      <DataTableRoot
+        columns={submissionColumns}
+        data={submissionsData}
+        defaultSortState={[{ id: 'submissionTime', desc: true }]}
+      >
+        <DataTableProblemFilter contestId={contestId} />
+        <DataTable
+          onRowClick={(_, row) => {
+            setSubmissionId(row.original.id)
+            setIsSubmissionDialogOpen(true)
+          }}
+        />
+        <DataTablePagination />
+      </DataTableRoot>
+      <Dialog
+        open={isSubmissionDialogOpen}
+        onOpenChange={setIsSubmissionDialogOpen}
+      >
+        <DialogContent className="max-h-[840px] max-w-[1000px] justify-center">
+          <SubmissionDetailAdmin submissionId={submissionId} />
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 
