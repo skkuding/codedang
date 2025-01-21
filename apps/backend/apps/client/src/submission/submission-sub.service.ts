@@ -131,7 +131,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
       return
     }
-    console.log('msg', msg)
     const key = isUserTest
       ? userTestKey(userId, testcaseId)
       : testKey(userId, testcaseId)

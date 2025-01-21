@@ -583,7 +583,7 @@ export class SubmissionService {
       testcaseIds.push(rawTestcase.id)
     }
     await this.cacheManager.set(testcasesKey(testSubmissionId), testcaseIds)
-
+    testSubmission.id = testSubmissionId
     await this.publish.publishJudgeRequestMessage(code, testSubmission, true)
   }
 
@@ -624,7 +624,7 @@ export class SubmissionService {
       testcaseIds.push(testcase.id)
     }
     await this.cacheManager.set(userTestcasesKey(testSubmissionId), testcaseIds)
-
+    testSubmission.id = testSubmissionId
     await this.publish.publishJudgeRequestMessage(
       code,
       testSubmission,
@@ -684,9 +684,7 @@ export class SubmissionService {
         }
       })
 
-      testSubmission.id = submission.id
       await this.createTestSubmissionResults(submission, userTestcases)
-      await this.publish.publishJudgeRequestMessage(codeSnippet, testSubmission)
       return submission
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
