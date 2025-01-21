@@ -570,17 +570,19 @@ export class SubmissionService {
       }
     })
 
+    const testSubmissionId = (
+      await this.createTestSubmission(testSubmission, code, false)
+    ).id
     const testcaseIds: number[] = []
     for (const rawTestcase of rawTestcases) {
       await this.cacheManager.set(
-        testKey(userId, rawTestcase.id),
+        testKey(testSubmissionId, rawTestcase.id),
         { id: rawTestcase.id, result: 'Judging' },
         TEST_SUBMISSION_EXPIRE_TIME
       )
       testcaseIds.push(rawTestcase.id)
     }
-    await this.cacheManager.set(testcasesKey(userId), testcaseIds)
-    await this.createTestSubmission(testSubmission, code, false)
+    await this.cacheManager.set(testcasesKey(testSubmissionId), testcaseIds)
 
     await this.publish.publishJudgeRequestMessage(code, testSubmission, true)
   }
@@ -609,16 +611,19 @@ export class SubmissionService {
     userTestcases: { id: number; in: string; out: string }[]
   ): Promise<void> {
     const testcaseIds: number[] = []
+
+    const testSubmissionId = (
+      await this.createTestSubmission(testSubmission, code, true, userTestcases)
+    ).id
     for (const testcase of userTestcases) {
       await this.cacheManager.set(
-        userTestKey(userId, testcase.id),
+        userTestKey(testSubmissionId, testcase.id),
         { id: testcase.id, result: 'Judging' },
         TEST_SUBMISSION_EXPIRE_TIME
       )
       testcaseIds.push(testcase.id)
     }
-    await this.cacheManager.set(userTestcasesKey(userId), testcaseIds)
-    await this.createTestSubmission(testSubmission, code, true, userTestcases)
+    await this.cacheManager.set(userTestcasesKey(testSubmissionId), testcaseIds)
 
     await this.publish.publishJudgeRequestMessage(
       code,
@@ -679,8 +684,8 @@ export class SubmissionService {
         }
       })
 
+      testSubmission.id = submission.id
       await this.createTestSubmissionResults(submission, userTestcases)
-
       await this.publish.publishJudgeRequestMessage(codeSnippet, testSubmission)
       return submission
     } catch (error) {
@@ -725,6 +730,7 @@ export class SubmissionService {
           return {
             testSubmissionId: testSubmission.id,
             result: ResultStatus.Judging,
+            userTestcaseId: userTestcase.id,
             TestInput: userTestcase.in,
             TestOutput: userTestcase.out,
             isUserTest: true
