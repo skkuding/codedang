@@ -1,7 +1,7 @@
 'use client'
 
-import { submissionQueries } from '@/app/(client)/_libs/queries/submission'
-import CodeEditor from '@/components/CodeEditor'
+import { contestSubmissionQueries } from '@/app/(client)/_libs/queries/contestSubmission'
+import { CodeEditor } from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import {
@@ -13,7 +13,7 @@ import {
   TableRow
 } from '@/components/shadcn/table'
 import { dateFormatter, getResultColor } from '@/libs/utils'
-import type { ContestProblem, Language } from '@/types/type'
+import type { ContestProblem } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
 
 interface SubmissionDetailProps {
@@ -28,7 +28,7 @@ export function SubmissionDetailContent({
   problem
 }: SubmissionDetailProps) {
   const { data: submission } = useSuspenseQuery(
-    submissionQueries.detail({
+    contestSubmissionQueries.detail({
       contestId,
       submissionId,
       problemId: problem.id
@@ -109,11 +109,7 @@ export function SubmissionDetailContent({
                       </TableCell>
                       <TableCell>{item.cpuTime} ms</TableCell>
                       <TableCell>
-                        {(
-                          (item?.memoryUsage as number) /
-                          (1024 * 1024)
-                        ).toFixed(2)}{' '}
-                        MB
+                        {(item?.memoryUsage / (1024 * 1024)).toFixed(2)} MB
                       </TableCell>
                     </TableRow>
                   ))}
@@ -125,7 +121,7 @@ export function SubmissionDetailContent({
           <h2 className="mb-3 font-bold">Source Code</h2>
           <CodeEditor
             value={submission?.code}
-            language={submission?.language as Language}
+            language={submission?.language}
             readOnly
             className="max-h-96 min-h-16 w-full"
           />

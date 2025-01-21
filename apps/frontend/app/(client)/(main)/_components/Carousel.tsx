@@ -27,7 +27,7 @@ const bgColors: { [key: string]: string } = {
   skkuding: 'bg-gradient-to-r from-[#41775D] to-[#123D29]'
 }
 
-export default function Carousel({ slides }: Props) {
+export function Carousel({ slides }: Props) {
   const [facade, setFacade] = useState(0)
 
   useEffect(() => {

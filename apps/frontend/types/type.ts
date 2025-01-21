@@ -63,7 +63,7 @@ export interface ContestProblem {
   difficulty: Level
   order: number
   submissionCount: number
-  maxScore: number
+  maxScore: number | null
   score: string | null
   submissionTime: string | null
   acceptedRate: number

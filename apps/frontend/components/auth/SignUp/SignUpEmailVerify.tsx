@@ -1,29 +1,29 @@
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
 import { baseUrl } from '@/libs/constants'
-import { cn } from '@/libs/utils'
-import useSignUpModalStore from '@/stores/signUpModal'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { cn, isHttpError, safeFetcher } from '@/libs/utils'
+import { useSignUpModalStore } from '@/stores/signUpModal'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import React, { useState, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import * as v from 'valibot'
 
 interface EmailVerifyInput {
   email: string
   verificationCode: string
 }
 
-const schema = z.object({
-  email: z.string().email({ message: 'Invalid email address' }),
-  verificationCode: z
-    .string()
-    .min(6, { message: 'Code must be 6 characters long' })
-    .max(6, { message: 'Code must be 6 characters long' })
+const schema = v.object({
+  email: v.pipe(v.string(), v.email('Invalid email address')),
+  verificationCode: v.pipe(
+    v.string(),
+    v.length(6, 'Code must be 6 characters long')
+  )
 })
 
 const timeLimit = 300
 
-export default function SignUpEmailVerify() {
+export function SignUpEmailVerify() {
   const [timer, setTimer] = useState(timeLimit)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const previousTimeRef = useRef(Date.now())
@@ -37,7 +37,7 @@ export default function SignUpEmailVerify() {
     clearErrors,
     formState: { errors }
   } = useForm<EmailVerifyInput>({
-    resolver: zodResolver(schema)
+    resolver: valibotResolver(schema)
   })
   const [sentEmail, setSentEmail] = useState<boolean>(false)
   const [emailError, setEmailError] = useState<string>('')
@@ -94,34 +94,35 @@ export default function SignUpEmailVerify() {
     setEmailContent(email)
     setEmailError('')
     await trigger('email')
-    if (!errors.email) {
-      await fetch(baseUrl + '/email-auth/send-email/register-new', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      })
-        .then((res) => {
-          if (res.status === 409) {
-            setEmailError('You have already signed up')
-            setSendButtonDisabled(false)
-          } else if (res.status === 201) {
-            setSentEmail(true)
-            setEmailError('')
-            setSendButtonDisabled(false)
-          }
-        })
-        .catch(() => {
-          setEmailError('Something went wrong!')
-        })
+
+    if (errors.email) {
+      setSendButtonDisabled(false)
+      return
     }
-    setSendButtonDisabled(false)
+
+    try {
+      await safeFetcher.post('email-auth/send-email/register-new', {
+        json: { email }
+      })
+      setSentEmail(true)
+      setEmailError('')
+    } catch (error) {
+      if (isHttpError(error) && error.response.status === 409) {
+        setEmailError('You have already signed up')
+      } else {
+        setEmailError('Something went wrong!')
+      }
+    } finally {
+      setSendButtonDisabled(false)
+    }
   }
+
   const verifyCode = async () => {
     const { verificationCode } = getValues()
     await trigger('verificationCode')
     if (!errors.verificationCode) {
       try {
-        const response = await fetch(baseUrl + '/email-auth/verify-pin', {
+        const response = await fetch(`${baseUrl}/email-auth/verify-pin`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -166,7 +167,7 @@ export default function SignUpEmailVerify() {
             placeholder="example@g.skku.edu"
             {...register('email')}
             onFocus={() => clearErrors('email')}
-            onKeyDown={async (e) => {
+            onKeyDown={(e) => {
               if (e.key === 'Enter' && !sendButtonDisabled) {
                 e.preventDefault()
                 setSendButtonDisabled(true)
@@ -228,42 +229,52 @@ export default function SignUpEmailVerify() {
           )}
         </div>
       )}
+      {(() => {
+        if (!sentEmail) {
+          return (
+            <Button
+              type="button"
+              className="mt-4 w-full font-semibold"
+              disabled={sendButtonDisabled}
+              onClick={() => {
+                setSendButtonDisabled(true)
+                sendEmail()
+              }}
+            >
+              Send Email
+            </Button>
+          )
+        }
 
-      {!sentEmail ? (
-        <Button
-          type="button"
-          className="mt-4 w-full font-semibold"
-          disabled={sendButtonDisabled}
-          onClick={() => {
-            setSendButtonDisabled(true)
-            sendEmail()
-          }}
-        >
-          Send Email
-        </Button>
-      ) : !expired ? (
-        <Button
-          type="submit"
-          className={cn(
-            'mt-2 w-full font-semibold',
-            (!emailVerified || !!errors.verificationCode) && 'bg-gray-400'
-          )}
-          disabled={!emailVerified || !!errors.verificationCode}
-        >
-          Next
-        </Button>
-      ) : (
-        <Button
-          className="mt-2 w-full font-semibold"
-          onClick={() => {
-            setExpired(false)
-            setTimer(timeLimit)
-            sendEmail()
-          }}
-        >
-          Resend Email
-        </Button>
-      )}
+        if (!expired) {
+          return (
+            <Button
+              type="submit"
+              className={cn(
+                'mt-2 w-full font-semibold',
+                (!emailVerified || Boolean(errors.verificationCode)) &&
+                  'bg-gray-400'
+              )}
+              disabled={!emailVerified || Boolean(errors.verificationCode)}
+            >
+              Next
+            </Button>
+          )
+        }
+
+        return (
+          <Button
+            className="mt-2 w-full font-semibold"
+            onClick={() => {
+              setExpired(false)
+              setTimer(timeLimit)
+              sendEmail()
+            }}
+          >
+            Resend Email
+          </Button>
+        )
+      })()}
     </form>
   )
 }

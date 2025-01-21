@@ -26,18 +26,7 @@ export class CodeDraftController {
     @Req() req: AuthenticatedRequest,
     @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
-    try {
-      return await this.codeDraftService.getCodeDraft(req.user.id, problemId)
-    } catch (err) {
-      if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.name === 'NotFoundError'
-      ) {
-        throw new NotFoundException(err.message)
-      }
-      this.logger.error(err)
-      throw new InternalServerErrorException()
-    }
+    return await this.codeDraftService.getCodeDraft(req.user.id, problemId)
   }
 
   @Put()

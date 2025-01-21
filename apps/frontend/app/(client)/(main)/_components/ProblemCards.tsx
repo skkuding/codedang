@@ -1,9 +1,9 @@
 import { Button } from '@/components/shadcn/button'
 import Link from 'next/link'
 import { getProblemList } from '../../_libs/apis/problem'
-import ProblemCard from './ProblemCard'
+import { ProblemCard } from './ProblemCard'
 
-export default async function ProblemCards() {
+export async function ProblemCards() {
   const { data: problems } = await getProblemList({
     take: 3,
     order: 'submit-desc'

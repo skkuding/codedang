@@ -7,7 +7,8 @@ interface AuthModalStore {
   showRecoverAccount: () => void
   hideModal: () => void
 }
-const useAuthModalStore = create<AuthModalStore>(
+
+export const useAuthModalStore = create<AuthModalStore>(
   (set: (arg: { currentModal: string }) => void) => ({
     currentModal: '',
     hideModal: () => set({ currentModal: '' }),
@@ -31,5 +32,3 @@ const useAuthModalStore = create<AuthModalStore>(
     }
   })
 )
-
-export default useAuthModalStore

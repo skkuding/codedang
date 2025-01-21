@@ -29,11 +29,7 @@ interface SubmissionSummary {
   problemId: number
 }
 
-export default function ContestOverallTabs({
-  contestId
-}: {
-  contestId: string
-}) {
+export function ContestOverallTabs({ contestId }: { contestId: string }) {
   const id = parseInt(contestId, 10)
   const pathname = usePathname()
 
@@ -145,7 +141,9 @@ export default function ContestOverallTabs({
     }) || []
 
   const isCurrentTab = (tab: string) => {
-    if (tab === '') return pathname === `/admin/contest/${id}`
+    if (tab === '') {
+      return pathname === `/admin/contest/${id}`
+    }
     return pathname.startsWith(`/admin/contest/${id}/${tab}`)
   }
 

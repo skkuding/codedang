@@ -4,7 +4,6 @@ interface FormData {
   email: string
   verificationCode: string
   headers: {
-    /* eslint-disable-next-line @typescript-eslint/naming-convention */
     'email-auth': string
   }
 }
@@ -14,7 +13,6 @@ interface SignUpModalStore {
     email: string
     verificationCode: string
     headers: {
-      /* eslint-disable-next-line @typescript-eslint/naming-convention */
       'email-auth': string
     }
   }
@@ -23,13 +21,13 @@ interface SignUpModalStore {
   nextModal: () => void
   backModal: () => void
 }
-const useSignUpModalStore = create<SignUpModalStore>((set) => ({
+
+export const useSignUpModalStore = create<SignUpModalStore>((set) => ({
   modalPage: 0,
   formData: {
     email: '',
     verificationCode: '',
     headers: {
-      /* eslint-disable-next-line @typescript-eslint/naming-convention */
       'email-auth': ''
     }
   },
@@ -44,5 +42,3 @@ const useSignUpModalStore = create<SignUpModalStore>((set) => ({
       modalPage: state.modalPage - 1
     }))
 }))
-
-export default useSignUpModalStore

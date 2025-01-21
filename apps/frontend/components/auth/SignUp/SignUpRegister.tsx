@@ -21,12 +21,11 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
-import { baseUrl } from '@/libs/constants'
 import { majors } from '@/libs/constants'
-import { cn } from '@/libs/utils'
+import { cn, isHttpError, safeFetcher } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-white.svg'
-import useSignUpModalStore from '@/stores/signUpModal'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useSignUpModalStore } from '@/stores/signUpModal'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { CommandList } from 'cmdk'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
@@ -34,7 +33,7 @@ import { useForm } from 'react-hook-form'
 import { FaCheck, FaChevronDown, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { IoWarningOutline } from 'react-icons/io5'
 import { toast } from 'sonner'
-import { z } from 'zod'
+import * as v from 'valibot'
 
 interface SignUpFormInput {
   username: string
@@ -60,43 +59,48 @@ const FIELD_NAMES = [
 type Field = (typeof FIELD_NAMES)[number]
 const fields: Field[] = [...FIELD_NAMES]
 
-const schema = z
-  .object({
-    username: z
-      .string()
-      .min(1, { message: 'Required' })
-      .regex(/^[a-z0-9]{3,10}$/),
-    password: z
-      .string()
-      .min(1, { message: 'Required' })
-      .min(8)
-      .max(20)
-      .refine((data) => {
+const schema = v.pipe(
+  v.object({
+    username: v.pipe(
+      v.string(),
+      v.minLength(1, 'Required'),
+      v.regex(/^[a-z0-9]{3,10}$/)
+    ),
+    password: v.pipe(
+      v.string(),
+      v.minLength(8, 'Required'),
+      v.maxLength(20),
+      v.check((data) => {
         const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
         return !invalidPassword.test(data)
-      }),
-    passwordAgain: z.string().min(1, { message: 'Required' }),
-    studentId: z
-      .string()
-      .min(1, { message: 'Required' })
-      .regex(/^[0-9]{10}$/, { message: 'only 10 numbers' }),
-    firstName: z
-      .string()
-      .min(1, { message: 'Required' })
-      .regex(/^[a-zA-Z]+$/, { message: 'only English supported' }),
-    lastName: z
-      .string()
-      .min(1, { message: 'Required' })
-      .regex(/^[a-zA-Z]+$/, { message: 'only English supported' })
-  })
-  .refine(
-    (data: { password: string; passwordAgain: string }) =>
-      data.password === data.passwordAgain,
-    {
-      message: 'Incorrect',
-      path: ['passwordAgain']
-    }
+      })
+    ),
+    passwordAgain: v.pipe(v.string(), v.minLength(1, 'Required')),
+    studentId: v.pipe(
+      v.string(),
+      v.minLength(1, 'Required'),
+      v.regex(/^[0-9]{10}$/, 'only 10 numbers')
+    ),
+    firstName: v.pipe(
+      v.string(),
+      v.minLength(1, 'Required'),
+      v.regex(/^[a-zA-Z]+$/, 'only English supported')
+    ),
+    lastName: v.pipe(
+      v.string(),
+      v.minLength(1, 'Required'),
+      v.regex(/^[a-zA-Z]+$/, 'only English supported')
+    )
+  }),
+  v.forward(
+    v.partialCheck(
+      [['password'], ['passwordAgain']],
+      (input) => input.password === input.passwordAgain,
+      'Incorrect'
+    ),
+    ['passwordAgain']
   )
+)
 
 export function requiredMessage(message?: string) {
   return (
@@ -107,7 +111,7 @@ export function requiredMessage(message?: string) {
   )
 }
 
-export default function SignUpRegister() {
+export function SignUpRegister() {
   const formData = useSignUpModalStore((state) => state.formData)
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
@@ -140,7 +144,7 @@ export default function SignUpRegister() {
     trigger,
     formState: { errors, isDirty }
   } = useForm<SignUpFormInput>({
-    resolver: zodResolver(schema),
+    resolver: valibotResolver(schema),
     defaultValues: {
       username: '',
       password: ''
@@ -182,13 +186,11 @@ export default function SignUpRegister() {
     const fullName = `${data.firstName} ${data.lastName}`
     try {
       setSignUpDisable(true)
-      await fetch(baseUrl + '/user/sign-up', {
-        method: 'POST',
+      await safeFetcher.post('user/sign-up', {
         headers: {
-          ...formData.headers,
-          'Content-Type': 'application/json'
+          ...formData.headers
         },
-        body: JSON.stringify({
+        json: {
           password: data.password,
           passwordAgain: data.passwordAgain,
           realName: fullName,
@@ -197,13 +199,10 @@ export default function SignUpRegister() {
           username: data.username,
           email: formData.email,
           verificationCode: formData.verificationCode
-        })
-      }).then((res) => {
-        if (res.status === 201) {
-          document.getElementById('closeDialog')?.click()
-          toast.success('Sign up succeeded!')
         }
       })
+      document.getElementById('closeDialog')?.click()
+      toast.success('Sign up succeeded!')
     } catch (error) {
       toast.error('Sign up failed!')
       setSignUpDisable(false)
@@ -216,23 +215,22 @@ export default function SignUpRegister() {
   const checkUserName = async () => {
     const username = getValues('username')
     await trigger('username')
-    if (!errors.username) {
-      try {
-        await fetch(baseUrl + `/user/username-check?username=${username}`, {
-          method: 'GET'
-        }).then((res) => {
-          setCheckedUsername(username)
-          if (res.status === 200) {
-            setIsUsernameAvailable(true)
-          } else {
-            setIsUsernameAvailable(false)
-          }
-        })
-      } catch (err) {
-        console.log(err)
+
+    if (errors.username) {
+      updateFocus(0)
+      return
+    }
+
+    try {
+      await safeFetcher.get(`user/username-check?username=${username}`)
+      setCheckedUsername(username)
+      setIsUsernameAvailable(true)
+    } catch (error) {
+      if (isHttpError(error)) {
+        setCheckedUsername(username)
+        setIsUsernameAvailable(false)
       }
     }
-    updateFocus(0)
   }
 
   const isRequiredError =
@@ -260,13 +258,12 @@ export default function SignUpRegister() {
               placeholder="User ID"
               className={cn(
                 'focus-visible:ring-0',
-                !focusedList[1]
-                  ? ''
-                  : errors.username &&
-                      (getValues('username') || inputFocus !== 1)
-                    ? 'border-red-500 focus-visible:border-red-500'
-                    : 'border-primary',
-
+                focusedList[1] &&
+                  getInputBorderClassname(
+                    inputFocus === 1,
+                    Boolean(errors.username),
+                    getValues('username')
+                  ),
                 !isUsernameAvailable &&
                   getValues('username') &&
                   (checkedUsername === getValues('username') ||
@@ -295,18 +292,16 @@ export default function SignUpRegister() {
               type="button"
               className={cn(
                 ((isUsernameAvailable &&
-                  checkedUsername == getValues('username')) ||
+                  checkedUsername === getValues('username')) ||
                   errors.username) &&
                   'bg-gray-400',
                 'flex h-8 w-11 items-center justify-center rounded-md'
               )}
-              disabled={
+              disabled={Boolean(
                 (isUsernameAvailable &&
-                  checkedUsername == getValues('username')) ||
-                errors.username
-                  ? true
-                  : false
-              }
+                  checkedUsername === getValues('username')) ||
+                  errors.username
+              )}
               size="icon"
             >
               <Image src={checkIcon} alt="check" />
@@ -361,12 +356,12 @@ export default function SignUpRegister() {
               placeholder="Password"
               className={cn(
                 'focus-visible:ring-0',
-                !focusedList[2]
-                  ? ''
-                  : errors.password &&
-                      (getValues('password') || inputFocus !== 2)
-                    ? 'border-red-500 focus-visible:border-red-500'
-                    : 'border-primary'
+                focusedList[2] &&
+                  getInputBorderClassname(
+                    inputFocus === 2,
+                    Boolean(errors.password),
+                    getValues('password')
+                  )
               )}
               {...register('password', {
                 onChange: () => validation('password')
@@ -405,7 +400,7 @@ export default function SignUpRegister() {
             ))}
           {inputFocus !== 2 &&
             errors.password &&
-            (errors.password.message == 'Required' ? (
+            (errors.password.message === 'Required' ? (
               requiredMessage('Required')
             ) : (
               <ul className="pl-4 text-xs text-red-500">
@@ -424,12 +419,12 @@ export default function SignUpRegister() {
               })}
               className={cn(
                 'focus-visible:ring-0',
-                !focusedList[3]
-                  ? ''
-                  : errors.passwordAgain &&
-                      (getValues('passwordAgain') || inputFocus !== 3)
-                    ? 'border-red-500 focus-visible:border-red-500'
-                    : 'border-primary'
+                focusedList[3] &&
+                  getInputBorderClassname(
+                    inputFocus === 3,
+                    Boolean(errors.passwordAgain),
+                    getValues('passwordAgain')
+                  )
               )}
               placeholder="Re-enter password"
               type={passwordAgainShow ? 'text' : 'password'}
@@ -462,12 +457,12 @@ export default function SignUpRegister() {
               })}
               className={cn(
                 'focus-visible:ring-0',
-                !focusedList[4]
-                  ? ''
-                  : errors.firstName &&
-                      (getValues('firstName') || inputFocus !== 4)
-                    ? 'border-red-500 focus-visible:border-red-500'
-                    : 'border-primary'
+                focusedList[4] &&
+                  getInputBorderClassname(
+                    inputFocus === 4,
+                    Boolean(errors.firstName),
+                    getValues('firstName')
+                  )
               )}
               onFocus={() => {
                 updateFocus(4)
@@ -485,12 +480,12 @@ export default function SignUpRegister() {
               })}
               className={cn(
                 'focus-visible:ring-0',
-                !focusedList[5]
-                  ? ''
-                  : errors.lastName &&
-                      (getValues('lastName') || inputFocus !== 5)
-                    ? 'border-red-500 focus-visible:border-red-500'
-                    : 'border-primary'
+                focusedList[5] &&
+                  getInputBorderClassname(
+                    inputFocus === 5,
+                    Boolean(errors.lastName),
+                    getValues('lastName')
+                  )
               )}
               onFocus={() => {
                 updateFocus(5)
@@ -509,12 +504,12 @@ export default function SignUpRegister() {
             })}
             className={cn(
               'focus-visible:ring-0',
-              !focusedList[6]
-                ? ''
-                : errors.studentId &&
-                    (getValues('studentId') || inputFocus !== 6)
-                  ? 'border-red-500 focus-visible:border-red-500'
-                  : 'border-primary'
+              focusedList[6] &&
+                getInputBorderClassname(
+                  inputFocus === 6,
+                  Boolean(errors.studentId),
+                  getValues('studentId')
+                )
             )}
             onFocus={() => {
               updateFocus(6)
@@ -610,4 +605,18 @@ export default function SignUpRegister() {
       </form>
     </div>
   )
+}
+
+const getInputBorderClassname = (
+  isFocus: boolean,
+  error: boolean,
+  value: string
+) => {
+  let className = 'border-primary'
+
+  if (error && (value || !isFocus)) {
+    className = 'border-red-500 focus-visible:border-red-500'
+  }
+
+  return className
 }

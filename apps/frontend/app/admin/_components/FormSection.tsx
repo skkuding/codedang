@@ -1,4 +1,4 @@
-export default function FormSection({
+export function FormSection({
   children,
   title,
   isLabeled = true

@@ -2,27 +2,27 @@
 
 import { safeFetcherWithAuth } from '@/libs/utils'
 import type { SettingsFormat } from '@/types/type'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import ConfirmModal from './_components/ConfirmModal'
-import CurrentPwSection from './_components/CurrentPwSection'
-import IdSection from './_components/IdSection'
-import LogoSection from './_components/LogoSection'
-import MajorSection from './_components/MajorSection'
-import NameSection from './_components/NameSection'
-import NewPwSection from './_components/NewPwSection'
-import ReEnterNewPwSection from './_components/ReEnterNewPwSection'
-import SaveButton from './_components/SaveButton'
-import StudentIdSection from './_components/StudentIdSection'
-import TopicSection from './_components/TopicSection'
+import { ConfirmModal } from './_components/ConfirmModal'
+import { CurrentPwSection } from './_components/CurrentPwSection'
+import { IdSection } from './_components/IdSection'
+import { LogoSection } from './_components/LogoSection'
+import { MajorSection } from './_components/MajorSection'
+import { NameSection } from './_components/NameSection'
+import { NewPwSection } from './_components/NewPwSection'
+import { ReEnterNewPwSection } from './_components/ReEnterNewPwSection'
+import { SaveButton } from './_components/SaveButton'
+import { StudentIdSection } from './_components/StudentIdSection'
+import { TopicSection } from './_components/TopicSection'
 import { SettingsProvider } from './_components/context'
 import type { Profile } from './_components/context'
 import { useCheckPassword } from './_libs/hooks/useCheckPassword'
-import { schemaSettings } from './_libs/schemas'
+import { getSchema } from './_libs/schemas'
 import { useConfirmNavigation } from './_libs/utils'
 
 type UpdatePayload = Partial<{
@@ -72,7 +72,7 @@ export default function Page() {
     watch,
     formState: { errors }
   } = useForm<SettingsFormat>({
-    resolver: zodResolver(schemaSettings(!!updateNow)),
+    resolver: valibotResolver(getSchema(Boolean(updateNow))),
     mode: 'onChange',
     defaultValues: {
       currentPassword: '',
@@ -90,7 +90,7 @@ export default function Page() {
   const studentId = watch('studentId')
 
   const { isConfirmModalOpen, setIsConfirmModalOpen, confirmAction } =
-    useConfirmNavigation(bypassConfirmation, !!updateNow)
+    useConfirmNavigation(bypassConfirmation, Boolean(updateNow))
   const {
     isPasswordCorrect,
     newPasswordAble,
@@ -107,20 +107,20 @@ export default function Page() {
 
   const isPasswordsMatch = newPassword === confirmPassword && newPassword !== ''
   const saveAblePassword: boolean =
-    !!currentPassword &&
-    !!newPassword &&
-    !!confirmPassword &&
+    Boolean(currentPassword) &&
+    Boolean(newPassword) &&
+    Boolean(confirmPassword) &&
     isPasswordCorrect &&
     newPasswordAble &&
     isPasswordsMatch
   const saveAbleOthers: boolean =
-    !!realName || !!(majorValue !== defaultProfileValues.major)
+    Boolean(realName) || Boolean(majorValue !== defaultProfileValues.major)
   const saveAble =
     (saveAblePassword || saveAbleOthers) &&
     ((isPasswordsMatch && !errors.newPassword) ||
       (!newPassword && !confirmPassword))
   const saveAbleUpdateNow =
-    !!studentId && majorValue !== 'none' && !errors.studentId
+    Boolean(studentId) && majorValue !== 'none' && !errors.studentId
   // 일치 여부에 따라 New Password Input, Re-enter Password Input 창의 border 색상을 바꿈
   useEffect(() => {
     if (isPasswordsMatch) {
@@ -175,7 +175,9 @@ export default function Page() {
     value: string | undefined,
     defaultValue: string
   ) => {
-    if (value === '') setValue(field, defaultValue)
+    if (value === '') {
+      setValue(field, defaultValue)
+    }
   }
 
   const onSubmitClick = () => {
@@ -209,7 +211,7 @@ export default function Page() {
       register,
       errors
     },
-    updateNow: !!updateNow,
+    updateNow: Boolean(updateNow),
     isLoading
   }
 

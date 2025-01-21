@@ -40,7 +40,7 @@ interface DataTableMultiSelectFilterProps<TData, TValue> {
  * @param emptyMessage
  * 옵션이 없을 경우 보여줄 텍스트
  */
-export default function DataTableMultiSelectFilter<TData, TValue>({
+export function DataTableMultiSelectFilter<TData, TValue>({
   column,
   title,
   options,
@@ -127,7 +127,11 @@ export default function DataTableMultiSelectFilter<TData, TValue>({
 }
 
 const getSelectedValues = (data: unknown): Set<string> => {
-  if (!Array.isArray(data)) return new Set()
-  if (data.every((item) => typeof item === 'string')) return new Set(data)
+  if (!Array.isArray(data)) {
+    return new Set()
+  }
+  if (data.every((item) => typeof item === 'string')) {
+    return new Set(data)
+  }
   return new Set()
 }

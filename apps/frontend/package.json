@@ -2,9 +2,13 @@
   "name": "@codedang/frontend",
   "version": "0.1.0",
   "private": true,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
     "dev": "next dev -p 5525",
     "build": "pnpm run compile && next build",
+    "analyze": "ANALYZE=true pnpm build",
     "start": "next start --keepAliveTimeout 70000",
     "lint": "eslint .",
     "compile": "graphql-codegen --require dotenv/config",
@@ -93,7 +97,7 @@
     "sharp": "^0.33.5",
     "sonner": "^1.7.1",
     "styled-components": "^6.1.14",
-    "zod": "^3.24.1",
+    "valibot": "1.0.0-beta.12",
     "zustand": "^4.5.5"
   },
   "devDependencies": {

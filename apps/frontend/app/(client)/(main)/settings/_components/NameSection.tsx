@@ -6,7 +6,7 @@ interface NameSectionProps {
   realName: string
 }
 
-export default function NameSection({ realName }: NameSectionProps) {
+export function NameSection({ realName }: NameSectionProps) {
   const {
     isLoading,
     updateNow,
@@ -23,7 +23,7 @@ export default function NameSection({ realName }: NameSectionProps) {
             ? 'Loading...'
             : defaultProfileValues.userProfile?.realName || 'Enter your name'
         }
-        disabled={!!updateNow}
+        disabled={Boolean(updateNow)}
         {...register('realName')}
         className={cn(
           realName && (errors.realName ? 'border-red-500' : 'border-primary'),

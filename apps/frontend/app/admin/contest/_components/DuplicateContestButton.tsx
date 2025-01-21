@@ -27,7 +27,7 @@ import { toast } from 'sonner'
 import { useDataTable } from '../../_components/table/context'
 import type { DataTableContest } from './ContestTableColumns'
 
-export default function DuplicateContestButton() {
+export function DuplicateContestButton() {
   const { table } = useDataTable<DataTableContest>()
 
   return table.getSelectedRowModel().rows.length === 1 ? (
@@ -75,7 +75,7 @@ function EnabledDuplicateButton({
   const client = useApolloClient()
   const [duplicateContest] = useMutation(DUPLICATE_CONTEST)
 
-  const duplicateContestById = async () => {
+  const duplicateContestById = () => {
     const toastId = toast.loading('Duplicating contest...')
 
     duplicateContest({
