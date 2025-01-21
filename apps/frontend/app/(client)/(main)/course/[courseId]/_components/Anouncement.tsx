@@ -1,4 +1,4 @@
-export default function Announcement() {
+export function Announcement() {
   return (
     <div className="rounded bg-gray-100 p-4">
       <h3 className="mb-2 text-lg font-bold">Recent Announcement</h3>

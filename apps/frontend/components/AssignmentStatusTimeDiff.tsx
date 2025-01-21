@@ -14,7 +14,7 @@ import { toast } from 'sonner'
 
 dayjs.extend(duration)
 
-export default function AssignmentStatusTimeDiff({
+export function AssignmentStatusTimeDiff({
   assignment,
   textStyle,
   inAssignmentEditor
@@ -54,11 +54,11 @@ export default function AssignmentStatusTimeDiff({
     const diff = dayjs.duration(Math.abs(dayjs(timeRef).diff(now)))
     const days = Math.floor(diff.asDays())
     const hours = Math.floor(diff.asHours() % 24)
-    const hours_str = hours.toString().padStart(2, '0')
+    const hourStr = hours.toString().padStart(2, '0')
     const minutes = Math.floor(diff.asMinutes() % 60)
-    const minutes_str = minutes.toString().padStart(2, '0')
+    const minuteStr = minutes.toString().padStart(2, '0')
     const seconds = Math.floor(diff.asSeconds() % 60)
-    const seconds_str = seconds.toString().padStart(2, '0')
+    const secondStr = seconds.toString().padStart(2, '0')
 
     if (inAssignmentEditor) {
       if (days === 0 && hours === 0 && minutes === 5 && seconds === 0) {
@@ -71,9 +71,9 @@ export default function AssignmentStatusTimeDiff({
 
     setTimeDiff({
       days,
-      hours: hours_str,
-      minutes: minutes_str,
-      seconds: seconds_str
+      hours: hourStr,
+      minutes: minuteStr,
+      seconds: secondStr
     })
   }
 

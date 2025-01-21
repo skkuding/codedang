@@ -1,7 +1,7 @@
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
 import type { Assignment } from '@/types/type'
 import type { Session } from 'next-auth'
-import DashboardCalendar from './DashboardCalendar'
+import { DashboardCalendar } from './DashboardCalendar'
 
 const getAssignments = async () => {
   const data: {
@@ -34,11 +34,7 @@ const getRegisteredAssignments = async () => {
   return data.registeredOngoing.concat(data.registeredUpcoming)
 }
 
-export default async function Dashboard({
-  session
-}: {
-  session?: Session | null
-}) {
+export async function Dashboard({ session }: { session?: Session | null }) {
   const data = (
     session ? await getRegisteredAssignments() : await getAssignments()
   )

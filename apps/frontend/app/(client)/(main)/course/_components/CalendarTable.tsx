@@ -38,7 +38,7 @@ const events: Event[] = [
   }
 ]
 
-export default function CalendarTable() {
+export function CalendarTable() {
   return (
     <table
       aria-readonly="true"
@@ -61,7 +61,7 @@ export default function CalendarTable() {
               <div className="row-container">
                 <div className="text">
                   <div className="title-holder">
-                    <div className="title"></div>
+                    <div className="title" />
                     <div className="first-line">{event.title}</div>
                   </div>
                   <div className="time second-line">

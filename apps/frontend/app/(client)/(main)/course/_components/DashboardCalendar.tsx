@@ -27,7 +27,7 @@ import { toast } from 'sonner'
 
 //import { EventDialog } from './EventDialog'
 
-export default function DashboardCalendar({
+export function DashboardCalendar({
   data
 }: {
   data: CalendarAssignment[] //event color 속성을 추가해서 과목별로 색갈이 다르게해볼 수도 있겠다.

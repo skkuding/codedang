@@ -10,7 +10,7 @@ import type { Assignment } from '@/types/type'
 import type { Route } from 'next'
 import type { Session } from 'next-auth'
 import Link from 'next/link'
-import AssignmentCard from '../_components/AssignmentCard'
+import { AssignmentCard } from '../_components/AssignmentCard'
 
 const getAssignments = async () => {
   const data: {
@@ -57,9 +57,13 @@ function AssignmentCardCarousel({
   const chunks = []
 
   if (itemsPerSlide === 3) {
-    for (let i = 0; i < data.length; i += 3) chunks.push(data.slice(i, i + 3))
+    for (let i = 0; i < data.length; i += 3) {
+      chunks.push(data.slice(i, i + 3))
+    }
   } else if (itemsPerSlide === 2) {
-    for (let i = 0; i < data.length; i += 2) chunks.push(data.slice(i, i + 2))
+    for (let i = 0; i < data.length; i += 2) {
+      chunks.push(data.slice(i, i + 2))
+    }
   }
   return (
     <Carousel
@@ -96,7 +100,7 @@ function AssignmentCardCarousel({
   )
 }
 
-export default async function AssignmentCardList({
+export async function AssignmentCardList({
   title,
   type,
   session
@@ -109,15 +113,15 @@ export default async function AssignmentCardList({
     session ? await getRegisteredAssignments() : await getAssignments()
   ).filter(
     (assignment) =>
-      assignment.status.toLowerCase() === 'registered' + type.toLowerCase() ||
+      assignment.status.toLowerCase() === `registered${type.toLowerCase()}` ||
       assignment.status.toLowerCase() === type.toLowerCase()
   )
 
-  data.sort((a, b) => +new Date(a.startTime) - +new Date(b.startTime))
+  data.sort(
+    (a, b) => +Number(new Date(a.startTime)) - +Number(new Date(b.startTime))
+  )
 
-  return data.length === 0 ? (
-    <></>
-  ) : (
+  return data.length === 0 ? null : (
     <>
       <AssignmentCardCarousel itemsPerSlide={3} title={title} data={data} />
       <AssignmentCardCarousel itemsPerSlide={2} title={title} data={data} />

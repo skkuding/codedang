@@ -10,7 +10,7 @@ import type { Course, RawCourse } from '@/types/type'
 import type { Route } from 'next'
 import type { Session } from 'next-auth'
 import Link from 'next/link'
-import CourseCard from '../_components/CourseCard'
+import { CourseCard } from '../_components/CourseCard'
 
 const getCourses = async () => {
   const rawData: RawCourse[] = await fetcherWithAuth.get('group/joined').json()
@@ -44,9 +44,13 @@ function CourseCardCarousel({
   const chunks = []
 
   if (itemsPerSlide === 3) {
-    for (let i = 0; i < data.length; i += 3) chunks.push(data.slice(i, i + 3))
+    for (let i = 0; i < data.length; i += 3) {
+      chunks.push(data.slice(i, i + 3))
+    }
   } else if (itemsPerSlide === 2) {
-    for (let i = 0; i < data.length; i += 2) chunks.push(data.slice(i, i + 2))
+    for (let i = 0; i < data.length; i += 2) {
+      chunks.push(data.slice(i, i + 2))
+    }
   }
   return (
     <Carousel
@@ -82,7 +86,7 @@ function CourseCardCarousel({
 }
 
 //Contest를 Course로 모두 이름 변경!
-export default async function CourseCardList({
+export async function CourseCardList({
   title
 }: {
   type: string
@@ -93,7 +97,7 @@ export default async function CourseCardList({
   console.log('Courses data:', data)
 
   return data.length === 0 ? (
-    <>No courses have been registered.</>
+    <div>No courses have been registered.</div>
   ) : (
     <>
       <CourseCardCarousel itemsPerSlide={3} title={title} data={data} />

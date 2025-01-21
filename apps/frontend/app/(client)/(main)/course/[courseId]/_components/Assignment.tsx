@@ -1,4 +1,4 @@
-export default function Assignment() {
+export function Assignment() {
   return (
     <div className="mt-6 w-full rounded bg-gray-100 p-4">
       <h3 className="mb-2 text-lg font-bold">Assignment</h3>

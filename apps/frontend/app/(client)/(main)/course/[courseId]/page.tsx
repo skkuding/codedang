@@ -1,10 +1,10 @@
 // import { Separator } from '@radix-ui/react-dropdown-menu'
-import CalendarTable from '../_components/CalendarTable'
-import Announcement from './_components/Anouncement'
-import Assignment from './_components/Assignment'
-import Header from './_components/Header'
-import Sidebar from './_components/Sidebar'
-import TodoList from './_components/TodoList'
+import { CalendarTable } from '../_components/CalendarTable'
+import { Announcement } from './_components/Anouncement'
+import { Assignment } from './_components/Assignment'
+import { Header } from './_components/Header'
+import { Sidebar } from './_components/Sidebar'
+import { TodoList } from './_components/TodoList'
 
 export default function Dashboard() {
   return (

@@ -1,4 +1,4 @@
-export default function Header() {
+export function Header() {
   return (
     <div className="p-5">
       <h1 className="text-3xl font-bold">[CourseNum] Course Title</h1>

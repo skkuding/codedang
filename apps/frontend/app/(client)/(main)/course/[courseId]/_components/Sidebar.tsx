@@ -20,7 +20,7 @@ const categories: Category[] = [
   }
 ]
 
-export default function Sidebar() {
+export function Sidebar() {
   return (
     <aside className="min-h-screen w-64 bg-gray-200 p-4">
       <ul>

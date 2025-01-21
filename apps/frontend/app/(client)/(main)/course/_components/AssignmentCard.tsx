@@ -1,12 +1,12 @@
 'use client'
 
-import AssignmentStatusTimeDiff from '@/components/AssignmentStatusTimeDiff'
+import { AssignmentStatusTimeDiff } from '@/components/AssignmentStatusTimeDiff'
 import { cn, dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import type { Assignment } from '@/types/type'
 import Image from 'next/image'
 import 'react-circular-progressbar/dist/styles.css'
-import StatusBadge from '../../../(main)/_components/StatusBadge'
+import { StatusBadge } from '../../../(main)/_components/StatusBadge'
 
 const bgVariants = {
   ongoing: 'bg-gradient-to-b from-blue-100 to-white',
@@ -27,7 +27,7 @@ interface Props {
   assignment: Assignment
 }
 
-export default function AssignmentCard({ assignment }: Props) {
+export function AssignmentCard({ assignment }: Props) {
   const startTime = dateFormatter(assignment.startTime, 'YYYY-MM-DD')
   const endTime = dateFormatter(assignment.endTime, 'YYYY-MM-DD')
 

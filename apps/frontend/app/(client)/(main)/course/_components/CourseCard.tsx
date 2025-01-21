@@ -5,7 +5,7 @@
 import { cn } from '@/libs/utils'
 import type { Course } from '@/types/type'
 import 'react-circular-progressbar/dist/styles.css'
-import StatusBadge from '../../../(main)/_components/StatusBadge'
+import { StatusBadge } from '../../../(main)/_components/StatusBadge'
 
 const bgVariants = {
   ongoing: 'bg-gradient-to-b from-[#BCAFF3] to-white',
@@ -26,7 +26,7 @@ interface Props {
   course: Course //type 변경 필요.
 }
 
-export default function CourseCard({ course }: Props) {
+export function CourseCard({ course }: Props) {
   //contest props -> course props로 변경해야..
 
   return (
