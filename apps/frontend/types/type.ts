@@ -249,15 +249,15 @@ export interface Assignment {
 
 export interface CalendarAssignment {
   title: string
-  start: string
-  end: string
+  start: Date
+  end: Date
 }
 
 export interface CalendarAssignmentEvent {
   event: {
     id: number
     title: string
-    start: string
-    end: string
+    start: Date
+    end: Date
   }
 }

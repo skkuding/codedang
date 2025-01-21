@@ -13,6 +13,7 @@ import {
 import { Textarea } from '@/components/shadcn/textarea'
 import { cn, dateFormatter } from '@/libs/utils'
 import type { CalendarAssignment, CalendarAssignmentEvent } from '@/types/type'
+import type { EventClickArg } from '@fullcalendar/core/index.js'
 // DayGrid 플러그인
 //import bootstrap5Plugin from '@fullcalendar/bootstrap5'
 // Bootstrap5 테마
@@ -35,15 +36,15 @@ export function DashboardCalendar({
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [SelectedEvent, setSelectedEvent] =
     useState<CalendarAssignmentEvent | null>(null)
-  const handleEventClick = (info: CalendarAssignmentEvent) => {
+  const handleEventClick = (info: EventClickArg) => {
     //캘린터 이벤트 클릭 처리.
     //기본 제공 타입인 EventClickArg 말고 CalendarAssignmentEvent 타입 사용.
     setSelectedEvent({
       event: {
-        id: info.event.id,
+        id: Number(info.event.id),
         title: info.event.title,
-        start: info.event.start,
-        end: info.event.end
+        start: info.event.start as Date,
+        end: info.event.end as Date
       }
     })
     setIsDialogOpen(true)

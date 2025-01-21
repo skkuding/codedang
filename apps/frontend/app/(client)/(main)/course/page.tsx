@@ -1,5 +1,5 @@
-import Cover from '@/app/(client)/(main)/_components/Cover'
-import FetchErrorFallback from '@/components/FetchErrorFallback'
+import { Cover } from '@/app/(client)/(main)/_components/Cover'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
 import { ErrorBoundary } from '@suspensive/react'
@@ -7,10 +7,10 @@ import { Suspense } from 'react'
 import { LuCalendar } from 'react-icons/lu'
 //import { Separator } from '@radix-ui/react-separator'
 import { Separator } from '../../../../../frontend/components/shadcn/separator'
-import CalendarTable from './_components/CalendarTable'
+import { CalendarTable } from './_components/CalendarTable'
 //import Dashboard from './[courseId]/_components/Dashboard'
-import CourseCardList from './_components/CourseCardList'
-import Dashboard from './_components/Dashboard'
+import { CourseCardList } from './_components/CourseCardList'
+import { Dashboard } from './_components/Dashboard'
 
 function CardListFallback() {
   return (

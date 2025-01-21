@@ -1,5 +1,5 @@
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
-import type { Assignment } from '@/types/type'
+import type { Assignment, CalendarAssignment } from '@/types/type'
 import type { Session } from 'next-auth'
 import { DashboardCalendar } from './DashboardCalendar'
 
@@ -35,14 +35,12 @@ const getRegisteredAssignments = async () => {
 }
 
 export async function Dashboard({ session }: { session?: Session | null }) {
-  const data = (
+  const data: CalendarAssignment[] = (
     session ? await getRegisteredAssignments() : await getAssignments()
-  )
-    .map((assignment) => ({
-      title: assignment.title,
-      start: new Date(assignment.startTime).toISOString().split('T')[0], // 날짜만 추출
-      end: new Date(assignment.endTime).toISOString().split('T')[0] // 날짜만 추출
-    }))
-    .sort((a, b) => a.start.localeCompare(b.start))
+  ).map((assignment) => ({
+    title: assignment.title,
+    start: assignment.startTime,
+    end: assignment.endTime
+  }))
   return <DashboardCalendar data={data} />
 }

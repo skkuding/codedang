@@ -5,7 +5,7 @@ import {
   CarouselNext,
   CarouselPrevious
 } from '@/components/shadcn/carousel'
-import { cn, fetcherWithAuth } from '@/libs/utils'
+import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import type { Course, RawCourse } from '@/types/type'
 import type { Route } from 'next'
 import type { Session } from 'next-auth'
@@ -13,21 +13,23 @@ import Link from 'next/link'
 import { CourseCard } from '../_components/CourseCard'
 
 const getCourses = async () => {
-  const rawData: RawCourse[] = await fetcherWithAuth.get('group/joined').json()
-
-  const data: Course[] = rawData
-    ? rawData.map((item: RawCourse) => ({
-        id: item.id,
-        groupName: item.groupName,
-        description: item.description,
-        memberNum: item.memberNum,
-        status: 'ongoing',
-        semester: '2025 Spring',
-        professor: 'Ha Jimin'
-      }))
-    : []
-
-  return data
+  try {
+    const rawData: RawCourse[] = await safeFetcherWithAuth
+      .get('group/joined')
+      .json()
+    const data: Course[] = rawData.map((item: RawCourse) => ({
+      id: item.id,
+      groupName: item.groupName,
+      description: item.description,
+      memberNum: item.memberNum,
+      status: 'ongoing',
+      semester: '2025 Spring',
+      professor: 'Ha Jimin'
+    }))
+    return data
+  } catch {
+    return []
+  }
 }
 
 type ItemsPerSlide = 2 | 3
@@ -94,7 +96,6 @@ export async function CourseCardList({
   session?: Session | null
 }) {
   const data = await getCourses()
-  console.log('Courses data:', data)
 
   return data.length === 0 ? (
     <div>No courses have been registered.</div>
