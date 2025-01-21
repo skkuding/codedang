@@ -59,8 +59,20 @@ export default function DashboardCalendar({
       <div className="container mt-4">
         <style jsx global>{`
           .fc-button-primary {
-            background-color: #4a90e2 !important;
-            border-color: #4a90e2 !important;
+            background-color: #9784e4 !important;
+            border-color: #999999 !important;
+          }
+          .fc-day-today {
+            background-color: #cac1ee !important;
+          }
+          .fc-event {
+            background-color: #e5d9f2 !important;
+            color: #a294f9 !important;
+            border-color: #cdc1ff !important;
+          }
+          .fc-event .fc-event-title,
+          .fc-event .fc-event-time {
+            color: black !important; /* 텍스트 색상 */
           }
         `}</style>
         <FullCalendar
