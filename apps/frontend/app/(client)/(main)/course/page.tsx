@@ -7,7 +7,6 @@ import { Suspense } from 'react'
 import { LuCalendar } from 'react-icons/lu'
 //import { Separator } from '@radix-ui/react-separator'
 import { Separator } from '../../../../../frontend/components/shadcn/separator'
-import { CalendarTable } from './_components/CalendarTable'
 //import Dashboard from './[courseId]/_components/Dashboard'
 import { CourseCardList } from './_components/CourseCardList'
 import { Dashboard } from './_components/Dashboard'
@@ -46,7 +45,6 @@ export default async function Course() {
         </div>
       </div>
       <div className="w-full">
-        <CalendarTable />
         <Dashboard session={session} />
       </div>
     </>
