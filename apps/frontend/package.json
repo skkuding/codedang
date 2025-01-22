@@ -9,7 +9,8 @@
     "dev": "next dev -p 5525 --turbo",
     "build": "pnpm run compile && next build",
     "analyze": "ANALYZE=true pnpm build",
-    "start": "next start --keepAliveTimeout 70000",
+    "prestart": "cp -r public .next/standalone/apps/frontend && cp -r .next/static .next/standalone/apps/frontend/.next/",
+    "start": "PORT=5525 node .next/standalone/apps/frontend/server.js",
     "lint": "eslint .",
     "compile": "graphql-codegen --require dotenv/config",
     "test": "vitest"
