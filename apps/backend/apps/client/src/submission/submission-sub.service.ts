@@ -5,8 +5,7 @@ import {
   ResultStatus,
   type Submission,
   type SubmissionResult,
-  type TestSubmission,
-  type TestSubmissionResult
+  type TestSubmission
 } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
@@ -92,12 +91,13 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
   async handleRunMessage(
     msg: JudgerResponse,
-    userId: number,
+    userId: number, //
     isUserTest = false
   ): Promise<void> {
     const status = Status(msg.resultCode)
     const testcaseId = msg.judgeResult?.testcaseId
     const output = this.parseError(msg, status)
+    console.log(msg)
     if (
       status === ResultStatus.ServerError ||
       status === ResultStatus.CompileError
@@ -149,46 +149,36 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       testcase.output = output
     }
 
-    const submissionResult = {
-      result: Status(msg.judgeResult.resultCode),
-      cpuTime: BigInt(msg.judgeResult.cpuTime),
-      memoryUsage: msg.judgeResult.memory
-    }
+    const cpuTime = BigInt(msg.judgeResult.cpuTime)
+    const memoryUsage = msg.judgeResult.memory
 
-    if (!isUserTest) {
-      const { id } = await this.prisma.testSubmissionResult.findFirstOrThrow({
-        where: {
-          testSubmissionId: msg.submissionId,
-          problemTestcaseId: msg.judgeResult.testcaseId
-        }
+    if (cpuTime && memoryUsage) {
+      const testSubmission = await this.prisma.testSubmission.findUnique({
+        where: { id: userId }
       })
-      await this.prisma.testSubmissionResult.update({
-        where: {
-          id
-        },
-        data: {
-          result: submissionResult.result,
-          cpuTime: submissionResult.cpuTime,
-          memoryUsage: submissionResult.memoryUsage
-        }
-      })
-    } else {
-      const { id } = await this.prisma.testSubmissionResult.findFirstOrThrow({
-        where: {
-          testSubmissionId: msg.submissionId,
-          userTestcaseId: msg.judgeResult.testcaseId
-        }
-      })
-      await this.prisma.testSubmissionResult.update({
-        where: {
-          id
-        },
-        data: {
-          result: submissionResult.result,
-          cpuTime: submissionResult.cpuTime,
-          memoryUsage: submissionResult.memoryUsage
-        }
-      })
+      console.log(testSubmission)
+      if (testSubmission) {
+        const maxCpuTime = testSubmission.maxCpuTime || BigInt(0)
+        const maxMemoryUsage = testSubmission.maxMemoryUsage || 0
+
+        const newMaxCpuTime =
+          cpuTime > BigInt(maxCpuTime) ? cpuTime : BigInt(maxCpuTime)
+        console.log('Cpu time in DB', cpuTime)
+        console.log('New Cpu Time', maxCpuTime)
+        console.log('New Max Cpu Time', newMaxCpuTime)
+        const newMaxMemoryUsage =
+          memoryUsage > maxMemoryUsage ? memoryUsage : maxMemoryUsage
+        console.log('Mem Usage in DB', memoryUsage)
+        console.log('New Mem Usage', maxMemoryUsage)
+        console.log('New Max Mem Usage', newMaxMemoryUsage)
+        await this.prisma.testSubmission.update({
+          where: { id: testSubmission.id },
+          data: {
+            maxCpuTime: newMaxCpuTime,
+            maxMemoryUsage: newMaxMemoryUsage
+          }
+        })
+      }
     }
 
     await this.cacheManager.set(key, testcase, TEST_SUBMISSION_EXPIRE_TIME)

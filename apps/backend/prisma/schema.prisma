@@ -526,30 +526,30 @@ model CodeDraft {
 }
 
 model TestSubmission {
-  id              Int         @id @default(autoincrement())
-  user            User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId          Int?        @map("user_id")
-  userIp          String?     @map("user_ip")
-  problem         Problem     @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId       Int         @map("problem_id")
-  assignment      Assignment? @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId    Int?        @map("assignment_id")
-  contest         Contest?    @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId       Int?        @map("contest_id")
-  workbook        Workbook?   @relation(fields: [workbookId], references: [id])
-  workbookId      Int?        @map("workbook_id")
+  id             Int         @id @default(autoincrement())
+  user           User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId         Int?        @map("user_id")
+  userIp         String?     @map("user_ip")
+  problem        Problem     @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId      Int         @map("problem_id")
+  assignment     Assignment? @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId   Int?        @map("assignment_id")
+  contest        Contest?    @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId      Int?        @map("contest_id")
+  workbook       Workbook?   @relation(fields: [workbookId], references: [id])
+  workbookId     Int?        @map("workbook_id")
   /// code item structure
   /// {
   ///   "id": number,
   ///   "text": string,
   ///   "locked": boolean
   /// }
-  language        Language
-  code            Json[]
-  codeSize        Int?        @map("code_size")
-  isUserTest      Boolean     @default(false) @map("is_user_test")
-  max_cpuTime     BigInt?     @map("max_cpu_time")
-  max_memoryUsage Int?        @map("max_memory_usage")
+  language       Language
+  code           Json[]
+  codeSize       Int?        @map("code_size")
+  isUserTest     Boolean     @default(false) @map("is_user_test")
+  maxCpuTime     BigInt?     @map("max_cpu_time")
+  maxMemoryUsage Int?        @map("max_memory_usage")
 
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")

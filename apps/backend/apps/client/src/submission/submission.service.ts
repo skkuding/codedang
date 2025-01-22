@@ -613,7 +613,7 @@ export class SubmissionService {
     const testcaseIds: number[] = []
 
     const testSubmissionId = (
-      await this.createTestSubmission(testSubmission, code, true, userTestcases)
+      await this.createTestSubmission(testSubmission, code, true)
     ).id
     for (const testcase of userTestcases) {
       await this.cacheManager.set(
@@ -638,8 +638,7 @@ export class SubmissionService {
   async createTestSubmission(
     testSubmission: Submission,
     codeSnippet: Snippet[],
-    isUserTest = false,
-    userTestcases: { id: number; in: string; out: string }[] = []
+    isUserTest = false
   ): Promise<TestSubmission> {
     const problem = await this.prisma.problem.findFirst({
       where: {
@@ -668,7 +667,6 @@ export class SubmissionService {
 
     const submissionData = {
       code: codeSnippet.map((snippet) => ({ ...snippet })),
-      result: ResultStatus.Judging,
       userId: testSubmission.userId,
       userIp: testSubmission.userIp,
       problemId: testSubmission.problemId,
@@ -684,57 +682,12 @@ export class SubmissionService {
         }
       })
 
-      await this.createTestSubmissionResults(submission, userTestcases)
       return submission
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         throw new UnprocessableDataException('Failed to create submission')
       }
       throw error
-    }
-  }
-
-  @Span()
-  async createTestSubmissionResults(
-    testSubmission: TestSubmission,
-    userTestcases: { id: number; in: string; out: string }[]
-  ): Promise<void> {
-    if (!testSubmission.isUserTest) {
-      const testcases = await this.prisma.problemTestcase.findMany({
-        where: {
-          problemId: testSubmission.problemId
-        },
-        select: {
-          id: true,
-          input: true,
-          output: true
-        }
-      })
-      await this.prisma.testSubmissionResult.createMany({
-        data: testcases.map((testcase) => {
-          return {
-            testSubmissionId: testSubmission.id,
-            result: ResultStatus.Judging,
-            problemTestcaseId: testcase.id,
-            TestInput: testcase.input,
-            TestOutput: testcase.output,
-            isUserTest: false
-          }
-        })
-      })
-    } else {
-      await this.prisma.testSubmissionResult.createMany({
-        data: userTestcases.map((userTestcase) => {
-          return {
-            testSubmissionId: testSubmission.id,
-            result: ResultStatus.Judging,
-            userTestcaseId: userTestcase.id,
-            TestInput: userTestcase.in,
-            TestOutput: userTestcase.out,
-            isUserTest: true
-          }
-        })
-      })
     }
   }
 
