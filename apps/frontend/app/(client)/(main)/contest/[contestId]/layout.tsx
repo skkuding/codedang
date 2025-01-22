@@ -25,6 +25,7 @@ export default async function Layout({ params, tabs }: ContestDetailProps) {
   )
   if (res.ok) {
     const contest: Contest = await res.json()
+    console.log('contest in layout:', contest)
     const formattedStartTime = dateFormatter(
       contest.startTime,
       'YYYY-MM-DD HH:mm:ss'
@@ -50,7 +51,7 @@ export default async function Layout({ params, tabs }: ContestDetailProps) {
 
     return (
       <article>
-        <header className="flex justify-between p-5 py-8">
+        {/* <header className="flex justify-between p-5 py-8">
           <div className="flex flex-col gap-3">
             <h2 className="break-words text-[28px] font-medium">
               {contest?.title}
@@ -84,7 +85,7 @@ export default async function Layout({ params, tabs }: ContestDetailProps) {
               inContestEditor={false}
             />
           </div>
-        </header>
+        </header> */}
         <ContestTabs contestId={contestId} />
         {tabs}
       </article>

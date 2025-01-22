@@ -17,13 +17,14 @@ export function ContestTabs({ contestId }: { contestId: string }) {
   }
 
   return (
-    <div className="flex justify-center gap-[130px] border-b-2 border-gray-300 pb-4">
-      <div className="flex w-full text-[#333333] md:w-3/5">
+    <div className="flex justify-center">
+      <div className="flex w-full text-[#333333] md:w-3/5 md:gap-[60px]">
         <Link
           href={`/contest/${id}` as Route}
           className={cn(
-            'flex w-1/2 justify-center text-lg',
-            isCurrentTab('') && 'text-primary'
+            'flex w-1/2 justify-center p-[18px] text-lg',
+            isCurrentTab('') &&
+              'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
           Overview
@@ -31,8 +32,9 @@ export function ContestTabs({ contestId }: { contestId: string }) {
         <Link
           href={`/contest/${id}/notice` as Route}
           className={cn(
-            'flex w-1/2 justify-center text-lg',
-            isCurrentTab('notice') && 'text-primary'
+            'flex w-1/2 justify-center p-[18px] text-lg',
+            isCurrentTab('notice') &&
+              'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
           Notice
@@ -40,8 +42,9 @@ export function ContestTabs({ contestId }: { contestId: string }) {
         <Link
           href={`/contest/${id}/leaderboard` as Route}
           className={cn(
-            'flex w-1/2 justify-center text-lg',
-            isCurrentTab('leaderboard') && 'text-primary'
+            'flex w-1/2 justify-center p-[18px] text-lg',
+            isCurrentTab('leaderboard') &&
+              'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
           Leaderboard
@@ -49,8 +52,9 @@ export function ContestTabs({ contestId }: { contestId: string }) {
         <Link
           href={`/contest/${id}/statistics` as Route}
           className={cn(
-            'flex w-1/2 justify-center text-lg',
-            isCurrentTab('statistics') && 'text-primary'
+            'flex w-1/2 justify-center p-[18px] text-lg',
+            isCurrentTab('statistics') &&
+              'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
           Statistics
@@ -58,8 +62,9 @@ export function ContestTabs({ contestId }: { contestId: string }) {
         <Link
           href={`/contest/${id}/qna` as Route}
           className={cn(
-            'flex w-1/2 justify-center text-lg',
-            isCurrentTab('qna') && 'text-primary'
+            'flex w-1/2 justify-center p-[18px] text-lg',
+            isCurrentTab('qna') &&
+              'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
           Q&A
