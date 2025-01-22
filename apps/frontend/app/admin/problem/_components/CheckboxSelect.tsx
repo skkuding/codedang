@@ -26,7 +26,7 @@ interface DataProps<T> {
   defaultValue?: T[]
 }
 
-export default function LanguageSelect<T extends string>({
+export function CheckboxSelect<T extends string>({
   title,
   options,
   onChange,

@@ -38,7 +38,7 @@ import {
   ImagePlus
 } from 'lucide-react'
 import { useCallback, useState } from 'react'
-import InsertDialog from './InsertDialog'
+import { InsertDialog } from './InsertDialog'
 import { Button } from './shadcn/button'
 
 function MathPreview(props: NodeViewWrapperProps) {
@@ -149,7 +149,7 @@ export const MathExtension = Node.create({
   }
 })
 
-export default function TextEditor({
+export function TextEditor({
   placeholder,
   onChange,
   defaultValue

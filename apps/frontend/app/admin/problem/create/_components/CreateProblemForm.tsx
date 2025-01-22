@@ -5,7 +5,7 @@ import { createSchema } from '@/app/admin/problem/_libs/schemas'
 import { CREATE_PROBLEM } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import { Level, type CreateProblemInput } from '@generated/graphql'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useRouter } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -17,11 +17,9 @@ interface CreateProblemFormProps {
   children: ReactNode
 }
 
-export default function CreateProblemForm({
-  children
-}: CreateProblemFormProps) {
+export function CreateProblemForm({ children }: CreateProblemFormProps) {
   const methods = useForm<CreateProblemInput>({
-    resolver: zodResolver(createSchema),
+    resolver: valibotResolver(createSchema),
     defaultValues: {
       difficulty: Level.Level1,
       tagIds: [],

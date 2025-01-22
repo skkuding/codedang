@@ -1,4 +1,4 @@
-import EditorLayout from '@/app/(client)/(code-editor)/_components/EditorLayout'
+import { EditorLayout } from '@/app/(client)/(code-editor)/_components/EditorLayout'
 
 export default function layout({
   params,

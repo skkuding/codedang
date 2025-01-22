@@ -2,10 +2,15 @@
   "name": "@codedang/frontend",
   "version": "0.1.0",
   "private": true,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
-    "dev": "next dev -p 5525",
+    "dev": "next dev -p 5525 --turbo",
     "build": "pnpm run compile && next build",
-    "start": "next start --keepAliveTimeout 70000",
+    "analyze": "ANALYZE=true pnpm build",
+    "prestart": "cp -r public .next/standalone/apps/frontend && cp -r .next/static .next/standalone/apps/frontend/.next/",
+    "start": "PORT=5525 node .next/standalone/apps/frontend/server.js",
     "lint": "eslint .",
     "compile": "graphql-codegen --require dotenv/config",
     "test": "vitest"
@@ -85,7 +90,7 @@
     "react-use": "^17.6.0",
     "sharp": "^0.33.5",
     "sonner": "^1.7.1",
-    "zod": "^3.24.1",
+    "valibot": "1.0.0-beta.12",
     "zustand": "^4.5.5"
   },
   "devDependencies": {

@@ -1,6 +1,7 @@
 import { FlatCompat } from '@eslint/eslintrc'
 import eslintJS from '@eslint/js'
 import eslintPluginPrettier from 'eslint-plugin-prettier/recommended'
+import eslintPluginPromise from 'eslint-plugin-promise'
 import globals from 'globals'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -132,6 +133,7 @@ export default eslintTS.config(
     })),
   {
     files: ['apps/frontend/**/*'],
+    extends: [eslintPluginPromise.configs['flat/recommended']],
     languageOptions: {
       globals: {
         ...globals.browser
@@ -177,7 +179,17 @@ export default eslintTS.config(
         { allowShortCircuit: true, allowTernary: true }
       ],
       'react/jsx-no-useless-fragment': 'error',
-      'react/self-closing-comp': 'error'
+      'react/self-closing-comp': 'error',
+      'promise/prefer-await-to-then': 'error'
+    }
+  },
+  {
+    files: ['apps/frontend/**/*'],
+    ignores: [
+      'apps/frontend/app/**/{page,layout,loading,template,error,global-error}.tsx'
+    ],
+    rules: {
+      'import/no-default-export': 'error'
     }
   },
   {
