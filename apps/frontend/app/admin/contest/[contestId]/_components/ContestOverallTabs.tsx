@@ -29,11 +29,7 @@ interface SubmissionSummary {
   problemId: number
 }
 
-export default function ContestOverallTabs({
-  contestId
-}: {
-  contestId: string
-}) {
+export function ContestOverallTabs({ contestId }: { contestId: string }) {
   const id = parseInt(contestId, 10)
   const pathname = usePathname()
 

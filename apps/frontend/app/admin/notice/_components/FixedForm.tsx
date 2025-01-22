@@ -2,13 +2,9 @@
 
 import { useFormContext, useController } from 'react-hook-form'
 import { TbPinned, TbPinnedOff } from 'react-icons/tb'
-import ErrorMessage from '../../_components/ErrorMessage'
+import { ErrorMessage } from '../../_components/ErrorMessage'
 
-export default function FixedForm({
-  blockEdit = false
-}: {
-  blockEdit?: boolean
-}) {
+export function FixedForm({ blockEdit = false }: { blockEdit?: boolean }) {
   const {
     control,
     formState: { errors }

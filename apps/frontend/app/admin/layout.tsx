@@ -2,8 +2,8 @@ import { Separator } from '@/components/shadcn/separator'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import Image from 'next/image'
 import Link from 'next/link'
-import ClientApolloProvider from './_components/ApolloProvider'
-import SideBar from './_components/SideBar'
+import { ClientApolloProvider } from './_components/ApolloProvider'
+import { SideBar } from './_components/SideBar'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (

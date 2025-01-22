@@ -18,7 +18,7 @@ interface OptionSelectProps {
   disabled?: boolean
 }
 
-export default function OptionSelect({
+export function OptionSelect({
   options,
   onChange,
   value,

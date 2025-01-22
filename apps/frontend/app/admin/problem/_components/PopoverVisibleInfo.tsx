@@ -5,7 +5,7 @@ import {
 } from '@/components/shadcn/popover'
 import { MdHelpOutline } from 'react-icons/md'
 
-export default function PopoverVisibleInfo() {
+export function PopoverVisibleInfo() {
   return (
     <Popover>
       <PopoverTrigger asChild>

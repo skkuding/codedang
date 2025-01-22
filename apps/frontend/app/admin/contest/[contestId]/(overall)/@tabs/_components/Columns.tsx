@@ -1,6 +1,6 @@
 'use client'
 
-import DataTableColumnHeader from '@/app/admin/_components/table/DataTableColumnHeader'
+import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import type {
   ScoreSummary,
   ProblemData
