@@ -17,6 +17,22 @@ const contestSelectOption = {
   invitationCode: true,
   enableCopyPaste: true,
   isJudgeResultVisible: true,
+  posterUrl: true,
+  participationTarget: true,
+  competitionMethod: true,
+  rankingMethod: true,
+  problemFormat: true,
+  benefits: true,
+  contestProblem: {
+    select: {
+      order: true,
+      problem: {
+        select: {
+          title: true
+        }
+      }
+    }
+  },
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
     select: {
@@ -396,10 +412,35 @@ export class ContestService {
 
     const { invitationCode, ...contestDetails } = contest
     const invitationCodeExists = invitationCode != null
+
+    const navigate = (pos: 'prev' | 'next') => {
+      type Order = 'asc' | 'desc'
+      const options =
+        pos === 'prev'
+          ? { compare: { lt: id }, order: 'desc' as Order }
+          : { compare: { gt: id }, order: 'asc' as Order }
+      return {
+        where: {
+          id: options.compare,
+          groupId,
+          isVisible: true
+        },
+        orderBy: {
+          id: options.order
+        },
+        select: {
+          id: true,
+          title: true
+        }
+      }
+    }
+
     return {
       ...contestDetails,
       invitationCodeExists,
-      isRegistered
+      isRegistered,
+      prev: await this.prisma.contest.findFirst(navigate('prev')),
+      next: await this.prisma.contest.findFirst(navigate('next'))
     }
   }
 
