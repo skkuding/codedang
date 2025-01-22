@@ -91,7 +91,7 @@ export class SubmissionService {
   getOrderBy(
     order: ContestSubmissionOrder
   ): Prisma.SubmissionOrderByWithRelationInput {
-    const [attr, value] = order.split('-')
+    const [sortKey, sortOrder] = order.split('-')
 
     switch (order) {
       case ContestSubmissionOrder.studentIdASC:
@@ -100,7 +100,7 @@ export class SubmissionService {
       case ContestSubmissionOrder.usernameDESC:
         return {
           user: {
-            [attr]: value
+            [sortKey]: sortOrder
           }
         }
       case ContestSubmissionOrder.realNameASC:
@@ -108,7 +108,7 @@ export class SubmissionService {
         return {
           user: {
             userProfile: {
-              [attr]: value
+              [sortKey]: sortOrder
             }
           }
         }
