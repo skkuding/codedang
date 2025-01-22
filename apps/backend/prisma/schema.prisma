@@ -121,6 +121,7 @@ model Group {
   problem    Problem[]
   assignment Assignment[]
   workbook   Workbook[]
+  contest    Contest[]
 
   @@map("group")
 }
@@ -326,6 +327,8 @@ model Contest {
   id                   Int      @id @default(autoincrement())
   createdBy            User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById          Int?     @map("created_by_id")
+  group                Group    @relation(fields: [groupId], references: [id])
+  groupId              Int      @map("group_id")
   title                String
   description          String
   posterUrl            String?
