@@ -36,4 +36,6 @@ RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" 
 
 # Install Java
 RUN apt-get -y update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends openjdk-17-jdk
+    && apt-get -y install --no-install-recommends openjdk-17-jdk \
+    && apt-get -y clean \
+    && rm -rf /var/lib/apt/lists/*
