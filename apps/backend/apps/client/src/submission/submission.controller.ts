@@ -81,6 +81,8 @@ export class SubmissionController {
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Body() submissionDto: CreateSubmissionDto
   ) {
+    this.submissionService.setRequest(req)
+
     return await this.submissionService.submitTest(
       req.user.id,
       problemId,

@@ -14,6 +14,7 @@ import {
 import { AxiosRequestConfig } from 'axios'
 import { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
+import { Request } from 'express'
 import { Span } from 'nestjs-otel'
 import {
   testKey,
@@ -45,6 +46,7 @@ import { SubmissionPublicationService } from './submission-pub.service'
 @Injectable()
 export class SubmissionService {
   private readonly logger = new Logger(SubmissionService.name)
+  private req: Request | undefined
 
   constructor(
     private readonly prisma: PrismaService,
@@ -54,6 +56,10 @@ export class SubmissionService {
     private readonly publish: SubmissionPublicationService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
+
+  setRequest(req: Request) {
+    this.req = req
+  }
 
   /**
    * 아직 채점되지 않은 제출 기록을 만들고, 채점 요청 큐에 메세지를 발행합니다.
@@ -665,10 +671,16 @@ export class SubmissionService {
       throw new ConflictFoundException('Modifying template is not allowed')
     }
 
+    const userIp =
+      this.req?.headers['x-forwarded-for']?.toString().split(',')[0] ||
+      this.req?.ip ||
+      this.req?.connection?.remoteAddress ||
+      '0.0.0.0'
+
     const submissionData = {
       code: codeSnippet.map((snippet) => ({ ...snippet })),
       userId: testSubmission.userId,
-      userIp: testSubmission.userIp,
+      userIp: userIp as string,
       problemId: testSubmission.problemId,
       codeSize: new TextEncoder().encode(codeSnippet[0].text).length,
       language: testSubmission.language
