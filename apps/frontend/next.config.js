@@ -6,8 +6,8 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    typedRoutes: true,
-    instrumentationHook: true
+    typedRoutes: process.env.NODE_ENV !== 'development',
+    instrumentationHook: process.env.NODE_ENV !== 'development'
   },
   output: 'standalone',
   env: {
@@ -31,8 +31,7 @@ const nextConfig = {
   }
 }
 
-// Injected content via Sentry wizard below
-module.exports = withSentryConfig(withBundleAnalyzer(nextConfig), {
+const sentryConfig = {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
 
@@ -64,4 +63,9 @@ module.exports = withSentryConfig(withBundleAnalyzer(nextConfig), {
   // https://docs.sentry.io/product/crons/
   // https://vercel.com/docs/cron-jobs
   automaticVercelMonitors: true
-})
+}
+
+module.exports =
+  process.env.NODE_ENV === 'development'
+    ? withBundleAnalyzer(nextConfig)
+    : withSentryConfig(withBundleAnalyzer(nextConfig), sentryConfig)
