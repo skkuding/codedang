@@ -589,7 +589,7 @@ export class SubmissionService {
       testcaseIds.push(rawTestcase.id)
     }
     await this.cacheManager.set(testcasesKey(testSubmissionId), testcaseIds)
-    testSubmission.id = testSubmissionId
+    testSubmission.id = testSubmissionId // 위에서 구분을 위해 userId로 지정했던 id를 testSubmissionId로 변경
     await this.publish.publishJudgeRequestMessage(code, testSubmission, true)
   }
 
