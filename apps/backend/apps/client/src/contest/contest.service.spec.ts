@@ -45,6 +45,12 @@ const contest = {
     id: groupId,
     groupName: 'group'
   },
+  posterUrl: 'posterUrl',
+  participationTarget: 'participationTarget',
+  competitionMethod: 'competitionMethod',
+  rankingMethod: 'rankingMethod',
+  problemFormat: 'problemFormat',
+  benefits: 'benefits',
   invitationCode: '123456'
 } satisfies Contest & {
   group: Partial<Group>
@@ -55,6 +61,12 @@ const ongoingContests = [
     id: contest.id,
     group: contest.group,
     title: contest.title,
+    posterUrl: contest.posterUrl,
+    participationTarget: contest.participationTarget,
+    competitionMethod: contest.competitionMethod,
+    rankingMethod: contest.rankingMethod,
+    problemFormat: contest.problemFormat,
+    benefits: contest.benefits,
     invitationCode: 'test',
     isJudgeResultVisible: true,
     startTime: now.add(-1, 'day').toDate(),
@@ -69,6 +81,12 @@ const upcomingContests = [
     id: contest.id + 6,
     group: contest.group,
     title: contest.title,
+    posterUrl: null,
+    participationTarget: null,
+    competitionMethod: null,
+    rankingMethod: contest.rankingMethod,
+    problemFormat: contest.problemFormat,
+    benefits: contest.benefits,
     invitationCode: 'test',
     isJudgeResultVisible: true,
     startTime: now.add(1, 'day').toDate(),
@@ -83,6 +101,12 @@ const finishedContests = [
     id: contest.id + 1,
     group: contest.group,
     title: contest.title,
+    posterUrl: contest.posterUrl,
+    participationTarget: contest.participationTarget,
+    competitionMethod: contest.competitionMethod,
+    rankingMethod: null,
+    problemFormat: null,
+    benefits: null,
     invitationCode: null,
     isJudgeResultVisible: true,
     startTime: now.add(-2, 'day').toDate(),
@@ -344,6 +368,29 @@ describe('ContestService', () => {
 
     it('should return contest', async () => {
       expect(await service.getContest(contestId, groupId, user01Id)).to.be.ok
+    })
+
+    it('should return optional fields if they exist', async () => {
+      expect(contest).to.have.property('posterUrl')
+      expect(contest).to.have.property('participationTarget')
+      expect(contest).to.have.property('competitionMethod')
+      expect(contest).to.have.property('rankingMethod')
+      expect(contest).to.have.property('problemFormat')
+      expect(contest).to.have.property('benefits')
+    })
+
+    it('should return prev and next contest information', async () => {
+      const contest = await service.getContest(contestId, groupId, user01Id)
+      if (contest.prev) {
+        expect(contest.prev).to.have.property('id')
+        expect(contest.prev.id).to.be.lessThan(contestId)
+        expect(contest.prev).to.have.property('title')
+      }
+      if (contest.next) {
+        expect(contest.next).to.have.property('id')
+        expect(contest.next.id).to.be.greaterThan(contestId)
+        expect(contest.next).to.have.property('title')
+      }
     })
   })
 
