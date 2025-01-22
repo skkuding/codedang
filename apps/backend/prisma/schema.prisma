@@ -238,8 +238,7 @@ model ProblemTestcase {
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
 
-  submissionResult     SubmissionResult[]
-  TestSubmissionResult TestSubmissionResult[]
+  submissionResult SubmissionResult[]
 
   @@map("problem_testcase")
 }
@@ -527,53 +526,33 @@ model CodeDraft {
 }
 
 model TestSubmission {
-  id           Int          @id @default(autoincrement())
-  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId       Int?         @map("user_id")
-  userIp       String?      @map("user_ip")
-  problem      Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId    Int          @map("problem_id")
-  assignment   Assignment?  @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId Int?         @map("assignment_id")
-  contest      Contest?     @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId    Int?         @map("contest_id")
-  workbook     Workbook?    @relation(fields: [workbookId], references: [id])
-  workbookId   Int?         @map("workbook_id")
+  id              Int         @id @default(autoincrement())
+  user            User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId          Int?        @map("user_id")
+  userIp          String?     @map("user_ip")
+  problem         Problem     @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId       Int         @map("problem_id")
+  assignment      Assignment? @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId    Int?        @map("assignment_id")
+  contest         Contest?    @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId       Int?        @map("contest_id")
+  workbook        Workbook?   @relation(fields: [workbookId], references: [id])
+  workbookId      Int?        @map("workbook_id")
   /// code item structure
   /// {
   ///   "id": number,
   ///   "text": string,
   ///   "locked": boolean
   /// }
-  language     Language
-  code         Json[]
-  codeSize     Int?         @map("code_size")
-  isUserTest   Boolean      @default(false) @map("is_user_test")
-  result       ResultStatus
-  score        Int          @default(0)
+  language        Language
+  code            Json[]
+  codeSize        Int?        @map("code_size")
+  isUserTest      Boolean     @default(false) @map("is_user_test")
+  max_cpuTime     BigInt?     @map("max_cpu_time")
+  max_memoryUsage Int?        @map("max_memory_usage")
 
-  createTime           DateTime               @default(now()) @map("create_time")
-  updateTime           DateTime               @updatedAt @map("update_time")
-  TestSubmissionResult TestSubmissionResult[]
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
 
   @@map("test_submission")
-}
-
-model TestSubmissionResult {
-  id                Int              @id @default(autoincrement())
-  testSubmission    TestSubmission   @relation(fields: [testSubmissionId], references: [id], onDelete: Cascade)
-  testSubmissionId  Int              @map("test_submission_id")
-  isUserTest        Boolean          @default(false) @map("is_user_test")
-  problemTestcase   ProblemTestcase? @relation(fields: [problemTestcaseId], references: [id], onDelete: Cascade)
-  problemTestcaseId Int?             @map("problem_test_case_id")
-  userTestcaseId    Int?             @map("user_testcase_id")
-  TestInput         String           @map("input")
-  TestOutput        String           @map("output")
-  result            ResultStatus
-  cpuTime           BigInt?          @map("cpu_time")
-  memoryUsage       Int?             @map("memory_usage")
-  createTime        DateTime         @default(now()) @map("create_time")
-  updateTime        DateTime         @updatedAt @map("update_time")
-
-  @@map("test_submission_result")
 }
