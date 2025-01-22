@@ -1,15 +1,15 @@
 'use client'
 
-import OptionSelect from '@/app/admin/_components/OptionSelect'
+import { OptionSelect } from '@/app/admin/_components/OptionSelect'
 import { languages, levels } from '@/libs/constants'
 import type { Template } from '@generated/graphql'
 import type { Language } from '@generated/graphql'
 import { useEffect } from 'react'
 import { useFormContext, useController } from 'react-hook-form'
-import ErrorMessage from '../../_components/ErrorMessage'
-import CheckboxSelect from './CheckboxSelect'
+import { ErrorMessage } from '../../_components/ErrorMessage'
+import { CheckboxSelect } from './CheckboxSelect'
 
-export default function InfoForm() {
+export function InfoForm() {
   const {
     watch,
     control,

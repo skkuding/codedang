@@ -6,9 +6,7 @@ interface SetToZeroButtonProps {
   onRevertScore: () => void
 }
 
-export default function RevertScoreButton({
-  onRevertScore
-}: SetToZeroButtonProps) {
+export function RevertScoreButton({ onRevertScore }: SetToZeroButtonProps) {
   const { table } = useDataTable<BelongedContest>()
 
   const selectedContests = table.getSelectedRowModel().rows

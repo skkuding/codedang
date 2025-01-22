@@ -1,6 +1,6 @@
 import type { SubmissionDetail } from '@/types/type'
 
-const dataIfError: SubmissionDetail = {
+export const dataIfError: SubmissionDetail = {
   problemId: 0,
   username: 'skkuding',
   code: `#include <stdio.h>
@@ -25,5 +25,3 @@ return 0;
     updateTime: new Date()
   }))
 }
-
-export default dataIfError

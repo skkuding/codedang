@@ -45,7 +45,7 @@ interface CopyButtonProps extends ComponentPropsWithoutRef<'button'> {
   withTooltip?: boolean
 }
 
-export default function CopyButton({
+export function CopyButton({
   value,
   iconSize = 24,
   withTooltip = true,

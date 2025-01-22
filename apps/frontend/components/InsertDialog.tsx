@@ -11,7 +11,6 @@ import {
   DialogTrigger
 } from '@/components/shadcn/dialog'
 import type { Editor } from '@tiptap/core'
-import React from 'react'
 import { Button } from './shadcn/button'
 import { Toggle } from './shadcn/toggle'
 
@@ -25,7 +24,7 @@ interface InsertDialogProps {
   onToggleClick?: () => void
 }
 
-export default function InsertDialog({
+export function InsertDialog({
   editor,
   activeType,
   title,

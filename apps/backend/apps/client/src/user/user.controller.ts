@@ -6,7 +6,6 @@ import {
   Req,
   Res,
   Controller,
-  Logger,
   Delete,
   Query
 } from '@nestjs/common'
@@ -25,8 +24,6 @@ import { UserService } from './user.service'
 
 @Controller('user')
 export class UserController {
-  private readonly logger = new Logger(UserController.name)
-
   constructor(private readonly userService: UserService) {}
 
   @Patch('password-reset')
@@ -95,8 +92,6 @@ export class UserController {
 @Controller('email-auth')
 @AuthNotNeededIfOpenSpace()
 export class EmailAuthenticationController {
-  private readonly logger = new Logger(EmailAuthenticationController.name)
-
   constructor(private readonly userService: UserService) {}
 
   setJwtInHeader(res: Response, jwt: string) {

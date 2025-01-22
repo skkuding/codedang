@@ -13,3 +13,10 @@ export const ORIGIN_HANDLER_NAME = 'codedang-handler'
 export const JUDGE_MESSAGE_TYPE = 'judge'
 export const RUN_MESSAGE_TYPE = 'run'
 export const USER_TESTCASE_MESSAGE_TYPE = 'userTestCase'
+
+/**
+ * 채점 요청 메세지 우선순위
+ */
+export const MESSAGE_PRIORITY_HIGH = 3
+export const MESSAGE_PRIORITY_MIDDLE = 2
+export const MESSAGE_PRIORITY_LOW = 1

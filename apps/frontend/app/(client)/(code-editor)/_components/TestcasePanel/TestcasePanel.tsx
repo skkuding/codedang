@@ -6,11 +6,11 @@ import type { TestResultDetail } from '@/types/type'
 import { useState, type ReactNode } from 'react'
 import { IoMdClose } from 'react-icons/io'
 import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
-import AddUserTestcaseDialog from './AddUserTestcaseDialog'
-import TestcaseTable from './TestcaseTable'
+import { AddUserTestcaseDialog } from './AddUserTestcaseDialog'
+import { TestcaseTable } from './TestcaseTable'
 import { useTestResults } from './useTestResults'
 
-export default function TestcasePanel() {
+export function TestcasePanel() {
   const [testcaseTabList, setTestcaseTabList] = useState<TestResultDetail[]>([])
   const [currentTab, setCurrentTab] = useState<number>(0)
 

@@ -1,15 +1,15 @@
 'use client'
 
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
-import useAuthModalStore from '@/stores/authModal'
-import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
+import { useAuthModalStore } from '@/stores/authModal'
+import { useRecoverAccountModalStore } from '@/stores/recoverAccountModal'
 import Image from 'next/image'
 import { IoMdArrowBack } from 'react-icons/io'
-import FindUserId from './FindUserId'
-import ResetPassword from './ResetPassword'
-import ResetPasswordEmailVerify from './ResetPasswordEmailVerify'
+import { FindUserId } from './FindUserId'
+import { ResetPassword } from './ResetPassword'
+import { ResetPasswordEmailVerify } from './ResetPasswordEmailVerify'
 
-export default function RecoverAccount() {
+export function RecoverAccount() {
   const { showSignIn } = useAuthModalStore((state) => state)
   const { modalPage, backModal } = useRecoverAccountModalStore((state) => state)
 
