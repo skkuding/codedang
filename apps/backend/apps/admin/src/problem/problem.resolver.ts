@@ -14,6 +14,7 @@ import {
   Image,
   ProblemTag,
   ProblemTestcase,
+  UpdateHistory,
   WorkbookProblem
 } from '@generated'
 import { AuthenticatedRequest } from '@libs/auth'
@@ -106,6 +107,13 @@ export class ProblemResolver {
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
     return await this.problemService.getProblem(id, groupId)
+  }
+
+  @Query(() => [UpdateHistory])
+  async getProblemUpdateHistory(
+    @Args('problemId', { type: () => Int }) problemId: number
+  ): Promise<UpdateHistory[]> {
+    return this.problemService.getProblemUpdateHistory(problemId)
   }
 
   @ResolveField('tag', () => [ProblemTag])

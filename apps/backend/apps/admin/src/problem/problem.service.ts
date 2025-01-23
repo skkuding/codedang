@@ -6,7 +6,7 @@ import {
   InternalServerErrorException
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Language } from '@generated'
+import { Language, UpdateHistory } from '@generated'
 import type { ContestProblem, Problem, Tag, WorkbookProblem } from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput } from '@generated'
@@ -382,6 +382,41 @@ export class ProblemService {
       }
     })
 
+    const updatedFields: string[] = []
+
+    if (input.title && input.title !== problem.title)
+      updatedFields.push('Title')
+    if (
+      input.languages &&
+      JSON.stringify(input.languages) !== JSON.stringify(problem.languages)
+    ) {
+      updatedFields.push('Language')
+    }
+    if (input.description && input.description !== problem.description) {
+      updatedFields.push('Description')
+    }
+    if (testcases?.length) {
+      const existingTestcases = await this.prisma.problemTestcase.findMany({
+        where: { problemId: id }
+      })
+      if (
+        JSON.stringify(testcases) !==
+        JSON.stringify(
+          existingTestcases.map((tc) => ({
+            input: tc.input,
+            output: tc.output,
+            scoreWeight: tc.scoreWeight,
+            isHidden: tc.isHidden
+          }))
+        )
+      ) {
+        updatedFields.push('Testcase*')
+      }
+    }
+    if (input.timeLimit && input.timeLimit !== problem.timeLimit)
+      updatedFields.push('Limit*')
+    if (input.hint && input.hint !== problem.hint) updatedFields.push('Hint')
+
     if (languages && !languages.length) {
       throw new UnprocessableDataException(
         'A problem should support at least one language'
@@ -424,7 +459,7 @@ export class ProblemService {
       await this.updateTestcases(id, testcases)
     }
 
-    const updatedProblem = await this.prisma.problem.update({
+    let updatedProblem = await this.prisma.problem.update({
       where: { id },
       data: {
         ...data,
@@ -436,7 +471,39 @@ export class ProblemService {
         problemTag
       }
     })
+    if (updatedFields.length > 0) {
+      updatedProblem = await this.prisma.problem.update({
+        where: { id },
+        data: {
+          ...data,
+          ...(isVisible != undefined && {
+            visibleLockTime: isVisible ? MIN_DATE : MAX_DATE
+          }),
+          ...(languages && { languages }),
+          ...(template && { template: [JSON.stringify(template)] }),
+          problemTag,
+          updateHistory: {
+            create: {
+              updatedFields: JSON.stringify(updatedFields),
+              updatedAt: new Date()
+            }
+          }
+        },
+        include: {
+          updateHistory: true // 업데이트된 히스토리 포함
+        }
+      })
+    }
+
     return this.changeVisibleLockTimeToIsVisible(updatedProblem)
+  }
+
+  async getProblemUpdateHistory(problemId: number) {
+    return await this.prisma.updateHistory.findMany({
+      where: {
+        problemId
+      }
+    })
   }
 
   async updateProblemTag(

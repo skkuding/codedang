@@ -1,0 +1,37 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetProblemUpdateHistory($problemId: Int!) {
+    getProblemUpdateHistory(problemId: $problemId) {
+      id
+      problemId
+      updatedFields
+      updatedAt
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "problemId": 4
+  }
+}
+
+assert {
+  res.body.data.getProblemUpdateHistory: isDefined
+}
+
+docs {
+  ## Get Problem Update History
+  Problem의 수정된 History를 가져옵니다.
+}
