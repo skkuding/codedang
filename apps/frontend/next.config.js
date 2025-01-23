@@ -2,7 +2,7 @@ const { withSentryConfig } = require('@sentry/nextjs')
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true'
 })
-require('dotenv').config({ path: '../../.env' })
+
 /** @type {import('next').NextConfig} */
 const MEDIA_BUCKET_NAME = process.env.MEDIA_BUCKET_NAME
 
