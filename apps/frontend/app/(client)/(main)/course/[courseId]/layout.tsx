@@ -25,7 +25,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <Separator className="my-4 transition" />
           <Sidebar />
         </nav>
-        <Separator className="vertical my-4 w-px bg-gray-200 transition" />
+        <Separator orientation="vertical" />
         <article>{children}</article>
       </div>
     </div>
