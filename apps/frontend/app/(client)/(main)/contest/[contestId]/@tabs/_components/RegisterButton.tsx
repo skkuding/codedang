@@ -83,10 +83,10 @@ export function RegisterButton({
     <Dialog>
       <DialogTrigger asChild>
         <Button
-          className="px-12 py-6 text-lg disabled:bg-gray-300 disabled:text-gray-600"
+          className="h-[48px] w-[940px] rounded-[1000px] px-12 py-6 text-lg disabled:bg-gray-300 disabled:text-gray-600"
           disabled={state === 'Upcoming'}
         >
-          Register Now
+          Register Now!
         </Button>
       </DialogTrigger>
       <DialogContent className="flex w-[416px] flex-col gap-6 p-10">

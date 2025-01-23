@@ -2,12 +2,27 @@ const { withSentryConfig } = require('@sentry/nextjs')
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true'
 })
-
+require('dotenv').config({ path: '../../.env' })
 /** @type {import('next').NextConfig} */
+const APP_ENV = process.env.APP_ENV //|| 'local'
+const MEDIA_BUCKET_NAME = process.env.MEDIA_BUCKET_NAME
+const STORAGE_BUCKET_ENDPOINT_URL = process.env.STORAGE_BUCKET_ENDPOINT_URL
+
+const domains =
+  APP_ENV === 'production'
+    ? [`${MEDIA_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com`]
+    : APP_ENV === 'stage'
+      ? ['stage.codedang.com']
+      : ['stage.codedang.com']
+// : [STORAGE_BUCKET_ENDPOINT_URL, 'stage.codedang.com']
+
 const nextConfig = {
   experimental: {
     typedRoutes: process.env.NODE_ENV !== 'development',
     instrumentationHook: process.env.NODE_ENV !== 'development'
+  },
+  images: {
+    domains
   },
   output: 'standalone',
   env: {
