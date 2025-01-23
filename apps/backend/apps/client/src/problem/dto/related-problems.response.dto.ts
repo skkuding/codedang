@@ -1,19 +1,11 @@
 import type { Level } from '@prisma/client'
+import { Exclude, Expose, Transform, Type } from 'class-transformer'
+import { IsOptional } from 'class-validator'
 
 export class RelatedProblemsResponseDto {
   data: Problem[]
   total: number
 }
-
-// @Exclude()
-// export class RelatedProblemsResponseDto {
-//   @Expose()
-//   @Type(() => Problem)
-//   data: Problem[]
-
-//   @Expose()
-//   total: number
-// }
 
 class Problem {
   order: number
@@ -27,40 +19,52 @@ class Problem {
   submissionTime: Date | null
 }
 
-// @Exclude()
-// class Problem {
-//   @Expose()
-//   order: number
+@Exclude()
+// eslint-disable-next-line
+export class _RelatedProblemsResponseDto {
+  @Expose()
+  @Type(() => _Problem)
+  data: _Problem[]
 
-//   @Expose()
-//   @Transform(({ obj }) => obj.problem.id, { toClassOnly: true })
-//   id: number
+  @Expose()
+  total: number
+}
 
-//   @Expose()
-//   @Transform(({ obj }) => obj.problem.title, { toClassOnly: true })
-//   title: number
+@Exclude()
+// eslint-disable-next-line
+class _Problem {
+  @Expose()
+  order: number
 
-//   @Expose()
-//   @Transform(({ obj }) => obj.problem.difficulty, { toClassOnly: true })
-//   difficulty: Level
+  @Expose()
+  @Transform(({ obj }) => obj.problem.id, { toClassOnly: true })
+  id: number
 
-//   @Expose()
-//   @Transform(({ obj }) => obj.problem.submissionCount, { toClassOnly: true })
-//   submissionCount: number
+  @Expose()
+  @Transform(({ obj }) => obj.problem.title, { toClassOnly: true })
+  title: number
 
-//   @Expose()
-//   @Transform(({ obj }) => obj.problem.acceptedRate, { toClassOnly: true })
-//   acceptedRate: number
+  @Expose()
+  @Transform(({ obj }) => obj.problem.difficulty, { toClassOnly: true })
+  difficulty: Level
 
-//   @Expose()
-//   @IsOptional()
-//   maxScore: number | null
+  @Expose()
+  @Transform(({ obj }) => obj.problem.submissionCount, { toClassOnly: true })
+  submissionCount: number
 
-//   @Expose()
-//   @IsOptional()
-//   score: string | null
+  @Expose()
+  @Transform(({ obj }) => obj.problem.acceptedRate, { toClassOnly: true })
+  acceptedRate: number
 
-//   @Expose()
-//   @IsOptional()
-//   submissionTime: Date | null
-// }
+  @Expose()
+  @IsOptional()
+  maxScore: number | null
+
+  @Expose()
+  @IsOptional()
+  score: string | null
+
+  @Expose()
+  @IsOptional()
+  submissionTime: Date | null
+}

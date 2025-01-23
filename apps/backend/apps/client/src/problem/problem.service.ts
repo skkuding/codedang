@@ -154,8 +154,17 @@ export class ProblemService {
     })
 
     const problems = unprocessedProblems.map(async (problem) => {
+      const {
+        problemTag,
+        acceptedRate,
+        difficulty,
+        engTitle,
+        id,
+        languages,
+        submissionCount,
+        title
+      } = problem
       let hasPassed: boolean | null = null
-      const { problemTag, ...data } = problem
       const problemTags = problemTag.map((tag) => tag.tagId)
       const tags = tagList.filter((tagItem) => problemTags.includes(tagItem.id))
       if (options.userId) {
@@ -179,7 +188,13 @@ export class ProblemService {
           : null
       }
       return {
-        ...data,
+        id,
+        title,
+        engTitle,
+        difficulty,
+        acceptedRate,
+        submissionCount,
+        languages,
         tags,
         hasPassed
       }
@@ -465,11 +480,26 @@ export class ContestProblemService {
       })
     ).map((tag) => tag.tag)
 
+    const excludedFields = [
+      'createTime',
+      'createdById',
+      'groupId',
+      'problemTag',
+      'submission',
+      'updateTime',
+      'visibleLockTime'
+    ]
+
+    const problem = { ...data.problem } // 원본 객체를 복사해서 안전하게 작업
+    excludedFields.forEach((key) => {
+      delete problem[key]
+    })
+
     // return plainToInstance(RelatedProblemResponseDto, data)
     return {
       order: data.order,
       problem: {
-        ...data.problem,
+        ...problem,
         tags
       }
     }
@@ -543,14 +573,47 @@ export class WorkbookProblemService {
     //   total
     // })
 
+    const exceptFields = [
+      'acceptedCount',
+      'createTime',
+      'createdById',
+      'description',
+      'engDescription',
+      'engHint',
+      'engInputDescription',
+      'engOutputDescription',
+      'engTitle',
+      'groupId',
+      'hint',
+      'inputDescription',
+      'languages',
+      'outputDescription',
+      'problemTag',
+      'problemTestcase',
+      'source',
+      'submission',
+      'submissionTime',
+      'template',
+      'timeLimit',
+      'memoryLimit',
+      'updateTime',
+      'visibleLockTime'
+    ]
+
     return {
-      data: data.map((item) => ({
-        order: item.order,
-        maxScore: null,
-        score: null,
-        submissionTime: null,
-        ...item.problem
-      })),
+      data: data.map((item) => {
+        const problem = { ...item.problem }
+        exceptFields.forEach((key) => {
+          delete problem[key]
+        })
+        return {
+          order: item.order,
+          maxScore: null,
+          score: null,
+          submissionTime: null,
+          ...problem
+        }
+      }),
       total
     }
   }
@@ -606,11 +669,25 @@ export class WorkbookProblemService {
       })
     ).map((tag) => tag.tag)
 
+    const excludedFields = [
+      'createTime',
+      'createdById',
+      'groupId',
+      'problemTag',
+      'submission',
+      'updateTime',
+      'visibleLockTime'
+    ]
+    const problem = { ...data.problem }
+    excludedFields.forEach((key) => {
+      delete problem[key]
+    })
+
     // return plainToInstance(RelatedProblemResponseDto, data)
     return {
       order: data.order,
       problem: {
-        ...data.problem,
+        ...problem,
         tags
       }
     }
