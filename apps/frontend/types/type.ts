@@ -179,6 +179,17 @@ export interface SubmissionDetail {
   }[]
 }
 
+// Leaderboard type definition
+// TODO: 해당 interface는 백엔드 api와 협의 하에 작성되지 않았어요. dummy data를
+// 이용하여 최소한의 기능 구현을 위한 구조로 설계되었으므로 후에 수정이 필요합니다.
+export interface LeaderboardItem {
+  id: number
+  rank: string
+  username: string
+  penalty: number
+  solved: number
+}
+
 // Test type definition
 
 export interface TestResult {

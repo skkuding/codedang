@@ -1,116 +1,139 @@
 [
   {
-    "id": "user01",
+    "rank": "001",
+    "username": "user01",
     "penalty": 537,
     "solved": 12
   },
   {
-    "id": "user02",
+    "rank": "002",
+    "username": "user02",
     "penalty": 199,
     "solved": 11
   },
   {
-    "id": "user03",
+    "rank": "003",
+    "username": "user03",
     "penalty": 218,
     "solved": 11
   },
   {
-    "id": "user04",
+    "rank": "004",
+    "username": "user04",
     "penalty": 264,
     "solved": 10
   },
   {
-    "id": "user05",
+    "rank": "005",
+    "username": "user05",
     "penalty": 304,
     "solved": 10
   },
   {
-    "id": "user06",
+    "rank": "006",
+    "username": "user06",
     "penalty": 528,
     "solved": 9
   },
   {
-    "id": "user07",
+    "rank": "007",
+    "username": "user07",
     "penalty": 275,
     "solved": 9
   },
   {
-    "id": "user08",
+    "rank": "008",
+    "username": "user08",
     "penalty": 282,
     "solved": 9
   },
   {
-    "id": "user09",
+    "rank": "009",
+    "username": "user09",
     "penalty": 330,
     "solved": 9
   },
   {
-    "id": "user10",
+    "rank": "010",
+    "username": "user10",
     "penalty": 353,
     "solved": 9
   },
   {
-    "id": "user11",
+    "rank": "011",
+    "username": "user11",
     "penalty": 452,
     "solved": 8
   },
   {
-    "id": "user12",
+    "rank": "012",
+    "username": "user12",
     "penalty": 531,
     "solved": 8
   },
   {
-    "id": "user13",
+    "rank": "013",
+    "username": "user13",
     "penalty": 176,
     "solved": 7
   },
   {
-    "id": "user14",
+    "rank": "014",
+    "username": "user14",
     "penalty": 178,
     "solved": 7
   },
   {
-    "id": "user15",
+    "rank": "015",
+    "username": "user15",
     "penalty": 242,
     "solved": 7
   },
   {
-    "id": "user16",
+    "rank": "016",
+    "username": "user16",
     "penalty": 301,
     "solved": 7
   },
   {
-    "id": "user17",
+    "rank": "017",
+    "username": "user17",
     "penalty": 348,
     "solved": 7
   },
   {
-    "id": "user18",
+    "rank": "018",
+    "username": "user18",
     "penalty": 152,
     "solved": 6
   },
   {
-    "id": "user19",
+    "rank": "019",
+    "username": "user19",
     "penalty": 212,
     "solved": 6
   },
   {
-    "id": "user20",
+    "rank": "020",
+    "username": "user20",
     "penalty": 238,
     "solved": 6
   },
   {
-    "id": "user21",
+    "rank": "021",
+    "username": "user21",
     "penalty": 132,
     "solved": 5
   },
   {
-    "id": "user22",
+    "rank": "022",
+    "username": "user22",
     "penalty": 514,
     "solved": 5
   },
   {
-    "id": "user23",
+    "rank": "023",
+    "username": "user23",
     "penalty": 34982,
     "solved": 5
   }

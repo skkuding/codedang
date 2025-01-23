@@ -15,9 +15,10 @@ import {
   getCoreRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import type { Route } from 'next'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+
+// import type { Route } from 'next'
+// import Link from 'next/link'
+// import { useRouter } from 'next/navigation'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -70,16 +71,16 @@ interface Item {
 export default function DataTable<TData extends Item, TValue>({
   columns,
   data,
-  headerStyle,
-  problemId,
-  contestId
+  headerStyle
+  // problemId,
+  // contestId
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel()
   })
-  const router = useRouter()
+  // const router = useRouter()
 
   return (
     <Table className="table-fixed">
@@ -111,16 +112,16 @@ export default function DataTable<TData extends Item, TValue>({
       <TableBody>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
-            const href =
-              `/contest/${contestId}/problem/${problemId}/submission/${row.original.id}` as Route
+            // const href =
+            //   `/contest/${contestId}/problem/${problemId}/submission/${row.original.id}` as Route
             return (
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
                 className="cursor-pointer border-t border-slate-600 text-slate-300 hover:bg-slate-600/50 hover:font-semibold"
-                onClick={() => {
-                  router.replace(href)
-                }}
+                // onClick={() => {
+                //   router.replace(href)
+                // }}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
@@ -139,7 +140,7 @@ export default function DataTable<TData extends Item, TValue>({
                       )}
                     </div>
                     {/* for prefetch */}
-                    <Link replace href={href} />
+                    {/* <Link replace href={href} /> */}
                   </TableCell>
                 ))}
               </TableRow>
