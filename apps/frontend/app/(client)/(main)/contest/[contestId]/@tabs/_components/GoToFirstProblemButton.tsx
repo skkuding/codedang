@@ -1,36 +1,23 @@
-'use client'
-
-import { contestProblemQueries } from '@/app/(client)/_libs/queries/contestProblem'
+import { getContestProblemList } from '@/app/(client)/_libs/apis/contestProblem'
 import { Button } from '@/components/shadcn/button'
-import { Skeleton } from '@/components/shadcn/skeleton'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 interface GoToFirstProblemButtonProps {
   contestId: number
 }
 
-export function GoToFirstProblemButton({
+export async function GoToFirstProblemButton({
   contestId
 }: GoToFirstProblemButtonProps) {
-  const router = useRouter()
-  const { data: firstProblemId } = useSuspenseQuery({
-    ...contestProblemQueries.list({ contestId, take: 1 }),
-    select: (data) => data.data.at(0)?.id
-  })
+  const { data } = await getContestProblemList({ contestId, take: 1 })
 
-  return (
-    <Button
-      className="px-12 py-6 text-lg font-light"
-      onClick={() =>
-        router.push(`/contest/${contestId}/problem/${firstProblemId}`)
-      }
-    >
-      Go To First Problem!
+  const firstProblemId = data.at(0)?.id
+
+  return firstProblemId ? (
+    <Button className="px-12 py-6 text-lg font-light">
+      <Link href={`/contest/${contestId}/problem/${firstProblemId}`}>
+        Go To First Problem!
+      </Link>
     </Button>
-  )
-}
-
-export function GoToFirstProblemButtonFallback() {
-  return <Skeleton className="h-12 w-60" />
+  ) : null
 }
