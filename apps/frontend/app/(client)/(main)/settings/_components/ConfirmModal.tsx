@@ -50,7 +50,7 @@ export function ConfirmModal({
           Leave
         </AlertDialogAction>
         <AlertDialogCancel
-          className="bg-primary hover:bg-primary-strong border-none text-white"
+          className="border-none bg-primary text-white hover:bg-primary-strong"
           onClick={handleClose}
         >
           Stay

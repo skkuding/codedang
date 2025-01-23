@@ -94,7 +94,7 @@ export default async function Contest({ searchParams }: ContestProps) {
           {session ? (
             <TableSwitchButton registered={registered} />
           ) : (
-            <p className="text-primary-light border-primary-light w-fit border-b-2 p-6 text-xl font-bold md:text-2xl">
+            <p className="w-fit border-b-2 border-primary-light p-6 text-xl font-bold text-primary-light md:text-2xl">
               Finished
             </p>
           )}

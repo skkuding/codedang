@@ -53,7 +53,7 @@ export function EditorMainResizablePanel({
         style={{ minWidth: '500px' }}
         minSize={20}
       >
-        <div className="grid-rows-editor grid h-full grid-cols-1">
+        <div className="grid h-full grid-cols-1 grid-rows-editor">
           <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
             <Tabs
               value={
@@ -66,7 +66,7 @@ export function EditorMainResizablePanel({
                 <Link replace href={`${base}/problem/${problem.id}` as Route}>
                   <TabsTrigger
                     value="Description"
-                    className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
+                    className="data-[state=active]:bg-slate-700 data-[state=active]:text-primary-light"
                   >
                     Description
                   </TabsTrigger>
@@ -77,7 +77,7 @@ export function EditorMainResizablePanel({
                 >
                   <TabsTrigger
                     value="Submission"
-                    className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
+                    className="data-[state=active]:bg-slate-700 data-[state=active]:text-primary-light"
                   >
                     Submissions
                   </TabsTrigger>
@@ -85,7 +85,7 @@ export function EditorMainResizablePanel({
               </TabsList>
             </Tabs>
           </div>
-          <ScrollArea className="[&>div>div]:!block">
+          <ScrollArea className="[&>div>div]:block!">
             <Suspense fallback={<Loading />}>{children}</Suspense>
           </ScrollArea>
         </div>
@@ -94,7 +94,7 @@ export function EditorMainResizablePanel({
       <ResizableHandle withHandle className="border-[0.5px] border-slate-700" />
 
       <ResizablePanel defaultSize={65} className="bg-[#222939]">
-        <div className="grid-rows-editor grid h-full">
+        <div className="grid h-full grid-rows-editor">
           <TestcaseStoreProvider
             problemId={problem.id}
             contestId={contestId}
@@ -109,7 +109,7 @@ export function EditorMainResizablePanel({
               <ResizablePanelGroup direction="vertical" className="h-32">
                 <ResizablePanel
                   defaultSize={60}
-                  className="!overflow-x-auto !overflow-y-auto"
+                  className="overflow-x-auto! overflow-y-auto!"
                 >
                   <ScrollArea className="h-full bg-[#121728]">
                     <CodeEditorInEditorResizablePanel

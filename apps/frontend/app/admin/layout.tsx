@@ -25,7 +25,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <SideBar />
           {/* <Link
             href={'/' as Route}
-            className="mt-auto rounded px-4 py-2 text-slate-600 transition hover:bg-slate-100"
+            className="mt-auto rounded-sm px-4 py-2 text-slate-600 transition hover:bg-slate-100"
           >
             <FaArrowRightFromBracket className="mr-2 inline-block" />
             Quit

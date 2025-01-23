@@ -67,7 +67,7 @@ export function CheckboxSelect<T extends string>({
                 {selectedValues.length === options.length ? (
                   <Badge
                     variant="secondary"
-                    className="rounded-sm px-1 font-normal"
+                    className="rounded-xs px-1 font-normal"
                   >
                     All
                   </Badge>
@@ -77,7 +77,7 @@ export function CheckboxSelect<T extends string>({
                       <Badge
                         key={value}
                         variant="secondary"
-                        className="rounded-sm px-1 font-normal"
+                        className="rounded-xs px-1 font-normal"
                       >
                         {value}
                       </Badge>

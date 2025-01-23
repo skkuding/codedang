@@ -165,7 +165,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 <p>Equal Distribution</p>
               </Button>
             </TooltipTrigger>
-            <TooltipContent className="bg-white text-black shadow-sm">
+            <TooltipContent className="shadow-xs bg-white text-black">
               Click to equally distribute the scoring ratio for testcases where
               the percentage is not specified.
             </TooltipContent>

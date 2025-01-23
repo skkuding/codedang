@@ -88,7 +88,7 @@ export function DataTableProblemFilter({ contestId }: { contestId: number }) {
                   </p>
                   <FaCheck
                     className={cn(
-                      'h-4 w-4 flex-shrink-0',
+                      'h-4 w-4 shrink-0',
                       selectedValue === value ? 'opacity-100' : 'opacity-0'
                     )}
                   />

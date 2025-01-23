@@ -70,7 +70,7 @@ export function SignIn() {
           className="flex w-full flex-col gap-4"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <p className="text-primary mb-4 text-left font-mono text-xl font-bold">
+          <p className="mb-4 text-left font-mono text-xl font-bold text-primary">
             Log in
           </p>
           <Input
@@ -79,7 +79,7 @@ export function SignIn() {
             {...register('username')}
             className={cn(
               'focus-visible:ring-1',
-              watch('username') && 'ring-primary ring-1'
+              watch('username') && 'ring-1 ring-primary'
             )}
           />
           <div className="relative flex justify-between gap-1">
@@ -89,7 +89,7 @@ export function SignIn() {
               {...register('password')}
               className={cn(
                 'focus-visible:ring-1',
-                watch('password') && 'ring-primary ring-1'
+                watch('password') && 'ring-1 ring-primary'
               )}
             />
             <span

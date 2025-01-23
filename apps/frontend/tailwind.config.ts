@@ -2,10 +2,9 @@ import typography from '@tailwindcss/typography'
 import type { Config } from 'tailwindcss'
 import animate from 'tailwindcss-animate'
 import defaultTheme from 'tailwindcss/defaultTheme'
-import type { PluginAPI } from 'tailwindcss/types/config'
 
 export default {
-  darkMode: ['class'],
+  darkMode: 'class',
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
@@ -70,22 +69,5 @@ export default {
       }
     }
   },
-  plugins: [
-    animate,
-    typography,
-    function ({ addUtilities }: { addUtilities: PluginAPI['addUtilities'] }) {
-      addUtilities({
-        '.hide-spin-button': {
-          appearance: 'textfield',
-          '&::-webkit-inner-spin-button': {
-            appearance: 'none'
-          },
-          '&::-webkit-outer-spin-button': {
-            appearance: 'none'
-          }
-        }
-      })
-    }
-  ],
-  safelist: ['!text-green-500', '!text-neutral-400', '!text-red-500']
+  plugins: [animate, typography]
 } satisfies Config

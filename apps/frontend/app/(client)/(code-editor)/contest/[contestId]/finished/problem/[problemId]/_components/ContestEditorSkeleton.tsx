@@ -4,7 +4,7 @@ import Image from 'next/image'
 
 export function ContestEditorSkeleton() {
   return (
-    <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
+    <div className="grid h-dvh w-full min-w-[1000px] grid-rows-editor overflow-x-auto bg-slate-800 text-white">
       <header className="flex h-12 justify-between bg-slate-900 px-6">
         <div className="flex items-center justify-center gap-4 text-lg text-[#787E80]">
           <a href="#">
@@ -17,14 +17,14 @@ export function ContestEditorSkeleton() {
             <p className="mx-2"> / </p>
             <button
               type="button"
-              className="flex gap-1 text-lg text-white outline-none"
+              className="outline-hidden flex gap-1 text-lg text-white"
             >
               <h1>A. 정수 더하기</h1>
             </button>
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <div className="text-error inline-flex items-center gap-2 whitespace-nowrap text-sm opacity-80">
+          <div className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-error opacity-80">
             <Image src={clockIcon} alt="Clock" />
             Ends in
             <p className="overflow-hidden text-ellipsis whitespace-nowrap">
@@ -85,7 +85,7 @@ export function ContestEditorSkeleton() {
             <button className="h-8 w-[77px] rounded-md bg-[#D7E5FE] text-[#484C4D]">
               Test
             </button>
-            <button className="bg-primary h-8 w-[77px] rounded-md text-gray-50">
+            <button className="h-8 w-[77px] rounded-md bg-primary text-gray-50">
               Submit
             </button>
             <button className="h-8 w-10 rounded-md bg-slate-600">C</button>

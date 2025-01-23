@@ -28,7 +28,7 @@ export function Footer() {
           rel="noreferrer noopener"
           target="_blank"
           href="https://github.com/skkuding/"
-          className="rounded border border-gray-200 p-1"
+          className="rounded-sm border border-gray-200 p-1"
         >
           <TbBrandGithubFilled className="text-gray-500" size="17" />
         </a>
@@ -36,20 +36,20 @@ export function Footer() {
           href="https://pf.kakao.com/_UKraK/chat"
           rel="noreferrer noopener"
           target="_blank"
-          className="rounded border border-gray-200 p-1"
+          className="rounded-sm border border-gray-200 p-1"
         >
           <RiKakaoTalkFill className="text-gray-500" size="17" />
         </a>
         <AiFillMail
           onClick={copyToClipboard}
-          className="rounded border border-gray-200 p-1 text-gray-500"
+          className="rounded-sm border border-gray-200 p-1 text-gray-500"
           size="27"
         />
         <a
           rel="noreferrer noopener"
           target="_blank"
           href="https://skkuding.dev/"
-          className="rounded border border-gray-200 p-1"
+          className="rounded-sm border border-gray-200 p-1"
         >
           <AiOutlineLink className="text-gray-500" size="17" />
         </a>

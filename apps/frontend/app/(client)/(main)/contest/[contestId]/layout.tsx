@@ -59,10 +59,10 @@ export default async function Layout({ params, tabs }: ContestDetailProps) {
               {isRegistered && contestStatus !== 'upcoming' && (
                 <>
                   <Image src={checkIcon} alt="check" width={24} height={24} />
-                  <p className="text-primary-light text-sm font-bold">
+                  <p className="text-sm font-bold text-primary-light">
                     Total score
                   </p>
-                  <p className="text-primary-strong font-bold">
+                  <p className="font-bold text-primary-strong">
                     {isJudgeResultVisible
                       ? `${totalScore} / ${totalMaxScore}`
                       : '-'}

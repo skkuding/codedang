@@ -9,7 +9,7 @@ export function TableSwitchButton({ registered }: { registered: boolean }) {
         className={cn(
           'w-fit p-6 text-xl font-medium text-[#333333]/30 hover:text-[#333333]/50',
           !registered
-            ? 'text-primary-light hover:text-primary-light border-primary-light border-b-2 font-bold'
+            ? 'border-b-2 border-primary-light font-bold text-primary-light hover:text-primary-light'
             : ''
         )}
         scroll={false}
@@ -21,7 +21,7 @@ export function TableSwitchButton({ registered }: { registered: boolean }) {
         className={cn(
           'w-fit p-6 text-xl font-medium text-[#333333]/30 hover:text-[#333333]/50',
           registered
-            ? 'text-primary-light hover:text-primary-light border-primary-light border-b-2 font-bold'
+            ? 'border-b-2 border-primary-light font-bold text-primary-light hover:text-primary-light'
             : ''
         )}
         scroll={false}

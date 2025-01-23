@@ -85,7 +85,7 @@ export function ResetPassword() {
       onSubmit={handleSubmit(onSubmit)}
       className="flex w-full flex-col gap-1 px-2"
     >
-      <p className="text-primary mb-4 text-left font-mono text-xl font-bold">
+      <p className="mb-4 text-left font-mono text-xl font-bold text-primary">
         Reset Password
       </p>
       <div className="flex flex-col gap-4">

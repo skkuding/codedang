@@ -13,7 +13,7 @@ export const columns: ColumnDef<Notice>[] = [
       return (
         <div className="flex items-center justify-start gap-3 md:gap-4">
           {row.original.isFixed && (
-            <div className="bg-primary flex h-5 w-5 items-center justify-center rounded-full p-1 text-white md:h-6 md:w-6">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary p-1 text-white md:h-6 md:w-6">
               <PiPushPinFill />
             </div>
           )}

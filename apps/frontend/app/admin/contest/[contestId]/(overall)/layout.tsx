@@ -43,7 +43,7 @@ export default function Layout({
         </Link>
       </div>
       <div className="flex justify-between">
-        <p className="text-primary font-bold">
+        <p className="font-bold text-primary">
           Invitation code: {contestData?.invitationCode}
         </p>
         <div className="flex items-center gap-2">

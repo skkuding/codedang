@@ -86,7 +86,7 @@ export function TestcaseItem({
             type="number"
             min={0}
             className={cn(
-              'hide-spin-button h-5 w-8 rounded-sm border text-center text-xs',
+              'hide-spin-button rounded-xs h-5 w-8 border text-center text-xs',
               isInvalid(getValues('testcases')[index].scoreWeight)
                 ? 'border-red-500'
                 : 'border-gray-300'

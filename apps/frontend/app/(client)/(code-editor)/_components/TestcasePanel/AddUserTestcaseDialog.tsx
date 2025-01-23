@@ -82,12 +82,12 @@ export function AddUserTestcaseDialog() {
 
               {testcases.map((testcase, index) => (
                 <div key={testcase.id} className="flex flex-col">
-                  <p className="text-primary-light mb-4">
+                  <p className="mb-4 text-primary-light">
                     User Testcase #{(index + 1).toString().padStart(2, '0')}
                   </p>
                   <div
                     className={cn(
-                      'relative flex min-h-[80px] w-full rounded-md border border-[#DFDFDF] bg-white py-3 font-mono text-[#C2C2C2] shadow-sm',
+                      'shadow-xs relative flex min-h-[80px] w-full rounded-md border border-[#DFDFDF] bg-white py-3 font-mono text-[#C2C2C2]',
                       formState.errors?.testcases?.[index] && 'border-error'
                     )}
                   >
@@ -114,7 +114,7 @@ export function AddUserTestcaseDialog() {
                     </button>
                   </div>
                   {formState.errors?.testcases?.[index] && (
-                    <div className="text-error mt-2 flex items-center gap-1 text-[11px] font-medium leading-[14px]">
+                    <div className="mt-2 flex items-center gap-1 text-[11px] font-medium leading-[14px] text-error">
                       <AlertTriangle size={12} />
                       Required
                     </div>
@@ -162,7 +162,7 @@ function SampleTestcaseItem({
   return (
     <div
       className={cn(
-        'flex min-h-[80px] w-full rounded-md border border-[#313744] bg-[#222939] font-mono shadow-sm'
+        'shadow-xs flex min-h-[80px] w-full rounded-md border border-[#313744] bg-[#222939] font-mono'
       )}
     >
       <div className="relative flex-1">

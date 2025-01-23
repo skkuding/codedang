@@ -8,6 +8,9 @@
     "@trivago/prettier-plugin-sort-imports",
     "prettier-plugin-tailwindcss"
   ],
+  "tailwindConfig": "./apps/frontend/tailwind.config.ts",
+  "tailwindStylesheet": "./apps/frontend/app/globals.css",
+  "tailwindFunctions": ["cn"],
   "importOrderParserPlugins": [
     "typescript",
     "jsx",
