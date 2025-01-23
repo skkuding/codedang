@@ -45,7 +45,6 @@ export default async function ContestTop({ params }: ContestTopProps) {
   const data: ContestTop = await fetcherWithAuth
     .get(`contest/${contestId}`)
     .json()
-  console.log('data:', data)
 
   const contest: Contest = {
     ...data,
@@ -72,9 +71,6 @@ export default async function ContestTop({ params }: ContestTopProps) {
     'YYYY-MM-DD HH:mm:ss'
   )
   const formattedEndTime = dateFormatter(data.endTime, 'YYYY-MM-DD HH:mm:ss')
-
-  console.log('session:', session)
-  console.log('state:', state)
 
   const imgTagMatch = data.description.match(/<img[^>]+src="([^"]+)"/)
   const imageUrl = imgTagMatch ? imgTagMatch[1] : '/logos/welcome.png'
