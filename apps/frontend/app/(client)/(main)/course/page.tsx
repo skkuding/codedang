@@ -7,7 +7,6 @@ import { Suspense } from 'react'
 import { LuCalendar } from 'react-icons/lu'
 //import { Separator } from '@radix-ui/react-separator'
 import { Separator } from '../../../../../frontend/components/shadcn/separator'
-import { CalendarTable } from './_components/CalendarTable'
 //import Dashboard from './[courseId]/_components/Dashboard'
 import { CourseCardList } from './_components/CourseCardList'
 import { Dashboard } from './_components/Dashboard'
@@ -41,12 +40,10 @@ export default async function Course() {
         </ErrorBoundary>
         <Separator className="my-4" />
         <div className="flex">
-          <LuCalendar size={25} className="mr-2 mt-[2px]" />
-          <h1 className="text-2xl font-bold text-gray-700">Calendar</h1>
+          <h1 className="text-2xl font-bold text-gray-700">Course Overview</h1>
         </div>
       </div>
       <div className="w-full">
-        {/* <CalendarTable /> */}
         <Dashboard session={session} />
       </div>
     </>
