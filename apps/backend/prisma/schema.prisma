@@ -56,7 +56,6 @@ model User {
   assignmentRecord AssignmentRecord[]
   contest          Contest[]
   contestRecord    ContestRecord[]
-  leaderBoard      LeaderBoard[]
   workbook         Workbook[]
   submission       Submission[]
   useroauth        UserOAuth?
@@ -346,24 +345,8 @@ model Contest {
   contestRecord  ContestRecord[]
   submission     Submission[]
   announcement   Announcement[]
-  LeaderBoard    LeaderBoard[]
 
   @@map("contest")
-}
-
-model LeaderBoard {
-  id         Int      @id @default(autoincrement())
-  contest    Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId  Int      @map("contest_id")
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     Int      @map("user_id")
-  score      Int      @default(0)
-  rank       Int      @default(0)
-  createTime DateTime @default(now()) @map("create_time")
-  updateTime DateTime @updatedAt @map("update_time")
-
-  @@unique([contestId, userId])
-  @@map("leader_board")
 }
 
 model ContestProblem {
@@ -382,20 +365,37 @@ model ContestProblem {
   @@map("contest_problem")
 }
 
+// Contest 문제 풀이 이력
+// problem 을 풀었을 때 최대 점수를 저장,
+// 부분 점수라도 받았을 때 생성되기 때문에 없을 수 있음
+model ContestSolveHistory {
+  recordId         Int            @map("record_id")
+  userId           Int            @map("user_id")
+  contestProblemId Int            @map("contest_problem_id")
+  maxScore         Int            @map("max_score")
+  createTime       DateTime       @default(now()) @map("create_time")
+  updateTime       DateTime       @updatedAt @map("update_time")
+  ContestRecord    ContestRecord? @relation(fields: [contestRecordId], references: [id])
+  contestRecordId  Int?
+
+  @@id([recordId, userId, contestProblemId])
+}
+
 model ContestRecord {
-  id                 Int       @id @default(autoincrement())
-  contest            Contest   @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId          Int       @map("contest_id")
-  user               User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId             Int?      @map("user_id")
-  acceptedProblemNum Int       @default(0) @map("accepted_problem_num")
-  score              Int       @default(0)
+  id                  Int                   @id @default(autoincrement())
+  contest             Contest               @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId           Int                   @map("contest_id")
+  user                User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId              Int?                  @map("user_id")
+  acceptedProblemNum  Int                   @default(0) @map("accepted_problem_num")
+  score               Int                   @default(0)
   // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각
-  finishTime         DateTime? @map("finish_time")
+  finishTime          DateTime?             @map("finish_time")
   // totalPenalty: Submission 시, AC를 받지 못했을 때, 올라가는 Counter
-  totalPenalty       Int       @default(0) @map("total_penalty")
-  createTime         DateTime  @default(now()) @map("create_time")
-  updateTime         DateTime  @updatedAt @map("update_time")
+  totalPenalty        Int                   @default(0) @map("total_penalty")
+  createTime          DateTime              @default(now()) @map("create_time")
+  updateTime          DateTime              @updatedAt @map("update_time")
+  contestSolveHistory ContestSolveHistory[]
 
   @@unique([contestId, userId])
   @@map("contest_record")
