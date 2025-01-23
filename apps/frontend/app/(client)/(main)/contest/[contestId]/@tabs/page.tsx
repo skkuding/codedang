@@ -2,11 +2,7 @@ import { KatexContent } from '@/components/KatexContent'
 import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
 import { ErrorBoundary } from '@suspensive/react'
-import { Suspense } from 'react'
-import {
-  GoToFirstProblemButton,
-  GoToFirstProblemButtonFallback
-} from './_components/GoToFirstProblemButton'
+import { GoToFirstProblemButton } from './_components/GoToFirstProblemButton'
 import { RegisterButton } from './_components/RegisterButton'
 
 interface ContestTop {
@@ -56,9 +52,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
         <div className="mt-10 flex justify-center">
           {data.isRegistered ? (
             <ErrorBoundary fallback={null}>
-              <Suspense fallback={<GoToFirstProblemButtonFallback />}>
-                <GoToFirstProblemButton contestId={Number(contestId)} />
-              </Suspense>
+              <GoToFirstProblemButton contestId={Number(contestId)} />
             </ErrorBoundary>
           ) : (
             <RegisterButton
