@@ -8,7 +8,6 @@ import {
   ContestProblemController,
   ProblemController
 } from './problem.controller'
-import { ProblemRepository } from './problem.repository'
 import {
   ContestProblemService,
   ProblemService,
@@ -28,9 +27,7 @@ import {
     ContestProblemService,
     WorkbookProblemService,
     CodeDraftService,
-    ProblemRepository,
     { provide: APP_GUARD, useClass: GroupMemberGuard }
-  ],
-  exports: [ProblemRepository]
+  ]
 })
 export class ProblemModule {}

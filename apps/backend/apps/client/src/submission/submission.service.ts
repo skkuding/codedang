@@ -32,7 +32,6 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { ProblemRepository } from '@client/problem/problem.repository'
 import {
   CreateSubmissionDto,
   CreateUserTestSubmissionDto,
@@ -49,7 +48,6 @@ export class SubmissionService {
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
-    private readonly problemRepository: ProblemRepository,
     private readonly publish: SubmissionPublicationService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
