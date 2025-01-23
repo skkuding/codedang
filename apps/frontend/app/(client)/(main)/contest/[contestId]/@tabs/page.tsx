@@ -4,16 +4,9 @@ import { auth } from '@/libs/auth'
 import { cn, fetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
-import type { Contest } from '@/types/type'
+import type { Contest, ContestStatus } from '@/types/type'
 import Image from 'next/image'
 import { RegisterButton } from './_components/RegisterButton'
-
-export type ContestStatus =
-  | 'ongoing'
-  | 'upcoming'
-  | 'finished'
-  | 'registeredOngoing'
-  | 'registeredUpcoming'
 
 interface ContestTop {
   id: number
@@ -77,35 +70,33 @@ export default async function ContestTop({ params }: ContestTopProps) {
 
   return (
     <>
-      <h1 className="mt-24 h-[66px] w-[1208px] text-2xl font-bold">
-        {data?.title}
-      </h1>
+      <h1 className="mt-24 w-[1208px] text-2xl font-bold">{data?.title}</h1>
       <div className="mt-[30px] flex flex-col gap-[10px]">
         <div className="flex gap-2">
           <Image src={calendarIcon} alt="calendar" width={20} height={20} />
-          <p className="text-descriptext font-medium">
+          <p className="font-medium text-[#333333e6]">
             {formattedStartTime} ~ {formattedEndTime}
           </p>
         </div>
         <ContestStatusTimeDiff
           contest={contest}
-          textStyle="text-descriptext font-medium opacity-100"
+          textStyle="text-[#333333e6] font-medium opacity-100"
           inContestEditor={false}
         />
       </div>
       <div className="flex flex-row items-start gap-[34px]">
-        <div className="mt-[34px] h-[312px] w-[234px] rounded-[10px] bg-white">
+        <div className="mt-[34px] h-[312px] w-[234px] rounded-xl bg-white">
           <Image
             src={imageUrl}
             alt="Contest Poster"
             width={234}
             height={312}
-            className="h-[312px] w-[234px] rounded-[10px] border-[1px] object-contain"
+            className="h-[312px] w-[234px] rounded-xl border-[1px] object-contain"
           />
         </div>
         <div className="mt-[34px] flex flex-col gap-[29px]">
           <div className="flex flex-col gap-[14px]">
-            <div className="flex flex-row items-center">
+            <div className="flex flex-row items-start">
               <Button
                 variant={'outline'}
                 className={cn(
@@ -114,9 +105,9 @@ export default async function ContestTop({ params }: ContestTopProps) {
               >
                 참여 대상
               </Button>
-              <p className="text-descriptext">공백 포함 60자 글자수 제한</p>
+              <p className="text-[#333333e6]">공백 포함 60자 글자수 제한</p>
             </div>
-            <div className="flex flex-row items-center">
+            <div className="flex flex-row items-start">
               <Button
                 variant={'outline'}
                 className={cn(
@@ -125,9 +116,9 @@ export default async function ContestTop({ params }: ContestTopProps) {
               >
                 진행 방식
               </Button>
-              <p className="text-descriptext">공백 포함 60자 글자수 제한</p>
+              <p className="text-[#333333e6]">공백 포함 60자 글자수 제한</p>
             </div>
-            <div className="flex flex-row items-center">
+            <div className="flex flex-row items-start">
               <Button
                 variant={'outline'}
                 className={cn(
@@ -136,9 +127,9 @@ export default async function ContestTop({ params }: ContestTopProps) {
               >
                 순위 산정
               </Button>
-              <p className="text-descriptext">공백 포함 60자 글자수 제한</p>
+              <p className="text-[#333333e6]">공백 포함 60자 글자수 제한</p>
             </div>
-            <div className="flex flex-row items-center">
+            <div className="flex flex-row items-start">
               <Button
                 variant={'outline'}
                 className={cn(
@@ -147,11 +138,11 @@ export default async function ContestTop({ params }: ContestTopProps) {
               >
                 문제 형태
               </Button>
-              <p className="text-descriptext">
+              <p className="text-[#333333e6]">
                 공백 포함 120자 글자수 제한 <br /> 최대 두 줄까지 노출 가능.
               </p>
             </div>
-            <div className="flex flex-row items-center">
+            <div className="flex flex-row items-start">
               <Button
                 variant={'outline'}
                 className={cn(
@@ -160,7 +151,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
               >
                 참여 혜택
               </Button>
-              <p className="text-descriptext">
+              <p className="text-[#333333e6]">
                 공백 포함 120자 글자수 제한 <br /> 최대 두 줄까지 노출 가능.
               </p>
             </div>
@@ -169,7 +160,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
           {session && state !== 'Finished' && (
             <div className="h-[48px] w-[940px]">
               {data.isRegistered ? (
-                <Button className="bg-deactivate text-deactivatetext pointer-events-none h-[48px] w-[940px] rounded-[1000px]">
+                <Button className="text pointer-events-none h-[48px] w-[940px] rounded-[1000px] bg-[#80808014] text-[#3333334d]">
                   Registered
                 </Button>
               ) : (

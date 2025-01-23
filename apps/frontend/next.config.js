@@ -4,15 +4,12 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 })
 require('dotenv').config({ path: '../../.env' })
 /** @type {import('next').NextConfig} */
-const APP_ENV = process.env.APP_ENV //|| 'local'
 const MEDIA_BUCKET_NAME = process.env.MEDIA_BUCKET_NAME
-const STORAGE_BUCKET_ENDPOINT_URL = process.env.STORAGE_BUCKET_ENDPOINT_URL
 
 const domains =
- process.env.NODE_ENV === 'production'
+  process.env.NODE_ENV === 'production'
     ? [`${MEDIA_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com`]
     : ['stage.codedang.com']
-// : [STORAGE_BUCKET_ENDPOINT_URL, 'stage.codedang.com']
 
 const nextConfig = {
   experimental: {

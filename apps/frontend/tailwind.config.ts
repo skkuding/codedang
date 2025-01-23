@@ -52,10 +52,7 @@ export default {
             5: '#E0D9FC'
           }
         },
-        error: '#FF3B2F',
-        deactivate: 'rgba(128, 128, 128, 0.08)',
-        deactivatetext: 'rgba(51, 51, 51, 0.30)',
-        descriptext: 'rgba(51,51,51,0.90)'
+        error: '#FF3B2F'
       },
       keyframes: {
         'accordion-down': {
