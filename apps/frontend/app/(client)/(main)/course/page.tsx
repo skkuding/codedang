@@ -46,7 +46,7 @@ export default async function Course() {
         </div>
       </div>
       <div className="w-full">
-        <CalendarTable />
+        {/* <CalendarTable /> */}
         <Dashboard session={session} />
       </div>
     </>
