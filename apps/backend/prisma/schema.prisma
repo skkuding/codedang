@@ -48,19 +48,20 @@ model User {
   createTime DateTime  @default(now()) @map("create_time")
   updateTime DateTime  @updatedAt @map("update_time")
 
-  userProfile      UserProfile?
-  userGroup        UserGroup[]
-  notice           Notice[]
-  problem          Problem[]
-  assignment       Assignment[]
-  assignmentRecord AssignmentRecord[]
-  contest          Contest[]
-  contestRecord    ContestRecord[]
-  workbook         Workbook[]
-  submission       Submission[]
-  useroauth        UserOAuth?
-  CodeDraft        CodeDraft[]
-  Image            Image[]
+  userProfile          UserProfile?
+  userGroup            UserGroup[]
+  notice               Notice[]
+  problem              Problem[]
+  assignment           Assignment[]
+  assignmentRecord     AssignmentRecord[]
+  contest              Contest[]
+  contestProblemRecord ContestProblemRecord[]
+  contestRecord        ContestRecord[]
+  workbook             Workbook[]
+  submission           Submission[]
+  useroauth            UserOAuth?
+  CodeDraft            CodeDraft[]
+  Image                Image[]
 
   @@map("user")
 }
@@ -331,6 +332,9 @@ model Contest {
   groupId              Int      @map("group_id")
   title                String
   description          String
+  // 대회의 페널티 (0 ≤ penalty ≤ 100),
+  penalty              Int      @default(0)
+  lastPenalty          Boolean  @default(false) @map("last_penalty")
   invitationCode       String?  @map("invitation_code")
   startTime            DateTime @map("start_time")
   endTime              DateTime @map("end_time")
@@ -350,52 +354,56 @@ model Contest {
 }
 
 model ContestProblem {
-  order      Int
-  contest    Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId  Int      @map("contest_id")
-  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId  Int      @map("problem_id")
+  id                   Int                    @id @default(autoincrement())
+  order                Int
+  contest              Contest                @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId            Int                    @map("contest_id")
+  problem              Problem                @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId            Int                    @map("problem_id")
   // 각 문제의 점수 (비율 아님)
-  score      Int      @default(0)
-  createTime DateTime @default(now()) @map("create_time")
-  updateTime DateTime @updatedAt @map("update_time")
+  score                Int                    @default(0)
+  createTime           DateTime               @default(now()) @map("create_time")
+  updateTime           DateTime               @updatedAt @map("update_time")
+  contestProblemRecord ContestProblemRecord[]
 
-  @@id([contestId, problemId])
-  // @@unique([contestId, problemId])
+  // @@id([contestId, problemId])
+  @@unique([contestId, problemId])
   @@map("contest_problem")
 }
 
-// Contest 문제 풀이 이력
-// problem 을 풀었을 때 최대 점수를 저장,
-// 부분 점수라도 받았을 때 생성되기 때문에 없을 수 있음
-model ContestSolveHistory {
-  recordId         Int            @map("record_id")
-  userId           Int            @map("user_id")
-  contestProblemId Int            @map("contest_problem_id")
-  maxScore         Int            @map("max_score")
-  createTime       DateTime       @default(now()) @map("create_time")
-  updateTime       DateTime       @updatedAt @map("update_time")
-  ContestRecord    ContestRecord? @relation(fields: [contestRecordId], references: [id])
-  contestRecordId  Int?
+model ContestProblemRecord {
+  contestProblemId   Int            @map("contest_problem_id")
+  contestProblem     ContestProblem @relation(fields: [contestProblemId], references: [id], onDelete: Cascade)
+  userId             Int            @map("user_id")
+  user               User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score              Int            @default(0)
+  // finishTime: Pariticipant가 가장 최근에 좋은 제출을 받은 시각
+  finishTime         DateTime?      @map("finish_time")
+  // (좋은 제출 전까지 유저 u가 문제 p에 제출한 횟수) × (대회의 페널티)
+  submitCountPenalty Int            @default(0)
+  // 대회 시작부터 좋은 제출이 제출되기까지 쇼요된 시간, 단위는 분
+  timePenalty        Int            @default(0)
+  createTime         DateTime       @default(now()) @map("create_time")
+  updateTime         DateTime       @updatedAt @map("update_time")
 
-  @@id([recordId, userId, contestProblemId])
+  @@id([contestProblemId, userId])
+  @@map("contest_problem_record")
 }
 
 model ContestRecord {
-  id                  Int                   @id @default(autoincrement())
-  contest             Contest               @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId           Int                   @map("contest_id")
-  user                User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId              Int?                  @map("user_id")
-  acceptedProblemNum  Int                   @default(0) @map("accepted_problem_num")
-  score               Int                   @default(0)
+  id                 Int       @id @default(autoincrement())
+  contest            Contest   @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId          Int       @map("contest_id")
+  user               User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId             Int?      @map("user_id")
+  acceptedProblemNum Int       @default(0) @map("accepted_problem_num")
+  score              Int       @default(0)
   // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각
-  finishTime          DateTime?             @map("finish_time")
+  lastAcceptedTime   DateTime? @map("finish_time")
   // totalPenalty: Submission 시, AC를 받지 못했을 때, 올라가는 Counter
-  totalPenalty        Int                   @default(0) @map("total_penalty")
-  createTime          DateTime              @default(now()) @map("create_time")
-  updateTime          DateTime              @updatedAt @map("update_time")
-  contestSolveHistory ContestSolveHistory[]
+  totalPenalty       Int       @default(0) @map("total_penalty")
+  createTime         DateTime  @default(now()) @map("create_time")
+  updateTime         DateTime  @updatedAt @map("update_time")
 
   @@unique([contestId, userId])
   @@map("contest_record")
