@@ -2,7 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Language } from '@generated'
+import { Language, UpdateHistory } from '@generated'
 import type {
   AssignmentProblem,
   ContestProblem,
@@ -518,7 +518,7 @@ export class ProblemService {
       await this.updateTestcases(id, testcases)
     }
 
-    const updatedProblem = await this.prisma.problem.update({
+    let updatedProblem = await this.prisma.problem.update({
       where: { id },
       data: {
         ...data,

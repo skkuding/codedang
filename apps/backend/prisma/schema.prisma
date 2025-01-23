@@ -232,6 +232,7 @@ model Problem {
   codeDraft         CodeDraft[]
   updateHistory     UpdateHistory[]
   testSubmission    TestSubmission[]
+  updateHistory     UpdateHistory[]
 
   @@map("problem")
 }
@@ -243,6 +244,7 @@ model UpdateHistory {
   updatedAt     DateTime @default(now()) @map("updated_at")
   updatedFields Json     @map("updated_fields") // 변경된 필드 목록
 
+<<<<<<< HEAD
   titleInfo       Json
   languageInfo    Json
   descriptionInfo Json
@@ -270,6 +272,8 @@ model UpdateHistory {
   // prevMemoryLimit Int?
   // prevHint        String?
 
+=======
+>>>>>>> 7cddabd7 (feat(be): make and get problem update history)
   @@map("updateHistory")
 }
 
