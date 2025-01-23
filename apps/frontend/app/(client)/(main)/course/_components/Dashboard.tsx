@@ -1,10 +1,15 @@
 'use client'
 
+import { Button } from '@/components/shadcn/button'
 import { Calendar } from '@/components/shadcn/calendar'
+import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
+import maximizeIcon from '@/public/icons/maximize.svg'
 import type { Assignment, CalendarAssignment } from '@/types/type'
 import type { Session } from 'next-auth'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import { LuCalendar } from 'react-icons/lu'
 import { CalendarTable } from './CalendarTable'
 import { DashboardCalendar } from './DashboardCalendar'
 
@@ -43,6 +48,7 @@ export function Dashboard({ session }: { session?: Session | null }) {
   const [data, setData] = useState<Assignment[]>([])
   const [calendarData, setCalendarData] = useState<CalendarAssignment[]>([])
   const [date, setDate] = useState<Date | undefined>(new Date())
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,7 +85,18 @@ export function Dashboard({ session }: { session?: Session | null }) {
           <h1 className="text-2xl font-bold">내일 할 일!</h1>
           <CalendarTable />
         </div>
-        <div className="border-r border-neutral-300 p-8">
+        <div className="relative border-r border-neutral-300 p-8">
+          <div className="flex">
+            <LuCalendar size={25} className="mr-2 mt-[2px]" />
+            <h1 className="text-2xl font-bold text-gray-700">Calendar</h1>
+          </div>
+          <Button
+            className="absolute right-1 top-1"
+            variant="ghost"
+            onClick={() => setIsDialogOpen(true)}
+          >
+            <Image src={maximizeIcon} alt="check" width={16} height={16} />
+          </Button>
           <Calendar mode="single" selected={date} onSelect={setDate} />
         </div>
         <div className="flex-[3] p-8">
@@ -96,7 +113,11 @@ export function Dashboard({ session }: { session?: Session | null }) {
           </ul>
         </div>
       </div>
-      <DashboardCalendar data={calendarData} />
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="w-[1280px] max-w-[1280px]">
+          <DashboardCalendar data={calendarData} />
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
