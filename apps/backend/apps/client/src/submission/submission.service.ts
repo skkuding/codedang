@@ -881,7 +881,13 @@ export class SubmissionService {
       submission.userId === userId ||
       userRole === Role.Admin ||
       userRole === Role.SuperAdmin ||
-      (await this.problemRepository.hasPassedProblem(userId, { problemId }))
+      (await this.prisma.submission.count({
+        where: {
+          userId,
+          problemId,
+          result: 'Accepted'
+        }
+      }))
     ) {
       const code = plainToInstance(Snippet, submission.code)
       const results = submission.submissionResult.map((result) => {
