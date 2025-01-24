@@ -10,7 +10,7 @@ const Table = React.forwardRef<
       'relative w-full overflow-auto',
       className
         ?.split(' ')
-        .map((c) => (c.includes('border') || c.includes('rounded') ? c : ''))
+        .map((c) => (c.includes('border') || c.includes('rounded-sm') ? c : ''))
         .join(' ')
     )}
   >
@@ -20,7 +20,9 @@ const Table = React.forwardRef<
         'w-full caption-bottom text-sm',
         className
           ?.split(' ')
-          .map((c) => (c.includes('border') || c.includes('rounded') ? '' : c))
+          .map((c) =>
+            c.includes('border') || c.includes('rounded-sm') ? '' : c
+          )
           .join(' ')
       )}
       {...props}
@@ -60,7 +62,7 @@ const TableFooter = React.forwardRef<
   <tfoot
     ref={ref}
     className={cn(
-      'border-t bg-gray-100/50 font-medium dark:bg-gray-800/50 [&>tr]:last:border-b-0',
+      'border-t bg-gray-100/50 font-medium dark:bg-gray-800/50 last:[&>tr]:border-b-0',
       className
     )}
     {...props}

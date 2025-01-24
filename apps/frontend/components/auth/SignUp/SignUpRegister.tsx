@@ -533,7 +533,7 @@ export function SignUpRegister() {
                   'justify-between border-gray-200 font-normal text-black',
                   !majorValue
                     ? 'text-gray-500'
-                    : 'ring-primary border-0 ring-1',
+                    : 'border-0 ring-1 ring-primary',
                   !majorValue &&
                     focusedList[7] &&
                     !majorOpen &&

@@ -154,7 +154,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
           href={`/admin/contest/${id}`}
           className={cn(
             'rounded-md px-3 py-1.5 text-lg font-semibold',
-            isCurrentTab('') && 'text-primary bg-white font-bold'
+            isCurrentTab('') && 'bg-white font-bold text-primary'
           )}
         >
           Participant
@@ -163,7 +163,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
           href={`/admin/contest/${id}/submission`}
           className={cn(
             'rounded-md px-3 py-1.5 text-lg font-semibold',
-            isCurrentTab('submission') && 'text-primary bg-white font-bold'
+            isCurrentTab('submission') && 'bg-white font-bold text-primary'
           )}
         >
           All Submission

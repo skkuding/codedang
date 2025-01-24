@@ -7,9 +7,9 @@ interface CoverProps {
 }
 
 const bgColors: { [key: string]: string } = {
-  contest: 'bg-gradient-to-b from-[#7BD9D3] to-[#A7A5A1]',
-  problem: 'bg-gradient-to-b from-[#5861B7] to-[#99978E]',
-  notice: 'bg-gradient-to-b from-[#2F4672] to-[#4671B3]'
+  contest: 'bg-linear-to-b from-[#7BD9D3] to-[#A7A5A1]',
+  problem: 'bg-linear-to-b from-[#5861B7] to-[#99978E]',
+  notice: 'bg-linear-to-b from-[#2F4672] to-[#4671B3]'
 }
 
 const icons: { [key: string]: string } = {
@@ -26,7 +26,7 @@ const icons: { [key: string]: string } = {
 export function Cover({ title, description }: CoverProps) {
   return (
     <div className="w-screen">
-      <div className="absolute left-0 top-0 z-[10] h-14 w-full bg-white" />
+      <div className="absolute left-0 top-0 z-10 h-14 w-full bg-white" />
       <div
         className={cn(
           bgColors[title.toLowerCase()],

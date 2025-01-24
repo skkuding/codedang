@@ -48,7 +48,7 @@ export async function EditorLayout({
   const session = await auth()
 
   return (
-    <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
+    <div className="grid h-dvh w-full min-w-[1000px] grid-rows-editor overflow-x-auto bg-slate-800 text-white">
       <header className="flex h-12 justify-between bg-slate-900 px-6">
         <div className="flex items-center justify-center gap-4 text-lg text-[#787E80]">
           <Link href="/">

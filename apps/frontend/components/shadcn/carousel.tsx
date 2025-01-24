@@ -257,7 +257,7 @@ const CarouselNextGradient = () => {
   const { canScrollNext } = useCarousel()
 
   return canScrollNext ? (
-    <div className="absolute bottom-[4px] right-0 h-[130px] w-[120px] self-end bg-gradient-to-r from-transparent to-white/70" />
+    <div className="bg-linear-to-r absolute bottom-[4px] right-0 h-[130px] w-[120px] self-end from-transparent to-white/70" />
   ) : (
     <div />
   )
@@ -268,7 +268,7 @@ const CarouselPrevGradient = () => {
   const { canScrollPrev } = useCarousel()
 
   return canScrollPrev ? (
-    <div className="absolute bottom-[4px] left-0 h-[130px] w-[120px] self-start bg-gradient-to-r from-white/70 to-transparent" />
+    <div className="bg-linear-to-r absolute bottom-[4px] left-0 h-[130px] w-[120px] self-start from-white/70 to-transparent" />
   ) : (
     <div />
   )

@@ -63,7 +63,7 @@ function TableFallback<TData>({
   })
 
   return (
-    <ScrollArea className="max-w-full rounded border">
+    <ScrollArea className="max-w-full rounded-sm border">
       <Table>
         <TableHeader className="bg-neutral-100 [&_tr]:border-b-gray-200">
           {table.getHeaderGroups().map((headerGroup) => (

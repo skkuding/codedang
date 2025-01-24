@@ -92,7 +92,7 @@ export function HeaderAuthPanel({
             <DropdownMenuContent
               className={cn(
                 isEditor &&
-                  'mr-5 rounded-sm border-none bg-[#4C5565] px-0 font-normal text-white'
+                  'rounded-xs mr-5 border-none bg-[#4C5565] px-0 font-normal text-white'
               )}
             >
               {!isUser && (
@@ -196,7 +196,7 @@ export function HeaderAuthPanel({
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem
-              className="text-primary flex cursor-pointer items-center gap-1 font-semibold"
+              className="flex cursor-pointer items-center gap-1 font-semibold text-primary"
               onClick={() => {
                 signOut({ callbackUrl: '/', redirect: true })
               }}

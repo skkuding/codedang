@@ -36,7 +36,7 @@ export const Calendar = ({
           'text-gray-500 rounded-md w-8 font-normal text-[0.8rem] dark:text-gray-400',
         row: 'flex w-full mt-2',
         cell: cn(
-          'relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-gray-100 [&:has([aria-selected].day-outside)]:bg-gray-100/50 [&:has([aria-selected].day-range-end)]:rounded-r-md dark:[&:has([aria-selected])]:bg-gray-800 dark:[&:has([aria-selected].day-outside)]:bg-gray-800/50',
+          'relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-gray-100 dark:[&:has([aria-selected])]:bg-gray-800 [&:has([aria-selected].day-outside)]:bg-gray-100/50 dark:[&:has([aria-selected].day-outside)]:bg-gray-800/50 [&:has([aria-selected].day-range-end)]:rounded-r-md',
           props.mode === 'range'
             ? '[&:has(>.day-range-end)]:rounded-r-md [&:has(>.day-range-start)]:rounded-l-md first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md'
             : '[&:has([aria-selected])]:rounded-md'

@@ -160,7 +160,7 @@ export function SignUpEmailVerify() {
             id="email"
             type="email"
             className={cn(
-              'focus-visible:border-primary w-full focus-visible:ring-0',
+              'w-full focus-visible:border-primary focus-visible:ring-0',
               (emailError || errors.email) &&
                 'border-red-500 focus-visible:border-red-500'
             )}
@@ -195,7 +195,7 @@ export function SignUpEmailVerify() {
             type="number"
             className={cn(
               'hide-spin-button mt-2',
-              'focus-visible:border-primary w-full focus-visible:ring-0',
+              'w-full focus-visible:border-primary focus-visible:ring-0',
               (errors.verificationCode || expired || codeError) &&
                 'border-red-500 focus-visible:border-red-500'
             )}
@@ -209,7 +209,7 @@ export function SignUpEmailVerify() {
             !errors.verificationCode &&
             !codeError &&
             !emailVerified && (
-              <p className="text-primary mt-1 text-xs">
+              <p className="mt-1 text-xs text-primary">
                 We&apos;ve sent an email
               </p>
             )}

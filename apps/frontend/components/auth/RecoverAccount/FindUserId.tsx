@@ -95,7 +95,7 @@ export function FindUserId() {
         className="flex w-full flex-col gap-6 px-2"
       >
         <div className="flex flex-col gap-1">
-          <p className="text-primary mb-4 text-left font-mono text-xl font-bold">
+          <p className="mb-4 text-left font-mono text-xl font-bold text-primary">
             Find User ID
           </p>
           <Input
@@ -124,7 +124,7 @@ export function FindUserId() {
           {userId && (
             <p className="mt-4 text-center text-sm text-gray-700">
               Your user ID is{' '}
-              <span className="text-primary font-bold">{userId}</span>
+              <span className="font-bold text-primary">{userId}</span>
             </p>
           )}
         </div>

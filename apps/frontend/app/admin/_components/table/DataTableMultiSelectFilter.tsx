@@ -66,7 +66,7 @@ export function DataTableMultiSelectFilter<TData, TValue>({
                 {selectedValues.size === options.length ? (
                   <Badge
                     variant="secondary"
-                    className="rounded-sm px-1 font-normal"
+                    className="rounded-xs px-1 font-normal"
                   >
                     All
                   </Badge>
@@ -78,7 +78,7 @@ export function DataTableMultiSelectFilter<TData, TValue>({
                         <Badge
                           key={option.value}
                           variant="secondary"
-                          className="rounded-sm px-1 font-normal"
+                          className="rounded-xs px-1 font-normal"
                         >
                           {option.label}
                         </Badge>

@@ -25,7 +25,7 @@ export function SideBar() {
           key={item.name}
           href={item.path}
           className={cn(
-            'rounded px-4 py-2 transition',
+            'rounded-sm px-4 py-2 transition',
             (
               item.path === '/admin'
                 ? pathname === item.path

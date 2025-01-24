@@ -33,7 +33,7 @@ export function ParticipantTable({ contestId }: { contestId: number }) {
   return (
     <div>
       <p className="mb-3 font-medium">
-        <span className="text-primary font-bold">{summariesData.length}</span>{' '}
+        <span className="font-bold text-primary">{summariesData.length}</span>{' '}
         Participants
       </p>
       <DataTableRoot data={summariesData} columns={createColumns(problemData)}>

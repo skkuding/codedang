@@ -75,7 +75,7 @@ export function CurrentPwSection({
       {!errors.currentPassword &&
         isCheckButtonClicked &&
         (isPasswordCorrect ? (
-          <div className="text-primary -mt-4 inline-flex items-center text-xs">
+          <div className="-mt-4 inline-flex items-center text-xs text-primary">
             Correct
           </div>
         ) : (

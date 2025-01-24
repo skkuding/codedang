@@ -49,7 +49,7 @@ const PaginationButton = ({
       className={cn(
         buttonVariants({ variant: 'ghost', size }),
         isActive
-          ? 'text-primary-light bg-slate-700 hover:bg-slate-500'
+          ? 'bg-slate-700 text-primary-light hover:bg-slate-500'
           : 'text-slate-300 hover:bg-slate-700 hover:text-slate-400',
         className
       )}

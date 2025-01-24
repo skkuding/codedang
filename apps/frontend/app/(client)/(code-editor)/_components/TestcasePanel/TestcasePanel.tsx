@@ -57,7 +57,7 @@ export function TestcasePanel() {
           currentTab={currentTab}
           onClickTab={() => setCurrentTab(0)}
           nextTab={testcaseTabList[0]?.originalId}
-          className="flex-shrink-0"
+          className="shrink-0"
         >
           {testcaseTabList.length < 7 ? 'Testcase Result' : 'TC Res'}
         </TestcaseTab>
@@ -101,7 +101,7 @@ export function TestcasePanel() {
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
 
-        <div className="flex flex-shrink-0 items-center bg-[#121728] px-2">
+        <div className="flex shrink-0 items-center bg-[#121728] px-2">
           <AddUserTestcaseDialog />
         </div>
       </div>

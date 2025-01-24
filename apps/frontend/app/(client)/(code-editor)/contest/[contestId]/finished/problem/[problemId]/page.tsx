@@ -18,7 +18,7 @@ export default async function ContestFinishedPage({
   return (
     <>
       <ContestEditorSkeleton />
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-10 text-white backdrop-blur-md">
+      <div className="fixed inset-0 z-50 flex items-center justify-center text-white backdrop-blur-md">
         <div className="text-center">
           <h1 className="mb-8 font-mono text-2xl">The contest has finished!</h1>
           {isProblemPubliclyAvailable ? (
