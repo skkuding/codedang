@@ -10,6 +10,7 @@ import {
   Headers
 } from '@nestjs/common'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
+import { UnprocessableDataException } from '@libs/exception'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -28,7 +29,7 @@ export class SubmissionController {
 
   /**
    * 아직 채점되지 않은 제출 기록을 만들고, 채점 서버에 채점 요청을 보냅니다.
-   * 세 가지 제출 유형(일반 문제, 대회 문제, Workbook 문제)에 대해 제출할 수 있습니다.
+   * 세 가지 제출 유형(일반 문제, 대회 문제, 과제 문제, Workbook 문제)에 대해 제출할 수 있습니다.
    * createSubmission은 제출 유형에 따라 다른 서비스 메소드를 호출합니다.
    * @returns 아직 채점되지 않은 제출 기록
    */
@@ -40,9 +41,10 @@ export class SubmissionController {
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('contestId', IDValidationPipe) contestId: number | null,
+    @Query('assignmentId', IDValidationPipe) assignmentId: number | null,
     @Query('workbookId', IDValidationPipe) workbookId: number | null
   ) {
-    if (!contestId && !workbookId) {
+    if (!contestId && !workbookId && !assignmentId) {
       return await this.submissionService.submitToProblem(
         submissionDto,
         userIp,
@@ -57,6 +59,15 @@ export class SubmissionController {
         req.user.id,
         problemId,
         contestId,
+        groupId
+      )
+    } else if (assignmentId) {
+      return await this.submissionService.submitToAssignment(
+        submissionDto,
+        userIp,
+        req.user.id,
+        problemId,
+        assignmentId,
         groupId
       )
     } else if (workbookId) {
@@ -152,15 +163,22 @@ export class SubmissionController {
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('contestId', IDValidationPipe) contestId: number | null,
+    @Query('assignmentId', IDValidationPipe) assignmentId: number | null,
     @Param('id', new RequiredIntPipe('id')) id: number
   ) {
+    if (contestId && assignmentId) {
+      throw new UnprocessableDataException(
+        'Provide either contestId or assignmentId, not both.'
+      )
+    }
     return await this.submissionService.getSubmission(
       id,
       problemId,
       req.user.id,
       req.user.role,
       groupId,
-      contestId
+      contestId,
+      assignmentId
     )
   }
 }
@@ -184,6 +202,31 @@ export class ContestSubmissionController {
       take,
       problemId,
       contestId,
+      userId: req.user.id,
+      groupId
+    })
+  }
+}
+
+@Controller('assignment/:assignmentId/submission')
+export class AssignmentSubmissionController {
+  constructor(private readonly submissionService: SubmissionService) {}
+
+  @Get()
+  async getSubmissions(
+    @Req() req: AuthenticatedRequest,
+    @Param('assignmentId', IDValidationPipe) assignmentId: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number,
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
+    @Query('groupId', GroupIDPipe) groupId: number
+  ) {
+    return await this.submissionService.getAssignmentSubmissions({
+      cursor,
+      take,
+      problemId,
+      assignmentId,
       userId: req.user.id,
       groupId
     })

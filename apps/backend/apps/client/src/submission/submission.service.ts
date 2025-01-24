@@ -218,6 +218,120 @@ export class SubmissionService {
   }
 
   /**
+   * 진행중인 과제 문제에 대해 아직 채점되지 않은 제출 기록을 만들고, 채점 요청 큐에 메세지를 발행합니다.
+   *
+   * 1. 주어진 assignmentId와 groupId에 해당하는 진행 중인 과제가 있는지 확인
+   * 2. 사용자가 해당 과제에 등록되어 있는지 확인
+   * 3. 과제가 진행 중인지 및 그룹 조건을 만족하는지 확인
+   * 4. 제출하고자 하는 문제가 해당 과제에 속해 있는지 확인
+   * 5. 유효성이 검증된 경우 제출물을 생성하고 반환
+   *
+   * @param {CreateSubmissionDto} submissionDto - 코드 제출 DTO
+   * @param {string} userIp - 사용자의 IP 주소
+   * @param {number} userId - 제출을 수행하는 사용자의 ID
+   * @param {number} problemId - 제출할 문제의 ID
+   * @param {number} assignmentId - 문제가 속한 과제의 ID
+   * @param {number} [groupId=OPEN_SPACE_ID] - 사용자가 속한 그룹 ID (기본값=OPEN_SPACE_ID)
+   * @returns {Promise<Submission>} 생성된 제출 객체
+   * @throws {EntityNotExistException} 아래의 경우에 발생합니다
+   *   - 유효한 진행 중인 과제가 없을 경우 (Assignment)
+   *   - 사용자가 과제에 등록되어 있지 않은 경우 (AssignmentRecord)
+   *   - 문제를 찾을 수 없거나 과제와 매칭되지 않는 경우 (AssignmentProblem)
+   * @throws {ConflictFoundException} 아래의 경우에 발생합니다
+   *   - 과제가 진행중이지 않을 경우
+   */
+  @Span()
+  async submitToAssignment(
+    submissionDto: CreateSubmissionDto,
+    userIp: string,
+    userId: number,
+    problemId: number,
+    assignmentId: number,
+    groupId = OPEN_SPACE_ID
+  ) {
+    const now = new Date()
+
+    // 진행 중인 과제인지 확인합니다.
+    const assignment = await this.prisma.assignment.findFirst({
+      where: {
+        id: assignmentId,
+        groupId,
+        startTime: {
+          lte: now
+        },
+        endTime: {
+          gt: now
+        }
+      }
+    })
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+
+    // 과제에 등록되어 있는지 확인합니다.
+    const assignmentRecord = await this.prisma.assignmentRecord.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        assignmentId_userId: {
+          assignmentId,
+          userId
+        }
+      },
+      select: {
+        assignment: {
+          select: {
+            groupId: true,
+            startTime: true,
+            endTime: true
+          }
+        }
+      }
+    })
+    if (!assignmentRecord) {
+      throw new EntityNotExistException('AssignmentRecord')
+    }
+    if (assignmentRecord.assignment.groupId !== groupId) {
+      throw new EntityNotExistException('Assignment')
+    } else if (
+      assignmentRecord.assignment.startTime > now ||
+      assignmentRecord.assignment.endTime <= now
+    ) {
+      throw new ConflictFoundException(
+        'Submission is only allowed to ongoing assignments'
+      )
+    }
+
+    const assignmentProblem = await this.prisma.assignmentProblem.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        assignmentId_problemId: {
+          problemId,
+          assignmentId
+        }
+      },
+      include: {
+        problem: true
+      }
+    })
+    if (!assignmentProblem) {
+      throw new EntityNotExistException('AssignmentProblem')
+    }
+    const { problem } = assignmentProblem
+
+    const submission = await this.createSubmission(
+      submissionDto,
+      problem,
+      userId,
+      userIp,
+      {
+        assignmentId
+      }
+    )
+
+    return submission
+  }
+
+  /**
    * 워크북 문제에 대해 아직 채점되지 않은 제출 기록을 만들고, 채점 요청 큐에 메세지를 발행합니다.
    *
    * 1. 주어진 workbookId와 problemId에 매칭되는 WorkbookProblem을 찾음
@@ -293,8 +407,9 @@ export class SubmissionService {
    * @param {Problem} problem - 제출 대상 문제 레코드
    * @param {number} userId - 사용자의 ID
    * @param {string} userIp - 사용자의 IP 주소
-   * @param {{ contestId?: number; workbookId?: number }} [idOptions] 제출 종류에 따라 전달하는 옵셔널 파라미터
+   * @param {{ contestId?: number; assignmentId?: number; workbookId?: number }} [idOptions] 제출 종류에 따라 전달하는 옵셔널 파라미터
    *   - contestId: 대회 제출인 경우 제공해야 함
+   *   - assignmentId: 과제 제출인 경우 제공해야 함
    *   - workbookId: 워크북 제출인 경우 제공해야 함
    * @returns {Promise<Submission>} 생성된 제출 기록
    * @throws {ConflictFoundException} 아래와 같은 경우에 발생합니다
@@ -309,7 +424,11 @@ export class SubmissionService {
     problem: Problem,
     userId: number,
     userIp: string,
-    idOptions?: { contestId?: number; workbookId?: number }
+    idOptions?: {
+      contestId?: number
+      assignmentId?: number
+      workbookId?: number
+    }
   ): Promise<Submission> {
     if (!problem.languages.includes(submissionDto.language)) {
       throw new ConflictFoundException(
@@ -342,6 +461,7 @@ export class SubmissionService {
         data: {
           ...submissionData,
           contestId: idOptions?.contestId,
+          assignmentId: idOptions?.assignmentId,
           workbookId: idOptions?.workbookId
         }
       })
@@ -699,6 +819,225 @@ export class SubmissionService {
     }
   }
 
+  /**
+   * 주어진 문제에 대한 제출 기록 목록을 불러옵니다.
+   *
+   * 1. 지정된 문제와 그룹에 대해 visibleLockTime이 초기값(MIN_DATE)인 문제를 조회
+   * 2. 페이징 옵션을 적용하여 해당 문제에 대한 제출 기록 목록을 조회
+   * 3. 해당 문제에 대한 총 제출 기록 수 계산
+   * 4. 제출물 목록과 총 개수를 포함하는 객체를 반환
+   *
+   * @param {number} problemId - 제출 기록을 조회할 문제 ID
+   * @param {number} [groupId=OPEN_SPACE_ID] - 문제의 그룹 ID (기본값: OPEN_SPACE_ID)
+   * @param {number | null} [cursor=null] - 페이징 처리를 위한 커서 값 (기본값: null)
+   * @param {number} [take=10] - 가져올 제출 기록의 수 (기본값: 10)
+   * @returns 문제에 대한 제출 기록 목록과 총 제출 기록 수
+   * @throws {EntityNotExistException} 주어진 조건에 맞는 문제가 존재하지 않을 경우
+   */
+  @Span()
+  async getSubmission(
+    id: number,
+    problemId: number,
+    userId: number,
+    userRole: Role,
+    groupId = OPEN_SPACE_ID,
+    contestId: number | null,
+    assignmentId: number | null
+  ) {
+    const now = new Date()
+    let contest: {
+      groupId: number
+      startTime: Date
+      endTime: Date
+      isJudgeResultVisible: boolean
+    } | null = null
+    let assignment: {
+      groupId: number
+      startTime: Date
+      endTime: Date
+      isJudgeResultVisible: boolean
+    } | null = null
+    let isJudgeResultVisible: boolean | null = null
+
+    if (contestId) {
+      const contestRecord = await this.prisma.contestRecord.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_userId: {
+            contestId,
+            userId
+          }
+        },
+        select: {
+          contest: {
+            select: {
+              groupId: true,
+              startTime: true,
+              endTime: true,
+              isJudgeResultVisible: true
+            }
+          }
+        }
+      })
+      if (!contestRecord) {
+        throw new EntityNotExistException('ContestRecord')
+      }
+      if (contestRecord.contest.groupId !== groupId) {
+        throw new EntityNotExistException('Contest')
+      }
+      contest = contestRecord.contest
+      isJudgeResultVisible = contest.isJudgeResultVisible
+    } else if (assignmentId) {
+      const assignmentRecord = await this.prisma.assignmentRecord.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          assignmentId_userId: {
+            assignmentId,
+            userId
+          }
+        },
+        select: {
+          assignment: {
+            select: {
+              groupId: true,
+              startTime: true,
+              endTime: true,
+              isJudgeResultVisible: true
+            }
+          }
+        }
+      })
+      if (!assignmentRecord) {
+        throw new EntityNotExistException('AssignmentRecord')
+      }
+      if (assignmentRecord.assignment.groupId !== groupId) {
+        throw new EntityNotExistException('Assignment')
+      }
+      assignment = assignmentRecord.assignment
+      isJudgeResultVisible = assignment.isJudgeResultVisible
+    }
+
+    let problem
+    if (!contestId && !assignmentId) {
+      problem = await this.prisma.problem.findFirst({
+        where: {
+          id: problemId,
+          groupId,
+          visibleLockTime: {
+            equals: MIN_DATE // contestId와 assignmentId가 없는 경우에는 공개된 문제인 경우에만 제출 내역을 가져와야 함
+          }
+        }
+      })
+      if (!problem) {
+        throw new EntityNotExistException('Problem')
+      }
+    } else {
+      problem = await this.prisma.problem.findFirst({
+        where: {
+          id: problemId,
+          groupId
+        }
+      })
+      if (!problem) {
+        throw new EntityNotExistException('Problem')
+      }
+    }
+
+    const submission = await this.prisma.submission.findFirst({
+      where: {
+        id,
+        problemId,
+        contestId,
+        assignmentId
+      },
+      select: {
+        userId: true,
+        user: {
+          select: {
+            username: true
+          }
+        },
+        language: true,
+        code: true,
+        createTime: true,
+        result: true,
+        submissionResult: true,
+        codeSize: true
+      }
+    })
+    if (!submission) {
+      throw new EntityNotExistException('Submission')
+    }
+
+    if (
+      contest &&
+      contest.startTime <= now &&
+      contest.endTime > now &&
+      submission.userId !== userId &&
+      userRole === Role.User
+    ) {
+      throw new ForbiddenAccessException(
+        "Contest should end first before you browse other people's submissions"
+      )
+    } else if (
+      assignment &&
+      assignment.startTime <= now &&
+      assignment.endTime > now &&
+      submission.userId !== userId &&
+      userRole === Role.User
+    ) {
+      throw new ForbiddenAccessException(
+        "Assignment should end first before you browse other people's submissions"
+      )
+    }
+
+    if (
+      submission.userId === userId ||
+      userRole === Role.Admin ||
+      userRole === Role.SuperAdmin ||
+      (await this.problemRepository.hasPassedProblem(userId, { problemId }))
+    ) {
+      const code = plainToInstance(Snippet, submission.code)
+      const results = submission.submissionResult.map((result) => {
+        return {
+          ...result,
+          // TODO: 채점 속도가 너무 빠른경우에 대한 수정 필요 (0ms 미만)
+          cpuTime:
+            result.cpuTime || result.cpuTime === BigInt(0)
+              ? result.cpuTime.toString()
+              : null
+        }
+      })
+
+      results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
+
+      if ((contestId || assignmentId) && !isJudgeResultVisible) {
+        results.map((r) => {
+          r.result = 'Blind'
+          r.cpuTime = null
+          r.memoryUsage = null
+        })
+      }
+
+      return {
+        problemId,
+        username: submission.user?.username,
+        code: code.map((snippet) => snippet.text).join('\n'),
+        language: submission.language,
+        createTime: submission.createTime,
+        result:
+          isJudgeResultVisible || !(contestId || assignmentId)
+            ? submission.result
+            : 'Blind',
+        testcaseResult: results
+      }
+    }
+
+    throw new ForbiddenAccessException(
+      "You must pass the problem first to browse other people's submissions"
+    )
+  }
+
   // FIXME: Workbook 구분
   @Span()
   async getSubmissions({
@@ -751,179 +1090,6 @@ export class SubmissionService {
     const total = await this.prisma.submission.count({ where: { problemId } })
 
     return { data: submissions, total }
-  }
-
-  /**
-   * 주어진 문제에 대한 제출 기록 목록을 불러옵니다.
-   *
-   * 1. 지정된 문제와 그룹에 대해 visibleLockTime이 초기값(MIN_DATE)인 문제를 조회
-   * 2. 페이징 옵션을 적용하여 해당 문제에 대한 제출 기록 목록을 조회
-   * 3. 해당 문제에 대한 총 제출 기록 수 계산
-   * 4. 제출물 목록과 총 개수를 포함하는 객체를 반환
-   *
-   * @param {number} problemId - 제출 기록을 조회할 문제 ID
-   * @param {number} [groupId=OPEN_SPACE_ID] - 문제의 그룹 ID (기본값: OPEN_SPACE_ID)
-   * @param {number | null} [cursor=null] - 페이징 처리를 위한 커서 값 (기본값: null)
-   * @param {number} [take=10] - 가져올 제출 기록의 수 (기본값: 10)
-   * @returns 문제에 대한 제출 기록 목록과 총 제출 기록 수
-   * @throws {EntityNotExistException} 주어진 조건에 맞는 문제가 존재하지 않을 경우
-   */
-  @Span()
-  async getSubmission(
-    id: number,
-    problemId: number,
-    userId: number,
-    userRole: Role,
-    groupId = OPEN_SPACE_ID,
-    contestId: number | null
-  ) {
-    const now = new Date()
-    let contest: {
-      groupId: number
-      startTime: Date
-      endTime: Date
-      isJudgeResultVisible: boolean
-    } | null = null
-    let isJudgeResultVisible: boolean | null = null
-
-    if (contestId) {
-      const contestRecord = await this.prisma.contestRecord.findUnique({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          contestId_userId: {
-            contestId,
-            userId
-          }
-        },
-        select: {
-          contest: {
-            select: {
-              groupId: true,
-              startTime: true,
-              endTime: true,
-              isJudgeResultVisible: true
-            }
-          }
-        }
-      })
-      if (!contestRecord) {
-        throw new EntityNotExistException('ContestRecord')
-      }
-      if (contestRecord.contest.groupId !== groupId) {
-        throw new EntityNotExistException('Contest')
-      }
-      contest = contestRecord.contest
-      isJudgeResultVisible = contest.isJudgeResultVisible
-    }
-
-    let problem
-    if (!contestId) {
-      problem = await this.prisma.problem.findFirst({
-        where: {
-          id: problemId,
-          groupId,
-          visibleLockTime: {
-            equals: MIN_DATE // contestId가 없는 경우에는 공개된 문제인 경우에만 제출 내역을 가져와야 함
-          }
-        }
-      })
-      if (!problem) {
-        throw new EntityNotExistException('Problem')
-      }
-    } else {
-      problem = await this.prisma.problem.findFirst({
-        where: {
-          id: problemId,
-          groupId
-        }
-      })
-      if (!problem) {
-        throw new EntityNotExistException('Problem')
-      }
-    }
-
-    const submission = await this.prisma.submission.findFirst({
-      where: {
-        id,
-        problemId,
-        contestId
-      },
-      select: {
-        userId: true,
-        user: {
-          select: {
-            username: true
-          }
-        },
-        language: true,
-        code: true,
-        createTime: true,
-        result: true,
-        submissionResult: true,
-        codeSize: true
-      }
-    })
-    if (!submission) {
-      throw new EntityNotExistException('Submission')
-    }
-
-    if (
-      contest &&
-      contest.startTime <= now &&
-      contest.endTime > now &&
-      submission.userId !== userId &&
-      userRole === Role.User
-    ) {
-      throw new ForbiddenAccessException(
-        "Contest should end first before you browse other people's submissions"
-      )
-    }
-
-    if (
-      submission.userId === userId ||
-      userRole === Role.Admin ||
-      userRole === Role.SuperAdmin ||
-      (await this.problemRepository.hasPassedProblem(userId, { problemId }))
-    ) {
-      const code = plainToInstance(Snippet, submission.code)
-      const results = submission.submissionResult.map((result) => {
-        return {
-          ...result,
-          // TODO: 채점 속도가 너무 빠른경우에 대한 수정 필요 (0ms 미만)
-          cpuTime:
-            result.cpuTime || result.cpuTime === BigInt(0)
-              ? result.cpuTime.toString()
-              : null
-        }
-      })
-
-      results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
-
-      if (contestId && !isJudgeResultVisible) {
-        results.map((r) => {
-          r.result = 'Blind'
-          r.cpuTime = null
-          r.memoryUsage = null
-        })
-      }
-
-      return {
-        problemId,
-        username: submission.user?.username,
-        code: code.map((snippet) => snippet.text).join('\n'),
-        language: submission.language,
-        createTime: submission.createTime,
-        result:
-          !contestId || (contestId && isJudgeResultVisible)
-            ? submission.result
-            : 'Blind',
-        testcaseResult: results
-      }
-    }
-
-    throw new ForbiddenAccessException(
-      "You must pass the problem first to browse other people's submissions"
-    )
   }
 
   @Span()
@@ -1021,6 +1187,106 @@ export class SubmissionService {
 
     const total = await this.prisma.submission.count({
       where: { problemId, contestId }
+    })
+
+    return { data: submissions, total }
+  }
+
+  @Span()
+  async getAssignmentSubmissions({
+    problemId,
+    assignmentId,
+    userId,
+    groupId = OPEN_SPACE_ID,
+    cursor = null,
+    take = 10
+  }: {
+    problemId: number
+    assignmentId: number
+    userId: number
+    groupId?: number
+    cursor?: number | null
+    take?: number
+  }) {
+    const paginator = this.prisma.getPaginator(cursor)
+
+    const isAdmin = await this.prisma.user.findFirst({
+      where: {
+        id: userId,
+        role: 'Admin'
+      }
+    })
+
+    if (!isAdmin) {
+      const assignmentRecord = await this.prisma.assignmentRecord.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          assignmentId_userId: {
+            assignmentId,
+            userId
+          }
+        }
+      })
+      if (!assignmentRecord) {
+        throw new EntityNotExistException('AssignmentRecord')
+      }
+    }
+
+    const assignmentProblem = await this.prisma.assignmentProblem.findFirst({
+      where: {
+        problem: {
+          id: problemId,
+          groupId
+        },
+        assignmentId
+      }
+    })
+    if (!assignmentProblem) {
+      throw new EntityNotExistException('AssignmentProblem')
+    }
+
+    const assignment = await this.prisma.assignment.findFirst({
+      where: {
+        id: assignmentId
+      },
+      select: {
+        isJudgeResultVisible: true
+      }
+    })
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+    const isJudgeResultVisible = assignment.isJudgeResultVisible
+
+    const submissions = await this.prisma.submission.findMany({
+      ...paginator,
+      take,
+      where: {
+        problemId,
+        assignmentId,
+        userId: isAdmin ? undefined : userId // Admin 계정인 경우 자신이 생성한 submission이 아니더라도 조회가 가능
+      },
+      select: {
+        id: true,
+        user: {
+          select: {
+            username: true
+          }
+        },
+        createTime: true,
+        language: true,
+        result: true,
+        codeSize: true
+      },
+      orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
+    })
+
+    if (!isJudgeResultVisible) {
+      submissions.map((submission) => (submission.result = 'Blind'))
+    }
+
+    const total = await this.prisma.submission.count({
+      where: { problemId, assignmentId }
     })
 
     return { data: submissions, total }
