@@ -6,7 +6,8 @@ import { ErrorBoundary } from '@suspensive/react'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { SearchBar } from '../_components/SearchBar'
-import { ContestCardList } from './_components/ContestCardList'
+import { ContestFeatureList } from './_components/ContestFeatureList'
+import { ContestMainCover } from './_components/ContestMainCover'
 import { FinishedContestTable } from './_components/FinishedContestTable'
 import { RegisteredContestTable } from './_components/RegisteredContestTable'
 import { TableSwitchButton } from './_components/TableSwitchButton'
@@ -65,51 +66,43 @@ export default async function Contest({ searchParams }: ContestProps) {
 
   return (
     <>
-      <div className="mb-12 flex flex-col gap-12">
+      <div className="-mt-14 w-[1440px]">
+        <ContestMainCover />
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<ContestCardListFallback />}>
-            <ContestCardList
-              title="Join the contest now!"
-              type="Ongoing"
-              session={session}
-            />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary fallback={FetchErrorFallback}>
-          <Suspense fallback={<ContestCardListFallback />}>
-            <ContestCardList
-              title="Check out upcoming contests"
-              type="Upcoming"
-              session={session}
-            />
+            <ContestFeatureList title={`WHAT IS CONTEST?`} />
           </Suspense>
         </ErrorBoundary>
       </div>
-      <div className="flex-col">
-        <h1 className="mb-6 text-2xl font-bold text-gray-700">
-          List of Contests
-        </h1>
 
-        <Suspense fallback={<FinishedContestTableFallback />}>
-          {session ? (
-            <TableSwitchButton registered={registered} />
-          ) : (
-            <p className="text-primary-light border-primary-light w-fit border-b-2 p-6 text-xl font-bold md:text-2xl">
-              Finished
-            </p>
-          )}
-          <Separator className="mb-3" />
-          <ErrorBoundary fallback={FetchErrorFallback}>
-            <div className="flex justify-end py-8">
-              <SearchBar className="w-60" />
-            </div>
-            {session && registered ? (
-              <RegisteredContestTable search={search} />
+      <div className="w-[1440px]">{/* Sub Banner 작업공간 */}</div>
+
+      <div className="mb-12 flex w-full flex-col gap-12">
+        <div className="flex-col">
+          <h1 className="mb-6 text-2xl font-bold text-gray-700">
+            List of Contests
+          </h1>
+          <Suspense fallback={<FinishedContestTableFallback />}>
+            {session ? (
+              <TableSwitchButton registered={registered} />
             ) : (
-              <FinishedContestTable search={search} session={session} />
+              <p className="text-primary-light border-primary-light w-fit border-b-2 p-6 text-xl font-bold md:text-2xl">
+                Finished
+              </p>
             )}
-          </ErrorBoundary>
-        </Suspense>
+            <Separator className="mb-3" />
+            <ErrorBoundary fallback={FetchErrorFallback}>
+              <div className="flex justify-end py-8">
+                <SearchBar className="w-60" />
+              </div>
+              {session && registered ? (
+                <RegisteredContestTable search={search} />
+              ) : (
+                <FinishedContestTable search={search} session={session} />
+              )}
+            </ErrorBoundary>
+          </Suspense>
+        </div>
       </div>
     </>
   )

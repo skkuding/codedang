@@ -6,6 +6,7 @@ import calendarIcon from '@/public/icons/calendar.svg'
 import checkIcon from '@/public/icons/check-blue.svg'
 import type { Contest } from '@/types/type'
 import Image from 'next/image'
+import { Cover } from '../../_components/Cover'
 import { ContestTabs } from '../_components/ContestTabs'
 import { calculateContestScore } from './_libs/utils'
 
@@ -49,45 +50,60 @@ export default async function Layout({ params, tabs }: ContestDetailProps) {
     }
 
     return (
-      <article>
-        <header className="flex justify-between p-5 py-8">
-          <div className="flex flex-col gap-3">
-            <h2 className="break-words text-[28px] font-medium">
-              {contest?.title}
-            </h2>
-            <div className="flex items-center gap-2">
-              {isRegistered && contestStatus !== 'upcoming' && (
-                <>
-                  <Image src={checkIcon} alt="check" width={24} height={24} />
-                  <p className="text-primary-light text-sm font-bold">
-                    Total score
+      <>
+        <Cover title="CONTEST" description="Contests of CODEDANG" />
+        <div className="flex w-full max-w-7xl flex-col gap-5 p-5 py-8">
+          <article>
+            <header className="flex justify-between p-5 py-8">
+              <div className="flex flex-col gap-3">
+                <h2 className="break-words text-[28px] font-medium">
+                  {contest?.title}
+                </h2>
+                <div className="flex items-center gap-2">
+                  {isRegistered && contestStatus !== 'upcoming' && (
+                    <>
+                      <Image
+                        src={checkIcon}
+                        alt="check"
+                        width={24}
+                        height={24}
+                      />
+                      <p className="text-primary-light text-sm font-bold">
+                        Total score
+                      </p>
+                      <p className="text-primary-strong font-bold">
+                        {isJudgeResultVisible
+                          ? `${totalScore} / ${totalMaxScore}`
+                          : '-'}
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-col items-end gap-4">
+                <div className="flex gap-2">
+                  <Image
+                    src={calendarIcon}
+                    alt="calendar"
+                    width={24}
+                    height={24}
+                  />
+                  <p className="font-medium text-[#333333]">
+                    {formattedStartTime} ~ {formattedEndTime}
                   </p>
-                  <p className="text-primary-strong font-bold">
-                    {isJudgeResultVisible
-                      ? `${totalScore} / ${totalMaxScore}`
-                      : '-'}
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
-          <div className="flex flex-col items-end gap-4">
-            <div className="flex gap-2">
-              <Image src={calendarIcon} alt="calendar" width={24} height={24} />
-              <p className="font-medium text-[#333333]">
-                {formattedStartTime} ~ {formattedEndTime}
-              </p>
-            </div>
-            <ContestStatusTimeDiff
-              contest={contest}
-              textStyle="text-netural-900 font-medium"
-              inContestEditor={false}
-            />
-          </div>
-        </header>
-        <ContestTabs contestId={contestId} />
-        {tabs}
-      </article>
+                </div>
+                <ContestStatusTimeDiff
+                  contest={contest}
+                  textStyle="text-netural-900 font-medium"
+                  inContestEditor={false}
+                />
+              </div>
+            </header>
+            <ContestTabs contestId={contestId} />
+            {tabs}
+          </article>
+        </div>
+      </>
     )
   }
   return <p className="text-center">No Results.</p>
