@@ -33,6 +33,8 @@ const contest = {
   groupId,
   title: 'title',
   description: 'description',
+  penalty: 100,
+  lastPenalty: false,
   startTime: now.add(-1, 'day').toDate(),
   endTime: now.add(1, 'day').toDate(),
   isVisible: true,

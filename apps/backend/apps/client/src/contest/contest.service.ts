@@ -483,4 +483,38 @@ export class ContestService {
       where: { contestId_userId: { contestId, userId } }
     })
   }
+
+  async getContestLeaderboard(contestId: number) {
+    const contestRecords = await this.prisma.contestRecord.findMany({
+      where: {
+        contestId
+      },
+      select: {
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        },
+        score: true,
+        totalPenalty: true
+      },
+      orderBy: [
+        {
+          score: 'desc'
+        },
+        {
+          totalPenalty: 'asc'
+        },
+        {
+          lastAcceptedTime: 'asc'
+        }
+      ]
+    })
+
+    return contestRecords.map((contestRecord, index) => ({
+      ...contestRecord,
+      standing: index + 1
+    }))
+  }
 }
