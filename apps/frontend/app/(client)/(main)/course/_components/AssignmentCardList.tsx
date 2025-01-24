@@ -45,15 +45,17 @@ const getRegisteredAssignments = async () => {
 
 type ItemsPerSlide = 2 | 3
 
+interface AssignmentCardCarouselProps {
+  itemsPerSlide: ItemsPerSlide
+  title: string
+  data: Assignment[]
+}
+
 function AssignmentCardCarousel({
   itemsPerSlide,
   title,
   data
-}: {
-  itemsPerSlide: ItemsPerSlide
-  title: string
-  data: Assignment[]
-}) {
+}: AssignmentCardCarouselProps) {
   const chunks = []
 
   if (itemsPerSlide === 3) {
@@ -100,15 +102,17 @@ function AssignmentCardCarousel({
   )
 }
 
+interface AssignmentCardListProps {
+  type: string
+  title: string
+  session?: Session | null
+}
+
 export async function AssignmentCardList({
   title,
   type,
   session
-}: {
-  type: string
-  title: string
-  session?: Session | null
-}) {
+}: AssignmentCardListProps) {
   const data = (
     session ? await getRegisteredAssignments() : await getAssignments()
   ).filter(
@@ -118,7 +122,7 @@ export async function AssignmentCardList({
   )
 
   data.sort(
-    (a, b) => +Number(new Date(a.startTime)) - +Number(new Date(b.startTime))
+    (a, b) => Number(new Date(a.startTime)) - Number(new Date(b.startTime))
   )
 
   return data.length === 0 ? null : (

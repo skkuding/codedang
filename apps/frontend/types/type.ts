@@ -1,5 +1,3 @@
-import type { StringDecoder } from 'string_decoder'
-
 export type ContestStatus =
   | 'ongoing'
   | 'upcoming'
