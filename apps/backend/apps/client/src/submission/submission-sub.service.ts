@@ -324,7 +324,12 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     isAccepted: boolean
   ): Promise<void> {
     const { contestId, problemId, userId, updateTime } = submission
-    if (!contestId || !userId) return
+
+    if (!contestId || !userId)
+      throw new UnprocessableDataException(
+        `contestId: ${contestId}, userId: ${userId} is empty`
+      )
+
     // TODO: squad3 부분점수 채점 구현 완료 이후, 점수대회 구현 위해 수정 필요
     const isNewAccept =
       (await this.prisma.submission.count({
@@ -336,116 +341,114 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       })) === 1
 
-    if (isAccepted && isNewAccept) {
-      const contest = await this.prisma.contest.findUniqueOrThrow({
+    if (!isNewAccept || !isAccepted) return
+
+    const _contest = await this.prisma.contest.findUniqueOrThrow({
+      where: {
+        id: contestId ?? -1
+      },
+      select: {
+        startTime: true,
+        penalty: true,
+        lastPenalty: true,
+        submission: {
+          where: {
+            userId
+          },
+          select: {
+            id: true
+          }
+        }
+      }
+    })
+    const { submission: submissions, ...contest } = _contest
+    const contestProblem = await this.prisma.contestProblem.findUniqueOrThrow({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_problemId: {
+          contestId,
+          problemId
+        }
+      },
+      select: {
+        id: true,
+        score: true
+      }
+    })
+    const { penalty, lastPenalty } = contest
+    // TODO: 점수대회에서는 부분점수도 고려해야함 -> 수정 필요
+    const { id: contestProblemId, score } = contestProblem
+
+    const submitCount = submissions.length
+    const submitCountPenalty = Math.floor(penalty * submitCount)
+
+    const submitTime = new Date(updateTime).getTime()
+    const startTime = new Date(contest.startTime).getTime()
+    const timePenalty = Math.floor((submitTime - startTime) / 60000)
+
+    // 1. contest problem record의 score와 penalty들을 upsert(update or create) 한다.
+    await this.prisma.contestProblemRecord.upsert({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestProblemId_userId: {
+          contestProblemId,
+          userId
+        }
+      },
+      update: {
+        score,
+        submitCountPenalty,
+        timePenalty
+      },
+      create: {
+        contestProblemId,
+        userId,
+        score,
+        submitCountPenalty
+      }
+    })
+
+    const contestProblemRecords =
+      await this.prisma.contestProblemRecord.findMany({
         where: {
-          id: contestId ?? -1
+          contestProblemId,
+          userId
         },
         select: {
-          startTime: true,
-          penalty: true,
-          lastPenalty: true
+          score: true,
+          timePenalty: true,
+          submitCountPenalty: true
         }
       })
-      const contestProblem = await this.prisma.contestProblem.findUniqueOrThrow(
-        {
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            contestId_problemId: {
-              contestId,
-              problemId
-            }
-          },
-          select: {
-            id: true,
-            score: true
-          }
-        }
+
+    const [scoreSum, submitCountPenaltySum, timePenaltySum, maxTimePenalty] =
+      contestProblemRecords.reduce(
+        (acc, record) => {
+          acc[0] += record.score
+          acc[1] += record.submitCountPenalty
+          acc[2] += record.timePenalty
+          acc[3] = Math.max(acc[3], record.timePenalty)
+          return acc
+        },
+        [0, 0, 0, 0]
       )
-      const { penalty, lastPenalty } = contest
-      // TODO: 점수대회에서는 부분점수도 고려해야함 -> 수정 필요
-      const { id: contestProblemId, score } = contestProblem
-
-      const submitCount = await this.prisma.submission.count({
-        where: {
+    // 2. contest record의 score, penalty, lastAcceptedTime를 update 한다.
+    await this.prisma.contestRecord.update({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_userId: {
           contestId,
-          userId,
-          problemId,
-          updateTime: {
-            lte: updateTime
-          }
+          userId
         }
-      })
-      const submitCountPenalty = Math.floor(penalty * submitCount)
-
-      const submitTime = new Date(updateTime).getTime()
-      const startTime = new Date(contest.startTime).getTime()
-      const timePenalty = Math.floor((submitTime - startTime) / 60000)
-
-      // 1. contest problem record의 score와 penalty들을 upsert(update or create) 한다.
-      await this.prisma.contestProblemRecord.upsert({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          contestProblemId_userId: {
-            contestProblemId,
-            userId
-          }
-        },
-        update: {
-          score,
-          submitCountPenalty,
-          timePenalty
-        },
-        create: {
-          contestProblemId,
-          userId,
-          score,
-          submitCountPenalty
-        }
-      })
-
-      const contestProblemRecords =
-        await this.prisma.contestProblemRecord.findMany({
-          where: {
-            contestProblemId,
-            userId
-          },
-          select: {
-            score: true,
-            timePenalty: true,
-            submitCountPenalty: true
-          }
-        })
-
-      const [scoreSum, submitCountPenaltySum, timePenaltySum, maxTimePenalty] =
-        contestProblemRecords.reduce(
-          (acc, record) => {
-            acc[0] += record.score
-            acc[1] += record.submitCountPenalty
-            acc[2] += record.timePenalty
-            acc[3] = Math.max(acc[3], record.timePenalty)
-            return acc
-          },
-          [0, 0, 0, 0]
-        )
-      // 2. contest record의 score, penalty, lastAcceptedTime를 update 한다.
-      await this.prisma.contestRecord.update({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          contestId_userId: {
-            contestId,
-            userId
-          }
-        },
-        data: {
-          score: scoreSum,
-          totalPenalty: lastPenalty
-            ? maxTimePenalty + submitCountPenaltySum
-            : timePenaltySum + submitCountPenaltySum,
-          lastAcceptedTime: updateTime
-        }
-      })
-    }
+      },
+      data: {
+        score: scoreSum,
+        totalPenalty: lastPenalty
+          ? maxTimePenalty + submitCountPenaltySum
+          : timePenaltySum + submitCountPenaltySum,
+        lastAcceptedTime: updateTime
+      }
+    })
   }
 
   async updateProblemScore(id: number) {
