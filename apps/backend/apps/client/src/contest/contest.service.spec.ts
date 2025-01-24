@@ -451,7 +451,10 @@ describe('ContestService', () => {
 
   describe('getContestLeaderboard', () => {
     it('should return leaderboard of the contest', async () => {
-      const leaderboard = await service.getContestLeaderboard(contestId)
+      const leaderboard = await service.getContestLeaderboard(
+        user01Id,
+        contestId
+      )
       expect(leaderboard).to.be.ok
     })
   })

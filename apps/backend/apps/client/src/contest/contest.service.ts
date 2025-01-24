@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma, type Contest } from '@prisma/client'
+import { Prisma, Role, type Contest } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -484,7 +484,33 @@ export class ContestService {
     })
   }
 
-  async getContestLeaderboard(contestId: number) {
+  async getContestLeaderboard(userId: number, contestId: number) {
+    const isRegistered =
+      (await this.prisma.contestRecord.findFirst({
+        where: {
+          userId,
+          contestId
+        }
+      })) != null
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId
+      },
+      select: {
+        id: true,
+        role: true
+      }
+    })
+
+    if (
+      !isRegistered &&
+      user?.role !== Role.Admin &&
+      user?.role !== Role.SuperAdmin
+    ) {
+      throw new ForbiddenAccessException('Not registered in this contest')
+    }
+
     const contestRecords = await this.prisma.contestRecord.findMany({
       where: {
         contestId
