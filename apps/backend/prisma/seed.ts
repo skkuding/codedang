@@ -16,7 +16,8 @@ import {
   type CodeDraft,
   type AssignmentRecord,
   type Contest,
-  type ContestRecord
+  type ContestRecord,
+  type ContestProblemRecord
 } from '@prisma/client'
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
@@ -1702,7 +1703,7 @@ int main(void) {
 
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[0].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[0].id,
       result: ResultStatus.Accepted,
       cpuTime: 12345,
@@ -1711,7 +1712,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.Accepted }
   })
@@ -1740,7 +1741,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[1].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[1].id,
       result: ResultStatus.WrongAnswer,
       cpuTime: 12345,
@@ -1749,7 +1750,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.WrongAnswer }
   })
@@ -1778,14 +1779,14 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[2].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[2].id,
       result: ResultStatus.CompileError
     }
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.CompileError }
   })
@@ -1810,7 +1811,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[3].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[3].id,
       result: ResultStatus.RuntimeError,
       cpuTime: 12345,
@@ -1819,7 +1820,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.RuntimeError }
   })
@@ -1848,7 +1849,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[4].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[4].id,
       result: ResultStatus.TimeLimitExceeded,
       cpuTime: 12345,
@@ -1857,7 +1858,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.TimeLimitExceeded }
   })
@@ -1887,7 +1888,7 @@ int main(void) {
 
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[0].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[0].id,
       result: ResultStatus.Accepted,
       cpuTime: 12345,
@@ -1896,7 +1897,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.Accepted }
   })
@@ -1925,7 +1926,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[1].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[1].id,
       result: ResultStatus.WrongAnswer,
       cpuTime: 12345,
@@ -1934,7 +1935,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.WrongAnswer }
   })
@@ -1963,14 +1964,14 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[2].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[2].id,
       result: ResultStatus.CompileError
     }
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.CompileError }
   })
@@ -1995,7 +1996,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[3].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[3].id,
       result: ResultStatus.RuntimeError,
       cpuTime: 12345,
@@ -2004,7 +2005,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.RuntimeError }
   })
@@ -2033,7 +2034,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[4].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[4].id,
       result: ResultStatus.TimeLimitExceeded,
       cpuTime: 12345,
@@ -2042,7 +2043,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.TimeLimitExceeded }
   })
@@ -2071,7 +2072,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[5].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[5].id,
       result: ResultStatus.MemoryLimitExceeded,
       cpuTime: 12345,
@@ -2080,7 +2081,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.MemoryLimitExceeded }
   })
@@ -2105,7 +2106,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[6].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[6].id,
       result: ResultStatus.OutputLimitExceeded,
       cpuTime: 12345,
@@ -2114,7 +2115,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.OutputLimitExceeded }
   })
@@ -2325,12 +2326,12 @@ const main = async () => {
   await createProblems()
   await createAssignments()
   await createContests()
+  await createContestRecords()
   await createWorkbooks()
   await createSubmissions()
   await createAnnouncements()
   await createCodeDrafts()
   await createAssignmentRecords()
-  await createContestRecords()
 }
 
 main()
