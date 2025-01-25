@@ -29,10 +29,10 @@ export default function Leaderboard({
         data={items ?? []}
         columns={columns}
         headerStyle={{
-          rank: 'w-[23%]',
-          username: 'w-[27%]',
-          penalty: 'w-[27%]',
-          solved: 'w-[23%]'
+          rank: 'w-[20%]',
+          username: 'w-[29%]',
+          penalty: 'w-[30%]',
+          solved: 'w-[21%]'
         }}
         problemId={Number(problemId)}
         contestId={Number(contestId)}

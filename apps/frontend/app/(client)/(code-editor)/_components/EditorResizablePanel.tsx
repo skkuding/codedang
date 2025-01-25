@@ -8,14 +8,17 @@ import {
 } from '@/components/shadcn/resizable'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
+import syncIcon from '@/public/icons/sync.svg'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
 import type { ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
 import Loading from '../problem/[problemId]/loading'
 import EditorHeader from './EditorHeader/EditorHeader'
+import LeaderboardModalDialog from './LeaderboardModalDialog'
 import TestcasePanel from './TestcasePanel/TestcasePanel'
 import { TestPollingStoreProvider } from './context/TestPollingStoreProvider'
 import { TestcaseStoreProvider } from './context/TestcaseStoreProvider'
@@ -68,7 +71,7 @@ export default function EditorMainResizablePanel({
       >
         <div className="grid-rows-editor grid h-full grid-cols-1">
           <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
-            <Tabs value={tabValue}>
+            <Tabs value={tabValue} className="flex-grow">
               <TabsList className="rounded bg-slate-900">
                 <Link replace href={`${base}/problem/${problem.id}` as Route}>
                   <TabsTrigger
@@ -104,6 +107,12 @@ export default function EditorMainResizablePanel({
                 )}
               </TabsList>
             </Tabs>
+            {tabValue === 'Leaderboard' ? (
+              <div className="flex gap-x-4">
+                <LeaderboardModalDialog />
+                <Image src={syncIcon} alt="Sync" className="cursor-pointer" />
+              </div>
+            ) : null}
           </div>
           <ScrollArea className="[&>div>div]:!block">
             <Suspense fallback={<Loading />}>{children}</Suspense>
