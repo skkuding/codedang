@@ -3,9 +3,10 @@
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { cn, getResultColor } from '@/libs/utils'
 import type { TestResultDetail } from '@/types/type'
+import { DiffMatchPatch } from 'diff-match-patch-typescript'
 import { useState, type ReactNode } from 'react'
 import { IoMdClose } from 'react-icons/io'
-import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
+//import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
 import { AddUserTestcaseDialog } from './AddUserTestcaseDialog'
 import { TestcaseTable } from './TestcaseTable'
 import { useTestResults } from './useTestResults'
@@ -285,20 +286,89 @@ function TestResultDetail({ data }: { data: TestResultDetail | undefined }) {
       </div>
       <div className="flex gap-4">
         <LabeledField label="Input" text={data.input} />
-        <LabeledField label="Expected Output" text={data.expectedOutput} />
-        <LabeledField label="Output" text={data.output} />
+        <LabeledField
+          label="Expected Output"
+          text={data.expectedOutput}
+          compareText={data.output}
+        />
+        <LabeledField
+          label="Output"
+          text={data.output}
+          compareText={data.expectedOutput}
+        />
       </div>
     </div>
   )
 }
 
-function LabeledField({ label, text }: { label: string; text: string }) {
+function LabeledField({
+  label,
+  text,
+  compareText
+}: {
+  label: string
+  text: string
+  compareText?: string
+}) {
+  const getColoredText = (
+    text: string,
+    compareText: string,
+    isExpectedOutput: boolean
+  ) => {
+    const dmp = new DiffMatchPatch()
+    const diffs = dmp.diff_main(compareText, text)
+    dmp.diff_cleanupSemantic(diffs)
+
+    return diffs.map(([op, data], idx) => {
+      if (op === 0) {
+        // 동일한 텍스트는 흰색으로 표시
+        return (
+          <span key={idx} className="text-white">
+            {data}
+          </span>
+        )
+      } else if (op === -1 && isExpectedOutput) {
+        // Expected Output에만 있는 텍스트는 초록색으로 표시
+        return (
+          <span key={idx} className="text-green-500">
+            {data}
+          </span>
+        )
+      } else if (op === 1 && !isExpectedOutput) {
+        // Output에만 있는 텍스트는 빨간색으로 표시
+        return (
+          <span key={idx} className="text-red-500">
+            {data}
+          </span>
+        )
+      }
+      return null
+    })
+  }
+
+  const renderText = (label: string, text: string, compareText?: string) => {
+    // Input 값은 항상 흰색으로 출력
+    if (label === 'Input') {
+      return <span className="text-white">{text}</span>
+    }
+
+    // Expected Output 처리
+    if (label === 'Expected Output') {
+      return getColoredText(compareText || '', text, true)
+    }
+
+    // "Output" 처리
+    return getColoredText(text, compareText || '', false)
+  }
+
   return (
     <div className="min-w-40 flex-1">
       <div className="flex flex-col gap-4 p-4">
         <p className="text-slate-400">{label}</p>
         <hr className="border-[#303333]/50" />
-        <WhitespaceVisualizer text={text} className="h-fit text-slate-300" />
+        <div className="h-fit text-slate-300">
+          {renderText(label, text, compareText)}
+        </div>
       </div>
     </div>
   )
