@@ -6,6 +6,7 @@ import { dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import type { Contest, ContestStatus } from '@/types/type'
 import Image from 'next/image'
+import { ContestSummary } from './_components/ContestSummary'
 import { RegisterButton } from './_components/RegisterButton'
 
 interface ContestTop {
@@ -70,7 +71,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
 
   return (
     <>
-      <h1 className="mt-24 w-[1208px] text-2xl font-bold">{data?.title}</h1>
+      <h1 className="mt-24 w-[1202px] text-2xl font-bold">{data?.title}</h1>
       <div className="mt-[30px] flex flex-col gap-[10px]">
         <div className="flex gap-2">
           <Image src={calendarIcon} alt="calendar" width={20} height={20} />
@@ -85,7 +86,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
         />
       </div>
       <div className="flex flex-row items-start gap-[34px]">
-        <div className="mt-[34px] h-[312px] w-[234px] rounded-xl bg-white">
+        <div className="mt-[34px] rounded-xl">
           <Image
             src={imageUrl}
             alt="Contest Poster"
@@ -94,67 +95,28 @@ export default async function ContestTop({ params }: ContestTopProps) {
             className="h-[312px] w-[234px] rounded-xl border-[1px] object-contain"
           />
         </div>
-        <div className="mt-[34px] flex flex-col gap-[29px]">
+        <div className="mt-[34px] flex h-[312px] flex-col justify-between">
           <div className="flex flex-col gap-[14px]">
-            <div className="flex flex-row items-start">
-              <Button
-                variant={'outline'}
-                className={cn(
-                  'mr-[14px] h-7 w-[87px] rounded-[14px] px-[17px] py-1 text-sm font-medium md:block'
-                )}
-              >
-                참여 대상
-              </Button>
-              <p className="text-[#333333e6]">공백 포함 60자 글자수 제한</p>
-            </div>
-            <div className="flex flex-row items-start">
-              <Button
-                variant={'outline'}
-                className={cn(
-                  'mr-[14px] h-7 w-[87px] rounded-[14px] px-[17px] py-1 text-sm font-medium md:block'
-                )}
-              >
-                진행 방식
-              </Button>
-              <p className="text-[#333333e6]">공백 포함 60자 글자수 제한</p>
-            </div>
-            <div className="flex flex-row items-start">
-              <Button
-                variant={'outline'}
-                className={cn(
-                  'mr-[14px] h-7 w-[87px] rounded-[14px] px-[17px] py-1 text-sm font-medium md:block'
-                )}
-              >
-                순위 산정
-              </Button>
-              <p className="text-[#333333e6]">공백 포함 60자 글자수 제한</p>
-            </div>
-            <div className="flex flex-row items-start">
-              <Button
-                variant={'outline'}
-                className={cn(
-                  'mr-[14px] h-7 w-[87px] rounded-[14px] px-[17px] py-1 text-sm font-medium md:block'
-                )}
-              >
-                문제 형태
-              </Button>
-              <p className="text-[#333333e6]">
-                공백 포함 120자 글자수 제한 <br /> 최대 두 줄까지 노출 가능.
-              </p>
-            </div>
-            <div className="flex flex-row items-start">
-              <Button
-                variant={'outline'}
-                className={cn(
-                  'mr-[14px] h-7 w-[87px] rounded-[14px] px-[17px] py-1 text-sm font-medium md:block'
-                )}
-              >
-                참여 혜택
-              </Button>
-              <p className="text-[#333333e6]">
-                공백 포함 120자 글자수 제한 <br /> 최대 두 줄까지 노출 가능.
-              </p>
-            </div>
+            <ContestSummary
+              buttonname="참여 대상"
+              summary="공백 포함 60자 글자수 제한"
+            />
+            <ContestSummary
+              buttonname="진행 방식"
+              summary="공백 포함 60자 글자수 제한"
+            />
+            <ContestSummary
+              buttonname="순위 산정"
+              summary="공백 포함 60자 글자수 제한"
+            />
+            <ContestSummary
+              buttonname="문제 형태"
+              summary="공백 포함 120자 글자수 제한 최대 두 줄까지 노출 가능."
+            />
+            <ContestSummary
+              buttonname="참여 혜택"
+              summary="공백 포함 120자 글자수 제한 최대 두 줄까지 노출 가능."
+            />
           </div>
 
           {session && state !== 'Finished' && (
