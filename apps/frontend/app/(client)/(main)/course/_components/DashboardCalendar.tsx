@@ -13,36 +13,27 @@ import {
 import { Textarea } from '@/components/shadcn/textarea'
 import { cn, dateFormatter } from '@/libs/utils'
 import type { CalendarAssignment, CalendarAssignmentEvent } from '@/types/type'
+/**
+FIXME: FullCalendar 기본 제공 타입인 EventClickArg사용시 에러가 나서 CalendarAssignmentEvent 타입으로 대체함.
 import type { EventClickArg } from '@fullcalendar/core/index.js'
-// DayGrid 플러그인
-//import bootstrap5Plugin from '@fullcalendar/bootstrap5'
-// Bootstrap5 테마
-//import '@fullcalendar/bootstrap5/main.css'
-// FullCalendar 컴포넌트
+만약 CalendarAssignmentEvent type 사용시 문제가 된다면 위의 EvnetClickArg type을 사용한다.
+*/
 import dayGridPlugin from '@fullcalendar/daygrid'
 import FullCalendar from '@fullcalendar/react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-//import { EventDialog } from './EventDialog'
-
-export function DashboardCalendar({
-  data
-}: {
-  data: CalendarAssignment[] //event color 속성을 추가해서 과목별로 색갈이 다르게해볼 수도 있겠다.
-}) {
+export function DashboardCalendar({ data }: { data: CalendarAssignment[] }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [SelectedEvent, setSelectedEvent] =
     useState<CalendarAssignmentEvent | null>(null)
   const handleEventClick = (info: CalendarAssignmentEvent) => {
-    //캘린터 이벤트 클릭 처리.
-    //기본 제공 타입인 EventClickArg 말고 CalendarAssignmentEvent 타입 사용.
     setSelectedEvent({
       event: {
         id: Number(info.event.id),
         title: info.event.title || '',
-        start: info.event.start, //as Date를 제거함
+        start: info.event.start,
         end: info.event.end
       }
     })
@@ -50,7 +41,6 @@ export function DashboardCalendar({
   }
   const [memo, setMemo] = useState('')
   const handleSave = () => {
-    //메모 저장시 toast 팝업
     toast.success(`Saved memo`)
   }
 
@@ -72,7 +62,7 @@ export function DashboardCalendar({
           }
           .fc-event .fc-event-title,
           .fc-event .fc-event-time {
-            color: black !important; /* 텍스트 색상 */
+            color: black !important;
           }
         `}</style>
         <FullCalendar
@@ -101,7 +91,7 @@ export function DashboardCalendar({
       </div>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md">
-          {SelectedEvent ? ( //조건부 렌더링.
+          {SelectedEvent ? (
             <>
               <DialogHeader>
                 <DialogTitle>{SelectedEvent.event.title}</DialogTitle>
@@ -109,7 +99,7 @@ export function DashboardCalendar({
                   {`마감: ${dateFormatter(SelectedEvent.event.end, 'YYYY년 MM월 DD일 hh시 mm분')}`}
                 </DialogDescription>
                 <Link
-                  href={`/contest`} //assignment 경로가 아직 없어서 일단 링크기능 테스트를 위해 contest쪽으로 넘어가게 설정해둠
+                  href={`/contest`} //FIXME: Assignment 세부 페이지가 구현되면 그 경로로 지정해야한다.
                   className={cn(
                     'border-gray-300 text-sm text-gray-500 dark:text-gray-400'
                   )}
@@ -121,7 +111,7 @@ export function DashboardCalendar({
                 <div className="grid flex-1 gap-2">
                   <Textarea
                     placeholder="Memo"
-                    value={memo}
+                    value={memo} //FIXME: Backend에서 메모 기능을 구현하면 연결해야한다.
                     onChange={(e) => setMemo(e.target.value)}
                     className="z-10 h-40 resize-none border-2 border-gray-400 p-3 text-black shadow-none placeholder:text-[#3333334D] focus-visible:ring-0"
                   />

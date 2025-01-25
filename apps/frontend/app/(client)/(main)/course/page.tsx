@@ -5,7 +5,6 @@ import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
-import { LuCalendar } from 'react-icons/lu'
 import { CourseCardList } from './_components/CourseCardList'
 import { Dashboard } from './_components/Dashboard'
 

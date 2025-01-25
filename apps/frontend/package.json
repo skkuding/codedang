@@ -74,8 +74,6 @@
     "@uiw/codemirror-themes": "^4.23.7",
     "@uiw/react-codemirror": "^4.23.7",
     "apollo-upload-client": "^18.0.1",
-    "bootstrap": "^5.3.3",
-    "bootstrap-icons": "^1.11.3",
     "cmdk": "^1.0.4",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
