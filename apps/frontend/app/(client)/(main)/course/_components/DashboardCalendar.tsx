@@ -21,7 +21,6 @@ import type { EventClickArg } from '@fullcalendar/core/index.js'
 // FullCalendar 컴포넌트
 import dayGridPlugin from '@fullcalendar/daygrid'
 import FullCalendar from '@fullcalendar/react'
-import type { Route } from 'next'
 import Link from 'next/link'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -36,15 +35,15 @@ export function DashboardCalendar({
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [SelectedEvent, setSelectedEvent] =
     useState<CalendarAssignmentEvent | null>(null)
-  const handleEventClick = (info: EventClickArg) => {
+  const handleEventClick = (info: CalendarAssignmentEvent) => {
     //캘린터 이벤트 클릭 처리.
     //기본 제공 타입인 EventClickArg 말고 CalendarAssignmentEvent 타입 사용.
     setSelectedEvent({
       event: {
         id: Number(info.event.id),
-        title: info.event.title,
-        start: info.event.start as Date,
-        end: info.event.end as Date
+        title: info.event.title || '',
+        start: info.event.start, //as Date를 제거함
+        end: info.event.end
       }
     })
     setIsDialogOpen(true)
