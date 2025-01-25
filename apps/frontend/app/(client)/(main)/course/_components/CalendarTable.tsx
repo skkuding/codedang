@@ -1,7 +1,5 @@
 'use client'
 
-import React from 'react'
-
 type Event = {
   id: string
   title: string

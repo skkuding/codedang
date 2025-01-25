@@ -5,7 +5,6 @@ import { cn, dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import type { Assignment } from '@/types/type'
 import Image from 'next/image'
-import 'react-circular-progressbar/dist/styles.css'
 import { StatusBadge } from '../../../(main)/_components/StatusBadge'
 
 const bgVariants = {
@@ -23,11 +22,11 @@ const txtVariants = {
   registeredOngoing: 'text-blue-500',
   registeredUpcoming: 'text-red-400'
 }
-interface Props {
+interface AssignmentCardProps {
   assignment: Assignment
 }
 
-export function AssignmentCard({ assignment }: Props) {
+export function AssignmentCard({ assignment }: AssignmentCardProps) {
   const startTime = dateFormatter(assignment.startTime, 'YYYY-MM-DD')
   const endTime = dateFormatter(assignment.endTime, 'YYYY-MM-DD')
 

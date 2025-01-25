@@ -125,11 +125,7 @@ async function CourseCardCarousel({
               <Link
                 key={course.id}
                 href={`/course/${course.id}` as Route}
-                className={cn(
-                  'block overflow-hidden p-2',
-                  'w-1/4'
-                  // itemsPerSlide === 3 ? 'w-1/3' : 'w-1/2'
-                )}
+                className={cn('block overflow-hidden p-2', 'w-1/4')}
               >
                 <CourseCard course={course} color={colors[index]} />
               </Link>

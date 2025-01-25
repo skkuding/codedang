@@ -8,9 +8,7 @@ import { Sidebar } from './_components/Sidebar'
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-dvh w-full flex-col">
-      <header>
-        <Header />
-      </header>
+      <Header />
       <Separator />
       <div className="flex flex-row">
         <nav className="flex w-60 flex-col bg-white p-2 px-6 pb-6 pt-20 text-sm font-medium">

@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/libs/utils'
-import ClockIcon from '@/public/icons/clock.svg'
+import clockIcon from '@/public/icons/clock.svg'
 import type { Course } from '@/types/type'
 import type { CourseStatus } from '@/types/type'
 import dayjs from 'dayjs'
@@ -97,7 +97,7 @@ export function CourseStatusTimeDiff({
     >
       {courseStatus === 'finished' ? (
         <>
-          <Image src={ClockIcon} alt="Clock" />
+          <Image src={clockIcon} alt="Clock" />
           Finished
           <p className="overflow-hidden text-ellipsis whitespace-nowrap">
             {timeDiff.days > 0
@@ -108,7 +108,7 @@ export function CourseStatusTimeDiff({
         </>
       ) : (
         <>
-          <Image src={ClockIcon} alt="Clock" />
+          <Image src={clockIcon} alt="Clock" />
           {courseStatus === 'ongoing' ? 'Ends in' : 'Starts in'}
           <p className="overflow-hidden text-ellipsis whitespace-nowrap">
             {timeDiff.days > 0
