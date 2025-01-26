@@ -1,8 +1,6 @@
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogPrimitive,
   DialogTrigger
 } from '@/components/shadcn/dialog'
@@ -10,7 +8,7 @@ import InfoIcon from '@/public/icons/info-icon.svg'
 import { X } from 'lucide-react'
 import Image from 'next/image'
 
-export default function LeaderboardModalDialog() {
+export function LeaderboardModalDialog() {
   return (
     <div className="flex">
       <Dialog>

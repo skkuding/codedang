@@ -1,6 +1,6 @@
 'use client'
 
-import Paginator from '@/components/Paginator'
+import { Paginator } from '@/components/Paginator'
 import { usePagination } from '@/libs/hooks/usePagination'
 import type { LeaderboardItem } from '@/types/type'
 import { columns } from './_components/Columns'
