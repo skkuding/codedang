@@ -138,6 +138,11 @@ export class ContestService {
     ).id
     const mostRegisteredId = (
       await this.prisma.contest.findFirstOrThrow({
+        where: {
+          startTime: {
+            gte: new Date()
+          }
+        },
         orderBy: {
           contestRecord: {
             // eslint-disable-next-line @typescript-eslint/naming-convention

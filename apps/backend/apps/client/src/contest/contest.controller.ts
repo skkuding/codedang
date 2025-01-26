@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common'
 import {
   AuthenticatedRequest,
+  AuthNotNeededIfOpenSpace,
   UserNullWhenAuthFailedIfOpenSpace
 } from '@libs/auth'
 import { GroupIDPipe, IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
@@ -27,6 +28,7 @@ export class ContestController {
   }
 
   @Get('banner')
+  @AuthNotNeededIfOpenSpace()
   async getContestBanner() {
     return await this.contestService.getBannerContests()
   }
