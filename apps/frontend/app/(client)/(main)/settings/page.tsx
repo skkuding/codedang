@@ -216,7 +216,8 @@ export default function Page() {
   }
 
   return (
-    <div className="flex w-full gap-20 py-6">
+    // NOTE: Temporary margin top for codedang main page carousel to avoid header overlap (until main page design is finalized)
+    <div className="mt-14 flex w-full gap-20 py-6">
       {/* Logo */}
       <LogoSection />
 

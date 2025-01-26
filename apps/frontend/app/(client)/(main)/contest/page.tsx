@@ -66,16 +66,17 @@ export default async function Contest({ searchParams }: ContestProps) {
 
   return (
     <>
-      <div className="-mt-14 w-[1440px]">
-        <ContestMainCover />
-        <ErrorBoundary fallback={FetchErrorFallback}>
-          <Suspense fallback={<ContestCardListFallback />}>
-            <ContestFeatureList title={`WHAT IS CONTEST?`} />
-          </Suspense>
-        </ErrorBoundary>
-      </div>
+      <ContestMainCover />
 
-      <div className="w-[1440px]">{/* Sub Banner 작업공간 */}</div>
+      <ErrorBoundary fallback={FetchErrorFallback}>
+        <Suspense fallback={<ContestCardListFallback />}>
+          <ContestFeatureList title={`WHAT'S FUNCTION OF CONTEST?`} />
+        </Suspense>
+      </ErrorBoundary>
+
+      <div className="mt-[120px] h-[328px] w-[1440px] bg-gray-600">
+        {/* Sub Banner 작업공간 */}
+      </div>
 
       <div className="mb-12 flex w-full flex-col gap-12">
         <div className="flex-col">

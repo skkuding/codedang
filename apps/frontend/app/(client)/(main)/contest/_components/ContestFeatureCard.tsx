@@ -12,13 +12,17 @@ export function ContestFeatureCard({
 }) {
   return (
     <Card className="border-none">
-      <CardContent className="flex aspect-square h-[440px] w-[364px] flex-col items-start justify-between gap-3 rounded-xl bg-[#DFEEFF] pb-4 pl-[38px] pr-9 pt-[34px] text-2xl">
-        <span className="font-semibold">0{index + 1}</span>
-        <span className="font-bold">{title}</span>
+      <CardContent
+        style={{ boxShadow: '3px 3px 10px 0px rgba(0, 0, 0, 0.15)' }}
+        className="flex aspect-square h-60 w-[347px] flex-col items-start justify-between gap-3 rounded-[14px] pb-11 pl-[45px] pt-9 text-2xl"
+      >
+        <span className="text-primary font-semibold">0{index + 1}</span>
+        <span className="text-primary whitespace-pre-line font-bold">
+          {title}
+        </span>
         <span className="text-base font-normal text-neutral-600">
           {description}
         </span>
-        <div className="h-[200px] w-[290px] bg-gray-500" />
       </CardContent>
     </Card>
   )
