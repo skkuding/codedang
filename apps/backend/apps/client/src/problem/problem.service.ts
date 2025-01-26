@@ -106,34 +106,32 @@ export class ProblemService {
 
     const orderBy = orderByMapper[order ?? 'id-asc']
 
-    const unprocessedProblems =
-      // await this.problemRepository.getProblems(options)
-      await this.prisma.problem.findMany({
-        ...paginator,
-        take,
-        orderBy,
-        where: {
-          groupId,
-          title: {
-            // TODO/FIXME: postgreSQL의 full text search를 사용하여 검색하려 했으나
-            // 그럴 경우 띄어쓰기를 기준으로 나눠진 단어 단위로만 검색이 가능하다
-            // ex) "hello world"를 검색하면 "hello"와 "world"로 검색이 된다.
-            // 글자 단위로 검색하기 위해서, 성능을 희생하더라도 contains를 사용하여 구현했다.
-            // 추후에 검색 성능을 개선할 수 있는 방법을 찾아보자
-            // 아니면 텍스트가 많은 field에서는 full-text search를 사용하고, 텍스트가 적은 field에서는 contains를 사용하는 방법도 고려해보자.
-            contains: search
-          },
-          visibleLockTime: MIN_DATE
+    const unprocessedProblems = await this.prisma.problem.findMany({
+      ...paginator,
+      take,
+      orderBy,
+      where: {
+        groupId,
+        title: {
+          // TODO/FIXME: postgreSQL의 full text search를 사용하여 검색하려 했으나
+          // 그럴 경우 띄어쓰기를 기준으로 나눠진 단어 단위로만 검색이 가능하다
+          // ex) "hello world"를 검색하면 "hello"와 "world"로 검색이 된다.
+          // 글자 단위로 검색하기 위해서, 성능을 희생하더라도 contains를 사용하여 구현했다.
+          // 추후에 검색 성능을 개선할 수 있는 방법을 찾아보자
+          // 아니면 텍스트가 많은 field에서는 full-text search를 사용하고, 텍스트가 적은 field에서는 contains를 사용하는 방법도 고려해보자.
+          contains: search
         },
-        select: {
-          ...problemsSelectOption,
-          problemTag: {
-            select: {
-              tagId: true
-            }
+        visibleLockTime: MIN_DATE
+      },
+      select: {
+        ...problemsSelectOption,
+        problemTag: {
+          select: {
+            tagId: true
           }
         }
-      })
+      }
+    })
 
     const uniqueTagIds = new Set(
       unprocessedProblems.flatMap((item) => {
@@ -200,11 +198,6 @@ export class ProblemService {
       }
     })
 
-    // const total = await this.problemRepository.getProblemTotalCount(
-    //   options.groupId,
-    //   options.search
-    // )
-
     const total = await this.prisma.problem.count({
       where: {
         groupId,
@@ -216,10 +209,6 @@ export class ProblemService {
       }
     })
 
-    // return plainToInstance(ProblemsResponseDto, {
-    //   data: await Promise.all(problems),
-    //   total
-    // })
     return {
       data: await Promise.all(problems),
       total
@@ -240,7 +229,6 @@ export class ProblemService {
       select: problemSelectOption
     })
 
-    // const tags = await this.problemRepository.getProblemTags(problemId)
     const tags = (
       await this.prisma.problemTag.findMany({
         where: {
@@ -257,7 +245,6 @@ export class ProblemService {
       })
     ).map((tag) => tag.tag)
 
-    // return plainToInstance(ProblemResponseDto, { ...data, tags })
     return {
       ...data,
       tags
@@ -316,7 +303,6 @@ export class ContestProblemService {
     }))
 
     const [contestProblems, submissions] = await Promise.all([
-      // this.problemRepository.getContestProblems(contestId, cursor, take),
       this.prisma.contestProblem.findMany({
         ...paginator,
         take,
@@ -388,18 +374,12 @@ export class ContestProblemService {
       }
     })
 
-    // const total =
-    //   await this.problemRepository.getContestProblemTotalCount(contestId)
     const total = await this.prisma.contestProblem.count({
       where: {
         contestId
       }
     })
 
-    // return plainToInstance(RelatedProblemsResponseDto, {
-    //   data: contestProblemsWithScore,
-    //   total
-    // })
     return {
       data: contestProblemsWithScore,
       total
@@ -442,11 +422,6 @@ export class ContestProblemService {
     } else {
       throw new ForbiddenAccessException('Register to access this problem.')
     }
-
-    // const data = await this.problemRepository.getContestProblem(
-    //   contestId,
-    //   problemId
-    // )
 
     const data = await this.prisma.contestProblem.findUniqueOrThrow({
       where: {
@@ -495,7 +470,6 @@ export class ContestProblemService {
       delete problem[key]
     })
 
-    // return plainToInstance(RelatedProblemResponseDto, data)
     return {
       order: data.order,
       problem: {
@@ -525,11 +499,6 @@ export class WorkbookProblemService {
         'You do not have access to this workbook.'
       )
     }
-    // const data = await this.problemRepository.getWorkbookProblems(
-    //   workbookId,
-    //   cursor,
-    //   take
-    // )
 
     const paginator = this.prisma.getPaginator(cursor, (value) => ({
       // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -556,9 +525,6 @@ export class WorkbookProblemService {
       }
     })
 
-    // const total =
-    //   await this.problemRepository.getWorkbookProblemTotalCount(workbookId)
-
     const total = await this.prisma.workbookProblem.count({
       where: {
         workbookId,
@@ -567,11 +533,6 @@ export class WorkbookProblemService {
         }
       }
     })
-
-    // return plainToInstance(RelatedProblemsResponseDto, {
-    //   data,
-    //   total
-    // })
 
     const exceptFields = [
       'acceptedCount',
@@ -629,10 +590,6 @@ export class WorkbookProblemService {
         'You do not have access to this workbook.'
       )
     }
-    // const data = await this.problemRepository.getWorkbookProblem(
-    //   workbookId,
-    //   problemId
-    // )
 
     const data = await this.prisma.workbookProblem.findUniqueOrThrow({
       where: {
@@ -683,7 +640,6 @@ export class WorkbookProblemService {
       delete problem[key]
     })
 
-    // return plainToInstance(RelatedProblemResponseDto, data)
     return {
       order: data.order,
       problem: {
@@ -702,7 +658,6 @@ export class CodeDraftService {
     userId: number,
     problemId: number
   ): Promise<CodeDraftResponseDto> {
-    // const data = await this.problemRepository.getCodeDraft(userId, problemId)
     const data = await this.prisma.codeDraft.findUniqueOrThrow({
       where: {
         codeDraftId: {
@@ -712,7 +667,6 @@ export class CodeDraftService {
       },
       select: codeDraftSelectOption
     })
-    // return plainToInstance(CodeDraftResponseDto, data)
     return data
   }
 
@@ -721,11 +675,6 @@ export class CodeDraftService {
     problemId: number,
     createTemplateDto: CreateTemplateDto
   ): Promise<CodeDraftResponseDto> {
-    // const data = await this.problemRepository.upsertCodeDraft(
-    //   userId,
-    //   problemId,
-    //   createTemplateDto
-    // )
     let data
     try {
       data = await this.prisma.codeDraft.upsert({
@@ -759,7 +708,6 @@ export class CodeDraftService {
       }
       throw error
     }
-    // return plainToInstance(CodeDraftResponseDto, data)
     return data
   }
 }
