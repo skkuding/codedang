@@ -59,6 +59,8 @@ const contestWithCount = {
   groupId,
   title: 'title',
   description: 'description',
+  penalty: 20,
+  lastPenalty: false,
   startTime,
   endTime,
   isVisible: true,
