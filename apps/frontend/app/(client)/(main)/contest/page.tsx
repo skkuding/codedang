@@ -1,5 +1,4 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
-import { Separator } from '@/components/shadcn/separator'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
 import { ErrorBoundary } from '@suspensive/react'
@@ -8,9 +7,7 @@ import { Suspense } from 'react'
 import { SearchBar } from '../_components/SearchBar'
 import { ContestFeatureList } from './_components/ContestFeatureList'
 import { ContestMainCover } from './_components/ContestMainCover'
-import { FinishedContestTable } from './_components/FinishedContestTable'
-import { RegisteredContestTable } from './_components/RegisteredContestTable'
-import { TableSwitchButton } from './_components/TableSwitchButton'
+import { ContestMainTable } from './_components/ContestMainTable'
 
 interface ContestProps {
   searchParams: {
@@ -78,29 +75,17 @@ export default async function Contest({ searchParams }: ContestProps) {
         {/* Sub Banner 작업공간 */}
       </div>
 
-      <div className="mb-12 flex w-full flex-col gap-12">
+      <div className="mb-12 mt-[101px] flex w-full flex-col gap-12">
         <div className="flex-col">
-          <h1 className="mb-6 text-2xl font-bold text-gray-700">
-            List of Contests
-          </h1>
           <Suspense fallback={<FinishedContestTableFallback />}>
-            {session ? (
-              <TableSwitchButton registered={registered} />
-            ) : (
-              <p className="text-primary-light border-primary-light w-fit border-b-2 p-6 text-xl font-bold md:text-2xl">
-                Finished
-              </p>
-            )}
-            <Separator className="mb-3" />
             <ErrorBoundary fallback={FetchErrorFallback}>
-              <div className="flex justify-end py-8">
+              <div className="mb-11 flex justify-between">
+                <h1 className="text-2xl font-semibold text-gray-700">
+                  CONTEST LIST
+                </h1>
                 <SearchBar className="w-60" />
               </div>
-              {session && registered ? (
-                <RegisteredContestTable search={search} />
-              ) : (
-                <FinishedContestTable search={search} session={session} />
-              )}
+              <ContestMainTable search={search} session={session} />
             </ErrorBoundary>
           </Suspense>
         </div>

@@ -51,10 +51,10 @@ export function SearchBar({ className }: SearchBarProps) {
       className={cn('relative', className)}
       onSubmit={handleSubmit(onSubmit)}
     >
-      <Search className="text-muted-foreground absolute left-2 top-3 h-4 w-4" />
+      <Search className="text-muted-foreground absolute left-2 top-3 h-4 w-4 text-neutral-400" />
       <Input
         placeholder="Search"
-        className="px-8"
+        className="rounded-full px-8 placeholder:text-[#8A8A8A]"
         {...register('search')}
         defaultValue={search ?? ''}
       />

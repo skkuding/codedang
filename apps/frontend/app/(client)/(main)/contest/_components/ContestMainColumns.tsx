@@ -1,7 +1,7 @@
 'use client'
 
 import { dateFormatter } from '@/libs/utils'
-import checkIcon from '@/public/icons/check-gray.svg'
+import checkIcon from '@/public/icons/check-darkgray.svg'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
@@ -11,7 +11,14 @@ export const columns: ColumnDef<Contest>[] = [
     header: 'Title',
     accessorKey: 'title',
     cell: ({ row }) => (
-      <p className="overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm md:text-base">
+      <p
+        className={`overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm md:text-base ${
+          row.original.status === 'ongoing' ||
+          row.original.status === 'registeredOngoing'
+            ? 'text-primary-strong font-semibold'
+            : ''
+        }`}
+      >
         {row.original.title}
       </p>
     )
@@ -27,17 +34,13 @@ export const columns: ColumnDef<Contest>[] = [
       )
   },
   {
-    header: 'Participants',
-    accessorKey: 'participants',
-    cell: ({ row }) => row.original.participants
-  },
-  {
     header: 'Period',
     accessorKey: 'period',
-    cell: ({ row }) =>
-      `${dateFormatter(row.original.startTime, 'YYYY-MM-DD')} ~ ${dateFormatter(
-        row.original.endTime,
-        'YYYY-MM-DD'
-      )}`
+    cell: ({ row }) => (
+      <p className={row.original.status === 'ongoing' ? 'font-semibold' : ''}>
+        {dateFormatter(row.original.startTime, 'YYYY-MM-DD')} ~
+        {dateFormatter(row.original.endTime, 'YYYY-MM-DD')}
+      </p>
+    )
   }
 ]
