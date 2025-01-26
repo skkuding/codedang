@@ -12,7 +12,7 @@ post {
 
 body:graphql {
   mutation CreatePublicizingRequest($assignmentId: Int!, $groupId: Int!){
-    createPublicizingRequest(
+    createAssignmentPublicizingRequest(
       assignmentId: $assignmentId,
       groupId: $groupId
     ) {

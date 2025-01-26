@@ -23,6 +23,13 @@ body:graphql {
   }
 }
 
+body:graphql:vars {
+  {
+    "contestId": 1,
+    "groupId": 1
+  }
+}
+
 assert {
   res.body.data.createPublicizingRequest: isDefined
 }
