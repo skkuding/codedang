@@ -81,7 +81,13 @@ const mockContest: Contest = {
   isJudgeResultVisible: true,
   enableCopyPaste: true,
   createTime: new Date(),
-  updateTime: new Date()
+  updateTime: new Date(),
+  posterUrl: 'posterUrl',
+  participationTarget: 'participationTarget',
+  competitionMethod: 'competitionMethod',
+  rankingMethod: 'rankingMethod',
+  problemFormat: 'problemFormat',
+  benefits: 'benefits'
 }
 const USERIP = '127.0.0.1'
 
