@@ -20,7 +20,7 @@ class Problem {
 }
 
 /**
- * @deprecated
+ * @deprecated _가 없는 것으로 사용해주세요
  */
 @Exclude()
 // eslint-disable-next-line
@@ -33,6 +33,9 @@ export class _RelatedProblemsResponseDto {
   total: number
 }
 
+/**
+ * @deprecated _가 없는 것으로 사용해주세요
+ */
 @Exclude()
 // eslint-disable-next-line
 class _Problem {

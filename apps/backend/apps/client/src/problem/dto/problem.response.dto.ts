@@ -28,7 +28,7 @@ export class ProblemResponseDto {
 }
 
 /**
- * @deprecated
+ * @deprecated _가 없는 것으로 사용해주세요
  */
 @Exclude()
 // eslint-disable-next-line
