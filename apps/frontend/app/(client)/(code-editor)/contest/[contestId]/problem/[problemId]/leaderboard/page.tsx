@@ -4,7 +4,7 @@ import { Paginator } from '@/components/Paginator'
 import { usePagination } from '@/libs/hooks/usePagination'
 import type { LeaderboardItem } from '@/types/type'
 import { columns } from './_components/Columns'
-import DataTable from './_components/DataTable'
+import { DataTable } from './_components/DataTable'
 
 // import dummyData from './temp_data.json'
 
