@@ -285,7 +285,13 @@ describe('ContestProblemService', () => {
       db.submission.findMany.resolves([])
 
       // when
-      const result = await service.getContestProblems(contestId, userId, 1, 1)
+      const result = await service.getContestProblems({
+        contestId,
+        userId,
+        cursor: 1,
+        take: 1,
+        groupId: OPEN_SPACE_ID // 명시적 전달
+      })
 
       // then
       expect(result).to.deep.equal(
@@ -311,13 +317,13 @@ describe('ContestProblemService', () => {
       db.contestProblem.findMany.resolves(mockContestProblems)
 
       // when
-      const result = await service.getContestProblems(
+      const result = await service.getContestProblems({
         contestId,
         userId,
-        1,
-        1,
-        groupId
-      )
+        cursor: 1,
+        take: 1,
+        groupId: OPEN_SPACE_ID // 명시적 전달
+      })
 
       // then
       expect(result).to.deep.equal(
@@ -335,7 +341,13 @@ describe('ContestProblemService', () => {
 
       // then
       await expect(
-        service.getContestProblems(contestId, userId, 1, 1)
+        service.getContestProblems({
+          contestId,
+          userId,
+          cursor: 1,
+          take: 1,
+          groupId: OPEN_SPACE_ID // 명시적 전달
+        })
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
@@ -353,7 +365,13 @@ describe('ContestProblemService', () => {
       db.contestProblem.findMany.resolves(mockContestProblems)
 
       await expect(
-        service.getContestProblems(contestId, userId, 1, 1)
+        service.getContestProblems({
+          contestId,
+          userId,
+          cursor: 1,
+          take: 1,
+          groupId: OPEN_SPACE_ID // 명시적 전달
+        })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
 
@@ -371,7 +389,13 @@ describe('ContestProblemService', () => {
       db.contestProblem.findMany.resolves(mockContestProblems)
 
       await expect(
-        service.getContestProblems(contestId, 0, 1, 1)
+        service.getContestProblems({
+          contestId,
+          userId,
+          cursor: 1,
+          take: 1,
+          groupId: OPEN_SPACE_ID // 명시적 전달
+        })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })
@@ -392,11 +416,12 @@ describe('ContestProblemService', () => {
       db.contestProblem.findUnique.resolves(mockContestProblem)
 
       // when
-      const result = await service.getContestProblem(
+      const result = await service.getContestProblem({
         contestId,
         problemId,
-        userId
-      )
+        userId,
+        groupId: OPEN_SPACE_ID
+      })
 
       // then
       expect(result).to.be.deep.equal(
@@ -419,11 +444,12 @@ describe('ContestProblemService', () => {
       db.contestProblem.findUnique.resolves(mockContestProblem)
 
       // when
-      const result = await service.getContestProblem(
+      const result = await service.getContestProblem({
         contestId,
         problemId,
-        groupId
-      )
+        userId,
+        groupId: OPEN_SPACE_ID
+      })
 
       // then
       expect(result).to.be.deep.equal(
@@ -438,7 +464,12 @@ describe('ContestProblemService', () => {
 
       // then
       await expect(
-        service.getContestProblem(contestId, problemId, userId)
+        service.getContestProblem({
+          contestId,
+          problemId,
+          userId,
+          groupId: OPEN_SPACE_ID
+        })
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
@@ -455,7 +486,12 @@ describe('ContestProblemService', () => {
       })
       db.contestProblem.findUnique.resolves(mockContestProblem)
       await expect(
-        service.getContestProblem(contestId, problemId, userId)
+        service.getContestProblem({
+          contestId,
+          problemId,
+          userId,
+          groupId: OPEN_SPACE_ID
+        })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
 
@@ -472,7 +508,12 @@ describe('ContestProblemService', () => {
       })
       db.contestProblem.findUnique.resolves(mockContestProblem)
       await expect(
-        service.getContestProblem(contestId, problemId, userId)
+        service.getContestProblem({
+          contestId,
+          problemId,
+          userId,
+          groupId: OPEN_SPACE_ID
+        })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })
@@ -529,7 +570,12 @@ describe('WorkbookProblemService', () => {
       db.workbookProblem.findMany.resolves(mockWorkbookProblems)
 
       // when
-      const result = await service.getWorkbookProblems(workbookId, 1, 1)
+      const result = await service.getWorkbookProblems({
+        workbookId,
+        cursor: 1,
+        take: 1,
+        groupId: OPEN_SPACE_ID
+      })
 
       // then
       expect(result).to.deep.equal(
@@ -546,12 +592,12 @@ describe('WorkbookProblemService', () => {
       db.workbookProblem.findMany.resolves(mockWorkbookProblems)
 
       // when
-      const result = await service.getWorkbookProblems(
+      const result = await service.getWorkbookProblems({
         workbookId,
-        1,
-        1,
-        groupId
-      )
+        cursor: 1,
+        take: 1,
+        groupId: OPEN_SPACE_ID
+      })
 
       // then
       expect(result).to.deep.equal(
@@ -568,7 +614,12 @@ describe('WorkbookProblemService', () => {
 
       // then
       await expect(
-        service.getWorkbookProblems(workbookId, 1, 1)
+        service.getWorkbookProblems({
+          workbookId,
+          cursor: 1,
+          take: 1,
+          groupId: OPEN_SPACE_ID
+        })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })
