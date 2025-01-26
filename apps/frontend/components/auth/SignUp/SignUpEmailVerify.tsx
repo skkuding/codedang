@@ -2,7 +2,7 @@ import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
 import { baseUrl } from '@/libs/constants'
 import { cn, isHttpError, safeFetcher } from '@/libs/utils'
-import useSignUpModalStore from '@/stores/signUpModal'
+import { useSignUpModalStore } from '@/stores/signUpModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import React, { useState, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
@@ -23,7 +23,7 @@ const schema = v.object({
 
 const timeLimit = 300
 
-export default function SignUpEmailVerify() {
+export function SignUpEmailVerify() {
   const [timer, setTimer] = useState(timeLimit)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const previousTimeRef = useRef(Date.now())

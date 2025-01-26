@@ -2,7 +2,7 @@ import clockIcon from '@/public/icons/clock.svg'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import Image from 'next/image'
 
-export default function ContestEditorSkeleton() {
+export function ContestEditorSkeleton() {
   return (
     <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
       <header className="flex h-12 justify-between bg-slate-900 px-6">

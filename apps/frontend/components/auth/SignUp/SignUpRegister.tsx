@@ -24,7 +24,7 @@ import {
 import { majors } from '@/libs/constants'
 import { cn, isHttpError, safeFetcher } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-white.svg'
-import useSignUpModalStore from '@/stores/signUpModal'
+import { useSignUpModalStore } from '@/stores/signUpModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { CommandList } from 'cmdk'
 import Image from 'next/image'
@@ -111,7 +111,7 @@ export function requiredMessage(message?: string) {
   )
 }
 
-export default function SignUpRegister() {
+export function SignUpRegister() {
   const formData = useSignUpModalStore((state) => state.formData)
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)

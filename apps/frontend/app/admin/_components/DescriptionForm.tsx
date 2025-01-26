@@ -1,10 +1,10 @@
 'use client'
 
-import TextEditor from '@/components/TextEditor'
+import { TextEditor } from '@/components/TextEditor'
 import { useController, useFormContext } from 'react-hook-form'
-import ErrorMessage from './ErrorMessage'
+import { ErrorMessage } from './ErrorMessage'
 
-export default function DescriptionForm({ name }: { name: string }) {
+export function DescriptionForm({ name }: { name: string }) {
   const {
     control,
     formState: { errors }

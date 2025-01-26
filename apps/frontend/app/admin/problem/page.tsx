@@ -1,6 +1,6 @@
 'use client'
 
-import FetchErrorFallback from '@/components/FetchErrorFallback'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
@@ -16,7 +16,7 @@ import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect, Suspense } from 'react'
 import { ProblemTable, ProblemTableFallback } from './_components/ProblemTable'
-import UploadDialog from './_components/UploadDialog'
+import { UploadDialog } from './_components/UploadDialog'
 
 export default function Page({
   searchParams

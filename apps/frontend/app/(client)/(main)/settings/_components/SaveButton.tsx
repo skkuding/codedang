@@ -7,7 +7,7 @@ interface SaveButtonProps {
   onSubmitClick: () => void
 }
 
-export default function SaveButton({
+export function SaveButton({
   saveAbleUpdateNow,
   saveAble,
   onSubmitClick

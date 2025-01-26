@@ -16,7 +16,7 @@ interface SearchBarProps {
   className?: string
 }
 
-export default function SearchBar({ className }: SearchBarProps) {
+export function SearchBar({ className }: SearchBarProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParam = useSearchParams()

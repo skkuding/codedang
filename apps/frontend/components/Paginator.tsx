@@ -20,7 +20,7 @@ interface Props {
   }
 }
 
-export default function Paginator({ page, slot }: Props) {
+export function Paginator({ page, slot }: Props) {
   return (
     <Pagination className="py-2">
       <PaginationContent>

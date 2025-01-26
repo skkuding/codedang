@@ -1,16 +1,14 @@
 'use client'
 
 import type { ProblemDetail } from '@/types/type'
-import CopyButton from './CopyButton'
+import { CopyButton } from './CopyButton'
 import { WhitespaceVisualizer } from './WhitespaceVisualizer'
 
 interface EditorSampleFieldProps {
   problemTestCase: ProblemDetail['problemTestcase']
 }
 
-export default function EditorSampleField({
-  problemTestCase
-}: EditorSampleFieldProps) {
+export function EditorSampleField({ problemTestCase }: EditorSampleFieldProps) {
   return (
     <div>
       {problemTestCase.map(({ id, input, output }, index) => {

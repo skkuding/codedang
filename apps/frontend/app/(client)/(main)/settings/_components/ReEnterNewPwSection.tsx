@@ -14,7 +14,7 @@ interface ReEnterNewPwSectionProps {
   isPasswordsMatch: boolean
 }
 
-export default function ReEnterNewPwSection({
+export function ReEnterNewPwSection({
   newPasswordAble,
   getValues,
   confirmPassword,

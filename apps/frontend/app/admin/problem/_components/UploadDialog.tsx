@@ -15,7 +15,7 @@ import { RiFileExcel2Fill } from 'react-icons/ri'
 import { useDrop } from 'react-use'
 import { toast } from 'sonner'
 
-export default function UploadDialog() {
+export function UploadDialog() {
   const client = useApolloClient()
   const [file, setFile] = useState<File | null>(null)
   const fileRef = useRef<HTMLInputElement | null>(null)

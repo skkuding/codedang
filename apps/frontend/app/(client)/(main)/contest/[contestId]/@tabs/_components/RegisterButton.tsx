@@ -10,21 +10,21 @@ import {
 } from '@/components/shadcn/dialog'
 import { Input } from '@/components/shadcn/input'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { z } from 'zod'
+import * as v from 'valibot'
 
 interface InvitationCodeInput {
   invitationCode: string
 }
 
-const schema = z.object({
-  invitationCode: z.string().length(6)
+const schema = v.object({
+  invitationCode: v.pipe(v.string(), v.length(6))
 })
 
-export default function RegisterButton({
+export function RegisterButton({
   id,
   state,
   title,
@@ -62,7 +62,7 @@ export default function RegisterButton({
     getValues,
     formState: { errors }
   } = useForm<InvitationCodeInput>({
-    resolver: zodResolver(schema)
+    resolver: valibotResolver(schema)
   })
 
   const onSubmit = () => {
@@ -83,10 +83,10 @@ export default function RegisterButton({
     <Dialog>
       <DialogTrigger asChild>
         <Button
-          className="px-12 py-6 text-lg disabled:bg-gray-300 disabled:text-gray-600"
+          className="h-12 w-[940px] rounded-full px-12 py-6 text-lg disabled:bg-gray-300 disabled:text-gray-600"
           disabled={state === 'Upcoming'}
         >
-          Register Now
+          Register Now!
         </Button>
       </DialogTrigger>
       <DialogContent className="flex w-[416px] flex-col gap-6 p-10">

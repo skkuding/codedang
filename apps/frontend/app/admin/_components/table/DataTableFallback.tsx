@@ -36,7 +36,7 @@ interface DataTableFallbackProps<TData> {
  * @param rowCount
  * 스켈레톤을 보여줄 행 개수 (기본값: 10)
  */
-export default function DataTableFallback<TData>({
+export function DataTableFallback<TData>({
   withSearchBar = true,
   ...props
 }: DataTableFallbackProps<TData>) {

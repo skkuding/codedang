@@ -1,7 +1,7 @@
 import { Input } from '@/components/shadcn/input'
 import { useSettingsContext } from './context'
 
-export default function IdSection() {
+export function IdSection() {
   const { isLoading, defaultProfileValues } = useSettingsContext()
 
   return (

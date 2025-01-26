@@ -68,7 +68,7 @@ interface Item {
   id: number
 }
 
-export default function DataTable<TData extends Item, TValue>({
+export function DataTable<TData extends Item, TValue>({
   columns,
   data,
   headerStyle,

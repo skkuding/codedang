@@ -15,7 +15,7 @@ interface CurrentPwSectionProps {
   checkPassword: () => Promise<void>
 }
 
-export default function CurrentPwSection({
+export function CurrentPwSection({
   currentPassword,
   isCheckButtonClicked,
   isPasswordCorrect,

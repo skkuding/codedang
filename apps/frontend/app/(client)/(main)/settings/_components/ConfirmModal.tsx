@@ -1,4 +1,4 @@
-import BaseModal from '@/components/BaseModal'
+import { BaseModal } from '@/components/BaseModal'
 import {
   AlertDialogAction,
   AlertDialogCancel,
@@ -27,7 +27,7 @@ interface ModalProps {
  * @remarks
  * * AlertDialogFooter section (Button section) is separated using ConfirmModal component for reusability.
  */
-export default function ConfirmModal({
+export function ConfirmModal({
   open,
   handleClose,
   confirmAction,

@@ -3,7 +3,7 @@
 import { dateFormatter } from '@/libs/utils'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
-import StatusBadge from '../../_components/StatusBadge'
+import { StatusBadge } from '../../_components/StatusBadge'
 
 export const columns: ColumnDef<Contest>[] = [
   {

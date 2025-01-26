@@ -141,7 +141,7 @@ describe('UserService', () => {
   describe('getUsernameByEmail', () => {
     const { email, username } = user
     it('return username', async () => {
-      db.user.findUnique.resolves({ username })
+      db.user.findUniqueOrThrow.resolves({ username })
 
       expect(await service.getUsernameByEmail({ email })).to.be.deep.equal({
         username
@@ -149,7 +149,7 @@ describe('UserService', () => {
     })
 
     it('should not return username', async () => {
-      db.user.findUnique.resolves(null)
+      db.user.findUniqueOrThrow.throws(new EntityNotExistException('user'))
 
       await expect(service.getUsernameByEmail({ email })).to.be.rejectedWith(
         EntityNotExistException
@@ -400,6 +400,13 @@ describe('UserService', () => {
       createUserProfileSpy = spy(service, 'createUserProfile')
       registerUserToPublicGroupSpy = spy(service, 'registerUserToPublicGroup')
       deletePinFromCacheSpy = stub(service, 'deletePinFromCache')
+
+      db.user.findUniqueOrThrow.resolves({ username: signUpDto.username })
+    })
+
+    after(() => {
+      db.user.findUnique = stub()
+      db.user.findUniqueOrThrow = stub()
     })
 
     it('carry sign up process', async () => {

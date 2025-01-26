@@ -1,7 +1,7 @@
 'use client'
 
-import OptionSelect from '@/app/admin/_components/OptionSelect'
-import ContainedContests from '@/app/admin/problem/_components/ContainedContests'
+import { OptionSelect } from '@/app/admin/_components/OptionSelect'
+import { ContainedContests } from '@/app/admin/problem/_components/ContainedContests'
 import { Badge } from '@/components/shadcn/badge'
 import { Input } from '@/components/shadcn/input'
 import type { Level } from '@/types/type'

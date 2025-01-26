@@ -44,3 +44,6 @@ __generated__/
 # Playwright
 test-results/*
 test-results.json
+
+# Next.js Bundle Analyzer
+analyze

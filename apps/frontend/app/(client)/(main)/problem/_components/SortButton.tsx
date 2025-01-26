@@ -11,7 +11,7 @@ interface SortButtonProps {
   order: string
 }
 
-export default function SortButton({ children, order }: SortButtonProps) {
+export function SortButton({ children, order }: SortButtonProps) {
   const param = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
