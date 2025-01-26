@@ -23,6 +23,7 @@ import { PrismaService } from '@libs/prisma'
 import { problems } from '@admin/problem/mock/mock'
 import { normalContest } from '../mock/contest.mock'
 import { contestProblem } from '../mock/contestProblem.mock'
+import { contestRecordsMock } from '../mock/contestRecord.mock'
 import { submissions } from '../mock/submission.mock'
 import { submissionResults } from '../mock/submissionResult.mock'
 import { SubmissionSubscriptionService } from '../submission-sub.service'
@@ -461,6 +462,9 @@ describe('SubmissionSubscriptionService', () => {
       const contestProblemFindUniqueSpy = sandbox
         .stub(db.contestProblem, 'findUniqueOrThrow')
         .resolves(contestProblem)
+      const contestRecordFindUniqueSpy = sandbox
+        .stub(db.contestRecord, 'findUniqueOrThrow')
+        .resolves(contestRecordsMock[0])
       const problemRecordFindManySpy = sandbox
         .stub(db.contestProblemRecord, 'findMany')
         .resolves([])
@@ -520,13 +524,27 @@ describe('SubmissionSubscriptionService', () => {
           }
         })
       ).to.be.true
+      expect(
+        contestRecordFindUniqueSpy.calledOnceWith({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            contestId_userId: {
+              contestId: contestSubmission.contestId,
+              userId: contestSubmission.userId
+            }
+          },
+          select: {
+            id: true
+          }
+        })
+      ).to.be.true
       expect(upsertProblemRecordSpy.calledOnce).to.be.true
 
       expect(
         problemRecordFindManySpy.calledOnceWith({
           where: {
             contestProblemId: contestProblem.id,
-            userId: contestSubmission.userId
+            contestRecordId: contestRecordsMock[0].id
           },
           select: {
             score: true,

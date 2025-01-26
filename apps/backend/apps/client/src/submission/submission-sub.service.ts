@@ -330,7 +330,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         `contestId: ${contestId}, userId: ${userId} is empty`
       )
 
-    // TODO: squad3 부분점수 채점 구현 완료 이후, 점수대회 구현 위해 수정 필요
     const isNewAccept =
       (await this.prisma.submission.count({
         where: {
@@ -361,7 +360,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       }
     })
-    const { submission: submissions, ...contest } = _contest
+
     const contestProblem = await this.prisma.contestProblem.findUniqueOrThrow({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -375,12 +374,27 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         score: true
       }
     })
+
+    const contestRecord = await this.prisma.contestRecord.findUniqueOrThrow({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_userId: {
+          contestId,
+          userId
+        }
+      },
+      select: {
+        id: true
+      }
+    })
+
+    const { submission: submissions, ...contest } = _contest
     const { penalty, lastPenalty } = contest
-    // TODO: 점수대회에서는 부분점수도 고려해야함 -> 수정 필요
     const { id: contestProblemId, score } = contestProblem
+    const contestRecordId = contestRecord.id
 
     const submitCount = submissions.length
-    const submitCountPenalty = Math.floor(penalty * submitCount)
+    const submitCountPenalty = Math.floor(penalty * (submitCount - 1))
 
     const submitTime = new Date(updateTime).getTime()
     const startTime = new Date(contest.startTime).getTime()
@@ -390,9 +404,9 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     await this.prisma.contestProblemRecord.upsert({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        contestProblemId_userId: {
+        contestProblemId_contestRecordId: {
           contestProblemId,
-          userId
+          contestRecordId
         }
       },
       update: {
@@ -402,7 +416,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       },
       create: {
         contestProblemId,
-        userId,
+        contestRecordId,
         score,
         submitCountPenalty
       }
@@ -412,7 +426,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       await this.prisma.contestProblemRecord.findMany({
         where: {
           contestProblemId,
-          userId
+          contestRecordId
         },
         select: {
           score: true,

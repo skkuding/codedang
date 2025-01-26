@@ -511,19 +511,47 @@ export class ContestService {
       throw new ForbiddenAccessException('Not registered in this contest')
     }
 
+    const sum = await this.prisma.contestProblem.aggregate({
+      where: {
+        contestId
+      },
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      _sum: {
+        score: true
+      }
+    })
+    const maxScore = sum._sum?.score ?? 0
+
     const contestRecords = await this.prisma.contestRecord.findMany({
       where: {
         contestId
       },
       select: {
+        userId: true,
         user: {
           select: {
-            id: true,
             username: true
           }
         },
         score: true,
-        totalPenalty: true
+        totalPenalty: true,
+        contestProblemRecord: {
+          select: {
+            score: true,
+            timePenalty: true,
+            submitCountPenalty: true,
+            contestProblem: {
+              select: {
+                order: true,
+                problem: {
+                  select: {
+                    id: true
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       orderBy: [
         {
@@ -538,9 +566,56 @@ export class ContestService {
       ]
     })
 
-    return contestRecords.map((contestRecord, index) => ({
-      ...contestRecord,
-      standing: index + 1
-    }))
+    // 문제별 제출 횟수 데이터 가져오기
+    const submissionCounts = await this.prisma.submission.groupBy({
+      by: ['userId', 'problemId'], // userId와 problemId로 그룹화
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      _count: {
+        id: true // 제출 횟수를 세기 위해 id를 카운트
+      },
+      where: {
+        contestId
+      }
+    })
+
+    // 유저별 문제별 제출 횟수를 매핑
+    const submissionCountMap: {
+      [userId: number]: { [problemId: number]: number }
+    } = {}
+    submissionCounts.forEach((submission) => {
+      const { userId, problemId, _count } = submission
+      if (!userId || !problemId || !_count) return
+      if (!submissionCountMap[userId]) {
+        submissionCountMap[userId] = {}
+      }
+      submissionCountMap[userId][problemId] = _count.id // 문제별 제출 횟수 저장
+    })
+
+    let rank = 1
+    const leaderboard = contestRecords.map((contestRecord) => {
+      const { contestProblemRecord, userId, ...rest } = contestRecord
+      const problemRecords = contestProblemRecord.map((record) => {
+        const { contestProblem, submitCountPenalty, timePenalty, ...rest } =
+          record
+        return {
+          ...rest,
+          order: contestProblem.order,
+          problemId: contestProblem.problem.id,
+          penalty: submitCountPenalty + timePenalty,
+          submissionCount:
+            submissionCountMap[userId!]?.[contestProblem.problem.id] ?? 0 // 기본값 0 설정
+        }
+      })
+      return {
+        ...rest,
+        problemRecords,
+        rank: rank++
+      }
+    })
+
+    return {
+      maxScore,
+      leaderboard
+    }
   }
 }

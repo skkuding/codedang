@@ -135,6 +135,9 @@ export class ContestController {
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) contestId: number
   ) {
-    return await this.contestService.getContestLeaderboard(contestId)
+    return await this.contestService.getContestLeaderboard(
+      req.user.id,
+      contestId
+    )
   }
 }

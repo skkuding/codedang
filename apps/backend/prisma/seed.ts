@@ -51,6 +51,7 @@ const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
 const assignmentAnnouncements: Announcement[] = []
 const contestAnnouncements: Announcement[] = []
+const contestProblemRecords: ContestProblemRecord[] = []
 
 const createUsers = async () => {
   // create super admin user
@@ -2319,6 +2320,22 @@ const createContestRecords = async () => {
   return contestRecords
 }
 
+const createContestProblemRecords = async () => {
+  // contest 1 problems for
+  for (let i = 0; i < 5; ++i) {
+    contestProblemRecords.push(
+      await prisma.contestProblemRecord.create({
+        data: {
+          contestProblemId: i + 1,
+          contestRecordId: 1
+        }
+      })
+    )
+  }
+
+  return contestProblemRecords
+}
+
 const main = async () => {
   await createUsers()
   await createGroups()
@@ -2332,6 +2349,7 @@ const main = async () => {
   await createAnnouncements()
   await createCodeDrafts()
   await createAssignmentRecords()
+  await createContestProblemRecords()
 }
 
 main()
