@@ -67,13 +67,19 @@ export class SubmissionService {
    * @throws {EntityNotExistException} 주어진 조건에 맞는 문제가 없는 경우
    */
   @Span()
-  async submitToProblem(
-    submissionDto: CreateSubmissionDto,
-    userIp: string,
-    userId: number,
-    problemId: number,
+  async submitToProblem({
+    submissionDto,
+    userIp,
+    userId,
+    problemId,
     groupId = OPEN_SPACE_ID
-  ) {
+  }: {
+    submissionDto: CreateSubmissionDto
+    userIp: string
+    userId: number
+    problemId: number
+    groupId: number
+  }) {
     const problem = await this.prisma.problem.findFirst({
       where: {
         id: problemId,

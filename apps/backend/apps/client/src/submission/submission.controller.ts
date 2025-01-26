@@ -45,13 +45,13 @@ export class SubmissionController {
     @Query('workbookId', IDValidationPipe) workbookId: number | null
   ) {
     if (!contestId && !workbookId && !assignmentId) {
-      return await this.submissionService.submitToProblem(
+      return await this.submissionService.submitToProblem({
         submissionDto,
         userIp,
-        req.user.id,
+        userId: req.user.id,
         problemId,
         groupId
-      )
+      })
     } else if (contestId) {
       return await this.submissionService.submitToContest({
         submissionDto,
