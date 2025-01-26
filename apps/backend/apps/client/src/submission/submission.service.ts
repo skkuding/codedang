@@ -32,7 +32,6 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { ProblemRepository } from '@client/problem/problem.repository'
 import {
   CreateSubmissionDto,
   CreateUserTestSubmissionDto,
@@ -49,7 +48,6 @@ export class SubmissionService {
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
-    private readonly problemRepository: ProblemRepository,
     private readonly publish: SubmissionPublicationService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
@@ -88,12 +86,12 @@ export class SubmissionService {
     if (!problem) {
       throw new EntityNotExistException('Problem')
     }
-    const submission = await this.createSubmission(
+    const submission = await this.createSubmission({
       submissionDto,
       problem,
       userId,
       userIp
-    )
+    })
 
     if (submission) {
       this.logger.log(
@@ -127,14 +125,21 @@ export class SubmissionService {
    *   - 대회가 진행중이지 않을 경우
    */
   @Span()
-  async submitToContest(
-    submissionDto: CreateSubmissionDto,
-    userIp: string,
-    userId: number,
-    problemId: number,
-    contestId: number,
+  async submitToContest({
+    submissionDto,
+    userIp,
+    userId,
+    problemId,
+    contestId,
     groupId = OPEN_SPACE_ID
-  ) {
+  }: {
+    submissionDto: CreateSubmissionDto
+    userIp: string
+    userId: number
+    problemId: number
+    contestId: number
+    groupId: number
+  }) {
     const now = new Date()
 
     // 진행 중인 대회인지 확인합니다.
@@ -204,15 +209,15 @@ export class SubmissionService {
     }
     const { problem } = contestProblem
 
-    const submission = await this.createSubmission(
+    const submission = await this.createSubmission({
       submissionDto,
       problem,
       userId,
       userIp,
-      {
+      idOptions: {
         contestId
       }
-    )
+    })
 
     return submission
   }
@@ -241,14 +246,21 @@ export class SubmissionService {
    *   - 과제가 진행중이지 않을 경우
    */
   @Span()
-  async submitToAssignment(
-    submissionDto: CreateSubmissionDto,
-    userIp: string,
-    userId: number,
-    problemId: number,
-    assignmentId: number,
+  async submitToAssignment({
+    submissionDto,
+    userIp,
+    userId,
+    problemId,
+    assignmentId,
     groupId = OPEN_SPACE_ID
-  ) {
+  }: {
+    submissionDto: CreateSubmissionDto
+    userIp: string
+    userId: number
+    problemId: number
+    assignmentId: number
+    groupId: number
+  }) {
     const now = new Date()
 
     // 진행 중인 과제인지 확인합니다.
@@ -318,15 +330,15 @@ export class SubmissionService {
     }
     const { problem } = assignmentProblem
 
-    const submission = await this.createSubmission(
+    const submission = await this.createSubmission({
       submissionDto,
       problem,
       userId,
       userIp,
-      {
+      idOptions: {
         assignmentId
       }
-    )
+    })
 
     return submission
   }
@@ -351,14 +363,21 @@ export class SubmissionService {
    *   - 문제의 groupId가 일치하지 않거나 visibleLockTime 조건을 만족하지 않는 경우
    */
   @Span()
-  async submitToWorkbook(
-    submissionDto: CreateSubmissionDto,
-    userIp: string,
-    userId: number,
-    problemId: number,
-    workbookId: number,
+  async submitToWorkbook({
+    submissionDto,
+    userIp,
+    userId,
+    problemId,
+    workbookId,
     groupId = OPEN_SPACE_ID
-  ) {
+  }: {
+    submissionDto: CreateSubmissionDto
+    userIp: string
+    userId: number
+    problemId: number
+    workbookId: number
+    groupId: number
+  }) {
     const workbookProblem = await this.prisma.workbookProblem.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -382,15 +401,15 @@ export class SubmissionService {
       throw new EntityNotExistException('Problem')
     }
 
-    const submission = await this.createSubmission(
+    const submission = await this.createSubmission({
       submissionDto,
       problem,
       userId,
       userIp,
-      {
+      idOptions: {
         workbookId
       }
-    )
+    })
 
     return submission
   }
@@ -419,17 +438,23 @@ export class SubmissionService {
    *   - 제출물을 생성하는 도중 데이터 처리에 실패한 경우
    */
   @Span()
-  async createSubmission(
-    submissionDto: CreateSubmissionDto,
-    problem: Problem,
-    userId: number,
-    userIp: string,
+  async createSubmission({
+    submissionDto,
+    problem,
+    userId,
+    userIp,
+    idOptions
+  }: {
+    submissionDto: CreateSubmissionDto
+    problem: Problem
+    userId: number
+    userIp: string
     idOptions?: {
       contestId?: number
       assignmentId?: number
       workbookId?: number
     }
-  ): Promise<Submission> {
+  }) {
     if (!problem.languages.includes(submissionDto.language)) {
       throw new ConflictFoundException(
         `This problem does not support language ${submissionDto.language}`
@@ -835,15 +860,23 @@ export class SubmissionService {
    * @throws {EntityNotExistException} 주어진 조건에 맞는 문제가 존재하지 않을 경우
    */
   @Span()
-  async getSubmission(
-    id: number,
-    problemId: number,
-    userId: number,
-    userRole: Role,
+  async getSubmission({
+    id,
+    problemId,
+    userId,
+    userRole,
     groupId = OPEN_SPACE_ID,
-    contestId: number | null,
+    contestId,
+    assignmentId
+  }: {
+    id: number
+    problemId: number
+    userId: number
+    userRole: Role
+    groupId: number
+    contestId: number | null
     assignmentId: number | null
-  ) {
+  }) {
     const now = new Date()
     let contest: {
       groupId: number
@@ -995,7 +1028,13 @@ export class SubmissionService {
       submission.userId === userId ||
       userRole === Role.Admin ||
       userRole === Role.SuperAdmin ||
-      (await this.problemRepository.hasPassedProblem(userId, { problemId }))
+      (await this.prisma.submission.count({
+        where: {
+          userId,
+          problemId,
+          result: 'Accepted'
+        }
+      }))
     ) {
       const code = plainToInstance(Snippet, submission.code)
       const results = submission.submissionResult.map((result) => {

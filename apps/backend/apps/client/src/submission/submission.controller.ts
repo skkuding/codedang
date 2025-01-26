@@ -53,32 +53,32 @@ export class SubmissionController {
         groupId
       )
     } else if (contestId) {
-      return await this.submissionService.submitToContest(
+      return await this.submissionService.submitToContest({
         submissionDto,
         userIp,
-        req.user.id,
+        userId: req.user.id,
         problemId,
         contestId,
         groupId
-      )
+      })
     } else if (assignmentId) {
-      return await this.submissionService.submitToAssignment(
+      return await this.submissionService.submitToAssignment({
         submissionDto,
         userIp,
-        req.user.id,
+        userId: req.user.id,
         problemId,
         assignmentId,
         groupId
-      )
+      })
     } else if (workbookId) {
-      return await this.submissionService.submitToWorkbook(
+      return await this.submissionService.submitToWorkbook({
         submissionDto,
         userIp,
-        req.user.id,
+        userId: req.user.id,
         problemId,
         workbookId,
         groupId
-      )
+      })
     }
   }
 
@@ -171,15 +171,15 @@ export class SubmissionController {
         'Provide either contestId or assignmentId, not both.'
       )
     }
-    return await this.submissionService.getSubmission(
+    return await this.submissionService.getSubmission({
       id,
       problemId,
-      req.user.id,
-      req.user.role,
+      userId: req.user.id,
+      userRole: req.user.role,
       groupId,
       contestId,
       assignmentId
-    )
+    })
   }
 }
 

@@ -57,10 +57,12 @@ export class ProblemService {
         'A problem should support at least one language'
       )
     }
-    template.forEach((template) => {
-      if (!languages.includes(template.language)) {
+
+    // Check if the problem supports the language in the template
+    template.forEach((template: Template) => {
+      if (!languages.includes(template.language as Language)) {
         throw new UnprocessableDataException(
-          `This problem does not support ${template.language}`
+          `This problem does not support ${template.language as Language}`
         )
       }
     })
@@ -242,12 +244,12 @@ export class ProblemService {
 
     const fileSize = await this.getFileSize(createReadStream())
     try {
-      await this.storageService.uploadImage(
-        newFilename,
-        fileSize,
-        createReadStream(),
-        mimetype
-      )
+      await this.storageService.uploadImage({
+        filename: newFilename,
+        fileSize: fileSize,
+        content: createReadStream(),
+        type: mimetype
+      })
       await this.prisma.image.create({
         data: {
           filename: newFilename,
@@ -324,12 +326,17 @@ export class ProblemService {
     })
   }
 
-  async getProblems(
-    input: FilterProblemsInput,
-    groupId: number,
-    cursor: number | null,
+  async getProblems({
+    input,
+    groupId,
+    cursor,
+    take
+  }: {
+    input: FilterProblemsInput
+    groupId: number
+    cursor: number | null
     take: number
-  ) {
+  }) {
     const paginator = this.prisma.getPaginator(cursor)
 
     const whereOptions: ProblemWhereInput = {}
@@ -398,9 +405,9 @@ export class ProblemService {
     }
     const supportedLangs = languages ?? problem.languages
     template?.forEach((template) => {
-      if (!supportedLangs.includes(template.language)) {
+      if (!supportedLangs.includes(template.language as Language)) {
         throw new UnprocessableDataException(
-          `This problem does not support ${template.language}`
+          `This problem does not support ${template.language as Language}`
         )
       }
     })
@@ -672,7 +679,7 @@ export class ProblemService {
    * @throws DuplicateFoundException - 이미 존재하는 태그일 경우
    */
   async createTag(tagName: string): Promise<Tag> {
-    // throw error if tag already exists
+    // 존재하는 태그일 경우 에러를 throw합니다
     try {
       return await this.prisma.tag.create({
         data: {
@@ -686,7 +693,7 @@ export class ProblemService {
       )
         throw new DuplicateFoundException('tag')
 
-      throw new InternalServerErrorException(error)
+      throw error
     }
   }
 

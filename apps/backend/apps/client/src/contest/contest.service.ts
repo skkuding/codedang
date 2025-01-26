@@ -17,6 +17,22 @@ const contestSelectOption = {
   invitationCode: true,
   enableCopyPaste: true,
   isJudgeResultVisible: true,
+  posterUrl: true,
+  participationTarget: true,
+  competitionMethod: true,
+  rankingMethod: true,
+  problemFormat: true,
+  benefits: true,
+  contestProblem: {
+    select: {
+      order: true,
+      problem: {
+        select: {
+          title: true
+        }
+      }
+    }
+  },
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
     select: {
@@ -183,13 +199,19 @@ export class ContestService {
     return registeredContestRecords.map((obj) => obj.contestId)
   }
 
-  async getRegisteredFinishedContests(
-    cursor: number | null,
-    take: number,
-    groupId: number,
-    userId: number,
+  async getRegisteredFinishedContests({
+    cursor,
+    take,
+    groupId,
+    userId,
+    search
+  }: {
+    cursor: number | null
+    take: number
+    groupId: number
+    userId: number
     search?: string
-  ) {
+  }) {
     const now = new Date()
     const paginator = this.prisma.getPaginator(cursor)
 
@@ -233,13 +255,19 @@ export class ContestService {
     return { data: this.renameToParticipants(contests), total }
   }
 
-  async getFinishedContestsByGroupId(
-    userId: number | null,
-    cursor: number | null,
-    take: number,
-    groupId: number,
+  async getFinishedContestsByGroupId({
+    userId,
+    cursor,
+    take,
+    groupId,
+    search
+  }: {
+    userId: number | null
+    cursor: number | null
+    take: number
+    groupId: number
     search?: string
-  ) {
+  }) {
     const paginator = this.prisma.getPaginator(cursor)
     const now = new Date()
 
@@ -396,19 +424,49 @@ export class ContestService {
 
     const { invitationCode, ...contestDetails } = contest
     const invitationCodeExists = invitationCode != null
+
+    const navigate = (pos: 'prev' | 'next') => {
+      type Order = 'asc' | 'desc'
+      const options =
+        pos === 'prev'
+          ? { compare: { lt: id }, order: 'desc' as Order }
+          : { compare: { gt: id }, order: 'asc' as Order }
+      return {
+        where: {
+          id: options.compare,
+          groupId,
+          isVisible: true
+        },
+        orderBy: {
+          id: options.order
+        },
+        select: {
+          id: true,
+          title: true
+        }
+      }
+    }
+
     return {
       ...contestDetails,
       invitationCodeExists,
-      isRegistered
+      isRegistered,
+      prev: await this.prisma.contest.findFirst(navigate('prev')),
+      next: await this.prisma.contest.findFirst(navigate('next'))
     }
   }
 
-  async createContestRecord(
-    contestId: number,
-    userId: number,
-    invitationCode?: string,
+  async createContestRecord({
+    contestId,
+    userId,
+    invitationCode,
     groupId = OPEN_SPACE_ID
-  ) {
+  }: {
+    contestId: number
+    userId: number
+    invitationCode?: string
+    groupId?: number
+  }) {
     const contest = await this.prisma.contest.findUniqueOrThrow({
       where: { id: contestId, groupId },
       select: {

@@ -45,6 +45,12 @@ const contest = {
     id: groupId,
     groupName: 'group'
   },
+  posterUrl: 'posterUrl',
+  participationTarget: 'participationTarget',
+  competitionMethod: 'competitionMethod',
+  rankingMethod: 'rankingMethod',
+  problemFormat: 'problemFormat',
+  benefits: 'benefits',
   invitationCode: '123456'
 } satisfies Contest & {
   group: Partial<Group>
@@ -55,12 +61,19 @@ const ongoingContests = [
     id: contest.id,
     group: contest.group,
     title: contest.title,
+    posterUrl: contest.posterUrl,
+    participationTarget: contest.participationTarget,
+    competitionMethod: contest.competitionMethod,
+    rankingMethod: contest.rankingMethod,
+    problemFormat: contest.problemFormat,
+    benefits: contest.benefits,
     invitationCode: 'test',
     isJudgeResultVisible: true,
     startTime: now.add(-1, 'day').toDate(),
     endTime: now.add(1, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true
+    enableCopyPaste: true,
+    contestProblem: []
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -69,12 +82,19 @@ const upcomingContests = [
     id: contest.id + 6,
     group: contest.group,
     title: contest.title,
+    posterUrl: null,
+    participationTarget: null,
+    competitionMethod: null,
+    rankingMethod: contest.rankingMethod,
+    problemFormat: contest.problemFormat,
+    benefits: contest.benefits,
     invitationCode: 'test',
     isJudgeResultVisible: true,
     startTime: now.add(1, 'day').toDate(),
     endTime: now.add(2, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true
+    enableCopyPaste: true,
+    contestProblem: []
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -83,12 +103,19 @@ const finishedContests = [
     id: contest.id + 1,
     group: contest.group,
     title: contest.title,
+    posterUrl: contest.posterUrl,
+    participationTarget: contest.participationTarget,
+    competitionMethod: contest.competitionMethod,
+    rankingMethod: null,
+    problemFormat: null,
+    benefits: null,
     invitationCode: null,
     isJudgeResultVisible: true,
     startTime: now.add(-2, 'day').toDate(),
     endTime: now.add(-1, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true
+    enableCopyPaste: true,
+    contestProblem: []
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -258,34 +285,34 @@ describe('ContestService', () => {
   describe('getRegisteredFinishedContests', async () => {
     it('should return only 2 contests that user01 registered but finished', async () => {
       const takeNum = 4
-      const contests = await service.getRegisteredFinishedContests(
-        null,
-        takeNum,
-        groupId,
-        user01Id
-      )
+      const contests = await service.getRegisteredFinishedContests({
+        cursor: null,
+        take: takeNum,
+        groupId: groupId,
+        userId: user01Id
+      })
       expect(contests.data).to.have.lengthOf(takeNum)
     })
 
     it('should return a contest array which starts with id 9', async () => {
       const takeNum = 2
       const prevCursor = 11
-      const contests = await service.getRegisteredFinishedContests(
-        prevCursor,
-        takeNum,
-        groupId,
-        user01Id
-      )
+      const contests = await service.getRegisteredFinishedContests({
+        cursor: prevCursor,
+        take: takeNum,
+        groupId: groupId,
+        userId: user01Id
+      })
       expect(contests.data[0].id).to.equals(9)
     })
 
     it('a contest should contain following fields', async () => {
-      const contests = await service.getRegisteredFinishedContests(
-        null,
-        10,
-        groupId,
-        user01Id
-      )
+      const contests = await service.getRegisteredFinishedContests({
+        cursor: null,
+        take: 10,
+        groupId: groupId,
+        userId: user01Id
+      })
       expect(contests.data[0]).to.have.property('title')
       expect(contests.data[0]).to.have.property('startTime')
       expect(contests.data[0]).to.have.property('endTime')
@@ -296,13 +323,13 @@ describe('ContestService', () => {
 
     it("shold return contests whose title contains '낮'", async () => {
       const keyword = '낮'
-      const contests = await service.getRegisteredFinishedContests(
-        null,
-        10,
-        groupId,
-        user01Id,
-        keyword
-      )
+      const contests = await service.getRegisteredFinishedContests({
+        cursor: null,
+        take: 10,
+        groupId: groupId,
+        userId: user01Id,
+        search: keyword
+      })
       expect(contests.data.map((contest) => contest.title)).to.deep.equals([
         '소프트의 낮'
       ])
@@ -311,12 +338,12 @@ describe('ContestService', () => {
 
   describe('getFinishedContestsByGroupId', () => {
     it('should return finished contests', async () => {
-      const contests = await service.getFinishedContestsByGroupId(
-        null,
-        null,
-        10,
-        groupId
-      )
+      const contests = await service.getFinishedContestsByGroupId({
+        userId: null,
+        cursor: null,
+        take: 10,
+        groupId: groupId
+      })
       const contestIds = contests.data.map((c) => c.id).sort((a, b) => a - b)
       const finishedContestIds = [6, 7, 8, 9, 10, 11, 12, 13]
       expect(contestIds).to.deep.equal(finishedContestIds)
@@ -345,6 +372,29 @@ describe('ContestService', () => {
     it('should return contest', async () => {
       expect(await service.getContest(contestId, groupId, user01Id)).to.be.ok
     })
+
+    it('should return optional fields if they exist', async () => {
+      expect(contest).to.have.property('posterUrl')
+      expect(contest).to.have.property('participationTarget')
+      expect(contest).to.have.property('competitionMethod')
+      expect(contest).to.have.property('rankingMethod')
+      expect(contest).to.have.property('problemFormat')
+      expect(contest).to.have.property('benefits')
+    })
+
+    it('should return prev and next contest information', async () => {
+      const contest = await service.getContest(contestId, groupId, user01Id)
+      if (contest.prev) {
+        expect(contest.prev).to.have.property('id')
+        expect(contest.prev.id).to.be.lessThan(contestId)
+        expect(contest.prev).to.have.property('title')
+      }
+      if (contest.next) {
+        expect(contest.next).to.have.property('id')
+        expect(contest.next.id).to.be.greaterThan(contestId)
+        expect(contest.next).to.have.property('title')
+      }
+    })
   })
 
   describe('createContestRecord', () => {
@@ -354,34 +404,50 @@ describe('ContestService', () => {
 
     it('should throw error when the invitation code does not match', async () => {
       await expect(
-        service.createContestRecord(1, user01Id, invalidInvitationCode)
+        service.createContestRecord({
+          contestId: 1,
+          userId: user01Id,
+          invitationCode: invalidInvitationCode
+        })
       ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should throw error when the contest does not exist', async () => {
       await expect(
-        service.createContestRecord(999, user01Id, invitationCode)
+        service.createContestRecord({
+          contestId: 999,
+          userId: user01Id,
+          invitationCode: invitationCode
+        })
       ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
     })
 
     it('should throw error when user is participated in contest again', async () => {
       await expect(
-        service.createContestRecord(contestId, user01Id, invitationCode)
+        service.createContestRecord({
+          contestId: contestId,
+          userId: user01Id,
+          invitationCode: invitationCode
+        })
       ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should throw error when contest is not ongoing', async () => {
       await expect(
-        service.createContestRecord(8, user01Id, invitationCode)
+        service.createContestRecord({
+          contestId: 8,
+          userId: user01Id,
+          invitationCode: invitationCode
+        })
       ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should register to a contest successfully', async () => {
-      const contestRecord = await service.createContestRecord(
-        2,
-        user01Id,
-        invitationCode
-      )
+      const contestRecord = await service.createContestRecord({
+        contestId: 2,
+        userId: user01Id,
+        invitationCode: invitationCode
+      })
       contestRecordId = contestRecord.id
       expect(
         await transaction.contestRecord.findUnique({
