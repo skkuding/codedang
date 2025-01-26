@@ -50,7 +50,6 @@ export const judgerResponse: JudgerResponse = {
   error: '',
   judgeResult: {
     testcaseId: 1,
-    resultCode: 0,
     cpuTime: 12345,
     realTime: 20000,
     memory: 12345,
