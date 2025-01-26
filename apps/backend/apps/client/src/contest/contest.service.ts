@@ -120,20 +120,40 @@ export class ContestService {
     }
   }
 
-  filterOngoing(contests: ContestResult[]) {
-    const now = new Date()
-    const ongoingContest = contests
-      .filter((contest) => contest.startTime <= now && contest.endTime > now)
-      .sort((a, b) => a.endTime.getTime() - b.endTime.getTime())
-    return ongoingContest
-  }
+  async getBannerContests() {
+    const fastestUpcomingContestId = (
+      await this.prisma.contest.findFirstOrThrow({
+        where: {
+          startTime: {
+            gte: new Date()
+          }
+        },
+        orderBy: {
+          startTime: 'asc'
+        },
+        select: {
+          id: true
+        }
+      })
+    ).id
+    const mostRegisteredId = (
+      await this.prisma.contest.findFirstOrThrow({
+        orderBy: {
+          contestRecord: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            _count: 'desc'
+          }
+        },
+        select: {
+          id: true
+        }
+      })
+    ).id
 
-  filterUpcoming(contests: ContestResult[]) {
-    const now = new Date()
-    const upcomingContest = contests
-      .filter((contest) => contest.startTime > now)
-      .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
-    return upcomingContest
+    return {
+      fastestUpcomingContestId,
+      mostRegisteredId
+    }
   }
 
   async getContest(id: number, groupId = OPEN_SPACE_ID, userId?: number) {

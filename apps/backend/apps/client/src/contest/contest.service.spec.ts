@@ -183,6 +183,14 @@ describe('ContestService', () => {
     })
   })
 
+  describe('getBannerContests', () => {
+    it('should return banner contests', async () => {
+      const bannerContests = await service.getBannerContests()
+      expect(bannerContests).to.have.property('fastestUpcomingContestId')
+      expect(bannerContests).to.have.property('mostRegisteredId')
+    })
+  })
+
   describe('getContest', () => {
     it('should throw error when contest does not exist', async () => {
       await expect(

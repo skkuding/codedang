@@ -5,20 +5,13 @@ import {
   Req,
   Get,
   Query,
-  DefaultValuePipe,
   Delete
 } from '@nestjs/common'
 import {
-  AuthNotNeededIfOpenSpace,
   AuthenticatedRequest,
   UserNullWhenAuthFailedIfOpenSpace
 } from '@libs/auth'
-import {
-  CursorValidationPipe,
-  GroupIDPipe,
-  IDValidationPipe,
-  RequiredIntPipe
-} from '@libs/pipe'
+import { GroupIDPipe, IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
 import { ContestService } from './contest.service'
 
 @Controller('contest')
@@ -31,6 +24,11 @@ export class ContestController {
     @Query('search') search: string
   ) {
     return await this.contestService.getContests(req.user?.id, search)
+  }
+
+  @Get('banner')
+  async getContestBanner() {
+    return await this.contestService.getBannerContests()
   }
 
   @Get(':id')
