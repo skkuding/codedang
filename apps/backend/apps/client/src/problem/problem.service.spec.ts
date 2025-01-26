@@ -277,7 +277,9 @@ describe('ContestProblemService', () => {
         endTime: faker.date.future(),
         isRegistered: true,
         invitationCodeExists: true,
-        isJudgeResultVisible: true
+        isJudgeResultVisible: true,
+        prev: null,
+        next: null
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
       db.submission.findMany.resolves([])
@@ -302,7 +304,9 @@ describe('ContestProblemService', () => {
         endTime: faker.date.future(),
         isRegistered: true,
         invitationCodeExists: true,
-        isJudgeResultVisible: true
+        isJudgeResultVisible: true,
+        prev: null,
+        next: null
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
 
@@ -342,7 +346,9 @@ describe('ContestProblemService', () => {
         endTime: faker.date.future(),
         isRegistered: true,
         isJudgeResultVisible: true,
-        invitationCodeExists: true
+        invitationCodeExists: true,
+        prev: null,
+        next: null
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
 
@@ -358,7 +364,9 @@ describe('ContestProblemService', () => {
         endTime: faker.date.future(),
         isRegistered: false,
         isJudgeResultVisible: true,
-        invitationCodeExists: true
+        invitationCodeExists: true,
+        prev: null,
+        next: null
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
 
@@ -377,7 +385,9 @@ describe('ContestProblemService', () => {
         endTime: faker.date.future(),
         isRegistered: true,
         isJudgeResultVisible: true,
-        invitationCodeExists: true
+        invitationCodeExists: true,
+        prev: null,
+        next: null
       })
       db.contestProblem.findUnique.resolves(mockContestProblem)
 
@@ -402,7 +412,9 @@ describe('ContestProblemService', () => {
         endTime: faker.date.future(),
         isRegistered: true,
         isJudgeResultVisible: true,
-        invitationCodeExists: true
+        invitationCodeExists: true,
+        prev: null,
+        next: null
       })
       db.contestProblem.findUnique.resolves(mockContestProblem)
 
@@ -437,7 +449,9 @@ describe('ContestProblemService', () => {
         endTime: faker.date.future(),
         isRegistered: true,
         isJudgeResultVisible: true,
-        invitationCodeExists: true
+        invitationCodeExists: true,
+        prev: null,
+        next: null
       })
       db.contestProblem.findUnique.resolves(mockContestProblem)
       await expect(
@@ -452,7 +466,9 @@ describe('ContestProblemService', () => {
         endTime: faker.date.future(),
         isRegistered: false,
         isJudgeResultVisible: true,
-        invitationCodeExists: true
+        invitationCodeExists: true,
+        prev: null,
+        next: null
       })
       db.contestProblem.findUnique.resolves(mockContestProblem)
       await expect(
