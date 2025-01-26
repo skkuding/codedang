@@ -26,7 +26,7 @@ const icons: { [key: string]: string } = {
 export function Cover({ title, description }: CoverProps) {
   return (
     <div className="w-screen">
-      <div className="absolute left-0 top-0 z-[10] h-16 w-full bg-white" />
+      <div className="absolute left-0 top-0 z-[10] h-14 w-full bg-white" />
       <div
         className={cn(
           bgColors[title.toLowerCase()],
