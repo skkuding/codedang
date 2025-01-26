@@ -8,11 +8,12 @@ import { DataTable } from './_components/DataTable'
 
 // import dummyData from './temp_data.json'
 
-export default function Leaderboard({
-  params
-}: {
-  params: { problemId: string; contestId: string }
-}) {
+interface Params {
+  problemId: string
+  contestId: string
+}
+
+export default function Leaderboard({ params }: { params: Params }) {
   const { problemId, contestId } = params
 
   // TODO: 백엔드의 api가 완성되면 api 경로를 리더보드 정보 가져오는 것으로 변경해줘야 함. -bang

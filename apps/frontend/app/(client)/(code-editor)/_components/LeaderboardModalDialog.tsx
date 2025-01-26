@@ -1,7 +1,7 @@
 import {
   Dialog,
   DialogContent,
-  DialogPrimitive,
+  DialogClose,
   DialogTrigger
 } from '@/components/shadcn/dialog'
 import InfoIcon from '@/public/icons/info-icon.svg'
@@ -24,15 +24,15 @@ export function LeaderboardModalDialog() {
           showDarkOverlay={true}
           className="h-[450px] w-[700px] max-w-none gap-0 space-y-0 rounded-[16px] border-none bg-slate-900 pb-[48px] pl-[40px] pt-[40px] text-gray-300 [&>button:last-child]:hidden"
         >
-          <DialogPrimitive.Close className="absolute left-[644px] top-[24px]">
+          <DialogClose className="absolute left-[644px] top-[24px]">
             <X className="h-[24px] w-[24px]" />
-          </DialogPrimitive.Close>
+          </DialogClose>
           <div className="flex flex-col gap-[24px] overflow-x-auto">
-            <div className="h-[26px] w-[226px] text-[18px] font-[600] font-normal text-white">
+            <div className="h-[26px] w-[226px] text-[18px] font-[600] text-white">
               Ranking System of Contest
             </div>
             <div className="flex text-gray-400">
-              <div className="flex h-[24px] w-[24px] items-center justify-center self-start rounded-full bg-slate-800 text-[11px] text-white">
+              <div className="flex h-[24px] w-[24px] items-center justify-center rounded-full bg-slate-800 text-[11px] text-white">
                 1
               </div>
               <div className="ml-[12px] flex flex-col">
@@ -45,7 +45,7 @@ export function LeaderboardModalDialog() {
               </div>
             </div>
             <div className="flex text-gray-400">
-              <div className="flex h-[24px] w-[24px] items-center justify-center self-start rounded-full bg-slate-800 text-[11px] text-white">
+              <div className="flex h-[24px] w-[24px] items-center justify-center rounded-full bg-slate-800 text-[11px] text-white">
                 2
               </div>
               <div className="ml-[12px] flex flex-col space-y-[16px]">
@@ -74,7 +74,7 @@ export function LeaderboardModalDialog() {
               </div>
             </div>
             <div className="flex text-gray-400">
-              <div className="flex h-[24px] w-[24px] items-center justify-center self-start rounded-full bg-slate-800 text-[11px] text-white">
+              <div className="flex h-[24px] w-[24px] items-center justify-center rounded-full bg-slate-800 text-[11px] text-white">
                 -
               </div>
               <div className="ml-[12px] flex flex-col">

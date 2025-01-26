@@ -16,10 +16,6 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 
-// import type { Route } from 'next'
-// import Link from 'next/link'
-// import { useRouter } from 'next/navigation'
-
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
@@ -112,16 +108,11 @@ export function DataTable<TData extends Item, TValue>({
       <TableBody>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
-            // const href =
-            //   `/contest/${contestId}/problem/${problemId}/submission/${row.original.id}` as Route
             return (
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
                 className="cursor-pointer border-t border-slate-600 text-slate-300 hover:bg-slate-600/50 hover:font-semibold"
-                // onClick={() => {
-                //   router.replace(href)
-                // }}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
@@ -139,8 +130,6 @@ export function DataTable<TData extends Item, TValue>({
                         cell.getContext()
                       )}
                     </div>
-                    {/* for prefetch */}
-                    {/* <Link replace href={href} /> */}
                   </TableCell>
                 ))}
               </TableRow>
