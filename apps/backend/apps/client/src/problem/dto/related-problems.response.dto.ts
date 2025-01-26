@@ -19,6 +19,7 @@ class Problem {
   submissionTime: Date | null
 }
 
+// Deprecated
 @Exclude()
 // eslint-disable-next-line
 export class _RelatedProblemsResponseDto {

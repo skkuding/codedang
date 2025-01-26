@@ -27,6 +27,7 @@ export class ProblemResponseDto {
   problemTestcase: Pick<ProblemTestcase, 'id' | 'input' | 'output'>[]
 }
 
+// Deprecated
 @Exclude()
 // eslint-disable-next-line
 export class _ProblemResponseDto {

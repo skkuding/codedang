@@ -10,6 +10,7 @@ export class RelatedProblemResponseDto {
   problem: ProblemResponseDto
 }
 
+// Deprecated
 @Exclude()
 // eslint-disable-next-line
 export class _RelatedProblemResponseDto {

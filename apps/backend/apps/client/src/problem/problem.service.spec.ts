@@ -298,6 +298,7 @@ describe('ContestProblemService', () => {
 
       // then
       expect(result).to.deep.equal(
+        // Deprecated
         plainToInstance(_RelatedProblemsResponseDto, {
           data: mockContestProblemsWithScore,
           total: mockContestProblemsWithScore.length
@@ -329,6 +330,7 @@ describe('ContestProblemService', () => {
 
       // then
       expect(result).to.deep.equal(
+        // Deprecated
         plainToInstance(_RelatedProblemsResponseDto, {
           data: mockContestProblemsWithScore,
           total: mockContestProblemsWithScore.length
@@ -402,6 +404,7 @@ describe('ContestProblemService', () => {
 
       // then
       expect(result).to.be.deep.equal(
+        // Deprecated
         plainToInstance(_RelatedProblemResponseDto, mockContestProblem)
       )
     })
@@ -427,6 +430,7 @@ describe('ContestProblemService', () => {
 
       // then
       expect(result).to.be.deep.equal(
+        // Deprecated
         plainToInstance(_RelatedProblemResponseDto, mockContestProblem)
       )
     })
@@ -522,6 +526,7 @@ describe('WorkbookProblemService', () => {
 
       // then
       expect(result).to.deep.equal(
+        // Deprecated
         plainToInstance(_RelatedProblemsResponseDto, {
           data: mockWorkbookProblems,
           total: mockWorkbookProblems.length
@@ -573,6 +578,7 @@ describe('WorkbookProblemService', () => {
 
       // then
       expect(result).to.be.deep.equal(
+        // Deprecated
         plainToInstance(_RelatedProblemResponseDto, mockWorkbookProblem)
       )
     })
@@ -591,6 +597,7 @@ describe('WorkbookProblemService', () => {
 
       // then
       expect(result).to.be.deep.equal(
+        // Deprecated
         plainToInstance(_RelatedProblemResponseDto, mockWorkbookProblem)
       )
     })
@@ -645,6 +652,7 @@ describe('CodeDraftService', () => {
 
       // then
       expect(result).to.deep.equal(
+        // Deprecated
         plainToInstance(CodeDraftResponseDto, mockCodeDraft)
       )
     })
@@ -672,6 +680,7 @@ describe('CodeDraftService', () => {
 
       // then
       expect(result).to.deep.equal(
+        // Deprecated
         plainToInstance(CodeDraftResponseDto, mockCodeDraft)
       )
     })

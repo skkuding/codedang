@@ -18,6 +18,7 @@ class Problem {
   hasPassed: boolean | null
 }
 
+// Deprecated
 @Exclude()
 // eslint-disable-next-line
 export class _ProblemsResponseDto {
@@ -29,6 +30,7 @@ export class _ProblemsResponseDto {
   total: number
 }
 
+// Deprecated
 @Exclude()
 // eslint-disable-next-line
 class _Problem {
