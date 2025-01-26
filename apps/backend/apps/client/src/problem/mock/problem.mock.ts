@@ -68,6 +68,7 @@ export const problems: Problem[] = [
 
 export const contestProblems = [
   {
+    id: 1,
     order: 1,
     contestId: 1,
     problemId: 1,
@@ -79,6 +80,7 @@ export const contestProblems = [
     }
   },
   {
+    id: 2,
     order: 2,
     contestId: 1,
     problemId: 2,
@@ -93,6 +95,7 @@ export const contestProblems = [
 
 export const contestProblemsWithScore = [
   {
+    id: 1,
     order: 1,
     contestId: 1,
     problemId: 1,
@@ -106,6 +109,7 @@ export const contestProblemsWithScore = [
     submissionTime: null
   },
   {
+    id: 2,
     order: 2,
     contestId: 1,
     problemId: 2,
