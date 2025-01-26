@@ -331,6 +331,12 @@ model Contest {
   groupId              Int      @map("group_id")
   title                String
   description          String
+  posterUrl            String?
+  participationTarget  String?
+  competitionMethod    String?
+  rankingMethod        String?
+  problemFormat        String?
+  benefits             String?
   invitationCode       String?  @map("invitation_code")
   startTime            DateTime @map("start_time")
   endTime              DateTime @map("end_time")
