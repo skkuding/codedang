@@ -321,7 +321,6 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 
 	var accepted bool
 	judgeResultCode := SandboxResultCodeToJudgeResultCode(runResult.ExecResult.ResultCode)
-
 	if err != nil {
 		j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
 		res.Error = string(runResult.ErrOutput)
@@ -334,6 +333,10 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 
 	if len(res.Output) > constants.MAX_OUTPUT {
 		res.Output = res.Output[:constants.MAX_OUTPUT]
+	}
+
+	if runResult.ExecResult.ResultCode != sandbox.RUN_SUCCESS {
+		goto Send
 	}
 
 	accepted = grader.Grade([]byte(tc.Out), runResult.Output)
