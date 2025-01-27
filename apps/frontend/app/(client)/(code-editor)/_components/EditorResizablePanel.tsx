@@ -95,7 +95,7 @@ export function EditorMainResizablePanel({
                 {contestId && (
                   <Link
                     replace
-                    href={`${base}/problem/${problem.id}/leaderboard`}
+                    href={`${base}/problem/${problem.id}/leaderboard` as Route}
                   >
                     <TabsTrigger
                       value="Leaderboard"
