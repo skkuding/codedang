@@ -85,15 +85,17 @@ const getCourses = async () => {
 
 type ItemsPerSlide = 2 | 3
 
+interface CourseCardCarouselProps {
+  itemsPerSlide: ItemsPerSlide
+  title: string
+  data: Course[]
+}
+
 async function CourseCardCarousel({
   itemsPerSlide,
   title,
   data
-}: {
-  itemsPerSlide: ItemsPerSlide
-  title: string
-  data: Course[]
-}) {
+}: CourseCardCarouselProps) {
   const colors = getRandomColorArray(await getUsername())
 
   const chunks = []
@@ -137,14 +139,14 @@ async function CourseCardCarousel({
   )
 }
 
-//Contest를 Course로 모두 이름 변경!
-export async function CourseCardList({
-  title
-}: {
+interface CourseCardListProps {
   type: string
   title: string
   session?: Session | null
-}) {
+}
+
+//Contest를 Course로 모두 이름 변경!
+export async function CourseCardList({ title }: CourseCardListProps) {
   const data = await getCourses()
 
   return data.length === 0 ? (

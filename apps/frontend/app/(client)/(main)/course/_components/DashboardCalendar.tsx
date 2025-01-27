@@ -12,12 +12,15 @@ import {
 } from '@/components/shadcn/dialog'
 import { Textarea } from '@/components/shadcn/textarea'
 import { cn, dateFormatter } from '@/libs/utils'
-import type { CalendarAssignment, CalendarAssignmentEvent } from '@/types/type'
+import type { CalendarAssignment } from '@/types/type'
+import type { EventClickArg } from '@fullcalendar/core/index.js'
+
 /**
 FIXME: FullCalendar 기본 제공 타입인 EventClickArg사용시 에러가 나서 CalendarAssignmentEvent 타입으로 대체함.
 import type { EventClickArg } from '@fullcalendar/core/index.js'
 만약 CalendarAssignmentEvent type 사용시 문제가 된다면 위의 EvnetClickArg type을 사용한다.
 */
+// 일단은 EventClickArg을 사용하고, 그로 인해 발생하는 'selectedEvent.event.end'의 null처리를 하였습니다..!
 import dayGridPlugin from '@fullcalendar/daygrid'
 import FullCalendar from '@fullcalendar/react'
 import Link from 'next/link'
@@ -26,17 +29,9 @@ import { toast } from 'sonner'
 
 export function DashboardCalendar({ data }: { data: CalendarAssignment[] }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [SelectedEvent, setSelectedEvent] =
-    useState<CalendarAssignmentEvent | null>(null)
-  const handleEventClick = (info: CalendarAssignmentEvent) => {
-    setSelectedEvent({
-      event: {
-        id: Number(info.event.id),
-        title: info.event.title || '',
-        start: info.event.start,
-        end: info.event.end
-      }
-    })
+  const [selectedEvent, setSelectedEvent] = useState<EventClickArg | null>(null)
+  const handleEventClick = (info: EventClickArg) => {
+    setSelectedEvent(info)
     setIsDialogOpen(true)
   }
   const [memo, setMemo] = useState('')
@@ -91,12 +86,14 @@ export function DashboardCalendar({ data }: { data: CalendarAssignment[] }) {
       </div>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md">
-          {SelectedEvent ? (
+          {selectedEvent ? (
             <>
               <DialogHeader>
-                <DialogTitle>{SelectedEvent.event.title}</DialogTitle>
+                <DialogTitle>{selectedEvent.event.title}</DialogTitle>
                 <DialogDescription>
-                  {`마감: ${dateFormatter(SelectedEvent.event.end, 'YYYY년 MM월 DD일 hh시 mm분')}`}
+                  {selectedEvent.event.end
+                    ? `마감: ${dateFormatter(selectedEvent.event.end, 'YYYY년 MM월 DD일 hh시 mm분')}`
+                    : '마감일 없음'}
                 </DialogDescription>
                 <Link
                   href={`/contest`} //FIXME: Assignment 세부 페이지가 구현되면 그 경로로 지정해야한다.

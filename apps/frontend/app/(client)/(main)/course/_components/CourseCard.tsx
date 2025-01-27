@@ -8,12 +8,12 @@ import type { Course } from '@/types/type'
 import 'react-circular-progressbar/dist/styles.css'
 import { StatusBadge } from '../../../(main)/_components/StatusBadge'
 
-interface Props {
+interface CourseCardProps {
   course: Course //type 변경 필요.
   color: string
 }
 
-export function CourseCard({ course, color }: Props) {
+export function CourseCard({ course, color }: CourseCardProps) {
   //contest props -> course props로 변경해야..
 
   return (
