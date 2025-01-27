@@ -76,7 +76,6 @@ export function DataTable<TData extends Item, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel()
   })
-  // const router = useRouter()
 
   return (
     <Table className="table-fixed">
