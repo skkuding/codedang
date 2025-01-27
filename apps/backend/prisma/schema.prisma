@@ -386,6 +386,7 @@ model ContestProblemRecord {
   submitCountPenalty Int       @default(0)
   // 대회 시작부터 좋은 제출이 제출되기까지 쇼요된 시간, 단위는 분
   timePenalty        Int       @default(0)
+  isFirstSolver      Boolean   @default(false) @map("is_first_solver")
   createTime         DateTime  @default(now()) @map("create_time")
   updateTime         DateTime  @updatedAt @map("update_time")
 

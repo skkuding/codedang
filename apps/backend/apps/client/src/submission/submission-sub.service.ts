@@ -281,6 +281,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         problemId: true,
         userId: true,
         contestId: true,
+        createTime: true,
         updateTime: true,
         submissionResult: {
           select: {
@@ -319,26 +320,38 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   async updateContestRecord(
     submission: Pick<
       Submission,
-      'problemId' | 'contestId' | 'userId' | 'updateTime'
+      'problemId' | 'contestId' | 'userId' | 'createTime' | 'updateTime'
     >,
     isAccepted: boolean
   ): Promise<void> {
-    const { contestId, problemId, userId, updateTime } = submission
+    const { contestId, problemId, userId, createTime, updateTime } = submission
 
     if (!contestId || !userId)
       throw new UnprocessableDataException(
         `contestId: ${contestId}, userId: ${userId} is empty`
       )
 
+    const _submissions = await this.prisma.submission.findMany({
+      where: {
+        contestId,
+        problemId,
+        result: ResultStatus.Accepted
+      },
+      select: {
+        id: true,
+        userId: true,
+        createTime: true
+      }
+    })
+
     const isNewAccept =
-      (await this.prisma.submission.count({
-        where: {
-          contestId,
-          userId,
-          problemId,
-          result: ResultStatus.Accepted
-        }
-      })) === 1
+      _submissions.filter((submission) => submission.userId === userId)
+        .length === 1
+
+    // 재채점시 고려하여 만들었음.
+    const isFirstSolver =
+      _submissions.filter((submssion) => submssion.createTime < createTime)
+        .length === 0
 
     if (!isNewAccept || !isAccepted) return
 
@@ -412,13 +425,15 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       update: {
         score,
         submitCountPenalty,
-        timePenalty
+        timePenalty,
+        isFirstSolver
       },
       create: {
         contestProblemId,
         contestRecordId,
         score,
-        submitCountPenalty
+        submitCountPenalty,
+        isFirstSolver
       }
     })
 
