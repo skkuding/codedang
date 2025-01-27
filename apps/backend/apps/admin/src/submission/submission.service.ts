@@ -5,8 +5,11 @@ import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { Language, ResultStatus } from '@admin/@generated'
 import { Snippet } from '@admin/problem/model/template.input'
-import { ContestSubmissionOrder } from './enum/contest-submission-order.enum'
-import type { GetContestSubmissionsInput } from './model/get-contest-submission.input'
+import { SubmissionOrder } from './enum/submission-order.enum'
+import type {
+  GetAssignmentSubmissionsInput,
+  GetContestSubmissionsInput
+} from './model/get-submissions.input'
 
 @Injectable()
 export class SubmissionService {
@@ -16,7 +19,7 @@ export class SubmissionService {
     input: GetContestSubmissionsInput,
     take: number,
     cursor: number | null,
-    order: ContestSubmissionOrder | null
+    order: SubmissionOrder | null
   ) {
     const paginator = this.prisma.getPaginator(cursor)
 
@@ -88,23 +91,99 @@ export class SubmissionService {
     return results
   }
 
+  async getAssignmentSubmissions(
+    input: GetAssignmentSubmissionsInput,
+    take: number,
+    cursor: number | null,
+    order: SubmissionOrder | null
+  ) {
+    const paginator = this.prisma.getPaginator(cursor)
+
+    const { assignmentId, problemId, searchingName } = input
+    const assignmentSubmissions = await this.prisma.submission.findMany({
+      ...paginator,
+      take,
+      where: {
+        assignmentId,
+        problemId,
+        user: searchingName
+          ? {
+              userProfile: {
+                realName: {
+                  contains: searchingName,
+                  mode: 'insensitive'
+                }
+              }
+            }
+          : undefined
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            studentId: true,
+            userProfile: {
+              select: {
+                realName: true
+              }
+            }
+          }
+        },
+        problem: {
+          select: {
+            title: true,
+            assignmentProblem: {
+              where: {
+                assignmentId,
+                problemId
+              }
+            }
+          }
+        }
+      },
+      orderBy: order ? this.getOrderBy(order) : undefined
+    })
+
+    const results = assignmentSubmissions.map((c) => {
+      return {
+        title: c.problem.title,
+        studentId: c.user?.studentId ?? 'Unknown',
+        realname: c.user?.userProfile?.realName ?? 'Unknown',
+        username: c.user?.username ?? 'Unknown',
+        result: c.result as ResultStatus,
+        language: c.language as Language,
+        submissionTime: c.createTime,
+        codeSize: c.codeSize ?? null,
+        ip: c.userIp ?? 'Unknown',
+        id: c.id,
+        problemId: c.problemId,
+        order: c.problem.assignmentProblem.length
+          ? c.problem.assignmentProblem[0].order
+          : null
+      }
+    })
+
+    return results
+  }
+
   getOrderBy(
-    order: ContestSubmissionOrder
+    order: SubmissionOrder
   ): Prisma.SubmissionOrderByWithRelationInput {
     const [sortKey, sortOrder] = order.split('-')
 
     switch (order) {
-      case ContestSubmissionOrder.studentIdASC:
-      case ContestSubmissionOrder.studentIdDESC:
-      case ContestSubmissionOrder.usernameASC:
-      case ContestSubmissionOrder.usernameDESC:
+      case SubmissionOrder.studentIdASC:
+      case SubmissionOrder.studentIdDESC:
+      case SubmissionOrder.usernameASC:
+      case SubmissionOrder.usernameDESC:
         return {
           user: {
             [sortKey]: sortOrder
           }
         }
-      case ContestSubmissionOrder.realNameASC:
-      case ContestSubmissionOrder.realNameDESC:
+      case SubmissionOrder.realNameASC:
+      case SubmissionOrder.realNameDESC:
         return {
           user: {
             userProfile: {
