@@ -50,6 +50,7 @@ export function Dashboard({ session }: { session?: Session | null }) {
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
+  //TODO: Tanstack Query 쓰면 좋을 것 같아요!
   useEffect(() => {
     const fetchData = async () => {
       const fetchedData = session
