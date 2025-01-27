@@ -52,7 +52,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
             raw.properties.type === RUN_MESSAGE_TYPE ||
             raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
           ) {
-            const testRequestedUserId = res.submissionId // test용 submissionId == test를 요청한 userId
+            const testRequestedUserId = res.submissionId
             await this.handleRunMessage(
               res,
               testRequestedUserId,
@@ -90,21 +90,34 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
   async handleRunMessage(
     msg: JudgerResponse,
-    userId: number,
+    submissionId: number,
     isUserTest = false
   ): Promise<void> {
     const status = Status(msg.resultCode)
     const testcaseId = msg.judgeResult?.testcaseId
     const output = this.parseError(msg, status)
+    if (
+      status === ResultStatus.ServerError ||
+      status === ResultStatus.CompileError
+    ) {
+      await this.handleJudgeError(status, msg)
+      return
+    }
+
+    if (!msg.judgeResult) {
+      throw new UnprocessableDataException('judgeResult is empty')
+    }
     if (!testcaseId) {
-      const key = isUserTest ? userTestcasesKey(userId) : testcasesKey(userId)
+      const key = isUserTest
+        ? userTestcasesKey(submissionId)
+        : testcasesKey(submissionId)
       const testcaseIds = (await this.cacheManager.get<number[]>(key)) ?? []
 
       for (const testcaseId of testcaseIds) {
         await this.cacheManager.set(
           isUserTest
-            ? userTestKey(userId, testcaseId)
-            : testKey(userId, testcaseId),
+            ? userTestKey(submissionId, testcaseId)
+            : testKey(submissionId, testcaseId),
           {
             id: testcaseId,
             result: status,
@@ -115,10 +128,9 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
       return
     }
-
     const key = isUserTest
-      ? userTestKey(userId, testcaseId)
-      : testKey(userId, testcaseId)
+      ? userTestKey(submissionId, testcaseId)
+      : testKey(submissionId, testcaseId)
 
     const testcase = await this.cacheManager.get<{
       id: number
@@ -129,6 +141,30 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       testcase.id = testcaseId
       testcase.result = status
       testcase.output = output
+    }
+
+    const cpuTime = BigInt(msg.judgeResult.cpuTime)
+    const memoryUsage = msg.judgeResult.memory
+
+    const testSubmission = await this.prisma.testSubmission.findUnique({
+      where: { id: submissionId }
+    })
+    if (testSubmission) {
+      const maxCpuTime = testSubmission.maxCpuTime || BigInt(0)
+      const newMaxCpuTime =
+        cpuTime > BigInt(maxCpuTime) ? cpuTime : BigInt(maxCpuTime)
+
+      const maxMemoryUsage = testSubmission.maxMemoryUsage || 0
+      const newMaxMemoryUsage =
+        memoryUsage > maxMemoryUsage ? memoryUsage : maxMemoryUsage
+
+      await this.prisma.testSubmission.update({
+        where: { id: testSubmission.id },
+        data: {
+          maxCpuTime: newMaxCpuTime,
+          maxMemoryUsage: newMaxMemoryUsage
+        }
+      })
     }
 
     await this.cacheManager.set(key, testcase, TEST_SUBMISSION_EXPIRE_TIME)
