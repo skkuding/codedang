@@ -103,15 +103,16 @@ export class ContestService {
     const checkIsRegisteredAndRenameParticipants = (
       contest: ContestSelectResult
     ) => {
+      const { _count: countObject, contestRecord, ...rest } = contest
+
       if (!userId) {
         return {
-          ...contest,
-          participants: contest._count.contestRecord,
+          ...rest,
+          participants: countObject.contestRecord,
           isRegistered: false
         }
       }
 
-      const { _count: countObject, contestRecord, ...rest } = contest
       return {
         ...rest,
         participants: countObject.contestRecord,
