@@ -1,11 +1,9 @@
 'use client'
 
-import { cn } from '@/libs/utils'
 import assignmentIcon from '@/public/icons/assignment.svg'
 import examIcon from '@/public/icons/exam.svg'
 import homeIcon from '@/public/icons/home.svg'
 import noticeIcon from '@/public/icons/notice.svg'
-import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -14,7 +12,7 @@ export function Sidebar() {
   const searchParams = useSearchParams()
   const courseId = searchParams.get('courseId')
 
-  const navItems: { name: string; path: Route; icon: string }[] = [
+  const navItems: { name: string; path: string; icon: string }[] = [
     { name: 'Home', path: `/course/${courseId}` as const, icon: homeIcon },
     {
       name: 'Notice',

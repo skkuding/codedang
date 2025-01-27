@@ -14,13 +14,13 @@ import { Textarea } from '@/components/shadcn/textarea'
 import { cn, dateFormatter } from '@/libs/utils'
 import type { CalendarAssignment } from '@/types/type'
 import type { EventClickArg } from '@fullcalendar/core/index.js'
+// 일단은 EventClickArg을 사용하고, 그로 인해 발생하는 'selectedEvent.event.end'의 null처리를 하였습니다..!
 
-/**
+/*
 FIXME: FullCalendar 기본 제공 타입인 EventClickArg사용시 에러가 나서 CalendarAssignmentEvent 타입으로 대체함.
 import type { EventClickArg } from '@fullcalendar/core/index.js'
 만약 CalendarAssignmentEvent type 사용시 문제가 된다면 위의 EvnetClickArg type을 사용한다.
 */
-// 일단은 EventClickArg을 사용하고, 그로 인해 발생하는 'selectedEvent.event.end'의 null처리를 하였습니다..!
 import dayGridPlugin from '@fullcalendar/daygrid'
 import FullCalendar from '@fullcalendar/react'
 import Link from 'next/link'
