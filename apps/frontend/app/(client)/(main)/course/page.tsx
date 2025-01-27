@@ -40,9 +40,9 @@ export default async function Course() {
           <h1 className="text-2xl font-bold text-gray-700">Course Overview</h1>
         </div>
       </div>
-      <div className="w-full">
+      {/* <div className="w-full">
         <Dashboard session={session} />
-      </div>
+      </div> */}
     </>
   )
 }
