@@ -4,6 +4,7 @@ import assignmentIcon from '@/public/icons/assignment.svg'
 import examIcon from '@/public/icons/exam.svg'
 import homeIcon from '@/public/icons/home.svg'
 import noticeIcon from '@/public/icons/notice.svg'
+import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -46,7 +47,7 @@ export function Sidebar() {
       {navItems.map((item) => (
         <Link
           key={item.name}
-          href={item.path}
+          href={item.path as Route}
           className="rounded px-4 py-2 transition"
         >
           <Image
