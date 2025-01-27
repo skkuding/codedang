@@ -197,7 +197,7 @@ describe('SubmissionSubscriptionService', () => {
         spy.calledOnceWithExactly({
           submissionId: msg.submissionId,
           problemTestcaseId: msg.judgeResult.testcaseId,
-          result: Status(msg.judgeResult.resultCode),
+          result: Status(msg.resultCode),
           cpuTime: BigInt(msg.judgeResult.cpuTime),
           memoryUsage: msg.judgeResult.memory
         })

@@ -194,7 +194,12 @@ describe('ProblemService', () => {
   describe('getProblems', () => {
     it('should return group problems', async () => {
       db.problem.findMany.resolves(problems)
-      const result = await service.getProblems({}, groupId, 1, 5)
+      const result = await service.getProblems({
+        input: {},
+        groupId,
+        cursor: 1,
+        take: 5
+      })
       expect(result).to.deep.equal(problemsWithIsVisible)
     })
   })

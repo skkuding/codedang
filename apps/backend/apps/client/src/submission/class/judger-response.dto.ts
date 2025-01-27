@@ -10,7 +10,6 @@ import {
 
 class JudgeResult {
   testcaseId: number
-  resultCode: number
   cpuTime: number
   realTime: number
   memory: number

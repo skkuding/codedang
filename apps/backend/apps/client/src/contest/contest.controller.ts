@@ -51,13 +51,13 @@ export class ContestController {
     take: number,
     @Query('search') search?: string
   ) {
-    return await this.contestService.getFinishedContestsByGroupId(
-      req.user?.id,
+    return await this.contestService.getFinishedContestsByGroupId({
+      userId: req.user?.id,
       cursor,
       take,
       groupId,
       search
-    )
+    })
   }
 
   @Get('registered-finished')
@@ -69,13 +69,13 @@ export class ContestController {
     take: number,
     @Query('search') search?: string
   ) {
-    return await this.contestService.getRegisteredFinishedContests(
+    return await this.contestService.getRegisteredFinishedContests({
       cursor,
       take,
       groupId,
-      req.user.id,
+      userId: req.user.id,
       search
-    )
+    })
   }
 
   @Get('registered-ongoing-upcoming')
@@ -108,12 +108,12 @@ export class ContestController {
     @Param('id', IDValidationPipe) contestId: number,
     @Query('invitationCode') invitationCode?: string
   ) {
-    return await this.contestService.createContestRecord(
+    return await this.contestService.createContestRecord({
       contestId,
-      req.user.id,
+      userId: req.user.id,
       invitationCode,
       groupId
-    )
+    })
   }
 
   // unregister only for upcoming contest
