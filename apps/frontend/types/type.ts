@@ -251,11 +251,12 @@ export interface CalendarAssignment {
   end: Date
 }
 
-export interface CalendarAssignmentEvent {
-  event: {
-    id: number
-    title: string
-    start: Date
-    end: Date
-  }
-}
+// 일단은 DashboardCalendar에서 null처리를함으로써 필요가 없어진 것 같은데, 원작자 의견을 들어보고 코드를 삭제할 예정
+// export interface CalendarAssignmentEvent {
+//   event: {
+//     id: number
+//     title: string
+//     start: Date
+//     end: Date
+//   }
+// }

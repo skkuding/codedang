@@ -14,16 +14,17 @@ import { toast } from 'sonner'
 
 dayjs.extend(duration)
 
+interface CourseStatusTimeDiffProps {
+  course: Course
+  textStyle: string
+  inCourseEditor: boolean
+}
 export function CourseStatusTimeDiff({
   //이름만 Course로 바꿈.
   course,
   textStyle,
   inCourseEditor
-}: {
-  course: Course
-  textStyle: string
-  inCourseEditor: boolean
-}) {
+}: CourseStatusTimeDiffProps) {
   const router = useRouter()
   const { problemId } = useParams()
 

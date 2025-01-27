@@ -26,6 +26,7 @@ import FullCalendar from '@fullcalendar/react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import '../style.css'
 
 export function DashboardCalendar({ data }: { data: CalendarAssignment[] }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -42,24 +43,6 @@ export function DashboardCalendar({ data }: { data: CalendarAssignment[] }) {
   return (
     <>
       <div className="container mt-4">
-        <style jsx global>{`
-          .fc-button-primary {
-            background-color: #9784e4 !important;
-            border-color: #999999 !important;
-          }
-          .fc-day-today {
-            background-color: #cac1ee !important;
-          }
-          .fc-event {
-            background-color: #e5d9f2 !important;
-            color: #a294f9 !important;
-            border-color: #cdc1ff !important;
-          }
-          .fc-event .fc-event-title,
-          .fc-event .fc-event-time {
-            color: black !important;
-          }
-        `}</style>
         <FullCalendar
           plugins={[dayGridPlugin]}
           initialView="customTwoWeek"

@@ -1,1 +1,16 @@
-/* 달력 스타일 적용을 위한 외부 스타일 시트 */
+.fc-button-primary {
+  background-color: #9784e4 !important;
+  border-color: #999999 !important;
+}
+.fc-day-today {
+  background-color: #cac1ee !important;
+}
+.fc-event {
+  background-color: #e5d9f2 !important;
+  color: #a294f9 !important;
+  border-color: #cdc1ff !important;
+}
+.fc-event .fc-event-title,
+.fc-event .fc-event-time {
+  color: black !important;
+}
