@@ -107,10 +107,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
             : testKey(userId, testcaseId),
           {
             id: testcaseId,
-            // TODO: judgeResult 코드 처리 통합 해야함
-            result: msg.judgeResult
-              ? Status(msg.judgeResult.resultCode)
-              : Status(msg.resultCode),
+            result: status,
             output
           },
           TEST_SUBMISSION_EXPIRE_TIME
@@ -130,10 +127,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     }>(key)
     if (testcase) {
       testcase.id = testcaseId
-      // TODO: judgeResult 코드 처리 통합 해야함
-      testcase.result = msg.judgeResult
-        ? Status(msg.judgeResult.resultCode)
-        : Status(msg.resultCode)
+      testcase.result = status
       testcase.output = output
     }
 
@@ -181,8 +175,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     const submissionResult = {
       submissionId: msg.submissionId,
       problemTestcaseId: msg.judgeResult.testcaseId,
-      // TODO: judgeResult 코드 처리 통합 해야함
-      result: Status(msg.judgeResult.resultCode),
+      result: status,
       cpuTime: BigInt(msg.judgeResult.cpuTime),
       memoryUsage: msg.judgeResult.memory
     }
