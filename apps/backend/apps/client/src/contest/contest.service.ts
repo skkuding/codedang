@@ -80,7 +80,6 @@ export class ContestService {
       select: contestSelectOption
     })
 
-
     const upcomingContests = await this.prisma.contest.findMany({
       where: {
         startTime: {
