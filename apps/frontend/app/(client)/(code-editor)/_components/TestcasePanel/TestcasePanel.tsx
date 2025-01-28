@@ -91,7 +91,7 @@ export function TestcasePanel() {
             currentTab === 0 && 'rounded-bl-xl'
           )}
         >
-          <div className="flex h-full">
+          <div className="flex h-12">
             {testcaseTabList.map((testcase, index) => (
               <TestcaseTab
                 currentTab={currentTab}
@@ -102,7 +102,7 @@ export function TestcasePanel() {
                 testcaseId={testcase.originalId}
                 key={testcase.originalId}
                 className={cn(
-                  'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap', // 높이, 말줄임 처리
+                  'h-12 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap', // 높이, 말줄임 처리
                   (() => {
                     let widthClass = ''
                     if (testcaseTabList.length < 5) {
@@ -116,7 +116,7 @@ export function TestcasePanel() {
                   })()
                 )}
               >
-                <div className="block h-full w-full overflow-hidden text-ellipsis whitespace-nowrap">
+                <div className="flex h-12 w-full items-center justify-center overflow-hidden text-ellipsis whitespace-nowrap">
                   {
                     (testcaseTabList.length < 7
                       ? TAB_CONTENT
@@ -197,7 +197,7 @@ function TestcaseTab({
     <button
       type="button"
       className={cn(
-        'relative h-full w-44 border-l border-[#222939] bg-[#121728]',
+        'relative h-12 w-44 border-l border-[#222939] bg-[#121728]',
         currentTab === testcaseId && 'bg-[#222939]',
         currentTab === prevTab && 'rounded-bl-xl',
         currentTab === nextTab && 'rounded-br-xl',
