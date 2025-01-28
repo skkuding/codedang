@@ -419,13 +419,20 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         score,
         submitCountPenalty,
         timePenalty,
+        finalScore: score,
+        finalTimePenalty: timePenalty,
+        finalSubmitCountPenalty: submitCountPenalty,
         isFirstSolver
       },
       create: {
         contestProblemId,
         contestRecordId,
         score,
+        timePenalty,
         submitCountPenalty,
+        finalScore: score,
+        finalTimePenalty: timePenalty,
+        finalSubmitCountPenalty: submitCountPenalty,
         isFirstSolver
       }
     })
