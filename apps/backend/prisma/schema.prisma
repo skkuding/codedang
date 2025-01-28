@@ -195,8 +195,19 @@ model Problem {
   submission        Submission[]
   announcement      Announcement[]
   codeDraft         CodeDraft[]
+  updateHistory     UpdateHistory[]
 
   @@map("problem")
+}
+
+model UpdateHistory {
+  id            Int      @id @default(autoincrement())
+  problemId     Int      @map("problem_id")
+  problem       Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  updatedAt     DateTime @default(now()) @map("updated_at")
+  updatedFields Json     @map("updated_fields") // 변경된 필드 목록
+
+  @@map("updateHistory")
 }
 
 model Image {

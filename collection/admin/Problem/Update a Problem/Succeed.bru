@@ -22,6 +22,10 @@ body:graphql {
       outputDescription
       hint
       isVisible
+      updateHistory{
+        updatedAt
+        updatedFields
+      }
     }
   }
 }
@@ -47,7 +51,7 @@ assert {
 docs {
   ## Update Problem
   Problem 정보를 수정합니다.
-  
+
   ### Error Cases
   #### UNPROCESSABLE(1)
   수정된 Problem은 최소 1개 이상의 프로그래밍 언어를 지원해야 합니다.
