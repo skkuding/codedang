@@ -298,15 +298,12 @@ function TestResultDetail({ data }: { data: TestResultDetail | undefined }) {
   )
 }
 
-function LabeledField({
-  label,
-  text,
-  compareText
-}: {
+interface LabeledFieldProps {
   label: string
   text: string
   compareText?: string
-}) {
+}
+function LabeledField({ label, text, compareText }: LabeledFieldProps) {
   const getColoredText = (
     text: string,
     compareText: string,
