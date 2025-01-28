@@ -14,30 +14,30 @@ export function Sidebar() {
   const courseId = searchParams.get('courseId')
 
   const navItems = [
-    { name: 'Home', path: `/course/${courseId}`, icon: homeIcon },
+    { name: 'Home', path: `/course/${courseId}` as const, icon: homeIcon },
     {
       name: 'Notice',
-      path: `/course/${courseId}/notice`,
+      path: `/course/${courseId}/notice` as const,
       icon: noticeIcon
     },
     {
       name: 'Exam',
-      path: `/course/${courseId}/exam`,
+      path: `/course/${courseId}/exam` as const,
       icon: examIcon
     },
     {
       name: 'Assignment',
-      path: `/course/${courseId}/assignment`,
+      path: `/course/${courseId}/assignment` as const,
       icon: assignmentIcon
     },
     {
       name: 'Grade',
-      path: `/course/${courseId}/grade`,
+      path: `/course/${courseId}/grade` as const,
       icon: assignmentIcon
     },
     {
       name: 'Q&A',
-      path: `/course/${courseId}/qna`,
+      path: `/course/${courseId}/qna` as const,
       icon: assignmentIcon
     }
   ]
