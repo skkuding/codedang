@@ -73,10 +73,7 @@ export class ContestService {
           contains: search
         }
       },
-      orderBy: {
-        startTime: 'asc',
-        endTime: 'asc'
-      },
+      orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }],
       select: contestSelectOption
     })
 
@@ -89,10 +86,7 @@ export class ContestService {
           contains: search
         }
       },
-      orderBy: {
-        startTime: 'asc',
-        endTime: 'asc'
-      },
+      orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }],
       select: contestSelectOption
     })
 
@@ -105,10 +99,7 @@ export class ContestService {
           contains: search
         }
       },
-      orderBy: {
-        startTime: 'asc',
-        endTime: 'asc'
-      },
+      orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }],
       select: contestSelectOption
     })
 
