@@ -1,5 +1,6 @@
 import { Separator } from '@/components/shadcn/separator'
-import { AssignmentOverview } from './_components/AssignmentOverview'
+// import { AssignmentOverview } from './_components/AssignmentOverview'
+import { AssignmentReminderBox } from './_components/AssignmentReminderBox'
 import { RecentNotice } from './_components/RecentNotice'
 import { RecentUpdate } from './_components/RecentUpdate'
 
@@ -16,7 +17,8 @@ export default function Dashboard() {
         </div>
       </div>
       <Separator />
-      <AssignmentOverview />
+      <AssignmentReminderBox />
+      {/* <AssignmentOverview /> */}
     </div>
   )
 }
