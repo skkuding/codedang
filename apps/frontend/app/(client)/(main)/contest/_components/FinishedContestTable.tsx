@@ -5,7 +5,7 @@ import type { Session } from 'next-auth'
 import { columns } from './FinishedTableColumns'
 
 interface ContestProps {
-  finished: Contest[]
+  data: Contest[]
 }
 
 export async function FinishedContestTable({
@@ -16,20 +16,21 @@ export async function FinishedContestTable({
   session: Session | null
 }) {
   const ContestData: ContestProps = await (session ? fetcherWithAuth : fetcher)
-    .get('contest', {
+    .get('contest/finished', {
       searchParams: {
-        search
+        search,
+        take: '51'
       }
     })
     .json()
 
-  ContestData.finished.forEach((contest) => {
+  ContestData.data.forEach((contest) => {
     contest.status = 'finished'
   })
 
   return (
     <DataTable
-      data={ContestData.finished}
+      data={ContestData.data}
       columns={columns}
       headerStyle={{
         title: 'text-left w-2/5 md:w-1/2',

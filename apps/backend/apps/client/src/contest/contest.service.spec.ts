@@ -173,50 +173,194 @@ describe('ContestService', () => {
     expect(service).to.be.ok
   })
 
-  describe('getContests', () => {
+  describe('getContestsByGroupId', () => {
     it('should return ongoing, upcoming contests when userId is undefined', async () => {
-      const contests = await service.getContests()
-      expect(contests.ongoing).to.have.lengthOf(5)
-      expect(contests.upcoming).to.have.lengthOf(4)
-      expect(contests.finished).to.have.lengthOf(9)
+      const contests = await service.getContestsByGroupId(groupId)
+      expect(contests.ongoing).to.have.lengthOf(4)
+      expect(contests.upcoming).to.have.lengthOf(2)
     })
 
     it('a contest should contain following fields when userId is undefined', async () => {
-      const contests = await service.getContests(groupId)
+      const contests = await service.getContestsByGroupId(groupId)
       expect(contests.ongoing[0]).to.have.property('title')
       expect(contests.ongoing[0]).to.have.property('startTime')
       expect(contests.ongoing[0]).to.have.property('endTime')
       expect(contests.ongoing[0]).to.have.property('participants')
-      expect(contests.ongoing[0]).to.have.property('isRegistered')
+      expect(contests.ongoing[0].group).to.have.property('id')
+      expect(contests.ongoing[0].group).to.have.property('groupName')
       expect(contests.upcoming[0]).to.have.property('title')
       expect(contests.upcoming[0]).to.have.property('startTime')
       expect(contests.upcoming[0]).to.have.property('endTime')
       expect(contests.upcoming[0]).to.have.property('participants')
-      expect(contests.upcoming[0]).to.have.property('isRegistered')
-      expect(contests.finished[0]).to.have.property('title')
-      expect(contests.finished[0]).to.have.property('startTime')
-      expect(contests.finished[0]).to.have.property('endTime')
-      expect(contests.finished[0]).to.have.property('participants')
-      expect(contests.finished[0]).to.have.property('isRegistered')
+      expect(contests.upcoming[0].group).to.have.property('id')
+      expect(contests.upcoming[0].group).to.have.property('groupName')
+    })
+
+    it('should return ongoing, upcoming, registered ongoing, registered upcoming contests when userId is provided', async () => {
+      const contests = await service.getContestsByGroupId(groupId, user01Id)
+      expect(contests.ongoing).to.have.lengthOf(2)
+      expect(contests.upcoming).to.have.lengthOf(1)
+      expect(contests.registeredOngoing).to.have.lengthOf(2)
+      expect(contests.registeredUpcoming).to.have.lengthOf(2)
+    })
+
+    it('a contest should contain following fields when userId is provided', async () => {
+      const contests = await service.getContestsByGroupId(groupId, user01Id)
+      expect(contests.ongoing[0]).to.have.property('title')
+      expect(contests.ongoing[0]).to.have.property('startTime')
+      expect(contests.ongoing[0]).to.have.property('endTime')
+      expect(contests.ongoing[0]).to.have.property('participants')
+      expect(contests.ongoing[0].group).to.have.property('id')
+      expect(contests.ongoing[0].group).to.have.property('groupName')
+      expect(contests.upcoming[0]).to.have.property('title')
+      expect(contests.upcoming[0]).to.have.property('startTime')
+      expect(contests.upcoming[0]).to.have.property('endTime')
+      expect(contests.upcoming[0]).to.have.property('participants')
+      expect(contests.upcoming[0].group).to.have.property('id')
+      expect(contests.upcoming[0].group).to.have.property('groupName')
+      expect(contests.registeredOngoing[0]).to.have.property('title')
+      expect(contests.registeredOngoing[0]).to.have.property('startTime')
+      expect(contests.registeredOngoing[0]).to.have.property('endTime')
+      expect(contests.registeredOngoing[0]).to.have.property('participants')
+      expect(contests.registeredOngoing[0].group).to.have.property('id')
+      expect(contests.registeredOngoing[0].group).to.have.property('groupName')
+      expect(contests.registeredUpcoming[0]).to.have.property('title')
+      expect(contests.registeredUpcoming[0]).to.have.property('startTime')
+      expect(contests.registeredUpcoming[0]).to.have.property('endTime')
+      expect(contests.registeredUpcoming[0]).to.have.property('participants')
+      expect(contests.registeredUpcoming[0].group).to.have.property('id')
+      expect(contests.registeredUpcoming[0].group).to.have.property('groupName')
+    })
+  })
+
+  describe('getRegisteredOngoingUpcomingContests', () => {
+    it('should return registeredOngoing, registeredUpcoming contests', async () => {
+      const contests = await service.getRegisteredOngoingUpcomingContests(
+        groupId,
+        user01Id
+      )
+      expect(contests.registeredOngoing).to.have.lengthOf(2)
+      expect(contests.registeredUpcoming).to.have.lengthOf(2)
+    })
+
+    it('a contest should contain following fields', async () => {
+      const contests = await service.getRegisteredOngoingUpcomingContests(
+        groupId,
+        user01Id
+      )
+      expect(contests.registeredOngoing[0]).to.have.property('title')
+      expect(contests.registeredOngoing[0]).to.have.property('startTime')
+      expect(contests.registeredOngoing[0]).to.have.property('endTime')
+      expect(contests.registeredOngoing[0]).to.have.property('participants')
+      expect(contests.registeredOngoing[0].group).to.have.property('id')
+      expect(contests.registeredOngoing[0].group).to.have.property('groupName')
+      expect(contests.registeredUpcoming[0]).to.have.property('title')
+      expect(contests.registeredUpcoming[0]).to.have.property('startTime')
+      expect(contests.registeredUpcoming[0]).to.have.property('endTime')
+      expect(contests.registeredUpcoming[0]).to.have.property('participants')
+      expect(contests.registeredUpcoming[0].group).to.have.property('id')
+      expect(contests.registeredUpcoming[0].group).to.have.property('groupName')
     })
 
     it("shold return contests whose title contains '신입생'", async () => {
       const keyword = '신입생'
-      const contests = await service.getContests(user01Id, keyword)
+      const contests = await service.getRegisteredOngoingUpcomingContests(
+        groupId,
+        user01Id,
+        keyword
+      )
+      expect(
+        contests.registeredOngoing.map((contest) => contest.title)
+      ).to.deep.equals(['24년도 소프트웨어학과 신입생 입학 테스트2'])
+    })
+  })
 
-      expect(contests.ongoing.map((contest) => contest.title)).to.deep.equals([
-        '24년도 소프트웨어학과 신입생 입학 테스트2',
-        '24년도 소프트웨어학과 신입생 입학 테스트1',
-        '24년도 소프트웨어학과 신입생 입학 테스트3'
+  describe('getRegisteredContestIds', async () => {
+    it("should return an array of contest's id user01 registered", async () => {
+      const contestIds = await service.getRegisteredContestIds(user01Id)
+      const registeredContestIds = [1, 3, 5, 7, 9, 11, 13, 15, 17]
+      contestIds.sort((a, b) => a - b)
+      expect(contestIds).to.deep.equal(registeredContestIds)
+    })
+  })
+
+  describe('getRegisteredFinishedContests', async () => {
+    it('should return only 2 contests that user01 registered but finished', async () => {
+      const takeNum = 4
+      const contests = await service.getRegisteredFinishedContests({
+        cursor: null,
+        take: takeNum,
+        groupId: groupId,
+        userId: user01Id
+      })
+      expect(contests.data).to.have.lengthOf(takeNum)
+    })
+
+    it('should return a contest array which starts with id 9', async () => {
+      const takeNum = 2
+      const prevCursor = 11
+      const contests = await service.getRegisteredFinishedContests({
+        cursor: prevCursor,
+        take: takeNum,
+        groupId: groupId,
+        userId: user01Id
+      })
+      expect(contests.data[0].id).to.equals(9)
+    })
+
+    it('a contest should contain following fields', async () => {
+      const contests = await service.getRegisteredFinishedContests({
+        cursor: null,
+        take: 10,
+        groupId: groupId,
+        userId: user01Id
+      })
+      expect(contests.data[0]).to.have.property('title')
+      expect(contests.data[0]).to.have.property('startTime')
+      expect(contests.data[0]).to.have.property('endTime')
+      expect(contests.data[0]).to.have.property('participants')
+      expect(contests.data[0].group).to.have.property('id')
+      expect(contests.data[0].group).to.have.property('groupName')
+    })
+
+    it("shold return contests whose title contains '낮'", async () => {
+      const keyword = '낮'
+      const contests = await service.getRegisteredFinishedContests({
+        cursor: null,
+        take: 10,
+        groupId: groupId,
+        userId: user01Id,
+        search: keyword
+      })
+      expect(contests.data.map((contest) => contest.title)).to.deep.equals([
+        '소프트의 낮'
       ])
     })
   })
 
-  describe('getBannerContests', () => {
-    it('should return banner contests', async () => {
-      const bannerContests = await service.getBannerContests()
-      expect(bannerContests).to.have.property('fastestUpcomingContestId')
-      expect(bannerContests).to.have.property('mostRegisteredId')
+  describe('getFinishedContestsByGroupId', () => {
+    it('should return finished contests', async () => {
+      const contests = await service.getFinishedContestsByGroupId({
+        userId: null,
+        cursor: null,
+        take: 10,
+        groupId: groupId
+      })
+      const contestIds = contests.data.map((c) => c.id).sort((a, b) => a - b)
+      const finishedContestIds = [6, 7, 8, 9, 10, 11, 12, 13]
+      expect(contestIds).to.deep.equal(finishedContestIds)
+    })
+  })
+
+  describe('filterOngoing', () => {
+    it('should return ongoing contests of the group', () => {
+      expect(service.filterOngoing(contests)).to.deep.equal(ongoingContests)
+    })
+  })
+
+  describe('filterUpcoming', () => {
+    it('should return upcoming contests of the group', () => {
+      expect(service.filterUpcoming(contests)).to.deep.equal(upcomingContests)
     })
   })
 
