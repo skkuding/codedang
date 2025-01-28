@@ -13,31 +13,31 @@ export function Sidebar() {
   const searchParams = useSearchParams()
   const courseId = searchParams.get('courseId')
 
-  const navItems: { name: string; path: string; icon: string }[] = [
-    { name: 'Home', path: `/course/${courseId}` as const, icon: homeIcon },
+  const navItems = [
+    { name: 'Home', path: `/course/${courseId}`, icon: homeIcon },
     {
       name: 'Notice',
-      path: `/course/${courseId}/notice` as const,
+      path: `/course/${courseId}/notice`,
       icon: noticeIcon
     },
     {
       name: 'Exam',
-      path: `/course/${courseId}/exam` as const,
+      path: `/course/${courseId}/exam`,
       icon: examIcon
     },
     {
       name: 'Assignment',
-      path: `/course/${courseId}/assignment` as const,
+      path: `/course/${courseId}/assignment`,
       icon: assignmentIcon
     },
     {
       name: 'Grade',
-      path: `/course/${courseId}/grade` as const,
+      path: `/course/${courseId}/grade`,
       icon: assignmentIcon
     },
     {
       name: 'Q&A',
-      path: `/course/${courseId}/qna` as const,
+      path: `/course/${courseId}/qna`,
       icon: assignmentIcon
     }
   ]
@@ -47,7 +47,7 @@ export function Sidebar() {
       {navItems.map((item) => (
         <Link
           key={item.name}
-          href={item.path as Route}
+          href={item.path}
           className="rounded px-4 py-2 transition"
         >
           <Image
