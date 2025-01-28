@@ -96,7 +96,6 @@
     "react-use": "^17.6.0",
     "sharp": "^0.33.5",
     "sonner": "^1.7.1",
-    "styled-components": "^6.1.14",
     "valibot": "1.0.0-beta.12",
     "zustand": "^4.5.5"
   },
