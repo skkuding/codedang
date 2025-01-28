@@ -505,6 +505,7 @@ describe('SubmissionSubscriptionService', () => {
             startTime: true,
             penalty: true,
             lastPenalty: true,
+            freezeTime: true,
             submission: {
               where: {
                 userId: contestSubmission.userId
@@ -556,7 +557,10 @@ describe('SubmissionSubscriptionService', () => {
           select: {
             score: true,
             timePenalty: true,
-            submitCountPenalty: true
+            submitCountPenalty: true,
+            finalScore: true,
+            finalTimePenalty: true,
+            finalSubmitCountPenalty: true
           }
         })
       ).to.be.true
