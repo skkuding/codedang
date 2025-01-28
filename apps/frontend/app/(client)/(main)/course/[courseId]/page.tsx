@@ -1,7 +1,7 @@
 import { Separator } from '@/components/shadcn/separator'
 import { AssignmentOverview } from './_components/AssignmentOverview'
 import { RecentNotice } from './_components/RecentNotice'
-import { RecentUpdates } from './_components/RecentUpdates'
+import { RecentUpdate } from './_components/RecentUpdate'
 
 export default function Dashboard() {
   return (
@@ -12,7 +12,7 @@ export default function Dashboard() {
         </div>
         <Separator orientation="vertical" className="h-full bg-gray-300" />
         <div className="p-10">
-          <RecentUpdates />
+          <RecentUpdate />
         </div>
       </div>
       <Separator />
