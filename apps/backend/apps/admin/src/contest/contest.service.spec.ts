@@ -43,6 +43,7 @@ const contest: Contest = {
   lastPenalty: false,
   startTime,
   endTime,
+  freezeTime: null,
   isVisible: true,
   isRankVisible: true,
   isJudgeResultVisible: true,
@@ -98,6 +99,8 @@ const contestWithParticipants: ContestWithParticipants = {
   lastPenalty: false,
   startTime,
   endTime,
+
+  freezeTime: null,
   isVisible: true,
   isRankVisible: true,
   enableCopyPaste: true,

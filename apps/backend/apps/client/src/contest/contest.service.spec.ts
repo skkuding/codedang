@@ -37,6 +37,7 @@ const contest = {
   lastPenalty: false,
   startTime: now.add(-1, 'day').toDate(),
   endTime: now.add(1, 'day').toDate(),
+  freezeTime: null,
   isVisible: true,
   isJudgeResultVisible: true,
   isRankVisible: true,
