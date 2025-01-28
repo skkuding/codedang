@@ -6,7 +6,7 @@ import { RecentUpdates } from './_components/RecentUpdates'
 export default function Dashboard() {
   return (
     <div className="flex flex-col">
-      <div className="grid items-center gap-4">
+      <div className="grid grid-rows-1 items-center gap-4">
         <RecentAnouncement />
         <Separator orientation="vertical" className="h-full bg-gray-300" />
         <RecentUpdates />
