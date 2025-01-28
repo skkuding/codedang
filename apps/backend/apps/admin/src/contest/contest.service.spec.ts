@@ -70,6 +70,7 @@ const contestWithCount = {
   lastPenalty: false,
   startTime,
   endTime,
+  freezeTime: null,
   isVisible: true,
   isRankVisible: true,
   isJudgeResultVisible: true,
