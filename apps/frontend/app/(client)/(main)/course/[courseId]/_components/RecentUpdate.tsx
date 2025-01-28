@@ -62,7 +62,7 @@ export function RecentUpdate() {
   return (
     <div className="w-full rounded-xl border border-gray-300 p-5">
       <div className="mb-2 flex items-center justify-between">
-        <span className="font-semibold text-gray-800">최근 공지</span>
+        <span className="font-semibold text-gray-800">Recent Update</span>
         <Link
           href={`/course/${courseId}/notice` as const}
           className="flex items-center text-sm text-gray-500"

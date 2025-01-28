@@ -62,7 +62,13 @@ export function RecentNotice() {
   return (
     <div className="w-full rounded-xl border border-gray-300 p-5">
       <div className="mb-2 flex items-center justify-between">
-        <span className="font-semibold text-gray-800">최근 공지</span>
+        <div>
+          <span className="mr-4 font-semibold text-gray-800">최근 공지</span>
+          <span className="text-sm font-semibold text-blue-500">
+            {notices.length}
+          </span>
+        </div>
+
         <Link
           href={`/course/${courseId}/notice` as const}
           className="flex items-center text-sm text-gray-500"
