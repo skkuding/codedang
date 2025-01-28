@@ -50,12 +50,12 @@ export class ContestController {
     @Param('id', IDValidationPipe) contestId: number,
     @Query('invitationCode') invitationCode?: string
   ) {
-    return await this.contestService.createContestRecord(
+    return await this.contestService.createContestRecord({
       contestId,
-      req.user.id,
+      userId: req.user.id,
       invitationCode,
       groupId
-    )
+    })
   }
 
   // unregister only for upcoming contest
@@ -69,6 +69,17 @@ export class ContestController {
       contestId,
       req.user.id,
       groupId
+    )
+  }
+
+  @Get(':id/leaderboard')
+  async getLeaderboard(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) contestId: number
+  ) {
+    return await this.contestService.getContestLeaderboard(
+      req.user.id,
+      contestId
     )
   }
 }
