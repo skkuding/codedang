@@ -24,7 +24,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <Sidebar />
         </nav>
         <Separator orientation="vertical" />
-        <article>{children}</article>
+        <article className="w-full">
+          <div>{children}</div>
+        </article>
       </div>
     </div>
   )
