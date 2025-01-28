@@ -22,7 +22,7 @@ interface GroupSideBarProps {
 export function GroupSideBar({ groupId }: GroupSideBarProps) {
   const pathname = usePathname()
 
-  const navItems: { name: string; path: Route; icon: IconType }[] = [
+  const navItems: { name: string; path: string; icon: IconType }[] = [
     { name: 'Home', path: `/admin/group/${groupId}`, icon: MdHome },
     {
       name: 'Notice',
@@ -61,7 +61,7 @@ export function GroupSideBar({ groupId }: GroupSideBarProps) {
       {navItems.map((item) => (
         <Link
           key={item.name}
-          href={item.path}
+          href={item.path as Route}
           className={cn(
             'rounded px-4 py-2 transition',
             pathname === item.path
