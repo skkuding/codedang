@@ -73,6 +73,8 @@ const mockContest: Contest = {
   groupId: 1,
   title: 'SKKU Coding Platform 모의대회',
   description: 'test',
+  penalty: 20,
+  lastPenalty: false,
   invitationCode: 'test',
   startTime: new Date(),
   endTime: new Date(),

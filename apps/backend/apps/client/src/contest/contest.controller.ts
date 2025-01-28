@@ -129,4 +129,15 @@ export class ContestController {
       groupId
     )
   }
+
+  @Get(':id/leaderboard')
+  async getLeaderboard(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) contestId: number
+  ) {
+    return await this.contestService.getContestLeaderboard(
+      req.user.id,
+      contestId
+    )
+  }
 }

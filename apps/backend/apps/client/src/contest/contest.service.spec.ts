@@ -33,6 +33,8 @@ const contest = {
   groupId,
   title: 'title',
   description: 'description',
+  penalty: 100,
+  lastPenalty: false,
   startTime: now.add(-1, 'day').toDate(),
   endTime: now.add(1, 'day').toDate(),
   isVisible: true,
@@ -510,6 +512,16 @@ describe('ContestService', () => {
       await expect(
         service.deleteContestRecord(contestId, user01Id)
       ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+  })
+
+  describe('getContestLeaderboard', () => {
+    it('should return leaderboard of the contest', async () => {
+      const leaderboard = await service.getContestLeaderboard(
+        user01Id,
+        contestId
+      )
+      expect(leaderboard).to.be.ok
     })
   })
 })
