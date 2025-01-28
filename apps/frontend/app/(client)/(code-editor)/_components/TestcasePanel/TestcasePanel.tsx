@@ -75,9 +75,7 @@ export function TestcasePanel() {
           <div className="flex h-full w-full items-center justify-center">
             <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
               {(() => {
-                if (testcaseTabList.length < 5) {
-                  return 'Testcase Result'
-                } else if (testcaseTabList.length < 7) {
+                if (testcaseTabList.length < 7) {
                   return 'Testcase Result'
                 } else {
                   return 'TC Res'
