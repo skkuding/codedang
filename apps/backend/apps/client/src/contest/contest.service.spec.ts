@@ -33,6 +33,8 @@ const contest = {
   groupId,
   title: 'title',
   description: 'description',
+  penalty: 100,
+  lastPenalty: false,
   startTime: now.add(-1, 'day').toDate(),
   endTime: now.add(1, 'day').toDate(),
   isVisible: true,
@@ -260,34 +262,50 @@ describe('ContestService', () => {
 
     it('should throw error when the invitation code does not match', async () => {
       await expect(
-        service.createContestRecord(1, user01Id, invalidInvitationCode)
+        service.createContestRecord({
+          contestId: 1,
+          userId: user01Id,
+          invitationCode: invalidInvitationCode
+        })
       ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should throw error when the contest does not exist', async () => {
       await expect(
-        service.createContestRecord(999, user01Id, invitationCode)
+        service.createContestRecord({
+          contestId: 999,
+          userId: user01Id,
+          invitationCode: invitationCode
+        })
       ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
     })
 
     it('should throw error when user is participated in contest again', async () => {
       await expect(
-        service.createContestRecord(contestId, user01Id, invitationCode)
+        service.createContestRecord({
+          contestId: contestId,
+          userId: user01Id,
+          invitationCode: invitationCode
+        })
       ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should throw error when contest is not ongoing', async () => {
       await expect(
-        service.createContestRecord(8, user01Id, invitationCode)
+        service.createContestRecord({
+          contestId: 8,
+          userId: user01Id,
+          invitationCode: invitationCode
+        })
       ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should register to a contest successfully', async () => {
-      const contestRecord = await service.createContestRecord(
-        2,
-        user01Id,
-        invitationCode
-      )
+      const contestRecord = await service.createContestRecord({
+        contestId: 2,
+        userId: user01Id,
+        invitationCode: invitationCode
+      })
       contestRecordId = contestRecord.id
       expect(
         await transaction.contestRecord.findUnique({
@@ -350,6 +368,16 @@ describe('ContestService', () => {
       await expect(
         service.deleteContestRecord(contestId, user01Id)
       ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+  })
+
+  describe('getContestLeaderboard', () => {
+    it('should return leaderboard of the contest', async () => {
+      const leaderboard = await service.getContestLeaderboard(
+        user01Id,
+        contestId
+      )
+      expect(leaderboard).to.be.ok
     })
   })
 })

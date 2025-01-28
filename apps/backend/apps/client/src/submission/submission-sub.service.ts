@@ -107,10 +107,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
             : testKey(userId, testcaseId),
           {
             id: testcaseId,
-            // TODO: judgeResult 코드 처리 통합 해야함
-            result: msg.judgeResult
-              ? Status(msg.judgeResult.resultCode)
-              : Status(msg.resultCode),
+            result: status,
             output
           },
           TEST_SUBMISSION_EXPIRE_TIME
@@ -130,10 +127,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     }>(key)
     if (testcase) {
       testcase.id = testcaseId
-      // TODO: judgeResult 코드 처리 통합 해야함
-      testcase.result = msg.judgeResult
-        ? Status(msg.judgeResult.resultCode)
-        : Status(msg.resultCode)
+      testcase.result = status
       testcase.output = output
     }
 
@@ -181,8 +175,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     const submissionResult = {
       submissionId: msg.submissionId,
       problemTestcaseId: msg.judgeResult.testcaseId,
-      // TODO: judgeResult 코드 처리 통합 해야함
-      result: Status(msg.judgeResult.resultCode),
+      result: status,
       cpuTime: BigInt(msg.judgeResult.cpuTime),
       memoryUsage: msg.judgeResult.memory
     }
@@ -281,6 +274,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         problemId: true,
         userId: true,
         contestId: true,
+        createTime: true,
         updateTime: true,
         submissionResult: {
           select: {
@@ -309,27 +303,83 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     })
 
     if (submission.userId && submission.contestId)
-      await this.calculateSubmissionScore(submission, allAccepted)
+      await this.updateContestRecord(submission, allAccepted)
 
     await this.updateProblemScore(submission.id)
     await this.updateProblemAccepted(submission.problemId, allAccepted)
   }
 
   @Span()
-  async calculateSubmissionScore(
+  async updateContestRecord(
     submission: Pick<
       Submission,
-      'problemId' | 'contestId' | 'userId' | 'updateTime'
+      'problemId' | 'contestId' | 'userId' | 'createTime' | 'updateTime'
     >,
     isAccepted: boolean
   ): Promise<void> {
-    const contestId = submission.contestId!
-    const userId = submission.userId!
+    const { contestId, problemId, userId, createTime, updateTime } = submission
 
-    let toBeAddedScore = 0,
-      toBeAddedPenalty = 0,
-      toBeAddedAcceptedProblemNum = 0,
-      isFinishTimeToBeUpdated = false
+    if (!contestId || !userId)
+      throw new UnprocessableDataException(
+        `contestId: ${contestId}, userId: ${userId} is empty`
+      )
+
+    const _submissions = await this.prisma.submission.findMany({
+      where: {
+        contestId,
+        problemId,
+        result: ResultStatus.Accepted
+      },
+      select: {
+        id: true,
+        userId: true,
+        createTime: true
+      }
+    })
+
+    const isNewAccept =
+      _submissions.filter((submission) => submission.userId === userId)
+        .length === 1
+
+    // 재채점시 고려하여 만들었음.
+    const isFirstSolver =
+      _submissions.filter((submssion) => submssion.createTime < createTime)
+        .length === 0
+
+    if (!isNewAccept || !isAccepted) return
+
+    const _contest = await this.prisma.contest.findUniqueOrThrow({
+      where: {
+        id: contestId ?? -1
+      },
+      select: {
+        startTime: true,
+        penalty: true,
+        lastPenalty: true,
+        submission: {
+          where: {
+            userId
+          },
+          select: {
+            id: true
+          }
+        }
+      }
+    })
+
+    const contestProblem = await this.prisma.contestProblem.findUniqueOrThrow({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_problemId: {
+          contestId,
+          problemId
+        }
+      },
+      select: {
+        id: true,
+        score: true
+      }
+    })
 
     const contestRecord = await this.prisma.contestRecord.findUniqueOrThrow({
       where: {
@@ -340,44 +390,85 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       },
       select: {
-        id: true,
-        acceptedProblemNum: true,
-        score: true,
-        totalPenalty: true,
-        finishTime: true
+        id: true
       }
     })
 
-    if (isAccepted) {
-      toBeAddedScore = (
-        await this.prisma.contestProblem.findFirstOrThrow({
-          where: {
-            contestId,
-            problemId: submission.problemId
-          },
-          select: {
-            score: true
-          }
-        })
-      ).score
-      isFinishTimeToBeUpdated = true
-      toBeAddedAcceptedProblemNum = 1
-    } else {
-      toBeAddedPenalty = 1
-    }
+    const { submission: submissions, ...contest } = _contest
+    const { penalty, lastPenalty } = contest
+    const { id: contestProblemId, score } = contestProblem
+    const contestRecordId = contestRecord.id
 
+    const submitCount = submissions.length
+    const submitCountPenalty = Math.floor(penalty * (submitCount - 1))
+
+    const submitTime = new Date(updateTime).getTime()
+    const startTime = new Date(contest.startTime).getTime()
+    const timePenalty = Math.floor((submitTime - startTime) / 60000)
+
+    // 1. contest problem record의 score와 penalty들을 upsert(update or create) 한다.
+    await this.prisma.contestProblemRecord.upsert({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestProblemId_contestRecordId: {
+          contestProblemId,
+          contestRecordId
+        }
+      },
+      update: {
+        score,
+        submitCountPenalty,
+        timePenalty,
+        isFirstSolver
+      },
+      create: {
+        contestProblemId,
+        contestRecordId,
+        score,
+        submitCountPenalty,
+        isFirstSolver
+      }
+    })
+
+    const contestProblemRecords =
+      await this.prisma.contestProblemRecord.findMany({
+        where: {
+          contestProblemId,
+          contestRecordId
+        },
+        select: {
+          score: true,
+          timePenalty: true,
+          submitCountPenalty: true
+        }
+      })
+
+    const [scoreSum, submitCountPenaltySum, timePenaltySum, maxTimePenalty] =
+      contestProblemRecords.reduce(
+        (acc, record) => {
+          acc[0] += record.score
+          acc[1] += record.submitCountPenalty
+          acc[2] += record.timePenalty
+          acc[3] = Math.max(acc[3], record.timePenalty)
+          return acc
+        },
+        [0, 0, 0, 0]
+      )
+    // 2. contest record의 score, penalty, lastAcceptedTime를 update 한다.
     await this.prisma.contestRecord.update({
       where: {
-        id: contestRecord.id
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_userId: {
+          contestId,
+          userId
+        }
       },
       data: {
-        acceptedProblemNum:
-          contestRecord.acceptedProblemNum + toBeAddedAcceptedProblemNum,
-        score: contestRecord.score + toBeAddedScore,
-        totalPenalty: contestRecord.totalPenalty + toBeAddedPenalty,
-        finishTime: isFinishTimeToBeUpdated
-          ? submission.updateTime
-          : contestRecord.finishTime
+        score: scoreSum,
+        totalPenalty: lastPenalty
+          ? maxTimePenalty + submitCountPenaltySum
+          : timePenaltySum + submitCountPenaltySum,
+        lastAcceptedTime: updateTime
       }
     })
   }

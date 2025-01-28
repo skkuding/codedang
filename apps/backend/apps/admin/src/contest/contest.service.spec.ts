@@ -39,6 +39,8 @@ const contest: Contest = {
   groupId,
   title: 'title',
   description: 'description',
+  penalty: 20,
+  lastPenalty: false,
   startTime,
   endTime,
   isVisible: true,
@@ -63,6 +65,8 @@ const contestWithCount = {
   groupId,
   title: 'title',
   description: 'description',
+  penalty: 20,
+  lastPenalty: false,
   startTime,
   endTime,
   isVisible: true,
@@ -90,6 +94,8 @@ const contestWithParticipants: ContestWithParticipants = {
   groupId,
   title: 'title',
   description: 'description',
+  penalty: 20,
+  lastPenalty: false,
   startTime,
   endTime,
   isVisible: true,
@@ -151,6 +157,7 @@ const problem: Problem = {
 }
 
 const contestProblem: ContestProblem = {
+  id: 1,
   order: 0,
   contestId,
   problemId,
