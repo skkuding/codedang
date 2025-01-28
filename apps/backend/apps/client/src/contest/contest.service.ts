@@ -7,7 +7,6 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { contestProblem } from '@client/submission/mock/contestProblem.mock'
 
 const contestSelectOption = {
   id: true,
