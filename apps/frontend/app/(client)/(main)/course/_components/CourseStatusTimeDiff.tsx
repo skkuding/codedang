@@ -40,15 +40,8 @@ export function CourseStatusTimeDiff({
 
   const updateCourseStatus = () => {
     const now = dayjs()
-    // if (now.isAfter(course.endTime)) {
-    //   setCourseStatus('finished')
-    // } else if (now.isAfter(course.startTime)) {
-    //   setCourseStatus('ongoing')
-    // }
 
     const timeRef = 'ongoing'
-    // const timeRef =
-    //   courseStatus === 'ongoing' ? course.endTime : course.startTime
 
     const diff = dayjs.duration(Math.abs(dayjs(timeRef).diff(now)))
     const days = Math.floor(diff.asDays())
@@ -84,11 +77,6 @@ export function CourseStatusTimeDiff({
   useInterval(() => {
     updateCourseStatus()
   }, 1000)
-
-  // if (inCourseEditor && courseStatus === 'finished') {
-  //   router.push(`/course/${course.id}/finished/problem/${problemId}`)
-  // }
-
   return (
     <div
       className={cn(
