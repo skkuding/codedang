@@ -5,6 +5,7 @@ import { Button } from '@/components/shadcn/button'
 import { GET_GROUP } from '@/graphql/group/queries'
 import periodIcon from '@/public/icons/period.svg'
 import { useSuspenseQuery } from '@apollo/client'
+import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
@@ -28,7 +29,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
           </Link>
           <span className="text-4xl font-bold">{group.groupName}</span>
         </div>
-        <Link href={`/admin/group/${groupId}/edit`}>
+        <Link href={`/admin/group/${groupId}/edit` as Route}>
           <Button variant="default">
             <FaPencil className="mr-2 h-4 w-4" />
             Edit

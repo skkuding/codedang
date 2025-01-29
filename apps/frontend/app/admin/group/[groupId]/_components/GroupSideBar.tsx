@@ -63,7 +63,7 @@ export function GroupSideBar({ groupId }: GroupSideBarProps) {
           key={item.name}
           href={item.path as Route}
           className={cn(
-            'rounded px-4 py-2 transition',
+            'rounded px-2 py-2 transition',
             pathname === item.path
               ? 'bg-primary text-white hover:opacity-95'
               : 'text-slate-600 hover:bg-slate-100'
