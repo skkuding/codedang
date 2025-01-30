@@ -1,6 +1,7 @@
 import { GET_GROUPS } from '@/graphql/group/queries'
 import { cn } from '@/libs/utils'
 import { useSuspenseQuery } from '@apollo/client'
+import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { FaUserGroup } from 'react-icons/fa6'
@@ -22,7 +23,7 @@ export function GroupLink() {
       )}
     >
       <Link
-        href="/admin/group"
+        href={'/admin/group/' as Route}
         className={cn(
           'rounded px-4 py-2 transition',
           pathname === '/admin/group'
@@ -35,7 +36,7 @@ export function GroupLink() {
       </Link>
       {data.getGroups.map((group) => (
         <Link
-          href={`/admin/group/${group.id}`}
+          href={`/admin/group/${group.id}` as Route}
           key={group.id}
           className={cn(
             'rounded py-2 pl-8 pr-4 transition',
