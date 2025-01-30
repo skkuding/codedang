@@ -73,7 +73,7 @@ export function CreateAssignmentForm({
 
     const { data } = await createAssignment({
       variables: {
-        groupId: 1,
+        groupId: Number(groupId),
         input
       }
     })
@@ -88,7 +88,7 @@ export function CreateAssignmentForm({
 
     await importProblemsToAssignment({
       variables: {
-        groupId: 1,
+        groupId: Number(groupId),
         assignmentId,
         problemIdsWithScore: problems.map((problem) => {
           return {
