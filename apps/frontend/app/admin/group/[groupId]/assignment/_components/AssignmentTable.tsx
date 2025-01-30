@@ -45,7 +45,7 @@ export function AssignmentTable({ groupId }: AssignmentTableProps) {
       columns={columns}
       defaultSortState={[{ id: 'startTime', desc: true }]}
     >
-      <div className="flex gap-2">
+      <div className="flex justify-between gap-2">
         <DataTableSearchBar columndId="title" />
         <AssignmentsDeleteButton />
       </div>

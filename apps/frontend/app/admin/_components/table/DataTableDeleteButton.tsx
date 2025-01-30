@@ -17,7 +17,7 @@ import { toast } from 'sonner'
 import { useDataTable } from './context'
 
 interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
-  target: 'problem' | 'contest' | 'assignment'
+  target: 'problem' | 'contest' | 'assignment' | 'group'
   deleteTarget: (id: number) => Promise<TPromise>
   getCanDelete?: (selectedRows: TData[]) => Promise<boolean>
   onSuccess?: () => void

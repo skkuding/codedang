@@ -173,18 +173,6 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
     size: 250
   },
   {
-    accessorKey: 'participants',
-    header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Participants" />
-      </div>
-    ),
-    cell: ({ row }) => (
-      <p className="text-center font-normal">{row.original.participants}</p>
-    ),
-    size: 100
-  },
-  {
     accessorKey: 'isVisible',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Visible" />
