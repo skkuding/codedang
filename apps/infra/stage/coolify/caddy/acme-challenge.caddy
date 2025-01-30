@@ -1,13 +1,13 @@
-// Not included in CI/CD. Should be added in coolify manually
+# Not included in CI/CD. Should be added in coolify manually
 
 *.coolify.codedang.com, coolify.codedang.com {
     tls {
         dns route53 {
-            wait_for_propagation true // should be set true
-            # access_key_id $AWS_ACCESS_KEY_ID // $AWS_ACCESS_KEY_ID should be set as environmental variable in coolify's docker-compose.yml
-            # secret_access_key $AWS_SECRET_ACCESS_KEY // $AWS_SECRET_ACCESS_KEY should be set as environmental variable in coolify's docker-compose.yml
-            # region $AWS_REGION // $AWS_REGION should be set as environmental variable in coolify's docker-compose.yml
+            wait_for_propagation true # should be set true
+            # access_key_id $AWS_ACCESS_KEY_ID # $AWS_ACCESS_KEY_ID should be set as environmental variable in coolify's docker-compose.yml
+            # secret_access_key $AWS_SECRET_ACCESS_KEY # $AWS_SECRET_ACCESS_KEY should be set as environmental variable in coolify's docker-compose.yml
+            # region $AWS_REGION # $AWS_REGION should be set as environmental variable in coolify's docker-compose.yml
         }
     }
-    reverse_proxy localhost:5525 // route to frontend stage/preview deployments.
+    reverse_proxy localhost:5525 # route to frontend stage/preview deployments.
 }
