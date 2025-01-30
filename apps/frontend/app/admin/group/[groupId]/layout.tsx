@@ -31,12 +31,16 @@ export default function Layout({
       )}
       <div
         className={cn(
-          '',
-          isSideBarOpen && 'relative w-[calc(100%-10rem)] overflow-y-auto'
+          'relative w-full overflow-y-auto',
+          isSideBarOpen && 'w-[calc(100%-10rem)]'
         )}
       >
         {!isSideBarOpen && (
-          <Button variant="slate" onClick={() => setIsSideBarOpen(true)}>
+          <Button
+            className="absolute"
+            variant="slate"
+            onClick={() => setIsSideBarOpen(true)}
+          >
             <MdMenu className="h-5 w-5" />
           </Button>
         )}
