@@ -1,6 +1,6 @@
 import { GET_GROUPS } from '@/graphql/group/queries'
 import { cn } from '@/libs/utils'
-import { useSuspenseQuery } from '@apollo/client'
+import { useQuery } from '@apollo/client'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -9,7 +9,7 @@ import { FaUserGroup } from 'react-icons/fa6'
 export function GroupLink() {
   const pathname = usePathname()
 
-  const { data } = useSuspenseQuery(GET_GROUPS, {
+  const { data } = useQuery(GET_GROUPS, {
     variables: {
       cursor: 1,
       take: 5
@@ -34,7 +34,7 @@ export function GroupLink() {
         {<FaUserGroup className="mr-2 inline-block" />}
         Group
       </Link>
-      {data.getGroups.map((group) => (
+      {data?.getGroups.map((group) => (
         <Link
           href={`/admin/group/${group.id}` as Route}
           key={group.id}
