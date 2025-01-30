@@ -8,6 +8,8 @@ import { SearchBar } from '../_components/SearchBar'
 import { ContestFeatureList } from './_components/ContestFeatureList'
 import { ContestMainCover } from './_components/ContestMainCover'
 import { ContestMainTable } from './_components/ContestMainTable'
+import { ContestSubBanner } from './_components/ContestSubBanner'
+import { ContestTitleFilter } from './_components/ContestTitleFilter'
 
 interface ContestProps {
   searchParams: {
@@ -71,9 +73,7 @@ export default async function Contest({ searchParams }: ContestProps) {
         </Suspense>
       </ErrorBoundary>
 
-      <div className="mt-[120px] h-[328px] w-[1440px] bg-gray-600">
-        {/* Sub Banner 작업공간 */}
-      </div>
+      <ContestSubBanner />
 
       <div className="mb-12 mt-[101px] flex w-full flex-col gap-12">
         <div className="flex-col">
@@ -83,7 +83,10 @@ export default async function Contest({ searchParams }: ContestProps) {
                 <h1 className="text-2xl font-semibold text-gray-700">
                   CONTEST LIST
                 </h1>
-                <SearchBar className="w-60" />
+                <div className="flex gap-4">
+                  <SearchBar className="w-60" />
+                  <ContestTitleFilter />
+                </div>
               </div>
               <ContestMainTable search={search} session={session} />
             </ErrorBoundary>
