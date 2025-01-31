@@ -1,7 +1,7 @@
 meta {
-  name: Succeed: Assignment(AC)
+  name: [Succeed] Assignment(TLE)
   type: http
-  seq: 8
+  seq: 7
 }
 
 post {
@@ -22,7 +22,7 @@ body:json {
     "code": [
       {
         "id": 1,
-        "text": "#include <stdio.h>\nint main() { int a, b; scanf(\"%d%d\", &a, &b); printf(\"%d\\n\", a + b);}",
+        "text": "#include <stdio.h>\nint main() { int a, b; scanf(\"%d%d\", &a, &b); while(1);}",
         "locked": false
       }
     ],
@@ -34,7 +34,7 @@ assert {
   res.body.id: isNumber
   res.body.userId: isNumber
   res.body.problemId: isNumber
-  res.body.assignmentId: isNumber
+  res.body.AssignmentId: isNumber
   res.body.workbookId: isNull
   res.body.code: isArray
   res.body.code[0]: isJson
@@ -50,9 +50,9 @@ script:pre-request {
 }
 
 docs {
-  ## Create Submission (AC)
+  ## Create Submission (TLE)
 
-  `Assignment`에 AC 판정을 받는 코드를 제출하여, 채점 요청을 보냅니다.
+  `Assignment`에 TLE 판정을 받는 코드를 제출하여, 채점 요청을 보냅니다.
 
   ### Query
 
@@ -62,12 +62,13 @@ docs {
   |-----|-----|-----|
   |problemId *|Integer|문제 ID|
   |groupId|Integer|문제가 속한 Group ID (default: 1)|
-  |assignmentId|Integer|문제가 속한 과제 ID|
+  |AssignmentId|Integer|문제가 속한 과제 ID|
   |workbookId|Integer|문제가 속한 문제집 ID|
 
   ### Error Case
 
-  #### 404: No Assignment found
+  #### [404] No Assignment found
 
   현재 진행 중이지 않는 `Assignment`에 `Submission`을 Create하려는 경우
+
 }
