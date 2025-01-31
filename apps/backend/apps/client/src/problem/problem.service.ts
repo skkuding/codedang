@@ -20,7 +20,6 @@ import { CreateTemplateDto } from './dto/create-code-draft.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
-import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { ProblemOrder } from './enum/problem-order.enum'
 
 const problemsSelectOption: Prisma.ProblemSelect = {
