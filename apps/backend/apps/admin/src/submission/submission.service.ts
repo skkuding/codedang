@@ -10,10 +10,48 @@ import type {
   GetAssignmentSubmissionsInput,
   GetContestSubmissionsInput
 } from './model/get-submissions.input'
+import type { SubmissionsWithTotal } from './model/submissions-with-total.output'
 
 @Injectable()
 export class SubmissionService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async getSubmissions(
+    problemId: number,
+    groupId: number,
+    cursor: number | null,
+    take: number
+  ): Promise<SubmissionsWithTotal> {
+    const paginator = this.prisma.getPaginator(cursor)
+
+    const problem = await this.prisma.problem.findFirst({
+      where: {
+        id: problemId,
+        groupId
+      }
+    })
+    if (!problem) {
+      throw new EntityNotExistException('Problem')
+    }
+
+    const submissions = await this.prisma.submission.findMany({
+      ...paginator,
+      take,
+      where: {
+        problemId
+      },
+      include: {
+        user: true
+      },
+      orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
+    })
+
+    const total = await this.prisma.submission.count({
+      where: { problemId }
+    })
+
+    return { data: submissions, total }
+  }
 
   async getContestSubmissions(
     input: GetContestSubmissionsInput,
