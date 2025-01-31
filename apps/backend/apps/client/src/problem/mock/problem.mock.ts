@@ -1,12 +1,8 @@
 import { faker } from '@faker-js/faker'
 import { Language, Level, Role } from '@prisma/client'
-import type {
-  Problem,
-  Contest,
-  ContestProblem,
-  WorkbookProblem
-} from '@prisma/client'
+import type { Contest, ContestProblem, WorkbookProblem } from '@prisma/client'
 import { MIN_DATE } from '@libs/constants'
+import type { Problem } from '@admin/@generated'
 import type { CreateTemplateDto } from '../dto/create-code-draft.dto'
 
 export const problems: Problem[] = [
@@ -35,7 +31,8 @@ export const problems: Problem[] = [
     engDescription: null,
     engHint: null,
     engInputDescription: null,
-    engOutputDescription: null
+    engOutputDescription: null,
+    problemTestcase: []
   },
   {
     id: 2,
@@ -62,12 +59,14 @@ export const problems: Problem[] = [
     engDescription: null,
     engHint: null,
     engInputDescription: null,
-    engOutputDescription: null
+    engOutputDescription: null,
+    problemTestcase: []
   }
 ]
 
 export const contestProblems = [
   {
+    id: 1,
     order: 1,
     contestId: 1,
     problemId: 1,
@@ -79,6 +78,7 @@ export const contestProblems = [
     }
   },
   {
+    id: 2,
     order: 2,
     contestId: 1,
     problemId: 2,
@@ -93,6 +93,7 @@ export const contestProblems = [
 
 export const contestProblemsWithScore = [
   {
+    id: 1,
     order: 1,
     contestId: 1,
     problemId: 1,
@@ -106,6 +107,7 @@ export const contestProblemsWithScore = [
     submissionTime: null
   },
   {
+    id: 2,
     order: 2,
     contestId: 1,
     problemId: 2,
