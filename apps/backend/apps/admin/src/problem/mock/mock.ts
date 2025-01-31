@@ -5,6 +5,8 @@ import type {
   WorkbookProblem,
   Contest,
   ContestProblem,
+  Assignment,
+  AssignmentProblem,
   ProblemTag,
   Tag
 } from '@generated'
@@ -548,6 +550,188 @@ export const exampleOrderUpdatedContestProblems: ContestProblem[] = [
   {
     order: 10,
     contestId: 1,
+    problemId: 1,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  }
+]
+
+export const exampleAssignment: Assignment = {
+  id: 1,
+  title: 'example',
+  description: 'example',
+  groupId: 1,
+  createdById: 1,
+  isVisible: true,
+  isRankVisible: true,
+  enableCopyPaste: true,
+  isJudgeResultVisible: true,
+  startTime: new Date(),
+  endTime: new Date(),
+  createTime: new Date(),
+  updateTime: new Date(),
+  invitationCode: '123456'
+}
+export const exampleAssignmentProblems: AssignmentProblem[] = [
+  {
+    order: 1,
+    assignmentId: 1,
+    problemId: 1,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 2,
+    assignmentId: 1,
+    problemId: 2,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 3,
+    assignmentId: 1,
+    problemId: 3,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 4,
+    assignmentId: 1,
+    problemId: 4,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 5,
+    assignmentId: 1,
+    problemId: 5,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 6,
+    assignmentId: 1,
+    problemId: 6,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 7,
+    assignmentId: 1,
+    problemId: 7,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 8,
+    assignmentId: 1,
+    problemId: 8,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 9,
+    assignmentId: 1,
+    problemId: 9,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 10,
+    assignmentId: 1,
+    problemId: 10,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  }
+]
+
+export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
+  {
+    order: 1,
+    assignmentId: 1,
+    problemId: 2,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 2,
+    assignmentId: 1,
+    problemId: 3,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 3,
+    assignmentId: 1,
+    problemId: 4,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 4,
+    assignmentId: 1,
+    problemId: 5,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 5,
+    assignmentId: 1,
+    problemId: 6,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 6,
+    assignmentId: 1,
+    problemId: 7,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 7,
+    assignmentId: 1,
+    problemId: 8,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 8,
+    assignmentId: 1,
+    problemId: 9,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 9,
+    assignmentId: 1,
+    problemId: 10,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 10,
+    assignmentId: 1,
     problemId: 1,
     score: 1,
     createTime: new Date(),
