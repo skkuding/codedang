@@ -1,7 +1,8 @@
-export const contestRecord = {
-  id: 1,
-  acceptedProblemNum: 2,
-  score: 10,
-  totalPenalty: 1,
-  finishTime: new Date()
-}
+import type { ContestRecord } from '@prisma/client'
+
+export const contestRecordsMock: Partial<ContestRecord>[] = [
+  {
+    id: 1,
+    score: 12
+  }
+]

@@ -16,7 +16,6 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
-import { ProblemRepository } from '@client/problem/problem.repository'
 import { Snippet } from '../class/create-submission.dto'
 import { problems } from '../mock/problem.mock'
 import { submissions, submissionDto } from '../mock/submission.mock'
@@ -31,7 +30,7 @@ const db = {
     findUnique: stub(),
     create: stub(),
     update: stub(),
-    count: stub().resolves(1)
+    count: stub()
   },
   submissionResult: {
     create: stub(),
@@ -74,6 +73,8 @@ const mockContest: Contest = {
   groupId: 1,
   title: 'SKKU Coding Platform 모의대회',
   description: 'test',
+  penalty: 20,
+  lastPenalty: false,
   invitationCode: 'test',
   startTime: new Date(),
   endTime: new Date(),
@@ -94,7 +95,6 @@ const USERIP = '127.0.0.1'
 
 describe('SubmissionService', () => {
   let service: SubmissionService
-  let problemRepository: ProblemRepository
   let publish: SubmissionPublicationService
   let cache: Cache
 
@@ -107,10 +107,6 @@ describe('SubmissionService', () => {
         ConfigService,
         TraceService,
         { provide: StorageService, useValue: { readObject: () => [] } },
-        {
-          provide: ProblemRepository,
-          useValue: { hasPassedProblem: () => [] }
-        },
         {
           provide: SubmissionPublicationService,
           useFactory: () => ({ publishJudgeRequestMessage: () => [] })
@@ -130,13 +126,34 @@ describe('SubmissionService', () => {
     }).compile()
 
     service = module.get<SubmissionService>(SubmissionService)
-    problemRepository = module.get<ProblemRepository>(ProblemRepository)
     publish = module.get<SubmissionPublicationService>(
       SubmissionPublicationService
     )
     cache = module.get<Cache>(CACHE_MANAGER)
     stub(cache, 'set').resolves()
     stub(cache, 'get').resolves([])
+  })
+
+  afterEach(() => {
+    db.submission.findMany.resetHistory()
+    db.submission.findFirst.resetHistory()
+    db.submission.findUnique.resetHistory()
+    db.submission.create.resetHistory()
+    db.submission.update.resetHistory()
+    db.submissionResult.create.resetHistory()
+    db.submissionResult.createMany.resetHistory()
+    db.submissionResult.updateMany.resetHistory()
+    db.problem.findFirst.resetHistory()
+    db.problem.findUnique.resetHistory()
+    db.problem.update.resetHistory()
+    db.problemTestcase.findMany.resetHistory()
+    db.contest.findFirst.resetHistory()
+    db.contestProblem.findUnique.resetHistory()
+    db.contestProblem.findFirst.resetHistory()
+    db.workbookProblem.findUnique.resetHistory()
+    db.contestRecord.findUnique.resetHistory()
+    db.contestRecord.update.resetHistory()
+    db.user.findFirst.resetHistory()
   })
 
   it('should be defined', () => {
@@ -390,6 +407,7 @@ describe('SubmissionService', () => {
     it('should return submissions', async () => {
       db.problem.findFirst.resolves(problems[0])
       db.submission.findMany.resolves(submissions)
+      db.submission.count.resolves(1)
 
       expect(
         await service.getSubmissions({ problemId: problems[0].id })
@@ -417,7 +435,6 @@ describe('SubmissionService', () => {
         }
       })
 
-      const passSpy = spy(problemRepository, 'hasPassedProblem')
       db.problem.findFirst.resolves(problems[0])
       db.submission.findFirst.resolves({
         ...submissions[0],
@@ -448,7 +465,6 @@ describe('SubmissionService', () => {
         result: submissions[0].result,
         testcaseResult
       })
-      expect(passSpy.called).to.be.false
     })
 
     it('should throw exception if problem is not found', async () => {
@@ -483,11 +499,9 @@ describe('SubmissionService', () => {
     })
 
     it("should throw exception if submission is not user's and user has not passed this problem", async () => {
-      const passSpy = stub(problemRepository, 'hasPassedProblem').resolves(
-        false
-      )
       db.problem.findFirst.resolves(problems[0])
       db.submission.findFirst.resolves({ ...submissions[0], userId: 2 })
+      db.submission.count.resolves(0)
 
       await expect(
         service.getSubmission({
@@ -499,7 +513,6 @@ describe('SubmissionService', () => {
           contestId: null
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
-      expect(passSpy.calledOnce).to.be.true
     })
   })
 
@@ -521,6 +534,7 @@ describe('SubmissionService', () => {
       db.contestRecord.findUnique.resolves({})
       db.contestProblem.findFirst.resolves({})
       db.submission.findMany.resolves(submissions)
+      db.submission.count.resolves(1)
       db.contest.findFirst.resolves({ isJudgeResultVisible: true })
 
       expect(

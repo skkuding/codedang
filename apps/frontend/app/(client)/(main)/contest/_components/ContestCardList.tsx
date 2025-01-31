@@ -12,44 +12,28 @@ import type { Route } from 'next'
 import type { Session } from 'next-auth'
 import Link from 'next/link'
 
-const getContests = async () => {
+const getContests = async (session?: Session | null) => {
+  const fetcherFn = session ? fetcherWithAuth : fetcher
   const data: {
     ongoing: Contest[]
     upcoming: Contest[]
-  } = await fetcher.get('contest/ongoing-upcoming').json()
+  } = await fetcherFn.get('contest').json()
+
   data.ongoing.forEach((contest) => {
-    contest.status = 'ongoing'
+    if (contest.isRegistered) {
+      contest.status = 'registeredOngoing'
+    } else {
+      contest.status = 'ongoing'
+    }
   })
   data.upcoming.forEach((contest) => {
-    contest.status = 'upcoming'
+    if (contest.isRegistered) {
+      contest.status = 'registeredUpcoming'
+    } else {
+      contest.status = 'upcoming'
+    }
   })
   return data.ongoing.concat(data.upcoming)
-}
-
-const getRegisteredContests = async () => {
-  const data: {
-    registeredOngoing: Contest[]
-    registeredUpcoming: Contest[]
-    ongoing: Contest[]
-    upcoming: Contest[]
-  } = await fetcherWithAuth
-    .get('contest/ongoing-upcoming-with-registered')
-    .json()
-  data.registeredOngoing.forEach((contest) => {
-    contest.status = 'registeredOngoing'
-  })
-  data.registeredUpcoming.forEach((contest) => {
-    contest.status = 'registeredUpcoming'
-  })
-  data.ongoing.forEach((contest) => {
-    contest.status = 'ongoing'
-  })
-  data.upcoming.forEach((contest) => {
-    contest.status = 'upcoming'
-  })
-  return data.ongoing.concat(
-    data.upcoming.concat(data.registeredOngoing.concat(data.registeredUpcoming))
-  )
 }
 
 type ItemsPerSlide = 2 | 3
@@ -117,9 +101,7 @@ export async function ContestCardList({
   title: string
   session?: Session | null
 }) {
-  const data = (
-    session ? await getRegisteredContests() : await getContests()
-  ).filter(
+  const data = (await getContests(session)).filter(
     (contest) =>
       contest.status.toLowerCase() === `registered${type.toLowerCase()}` ||
       contest.status.toLowerCase() === type.toLowerCase()
