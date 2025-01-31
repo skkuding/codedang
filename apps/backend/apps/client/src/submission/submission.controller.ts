@@ -44,6 +44,15 @@ export class SubmissionController {
     @Query('assignmentId', IDValidationPipe) assignmentId: number | null,
     @Query('workbookId', IDValidationPipe) workbookId: number | null
   ) {
+    const idCount =
+      (contestId ? 1 : 0) + (assignmentId ? 1 : 0) + (workbookId ? 1 : 0)
+
+    if (idCount > 1) {
+      throw new UnprocessableDataException(
+        'Only one of contestId, assignmentId, workbookId can be provided.'
+      )
+    }
+
     if (!contestId && !workbookId && !assignmentId) {
       return await this.submissionService.submitToProblem({
         submissionDto,
