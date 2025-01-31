@@ -501,6 +501,7 @@ describe('SubmissionSubscriptionService', () => {
             userId: true,
             contestId: true,
             assignmentId: true,
+            createTime: true,
             updateTime: true,
             submissionResult: {
               select: {
