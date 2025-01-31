@@ -23,9 +23,9 @@ data "aws_iam_policy_document" "testcase_permissions" {
     }
 
     condition {
-      test     = "IpAddress"
-      variable = "AWS:SourceIp"
-      values   = [data.aws_eip.nat.public_ip]
+      test     = "StringEquals"
+      variable = "aws:sourceVpce"
+      values   = [aws_vpc_endpoint.s3_endpoint.id]
     }
   }
 }
