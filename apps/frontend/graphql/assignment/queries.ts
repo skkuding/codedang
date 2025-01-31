@@ -30,32 +30,33 @@ const GET_ASSIGNMENTS = gql(`
   }
 `)
 
-const GET_BELONGED_ASSIGNMENTS =
-  gql(`query GetAssignmentsByProblemId($problemId: Int!) {
-  getAssignmentsByProblemId(problemId: $problemId) {
-    upcoming {
-      id
-      title
-      problemScore
-      totalScore
-    }
-    ongoing {
-      id
-      title
-      problemScore
-      totalScore
-    }
-    finished {
-      id
-      title
-      problemScore
-      totalScore
+const GET_BELONGED_ASSIGNMENTS = gql(`
+  query GetAssignmentsByProblemId($problemId: Int!) {
+    getAssignmentsByProblemId(problemId: $problemId) {
+      upcoming {
+        id
+        title
+        problemScore
+        totalScore
+      }
+      ongoing {
+        id
+        title
+        problemScore
+        totalScore
+      }
+      finished {
+        id
+        title
+        problemScore
+        totalScore
+      }
     }
   }
-}`)
+`)
 
-const GET_ASSIGNMENT_SCORE_SUMMARIES =
-  gql(`query GetAssignmentScoreSummaries($assignmentId: Int!, $take: Int!) {
+const GET_ASSIGNMENT_SCORE_SUMMARIES = gql(`
+  query GetAssignmentScoreSummaries($assignmentId: Int!, $take: Int!) {
     getAssignmentScoreSummaries(
       assignmentId: $assignmentId,
       take: $take
@@ -75,37 +76,39 @@ const GET_ASSIGNMENT_SCORE_SUMMARIES =
       realName
       major
     }
-  }`)
+  }
+`)
 
-const GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER =
-  gql(`query getAssignmentSubmissionSummariesByUserId($assignmentId: Int!, $userId: Int!, $take: Int!) {
-  getAssignmentSubmissionSummaryByUserId(assignmentId: $assignmentId, userId: $userId, take: $take) {
-    scoreSummary {
-      assignmentPerfectScore
-      problemScores {
-        problemId
-        score
+const GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER = gql(`
+  query getAssignmentSubmissionSummariesByUserId($assignmentId: Int!, $userId: Int!, $take: Int!) {
+    getAssignmentSubmissionSummaryByUserId(assignmentId: $assignmentId, userId: $userId, take: $take) {
+      scoreSummary {
+        assignmentPerfectScore
+        problemScores {
+          problemId
+          score
+        }
+        submittedProblemCount
+        totalProblemCount
+        userAssignmentScore
       }
-      submittedProblemCount
-      totalProblemCount
-      userAssignmentScore
-    }
-    submissions {
-      assignmentId
-      problemTitle
-      studentId
-      username
-      submissionResult
-      language
-      submissionTime
-      codeSize
-      problemId
-      ip
-      order
-      id
+      submissions {
+        assignmentId
+        problemTitle
+        studentId
+        username
+        submissionResult
+        language
+        submissionTime
+        codeSize
+        problemId
+        ip
+        order
+        id
+      }
     }
   }
-}`)
+`)
 
 export {
   GET_ASSIGNMENT,

@@ -13,31 +13,6 @@ export const createColumns = (
   setProblems: React.Dispatch<React.SetStateAction<AssignmentProblem[]>>,
   disableInput: boolean
 ): ColumnDef<AssignmentProblem>[] => [
-  // {
-  //   id: 'select',
-  //   header: ({ table }) => (
-  //     <Checkbox
-  //       checked={
-  //         table.getIsAllPageRowsSelected() ||
-  //         (table.getIsSomePageRowsSelected() && 'indeterminate')
-  //       }
-  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-  //       aria-label="Select all"
-  //       className="translate-y-[2px] bg-white"
-  //     />
-  //   ),
-  //   cell: ({ row }) => (
-  //     <Checkbox
-  //       onClick={(e) => e.stopPropagation()}
-  //       checked={row.getIsSelected()}
-  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-  //       aria-label="Select row"
-  //       className="translate-y-[2px] bg-white"
-  //     />
-  //   ),
-  //   enableSorting: false,
-  //   enableHiding: false
-  // },
   {
     accessorKey: 'title',
     header: () => <p className="w-[350px] text-left text-sm">Title</p>,

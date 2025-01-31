@@ -21,8 +21,7 @@ interface AssignmentTableProps {
 const headerStyle = {
   select: '',
   title: 'w-3/5',
-  startTime: 'px-0 w-1/5',
-  participants: 'px-0 w-1/12',
+  startTime: 'px-0 w-2/5',
   isVisible: 'px-0 w-1/12'
 }
 
