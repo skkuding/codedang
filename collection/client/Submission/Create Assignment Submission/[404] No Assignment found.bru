@@ -1,18 +1,18 @@
 meta {
-  name: Succeed: Contest(WA)
+  name: [404] No Assignment found
   type: http
-  seq: 2
+  seq: 5
 }
 
 post {
-  url: {{baseUrl}}/submission?problemId=1&contestId=1
+  url: {{baseUrl}}/submission?problemId=1&assignmentId=999
   body: json
   auth: none
 }
 
 query {
   problemId: 1
-  contestId: 1
+  assignmentId: 999
   ~groupId: 1
   ~workbookId: 1
 }
@@ -31,18 +31,9 @@ body:json {
 }
 
 assert {
-  res.body.id: isNumber
-  res.body.userId: isNumber
-  res.body.problemId: isNumber
-  res.body.contestId: isNumber
-  res.body.workbookId: isNull
-  res.body.code: isArray
-  res.body.code[0]: isJson
-  res.body.codeSize: isNumber
-  res.body.language: isString
-  res.body.result: isString
-  res.body.createTime: isString
-  res.body.updateTime: isString
+  res.body.message: eq "No Assignment found"
+  res.body.error: eq "Not Found"
+  res.body.statusCode: eq 404
 }
 
 script:pre-request {
@@ -50,9 +41,9 @@ script:pre-request {
 }
 
 docs {
-  ## Create Submission (WA)
+  ## [404] No Assignment found
 
-  `Contest`에 WA 판정을 받는 코드를 제출하여, 채점 요청을 보냅니다.
+  존재하지 `Assignment`에 Submission을 제출합니다.
 
   ### Query
 
@@ -62,7 +53,7 @@ docs {
   |-----|-----|-----|
   |problemId *|Integer|문제 ID|
   |groupId|Integer|문제가 속한 Group ID (default: 1)|
-  |contestId|Integer|문제가 속한 대회 ID|
+  |assignmentId|Integer|문제가 속한 과제 ID|
   |workbookId|Integer|문제가 속한 문제집 ID|
 
 }

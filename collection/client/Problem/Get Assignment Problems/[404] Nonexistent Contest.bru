@@ -1,0 +1,26 @@
+meta {
+  name: [404] Nonexistent Assignment
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/assignment/999/problem?take=5
+  body: none
+  auth: none
+}
+
+query {
+  take: 5
+  ~cursor: 4
+  ~groupId: 2
+}
+
+assert {
+  res.status: eq 404
+  res.body.message: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}

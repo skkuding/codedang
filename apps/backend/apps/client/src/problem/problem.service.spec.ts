@@ -11,6 +11,7 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { AssignmentService } from '@client/assignment/assignment.service'
 import { ContestService } from '@client/contest/contest.service'
 import { GroupService } from '@client/group/group.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
@@ -20,6 +21,7 @@ import { _ProblemsResponseDto } from './dto/problems.response.dto'
 import { _RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { _RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import {
+  assignmentProblems,
   contestProblems,
   problemTag,
   problems,
@@ -28,10 +30,12 @@ import {
   mockTemplate,
   tag,
   mockCodeDraft,
-  contestProblemsWithScore
+  contestProblemsWithScore,
+  assignmentProblemsWithScore
 } from './mock/problem.mock'
 import {
   ContestProblemService,
+  AssignmentProblemService,
   ProblemService,
   CodeDraftService,
   WorkbookProblemService
@@ -49,6 +53,11 @@ const db = {
     findUniqueOrThrow: stub(),
     count: stub().resolves(2)
   },
+  assignmentProblem: {
+    findMany: stub(),
+    findUniqueOrThrow: stub(),
+    count: stub().resolves(2)
+  },
   workbookProblem: {
     findMany: stub(),
     findUniqueOrThrow: stub(),
@@ -61,6 +70,9 @@ const db = {
     findMany: stub()
   },
   contest: {
+    findUniqueOrThrow: stub()
+  },
+  assignment: {
     findUniqueOrThrow: stub()
   },
   user: {
@@ -98,6 +110,7 @@ const problemId = ARBITRARY_VAL
 const groupId = ARBITRARY_VAL
 const userId = ARBITRARY_VAL
 const contestId = ARBITRARY_VAL
+const assignmentId = ARBITRARY_VAL
 const workbookId = ARBITRARY_VAL
 const mockProblem = Object.assign({}, problems[0])
 const mockProblems = problems.map((problem) => {
@@ -129,6 +142,29 @@ const mockContestProblemsWithScore = contestProblemsWithScore.map(
       ...contestProblem,
       problem: Object.assign({}, mockProblems[0]),
       contest: {
+        startTime: new Date()
+      },
+      maxScore: 0,
+      submissionTime: null
+    }
+  }
+)
+
+const mockAssignmentProblem = {
+  ...Object.assign({}, assignmentProblems[0]),
+  problem: Object.assign({ tags: [tag] }, mockProblems[0])
+}
+
+const mockAssignmentProblems = assignmentProblems.map((assignmentProblem) => {
+  return { ...assignmentProblem, problem: Object.assign({}, mockProblems[0]) }
+})
+
+const mockAssignmentProblemsWithScore = assignmentProblemsWithScore.map(
+  (assignmentProblem) => {
+    return {
+      ...assignmentProblem,
+      problem: Object.assign({}, mockProblems[0]),
+      assignment: {
         startTime: new Date()
       },
       maxScore: 0,
@@ -526,6 +562,285 @@ describe('ContestProblemService', () => {
       await expect(
         service.getContestProblem({
           contestId,
+          problemId,
+          userId,
+          groupId: OPEN_SPACE_ID
+        })
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+  })
+})
+
+describe('AssignmentProblemService', () => {
+  let service: AssignmentProblemService
+  let assignmentService: AssignmentService
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AssignmentProblemService,
+        AssignmentService,
+        GroupService,
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => []
+          })
+        },
+        { provide: PrismaService, useValue: db }
+      ]
+    }).compile()
+
+    service = module.get<AssignmentProblemService>(AssignmentProblemService)
+    assignmentService = module.get<AssignmentService>(AssignmentService)
+  })
+
+  afterEach(() => {
+    db.assignmentProblem.findMany.reset()
+    db.assignmentProblem.findUniqueOrThrow.reset()
+    db.submission.findMany.reset()
+  })
+
+  it('should be defined', () => {
+    expect(service).to.be.ok
+  })
+
+  it('should be defined', () => {
+    expect(assignmentService).to.be.ok
+  })
+
+  describe('getAssignmentProblems', () => {
+    it('should return public assignment problems', async () => {
+      // given
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        isRegistered: true,
+        invitationCodeExists: true,
+        isJudgeResultVisible: true
+      })
+      db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
+      db.submission.findMany.resolves([])
+
+      // when
+      const result = await service.getAssignmentProblems({
+        assignmentId,
+        userId,
+        cursor: 1,
+        take: 1,
+        groupId: OPEN_SPACE_ID // 명시적 전달
+      })
+
+      // then
+      expect(result).to.deep.equal(
+        // Deprecated
+        plainToInstance(_RelatedProblemsResponseDto, {
+          data: mockAssignmentProblemsWithScore,
+          total: mockAssignmentProblemsWithScore.length
+        })
+      )
+    })
+
+    it('should return group assignment problems', async () => {
+      // given
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        isRegistered: true,
+        invitationCodeExists: true,
+        isJudgeResultVisible: true
+      })
+      db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
+      db.submission.findMany.resolves([])
+
+      // when
+      const result = await service.getAssignmentProblems({
+        assignmentId,
+        userId,
+        cursor: 1,
+        take: 1,
+        groupId: OPEN_SPACE_ID // 명시적 전달
+      })
+
+      // then
+      expect(result).to.deep.equal(
+        // Deprecated
+        plainToInstance(_RelatedProblemsResponseDto, {
+          data: mockAssignmentProblemsWithScore,
+          total: mockAssignmentProblemsWithScore.length
+        })
+      )
+    })
+
+    it('should throw PrismaClientKnownRequestError when the assignment is not visible', async () => {
+      // given
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.rejects(prismaNotFoundError)
+
+      // then
+      await expect(
+        service.getAssignmentProblems({
+          assignmentId,
+          userId,
+          cursor: 1,
+          take: 1,
+          groupId: OPEN_SPACE_ID // 명시적 전달
+        })
+      ).to.be.rejectedWith(prismaNotFoundError)
+    })
+
+    it('should throw ForbiddenAccessException when the user is registered but assignment is not started', async () => {
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.resolves({
+        startTime: faker.date.future(),
+        endTime: faker.date.future(),
+        isRegistered: true,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true
+      })
+      db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
+
+      await expect(
+        service.getAssignmentProblems({
+          assignmentId,
+          userId,
+          cursor: 1,
+          take: 1,
+          groupId: OPEN_SPACE_ID // 명시적 전달
+        })
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+
+    it('should throw ForbiddenAccessException when the user is not registered and assignment is not ended', async () => {
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        isRegistered: false,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true
+      })
+      db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
+
+      await expect(
+        service.getAssignmentProblems({
+          assignmentId,
+          userId,
+          cursor: 1,
+          take: 1,
+          groupId: OPEN_SPACE_ID // 명시적 전달
+        })
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+  })
+
+  describe('getAssignmentProblem', () => {
+    it('should return the public assignment problem', async () => {
+      // given
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        isRegistered: true,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true
+      })
+      db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
+
+      // when
+      const result = await service.getAssignmentProblem({
+        assignmentId,
+        problemId,
+        userId,
+        groupId: OPEN_SPACE_ID
+      })
+
+      // then
+      expect(result).to.be.deep.equal(
+        // Deprecated
+        plainToInstance(_RelatedProblemResponseDto, mockAssignmentProblem)
+      )
+    })
+
+    it('should return the group assignment problem', async () => {
+      // given
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        isRegistered: true,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true
+      })
+      db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
+
+      // when
+      const result = await service.getAssignmentProblem({
+        assignmentId,
+        problemId,
+        userId,
+        groupId: OPEN_SPACE_ID
+      })
+
+      // then
+      expect(result).to.be.deep.equal(
+        // Deprecated
+        plainToInstance(_RelatedProblemResponseDto, mockAssignmentProblem)
+      )
+    })
+
+    it('should throw PrismaClientKnownRequestError when the assignment is not visible', async () => {
+      // given
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.rejects(prismaNotFoundError)
+
+      // then
+      await expect(
+        service.getAssignmentProblem({
+          assignmentId,
+          problemId,
+          userId,
+          groupId: OPEN_SPACE_ID
+        })
+      ).to.be.rejectedWith(prismaNotFoundError)
+    })
+
+    it('should throw ForbiddenAccessException when the user is registered but assignment is not started', async () => {
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.resolves({
+        startTime: faker.date.future(),
+        endTime: faker.date.future(),
+        isRegistered: true,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true
+      })
+      db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
+      await expect(
+        service.getAssignmentProblem({
+          assignmentId,
+          problemId,
+          userId,
+          groupId: OPEN_SPACE_ID
+        })
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+
+    it('should throw ForbiddenAccessException when the user is not registered and assignment is not ended', async () => {
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        isRegistered: false,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true
+      })
+      db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
+      await expect(
+        service.getAssignmentProblem({
+          assignmentId,
           problemId,
           userId,
           groupId: OPEN_SPACE_ID

@@ -3,7 +3,8 @@ import { expect } from 'chai'
 import { RolesService } from '@libs/auth'
 import {
   SubmissionController,
-  ContestSubmissionController
+  ContestSubmissionController,
+  AssignmentSubmissionController
 } from '../submission.controller'
 import { SubmissionService } from '../submission.service'
 
@@ -41,6 +42,28 @@ describe('ContestSubmissionController', () => {
 
     controller = module.get<ContestSubmissionController>(
       ContestSubmissionController
+    )
+  })
+
+  it('should be defined', () => {
+    expect(controller).to.be.ok
+  })
+})
+
+describe('AssignmentSubmissionController', () => {
+  let controller: AssignmentSubmissionController
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [AssignmentSubmissionController],
+      providers: [
+        { provide: SubmissionService, useValue: {} },
+        { provide: RolesService, useValue: {} }
+      ]
+    }).compile()
+
+    controller = module.get<AssignmentSubmissionController>(
+      AssignmentSubmissionController
     )
   })
 

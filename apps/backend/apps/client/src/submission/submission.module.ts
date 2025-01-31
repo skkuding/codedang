@@ -10,7 +10,8 @@ import { SubmissionPublicationService } from './submission-pub.service'
 import { SubmissionSubscriptionService } from './submission-sub.service'
 import {
   ContestSubmissionController,
-  SubmissionController
+  SubmissionController,
+  AssignmentSubmissionController
 } from './submission.controller'
 import { SubmissionService } from './submission.service'
 
@@ -54,7 +55,11 @@ import { SubmissionService } from './submission.service'
     RolesModule,
     ProblemModule
   ],
-  controllers: [SubmissionController, ContestSubmissionController],
+  controllers: [
+    SubmissionController,
+    ContestSubmissionController,
+    AssignmentSubmissionController
+  ],
   providers: [
     SubmissionService,
     SubmissionPublicationService,

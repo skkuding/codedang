@@ -3,21 +3,17 @@ import {
   Injectable,
   type PipeTransform
 } from '@nestjs/common'
-import { ContestSubmissionOrder } from '@admin/submission/enum/contest-submission-order.enum'
+import { SubmissionOrder } from '@admin/submission/enum/submission-order.enum'
 
 @Injectable()
-export class ContestSubmissionOrderPipe implements PipeTransform {
+export class SubmissionOrderPipe implements PipeTransform {
   transform(value: unknown) {
     if (!value) {
       return null
     } else if (
-      !Object.values(ContestSubmissionOrder).includes(
-        value as ContestSubmissionOrder
-      )
+      !Object.values(SubmissionOrder).includes(value as SubmissionOrder)
     ) {
-      throw new BadRequestException(
-        'Contest-submission-order validation failed'
-      )
+      throw new BadRequestException('Submission-order validation failed')
     }
     return value
   }

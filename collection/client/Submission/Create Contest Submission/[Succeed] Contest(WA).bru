@@ -1,7 +1,7 @@
 meta {
-  name: Succeed: Contest(AC)
+  name: [Succeed] Contest(WA)
   type: http
-  seq: 4
+  seq: 2
 }
 
 post {
@@ -22,7 +22,7 @@ body:json {
     "code": [
       {
         "id": 1,
-        "text": "#include <stdio.h>\nint main() { int a, b; scanf(\"%d%d\", &a, &b); printf(\"%d\\n\", a + b);}",
+        "text": "#include <stdio.h>\nint main() { int a, b; scanf(\"%d%d\", &a, &b); printf(\"%d\\n\", a - b);}",
         "locked": false
       }
     ],
@@ -50,9 +50,9 @@ script:pre-request {
 }
 
 docs {
-  ## Create Submission (AC)
+  ## Create Submission (WA)
 
-  `Contest`에 AC 판정을 받는 코드를 제출하여, 채점 요청을 보냅니다.
+  `Contest`에 WA 판정을 받는 코드를 제출하여, 채점 요청을 보냅니다.
 
   ### Query
 
@@ -65,9 +65,4 @@ docs {
   |contestId|Integer|문제가 속한 대회 ID|
   |workbookId|Integer|문제가 속한 문제집 ID|
 
-  ### Error Case
-
-  #### 404: No Contest found
-
-  현재 진행 중이지 않는 `Contest`에 `Submission`을 Create하려는 경우
 }
