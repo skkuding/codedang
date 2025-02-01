@@ -21,6 +21,7 @@ export class RolesGuard implements CanActivate {
     Object.keys(Role).forEach((key, index) => {
       this.#rolesHierarchy[key] = index
     })
+    this.#rolesHierarchy[Role.ContestAdmin] = this.#rolesHierarchy[Role.Manager]
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -42,7 +43,10 @@ export class RolesGuard implements CanActivate {
       const userRole = (await this.service.getUserRole(user.id)).role
       user.role = userRole
     }
-    if (this.#rolesHierarchy[user.role] >= this.#rolesHierarchy[role]) {
+    if (user.role === role) {
+      return true
+    }
+    if (this.#rolesHierarchy[user.role] > this.#rolesHierarchy[role]) {
       return true
     }
     return false

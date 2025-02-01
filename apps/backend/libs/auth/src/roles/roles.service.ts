@@ -25,4 +25,16 @@ export class RolesService {
       }
     })
   }
+
+  async getUserContest(userId: number, contestId: number) {
+    return await this.prisma.userContest.findFirst({
+      where: {
+        userId,
+        contestId
+      },
+      select: {
+        role: true
+      }
+    })
+  }
 }
