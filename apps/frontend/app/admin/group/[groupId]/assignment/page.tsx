@@ -22,7 +22,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
           <p className="text-lg text-slate-500">Here&apos;s a list you made</p>
         </div>
         <Button variant="default" asChild>
-          <Link href={`/admin/group/${groupId}/assignment/create` as Route}>
+          <Link href={`/admin/group/${groupId}/assignment/create` as const}>
             <PlusCircleIcon className="mr-2 h-4 w-4" />
             Create
           </Link>

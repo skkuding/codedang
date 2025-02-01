@@ -29,7 +29,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
       <ScrollArea className="w-full">
         <main className="flex flex-col gap-6 px-20 py-16">
           <div className="flex items-center gap-4">
-            <Link href={`/admin/group/${groupId}/assignment` as Route}>
+            <Link href={`/admin/group/${groupId}/assignment` as const}>
               <FaAngleLeft className="h-12" />
             </Link>
             <span className="text-4xl font-bold">Create Assignment</span>

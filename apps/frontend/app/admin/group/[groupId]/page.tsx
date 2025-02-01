@@ -29,7 +29,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
           </Link>
           <span className="text-4xl font-bold">{group.groupName}</span>
         </div>
-        <Link href={`/admin/group/${groupId}/edit` as Route}>
+        <Link href={`/admin/group/${groupId}/edit` as const}>
           <Button variant="default">
             <FaPencil className="mr-2 h-4 w-4" />
             Edit

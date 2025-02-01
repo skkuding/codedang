@@ -44,7 +44,7 @@ export function GroupTable() {
       </div>
       <DataTable
         headerStyle={headerStyle}
-        getHref={(data) => `/admin/group/${data.id}` as Route}
+        getHref={(data) => `/admin/group/${data.id}` as const}
       />
       <DataTablePagination />
     </DataTableRoot>

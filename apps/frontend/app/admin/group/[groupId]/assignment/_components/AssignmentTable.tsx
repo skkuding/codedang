@@ -48,12 +48,7 @@ export function AssignmentTable({ groupId }: AssignmentTableProps) {
         <DataTableSearchBar columndId="title" />
         <AssignmentsDeleteButton />
       </div>
-      <DataTable
-        headerStyle={headerStyle}
-        getHref={(data) =>
-          `/admin/group/${groupId}/assignment/${data.id}` as Route
-        }
-      />
+      <DataTable headerStyle={headerStyle} />
       <DataTablePagination showSelection />
     </DataTableRoot>
   )

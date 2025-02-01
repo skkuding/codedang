@@ -114,7 +114,7 @@ export function CreateAssignmentForm({
 
     setShouldSkipWarning(true)
     toast.success('Assignment created successfully')
-    router.push(`/admin/group/${groupId}/assignment` as Route)
+    router.push(`/admin/group/${groupId}/assignment` as const)
     router.refresh()
   }
 

@@ -23,7 +23,7 @@ export function GroupLink() {
       )}
     >
       <Link
-        href={'/admin/group/' as Route}
+        href="/admin/group"
         className={cn(
           'rounded px-4 py-2 transition',
           pathname === '/admin/group'
@@ -36,7 +36,7 @@ export function GroupLink() {
       </Link>
       {data?.getGroups.map((group) => (
         <Link
-          href={`/admin/group/${group.id}` as Route}
+          href={`/admin/group/${group.id}` as const}
           key={group.id}
           className={cn(
             'rounded py-2 pl-8 pr-4 transition',
