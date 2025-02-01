@@ -20,7 +20,11 @@ export function PostHogProvider({ children, bootstrap }: PostHogProviderProps) {
   const KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY
   const HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST
 
-  if (KEY && typeof window !== 'undefined') {
+  if (
+    KEY &&
+    typeof window !== 'undefined' &&
+    process.env.NODE_ENV !== 'development'
+  ) {
     posthog.init(KEY, {
       api_host: HOST,
       bootstrap, // Remove a delay between initializing PostHog and fetching feature flags
