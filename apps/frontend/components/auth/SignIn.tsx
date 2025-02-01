@@ -39,7 +39,6 @@ export function SignIn() {
         password: data.password,
         redirect: false
       })
-
       if (!res?.error) {
         router.refresh()
         hideModal()
