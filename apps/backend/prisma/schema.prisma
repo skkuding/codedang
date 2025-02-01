@@ -56,13 +56,13 @@ model User {
   assignment       Assignment[]
   assignmentRecord AssignmentRecord[]
   contest          Contest[]
+  userContest      UserContest[]
   contestRecord    ContestRecord[]
   workbook         Workbook[]
   submission       Submission[]
   useroauth        UserOAuth?
   CodeDraft        CodeDraft[]
   Image            Image[]
-  ContestUser      ContestUser[]
 
   @@map("user")
 }
@@ -356,7 +356,7 @@ model Contest {
   contestRecord  ContestRecord[]
   submission     Submission[]
   announcement   Announcement[]
-  ContestUser    ContestUser[]
+  userContest    UserContest[]
 
   @@map("contest")
 }
@@ -368,14 +368,16 @@ enum ContestRole {
   Admin
 }
 
-model ContestUser {
-  id        String      @id @default(uuid())
+model UserContest {
   userId    Int
   contestId Int
   role      ContestRole
 
   user    User    @relation(fields: [userId], references: [id])
   contest Contest @relation(fields: [contestId], references: [id])
+
+  @@id([userId, contestId])
+  @@map("user_contest")
 }
 
 model ContestProblem {
