@@ -1,15 +1,15 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
-import { Separator } from '@/components/shadcn/separator'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
 import { ErrorBoundary } from '@suspensive/react'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { SearchBar } from '../_components/SearchBar'
-import { ContestCardList } from './_components/ContestCardList'
-import { FinishedContestTable } from './_components/FinishedContestTable'
-import { RegisteredContestTable } from './_components/RegisteredContestTable'
-import { TableSwitchButton } from './_components/TableSwitchButton'
+import { ContestFeatureList } from './_components/ContestFeatureList'
+import { ContestMainCover } from './_components/ContestMainCover'
+import { ContestMainTable } from './_components/ContestMainTable'
+import { ContestSubBanner } from './_components/ContestSubBanner'
+import { ContestTitleFilter } from './_components/ContestTitleFilter'
 
 interface ContestProps {
   searchParams: {
@@ -17,7 +17,6 @@ interface ContestProps {
     search: string
   }
 }
-
 function ContestCardListFallback() {
   return (
     <div>
@@ -29,7 +28,6 @@ function ContestCardListFallback() {
     </div>
   )
 }
-
 function FinishedContestTableFallback() {
   return (
     <div>
@@ -54,7 +52,6 @@ function FinishedContestTableFallback() {
     </div>
   )
 }
-
 export default async function Contest({ searchParams }: ContestProps) {
   const session = await auth()
   const registered = searchParams.registered === 'true'
@@ -65,51 +62,33 @@ export default async function Contest({ searchParams }: ContestProps) {
 
   return (
     <>
-      <div className="mb-12 flex flex-col gap-12">
-        <ErrorBoundary fallback={FetchErrorFallback}>
-          <Suspense fallback={<ContestCardListFallback />}>
-            <ContestCardList
-              title="Join the contest now!"
-              type="Ongoing"
-              session={session}
-            />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary fallback={FetchErrorFallback}>
-          <Suspense fallback={<ContestCardListFallback />}>
-            <ContestCardList
-              title="Check out upcoming contests"
-              type="Upcoming"
-              session={session}
-            />
-          </Suspense>
-        </ErrorBoundary>
-      </div>
-      <div className="flex-col">
-        <h1 className="mb-6 text-2xl font-bold text-gray-700">
-          List of Contests
-        </h1>
+      <ContestMainCover />
 
-        <Suspense fallback={<FinishedContestTableFallback />}>
-          {session ? (
-            <TableSwitchButton registered={registered} />
-          ) : (
-            <p className="text-primary-light border-primary-light w-fit border-b-2 p-6 text-xl font-bold md:text-2xl">
-              Finished
-            </p>
-          )}
-          <Separator className="mb-3" />
-          <ErrorBoundary fallback={FetchErrorFallback}>
-            <div className="flex justify-end py-8">
-              <SearchBar className="w-60" />
-            </div>
-            {session && registered ? (
-              <RegisteredContestTable search={search} />
-            ) : (
-              <FinishedContestTable search={search} session={session} />
-            )}
-          </ErrorBoundary>
+      <ErrorBoundary fallback={FetchErrorFallback}>
+        <Suspense fallback={<ContestCardListFallback />}>
+          <ContestFeatureList title={`WHAT'S FUNCTION OF CONTEST?`} />
         </Suspense>
+      </ErrorBoundary>
+
+      <ContestSubBanner />
+
+      <div className="mb-12 mt-[101px] flex w-full flex-col gap-12">
+        <div className="flex-col">
+          <Suspense fallback={<FinishedContestTableFallback />}>
+            <ErrorBoundary fallback={FetchErrorFallback}>
+              <div className="mb-11 flex justify-between">
+                <h1 className="text-2xl font-semibold text-gray-700">
+                  CONTEST LIST
+                </h1>
+                <div className="flex gap-4">
+                  <SearchBar className="w-60" />
+                  <ContestTitleFilter />
+                </div>
+              </div>
+              <ContestMainTable search={search} session={session} />
+            </ErrorBoundary>
+          </Suspense>
+        </div>
       </div>
     </>
   )
