@@ -406,7 +406,7 @@ export class ContestService {
         freezeTime: true
       }
     })
-    const isFreezed =
+    const isFrozen =
       contest?.freezeTime != null && new Date() >= contest.freezeTime
 
     const sum = await this.prisma.contestProblem.aggregate({
@@ -420,6 +420,8 @@ export class ContestService {
     })
     const maxScore = sum._sum?.score ?? 0
 
+    const scoreColumn = isFrozen ? 'score' : 'finalScore'
+    const totalPenaltyColumn = isFrozen ? 'finalTotalPenalty' : 'totalPenalty'
     const contestRecords = await this.prisma.contestRecord.findMany({
       where: {
         contestId
@@ -457,14 +459,8 @@ export class ContestService {
         }
       },
       orderBy: [
-        {
-          ...(isFreezed ? { score: 'desc' } : { finalScore: 'desc' })
-        },
-        {
-          ...(isFreezed
-            ? { finalTotalPenalty: 'asc' }
-            : { totalPenalty: 'asc' })
-        },
+        { [scoreColumn]: 'desc' },
+        { [totalPenaltyColumn]: 'asc' },
         {
           lastAcceptedTime: 'asc'
         }
@@ -514,7 +510,7 @@ export class ContestService {
           order: contestProblem.order,
           problemId: contestProblem.problem.id,
           // TODO: last penalty를 사용할 때는 어떻게 할지 고민해보기
-          penalty: isFreezed
+          penalty: isFrozen
             ? submitCountPenalty + timePenalty
             : finalScore + finalSubmitCountPenalty + finalTimePenalty,
           submissionCount:
