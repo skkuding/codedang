@@ -24,6 +24,7 @@ datasource db {
 enum Role {
   User
   Manager
+  ContestAdmin
   Admin
   SuperAdmin
 }
@@ -364,6 +365,7 @@ enum ContestRole {
   Participant
   Reviewer
   Manager
+  Admin
 }
 
 model ContestUser {
