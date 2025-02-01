@@ -361,6 +361,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         startTime: true,
         penalty: true,
         lastPenalty: true,
+        freezeTime: true,
         submission: {
           where: {
             userId
@@ -411,6 +412,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     const startTime = new Date(contest.startTime).getTime()
     const timePenalty = Math.floor((submitTime - startTime) / 60000)
 
+    const isFreezed = contest.freezeTime && updateTime < contest.freezeTime
+
     // 1. contest problem record의 score와 penalty들을 upsert(update or create) 한다.
     await this.prisma.contestProblemRecord.upsert({
       where: {
@@ -421,16 +424,31 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       },
       update: {
-        score,
-        submitCountPenalty,
-        timePenalty,
+        ...(!isFreezed
+          ? {
+              score,
+              submitCountPenalty,
+              timePenalty
+            }
+          : {}),
+        finalScore: score,
+        finalTimePenalty: timePenalty,
+        finalSubmitCountPenalty: submitCountPenalty,
         isFirstSolver
       },
       create: {
         contestProblemId,
         contestRecordId,
-        score,
-        submitCountPenalty,
+        ...(!isFreezed
+          ? {
+              score,
+              timePenalty,
+              submitCountPenalty
+            }
+          : {}),
+        finalScore: score,
+        finalTimePenalty: timePenalty,
+        finalSubmitCountPenalty: submitCountPenalty,
         isFirstSolver
       }
     })
@@ -444,21 +462,36 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         select: {
           score: true,
           timePenalty: true,
-          submitCountPenalty: true
+          submitCountPenalty: true,
+          finalScore: true,
+          finalTimePenalty: true,
+          finalSubmitCountPenalty: true
         }
       })
 
-    const [scoreSum, submitCountPenaltySum, timePenaltySum, maxTimePenalty] =
-      contestProblemRecords.reduce(
-        (acc, record) => {
-          acc[0] += record.score
-          acc[1] += record.submitCountPenalty
-          acc[2] += record.timePenalty
-          acc[3] = Math.max(acc[3], record.timePenalty)
-          return acc
-        },
-        [0, 0, 0, 0]
-      )
+    const [
+      scoreSum,
+      submitCountPenaltySum,
+      timePenaltySum,
+      maxTimePenalty,
+      finalScoreSum,
+      finalSubmitCountPenaltySum,
+      finalTimePenaltySum,
+      finalMaxTimePenalty
+    ] = contestProblemRecords.reduce(
+      (acc, record) => {
+        acc[0] += record.score
+        acc[1] += record.submitCountPenalty
+        acc[2] += record.timePenalty
+        acc[3] = Math.max(acc[3], record.timePenalty)
+        acc[4] += record.finalScore
+        acc[5] += record.finalSubmitCountPenalty
+        acc[6] += record.finalTimePenalty
+        acc[7] = Math.max(acc[7], record.finalTimePenalty)
+        return acc
+      },
+      [0, 0, 0, 0, 0, 0, 0, 0]
+    )
     // 2. contest record의 score, penalty, lastAcceptedTime를 update 한다.
     await this.prisma.contestRecord.update({
       where: {
@@ -468,13 +501,21 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           userId
         }
       },
-      data: {
-        score: scoreSum,
-        totalPenalty: lastPenalty
-          ? maxTimePenalty + submitCountPenaltySum
-          : timePenaltySum + submitCountPenaltySum,
-        lastAcceptedTime: updateTime
-      }
+      data: !isFreezed
+        ? {
+            score: scoreSum,
+            totalPenalty: lastPenalty
+              ? maxTimePenalty + submitCountPenaltySum
+              : timePenaltySum + submitCountPenaltySum,
+            lastAcceptedTime: updateTime
+          }
+        : {
+            finalScore: finalScoreSum,
+            finalTotalPenalty: lastPenalty
+              ? finalMaxTimePenalty + finalSubmitCountPenaltySum
+              : finalTimePenaltySum + finalSubmitCountPenaltySum,
+            lastAcceptedTime: updateTime
+          }
     })
   }
 
