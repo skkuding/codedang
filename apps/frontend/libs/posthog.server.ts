@@ -6,7 +6,7 @@ import { auth } from './auth'
 /**Get distinct ID and feature flags */
 export async function getBootstrapData() {
   const session = await auth()
-  const distinctID = session ? session.user.username : generatedDistinctId()
+  const distinctID = session ? session.user.username : generateDistinctId()
   const client = getPostHog()
 
   if (client) {
@@ -44,7 +44,7 @@ const getPostHog = () => {
   return client
 }
 
-const generatedDistinctId = cache(() => {
+const generateDistinctId = cache(() => {
   const id = uuidv7()
   return id
 })
