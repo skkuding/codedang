@@ -1,13 +1,15 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from '@nestjs/cache-manager'
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException
-} from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Language } from '@generated'
-import type { ContestProblem, Problem, Tag, WorkbookProblem } from '@generated'
+import type {
+  AssignmentProblem,
+  ContestProblem,
+  Problem,
+  Tag,
+  WorkbookProblem
+} from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput } from '@generated'
 import { Prisma } from '@prisma/client'
@@ -246,7 +248,7 @@ export class ProblemService {
     try {
       await this.storageService.uploadImage({
         filename: newFilename,
-        fileSize: fileSize,
+        fileSize,
         content: createReadStream(),
         type: mimetype
       })
@@ -400,7 +402,7 @@ export class ProblemService {
       problem.visibleLockTime.getTime() !== MAX_DATE.getTime()
     ) {
       throw new UnprocessableDataException(
-        'Unable to set the visible property until the contest is over'
+        'Unable to set the visible property until the assignment/contest is over'
       )
     }
     const supportedLangs = languages ?? problem.languages
@@ -662,6 +664,80 @@ export class ProblemService {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           contestId_problemId: {
             contestId,
+            problemId: record.problemId
+          }
+        },
+        data: { order: newOrder }
+      })
+    })
+
+    return await this.prisma.$transaction(queries)
+  }
+
+  async getAssignmentProblems(
+    groupId: number,
+    assignmentId: number
+  ): Promise<Partial<AssignmentProblem>[]> {
+    await this.prisma.assignment.findFirstOrThrow({
+      where: { id: assignmentId, groupId }
+    })
+    const assignmentProblems = await this.prisma.assignmentProblem.findMany({
+      where: { assignmentId }
+    })
+    return assignmentProblems
+  }
+
+  async updateAssignmentProblemsScore(
+    groupId: number,
+    assignmentId: number,
+    problemIdsWithScore: ProblemScoreInput[]
+  ): Promise<Partial<AssignmentProblem>[]> {
+    await this.prisma.assignment.findFirstOrThrow({
+      where: { id: assignmentId, groupId }
+    })
+
+    const queries = problemIdsWithScore.map((record) => {
+      return this.prisma.assignmentProblem.update({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          assignmentId_problemId: {
+            assignmentId,
+            problemId: record.problemId
+          }
+        },
+        data: { score: record.score }
+      })
+    })
+
+    return await this.prisma.$transaction(queries)
+  }
+
+  async updateAssignmentProblemsOrder(
+    groupId: number,
+    assignmentId: number,
+    orders: number[]
+  ): Promise<Partial<AssignmentProblem>[]> {
+    await this.prisma.assignment.findFirstOrThrow({
+      where: { id: assignmentId, groupId }
+    })
+
+    const assignmentProblems = await this.prisma.assignmentProblem.findMany({
+      where: { assignmentId }
+    })
+
+    if (orders.length !== assignmentProblems.length) {
+      throw new UnprocessableDataException(
+        'the length of orders and the length of assignmentProblem are not equal.'
+      )
+    }
+
+    const queries = assignmentProblems.map((record) => {
+      const newOrder = orders.indexOf(record.problemId)
+      return this.prisma.assignmentProblem.update({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          assignmentId_problemId: {
+            assignmentId,
             problemId: record.problemId
           }
         },
