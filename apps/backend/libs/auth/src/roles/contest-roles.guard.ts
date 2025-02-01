@@ -3,12 +3,12 @@ import {
   type CanActivate,
   type ExecutionContext
 } from '@nestjs/common'
-import type { Reflector } from '@nestjs/core'
+import { Reflector } from '@nestjs/core'
 import { GqlExecutionContext, type GqlContextType } from '@nestjs/graphql'
 import { ContestRole } from '@prisma/client'
 import type { AuthenticatedRequest } from '../authenticated-request.interface'
 import { CONTEST_ROLES_KEY } from './contest-roles.decorator'
-import type { RolesService } from './roles.service'
+import { RolesService } from './roles.service'
 
 @Injectable()
 export class ContestRolesGuard implements CanActivate {
