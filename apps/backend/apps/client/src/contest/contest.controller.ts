@@ -44,13 +44,13 @@ export class ContestController {
   }
 
   @Post(':id/participation')
-  async createContestRecord(
+  async registerContest(
     @Req() req: AuthenticatedRequest,
     @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', IDValidationPipe) contestId: number,
     @Query('invitationCode') invitationCode?: string
   ) {
-    return await this.contestService.createContestRecord({
+    return await this.contestService.registerContest({
       contestId,
       userId: req.user.id,
       invitationCode,
@@ -60,12 +60,12 @@ export class ContestController {
 
   // unregister only for upcoming contest
   @Delete(':id/participation')
-  async deleteContestRecord(
+  async unregisterContest(
     @Req() req: AuthenticatedRequest,
     @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', IDValidationPipe) contestId: number
   ) {
-    return await this.contestService.deleteContestRecord(
+    return await this.contestService.unregisterContest(
       contestId,
       req.user.id,
       groupId

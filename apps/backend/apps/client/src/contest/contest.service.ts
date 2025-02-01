@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma, Role, type Contest } from '@prisma/client'
+import { ContestRole, Prisma, Role, type Contest } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -285,7 +285,7 @@ export class ContestService {
     }
   }
 
-  async createContestRecord({
+  async registerContest({
     contestId,
     userId,
     invitationCode,
@@ -320,9 +320,16 @@ export class ContestService {
     if (now >= contest.endTime) {
       throw new ConflictFoundException('Cannot participate ended contest')
     }
+    return await this.prisma.$transaction(async (prisma) => {
+      const contestRecord = await prisma.contestRecord.create({
+        data: { contestId, userId }
+      })
 
-    return await this.prisma.contestRecord.create({
-      data: { contestId, userId }
+      await prisma.userContest.create({
+        data: { contestId, userId, role: ContestRole.Participant }
+      })
+
+      return contestRecord
     })
   }
 
@@ -336,7 +343,7 @@ export class ContestService {
     }))
   }
 
-  async deleteContestRecord(
+  async unregisterContest(
     contestId: number,
     userId: number,
     groupId = OPEN_SPACE_ID
@@ -365,9 +372,15 @@ export class ContestService {
       )
     }
 
-    return await this.prisma.contestRecord.delete({
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      where: { contestId_userId: { contestId, userId } }
+    return await this.prisma.$transaction(async (prisma) => {
+      await prisma.userContest.delete({
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        where: { userId_contestId: { userId, contestId } }
+      })
+
+      return prisma.contestRecord.delete({
+        where: { id: contestRecord.id }
+      })
     })
   }
 
