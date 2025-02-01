@@ -309,6 +309,24 @@ function LabeledField({ label, text, compareText }: LabeledFieldProps) {
     compareText: string,
     isExpectedOutput: boolean
   ) => {
+    const isNumeric = (str: string) => /^[+-]?\d+(\.\d+)?$/.test(str.trim())
+
+    const isBothNumeric = isNumeric(text) && isNumeric(compareText)
+
+    if (isBothNumeric) {
+      const num1 = parseFloat(text)
+      const num2 = parseFloat(compareText)
+
+      if (num1 !== num2) {
+        return isExpectedOutput ? (
+          <span className="text-green-500">{compareText}</span>
+        ) : (
+          <span className="text-red-500">{text}</span>
+        )
+      } else {
+        return <span className="text-white">{text}</span>
+      }
+    }
     const dmp = new DiffMatchPatch()
     const diffs = dmp.diff_main(compareText, text)
     dmp.diff_cleanupSemantic(diffs)
