@@ -62,7 +62,7 @@ export function TestcasePanel() {
             (() => {
               let widthClass = ''
               if (testcaseTabList.length < 5) {
-                widthClass = 'w-44' //기본 너비
+                widthClass = 'w-40' //기본 너비
               } else if (testcaseTabList.length < 7) {
                 widthClass = 'w-28' //좁은 너비
               } else {
@@ -106,7 +106,7 @@ export function TestcasePanel() {
                   (() => {
                     let widthClass = ''
                     if (testcaseTabList.length < 5) {
-                      widthClass = 'w-44'
+                      widthClass = 'w-40'
                     } else if (testcaseTabList.length < 7) {
                       widthClass = 'w-28'
                     } else {
