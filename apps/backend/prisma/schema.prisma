@@ -61,6 +61,7 @@ model User {
   useroauth        UserOAuth?
   CodeDraft        CodeDraft[]
   Image            Image[]
+  ContestUser      ContestUser[]
 
   @@map("user")
 }
@@ -354,8 +355,25 @@ model Contest {
   contestRecord  ContestRecord[]
   submission     Submission[]
   announcement   Announcement[]
+  ContestUser    ContestUser[]
 
   @@map("contest")
+}
+
+enum ContestRole {
+  Participant
+  Reviewer
+  Manager
+}
+
+model ContestUser {
+  id        String      @id @default(uuid())
+  userId    Int
+  contestId Int
+  role      ContestRole
+
+  user    User    @relation(fields: [userId], references: [id])
+  contest Contest @relation(fields: [contestId], references: [id])
 }
 
 model ContestProblem {
