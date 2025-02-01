@@ -1,5 +1,5 @@
 import { SetMetadata, UseGuards, applyDecorators } from '@nestjs/common'
-import { Role } from '@prisma/client'
+import { Role, type ContestRole } from '@prisma/client'
 import { ContestRolesGuard } from './roles/contest-roles.guard'
 import { ROLES_KEY } from './roles/roles.decorator'
 import { RolesGuard } from './roles/roles.guard'
@@ -19,7 +19,7 @@ export const UseRolesGuard = (role: Role = Role.Admin) => {
     UseGuards(RolesGuard)
   )
 }
-export const UseContestRolesGuard = (role: Role) => {
+export const UseContestRolesGuard = (role: ContestRole) => {
   return applyDecorators(
     SetMetadata(ROLES_KEY, role),
     UseGuards(ContestRolesGuard)
