@@ -1,6 +1,6 @@
 export function AssignmentReminderBox() {
   return (
-    <div className="mt-20 w-full border border-gray-300 p-10">
+    <div className="mt-10 w-full border border-gray-300 p-10">
       <h3 className="mb-2 text-lg font-bold">혜림님!</h3>
       <div>
         <h4 className="mb-8 font-bold">
