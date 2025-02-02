@@ -1,4 +1,3 @@
-import { ContestOverallTabs } from '@/app/admin/contest/[contestId]/_components/ContestOverallTabs'
 import type { Page, Locator } from '@playwright/test'
 
 export class Auth {
