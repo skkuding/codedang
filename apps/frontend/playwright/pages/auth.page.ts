@@ -1,3 +1,4 @@
+import { ContestOverallTabs } from '@/app/admin/contest/[contestId]/_components/ContestOverallTabs'
 import type { Page, Locator } from '@playwright/test'
 
 export class Auth {
@@ -38,7 +39,7 @@ export class Auth {
 
   constructor(page: Page) {
     this.page = page
-    this.loginButton = page.locator('button:has-text("Log In")')
+    this.loginButton = page.getByRole('button', { name: 'Log In' })
     this.loginModal = page.locator(
       'div.flex.h-full.w-full.flex-col.justify-between'
     )
@@ -46,9 +47,9 @@ export class Auth {
     this.loginButtonInSignUpModal = page.locator(
       'button.inline-flex.items-center.justify-center.text-xs.text-gray-500'
     )
-    this.loginSubmitButton = page.locator(
-      'form button[type="submit"]:has-text("Log In")'
-    )
+    this.loginSubmitButton = page
+      .locator('form')
+      .getByRole('button', { name: 'Log In' })
 
     this.forgotIDPasswordButton = page.locator(
       'button.inline-flex.items-center.justify-center.rounded-md.font-medium.h-5.w-fit.p-0.py-2.text-xs.text-gray-500'

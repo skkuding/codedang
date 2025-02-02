@@ -13,7 +13,8 @@
     "start": "PORT=5525 node .next/standalone/apps/frontend/server.js",
     "lint": "eslint .",
     "compile": "graphql-codegen --require dotenv/config",
-    "test": "vitest"
+    "test": "vitest",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@apollo/client": "^3.12.4",
