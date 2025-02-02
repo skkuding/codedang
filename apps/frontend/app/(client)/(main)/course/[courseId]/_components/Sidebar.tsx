@@ -1,5 +1,6 @@
 'use client'
 
+import { Separator } from '@/components/shadcn/separator'
 import assignmentIcon from '@/public/icons/assignment.svg'
 import examIcon from '@/public/icons/exam.svg'
 import gradeIcon from '@/public/icons/grade.svg'
@@ -61,6 +62,7 @@ export function Sidebar() {
           <span className="font-pretendard text-[1rem] font-bold leading-[1rem] text-[#21272A]">
             {item.name}
           </span>
+          <Separator className="mt-2" />
         </Link>
       ))}
     </div>

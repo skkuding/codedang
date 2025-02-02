@@ -64,7 +64,7 @@ export function Cover({ title, description }: CoverProps) {
             width={208}
             height={247}
             alt={title}
-            className="absolute right-[50%] top-[30%] flex-shrink-0 rotate-[19.478deg] max-md:hidden"
+            className="absolute right-[50%] top-[40%] flex-shrink-0 rotate-[19.478deg] max-md:hidden"
           />
 
           <div className="relative z-10 text-center">
@@ -79,11 +79,10 @@ export function Cover({ title, description }: CoverProps) {
             width={249}
             height={242}
             alt={title}
-            className="absolute bottom-[30%] left-[50%] h-[15.13494rem] w-[15.60438rem] flex-shrink-0 rotate-[124.899deg] max-md:hidden"
+            className="absolute bottom-[40%] left-[50%] h-[15.13494rem] w-[15.60438rem] flex-shrink-0 rotate-[124.899deg] max-md:hidden"
           />
         </div>
       </div>
-      <div className="h-16 w-full bg-white" />
     </div>
   )
 }
