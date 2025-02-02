@@ -2,8 +2,10 @@
 
 import assignmentIcon from '@/public/icons/assignment.svg'
 import examIcon from '@/public/icons/exam.svg'
+import gradeIcon from '@/public/icons/grade.svg'
 import homeIcon from '@/public/icons/home.svg'
 import noticeIcon from '@/public/icons/notice.svg'
+import QnAIcon from '@/public/icons/qna.svg'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -32,12 +34,12 @@ export function Sidebar() {
     {
       name: 'Grade',
       path: `/course/${courseId}/grade` as const,
-      icon: assignmentIcon
+      icon: gradeIcon
     },
     {
       name: 'Q&A',
       path: `/course/${courseId}/qna` as const,
-      icon: assignmentIcon
+      icon: QnAIcon
     }
   ]
 
