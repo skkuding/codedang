@@ -195,8 +195,39 @@ model Problem {
   submission        Submission[]
   announcement      Announcement[]
   codeDraft         CodeDraft[]
+  updateHistory     UpdateHistory[]
 
   @@map("problem")
+}
+
+model UpdateHistory {
+  id            Int      @id @default(autoincrement())
+  problemId     Int      @map("problem_id")
+  problem       Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  updatedAt     DateTime @default(now()) @map("updated_at")
+  updatedFields Json     @map("updated_fields") // 변경된 필드 목록
+
+  isTitleChanged       Boolean @default(false)
+  isLanguageChanged    Boolean @default(false)
+  isDescriptionChanged Boolean @default(false)
+  isLimitChanged       Boolean @default(false)
+  isHintChanged        Boolean @default(false)
+
+  currentTitle       String?
+  currentLanguage    Json?
+  currentDescription String?
+  currentTimeLimit   Int?
+  currentMemoryLimit Int?
+  currentHint        String?
+
+  prevTitle       String?
+  prevLanguage    Json?
+  prevDescription String?
+  prevTimeLimit   Int?
+  prevMemoryLimit Int?
+  prevHint        String?
+
+  @@map("updateHistory")
 }
 
 model Image {

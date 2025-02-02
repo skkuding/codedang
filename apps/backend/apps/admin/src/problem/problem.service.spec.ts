@@ -34,7 +34,8 @@ import {
   problems,
   problemsWithIsVisible,
   template,
-  testcaseInput
+  testcaseInput,
+  updateHistories
 } from './mock/mock'
 import { ProblemService } from './problem.service'
 
@@ -99,6 +100,10 @@ const db = {
   },
   submission: {
     findFirst: stub()
+  },
+  updateHistory: {
+    findMany: stub(),
+    create: stub()
   },
   getPaginator: PrismaService.prototype.getPaginator
 }
@@ -290,6 +295,28 @@ describe('ProblemService', () => {
         )
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(uploadSpy.called).to.be.false
+    })
+  })
+
+  describe('getProblemUpdateHistory', () => {
+    it('should return update history for a given problemId', async () => {
+      db.updateHistory.findMany.resolves(
+        updateHistories.filter((h) => h.problemId === 1)
+      )
+
+      const result = await service.getProblemUpdateHistory(1)
+
+      expect(result).to.deep.equal(
+        updateHistories.filter((h) => h.problemId === 1)
+      )
+    })
+
+    it('should return an empty array when there is no update history', async () => {
+      db.updateHistory.findMany.resolves([])
+
+      const result = await service.getProblemUpdateHistory(99)
+
+      expect(result).to.deep.equal([])
     })
   })
 

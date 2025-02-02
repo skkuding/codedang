@@ -391,6 +391,75 @@ export class ProblemService {
       }
     })
 
+    const updatedFields: string[] = []
+    let isTitleChanged = false
+    let isLanguageChanged = false
+    let isDescriptionChanged = false
+    let isTestCaseChanged = false
+    let isLimitChanged = false
+    let isHintChanged = false
+
+    let latestTitle: string = problem.title
+    let latestLanguages: string[] = problem.languages
+    let latestDescription: string = problem.description
+    let latestTimeLimit: number = problem.timeLimit
+    let latestMemoryLimit: number = problem.memoryLimit
+    let latestHint: string = problem.hint
+
+    if (input.title && input.title !== problem.title) {
+      updatedFields.push('Title')
+      isTitleChanged = true
+      latestTitle = input.title
+    }
+    if (
+      input.languages &&
+      JSON.stringify(input.languages) !== JSON.stringify(problem.languages)
+    ) {
+      updatedFields.push('Language')
+      isLanguageChanged = true
+      latestLanguages = input.languages
+    }
+    if (input.description && input.description !== problem.description) {
+      updatedFields.push('Description')
+      isDescriptionChanged = true
+      latestDescription = input.description
+    }
+    if (testcases?.length) {
+      const existingTestcases = await this.prisma.problemTestcase.findMany({
+        where: { problemId: id }
+      })
+      if (
+        JSON.stringify(testcases) !==
+        JSON.stringify(
+          existingTestcases.map((tc) => ({
+            input: tc.input,
+            output: tc.output,
+            scoreWeight: tc.scoreWeight,
+            isHidden: tc.isHidden
+          }))
+        )
+      ) {
+        updatedFields.push('Testcase*')
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        isTestCaseChanged = true
+      }
+    }
+    if (input.timeLimit && input.timeLimit !== problem.timeLimit) {
+      updatedFields.push('Limit*')
+      isLimitChanged = true
+      latestTimeLimit = input.timeLimit
+    }
+    if (input.memoryLimit && input.memoryLimit !== problem.memoryLimit) {
+      updatedFields.push('Limit*')
+      isLimitChanged = true
+      latestMemoryLimit = input.memoryLimit
+    }
+    if (input.hint && input.hint !== problem.hint) {
+      updatedFields.push('Hint')
+      isHintChanged = true
+      latestHint = input.hint
+    }
+
     if (languages && !languages.length) {
       throw new UnprocessableDataException(
         'A problem should support at least one language'
@@ -442,10 +511,52 @@ export class ProblemService {
         }),
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
-        problemTag
+        problemTag,
+        ...(updatedFields.length > 0 && {
+          updateHistory: {
+            create: [
+              {
+                updatedFields: JSON.stringify(updatedFields),
+                updatedAt: new Date(),
+
+                isTitleChanged,
+                isLanguageChanged,
+                isDescriptionChanged,
+                isLimitChanged,
+                isHintChanged,
+
+                currentTitle: latestTitle,
+                currentLanguage: JSON.stringify(latestLanguages),
+                currentDescription: latestDescription,
+                currentTimeLimit: latestTimeLimit,
+                currentMemoryLimit: latestMemoryLimit,
+                currentHint: latestHint,
+
+                prevTitle: problem.title,
+                prevLanguage: JSON.stringify(problem.languages),
+                prevDescription: problem.description,
+                prevTimeLimit: problem.timeLimit,
+                prevMemoryLimit: problem.memoryLimit,
+                prevHint: problem.hint
+              }
+            ]
+          }
+        })
+      },
+      include: {
+        updateHistory: true // 항상 updateHistory 포함
       }
     })
+
     return this.changeVisibleLockTimeToIsVisible(updatedProblem)
+  }
+
+  async getProblemUpdateHistory(problemId: number) {
+    return await this.prisma.updateHistory.findMany({
+      where: {
+        problemId
+      }
+    })
   }
 
   async updateProblemTag(

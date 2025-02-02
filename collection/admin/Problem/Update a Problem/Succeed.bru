@@ -22,6 +22,29 @@ body:graphql {
       outputDescription
       hint
       isVisible
+      updateHistory{
+        updatedAt
+        updatedFields
+        isTitleChanged
+        isLanguageChanged
+        isDescriptionChanged
+        isLimitChanged
+        isHintChanged
+  
+        currentTitle
+        currentLanguage
+        currentDescription
+        currentTimeLimit
+        currentMemoryLimit
+        currentHint
+  
+        prevTitle
+        prevLanguage
+        prevDescription
+        prevTimeLimit
+        prevMemoryLimit
+        prevHint
+      }
     }
   }
 }
@@ -31,7 +54,7 @@ body:graphql:vars {
     "groupId": 1,
     "input": {
       "id": 4,
-      "title": "updatedProblem",
+      "title": "New Title",
       "description": "updated description",
       "inputDescription": "updated input description",
       "outputDescription": "updated output description",
