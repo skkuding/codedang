@@ -22,6 +22,7 @@ export async function getBootstrapData() {
   return undefined
 }
 
+/**Get feature flag by key in the server-side */
 export const getFeatureFlag = async (key: string) => {
   const posthog = getPostHog()
   const bootstrapData = await getBootstrapData()

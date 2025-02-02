@@ -2,6 +2,7 @@ import { BootstrapContext } from '@/app/posthog'
 import { usePostHog } from 'posthog-js/react'
 import { useContext, useEffect, useState } from 'react'
 
+/**Get feature flag by key in the client-side */
 export const useFeatureFlag = (key: string) => {
   const bootstrapContext = useContext(BootstrapContext)
   const initialFlag = bootstrapContext
