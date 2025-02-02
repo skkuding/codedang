@@ -458,6 +458,8 @@ export class ProblemService {
         )
       ) {
         updatedFields.push('Testcase*')
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        isTestCaseChanged = true
       }
     }
     if (input.timeLimit && input.timeLimit !== problem.timeLimit) {
@@ -518,7 +520,7 @@ export class ProblemService {
       await this.updateTestcases(id, testcases)
     }
 
-    let updatedProblem = await this.prisma.problem.update({
+    const updatedProblem = await this.prisma.problem.update({
       where: { id },
       data: {
         ...data,
