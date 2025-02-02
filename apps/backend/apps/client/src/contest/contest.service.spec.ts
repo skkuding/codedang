@@ -1,12 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
-import {
-  Prisma,
-  type Contest,
-  type Group,
-  type ContestRecord
-} from '@prisma/client'
+import { Prisma, type Contest, type ContestRecord } from '@prisma/client'
 import { expect } from 'chai'
 import * as dayjs from 'dayjs'
 import {
@@ -23,14 +18,12 @@ import { ContestService, type ContestResult } from './contest.service'
 
 const contestId = 1
 const user01Id = 4
-const groupId = 1
 
 const now = dayjs()
 
 const contest = {
   id: contestId,
   createdById: 1,
-  groupId,
   title: 'title',
   description: 'description',
   penalty: 100,
@@ -43,10 +36,6 @@ const contest = {
   enableCopyPaste: true,
   createTime: now.add(-1, 'day').toDate(),
   updateTime: now.add(-1, 'day').toDate(),
-  group: {
-    id: groupId,
-    groupName: 'group'
-  },
   posterUrl: 'posterUrl',
   participationTarget: 'participationTarget',
   competitionMethod: 'competitionMethod',
@@ -54,14 +43,11 @@ const contest = {
   problemFormat: 'problemFormat',
   benefits: 'benefits',
   invitationCode: '123456'
-} satisfies Contest & {
-  group: Partial<Group>
-}
+} satisfies Contest
 
 const ongoingContests = [
   {
     id: contest.id,
-    group: contest.group,
     title: contest.title,
     posterUrl: contest.posterUrl,
     participationTarget: contest.participationTarget,
@@ -82,7 +68,6 @@ const ongoingContests = [
 const upcomingContests = [
   {
     id: contest.id + 6,
-    group: contest.group,
     title: contest.title,
     posterUrl: null,
     participationTarget: null,
@@ -103,7 +88,6 @@ const upcomingContests = [
 const finishedContests = [
   {
     id: contest.id + 1,
-    group: contest.group,
     title: contest.title,
     posterUrl: contest.posterUrl,
     participationTarget: contest.participationTarget,
@@ -119,12 +103,6 @@ const finishedContests = [
     enableCopyPaste: true,
     contestProblem: []
   }
-] satisfies Partial<ContestResult>[]
-
-const contests = [
-  ...ongoingContests,
-  ...finishedContests,
-  ...upcomingContests
 ] satisfies Partial<ContestResult>[]
 
 describe('ContestService', () => {
@@ -182,7 +160,7 @@ describe('ContestService', () => {
     })
 
     it('a contest should contain following fields when userId is undefined', async () => {
-      const contests = await service.getContests(groupId)
+      const contests = await service.getContests()
       expect(contests.ongoing[0]).to.have.property('title')
       expect(contests.ongoing[0]).to.have.property('startTime')
       expect(contests.ongoing[0]).to.have.property('endTime')
@@ -222,13 +200,13 @@ describe('ContestService', () => {
 
   describe('getContest', () => {
     it('should throw error when contest does not exist', async () => {
-      await expect(
-        service.getContest(999, groupId, user01Id)
-      ).to.be.rejectedWith(EntityNotExistException)
+      await expect(service.getContest(999, user01Id)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
 
     it('should return contest', async () => {
-      expect(await service.getContest(contestId, groupId, user01Id)).to.be.ok
+      expect(await service.getContest(contestId, user01Id)).to.be.ok
     })
 
     it('should return optional fields if they exist', async () => {
@@ -241,7 +219,7 @@ describe('ContestService', () => {
     })
 
     it('should return prev and next contest information', async () => {
-      const contest = await service.getContest(contestId, groupId, user01Id)
+      const contest = await service.getContest(contestId, user01Id)
       if (contest.prev) {
         expect(contest.prev).to.have.property('id')
         expect(contest.prev.id).to.be.lessThan(contestId)
@@ -283,9 +261,9 @@ describe('ContestService', () => {
     it('should throw error when user is participated in contest again', async () => {
       await expect(
         service.createContestRecord({
-          contestId: contestId,
+          contestId,
           userId: user01Id,
-          invitationCode: invitationCode
+          invitationCode
         })
       ).to.be.rejectedWith(ConflictFoundException)
     })
@@ -295,7 +273,7 @@ describe('ContestService', () => {
         service.createContestRecord({
           contestId: 8,
           userId: user01Id,
-          invitationCode: invitationCode
+          invitationCode
         })
       ).to.be.rejectedWith(ConflictFoundException)
     })
@@ -304,7 +282,7 @@ describe('ContestService', () => {
       const contestRecord = await service.createContestRecord({
         contestId: 2,
         userId: user01Id,
-        invitationCode: invitationCode
+        invitationCode
       })
       contestRecordId = contestRecord.id
       expect(
