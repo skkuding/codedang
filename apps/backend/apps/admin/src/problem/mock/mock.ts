@@ -104,6 +104,45 @@ export const problems: Problem[] = [
   }
 ]
 
+export const updateHistories = [
+  {
+    id: 1,
+    problemId: 1,
+    updatedAt: new Date(),
+    updatedFields: JSON.stringify(['title', 'description']),
+    isTitleChanged: true,
+    isDescriptionChanged: true,
+    currentTitle: 'New Title',
+    currentDescription: 'New Description',
+    prevTitle: 'Old Title',
+    prevDescription: 'Old Description'
+  },
+  {
+    id: 2,
+    problemId: 1,
+    updatedAt: new Date('2024-01-15T15:30:00Z'),
+    updatedFields: JSON.stringify(['TimeLimit', 'Testcase*']),
+    isTitleChanged: true,
+    isDescriptionChanged: true,
+    currentTitle: 'New New Title',
+    currentDescription: 'New New Description',
+    prevTitle: 'New Title',
+    prevDescription: 'New Description'
+  },
+  {
+    id: 3,
+    problemId: 2,
+    updatedAt: new Date('2024-01-20T08:45:00Z'),
+    updatedFields: JSON.stringify(['Language']),
+    isTitleChanged: true,
+    isDescriptionChanged: true,
+    currentTitle: 'New Title',
+    currentDescription: 'New Description',
+    prevTitle: 'Old Title',
+    prevDescription: 'Old Description'
+  }
+]
+
 export const problemsWithIsVisible: ProblemWithIsVisible[] =
   changeVisibleLockTimeToIsVisible(problems)
 

@@ -6,7 +6,7 @@ import {
   InternalServerErrorException
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Language, UpdateHistory } from '@generated'
+import { Language } from '@generated'
 import type { ContestProblem, Problem, Tag, WorkbookProblem } from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput } from '@generated'
@@ -383,17 +383,37 @@ export class ProblemService {
     })
 
     const updatedFields: string[] = []
+    let isTitleChanged = false
+    let isLanguageChanged = false
+    let isDescriptionChanged = false
+    let isTestCaseChanged = false
+    let isLimitChanged = false
+    let isHintChanged = false
 
-    if (input.title && input.title !== problem.title)
+    let latestTitle: string = problem.title
+    let latestLanguages: string[] = problem.languages
+    let latestDescription: string = problem.description
+    let latestTimeLimit: number = problem.timeLimit
+    let latestMemoryLimit: number = problem.memoryLimit
+    let latestHint: string = problem.hint
+
+    if (input.title && input.title !== problem.title) {
       updatedFields.push('Title')
+      isTitleChanged = true
+      latestTitle = input.title
+    }
     if (
       input.languages &&
       JSON.stringify(input.languages) !== JSON.stringify(problem.languages)
     ) {
       updatedFields.push('Language')
+      isLanguageChanged = true
+      latestLanguages = input.languages
     }
     if (input.description && input.description !== problem.description) {
       updatedFields.push('Description')
+      isDescriptionChanged = true
+      latestDescription = input.description
     }
     if (testcases?.length) {
       const existingTestcases = await this.prisma.problemTestcase.findMany({
@@ -411,11 +431,25 @@ export class ProblemService {
         )
       ) {
         updatedFields.push('Testcase*')
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        isTestCaseChanged = true
       }
     }
-    if (input.timeLimit && input.timeLimit !== problem.timeLimit)
+    if (input.timeLimit && input.timeLimit !== problem.timeLimit) {
       updatedFields.push('Limit*')
-    if (input.hint && input.hint !== problem.hint) updatedFields.push('Hint')
+      isLimitChanged = true
+      latestTimeLimit = input.timeLimit
+    }
+    if (input.memoryLimit && input.memoryLimit !== problem.memoryLimit) {
+      updatedFields.push('Limit*')
+      isLimitChanged = true
+      latestMemoryLimit = input.memoryLimit
+    }
+    if (input.hint && input.hint !== problem.hint) {
+      updatedFields.push('Hint')
+      isHintChanged = true
+      latestHint = input.hint
+    }
 
     if (languages && !languages.length) {
       throw new UnprocessableDataException(
@@ -459,7 +493,7 @@ export class ProblemService {
       await this.updateTestcases(id, testcases)
     }
 
-    let updatedProblem = await this.prisma.problem.update({
+    const updatedProblem = await this.prisma.problem.update({
       where: { id },
       data: {
         ...data,
@@ -468,32 +502,42 @@ export class ProblemService {
         }),
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
-        problemTag
+        problemTag,
+        ...(updatedFields.length > 0 && {
+          updateHistory: {
+            create: [
+              {
+                updatedFields: JSON.stringify(updatedFields),
+                updatedAt: new Date(),
+
+                isTitleChanged,
+                isLanguageChanged,
+                isDescriptionChanged,
+                isLimitChanged,
+                isHintChanged,
+
+                currentTitle: latestTitle,
+                currentLanguage: JSON.stringify(latestLanguages),
+                currentDescription: latestDescription,
+                currentTimeLimit: latestTimeLimit,
+                currentMemoryLimit: latestMemoryLimit,
+                currentHint: latestHint,
+
+                prevTitle: problem.title,
+                prevLanguage: JSON.stringify(problem.languages),
+                prevDescription: problem.description,
+                prevTimeLimit: problem.timeLimit,
+                prevMemoryLimit: problem.memoryLimit,
+                prevHint: problem.hint
+              }
+            ]
+          }
+        })
+      },
+      include: {
+        updateHistory: true // 항상 updateHistory 포함
       }
     })
-    if (updatedFields.length > 0) {
-      updatedProblem = await this.prisma.problem.update({
-        where: { id },
-        data: {
-          ...data,
-          ...(isVisible != undefined && {
-            visibleLockTime: isVisible ? MIN_DATE : MAX_DATE
-          }),
-          ...(languages && { languages }),
-          ...(template && { template: [JSON.stringify(template)] }),
-          problemTag,
-          updateHistory: {
-            create: {
-              updatedFields: JSON.stringify(updatedFields),
-              updatedAt: new Date()
-            }
-          }
-        },
-        include: {
-          updateHistory: true // 업데이트된 히스토리 포함
-        }
-      })
-    }
 
     return this.changeVisibleLockTimeToIsVisible(updatedProblem)
   }
