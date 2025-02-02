@@ -7,9 +7,9 @@ import (
 )
 
 type judgerSandboxImpl struct {
-	compiler   sandbox.Compiler
-	runner     sandbox.Runner
-	langConfig sandbox.LangConfig[JudgerConfig, ExecArgs]
+	sandbox.Compiler
+	sandbox.Runner
+	sandbox.LangConfig[JudgerConfig, ExecArgs]
 }
 
 func NewJudgerSandboxImpl(fileManager file.FileManager, logProvider logger.Logger, javaPolicyPath string, libjudgerPath string) *judgerSandboxImpl {
@@ -19,9 +19,9 @@ func NewJudgerSandboxImpl(fileManager file.FileManager, logProvider logger.Logge
 	runner := NewJudgerRunner(sb, langConfig, fileManager, logProvider)
 
 	sandbox := judgerSandboxImpl{
-		compiler:   compiler,
-		runner:     runner,
-		langConfig: langConfig,
+		compiler,
+		runner,
+		langConfig,
 	}
 
 	return &sandbox
