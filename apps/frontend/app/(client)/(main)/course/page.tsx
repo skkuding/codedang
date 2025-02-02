@@ -41,7 +41,6 @@ export default async function Course() {
           <h1 className="text-2xl font-bold text-gray-700">Course Overview</h1>
         </div>
       </div>
-      {/* TODO: 완성되면 주석해제 할 거예요! */}
       <div className="w-full">
         <Dashboard session={session} />
       </div>
