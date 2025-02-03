@@ -63,7 +63,7 @@ model User {
   Image            Image[]
   testSubmission   TestSubmission[]
 
-  @@map ("user")
+  @@map("user")
 }
 
 model UserOAuth {
