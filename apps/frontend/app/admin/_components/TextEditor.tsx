@@ -22,7 +22,6 @@ import { Toggle } from '@/components/shadcn/toggle'
 import { UPLOAD_IMAGE } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import Tex from '@matejmazur/react-katex'
-import Mathematics from '@tiptap-pro/extension-mathematics'
 import type { Range } from '@tiptap/core'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import Heading from '@tiptap/extension-heading'
@@ -101,7 +100,6 @@ export function TextEditor({
       }),
       Underline,
       Image,
-      Mathematics,
       MathExtension as Extension,
       Heading.configure({ levels: [1, 2, 3] }),
       Link.configure({
