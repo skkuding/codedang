@@ -83,7 +83,7 @@ export function ContestMainBanner() {
               <FaCirclePlay color="gray" className="z-20 h-6 w-6 rotate-180" />
             </div>
 
-            <div className="mb-10 flex w-[440px] flex-col justify-center gap-5 pl-3 text-4xl font-bold">
+            <div className="mb-10 flex w-[448px] flex-col justify-center gap-5 pl-3 text-4xl font-bold">
               <p
                 className="text-[22px] font-medium leading-[130%]"
                 style={{ color: TextColors[slide.type] }}
