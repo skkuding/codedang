@@ -136,6 +136,20 @@ export function ContestMainBanner() {
               <div className="absolute z-10 h-3 w-3 rounded-full bg-white" />
               <FaCirclePlay color="gray" className="z-20 h-6 w-6" />
             </div>
+            <div className="absolute bottom-5 flex gap-[7px]">
+              <div
+                className={cn(
+                  'z-10 h-[7px] w-[7px] rounded-full',
+                  slide.type === 'recent' ? 'bg-white' : 'bg-[#A9A9A9]'
+                )}
+              />
+              <div
+                className={cn(
+                  'z-10 h-[7px] w-[7px] rounded-full',
+                  slide.type === 'upcoming' ? 'bg-white' : 'bg-[#A9A9A9]'
+                )}
+              />
+            </div>
           </div>
         ))}
       </div>
