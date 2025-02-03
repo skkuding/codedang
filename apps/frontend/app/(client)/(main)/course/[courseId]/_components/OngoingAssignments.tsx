@@ -25,7 +25,8 @@ export function OngoingAssignments() {
                   startTime: new Date('2025-01-12'),
                   endTime: new Date('2024-01-22'),
                   group: { id: 'G1', groupName: 'Group A' },
-                  isGraded: true
+                  isGraded: true,
+                  status: 'ongoing'
                 },
                 {
                   id: 2,
@@ -33,7 +34,8 @@ export function OngoingAssignments() {
                   startTime: new Date('2025-01-12'),
                   endTime: new Date('2024-01-22'),
                   group: { id: 'G1', groupName: 'Group A' },
-                  isGraded: false
+                  isGraded: false,
+                  status: 'ongoing'
                 }
               ]),
             1000
