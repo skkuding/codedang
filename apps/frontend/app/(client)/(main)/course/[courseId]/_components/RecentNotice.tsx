@@ -1,19 +1,34 @@
 'use client'
 
+import type { CourseNotice } from '@/types/type'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
-interface Notice {
-  id: number
-  title: string
-  isNew: boolean
+const formatDate = (date: Date) => {
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+
+  return `${year}.${month}.${day}`
+}
+
+interface DateBadgeProps {
+  date: string
+}
+
+function DateBadge({ date }: DateBadgeProps) {
+  return (
+    <div className="text-primary mb-1 inline-block rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold">
+      <span>{date}</span>
+    </div>
+  )
 }
 
 export function RecentNotice() {
   const searchParams = useSearchParams()
   const courseId = searchParams.get('courseId')
-  const [notices, setNotices] = useState<Notice[]>([])
+  const [notices, setNotices] = useState<CourseNotice[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -40,14 +55,21 @@ export function RecentNotice() {
           {
             id: 999,
             title: '[필독] 3주차 과제 1번 문제 수정사항',
-            isNew: true
+            isNew: true,
+            date: new Date(2025, 1, 27)
           },
           {
             id: 998,
             title: '[필독] 확인된 공지명은 이렇게 보이는 식',
-            isNew: false
+            isNew: false,
+            date: new Date(2025, 1, 27)
           },
-          { id: 997, title: '[샘플] 공지 테스트 3', isNew: false }
+          {
+            id: 997,
+            title: '[샘플] 공지 테스트 3',
+            isNew: false,
+            date: new Date(2025, 1, 27)
+          }
         ])
       } catch (err) {
         setError('공지사항을 불러오는 중 오류가 발생했습니다.')
@@ -60,20 +82,18 @@ export function RecentNotice() {
   }, [])
 
   return (
-    <div className="w-full rounded-xl border border-gray-300 p-5">
-      <div className="mb-2 flex items-center justify-between">
+    <div className="w-full rounded-xl p-4 shadow">
+      <div className="mb-2 flex justify-between">
         <div>
-          <span className="mr-4 font-semibold text-gray-800">최근 공지</span>
-          <span className="text-sm font-semibold text-blue-500">
-            {notices.length}
-          </span>
+          <span className="text-primary mr-4 font-semibold">Recent Notice</span>
+          <span className="text-sm font-semibold">{notices.length}</span>
         </div>
 
         <Link
           href={`/course/${courseId}/notice` as const}
-          className="flex items-center text-sm text-gray-500"
+          className="text-primary flex items-center text-xs font-semibold"
         >
-          show more <span className="ml-1">+</span>
+          SHOW MORE<span className="ml-1">+</span>
         </Link>
       </div>
 
@@ -88,18 +108,25 @@ export function RecentNotice() {
               //TODO: 공지 요소 누르면 해당 페이지로 넘어가는 기능 필요!
               <li
                 key={notice.id}
-                className="flex border-b pb-1 text-sm text-gray-700"
+                className="flex justify-between border-b text-sm"
               >
-                <span
-                  className={`mr-2 text-xs ${
-                    notice.isNew ? 'text-green-500' : 'text-red-500'
-                  }`}
-                >
-                  ●
-                </span>
-                <span className={notice.isNew ? 'font-bold' : ''}>
-                  {notice.title}
-                </span>
+                <div>
+                  <span
+                    className={`mr-2 text-xs ${
+                      notice.isNew ? 'text-primary' : 'text-[#8A8A8A]'
+                    }`}
+                  >
+                    ●
+                  </span>
+                  <span
+                    className={`mr-2 text-xs ${
+                      notice.isNew ? 'text-black' : 'text-[#8A8A8A]'
+                    }`}
+                  >
+                    {notice.title}
+                  </span>
+                </div>
+                <DateBadge date={formatDate(notice.date)} />
               </li>
             ))
           ) : (
