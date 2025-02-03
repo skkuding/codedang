@@ -8,6 +8,11 @@ import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { FaArrowRight, FaCirclePlay } from 'react-icons/fa6'
 
+// interface {
+//   fastestUpomingContestId: number,
+//     most
+// }
+
 const slides = [
   {
     type: 'recent',
@@ -43,6 +48,8 @@ export function ContestMainCarousel() {
   const [facade, setFacade] = useState(0)
   const router = useRouter()
 
+  // const
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setFacade((facade + 1) % slides.length)
@@ -76,7 +83,8 @@ export function ContestMainCarousel() {
 
             <div className="mb-10 flex w-[440px] flex-col justify-center gap-5 pl-3 text-4xl font-bold">
               <p
-                className={`text-[22px] font-medium leading-[130%] text-[${TextColors[slide.type]}] `}
+                className="text-[22px] font-medium leading-[130%]"
+                style={{ color: TextColors[slide.type] }}
               >
                 {slide.subDescription}
               </p>
@@ -94,10 +102,13 @@ export function ContestMainCarousel() {
               <Button
                 variant="outline"
                 className={cn(
-                  `mt-2 w-[209px] gap-[6px] rounded-full font-medium border-[${TextColors[slide.type]}] text-[${TextColors[slide.type]}]`,
-                  'hover:bg-transparent',
+                  'mt-2 w-[209px] gap-[6px] rounded-full font-medium hover:bg-transparent',
                   slide.bgcolor
                 )}
+                style={{
+                  borderColor: TextColors[slide.type],
+                  color: TextColors[slide.type]
+                }}
                 onClick={() => router.push(slide.href as Route)}
               >
                 {slide.buttonDescription}
