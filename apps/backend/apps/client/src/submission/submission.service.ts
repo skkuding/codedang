@@ -57,9 +57,9 @@ export class SubmissionService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  setRequest(req: Request) {
-    this.req = req
-  }
+  // setRequest(req: Request) {
+  //   this.req = req
+  // }
 
   /**
    * 아직 채점되지 않은 제출 기록을 만들고, 채점 요청 큐에 메세지를 발행합니다.
@@ -482,6 +482,7 @@ export class SubmissionService {
   async submitTest(
     userId: number,
     problemId: number,
+    userIp: string,
     submissionDto: CreateSubmissionDto,
     isUserTest = false
   ): Promise<void> {
@@ -519,7 +520,7 @@ export class SubmissionService {
       result: 'Judging',
       score: 0,
       userId,
-      userIp: null,
+      userIp,
       assignmentId: null,
       contestId: null,
       workbookId: null,
@@ -671,16 +672,10 @@ export class SubmissionService {
       throw new ConflictFoundException('Modifying template is not allowed')
     }
 
-    const userIp =
-      this.req?.headers['x-forwarded-for']?.toString().split(',')[0] ||
-      this.req?.ip ||
-      this.req?.connection?.remoteAddress ||
-      '0.0.0.0'
-
     const submissionData = {
       code: codeSnippet.map((snippet) => ({ ...snippet })),
       userId: testSubmission.userId,
-      userIp: userIp as string,
+      userIp: testSubmission.userIp,
       problemId: testSubmission.problemId,
       codeSize: new TextEncoder().encode(codeSnippet[0].text).length,
       language: testSubmission.language
