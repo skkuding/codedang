@@ -77,7 +77,7 @@ export function OngoingAssignments() {
                 {assignment.isGraded ? (
                   <Image
                     src={checkBlue}
-                    alt="ss"
+                    alt="graded"
                     width={24}
                     height={24}
                     className="mr-2 inline-block"
@@ -85,7 +85,7 @@ export function OngoingAssignments() {
                 ) : (
                   <Image
                     src={checkGray}
-                    alt="ss"
+                    alt="not graded"
                     width={24}
                     height={24}
                     className="mr-2 inline-block"

@@ -24,11 +24,6 @@ const icons: { [key: string]: string } = {
   course: '/banners/course.png'
 }
 
-/**
- * @param title - title text
- * @param description - description text
-
- */
 export function Cover({ title, description }: CoverProps) {
   return (
     <div className="w-screen">
