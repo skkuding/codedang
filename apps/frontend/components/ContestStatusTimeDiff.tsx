@@ -99,7 +99,7 @@ export function ContestStatusTimeDiff({
     >
       {contestStatus === 'finished' ? (
         <>
-          <Image src={ClockIcon} alt="Clock" />
+          <Image src={ClockIcon} alt="Clock" width={20} height={20} />
           Finished
           <p className="overflow-hidden text-ellipsis whitespace-nowrap">
             {timeDiff.days > 0
@@ -110,7 +110,7 @@ export function ContestStatusTimeDiff({
         </>
       ) : (
         <>
-          <Image src={ClockIcon} alt="Clock" />
+          <Image src={ClockIcon} alt="Clock" width={20} height={20} />
           {contestStatus === 'ongoing' || contestStatus === 'registeredOngoing'
             ? 'Ends in'
             : 'Starts in'}
