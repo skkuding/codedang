@@ -10,6 +10,16 @@ import { AddUserTestcaseDialog } from './AddUserTestcaseDialog'
 import { TestcaseTable } from './TestcaseTable'
 import { useTestResults } from './useTestResults'
 
+function getWidthClass(length: number) {
+  if (length < 5) {
+    return 'w-40'
+  } else if (length < 7) {
+    return 'w-28'
+  } else {
+    return 'w-24'
+  }
+}
+
 export function TestcasePanel() {
   const [testcaseTabList, setTestcaseTabList] = useState<TestResultDetail[]>([])
   const [currentTab, setCurrentTab] = useState<number>(0)
@@ -59,17 +69,7 @@ export function TestcasePanel() {
           nextTab={testcaseTabList[0]?.originalId}
           className={cn(
             'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
-            (() => {
-              let widthClass = ''
-              if (testcaseTabList.length < 5) {
-                widthClass = 'w-40' //기본 너비
-              } else if (testcaseTabList.length < 7) {
-                widthClass = 'w-28' //좁은 너비
-              } else {
-                widthClass = 'w-24' //짧은 너비
-              }
-              return widthClass
-            })()
+            getWidthClass(testcaseTabList.length)
           )}
         >
           <div className="flex h-full w-full items-center justify-center">
@@ -103,17 +103,7 @@ export function TestcasePanel() {
                 key={testcase.originalId}
                 className={cn(
                   'h-12 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap', // 높이, 말줄임 처리
-                  (() => {
-                    let widthClass = ''
-                    if (testcaseTabList.length < 5) {
-                      widthClass = 'w-40'
-                    } else if (testcaseTabList.length < 7) {
-                      widthClass = 'w-28'
-                    } else {
-                      widthClass = 'w-24'
-                    }
-                    return widthClass
-                  })()
+                  getWidthClass(testcaseTabList.length)
                 )}
               >
                 <div className="flex h-12 w-full items-center justify-center overflow-hidden text-ellipsis whitespace-nowrap">
