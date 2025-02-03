@@ -1,5 +1,6 @@
 'use client'
 
+import { cn } from '@/libs/utils'
 import type { CourseNotice } from '@/types/type'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -119,9 +120,10 @@ export function RecentNotice() {
                     ●
                   </span>
                   <span
-                    className={`mr-2 text-xs ${
+                    className={cn(
+                      'mr-2 text-xs',
                       notice.isNew ? 'text-black' : 'text-[#8A8A8A]'
-                    }`}
+                    )}
                   >
                     {notice.title}
                   </span>
