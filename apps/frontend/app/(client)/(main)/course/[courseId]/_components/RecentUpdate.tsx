@@ -1,24 +1,37 @@
 'use client'
 
-import Link from 'next/link'
+import assignmentIcon from '@/public/icons/assignment.svg'
+import examIcon from '@/public/icons/exam.svg'
+import gradeIcon from '@/public/icons/grade.svg'
+import QnAIcon from '@/public/icons/qna.svg'
+import type { CourseRecentUpdate, RecentUpdateType } from '@/types/type'
+import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
-
-interface Notice {
-  id: number
-  title: string
-  isNew: boolean
-}
 
 export function RecentUpdate() {
   const searchParams = useSearchParams()
   const courseId = searchParams.get('courseId')
-  const [notices, setNotices] = useState<Notice[]>([])
+  const [updates, setUpdates] = useState<CourseRecentUpdate[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const getRecentUpdateIcon = (type: RecentUpdateType) => {
+    switch (type) {
+      case 'Assignment':
+        return assignmentIcon
+      case 'Grade':
+        return gradeIcon
+      case 'QnA':
+        return QnAIcon
+      case 'Exam':
+        return examIcon
+      default:
+        throw new Error(`Unknown type: ${type}`)
+    }
+  }
 
   useEffect(() => {
-    const fetchNotices = () => {
+    const fetchUpdates = () => {
       try {
         // TODO: API 연동 시 사용할 코드입니다.
         // const response = await fetch('')
@@ -36,39 +49,43 @@ export function RecentUpdate() {
         // setNotices(formattedData)
 
         // 이것은 샘플 데이터입니다.
-        setNotices([
+        setUpdates([
           {
             id: 999,
-            title: '[필독] 3주차 과제 1번 문제 수정사항',
-            isNew: true
+            title: 'Week 2 Assignment Uploaded',
+            isNew: true,
+            type: 'Assignment'
           },
           {
             id: 998,
-            title: '[필독] 확인된 공지명은 이렇게 보이는 식',
-            isNew: false
+            title: 'Week 1 Assignment Graded',
+            isNew: false,
+            type: 'Grade'
           },
-          { id: 997, title: '[샘플] 공지 테스트 3', isNew: false }
+          {
+            id: 997,
+            title: 'New Answer Registered',
+            isNew: false,
+            type: 'QnA'
+          }
         ])
       } catch (err) {
-        setError('공지사항을 불러오는 중 오류가 발생했습니다.')
+        setError('업데이트를 불러오는 중 오류가 발생했습니다.')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchNotices()
+    fetchUpdates()
   }, [])
 
   return (
-    <div className="w-full rounded-xl border border-gray-300 p-5">
-      <div className="mb-2 flex items-center justify-between">
-        <span className="font-semibold text-gray-800">Recent Update</span>
-        <Link
-          href={`/course/${courseId}/notice` as const}
-          className="flex items-center text-sm text-gray-500"
-        >
-          show more <span className="ml-1">+</span>
-        </Link>
+    <div className="w-full rounded-xl p-4 shadow">
+      <div className="mb-2 flex justify-between">
+        <div>
+          <span className="text-primary mr-4 font-semibold">RECENT UPDATE</span>
+          <span className="text-sm font-semibold">{updates.length}</span>
+        </div>
       </div>
 
       {loading && <p className="text-sm text-gray-500">Loading...</p>}
@@ -77,23 +94,37 @@ export function RecentUpdate() {
 
       {!loading && !error && (
         <ul className="space-y-5 pt-3">
-          {notices.length > 0 ? (
-            notices.map((notice) => (
-              //TODO: 공지 요소 누르면 해당 페이지로 넘어가는 기능 필요!
+          {updates.length > 0 ? (
+            updates.map((update) => (
+              //TODO: 업데이트 요소 누르면 해당 페이지로 넘어가는 기능 필요!
               <li
-                key={notice.id}
-                className="flex border-b pb-1 text-sm text-gray-700"
+                key={update.id}
+                className="flex justify-between border-b text-sm"
               >
-                <span
-                  className={`mr-2 text-xs ${
-                    notice.isNew ? 'text-green-500' : 'text-red-500'
-                  }`}
-                >
-                  ●
-                </span>
-                <span className={notice.isNew ? 'font-bold' : ''}>
-                  {notice.title}
-                </span>
+                <div>
+                  <span
+                    className={`mr-2 text-xs ${
+                      update.isNew ? 'text-primary' : 'text-[#8A8A8A]'
+                    }`}
+                  >
+                    ●
+                  </span>
+                  {/* TODO: update.isNew일때 검정, else 회색 아직 적용 못 했습니다. svg파일에 색 적용하는 법을 모르겠어요.. */}
+                  <Image
+                    src={getRecentUpdateIcon(update.type)}
+                    alt={update.type}
+                    width={20}
+                    height={20}
+                    className={`mb-1 mr-2 inline-block ${update.isNew ? 'text-primary' : 'text-[#8A8A8A]'}`}
+                  />
+                  <span
+                    className={`mr-2 text-xs ${
+                      update.isNew ? 'text-black' : 'text-[#8A8A8A]'
+                    }`}
+                  >
+                    {update.title}
+                  </span>
+                </div>
               </li>
             ))
           ) : (

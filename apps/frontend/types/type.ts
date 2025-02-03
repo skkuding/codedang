@@ -12,6 +12,8 @@ export type AssignmentStatus =
   | 'registeredOngoing'
   | 'registeredUpcoming'
 
+export type RecentUpdateType = 'Assignment' | 'Grade' | 'QnA' | 'Exam'
+
 export type CourseStatus = 'ongoing' | 'finished'
 
 export type Level = 'Level1' | 'Level2' | 'Level3' | 'Level4' | 'Level5'
@@ -233,6 +235,13 @@ export interface CourseNotice {
   id: number
   title: string
   date: Date
+  isNew: boolean
+}
+
+export interface CourseRecentUpdate {
+  id: number
+  title: string
+  type: RecentUpdateType
   isNew: boolean
 }
 
