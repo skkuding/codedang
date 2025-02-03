@@ -331,8 +331,8 @@ importers:
         specifier: ^6.1.0
         version: 6.1.0
       prisma-nestjs-graphql:
-        specifier: ^20.0.3
-        version: 20.0.3
+        specifier: ^21.1.1
+        version: 21.1.1
       proxyquire:
         specifier: ^2.1.3
         version: 2.1.3
@@ -8035,6 +8035,7 @@ packages:
 
   lodash.get@4.4.2:
     resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}
+    deprecated: This package is deprecated. Use the optional chaining (?.) operator instead.
 
   lodash.groupby@4.6.0:
     resolution: {integrity: sha512-5dcWxm23+VAoz+awKmBaiBvzox8+RqMgFhi7UvX9DHZr2HdxHXM/Wrf8cfKpsW37RNrvtPn6hSwNqurSILbmJw==}
@@ -8047,6 +8048,7 @@ packages:
 
   lodash.isequal@4.5.0:
     resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
+    deprecated: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
 
   lodash.isfunction@3.0.9:
     resolution: {integrity: sha512-AirXNj15uRIMMPihnkInB4i3NHeb4iBtNg9WRWuK2o31S+ePwwNmDPaTL3o7dTJ+VXNZim7rFs4rxN4YU1oUJw==}
@@ -8080,6 +8082,7 @@ packages:
 
   lodash.omit@4.5.0:
     resolution: {integrity: sha512-XeqSp49hNGmlkj2EJlfrQFIzQ6lXdNro9sddtQzcJY8QaoC2GO0DT7xaIokHeyM+mIT0mPMlPvkYzg2xCuHdZg==}
+    deprecated: This package is deprecated. Use destructuring assignment syntax instead.
 
   lodash.once@4.1.1:
     resolution: {integrity: sha512-Sb487aTOCr9drQVL8pIxOzVhafOjZN9UU54hiN8PU3uAiSV7lx1yYNpbNmex2PK6dSJoNTSJUUswT651yww3Mg==}
@@ -8763,8 +8766,8 @@ packages:
     resolution: {integrity: sha512-D2FR03Vir7FIu45XBY20mTb+/ZSWB00sjU9jdQXt83gDrI4Ztz5Fs7/yy74g2N5SVQY4xY1qDr4rNddwYRVX0g==}
     engines: {node: '>=0.10.0'}
 
-  outmatch@0.7.0:
-    resolution: {integrity: sha512-w1ybiTBffGiwxOO7JJBVVOsIiWwzcfSl/D80amWAU2UDe1o9/SySOUzAwDuN3+jGKQRs0UCDTS8rndFiroJgVQ==}
+  outmatch@1.0.0:
+    resolution: {integrity: sha512-Dro+1hlvosA7DUKFqeHUA2g+xdWGoGTGZ+19go5vwxqS7iSTXQtajrEdhTdBXdahzGBEV2NH89vouFWpLyOuPg==}
 
   outvariant@1.4.3:
     resolution: {integrity: sha512-+Sl2UErvtsoajRDKCE5/dBz4DIvHXQQnAxtQTF04OJxY0+DyZXSo5P5Bb7XYWOh81syohlYL24hbDwxedPUJCA==}
@@ -9232,8 +9235,8 @@ packages:
     resolution: {integrity: sha512-ZtV1YrwscEjlrUzYrTSs6Nwo49JM3pXLM4fFOBSC3wSni+bxaWlw9/Qgk75PZO8M7cX2EybmL2iwvaV3vkAttw==}
     engines: {node: '>=14'}
 
-  prisma-nestjs-graphql@20.0.3:
-    resolution: {integrity: sha512-p8ZGoXqc+s6sI1UnIRK9qmT9neFyt8V+SAfuP1SZNgJQBhKc/8hO2dfwZFqLHAYrbfo/psAa+AghO4yx5pohuA==}
+  prisma-nestjs-graphql@21.1.1:
+    resolution: {integrity: sha512-XoCPekDvEKrIzASI6AlbMQYZMyOUuo1rrCD6Go3E4b+uttE9pHPXw+k3m/oQsr7MJXYsmYNCBor6sm0OgTirVA==}
     hasBin: true
 
   prisma@6.1.0:
@@ -11823,7 +11826,7 @@ snapshots:
       '@babel/traverse': 7.25.9
       '@babel/types': 7.26.0
       convert-source-map: 2.0.0
-      debug: 4.3.7
+      debug: 4.3.7(supports-color@8.1.1)
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -12131,7 +12134,7 @@ snapshots:
       '@babel/parser': 7.26.2
       '@babel/template': 7.25.9
       '@babel/types': 7.26.0
-      debug: 4.3.7
+      debug: 4.3.7(supports-color@8.1.1)
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -13195,7 +13198,7 @@ snapshots:
       '@types/js-yaml': 4.0.9
       '@whatwg-node/fetch': 0.9.23
       chalk: 4.1.2
-      debug: 4.3.7
+      debug: 4.3.7(supports-color@8.1.1)
       dotenv: 16.4.7
       graphql: 16.10.0
       graphql-request: 6.1.0(graphql@16.10.0)
@@ -17012,13 +17015,13 @@ snapshots:
 
   agent-base@6.0.2:
     dependencies:
-      debug: 4.3.7
+      debug: 4.3.7(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
   agent-base@7.1.1:
     dependencies:
-      debug: 4.3.7
+      debug: 4.3.7(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -18059,10 +18062,6 @@ snapshots:
       ms: 2.0.0
 
   debug@3.2.7:
-    dependencies:
-      ms: 2.1.3
-
-  debug@4.3.7:
     dependencies:
       ms: 2.1.3
 
@@ -19441,7 +19440,7 @@ snapshots:
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.1
-      debug: 4.3.7
+      debug: 4.3.7(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -19453,14 +19452,14 @@ snapshots:
   https-proxy-agent@5.0.1:
     dependencies:
       agent-base: 6.0.2
-      debug: 4.3.7
+      debug: 4.3.7(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
   https-proxy-agent@7.0.5:
     dependencies:
       agent-base: 7.1.1
-      debug: 4.3.7
+      debug: 4.3.7(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -21189,7 +21188,7 @@ snapshots:
 
   os-tmpdir@1.0.2: {}
 
-  outmatch@0.7.0: {}
+  outmatch@1.0.0: {}
 
   outvariant@1.4.3: {}
 
@@ -21630,7 +21629,7 @@ snapshots:
       uuid: 9.0.1
     optional: true
 
-  prisma-nestjs-graphql@20.0.3:
+  prisma-nestjs-graphql@21.1.1:
     dependencies:
       '@prisma/generator-helper': 5.22.0
       await-event-emitter: 2.0.2
@@ -21640,7 +21639,7 @@ snapshots:
       graceful-fs: 4.2.11
       json5: 2.2.3
       lodash: 4.17.21
-      outmatch: 0.7.0
+      outmatch: 1.0.0
       pluralize: 8.0.0
       pupa: 2.1.1
       ts-morph: 16.0.0
@@ -22164,7 +22163,7 @@ snapshots:
 
   require-in-the-middle@7.4.0:
     dependencies:
-      debug: 4.3.7
+      debug: 4.3.7(supports-color@8.1.1)
       module-details-from-path: 1.0.3
       resolve: 1.22.8
     transitivePeerDependencies:
@@ -23265,7 +23264,7 @@ snapshots:
   vite-node@2.1.8(@types/node@20.17.11)(terser@5.36.0):
     dependencies:
       cac: 6.7.14
-      debug: 4.3.7
+      debug: 4.3.7(supports-color@8.1.1)
       es-module-lexer: 1.5.4
       pathe: 1.1.2
       vite: 5.4.10(@types/node@20.17.11)(terser@5.36.0)
@@ -23300,7 +23299,7 @@ snapshots:
       '@vitest/spy': 2.1.8
       '@vitest/utils': 2.1.8
       chai: 5.1.2
-      debug: 4.3.7
+      debug: 4.3.7(supports-color@8.1.1)
       expect-type: 1.1.0
       magic-string: 0.30.12
       pathe: 1.1.2
