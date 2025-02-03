@@ -6,7 +6,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
-    include: ['./libs/**/*.spec.ts'],
+   exclude: ['**/node_modules/**', '**/playwright/**'],
     env: {
       NEXT_PUBLIC_BASEURL: 'https://test.com/api',
       NEXTAUTH_URL: 'https://test.com/next-auth/api/auth'
