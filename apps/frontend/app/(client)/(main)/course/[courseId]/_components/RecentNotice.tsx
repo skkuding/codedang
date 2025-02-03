@@ -112,9 +112,10 @@ export function RecentNotice() {
               >
                 <div>
                   <span
-                    className={`mr-2 text-xs ${
+                    className={cn(
+                      'mr-2 text-xs',
                       notice.isNew ? 'text-primary' : 'text-[#8A8A8A]'
-                    }`}
+                    }}
                   >
                     ●
                   </span>
