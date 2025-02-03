@@ -1,17 +1,12 @@
 'use client'
 
 import { Button } from '@/components/shadcn/button'
-import { cn } from '@/libs/utils'
-import type { Route } from 'next'
+import { cn, fetcher } from '@/libs/utils'
+import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { FaArrowRight, FaCirclePlay } from 'react-icons/fa6'
-
-// interface {
-//   fastestUpomingContestId: number,
-//     most
-// }
 
 const slides = [
   {
@@ -23,8 +18,7 @@ const slides = [
     mainDescriptionColor:
       'linear-gradient(96deg, #21AEF2 -6.62%, #3AFCF5 94.83%)',
     img: '/banners/computer.png',
-    imgAlt: 'Recent Contest',
-    href: '/contest'
+    imgAlt: 'Recent Contest'
   },
   {
     type: 'upcoming',
@@ -34,8 +28,7 @@ const slides = [
     bgcolor: 'bg-[#E5EDFF]',
     mainDescriptionColor: 'linear-gradient(90deg, #2D51EA 0%, #1A2E84 100%)',
     img: '/banners/trophy-main.png',
-    imgAlt: 'Upcoming Contest',
-    href: '/contest'
+    imgAlt: 'Upcoming Contest'
   }
 ]
 
@@ -48,7 +41,16 @@ export function ContestMainCarousel() {
   const [facade, setFacade] = useState(0)
   const router = useRouter()
 
-  // const
+  // 흠
+  const { data } = useQuery({
+    queryKey: ['mostRecentContestId'],
+    queryFn: async () => {
+      const res: {
+        fastestUpcomingContestId: number
+      } = await fetcher.get('contest/banner').json()
+      return res
+    }
+  })
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -109,7 +111,9 @@ export function ContestMainCarousel() {
                   borderColor: TextColors[slide.type],
                   color: TextColors[slide.type]
                 }}
-                onClick={() => router.push(slide.href as Route)}
+                onClick={() =>
+                  router.push(`/contest/${data?.fastestUpcomingContestId}`)
+                }
               >
                 {slide.buttonDescription}
                 <FaArrowRight />
