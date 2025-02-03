@@ -32,7 +32,7 @@ const getOngoingUpcomingContests = async (
     ...contest,
     status: 'finished'
   }))
-  return data.ongoing.concat(data.upcoming, data.finished)
+  return data.upcoming.concat(data.ongoing, data.finished)
 }
 
 export async function ContestMainTable({
@@ -50,6 +50,7 @@ export async function ContestMainTable({
       columns={columns}
       headerStyle={{
         title: 'text-[#8A8A8A] font-normal text-left w-2/5 md:w-1/2',
+        status: 'text-[#8A8A8A] font-normal w-1/5 md:w-1/6',
         registered: 'text-[#8A8A8A] font-normal w-1/5 md:w-1/6',
         period: 'text-[#8A8A8A] font-normal w-1/5 md:w-1/3'
       }}

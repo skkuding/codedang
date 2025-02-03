@@ -130,10 +130,10 @@ export function ContestDataTable<TData extends Item, TValue>({
                 className={`cursor-pointer border-b-[1.5px] border-neutral-200 ${(() => {
                   let rowClass = ''
                   switch (true) {
-                    case row.original.status.toLowerCase().includes('ongoing'):
+                    case row.original.status.toLowerCase().includes('upcoming'):
                       rowClass = 'bg-neutral-100'
                       break
-                    case row.original.status.toLowerCase().includes('upcoming'):
+                    case row.original.status.toLowerCase().includes('ongoing'):
                       rowClass = 'bg-neutral-50'
                       break
                     default:
