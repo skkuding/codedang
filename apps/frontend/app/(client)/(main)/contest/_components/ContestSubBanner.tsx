@@ -20,6 +20,7 @@ export function ContestSubBanner() {
           <p className="text-neutral-50">
             You&apos;re just one admin approval away from create contest
           </p>
+          {/* TODO: contest 개최 방법 공지사항으로 링크하기 */}
           <Button
             variant="outline"
             className="text-primary-strong mt-2 w-full rounded-full font-medium md:w-[150px]"

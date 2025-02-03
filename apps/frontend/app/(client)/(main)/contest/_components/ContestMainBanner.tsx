@@ -37,7 +37,7 @@ const TextColors: { [key: string]: string } = {
   upcoming: '#4B63FF'
 }
 
-export function ContestMainCarousel() {
+export function ContestMainBanner() {
   const [facade, setFacade] = useState(0)
   const router = useRouter()
 

@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { SearchBar } from '../_components/SearchBar'
 import { ContestFeatureList } from './_components/ContestFeatureList'
-import { ContestMainCarousel } from './_components/ContestMainCarousel'
+import { ContestMainBanner } from './_components/ContestMainBanner'
 import { ContestMainTable } from './_components/ContestMainTable'
 import { ContestSubBanner } from './_components/ContestSubBanner'
 import { ContestTitleFilter } from './_components/ContestTitleFilter'
@@ -62,7 +62,7 @@ export default async function Contest({ searchParams }: ContestProps) {
 
   return (
     <>
-      <ContestMainCarousel />
+      <ContestMainBanner />
 
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<ContestCardListFallback />}>
