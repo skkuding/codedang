@@ -29,7 +29,7 @@ export function ContestSubBanner() {
         </div>
         <div>
           <Image
-            src={'/banners/trophy.png'}
+            src={'/banners/trophy-sub.png'}
             alt={'Trophy'}
             width={338}
             height={290}
