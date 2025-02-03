@@ -229,6 +229,13 @@ export interface Course {
   professor: string
 }
 
+export interface CourseNotice {
+  id: number
+  title: string
+  date: Date
+  isNew: boolean
+}
+
 export interface Assignment {
   id: number
   title: string
