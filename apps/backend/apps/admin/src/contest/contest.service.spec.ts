@@ -39,8 +39,11 @@ const contest: Contest = {
   groupId,
   title: 'title',
   description: 'description',
+  penalty: 20,
+  lastPenalty: false,
   startTime,
   endTime,
+  freezeTime: null,
   isVisible: true,
   isRankVisible: true,
   isJudgeResultVisible: true,
@@ -48,7 +51,13 @@ const contest: Contest = {
   createTime,
   updateTime,
   invitationCode,
-  contestProblem: []
+  contestProblem: [],
+  posterUrl: 'posterUrl',
+  participationTarget: 'participationTarget',
+  competitionMethod: 'competitionMethod',
+  rankingMethod: 'rankingMethod',
+  problemFormat: 'problemFormat',
+  benefits: 'benefits'
 }
 
 const contestWithCount = {
@@ -57,8 +66,11 @@ const contestWithCount = {
   groupId,
   title: 'title',
   description: 'description',
+  penalty: 20,
+  lastPenalty: false,
   startTime,
   endTime,
+  freezeTime: null,
   isVisible: true,
   isRankVisible: true,
   isJudgeResultVisible: true,
@@ -69,7 +81,13 @@ const contestWithCount = {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
     contestRecord: 10
-  }
+  },
+  posterUrl: 'posterUrl',
+  participationTarget: 'participationTarget',
+  competitionMethod: 'competitionMethod',
+  rankingMethod: 'rankingMethod',
+  problemFormat: 'problemFormat',
+  benefits: 'benefits'
 }
 
 const contestWithParticipants: ContestWithParticipants = {
@@ -78,8 +96,12 @@ const contestWithParticipants: ContestWithParticipants = {
   groupId,
   title: 'title',
   description: 'description',
+  penalty: 20,
+  lastPenalty: false,
   startTime,
   endTime,
+
+  freezeTime: null,
   isVisible: true,
   isRankVisible: true,
   enableCopyPaste: true,
@@ -87,7 +109,13 @@ const contestWithParticipants: ContestWithParticipants = {
   createTime,
   updateTime,
   participants: 10,
-  invitationCode
+  invitationCode,
+  posterUrl: 'posterUrl',
+  participationTarget: 'participationTarget',
+  competitionMethod: 'competitionMethod',
+  rankingMethod: 'rankingMethod',
+  problemFormat: 'problemFormat',
+  benefits: 'benefits'
 }
 
 const group: Group = {
@@ -133,6 +161,7 @@ const problem: Problem = {
 }
 
 const contestProblem: ContestProblem = {
+  id: 1,
   order: 0,
   contestId,
   problemId,

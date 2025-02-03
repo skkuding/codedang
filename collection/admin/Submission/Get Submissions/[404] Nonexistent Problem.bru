@@ -1,0 +1,53 @@
+meta {
+  name: [404] Nonexistent Problem
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetSubmissions(
+    $problemId: Int!
+    $groupId: Int
+    $cursor: Int
+    $take: Int
+  ) {
+    getSubmissions(
+      problemId: $problemId
+      groupId: $groupId
+      cursor: $cursor
+      take: $take
+    ) {
+      data {
+        id
+        user {
+          id
+          username
+          studentId
+        }
+        userIp
+        codeSize
+        createTime
+        language
+        result
+        score
+      }
+      total
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "problemId": 9999999,
+    "groupId": 1,
+    "cursor": null,
+    "take": 10
+  }
+}

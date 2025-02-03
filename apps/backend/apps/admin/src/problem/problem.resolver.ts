@@ -10,6 +10,7 @@ import {
   Parent
 } from '@nestjs/graphql'
 import {
+  AssignmentProblem,
   ContestProblem,
   Image,
   ProblemTag,
@@ -92,7 +93,12 @@ export class ProblemResolver {
     @Args('take', { defaultValue: 10, type: () => Int }) take: number,
     @Args('input') input: FilterProblemsInput
   ) {
-    return await this.problemService.getProblems(input, groupId, cursor, take)
+    return await this.problemService.getProblems({
+      input,
+      groupId,
+      cursor,
+      take
+    })
   }
 
   @Query(() => ProblemWithIsVisible)
@@ -199,6 +205,74 @@ export class ContestProblemResolver {
   @ResolveField('problem', () => ProblemWithIsVisible)
   async getProblem(@Parent() contestProblem: ContestProblem) {
     return await this.problemService.getProblemById(contestProblem.problemId)
+  }
+}
+
+@Resolver(() => AssignmentProblem)
+export class AssignmentProblemResolver {
+  constructor(private readonly problemService: ProblemService) {}
+
+  @Query(() => [AssignmentProblem], { name: 'getAssignmentProblems' })
+  async getAssignmentProblems(
+    @Args(
+      'groupId',
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
+      GroupIDPipe
+    )
+    groupId: number,
+    @Args(
+      'assignmentId',
+      { type: () => Int },
+      new RequiredIntPipe('assignmenttId')
+    )
+    assignmentId: number
+  ) {
+    return await this.problemService.getAssignmentProblems(
+      groupId,
+      assignmentId
+    )
+  }
+
+  @Mutation(() => [AssignmentProblem])
+  async updateAssignmentProblemsScore(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('assignmentId', { type: () => Int }) assignmentId: number,
+    @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
+    problemIdsWithScore: ProblemScoreInput[]
+  ) {
+    return await this.problemService.updateAssignmentProblemsScore(
+      groupId,
+      assignmentId,
+      problemIdsWithScore
+    )
+  }
+
+  @Mutation(() => [AssignmentProblem])
+  async updateAssignmentProblemsOrder(
+    @Args(
+      'groupId',
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
+      GroupIDPipe
+    )
+    groupId: number,
+    @Args(
+      'assignmentId',
+      { type: () => Int },
+      new RequiredIntPipe('assignmentId')
+    )
+    assignmentId: number,
+    @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
+  ) {
+    return await this.problemService.updateAssignmentProblemsOrder(
+      groupId,
+      assignmentId,
+      orders
+    )
+  }
+
+  @ResolveField('problem', () => ProblemWithIsVisible)
+  async getProblem(@Parent() assignmentProblem: AssignmentProblem) {
+    return await this.problemService.getProblemById(assignmentProblem.problemId)
   }
 }
 

@@ -5,6 +5,8 @@ import type {
   WorkbookProblem,
   Contest,
   ContestProblem,
+  Assignment,
+  AssignmentProblem,
   ProblemTag,
   Tag
 } from '@generated'
@@ -371,6 +373,217 @@ export const exampleContest: Contest = {
   id: 1,
   title: 'example',
   description: 'example',
+  penalty: 20,
+  lastPenalty: false,
+  groupId: 1,
+  createdById: 1,
+  isVisible: true,
+  isRankVisible: true,
+  enableCopyPaste: true,
+  isJudgeResultVisible: true,
+  startTime: new Date(),
+  endTime: new Date(),
+  freezeTime: null,
+  createTime: new Date(),
+  updateTime: new Date(),
+  invitationCode: '123456',
+  posterUrl: 'posterUrl',
+  participationTarget: 'participationTarget',
+  competitionMethod: 'competitionMethod',
+  rankingMethod: 'rankingMethod',
+  problemFormat: 'problemFormat',
+  benefits: 'benefits'
+}
+export const exampleContestProblems: ContestProblem[] = [
+  {
+    id: 1,
+    order: 1,
+    contestId: 1,
+    problemId: 1,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 2,
+    order: 2,
+    contestId: 1,
+    problemId: 2,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 3,
+    order: 3,
+    contestId: 1,
+    problemId: 3,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 4,
+    order: 4,
+    contestId: 1,
+    problemId: 4,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 5,
+    order: 5,
+    contestId: 1,
+    problemId: 5,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 6,
+    order: 6,
+    contestId: 1,
+    problemId: 6,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 7,
+    order: 7,
+    contestId: 1,
+    problemId: 7,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 8,
+    order: 8,
+    contestId: 1,
+    problemId: 8,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 9,
+    order: 9,
+    contestId: 1,
+    problemId: 9,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 10,
+    order: 10,
+    contestId: 1,
+    problemId: 10,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  }
+]
+
+export const exampleOrderUpdatedContestProblems: ContestProblem[] = [
+  {
+    id: 1,
+    order: 1,
+    contestId: 1,
+    problemId: 2,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 2,
+    order: 2,
+    contestId: 1,
+    problemId: 3,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 3,
+    order: 3,
+    contestId: 1,
+    problemId: 4,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 4,
+    order: 4,
+    contestId: 1,
+    problemId: 5,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 5,
+    order: 5,
+    contestId: 1,
+    problemId: 6,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 6,
+    order: 6,
+    contestId: 1,
+    problemId: 7,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 7,
+    order: 7,
+    contestId: 1,
+    problemId: 8,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 8,
+    order: 8,
+    contestId: 1,
+    problemId: 9,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 9,
+    order: 9,
+    contestId: 1,
+    problemId: 10,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    id: 10,
+    order: 10,
+    contestId: 1,
+    problemId: 1,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  }
+]
+
+export const exampleAssignment: Assignment = {
+  id: 1,
+  title: 'example',
+  description: 'example',
   groupId: 1,
   createdById: 1,
   isVisible: true,
@@ -383,10 +596,10 @@ export const exampleContest: Contest = {
   updateTime: new Date(),
   invitationCode: '123456'
 }
-export const exampleContestProblems: ContestProblem[] = [
+export const exampleAssignmentProblems: AssignmentProblem[] = [
   {
     order: 1,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 1,
     score: 1,
     createTime: new Date(),
@@ -394,7 +607,7 @@ export const exampleContestProblems: ContestProblem[] = [
   },
   {
     order: 2,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 2,
     score: 1,
     createTime: new Date(),
@@ -402,7 +615,7 @@ export const exampleContestProblems: ContestProblem[] = [
   },
   {
     order: 3,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 3,
     score: 1,
     createTime: new Date(),
@@ -410,7 +623,7 @@ export const exampleContestProblems: ContestProblem[] = [
   },
   {
     order: 4,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 4,
     score: 1,
     createTime: new Date(),
@@ -418,7 +631,7 @@ export const exampleContestProblems: ContestProblem[] = [
   },
   {
     order: 5,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 5,
     score: 1,
     createTime: new Date(),
@@ -426,7 +639,7 @@ export const exampleContestProblems: ContestProblem[] = [
   },
   {
     order: 6,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 6,
     score: 1,
     createTime: new Date(),
@@ -434,7 +647,7 @@ export const exampleContestProblems: ContestProblem[] = [
   },
   {
     order: 7,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 7,
     score: 1,
     createTime: new Date(),
@@ -442,7 +655,7 @@ export const exampleContestProblems: ContestProblem[] = [
   },
   {
     order: 8,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 8,
     score: 1,
     createTime: new Date(),
@@ -450,7 +663,7 @@ export const exampleContestProblems: ContestProblem[] = [
   },
   {
     order: 9,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 9,
     score: 1,
     createTime: new Date(),
@@ -458,7 +671,7 @@ export const exampleContestProblems: ContestProblem[] = [
   },
   {
     order: 10,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 10,
     score: 1,
     createTime: new Date(),
@@ -466,10 +679,10 @@ export const exampleContestProblems: ContestProblem[] = [
   }
 ]
 
-export const exampleOrderUpdatedContestProblems: ContestProblem[] = [
+export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
   {
     order: 1,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 2,
     score: 1,
     createTime: new Date(),
@@ -477,7 +690,7 @@ export const exampleOrderUpdatedContestProblems: ContestProblem[] = [
   },
   {
     order: 2,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 3,
     score: 1,
     createTime: new Date(),
@@ -485,7 +698,7 @@ export const exampleOrderUpdatedContestProblems: ContestProblem[] = [
   },
   {
     order: 3,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 4,
     score: 1,
     createTime: new Date(),
@@ -493,7 +706,7 @@ export const exampleOrderUpdatedContestProblems: ContestProblem[] = [
   },
   {
     order: 4,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 5,
     score: 1,
     createTime: new Date(),
@@ -501,7 +714,7 @@ export const exampleOrderUpdatedContestProblems: ContestProblem[] = [
   },
   {
     order: 5,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 6,
     score: 1,
     createTime: new Date(),
@@ -509,7 +722,7 @@ export const exampleOrderUpdatedContestProblems: ContestProblem[] = [
   },
   {
     order: 6,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 7,
     score: 1,
     createTime: new Date(),
@@ -517,7 +730,7 @@ export const exampleOrderUpdatedContestProblems: ContestProblem[] = [
   },
   {
     order: 7,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 8,
     score: 1,
     createTime: new Date(),
@@ -525,7 +738,7 @@ export const exampleOrderUpdatedContestProblems: ContestProblem[] = [
   },
   {
     order: 8,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 9,
     score: 1,
     createTime: new Date(),
@@ -533,7 +746,7 @@ export const exampleOrderUpdatedContestProblems: ContestProblem[] = [
   },
   {
     order: 9,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 10,
     score: 1,
     createTime: new Date(),
@@ -541,7 +754,7 @@ export const exampleOrderUpdatedContestProblems: ContestProblem[] = [
   },
   {
     order: 10,
-    contestId: 1,
+    assignmentId: 1,
     problemId: 1,
     score: 1,
     createTime: new Date(),

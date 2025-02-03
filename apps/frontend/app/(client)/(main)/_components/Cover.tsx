@@ -9,13 +9,15 @@ interface CoverProps {
 const bgColors: { [key: string]: string } = {
   contest: 'bg-gradient-to-b from-[#7BD9D3] to-[#A7A5A1]',
   problem: 'bg-gradient-to-b from-[#5861B7] to-[#99978E]',
-  notice: 'bg-gradient-to-b from-[#2F4672] to-[#4671B3]'
+  notice: 'bg-gradient-to-b from-[#2F4672] to-[#4671B3]',
+  course: 'bg-gradient-to-b from-[#9784E4] to-[#999999]'
 }
 
 const icons: { [key: string]: string } = {
   problem: '/banners/codedang.png',
   notice: '/banners/notice.png',
-  contest: '/banners/contest.png'
+  contest: '/banners/contest.png',
+  course: '/banners/contest.png'
 }
 
 /**
@@ -26,7 +28,7 @@ const icons: { [key: string]: string } = {
 export function Cover({ title, description }: CoverProps) {
   return (
     <div className="w-screen">
-      <div className="absolute left-0 top-0 z-[10] h-16 w-full bg-white" />
+      <div className="absolute left-0 top-0 z-[10] h-14 w-full bg-white" />
       <div
         className={cn(
           bgColors[title.toLowerCase()],

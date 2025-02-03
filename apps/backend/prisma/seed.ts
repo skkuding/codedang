@@ -16,7 +16,8 @@ import {
   type CodeDraft,
   type AssignmentRecord,
   type Contest,
-  type ContestRecord
+  type ContestRecord,
+  type ContestProblemRecord
 } from '@prisma/client'
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
@@ -50,6 +51,7 @@ const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
 const assignmentAnnouncements: Announcement[] = []
 const contestAnnouncements: Announcement[] = []
+const contestProblemRecords: ContestProblemRecord[] = []
 
 const createUsers = async () => {
   // create super admin user
@@ -957,6 +959,12 @@ const createContests = async () => {
       description: string
       createdById: number
       groupId: number
+      posterUrl: string | null
+      participationTarget: string | null
+      competitionMethod: string | null
+      rankingMethod: string | null
+      problemFormat: string | null
+      benefits: string | null
       startTime: Date
       endTime: Date
       isVisible: boolean
@@ -1001,6 +1009,12 @@ const createContests = async () => {
 </p>`,
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
+        posterUrl: `https://skkuding.dev/open-graph.png`,
+        participationTarget: '성균관대 재학생이라면 누구나',
+        competitionMethod: '온라인으로 진행',
+        rankingMethod: '맞춘 문제 수와 penalty로 산정',
+        problemFormat: '이러한 방식으로 출제될 거에요',
+        benefits: '참가자 전원 스타벅스 기프티콘 증정',
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1015,6 +1029,12 @@ const createContests = async () => {
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '성균관대학교 24학번 신입생',
+        competitionMethod: '강의실에서 오프라인으로 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 종합하여 순위 산출',
+        problemFormat: null,
+        benefits: '1등 10만원 / 2등 3만원',
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1029,6 +1049,12 @@ const createContests = async () => {
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
+        posterUrl: `https://skkuding.dev/open-graph.png`,
+        participationTarget: '성균관대학교 24학번 신입생',
+        competitionMethod: '강의실에서 오프라인으로 진행',
+        rankingMethod: null,
+        problemFormat: '문제 형태가 다음과 같습니다.',
+        benefits: '1등 10만원 / 2등 3만원',
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1043,6 +1069,12 @@ const createContests = async () => {
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
+        posterUrl: `https://skkuding.dev/open-graph.png`,
+        participationTarget: '성균관대학교 24학번 신입생',
+        competitionMethod: '강의실에서 오프라인으로 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 종합하여 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1057,6 +1089,12 @@ const createContests = async () => {
         description: '<p>이 대회는 현재 진행 중입니다 ! (private group)</p>',
         createdById: superAdminUser.id,
         groupId: privateGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '삼성학술정보관 지하1층에서 오프라인 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: '1등 총장상 + 50만원 / 2등 20만원 / 3등 15만원',
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1072,6 +1110,12 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공생',
+        competitionMethod: '온라인 진행',
+        rankingMethod: null,
+        problemFormat: null,
+        benefits: '1~3등에게 상위 대회 출전 자격 부여',
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1086,6 +1130,12 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 23학번',
+        competitionMethod: '온라인 진행',
+        rankingMethod: '맞춘 문제 수를 기준으로 순위를 선정한다.',
+        problemFormat: '1번 문제: / 2번 문제: / 3번 문제: ',
+        benefits: '문제를 모두 맞춘 학생에게 격려금 지원',
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1100,6 +1150,12 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘',
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1114,6 +1170,12 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1128,6 +1190,12 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1142,6 +1210,12 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1156,6 +1230,12 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1170,6 +1250,12 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘',
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1184,6 +1270,12 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요 (private group)</p>',
         createdById: superAdminUser.id,
         groupId: privateGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1199,6 +1291,12 @@ const createContests = async () => {
         description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행 예정...?',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1213,6 +1311,12 @@ const createContests = async () => {
         description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행 예정...?',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1228,6 +1332,12 @@ const createContests = async () => {
           '<p>이 대회는 언젠가 열리겠죠...? isVisible이 false인 assignment입니다</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
+        posterUrl: `https://skkuding.dev/open-graph.png`,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행 예정...?',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: null,
+        benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘',
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: false,
@@ -1242,6 +1352,12 @@ const createContests = async () => {
         description: '<p>이 대회는 언젠가 열리겠죠...? (private group)</p>',
         createdById: superAdminUser.id,
         groupId: privateGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행 예정...?',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: null,
+        benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘',
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1682,6 +1798,191 @@ const createSubmissions = async () => {
       data: {
         userId: users[0].id,
         problemId: problems[0].id,
+        contestId: ongoingContests[0].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `#include <stdio.h>
+int main(void) {
+    printf("Hello, World!\n");
+    return 0;
+}`
+          }
+        ],
+        language: Language.C,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[0].id,
+      result: ResultStatus.Accepted,
+      cpuTime: 12345,
+      memoryUsage: 12345
+    }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[submissions.length - 1].id
+    },
+    data: { result: ResultStatus.Accepted }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[1].id,
+        problemId: problems[1].id,
+        contestId: ongoingContests[0].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `#include <iostream>
+int main(void) {
+    std::cout << "Hello, World!" << endl;
+    return 0;
+}`
+          }
+        ],
+        language: Language.Cpp,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[1].id,
+      result: ResultStatus.WrongAnswer,
+      cpuTime: 12345,
+      memoryUsage: 12345
+    }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[submissions.length - 1].id
+    },
+    data: { result: ResultStatus.WrongAnswer }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[2].id,
+        problemId: problems[2].id,
+        contestId: ongoingContests[0].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}`
+          }
+        ],
+        language: Language.Java,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[2].id,
+      result: ResultStatus.CompileError
+    }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[submissions.length - 1].id
+    },
+    data: { result: ResultStatus.CompileError }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[3].id,
+        problemId: problems[3].id,
+        contestId: ongoingContests[0].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `print("Hello, World!")`
+          }
+        ],
+        language: Language.Python3,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[3].id,
+      result: ResultStatus.RuntimeError,
+      cpuTime: 12345,
+      memoryUsage: 12345
+    }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[submissions.length - 1].id
+    },
+    data: { result: ResultStatus.RuntimeError }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[4].id,
+        problemId: problems[4].id,
+        contestId: ongoingContests[0].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `#include <stdio.h>
+int main(void) {
+    printf("Hello, World!\n");
+    return 0;
+}`
+          }
+        ],
+        language: Language.C,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[4].id,
+      result: ResultStatus.TimeLimitExceeded,
+      cpuTime: 12345,
+      memoryUsage: 12345
+    }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[submissions.length - 1].id
+    },
+    data: { result: ResultStatus.TimeLimitExceeded }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[0].id,
+        problemId: problems[0].id,
         assignmentId: ongoingAssignments[0].id,
         code: [
           {
@@ -1702,7 +2003,7 @@ int main(void) {
 
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[0].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[0].id,
       result: ResultStatus.Accepted,
       cpuTime: 12345,
@@ -1711,7 +2012,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.Accepted }
   })
@@ -1740,7 +2041,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[1].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[1].id,
       result: ResultStatus.WrongAnswer,
       cpuTime: 12345,
@@ -1749,7 +2050,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.WrongAnswer }
   })
@@ -1778,14 +2079,14 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[2].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[2].id,
       result: ResultStatus.CompileError
     }
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.CompileError }
   })
@@ -1810,7 +2111,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[3].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[3].id,
       result: ResultStatus.RuntimeError,
       cpuTime: 12345,
@@ -1819,7 +2120,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.RuntimeError }
   })
@@ -1848,7 +2149,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[4].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[4].id,
       result: ResultStatus.TimeLimitExceeded,
       cpuTime: 12345,
@@ -1857,7 +2158,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.TimeLimitExceeded }
   })
@@ -1886,7 +2187,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[5].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[5].id,
       result: ResultStatus.MemoryLimitExceeded,
       cpuTime: 12345,
@@ -1895,7 +2196,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.MemoryLimitExceeded }
   })
@@ -1920,7 +2221,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[6].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[6].id,
       result: ResultStatus.OutputLimitExceeded,
       cpuTime: 12345,
@@ -1929,7 +2230,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.OutputLimitExceeded }
   })
@@ -2133,6 +2434,22 @@ const createContestRecords = async () => {
   return contestRecords
 }
 
+const createContestProblemRecords = async () => {
+  // contest 1 problems for
+  for (let i = 0; i < 5; ++i) {
+    contestProblemRecords.push(
+      await prisma.contestProblemRecord.create({
+        data: {
+          contestProblemId: i + 1,
+          contestRecordId: 1
+        }
+      })
+    )
+  }
+
+  return contestProblemRecords
+}
+
 const main = async () => {
   await createUsers()
   await createGroups()
@@ -2140,12 +2457,13 @@ const main = async () => {
   await createProblems()
   await createAssignments()
   await createContests()
+  await createContestRecords()
   await createWorkbooks()
   await createSubmissions()
   await createAnnouncements()
   await createCodeDrafts()
   await createAssignmentRecords()
-  await createContestRecords()
+  await createContestProblemRecords()
 }
 
 main()

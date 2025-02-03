@@ -1,18 +1,43 @@
-import { Level, type Language, type Tag } from '@prisma/client'
+import type { Language, Level, Tag } from '@prisma/client'
 import { Exclude, Expose, Type } from 'class-transformer'
 
-@Exclude()
 export class ProblemsResponseDto {
-  @Expose()
-  @Type(() => Problem)
   data: Problem[]
+  total: number
+}
+
+class Problem {
+  id: number
+  title: string
+  engTitle: string | null
+  difficulty: Level
+  submissionCount: number
+  acceptedRate: number
+  tags: Partial<Tag>[]
+  languages: Language[]
+  hasPassed: boolean | null
+}
+
+/**
+ * @deprecated _가 없는 것으로 사용해주세요
+ */
+@Exclude()
+// eslint-disable-next-line
+export class _ProblemsResponseDto {
+  @Expose()
+  @Type(() => _Problem)
+  data: _Problem[]
 
   @Expose()
   total: number
 }
 
+/**
+ * @deprecated _가 없는 것으로 사용해주세요
+ */
 @Exclude()
-class Problem {
+// eslint-disable-next-line
+class _Problem {
   @Expose()
   id: number
 

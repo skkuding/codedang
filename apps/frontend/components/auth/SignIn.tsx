@@ -10,6 +10,7 @@ import { useAuthModalStore } from '@/stores/authModal'
 import { signIn } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { usePostHog } from 'posthog-js/react'
 import { useState } from 'react'
 import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
@@ -30,6 +31,8 @@ export function SignIn() {
     (state) => state
   )
   const router = useRouter()
+  const posthog = usePostHog()
+
   const { register, handleSubmit, watch } = useForm<Inputs>()
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setDisableButton(true)
@@ -39,8 +42,8 @@ export function SignIn() {
         password: data.password,
         redirect: false
       })
-
       if (!res?.error) {
+        posthog.identify(data.username) // Set new distinct ID
         router.refresh()
         hideModal()
         toast.success(`Welcome back, ${data.username}!`)
