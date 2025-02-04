@@ -5,30 +5,29 @@ export class Auth {
   public readonly loginButton: Locator
   public readonly loginModal: Locator
   public readonly loginModalCloseButton: Locator
-  public readonly loginButtonInSignupModal: Locator
+  public readonly loginButtonInSignUpModal: Locator
   public readonly loginSubmitButton: Locator
 
   public readonly forgotIDPasswordButton: Locator
-  public readonly forgotIDPasswordModal: Locator
   public readonly forgotIDPasswordModalCloseButton: Locator
   public readonly forgotEmailAddressSelector: Locator
   public readonly forgotFindUserIDButton: Locator
   public readonly forgotResetPasswordButton: Locator
   public readonly forgotRegisterNowButton: Locator
 
-  public readonly signupButton: Locator
-  public readonly signupModal: Locator
-  public readonly signupModalCloseButton: Locator
-  public readonly signupButtonInLoginModal: Locator
+  public readonly signUpButton: Locator
+  public readonly signUpModal: Locator
+  public readonly signUpModalCloseButton: Locator
+  public readonly signUpButtonInLoginModal: Locator
   public readonly sendEmailButton: Locator
-  public readonly signupEmailAdressSelector: Locator
-  public readonly signupVerificationCode: Locator
-  public readonly signupVerificationCodeNextButton: Locator
-  public readonly signupYourName: Locator
-  public readonly signupUserID: Locator
-  public readonly signupPassword: Locator
-  public readonly signupReenterPassword: Locator
-  public readonly signupRegisterButton: Locator
+  public readonly signUpEmailAdressSelector: Locator
+  public readonly signUpVerificationCode: Locator
+  public readonly signUpVerificationCodeNextButton: Locator
+  public readonly signUpYourName: Locator
+  public readonly signUpUserID: Locator
+  public readonly signUpPassword: Locator
+  public readonly signUpReenterPassword: Locator
+  public readonly signUpRegisterButton: Locator
 
   public readonly usernameSelector: Locator
   public readonly passwordSelector: Locator
@@ -39,26 +38,20 @@ export class Auth {
 
   constructor(page: Page) {
     this.page = page
-    this.loginButton = page.locator(
-      'button.md\\:block.text-primary.h-10.px-3.py-1'
-    )
-
+    this.loginButton = page.getByRole('button', { name: 'Log In' })
     this.loginModal = page.locator(
       'div.flex.h-full.w-full.flex-col.justify-between'
     )
     this.loginModalCloseButton = page.locator('svg.lucide.lucide-x.h-4.w-4')
-    this.loginButtonInSignupModal = page.locator(
+    this.loginButtonInSignUpModal = page.locator(
       'button.inline-flex.items-center.justify-center.text-xs.text-gray-500'
     )
-    this.loginSubmitButton = page.locator(
-      'form button.bg-primary.text-gray-50[type="submit"]'
-    )
+    this.loginSubmitButton = page
+      .locator('form')
+      .getByRole('button', { name: 'Log In' })
 
     this.forgotIDPasswordButton = page.locator(
       'button.inline-flex.items-center.justify-center.rounded-md.font-medium.h-5.w-fit.p-0.py-2.text-xs.text-gray-500'
-    )
-    this.forgotIDPasswordModal = page.locator(
-      'div.flex.h-full.flex-col.items-center.justify-center'
     )
     this.forgotIDPasswordModalCloseButton = page.locator(
       'button.absolute.left-4.top-4'
@@ -72,51 +65,55 @@ export class Auth {
       'button.text-xs.text-gray-500.h-5.w-fit.p-0.py-2'
     )
 
-    this.signupButton = page.locator('button.bg-primary.text-gray-50.font-bold')
-    this.signupModal = page.locator(
+    this.signUpButton = page.locator('button.bg-primary.text-gray-50.font-bold')
+    this.signUpModal = page.locator(
       'div.flex.h-full.flex-col.items-center.justify-center'
     )
-    this.signupModalCloseButton = page.locator('button .lucide.lucide-x')
-    this.signupButtonInLoginModal = page.locator(
+    this.signUpModalCloseButton = page.locator('button .lucide.lucide-x')
+    this.signUpButtonInLoginModal = page.locator(
       'button.inline-flex.items-center.justify-center'
     )
     //not yet
-    this.sendEmailButton = page.locator('button#signup-with-email')
-    this.signupEmailAdressSelector = page.locator('input[name="Email Address"]')
-    this.signupVerificationCode = page.locator(
+    this.sendEmailButton = page.locator('button#signUp-with-email')
+    this.signUpEmailAdressSelector = page.locator('input[name="Email Address"]')
+    this.signUpVerificationCode = page.locator(
       'input[name="Verification Code"]'
     )
-    this.signupVerificationCodeNextButton = page.locator('button#next')
-    this.signupYourName = page.locator('input[name="Your name"]')
-    this.signupUserID = page.locator('input[name="User ID"]')
-    this.signupPassword = page.locator('input[name="Password"]')
-    this.signupReenterPassword = page.locator('input[name="Re-enter password"]')
-    this.signupRegisterButton = page.locator('button#signupRegister')
+    this.signUpVerificationCodeNextButton = page.locator('button#next')
+    this.signUpYourName = page.locator('input[name="Your name"]')
+    this.signUpUserID = page.locator('input[name="User ID"]')
+    this.signUpPassword = page.locator('input[name="Password"]')
+    this.signUpReenterPassword = page.locator('input[name="Re-enter password"]')
+    this.signUpRegisterButton = page.locator('button#signUpRegister')
 
     this.usernameSelector = page.locator('input[name="username"]')
     this.passwordSelector = page.locator('input[name="password"]')
 
-    this.userProfile = page.locator('svg.h-6.w-6.text-white')
+    this.userProfile = page.locator('p.font-semibold.text-white')
     this.logoutButton = page.locator('button#logout')
     this.managementButton = page.locator('button#management')
   }
-
+  async goToMain() {
+    await this.page.goto('https://coolify.codedang.com/')
+  }
   async clickLoginButton() {
     await this.loginButton.click()
   }
 
-  async loginModalVisible(): Promise<boolean> {
-    await this.page.waitForSelector(
-      'div.flex.h-full.w-full.flex-col.justify-between',
-      { state: 'visible' }
-    )
+  async isLogInModalVisible(): Promise<boolean> {
+    await this.loginModal.waitFor()
     return await this.loginModal.isVisible()
+  }
+
+  async isLoggedIn() {
+    return await this.loginButton.isHidden()
   }
 
   async login(username: string, password: string) {
     await this.usernameSelector.fill(username)
     await this.passwordSelector.fill(password)
     await this.loginSubmitButton.click()
+    await this.userProfile.waitFor() // appear when login success
   }
 
   async getJWTToken(): Promise<string | null> {
@@ -127,20 +124,12 @@ export class Auth {
     return tokenCookie ? tokenCookie.value : null
   }
 
-  async submitLoginButton() {
-    await this.loginSubmitButton.click()
-  }
-
-  async clickSignupButtonInLoginModal() {
-    await this.signupButtonInLoginModal.click()
-  }
-
   async clickForgotIDPasswordButton() {
     await this.forgotIDPasswordButton.click()
   }
 
   async forgotIDPasswordModalVisible(): Promise<boolean> {
-    return await this.forgotIDPasswordModal.isVisible()
+    return await this.signUpModal.isVisible()
   }
 
   async closeForgotIDPasswordModal() {
@@ -160,35 +149,32 @@ export class Auth {
   }
 
   async closeLoginModal() {
-    if (await this.loginModalVisible()) {
+    if (await this.isLogInModalVisible()) {
       await this.loginModalCloseButton.click()
     }
   }
 
   async logout() {
     await this.logoutButton.click()
+    await this.loginButton.waitFor()
   }
 
-  async clickSignupButton() {
-    await this.signupButton.click()
-  }
-
-  async signupModalVisible(): Promise<boolean> {
-    return await this.signupModal.isVisible()
+  async clickSignUpButton() {
+    await this.signUpButton.click()
   }
 
   async signUp(emailAddress: string) {
-    await this.signupEmailAdressSelector.fill(emailAddress)
+    await this.signUpEmailAdressSelector.fill(emailAddress)
     await this.sendEmailButton.click()
   }
 
-  async clickLoginButtonInSignupModal() {
-    await this.loginButtonInSignupModal.click()
+  async clickLoginButtonInSignUpModal() {
+    await this.loginButtonInSignUpModal.click()
   }
 
-  async closeSignupModal() {
-    if (await this.signupModalVisible()) {
-      await this.signupModalCloseButton.click()
+  async closeSignUpModal() {
+    if (await this.signUpModal.isVisible()) {
+      await this.signUpModalCloseButton.click()
     }
   }
 }
