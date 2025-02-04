@@ -13,7 +13,6 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/router"
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
-	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox/judger"
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"github.com/skkuding/codedang/apps/iris/src/utils"
@@ -59,7 +58,8 @@ func main() {
 	testcaseManager := testcase.NewTestcaseManager(database)
 
 	fileManager := file.NewFileManager("/app/sandbox/results")
-	var sandbox sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs] = judger.NewJudgerSandboxImpl(fileManager, logProvider, "/app/sandbox/policy/java_policy", "/app/sandbox/libjudger.so")
+
+	sandbox := judger.NewJudgerSandboxImpl(fileManager, logProvider)
 
 	judgeHandler := handler.NewJudgeHandler(
 		sandbox,
