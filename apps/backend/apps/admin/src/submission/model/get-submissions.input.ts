@@ -11,3 +11,15 @@ export class GetContestSubmissionsInput {
   @Field(() => String, { nullable: true })
   searchingName?: string
 }
+
+@InputType()
+export class GetAssignmentSubmissionsInput {
+  @Field(() => Int, { nullable: false })
+  assignmentId!: number
+
+  @Field(() => Int, { nullable: true })
+  problemId?: number
+
+  @Field(() => String, { nullable: true })
+  searchingName?: string
+}

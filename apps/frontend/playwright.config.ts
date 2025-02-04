@@ -5,7 +5,6 @@ export default defineConfig({
   retries: 3,
   reporter: [['list'], ['json', { outputFile: 'test-results.json' }]],
   testDir: './playwright/tests/',
-  testMatch: '**/login.test.ts',
   projects: [
     {
       name: 'firefox',
@@ -18,6 +17,10 @@ export default defineConfig({
     {
       name: 'Google Chrome',
       use: { ...devices['Desktop Chrome'] }
+    },
+    {
+      name: 'Microsoft Edge',
+      use: { ...devices['Desktop Edge'] }
     }
   ]
 })
