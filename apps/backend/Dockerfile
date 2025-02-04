@@ -11,7 +11,7 @@ ARG target
 COPY . /build
 WORKDIR /build
 
-RUN corepack enable
+RUN npm install -g pnpm
 RUN pnpm --filter="@codedang/backend" deploy out
 
 WORKDIR /build/out
