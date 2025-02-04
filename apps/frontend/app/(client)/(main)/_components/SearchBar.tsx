@@ -57,7 +57,7 @@ export function SearchBar({ className }: SearchBarProps) {
       />
       <Input
         placeholder="Search"
-        className="h-9 rounded-full px-8 placeholder:text-[#C4C4C4]"
+        className="h-9 rounded-full px-8 placeholder:text-[#8A8A8A]"
         {...register('search')}
         defaultValue={search ?? ''}
       />

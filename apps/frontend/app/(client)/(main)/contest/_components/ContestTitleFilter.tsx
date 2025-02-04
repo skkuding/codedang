@@ -16,13 +16,15 @@ import React from 'react'
 import { IoFilter } from 'react-icons/io5'
 
 export function ContestTitleFilter() {
+  // const [selectedValues, setSelectedValues] = useState<T[]>([])
+
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           size={'sm'}
-          className="h-10 rounded-full border border-neutral-200 px-4 font-semibold text-black hover:bg-gray-50"
+          className="h-9 rounded-full border border-neutral-200 px-4 font-semibold text-black hover:bg-gray-50"
         >
           <IoFilter className="mr-2 h-4 w-4" />
           <p className="font-bold">Status</p>
