@@ -98,12 +98,14 @@ export class SubmissionController {
   @Post('test')
   async submitTest(
     @Req() req: AuthenticatedRequest,
+    @Headers('x-forwarded-for') userIp: string,
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Body() submissionDto: CreateSubmissionDto
   ) {
     return await this.submissionService.submitTest(
       req.user.id,
       problemId,
+      userIp,
       submissionDto
     )
   }
@@ -124,12 +126,14 @@ export class SubmissionController {
   @Post('user-test')
   async submitUserTest(
     @Req() req: AuthenticatedRequest,
+    @Headers('x-forwarded-for') userIp: string,
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Body() userTestSubmissionDto: CreateUserTestSubmissionDto
   ) {
     return await this.submissionService.submitTest(
       req.user.id,
       problemId,
+      userIp,
       userTestSubmissionDto,
       true
     )
