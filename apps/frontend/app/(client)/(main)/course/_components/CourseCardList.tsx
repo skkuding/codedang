@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Carousel,
   CarouselContent,
@@ -11,6 +13,7 @@ import type { Route } from 'next'
 import type { Session } from 'next-auth'
 import Link from 'next/link'
 import { CourseCard } from '../_components/CourseCard'
+import { RegisterCourseButton } from './RegisterCourseButton'
 
 const bgVariants = [
   'bg-[#fed7de]',
@@ -109,12 +112,16 @@ async function CourseCardCarousel({
       chunks.push(data.slice(i, i + 2))
     }
   }
+
   return (
     <Carousel
       className={cn(itemsPerSlide === 3 ? 'max-xl:hidden' : 'xl:hidden')}
     >
       <div className="mb-5 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-700">{title}</h1>
+        <div className="flex flex-row gap-5">
+          <span className="text-2xl font-bold text-gray-700">{title}</span>
+          <RegisterCourseButton />
+        </div>
         <div className="flex items-center justify-end gap-2">
           <CarouselPrevious />
           <CarouselNext />

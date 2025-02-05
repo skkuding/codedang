@@ -29,7 +29,7 @@ export default async function Course() {
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<CardListFallback />}>
             <CourseCardList
-              title="My Course"
+              title="MY COURSE"
               type="Ongoing"
               session={session}
             />
@@ -37,7 +37,9 @@ export default async function Course() {
         </ErrorBoundary>
         <Separator className="my-4" />
         <div className="flex">
-          <h1 className="text-2xl font-bold text-gray-700">Course Overview</h1>
+          <h1 className="font-sans text-2xl font-semibold text-gray-700">
+            COURSE OVERVIEW
+          </h1>
         </div>
       </div>
       {/* TODO: 완성되면 주석해제 할 거예요! */}
