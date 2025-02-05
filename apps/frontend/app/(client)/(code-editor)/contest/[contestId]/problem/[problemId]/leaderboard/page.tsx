@@ -6,8 +6,6 @@ import type { LeaderboardItem } from '@/types/type'
 import { columns } from './_components/Columns'
 import { DataTable } from './_components/DataTable'
 
-// import dummyData from './temp_data.json'
-
 interface LeaderboardProps {
   problemId: string
   contestId: string
