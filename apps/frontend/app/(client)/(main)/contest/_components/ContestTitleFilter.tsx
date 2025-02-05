@@ -1,8 +1,8 @@
+import { Badge } from '@/components/shadcn/badge'
 import { Button } from '@/components/shadcn/button'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandItem,
   CommandList
@@ -12,11 +12,29 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '@/components/shadcn/popover'
-import React from 'react'
+import { Separator } from '@/components/shadcn/separator'
+import type { Column, Table } from '@tanstack/react-table'
+import React, { type ReactNode } from 'react'
 import { IoFilter } from 'react-icons/io5'
 
-export function ContestTitleFilter() {
-  // const [selectedValues, setSelectedValues] = useState<T[]>([])
+interface ContestTableMultiSelectFilterProps<TData, TValue> {
+  table: Table<TData>
+  column?: Column<TData, TValue>
+  title?: string
+  options: {
+    value: string
+    label: ReactNode
+  }[]
+  emptyMessage?: string
+}
+
+export function ContestTitleFilter<TData, TValue>({
+  table,
+  column,
+  title,
+  options
+}: ContestTableMultiSelectFilterProps<TData, TValue>) {
+  const selectedValues = getSelectedValues(column?.getFilterValue())
 
   return (
     <Popover>
@@ -27,7 +45,36 @@ export function ContestTitleFilter() {
           className="h-9 rounded-full border border-neutral-200 px-4 font-semibold text-black hover:bg-gray-50"
         >
           <IoFilter className="mr-2 h-4 w-4" />
-          <p className="font-bold">Status</p>
+          <p className="font-bold">{title}</p>
+          {selectedValues.size > 0 && (
+            <>
+              <Separator orientation="vertical" className="mx-2 h-4" />
+              <div className="space-x-1">
+                {selectedValues.size === options.length ? (
+                  <Badge
+                    variant="secondary"
+                    className="rounded-sm px-1 font-normal"
+                  >
+                    All
+                  </Badge>
+                ) : (
+                  <div className="flex space-x-1">
+                    {options
+                      .filter((option) => selectedValues.has(option.value))
+                      .map((option) => (
+                        <Badge
+                          key={option.value}
+                          variant="secondary"
+                          className="rounded-sm px-1 font-normal"
+                        >
+                          {option.label}
+                        </Badge>
+                      ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </Button>
       </PopoverTrigger>
 
@@ -36,66 +83,28 @@ export function ContestTitleFilter() {
           <CommandList>
             {/* {emptyMessage && <CommandEmpty>{emptyMessage}</CommandEmpty>} */}
             <CommandGroup>
-              <CommandItem
-                key={'Ongoing'}
-                value={'Ongoing'}
-                className="gap-x-2"
-                // onSelect={() => {
-                //   if (selectedValues.has(value)) {
-                //     selectedValues.delete(value)
-                //   } else {
-                //     selectedValues.add(value)
-                //   }
-                //   const filterValues = Array.from(selectedValues)
-                //   column?.setFilterValue(
-                //     filterValues.length ? filterValues : undefined
-                //   )
-                //   table.resetPageIndex()
-                // }}
-              >
-                <Checkbox />
-                Ongoing
-              </CommandItem>
-              <CommandItem
-                key={'Upcoming'}
-                value={'Upcoming'}
-                className="gap-x-2"
-                // onSelect={() => {
-                //   if (selectedValues.has(value)) {
-                //     selectedValues.delete(value)
-                //   } else {
-                //     selectedValues.add(value)
-                //   }
-                //   const filterValues = Array.from(selectedValues)
-                //   column?.setFilterValue(
-                //     filterValues.length ? filterValues : undefined
-                //   )
-                //   table.resetPageIndex()
-                // }}
-              >
-                <Checkbox />
-                Upcoming
-              </CommandItem>
-              <CommandItem
-                key={'Finished'}
-                value={'Finished'}
-                className="gap-x-2"
-                // onSelect={() => {
-                //   if (selectedValues.has(value)) {
-                //     selectedValues.delete(value)
-                //   } else {
-                //     selectedValues.add(value)
-                //   }
-                //   const filterValues = Array.from(selectedValues)
-                //   column?.setFilterValue(
-                //     filterValues.length ? filterValues : undefined
-                //   )
-                //   table.resetPageIndex()
-                // }}
-              >
-                <Checkbox />
-                Finished
-              </CommandItem>
+              {options.map(({ value, label }) => (
+                <CommandItem
+                  key={value}
+                  value={value}
+                  className="gap-x-2"
+                  onSelect={() => {
+                    if (selectedValues.has(value)) {
+                      selectedValues.delete(value)
+                    } else {
+                      selectedValues.add(value)
+                    }
+                    const filterValues = Array.from(selectedValues)
+                    column?.setFilterValue(
+                      filterValues.length ? filterValues : undefined
+                    )
+                    table.resetPageIndex()
+                  }}
+                >
+                  <Checkbox checked={selectedValues.has(value)} />
+                  {label}
+                </CommandItem>
+              ))}
             </CommandGroup>
           </CommandList>
         </Command>

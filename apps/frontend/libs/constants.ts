@@ -124,3 +124,9 @@ export const majors = [
   'Applied AI Convergence / 응용AI융합학부',
   'Energy / 에너지학과'
 ] as const
+
+/**
+ * Statuses of the contests.
+ * @constant
+ */
+export const status = ['Ongoing', 'Upcoming', 'Finished'] as const

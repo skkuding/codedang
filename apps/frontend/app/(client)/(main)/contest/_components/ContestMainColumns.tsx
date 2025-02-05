@@ -54,7 +54,17 @@ export const columns: ColumnDef<Contest>[] = [
       >
         {getStatusText(row.original.status)}
       </p>
-    )
+    ),
+    filterFn: (row, id, value) => {
+      const statuses = row.original.status
+      if (!statuses?.length) {
+        return false
+      }
+      const statusValue: string = row.getValue(id)
+      const valueArray = (value as string[]).map((v) => v.toLowerCase())
+      const result = valueArray.includes(statusValue)
+      return result
+    }
   },
   {
     header: 'Registered',

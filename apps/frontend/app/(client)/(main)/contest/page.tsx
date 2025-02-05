@@ -4,12 +4,10 @@ import { auth } from '@/libs/auth'
 import { ErrorBoundary } from '@suspensive/react'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
-import { SearchBar } from '../_components/SearchBar'
 import { ContestFeatureList } from './_components/ContestFeatureList'
 import { ContestMainBanner } from './_components/ContestMainBanner'
 import { ContestMainTable } from './_components/ContestMainTable'
 import { ContestSubBanner } from './_components/ContestSubBanner'
-import { ContestTitleFilter } from './_components/ContestTitleFilter'
 
 interface ContestProps {
   searchParams: {
@@ -76,15 +74,6 @@ export default async function Contest({ searchParams }: ContestProps) {
         <div className="flex-col">
           <Suspense fallback={<FinishedContestTableFallback />}>
             <ErrorBoundary fallback={FetchErrorFallback}>
-              <div className="mb-11 flex justify-between">
-                <h1 className="text-2xl font-semibold text-gray-700">
-                  CONTEST LIST
-                </h1>
-                <div className="flex gap-4">
-                  <SearchBar className="w-60" />
-                  <ContestTitleFilter />
-                </div>
-              </div>
               <ContestMainTable search={search} session={session} />
             </ErrorBoundary>
           </Suspense>
