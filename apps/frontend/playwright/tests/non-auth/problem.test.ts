@@ -13,7 +13,7 @@ test.describe('Problem detail page test', () => {
     ).toBeVisible()
   })
 
-  test('Login form and toast message should be displayed to guide log in when clicking save button', async ({
+  test('Login form and toast message should be displayed when clicking save button', async ({
     page
   }) => {
     await page.getByRole('textbox').fill('asdf')
