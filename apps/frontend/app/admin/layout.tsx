@@ -3,6 +3,7 @@ import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ClientApolloProvider } from './_components/ApolloProvider'
+import { GroupAdminSideBar } from './_components/GroupAdminSideBar'
 import { SideBar } from './_components/SideBar'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -20,9 +21,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               height={28}
             />
           </Link>
-
           <Separator className="my-4 transition" />
-          <SideBar />
+          <GroupAdminSideBar />
+          {/* <SideBar /> */}
+          {/*TODO: role이 groupAdmin인지 확인하고 아니면 그냥 SideBar를 보여주도록 할 예정 */}
           {/* <Link
             href={'/' as Route}
             className="mt-auto rounded px-4 py-2 text-slate-600 transition hover:bg-slate-100"
