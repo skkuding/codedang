@@ -63,7 +63,6 @@ export function ContestMainBanner() {
   const [facade, setFacade] = useState(0)
   const router = useRouter()
 
-  // 흠
   const { data } = useQuery({
     queryKey: ['mostRecentContestId'],
     queryFn: async () => {
@@ -158,20 +157,8 @@ export function ContestMainBanner() {
               <div className="absolute z-10 h-3 w-3 rounded-full bg-white" />
               <FaCirclePlay color="gray" className="z-20 h-6 w-6" />
             </div>
-            <div className="absolute bottom-5 flex gap-[7px]">
-              <div
-                className={cn(
-                  'z-10 h-[7px] w-[7px] rounded-full',
-                  slide.type === 'recent' ? 'bg-white' : 'bg-[#A9A9A9]'
-                )}
-              />
-              <div
-                className={cn(
-                  'z-10 h-[7px] w-[7px] rounded-full',
-                  slide.type === 'upcoming' ? 'bg-white' : 'bg-[#A9A9A9]'
-                )}
-              />
-            </div>
+
+            <BannerPageDots slideType={slide.type} />
 
             <OvalIcon
               position="-left-[10%] top-[20%] h-[160px] w-[300px]"
@@ -197,6 +184,25 @@ export function ContestMainBanner() {
         ))}
       </div>
       <div className="h-[100px]" />
+    </div>
+  )
+}
+
+function BannerPageDots({ slideType }: { slideType: string }) {
+  return (
+    <div className="absolute bottom-5 flex gap-[7px]">
+      <div
+        className={cn(
+          'z-10 h-[7px] w-[7px] rounded-full',
+          slideType === 'recent' ? 'bg-white' : 'bg-[#A9A9A9]'
+        )}
+      />
+      <div
+        className={cn(
+          'z-10 h-[7px] w-[7px] rounded-full',
+          slideType === 'upcoming' ? 'bg-white' : 'bg-[#A9A9A9]'
+        )}
+      />
     </div>
   )
 }

@@ -49,30 +49,6 @@ interface ContestDataTableProps<TData, TValue> {
  * name of the table, used for routing
  * @param linked
  * if true, each row is linked to the detail page
- * @example
- * ```tsx
- * // page.tsx
- * <DataTable data={data} columns={columns} headerStyle={{
- *  title: 'text-left w-2/4 md:w-4/6',
- *  createdBy: 'w-1/4 md:w-1/6',
- *  createTime: 'w-1/4 md:w-1/6'
- *  }}
- *  name="notice"
- * linked # for routing
- * />
- * ```
- * ```tsx
- * // _components/Columns.tsx
- * import type { Notice } from '@/types/type'
- * export const columns: ColumnDef<Notice, string>[] = [
- *  {
- *    header: 'Title',
- *    accessorKey: 'title',
- *    cell: (row) => row.original.title,
- *  },
- *  ...
- * ]
- * ```
  */
 
 export function ContestDataTable<TData extends Item, TValue>({
@@ -89,9 +65,6 @@ export function ContestDataTable<TData extends Item, TValue>({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel()
     // getPaginationRowModel: getPaginationRowModel(),
-    // getSortedRowModel: getSortedRowModel()
-    // getFacetedRowModel: getFacetedRowModel(),
-    // getFacetedUniqueValues: getFacetedUniqueValues()
   })
   const router = useRouter()
   const currentPath = usePathname()
