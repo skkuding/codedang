@@ -74,12 +74,12 @@ export function ContestMainBanner() {
     }
   })
 
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setFacade((facade + 1) % slides.length)
-  //   }, 5000)
-  //   return () => clearTimeout(timer)
-  // }, [facade])
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFacade((facade + 1) % slides.length)
+    }, 5000)
+    return () => clearTimeout(timer)
+  }, [facade])
 
   const handleClick = (next: number) => {
     setFacade(next % slides.length)
@@ -172,38 +172,53 @@ export function ContestMainBanner() {
                 )}
               />
             </div>
-            <div
-              className="bg-primary absolute -left-[10%] top-[20%] -z-10 h-[160px] w-[300px] rounded-full"
-              style={{
-                transform: 'rotate(-35deg)',
-                backgroundColor: OvalIconColors[slide.type].leftup
-              }}
+
+            <OvalIcon
+              position="-left-[10%] top-[20%] h-[160px] w-[300px]"
+              transform="rotate(-35deg)"
+              backgroundColor={OvalIconColors[slide.type].leftup}
             />
-            <div
-              className="absolute -bottom-7 -left-[10%] -z-10 h-[100px] w-[315px] rounded-full bg-[#D2E4FF]"
-              style={{
-                transform: 'rotate(-35deg)',
-                backgroundColor: OvalIconColors[slide.type].leftdown
-              }}
+            <OvalIcon
+              position="-bottom-7 -left-[10%] h-[100px] w-[315px]"
+              transform="rotate(-35deg)"
+              backgroundColor={OvalIconColors[slide.type].leftdown}
             />
-            <div
-              className="absolute right-[2%] top-0 -z-10 h-[225px] w-[750px] rounded-full bg-[#7DAFFF]"
-              style={{
-                transform: 'rotate(-30deg)',
-                backgroundColor: OvalIconColors[slide.type].rightup
-              }}
+            <OvalIcon
+              position="right-[2%] top-0 h-[225px] w-[750px]"
+              transform="rotate(-30deg)"
+              backgroundColor={OvalIconColors[slide.type].rightup}
             />
-            <div
-              className="absolute -bottom-10 -right-[35%] -z-10 h-[290px] w-[1200px] rounded-full bg-[#0151D3]"
-              style={{
-                transform: 'rotate(-30deg)',
-                backgroundColor: OvalIconColors[slide.type].rightdown
-              }}
+            <OvalIcon
+              position="-bottom-10 -right-[35%] h-[290px] w-[1200px]"
+              transform="rotate(-30deg)"
+              backgroundColor={OvalIconColors[slide.type].rightdown}
             />
           </div>
         ))}
       </div>
       <div className="h-[100px]" />
     </div>
+  )
+}
+
+function OvalIcon({
+  position,
+  transform,
+  backgroundColor,
+  additionalClasses
+}: {
+  position: string
+  transform: string
+  backgroundColor: string
+  additionalClasses?: string
+}) {
+  return (
+    <div
+      className={cn('absolute -z-10 rounded-full', position, additionalClasses)}
+      style={{
+        transform,
+        backgroundColor
+      }}
+    />
   )
 }
