@@ -37,6 +37,28 @@ const TextColors: { [key: string]: string } = {
   upcoming: '#4B63FF'
 }
 
+const OvalIconColors: {
+  [key: string]: {
+    leftup: string
+    leftdown: string
+    rightup: string
+    rightdown: string
+  }
+} = {
+  recent: {
+    leftup: '#3581fa',
+    leftdown: '#D2E4FF',
+    rightup: '#7DAFFF',
+    rightdown: '#0151D3'
+  },
+  upcoming: {
+    leftup: '#8BAEFF',
+    leftdown: '#A4BEFF',
+    rightup: '#C8D9FF',
+    rightdown: '#89ADFF'
+  }
+}
+
 export function ContestMainBanner() {
   const [facade, setFacade] = useState(0)
   const router = useRouter()
@@ -52,12 +74,12 @@ export function ContestMainBanner() {
     }
   })
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setFacade((facade + 1) % slides.length)
-    }, 5000)
-    return () => clearTimeout(timer)
-  }, [facade])
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setFacade((facade + 1) % slides.length)
+  //   }, 5000)
+  //   return () => clearTimeout(timer)
+  // }, [facade])
 
   const handleClick = (next: number) => {
     setFacade(next % slides.length)
@@ -70,7 +92,7 @@ export function ContestMainBanner() {
           <div
             key={index}
             className={cn(
-              'absolute inset-0 z-10 flex items-center justify-evenly pt-11 text-white transition-opacity duration-1000 ease-in-out',
+              'absolute inset-0 z-10 flex items-center justify-evenly overflow-hidden pt-11 text-white transition-opacity duration-1000 ease-in-out',
               facade !== index && 'z-0 opacity-0',
               slide.bgcolor
             )}
@@ -150,6 +172,34 @@ export function ContestMainBanner() {
                 )}
               />
             </div>
+            <div
+              className="bg-primary absolute -left-[10%] top-[20%] -z-10 h-[160px] w-[300px] rounded-full"
+              style={{
+                transform: 'rotate(-35deg)',
+                backgroundColor: OvalIconColors[slide.type].leftup
+              }}
+            />
+            <div
+              className="absolute -bottom-7 -left-[10%] -z-10 h-[100px] w-[315px] rounded-full bg-[#D2E4FF]"
+              style={{
+                transform: 'rotate(-35deg)',
+                backgroundColor: OvalIconColors[slide.type].leftdown
+              }}
+            />
+            <div
+              className="absolute right-[2%] top-0 -z-10 h-[225px] w-[750px] rounded-full bg-[#7DAFFF]"
+              style={{
+                transform: 'rotate(-30deg)',
+                backgroundColor: OvalIconColors[slide.type].rightup
+              }}
+            />
+            <div
+              className="absolute -bottom-10 -right-[35%] -z-10 h-[290px] w-[1200px] rounded-full bg-[#0151D3]"
+              style={{
+                transform: 'rotate(-30deg)',
+                backgroundColor: OvalIconColors[slide.type].rightdown
+              }}
+            />
           </div>
         ))}
       </div>
