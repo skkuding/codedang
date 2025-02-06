@@ -5,90 +5,32 @@ import {
   Req,
   Get,
   Query,
-  DefaultValuePipe,
   Delete
 } from '@nestjs/common'
 import {
-  AuthNotNeededIfOpenSpace,
   AuthenticatedRequest,
+  AuthNotNeededIfOpenSpace,
   UserNullWhenAuthFailedIfOpenSpace
 } from '@libs/auth'
-import {
-  CursorValidationPipe,
-  GroupIDPipe,
-  IDValidationPipe,
-  RequiredIntPipe
-} from '@libs/pipe'
+import { GroupIDPipe, IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
 import { ContestService } from './contest.service'
 
 @Controller('contest')
 export class ContestController {
   constructor(private readonly contestService: ContestService) {}
-
-  @Get('ongoing-upcoming')
-  @AuthNotNeededIfOpenSpace()
-  async getOngoingUpcomingContests(
-    @Query('groupId', GroupIDPipe) groupId: number
-  ) {
-    return await this.contestService.getContestsByGroupId(groupId)
-  }
-
-  @Get('ongoing-upcoming-with-registered')
-  async getOngoingUpcomingContestsWithRegistered(
-    @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number
-  ) {
-    return await this.contestService.getContestsByGroupId(groupId, req.user.id)
-  }
-
-  @Get('finished')
+  @Get()
   @UserNullWhenAuthFailedIfOpenSpace()
-  async getFinishedContests(
+  async getContests(
     @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
-    take: number,
-    @Query('search') search?: string
+    @Query('search') search: string
   ) {
-    return await this.contestService.getFinishedContestsByGroupId({
-      userId: req.user?.id,
-      cursor,
-      take,
-      groupId,
-      search
-    })
+    return await this.contestService.getContests(req.user?.id, search)
   }
 
-  @Get('registered-finished')
-  async getRegisteredFinishedContests(
-    @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
-    take: number,
-    @Query('search') search?: string
-  ) {
-    return await this.contestService.getRegisteredFinishedContests({
-      cursor,
-      take,
-      groupId,
-      userId: req.user.id,
-      search
-    })
-  }
-
-  @Get('registered-ongoing-upcoming')
-  async getRegisteredOngoingUpcomingContests(
-    @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number,
-    @Query('search') search?: string
-  ) {
-    return await this.contestService.getRegisteredOngoingUpcomingContests(
-      groupId,
-      req.user.id,
-      search
-    )
+  @Get('banner')
+  @AuthNotNeededIfOpenSpace()
+  async getContestBanner() {
+    return await this.contestService.getBannerContests()
   }
 
   @Get(':id')
@@ -127,6 +69,17 @@ export class ContestController {
       contestId,
       req.user.id,
       groupId
+    )
+  }
+
+  @Get(':id/leaderboard')
+  async getLeaderboard(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) contestId: number
+  ) {
+    return await this.contestService.getContestLeaderboard(
+      req.user.id,
+      contestId
     )
   }
 }
