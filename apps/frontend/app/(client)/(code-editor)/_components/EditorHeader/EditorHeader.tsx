@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
-import { auth } from '@/libs/auth'
+import { useSession } from '@/libs/hooks/useSession'
 import { fetcherWithAuth } from '@/libs/utils'
 import submitIcon from '@/public/icons/submit.svg'
 import { useAuthModalStore } from '@/stores/authModal'
@@ -81,7 +81,8 @@ export function EditorHeader({
   const storageKey = useRef(
     getStorageKey(language, problem.id, userName, contestId)
   )
-  const { currentModal, showSignIn } = useAuthModalStore((state) => state)
+  const session = useSession()
+  const showSignIn = useAuthModalStore((state) => state.showSignIn)
   const [showModal, setShowModal] = useState<boolean>(false)
   //const pushed = useRef(false)
   const whereToPush = useRef('')
@@ -118,18 +119,15 @@ export function EditorHeader({
     loading && submissionId ? 500 : null
   )
 
-  const checkSession = async () => {
-    const session = await auth()
+  useEffect(() => {
     if (!session) {
-      toast.info('Log in to use submission & save feature')
+      setTimeout(() => {
+        toast.info('Log in to use submission & save feature')
+      })
     } else {
       setUserName(session.user.username)
     }
-  }
-
-  useEffect(() => {
-    checkSession()
-  }, [currentModal])
+  }, [session])
 
   useEffect(() => {
     if (!templateString) {
@@ -167,6 +165,12 @@ export function EditorHeader({
   }
   const submit = async () => {
     const code = getCode()
+
+    if (session === null) {
+      showSignIn()
+      toast.error('Log in first to submit your code')
+      return
+    }
 
     if (code === '') {
       toast.error('Please write code before submission')
@@ -225,12 +229,12 @@ export function EditorHeader({
     }
   }
 
-  const saveCode = async () => {
-    const session = await auth()
+  const saveCode = () => {
     const code = getCode()
 
-    if (!session) {
+    if (session === null) {
       toast.error('Log in first to save your code')
+      showSignIn()
     } else if (storageKey.current !== undefined) {
       localStorage.setItem(storageKey.current, code)
       toast.success('Successfully saved the code')
