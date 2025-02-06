@@ -1,0 +1,15 @@
+meta {
+  name: Submit Rejudge
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/submission/rejudge?problemId=2
+  body: none
+  auth: none
+}
+
+params:query {
+  problemId: 2
+}

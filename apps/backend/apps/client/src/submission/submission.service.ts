@@ -509,6 +509,60 @@ export class SubmissionService {
     }
   }
 
+  async rejudgeSubmissionsByProblem(problemId: number): Promise<void> {
+    try {
+      // 문제 ID에 해당하는 제출 기록 조회
+      const submissions = await this.prisma.submission.findMany({
+        where: { problemId },
+        include: { problem: true } // 문제 정보 포함
+      })
+
+      if (!submissions.length) {
+        throw new Error(`No submissions found for problem ID ${problemId}`)
+      }
+
+      for (const submission of submissions) {
+        // Snippet 변환
+        const code = (submission.code as Prisma.JsonValue[]).map((snippet) => {
+          if (
+            typeof snippet === 'object' &&
+            snippet !== null &&
+            'id' in snippet &&
+            'text' in snippet &&
+            'locked' in snippet
+          ) {
+            return {
+              id: snippet['id'],
+              text: snippet['text'],
+              locked: snippet['locked']
+            } as Snippet // Snippet 타입으로 변환
+          }
+          throw new Error('Invalid snippet format')
+        })
+
+        // 기존 제출 결과 초기화
+        await this.prisma.submissionResult.deleteMany({
+          where: { submissionId: submission.id }
+        })
+
+        // 새롭게 채점 결과 생성
+        await this.createSubmissionResults(submission)
+
+        // 채점 요청 발행
+        await this.publish.publishJudgeRequestMessage(code, submission)
+
+        // 제출 상태 업데이트 (채점 중으로)
+        await this.prisma.submission.update({
+          where: { id: submission.id },
+          data: { result: ResultStatus.Judging }
+        })
+      }
+    } catch (error) {
+      // 예외 처리: 문제 ID에 해당하는 제출 기록이 없거나 기타 오류 발생 시
+      throw new EntityNotExistException(`${error.message}`)
+    }
+  }
+
   /**
    * 전달한 제출 기록에 대해 아직 채점되지 않은 테스트케이스 채점 결과들을 생성합니다.
    *
