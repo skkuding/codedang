@@ -284,11 +284,7 @@ export class ContestProblemService {
     take: number
     groupId: number
   }) {
-    const contest = await this.contestService.getContest(
-      contestId,
-      groupId,
-      userId
-    )
+    const contest = await this.contestService.getContest(contestId, userId)
     const now = new Date()
     if (contest.isRegistered && contest.startTime! > now) {
       throw new ForbiddenAccessException(
@@ -414,11 +410,7 @@ export class ContestProblemService {
     userId: number
     groupId: number
   }) {
-    const contest = await this.contestService.getContest(
-      contestId,
-      groupId,
-      userId
-    )
+    const contest = await this.contestService.getContest(contestId, userId)
     const now = new Date()
     if (contest.isRegistered) {
       if (now < contest.startTime!) {

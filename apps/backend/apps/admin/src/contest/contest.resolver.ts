@@ -2,10 +2,8 @@ import { ParseBoolPipe } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { Contest, ContestProblem } from '@generated'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   CursorValidationPipe,
-  GroupIDPipe,
   IDValidationPipe,
   RequiredIntPipe
 } from '@libs/pipe'
@@ -33,16 +31,10 @@ export class ContestResolver {
       new RequiredIntPipe('take')
     )
     take: number,
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
-    groupId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null
   ) {
-    return await this.contestService.getContests(take, groupId, cursor)
+    return await this.contestService.getContests(take, cursor)
   }
 
   @Query(() => ContestWithParticipants)
@@ -56,35 +48,25 @@ export class ContestResolver {
   @Mutation(() => Contest)
   async createContest(
     @Args('input') input: CreateContestInput,
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
-    groupId: number,
     @Context('req') req: AuthenticatedRequest
   ) {
-    return await this.contestService.createContest(groupId, req.user.id, input)
+    return await this.contestService.createContest(req.user.id, input)
   }
 
   @Mutation(() => Contest)
-  async updateContest(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('input') input: UpdateContestInput
-  ) {
-    return await this.contestService.updateContest(groupId, input)
+  async updateContest(@Args('input') input: UpdateContestInput) {
+    return await this.contestService.updateContest(input)
   }
 
   @Mutation(() => Contest)
   async deleteContest(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('contestId', { type: () => Int }) contestId: number
   ) {
-    return await this.contestService.deleteContest(groupId, contestId)
+    return await this.contestService.deleteContest(contestId)
   }
 
   /**
-   * Contest의 소속 Group을 Open Space(groupId === 1)로 이동시키기 위한 요청(Publicizing Requests)들을 불러옵니다.
+   * Contest를 공개(Open Space)로 이동시키기 위한 요청(Publicizing Requests)들을 불러옵니다.
    * @returns Publicizing Request 배열
    */
   @Query(() => [PublicizingRequest])
@@ -94,24 +76,19 @@ export class ContestResolver {
   }
 
   /**
-   * Contest의 소속 Group을 Open Space(groupId === 1)로 이동시키기 위한 요청(Publicizing Request)를 생성합니다.
-   * @param groupId Contest가 속한 Group의 ID. 이미 Open Space(groupId === 1)이 아니어야 합니다.
+   * Contest를 공개(Open Space)로 이동시키기 위한 요청(Publicizing Request)을 생성합니다.
    * @param contestId Contest의 ID
    * @returns 생성된 Publicizing Request
    */
   @Mutation(() => PublicizingRequest)
   async createPublicizingRequest(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('contestId', { type: () => Int }) contestId: number
   ) {
-    return await this.contestService.createPublicizingRequest(
-      groupId,
-      contestId
-    )
+    return await this.contestService.createPublicizingRequest(contestId)
   }
 
   /**
-   * Contest의 소속 Group을 Open Space(groupId === 1)로 이동시키기 위한 요청(Publicizing Request)을 처리합니다.
+   * Contest를 공개(Open Space)로 이동시키기 위한 요청(Publicizing Request)을 처리합니다.
    * @param contestId Publicizing Request를 생성한 contest의 Id
    * @param isAccepted 요청 수락 여부
    * @returns
@@ -130,13 +107,11 @@ export class ContestResolver {
 
   @Mutation(() => [ContestProblem])
   async importProblemsToContest(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('contestId', { type: () => Int }) contestId: number,
     @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
     problemIdsWithScore: ProblemScoreInput[]
   ) {
     return await this.contestService.importProblemsToContest(
-      groupId,
       contestId,
       problemIdsWithScore
     )
@@ -144,13 +119,11 @@ export class ContestResolver {
 
   @Mutation(() => [ContestProblem])
   async removeProblemsFromContest(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('contestId', { type: () => Int })
     contestId: number,
     @Args('problemIds', { type: () => [Int] }) problemIds: number[]
   ) {
     return await this.contestService.removeProblemsFromContest(
-      groupId,
       contestId,
       problemIds
     )
@@ -188,16 +161,11 @@ export class ContestResolver {
 
   @Mutation(() => DuplicatedContestResponse)
   async duplicateContest(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('contestId', { type: () => Int })
     contestId: number,
     @Context('req') req: AuthenticatedRequest
   ) {
-    return await this.contestService.duplicateContest(
-      groupId,
-      contestId,
-      req.user.id
-    )
+    return await this.contestService.duplicateContest(contestId, req.user.id)
   }
 
   /**
