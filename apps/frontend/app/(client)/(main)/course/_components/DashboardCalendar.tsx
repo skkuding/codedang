@@ -40,30 +40,78 @@ export function DashboardCalendar({ data }: { data: CalendarAssignment[] }) {
     toast.success(`Saved memo`)
   }
 
+  const fetchData = () => {
+    const sampleData = [
+      {
+        title: '과제1',
+        start: new Date(2025, 1, 5),
+        end: new Date(2025, 1, 15),
+        color: 'green'
+      },
+      {
+        title: '과제1',
+        start: new Date(2025, 1, 5),
+        end: new Date(2025, 1, 15)
+      },
+      {
+        title: '과제1',
+        start: new Date(2025, 1, 5),
+        end: new Date(2025, 1, 15)
+      },
+      {
+        title: '과제2',
+        start: new Date(2025, 2, 15),
+        end: new Date(2025, 2, 15)
+      },
+      {
+        title: '과제3',
+        start: new Date(2025, 1, 5),
+        end: new Date(2025, 1, 15)
+      },
+      {
+        title: '과제4',
+        start: new Date(2025, 1, 5),
+        end: new Date(2025, 1, 15)
+      },
+      {
+        title: '과제5',
+        start: new Date(2025, 2, 25),
+        end: new Date(2025, 2, 26)
+      }
+    ]
+    data = sampleData
+  }
+
+  fetchData()
+
   return (
     <>
       <div className="container mt-4">
+        <span>prev</span>
+        <span>next</span>
+        {/* <span>{title}</span> */}
         <FullCalendar
           plugins={[dayGridPlugin]}
-          initialView="customTwoWeek"
           timeZone="UTC"
           headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,customTwoWeek'
+            left: '',
+            center: '',
+            right: ''
           }}
-          views={{
-            customTwoWeek: {
-              type: 'dayGrid',
-              duration: { weeks: 2 },
-              buttonText: '2 weeks',
-              contentHeight: 500
-            }
-          }}
-          displayEventTime={false}
-          weekNumbers={true}
-          dayMaxEvents={true}
+          dayMaxEventRows={true}
+          moreLinkClick="popover"
+          // views={{
+          //   customTwoWeek: {
+          //     type: 'dayGrid',
+          //     duration: { weeks: 2 },
+          //     buttonText: '2 weeks',
+          //     contentHeight: 500
+          //   }
+          // }}
+          // displayEventTime={false}
+          // dayMaxEvents={true}
           events={data}
+          eventBackgroundColor="#3333334D"
           eventClick={handleEventClick}
         />
       </div>
