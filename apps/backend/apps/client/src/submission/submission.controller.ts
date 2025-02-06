@@ -7,7 +7,8 @@ import {
   Req,
   Query,
   DefaultValuePipe,
-  Headers
+  Headers,
+  Patch
 } from '@nestjs/common'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
@@ -89,6 +90,12 @@ export class SubmissionController {
         groupId
       })
     }
+  }
+
+  @Patch('rejudge')
+  async rejudge(@Query('problemId') problemId: string): Promise<void> {
+    const problemIdNumber = parseInt(problemId, 10)
+    return this.submissionService.rejudgeSubmissionsByProblem(problemIdNumber)
   }
 
   /**
