@@ -21,7 +21,7 @@ export function RegisterCourse() {
         <span className="text-white">Register</span>
       </Button>
       <Dialog open={isDialogOpened} onOpenChange={setIsDialogOpened}>
-        <DialogContent className="w-[416px]">
+        <DialogContent className="w-[416px] bg-red-400 p-0">
           <RegisterResult />
         </DialogContent>
       </Dialog>
@@ -31,7 +31,7 @@ export function RegisterCourse() {
 
 function RegisterResult() {
   return (
-    <div className="w-full">
+    <div className="bg-primary-light w-full">
       <span className="text-error">Unverified</span>
       <div className="flex flex-col gap-3 p-4 text-sm font-light">
         <span>User whose information has not been verified.</span>
