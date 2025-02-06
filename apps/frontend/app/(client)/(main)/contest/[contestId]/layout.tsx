@@ -2,6 +2,7 @@ import { auth } from '@/libs/auth'
 import { fetcher, fetcherWithAuth, getStatusWithStartEnd } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import type { Contest } from '@/types/type'
+import { Cover } from '../../_components/Cover'
 import { ContestTabs } from '../_components/ContestTabs'
 import { calculateContestScore } from './_libs/utils'
 
@@ -45,11 +46,19 @@ export default async function Layout({ params, tabs }: ContestDetailProps) {
     }
 
     return (
-      <article>
-        <ContestTabs contestId={contestId} />
-        {tabs}
-      </article>
+      <>
+        <Cover title="CONTEST" description="Contests of CODEDANG" />
+        <article>
+          <ContestTabs contestId={contestId} />
+          {tabs}
+        </article>
+      </>
     )
   }
-  return <p className="text-center">No Results.</p>
+  return (
+    <>
+      <Cover title="CONTEST" description="Contests of CODEDANG" />
+      <p className="text-center">No Results.</p>
+    </>
+  )
 }
