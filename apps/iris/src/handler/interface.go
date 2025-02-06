@@ -4,30 +4,13 @@ import (
 	"encoding/json"
 
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
-	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
 )
 
 type Handler interface {
 	Handle(data interface{}) (json.RawMessage, error)
 }
 
-func SandboxResultCodeToJudgeResultCode(code sandbox.ResultCode) JudgeResultCode {
-	switch code {
-	case sandbox.CPU_TIME_LIMIT_EXCEEDED:
-		return CPU_TIME_LIMIT_EXCEEDED
-	case sandbox.REAL_TIME_LIMIT_EXCEEDED:
-		return REAL_TIME_LIMIT_EXCEEDED
-	case sandbox.MEMORY_LIMIT_EXCEEDED:
-		return MEMORY_LIMIT_EXCEEDED
-	case sandbox.RUNTIME_ERROR:
-		return RUNTIME_ERROR
-	case sandbox.SYSTEM_ERROR:
-		return SERVER_ERROR
-	}
-	return ACCEPTED
-}
-
-func ParseError(j JudgeResult, resultCode JudgeResultCode) error {
+func ParseError(j JudgeResult, resultCode ResultCode) error {
 	if resultCode != ACCEPTED {
 		if j.Signal == 11 && resultCode != MEMORY_LIMIT_EXCEEDED {
 			return resultCodeToError(SEGMENTATION_FAULT_ERROR)
@@ -40,7 +23,7 @@ func ParseError(j JudgeResult, resultCode JudgeResultCode) error {
 	return nil
 }
 
-func resultCodeToError(code JudgeResultCode) error {
+func resultCodeToError(code ResultCode) error {
 	caller := "parse error"
 	err := &HandlerError{
 		caller: caller,
