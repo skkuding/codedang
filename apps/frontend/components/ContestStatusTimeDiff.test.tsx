@@ -60,12 +60,12 @@ describe.concurrent('ContestStatusTimeDiff Component', () => {
     vi.useRealTimers()
   })
 
-  it('초기 렌더링 시, "Starts in" 상태를 표시해야 한다', () => {
+  it('"Starts in" should be displayed before the contest starts', () => {
     renderWithMinuteOffset(10, 20)
     expect(screen.getByText(/Starts in/i)).toBeInTheDocument()
   })
 
-  it('시간이 경과하면, "Ends in" 상태로 변경된다.', () => {
+  it('"Ends in" should be displayed when the contest starts', () => {
     renderWithMinuteOffset(0, 20)
     act(() => {
       vi.advanceTimersByTime(10 * 60 * 1000)
@@ -73,7 +73,7 @@ describe.concurrent('ContestStatusTimeDiff Component', () => {
     expect(screen.getByText(/Ends in/i)).toBeInTheDocument()
   })
 
-  it('대회 종료 5분 전, 토스트가 노출된다', () => {
+  it('Toast message should be displayed when the contest ends in 5 minutes', () => {
     renderWithMinuteOffset(0, 20)
     act(() => {
       vi.advanceTimersByTime(15 * 60 * 1000)
@@ -87,7 +87,7 @@ describe.concurrent('ContestStatusTimeDiff Component', () => {
     )
   })
 
-  it('대회 종료 1분 전, 토스트가 노출된다', () => {
+  it('Toast message should be displayed when the contest ends in 1 minute', () => {
     renderWithMinuteOffset(0, 20)
     act(() => {
       vi.advanceTimersByTime(19 * 60 * 1000)
@@ -100,7 +100,7 @@ describe.concurrent('ContestStatusTimeDiff Component', () => {
     )
   })
 
-  // it('대회 종료 시, finished 페이지로 이동한다', () => {
+  // it('Should navigate to finished page when the contest ends', () => {
   //   renderWithMinuteOffset(0, 20)
   //   act(() => {
   //     vi.advanceTimersByTime(20 * 60 * 1000)
