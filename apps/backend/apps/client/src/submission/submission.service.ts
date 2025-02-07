@@ -540,11 +540,6 @@ export class SubmissionService {
           throw new Error('Invalid snippet format')
         })
 
-        // 기존 제출 결과 초기화
-        await this.prisma.submissionResult.deleteMany({
-          where: { submissionId: submission.id }
-        })
-
         // 새롭게 채점 결과 생성
         await this.createSubmissionResults(submission)
 
