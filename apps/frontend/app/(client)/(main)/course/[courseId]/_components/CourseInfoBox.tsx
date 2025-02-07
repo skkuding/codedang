@@ -1,6 +1,6 @@
 'use client'
 
-import Calendar from '@/public/icons/calendar-default.svg'
+import calendarIcon from '@/public/icons/calendar-default.svg'
 import Person from '@/public/icons/person.svg'
 import QuarterEllipse from '@/public/icons/quarter-ellipse.svg'
 import Image from 'next/image'
@@ -40,7 +40,7 @@ export function CourseInfoBox() {
       <div>
         <div className="flex flex-col gap-1">
           <div className="flex">
-            <Image src={Calendar} alt="Calendar" height={20} />
+            <Image src={calendarIcon} alt="Calendar" height={20} />
             <span className="ml-1 font-light">{courseSemester}</span>
           </div>
           <div className="flex">

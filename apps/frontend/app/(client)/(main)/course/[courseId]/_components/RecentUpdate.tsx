@@ -1,5 +1,6 @@
 'use client'
 
+import { cn } from '@/libs/utils'
 import assignmentIcon from '@/public/icons/assignment.svg'
 import examIcon from '@/public/icons/exam.svg'
 import gradeIcon from '@/public/icons/grade.svg'
@@ -103,18 +104,20 @@ export function RecentUpdate() {
               >
                 <div>
                   <span
-                    className={`mr-2 text-xs ${
+                    className={cn(
+                      'mr-2 text-xs',
                       update.isNew ? 'text-primary' : 'text-[#8A8A8A]'
-                    }`}
+                    )}
                   >
                     ●
                   </span>
                   {/* TODO: update.isNew일때 검정, else 회색 아직 적용 못 했습니다. svg파일에 색 적용하는 법을 모르겠어요.. */}
                   {/* <RecentUpdateIcon /> */}
                   <span
-                    className={`mr-2 text-xs ${
+                    className={cn(
+                      'mr-2 text-xs',
                       update.isNew ? 'text-black' : 'text-[#8A8A8A]'
-                    }`}
+                    )}
                   >
                     {update.title}
                   </span>
