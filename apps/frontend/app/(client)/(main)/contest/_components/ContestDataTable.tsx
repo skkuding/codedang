@@ -77,13 +77,13 @@ export function ContestDataTable<TData extends Item, TValue>({
       <div className="mb-11 flex justify-between">
         <h1 className="text-2xl font-semibold text-gray-700">CONTEST LIST</h1>
         <div className="flex gap-4">
-          <SearchBar className="w-60" />
           <ContestTitleFilter
             table={table}
             column={table.getColumn('status')}
             title="Status"
             options={status.map((item) => ({ value: item, label: item }))}
           />
+          <SearchBar className="w-60" />
         </div>
       </div>
       <Table className="table-fixed">
