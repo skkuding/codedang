@@ -1,5 +1,6 @@
 import { render, screen, act } from '@testing-library/react'
 import dayjs from 'dayjs'
+// import { useRouter } from 'next/navigation'
 import { Toaster, toast } from 'sonner'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ContestStatusTimeDiff } from './ContestStatusTimeDiff'
@@ -12,18 +13,14 @@ vi.mock('sonner', () => ({
 }))
 
 vi.mock('next/navigation', () => {
+  const router = {
+    push: vi.fn()
+  }
   return {
-    __esModule: true,
-    useRouter: () => ({
-      push: vi.fn()
-    }),
-    useParams: () => ({
-      problemId: '123'
-    })
+    useRouter: vi.fn().mockReturnValue(router),
+    useParams: vi.fn().mockReturnValue({ problemId: '123' })
   }
 })
-
-const toastSpy = vi.spyOn(toast, 'error')
 
 const createContestWithMinuteOffset = (
   startOffset: number,
@@ -79,10 +76,10 @@ describe.concurrent('ContestStatusTimeDiff Component', () => {
   it('대회 종료 5분 전, 토스트가 노출된다', () => {
     renderWithMinuteOffset(0, 20)
     act(() => {
-      vi.advanceTimersByTime(15 * 60 * 1000 + 1000)
+      vi.advanceTimersByTime(15 * 60 * 1000)
     })
 
-    expect(toastSpy).toHaveBeenCalledWith(
+    expect(toast.error).toHaveBeenCalledWith(
       'Contest ends in 5 minutes.',
       expect.objectContaining({
         duration: 10000
@@ -93,13 +90,23 @@ describe.concurrent('ContestStatusTimeDiff Component', () => {
   it('대회 종료 1분 전, 토스트가 노출된다', () => {
     renderWithMinuteOffset(0, 20)
     act(() => {
-      vi.advanceTimersByTime(19 * 60 * 1000 + 2000)
+      vi.advanceTimersByTime(19 * 60 * 1000)
     })
-    expect(toastSpy).toHaveBeenCalledWith(
+    expect(toast.error).toHaveBeenCalledWith(
       'Contest ends in 1 minute.',
       expect.objectContaining({
         duration: 10000
       })
     )
   })
+
+  // it('대회 종료 시, finished 페이지로 이동한다', () => {
+  //   renderWithMinuteOffset(0, 20)
+  //   act(() => {
+  //     vi.advanceTimersByTime(20 * 60 * 1000)
+  //   })
+  //   expect(useRouter().push).toHaveBeenCalledWith(
+  //     '/contest/123/finished/problem/123'
+  //   )
+  // })
 })
