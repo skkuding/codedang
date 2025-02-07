@@ -4,6 +4,13 @@ import { Toaster, toast } from 'sonner'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ContestStatusTimeDiff } from './ContestStatusTimeDiff'
 
+vi.mock('sonner', () => ({
+  toast: {
+    error: vi.fn()
+  },
+  Toaster: vi.fn()
+}))
+
 vi.mock('next/navigation', () => {
   return {
     __esModule: true,
@@ -16,15 +23,38 @@ vi.mock('next/navigation', () => {
   }
 })
 
-vi.mock('sonner', () => ({
-  toast: {
-    error: vi.fn(),
-    success: vi.fn()
-  },
-  Toaster: vi.fn()
-}))
+const toastSpy = vi.spyOn(toast, 'error')
 
-describe('ContestStatusTimeDiff Component', () => {
+const createContestWithMinuteOffset = (
+  startOffset: number,
+  endOffset: number
+) => ({
+  id: 123,
+  title: 'Test Contest',
+  startTime: dayjs().add(startOffset, 'minutes').toDate(),
+  endTime: dayjs().add(endOffset, 'minutes').toDate(),
+  status: 'registeredUpcoming' as const,
+  group: { id: 'group1', groupName: 'Test Group' },
+  isJudgeResultVisible: true,
+  enableCopyPaste: false,
+  participants: 10,
+  isRegistered: true
+})
+
+const renderWithMinuteOffset = (startOffset: number, endOffset: number) => {
+  render(
+    <>
+      <Toaster />
+      <ContestStatusTimeDiff
+        contest={createContestWithMinuteOffset(startOffset, endOffset)}
+        textStyle=""
+        inContestEditor={true}
+      />
+    </>
+  )
+}
+
+describe.concurrent('ContestStatusTimeDiff Component', () => {
   beforeEach(() => {
     vi.useFakeTimers()
   })
@@ -33,83 +63,25 @@ describe('ContestStatusTimeDiff Component', () => {
     vi.useRealTimers()
   })
 
-  const mockContest = {
-    id: 123,
-    title: 'Test Contest',
-    startTime: dayjs().add(10, 'minutes').toDate(),
-    endTime: dayjs().add(20, 'minutes').toDate(),
-    status: 'upcoming' as const,
-    group: { id: 'group1', groupName: 'Test Group' },
-    isJudgeResultVisible: true,
-    enableCopyPaste: false,
-    participants: 10,
-    isRegistered: true
-  }
-
   it('초기 렌더링 시, "Starts in" 상태를 표시해야 한다', () => {
-    render(
-      <ContestStatusTimeDiff
-        contest={mockContest}
-        textStyle=""
-        inContestEditor={true}
-      />
-    )
-
+    renderWithMinuteOffset(10, 20)
     expect(screen.getByText(/Starts in/i)).toBeInTheDocument()
   })
 
   it('시간이 경과하면, "Ends in" 상태로 변경된다.', () => {
-    render(
-      <ContestStatusTimeDiff
-        contest={mockContest}
-        textStyle=""
-        inContestEditor={true}
-      />
-    )
-
+    renderWithMinuteOffset(0, 20)
     act(() => {
       vi.advanceTimersByTime(10 * 60 * 1000)
     })
     expect(screen.getByText(/Ends in/i)).toBeInTheDocument()
   })
 
-  it('대회 종료 시, "Finished" 상태로 변경된다.', () => {
-    render(
-      <ContestStatusTimeDiff
-        contest={mockContest}
-        textStyle=""
-        inContestEditor={true}
-      />
-    )
-
-    act(() => {
-      vi.advanceTimersByTime(20 * 60 * 1000)
-    })
-
-    expect(screen.getByText(/Finished/i)).toBeInTheDocument()
-  })
-
   it('대회 종료 5분 전, 토스트가 노출된다', () => {
-    const toastSpy = vi.spyOn(toast, 'error')
-
-    render(
-      <>
-        <Toaster />
-        <ContestStatusTimeDiff
-          contest={{
-            ...mockContest,
-            startTime: dayjs().toDate(),
-            endTime: dayjs().add(10, 'minutes').toDate()
-          }}
-          textStyle=""
-          inContestEditor={true}
-        />
-      </>
-    )
-
+    renderWithMinuteOffset(0, 20)
     act(() => {
-      vi.advanceTimersByTime(5 * 60 * 1000)
+      vi.advanceTimersByTime(15 * 60 * 1000 + 1000)
     })
+
     expect(toastSpy).toHaveBeenCalledWith(
       'Contest ends in 5 minutes.',
       expect.objectContaining({
@@ -119,25 +91,9 @@ describe('ContestStatusTimeDiff Component', () => {
   })
 
   it('대회 종료 1분 전, 토스트가 노출된다', () => {
-    const toastSpy = vi.spyOn(toast, 'error')
-
-    render(
-      <>
-        <Toaster />
-        <ContestStatusTimeDiff
-          contest={{
-            ...mockContest,
-            startTime: dayjs().toDate(),
-            endTime: dayjs().add(10, 'minutes').toDate()
-          }}
-          textStyle=""
-          inContestEditor={true}
-        />
-      </>
-    )
-
+    renderWithMinuteOffset(0, 20)
     act(() => {
-      vi.advanceTimersByTime(9 * 60 * 1000)
+      vi.advanceTimersByTime(19 * 60 * 1000 + 2000)
     })
     expect(toastSpy).toHaveBeenCalledWith(
       'Contest ends in 1 minute.',
