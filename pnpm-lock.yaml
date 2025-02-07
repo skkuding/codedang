@@ -522,6 +522,9 @@ importers:
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
+      diff-match-patch-typescript:
+        specifier: ^1.1.0
+        version: 1.1.0
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
@@ -6291,6 +6294,9 @@ packages:
 
   didyoumean@1.2.2:
     resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}
+
+  diff-match-patch-typescript@1.1.0:
+    resolution: {integrity: sha512-7WFVb3bRj5o+xRJtd1mLpbB9o19GE1FpY/v7z4GgMurmyaxZnuYdsEwn/K93ugn3nB+ce7KMn9hYjfAtXmUkVQ==}
 
   diff@4.0.2:
     resolution: {integrity: sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==}
@@ -18186,6 +18192,8 @@ snapshots:
       streamsearch: 0.1.2
 
   didyoumean@1.2.2: {}
+
+  diff-match-patch-typescript@1.1.0: {}
 
   diff@4.0.2: {}
 

@@ -13,7 +13,8 @@
     "start": "PORT=5525 node .next/standalone/apps/frontend/server.js",
     "lint": "eslint .",
     "compile": "graphql-codegen --require dotenv/config",
-    "test": "vitest"
+    "test": "vitest",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@apollo/client": "^3.12.4",
@@ -69,6 +70,7 @@
     "cmdk": "^1.0.4",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
+    "diff-match-patch-typescript": "^1.1.0",
     "dotenv": "^16.4.7",
     "embla-carousel-react": "8.5.1",
     "framer-motion": "^11.15.0",
