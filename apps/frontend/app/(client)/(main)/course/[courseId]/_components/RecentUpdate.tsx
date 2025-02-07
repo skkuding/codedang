@@ -110,14 +110,7 @@ export function RecentUpdate() {
                     ●
                   </span>
                   {/* TODO: update.isNew일때 검정, else 회색 아직 적용 못 했습니다. svg파일에 색 적용하는 법을 모르겠어요.. */}
-                  <svg
-                    width="20"
-                    height="20"
-                    className="mb-1 mr-2 inline-block"
-                    fill={update.isNew ? '#ffffff' : '#8A8A8A'}
-                  >
-                    <use href={getRecentUpdateIcon(update.type)} />
-                  </svg>
+                  {/* <RecentUpdateIcon /> */}
                   <span
                     className={`mr-2 text-xs ${
                       update.isNew ? 'text-black' : 'text-[#8A8A8A]'
