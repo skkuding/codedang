@@ -1,8 +1,8 @@
 import { gql } from '@generated'
 
 const CREATE_CONTEST = gql(`
-  mutation CreateContest($groupId: Int!, $input: CreateContestInput!) {
-    createContest(groupId: $groupId, input: $input) {
+  mutation CreateContest($input: CreateContestInput!) {
+    createContest(input: $input) {
       id
       invitationCode
       isVisible
@@ -18,8 +18,8 @@ const CREATE_CONTEST = gql(`
 `)
 
 const UPDATE_CONTEST = gql(`
-  mutation UpdateContest($groupId: Int!, $input: UpdateContestInput!) {
-    updateContest(groupId: $groupId, input: $input) {
+  mutation UpdateContest( $input: UpdateContestInput!) {
+    updateContest( input: $input) {
       id
       invitationCode
       isRankVisible
@@ -35,8 +35,8 @@ const UPDATE_CONTEST = gql(`
 `)
 
 const UPDATE_CONTEST_VISIBLE = gql(`
-  mutation UpdateContestVisible($groupId: Int!, $input: UpdateContestInput!) {
-    updateContest(groupId: $groupId, input: $input) {
+  mutation UpdateContestVisible($input: UpdateContestInput!) {
+    updateContest(input: $input) {
       id
       isVisible
       isRankVisible
@@ -45,8 +45,8 @@ const UPDATE_CONTEST_VISIBLE = gql(`
 `)
 
 const DELETE_CONTEST = gql(`
-  mutation DeleteContest($groupId: Int!, $contestId: Int!) {
-    deleteContest(groupId: $groupId, contestId: $contestId) {
+  mutation DeleteContest( $contestId: Int!) {
+    deleteContest( contestId: $contestId) {
       id
     }
   }
@@ -54,12 +54,12 @@ const DELETE_CONTEST = gql(`
 
 const IMPORT_PROBLEMS_TO_CONTEST = gql(`
   mutation ImportProblemsToContest(
-    $groupId: Int!,
+
     $contestId: Int!,
     $problemIdsWithScore: [ProblemScoreInput!]!
   ) {
     importProblemsToContest(
-      groupId: $groupId,
+
       contestId: $contestId,
       problemIdsWithScore: $problemIdsWithScore
     ) {
@@ -72,12 +72,12 @@ const IMPORT_PROBLEMS_TO_CONTEST = gql(`
 
 const REMOVE_PROBLEMS_FROM_CONTEST = gql(`
   mutation RemoveProblemsFromContest(
-    $groupId: Int!,
+
     $contestId: Int!,
     $problemIds: [Int!]!
   ) {
     removeProblemsFromContest(
-      groupId: $groupId,
+
       contestId: $contestId,
       problemIds: $problemIds
     ) {
@@ -88,8 +88,8 @@ const REMOVE_PROBLEMS_FROM_CONTEST = gql(`
 `)
 
 const DUPLICATE_CONTEST = gql(`
-  mutation DuplicateContest($groupId: Int!, $contestId: Int!) {
-    duplicateContest(groupId: $groupId, contestId: $contestId) {
+  mutation DuplicateContest($contestId: Int!) {
+    duplicateContest( contestId: $contestId) {
       contest {
         id
         invitationCode

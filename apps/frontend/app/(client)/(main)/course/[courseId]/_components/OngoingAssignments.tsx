@@ -64,7 +64,7 @@ export function OngoingAssignments() {
           </tr>
         </thead>
         <tbody>
-          {ongoings.map((assignment, index) => (
+          {ongoings.map((assignment) => (
             <tr key={assignment.id} className="border-b text-center">
               <td className="px-4 py-2">{assignment.title}</td>
               <td className="px-4 py-2">

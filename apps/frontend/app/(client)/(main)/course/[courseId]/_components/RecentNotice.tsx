@@ -114,6 +114,8 @@ export function RecentNotice() {
                   <span
                     className={cn(
                       'mr-2 text-xs',
+                    className={cn(
+                      'mr-2 text-xs',
                       notice.isNew ? 'text-primary' : 'text-[#8A8A8A]'
                     }}
                   >
