@@ -73,113 +73,123 @@ export function ContestMainBanner() {
     }
   })
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setFacade((facade + 1) % slides.length)
-    }, 5000)
-    return () => clearTimeout(timer)
-  }, [facade])
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setFacade((facade + 1) % slides.length)
+  //   }, 5000)
+  //   return () => clearTimeout(timer)
+  // }, [facade])
 
   const handleClick = (next: number) => {
     setFacade(next % slides.length)
   }
 
   return (
-    <div className="w-full xl:w-[1440px]">
+    <div className="w-full xl:w-screen">
       <div className="relative h-[500px] w-full">
         {slides.map((slide, index) => (
           <div
             key={index}
             className={cn(
-              'absolute inset-0 z-10 flex items-center justify-evenly overflow-hidden pt-11 text-white transition-opacity duration-1000 ease-in-out',
+              'absolute inset-0 z-10 flex items-center justify-center overflow-hidden pt-[60px] text-white transition-opacity duration-1000 ease-in-out',
               facade !== index && 'z-0 opacity-0',
               slide.bgcolor
             )}
           >
-            <div
-              className="absolute left-4 top-1/2 flex h-[440px] w-[170px] -translate-y-1/2 cursor-pointer items-center justify-center"
-              onClick={() => handleClick(facade - 1 + slides.length)}
-            >
-              <div className="absolute z-10 h-3 w-3 rounded-full bg-white" />
-              <FaCirclePlay color="gray" className="z-20 h-6 w-6 rotate-180" />
-            </div>
+            <div className="flex w-[78%] justify-evenly">
+              <div
+                className="absolute left-0 top-1/2 mt-[30px] flex h-[440px] w-16 -translate-y-1/2 cursor-pointer items-center justify-end md:w-[100px] xl:w-[200px]"
+                onClick={() => handleClick(facade - 1 + slides.length)}
+              >
+                <div className="flex items-center justify-center">
+                  <div className="absolute z-10 h-3 w-3 rounded-full bg-white" />
+                  <FaCirclePlay
+                    color="gray"
+                    className="z-20 h-6 w-6 rotate-180"
+                  />
+                </div>
+              </div>
 
-            <div className="mb-10 flex w-[448px] flex-col justify-center gap-5 pl-3 text-4xl font-bold">
-              <p
-                className="text-[22px] font-medium leading-[130%]"
-                style={{ color: TextColors[slide.type] }}
-              >
-                {slide.subDescription}
-              </p>
-              <p
-                className="text-4xl font-bold leading-[120%] text-transparent md:text-[42px]"
-                style={{
-                  background: slide.mainDescriptionColor,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}
-              >
-                {slide.mainDescription}
-              </p>
-              {/* router대신 Link 이용? 고민 */}
-              <Button
-                variant="outline"
-                className={cn(
-                  'mt-2 w-[209px] gap-[6px] rounded-full font-medium hover:bg-transparent',
-                  slide.bgcolor
-                )}
-                style={{
-                  borderColor: TextColors[slide.type],
-                  color: TextColors[slide.type]
-                }}
-                onClick={() =>
-                  router.push(`/contest/${data?.fastestUpcomingContestId}`)
-                }
-              >
-                {slide.buttonDescription}
-                <FaArrowRight />
-              </Button>
-            </div>
+              <div className="flex w-[448px] flex-col justify-center gap-5 pl-3 text-4xl font-bold">
+                <p
+                  className="text-[22px] font-medium leading-[130%]"
+                  style={{ color: TextColors[slide.type] }}
+                >
+                  {slide.subDescription}
+                </p>
+                <p
+                  className="text-4xl font-bold leading-[120%] text-transparent md:text-[42px]"
+                  style={{
+                    background: slide.mainDescriptionColor,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}
+                >
+                  {slide.mainDescription}
+                </p>
+                {/* router대신 Link 이용? 고민 */}
+                <Button
+                  variant="outline"
+                  className={cn(
+                    'mt-2 w-[209px] gap-[6px] rounded-full font-medium hover:bg-transparent',
+                    slide.bgcolor
+                  )}
+                  style={{
+                    borderColor: TextColors[slide.type],
+                    color: TextColors[slide.type]
+                  }}
+                  onClick={() =>
+                    router.push(`/contest/${data?.fastestUpcomingContestId}`)
+                  }
+                >
+                  {slide.buttonDescription}
+                  <FaArrowRight />
+                </Button>
+              </div>
 
-            <div>
-              <Image
-                src={slide.img}
-                alt={slide.imgAlt}
-                width={511}
-                height={387}
-                priority
+              <div>
+                <Image
+                  src={slide.img}
+                  alt={slide.imgAlt}
+                  width={511}
+                  height={387}
+                  priority
+                />
+              </div>
+
+              <div
+                className="absolute right-0 top-1/2 mt-[30px] flex h-[440px] w-16 -translate-y-1/2 cursor-pointer items-center justify-start md:w-[100px] xl:w-[200px]"
+                onClick={() => handleClick(facade + 1)}
+              >
+                <div className="flex items-center justify-center">
+                  <div className="absolute z-10 h-3 w-3 rounded-full bg-white" />
+                  <FaCirclePlay color="gray" className="z-20 h-6 w-6" />
+                </div>
+              </div>
+
+              <BannerPageDots slideType={slide.type} />
+
+              <OvalIcon
+                position="-left-[18%] top-[38%] h-[170px] w-[600px]"
+                transform="rotate(-35deg)"
+                backgroundColor={OvalIconColors[slide.type].leftup}
+              />
+              <OvalIcon
+                position="-bottom-7 -left-[4%] h-[100px] w-[315px]"
+                transform="rotate(-35deg)"
+                backgroundColor={OvalIconColors[slide.type].leftdown}
+              />
+              <OvalIcon
+                position="right-[10%] top-0 h-[225px] w-[750px]"
+                transform="rotate(-30deg)"
+                backgroundColor={OvalIconColors[slide.type].rightup}
+              />
+              <OvalIcon
+                position="-bottom-20 -right-[25%] rounded-none h-[350px] w-[1200px]"
+                transform="rotate(-30deg)"
+                backgroundColor={OvalIconColors[slide.type].rightdown}
               />
             </div>
-            <div
-              className="absolute right-4 top-1/2 flex h-[440px] w-[170px] -translate-y-1/2 cursor-pointer items-center justify-center"
-              onClick={() => handleClick(facade + 1)}
-            >
-              <div className="absolute z-10 h-3 w-3 rounded-full bg-white" />
-              <FaCirclePlay color="gray" className="z-20 h-6 w-6" />
-            </div>
-
-            <BannerPageDots slideType={slide.type} />
-
-            <OvalIcon
-              position="-left-[10%] top-[20%] h-[160px] w-[300px]"
-              transform="rotate(-35deg)"
-              backgroundColor={OvalIconColors[slide.type].leftup}
-            />
-            <OvalIcon
-              position="-bottom-7 -left-[10%] h-[100px] w-[315px]"
-              transform="rotate(-35deg)"
-              backgroundColor={OvalIconColors[slide.type].leftdown}
-            />
-            <OvalIcon
-              position="right-[2%] top-0 h-[225px] w-[750px]"
-              transform="rotate(-30deg)"
-              backgroundColor={OvalIconColors[slide.type].rightup}
-            />
-            <OvalIcon
-              position="-bottom-10 -right-[35%] h-[290px] w-[1200px]"
-              transform="rotate(-30deg)"
-              backgroundColor={OvalIconColors[slide.type].rightdown}
-            />
           </div>
         ))}
       </div>
@@ -190,7 +200,7 @@ export function ContestMainBanner() {
 
 function BannerPageDots({ slideType }: { slideType: string }) {
   return (
-    <div className="absolute bottom-5 flex gap-[7px]">
+    <div className="absolute bottom-9 flex gap-[7px]">
       <div
         className={cn(
           'z-10 h-[7px] w-[7px] rounded-full',

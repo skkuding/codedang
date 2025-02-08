@@ -216,7 +216,7 @@ export default function Page() {
   }
 
   return (
-    <div className="mt-14 flex w-full gap-20 pb-6">
+    <div className="mt-[60px] flex w-full gap-20 pb-6">
       {/* Logo */}
       <LogoSection />
 
