@@ -19,7 +19,7 @@ const featureDescriptions = [
   'View the rankings directly within the IDE during the contest.',
   'Add various inputs before submission without affecting your penalty.',
   'Evaluate diverse answers even for specific-condition problems.',
-  'Check the first solver, success rate, the number of submission and more stats.'
+  'Check the first solver, success rate, the number of submission and more.'
 ]
 
 export function ContestFeatureList({ title }: { title: string }) {
