@@ -80,7 +80,7 @@ export function ContestDataTable<TData extends Item, TValue>({
           <ContestTitleFilter
             table={table}
             column={table.getColumn('status')}
-            title="Status"
+            title="State"
             options={status.map((item) => ({ value: item, label: item }))}
           />
           <SearchBar className="w-60" />

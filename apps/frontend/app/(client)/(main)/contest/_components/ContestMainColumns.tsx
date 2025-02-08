@@ -18,11 +18,11 @@ const getStatusText = (status: string) => {
 
 const getStatusColor = (status: string) => {
   if (status.toLowerCase().includes('upcoming')) {
-    return 'text-primary border-primary'
+    return 'text-white border-primary bg-primary font-medium'
   } else if (status.toLowerCase().includes('ongoing')) {
-    return 'text-[#737373] border-[#3333334D]'
+    return 'text-primary border-primary font-medium'
   } else {
-    return 'text-[#3333334D] border-[#80808040]'
+    return 'text-[#8A8A8A] border-[#C4C4C4]'
   }
 }
 
@@ -43,12 +43,12 @@ export const columns: ColumnDef<Contest>[] = [
     )
   },
   {
-    header: 'Status',
+    header: 'State',
     accessorKey: 'status',
     cell: ({ row }) => (
       <p
         className={cn(
-          `ml-0 flex h-7 w-20 items-center justify-center rounded-[14px] border border-solid font-medium md:w-[92px] xl:ml-5`,
+          `ml-0 flex h-7 w-20 items-center justify-center rounded-[14px] border border-solid md:w-[92px] xl:ml-5`,
           getStatusColor(row.original.status)
         )}
       >
