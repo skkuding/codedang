@@ -73,12 +73,12 @@ export function ContestMainBanner() {
     }
   })
 
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setFacade((facade + 1) % slides.length)
-  //   }, 5000)
-  //   return () => clearTimeout(timer)
-  // }, [facade])
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFacade((facade + 1) % slides.length)
+    }, 5000)
+    return () => clearTimeout(timer)
+  }, [facade])
 
   const handleClick = (next: number) => {
     setFacade(next % slides.length)
