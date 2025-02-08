@@ -80,7 +80,7 @@ export const columns: ColumnDef<Contest>[] = [
     header: 'Period',
     accessorKey: 'period',
     cell: ({ row }) => (
-      <p className={row.original.status === 'upcoming' ? 'font-semibold' : ''}>
+      <p className="text-neutral-500">
         {dateFormatter(row.original.startTime, 'YYYY-MM-DD')} ~
         {dateFormatter(row.original.endTime, 'YYYY-MM-DD')}
       </p>
