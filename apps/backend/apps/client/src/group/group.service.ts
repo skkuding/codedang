@@ -1,7 +1,8 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
-import { Role, type UserGroup } from '@prisma/client'
+import { GroupType, Role, type Group, type UserGroup } from '@prisma/client'
 import { Cache } from 'cache-manager'
+import type { AuthenticatedUser } from '@libs/auth'
 import { invitationCodeKey, joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME, OPEN_SPACE_ID } from '@libs/constants'
 import {
@@ -11,6 +12,7 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { GroupJoinRequest } from '@libs/types'
+import { CourseDto } from './dto/course.dto'
 import type { UserGroupData } from './interface/user-group-data.interface'
 
 @Injectable()
@@ -170,7 +172,7 @@ export class GroupService {
     return { data: groups, total }
   }
 
-  async getJoinedGroups(userId: number) {
+  async getJoinedGroups(userId: number, type: GroupType) {
     return (
       await this.prisma.userGroup.findMany({
         where: {
@@ -184,22 +186,29 @@ export class GroupService {
             select: {
               id: true,
               groupName: true,
+              groupType: true,
               description: true,
-              userGroup: true
+              userGroup: true,
+              courseInfo: true
             }
           },
           isGroupLeader: true
         }
       })
-    ).map((userGroup) => {
-      return {
-        id: userGroup.group.id,
-        groupName: userGroup.group.groupName,
-        description: userGroup.group.description,
-        memberNum: userGroup.group.userGroup.length,
-        isGroupLeader: userGroup.isGroupLeader
-      }
-    })
+    )
+      .filter((userGroup) => type === userGroup.group.groupType)
+      .map((userGroup) => {
+        return {
+          id: userGroup.group.id,
+          groupName: userGroup.group.groupName,
+          description: userGroup.group.description,
+          memberNum: userGroup.group.userGroup.length,
+          isGroupLeader: userGroup.isGroupLeader,
+          ...(type === GroupType.Course && {
+            courseInfo: userGroup.group.courseInfo
+          })
+        }
+      })
   }
 
   async joinGroupById(
@@ -351,6 +360,135 @@ export class GroupService {
           connect: { id: userGroupData.groupId }
         },
         isGroupLeader: userGroupData.isGroupLeader
+      }
+    })
+  }
+
+  async createCourse(
+    courseDto: CourseDto,
+    user: AuthenticatedUser
+  ): Promise<Partial<Group>> {
+    const { canCreateCourse } = await this.prisma.user.findUniqueOrThrow({
+      where: {
+        id: user.id
+      },
+      select: {
+        canCreateCourse: true
+      }
+    })
+
+    if (canCreateCourse) {
+      const createdCourse = await this.prisma.group.create({
+        data: {
+          groupName: courseDto.courseTitle,
+          groupType: GroupType.Course,
+          config: JSON.parse(JSON.stringify(courseDto.config)),
+          courseInfo: {
+            create: {
+              courseNum: courseDto.courseNum,
+              class: courseDto.class,
+              professor: courseDto.professor,
+              semester: courseDto.semester,
+              contact: JSON.parse(JSON.stringify(courseDto.contact))
+            }
+          }
+        },
+        select: {
+          id: true,
+          groupName: true,
+          groupType: true,
+          config: true,
+          courseInfo: {
+            select: {
+              courseNum: true,
+              class: true,
+              professor: true,
+              semester: true,
+              contact: true
+            }
+          }
+        }
+      })
+      await this.prisma.userGroup.create({
+        data: {
+          user: {
+            connect: { id: user.id }
+          },
+          group: {
+            connect: { id: createdCourse.id }
+          },
+          isGroupLeader: true
+        }
+      })
+      return createdCourse
+    } else {
+      throw new ForbiddenAccessException('Forbidden Access')
+    }
+  }
+
+  async editCourse(
+    courseDto: CourseDto,
+    user: AuthenticatedUser,
+    groupId: number
+  ): Promise<Partial<Group>> {
+    return await this.prisma.group.update({
+      where: {
+        id: groupId
+      },
+      data: {
+        groupName: courseDto.courseTitle,
+        groupType: GroupType.Course,
+        config: JSON.parse(JSON.stringify(courseDto.config)),
+        courseInfo: {
+          update: {
+            courseNum: courseDto.courseNum,
+            class: courseDto.class,
+            professor: courseDto.professor,
+            semester: courseDto.semester,
+            contact: JSON.parse(JSON.stringify(courseDto.contact))
+          }
+        }
+      },
+      select: {
+        id: true,
+        groupName: true,
+        groupType: true,
+        config: true,
+        courseInfo: {
+          select: {
+            courseNum: true,
+            class: true,
+            professor: true,
+            semester: true,
+            contact: true
+          }
+        }
+      }
+    })
+  }
+
+  async deleteCourse(
+    user: AuthenticatedUser,
+    groupId: number
+  ): Promise<Partial<Group>> {
+    return await this.prisma.group.delete({
+      where: {
+        id: groupId
+      },
+      select: {
+        id: true,
+        groupName: true,
+        groupType: true,
+        config: true,
+        courseInfo: {
+          select: {
+            courseNum: true,
+            class: true,
+            professor: true,
+            semester: true,
+            contact: true
+          }
+        }
       }
     })
   }

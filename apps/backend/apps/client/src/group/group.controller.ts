@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   DefaultValuePipe,
   Delete,
@@ -6,6 +7,7 @@ import {
   Logger,
   Param,
   Post,
+  Put,
   Query,
   Req,
   UseGuards
@@ -13,9 +15,12 @@ import {
 import {
   AuthenticatedRequest,
   AuthNotNeededIfOpenSpace,
+  GroupLeaderGuard,
   GroupMemberGuard
 } from '@libs/auth'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
+import { GroupType } from '@admin/@generated'
+import { CourseDto } from './dto/course.dto'
 import { GroupService } from './group.service'
 
 @Controller('group')
@@ -36,7 +41,7 @@ export class GroupController {
 
   @Get('joined')
   async getJoinedGroups(@Req() req: AuthenticatedRequest) {
-    return await this.groupService.getJoinedGroups(req.user.id)
+    return await this.groupService.getJoinedGroups(req.user.id, GroupType.Study)
   }
 
   @Get(':groupId')
@@ -87,5 +92,47 @@ export class GroupController {
   @UseGuards(GroupMemberGuard)
   async getGroupMembers(@Param('groupId', GroupIDPipe) groupId: number) {
     return await this.groupService.getGroupMembers(groupId)
+  }
+}
+
+@Controller('course')
+export class CourseController {
+  private readonly logger = new Logger(CourseController.name)
+
+  constructor(private readonly groupService: GroupService) {}
+
+  @Post('')
+  async createCourse(
+    @Req() req: AuthenticatedRequest,
+    @Body() courseDto: CourseDto
+  ) {
+    return await this.groupService.createCourse(courseDto, req.user)
+  }
+
+  @Get('joined')
+  async getJoinedCourses(@Req() req: AuthenticatedRequest) {
+    return await this.groupService.getJoinedGroups(
+      req.user.id,
+      GroupType.Course
+    )
+  }
+
+  @Put(':groupId')
+  @UseGuards(GroupLeaderGuard)
+  async editCourse(
+    @Param('groupId', GroupIDPipe) groupId: number,
+    @Req() req: AuthenticatedRequest,
+    @Body() courseDto: CourseDto
+  ) {
+    return await this.groupService.editCourse(courseDto, req.user, groupId)
+  }
+
+  @Delete(':groupId')
+  @UseGuards(GroupLeaderGuard)
+  async deleteCourse(
+    @Param('groupId', GroupIDPipe) groupId: number,
+    @Req() req: AuthenticatedRequest
+  ) {
+    return await this.groupService.deleteCourse(req.user, groupId)
   }
 }

@@ -36,17 +36,19 @@ enum Provider {
 }
 
 model User {
-  id         Int       @id @default(autoincrement())
-  username   String    @unique
+  id               Int       @id @default(autoincrement())
+  username         String    @unique
   /// @HideField()
-  password   String
-  role       Role      @default(User)
-  email      String    @unique
-  studentId  String?   @default("0000000000") @map("student_id")
-  major      String?   @default("none")
-  lastLogin  DateTime? @map("last_login")
-  createTime DateTime  @default(now()) @map("create_time")
-  updateTime DateTime  @updatedAt @map("update_time")
+  password         String
+  role             Role      @default(User)
+  email            String    @unique
+  studentId        String?   @default("0000000000") @map("student_id")
+  major            String?   @default("none")
+  lastLogin        DateTime? @map("last_login")
+  createTime       DateTime  @default(now()) @map("create_time")
+  updateTime       DateTime  @updatedAt @map("update_time")
+  canCreateCourse  Boolean   @default(false) @map("can_create_course")
+  canCreateContest Boolean   @default(false) @map("can_create_contest")
 
   userProfile      UserProfile?
   userGroup        UserGroup[]
@@ -92,7 +94,7 @@ model UserProfile {
 model UserGroup {
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int      @map("user_id")
-  group         Group    @relation(fields: [groupId], references: [id])
+  group         Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId       Int      @map("group_id")
   isGroupLeader Boolean  @default(false) @map("is_group_leader")
   createTime    DateTime @default(now()) @map("create_time")
@@ -102,10 +104,18 @@ model UserGroup {
   @@map("user_group")
 }
 
+enum GroupType {
+  Course
+  Study
+}
+
 model Group {
-  id          Int      @id @default(autoincrement())
-  groupName   String   @unique @map("group_name")
-  description String
+  id          Int         @id @default(autoincrement())
+  ///groupName을 Course에서는 Course Title로 사용
+  groupName   String      @map("group_name")
+  groupType   GroupType   @default(Course) @map("group_type")
+  courseInfo  CourseInfo?
+  description String?
   /// config default value
   /// {
   ///   "showOnList": true,          // show on 'all groups' list
@@ -114,8 +124,8 @@ model Group {
   ///   "requireApprovalBeforeJoin": true
   /// }
   config      Json
-  createTime  DateTime @default(now()) @map("create_time")
-  updateTime  DateTime @updatedAt @map("update_time")
+  createTime  DateTime    @default(now()) @map("create_time")
+  updateTime  DateTime    @updatedAt @map("update_time")
 
   userGroup  UserGroup[]
   notice     Notice[]
@@ -125,6 +135,18 @@ model Group {
   contest    Contest[]
 
   @@map("group")
+}
+
+model CourseInfo {
+  groupId   Int    @id @default(autoincrement()) @map("group_id")
+  group     Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  courseNum String @map("course_num")
+  class     Int?
+  professor String
+  semester  String
+  contact   Json?
+
+  @@map("course_info")
 }
 
 model Notice {
