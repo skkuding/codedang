@@ -25,6 +25,7 @@ export default async function Course() {
   return (
     <>
       <Cover title="COURSE" description="Courses of CODEDANG" />
+
       <div className="flex w-full max-w-7xl flex-col gap-5 p-5 py-8">
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<CardListFallback />}>
@@ -42,7 +43,6 @@ export default async function Course() {
           </h1>
         </div>
       </div>
-      {/* TODO: 완성되면 주석해제 할 거예요! */}
       <div className="w-full">
         <Dashboard session={session} />
       </div>
