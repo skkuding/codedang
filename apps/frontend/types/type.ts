@@ -109,6 +109,13 @@ export interface Contest {
   isRegistered: boolean
 }
 
+export interface ContestLeaderboard {
+  id: number
+  title: string
+  registered: boolean
+  participants: number
+}
+
 export interface ContestAnnouncement {
   id: number
   content: string
