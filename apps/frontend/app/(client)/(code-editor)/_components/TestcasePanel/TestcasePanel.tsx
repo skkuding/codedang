@@ -3,12 +3,22 @@
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { cn, getResultColor } from '@/libs/utils'
 import type { TestResultDetail } from '@/types/type'
+import { DiffMatchPatch } from 'diff-match-patch-typescript'
 import { useState, type ReactNode } from 'react'
 import { IoMdClose } from 'react-icons/io'
-import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
 import { AddUserTestcaseDialog } from './AddUserTestcaseDialog'
 import { TestcaseTable } from './TestcaseTable'
 import { useTestResults } from './useTestResults'
+
+function getWidthClass(length: number) {
+  if (length < 5) {
+    return 'w-40'
+  } else if (length < 7) {
+    return 'w-28'
+  } else {
+    return 'w-24'
+  }
+}
 
 export function TestcasePanel() {
   const [testcaseTabList, setTestcaseTabList] = useState<TestResultDetail[]>([])
@@ -52,23 +62,36 @@ export function TestcasePanel() {
 
   return (
     <>
-      <div className="flex h-12 w-full">
+      <div className="flex h-12 w-full items-center overflow-x-auto">
         <TestcaseTab
           currentTab={currentTab}
           onClickTab={() => setCurrentTab(0)}
           nextTab={testcaseTabList[0]?.originalId}
-          className="flex-shrink-0"
+          className={cn(
+            'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
+            getWidthClass(testcaseTabList.length)
+          )}
         >
-          {testcaseTabList.length < 7 ? 'Testcase Result' : 'TC Res'}
+          <div className="flex h-full w-full items-center justify-center">
+            <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
+              {(() => {
+                if (testcaseTabList.length < 7) {
+                  return 'Testcase Result'
+                } else {
+                  return 'TC Res'
+                }
+              })()}
+            </span>
+          </div>
         </TestcaseTab>
 
         <ScrollArea
           className={cn(
-            'relative h-full w-full overflow-x-auto',
+            'relative h-12 w-full overflow-x-auto',
             currentTab === 0 && 'rounded-bl-xl'
           )}
         >
-          <div className="flex h-full">
+          <div className="flex h-12">
             {testcaseTabList.map((testcase, index) => (
               <TestcaseTab
                 currentTab={currentTab}
@@ -78,15 +101,21 @@ export function TestcasePanel() {
                 onClickCloseButton={() => removeTab(testcase.originalId)}
                 testcaseId={testcase.originalId}
                 key={testcase.originalId}
+                className={cn(
+                  'h-12 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap', // 높이, 말줄임 처리
+                  getWidthClass(testcaseTabList.length)
+                )}
               >
-                {
-                  (testcaseTabList.length < 7
-                    ? TAB_CONTENT
-                    : SHORTHAND_TAB_CONTENT)[
-                    testcase.isUserTestcase ? 'user' : 'sample'
-                  ]
-                }{' '}
-                #{testcase.id}
+                <div className="flex h-12 w-full items-center justify-center overflow-hidden text-ellipsis whitespace-nowrap">
+                  {
+                    (testcaseTabList.length < 7
+                      ? TAB_CONTENT
+                      : SHORTHAND_TAB_CONTENT)[
+                      testcase.isUserTestcase ? 'user' : 'sample'
+                    ]
+                  }{' '}
+                  #{testcase.id}
+                </div>
               </TestcaseTab>
             ))}
             <span
@@ -158,7 +187,7 @@ function TestcaseTab({
     <button
       type="button"
       className={cn(
-        'relative h-full w-44 border-l border-[#222939] bg-[#121728]',
+        'relative h-12 w-44 border-l border-[#222939] bg-[#121728]',
         currentTab === testcaseId && 'bg-[#222939]',
         currentTab === prevTab && 'rounded-bl-xl',
         currentTab === nextTab && 'rounded-br-xl',
@@ -244,20 +273,104 @@ function TestResultDetail({ data }: { data: TestResultDetail | undefined }) {
       </div>
       <div className="flex gap-4">
         <LabeledField label="Input" text={data.input} />
-        <LabeledField label="Expected Output" text={data.expectedOutput} />
-        <LabeledField label="Output" text={data.output} />
+        <LabeledField
+          label="Expected Output"
+          text={data.expectedOutput}
+          compareText={data.output}
+        />
+        <LabeledField
+          label="Output"
+          text={data.output}
+          compareText={data.expectedOutput}
+        />
       </div>
     </div>
   )
 }
 
-function LabeledField({ label, text }: { label: string; text: string }) {
+interface LabeledFieldProps {
+  label: string
+  text: string
+  compareText?: string
+}
+function LabeledField({ label, text, compareText }: LabeledFieldProps) {
+  const getColoredText = (
+    text: string,
+    compareText: string,
+    isExpectedOutput: boolean
+  ) => {
+    const isNumeric = (str: string) => /^[+-]?\d+(\.\d+)?$/.test(str.trim())
+
+    const isBothNumeric = isNumeric(text) && isNumeric(compareText)
+
+    if (isBothNumeric) {
+      const num1 = parseFloat(text)
+      const num2 = parseFloat(compareText)
+
+      if (num1 !== num2) {
+        return isExpectedOutput ? (
+          <span className="text-green-500">{compareText}</span>
+        ) : (
+          <span className="text-red-500">{text}</span>
+        )
+      } else {
+        return <span className="text-white">{text}</span>
+      }
+    }
+    const dmp = new DiffMatchPatch()
+    const diffs = dmp.diff_main(compareText, text)
+    dmp.diff_cleanupSemantic(diffs)
+
+    return diffs.map(([op, data], idx) => {
+      if (op === 0) {
+        // 동일한 텍스트는 흰색으로 표시
+        return (
+          <span key={idx} className="text-white">
+            {data}
+          </span>
+        )
+      } else if (op === -1 && isExpectedOutput) {
+        // Expected Output에만 있는 텍스트는 초록색으로 표시
+        return (
+          <span key={idx} className="text-green-500">
+            {data}
+          </span>
+        )
+      } else if (op === 1 && !isExpectedOutput) {
+        // Output에만 있는 텍스트는 빨간색으로 표시
+        return (
+          <span key={idx} className="text-red-500">
+            {data}
+          </span>
+        )
+      }
+      return null
+    })
+  }
+
+  const renderText = (label: string, text: string, compareText?: string) => {
+    // Input 값은 항상 흰색으로 출력
+    if (label === 'Input') {
+      return <span className="text-white">{text}</span>
+    }
+
+    // Expected Output 처리
+    if (label === 'Expected Output') {
+      return getColoredText(compareText || '', text, true)
+    }
+
+    // "Output" 처리
+    return getColoredText(text, compareText || '', false)
+  }
+
   return (
     <div className="min-w-40 flex-1">
       <div className="flex flex-col gap-4 p-4">
         <p className="text-slate-400">{label}</p>
         <hr className="border-[#303333]/50" />
-        <WhitespaceVisualizer text={text} className="h-fit text-slate-300" />
+        <div className="h-fit text-slate-300">
+          {renderText(label, text, compareText)}
+        </div>
       </div>
     </div>
   )

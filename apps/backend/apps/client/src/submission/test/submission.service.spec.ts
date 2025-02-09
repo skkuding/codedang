@@ -98,6 +98,7 @@ const mockContest: Contest = {
   enableCopyPaste: true,
   createTime: new Date(),
   updateTime: new Date(),
+  freezeTime: null,
   posterUrl: 'posterUrl',
   participationTarget: 'participationTarget',
   competitionMethod: 'competitionMethod',

@@ -13,13 +13,13 @@
     "start": "PORT=5525 node .next/standalone/apps/frontend/server.js",
     "lint": "eslint .",
     "compile": "graphql-codegen --require dotenv/config",
-    "test": "vitest"
+    "test": "vitest",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@apollo/client": "^3.12.4",
     "@codemirror/lang-cpp": "^6.0.2",
     "@codemirror/lang-java": "^6.0.1",
-    "@fullcalendar/bootstrap5": "^6.1.15",
     "@codemirror/lang-python": "^6.1.7",
     "@codemirror/state": "^6.5.1",
     "@codemirror/view": "^6.36.2",
@@ -70,6 +70,7 @@
     "cmdk": "^1.0.4",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
+    "diff-match-patch-typescript": "^1.1.0",
     "dotenv": "^16.4.7",
     "embla-carousel-react": "8.5.1",
     "framer-motion": "^11.15.0",
@@ -83,6 +84,7 @@
     "next": "14.2.22",
     "next-auth": "^4.24.11",
     "next-themes": "^0.4.4",
+    "posthog-js": "^1.215.1",
     "pretendard": "^1.3.9",
     "react": "^18.3.1",
     "react-circular-progressbar": "^2.1.0",
@@ -121,10 +123,12 @@
     "lucide-react": "^0.469.0",
     "msw": "^2.7.0",
     "postcss": "^8.4.49",
+    "posthog-node": "^4.4.1",
     "tailwind-merge": "^2.6.0",
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.7.2",
+    "uuidv7": "^1.0.2",
     "vitest": "^2.1.8"
   },
   "packageManager": "pnpm@9.15.2"

@@ -383,6 +383,7 @@ export const exampleContest: Contest = {
   isJudgeResultVisible: true,
   startTime: new Date(),
   endTime: new Date(),
+  freezeTime: null,
   createTime: new Date(),
   updateTime: new Date(),
   invitationCode: '123456',
