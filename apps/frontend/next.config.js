@@ -9,6 +9,7 @@ const domains =
   process.env.NODE_ENV === 'production'
     ? [`${MEDIA_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com`]
     : ['stage.codedang.com']
+console.log('APP_ENV', process.env.NODE_ENV)
 
 const nextConfig = {
   experimental: {
