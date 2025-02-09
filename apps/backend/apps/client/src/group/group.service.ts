@@ -225,7 +225,7 @@ export class GroupService {
       }
     }
 
-    const filter = invitation ? 'allowJoinFromURL' : 'allowJoinFromSearch'
+    const filter = invitation ? 'allowJoinWithURL' : 'allowJoinFromSearch'
     const group = await this.prisma.group.findUniqueOrThrow({
       where: {
         id: groupId,
@@ -322,7 +322,10 @@ export class GroupService {
     return deletedUserGroup
   }
 
-  async getUserGroupLeaderList(userId: number): Promise<number[]> {
+  async getGroupsUserLead(
+    userId: number,
+    groupType: GroupType
+  ): Promise<number[]> {
     return (
       await this.prisma.userGroup.findMany({
         where: {
@@ -330,10 +333,13 @@ export class GroupService {
           isGroupLeader: true
         },
         select: {
-          groupId: true
+          groupId: true,
+          group: true
         }
       })
-    ).map((group) => group.groupId)
+    )
+      .filter((userGroup) => userGroup.group.groupType === groupType)
+      .map((group) => group.groupId)
   }
 
   async createUserGroup(userGroupData: UserGroupData): Promise<UserGroup> {

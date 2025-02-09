@@ -117,6 +117,14 @@ export class CourseController {
     )
   }
 
+  @Get('leader')
+  async getCoursesUserLead(@Req() req: AuthenticatedRequest) {
+    return await this.groupService.getGroupsUserLead(
+      req.user.id,
+      GroupType.Course
+    )
+  }
+
   @Put(':groupId')
   @UseGuards(GroupLeaderGuard)
   async editCourse(
