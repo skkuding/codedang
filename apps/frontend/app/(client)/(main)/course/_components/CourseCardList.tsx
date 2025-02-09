@@ -1,5 +1,3 @@
-'use client'
-
 import {
   Carousel,
   CarouselContent,
@@ -152,7 +150,6 @@ interface CourseCardListProps {
   session?: Session | null
 }
 
-//Contest를 Course로 모두 이름 변경!
 export async function CourseCardList({ title }: CourseCardListProps) {
   const data = await getCourses()
 
