@@ -229,8 +229,8 @@ model ProblemTestcase {
   id          Int      @id @default(autoincrement())
   problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   problemId   Int      @map("problem_id")
-  input       String // url to corresponding file
-  output      String
+  input       String? /// deprecated: Testcase의 Input과 Output은 S3 Bucket에 Object로 저장
+  output      String? /// deprecated: Testcase의 Input과 Output은 S3 Bucket에 Object로 저장
   scoreWeight Int      @default(1) @map("score_weight")
   isHidden    Boolean  @default(false) @map("is_hidden_testcase")
   createTime  DateTime @default(now()) @map("create_time")
