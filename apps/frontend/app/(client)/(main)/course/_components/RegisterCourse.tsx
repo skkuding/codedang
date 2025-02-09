@@ -1,6 +1,7 @@
 import { Button } from '@/components/shadcn/button'
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { Input } from '@/components/shadcn/input'
+import { Separator } from '@/components/shadcn/separator'
 import { useState } from 'react'
 
 export function RegisterCourse() {
@@ -21,7 +22,7 @@ export function RegisterCourse() {
         <span className="text-white">Register</span>
       </Button>
       <Dialog open={isDialogOpened} onOpenChange={setIsDialogOpened}>
-        <DialogContent className="w-[416px] bg-red-400 p-0">
+        <DialogContent className="w-[416px] p-0">
           <RegisterResult />
         </DialogContent>
       </Dialog>
@@ -31,9 +32,12 @@ export function RegisterCourse() {
 
 function RegisterResult() {
   return (
-    <div className="bg-primary-light w-full">
-      <span className="text-error">Unverified</span>
-      <div className="flex flex-col gap-3 p-4 text-sm font-light">
+    <>
+      <div className="flex flex-col justify-center px-6 pt-4">
+        <span className="text-error">Unverified</span>
+      </div>
+      <Separator orientation="horizontal" />
+      <div className="flex flex-col gap-3 px-6 pb-6 text-sm font-light">
         <span>User whose information has not been verified.</span>
         <span>
           Please make sure that you have entered the invitation code properly.
@@ -44,6 +48,6 @@ function RegisterResult() {
           혹은 관리자에게 문의 해주세요
         </span>
       </div>
-    </div>
+    </>
   )
 }
