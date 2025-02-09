@@ -33,6 +33,11 @@ export class AuthController {
     )
   }
 
+  /**
+   * 유저가 로그인할 때 호출됨. JWT 토큰을 발급하고 리스폰스에 설정함.
+   * @param {LoginUserDto} loginUserDto - 로그인 유저의 정보
+   * @param {Response} res - 리스폰스 객체
+   */
   @AuthNotNeededIfOpenSpace()
   @Post('login')
   async login(
@@ -43,6 +48,12 @@ export class AuthController {
     this.setJwtResponse(res, jwtTokens)
   }
 
+  /**
+   * 유저가 로그아웃할 때 호출됨. refreshToken을 제거하고 쿠키를 삭제.
+   * @param {AuthenticatedRequest} req - 인증된 리퀘스트 객체
+   * @param {Response} res - 리스폰스 객체
+   * @returns {Promise<void>}
+   */
   @Post('logout')
   async logout(
     @Req() req: AuthenticatedRequest,
@@ -57,6 +68,13 @@ export class AuthController {
     res.clearCookie('refresh_token', REFRESH_TOKEN_COOKIE_OPTIONS)
   }
 
+  /**
+   * refreshToken을 기반으로 새로운 JWT 토큰을 재발급.
+   * @param {Request} req
+   * @param {Response} res
+   * @returns {Promise<void>}
+   * @throws {UnauthorizedException} refreshToken이 없거나 유효하지 않은 경우 예외 던짐.
+   */
   @AuthNotNeededIfOpenSpace()
   @Get('reissue')
   async reIssueJwtTokens(
@@ -70,6 +88,9 @@ export class AuthController {
     this.setJwtResponse(res, newJwtTokens)
   }
 
+  /**
+   * GitHub 로그인 페이지로 이동.
+   */
   @AuthNotNeededIfOpenSpace()
   @Get('github')
   @UseGuards(AuthGuard('github'))

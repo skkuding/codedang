@@ -97,7 +97,7 @@ export class AssignmentResolver {
    */
   @Query(() => [AssignmentPublicizingRequest])
   @UseRolesGuard()
-  async getPublicizingRequests() {
+  async getAssignmentPublicizingRequests() {
     return await this.assignmentService.getPublicizingRequests()
   }
 
@@ -108,7 +108,7 @@ export class AssignmentResolver {
    * @returns 생성된 Publicizing Request
    */
   @Mutation(() => AssignmentPublicizingRequest)
-  async createPublicizingRequest(
+  async createAssignmentPublicizingRequest(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('assignmentId', { type: () => Int }) assignmentId: number
   ) {
@@ -126,7 +126,7 @@ export class AssignmentResolver {
    */
   @Mutation(() => AssignmentPublicizingResponse)
   @UseRolesGuard()
-  async handlePublicizingRequest(
+  async handleAssignmentPublicizingRequest(
     @Args('assignmentId', { type: () => Int }) assignmentId: number,
     @Args('isAccepted', ParseBoolPipe) isAccepted: boolean
   ) {

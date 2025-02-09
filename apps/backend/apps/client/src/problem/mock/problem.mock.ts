@@ -1,12 +1,14 @@
 import { faker } from '@faker-js/faker'
 import { Language, Level, Role } from '@prisma/client'
 import type {
-  Problem,
   Contest,
   ContestProblem,
+  Assignment,
+  AssignmentProblem,
   WorkbookProblem
 } from '@prisma/client'
 import { MIN_DATE } from '@libs/constants'
+import type { Problem } from '@admin/@generated'
 import type { CreateTemplateDto } from '../dto/create-code-draft.dto'
 
 export const problems: Problem[] = [
@@ -35,7 +37,8 @@ export const problems: Problem[] = [
     engDescription: null,
     engHint: null,
     engInputDescription: null,
-    engOutputDescription: null
+    engOutputDescription: null,
+    problemTestcase: []
   },
   {
     id: 2,
@@ -62,12 +65,14 @@ export const problems: Problem[] = [
     engDescription: null,
     engHint: null,
     engInputDescription: null,
-    engOutputDescription: null
+    engOutputDescription: null,
+    problemTestcase: []
   }
 ]
 
 export const contestProblems = [
   {
+    id: 1,
     order: 1,
     contestId: 1,
     problemId: 1,
@@ -79,6 +84,7 @@ export const contestProblems = [
     }
   },
   {
+    id: 2,
     order: 2,
     contestId: 1,
     problemId: 2,
@@ -91,8 +97,34 @@ export const contestProblems = [
   }
 ] satisfies Array<ContestProblem & { contest: Partial<Contest> }>
 
+export const assignmentProblems = [
+  {
+    order: 1,
+    assignmentId: 1,
+    problemId: 1,
+    score: 0,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    assignment: {
+      startTime: new Date()
+    }
+  },
+  {
+    order: 2,
+    assignmentId: 1,
+    problemId: 2,
+    score: 0,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    assignment: {
+      startTime: new Date()
+    }
+  }
+] satisfies Array<AssignmentProblem & { assignment: Partial<Assignment> }>
+
 export const contestProblemsWithScore = [
   {
+    id: 1,
     order: 1,
     contestId: 1,
     problemId: 1,
@@ -106,6 +138,7 @@ export const contestProblemsWithScore = [
     submissionTime: null
   },
   {
+    id: 2,
     order: 2,
     contestId: 1,
     problemId: 2,
@@ -120,6 +153,41 @@ export const contestProblemsWithScore = [
   }
 ] satisfies Array<
   Omit<ContestProblem, 'score'> & { contest: Partial<Contest> } & {
+    maxScore: number
+    submissionTime: Date | null
+    score: number | null
+  }
+>
+
+export const assignmentProblemsWithScore = [
+  {
+    order: 1,
+    assignmentId: 1,
+    problemId: 1,
+    score: null,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    assignment: {
+      startTime: new Date()
+    },
+    maxScore: 0,
+    submissionTime: null
+  },
+  {
+    order: 2,
+    assignmentId: 1,
+    problemId: 2,
+    score: null,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    assignment: {
+      startTime: new Date()
+    },
+    maxScore: 0,
+    submissionTime: null
+  }
+] satisfies Array<
+  Omit<AssignmentProblem, 'score'> & { assignment: Partial<Assignment> } & {
     maxScore: number
     submissionTime: Date | null
     score: number | null

@@ -1,6 +1,6 @@
 'use client'
 
-import FetchErrorFallback from '@/components/FetchErrorFallback'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import {
   AlertDialog,
   AlertDialogTrigger,
