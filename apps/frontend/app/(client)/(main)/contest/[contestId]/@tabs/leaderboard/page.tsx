@@ -1,7 +1,7 @@
 import { SearchBar } from '@/app/(client)/(main)/_components/SearchBar'
 import information from '@/public/icons/information.svg'
 import Image from 'next/image'
-import { ContestLeaderboardTable } from './_components/ContestLeaderboardTable'
+import { LeaderboardTable } from './_components/LeaderboardTable'
 
 export default function ContestLeaderBoard() {
   return (
@@ -14,7 +14,7 @@ export default function ContestLeaderBoard() {
       </div>
       {/* NOTE: branch t1205-contest-main-page-new 머지되면 searchbar 디자인 바뀔 예정*/}
       <SearchBar className="mb-12 w-60" />
-      <ContestLeaderboardTable />
+      <LeaderboardTable />
     </>
   )
 }

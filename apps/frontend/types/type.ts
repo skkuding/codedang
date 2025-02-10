@@ -110,10 +110,25 @@ export interface Contest {
 }
 
 export interface ContestLeaderboard {
-  id: number
-  title: string
-  registered: boolean
-  participants: number
+  maxScore: number
+  rank: number
+  result: string // Accepted 여부
+  leaderboard: {
+    user: {
+      username: string
+    }
+    score: number // 배점
+    finalScore: number // freeze 했을때 score
+    totalPenalty: number
+    finalTotalPenalty: number // freeze 했을때 totalPenalty
+    problemRecords: {
+      score: number // 획득 score
+      order: number
+      problemId: number
+      penalty: number
+      submissionCount: number
+    }[]
+  }[]
 }
 
 export interface ContestAnnouncement {
