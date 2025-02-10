@@ -55,8 +55,7 @@ export function Sidebar() {
           <Image
             src={item.icon}
             alt={item.name}
-            width={24}
-            height={24}
+            width={20}
             className="mr-2 inline-block"
           />
           <span className="font-pretendard text-[1rem] font-bold leading-[1rem] text-[#21272A]">

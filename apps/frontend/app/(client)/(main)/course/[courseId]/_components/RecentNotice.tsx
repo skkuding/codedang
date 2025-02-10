@@ -5,6 +5,7 @@ import type { CourseNotice } from '@/types/type'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 
 const formatDate = (date: Date) => {
   const year = date.getFullYear()
@@ -30,8 +31,6 @@ export function RecentNotice() {
   const searchParams = useSearchParams()
   const courseId = searchParams.get('courseId')
   const [notices, setNotices] = useState<CourseNotice[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchNotices = () => {
@@ -73,9 +72,7 @@ export function RecentNotice() {
           }
         ])
       } catch (err) {
-        setError('공지사항을 불러오는 중 오류가 발생했습니다.')
-      } finally {
-        setLoading(false)
+        toast.error(`Failed to fetch notices: ${err}`)
       }
     }
 
@@ -98,45 +95,39 @@ export function RecentNotice() {
         </Link>
       </div>
 
-      {loading && <p className="text-sm text-gray-500">Loading...</p>}
-
-      {error && <p className="text-sm text-red-500">{error}</p>}
-
-      {!loading && !error && (
-        <ul className="space-y-5 pt-3">
-          {notices.length > 0 ? (
-            notices.map((notice) => (
-              //TODO: 공지 요소 누르면 해당 페이지로 넘어가는 기능 필요!
-              <li
-                key={notice.id}
-                className="flex justify-between border-b text-sm"
-              >
-                <div>
-                  <span
-                    className={cn(
-                      'mr-2 text-xs',
-                      notice.isNew ? 'text-primary' : 'text-[#8A8A8A]'
-                    )}
-                  >
-                    ●
-                  </span>
-                  <span
-                    className={cn(
-                      'mr-2 text-xs',
-                      notice.isNew ? 'text-black' : 'text-[#8A8A8A]'
-                    )}
-                  >
-                    {notice.title}
-                  </span>
-                </div>
-                <DateBadge date={formatDate(notice.date)} />
-              </li>
-            ))
-          ) : (
-            <p className="text-sm text-gray-500">공지사항이 없습니다.</p>
-          )}
-        </ul>
-      )}
+      <ul className="space-y-5 pt-3">
+        {notices.length > 0 ? (
+          notices.map((notice) => (
+            //TODO: 공지 요소 누르면 해당 페이지로 넘어가는 기능 필요!
+            <li
+              key={notice.id}
+              className="flex justify-between border-b text-sm"
+            >
+              <div>
+                <span
+                  className={cn(
+                    'mr-2 text-xs',
+                    notice.isNew ? 'text-primary' : 'text-[#8A8A8A]'
+                  )}
+                >
+                  ●
+                </span>
+                <span
+                  className={cn(
+                    'mr-2 text-xs',
+                    notice.isNew ? 'text-black' : 'text-[#8A8A8A]'
+                  )}
+                >
+                  {notice.title}
+                </span>
+              </div>
+              <DateBadge date={formatDate(notice.date)} />
+            </li>
+          ))
+        ) : (
+          <p className="text-sm text-gray-500">공지사항이 없습니다.</p>
+        )}
+      </ul>
     </div>
   )
 }
