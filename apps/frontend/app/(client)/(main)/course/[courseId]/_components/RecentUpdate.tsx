@@ -4,32 +4,17 @@ import { cn } from '@/libs/utils'
 import assignmentIcon from '@/public/icons/assignment.svg'
 import examIcon from '@/public/icons/exam.svg'
 import gradeIcon from '@/public/icons/grade.svg'
-import QnAIcon from '@/public/icons/qna.svg'
+import qnaIcon from '@/public/icons/qna.svg'
 import type { CourseRecentUpdate, RecentUpdateType } from '@/types/type'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 
 export function RecentUpdate() {
   const searchParams = useSearchParams()
   const courseId = searchParams.get('courseId')
   const [updates, setUpdates] = useState<CourseRecentUpdate[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const getRecentUpdateIcon = (type: RecentUpdateType) => {
-    switch (type) {
-      case 'Assignment':
-        return '@/public/icons/assignment.svg'
-      case 'Grade':
-        return '@/public/icons/grade.svg'
-      case 'QnA':
-        return '@/public/icons/qna.svg'
-      case 'Exam':
-        return '@/public/icons/exam.svg'
-      default:
-        throw new Error(`Unknown type: ${type}`)
-    }
-  }
 
   useEffect(() => {
     const fetchUpdates = () => {
@@ -71,9 +56,7 @@ export function RecentUpdate() {
           }
         ])
       } catch (err) {
-        setError('업데이트를 불러오는 중 오류가 발생했습니다.')
-      } finally {
-        setLoading(false)
+        toast.error(`Failed to fetch updates: ${err}`)
       }
     }
 
@@ -89,46 +72,85 @@ export function RecentUpdate() {
         </div>
       </div>
 
-      {loading && <p className="text-sm text-gray-500">Loading...</p>}
+      <ul className="space-y-5 pt-3">
+        {updates.length > 0 ? (
+          updates.map((update) => (
+            //TODO: 업데이트 요소 누르면 해당 페이지로 넘어가는 기능 필요!
+            <li
+              key={update.id}
+              className="flex justify-between border-b text-sm"
+            >
+              <div>
+                <span
+                  className={cn(
+                    'mr-2 text-xs',
+                    update.isNew ? 'text-primary' : 'text-[#8A8A8A]'
+                  )}
+                >
+                  ●
+                </span>
+                {/* <RecentUpdateIcon type={update.type} isNew={update.isNew} /> */}
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
-
-      {!loading && !error && (
-        <ul className="space-y-5 pt-3">
-          {updates.length > 0 ? (
-            updates.map((update) => (
-              //TODO: 업데이트 요소 누르면 해당 페이지로 넘어가는 기능 필요!
-              <li
-                key={update.id}
-                className="flex justify-between border-b text-sm"
-              >
-                <div>
-                  <span
-                    className={cn(
-                      'mr-2 text-xs',
-                      update.isNew ? 'text-primary' : 'text-[#8A8A8A]'
-                    )}
-                  >
-                    ●
-                  </span>
-                  {/* TODO: update.isNew일때 검정, else 회색 아직 적용 못 했습니다. svg파일에 색 적용하는 법을 모르겠어요.. */}
-                  {/* <RecentUpdateIcon /> */}
-                  <span
-                    className={cn(
-                      'mr-2 text-xs',
-                      update.isNew ? 'text-black' : 'text-[#8A8A8A]'
-                    )}
-                  >
-                    {update.title}
-                  </span>
-                </div>
-              </li>
-            ))
-          ) : (
-            <p className="text-sm text-gray-500">공지사항이 없습니다.</p>
-          )}
-        </ul>
-      )}
+                <span
+                  className={cn(
+                    'mr-2 text-xs',
+                    update.isNew ? 'text-black' : 'text-[#8A8A8A]'
+                  )}
+                >
+                  {update.title}
+                </span>
+              </div>
+            </li>
+          ))
+        ) : (
+          <p className="text-sm text-gray-500">공지사항이 없습니다.</p>
+        )}
+      </ul>
     </div>
   )
 }
+
+interface RecentUpdateIconProps {
+  type: RecentUpdateType
+  isNew: boolean
+}
+
+// function RecentUpdateIcon({ type, isNew }: RecentUpdateIconProps) {
+//   let icon
+
+//   switch (type) {
+//     case 'Assignment':
+//       icon = AssignmentIcon
+//       break
+//     case 'Grade':
+//       icon = gradeIcon
+//       break
+//     case 'QnA':
+//       icon = qnaIcon
+//       break
+//     case 'Exam':
+//       icon = examIcon
+//       break
+//     default:
+//       throw new Error(`Unknown type: ${type}`)
+//   }
+
+//   return (
+//     <svg
+//       width={17}
+//       height={17}
+//       viewBox="0 0 24 24"
+//       fill="none"
+//       stroke={isNew ? 'currentColor' : '#8A8A8A'}
+//       strokeWidth={2}
+//       strokeLinecap="round"
+//       strokeLinejoin="round"
+//       className={cn(
+//         'inline-block',
+//         isNew ? 'stroke-primary' : 'stroke-[#8A8A8A]'
+//       )}
+//     >
+//       {icon}
+//     </svg>
+//   )
+// }

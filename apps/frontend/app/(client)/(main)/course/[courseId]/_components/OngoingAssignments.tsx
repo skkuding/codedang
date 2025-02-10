@@ -5,16 +5,14 @@ import checkGray from '@/public/icons/check-gray.svg'
 import type { Assignment } from '@/types/type'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 export function OngoingAssignments() {
   const [ongoings, setOngoings] = useState<Assignment[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchAssignments = async () => {
       try {
-        setLoading(true)
         const response = await new Promise<Assignment[]>((resolve) =>
           setTimeout(
             () =>
@@ -43,9 +41,7 @@ export function OngoingAssignments() {
         )
         setOngoings(response)
       } catch (err) {
-        setError('Failed to fetch assignments')
-      } finally {
-        setLoading(false)
+        toast.error(`Failed to fetch assignments: ${err}`)
       }
     }
     fetchAssignments()

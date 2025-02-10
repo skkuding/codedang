@@ -23,6 +23,7 @@
     "@codemirror/lang-python": "^6.1.7",
     "@codemirror/state": "^6.5.1",
     "@codemirror/view": "^6.36.2",
+    "@fullcalendar/bootstrap5": "^6.1.15",
     "@fullcalendar/core": "^6.1.15",
     "@fullcalendar/daygrid": "^6.1.15",
     "@fullcalendar/react": "^6.1.15",
