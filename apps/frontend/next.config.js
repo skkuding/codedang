@@ -2,12 +2,21 @@ const { withSentryConfig } = require('@sentry/nextjs')
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true'
 })
-
 /** @type {import('next').NextConfig} */
+const MEDIA_BUCKET_NAME = process.env.MEDIA_BUCKET_NAME
+
+const domains =
+  process.env.NODE_ENV === 'production'
+    ? [`${MEDIA_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com`]
+    : ['stage.codedang.com']
+
 const nextConfig = {
   experimental: {
     typedRoutes: process.env.NODE_ENV !== 'development',
     instrumentationHook: process.env.NODE_ENV !== 'development'
+  },
+  images: {
+    domains
   },
   output: 'standalone',
   env: {
