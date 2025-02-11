@@ -8,6 +8,8 @@ interface LeaderboardTableProps {
   contestId: string
   search: string
 }
+
+// Use Temp data until api is ready
 const tmp = {
   maxScore: 60,
   leaderboard: [
