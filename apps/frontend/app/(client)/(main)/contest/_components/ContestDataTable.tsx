@@ -71,9 +71,6 @@ export function ContestDataTable<TData extends Item, TValue>({
 
   return (
     <>
-      {/* filter 구현 위해 ContestTitleFilter에 table column props 전달해야하는데 이를 위해 useContext..? 애매
-          (유저페이지에서 Filter 기능 이용하는 경우 Contest 밖에 없는 것으로 파악)
-      */}
       <div className="mb-11 flex justify-between">
         <h1 className="text-2xl font-semibold text-gray-700">CONTEST LIST</h1>
         <div className="flex gap-4">
@@ -143,7 +140,7 @@ export function ContestDataTable<TData extends Item, TValue>({
                         rowClass = ''
                     }
                     return rowClass
-                  })()}`} // Row 배경색 동적 설정
+                  })()}`}
                   onClick={handleClick}
                 >
                   {row.getVisibleCells().map((cell) => (

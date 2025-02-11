@@ -6,12 +6,7 @@ import useEmblaCarousel, {
   type UseEmblaCarouselType
 } from 'embla-carousel-react'
 import * as React from 'react'
-import { FaPlayCircle } from 'react-icons/fa'
 import { FaCirclePlay } from 'react-icons/fa6'
-import { IoIosArrowForward } from 'react-icons/io'
-import { IoIosArrowBack } from 'react-icons/io'
-import { IoCaretForwardCircle } from 'react-icons/io5'
-import { IoCaretBackCircle } from 'react-icons/io5'
 
 type CarouselApi = UseEmblaCarouselType[1]
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>
