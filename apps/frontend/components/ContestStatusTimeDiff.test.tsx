@@ -1,6 +1,6 @@
 import { render, screen, act } from '@testing-library/react'
 import dayjs from 'dayjs'
-// import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Toaster, toast } from 'sonner'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ContestStatusTimeDiff } from './ContestStatusTimeDiff'
@@ -53,7 +53,9 @@ const renderWithMinuteOffset = (startOffset: number, endOffset: number) => {
 
 describe.concurrent('ContestStatusTimeDiff Component', () => {
   beforeEach(() => {
+    const date = new Date(2025, 1, 1, 0, 0, 0)
     vi.useFakeTimers()
+    vi.setSystemTime(date)
   })
 
   afterEach(() => {
@@ -100,13 +102,13 @@ describe.concurrent('ContestStatusTimeDiff Component', () => {
     )
   })
 
-  // it('Should navigate to finished page when the contest ends', () => {
-  //   renderWithMinuteOffset(0, 20)
-  //   act(() => {
-  //     vi.advanceTimersByTime(20 * 60 * 1000)
-  //   })
-  //   expect(useRouter().push).toHaveBeenCalledWith(
-  //     '/contest/123/finished/problem/123'
-  //   )
-  // })
+  it('Should navigate to finished page when the contest ends', () => {
+    renderWithMinuteOffset(0, 20)
+    act(() => {
+      vi.advanceTimersByTime(20 * 60 * 1000)
+    })
+    expect(useRouter().push).toHaveBeenCalledWith(
+      '/contest/123/finished/problem/123'
+    )
+  })
 })
