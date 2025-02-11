@@ -1,23 +1,23 @@
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
-import { Group } from '@generated'
+import { Group, GroupType } from '@generated'
 import { Role } from '@prisma/client'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
 import { GroupService } from './group.service'
-import { CreateGroupInput, UpdateGroupInput } from './model/group.input'
-import { DeletedUserGroup, FindGroup } from './model/group.output'
+import { CourseInput } from './model/group.input'
+import { FindGroup } from './model/group.output'
 
 @Resolver(() => Group)
 export class GroupResolver {
   constructor(private readonly groupService: GroupService) {}
 
   @Mutation(() => Group)
-  @UseRolesGuard(Role.Manager)
-  async createGroup(
+  @UseRolesGuard(Role.User)
+  async createCourse(
     @Context('req') req: AuthenticatedRequest,
-    @Args('input') input: CreateGroupInput
+    @Args('input') input: CourseInput
   ) {
-    return await this.groupService.createGroup(input, req.user.id)
+    return await this.groupService.createCourse(input, req.user)
   }
 
   @Query(() => [FindGroup])
@@ -30,6 +30,15 @@ export class GroupResolver {
     return await this.groupService.getGroups(cursor, take)
   }
 
+  @Query(() => [FindGroup])
+  @UseRolesGuard(Role.User)
+  async getCoursesUserLead(@Context('req') req: AuthenticatedRequest) {
+    return await this.groupService.getGroupsUserLead(
+      req.user.id,
+      GroupType.Course
+    )
+  }
+
   @Query(() => FindGroup)
   async getGroup(
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
@@ -38,19 +47,21 @@ export class GroupResolver {
   }
 
   @Mutation(() => Group)
-  async updateGroup(
+  async updateCourse(
+    @Context('req') req: AuthenticatedRequest,
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number,
-    @Args('input') input: UpdateGroupInput
+    @Args('input') input: CourseInput
   ) {
-    return await this.groupService.updateGroup(id, input)
+    return await this.groupService.updateCourse(id, input, req.user)
   }
 
-  @Mutation(() => DeletedUserGroup)
-  async deleteGroup(
+  @Mutation(() => Group)
+  @UseRolesGuard(Role.User)
+  async deleteCourse(
     @Context('req') req: AuthenticatedRequest,
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
   ) {
-    return await this.groupService.deleteGroup(id, req.user)
+    return await this.groupService.deleteGroup(id, req.user, GroupType.Study)
   }
 
   /**

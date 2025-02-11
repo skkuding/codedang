@@ -138,13 +138,16 @@ model Group {
 }
 
 model CourseInfo {
-  groupId   Int    @id @default(autoincrement()) @map("group_id")
-  group     Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  courseNum String @map("course_num")
-  class     Int?
+  groupId   Int     @id @map("group_id")
+  group     Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  courseNum String  @map("course_num")
+  classNum  Int?    @map("class_num")
   professor String
   semester  String
-  contact   Json?
+  email     String?
+  website   String?
+  office    String?
+  phoneNum  String? @map("phone_num")
 
   @@map("course_info")
 }

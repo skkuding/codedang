@@ -17,12 +17,15 @@ ADD COLUMN     "can_create_course" BOOLEAN NOT NULL DEFAULT false;
 
 -- CreateTable
 CREATE TABLE "course_info" (
-    "group_id" SERIAL NOT NULL,
+    "group_id" INTEGER NOT NULL,
     "course_num" TEXT NOT NULL,
-    "class" INTEGER,
+    "class_num" INTEGER,
     "professor" TEXT NOT NULL,
     "semester" TEXT NOT NULL,
-    "contact" JSONB,
+    "email" TEXT,
+    "website" TEXT,
+    "office" TEXT,
+    "phone_num" TEXT,
 
     CONSTRAINT "course_info_pkey" PRIMARY KEY ("group_id")
 );
