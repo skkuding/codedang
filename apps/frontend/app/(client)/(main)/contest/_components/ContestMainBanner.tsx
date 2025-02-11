@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/components/shadcn/button'
+import { ovalIconColors, textColors } from '@/libs/constants'
 import { cn, fetcher } from '@/libs/utils'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
@@ -42,33 +43,6 @@ const slides = [
     imgAlt: 'Upcoming Contest'
   }
 ]
-
-const TextColors: { [key: string]: string } = {
-  recent: '#FFFFFF',
-  upcoming: '#4B63FF'
-}
-
-const OvalIconColors: {
-  [key: string]: {
-    leftup: string
-    leftdown: string
-    rightup: string
-    rightdown: string
-  }
-} = {
-  recent: {
-    leftup: '#3581fa',
-    leftdown: '#D2E4FF',
-    rightup: '#7DAFFF',
-    rightdown: '#0151D3'
-  },
-  upcoming: {
-    leftup: '#8BAEFF',
-    leftdown: '#A4BEFF',
-    rightup: '#C8D9FF',
-    rightdown: '#89ADFF'
-  }
-}
 
 export function ContestMainBanner() {
   const [facade, setFacade] = useState(0)
@@ -124,7 +98,7 @@ export function ContestMainBanner() {
               <div className="flex w-[448px] flex-col justify-center gap-5 pl-3 text-4xl font-bold">
                 <p
                   className="text-[22px] font-medium leading-[130%]"
-                  style={{ color: TextColors[slide.type] }}
+                  style={{ color: textColors[slide.type] }}
                 >
                   {slide.subDescription}
                 </p>
@@ -146,8 +120,8 @@ export function ContestMainBanner() {
                     slide.bgcolor
                   )}
                   style={{
-                    borderColor: TextColors[slide.type],
-                    color: TextColors[slide.type]
+                    borderColor: textColors[slide.type],
+                    color: textColors[slide.type]
                   }}
                   onClick={() =>
                     router.push(`/contest/${data?.fastestUpcomingContestId}`)
@@ -183,22 +157,22 @@ export function ContestMainBanner() {
               <OvalIcon
                 position="-left-[18%] top-[38%] h-[170px] w-[600px]"
                 transform="rotate(-35deg)"
-                backgroundColor={OvalIconColors[slide.type].leftup}
+                backgroundColor={ovalIconColors[slide.type].leftup}
               />
               <OvalIcon
                 position="-bottom-7 -left-[4%] h-[100px] w-[315px]"
                 transform="rotate(-35deg)"
-                backgroundColor={OvalIconColors[slide.type].leftdown}
+                backgroundColor={ovalIconColors[slide.type].leftdown}
               />
               <OvalIcon
                 position="right-[10%] top-0 h-[225px] w-[750px]"
                 transform="rotate(-30deg)"
-                backgroundColor={OvalIconColors[slide.type].rightup}
+                backgroundColor={ovalIconColors[slide.type].rightup}
               />
               <OvalIcon
                 position="-bottom-20 -right-[25%] rounded-none h-[350px] w-[1200px]"
                 transform="rotate(-30deg)"
-                backgroundColor={OvalIconColors[slide.type].rightdown}
+                backgroundColor={ovalIconColors[slide.type].rightdown}
               />
             </div>
           </div>
