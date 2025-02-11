@@ -8,6 +8,10 @@ import {
 import React from 'react'
 import { ContestFeatureCard } from './ContestFeatureCard'
 
+interface ContestFeatureListProps {
+  title: string
+}
+
 const featureTitles = [
   'REAL-TIME\nLEADERBOARD',
   'USER-DEFINED\nTESTCASE',
@@ -22,7 +26,7 @@ const featureDescriptions = [
   'Check the first solver, success rate, the number of submission and more.'
 ]
 
-export function ContestFeatureList({ title }: { title: string }) {
+export function ContestFeatureList({ title }: ContestFeatureListProps) {
   return (
     <Carousel className="flex w-full flex-col gap-6">
       <div className="flex w-full items-center justify-between">

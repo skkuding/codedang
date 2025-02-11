@@ -4,6 +4,11 @@ import type { Session } from 'next-auth'
 import { ContestDataTable } from './ContestDataTable'
 import { columns } from './ContestMainColumns'
 
+interface ContestMainTableProps {
+  search: string
+  session: Session | null
+}
+
 const getOngoingUpcomingContests = async (
   search: string,
   session: Session | null
@@ -38,10 +43,7 @@ const getOngoingUpcomingContests = async (
 export async function ContestMainTable({
   search,
   session
-}: {
-  search: string
-  session: Session | null
-}) {
+}: ContestMainTableProps) {
   const contestData = await getOngoingUpcomingContests(search, session)
 
   return (

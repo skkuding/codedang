@@ -1,15 +1,17 @@
 import { Card, CardContent } from '@/components/shadcn/card'
 import React from 'react'
 
+interface ContestFeatureCardProps {
+  index: number
+  title: string
+  description: string
+}
+
 export function ContestFeatureCard({
   index,
   title,
   description
-}: {
-  index: number
-  title: string
-  description: string
-}) {
+}: ContestFeatureCardProps) {
   return (
     <Card className="border-none">
       <CardContent

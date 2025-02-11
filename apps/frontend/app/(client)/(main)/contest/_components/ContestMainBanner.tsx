@@ -8,6 +8,17 @@ import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { FaArrowRight, FaCirclePlay } from 'react-icons/fa6'
 
+interface OvalIconProps {
+  position: string
+  transform: string
+  backgroundColor: string
+  additionalClasses?: string
+}
+
+interface BannerPageDotsProps {
+  slideType: string
+}
+
 const slides = [
   {
     type: 'recent',
@@ -198,7 +209,7 @@ export function ContestMainBanner() {
   )
 }
 
-function BannerPageDots({ slideType }: { slideType: string }) {
+function BannerPageDots({ slideType }: BannerPageDotsProps) {
   return (
     <div className="absolute bottom-9 flex gap-[7px]">
       <div
@@ -222,12 +233,7 @@ function OvalIcon({
   transform,
   backgroundColor,
   additionalClasses
-}: {
-  position: string
-  transform: string
-  backgroundColor: string
-  additionalClasses?: string
-}) {
+}: OvalIconProps) {
   return (
     <div
       className={cn('absolute -z-10 rounded-full', position, additionalClasses)}
