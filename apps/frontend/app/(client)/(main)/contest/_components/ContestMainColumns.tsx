@@ -5,26 +5,7 @@ import checkIcon from '@/public/icons/check-darkgray.svg'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
-
-const getStatusText = (status: string) => {
-  if (status.toLowerCase().includes('ongoing')) {
-    return 'Ongoing'
-  } else if (status.toLowerCase().includes('upcoming')) {
-    return 'Upcoming'
-  } else {
-    return 'Finished'
-  }
-}
-
-const getStatusColor = (status: string) => {
-  if (status.toLowerCase().includes('upcoming')) {
-    return 'text-white border-primary bg-primary font-medium'
-  } else if (status.toLowerCase().includes('ongoing')) {
-    return 'text-primary border-primary font-medium'
-  } else {
-    return 'text-[#8A8A8A] border-[#C4C4C4]'
-  }
-}
+import { getStatusColor, getStatusText } from '../_libs/utils'
 
 export const columns: ColumnDef<Contest>[] = [
   {
@@ -33,7 +14,7 @@ export const columns: ColumnDef<Contest>[] = [
     cell: ({ row }) => (
       <p
         className={cn(
-          `overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm md:text-base`,
+          'overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm md:text-base',
           row.original.status.toLowerCase().includes('upcoming') &&
             'text-primary-strong font-semibold'
         )}
