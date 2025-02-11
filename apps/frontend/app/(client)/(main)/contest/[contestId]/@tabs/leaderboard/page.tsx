@@ -3,7 +3,16 @@ import information from '@/public/icons/information.svg'
 import Image from 'next/image'
 import { LeaderboardTable } from './_components/LeaderboardTable'
 
-export default function ContestLeaderBoard() {
+export default function ContestLeaderBoard({
+  searchParams,
+  params
+}: {
+  searchParams: { search: string }
+  params: { contestId: string }
+}) {
+  const search = searchParams.search
+  const { contestId } = params
+
   return (
     <>
       <div className="mb-8 flex">
@@ -14,7 +23,7 @@ export default function ContestLeaderBoard() {
       </div>
       {/* NOTE: branch t1205-contest-main-page-new 머지되면 searchbar 디자인 바뀔 예정*/}
       <SearchBar className="mb-12 w-60" />
-      <LeaderboardTable />
+      <LeaderboardTable contestId={contestId} search={search} />
     </>
   )
 }
