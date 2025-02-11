@@ -61,6 +61,11 @@ export class ContestService {
   async getContests(userId?: number, search?: string) {
     // 1. get all contests
     const now = new Date()
+
+    const searchFilter = search
+      ? { title: { contains: search, mode: Prisma.QueryMode.insensitive } }
+      : {}
+
     const ongoingContests = await this.prisma.contest.findMany({
       where: {
         startTime: {
@@ -69,9 +74,7 @@ export class ContestService {
         endTime: {
           gt: now
         },
-        title: {
-          contains: search
-        }
+        ...searchFilter
       },
       orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }],
       select: contestSelectOption
@@ -82,9 +85,7 @@ export class ContestService {
         startTime: {
           gt: now
         },
-        title: {
-          contains: search
-        }
+        ...searchFilter
       },
       orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }],
       select: contestSelectOption
@@ -95,9 +96,7 @@ export class ContestService {
         endTime: {
           lte: now
         },
-        title: {
-          contains: search
-        }
+        ...searchFilter
       },
       orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }],
       select: contestSelectOption
