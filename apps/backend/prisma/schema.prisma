@@ -111,7 +111,6 @@ enum GroupType {
 
 model Group {
   id          Int         @id @default(autoincrement())
-  ///groupName을 Course에서는 Course Title로 사용
   groupName   String      @map("group_name")
   groupType   GroupType   @default(Course) @map("group_type")
   courseInfo  CourseInfo?
@@ -148,6 +147,7 @@ model CourseInfo {
   website   String?
   office    String?
   phoneNum  String? @map("phone_num")
+  week      Int     @default(16) //양수만 허용됨
 
   @@map("course_info")
 }
@@ -295,6 +295,7 @@ model Assignment {
   createdById          Int?     @map("created_by_id")
   group                Group    @relation(fields: [groupId], references: [id])
   groupId              Int      @map("group_id")
+  week                 Int?
   title                String
   description          String
   invitationCode       String?  @map("invitation_code")
@@ -313,6 +314,7 @@ model Assignment {
   announcement      Announcement[]
   testSubmission    TestSubmission[]
 
+  @@index([groupId, week])
   @@map("assignment")
 }
 
