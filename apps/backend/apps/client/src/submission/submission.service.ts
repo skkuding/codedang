@@ -34,13 +34,13 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { SubmissionPublicationService } from '@libs/rabbitmq'
 import {
   CreateSubmissionDto,
   CreateUserTestSubmissionDto,
   Snippet,
   Template
 } from './class/create-submission.dto'
-import { SubmissionPublicationService } from './submission-pub.service'
 
 @Injectable()
 export class SubmissionService {

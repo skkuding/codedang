@@ -5,9 +5,11 @@ import { APP_GUARD } from '@nestjs/core'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
 import { GroupMemberGuard, RolesModule } from '@libs/auth'
 import { CONSUME_CHANNEL, PUBLISH_CHANNEL } from '@libs/constants'
+import {
+  SubmissionPublicationService,
+  SubmissionSubscriptionService
+} from '@libs/rabbitmq'
 import { ProblemModule } from '@client/problem/problem.module'
-import { SubmissionPublicationService } from './submission-pub.service'
-import { SubmissionSubscriptionService } from './submission-sub.service'
 import {
   ContestSubmissionController,
   SubmissionController,
