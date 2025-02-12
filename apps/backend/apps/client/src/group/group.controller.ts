@@ -101,46 +101,11 @@ export class CourseController {
 
   constructor(private readonly groupService: GroupService) {}
 
-  @Post('')
-  async createCourse(
-    @Req() req: AuthenticatedRequest,
-    @Body() courseDto: CourseDto
-  ) {
-    return await this.groupService.createCourse(courseDto, req.user)
-  }
-
   @Get('joined')
   async getJoinedCourses(@Req() req: AuthenticatedRequest) {
     return await this.groupService.getJoinedGroups(
       req.user.id,
       GroupType.Course
     )
-  }
-
-  @Get('leader')
-  async getCoursesUserLead(@Req() req: AuthenticatedRequest) {
-    return await this.groupService.getGroupsUserLead(
-      req.user.id,
-      GroupType.Course
-    )
-  }
-
-  @Put(':groupId')
-  @UseGuards(GroupLeaderGuard)
-  async editCourse(
-    @Param('groupId', GroupIDPipe) groupId: number,
-    @Req() req: AuthenticatedRequest,
-    @Body() courseDto: CourseDto
-  ) {
-    return await this.groupService.editCourse(courseDto, req.user, groupId)
-  }
-
-  @Delete(':groupId')
-  @UseGuards(GroupLeaderGuard)
-  async deleteCourse(
-    @Param('groupId', GroupIDPipe) groupId: number,
-    @Req() req: AuthenticatedRequest
-  ) {
-    return await this.groupService.deleteCourse(req.user, groupId)
   }
 }

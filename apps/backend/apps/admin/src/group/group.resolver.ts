@@ -1,7 +1,12 @@
+import { UseGuards } from '@nestjs/common'
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
 import { Group, GroupType } from '@generated'
 import { Role } from '@prisma/client'
-import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
+import {
+  AuthenticatedRequest,
+  GroupLeaderGuard,
+  UseRolesGuard
+} from '@libs/auth'
 import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
 import { GroupService } from './group.service'
 import { CourseInput } from './model/group.input'
@@ -47,21 +52,20 @@ export class GroupResolver {
   }
 
   @Mutation(() => Group)
+  @UseGuards(GroupLeaderGuard)
   async updateCourse(
-    @Context('req') req: AuthenticatedRequest,
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number,
     @Args('input') input: CourseInput
   ) {
-    return await this.groupService.updateCourse(id, input, req.user)
+    return await this.groupService.updateCourse(id, input)
   }
 
   @Mutation(() => Group)
-  @UseRolesGuard(Role.User)
+  @UseGuards(GroupLeaderGuard)
   async deleteCourse(
-    @Context('req') req: AuthenticatedRequest,
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
   ) {
-    return await this.groupService.deleteGroup(id, req.user, GroupType.Study)
+    return await this.groupService.deleteGroup(id, GroupType.Course)
   }
 
   /**

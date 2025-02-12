@@ -171,30 +171,9 @@ export class GroupService {
     return group
   }
 
-  async updateCourse(id: number, input: CourseInput, user: AuthenticatedUser) {
+  async updateCourse(id: number, input: CourseInput) {
     if (id === OPEN_SPACE_ID) {
       throw new ForbiddenAccessException('Open space cannot be updated')
-    }
-
-    if (!user.isAdmin() && !user.isSuperAdmin()) {
-      const { isGroupLeader } = await this.prisma.userGroup.findUniqueOrThrow({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          userId_groupId: {
-            userId: user.id,
-            groupId: id
-          }
-        },
-        select: {
-          isGroupLeader: true
-        }
-      })
-
-      if (!isGroupLeader) {
-        throw new ForbiddenAccessException(
-          'If not admin, only group leader can update a group'
-        )
-      }
     }
 
     if (!input.config.showOnList) {
@@ -236,28 +215,9 @@ export class GroupService {
     }
   }
 
-  async deleteGroup(id: number, user: AuthenticatedUser, groupType: GroupType) {
+  async deleteGroup(id: number, groupType: GroupType) {
     if (id === OPEN_SPACE_ID) {
       throw new ForbiddenAccessException('Open space cannot be deleted')
-    } else if (!user.isAdmin() && !user.isSuperAdmin()) {
-      const { isGroupLeader } = await this.prisma.userGroup.findUniqueOrThrow({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          userId_groupId: {
-            userId: user.id,
-            groupId: id
-          }
-        },
-        select: {
-          isGroupLeader: true
-        }
-      })
-
-      if (!isGroupLeader) {
-        throw new ForbiddenAccessException(
-          'If not admin, only group leader can delete a group'
-        )
-      }
     }
 
     const includeOption =
