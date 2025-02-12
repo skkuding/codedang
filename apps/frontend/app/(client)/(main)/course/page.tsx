@@ -1,11 +1,12 @@
-import { Cover } from '@/app/(client)/(main)/_components/Cover'
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Separator } from '@/components/shadcn/separator'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
 import { ErrorBoundary } from '@suspensive/react'
+import Image from 'next/image'
 import { Suspense } from 'react'
 import { CourseCardList } from './_components/CourseCardList'
+import { Cover } from './_components/Cover'
 import { Dashboard } from './_components/Dashboard'
 
 function CardListFallback() {
@@ -24,7 +25,7 @@ export default async function Course() {
   const session = await auth()
   return (
     <>
-      <Cover title="COURSE" description="Courses of CODEDANG" />
+      <Cover title="COURSE" description="Check your course" />
       <div className="flex w-full max-w-7xl flex-col gap-5 p-5 py-8">
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<CardListFallback />}>
@@ -40,7 +41,6 @@ export default async function Course() {
           <h1 className="text-2xl font-bold text-gray-700">Course Overview</h1>
         </div>
       </div>
-      {/* TODO: 완성되면 주석해제 할 거예요! */}
       <div className="w-full">
         <Dashboard session={session} />
       </div>
