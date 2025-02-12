@@ -315,6 +315,10 @@ func (j *JudgeHandler[C, E]) judgeTestcase(idx int, dir string, validReq *Reques
 		res.Output = res.Output[:constants.MAX_OUTPUT]
 	}
 
+	if runResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
+		goto Send
+	}
+
 	accepted = grader.Grade([]byte(tc.Out), runResult.Output)
 
 	if !accepted {
