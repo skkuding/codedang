@@ -605,7 +605,7 @@ export class ProblemService {
     contestId: number
   ): Promise<Partial<ContestProblem>[]> {
     await this.prisma.contest.findFirstOrThrow({
-      where: { id: contestId, groupId }
+      where: { id: contestId }
     })
     const contestProblems = await this.prisma.contestProblem.findMany({
       where: { contestId }
@@ -619,7 +619,7 @@ export class ProblemService {
     problemIdsWithScore: ProblemScoreInput[]
   ): Promise<Partial<ContestProblem>[]> {
     await this.prisma.contest.findFirstOrThrow({
-      where: { id: contestId, groupId }
+      where: { id: contestId }
     })
 
     const queries = problemIdsWithScore.map((record) => {
@@ -644,7 +644,7 @@ export class ProblemService {
     orders: number[]
   ): Promise<Partial<ContestProblem>[]> {
     await this.prisma.contest.findFirstOrThrow({
-      where: { id: contestId, groupId }
+      where: { id: contestId }
     })
 
     const contestProblems = await this.prisma.contestProblem.findMany({

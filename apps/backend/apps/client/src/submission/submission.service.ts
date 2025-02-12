@@ -143,15 +143,13 @@ export class SubmissionService {
     userIp,
     userId,
     problemId,
-    contestId,
-    groupId = OPEN_SPACE_ID
+    contestId
   }: {
     submissionDto: CreateSubmissionDto
     userIp: string
     userId: number
     problemId: number
     contestId: number
-    groupId: number
   }) {
     const now = new Date()
 
@@ -159,7 +157,6 @@ export class SubmissionService {
     const contest = await this.prisma.contest.findFirst({
       where: {
         id: contestId,
-        groupId,
         startTime: {
           lte: now
         },
@@ -184,7 +181,6 @@ export class SubmissionService {
       select: {
         contest: {
           select: {
-            groupId: true,
             startTime: true,
             endTime: true
           }
@@ -194,9 +190,7 @@ export class SubmissionService {
     if (!contestRecord) {
       throw new EntityNotExistException('ContestRecord')
     }
-    if (contestRecord.contest.groupId !== groupId) {
-      throw new EntityNotExistException('Contest')
-    } else if (
+    if (
       contestRecord.contest.startTime > now ||
       contestRecord.contest.endTime <= now
     ) {
@@ -957,7 +951,6 @@ export class SubmissionService {
   }) {
     const now = new Date()
     let contest: {
-      groupId: number
       startTime: Date
       endTime: Date
       isJudgeResultVisible: boolean
@@ -982,7 +975,6 @@ export class SubmissionService {
         select: {
           contest: {
             select: {
-              groupId: true,
               startTime: true,
               endTime: true,
               isJudgeResultVisible: true
@@ -992,9 +984,6 @@ export class SubmissionService {
       })
       if (!contestRecord) {
         throw new EntityNotExistException('ContestRecord')
-      }
-      if (contestRecord.contest.groupId !== groupId) {
-        throw new EntityNotExistException('Contest')
       }
       contest = contestRecord.contest
       isJudgeResultVisible = contest.isJudgeResultVisible
