@@ -509,52 +509,149 @@ export class SubmissionService {
     }
   }
 
-  async rejudgeSubmissionsByProblem(problemId: number): Promise<void> {
+  async rejudgeSubmissionsByProblem(problemId: number): Promise<{
+    successCount: number
+    failedSubmissions: { submissionId: number; error: string }[]
+  }> {
+    const failedSubmissions: { submissionId: number; error: string }[] = [] // 실패한 제출을 추적할 배열
+    let successCount = 0 // 성공한 제출 수
+
     try {
       // 문제 ID에 해당하는 제출 기록 조회
       const submissions = await this.prisma.submission.findMany({
         where: { problemId },
-        include: { problem: true } // 문제 정보 포함
+        include: { problem: true }
       })
 
       if (!submissions.length) {
         throw new Error(`No submissions found for problem ID ${problemId}`)
       }
 
+      // 제출 목록을 순차적으로 처리
       for (const submission of submissions) {
-        // Snippet 변환
-        const code = (submission.code as Prisma.JsonValue[]).map((snippet) => {
+        try {
+          // Snippet 변환
+          const code = (submission.code as Prisma.JsonValue[]).map(
+            (snippet) => {
+              if (
+                typeof snippet === 'object' &&
+                snippet !== null &&
+                'id' in snippet &&
+                'text' in snippet &&
+                'locked' in snippet
+              ) {
+                return {
+                  id: snippet['id'],
+                  text: snippet['text'],
+                  locked: snippet['locked']
+                } as Snippet // Snippet 타입으로 변환
+              }
+              throw new Error('Invalid snippet format')
+            }
+          )
+
+          // 새로운 재채점된 제출 생성 (기존 제출을 기반으로 새 레코드 생성)
+          const rejudgedSubmission = await this.prisma.submission.create({
+            data: {
+              userId: submission.userId,
+              userIp: submission.userIp,
+              problemId: submission.problemId,
+              assignmentId: submission.assignmentId,
+              contestId: submission.contestId,
+              workbookId: submission.workbookId,
+              code: JSON.parse(JSON.stringify(submission.code)), // 기존 코드 그대로 유지
+              codeSize: submission.codeSize,
+              language: submission.language,
+              result: ResultStatus.Judging, // 새 제출의 상태는 Pending으로 시작
+              score: 0, // 초기 점수는 0
+              rejudgedFromId: submission.id, // 원본 제출 ID를 기록하여 추적 가능하도록 설정
+              isRejudged: true // 재채점된 제출임을 명확하게 기록
+            }
+          })
+
+          // 기존 제출을 '재채점됨' 상태로 변경
+          await this.prisma.submission.update({
+            where: { id: submission.id },
+            data: { isRejudged: true, rejudgedFromId: null }
+          })
+
+          // 새롭게 채점 결과 생성
+          await this.createSubmissionResults(rejudgedSubmission)
+
+          // 채점 요청 발행
+          await this.publish.publishJudgeRequestMessage(
+            code,
+            rejudgedSubmission
+          )
+
+          // 제출 상태 업데이트 (채점 중으로)
+          await this.prisma.submission.update({
+            where: { id: rejudgedSubmission.id },
+            data: { result: ResultStatus.Judging }
+          })
+
+          await this.waitForJudgingResult(rejudgedSubmission.id)
+
+          // 채점 결과가 Accepted일 경우에만 성공 수 증가
+          const finalSubmission = await this.prisma.submission.findUnique({
+            where: { id: rejudgedSubmission.id }
+          })
+
+          // 재채점된 결과가 최종적으로 'Accepted'일 경우 성공 카운트 증가
           if (
-            typeof snippet === 'object' &&
-            snippet !== null &&
-            'id' in snippet &&
-            'text' in snippet &&
-            'locked' in snippet
+            finalSubmission &&
+            finalSubmission.result === ResultStatus.Accepted
           ) {
-            return {
-              id: snippet['id'],
-              text: snippet['text'],
-              locked: snippet['locked']
-            } as Snippet // Snippet 타입으로 변환
+            successCount++
+          } else {
+            // 결과가 Accepted가 아닌 경우 실패 목록에 추가
+            failedSubmissions.push({
+              submissionId: finalSubmission
+                ? finalSubmission.id
+                : rejudgedSubmission.id,
+              error: finalSubmission ? finalSubmission.result : 'Unknown error'
+            })
           }
-          throw new Error('Invalid snippet format')
-        })
+        } catch (error) {
+          // 오류가 발생한 경우 실패한 제출에 추가
+          failedSubmissions.push({
+            submissionId: submission.id,
+            error: error.message || 'Unknown error'
+          })
+        }
+      }
 
-        // 새롭게 채점 결과 생성
-        await this.createSubmissionResults(submission)
-
-        // 채점 요청 발행
-        await this.publish.publishJudgeRequestMessage(code, submission)
-
-        // 제출 상태 업데이트 (채점 중으로)
-        await this.prisma.submission.update({
-          where: { id: submission.id },
-          data: { result: ResultStatus.Judging }
-        })
+      // 전체 성공 및 실패한 제출 수를 응답으로 반환
+      return {
+        successCount,
+        failedSubmissions
       }
     } catch (error) {
-      // 예외 처리: 문제 ID에 해당하는 제출 기록이 없거나 기타 오류 발생 시
+      // 전체적으로 실패한 경우 처리
       throw new EntityNotExistException(`${error.message}`)
+    }
+  }
+
+  async waitForJudgingResult(submissionId: number): Promise<void> {
+    let resultReceived = false
+
+    while (!resultReceived) {
+      const submission = await this.prisma.submission.findUnique({
+        where: { id: submissionId }
+      })
+
+      if (!submission) {
+        // 만약 제출이 존재하지 않으면 에러를 던지거나 다른 로직을 추가할 수 있습니다.
+        throw new Error(`Submission with ID ${submissionId} not found`)
+      }
+
+      // 채점이 완료된 상태인지 확인
+      if (submission.result !== ResultStatus.Judging) {
+        resultReceived = true // 채점이 완료되었으므로 종료
+      } else {
+        // 채점 결과가 아직 오지 않았으면 2초 대기 후 다시 시도
+        await new Promise((resolve) => setTimeout(resolve, 2000))
+      }
     }
   }
 
@@ -718,7 +815,9 @@ export class SubmissionService {
       workbookId: null,
       codeSize: null,
       createTime: new Date(),
-      updateTime: new Date()
+      updateTime: new Date(),
+      rejudgedFromId: null,
+      isRejudged: false
     }
 
     // User Testcase에 대한 TEST 요청인 경우

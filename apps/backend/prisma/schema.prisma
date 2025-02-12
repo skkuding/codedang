@@ -502,6 +502,13 @@ model Submission {
   createTime   DateTime     @default(now()) @map("create_time")
   updateTime   DateTime     @updatedAt @map("update_time")
 
+  /// 원본 제출을 추적하기 위한 관계 추가
+  rejudgedFromId      Int?         @map("rejudged_from_id")
+  rejudgedFrom        Submission?  @relation("RejudgeLink", fields: [rejudgedFromId], references: [id], onDelete: SetNull) // 원본 제출 참조
+  rejudgedSubmissions Submission[] @relation("RejudgeLink") // 이 제출을 기반으로 재채점된 제출들
+
+  isRejudged Boolean @default(false) // 재채점 여부
+
   submissionResult SubmissionResult[]
 
   @@map("submission")
