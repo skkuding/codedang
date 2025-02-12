@@ -93,7 +93,10 @@ export class SubmissionController {
   }
 
   @Patch('rejudge')
-  async rejudge(@Query('problemId') problemId: string): Promise<void> {
+  async rejudge(@Query('problemId') problemId: string): Promise<{
+    successCount: number
+    failedSubmissions: { submissionId: number; error: string }[]
+  }> {
     const problemIdNumber = parseInt(problemId, 10)
     return this.submissionService.rejudgeSubmissionsByProblem(problemIdNumber)
   }
