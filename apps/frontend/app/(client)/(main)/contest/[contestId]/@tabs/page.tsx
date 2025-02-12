@@ -26,9 +26,10 @@ interface ContestTop {
   startTime: string
   endTime: string
   group: {
-    id: string
+    id: number
     groupName: string
   }
+  contestRecord: { userId: number }[]
   isJudgeResultVisible: boolean
   posterUrl?: string
   participationTarget?: string
@@ -36,11 +37,28 @@ interface ContestTop {
   rankingMethod?: string
   problemFormat?: string
   benefits?: string
+  contestProblem: {
+    order: number
+    problem: {
+      title: string
+    }
+  }[]
   enableCopyPaste: boolean
   status: ContestStatus
   participants: number
   isRegistered: boolean
   invitationCodeExists: boolean
+  _count: {
+    contestRecord: number
+  }
+  prev: null | {
+    id: number
+    title: string
+  }
+  next: null | {
+    id: number
+    title: string
+  }
 }
 
 interface ContestTopProps {
@@ -49,33 +67,124 @@ interface ContestTopProps {
   }
 }
 
+export interface ProblemDataTop {
+  data: {
+    order: number
+    id: number
+    title: string
+    difficulty: string
+    submissionCount: number
+    acceptedRate: number
+    maxScore: number
+    score: null | number
+    submissionTime: null | string
+  }[]
+  total: number
+}
+
 export default async function ContestTop({ params }: ContestTopProps) {
   const session = await auth()
   const { contestId } = params
-  // const data: ContestTop = await fetcherWithAuth
-  //   .get(`contest/${contestId}`)
-  //   .json()
-  const data: ContestTop = {
-    id: 4,
-    title: '24년도 소프트웨어학과 신입생 입학 테스트3',
-    startTime: '2024-01-01T00:00:00.000Z',
-    endTime: '2028-01-01T23:59:59.000Z',
-    group: { id: '1', groupName: 'Example Group' },
-    isJudgeResultVisible: true,
-    posterUrl:
-      'https://stage.codedang.com/bucket/image-bucket/4393c8b5-0938-4108-b53f-cb548beb47af',
-    participationTarget: '성균관대학교 24학번 신입생',
-    competitionMethod: '강의실에서 오프라인으로 진행',
-    rankingMethod: '맞춘 문제 수와 penalty를 종합하여 순위 산출',
-    problemFormat: '문제 형식은 다음과 같습니다.',
-    benefits: '참여 혜택 정보',
-    enableCopyPaste: true,
-    status: 'Ongoing' as ContestStatus,
-    participants: 1,
-    isRegistered: false,
-    invitationCodeExists: false,
-    description: '<p>이 대회는 현재 진행 중입니다 !</p>'
-  }
+  const data: ContestTop = await fetcherWithAuth
+    .get(`contest/${contestId}`)
+    .json()
+  const problemData: ProblemDataTop = await fetcherWithAuth
+    .get(`contest/${contestId}/problem`)
+    .json()
+  // const data: ContestTop = {
+  //   id: 1,
+  //   title: 'SKKU Coding Platform 모의대회',
+  //   startTime: '2024-01-01T00:00:00.000Z',
+  //   endTime: '2028-01-01T23:59:59.000Z',
+  //   group: {
+  //     id: 1,
+  //     groupName: 'Example Group'
+  //   },
+  //   contestRecord: [
+  //     {
+  //       userId: 1
+  //     },
+  //     {
+  //       userId: 2
+  //     },
+  //     {
+  //       userId: 3
+  //     },
+  //     {
+  //       userId: 4
+  //     },
+  //     {
+  //       userId: 5
+  //     },
+  //     {
+  //       userId: 6
+  //     },
+  //     {
+  //       userId: 7
+  //     },
+  //     {
+  //       userId: 8
+  //     },
+  //     {
+  //       userId: 9
+  //     },
+  //     {
+  //       userId: 10
+  //     },
+  //     {
+  //       userId: 11
+  //     },
+  //     {
+  //       userId: 12
+  //     },
+  //     {
+  //       userId: 13
+  //     }
+  //   ],
+  //   enableCopyPaste: true,
+  //   isJudgeResultVisible: true,
+  //   posterUrl:
+  //     'https://stage.codedang.com/bucket/image-bucket/4393c8b5-0938-4108-b53f-cb548beb47af',
+  //   participationTarget: '성균관대 재학생이라면 누구나',
+  //   competitionMethod: '온라인으로 진행',
+  //   rankingMethod: '맞춘 문제 수와 penalty로 산정',
+  //   problemFormat: '이러한 방식으로 출제될 거에요',
+  //   benefits: '참가자 전원 스타벅스 기프티콘 증정',
+  //   contestProblem: [
+  //     {
+  //       order: 0,
+  //       problem: {
+  //         title: '정수 더하기'
+  //       }
+  //     },
+  //     {
+  //       order: 1,
+  //       problem: {
+  //         title: '가파른 경사'
+  //       }
+  //     },
+  //     {
+  //       order: 2,
+  //       problem: {
+  //         title: '회전 표지판'
+  //       }
+  //     }
+  //   ],
+  //   _count: {
+  //     contestRecord: 13
+  //   },
+  //   description:
+  //     '<p>\n  대통령은 내란 또는 외환의 죄를 범한 경우를 제외하고는 재직중 형사상의 소추를\n  받지 아니한다. 모든 국민은 자기의 행위가 아닌 친족의 행위로 인하여 불이익한\n  처우를 받지 아니한다.\n</p>\n\n<p>\n  위원은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니한다.\n  대통령은 국무회의의 의장이 되고, 국무총리는 부의장이 된다. 모든 국민은 헌법과\n  법률이 정한 법관에 의하여 법률에 의한 재판을 받을 권리를 가진다.\n</p>\n\n<p>\n  국회의원은 현행범인인 경우를 제외하고는 회기중 국회의 동의없이 체포 또는\n  구금되지 아니한다. 헌법재판소의 장은 국회의 동의를 얻어 재판관중에서 대통령이\n  임명한다.\n</p>\n\n<p>\n  국가는 지역간의 균형있는 발전을 위하여 지역경제를 육성할 의무를 진다. 제3항의\n  승인을 얻지 못한 때에는 그 처분 또는 명령은 그때부터 효력을 상실한다. 이 경우\n  그 명령에 의하여 개정 또는 폐지되었던 법률은 그 명령이 승인을 얻지 못한 때부터\n  당연히 효력을 회복한다.\n</p>\n\n<p>\n  모든 국민은 신체의 자유를 가진다. 누구든지 법률에 의하지 아니하고는\n  체포·구속·압수·수색 또는 심문을 받지 아니하며, 법률과 적법한 절차에 의하지\n  아니하고는 처벌·보안처분 또는 강제노역을 받지 아니한다.\n</p>',
+  //   invitationCodeExists: true,
+  //   isRegistered: true,
+  //   prev: null,
+  //   next: {
+  //     id: 2,
+  //     title: '24년도 소프트웨어학과 신입생 입학 테스트1'
+  //   },
+  //   status: 'ongoing',
+  //   participants: 2
+  // }
 
   const contest: Contest = {
     ...data,
@@ -84,6 +193,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
   }
 
   console.log('contest: ', contest)
+  console.log('problem:', problemData)
   const startTime = new Date(data.startTime)
   const endTime = new Date(data.endTime)
   const currentTime = new Date()
@@ -200,7 +310,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
             Problem List
           </AccordionTrigger>
           <AccordionContent className="text-base text-[#00000080]">
-            {RenderProblemList(state, data.isRegistered)}
+            {RenderProblemList(state, data.isRegistered, problemData)}
           </AccordionContent>
         </AccordionItem>
       </Accordion>

@@ -5,11 +5,30 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 /** @type {import('next').NextConfig} */
 const MEDIA_BUCKET_NAME = process.env.MEDIA_BUCKET_NAME
 
-const domains =
+// const domains =
+//   process.env.NODE_ENV === 'production'
+//     ? [`${MEDIA_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com`]
+//     : ['stage.codedang.com', 'skkuding.dev']
+console.log('NODE_ENV:', process.env.NODE_ENV)
+
+const remotePatterns =
   process.env.NODE_ENV === 'production'
-    ? [`${MEDIA_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com`]
-    : ['stage.codedang.com']
-console.log('APP_ENV', process.env.NODE_ENV)
+    ? [
+        {
+          protocol: 'https',
+          hostname: `${MEDIA_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com`
+        }
+      ]
+    : [
+        {
+          protocol: 'https',
+          hostname: 'stage.codedang.com'
+        },
+        {
+          protocol: 'https',
+          hostname: 'skkuding.dev'
+        }
+      ]
 
 const nextConfig = {
   experimental: {
@@ -17,7 +36,7 @@ const nextConfig = {
     instrumentationHook: process.env.NODE_ENV !== 'development'
   },
   images: {
-    domains
+    remotePatterns
   },
   output: 'standalone',
   env: {
