@@ -1,0 +1,28 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    allowCourseCreation(userId: 5) {
+      id
+      role
+      canCreateCourse
+    }
+  }
+  
+}
+
+docs {
+  # Delete Group
+  ---
+  - `groupId`에 해당하는 Group을 삭제합니다.
+}

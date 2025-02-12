@@ -12,13 +12,19 @@ post {
 
 body:graphql {
   query {
-    getGroups(cursor: 1, take: 5){
-    	id
+    getCoursesUserLead {
+      id
       groupName
-      description
-      config
+      groupType
+      courseInfo {
+        courseNum
+        classNum
+        professor
+        semester
+      }
     }
   }
+  
 }
 
 assert {

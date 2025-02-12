@@ -12,10 +12,16 @@ post {
 
 body:graphql {
   mutation {
-    deleteGroup(groupId: 3) {
-      count
+    deleteCourse(groupId: 24) {
+      id
+      courseInfo {
+        courseNum
+        classNum
+        semester
+      }
     }
   }
+  
 }
 
 docs {
