@@ -1,15 +1,11 @@
 'use client'
 
 import { cn } from '@/libs/utils'
-import assignmentIcon from '@/public/icons/assignment.svg'
-import examIcon from '@/public/icons/exam.svg'
-import gradeIcon from '@/public/icons/grade.svg'
-import qnaIcon from '@/public/icons/qna.svg'
 import type { CourseRecentUpdate, RecentUpdateType } from '@/types/type'
-import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
+import { AssignmentIcon, ExamIcon, GradeIcon, QnaIcon } from './UpdateIcon'
 
 export function RecentUpdate() {
   const searchParams = useSearchParams()
@@ -83,14 +79,15 @@ export function RecentUpdate() {
               <div>
                 <span
                   className={cn(
-                    'mr-2 text-xs',
+                    'mr-1 text-xs',
                     update.isNew ? 'text-primary' : 'text-[#8A8A8A]'
                   )}
                 >
                   ●
                 </span>
-                {/* <RecentUpdateIcon type={update.type} isNew={update.isNew} /> */}
-
+                <div className="mr-2 inline-block h-5 w-5">
+                  <RecentUpdateIcon type={update.type} isNew={update.isNew} />
+                </div>
                 <span
                   className={cn(
                     'mr-2 text-xs',
@@ -115,42 +112,18 @@ interface RecentUpdateIconProps {
   isNew: boolean
 }
 
-// function RecentUpdateIcon({ type, isNew }: RecentUpdateIconProps) {
-//   let icon
-
-//   switch (type) {
-//     case 'Assignment':
-//       icon = AssignmentIcon
-//       break
-//     case 'Grade':
-//       icon = gradeIcon
-//       break
-//     case 'QnA':
-//       icon = qnaIcon
-//       break
-//     case 'Exam':
-//       icon = examIcon
-//       break
-//     default:
-//       throw new Error(`Unknown type: ${type}`)
-//   }
-
-//   return (
-//     <svg
-//       width={17}
-//       height={17}
-//       viewBox="0 0 24 24"
-//       fill="none"
-//       stroke={isNew ? 'currentColor' : '#8A8A8A'}
-//       strokeWidth={2}
-//       strokeLinecap="round"
-//       strokeLinejoin="round"
-//       className={cn(
-//         'inline-block',
-//         isNew ? 'stroke-primary' : 'stroke-[#8A8A8A]'
-//       )}
-//     >
-//       {icon}
-//     </svg>
-//   )
-// }
+function RecentUpdateIcon({ type, isNew }: RecentUpdateIconProps) {
+  const strokeColor = isNew ? 'black' : '#8A8A8A'
+  switch (type) {
+    case 'Assignment':
+      return <AssignmentIcon strokeColor={strokeColor} />
+    case 'Grade':
+      return <GradeIcon strokeColor={strokeColor} />
+    case 'QnA':
+      return <QnaIcon strokeColor={strokeColor} />
+    case 'Exam':
+      return <ExamIcon strokeColor={strokeColor} />
+    default:
+      throw new Error(`Unknown type: ${type}`)
+  }
+}
