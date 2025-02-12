@@ -32,7 +32,9 @@ const submission: Submission & { submissionResult: SubmissionResult[] } = {
   ...submissions[0],
   codeSize: 1000,
   submissionResult: [],
-  score: 100
+  score: 100,
+  rejudgedFromId: null, // 원본 제출 ID (필수로 추가)
+  isRejudged: false // 재채점 여부 (필수로 추가)
 }
 
 describe('SubmissionPublicationService', () => {
