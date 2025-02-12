@@ -231,6 +231,38 @@ export class GroupService {
     })
   }
 
+  async allowCourseCreation(userId: number) {
+    return await this.prisma.user.update({
+      where: {
+        id: userId
+      },
+      data: {
+        canCreateCourse: true
+      },
+      select: {
+        id: true,
+        role: true,
+        canCreateCourse: true
+      }
+    })
+  }
+
+  async revokeCourseCreation(userId: number) {
+    return await this.prisma.user.update({
+      where: {
+        id: userId
+      },
+      data: {
+        canCreateCourse: false
+      },
+      select: {
+        id: true,
+        role: true,
+        canCreateCourse: true
+      }
+    })
+  }
+
   async issueInvitation(id: number) {
     const group = await this.prisma.group.findUnique({
       where: { id },

@@ -6,10 +6,10 @@ import {
   LEADER_NOT_NEEDED_KEY,
   UseRolesGuard
 } from '@libs/auth'
-import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { GroupService } from './group.service'
 import { CourseInput } from './model/group.input'
-import { FindGroup } from './model/group.output'
+import { CanCreateCourseResult, FindGroup } from './model/group.output'
 
 @Resolver(() => Group)
 export class GroupResolver {
@@ -37,6 +37,24 @@ export class GroupResolver {
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
   ) {
     return await this.groupService.deleteGroup(id, GroupType.Course)
+  }
+
+  @Mutation(() => CanCreateCourseResult)
+  @UseRolesGuard()
+  async allowCourseCreation(
+    @Args('userId', { type: () => Int }, new RequiredIntPipe('userId'))
+    userId: number
+  ) {
+    return await this.groupService.allowCourseCreation(userId)
+  }
+
+  @Mutation(() => CanCreateCourseResult)
+  @UseRolesGuard()
+  async revokeCourseCreation(
+    @Args('userId', { type: () => Int }, new RequiredIntPipe('userId'))
+    userId: number
+  ) {
+    return await this.groupService.revokeCourseCreation(userId)
   }
 
   @Query(() => [FindGroup])
