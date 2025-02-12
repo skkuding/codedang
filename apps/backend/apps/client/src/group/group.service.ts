@@ -170,7 +170,7 @@ export class GroupService {
     return { data: groups, total }
   }
 
-  async getJoinedGroups(userId: number, type: GroupType) {
+  async getJoinedGroups(userId: number, groupType: GroupType) {
     return (
       await this.prisma.userGroup.findMany({
         where: {
@@ -185,26 +185,25 @@ export class GroupService {
               id: true,
               groupName: true,
               groupType: true,
-              description: true,
-              userGroup: true,
-              courseInfo: true
+              description: groupType === GroupType.Study,
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              _count: { select: { userGroup: true } },
+              courseInfo: groupType === GroupType.Course
             }
           },
           isGroupLeader: true
         }
       })
     )
-      .filter((userGroup) => type === userGroup.group.groupType)
-      .map((userGroup) => {
+      .filter(({ group }) => groupType === group.groupType)
+      .map(({ group, isGroupLeader }) => {
         return {
-          id: userGroup.group.id,
-          groupName: userGroup.group.groupName,
-          description: userGroup.group.description,
-          memberNum: userGroup.group.userGroup.length,
-          isGroupLeader: userGroup.isGroupLeader,
-          ...(type === GroupType.Course && {
-            courseInfo: userGroup.group.courseInfo
-          })
+          id: group.id,
+          groupName: group.groupName,
+          description: group.description,
+          memberNum: group._count.userGroup,
+          isGroupLeader,
+          ...(group.courseInfo && { courseInfo: group.courseInfo })
         }
       })
   }

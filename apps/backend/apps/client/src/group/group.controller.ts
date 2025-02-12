@@ -1,5 +1,4 @@
 import {
-  Body,
   Controller,
   DefaultValuePipe,
   Delete,
@@ -7,7 +6,6 @@ import {
   Logger,
   Param,
   Post,
-  Put,
   Query,
   Req,
   UseGuards
@@ -15,12 +13,10 @@ import {
 import {
   AuthenticatedRequest,
   AuthNotNeededIfOpenSpace,
-  GroupLeaderGuard,
   GroupMemberGuard
 } from '@libs/auth'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { GroupType } from '@admin/@generated'
-import { CourseDto } from './dto/course.dto'
 import { GroupService } from './group.service'
 
 @Controller('group')

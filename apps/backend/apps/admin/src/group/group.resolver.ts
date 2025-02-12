@@ -1,10 +1,9 @@
-import { UseGuards } from '@nestjs/common'
+import { SetMetadata } from '@nestjs/common'
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
 import { Group, GroupType } from '@generated'
-import { Role } from '@prisma/client'
 import {
   AuthenticatedRequest,
-  GroupLeaderGuard,
+  LEADER_NOT_NEEDED_KEY,
   UseRolesGuard
 } from '@libs/auth'
 import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
@@ -17,12 +16,36 @@ export class GroupResolver {
   constructor(private readonly groupService: GroupService) {}
 
   @Mutation(() => Group)
-  @UseRolesGuard(Role.User)
+  @SetMetadata(LEADER_NOT_NEEDED_KEY, true)
   async createCourse(
     @Context('req') req: AuthenticatedRequest,
     @Args('input') input: CourseInput
   ) {
     return await this.groupService.createCourse(input, req.user)
+  }
+
+  @Mutation(() => Group)
+  async updateCourse(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) id: number,
+    @Args('input') input: CourseInput
+  ) {
+    return await this.groupService.updateCourse(id, input)
+  }
+
+  @Mutation(() => Group)
+  async deleteCourse(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
+  ) {
+    return await this.groupService.deleteGroup(id, GroupType.Course)
+  }
+
+  @Query(() => [FindGroup])
+  @SetMetadata(LEADER_NOT_NEEDED_KEY, true)
+  async getCoursesUserLead(@Context('req') req: AuthenticatedRequest) {
+    return await this.groupService.getGroupsUserLead(
+      req.user.id,
+      GroupType.Course
+    )
   }
 
   @Query(() => [FindGroup])
@@ -35,37 +58,11 @@ export class GroupResolver {
     return await this.groupService.getGroups(cursor, take)
   }
 
-  @Query(() => [FindGroup])
-  @UseRolesGuard(Role.User)
-  async getCoursesUserLead(@Context('req') req: AuthenticatedRequest) {
-    return await this.groupService.getGroupsUserLead(
-      req.user.id,
-      GroupType.Course
-    )
-  }
-
   @Query(() => FindGroup)
   async getGroup(
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
   ) {
     return await this.groupService.getGroup(id)
-  }
-
-  @Mutation(() => Group)
-  @UseGuards(GroupLeaderGuard)
-  async updateCourse(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) id: number,
-    @Args('input') input: CourseInput
-  ) {
-    return await this.groupService.updateCourse(id, input)
-  }
-
-  @Mutation(() => Group)
-  @UseGuards(GroupLeaderGuard)
-  async deleteCourse(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
-  ) {
-    return await this.groupService.deleteGroup(id, GroupType.Course)
   }
 
   /**
