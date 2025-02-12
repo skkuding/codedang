@@ -20,18 +20,22 @@ export class GroupService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getGroup(groupId: number, userId: number, invited = false) {
-    const isJoined = await this.prisma.userGroup.findFirst({
+  async getCourse(groupId: number, userId: number, invited = false) {
+    const isJoined = await this.prisma.userGroup.findUnique({
       where: {
-        userId,
-        groupId
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId,
+          groupId
+        }
       },
       select: {
         group: {
           select: {
             id: true,
             groupName: true,
-            description: true
+            groupType: true,
+            courseInfo: true
           }
         },
         isGroupLeader: true
@@ -39,7 +43,7 @@ export class GroupService {
     })
 
     if (!isJoined) {
-      const filter = invited ? 'allowJoinFromURL' : 'showOnList'
+      const filter = invited ? 'allowJoinWithURL' : 'showOnList'
       const group = await this.prisma.group.findUniqueOrThrow({
         where: {
           id: groupId,
@@ -51,19 +55,20 @@ export class GroupService {
         select: {
           id: true,
           groupName: true,
-          description: true,
-          userGroup: true,
-          config: true
+          groupType: true,
+          courseInfo: {
+            select: {
+              courseNum: true,
+              classNum: true,
+              professor: true,
+              semester: true
+            }
+          }
         }
       })
 
       return {
-        id: group.id,
-        groupName: group.groupName,
-        description: group.description,
-        allowJoin: invited ? true : group.config?.['allowJoinFromSearch'],
-        memberNum: group.userGroup.length,
-        leaders: await this.getGroupLeaders(groupId),
+        ...group,
         isJoined: false
       }
     } else {
@@ -80,7 +85,7 @@ export class GroupService {
     if (!groupId) {
       throw new EntityNotExistException('Invalid invitation')
     }
-    return this.getGroup(groupId, userId, true)
+    return this.getCourse(groupId, userId, true)
   }
 
   async getGroupLeaders(groupId: number): Promise<string[]> {

@@ -40,22 +40,6 @@ export class GroupController {
     return await this.groupService.getJoinedGroups(req.user.id, GroupType.Study)
   }
 
-  @Get(':groupId')
-  async getGroup(
-    @Req() req: AuthenticatedRequest,
-    @Param('groupId', GroupIDPipe) groupId: number
-  ) {
-    return await this.groupService.getGroup(groupId, req.user.id)
-  }
-
-  @Get('invite/:invitation')
-  async getGroupByInvitation(
-    @Req() req: AuthenticatedRequest,
-    @Param('invitation') invitation: string
-  ) {
-    return await this.groupService.getGroupByInvitation(invitation, req.user.id)
-  }
-
   @Post(':groupId/join')
   async joinGroupById(
     @Req() req: AuthenticatedRequest,
@@ -97,11 +81,49 @@ export class CourseController {
 
   constructor(private readonly groupService: GroupService) {}
 
+  @Get('invite')
+  async getCourseByInvitation(
+    @Req() req: AuthenticatedRequest,
+    @Query('invitation') invitation: string
+  ) {
+    return await this.groupService.getGroupByInvitation(invitation, req.user.id)
+  }
+
   @Get('joined')
   async getJoinedCourses(@Req() req: AuthenticatedRequest) {
     return await this.groupService.getJoinedGroups(
       req.user.id,
       GroupType.Course
     )
+  }
+
+  @Get(':groupId')
+  async getCourse(
+    @Req() req: AuthenticatedRequest,
+    @Param('groupId', GroupIDPipe) groupId: number
+  ) {
+    return await this.groupService.getCourse(groupId, req.user.id)
+  }
+
+  @Post(':groupId/join')
+  async joinCourseById(
+    @Req() req: AuthenticatedRequest,
+    @Param('groupId', GroupIDPipe) groupId: number,
+    @Query('invitation') invitation?: string
+  ) {
+    return await this.groupService.joinGroupById(
+      req.user.id,
+      groupId,
+      invitation
+    )
+  }
+
+  @Delete(':groupId/leave')
+  @UseGuards(GroupMemberGuard)
+  async leaveCourse(
+    @Req() req: AuthenticatedRequest,
+    @Param('groupId', GroupIDPipe) groupId: number
+  ) {
+    return await this.groupService.leaveGroup(req.user.id, groupId)
   }
 }
