@@ -590,28 +590,7 @@ export class SubmissionService {
             data: { result: ResultStatus.Judging }
           })
 
-          await this.waitForJudgingResult(rejudgedSubmission.id)
-
-          // 채점 결과가 Accepted일 경우에만 성공 수 증가
-          const finalSubmission = await this.prisma.submission.findUnique({
-            where: { id: rejudgedSubmission.id }
-          })
-
-          // 재채점된 결과가 최종적으로 'Accepted'일 경우 성공 카운트 증가
-          if (
-            finalSubmission &&
-            finalSubmission.result === ResultStatus.Accepted
-          ) {
-            successCount++
-          } else {
-            // 결과가 Accepted가 아닌 경우 실패 목록에 추가
-            failedSubmissions.push({
-              submissionId: finalSubmission
-                ? finalSubmission.id
-                : rejudgedSubmission.id,
-              error: finalSubmission ? finalSubmission.result : 'Unknown error'
-            })
-          }
+          successCount++
         } catch (error) {
           // 오류가 발생한 경우 실패한 제출에 추가
           failedSubmissions.push({
@@ -620,7 +599,6 @@ export class SubmissionService {
           })
         }
       }
-
       // 전체 성공 및 실패한 제출 수를 응답으로 반환
       return {
         successCount,
@@ -629,29 +607,6 @@ export class SubmissionService {
     } catch (error) {
       // 전체적으로 실패한 경우 처리
       throw new EntityNotExistException(`${error.message}`)
-    }
-  }
-
-  async waitForJudgingResult(submissionId: number): Promise<void> {
-    let resultReceived = false
-
-    while (!resultReceived) {
-      const submission = await this.prisma.submission.findUnique({
-        where: { id: submissionId }
-      })
-
-      if (!submission) {
-        // 만약 제출이 존재하지 않으면 에러를 던지거나 다른 로직을 추가할 수 있습니다.
-        throw new Error(`Submission with ID ${submissionId} not found`)
-      }
-
-      // 채점이 완료된 상태인지 확인
-      if (submission.result !== ResultStatus.Judging) {
-        resultReceived = true // 채점이 완료되었으므로 종료
-      } else {
-        // 채점 결과가 아직 오지 않았으면 2초 대기 후 다시 시도
-        await new Promise((resolve) => setTimeout(resolve, 2000))
-      }
     }
   }
 
