@@ -61,7 +61,7 @@ model User {
   useroauth        UserOAuth?
   CodeDraft        CodeDraft[]
   Image            Image[]
-  TestSubmission   TestSubmission[]
+  testSubmission   TestSubmission[]
 
   @@map("user")
 }
@@ -196,7 +196,7 @@ model Problem {
   submission        Submission[]
   announcement      Announcement[]
   codeDraft         CodeDraft[]
-  TestSubmission    TestSubmission[]
+  testSubmission    TestSubmission[]
 
   @@map("problem")
 }
@@ -286,7 +286,7 @@ model Assignment {
   assignmentRecord  AssignmentRecord[]
   submission        Submission[]
   announcement      Announcement[]
-  TestSubmission    TestSubmission[]
+  testSubmission    TestSubmission[]
 
   @@map("assignment")
 }
@@ -358,7 +358,7 @@ model Contest {
   contestRecord  ContestRecord[]
   submission     Submission[]
   announcement   Announcement[]
-  TestSubmission TestSubmission[]
+  testSubmission TestSubmission[]
 
   @@map("contest")
 }
@@ -459,7 +459,7 @@ model Workbook {
 
   workbookProblem WorkbookProblem[]
   submission      Submission[]
-  TestSubmission  TestSubmission[]
+  testSubmission  TestSubmission[]
 
   @@map("workbook")
 }

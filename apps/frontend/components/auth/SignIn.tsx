@@ -72,6 +72,7 @@ export function SignIn() {
         <form
           className="flex w-full flex-col gap-4"
           onSubmit={handleSubmit(onSubmit)}
+          aria-label="Log in"
         >
           <p className="text-primary mb-4 text-left font-mono text-xl font-bold">
             Log in
