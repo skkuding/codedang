@@ -1,6 +1,4 @@
 import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
-import { resultKeyNameFromField } from '@apollo/client/utilities'
-import { resourceLimits } from 'worker_threads'
 import type { ProblemDataTop } from '../page'
 import { RenderProblemColumn } from './RenderProblemColumn'
 

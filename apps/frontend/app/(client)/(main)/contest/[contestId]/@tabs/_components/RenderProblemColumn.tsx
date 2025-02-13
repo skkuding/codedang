@@ -1,6 +1,5 @@
 'use client'
 
-import { cn } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { ProblemDataTop } from '../page'
 
