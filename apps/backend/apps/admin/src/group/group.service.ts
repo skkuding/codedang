@@ -1,5 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { Cache } from 'cache-manager'
 import type { AuthenticatedUser } from '@libs/auth'
 import { invitationCodeKey, invitationGroupKey } from '@libs/cache'
@@ -310,5 +310,43 @@ export class GroupService {
     await this.cacheManager.del(invitationCodeKey(invitation))
     await this.cacheManager.del(invitationGroupKey(id))
     return `Revoked invitation code: ${invitation}`
+  }
+
+  async inviteUser(groupId: number, userId: number, isLeader: boolean) {
+    try {
+      return await this.prisma.userGroup.create({
+        data: {
+          user: {
+            connect: { id: userId }
+          },
+          group: {
+            connect: { id: groupId }
+          },
+          isGroupLeader: isLeader
+        }
+      })
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException('User or Group not found')
+      } else if (error.code === 'P2002') {
+        throw new UnprocessableDataException('Already a member')
+      }
+    }
+  }
+
+  async kickUser(groupId: number, userId: number) {
+    try {
+      return await this.prisma.userGroup.delete({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          userId_groupId: {
+            userId,
+            groupId
+          }
+        }
+      })
+    } catch {
+      throw new UnprocessableDataException('Not a member')
+    }
   }
 }

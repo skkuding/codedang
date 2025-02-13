@@ -5,9 +5,10 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common'
-import { UserGroup } from '@generated'
+import { UserGroup, type User } from '@generated'
 import { Role } from '@prisma/client'
 import { Cache } from 'cache-manager'
+import type { truncate } from 'node:fs'
 import { joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
@@ -325,5 +326,18 @@ export class UserService {
       throw new EntityNotExistException('User')
     }
     return user
+  }
+
+  async getByEmailOrStudentId(
+    email?: string | null,
+    studentId?: string | null
+  ): Promise<User[]> {
+    const whereOption = email ? { email } : { studentId }
+    return await this.prisma.user.findMany({
+      where: whereOption,
+      include: {
+        userProfile: true
+      }
+    })
   }
 }

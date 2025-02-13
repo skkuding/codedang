@@ -2,6 +2,7 @@ import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { UserGroup } from '@generated'
 import { User } from '@generated'
 import { OPEN_SPACE_ID } from '@libs/constants'
+import { UnprocessableDataException } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { GroupMember } from './model/groupMember.model'
 import { UserService } from './user.service'
@@ -132,5 +133,22 @@ export class UserResolver {
     @Args('isAccept') isAccept: boolean
   ) {
     return await this.userService.handleJoinRequest(groupId, userId, isAccept)
+  }
+
+  @Query(() => [User])
+  async getUserByEmailOrStudentId(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) _groupId: number,
+    @Args('email', { type: () => String, nullable: true })
+    email?: string | null,
+    @Args('studentId', { type: () => String, nullable: true })
+    studentId?: string | null
+  ) {
+    if (!!email === !!studentId) {
+      throw new UnprocessableDataException(
+        'Either email or studentId must be provided, but not both.'
+      )
+    }
+
+    return await this.userService.getByEmailOrStudentId(email, studentId)
   }
 }

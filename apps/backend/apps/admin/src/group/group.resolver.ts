@@ -1,6 +1,6 @@
 import { SetMetadata } from '@nestjs/common'
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
-import { Group, GroupType } from '@generated'
+import { Group, GroupType, UserGroup } from '@generated'
 import {
   AuthenticatedRequest,
   LEADER_NOT_NEEDED_KEY,
@@ -105,5 +105,22 @@ export class GroupResolver {
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
   ) {
     return await this.groupService.revokeInvitation(id)
+  }
+
+  @Mutation(() => UserGroup)
+  async inviteUser(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('userId', { type: () => Int }) userId: number,
+    @Args('isLeader', { type: () => Boolean }) isLeader: boolean
+  ) {
+    return await this.groupService.inviteUser(groupId, userId, isLeader)
+  }
+
+  @Mutation(() => UserGroup)
+  async kickUser(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('userId', { type: () => Int }) userId: number
+  ) {
+    return await this.groupService.kickUser(groupId, userId)
   }
 }
