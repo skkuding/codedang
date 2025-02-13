@@ -1,7 +1,7 @@
 meta {
-  name: Succeed
+  name: [ERR] Nonexistent Group or User
   type: graphql
-  seq: 1
+  seq: 2
 }
 
 post {
@@ -12,8 +12,13 @@ post {
 
 body:graphql {
   mutation {
-    issueInvitation(groupId: 5)
+    inviteUser(groupId: 5, userId: 999, isGroupLeader: true){
+      userId
+      groupId
+      isGroupLeader
+    }
   }
+
 }
 
 assert {

@@ -12,8 +12,13 @@ post {
 
 body:graphql {
   mutation {
-    issueInvitation(groupId: 5)
+    inviteUser(groupId: 5, userId: 5, isGroupLeader: true){
+      userId
+      groupId
+      isGroupLeader
+    }
   }
+
 }
 
 assert {
