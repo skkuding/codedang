@@ -101,6 +101,14 @@ export class SubmissionController {
     return this.submissionService.rejudgeSubmissionsByProblem(problemIdNumber)
   }
 
+  @Patch('rejudgeById')
+  async rejudgeById(
+    @Query('submissionId') submissionId: string
+  ): Promise<{ success: boolean; error?: string }> {
+    const submissionIdNumber = parseInt(submissionId, 10)
+    return this.submissionService.rejudgeSubmissionById(submissionIdNumber)
+  }
+
   /**
    * Open Testcase에 대해 채점하는 Test를 요청합니다.
    * 채점 결과는 Cache에 저장됩니다.

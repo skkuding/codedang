@@ -617,6 +617,85 @@ export class SubmissionService {
     }
   }
 
+  async rejudgeSubmissionById(
+    submissionId: number
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      // 제출 기록 조회
+      const submission = await this.prisma.submission.findUnique({
+        where: { id: submissionId },
+        include: { problem: true }
+      })
+
+      if (!submission) {
+        throw new Error(`Submission with ID ${submissionId} not found`)
+      }
+
+      try {
+        // Snippet 변환
+        const code = (submission.code as Prisma.JsonValue[]).map((snippet) => {
+          if (
+            typeof snippet === 'object' &&
+            snippet !== null &&
+            'id' in snippet &&
+            'text' in snippet &&
+            'locked' in snippet
+          ) {
+            return {
+              id: snippet['id'],
+              text: snippet['text'],
+              locked: snippet['locked']
+            } as Snippet
+          }
+          throw new Error('Invalid snippet format')
+        })
+
+        // 새로운 재채점된 제출 생성
+        const rejudgedSubmission = await this.prisma.submission.create({
+          data: {
+            userId: submission.userId,
+            userIp: submission.userIp,
+            problemId: submission.problemId,
+            assignmentId: submission.assignmentId,
+            contestId: submission.contestId,
+            workbookId: submission.workbookId,
+            code: JSON.parse(JSON.stringify(submission.code)),
+            codeSize: submission.codeSize,
+            language: submission.language,
+            result: ResultStatus.Judging,
+            score: 0,
+            rejudgedFromId: submission.id,
+            isRejudged: true
+          }
+        })
+
+        // 기존 제출을 '재채점됨' 상태로 변경
+        await this.prisma.submission.update({
+          where: { id: submission.id },
+          data: { isRejudged: true, rejudgedFromId: null }
+        })
+
+        // 새롭게 채점 결과 생성
+        await this.createSubmissionResults(rejudgedSubmission)
+
+        // 채점 요청 발행
+        await this.publish.publishJudgeRequestMessage(code, rejudgedSubmission)
+
+        // 제출 상태 업데이트
+        await this.prisma.submission.update({
+          where: { id: rejudgedSubmission.id },
+          data: { result: ResultStatus.Judging }
+        })
+
+        return { success: true }
+      } catch (error) {
+        return { success: false, error: error.message || 'Unknown error' }
+      }
+    } catch (error) {
+      throw new EntityNotExistException(`${error.message}`)
+    }
+  }
+
   /**
    * 전달한 제출 기록에 대해 아직 채점되지 않은 테스트케이스 채점 결과들을 생성합니다.
    *
