@@ -99,7 +99,7 @@ export interface Contest {
   startTime: Date
   endTime: Date
   group: {
-    id: string
+    id: number
     groupName: string
   }
   isJudgeResultVisible: boolean

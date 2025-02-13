@@ -1,13 +1,21 @@
 import { ContestStatusTimeDiff } from '@/components/ContestStatusTimeDiff'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from '@/components/shadcn/accordion'
 import { Button } from '@/components/shadcn/button'
 import { auth } from '@/libs/auth'
-import { cn, fetcherWithAuth } from '@/libs/utils'
+import { fetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import type { Contest, ContestStatus } from '@/types/type'
 import Image from 'next/image'
+import { BiggerImageButton } from './_components/BiggerImageButton'
 import { ContestSummary } from './_components/ContestSummary'
 import { RegisterButton } from './_components/RegisterButton'
+import { RenderProblemList } from './_components/RenderProblemList'
 
 interface ContestTop {
   id: number
@@ -16,15 +24,39 @@ interface ContestTop {
   startTime: string
   endTime: string
   group: {
-    id: string
+    id: number
     groupName: string
   }
+  contestRecord: { userId: number }[]
   isJudgeResultVisible: boolean
+  posterUrl?: string
+  participationTarget?: string
+  competitionMethod?: string
+  rankingMethod?: string
+  problemFormat?: string
+  benefits?: string
+  contestProblem: {
+    order: number
+    problem: {
+      title: string
+    }
+  }[]
   enableCopyPaste: boolean
   status: ContestStatus
   participants: number
   isRegistered: boolean
   invitationCodeExists: boolean
+  _count: {
+    contestRecord: number
+  }
+  prev: null | {
+    id: number
+    title: string
+  }
+  next: null | {
+    id: number
+    title: string
+  }
 }
 
 interface ContestTopProps {
@@ -33,11 +65,29 @@ interface ContestTopProps {
   }
 }
 
+export interface ProblemDataTop {
+  data: {
+    order: number
+    id: number | string
+    title: string
+    difficulty: string
+    submissionCount: number
+    acceptedRate: number
+    maxScore: number
+    score: null | number
+    submissionTime: null | string
+  }[]
+  total: number
+}
+
 export default async function ContestTop({ params }: ContestTopProps) {
   const session = await auth()
   const { contestId } = params
   const data: ContestTop = await fetcherWithAuth
     .get(`contest/${contestId}`)
+    .json()
+  const problemData: ProblemDataTop = await fetcherWithAuth
+    .get(`contest/${contestId}/problem`)
     .json()
 
   const contest: Contest = {
@@ -66,11 +116,17 @@ export default async function ContestTop({ params }: ContestTopProps) {
   )
   const formattedEndTime = dateFormatter(data.endTime, 'YYYY-MM-DD HH:mm:ss')
 
-  const imgTagMatch = data.description.match(/<img[^>]+src="([^"]+)"/)
-  const imageUrl = imgTagMatch ? imgTagMatch[1] : '/logos/welcome.png'
+  const posterUrl = data.posterUrl
+  const imageUrl = posterUrl ? posterUrl : '/logos/welcome.png'
+  const participationTarget = data.participationTarget
+  const competitionMethod = data.competitionMethod
+  const rankingMethod = data.rankingMethod
+  const problemFormat = data.problemFormat
+  const benefits = data.benefits
+  const description = data.description
 
   return (
-    <>
+    <div>
       <h1 className="mt-24 w-[1202px] text-2xl font-bold">{data?.title}</h1>
       <div className="mt-[30px] flex flex-col gap-[10px]">
         <div className="flex gap-2">
@@ -86,7 +142,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
         />
       </div>
       <div className="flex flex-row items-start gap-[34px]">
-        <div className="mt-[34px] rounded-xl">
+        <div className="relative mt-[34px] flex flex-shrink-0 rounded-xl">
           <Image
             src={imageUrl}
             alt="Contest Poster"
@@ -94,28 +150,31 @@ export default async function ContestTop({ params }: ContestTopProps) {
             height={312}
             className="h-[312px] w-[234px] rounded-xl border-[1px] object-contain"
           />
+          <div className="absolute bottom-3 right-3">
+            <BiggerImageButton url={imageUrl} />
+          </div>
         </div>
         <div className="mt-[34px] flex h-[312px] flex-col justify-between">
           <div className="flex flex-col gap-[14px]">
             <ContestSummary
               buttonname="참여 대상"
-              summary="공백 포함 60자 글자수 제한"
+              summary={participationTarget ? participationTarget : '없음'}
             />
             <ContestSummary
               buttonname="진행 방식"
-              summary="공백 포함 60자 글자수 제한"
+              summary={competitionMethod ? competitionMethod : '없음'}
             />
             <ContestSummary
               buttonname="순위 산정"
-              summary="공백 포함 60자 글자수 제한"
+              summary={rankingMethod ? rankingMethod : '없음'}
             />
             <ContestSummary
               buttonname="문제 형태"
-              summary="공백 포함 120자 글자수 제한 최대 두 줄까지 노출 가능."
+              summary={problemFormat ? problemFormat : '없음'}
             />
             <ContestSummary
               buttonname="참여 혜택"
-              summary="공백 포함 120자 글자수 제한 최대 두 줄까지 노출 가능."
+              summary={benefits ? benefits : '없음'}
             />
           </div>
 
@@ -137,6 +196,26 @@ export default async function ContestTop({ params }: ContestTopProps) {
           )}
         </div>
       </div>
-    </>
+      <Accordion type="single" collapsible className="mt-16 w-[1208px]">
+        <AccordionItem value="item-1" className="border-b-0">
+          <AccordionTrigger className="w-[74px] border-t-[1.5px] border-[#a2a2a240] text-lg font-semibold">
+            More Description
+          </AccordionTrigger>
+          <AccordionContent className="text-base text-[#00000080]">
+            {description}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+      <Accordion type="single" collapsible className="w-[1208px]">
+        <AccordionItem value="item-1" className="border-b-0">
+          <AccordionTrigger className="w-[74px] border-t-[1.5px] border-[#a2a2a240] text-lg font-semibold">
+            Problem List
+          </AccordionTrigger>
+          <AccordionContent className="pt-[22px] text-base text-[#00000080]">
+            {RenderProblemList(state, data.isRegistered, problemData)}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
   )
 }
