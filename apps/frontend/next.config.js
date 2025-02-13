@@ -9,7 +9,6 @@ const MEDIA_BUCKET_NAME = process.env.MEDIA_BUCKET_NAME
 //   process.env.NODE_ENV === 'production'
 //     ? [`${MEDIA_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com`]
 //     : ['stage.codedang.com', 'skkuding.dev']
-console.log('NODE_ENV:', process.env.NODE_ENV)
 
 const remotePatterns =
   process.env.NODE_ENV === 'production'
