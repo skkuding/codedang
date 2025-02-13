@@ -13,8 +13,6 @@ import { GroupLink } from './GroupLink'
 export function GroupAdminSideBar() {
   const pathname = usePathname()
 
-  const [isSidebar2Open, setIsSidebar2Open] = useState(false)
-
   const navItems: { name: string; path: Route; icon: IconType }[] = [
     { name: 'Dashboard', path: '/admin', icon: FaChartBar },
     { name: 'My Problems', path: '/admin/problem', icon: FaPen },
