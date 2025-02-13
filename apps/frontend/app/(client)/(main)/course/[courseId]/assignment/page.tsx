@@ -5,34 +5,23 @@ import { FinishedAssignmentTable } from '../_components/FinishedAssignmentsTable
 import { OngoingAssignmentTable } from '../_components/OngoingAssignmentTable'
 import { UpcomingAssignmentTable } from '../_components/UpcomingAssignmentTable'
 
-//ongoingAssignmentTable, upcomingAssignmentTable ...컴포넌트 만들어서 불러와서 넣기
 interface AssignmentProps {
   searchParams: {
-    showAll: string
-    ongoing: string
-    upcoming: string
-    finished: string
+    type: string
   }
 }
 export default function Assignment({ searchParams }: AssignmentProps) {
-  const showAll = searchParams.showAll === 'true'
-  const ongoing = searchParams.ongoing === 'false'
-  const upcoming = searchParams.upcoming === 'false'
-  const finished = searchParams.finished === 'false'
+  const type = searchParams.type
+
   return (
     <div>
       <div className="pt-[78px]">
-        <AssignmentTableSwitchButton
-          showAll={showAll}
-          ongoing={ongoing}
-          upcoming={upcoming}
-          finished={finished}
-        />
+        <AssignmentTableSwitchButton type={type} />
         <Separator className="mb-3" />
-        {showAll && <AssignmentTable />}
-        {ongoing && <OngoingAssignmentTable />}
-        {upcoming && <UpcomingAssignmentTable />}
-        {finished && <FinishedAssignmentTable />}
+        {type === 'showAll' && <AssignmentTable />}
+        {type === 'ongoing' && <OngoingAssignmentTable />}
+        {type === 'upcoming' && <UpcomingAssignmentTable />}
+        {type === 'finished' && <FinishedAssignmentTable />}
       </div>
     </div>
   )

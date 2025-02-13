@@ -1,25 +1,14 @@
 import { cn } from '@/libs/utils'
 import Link from 'next/link'
 
-export function AssignmentTableSwitchButton({
-  showAll,
-  ongoing,
-  upcoming,
-  finished
-}: {
-  showAll: boolean
-  ongoing: boolean
-  upcoming: boolean
-  finished: boolean
-}) {
-  showAll = true
+export function AssignmentTableSwitchButton({ type }: { type: string }) {
   return (
     <div className="flex items-center">
       <Link
-        href="/contest"
+        href="/course/null/assignment?type=showAll"
         className={cn(
           'w-fit px-14 pb-2 text-xl font-medium text-[#333333]/30 hover:text-[#333333]/50',
-          showAll
+          type !== 'ongoing' && type !== 'upcoming' && type !== 'finished'
             ? 'text-primary-light hover:text-primary-light border-primary-light border-b-2 font-bold'
             : 'border-[#333333]/30'
         )}
@@ -28,10 +17,10 @@ export function AssignmentTableSwitchButton({
         ALL
       </Link>
       <Link
-        href="/contest"
+        href="/course/null/assignment?type=ongoing"
         className={cn(
           'w-fit px-14 pb-2 text-xl font-medium text-[#333333]/30 hover:text-[#333333]/50',
-          ongoing
+          type === 'ongoing'
             ? 'text-primary-light hover:text-primary-light border-primary-light border-b-2 font-bold'
             : 'border-[#333333]/30'
         )}
@@ -40,10 +29,10 @@ export function AssignmentTableSwitchButton({
         ONGOING
       </Link>
       <Link
-        href="/contest"
+        href="/course/null/assignment?type=upcoming"
         className={cn(
           'w-fit px-14 pb-2 text-xl font-medium text-[#333333]/30 hover:text-[#333333]/50',
-          upcoming
+          type === 'upcoming'
             ? 'text-primary-light hover:text-primary-light border-primary-light border-b-2 font-bold'
             : 'border-[#333333]/30'
         )}
@@ -52,10 +41,10 @@ export function AssignmentTableSwitchButton({
         UPCOMING
       </Link>
       <Link
-        href="/contest"
+        href="/course/null/assignment?type=finished"
         className={cn(
           'w-fit px-14 pb-2 text-xl font-medium text-[#333333]/30 hover:text-[#333333]/50',
-          finished
+          type === 'finished'
             ? 'text-primary-light hover:text-primary-light border-primary-light border-b-2 font-bold'
             : 'border-[#333333]/30'
         )}
