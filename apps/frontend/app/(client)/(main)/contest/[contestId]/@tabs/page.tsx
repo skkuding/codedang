@@ -70,7 +70,7 @@ interface ContestTopProps {
 export interface ProblemDataTop {
   data: {
     order: number
-    id: number
+    id: number | string
     title: string
     difficulty: string
     submissionCount: number

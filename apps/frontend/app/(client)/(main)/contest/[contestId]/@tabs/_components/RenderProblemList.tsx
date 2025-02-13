@@ -40,18 +40,19 @@ export function RenderProblemList(
         id: `/problem/${problem.id}`
       }
     })
-    console.log('transData:', transformedProblemData)
+    //console.log('transData:', transformedProblemData)
     return (
       <div>
         {problemData.total === 0 ? (
           <div>No result.</div>
         ) : (
           <DataTable
-            data={problemData.data}
+            data={transformedProblemData}
             columns={RenderProblemColumn}
             headerStyle={{
-              order: 'text-left w-[48px] md:w-4/6',
-              title: 'w-2/4 md:w-1/6'
+              order: 'text-[#8A8A8A] w-[10px] p-0 md:w-[64px] px-4',
+              title: 'text-[#8A8A8A] text-left w-[100px] p-0 md:w-[832px] px-6',
+              score: 'text-[#8A8A8A] w-4/10 p-0 md:w-[296px] px-4'
             }}
             linked
           />

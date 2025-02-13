@@ -11,8 +11,8 @@ export const RenderProblemColumn: ColumnDef<ProblemDataTop['data'][number]>[] =
       accessorKey: 'order',
       cell: ({ row }) => {
         return (
-          <div className="flex items-center justify-start gap-3 md:gap-4">
-            <span className={cn('text-sm md:text-base')}>
+          <div className="flex items-center justify-center p-0">
+            <span className="p-0 text-center text-sm font-normal text-black md:text-base">
               {String.fromCharCode(row.original.order + 65)}
             </span>
           </div>
@@ -22,6 +22,28 @@ export const RenderProblemColumn: ColumnDef<ProblemDataTop['data'][number]>[] =
     {
       header: 'Title',
       accessorKey: 'title',
-      cell: ({ row }) => row.original.title
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center justify-start p-0">
+            <span className="text-sm font-normal text-black md:text-base">
+              {row.original.title}
+            </span>
+          </div>
+        )
+      }
+    },
+    {
+      //NOTE: Put score data because No Info(Special Judge) data for now
+      header: 'Info',
+      accessorKey: 'score',
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center justify-center p-0">
+            <span className="text-sm font-normal text-black md:text-base">
+              {row.original.score}
+            </span>
+          </div>
+        )
+      }
     }
   ]
