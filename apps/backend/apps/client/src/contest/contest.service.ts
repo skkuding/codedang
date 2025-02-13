@@ -61,6 +61,11 @@ export class ContestService {
   async getContests(userId?: number, search?: string) {
     // 1. get all contests
     const now = new Date()
+
+    const searchFilter = search
+      ? { title: { contains: search, mode: Prisma.QueryMode.insensitive } }
+      : {}
+
     const ongoingContests = await this.prisma.contest.findMany({
       where: {
         startTime: {
@@ -69,9 +74,7 @@ export class ContestService {
         endTime: {
           gt: now
         },
-        title: {
-          contains: search
-        }
+        ...searchFilter
       },
       orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }],
       select: contestSelectOption
@@ -82,9 +85,7 @@ export class ContestService {
         startTime: {
           gt: now
         },
-        title: {
-          contains: search
-        }
+        ...searchFilter
       },
       orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }],
       select: contestSelectOption
@@ -95,9 +96,7 @@ export class ContestService {
         endTime: {
           lte: now
         },
-        title: {
-          contains: search
-        }
+        ...searchFilter
       },
       orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }],
       select: contestSelectOption
@@ -398,6 +397,17 @@ export class ContestService {
       throw new ForbiddenAccessException('Not registered in this contest')
     }
 
+    const contest = await this.prisma.contest.findUnique({
+      where: {
+        id: contestId
+      },
+      select: {
+        freezeTime: true
+      }
+    })
+    const isFrozen =
+      contest?.freezeTime != null && new Date() >= contest.freezeTime
+
     const sum = await this.prisma.contestProblem.aggregate({
       where: {
         contestId
@@ -409,6 +419,8 @@ export class ContestService {
     })
     const maxScore = sum._sum?.score ?? 0
 
+    const scoreColumn = isFrozen ? 'score' : 'finalScore'
+    const totalPenaltyColumn = isFrozen ? 'finalTotalPenalty' : 'totalPenalty'
     const contestRecords = await this.prisma.contestRecord.findMany({
       where: {
         contestId
@@ -421,12 +433,17 @@ export class ContestService {
           }
         },
         score: true,
+        finalScore: true,
         totalPenalty: true,
+        finalTotalPenalty: true,
         contestProblemRecord: {
           select: {
             score: true,
             timePenalty: true,
             submitCountPenalty: true,
+            finalScore: true,
+            finalSubmitCountPenalty: true,
+            finalTimePenalty: true,
             contestProblem: {
               select: {
                 order: true,
@@ -441,12 +458,8 @@ export class ContestService {
         }
       },
       orderBy: [
-        {
-          score: 'desc'
-        },
-        {
-          totalPenalty: 'asc'
-        },
+        { [scoreColumn]: 'desc' },
+        { [totalPenaltyColumn]: 'asc' },
         {
           lastAcceptedTime: 'asc'
         }
@@ -482,13 +495,23 @@ export class ContestService {
     const leaderboard = contestRecords.map((contestRecord) => {
       const { contestProblemRecord, userId, ...rest } = contestRecord
       const problemRecords = contestProblemRecord.map((record) => {
-        const { contestProblem, submitCountPenalty, timePenalty, ...rest } =
-          record
+        const {
+          contestProblem,
+          submitCountPenalty,
+          timePenalty,
+          finalScore,
+          finalSubmitCountPenalty,
+          finalTimePenalty,
+          ...rest
+        } = record
         return {
           ...rest,
           order: contestProblem.order,
           problemId: contestProblem.problem.id,
-          penalty: submitCountPenalty + timePenalty,
+          // TODO: last penalty를 사용할 때는 어떻게 할지 고민해보기
+          penalty: isFrozen
+            ? submitCountPenalty + timePenalty
+            : finalScore + finalSubmitCountPenalty + finalTimePenalty,
           submissionCount:
             submissionCountMap[userId!]?.[contestProblem.problem.id] ?? 0 // 기본값 0 설정
         }

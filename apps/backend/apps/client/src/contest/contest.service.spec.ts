@@ -37,6 +37,7 @@ const contest = {
   lastPenalty: false,
   startTime: now.add(-1, 'day').toDate(),
   endTime: now.add(1, 'day').toDate(),
+  freezeTime: null,
   isVisible: true,
   isJudgeResultVisible: true,
   isRankVisible: true,
@@ -200,7 +201,7 @@ describe('ContestService', () => {
       expect(contests.finished[0]).to.have.property('isRegistered')
     })
 
-    it("shold return contests whose title contains '신입생'", async () => {
+    it("should return contests whose title contains '신입생'", async () => {
       const keyword = '신입생'
       const contests = await service.getContests(user01Id, keyword)
 

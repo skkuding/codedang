@@ -11,7 +11,9 @@ ARG target
 COPY . /build
 WORKDIR /build
 
-RUN corepack enable
+# https://github.com/nodejs/corepack/issues/612 해결되면 다시 corepack 사용
+# RUN corepack enable
+RUN npm install -g pnpm
 RUN pnpm --filter="@codedang/backend" deploy out
 
 WORKDIR /build/out
