@@ -5,6 +5,15 @@ export type ContestStatus =
   | 'registeredOngoing'
   | 'registeredUpcoming'
 
+export type AssignmentStatus =
+  | 'ongoing'
+  | 'upcoming'
+  | 'finished'
+  | 'registeredOngoing'
+  | 'registeredUpcoming'
+
+export type CourseStatus = 'ongoing' | 'finished'
+
 export type Level = 'Level1' | 'Level2' | 'Level3' | 'Level4' | 'Level5'
 
 export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
@@ -201,3 +210,53 @@ export interface SettingsFormat {
   realName: string
   studentId: string
 }
+
+export interface RawCourse {
+  id: number
+  groupName: string
+  description: string
+  memberNum: number
+  isGroupLeader: boolean
+}
+
+export interface Course {
+  id: number
+  groupName: string
+  description: string
+  memberNum: number
+  status: CourseStatus
+  semester: string
+  professor: string
+}
+
+export interface Assignment {
+  id: number
+  title: string
+  startTime: Date
+  endTime: Date
+  group: {
+    id: string
+    groupName: string
+  }
+  isJudgeResultVisible: boolean
+  enableCopyPaste: boolean
+  status: AssignmentStatus
+  participants: number
+  isRegistered: boolean
+}
+
+export interface CalendarAssignment {
+  title: string
+  start: Date
+  end: Date
+}
+
+// 일단은 DashboardCalendar에서 null처리를함으로써 필요가 없어진 것 같은데, 원작자 의견을 들어보고 코드를 삭제할 예정
+// export interface CalendarAssignmentEvent {
+//   event: {
+//     id: number
+//     title: string
+//     start: Date
+//     end: Date
+//   }
+// }
