@@ -149,6 +149,6 @@ export class UserResolver {
       )
     }
 
-    return await this.userService.getByEmailOrStudentId(email, studentId)
+    return await this.userService.getUserByEmailOrStudentId(email, studentId)
   }
 }

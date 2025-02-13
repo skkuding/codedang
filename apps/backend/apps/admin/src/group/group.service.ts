@@ -1,5 +1,10 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException
+} from '@nestjs/common'
 import { Cache } from 'cache-manager'
 import type { AuthenticatedUser } from '@libs/auth'
 import { invitationCodeKey, invitationGroupKey } from '@libs/cache'
@@ -83,19 +88,22 @@ export class GroupService {
     }
   }
 
-  async getGroups(cursor: number | null, take: number) {
+  async getCourses(cursor: number | null, take: number) {
     const paginator = this.prisma.getPaginator(cursor)
 
     return (
       await this.prisma.group.findMany({
         ...paginator,
         take,
+        where: {
+          groupType: GroupType.Course
+        },
         select: {
           id: true,
           groupName: true,
-          description: true,
           config: true,
-          userGroup: true
+          userGroup: true,
+          courseInfo: true
         }
       })
     ).map((data) => {
@@ -135,27 +143,26 @@ export class GroupService {
       }))
   }
 
-  async getGroup(id: number) {
-    const data = await this.prisma.group.findUnique({
-      where: {
-        id
-      },
+  async getCourse(id: number) {
+    const group = await this.prisma.group.findUnique({
+      where: { id },
       include: {
-        userGroup: true
+        courseInfo: true,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: { select: { userGroup: true } }
       }
     })
 
-    if (!data) {
+    if (!group) {
       throw new EntityNotExistException('Group')
     }
 
-    const { userGroup, ...group } = data
     const code = await this.cacheManager.get<string>(invitationGroupKey(id))
 
     return {
       ...group,
-      memberNum: userGroup.length,
-      ...(code && { invitationURL: '/invite/' + code })
+      memberNum: group._count.userGroup,
+      ...(code && { invitation: code })
     }
   }
 
@@ -312,7 +319,7 @@ export class GroupService {
     return `Revoked invitation code: ${invitation}`
   }
 
-  async inviteUser(groupId: number, userId: number, isLeader: boolean) {
+  async inviteUser(groupId: number, userId: number, isGroupLeader: boolean) {
     try {
       return await this.prisma.userGroup.create({
         data: {
@@ -322,7 +329,7 @@ export class GroupService {
           group: {
             connect: { id: groupId }
           },
-          isGroupLeader: isLeader
+          isGroupLeader
         }
       })
     } catch (error) {
@@ -336,6 +343,32 @@ export class GroupService {
 
   async kickUser(groupId: number, userId: number) {
     try {
+      const isGroupLeader = await this.prisma.userGroup.findUniqueOrThrow({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          userId_groupId: {
+            userId,
+            groupId
+          }
+        },
+        select: {
+          isGroupLeader: true
+        }
+      })
+
+      if (isGroupLeader) {
+        const groupLeaderNum = await this.prisma.userGroup.count({
+          where: {
+            groupId,
+            isGroupLeader: true
+          }
+        })
+
+        if (groupLeaderNum <= 1) {
+          throw new BadRequestException('One or more leaders are required')
+        }
+      }
+
       return await this.prisma.userGroup.delete({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -347,6 +380,44 @@ export class GroupService {
       })
     } catch {
       throw new UnprocessableDataException('Not a member')
+    }
+  }
+
+  async updateIsGroupLeader(
+    groupId: number,
+    userId: number,
+    isGroupLeader: boolean
+  ) {
+    try {
+      if (!isGroupLeader) {
+        const groupLeaderNum = await this.prisma.userGroup.count({
+          where: {
+            groupId,
+            isGroupLeader: true
+          }
+        })
+
+        if (groupLeaderNum <= 1) {
+          throw new BadRequestException('One or more leaders are required')
+        }
+      }
+
+      return await this.prisma.userGroup.update({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          userId_groupId: {
+            userId,
+            groupId
+          }
+        },
+        data: {
+          isGroupLeader
+        }
+      })
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException('User or Group not found')
+      }
     }
   }
 }

@@ -6,6 +6,9 @@ import { Group, Role } from '@generated'
 export class FindGroup extends Group {
   @Field(() => Int, { nullable: false })
   memberNum!: number
+
+  @Field(() => String, { nullable: true })
+  invitation: string
 }
 
 @ObjectType()

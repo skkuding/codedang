@@ -68,19 +68,19 @@ export class GroupResolver {
 
   @Query(() => [FindGroup])
   @UseRolesGuard()
-  async getGroups(
+  async getCourses(
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
     @Args('take', { defaultValue: 10, type: () => Int }) take: number
   ) {
-    return await this.groupService.getGroups(cursor, take)
+    return await this.groupService.getCourses(cursor, take)
   }
 
   @Query(() => FindGroup)
-  async getGroup(
+  async getCourse(
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
   ) {
-    return await this.groupService.getGroup(id)
+    return await this.groupService.getCourse(id)
   }
 
   /**
@@ -111,9 +111,9 @@ export class GroupResolver {
   async inviteUser(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('userId', { type: () => Int }) userId: number,
-    @Args('isLeader', { type: () => Boolean }) isLeader: boolean
+    @Args('isGroupLeader', { type: () => Boolean }) isGroupLeader: boolean
   ) {
-    return await this.groupService.inviteUser(groupId, userId, isLeader)
+    return await this.groupService.inviteUser(groupId, userId, isGroupLeader)
   }
 
   @Mutation(() => UserGroup)
@@ -122,5 +122,18 @@ export class GroupResolver {
     @Args('userId', { type: () => Int }) userId: number
   ) {
     return await this.groupService.kickUser(groupId, userId)
+  }
+
+  @Mutation(() => UserGroup)
+  async updateIsGroupLeader(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('userId', { type: () => Int }) userId: number,
+    @Args('isGroupLeader', { type: () => Boolean }) isGroupLeader: boolean
+  ) {
+    return await this.groupService.updateIsGroupLeader(
+      groupId,
+      userId,
+      isGroupLeader
+    )
   }
 }

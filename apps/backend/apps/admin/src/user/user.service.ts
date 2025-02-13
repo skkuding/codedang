@@ -328,7 +328,7 @@ export class UserService {
     return user
   }
 
-  async getByEmailOrStudentId(
+  async getUserByEmailOrStudentId(
     email?: string | null,
     studentId?: string | null
   ): Promise<User[]> {
