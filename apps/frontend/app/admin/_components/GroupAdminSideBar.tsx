@@ -5,6 +5,7 @@ import { cn } from '@/libs/utils'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 import type { IconType } from 'react-icons'
 import { FaChartBar, FaPen } from 'react-icons/fa6'
 import { GroupLink } from './GroupLink'
@@ -12,10 +13,12 @@ import { GroupLink } from './GroupLink'
 export function GroupAdminSideBar() {
   const pathname = usePathname()
 
+  const [isSidebar2Open, setIsSidebar2Open] = useState(false)
+
   const navItems: { name: string; path: Route; icon: IconType }[] = [
     { name: 'Dashboard', path: '/admin', icon: FaChartBar },
     { name: 'My Problems', path: '/admin/problem', icon: FaPen },
-    { name: 'My Courses', path: '/admin/problem', icon: FaPen }
+    { name: 'My Courses', path: '/admin/course', icon: FaPen }
   ]
 
   return (

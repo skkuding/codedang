@@ -4,7 +4,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ClientApolloProvider } from './_components/ApolloProvider'
 import { GroupAdminSideBar } from './_components/GroupAdminSideBar'
-import { SideBar } from './_components/SideBar'
+
+// import { SideBar } from './_components/SideBar'
+// import { GroupSelect } from './_components/GroupSelect'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
