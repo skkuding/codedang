@@ -531,7 +531,9 @@ export class SubmissionService {
       })
 
       if (!submissions.length) {
-        throw new Error(`No submissions found for problem ID ${problemId}`)
+        throw new EntityNotExistException(
+          `No submissions found for problem ID ${problemId}`
+        )
       }
       let code: Snippet[]
       // 제출 목록을 순차적으로 처리
