@@ -192,8 +192,6 @@ export default async function ContestTop({ params }: ContestTopProps) {
     endTime: new Date(data.endTime)
   }
 
-  console.log('contest: ', contest)
-  console.log('problem:', problemData)
   const startTime = new Date(data.startTime)
   const endTime = new Date(data.endTime)
   const currentTime = new Date()
@@ -309,7 +307,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
           <AccordionTrigger className="w-[74px] border-t-[1.5px] border-[#a2a2a240] text-lg font-semibold">
             Problem List
           </AccordionTrigger>
-          <AccordionContent className="text-base text-[#00000080]">
+          <AccordionContent className="pt-[22px] text-base text-[#00000080]">
             {RenderProblemList(state, data.isRegistered, problemData)}
           </AccordionContent>
         </AccordionItem>

@@ -47,7 +47,7 @@ export function RegisterButton({
           : { groupId: 1 }
       })
       toast.success(`Registered ${state} test successfully`)
-      router.push(`/contest/${contestId}`)
+      //router.push(`/contest/${contestId}`)
       router.refresh() // to update register state
     } catch (error) {
       console.error(error)

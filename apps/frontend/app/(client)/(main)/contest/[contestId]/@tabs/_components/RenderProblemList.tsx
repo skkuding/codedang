@@ -9,8 +9,6 @@ export function RenderProblemList(
   isRegistered: boolean,
   problemData: ProblemDataTop
 ) {
-  console.log('state:', state)
-  console.log('registered?:', isRegistered)
   if (state === 'Upcoming') {
     return (
       <div className="h-[608px] w-[1208px] place-content-center rounded-2xl bg-[#d9d9d940]">
@@ -40,7 +38,7 @@ export function RenderProblemList(
         id: `/problem/${problem.id}`
       }
     })
-    //console.log('transData:', transformedProblemData)
+
     return (
       <div>
         {problemData.total === 0 ? (
