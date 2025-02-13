@@ -14,7 +14,8 @@ export function GroupAdminSideBar() {
 
   const navItems: { name: string; path: Route; icon: IconType }[] = [
     { name: 'Dashboard', path: '/admin', icon: FaChartBar },
-    { name: 'Problem', path: '/admin/problem', icon: FaPen }
+    { name: 'My Problems', path: '/admin/problem', icon: FaPen },
+    { name: 'My Courses', path: '/admin/problem', icon: FaPen }
   ]
 
   return (

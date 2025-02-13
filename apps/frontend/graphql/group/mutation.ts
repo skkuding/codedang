@@ -1,10 +1,10 @@
 import { gql } from '@generated'
 
 const DELETE_GROUP = gql(`
-  mutation DeleteGroup($groupId: Int!) {
-    deleteGroup(groupId: $groupId) {
-    count
-  }
+    mutation DeleteGroup($groupId: Int!) {
+      deleteGroup(groupId: $groupId) {
+      count
+    }
   }
 `)
 
