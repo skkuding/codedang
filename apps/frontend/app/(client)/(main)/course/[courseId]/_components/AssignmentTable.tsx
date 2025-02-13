@@ -2,7 +2,7 @@ import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
 import type { Assignment } from '@/types/type'
 import type { Session } from 'next-auth'
-import { columns } from '../../_components/FinishedTableColumns'
+import { columns } from '../../_components/AssgimentTableColumns'
 
 interface AssignmentProps {
   data: Assignment[]
@@ -26,7 +26,7 @@ export async function AssignmentTable({
     .json()
 
   return (
-    <DataTable
+    <DataTable //이걸 각 Row마다 토글이 가능하도록 수정을 하거나 해야할 것 같음.
       data={AssignmentData.data}
       columns={columns}
       headerStyle={{

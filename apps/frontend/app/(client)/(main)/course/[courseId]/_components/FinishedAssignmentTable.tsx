@@ -3,7 +3,6 @@ import { fetcher, fetcherWithAuth } from '@/libs/utils'
 import type { Assignment } from '@/types/type'
 import type { Session } from 'next-auth'
 import { columns } from '../../_components/FinishedTableColumns'
-import Assignment from '../assignment/page'
 
 interface AssignmentProps {
   data: Assignment[]
