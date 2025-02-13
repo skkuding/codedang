@@ -109,6 +109,31 @@ export interface Contest {
   isRegistered: boolean
 }
 
+export interface Leaderboard {
+  id: number
+  user: {
+    username: string
+  }
+  rank: number
+  result?: string // Accepted 여부
+  score: number // 배점
+  finalScore: number // freeze 했을때 score
+  totalPenalty: number
+  finalTotalPenalty: number // freeze 했을때 totalPenalty
+  problemRecords: {
+    score: number // 획득 score
+    order: number
+    problemId: number
+    penalty: number
+    submissionCount: number
+  }[]
+}
+
+export interface ContestLeaderboard extends Leaderboard {
+  maxScore: number
+  leaderboard: Leaderboard[]
+}
+
 export interface ContestAnnouncement {
   id: number
   content: string
