@@ -1,36 +1,36 @@
 import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
-import type { Contest } from '@/types/type'
+import type { Assignment } from '@/types/type'
 import type { Session } from 'next-auth'
-import { columns } from './FinishedTableColumns'
+import { columns } from '../../_components/FinishedTableColumns'
+import Assignment from '../assignment/page'
 
-interface ContestProps {
-  data: Contest[]
+interface AssignmentProps {
+  data: Assignment[]
 }
 
-export async function FinishedContestTable({
-  search,
+export async function FinishedAssignmentTable({
   session
 }: {
-  search: string
   session: Session | null
 }) {
-  const ContestData: ContestProps = await (session ? fetcherWithAuth : fetcher)
-    .get('contest/finished', {
+  const AssignmentData: AssignmentProps = await (
+    session ? fetcherWithAuth : fetcher
+  )
+    .get('assignment/finished', {
       searchParams: {
-        search,
         take: '51'
       }
     })
     .json()
 
-  ContestData.data.forEach((contest) => {
-    contest.status = 'finished'
+  AssignmentData.data.forEach((assignment) => {
+    assignment.status = 'finished'
   })
 
   return (
     <DataTable
-      data={ContestData.data}
+      data={AssignmentData.data}
       columns={columns}
       headerStyle={{
         title: 'text-left w-2/5 md:w-1/2',
