@@ -8,7 +8,7 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/connector"
 	"github.com/skkuding/codedang/apps/iris/src/connector/rabbitmq"
 	"github.com/skkuding/codedang/apps/iris/src/handler"
-	"github.com/skkuding/codedang/apps/iris/src/loader/postgres"
+	"github.com/skkuding/codedang/apps/iris/src/loader/s3"
 	"github.com/skkuding/codedang/apps/iris/src/observability"
 	"github.com/skkuding/codedang/apps/iris/src/router"
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
@@ -54,8 +54,13 @@ func main() {
 		logProvider.Log(logger.INFO, "Running in stage mode")
 	}
 
-	database := postgres.NewPostgresDataSource(ctx)
-	testcaseManager := testcase.NewTestcaseManager(database)
+	bucketName := os.Getenv("TESTCASE_BUCKET_NAME")
+	if bucketName == "" {
+		logProvider.Log(logger.ERROR, "Cannot find TESTCASE_BUCKET_NAME")
+		return
+	}
+	source := s3.NewS3DataSource(bucketName)
+	testcaseManager := testcase.NewTestcaseManager(source)
 
 	fileManager := file.NewFileManager("/app/sandbox/results")
 	langConfig := sandbox.NewLangConfig(fileManager, "/app/sandbox/policy/java_policy")

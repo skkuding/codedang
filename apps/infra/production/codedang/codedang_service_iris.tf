@@ -36,7 +36,7 @@ module "iris" {
     container_definitions = jsonencode([
       jsondecode(templatefile("container_definitions/iris.json", {
         ecr_uri                         = data.aws_ecr_repository.iris.repository_url,
-        database_url                    = var.database_url,
+        testcase_bucket_name            = var.testcase_bucket_name,
         rabbitmq_host                   = "${aws_mq_broker.judge_queue.id}.mq.ap-northeast-2.amazonaws.com",
         rabbitmq_port                   = var.rabbitmq_port,
         rabbitmq_username               = var.rabbitmq_username,
