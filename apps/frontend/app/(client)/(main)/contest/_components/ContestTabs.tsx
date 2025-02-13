@@ -17,7 +17,7 @@ export function ContestTabs({ contestId }: { contestId: string }) {
   }
 
   return (
-    <div className="mb-24 flex justify-center">
+    <div className="mb-24 flex w-full justify-center">
       <div className="flex h-[70px] text-[#333333] md:gap-[60px]">
         <Link
           href={`/contest/${id}` as Route}
