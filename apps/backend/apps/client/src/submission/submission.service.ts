@@ -527,59 +527,61 @@ export class SubmissionService {
       // 문제 ID에 해당하는 제출 기록 조회
       const submissions = await this.prisma.submission.findMany({
         where: { problemId },
-        include: { problem: true }
+        include: { problem: true, rejudgedSubmissions: true }
       })
 
       if (!submissions.length) {
         throw new Error(`No submissions found for problem ID ${problemId}`)
       }
-
+      let code: Snippet[]
       // 제출 목록을 순차적으로 처리
       for (const submission of submissions) {
         try {
           // Snippet 변환
-          const code = (submission.code as Prisma.JsonValue[]).map(
-            (snippet) => {
-              if (
-                typeof snippet === 'object' &&
-                snippet !== null &&
-                'id' in snippet &&
-                'text' in snippet &&
-                'locked' in snippet
-              ) {
-                return {
-                  id: snippet['id'],
-                  text: snippet['text'],
-                  locked: snippet['locked']
-                } as Snippet // Snippet 타입으로 변환
-              }
-              throw new Error('Invalid snippet format')
-            }
-          )
+          try {
+            code = submission.code as unknown as Snippet[]
+          } catch (error) {
+            throw new UnprocessableDataException('Invalid snippet format')
+          }
 
-          // 새로운 재채점된 제출 생성 (기존 제출을 기반으로 새 레코드 생성)
-          const rejudgedSubmission = await this.prisma.submission.create({
-            data: {
-              userId: submission.userId,
-              userIp: submission.userIp,
-              problemId: submission.problemId,
-              assignmentId: submission.assignmentId,
-              contestId: submission.contestId,
-              workbookId: submission.workbookId,
-              code: JSON.parse(JSON.stringify(submission.code)), // 기존 코드 그대로 유지
-              codeSize: submission.codeSize,
-              language: submission.language,
-              result: ResultStatus.Judging, // 새 제출의 상태는 Pending으로 시작
-              score: 0, // 초기 점수는 0
-              rejudgedFromId: submission.id, // 원본 제출 ID를 기록하여 추적 가능하도록 설정
-              isRejudged: true // 재채점된 제출임을 명확하게 기록
-            }
-          })
+          const {
+            id,
+            createTime,
+            updateTime,
+            problem,
+            rejudgedSubmissions,
+            ...submissionBaseData
+          } = submission // 불필요한 필드 제거
 
-          // 기존 제출을 '재채점됨' 상태로 변경
+          const [updatedSubmission, rejudgedSubmission] =
+            await this.prisma.$transaction([
+              this.prisma.submission.update({
+                where: { id: submission.id },
+                data: {
+                  isRejudged: true,
+                  rejudgedSubmissions: { connect: { id: submission.id } } //기존 제출에 새롭게 재채점된 제출 연결
+                }
+              }),
+              this.prisma.submission.create({
+                data: {
+                  ...submissionBaseData,
+                  code: JSON.parse(JSON.stringify(submission.code)), //JSON 변환 처리
+                  result: ResultStatus.Judging,
+                  score: 0,
+                  rejudgedFromId: submission.id, //원본 제출(A)과의 관계 설정
+                  isRejudged: true
+                }
+              })
+            ])
+
+          //A의 rejudgedSubmissions에 B 추가
           await this.prisma.submission.update({
             where: { id: submission.id },
-            data: { isRejudged: true, rejudgedFromId: null }
+            data: {
+              rejudgedSubmissions: {
+                connect: { id: rejudgedSubmission.id }
+              }
+            }
           })
 
           // 새롭게 채점 결과 생성
@@ -620,79 +622,82 @@ export class SubmissionService {
   async rejudgeSubmissionById(
     submissionId: number
   ): Promise<{ success: boolean; error?: string }> {
+    // 제출 기록 조회
+    const submission = await this.prisma.submission.findUnique({
+      where: { id: submissionId },
+      include: { problem: true, rejudgedSubmissions: true }
+    })
+
+    if (!submission) {
+      throw new EntityNotExistException(
+        `Submission with ID ${submissionId} not found`
+      )
+    }
+    let code: Snippet[]
+
     try {
-      // 제출 기록 조회
-      const submission = await this.prisma.submission.findUnique({
-        where: { id: submissionId },
-        include: { problem: true }
+      // Snippet 변환
+      try {
+        code = submission.code as unknown as Snippet[]
+      } catch (error) {
+        throw new UnprocessableDataException('Invalid snippet format')
+      }
+
+      const {
+        id,
+        createTime,
+        updateTime,
+        problem,
+        rejudgedSubmissions,
+        ...submissionBaseData
+      } = submission // 불필요한 필드 제거
+
+      const [updatedSubmission, rejudgedSubmission] =
+        await this.prisma.$transaction([
+          this.prisma.submission.update({
+            where: { id: submission.id },
+            data: {
+              isRejudged: true,
+              rejudgedSubmissions: { connect: { id: submission.id } } //기존 제출에 새롭게 재채점된 제출 연결
+            }
+          }),
+          this.prisma.submission.create({
+            data: {
+              ...submissionBaseData,
+              code: JSON.parse(JSON.stringify(submission.code)), //JSON 변환 처리
+              result: ResultStatus.Judging,
+              score: 0,
+              rejudgedFromId: submission.id, //원본 제출(A)과의 관계 설정
+              isRejudged: true
+            }
+          })
+        ])
+
+      //A의 rejudgedSubmissions에 B 추가
+      await this.prisma.submission.update({
+        where: { id: submission.id },
+        data: {
+          rejudgedSubmissions: {
+            connect: { id: rejudgedSubmission.id }
+          }
+        }
       })
 
-      if (!submission) {
-        throw new Error(`Submission with ID ${submissionId} not found`)
-      }
+      // 새롭게 채점 결과 생성
+      await this.createSubmissionResults(rejudgedSubmission)
 
-      try {
-        // Snippet 변환
-        const code = (submission.code as Prisma.JsonValue[]).map((snippet) => {
-          if (
-            typeof snippet === 'object' &&
-            snippet !== null &&
-            'id' in snippet &&
-            'text' in snippet &&
-            'locked' in snippet
-          ) {
-            return {
-              id: snippet['id'],
-              text: snippet['text'],
-              locked: snippet['locked']
-            } as Snippet
-          }
-          throw new Error('Invalid snippet format')
-        })
+      // 채점 요청 발행
+      await this.publish.publishJudgeRequestMessage(code, rejudgedSubmission)
 
-        // 새로운 재채점된 제출 생성
-        const rejudgedSubmission = await this.prisma.submission.create({
-          data: {
-            userId: submission.userId,
-            userIp: submission.userIp,
-            problemId: submission.problemId,
-            assignmentId: submission.assignmentId,
-            contestId: submission.contestId,
-            workbookId: submission.workbookId,
-            code: JSON.parse(JSON.stringify(submission.code)),
-            codeSize: submission.codeSize,
-            language: submission.language,
-            result: ResultStatus.Judging,
-            score: 0,
-            rejudgedFromId: submission.id,
-            isRejudged: true
-          }
-        })
+      // 제출 상태 업데이트
+      await this.prisma.submission.update({
+        where: { id: rejudgedSubmission.id },
+        data: { result: ResultStatus.Judging }
+      })
 
-        // 기존 제출을 '재채점됨' 상태로 변경
-        await this.prisma.submission.update({
-          where: { id: submission.id },
-          data: { isRejudged: true, rejudgedFromId: null }
-        })
-
-        // 새롭게 채점 결과 생성
-        await this.createSubmissionResults(rejudgedSubmission)
-
-        // 채점 요청 발행
-        await this.publish.publishJudgeRequestMessage(code, rejudgedSubmission)
-
-        // 제출 상태 업데이트
-        await this.prisma.submission.update({
-          where: { id: rejudgedSubmission.id },
-          data: { result: ResultStatus.Judging }
-        })
-
-        return { success: true }
-      } catch (error) {
-        return { success: false, error: error.message || 'Unknown error' }
-      }
+      return { success: true }
     } catch (error) {
-      throw new EntityNotExistException(`${error.message}`)
+      return { success: false, error: error.message || 'Unknown error' }
     }
   }
 

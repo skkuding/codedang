@@ -5,9 +5,13 @@ meta {
 }
 
 patch {
-  url: {{baseUrl}}/submission/rejudgeById
+  url: {{baseUrl}}/submission/rejudgeBySubmission?submissionId=2
   body: none
   auth: none
+}
+
+params:query {
+  submissionId: 2
 }
 
 docs {
@@ -21,6 +25,6 @@ docs {
   
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
-  |SubmissionId *|Integer|제출 ID|
+  |submissionId *|Integer|제출 ID|
   
 }
