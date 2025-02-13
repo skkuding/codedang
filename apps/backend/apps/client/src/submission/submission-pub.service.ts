@@ -49,7 +49,8 @@ export class SubmissionPublicationService {
     submission: Submission,
     isTest = false,
     isUserTest = false,
-    userTestcases?: { id: number; in: string; out: string }[]
+    userTestcases?: { id: number; in: string; out: string }[],
+    isRejudge = false
   ): Promise<void> {
     const problem = await this.prisma.problem.findUnique({
       where: { id: submission.problemId },
@@ -82,7 +83,7 @@ export class SubmissionPublicationService {
       messageId: String(submission.id),
       persistent: true,
       type: this.calculateMessageType(isTest, isUserTest),
-      priority: this.calculateMessagePriority(isTest, isUserTest)
+      priority: this.calculateMessagePriority(isTest, isUserTest, isRejudge)
     })
     span.end()
   }
