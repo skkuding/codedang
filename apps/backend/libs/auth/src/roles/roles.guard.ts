@@ -12,16 +12,24 @@ import { RolesService } from './roles.service'
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  #rolesHierarchy = {}
+  protected readonly rolesHierarchy: Record<string, number> = {}
 
   constructor(
-    private readonly reflector: Reflector,
-    private readonly service: RolesService
+    protected readonly reflector: Reflector,
+    protected readonly service: RolesService
   ) {
     Object.keys(Role).forEach((key, index) => {
-      this.#rolesHierarchy[key] = index
+      this.rolesHierarchy[key] = index
     })
-    this.#rolesHierarchy[Role.ContestAdmin] = this.#rolesHierarchy[Role.Manager]
+  }
+
+  protected async getUserRole(request: AuthenticatedRequest): Promise<Role> {
+    const user = request.user
+    if (!user.role) {
+      const userRole = (await this.service.getUserRole(user.id)).role
+      user.role = userRole
+    }
+    return user.role
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -38,17 +46,7 @@ export class RolesGuard implements CanActivate {
         context.getClass()
       ]) ?? Role.User
 
-    const user = request.user
-    if (!user.role) {
-      const userRole = (await this.service.getUserRole(user.id)).role
-      user.role = userRole
-    }
-    if (user.role === role) {
-      return true
-    }
-    if (this.#rolesHierarchy[user.role] > this.#rolesHierarchy[role]) {
-      return true
-    }
-    return false
+    const userRole = await this.getUserRole(request)
+    return this.rolesHierarchy[userRole] >= this.rolesHierarchy[role]
   }
 }

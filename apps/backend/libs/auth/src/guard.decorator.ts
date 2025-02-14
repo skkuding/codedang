@@ -19,9 +19,13 @@ export const UseRolesGuard = (role: Role = Role.Admin) => {
     UseGuards(RolesGuard)
   )
 }
+
+export const ADMIN_NOT_NEEDED_KEY = 'admin-not-needed'
+
 export const UseContestRolesGuard = (role: ContestRole) => {
   return applyDecorators(
     SetMetadata(ROLES_KEY, role),
+    SetMetadata(ADMIN_NOT_NEEDED_KEY, true),
     UseGuards(ContestRolesGuard)
   )
 }
