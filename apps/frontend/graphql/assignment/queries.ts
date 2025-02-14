@@ -1,8 +1,8 @@
 import { gql } from '@generated'
 
-const GET_CONTEST = gql(`
-  query GetContest($contestId: Int!) {
-    getContest(contestId: $contestId) {
+const GET_ASSIGNMENT = gql(`
+  query GetAssignment($assignmentId: Int!) {
+    getAssignment(assignmentId: $assignmentId) {
       id
       enableCopyPaste
       isJudgeResultVisible
@@ -15,9 +15,9 @@ const GET_CONTEST = gql(`
   }
 `)
 
-const GET_CONTESTS = gql(`
-  query GetContests($groupId: Int!, $cursor: Int, $take: Int!) {
-    getContests(groupId: $groupId, cursor: $cursor, take: $take) {
+const GET_ASSIGNMENTS = gql(`
+  query GetAssignments($groupId: Int!, $cursor: Int, $take: Int!) {
+    getAssignments(groupId: $groupId, cursor: $cursor, take: $take) {
       id
       title
       startTime
@@ -30,9 +30,9 @@ const GET_CONTESTS = gql(`
   }
 `)
 
-const GET_BELONGED_CONTESTS =
-  gql(`query GetContestsByProblemId($problemId: Int!) {
-    getContestsByProblemId(problemId: $problemId) {
+const GET_BELONGED_ASSIGNMENTS = gql(`
+  query GetAssignmentsByProblemId($problemId: Int!) {
+    getAssignmentsByProblemId(problemId: $problemId) {
       upcoming {
         id
         title
@@ -55,16 +55,16 @@ const GET_BELONGED_CONTESTS =
   }
 `)
 
-const GET_CONTEST_SCORE_SUMMARIES =
-  gql(`query GetContestScoreSummaries($contestId: Int!, $take: Int!) {
-    getContestScoreSummaries(
-      contestId: $contestId,
+const GET_ASSIGNMENT_SCORE_SUMMARIES = gql(`
+  query GetAssignmentScoreSummaries($assignmentId: Int!, $take: Int!) {
+    getAssignmentScoreSummaries(
+      assignmentId: $assignmentId,
       take: $take
     ) {
       submittedProblemCount
       totalProblemCount
-      userContestScore
-      contestPerfectScore
+      userAssignmentScore
+      assignmentPerfectScore
       problemScores {
         problemId
         score
@@ -79,21 +79,21 @@ const GET_CONTEST_SCORE_SUMMARIES =
   }
 `)
 
-const GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER =
-  gql(`query getContestSubmissionSummariesByUserId($contestId: Int!, $userId: Int!, $take: Int!) {
-    getContestSubmissionSummaryByUserId(contestId: $contestId, userId: $userId, take: $take) {
+const GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER = gql(`
+  query getAssignmentSubmissionSummariesByUserId($assignmentId: Int!, $userId: Int!, $take: Int!) {
+    getAssignmentSubmissionSummaryByUserId(assignmentId: $assignmentId, userId: $userId, take: $take) {
       scoreSummary {
-        contestPerfectScore
+        assignmentPerfectScore
         problemScores {
           problemId
           score
         }
         submittedProblemCount
         totalProblemCount
-        userContestScore
+        userAssignmentScore
       }
       submissions {
-        contestId
+        assignmentId
         problemTitle
         studentId
         username
@@ -111,9 +111,9 @@ const GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER =
 `)
 
 export {
-  GET_CONTEST,
-  GET_CONTESTS,
-  GET_BELONGED_CONTESTS,
-  GET_CONTEST_SCORE_SUMMARIES,
-  GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER
+  GET_ASSIGNMENT,
+  GET_ASSIGNMENTS,
+  GET_BELONGED_ASSIGNMENTS,
+  GET_ASSIGNMENT_SCORE_SUMMARIES,
+  GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER
 }
