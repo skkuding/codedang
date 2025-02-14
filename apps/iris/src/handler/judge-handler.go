@@ -81,50 +81,29 @@ func (r *JudgeResult) SetJudgeExecResult(execResult sandbox.ExecResult) {
 	r.ErrorCode = execResult.ErrorCode
 }
 
-type JudgeResultCode int8
-
-const (
-	ACCEPTED JudgeResultCode = 0 + iota
-	WRONG_ANSWER
-	CPU_TIME_LIMIT_EXCEEDED
-	REAL_TIME_LIMIT_EXCEEDED
-	MEMORY_LIMIT_EXCEEDED
-	RUNTIME_ERROR
-	COMPILE_ERROR
-	TESTCASE_ERROR
-	SEGMENTATION_FAULT_ERROR
-	SERVER_ERROR
-)
-
-type JudgeHandler struct {
-	compiler        sandbox.Compiler
-	runner          sandbox.Runner
+type JudgeHandler[C any, E any] struct {
+	sandbox         sandbox.Sandbox[C, E]
 	testcaseManager testcase.TestcaseManager
-	langConfig      sandbox.LangConfig
 	file            file.FileManager
 	logger          logger.Logger
 }
 
-func NewJudgeHandler(
-	compiler sandbox.Compiler,
-	runner sandbox.Runner,
+func NewJudgeHandler[C any, E any](
+	sandbox sandbox.Sandbox[C, E],
 	testcaseManager testcase.TestcaseManager,
-	langConfig sandbox.LangConfig,
 	file file.FileManager,
 	logger logger.Logger,
-) *JudgeHandler {
-	return &JudgeHandler{
-		compiler,
-		runner,
+) *JudgeHandler[C, E] {
+	return &JudgeHandler[C, E]{
+		sandbox,
 		testcaseManager,
-		langConfig,
 		file,
 		logger,
 	}
 }
 
 // handle top layer logical flow
-func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan JudgeResultMessage) {
+func (j *JudgeHandler[C, E]) Handle(id string, data []byte, hidden bool, out chan JudgeResultMessage) {
 	startedAt := time.Now()
 	tracer := otel.Tracer("Handle Tracer")
 	handleCtx, span := tracer.Start(
@@ -181,7 +160,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 		return
 	}
 
-	srcPath, err := j.langConfig.MakeSrcPath(dir, sandbox.Language(validReq.Language))
+	srcPath, err := j.sandbox.MakeSrcPath(dir, sandbox.Language(validReq.Language))
 	if err != nil {
 		out <- JudgeResultMessage{nil, &HandlerError{
 			caller:  "handle",
@@ -259,7 +238,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 		}}
 		return
 	}
-	if compileResult.ExecResult.ResultCode != sandbox.SUCCESS {
+	if compileResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
 		// 컴파일러를 실행했으나 컴파일에 실패한 경우
 		// FIXME: 함수로 분리
 		out <- JudgeResultMessage{nil, &HandlerError{
@@ -276,12 +255,12 @@ func (j *JudgeHandler) Handle(id string, data []byte, hidden bool, out chan Judg
 }
 
 // wrapper to use goroutine
-func (j *JudgeHandler) compile(traceCtx context.Context, out chan<- result.ChResult, dto sandbox.CompileRequest) {
+func (j *JudgeHandler[C, E]) compile(traceCtx context.Context, out chan<- result.ChResult, dto sandbox.CompileRequest) {
 	tracer := otel.Tracer("Compile Tracer")
 	_, span := tracer.Start(traceCtx, "go:goroutine:compile")
 	defer span.End()
 
-	res, err := j.compiler.Compile(dto)
+	res, err := j.sandbox.Compile(dto)
 	if err != nil {
 		out <- result.ChResult{Err: err}
 		return
@@ -290,7 +269,7 @@ func (j *JudgeHandler) compile(traceCtx context.Context, out chan<- result.ChRes
 }
 
 // wrapper to use goroutine
-func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.ChResult, problemId string, hidden bool) {
+func (j *JudgeHandler[C, E]) getTestcase(traceCtx context.Context, out chan<- result.ChResult, problemId string, hidden bool) {
 	tracer := otel.Tracer("GetTestcase Tracer")
 	_, span := tracer.Start(traceCtx, "go:goroutine:getTestcase")
 	defer span.End()
@@ -304,14 +283,14 @@ func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.C
 	out <- result.ChResult{Data: res}
 }
 
-func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
+func (j *JudgeHandler[C, E]) judgeTestcase(idx int, dir string, validReq *Request,
 	tc loader.Element, out chan JudgeResultMessage) {
 
 	res := JudgeResult{}
 
 	time.Sleep(time.Millisecond)
 
-	runResult, err := j.runner.Run(sandbox.RunRequest{
+	runResult, err := j.sandbox.Run(sandbox.RunRequest{
 		Order:       idx,
 		Dir:         dir,
 		Language:    sandbox.Language(validReq.Language),
@@ -320,7 +299,7 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 	}, []byte(tc.In))
 
 	var accepted bool
-	judgeResultCode := SandboxResultCodeToJudgeResultCode(runResult.ExecResult.ResultCode)
+	judgeResultCode := SandboxStatusCodeToJudgeResultCode(runResult.ExecResult.StatusCode)
 
 	if err != nil {
 		j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
@@ -334,6 +313,10 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 
 	if len(res.Output) > constants.MAX_OUTPUT {
 		res.Output = res.Output[:constants.MAX_OUTPUT]
+	}
+
+	if runResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
+		goto Send
 	}
 
 	accepted = grader.Grade([]byte(tc.Out), runResult.Output)
