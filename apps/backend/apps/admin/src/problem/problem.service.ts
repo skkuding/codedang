@@ -90,17 +90,25 @@ export class ProblemService {
 
   async createTestcases(problemId: number, testcases: Array<Testcase>) {
     await Promise.all(
-      testcases.map(async (tc, index) => {
+      testcases.map(async (testcase: Testcase) => {
         const problemTestcase = await this.prisma.problemTestcase.create({
           data: {
             problemId,
-            input: tc.input,
-            output: tc.output,
-            scoreWeight: tc.scoreWeight,
-            isHidden: tc.isHidden
+            scoreWeight: testcase.scoreWeight,
+            isHidden: testcase.isHidden
           }
         })
-        return { index, id: problemTestcase.id }
+
+        const filename = `${problemId}-${problemTestcase.id}.json`
+        const data = JSON.stringify({
+          id: problemTestcase.id,
+          problemId,
+          input: testcase.input,
+          output: testcase.output,
+          isHidden: testcase.isHidden
+        })
+
+        await this.storageService.uploadObject(filename, data, 'json')
       })
     )
   }
