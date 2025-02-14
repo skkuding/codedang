@@ -24,7 +24,6 @@ datasource db {
 enum Role {
   User
   Manager
-  ContestAdmin
   Admin
   SuperAdmin
 }
@@ -37,17 +36,18 @@ enum Provider {
 }
 
 model User {
-  id         Int       @id @default(autoincrement())
-  username   String    @unique
+  id               Int       @id @default(autoincrement())
+  username         String    @unique
   /// @HideField()
-  password   String
-  role       Role      @default(User)
-  email      String    @unique
-  studentId  String?   @default("0000000000") @map("student_id")
-  major      String?   @default("none")
-  lastLogin  DateTime? @map("last_login")
-  createTime DateTime  @default(now()) @map("create_time")
-  updateTime DateTime  @updatedAt @map("update_time")
+  password         String
+  role             Role      @default(User)
+  email            String    @unique
+  studentId        String?   @default("0000000000") @map("student_id")
+  major            String?   @default("none")
+  lastLogin        DateTime? @map("last_login")
+  canCreateContest Boolean   @default(false) @map("can_create_contest")
+  createTime       DateTime  @default(now()) @map("create_time")
+  updateTime       DateTime  @updatedAt @map("update_time")
 
   userProfile      UserProfile?
   userGroup        UserGroup[]
