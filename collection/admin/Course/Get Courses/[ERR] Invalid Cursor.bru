@@ -1,7 +1,7 @@
 meta {
-  name: Succeed
+  name: [ERR] Invalid Cursor
   type: graphql
-  seq: 1
+  seq: 2
 }
 
 post {
@@ -12,21 +12,16 @@ post {
 
 body:graphql {
   query {
-    getGroup(groupId: 2){
+    getCourses(cursor: -1, take: 5){
     	id
       groupName
       description
+      config
     }
   }
 }
 
 assert {
   res.status: eq 200
-  res.body.data.getGroup: isDefined
-}
-
-docs {
-  # Get Group
-  ---
-  - 주어진 groupId에 해당하는 Group 정보를 반환합니다.
+  res.body.errors: isDefined
 }

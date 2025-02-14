@@ -1,5 +1,5 @@
 meta {
-  name: [ERR] Invalid Cursor
+  name: [ERR] Invalid Group ID
   type: graphql
   seq: 2
 }
@@ -12,13 +12,20 @@ post {
 
 body:graphql {
   query {
-    getGroups(cursor: -1, take: 5){
-    	id
+    getCourse(groupId: 9999) {
+      id
       groupName
-      description
-      config
+      groupType
+      courseInfo {
+        courseNum
+        classNum
+        professor
+        semester
+      }
+      invitation
     }
   }
+  
 }
 
 assert {
