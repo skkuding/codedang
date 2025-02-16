@@ -7,8 +7,11 @@ import {
   Req,
   Query,
   DefaultValuePipe,
-  Headers
+  Headers,
+  ParseIntPipe,
+  Sse
 } from '@nestjs/common'
+import { Observable } from 'rxjs'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import {
@@ -18,6 +21,10 @@ import {
   RequiredIntPipe
 } from '@libs/pipe'
 import {
+  RedisPubSubService,
+  type PubSubSubmissionResult
+} from '@libs/redis-pubsub'
+import {
   CreateSubmissionDto,
   CreateUserTestSubmissionDto
 } from './class/create-submission.dto'
@@ -25,7 +32,10 @@ import { SubmissionService } from './submission.service'
 
 @Controller('submission')
 export class SubmissionController {
-  constructor(private readonly submissionService: SubmissionService) {}
+  constructor(
+    private readonly submissionService: SubmissionService,
+    private readonly redisPubSub: RedisPubSubService
+  ) {}
 
   /**
    * 아직 채점되지 않은 제출 기록을 만들고, 채점 서버에 채점 요청을 보냅니다.
@@ -192,6 +202,24 @@ export class SubmissionController {
       groupId,
       contestId,
       assignmentId
+    })
+  }
+
+  @Sse('result/:submissionId')
+  async getSubmissionTestcaseResult(
+    @Req() req: AuthenticatedRequest,
+    @Param('submissionId', ParseIntPipe) submissionId: number
+  ): Promise<Observable<MessageEvent>> {
+    const userId = req.user.id
+    await this.submissionService.checkSubmissionId(submissionId, userId)
+
+    return new Observable((subscriber) => {
+      this.redisPubSub.subscribeToSubmission(
+        submissionId,
+        (data: PubSubSubmissionResult) => {
+          subscriber.next({ data } as MessageEvent)
+        }
+      )
     })
   }
 }
