@@ -40,28 +40,6 @@ export class GroupController {
     return await this.groupService.getJoinedGroups(req.user.id, GroupType.Study)
   }
 
-  @Post(':groupId/join')
-  async joinGroupById(
-    @Req() req: AuthenticatedRequest,
-    @Param('groupId', GroupIDPipe) groupId: number,
-    @Query('invitation') invitation?: string
-  ) {
-    return await this.groupService.joinGroupById(
-      req.user.id,
-      groupId,
-      invitation
-    )
-  }
-
-  @Delete(':groupId/leave')
-  @UseGuards(GroupMemberGuard)
-  async leaveGroup(
-    @Req() req: AuthenticatedRequest,
-    @Param('groupId', GroupIDPipe) groupId: number
-  ) {
-    return await this.groupService.leaveGroup(req.user.id, groupId)
-  }
-
   @Get(':groupId/leaders')
   @UseGuards(GroupMemberGuard)
   async getGroupLeaders(@Param('groupId', GroupIDPipe) groupId: number) {

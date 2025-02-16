@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/course/4/join?invitation
+  url: {{baseUrl}}/course/5/join?invitation
   body: none
   auth: none
 }
@@ -27,13 +27,13 @@ assert {
 script:pre-request {
   const axios = require("axios");
   
-  await require("./login").loginUser(req);
+  await require("./login").loginUser2nd(req);
   
   const baseUrl = bru.getEnvVar("baseUrl");
   const authorization = bru.getVar("jwtToken");
   try {
     await axios.delete(
-      baseUrl + "/group/4/leave",
+      baseUrl + "/group/5/leave",
       { headers: { authorization } }
     )
   } catch (error) {}
