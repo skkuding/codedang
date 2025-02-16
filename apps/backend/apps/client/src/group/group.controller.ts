@@ -16,8 +16,8 @@ import {
   GroupMemberGuard
 } from '@libs/auth'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
-import { GroupType } from '@admin/@generated'
 import { GroupService } from './group.service'
+import { GroupType } from './interface/user-group-data.interface'
 
 @Controller('group')
 export class GroupController {

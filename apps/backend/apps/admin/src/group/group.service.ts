@@ -30,20 +30,19 @@ export class GroupService {
     input: CourseInput,
     user: AuthenticatedUser
   ): Promise<Partial<Group>> {
-    if (!user.isAdmin() && !user.isSuperAdmin()) {
-      const { canCreateCourse } = await this.prisma.user.findUniqueOrThrow({
-        where: {
-          id: user.id
-        },
-        select: {
-          canCreateCourse: true
-        }
-      })
-
-      if (!canCreateCourse) {
-        throw new ForbiddenAccessException('Forbidden Access')
+    const { canCreateCourse } = await this.prisma.user.findUniqueOrThrow({
+      where: {
+        id: user.id
+      },
+      select: {
+        canCreateCourse: true
       }
+    })
+
+    if (!canCreateCourse) {
+      throw new ForbiddenAccessException('Forbidden Access')
     }
+
     try {
       const createdCourse = await this.prisma.group.create({
         data: {
@@ -145,7 +144,7 @@ export class GroupService {
 
   async getCourse(id: number) {
     const group = await this.prisma.group.findUnique({
-      where: { id },
+      where: { id, groupType: GroupType.Course },
       include: {
         courseInfo: true,
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -154,7 +153,7 @@ export class GroupService {
     })
 
     if (!group) {
-      throw new EntityNotExistException('Group')
+      throw new EntityNotExistException('Course')
     }
 
     const code = await this.cacheManager.get<string>(invitationGroupKey(id))
@@ -419,5 +418,15 @@ export class GroupService {
         throw new NotFoundException('User or Group not found')
       }
     }
+  }
+
+  async createWhitelist(groupId: number, studentIds: [string]) {
+    const whitelistData = studentIds.map((studentId) => ({
+      groupId,
+      studentId
+    }))
+    return await this.prisma.groupWhitelist.createMany({
+      data: whitelistData
+    })
   }
 }

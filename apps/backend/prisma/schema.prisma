@@ -126,14 +126,24 @@ model Group {
   createTime  DateTime    @default(now()) @map("create_time")
   updateTime  DateTime    @updatedAt @map("update_time")
 
-  userGroup  UserGroup[]
-  notice     Notice[]
-  problem    Problem[]
-  assignment Assignment[]
-  workbook   Workbook[]
-  contest    Contest[]
+  userGroup      UserGroup[]
+  notice         Notice[]
+  problem        Problem[]
+  assignment     Assignment[]
+  workbook       Workbook[]
+  contest        Contest[]
+  GroupWhitelist GroupWhitelist[]
 
   @@map("group")
+}
+
+model GroupWhitelist {
+  group     Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   Int    @map("group_id")
+  studentId String @map("student_id")
+
+  @@id([groupId, studentId])
+  @@map("group_whitelist")
 }
 
 model CourseInfo {
@@ -295,7 +305,7 @@ model Assignment {
   createdById          Int?     @map("created_by_id")
   group                Group    @relation(fields: [groupId], references: [id])
   groupId              Int      @map("group_id")
-  week                 Int?
+  week                 Int      @default(1)
   title                String
   description          String
   invitationCode       String?  @map("invitation_code")

@@ -1,5 +1,5 @@
 -- AlterTable
-ALTER TABLE "assignment" ADD COLUMN     "week" INTEGER;
+ALTER TABLE "assignment" ADD COLUMN     "week" INTEGER NOT NULL DEFAULT 1;
 
 -- AlterTable
 ALTER TABLE "course_info" ADD COLUMN     "week" INTEGER NOT NULL DEFAULT 16;
