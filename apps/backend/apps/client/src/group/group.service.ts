@@ -216,15 +216,13 @@ export class GroupService {
   async joinGroupById(
     userId: number,
     groupId: number,
-    invitation?: string
+    invitation: string
   ): Promise<{ userGroupData: Partial<UserGroup>; isJoined: boolean }> {
-    if (invitation) {
-      const invitedGroupId = await this.cacheManager.get<number>(
-        invitationCodeKey(invitation)
-      )
-      if (!invitedGroupId || groupId !== invitedGroupId) {
-        throw new ForbiddenAccessException('Invalid invitation')
-      }
+    const invitedGroupId = await this.cacheManager.get<number>(
+      invitationCodeKey(invitation)
+    )
+    if (!invitedGroupId || groupId !== invitedGroupId) {
+      throw new ForbiddenAccessException('Invalid invitation')
     }
 
     const filter = invitation ? 'allowJoinWithURL' : 'allowJoinFromSearch'

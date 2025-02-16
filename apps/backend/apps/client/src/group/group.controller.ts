@@ -109,7 +109,7 @@ export class CourseController {
   async joinCourseById(
     @Req() req: AuthenticatedRequest,
     @Param('groupId', GroupIDPipe) groupId: number,
-    @Query('invitation') invitation?: string
+    @Query('invitation') invitation: string
   ) {
     return await this.groupService.joinGroupById(
       req.user.id,
