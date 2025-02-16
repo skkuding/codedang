@@ -77,6 +77,12 @@ services:
     ports:
       - 6380:6379
 
+  redis-pubsub:
+    container_name: codedang-redis-pubsub
+    image: redis:7-alpine
+    ports:
+      - 6381:6379
+
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: codedang-rabbitmq

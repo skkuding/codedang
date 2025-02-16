@@ -6,6 +6,7 @@
     "app",
     "database",
     "cache",
+    "redis-pubsub",
     "rabbitmq",
     "local-storage",
     "test-database"

@@ -24,6 +24,7 @@ const config: KnipConfig = {
         '@generated': ['apps/admin/src/@generated'],
         '@libs/prisma': ['libs/prisma/src/index.ts'],
         '@libs/cache': ['libs/cache/src/index.ts'],
+        '@libs/redis-pubsub': ['libs/redis-pubsub/src/index.ts'],
         '@libs/auth': ['libs/auth/src/index.ts'],
         '@libs/exception': ['libs/exception/src/index.ts'],
         '@libs/pipe': ['libs/pipe/src/index.ts'],
