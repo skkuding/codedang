@@ -64,6 +64,27 @@ export class ProblemResolver {
     return await this.problemService.uploadProblems(input, req.user.id, groupId)
   }
 
+  @Mutation(() => [ProblemWithIsVisible])
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+  async uploadTestcase(
+    @Context('req') req: AuthenticatedRequest,
+    @Args(
+      'groupId',
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
+      GroupIDPipe
+    )
+    groupId: number,
+    @Args('input') input: UploadFileInput,
+    @Parent() problem: ProblemWithIsVisible
+  ) {
+    return await this.problemService.uploadTestcase(
+      input,
+      req.user.id,
+      groupId,
+      problem.id
+    )
+  }
+
   @Mutation(() => ImageSource)
   async uploadImage(
     @Args('input') input: UploadFileInput,
