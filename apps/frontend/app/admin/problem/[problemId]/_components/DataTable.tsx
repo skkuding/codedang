@@ -65,7 +65,7 @@ interface DataTableProps<TData, TValue> {
  */
 
 interface Item {
-  id: number
+  id: number | string
 }
 
 export function DataTable<TData extends Item, TValue>({

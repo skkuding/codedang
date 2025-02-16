@@ -9,7 +9,7 @@ export function ContestSummary({
   summary: string
 }) {
   return (
-    <div className="flex flex-row items-start">
+    <div className="flex w-full flex-row items-start">
       <Button
         variant={'outline'}
         className={cn(
@@ -18,7 +18,7 @@ export function ContestSummary({
       >
         {buttonname}
       </Button>
-      <p className="w-[838px] text-[#333333e6]">{summary}</p>
+      <div className="text-[#333333e6] md:max-w-[838px]">{summary}</div>
     </div>
   )
 }
