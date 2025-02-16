@@ -326,7 +326,7 @@ export class GroupService {
 
   async kickUser(groupId: number, userId: number) {
     try {
-      const isGroupLeader = await this.prisma.userGroup.findUniqueOrThrow({
+      const { isGroupLeader } = await this.prisma.userGroup.findUniqueOrThrow({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           userId_groupId: {
@@ -351,19 +351,23 @@ export class GroupService {
           throw new BadRequestException('One or more leaders are required')
         }
       }
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new UnprocessableDataException('Not a member')
+      }
 
-      return await this.prisma.userGroup.delete({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          userId_groupId: {
-            userId,
-            groupId
-          }
-        }
-      })
-    } catch {
-      throw new UnprocessableDataException('Not a member')
+      throw error
     }
+
+    return await this.prisma.userGroup.delete({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId,
+          groupId
+        }
+      }
+    })
   }
 
   async updateIsGroupLeader(
