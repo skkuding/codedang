@@ -246,6 +246,10 @@ export class GroupService {
     return await this.prisma.group.delete({
       where: {
         id
+      },
+      select: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: { select: { userGroup: true } }
       }
     })
   }
