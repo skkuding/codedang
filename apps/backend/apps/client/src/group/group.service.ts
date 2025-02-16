@@ -287,6 +287,30 @@ export class GroupService {
         isJoined: false
       }
     } else {
+      const whitelist = (
+        await this.prisma.groupWhitelist.findMany({
+          where: {
+            groupId
+          },
+          select: {
+            studentId: true
+          }
+        })
+      ).map((list) => list.studentId)
+
+      if (whitelist.length) {
+        const { studentId } = await this.prisma.user.findUniqueOrThrow({
+          where: { id: userId },
+          select: {
+            studentId: true
+          }
+        })
+
+        if (!whitelist.includes(studentId)) {
+          throw new ForbiddenAccessException('Whitelist Violation')
+        }
+      }
+
       const userGroupData: UserGroupData = {
         userId,
         groupId,
