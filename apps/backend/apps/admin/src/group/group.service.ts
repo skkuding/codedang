@@ -30,7 +30,7 @@ export class GroupService {
     input: CourseInput,
     user: AuthenticatedUser
   ): Promise<Partial<Group>> {
-    const { canCreateCourse } = await this.prisma.user.findUniqueOrThrow({
+    const userWithCanCreateCourse = await this.prisma.user.findUnique({
       where: {
         id: user.id
       },
@@ -38,9 +38,11 @@ export class GroupService {
         canCreateCourse: true
       }
     })
-
-    if (!canCreateCourse) {
-      throw new ForbiddenAccessException('Forbidden Access')
+    if (!userWithCanCreateCourse) {
+      throw new NotFoundException('User not found')
+    }
+    if (!userWithCanCreateCourse.canCreateCourse) {
+      throw new ForbiddenAccessException('No Access to create course')
     }
 
     try {
@@ -221,19 +223,30 @@ export class GroupService {
     }
   }
 
-  async deleteGroup(id: number, groupType: GroupType) {
-    if (id === OPEN_SPACE_ID) {
-      throw new ForbiddenAccessException('Open space cannot be deleted')
-    }
+  async deleteCourse(id: number, user: AuthenticatedUser) {
+    const userGroup = await this.prisma.userGroup.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId: user.id,
+          groupId: id
+        }
+      },
+      select: {
+        isGroupLeader: true
+      }
+    })
 
-    const includeOption =
-      groupType === GroupType.Course ? { courseInfo: true } : {}
+    if (!userGroup || !userGroup.isGroupLeader) {
+      throw new ForbiddenAccessException(
+        'Only group leader can delete the group'
+      )
+    }
 
     return await this.prisma.group.delete({
       where: {
         id
-      },
-      include: includeOption
+      }
     })
   }
 
