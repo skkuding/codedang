@@ -1,0 +1,33 @@
+meta {
+  name: [ERR] Nonexistent Group or User
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    inviteUser(groupId: 5, userId: 999, isGroupLeader: true){
+      userId
+      groupId
+      isGroupLeader
+    }
+  }
+
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.issueInvitation: isString
+}
+
+docs {
+  # Issue Invitation
+  ---
+  - `groupId`에 해당하는 Group의 Invitation Code를 발급합니다.
+}

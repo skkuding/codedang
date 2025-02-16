@@ -1,0 +1,30 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/course/joined
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body[0].id: isNumber
+  res.body[0].groupName: isString
+  res.body[0].description: isString
+  res.body[0].memberNum: isNumber
+  res.body[0].isGroupLeader: isBoolean
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Get Joined Groups
+  ---
+  - 현재 User가 속해있는 Group 정보를 반환합니다.
+}
