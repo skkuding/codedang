@@ -237,29 +237,13 @@ export class GroupService {
     })
   }
 
-  async allowCourseCreation(userId: number) {
+  async updateCanCreateCourse(userId: number, canCreateCourse: boolean) {
     return await this.prisma.user.update({
       where: {
         id: userId
       },
       data: {
-        canCreateCourse: true
-      },
-      select: {
-        id: true,
-        role: true,
-        canCreateCourse: true
-      }
-    })
-  }
-
-  async revokeCourseCreation(userId: number) {
-    return await this.prisma.user.update({
-      where: {
-        id: userId
-      },
-      data: {
-        canCreateCourse: false
+        canCreateCourse
       },
       select: {
         id: true,
@@ -420,13 +404,51 @@ export class GroupService {
     }
   }
 
+  async getWhitelist(groupId: number) {
+    return (
+      await this.prisma.groupWhitelist.findMany({
+        where: {
+          groupId
+        },
+        select: {
+          studentId: true
+        }
+      })
+    ).map((whitelist) => whitelist.studentId)
+  }
+
   async createWhitelist(groupId: number, studentIds: [string]) {
+    this.deleteWhitelist(groupId)
+
     const whitelistData = studentIds.map((studentId) => ({
       groupId,
       studentId
     }))
-    return await this.prisma.groupWhitelist.createMany({
-      data: whitelistData
-    })
+
+    try {
+      return (
+        await this.prisma.groupWhitelist.createMany({
+          data: whitelistData
+        })
+      ).count
+    } catch (err) {
+      if (err.code === 'P2002') {
+        throw new UnprocessableDataException('Duplicate studentId(s) detected')
+      } else if (err.code === 'P2003') {
+        throw new UnprocessableDataException('Invalid groupId')
+      } else {
+        throw err
+      }
+    }
+  }
+
+  async deleteWhitelist(groupId: number) {
+    return (
+      await this.prisma.groupWhitelist.deleteMany({
+        where: {
+          groupId
+        }
+      })
+    ).count
   }
 }

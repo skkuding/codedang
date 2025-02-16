@@ -12,7 +12,7 @@ post {
 
 body:graphql {
   mutation {
-    revokeCourseCreation(userId: 5) {
+    updateCanCreateCourse(userId: 2, canCreateCourse: true) {
       id
       role
       canCreateCourse

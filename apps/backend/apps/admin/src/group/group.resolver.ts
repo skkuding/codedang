@@ -41,20 +41,15 @@ export class GroupResolver {
 
   @Mutation(() => CanCreateCourseResult)
   @UseRolesGuard()
-  async allowCourseCreation(
+  async updateCanCreateCourse(
     @Args('userId', { type: () => Int }, new RequiredIntPipe('userId'))
-    userId: number
+    userId: number,
+    @Args('canCreateCourse', { type: () => Boolean }) canCreateCourse: boolean
   ) {
-    return await this.groupService.allowCourseCreation(userId)
-  }
-
-  @Mutation(() => CanCreateCourseResult)
-  @UseRolesGuard()
-  async revokeCourseCreation(
-    @Args('userId', { type: () => Int }, new RequiredIntPipe('userId'))
-    userId: number
-  ) {
-    return await this.groupService.revokeCourseCreation(userId)
+    return await this.groupService.updateCanCreateCourse(
+      userId,
+      canCreateCourse
+    )
   }
 
   @Query(() => [FindGroup])
@@ -135,5 +130,27 @@ export class GroupResolver {
       userId,
       isGroupLeader
     )
+  }
+
+  @Mutation(() => Number)
+  async createWhitelist(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('studentIds', { type: () => [String] }) studentIds: [string]
+  ) {
+    return await this.groupService.createWhitelist(groupId, studentIds)
+  }
+
+  @Mutation(() => Number)
+  async deleteWhitelist(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
+  ) {
+    return await this.groupService.deleteWhitelist(groupId)
+  }
+
+  @Query(() => [String])
+  async getWhitelist(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
+  ) {
+    return await this.groupService.getWhitelist(groupId)
   }
 }
