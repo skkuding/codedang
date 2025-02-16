@@ -20,19 +20,19 @@ type Router interface {
 	Route(path string, id string, data []byte, resultChan chan []byte)
 }
 
-type router struct {
-	judgeHandler *handler.JudgeHandler
+type router[C any, E any] struct {
+	judgeHandler *handler.JudgeHandler[C, E]
 	logger       logger.Logger
 }
 
-func NewRouter(
-	judgeHandler *handler.JudgeHandler,
+func NewRouter[C any, E any](
+	judgeHandler *handler.JudgeHandler[C, E],
 	logger logger.Logger,
-) *router {
-	return &router{judgeHandler, logger}
+) *router[C, E] {
+	return &router[C, E]{judgeHandler, logger}
 }
 
-func (r *router) Route(path string, id string, data []byte, out chan []byte) {
+func (r *router[C, E]) Route(path string, id string, data []byte, out chan []byte) {
 	// var handlerResult json.RawMessage
 	// var err error
 
@@ -59,7 +59,7 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte) {
 	r.logger.Log(logger.DEBUG, "Router done...")
 }
 
-func (r *router) errHandle(err error) {
+func (r *router[C, E]) errHandle(err error) {
 	if err != nil && err != handler.ErrJudgeEnd {
 		if u, ok := err.(*handler.HandlerError); ok {
 			r.logger.Log(u.Level(), err.Error())

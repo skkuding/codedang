@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma, Role, type Contest } from '@prisma/client'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -13,7 +12,6 @@ const contestSelectOption = {
   title: true,
   startTime: true,
   endTime: true,
-  group: { select: { id: true, groupName: true } },
   contestRecord: {
     select: {
       userId: true
@@ -61,6 +59,11 @@ export class ContestService {
   async getContests(userId?: number, search?: string) {
     // 1. get all contests
     const now = new Date()
+
+    const searchFilter = search
+      ? { title: { contains: search, mode: Prisma.QueryMode.insensitive } }
+      : {}
+
     const ongoingContests = await this.prisma.contest.findMany({
       where: {
         startTime: {
@@ -69,9 +72,7 @@ export class ContestService {
         endTime: {
           gt: now
         },
-        title: {
-          contains: search
-        }
+        ...searchFilter
       },
       orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }],
       select: contestSelectOption
@@ -82,9 +83,7 @@ export class ContestService {
         startTime: {
           gt: now
         },
-        title: {
-          contains: search
-        }
+        ...searchFilter
       },
       orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }],
       select: contestSelectOption
@@ -95,9 +94,7 @@ export class ContestService {
         endTime: {
           lte: now
         },
-        title: {
-          contains: search
-        }
+        ...searchFilter
       },
       orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }],
       select: contestSelectOption
@@ -181,7 +178,7 @@ export class ContestService {
     }
   }
 
-  async getContest(id: number, groupId = OPEN_SPACE_ID, userId?: number) {
+  async getContest(id: number, userId?: number) {
     // check if the user has already registered this contest
     // initial value is false
     let isRegistered = false
@@ -198,7 +195,6 @@ export class ContestService {
       contest = await this.prisma.contest.findUniqueOrThrow({
         where: {
           id,
-          groupId,
           isVisible: true
         },
         select: {
@@ -263,7 +259,6 @@ export class ContestService {
       return {
         where: {
           id: options.compare,
-          groupId,
           isVisible: true
         },
         orderBy: {
@@ -288,20 +283,19 @@ export class ContestService {
   async createContestRecord({
     contestId,
     userId,
-    invitationCode,
-    groupId = OPEN_SPACE_ID
+    invitationCode
   }: {
     contestId: number
     userId: number
     invitationCode?: string
-    groupId?: number
   }) {
     const contest = await this.prisma.contest.findUniqueOrThrow({
-      where: { id: contestId, groupId },
+      where: {
+        id: contestId
+      },
       select: {
         startTime: true,
         endTime: true,
-        groupId: true,
         invitationCode: true
       }
     })
@@ -326,27 +320,27 @@ export class ContestService {
     })
   }
 
-  async isVisible(contestId: number, groupId: number): Promise<boolean> {
+  async isVisible(contestId: number): Promise<boolean> {
     return !!(await this.prisma.contest.count({
       where: {
         id: contestId,
-        isVisible: true,
-        groupId
+        isVisible: true
       }
     }))
   }
 
-  async deleteContestRecord(
-    contestId: number,
-    userId: number,
-    groupId = OPEN_SPACE_ID
-  ) {
+  async deleteContestRecord(contestId: number, userId: number) {
     const [contest, contestRecord] = await Promise.all([
       this.prisma.contest.findUnique({
-        where: { id: contestId, groupId }
+        where: {
+          id: contestId
+        }
       }),
       this.prisma.contestRecord.findFirst({
-        where: { userId, contestId }
+        where: {
+          userId,
+          contestId
+        }
       })
     ])
 

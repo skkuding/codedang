@@ -13,7 +13,7 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/router"
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
-	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
+	"github.com/skkuding/codedang/apps/iris/src/service/sandbox/judger"
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"github.com/skkuding/codedang/apps/iris/src/utils"
 	"go.opentelemetry.io/otel"
@@ -58,17 +58,12 @@ func main() {
 	testcaseManager := testcase.NewTestcaseManager(database)
 
 	fileManager := file.NewFileManager("/app/sandbox/results")
-	langConfig := sandbox.NewLangConfig(fileManager, "/app/sandbox/policy/java_policy")
 
-	sb := sandbox.NewSandbox("/app/sandbox/libjudger.so", logProvider)
-	compiler := sandbox.NewCompiler(sb, langConfig, fileManager, logProvider)
-	runner := sandbox.NewRunner(sb, langConfig, fileManager, logProvider)
+	sandbox := judger.NewJudgerSandboxImpl(fileManager, logProvider)
 
 	judgeHandler := handler.NewJudgeHandler(
-		compiler,
-		runner,
+		sandbox,
 		testcaseManager,
-		langConfig,
 		fileManager,
 		logProvider,
 	)

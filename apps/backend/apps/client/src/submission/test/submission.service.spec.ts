@@ -84,7 +84,6 @@ const WORKBOOK_ID = 1
 const mockContest: Contest = {
   id: CONTEST_ID,
   createdById: 1,
-  groupId: 1,
   title: 'SKKU Coding Platform 모의대회',
   description: 'test',
   penalty: 20,
@@ -246,8 +245,7 @@ describe('SubmissionService', () => {
         userIp: USERIP,
         userId: submissions[0].userId,
         problemId: problems[0].id,
-        contestId: CONTEST_ID,
-        groupId: problems[0].groupId
+        contestId: CONTEST_ID
       })
       expect(createSpy.calledOnce).to.be.true
     })
@@ -262,8 +260,7 @@ describe('SubmissionService', () => {
           userIp: USERIP,
           userId: submissions[0].userId,
           problemId: problems[0].id,
-          contestId: CONTEST_ID,
-          groupId: problems[0].groupId
+          contestId: CONTEST_ID
         })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false

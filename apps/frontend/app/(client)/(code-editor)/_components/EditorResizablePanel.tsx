@@ -91,7 +91,7 @@ export function EditorMainResizablePanel({
         </div>
       </ResizablePanel>
 
-      <ResizableHandle withHandle className="border-[0.5px] border-slate-700" />
+      <ResizableHandle className="border-[0.5px] border-slate-700" />
 
       <ResizablePanel defaultSize={65} className="bg-[#222939]">
         <div className="grid-rows-editor grid h-full">
@@ -121,10 +121,7 @@ export function EditorMainResizablePanel({
                     <ScrollBar orientation="vertical" />
                   </ScrollArea>
                 </ResizablePanel>
-                <ResizableHandle
-                  withHandle
-                  className="border-[0.5px] border-slate-700"
-                />
+                <ResizableHandle className="border-[0.5px] border-slate-700" />
                 <ResizablePanel defaultSize={40}>
                   <TestcasePanel />
                 </ResizablePanel>

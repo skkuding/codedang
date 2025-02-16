@@ -364,11 +364,9 @@ model AssignmentRecord {
 }
 
 model Contest {
-  id                   Int       @id @default(autoincrement())
-  createdBy            User?     @relation(fields: [createdById], references: [id], onDelete: SetNull)
-  createdById          Int?      @map("created_by_id")
-  group                Group     @relation(fields: [groupId], references: [id])
-  groupId              Int       @map("group_id")
+  id                   Int      @id @default(autoincrement())
+  createdBy            User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById          Int?     @map("created_by_id")
   title                String
   description          String
   // 대회의 페널티 (0 ≤ penalty ≤ 100),
