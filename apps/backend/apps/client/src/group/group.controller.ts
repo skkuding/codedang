@@ -10,6 +10,7 @@ import {
   Req,
   UseGuards
 } from '@nestjs/common'
+import { GroupType } from '@prisma/client'
 import {
   AuthenticatedRequest,
   AuthNotNeededIfOpenSpace,
@@ -17,7 +18,6 @@ import {
 } from '@libs/auth'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { GroupService } from './group.service'
-import { GroupType } from './interface/user-group-data.interface'
 
 @Controller('group')
 export class GroupController {
