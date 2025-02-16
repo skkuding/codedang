@@ -17,7 +17,9 @@ const user: User = {
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
   studentId: '0000000000',
-  major: 'default'
+  major: 'default',
+  canCreateContest: false,
+  canCreateCourse: false
 }
 
 const userGroup: UserGroup = {
