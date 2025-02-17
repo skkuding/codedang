@@ -46,6 +46,21 @@ export interface Problem {
   hasPassed: boolean | null
 }
 
+export interface ProblemDataTop {
+  data: {
+    order: number
+    id: number | string
+    title: string
+    difficulty: string
+    submissionCount: number
+    acceptedRate: number
+    maxScore: number
+    score: null | number
+    submissionTime: null | string
+  }[]
+  total: number
+}
+
 /**
  * WorkbookProblem and ContestProblem are duplicated interfaces but they are used in different contexts so they are kept separate.
  * But you can merge them into a single interface if you have some reason to do so.

@@ -1,7 +1,7 @@
 'use client'
 
+import type { ProblemDataTop } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { ProblemDataTop } from '../page'
 
 export const RenderProblemColumn: ColumnDef<ProblemDataTop['data'][number]>[] =
   [

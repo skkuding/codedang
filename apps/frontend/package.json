@@ -6,7 +6,7 @@
     "**/*.css"
   ],
   "scripts": {
-    "dev": "next dev -p 5525",
+    "dev": "next dev -p 5525 --turbo",
     "build": "pnpm run compile && next build",
     "analyze": "ANALYZE=true pnpm build",
     "prestart": "cp -r public .next/standalone/apps/frontend && cp -r .next/static .next/standalone/apps/frontend/.next/",

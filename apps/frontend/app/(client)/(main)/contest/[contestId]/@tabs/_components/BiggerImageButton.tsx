@@ -1,7 +1,6 @@
 'use client'
 
 import { BaseModal } from '@/components/BaseModal'
-import { Button } from '@/components/shadcn/button'
 import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 import { AiFillCloseSquare } from 'react-icons/ai'
@@ -43,7 +42,7 @@ export function BiggerImageButton({ url }: ModalProps) {
       <BaseModal
         open={openModal}
         darkMode={false}
-        modalstyle="max-w-[468px] max-h-[624px] p-0 gap-0 border-0"
+        modalstyle="max-w-[468px] max-h-[624px] p-0 gap-0 border-0 sm:rounded-2xl"
         headerstyle="space-y-0"
       >
         <div ref={modalRef} className="relative mt-0">

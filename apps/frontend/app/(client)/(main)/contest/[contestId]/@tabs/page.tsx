@@ -9,11 +9,11 @@ import { Button } from '@/components/shadcn/button'
 import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
+import { cn } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
-import type { Contest, ContestStatus } from '@/types/type'
+import type { Contest, ContestStatus, ProblemDataTop } from '@/types/type'
 import Image from 'next/image'
 import { BiggerImageButton } from './_components/BiggerImageButton'
-import { ContestSummary } from './_components/ContestSummary'
 import { RegisterButton } from './_components/RegisterButton'
 import { RenderProblemList } from './_components/RenderProblemList'
 
@@ -27,7 +27,6 @@ interface ContestTop {
     id: number
     groupName: string
   }
-  contestRecord: { userId: number }[]
   isJudgeResultVisible: boolean
   posterUrl?: string
   participationTarget?: string
@@ -46,9 +45,6 @@ interface ContestTop {
   participants: number
   isRegistered: boolean
   invitationCodeExists: boolean
-  _count: {
-    contestRecord: number
-  }
   prev: null | {
     id: number
     title: string
@@ -63,21 +59,6 @@ interface ContestTopProps {
   params: {
     contestId: string
   }
-}
-
-export interface ProblemDataTop {
-  data: {
-    order: number
-    id: number | string
-    title: string
-    difficulty: string
-    submissionCount: number
-    acceptedRate: number
-    maxScore: number
-    score: null | number
-    submissionTime: null | string
-  }[]
-  total: number
 }
 
 export default async function ContestTop({ params }: ContestTopProps) {
@@ -148,7 +129,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
             alt="Contest Poster"
             width={234}
             height={312}
-            className="h-[312px] w-[234px] rounded-xl border-[1px] object-contain"
+            className="h-[312px] w-[234px] rounded-xl border object-contain"
           />
           <div className="absolute bottom-3 right-3">
             <BiggerImageButton url={imageUrl} />
@@ -201,7 +182,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
           <AccordionTrigger className="w-[74px] border-t-[1.5px] border-[#a2a2a240] text-lg font-semibold">
             More Description
           </AccordionTrigger>
-          <AccordionContent className="text-base text-[#00000080]">
+          <AccordionContent className="pb-8 text-base text-[#00000080]">
             {description}
           </AccordionContent>
         </AccordionItem>
@@ -216,6 +197,28 @@ export default async function ContestTop({ params }: ContestTopProps) {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+    </div>
+  )
+}
+
+function ContestSummary({
+  buttonname,
+  summary
+}: {
+  buttonname: string
+  summary: string
+}) {
+  return (
+    <div className="flex w-full flex-row items-start">
+      <Button
+        variant={'outline'}
+        className={cn(
+          'mr-[14px] h-7 w-[87px] rounded-[14px] px-[17px] py-1 text-sm font-medium md:block'
+        )}
+      >
+        {buttonname}
+      </Button>
+      <div className="text-[#333333e6] md:max-w-[838px]">{summary}</div>
     </div>
   )
 }
