@@ -73,7 +73,7 @@ describe('GroupService', () => {
   })
 
   describe('getCourse', () => {
-    it('should return groupData for join when user is not joined to a group', async () => {
+    it('should return courseData for join when user is not joined to a group', async () => {
       const user01Id = 4
       const groupId = 3
       const res = await service.getCourse(groupId, user01Id)
@@ -113,8 +113,8 @@ describe('GroupService', () => {
     })
   })
 
-  describe('getGroupByInvitation', () => {
-    it('should call getGroup', async () => {
+  describe('getCourseByInvitation', () => {
+    it('should call getCourse', async () => {
       const groupId = 2
       const userId = 4
       sandbox.stub(cache, 'get').resolves(groupId)

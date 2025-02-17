@@ -12,7 +12,9 @@ post {
 
 body:graphql {
   mutation {
-    createWhitelist(groupId: 5, studentIds: ["2024100001", "2000000001", "2020202020"])
+    createWhitelist(
+      groupId: 2,
+      studentIds: ["2024100001", "2000000001", "2020202020"])
     }
   
 }
@@ -25,7 +27,9 @@ assert {
 }
 
 docs {
-  # Create Group
-  ---
-  - Group을 생성합니다.
+  # Whitelist를 생성합니다.
+  - Whitelist는 특정 Course에 join될 수 있는 학번의 배열입니다.
+  - Whitelist는 초대 코드를 통해서 접근할 때만 작동합니다.
+  - Admin이 직접 초대할 때는 Whitelist를 고려하지 않습니다.
+  - 만약 Whitelist가 이미 있다면, 덮어씌웁니다.
 }
