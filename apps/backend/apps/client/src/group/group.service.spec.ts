@@ -72,11 +72,11 @@ describe('GroupService', () => {
     expect(service).to.be.ok
   })
 
-  describe('getGroup', () => {
-    it('should return groupData for join when user is not joined to a group', async () => {
+  describe('getCourse', () => {
+    it('should return courseData for join when user is not joined to a group', async () => {
       const user01Id = 4
       const groupId = 3
-      const res = await service.getGroup(groupId, user01Id)
+      const res = await service.getCourse(groupId, user01Id)
 
       expect(res).to.deep.equal({
         id: 3,
@@ -94,7 +94,7 @@ describe('GroupService', () => {
       const user01Id = 4
       const groupId = 2
 
-      const res = await service.getGroup(groupId, user01Id)
+      const res = await service.getCourse(groupId, user01Id)
 
       expect(res).to.deep.equal({
         id: 2,
@@ -110,14 +110,14 @@ describe('GroupService', () => {
       const user01Id = 4
       const groupId = 99999
 
-      await expect(service.getGroup(groupId, user01Id)).to.be.rejectedWith(
+      await expect(service.getCourse(groupId, user01Id)).to.be.rejectedWith(
         Prisma.PrismaClientKnownRequestError
       )
     })
   })
 
-  describe('getGroupByInvitation', () => {
-    it('should call getGroup', async () => {
+  describe('getCourseByInvitation', () => {
+    it('should call getCourse', async () => {
       const groupId = 2
       const userId = 4
       sandbox.stub(cache, 'get').resolves(groupId)

@@ -33,12 +33,7 @@ export class AssignmentResolver {
       new RequiredIntPipe('take')
     )
     take: number,
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
-    groupId: number,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null
   ) {
@@ -52,9 +47,11 @@ export class AssignmentResolver {
       { type: () => Int },
       new RequiredIntPipe('assignmentId')
     )
-    assignmentId: number
+    assignmentId: number,
+
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
   ) {
-    return await this.assignmentService.getAssignment(assignmentId)
+    return await this.assignmentService.getAssignment(assignmentId, groupId)
   }
 
   @Mutation(() => Assignment)
@@ -175,6 +172,7 @@ export class AssignmentResolver {
     @Args('assignmentId', { type: () => Int }, IDValidationPipe)
     assignmentId: number,
     @Args('userId', { type: () => Int }, IDValidationPipe) userId: number,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('problemId', { nullable: true, type: () => Int }, IDValidationPipe)
     problemId: number,
     @Args(
@@ -190,6 +188,7 @@ export class AssignmentResolver {
       take,
       assignmentId,
       userId,
+      groupId,
       problemId,
       cursor
     )
@@ -223,6 +222,7 @@ export class AssignmentResolver {
       IDValidationPipe
     )
     assignmentId: number,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('take', { type: () => Int, defaultValue: 10 })
     take: number,
     @Args('cursor', { type: () => Int, nullable: true }, CursorValidationPipe)
@@ -232,6 +232,7 @@ export class AssignmentResolver {
   ) {
     return await this.assignmentService.getAssignmentScoreSummaries(
       assignmentId,
+      groupId,
       take,
       cursor,
       searchingName

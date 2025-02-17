@@ -62,10 +62,11 @@ export class AssignmentService {
     })
   }
 
-  async getAssignment(assignmentId: number) {
+  async getAssignment(assignmentId: number, groupId: number) {
     const assignment = await this.prisma.assignment.findFirst({
       where: {
-        id: assignmentId
+        id: assignmentId,
+        groupId
       },
       include: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -551,6 +552,7 @@ export class AssignmentService {
     take: number,
     assignmentId: number,
     userId: number,
+    groupId: number,
     problemId: number | null,
     cursor: number | null
   ) {
@@ -605,7 +607,8 @@ export class AssignmentService {
 
     const scoreSummary = await this.getAssignmentScoreSummary(
       userId,
-      assignmentId
+      assignmentId,
+      groupId
     )
 
     return {
@@ -718,7 +721,11 @@ export class AssignmentService {
   /**
    * 특정 user의 특정 Assignment에 대한 총점, 통과한 문제 개수와 각 문제별 테스트케이스 통과 개수를 불러옵니다.
    */
-  async getAssignmentScoreSummary(userId: number, assignmentId: number) {
+  async getAssignmentScoreSummary(
+    userId: number,
+    assignmentId: number,
+    groupId: number
+  ) {
     const [assignmentProblems, rawSubmissions] = await Promise.all([
       this.prisma.assignmentProblem.findMany({
         where: {
@@ -841,11 +848,22 @@ export class AssignmentService {
 
   async getAssignmentScoreSummaries(
     assignmentId: number,
+    groupId: number,
     take: number,
     cursor: number | null,
     searchingName?: string
   ) {
     const paginator = this.prisma.getPaginator(cursor)
+    const assignment = await this.prisma.assignment.findFirst({
+      where: {
+        id: assignmentId,
+        groupId
+      }
+    })
+
+    if (!assignment) {
+      throw new EntityNotExistException('assignment in group')
+    }
 
     const assignmentRecords = await this.prisma.assignmentRecord.findMany({
       ...paginator,
@@ -897,7 +915,8 @@ export class AssignmentService {
           major: record.user?.major,
           ...(await this.getAssignmentScoreSummary(
             record.userId as number,
-            assignmentId
+            assignmentId,
+            groupId
           ))
         }
       })
