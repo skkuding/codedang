@@ -1,0 +1,64 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetSubmissions(
+    $problemId: Int!
+    $groupId: Int
+    $cursor: Int
+    $take: Int
+  ) {
+    getSubmissions(
+      problemId: $problemId
+      groupId: $groupId
+      cursor: $cursor
+      take: $take
+    ) {
+      data {
+        id
+        user {
+          id
+          username
+          studentId
+        }
+        userIp
+        codeSize
+        createTime
+        language
+        result
+        score
+      }
+      total
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "problemId": 1,
+    "groupId": 1,
+    "cursor": null,
+    "take": 10
+  }
+}
+
+docs {
+  ## Get Submissions
+  
+  - 문제에 대한 제출 내역을 불러옵니다.
+  
+  #### 필요 인자
+  |`problemId`|`groupId`|
+  |----------|-----|
+  |제출 내역을 불러올 Problem ID입니다.|Problem이 속한 Group ID입니다.|
+}
