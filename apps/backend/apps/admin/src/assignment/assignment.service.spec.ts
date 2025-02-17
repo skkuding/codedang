@@ -69,7 +69,8 @@ const assignmentWithCount = {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
     assignmentRecord: 10
-  }
+  },
+  week: 1
 }
 
 const assignmentWithParticipants: AssignmentWithParticipants = {
