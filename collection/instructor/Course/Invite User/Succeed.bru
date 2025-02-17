@@ -12,7 +12,7 @@ post {
 
 body:graphql {
   mutation {
-    inviteUser(groupId: 2, userId: 5, isGroupLeader: true){
+    inviteUser(groupId: 5, userId: 8, isGroupLeader: true){
       userId
       groupId
       isGroupLeader
@@ -27,7 +27,8 @@ assert {
 }
 
 docs {
-  # Issue Invitation
+  # Invite User
   ---
-  - `groupId`에 해당하는 Group의 Invitation Code를 발급합니다.
+  - groupId, userId, isGroupLeader: true 에 따라 user를 초대합니다.
+  - Whitelist가 있더라도 무시하고 초대합니다. 
 }
