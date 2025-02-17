@@ -20,13 +20,13 @@ export const columns: ColumnDef<Assignment>[] = [
     header: 'Start Date',
     accessorKey: 'startDate',
     cell: ({ row }) =>
-      `${dateFormatter(row.original.startTime, 'YYYY-MM-DD-HH:MM')}`
+      `${dateFormatter(row.original.startTime, 'YYYY-MM-DD HH:MM')}`
   },
   {
     header: 'End Date',
     accessorKey: 'endDate',
     cell: ({ row }) =>
-      `${dateFormatter(row.original.endTime, 'YYYY-MM-DD-HH:MM')}`
+      `${dateFormatter(row.original.endTime, 'YYYY-MM-DD HH:MM')}`
   },
   {
     header: 'Progress',

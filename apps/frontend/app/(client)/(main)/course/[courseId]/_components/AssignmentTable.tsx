@@ -30,10 +30,10 @@ export async function AssignmentTable({
       data={AssignmentData.data}
       columns={columns}
       headerStyle={{
-        title: 'text-left w-2/5 md:w-1/2',
-        registered: 'w-1/5 md:w-1/6',
-        participants: 'w-1/5 md:w-1/6',
-        period: 'w-1/5 md:w-1/3'
+        week: 'text-left w-2/5 md:w-1/2',
+        startDate: 'w-1/5 md:w-1/6',
+        endDate: 'w-1/5 md:w-1/6',
+        progress: 'w-1/5 md:w-1/3'
       }}
       linked
     />

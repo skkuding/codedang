@@ -19,10 +19,12 @@ export default async function Assignment({ searchParams }: AssignmentProps) {
       <div className="pt-[78px]">
         <AssignmentTableSwitchButton type={type} />
         <Separator className="mb-3" />
-        {type === 'showAll' && <AssignmentTable session={session} />}
-        {type === 'ongoing' && <OngoingAssignmentTable />}
-        {type === 'upcoming' && <UpcomingAssignmentTable />}
-        {type === 'finished' && <FinishedAssignmentTable session={session} />}
+        <div className="">
+          {type === 'showAll' && <AssignmentTable session={session} />}
+          {type === 'ongoing' && <OngoingAssignmentTable />}
+          {type === 'upcoming' && <UpcomingAssignmentTable />}
+          {type === 'finished' && <FinishedAssignmentTable session={session} />}
+        </div>
       </div>
     </div>
   )
