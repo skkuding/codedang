@@ -47,7 +47,8 @@ const assignment: Assignment = {
   createTime,
   updateTime,
   invitationCode,
-  assignmentProblem: []
+  assignmentProblem: [],
+  week: 1
 }
 
 const assignmentWithCount = {
@@ -86,7 +87,8 @@ const assignmentWithParticipants: AssignmentWithParticipants = {
   createTime,
   updateTime,
   participants: 10,
-  invitationCode
+  invitationCode,
+  week: 1
 }
 
 const group: Group = {
@@ -100,7 +102,8 @@ const group: Group = {
     requireApprovalBeforeJoin: true
   },
   createTime: faker.date.past(),
-  updateTime: faker.date.past()
+  updateTime: faker.date.past(),
+  groupType: 'Course'
 }
 
 const problem: Problem = {

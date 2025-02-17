@@ -139,9 +139,9 @@ export class UserResolver {
   async getUserByEmailOrStudentId(
     @Args('groupId', { type: () => Int }, GroupIDPipe) _groupId: number,
     @Args('email', { type: () => String, nullable: true })
-    email?: string | null,
+    email?: string,
     @Args('studentId', { type: () => String, nullable: true })
-    studentId?: string | null
+    studentId?: string
   ) {
     if (!!email === !!studentId) {
       throw new UnprocessableDataException(

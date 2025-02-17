@@ -8,7 +8,6 @@ import {
 import { UserGroup, type User } from '@generated'
 import { Role } from '@prisma/client'
 import { Cache } from 'cache-manager'
-import type { truncate } from 'node:fs'
 import { joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
@@ -329,8 +328,8 @@ export class UserService {
   }
 
   async getUserByEmailOrStudentId(
-    email?: string | null,
-    studentId?: string | null
+    email?: string,
+    studentId?: string
   ): Promise<User[]> {
     const whereOption = email ? { email } : { studentId }
     return await this.prisma.user.findMany({

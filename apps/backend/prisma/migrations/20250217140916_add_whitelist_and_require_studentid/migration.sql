@@ -1,5 +1,11 @@
+/*
+  Warnings:
+
+  - Made the column `student_id` on table `user` required. This step will fail if there are existing NULL values in that column.
+
+*/
 -- AlterTable
-ALTER TABLE "contest" ADD COLUMN     "groupId" INTEGER;
+ALTER TABLE "user" ALTER COLUMN "student_id" SET NOT NULL;
 
 -- CreateTable
 CREATE TABLE "group_whitelist" (
@@ -11,6 +17,3 @@ CREATE TABLE "group_whitelist" (
 
 -- AddForeignKey
 ALTER TABLE "group_whitelist" ADD CONSTRAINT "group_whitelist_group_id_fkey" FOREIGN KEY ("group_id") REFERENCES "group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "contest" ADD CONSTRAINT "contest_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "group"("id") ON DELETE SET NULL ON UPDATE CASCADE;

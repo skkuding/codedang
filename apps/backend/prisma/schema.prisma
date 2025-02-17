@@ -131,7 +131,6 @@ model Group {
   problem        Problem[]
   assignment     Assignment[]
   workbook       Workbook[]
-  contest        Contest[]
   GroupWhitelist GroupWhitelist[]
 
   @@map("group")
@@ -394,8 +393,6 @@ model Contest {
   submission     Submission[]
   announcement   Announcement[]
   testSubmission TestSubmission[]
-  Group          Group?           @relation(fields: [groupId], references: [id])
-  groupId        Int?
 
   @@map("contest")
 }
