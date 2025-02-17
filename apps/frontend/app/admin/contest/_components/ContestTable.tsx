@@ -25,7 +25,6 @@ const headerStyle = {
 export function ContestTable() {
   const { data } = useSuspenseQuery(GET_CONTESTS, {
     variables: {
-      groupId: 1,
       take: 300
     }
   })
@@ -62,7 +61,6 @@ function ContestsDeleteButton() {
   const deleteTarget = (id: number) => {
     return deleteContest({
       variables: {
-        groupId: 1,
         contestId: id
       }
     })
