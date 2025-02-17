@@ -131,7 +131,7 @@ export function DataTable<TData extends Item, TValue>({
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id} className="align-top">
-                    <div className={cn('text-center text-xs md:text-sm')}>
+                    <div className="text-center text-xs md:text-sm">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
