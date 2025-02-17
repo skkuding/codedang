@@ -57,7 +57,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
   })
 
   const { data: contestData } = useQuery(GET_CONTESTS, {
-    variables: { groupId: 1, take: 100 },
+    variables: { take: 100 },
     skip: !contestId
   })
 
