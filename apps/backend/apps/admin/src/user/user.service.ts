@@ -107,7 +107,7 @@ export class UserService {
       }
     })
     if (!userGroup) {
-      throw new EntityNotExistException(userGroup)
+      throw new EntityNotExistException('userGroup')
     }
     return {
       username: userGroup.user.username,

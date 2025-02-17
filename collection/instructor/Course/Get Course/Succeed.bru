@@ -12,7 +12,7 @@ post {
 
 body:graphql {
   query {
-    getCourse(groupId: 2) {
+    getCourse(groupId: 7) {
       id
       groupName
       groupType
@@ -23,9 +23,10 @@ body:graphql {
         semester
       }
       invitation
+      memberNum
     }
   }
-  
+
 }
 
 assert {
