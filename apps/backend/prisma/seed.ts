@@ -87,7 +87,7 @@ const createUsers = async () => {
       password: await hash('Instructorinstructor'),
       email: 'inst@example.com',
       lastLogin: new Date(),
-      role: Role.Manager,
+      role: Role.User,
       studentId: '2024000002',
       major: 'Computer Science',
       canCreateCourse: true,
@@ -2409,10 +2409,9 @@ const createContestRecords = async () => {
   const user01Id = 4
   for (let i = 0; i < contests.length; i += 2) {
     const contestId = contests[i].id
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     const existingRecord = await prisma.contestRecord.findFirst({
       where: {
-        contestId: contestId,
+        contestId,
         userId: user01Id
       }
     })
