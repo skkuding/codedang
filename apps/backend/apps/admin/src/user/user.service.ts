@@ -211,14 +211,6 @@ export class UserService {
       )
     }
 
-    const manager = groupMembers
-      .filter((member) => true === member.isGroupLeader)
-      .map((member) => member.userId)
-
-    if (manager.length <= 1 && manager.includes(userId)) {
-      throw new BadRequestException('One or more managers are required')
-    }
-
     return await this.prisma.userGroup.delete({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
