@@ -11,7 +11,7 @@ post {
 }
 
 params:query {
-  invitation: 
+  invitation:
 }
 
 assert {
@@ -26,9 +26,9 @@ assert {
 
 script:pre-request {
   const axios = require("axios");
-  
-  await require("./login").loginUser2nd(req);
-  
+
+  await require("./login").loginUser(req);
+
   const baseUrl = bru.getEnvVar("baseUrl");
   const authorization = bru.getVar("jwtToken");
   try {
@@ -45,4 +45,5 @@ docs {
   - URL param으로 전달된 `groupId`에 해당하는 Group에 가입합니다.
   - URL Query로 `invitation` 초대 코드를 전달할 수 있습니다.
   - 가입된 Group의 정보를 반환합니다.
+  - Instructor가 학번 whitelist를 설정한 경우 초대 코드가 있어도 못 들어갈 수 있습니다.
 }

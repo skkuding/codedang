@@ -21,9 +21,9 @@ assert {
 
 script:pre-request {
   const axios = require("axios");
-
-  await require("./login").loginUser2nd(req);
-
+  
+  await require("./login").loginUser(req);
+  
   const baseUrl = bru.getEnvVar("baseUrl");
   const authorization = bru.getVar("jwtToken");
   try {
