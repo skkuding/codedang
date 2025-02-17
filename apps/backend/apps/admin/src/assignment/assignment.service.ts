@@ -1,9 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import {
-  Inject,
-  Injectable,
-  UnprocessableEntityException
-} from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import {
   Assignment,
   ResultStatus,
@@ -11,15 +7,8 @@ import {
   AssignmentProblem
 } from '@generated'
 import { Cache } from 'cache-manager'
+import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import {
-  OPEN_SPACE_ID,
-  PUBLICIZING_REQUEST_EXPIRE_TIME,
-  PUBLICIZING_REQUEST_KEY,
-  MIN_DATE,
-  MAX_DATE
-} from '@libs/constants'
-import {
-  ConflictFoundException,
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
@@ -28,8 +17,6 @@ import type { AssignmentWithScores } from './model/assignment-with-scores.model'
 import type { CreateAssignmentInput } from './model/assignment.input'
 import type { UpdateAssignmentInput } from './model/assignment.input'
 import type { AssignmentProblemScoreInput } from './model/problem-score.input'
-import type { AssignmentPublicizingRequest } from './model/publicizing-request.model'
-import type { AssignmentPublicizingResponse } from './model/publicizing-response.output'
 
 @Injectable()
 export class AssignmentService {
@@ -257,117 +244,6 @@ export class AssignmentService {
     } catch (error) {
       throw new UnprocessableDataException(error.message)
     }
-  }
-
-  async getPublicizingRequests() {
-    const requests = await this.cacheManager.get<
-      AssignmentPublicizingRequest[]
-    >(PUBLICIZING_REQUEST_KEY)
-
-    if (!requests) {
-      return []
-    }
-
-    const filteredRequests = requests.filter(
-      (req) => new Date(req.expireTime) > new Date()
-    )
-
-    if (requests.length != filteredRequests.length) {
-      await this.cacheManager.set(
-        PUBLICIZING_REQUEST_KEY,
-        filteredRequests,
-        PUBLICIZING_REQUEST_EXPIRE_TIME
-      )
-    }
-
-    return filteredRequests
-  }
-
-  async handlePublicizingRequest(assignmentId: number, isAccepted: boolean) {
-    const requests = (await this.cacheManager.get(
-      PUBLICIZING_REQUEST_KEY
-    )) as Array<AssignmentPublicizingRequest>
-    if (!requests) {
-      throw new EntityNotExistException('AssignmentPublicizingRequest')
-    }
-
-    const request = requests.find((req) => req.assignmentId === assignmentId)
-    if (!request || new Date(request.expireTime) < new Date()) {
-      throw new EntityNotExistException('AssignmentPublicizingRequest')
-    }
-
-    await this.cacheManager.set(
-      PUBLICIZING_REQUEST_KEY,
-      requests.filter((req) => req.assignmentId != assignmentId),
-      PUBLICIZING_REQUEST_EXPIRE_TIME
-    )
-
-    if (isAccepted) {
-      try {
-        await this.prisma.assignment.update({
-          where: {
-            id: assignmentId
-          },
-          data: {
-            groupId: OPEN_SPACE_ID
-          }
-        })
-      } catch (error) {
-        throw new UnprocessableDataException(error.message)
-      }
-    }
-
-    return {
-      assignmentId,
-      isAccepted
-    } as AssignmentPublicizingResponse
-  }
-
-  async createPublicizingRequest(groupId: number, assignmentId: number) {
-    if (groupId == OPEN_SPACE_ID) {
-      throw new UnprocessableEntityException(
-        'This assignment is already publicized'
-      )
-    }
-
-    const assignment = await this.prisma.assignment.findFirst({
-      where: {
-        id: assignmentId,
-        groupId
-      }
-    })
-    if (!assignment) {
-      throw new EntityNotExistException('assignment')
-    }
-
-    let requests = (await this.cacheManager.get(
-      PUBLICIZING_REQUEST_KEY
-    )) as Array<AssignmentPublicizingRequest>
-    if (!requests) {
-      requests = []
-    }
-
-    const duplicatedRequest = requests.find(
-      (req) => req.assignmentId == assignmentId
-    )
-    if (duplicatedRequest) {
-      throw new ConflictFoundException('duplicated publicizing request')
-    }
-
-    const newRequest: AssignmentPublicizingRequest = {
-      assignmentId,
-      userId: assignment.createdById!, // TODO: createdById가 null일 경우 예외처리
-      expireTime: new Date(Date.now() + PUBLICIZING_REQUEST_EXPIRE_TIME)
-    }
-    requests.push(newRequest)
-
-    await this.cacheManager.set(
-      PUBLICIZING_REQUEST_KEY,
-      requests,
-      PUBLICIZING_REQUEST_EXPIRE_TIME
-    )
-
-    return newRequest
   }
 
   async importProblemsToAssignment(

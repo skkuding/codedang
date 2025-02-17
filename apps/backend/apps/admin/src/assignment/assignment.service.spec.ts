@@ -16,7 +16,6 @@ import type {
   CreateAssignmentInput,
   UpdateAssignmentInput
 } from './model/assignment.input'
-import type { AssignmentPublicizingRequest } from './model/publicizing-request.model'
 
 const assignmentId = 1
 const userId = 1
@@ -176,12 +175,6 @@ const submissionsWithProblemTitleAndUsername = {
 //   }
 // ]
 
-const publicizingRequest: AssignmentPublicizingRequest = {
-  assignmentId,
-  userId,
-  expireTime: new Date('2050-08-19T07:32:07.533Z')
-}
-
 const input = {
   title: 'test title10',
   description: 'test description',
@@ -286,16 +279,6 @@ describe('AssignmentService', () => {
     })
   })
 
-  describe('getPublicizingRequests', () => {
-    it('should return an array of PublicizingRequest', async () => {
-      const cacheSpyGet = stub(cache, 'get').resolves([publicizingRequest])
-      const res = await service.getPublicizingRequests()
-
-      expect(cacheSpyGet.called).to.be.true
-      expect(res).to.deep.equal([publicizingRequest])
-    })
-  })
-
   describe('createAssignment', () => {
     it('should return created assignment', async () => {
       db.assignment.create.resolves(assignment)
@@ -333,33 +316,6 @@ describe('AssignmentService', () => {
 
     it('should throw error when groupId or assignmentId not exist', async () => {
       expect(service.deleteAssignment(1000, 1000)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-  })
-
-  describe('handlePublicizingRequest', () => {
-    it('should return accepted state', async () => {
-      db.assignment.update.resolves(assignment)
-
-      const cacheSpyGet = stub(cache, 'get').resolves([publicizingRequest])
-      const res = await service.handlePublicizingRequest(assignmentId, true)
-
-      expect(cacheSpyGet.called).to.be.true
-      expect(res).to.deep.equal({
-        assignmentId,
-        isAccepted: true
-      })
-    })
-
-    it('should throw error when groupId or assignmentId not exist', async () => {
-      expect(service.handlePublicizingRequest(1000, true)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-
-    it('should throw error when the assignment is not requested to public', async () => {
-      expect(service.handlePublicizingRequest(3, true)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
