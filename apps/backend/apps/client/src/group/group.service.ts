@@ -205,7 +205,7 @@ export class GroupService {
         return {
           id: group.id,
           groupName: group.groupName,
-          description: group.description,
+          ...(group.description && { description: group.description }),
           memberNum: group._count.userGroup,
           isGroupLeader,
           ...(group.courseInfo && { courseInfo: group.courseInfo })

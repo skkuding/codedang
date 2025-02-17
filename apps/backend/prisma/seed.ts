@@ -202,7 +202,7 @@ const createGroups = async () => {
   tempGroup = await prisma.group.create({
     data: {
       groupName: 'Example Private Group 3',
-      description: 'This is an example private group just for testing. ',
+      description: 'This is an example private group just for testing.',
       config: {
         showOnList: true,
         allowJoinFromSearch: true,
