@@ -55,7 +55,10 @@ assert {
 }
 
 docs {
-  # Create Group
+  # Create Course
   ---
-  - Group을 생성합니다.
+  - Course를 생성합니다.
+  - 요청하는 user는 canCreateCourse 권한이 있어야 합니다. admin이여도 canCreateCourse 권한이 있어야 course 생성이 가능합니다.
+  - course 생성자는 자동으로 해당 Course의 Instructor가 됩니다.
+  
 }

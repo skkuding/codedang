@@ -12,7 +12,7 @@ post {
 
 body:graphql {
   query {
-    getWhitelist(groupId: 2)
+    getWhitelist(groupId: 5)
     }
   
 }
@@ -25,7 +25,8 @@ assert {
 }
 
 docs {
-  # Create Group
+  # Get Whitelist
   ---
-  - Group을 생성합니다.
+  - 어떤 course에 지정된 whitelist를 가져옵니다.
+  - whitelist가 지정된 경우, 일반 사용자가 초대 코드를 통해 join하려고 할 때 whitelist에 해당 사용자의 학번이 있는지 확인합니다. 
 }
