@@ -1,5 +1,6 @@
 'use client'
 
+import { cn } from '@/libs/utils'
 import type { CourseNotice } from '@/types/type'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
