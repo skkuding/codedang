@@ -223,7 +223,7 @@ export class GroupService {
     }
   }
 
-  async deleteCourse(id: number, user: AuthenticatedUser) {
+  async deleteGroup(id: number, groupType: GroupType, user: AuthenticatedUser) {
     const userGroup = await this.prisma.userGroup.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -237,6 +237,9 @@ export class GroupService {
       }
     })
 
+    const includeOption =
+      groupType === GroupType.Course ? { courseInfo: true } : {}
+
     if (!userGroup || !userGroup.isGroupLeader) {
       throw new ForbiddenAccessException(
         'Only group leader can delete the group'
@@ -247,10 +250,7 @@ export class GroupService {
       where: {
         id
       },
-      select: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        _count: { select: { userGroup: true } }
-      }
+      include: includeOption
     })
   }
 

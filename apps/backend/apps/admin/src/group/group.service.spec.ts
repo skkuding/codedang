@@ -103,7 +103,8 @@ const db = {
   },
   userGroup: {
     create: stub().resolves(null),
-    findUnique: stub()
+    findUnique: stub(),
+    findMany: stub()
   },
   user: {
     findUnique: stub()
@@ -165,6 +166,45 @@ describe('GroupService', () => {
     })
   })
 
+  describe('getGroupsUserLead', () => {
+    it('should return groups user leads', async () => {
+      const userGroups = [
+        {
+          group: {
+            id: 1,
+            groupName: 'Test Group',
+            groupType: GroupType.Course,
+            courseInfo: null,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            _count: { userGroup: 3 }
+          }
+        }
+      ]
+
+      db.userGroup.findMany.resolves(userGroups)
+
+      const result = await service.getGroupsUserLead(userId, GroupType.Course)
+      expect(result).to.deep.equal([
+        {
+          id: 1,
+          groupName: 'Test Group',
+          groupType: GroupType.Course,
+          courseInfo: null,
+          memberNum: 3,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _count: { userGroup: 3 }
+        }
+      ])
+    })
+
+    it('should return empty array when user leads no groups', async () => {
+      db.userGroup.findMany.resolves([])
+
+      const result = await service.getGroupsUserLead(userId, GroupType.Course)
+      expect(result).to.deep.equal([])
+    })
+  })
+
   describe('getCourse', () => {
     const groupWithLength = {
       ...group,
@@ -214,24 +254,17 @@ describe('GroupService', () => {
     })
   })
 
-  describe('deleteCourse', () => {
+  describe('deleteGroup', () => {
     const userReq = new AuthenticatedUser(userId, user.username)
     userReq.role = Role.User
-
-    it('should return the number of members that were in the group', async () => {
-      db.userGroup.findUnique.resolves({ isGroupLeader: true })
-
-      const res = await service.deleteCourse(groupId, userReq)
-      expect(res).to.deep.equal({ count: userGroup.length })
-    })
 
     it('should throw error when either user is not group leader or their role is higher than Admin', async () => {
       const userReq = new AuthenticatedUser(2, user.username)
       db.userGroup.findUnique.resolves(null)
 
-      await expect(service.deleteCourse(groupId, userReq)).to.be.rejectedWith(
-        ForbiddenAccessException
-      )
+      await expect(
+        service.deleteGroup(groupId, GroupType.Course, userReq)
+      ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })
 

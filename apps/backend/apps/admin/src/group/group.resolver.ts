@@ -37,7 +37,7 @@ export class GroupResolver {
     @Context('req') req: AuthenticatedRequest,
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
   ) {
-    return await this.groupService.deleteCourse(id, req.user)
+    return await this.groupService.deleteGroup(id, GroupType.Course, req.user)
   }
 
   @Mutation(() => CanCreateCourseResult)
