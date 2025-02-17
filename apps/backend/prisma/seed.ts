@@ -32,7 +32,7 @@ const MAX_DATE: Date = new Date('2999-12-31T00:00:00.000Z')
 
 let superAdminUser: User
 let adminUser: User
-let managerUser: User
+let instructorUser: User
 let publicGroup: Group
 let privateGroup: Group
 const users: User[] = []
@@ -80,16 +80,18 @@ const createUsers = async () => {
     }
   })
 
-  // create manager user
-  managerUser = await prisma.user.create({
+  // create non-admin user with canCreateCourse and canCreateContest
+  instructorUser = await prisma.user.create({
     data: {
-      username: 'manager',
-      password: await hash('Managermanager'),
-      email: 'manager@example.com',
+      username: 'instructor',
+      password: await hash('Instructorinstructor'),
+      email: 'inst@example.com',
       lastLogin: new Date(),
       role: Role.Manager,
       studentId: '2024000002',
-      major: 'Computer Science'
+      major: 'Computer Science',
+      canCreateCourse: true,
+      canCreateContest: true
     }
   })
 
@@ -167,7 +169,7 @@ const createGroups = async () => {
   })
   await prisma.userGroup.create({
     data: {
-      userId: managerUser.id,
+      userId: instructorUser.id,
       groupId: privateGroup.id,
       isGroupLeader: true
     }
@@ -178,8 +180,7 @@ const createGroups = async () => {
   let tempGroup = await prisma.group.create({
     data: {
       groupName: 'Example Private Group 2',
-      description:
-        'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+      description: 'This is an example private group just for testing.',
       config: {
         showOnList: true,
         allowJoinFromSearch: true,
@@ -190,7 +191,7 @@ const createGroups = async () => {
   })
   await prisma.userGroup.create({
     data: {
-      userId: managerUser.id,
+      userId: instructorUser.id,
       groupId: tempGroup.id,
       isGroupLeader: true
     }
@@ -201,8 +202,7 @@ const createGroups = async () => {
   tempGroup = await prisma.group.create({
     data: {
       groupName: 'Example Private Group 3',
-      description:
-        'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+      description: 'This is an example private group just for testing. ',
       config: {
         showOnList: true,
         allowJoinFromSearch: true,
@@ -213,7 +213,7 @@ const createGroups = async () => {
   })
   await prisma.userGroup.create({
     data: {
-      userId: managerUser.id,
+      userId: instructorUser.id,
       groupId: tempGroup.id,
       isGroupLeader: true
     }
@@ -317,7 +317,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       },
       {
@@ -379,7 +379,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       },
       {
@@ -440,7 +440,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       },
       {
@@ -501,7 +501,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       },
       {
@@ -562,7 +562,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       },
       {
@@ -623,7 +623,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       }
     ]
