@@ -20,6 +20,37 @@ import type { GroupJoinRequest } from '@libs/types'
 
 @Injectable()
 export class UserService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getUser(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId
+      }
+    })
+
+    if (user == null) {
+      throw new EntityNotExistException('User')
+    }
+    return user
+  }
+
+  async getUserByEmailOrStudentId(
+    email?: string,
+    studentId?: string
+  ): Promise<User[]> {
+    const whereOption = email ? { email } : { studentId }
+    return await this.prisma.user.findMany({
+      where: whereOption,
+      include: {
+        userProfile: true
+      }
+    })
+  }
+}
+
+@Injectable()
+export class GroupMemberService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
@@ -312,31 +343,5 @@ export class UserService {
     } else {
       return userId
     }
-  }
-
-  async getUser(userId: number) {
-    const user = this.prisma.user.findUnique({
-      where: {
-        id: userId
-      }
-    })
-
-    if (user == null) {
-      throw new EntityNotExistException('User')
-    }
-    return user
-  }
-
-  async getUserByEmailOrStudentId(
-    email?: string,
-    studentId?: string
-  ): Promise<User[]> {
-    const whereOption = email ? { email } : { studentId }
-    return await this.prisma.user.findMany({
-      where: whereOption,
-      include: {
-        userProfile: true
-      }
-    })
   }
 }

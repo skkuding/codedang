@@ -10,7 +10,7 @@ import { stub } from 'sinon'
 import { joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
-import { UserService } from './user.service'
+import { GroupMemberService } from './user.service'
 
 const groupId = 2
 
@@ -124,13 +124,13 @@ const db = {
   getPaginator: PrismaService.prototype.getPaginator
 }
 
-describe('UserService', () => {
-  let service: UserService
+describe('GroupMemberService', () => {
+  let service: GroupMemberService
   let cache: Cache
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        UserService,
+        GroupMemberService,
         { provide: PrismaService, useValue: db },
         {
           provide: CACHE_MANAGER,
@@ -142,7 +142,7 @@ describe('UserService', () => {
       ]
     }).compile()
 
-    service = module.get<UserService>(UserService)
+    service = module.get<GroupMemberService>(GroupMemberService)
     cache = module.get<Cache>(CACHE_MANAGER)
   })
 
