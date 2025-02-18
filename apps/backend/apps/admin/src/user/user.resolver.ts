@@ -69,10 +69,10 @@ export class GroupMemberResolver {
     @Args('leaderOnly', { defaultValue: false }) leaderOnly: boolean
   ) {
     return await this.groupMemberService.getGroupMembers({
-      groupId: groupId,
-      cursor: cursor,
-      take: take,
-      leaderOnly: leaderOnly
+      groupId,
+      cursor,
+      take,
+      leaderOnly
     })
   }
 
