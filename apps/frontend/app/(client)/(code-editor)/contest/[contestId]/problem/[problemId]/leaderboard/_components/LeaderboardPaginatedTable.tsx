@@ -15,10 +15,8 @@ import { LeaderboardTable, LeaderboardTableFallback } from './LeaderboardTable'
 const itemsPerPage = 17
 
 export function LeaderboardPaginatedTable({
-  problemId,
   contestId
 }: {
-  problemId: number
   contestId: number
 }) {
   const fetchContestLeaderboard = async (contestId: number) => {
@@ -30,6 +28,12 @@ export function LeaderboardPaginatedTable({
     }
     return res.json()
   }
+
+  // const fetchContestData = async (contestId: number) => {
+  //   const res = await safeFetcherWithAuth.get(
+  //     `contest`
+  //   )
+  // }
 
   const { data } = useSuspenseQuery({
     queryKey: ['leaderboard', contestId],
