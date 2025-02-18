@@ -4,8 +4,8 @@ export interface TestcaseResult {
   submissionId: number
   problemTestcaseId: number
   result: ResultStatus
-  cpuTime: string
-  memoryUsage: number
+  cpuTime: string | null
+  memoryUsage: number | null
 }
 
 export interface PubSubSubmissionResult {

@@ -227,6 +227,33 @@ export class SubmissionController {
           subscriber.next({ data } as MessageEvent)
         }
       )
+
+      this.submissionService
+        .getJudgedTestcasesBySubmissionId(submissionId)
+        .then(
+          (
+            judgedTestcases: Awaited<
+              ReturnType<
+                typeof this.submissionService.getJudgedTestcasesBySubmissionId
+              >
+            >
+          ) => {
+            judgedTestcases.forEach((tc) => {
+              const data: PubSubSubmissionResult = {
+                submissionId,
+                result: {
+                  submissionId,
+                  problemTestcaseId: tc.problemTestcaseId,
+                  result: tc.result,
+                  cpuTime: tc.cpuTime ? tc.cpuTime.toString() : null,
+                  memoryUsage: tc.memoryUsage ?? null
+                }
+              }
+
+              subscriber.next({ data } as MessageEvent)
+            })
+          }
+        )
     })
   }
 }

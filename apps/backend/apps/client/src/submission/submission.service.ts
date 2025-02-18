@@ -1417,4 +1417,21 @@ export class SubmissionService {
       }
     })
   }
+
+  async getJudgedTestcasesBySubmissionId(submissionId: number) {
+    return await this.prisma.submissionResult.findMany({
+      where: {
+        submissionId,
+        result: {
+          not: 'Judging'
+        }
+      },
+      select: {
+        problemTestcaseId: true,
+        result: true,
+        cpuTime: true,
+        memoryUsage: true
+      }
+    })
+  }
 }
