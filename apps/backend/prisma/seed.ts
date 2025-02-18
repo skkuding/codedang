@@ -22,6 +22,7 @@ import {
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
+import { GroupType } from '@admin/@generated'
 
 const prisma = new PrismaClient()
 const fixturePath = join(__dirname, '__fixtures__')
@@ -156,14 +157,23 @@ const createGroups = async () => {
   // create empty private group
   privateGroup = await prisma.group.create({
     data: {
-      groupName: 'Example Private Group',
-      description:
-        'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+      groupName: '정보보호개론',
+      groupType: GroupType.Course,
       config: {
-        showOnList: false,
-        allowJoinFromSearch: false,
+        showOnList: true,
+        allowJoinFromSearch: true,
         allowJoinWithURL: true,
-        requireApprovalBeforeJoin: true
+        requireApprovalBeforeJoin: false
+      },
+      courseInfo: {
+        create: {
+          courseNum: 'SWE3033',
+          classNum: 42,
+          professor: '형식킴',
+          semester: '2025 Spring',
+          email: 'example01@skku.edu',
+          website: 'https://seclab.com'
+        }
       }
     }
   })
@@ -176,7 +186,7 @@ const createGroups = async () => {
   })
 
   // create empty private group
-  // 'showOnList'가 true 이면서 가입시 사전 승인이 필요한 그룹을 테스트할 때 사용합니다
+  // 'showOnList'가 true
   let tempGroup = await prisma.group.create({
     data: {
       groupName: 'Example Private Group 2',
@@ -185,7 +195,7 @@ const createGroups = async () => {
         showOnList: true,
         allowJoinFromSearch: true,
         allowJoinWithURL: true,
-        requireApprovalBeforeJoin: true
+        requireApprovalBeforeJoin: false
       }
     }
   })
@@ -198,7 +208,7 @@ const createGroups = async () => {
   })
 
   // create empty private group
-  // 'showOnList'가 true 이면서 가입시 사전 승인이 필요없는 그룹을 테스트할 때 사용합니다
+  // 'showOnList'가 true
   tempGroup = await prisma.group.create({
     data: {
       groupName: 'Example Private Group 3',

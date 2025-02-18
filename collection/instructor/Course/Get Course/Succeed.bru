@@ -12,7 +12,7 @@ post {
 
 body:graphql {
   query {
-    getCourse(groupId: 7) {
+    getCourse(groupId: 2) {
       id
       groupName
       groupType
@@ -21,12 +21,13 @@ body:graphql {
         classNum
         professor
         semester
+        week
       }
       invitation
       memberNum
     }
   }
-
+  
 }
 
 assert {

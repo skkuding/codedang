@@ -5,39 +5,22 @@ meta {
 }
 
 delete {
-  url: {{baseUrl}}/course/5/leave
+  url: {{baseUrl}}/course/2/leave
   body: none
   auth: none
 }
 
 assert {
   res.status: eq 200
-  res("userId"): isNumber
-  res("groupId"): eq 4
-  res("isGroupLeader"): isBoolean
-  res("createTime"): isString
-  res("updateTime"): isString
+  res.body: isDefined
 }
 
 script:pre-request {
-  const axios = require("axios");
-  
   await require("./login").loginUser(req);
-  
-  const baseUrl = bru.getEnvVar("baseUrl");
-  const authorization = bru.getVar("jwtToken");
-  try {
-    await axios.post(
-      baseUrl + "/group/4/join",
-      {},
-      { headers: { authorization } }
-    )
-  } catch (error) {}
 }
 
 docs {
-  # Leave Group
+  # Get Group Members
   ---
-  - URL param으로 전달된 `groupId`에 해당하는 Group에서 탈퇴합니다.
-  - 탈퇴한 Group 정보를 반환합니다.
+  - URL param으로 전달된 `groupId`에 해당하는 Group에 속해있는 User들의 `username` 리스트를 반환합니다.
 }

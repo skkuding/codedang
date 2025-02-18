@@ -40,6 +40,9 @@ export class CourseInput {
   @Field(() => String, { nullable: false })
   semester: string
 
+  @Field(() => Int, { nullable: false })
+  week: number
+
   @Field(() => String, { nullable: true })
   email?: string
 

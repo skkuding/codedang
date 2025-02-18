@@ -14,9 +14,11 @@ body:graphql {
   mutation {
     deleteCourse(groupId: 5) {
       id
+      groupName
       courseInfo {
         courseNum
         classNum
+        professor
         semester
       }
     }

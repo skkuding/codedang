@@ -57,6 +57,7 @@ export class GroupService {
               classNum: input.classNum,
               professor: input.professor,
               semester: input.semester,
+              week: input.week,
               email: input.email,
               website: input.website,
               office: input.office,

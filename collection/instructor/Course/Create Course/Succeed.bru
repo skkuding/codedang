@@ -12,23 +12,26 @@ post {
 
 body:graphql {
   mutation {
-    createCourse(input: {
-      courseTitle: "정보보호개론"
-      courseNum: "SWE3033"
-      classNum: 42
-      professor: "김우주"
-      semester: "2025 Spring"
-      email: "johndoe@example.com"
-      website: "https://example.com"
-      office: "Room 301"
-      phoneNum: "123-456-7890"
-      config: {
-        showOnList: true
-        allowJoinFromSearch: true
-        allowJoinWithURL: true
-        requireApprovalBeforeJoin: false
+    createCourse(
+      input: {
+        courseTitle: "정보보호개론"
+        courseNum: "SWE3033"
+        classNum: 42
+        professor: "김우주"
+        semester: "2025 Spring"
+        week: 16
+        email: "johndoe@example.com"
+        website: "https://example.com"
+        office: "Room 301"
+        phoneNum: "123-456-7890"
+        config: {
+          showOnList: true
+          allowJoinFromSearch: true
+          allowJoinWithURL: true
+          requireApprovalBeforeJoin: false
+        }
       }
-    }) {
+    ) {
       id
       groupName
       groupType
@@ -38,6 +41,7 @@ body:graphql {
         classNum
         professor
         semester
+        week
         email
         website
         office
@@ -45,6 +49,7 @@ body:graphql {
       }
     }
   }
+  
 }
 
 assert {
