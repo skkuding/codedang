@@ -15,7 +15,7 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { GroupService } from './group.service'
+import { GroupService, InvitationService } from './group.service'
 
 const userId = faker.number.int()
 const groupId = faker.number.int()
@@ -266,6 +266,31 @@ describe('GroupService', () => {
         service.deleteGroup(groupId, GroupType.Course, userReq)
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
+  })
+})
+
+describe('InvitationService', () => {
+  let service: InvitationService
+  let cache: Cache
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        InvitationService,
+        { provide: PrismaService, useValue: db },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => [],
+            del: () => []
+          })
+        }
+      ]
+    }).compile()
+
+    service = module.get<InvitationService>(InvitationService)
+    cache = module.get<Cache>(CACHE_MANAGER)
   })
 
   describe('issueInvitation', () => {
