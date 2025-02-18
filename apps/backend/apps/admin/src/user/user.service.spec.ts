@@ -107,23 +107,6 @@ const updateFindResult = [
   }
 ]
 
-const deleteFindResult = [
-  {
-    userId: user1.id,
-    user: {
-      role: user1.role
-    },
-    isGroupLeader: userGroup1.isGroupLeader
-  },
-  {
-    userId: user3.id,
-    user: {
-      role: user3.role
-    },
-    isGroupLeader: userGroup3.isGroupLeader
-  }
-]
-
 const db = {
   userGroup: {
     findMany: stub(),
@@ -131,7 +114,8 @@ const db = {
     count: stub(),
     update: stub(),
     delete: stub(),
-    create: stub()
+    create: stub(),
+    findUniqueOrThrow: stub()
   },
   user: {
     findUnique: stub(),
@@ -324,7 +308,9 @@ describe('UserService', () => {
 
   describe('deleteGroupMember', () => {
     it('should return userGroup', async () => {
-      db.userGroup.findMany.resolves(deleteFindResult)
+      db.userGroup.findUniqueOrThrow.resolves({
+        isGroupLeader: false
+      })
       db.userGroup.delete.resolves(userGroup3)
 
       const res = await service.deleteGroupMember(
@@ -335,15 +321,19 @@ describe('UserService', () => {
     })
 
     it('should throw BadRequestException when the userId is not member', async () => {
-      db.userGroup.findMany.resolves(deleteFindResult)
-
+      db.userGroup.findUniqueOrThrow.resolves({
+        isGroupLeader: false
+      })
       const res = async () =>
         await service.deleteGroupMember(userGroup2.groupId, userGroup2.userId)
       expect(res()).to.be.rejectedWith(BadRequestException)
     })
 
     it('should throw BadRequestException when you try to delete manager but there is only one manager', async () => {
-      db.userGroup.findMany.resolves(deleteFindResult)
+      db.userGroup.findUniqueOrThrow.resolves({
+        isGroupLeader: true
+      })
+      db.userGroup.count.resolves(1)
 
       const res = async () =>
         await service.deleteGroupMember(userGroup1.groupId, userGroup1.userId)
