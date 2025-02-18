@@ -346,44 +346,6 @@ export class InvitationService {
       }
     }
   }
-
-  async updateIsGroupLeader(
-    groupId: number,
-    userId: number,
-    isGroupLeader: boolean
-  ) {
-    try {
-      if (!isGroupLeader) {
-        const groupLeaderNum = await this.prisma.userGroup.count({
-          where: {
-            groupId,
-            isGroupLeader: true
-          }
-        })
-
-        if (groupLeaderNum <= 1) {
-          throw new BadRequestException('One or more leaders are required')
-        }
-      }
-
-      return await this.prisma.userGroup.update({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          userId_groupId: {
-            userId,
-            groupId
-          }
-        },
-        data: {
-          isGroupLeader
-        }
-      })
-    } catch (error) {
-      if (error.code === 'P2025') {
-        throw new NotFoundException('User or Group not found')
-      }
-    }
-  }
 }
 
 @Injectable()

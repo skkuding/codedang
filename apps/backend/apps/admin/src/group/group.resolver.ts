@@ -123,19 +123,6 @@ export class InvitationResolver {
       isGroupLeader
     )
   }
-
-  @Mutation(() => UserGroup)
-  async updateIsGroupLeader(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('userId', { type: () => Int }) userId: number,
-    @Args('isGroupLeader', { type: () => Boolean }) isGroupLeader: boolean
-  ) {
-    return await this.invitationService.updateIsGroupLeader(
-      groupId,
-      userId,
-      isGroupLeader
-    )
-  }
 }
 
 @Resolver()

@@ -157,7 +157,6 @@ export class GroupMemberService {
     groupId: number,
     toGroupLeader: boolean
   ) {
-    // find the user
     const groupMember = await this.prisma.userGroup.findFirst({
       where: {
         groupId,
@@ -179,7 +178,6 @@ export class GroupMemberService {
       )
     }
 
-    const userRole = groupMember.user.role
     const groupLeaderNum = await this.prisma.userGroup.count({
       where: {
         groupId,
@@ -188,12 +186,8 @@ export class GroupMemberService {
     })
 
     if (groupMember.isGroupLeader && !toGroupLeader) {
-      if (userRole === Role.Admin || userRole === Role.SuperAdmin) {
-        throw new BadRequestException(`userId ${userId} is admin`)
-      }
-
       if (groupLeaderNum <= 1) {
-        throw new BadRequestException('One or more managers are required')
+        throw new BadRequestException('One or more leaders are required')
       }
     } else if (groupMember.isGroupLeader && toGroupLeader) {
       throw new BadRequestException(`userId ${userId} is already manager`)
