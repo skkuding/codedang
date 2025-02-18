@@ -1,7 +1,6 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { UserGroup } from '@generated'
 import { User } from '@generated'
-import { UseRolesGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
@@ -39,7 +38,6 @@ export class UserResolver {
   }
 
   @Mutation(() => CanCreateCourseResult)
-  @UseRolesGuard()
   async updateCanCreateCourse(
     @Args('userId', { type: () => Int }, new RequiredIntPipe('userId'))
     userId: number,
