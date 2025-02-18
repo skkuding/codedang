@@ -45,6 +45,23 @@ export class UserResolver {
   ) {
     return await this.userService.updateCanCreateCourse(userId, canCreateCourse)
   }
+
+  @Query(() => [User])
+  async getUsers(
+    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
+    cursor: number | null,
+    @Args(
+      'take',
+      { type: () => Int, defaultValue: 10 },
+      new RequiredIntPipe('take')
+    )
+    take: number
+  ) {
+    return await this.userService.getUsers({
+      cursor,
+      take
+    })
+  }
 }
 
 @Resolver(() => GroupMember)

@@ -35,6 +35,15 @@ export class UserService {
     return user
   }
 
+  async getUsers({ cursor, take }: { cursor: number | null; take: number }) {
+    const paginator = this.prisma.getPaginator(cursor)
+
+    return await this.prisma.user.findMany({
+      ...paginator,
+      take
+    })
+  }
+
   async getUserByEmailOrStudentId(
     email?: string,
     studentId?: string
