@@ -958,7 +958,6 @@ const createContests = async () => {
       title: string
       description: string
       createdById: number
-      groupId: number
       posterUrl: string | null
       participationTarget: string | null
       competitionMethod: string | null
@@ -1008,7 +1007,6 @@ const createContests = async () => {
   아니하고는 처벌·보안처분 또는 강제노역을 받지 아니한다.
 </p>`,
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         posterUrl: `https://skkuding.dev/open-graph.png`,
         participationTarget: '성균관대 재학생이라면 누구나',
         competitionMethod: '온라인으로 진행',
@@ -1028,7 +1026,6 @@ const createContests = async () => {
         title: '24년도 소프트웨어학과 신입생 입학 테스트1',
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         posterUrl: null,
         participationTarget: '성균관대학교 24학번 신입생',
         competitionMethod: '강의실에서 오프라인으로 진행',
@@ -1048,7 +1045,6 @@ const createContests = async () => {
         title: '24년도 소프트웨어학과 신입생 입학 테스트2',
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         posterUrl: `https://skkuding.dev/open-graph.png`,
         participationTarget: '성균관대학교 24학번 신입생',
         competitionMethod: '강의실에서 오프라인으로 진행',
@@ -1068,7 +1064,6 @@ const createContests = async () => {
         title: '24년도 소프트웨어학과 신입생 입학 테스트3',
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         posterUrl: `https://skkuding.dev/open-graph.png`,
         participationTarget: '성균관대학교 24학번 신입생',
         competitionMethod: '강의실에서 오프라인으로 진행',
@@ -1088,7 +1083,6 @@ const createContests = async () => {
         title: '24년도 아늑배 스파게티 코드 만들기 대회',
         description: '<p>이 대회는 현재 진행 중입니다 ! (private group)</p>',
         createdById: superAdminUser.id,
-        groupId: privateGroup.id,
         posterUrl: null,
         participationTarget: '소프트웨어학과 원전공/복수전공',
         competitionMethod: '삼성학술정보관 지하1층에서 오프라인 진행',
@@ -1109,7 +1103,6 @@ const createContests = async () => {
         title: 'Long Time Ago Assignment',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         posterUrl: null,
         participationTarget: '소프트웨어학과 원전공생',
         competitionMethod: '온라인 진행',
@@ -1129,7 +1122,6 @@ const createContests = async () => {
         title: '23년도 소프트웨어학과 신입생 입학 테스트',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         posterUrl: null,
         participationTarget: '소프트웨어학과 23학번',
         competitionMethod: '온라인 진행',
@@ -1149,7 +1141,6 @@ const createContests = async () => {
         title: '소프트의 아침',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         posterUrl: null,
         participationTarget: '소프트웨어학과 원전공/복수전공',
         competitionMethod: '온라인 진행',
@@ -1169,7 +1160,6 @@ const createContests = async () => {
         title: '소프트의 낮',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         posterUrl: null,
         participationTarget: '소프트웨어학과 원전공/복수전공',
         competitionMethod: '온라인 진행',
@@ -1189,7 +1179,6 @@ const createContests = async () => {
         title: '소프트의 밤',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         posterUrl: null,
         participationTarget: '소프트웨어학과 원전공/복수전공',
         competitionMethod: '온라인 진행',
@@ -1209,7 +1198,6 @@ const createContests = async () => {
         title: '2023 SKKU 프로그래밍 대회',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         posterUrl: null,
         participationTarget: '소프트웨어학과 원전공/복수전공',
         competitionMethod: '온라인 진행',
@@ -1229,7 +1217,6 @@ const createContests = async () => {
         title: '소프트의 오전',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         posterUrl: null,
         participationTarget: '소프트웨어학과 원전공/복수전공',
         competitionMethod: '온라인 진행',
@@ -1249,7 +1236,6 @@ const createContests = async () => {
         title: '소프트의 오후',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         posterUrl: null,
         participationTarget: '소프트웨어학과 원전공/복수전공',
         competitionMethod: '온라인 진행',
@@ -1269,7 +1255,6 @@ const createContests = async () => {
         title: '23년도 아늑배 스파게티 코드 만들기 대회',
         description: '<p>이 대회는 오래 전에 끝났어요 (private group)</p>',
         createdById: superAdminUser.id,
-        groupId: privateGroup.id,
         posterUrl: null,
         participationTarget: '소프트웨어학과 원전공/복수전공',
         competitionMethod: '온라인 진행',
@@ -1290,7 +1275,6 @@ const createContests = async () => {
         title: 'Future Assignment',
         description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         posterUrl: null,
         participationTarget: '소프트웨어학과 원전공/복수전공',
         competitionMethod: '온라인 진행 예정...?',
@@ -1310,7 +1294,6 @@ const createContests = async () => {
         title: '2024 SKKU 프로그래밍 대회',
         description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         posterUrl: null,
         participationTarget: '소프트웨어학과 원전공/복수전공',
         competitionMethod: '온라인 진행 예정...?',
@@ -1331,7 +1314,6 @@ const createContests = async () => {
         description:
           '<p>이 대회는 언젠가 열리겠죠...? isVisible이 false인 assignment입니다</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         posterUrl: `https://skkuding.dev/open-graph.png`,
         participationTarget: '소프트웨어학과 원전공/복수전공',
         competitionMethod: '온라인 진행 예정...?',
@@ -1351,7 +1333,6 @@ const createContests = async () => {
         title: '25년도 아늑배 스파게티 코드 만들기 대회',
         description: '<p>이 대회는 언젠가 열리겠죠...? (private group)</p>',
         createdById: superAdminUser.id,
-        groupId: privateGroup.id,
         posterUrl: null,
         participationTarget: '소프트웨어학과 원전공/복수전공',
         competitionMethod: '온라인 진행 예정...?',
@@ -2396,39 +2377,58 @@ const createAssignmentRecords = async () => {
 
 const createContestRecords = async () => {
   const contestRecords: ContestRecord[] = []
-  // group 1 users
-  const group1Users = await prisma.userGroup.findMany({
-    where: {
-      groupId: 1
-    }
-  })
-  for (const user of group1Users) {
-    const contestRecord = await prisma.contestRecord.create({
-      data: {
-        userId: user.userId,
+  // all users
+  const users = await prisma.user.findMany()
+  for (const user of users) {
+    const existingRecord = await prisma.contestRecord.findFirst({
+      where: {
         contestId: 1,
-        acceptedProblemNum: 0,
-        totalPenalty: 0
+        userId: user.id
       }
     })
-    contestRecords.push(contestRecord)
+    if (!existingRecord) {
+      const contestRecord = await prisma.contestRecord.create({
+        data: {
+          userId: user.id,
+          contestId: 1,
+          acceptedProblemNum: 0,
+          totalPenalty: 0
+        }
+      })
+      contestRecords.push(contestRecord)
+    }
   }
 
   // upcoming contest에 참가한 User 1의 contest register를 un-register하는 기능과,
   // registered upcoming, ongoing, finished contest를 조회하는 기능을 확인하기 위함
+  const contests = await prisma.contest.findMany({
+    select: {
+      id: true
+    }
+  })
   const user01Id = 4
-  for (let contestId = 3; contestId <= contests.length; contestId += 2) {
-    contestRecords.push(
-      await prisma.contestRecord.create({
-        data: {
-          userId: user01Id,
-          contestId,
-          acceptedProblemNum: 0,
-          score: 0,
-          totalPenalty: 0
-        }
-      })
-    )
+  for (let i = 0; i < contests.length; i += 2) {
+    const contestId = contests[i].id
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const existingRecord = await prisma.contestRecord.findFirst({
+      where: {
+        contestId: contestId,
+        userId: user01Id
+      }
+    })
+    if (!existingRecord) {
+      contestRecords.push(
+        await prisma.contestRecord.create({
+          data: {
+            userId: user01Id,
+            contestId,
+            acceptedProblemNum: 0,
+            score: 0,
+            totalPenalty: 0
+          }
+        })
+      )
+    }
   }
 
   return contestRecords
