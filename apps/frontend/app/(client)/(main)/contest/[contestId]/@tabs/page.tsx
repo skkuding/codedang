@@ -14,10 +14,13 @@ import calendarIcon from '@/public/icons/calendar.svg'
 import type { Contest, ContestStatus, ProblemDataTop } from '@/types/type'
 import Image from 'next/image'
 import { BiggerImageButton } from './_components/BiggerImageButton'
+import { GotoContestListButton } from './_components/GotoContestListButton'
+import { NextProblemButton } from './_components/NextProblemButton'
+import { PrevProblemButton } from './_components/PrevProblemButton'
 import { RegisterButton } from './_components/RegisterButton'
 import { RenderProblemList } from './_components/RenderProblemList'
 
-interface ContestTop {
+export interface ContestTop {
   id: number
   title: string
   description: string
@@ -179,7 +182,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
       </div>
       <Accordion type="single" collapsible className="mt-16 w-[1208px]">
         <AccordionItem value="item-1" className="border-b-0">
-          <AccordionTrigger className="w-[74px] border-t-[1.5px] border-[#a2a2a240] text-lg font-semibold">
+          <AccordionTrigger className="h-[74px] w-[74px] border-t-[1.5px] border-[#a2a2a240] text-lg font-semibold">
             More Description
           </AccordionTrigger>
           <AccordionContent className="pb-8 text-base text-[#00000080]">
@@ -189,14 +192,17 @@ export default async function ContestTop({ params }: ContestTopProps) {
       </Accordion>
       <Accordion type="single" collapsible className="w-[1208px]">
         <AccordionItem value="item-1" className="border-b-0">
-          <AccordionTrigger className="w-[74px] border-t-[1.5px] border-[#a2a2a240] text-lg font-semibold">
+          <AccordionTrigger className="h-[74px] w-[74px] border-t-[1.5px] border-[#a2a2a240] text-lg font-semibold">
             Problem List
           </AccordionTrigger>
-          <AccordionContent className="pt-[22px] text-base text-[#00000080]">
+          <AccordionContent className="mb-10 pb-0 pt-[3px] text-base text-[#00000080]">
             {RenderProblemList(state, data.isRegistered, problemData)}
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+      <div>{PrevProblemButton(data)}</div>
+      <div>{NextProblemButton(data)}</div>
+      <GotoContestListButton />
     </div>
   )
 }
