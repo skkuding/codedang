@@ -328,8 +328,8 @@ describe('UserService', () => {
       db.userGroup.delete.resolves(userGroup3)
 
       const res = await service.deleteGroupMember(
-        userGroup3.userId,
-        userGroup3.groupId
+        userGroup3.groupId,
+        userGroup3.userId
       )
       expect(res).to.deep.equal(userGroup3)
     })
@@ -338,7 +338,7 @@ describe('UserService', () => {
       db.userGroup.findMany.resolves(deleteFindResult)
 
       const res = async () =>
-        await service.deleteGroupMember(userGroup2.userId, userGroup2.groupId)
+        await service.deleteGroupMember(userGroup2.groupId, userGroup2.userId)
       expect(res()).to.be.rejectedWith(BadRequestException)
     })
 
@@ -346,7 +346,7 @@ describe('UserService', () => {
       db.userGroup.findMany.resolves(deleteFindResult)
 
       const res = async () =>
-        await service.deleteGroupMember(userGroup1.userId, userGroup1.groupId)
+        await service.deleteGroupMember(userGroup1.groupId, userGroup1.userId)
       expect(res()).to.be.rejectedWith(BadRequestException)
     })
   })

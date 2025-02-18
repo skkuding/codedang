@@ -113,14 +113,6 @@ export class GroupResolver {
   }
 
   @Mutation(() => UserGroup)
-  async kickUser(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('userId', { type: () => Int }) userId: number
-  ) {
-    return await this.groupService.kickUser(groupId, userId)
-  }
-
-  @Mutation(() => UserGroup)
   async updateIsGroupLeader(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('userId', { type: () => Int }) userId: number,

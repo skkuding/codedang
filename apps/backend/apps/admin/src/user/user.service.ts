@@ -12,7 +12,8 @@ import { joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
   ConflictFoundException,
-  EntityNotExistException
+  EntityNotExistException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { GroupJoinRequest } from '@libs/types'
@@ -183,32 +184,39 @@ export class UserService {
     })
   }
 
-  async deleteGroupMember(userId: number, groupId: number) {
-    const groupMembers = (
-      await this.prisma.userGroup.findMany({
+  async deleteGroupMember(groupId: number, userId: number) {
+    try {
+      const { isGroupLeader } = await this.prisma.userGroup.findUniqueOrThrow({
         where: {
-          groupId
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          userId_groupId: {
+            userId,
+            groupId
+          }
         },
         select: {
-          userId: true,
           isGroupLeader: true
         }
       })
-    ).map((userGroup) => {
-      return {
-        userId: userGroup.userId,
-        isGroupLeader: userGroup.isGroupLeader
+
+      if (isGroupLeader) {
+        const groupLeaderNum = await this.prisma.userGroup.count({
+          where: {
+            groupId,
+            isGroupLeader: true
+          }
+        })
+
+        if (groupLeaderNum <= 1) {
+          throw new BadRequestException('One or more leaders are required')
+        }
       }
-    })
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new UnprocessableDataException('Not a member')
+      }
 
-    const isGroupMember = groupMembers.some(
-      (member) => member.userId === userId
-    )
-
-    if (!isGroupMember) {
-      throw new BadRequestException(
-        `userId ${userId} is not a group member of groupId ${groupId}`
-      )
+      throw error
     }
 
     return await this.prisma.userGroup.delete({

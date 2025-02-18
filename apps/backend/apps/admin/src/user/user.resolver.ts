@@ -98,13 +98,11 @@ export class UserResolver {
    */
   @Mutation(() => UserGroup)
   async deleteGroupMember(
-    @Args('userId', { type: () => Int }, new RequiredIntPipe('userId'))
-    userId: number,
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('userId', { type: () => Int }) userId: number
   ) {
-    return await this.userService.deleteGroupMember(userId, groupId)
+    return await this.userService.deleteGroupMember(groupId, userId)
   }
-
   /**
    * 특정 그룹에 가입 요청한 유저 리스트를 조회.
    * @param {number} groupId - 특정 그룹의 id.
