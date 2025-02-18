@@ -96,7 +96,7 @@ const PaginationPrevious = ({
   <PaginationButton
     aria-label="Go to previous page"
     size="default"
-    className={cn(!isActive && 'cursor-not-allowed', className)}
+    className={cn(!isActive && 'cursor-not-allowed', 'relative', className)}
     {...props}
   >
     {!isActive && (
@@ -118,7 +118,7 @@ const PaginationNext = ({
   <PaginationButton
     aria-label="Go to next page"
     size="default"
-    className={cn(!isActive && 'cursor-not-allowed', className)}
+    className={cn(!isActive && 'cursor-not-allowed', 'relative', className)}
     {...props}
   >
     {!isActive && (
