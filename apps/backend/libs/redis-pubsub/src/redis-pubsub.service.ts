@@ -3,7 +3,7 @@ import type { OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import type { ResultStatus } from '@prisma/client'
 import { createClient } from 'redis'
-import type { PubSubSubmissionResult } from './redis-pubsub.submissionResult'
+import type { PubSubSubmissionResult } from './testcase-result.interface'
 
 @Injectable()
 export class RedisPubSubService implements OnModuleInit {
@@ -45,7 +45,7 @@ export class RedisPubSubService implements OnModuleInit {
     }
 
     await this.client.publish(
-      `submission:${submissionId}`,
+      this.submissionTestcaseResultChannel(submissionId),
       JSON.stringify(serializedResult)
     )
   }
@@ -57,10 +57,15 @@ export class RedisPubSubService implements OnModuleInit {
     const subscriber = this.client.duplicate()
     await subscriber.connect()
 
-    await subscriber.subscribe(`submission.${submissionId}`, (message) =>
-      callback(JSON.parse(message))
+    await subscriber.subscribe(
+      this.submissionTestcaseResultChannel(submissionId),
+      (message) => callback(JSON.parse(message))
     )
 
     return subscriber
+  }
+
+  submissionTestcaseResultChannel(submissionId: number) {
+    return `submission:${submissionId}`
   }
 }

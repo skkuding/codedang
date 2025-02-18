@@ -221,39 +221,34 @@ export class SubmissionController {
     await this.submissionService.checkSubmissionId(submissionId, userId)
 
     return new Observable((subscriber) => {
-      this.redisPubSub.subscribeToSubmission(
-        submissionId,
-        (data: PubSubSubmissionResult) => {
+      this.redisPubSub
+        .subscribeToSubmission(submissionId, (data: PubSubSubmissionResult) => {
           subscriber.next({ data } as MessageEvent)
-        }
-      )
-
-      this.submissionService
-        .getJudgedTestcasesBySubmissionId(submissionId)
-        .then(
-          (
-            judgedTestcases: Awaited<
-              ReturnType<
-                typeof this.submissionService.getJudgedTestcasesBySubmissionId
-              >
-            >
-          ) => {
-            judgedTestcases.forEach((tc) => {
-              const data: PubSubSubmissionResult = {
+        })
+        .then(() => {
+          return this.submissionService.getJudgedTestcasesBySubmissionId(
+            submissionId
+          )
+        })
+        .then((judgedTestcases) => {
+          judgedTestcases.forEach((tc) => {
+            const data: PubSubSubmissionResult = {
+              submissionId,
+              result: {
                 submissionId,
-                result: {
-                  submissionId,
-                  problemTestcaseId: tc.problemTestcaseId,
-                  result: tc.result,
-                  cpuTime: tc.cpuTime ? tc.cpuTime.toString() : null,
-                  memoryUsage: tc.memoryUsage ?? null
-                }
+                problemTestcaseId: tc.problemTestcaseId,
+                result: tc.result,
+                cpuTime: tc.cpuTime ? tc.cpuTime.toString() : null,
+                memoryUsage: tc.memoryUsage ?? null
               }
+            }
 
-              subscriber.next({ data } as MessageEvent)
-            })
-          }
-        )
+            subscriber.next({ data } as MessageEvent)
+          })
+        })
+        .catch((error) => {
+          subscriber.error(error)
+        })
     })
   }
 }
