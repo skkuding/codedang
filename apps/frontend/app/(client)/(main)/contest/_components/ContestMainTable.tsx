@@ -1,32 +1,78 @@
+'use client'
+
+import {
+  PageNavigation,
+  Paginator,
+  SlotNavigation
+} from '@/components/PaginatorV2'
+import { usePagination } from '@/libs/hooks/usePaginationV3'
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
 import type { Contest } from '@/types/type'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import type { Session } from 'next-auth'
 import { ContestDataTable } from './ContestDataTable'
 import { columns } from './ContestMainColumns'
+
+const itemsPerPage = 10
 
 interface ContestMainTableProps {
   search: string
   session: Session | null
 }
 
-export async function ContestMainTable({
-  search,
-  session
-}: ContestMainTableProps) {
-  const contestData = await getOngoingUpcomingContests(search, session)
+export function ContestMainTable({ search, session }: ContestMainTableProps) {
+  const { data: contestData } = useSuspenseQuery({
+    queryKey: ['contest', search],
+    queryFn: () => getOngoingUpcomingContests(search, session)
+  })
+
+  const {
+    paginatedItems,
+    currentPage,
+    firstPage,
+    lastPage,
+    gotoPage,
+    gotoSlot,
+    prevDisabled,
+    nextDisabled
+  } = usePagination({
+    data: contestData,
+    totalCount: contestData?.length ?? 0,
+    itemsPerPage
+  })
 
   return (
-    <ContestDataTable
-      data={contestData}
-      columns={columns}
-      headerStyle={{
-        title: 'text-[#8A8A8A] font-normal text-left w-2/5 md:w-1/2',
-        status: 'text-[#8A8A8A] font-normal w-1/5 md:w-1/6',
-        registered: 'text-[#8A8A8A] font-normal w-1/5 md:w-1/6',
-        period: 'text-[#8A8A8A] font-normal w-1/5 md:w-1/3'
-      }}
-      linked
-    />
+    <>
+      <ContestDataTable
+        data={paginatedItems}
+        columns={columns}
+        headerStyle={{
+          title: 'text-[#8A8A8A] font-normal text-left w-2/5 md:w-1/2',
+          status: 'text-[#8A8A8A] font-normal w-1/5 md:w-1/6',
+          registered: 'text-[#8A8A8A] font-normal w-1/5 md:w-1/6',
+          period: 'text-[#8A8A8A] font-normal w-1/5 md:w-1/3'
+        }}
+        linked
+      />
+      <Paginator>
+        <SlotNavigation
+          direction="prev"
+          gotoSlot={gotoSlot}
+          disabled={prevDisabled}
+        />
+        <PageNavigation
+          firstPage={firstPage}
+          lastPage={lastPage}
+          currentPage={currentPage}
+          gotoPage={gotoPage}
+        />
+        <SlotNavigation
+          direction="next"
+          gotoSlot={gotoSlot}
+          disabled={nextDisabled}
+        />
+      </Paginator>
+    </>
   )
 }
 

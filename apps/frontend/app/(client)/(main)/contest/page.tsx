@@ -15,6 +15,40 @@ interface ContestProps {
     search: string
   }
 }
+
+export default async function Contest({ searchParams }: ContestProps) {
+  const session = await auth()
+  const registered = searchParams.registered === 'true'
+  if (!session && registered) {
+    redirect('/contest')
+  }
+  const search = searchParams.search ?? ''
+
+  return (
+    <>
+      <ContestMainBanner />
+
+      <ErrorBoundary fallback={FetchErrorFallback}>
+        <Suspense fallback={<ContestCardListFallback />}>
+          <ContestFeatureList title={`WHAT'S FUNCTION OF CONTEST?`} />
+        </Suspense>
+      </ErrorBoundary>
+
+      <ContestSubBanner />
+
+      <div className="mb-12 mt-[101px] flex w-full flex-col gap-12">
+        <div className="flex-col">
+          <Suspense fallback={<FinishedContestTableFallback />}>
+            <ErrorBoundary fallback={FetchErrorFallback}>
+              <ContestMainTable search={search} session={session} />
+            </ErrorBoundary>
+          </Suspense>
+        </div>
+      </div>
+    </>
+  )
+}
+
 function ContestCardListFallback() {
   return (
     <div>
@@ -48,37 +82,5 @@ function FinishedContestTableFallback() {
         <Skeleton key={i} className="my-10 flex h-8 w-full rounded-xl" />
       ))}
     </div>
-  )
-}
-export default async function Contest({ searchParams }: ContestProps) {
-  const session = await auth()
-  const registered = searchParams.registered === 'true'
-  if (!session && registered) {
-    redirect('/contest')
-  }
-  const search = searchParams.search ?? ''
-
-  return (
-    <>
-      <ContestMainBanner />
-
-      <ErrorBoundary fallback={FetchErrorFallback}>
-        <Suspense fallback={<ContestCardListFallback />}>
-          <ContestFeatureList title={`WHAT'S FUNCTION OF CONTEST?`} />
-        </Suspense>
-      </ErrorBoundary>
-
-      <ContestSubBanner />
-
-      <div className="mb-12 mt-[101px] flex w-full flex-col gap-12">
-        <div className="flex-col">
-          <Suspense fallback={<FinishedContestTableFallback />}>
-            <ErrorBoundary fallback={FetchErrorFallback}>
-              <ContestMainTable search={search} session={session} />
-            </ErrorBoundary>
-          </Suspense>
-        </div>
-      </div>
-    </>
   )
 }

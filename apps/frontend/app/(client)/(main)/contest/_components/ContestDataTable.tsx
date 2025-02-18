@@ -15,6 +15,7 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getPaginationRowModel,
   useReactTable
 } from '@tanstack/react-table'
 import type { Route } from 'next'
@@ -63,8 +64,8 @@ export function ContestDataTable<TData extends Item, TValue>({
     columns,
     getRowId: (row) => String(row.id),
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel()
-    // getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel()
   })
   const router = useRouter()
   const currentPath = usePathname()
