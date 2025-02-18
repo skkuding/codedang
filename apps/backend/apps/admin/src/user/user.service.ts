@@ -47,6 +47,22 @@ export class UserService {
       }
     })
   }
+
+  async updateCanCreateCourse(userId: number, canCreateCourse: boolean) {
+    return await this.prisma.user.update({
+      where: {
+        id: userId
+      },
+      data: {
+        canCreateCourse
+      },
+      select: {
+        id: true,
+        role: true,
+        canCreateCourse: true
+      }
+    })
+  }
 }
 
 @Injectable()

@@ -1,11 +1,13 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { UserGroup } from '@generated'
 import { User } from '@generated'
+import { UseRolesGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { GroupMember } from './model/groupMember.model'
-import { UserService, type GroupMemberService } from './user.service'
+import { CanCreateCourseResult } from './model/user.output'
+import { UserService, GroupMemberService } from './user.service'
 
 @Resolver(() => User)
 export class UserResolver {
@@ -34,6 +36,16 @@ export class UserResolver {
     }
 
     return await this.userService.getUserByEmailOrStudentId(email, studentId)
+  }
+
+  @Mutation(() => CanCreateCourseResult)
+  @UseRolesGuard()
+  async updateCanCreateCourse(
+    @Args('userId', { type: () => Int }, new RequiredIntPipe('userId'))
+    userId: number,
+    @Args('canCreateCourse', { type: () => Boolean }) canCreateCourse: boolean
+  ) {
+    return await this.userService.updateCanCreateCourse(userId, canCreateCourse)
   }
 }
 

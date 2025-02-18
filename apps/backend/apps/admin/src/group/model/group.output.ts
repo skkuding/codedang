@@ -1,6 +1,6 @@
 import { Field, Int } from '@nestjs/graphql'
 import { ObjectType } from '@nestjs/graphql'
-import { Group, Role } from '@generated'
+import { Group } from '@generated'
 
 @ObjectType()
 export class FindGroup extends Group {
@@ -15,16 +15,4 @@ export class FindGroup extends Group {
 export class DeletedUserGroup {
   @Field(() => Int, { nullable: false })
   count!: number
-}
-
-@ObjectType()
-export class CanCreateCourseResult {
-  @Field(() => Int)
-  id: number
-
-  @Field(() => Role)
-  role: Role
-
-  @Field()
-  canCreateCourse: boolean
 }

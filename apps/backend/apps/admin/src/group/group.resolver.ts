@@ -1,19 +1,15 @@
 import { SetMetadata } from '@nestjs/common'
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
 import { Group, GroupType, UserGroup } from '@generated'
-import {
-  AuthenticatedRequest,
-  LEADER_NOT_NEEDED_KEY,
-  UseRolesGuard
-} from '@libs/auth'
-import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
+import { AuthenticatedRequest, LEADER_NOT_NEEDED_KEY } from '@libs/auth'
+import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
 import {
   GroupService,
   InvitationService,
   WhitelistService
 } from './group.service'
 import { CourseInput } from './model/group.input'
-import { CanCreateCourseResult, FindGroup } from './model/group.output'
+import { FindGroup } from './model/group.output'
 
 @Resolver(() => Group)
 export class GroupResolver {
@@ -44,19 +40,6 @@ export class GroupResolver {
     return await this.groupService.deleteGroup(id, GroupType.Course, req.user)
   }
 
-  @Mutation(() => CanCreateCourseResult)
-  @UseRolesGuard()
-  async updateCanCreateCourse(
-    @Args('userId', { type: () => Int }, new RequiredIntPipe('userId'))
-    userId: number,
-    @Args('canCreateCourse', { type: () => Boolean }) canCreateCourse: boolean
-  ) {
-    return await this.groupService.updateCanCreateCourse(
-      userId,
-      canCreateCourse
-    )
-  }
-
   @Query(() => [FindGroup])
   @SetMetadata(LEADER_NOT_NEEDED_KEY, true)
   async getCoursesUserLead(@Context('req') req: AuthenticatedRequest) {
@@ -67,7 +50,6 @@ export class GroupResolver {
   }
 
   @Query(() => [FindGroup])
-  @UseRolesGuard()
   async getCourses(
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
