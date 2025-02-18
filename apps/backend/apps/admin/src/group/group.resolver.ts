@@ -7,7 +7,11 @@ import {
   UseRolesGuard
 } from '@libs/auth'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
-import { GroupService } from './group.service'
+import {
+  GroupService,
+  InvitationService,
+  WhitelistService
+} from './group.service'
 import { CourseInput } from './model/group.input'
 import { CanCreateCourseResult, FindGroup } from './model/group.output'
 
@@ -78,7 +82,11 @@ export class GroupResolver {
   ) {
     return await this.groupService.getCourse(id)
   }
+}
 
+@Resolver(() => UserGroup)
+export class InvitationResolver {
+  constructor(private readonly invitationService: InvitationService) {}
   /**
    * Group 초대코드를 발급합니다.
    * @param id 초대코드를 발급하는 Group의 ID
@@ -88,7 +96,7 @@ export class GroupResolver {
   async issueInvitation(
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
   ) {
-    return await this.groupService.issueInvitation(id)
+    return await this.invitationService.issueInvitation(id)
   }
 
   /**
@@ -100,7 +108,7 @@ export class GroupResolver {
   async revokeInvitation(
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
   ) {
-    return await this.groupService.revokeInvitation(id)
+    return await this.invitationService.revokeInvitation(id)
   }
 
   @Mutation(() => UserGroup)
@@ -109,7 +117,11 @@ export class GroupResolver {
     @Args('userId', { type: () => Int }) userId: number,
     @Args('isGroupLeader', { type: () => Boolean }) isGroupLeader: boolean
   ) {
-    return await this.groupService.inviteUser(groupId, userId, isGroupLeader)
+    return await this.invitationService.inviteUser(
+      groupId,
+      userId,
+      isGroupLeader
+    )
   }
 
   @Mutation(() => UserGroup)
@@ -118,32 +130,37 @@ export class GroupResolver {
     @Args('userId', { type: () => Int }) userId: number,
     @Args('isGroupLeader', { type: () => Boolean }) isGroupLeader: boolean
   ) {
-    return await this.groupService.updateIsGroupLeader(
+    return await this.invitationService.updateIsGroupLeader(
       groupId,
       userId,
       isGroupLeader
     )
   }
+}
+
+@Resolver()
+export class WhitelistResolver {
+  constructor(private readonly whitelistService: WhitelistService) {}
 
   @Mutation(() => Number)
   async createWhitelist(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('studentIds', { type: () => [String] }) studentIds: [string]
   ) {
-    return await this.groupService.createWhitelist(groupId, studentIds)
+    return await this.whitelistService.createWhitelist(groupId, studentIds)
   }
 
   @Mutation(() => Number)
   async deleteWhitelist(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
   ) {
-    return await this.groupService.deleteWhitelist(groupId)
+    return await this.whitelistService.deleteWhitelist(groupId)
   }
 
   @Query(() => [String])
   async getWhitelist(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
   ) {
-    return await this.groupService.getWhitelist(groupId)
+    return await this.whitelistService.getWhitelist(groupId)
   }
 }

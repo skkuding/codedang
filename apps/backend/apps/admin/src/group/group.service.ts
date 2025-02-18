@@ -269,7 +269,13 @@ export class GroupService {
       }
     })
   }
-
+}
+@Injectable()
+export class InvitationService {
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+  ) {}
   async issueInvitation(id: number) {
     const group = await this.prisma.group.findUnique({
       where: { id },
@@ -378,6 +384,11 @@ export class GroupService {
       }
     }
   }
+}
+
+@Injectable()
+export class WhitelistService {
+  constructor(private readonly prisma: PrismaService) {}
 
   async getWhitelist(groupId: number) {
     return (
