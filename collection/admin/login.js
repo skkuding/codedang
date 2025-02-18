@@ -14,8 +14,8 @@ const login = async (req, body) => {
 
 const loginAdmin = async (req) => {
   await login(req, {
-    username: 'user01',
-    password: 'Useruser'
+    username: 'admin',
+    password: 'Adminadmin'
   })
 }
 
