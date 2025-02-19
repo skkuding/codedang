@@ -1,5 +1,6 @@
 'use client'
 
+import { useLeaderboardSync } from '@/app/(client)/(code-editor)/_components/context/ReFetchingLeaderboardStoreProvider'
 import {
   PageNavigation,
   Paginator,
@@ -47,6 +48,9 @@ export function LeaderboardPaginatedTable({
 }: {
   contestId: number
 }) {
+  const refreshTrigger = useLeaderboardSync((state) => state.refreshTrigger)
+  console.log('refreshTrigger: ', refreshTrigger)
+
   const fetchContestLeaderboard = async (contestId: number) => {
     const res: Leaderboard = await safeFetcherWithAuth
       .get(`contest/${contestId}/leaderboard`)
@@ -82,13 +86,13 @@ export function LeaderboardPaginatedTable({
   const [leaderboardQuery, ProblemSizeQuery] = useSuspenseQueries({
     queries: [
       {
-        queryKey: ['leaderboard', contestId],
+        queryKey: ['leaderboard', contestId, refreshTrigger],
         queryFn: () => {
           return fetchContestLeaderboard(contestId)
         }
       },
       {
-        queryKey: ['problem size', contestId],
+        queryKey: ['problem size', contestId, refreshTrigger],
         queryFn: () => {
           return fetchContestProblemSize(contestId)
         }

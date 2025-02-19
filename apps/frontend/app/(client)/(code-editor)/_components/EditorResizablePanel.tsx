@@ -20,6 +20,7 @@ import Loading from '../problem/[problemId]/loading'
 import { EditorHeader } from './EditorHeader/EditorHeader'
 import { LeaderboardModalDialog } from './LeaderboardModalDialog'
 import { TestcasePanel } from './TestcasePanel/TestcasePanel'
+import { useLeaderboardSync } from './context/ReFetchingLeaderboardStoreProvider'
 import { TestPollingStoreProvider } from './context/TestPollingStoreProvider'
 import { TestcaseStoreProvider } from './context/TestcaseStoreProvider'
 
@@ -36,6 +37,7 @@ export function EditorMainResizablePanel({
   enableCopyPaste = true,
   children
 }: ProblemEditorProps) {
+  const triggerRefresh = useLeaderboardSync((state) => state.triggerRefresh)
   const pathname = usePathname()
   const base = contestId ? (`/contest/${contestId}` as const) : ('' as const)
   const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
@@ -110,7 +112,17 @@ export function EditorMainResizablePanel({
             {tabValue === 'Leaderboard' ? (
               <div className="flex gap-x-4">
                 <LeaderboardModalDialog />
-                <Image src={syncIcon} alt="Sync" className="cursor-pointer" />
+                <Link
+                  replace
+                  href={`${base}/problem/${problem.id}/leaderboard` as Route}
+                >
+                  <Image
+                    src={syncIcon}
+                    alt="Sync"
+                    className="cursor-pointer"
+                    onClick={triggerRefresh}
+                  />
+                </Link>
               </div>
             ) : null}
           </div>
