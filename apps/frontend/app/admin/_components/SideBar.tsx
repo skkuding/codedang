@@ -10,7 +10,7 @@ import { FaChartBar, FaUser, FaBell, FaPen, FaTrophy } from 'react-icons/fa6'
 export function SideBar() {
   const pathname = usePathname()
 
-  const navItems: { name: string; path: Route; icon: IconType }[] = [
+  const navItems = [
     { name: 'Dashboard', path: '/admin', icon: FaChartBar },
     { name: 'User', path: '/admin/user', icon: FaUser },
     { name: 'Notice', path: '/admin/notice', icon: FaBell },
