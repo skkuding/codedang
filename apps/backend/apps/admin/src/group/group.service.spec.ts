@@ -26,6 +26,7 @@ const courseInput = {
   classNum: 42,
   professor: '김우주',
   semester: '2025 Spring',
+  week: 16,
   email: 'johndoe@example.com',
   website: 'https://example.com',
   office: 'Room 301',

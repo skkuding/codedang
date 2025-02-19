@@ -35,7 +35,19 @@ export class GroupService {
             id: true,
             groupName: true,
             groupType: true,
-            courseInfo: true
+            courseInfo: {
+              select: {
+                courseNum: true,
+                classNum: true,
+                professor: true,
+                semester: true,
+                week: true,
+                email: true,
+                phoneNum: true,
+                office: true,
+                website: true
+              }
+            }
           }
         },
         isGroupLeader: true

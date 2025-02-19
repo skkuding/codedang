@@ -95,9 +95,19 @@ describe('GroupService', () => {
 
       expect(res).to.deep.equal({
         id: 2,
-        groupName: 'Example Private Group',
+        groupName: '정보보호개론',
         groupType: 'Course',
-        courseInfo: null,
+        courseInfo: {
+          courseNum: 'SWE3033',
+          classNum: 42,
+          professor: '형식킴',
+          semester: '2025 Spring',
+          week: 16,
+          email: 'example01@skku.edu',
+          website: 'https://seclab.com',
+          office: null,
+          phoneNum: null
+        },
         isGroupLeader: true,
         isJoined: true
       })
@@ -126,9 +136,19 @@ describe('GroupService', () => {
 
       expect(res).to.deep.equal({
         id: 2,
-        groupName: 'Example Private Group',
+        groupName: '정보보호개론',
         groupType: 'Course',
-        courseInfo: null,
+        courseInfo: {
+          courseNum: 'SWE3033',
+          classNum: 42,
+          professor: '형식킴',
+          semester: '2025 Spring',
+          week: 16,
+          email: 'example01@skku.edu',
+          website: 'https://seclab.com',
+          office: null,
+          phoneNum: null
+        },
         isGroupLeader: true,
         isJoined: true
       })
@@ -153,6 +173,12 @@ describe('GroupService', () => {
       expect(res).to.deep.equal({
         data: [
           {
+            id: 2,
+            groupName: '정보보호개론',
+            description: null,
+            memberNum: 11
+          },
+          {
             id: 3,
             groupName: 'Example Private Group 2',
             description: 'This is an example private group just for testing.',
@@ -165,7 +191,7 @@ describe('GroupService', () => {
             memberNum: 2
           }
         ],
-        total: 2
+        total: 3
       })
     })
   })
@@ -178,7 +204,19 @@ describe('GroupService', () => {
       expect(res).to.deep.equal([
         {
           id: 2,
-          groupName: 'Example Private Group',
+          groupName: '정보보호개론',
+          courseInfo: {
+            groupId: 2,
+            courseNum: 'SWE3033',
+            classNum: 42,
+            professor: '형식킴',
+            semester: '2025 Spring',
+            week: 16,
+            email: 'example01@skku.edu',
+            website: 'https://seclab.com',
+            office: null,
+            phoneNum: null
+          },
           memberNum: 11,
           isGroupLeader: true
         }
