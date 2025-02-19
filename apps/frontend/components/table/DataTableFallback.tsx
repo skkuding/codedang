@@ -16,7 +16,7 @@ import {
   useReactTable,
   type ColumnDef
 } from '@tanstack/react-table'
-import { DEFAULT_COLUMN_VISIBILITY } from './constants'
+import { DEFAULT_COLUMN_VISIBILITY } from '../../app/admin/_components/table/constants'
 
 interface DataTableFallbackProps<TData> {
   withSearchBar?: boolean

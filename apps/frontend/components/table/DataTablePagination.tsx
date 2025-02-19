@@ -9,7 +9,7 @@ import {
 } from '@/components/shadcn/select'
 import { cn, getPageArray } from '@/libs/utils'
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
-import { useDataTable } from './context'
+import { useDataTable } from '../../app/admin/_components/table/context'
 
 interface DataTablePaginationProps {
   showSelection?: boolean
