@@ -7,7 +7,7 @@ import { Sidebar } from './_components/Sidebar'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-dvh w-full flex-col">
+    <div className="flex w-full flex-col">
       <Header />
       <Separator />
       <div className="flex flex-row">
