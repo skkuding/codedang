@@ -19,7 +19,7 @@ interface Params<T extends Item> {
 
 const DEFAULT_PAGES_PER_SLOT = 5
 /**
- * Custom Hook for cursor-based pagination without 'take' query.
+ * Custom Hook for cursor-based pagination with or without 'take' query.
  * Use this hook after fetching data.
  *
  * @param data the list of (filtered or not) items
@@ -35,7 +35,7 @@ export const usePagination = <T extends Item>({
   pagesPerSlot = DEFAULT_PAGES_PER_SLOT,
   updateQueryParams
 }: Params<T>) => {
-  const [page, setPage] = useState(1)
+  const [page, setPage] = useState(1) // TODO: 새로고침 후에 현재 페이지로 돌아갈 수 있도록 수정
   const [slot, setSlot] = useState(0)
 
   const firstPage = slot * pagesPerSlot + 1
