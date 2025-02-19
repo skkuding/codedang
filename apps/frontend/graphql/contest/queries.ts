@@ -16,8 +16,8 @@ const GET_CONTEST = gql(`
 `)
 
 const GET_CONTESTS = gql(`
-  query GetContests($groupId: Int!, $cursor: Int, $take: Int!) {
-    getContests(groupId: $groupId, cursor: $cursor, take: $take) {
+  query GetContests($cursor: Int, $take: Int!) {
+    getContests(cursor: $cursor, take: $take) {
       id
       title
       startTime

@@ -1,7 +1,6 @@
-import { ParseBoolPipe } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { Assignment, AssignmentProblem } from '@generated'
-import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
+import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   CursorValidationPipe,
@@ -17,8 +16,6 @@ import { UpdateAssignmentInput } from './model/assignment.input'
 import { AssignmentsGroupedByStatus } from './model/assignments-grouped-by-status.output'
 import { DuplicatedAssignmentResponse } from './model/duplicated-assignment-response.output'
 import { AssignmentProblemScoreInput } from './model/problem-score.input'
-import { AssignmentPublicizingRequest } from './model/publicizing-request.model'
-import { AssignmentPublicizingResponse } from './model/publicizing-response.output'
 import { UserAssignmentScoreSummaryWithUserInfo } from './model/score-summary'
 
 @Resolver(() => Assignment)
@@ -33,12 +30,7 @@ export class AssignmentResolver {
       new RequiredIntPipe('take')
     )
     take: number,
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
-    groupId: number,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null
   ) {
@@ -52,9 +44,11 @@ export class AssignmentResolver {
       { type: () => Int },
       new RequiredIntPipe('assignmentId')
     )
-    assignmentId: number
+    assignmentId: number,
+
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
   ) {
-    return await this.assignmentService.getAssignment(assignmentId)
+    return await this.assignmentService.getAssignment(assignmentId, groupId)
   }
 
   @Mutation(() => Assignment)
@@ -89,51 +83,6 @@ export class AssignmentResolver {
     @Args('assignmentId', { type: () => Int }) assignmentId: number
   ) {
     return await this.assignmentService.deleteAssignment(groupId, assignmentId)
-  }
-
-  /**
-   * Assignment의 소속 Group을 Open Space(groupId === 1)로 이동시키기 위한 요청(Publicizing Requests)들을 불러옵니다.
-   * @returns Publicizing Request 배열
-   */
-  @Query(() => [AssignmentPublicizingRequest])
-  @UseRolesGuard()
-  async getAssignmentPublicizingRequests() {
-    return await this.assignmentService.getPublicizingRequests()
-  }
-
-  /**
-   * Assignment 소속 Group을 Open Space(groupId === 1)로 이동시키기 위한 요청(Publicizing Request)를 생성합니다.
-   * @param groupId Assignment가 속한 Group의 ID. 이미 Open Space(groupId === 1)이 아니어야 합니다.
-   * @param assignemtnId Assignment ID
-   * @returns 생성된 Publicizing Request
-   */
-  @Mutation(() => AssignmentPublicizingRequest)
-  async createAssignmentPublicizingRequest(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('assignmentId', { type: () => Int }) assignmentId: number
-  ) {
-    return await this.assignmentService.createPublicizingRequest(
-      groupId,
-      assignmentId
-    )
-  }
-
-  /**
-   * Assignment 소속 Group을 Open Space(groupId === 1)로 이동시키기 위한 요청(Publicizing Request)을 처리합니다.
-   * @param assignmentId Publicizing Request를 생성한 assignment의 Id
-   * @param isAccepted 요청 수락 여부
-   * @returns
-   */
-  @Mutation(() => AssignmentPublicizingResponse)
-  @UseRolesGuard()
-  async handleAssignmentPublicizingRequest(
-    @Args('assignmentId', { type: () => Int }) assignmentId: number,
-    @Args('isAccepted', ParseBoolPipe) isAccepted: boolean
-  ) {
-    return await this.assignmentService.handlePublicizingRequest(
-      assignmentId,
-      isAccepted
-    )
   }
 
   @Mutation(() => [AssignmentProblem])
@@ -175,6 +124,7 @@ export class AssignmentResolver {
     @Args('assignmentId', { type: () => Int }, IDValidationPipe)
     assignmentId: number,
     @Args('userId', { type: () => Int }, IDValidationPipe) userId: number,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('problemId', { nullable: true, type: () => Int }, IDValidationPipe)
     problemId: number,
     @Args(
@@ -190,6 +140,7 @@ export class AssignmentResolver {
       take,
       assignmentId,
       userId,
+      groupId,
       problemId,
       cursor
     )
@@ -223,6 +174,7 @@ export class AssignmentResolver {
       IDValidationPipe
     )
     assignmentId: number,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('take', { type: () => Int, defaultValue: 10 })
     take: number,
     @Args('cursor', { type: () => Int, nullable: true }, CursorValidationPipe)
@@ -232,6 +184,7 @@ export class AssignmentResolver {
   ) {
     return await this.assignmentService.getAssignmentScoreSummaries(
       assignmentId,
+      groupId,
       take,
       cursor,
       searchingName
