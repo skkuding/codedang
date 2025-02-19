@@ -9,7 +9,7 @@ import { AssignmentIcon, ExamIcon, GradeIcon, QnaIcon } from './UpdateIcon'
 
 export function RecentUpdate() {
   const searchParams = useSearchParams()
-  const courseId = searchParams.get('courseId')
+  // const courseId = searchParams.get('courseId')
   const [updates, setUpdates] = useState<CourseRecentUpdate[]>([])
 
   useEffect(() => {

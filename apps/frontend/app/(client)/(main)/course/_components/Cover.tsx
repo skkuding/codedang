@@ -30,10 +30,7 @@ const gradientTextColors: { [key: string]: string } = {
 }
 
 const icons: { [key: string]: string } = {
-  problem: '/banners/codedang.png',
-  notice: '/banners/notice.png',
-  contest: '/banners/contest.png',
-  course: '/banners/course.png'
+  course: '/banners/book.png'
 }
 
 export function Cover({
@@ -80,7 +77,7 @@ export function Cover({
           </Button>
         </div>
         <Image
-          src="/banners/book.png"
+          src={icons[title.toLowerCase()]}
           className="relative left-[10%] top-[5%] z-10"
           alt="banner"
           width={450}

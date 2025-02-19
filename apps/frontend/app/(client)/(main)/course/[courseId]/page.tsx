@@ -17,7 +17,6 @@ export default function Dashboard() {
         </div>
       </div>
       <Separator />
-      <AssignmentReminderBox />
       <OngoingAssignments />
     </div>
   )
