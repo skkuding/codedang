@@ -4,7 +4,7 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
   return (
     <div className="mt-28 flex flex-col">
       <nav>
-        <GradeTab courseId={'4'} />
+        <GradeTab courseId={'2'} />
       </nav>
       <article>
         <div>{tabs}</div>
