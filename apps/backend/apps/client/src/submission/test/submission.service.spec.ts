@@ -84,7 +84,6 @@ const WORKBOOK_ID = 1
 const mockContest: Contest = {
   id: CONTEST_ID,
   createdById: 1,
-  groupId: 1,
   title: 'SKKU Coding Platform 모의대회',
   description: 'test',
   penalty: 20,
@@ -120,7 +119,8 @@ const mockAssignment: Assignment = {
   isJudgeResultVisible: true,
   enableCopyPaste: true,
   createTime: new Date(),
-  updateTime: new Date()
+  updateTime: new Date(),
+  week: 1
 }
 const USERIP = '127.0.0.1'
 
@@ -246,8 +246,7 @@ describe('SubmissionService', () => {
         userIp: USERIP,
         userId: submissions[0].userId,
         problemId: problems[0].id,
-        contestId: CONTEST_ID,
-        groupId: problems[0].groupId
+        contestId: CONTEST_ID
       })
       expect(createSpy.calledOnce).to.be.true
     })
@@ -262,8 +261,7 @@ describe('SubmissionService', () => {
           userIp: USERIP,
           userId: submissions[0].userId,
           problemId: problems[0].id,
-          contestId: CONTEST_ID,
-          groupId: problems[0].groupId
+          contestId: CONTEST_ID
         })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
@@ -588,8 +586,10 @@ describe('SubmissionService', () => {
         lastLogin: new Date(),
         createTime: new Date(),
         updateTime: new Date(),
-        studentId: null,
-        major: null
+        studentId: '2020000000',
+        major: null,
+        canCreateCourse: false,
+        canCreateContest: false
       }
       db.user.findFirst.resolves(adminUser)
       db.contestRecord.findUnique.resolves({})
@@ -646,8 +646,10 @@ describe('SubmissionService', () => {
         lastLogin: new Date(),
         createTime: new Date(),
         updateTime: new Date(),
-        studentId: null,
-        major: null
+        studentId: '2020000000',
+        major: null,
+        canCreateCourse: false,
+        canCreateContest: false
       }
       db.user.findFirst.resolves(adminUser)
       db.assignmentRecord.findUnique.resolves({})

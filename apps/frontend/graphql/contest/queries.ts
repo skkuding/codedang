@@ -16,7 +16,7 @@ const GET_CONTEST = gql(`
 `)
 
 const GET_CONTESTS = gql(`
-  query GetContests( $cursor: Int, $take: Int!) {
+  query GetContests($cursor: Int, $take: Int!) {
     getContests(cursor: $cursor, take: $take) {
       id
       title

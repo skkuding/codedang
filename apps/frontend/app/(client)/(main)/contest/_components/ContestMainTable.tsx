@@ -46,13 +46,16 @@ const getOngoingUpcomingContests = async (
     })
     .json()
 
+  // NOTE: contest list 에서 'registered~' status 사용x -> 우선 status만 사용
   data.ongoing = data.ongoing.map((contest) => ({
     ...contest,
-    status: contest.isRegistered ? 'registeredOngoing' : 'ongoing'
+    // status: contest.isRegistered ? 'registeredOngoing' : 'ongoing'
+    status: 'ongoing'
   }))
   data.upcoming = data.upcoming.map((contest) => ({
     ...contest,
-    status: contest.isRegistered ? 'registeredUpcoming' : 'upcoming'
+    // status: contest.isRegistered ? 'registeredUpcoming' : 'upcoming'
+    status: 'upcoming'
   }))
   data.finished = data.finished.map((contest) => ({
     ...contest,

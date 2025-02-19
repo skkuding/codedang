@@ -18,8 +18,8 @@ const CREATE_CONTEST = gql(`
 `)
 
 const UPDATE_CONTEST = gql(`
-  mutation UpdateContest( $input: UpdateContestInput!) {
-    updateContest( input: $input) {
+  mutation UpdateContest($input: UpdateContestInput!) {
+    updateContest(input: $input) {
       id
       invitationCode
       isRankVisible
@@ -45,8 +45,8 @@ const UPDATE_CONTEST_VISIBLE = gql(`
 `)
 
 const DELETE_CONTEST = gql(`
-  mutation DeleteContest( $contestId: Int!) {
-    deleteContest( contestId: $contestId) {
+  mutation DeleteContest($contestId: Int!) {
+    deleteContest(contestId: $contestId) {
       id
     }
   }
@@ -54,12 +54,10 @@ const DELETE_CONTEST = gql(`
 
 const IMPORT_PROBLEMS_TO_CONTEST = gql(`
   mutation ImportProblemsToContest(
-
     $contestId: Int!,
     $problemIdsWithScore: [ProblemScoreInput!]!
   ) {
     importProblemsToContest(
-
       contestId: $contestId,
       problemIdsWithScore: $problemIdsWithScore
     ) {
@@ -72,12 +70,10 @@ const IMPORT_PROBLEMS_TO_CONTEST = gql(`
 
 const REMOVE_PROBLEMS_FROM_CONTEST = gql(`
   mutation RemoveProblemsFromContest(
-
     $contestId: Int!,
     $problemIds: [Int!]!
   ) {
     removeProblemsFromContest(
-
       contestId: $contestId,
       problemIds: $problemIds
     ) {
@@ -89,7 +85,7 @@ const REMOVE_PROBLEMS_FROM_CONTEST = gql(`
 
 const DUPLICATE_CONTEST = gql(`
   mutation DuplicateContest($contestId: Int!) {
-    duplicateContest( contestId: $contestId) {
+    duplicateContest(contestId: $contestId) {
       contest {
         id
         invitationCode
@@ -104,7 +100,6 @@ const DUPLICATE_CONTEST = gql(`
         problemId
         contestId
         order
-
       }
       records {
         id
