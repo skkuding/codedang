@@ -12,6 +12,7 @@ import type {
   CodeDraftCreateInput,
   CodeDraftUpdateInput
 } from '@admin/@generated'
+import { AssignmentService } from '@client/assignment/assignment.service'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
 import { CodeDraftResponseDto } from './dto/code-draft.response.dto'
@@ -19,7 +20,6 @@ import { CreateTemplateDto } from './dto/create-code-draft.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
-import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { ProblemOrder } from './enum/problem-order.enum'
 
 const problemsSelectOption: Prisma.ProblemSelect = {
@@ -284,11 +284,7 @@ export class ContestProblemService {
     take: number
     groupId: number
   }) {
-    const contest = await this.contestService.getContest(
-      contestId,
-      groupId,
-      userId
-    )
+    const contest = await this.contestService.getContest(contestId, userId)
     const now = new Date()
     if (contest.isRegistered && contest.startTime! > now) {
       throw new ForbiddenAccessException(
@@ -414,11 +410,7 @@ export class ContestProblemService {
     userId: number
     groupId: number
   }) {
-    const contest = await this.contestService.getContest(
-      contestId,
-      groupId,
-      userId
-    )
+    const contest = await this.contestService.getContest(contestId, userId)
     const now = new Date()
     if (contest.isRegistered) {
       if (now < contest.startTime!) {
@@ -439,6 +431,251 @@ export class ContestProblemService {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_problemId: {
           contestId,
+          problemId
+        }
+      },
+      select: {
+        order: true,
+        problem: {
+          select: problemSelectOption
+        }
+      }
+    })
+
+    const tags = (
+      await this.prisma.problemTag.findMany({
+        where: {
+          problemId
+        },
+        select: {
+          tag: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      })
+    ).map((tag) => tag.tag)
+
+    const excludedFields = [
+      'createTime',
+      'createdById',
+      'groupId',
+      'problemTag',
+      'submission',
+      'updateTime',
+      'visibleLockTime'
+    ]
+
+    const problem = { ...data.problem } // 원본 객체를 복사해서 안전하게 작업
+    excludedFields.forEach((key) => {
+      delete problem[key]
+    })
+
+    return {
+      order: data.order,
+      problem: {
+        ...problem,
+        tags
+      }
+    }
+  }
+}
+
+@Injectable()
+export class AssignmentProblemService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly assignmentService: AssignmentService
+  ) {}
+
+  /**
+   * 주어진 옵션에 따라 대회 문제를 여러개 가져옵니다.
+   * 이때, 사용자의 제출기록을 확인하여 각 문제의 점수를 계산합니다.
+   *
+   * 액세스 정책
+   *
+   * 대회 시작 전: 문제 액세스 불가 (Register 안하면 에러 메시지가 다름) //
+   * 대회 진행 중: Register한 경우 문제 액세스 가능 //
+   * 대회 종료 후: 누구나 문제 액세스 가능
+   * @see [Assignment Problem 정책](https://www.notion.so/skkuding/Assignment-Problem-list-ad4f2718af1748bdaff607abb958ba0b?pvs=4)
+   * @returns {RelatedProblemsResponseDto} data: 대회 문제 목록, total: 대회 문제 총 개수
+   */
+  async getAssignmentProblems({
+    assignmentId,
+    userId,
+    cursor,
+    take,
+    groupId = OPEN_SPACE_ID
+  }: {
+    assignmentId: number
+    userId: number
+    cursor: number | null
+    take: number
+    groupId: number
+  }) {
+    const assignment = await this.assignmentService.getAssignment(
+      assignmentId,
+      groupId,
+      userId
+    )
+    const now = new Date()
+    if (assignment.isRegistered && assignment.startTime! > now) {
+      throw new ForbiddenAccessException(
+        'Cannot access problems before the assignment starts.'
+      )
+    } else if (!assignment.isRegistered && assignment.endTime! > now) {
+      throw new ForbiddenAccessException(
+        'Register to access the problems of this assignment.'
+      )
+    }
+
+    const paginator = this.prisma.getPaginator(cursor, (value) => ({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      assignmentId_problemId: {
+        assignmentId,
+        problemId: value
+      }
+    }))
+
+    const [assignmentProblems, submissions] = await Promise.all([
+      this.prisma.assignmentProblem.findMany({
+        ...paginator,
+        take,
+        orderBy: { order: 'asc' },
+        where: {
+          assignmentId
+        },
+        select: {
+          order: true,
+          problem: {
+            select: problemsSelectOption
+          },
+          problemId: true,
+          score: true
+        }
+      }),
+      this.prisma.submission.findMany({
+        where: {
+          userId,
+          assignmentId
+        },
+        select: {
+          problemId: true,
+          score: true,
+          createTime: true
+        },
+        orderBy: {
+          createTime: 'desc'
+        }
+      })
+    ])
+
+    const submissionMap = new Map<number, { score: number; createTime: Date }>()
+    for (const submission of submissions) {
+      if (!submissionMap.has(submission.problemId)) {
+        submissionMap.set(submission.problemId, submission)
+      }
+    }
+
+    const assignmentProblemsWithScore = assignmentProblems.map(
+      (assignmentProblem) => {
+        const { problemId, problem, order } = assignmentProblem
+        const submission = submissionMap.get(problemId)
+        if (!submission) {
+          return {
+            order,
+            id: problem.id,
+            title: problem.title,
+            difficulty: problem.difficulty,
+            submissionCount: problem.submissionCount,
+            acceptedRate: problem.acceptedRate,
+            maxScore: assignment.isJudgeResultVisible
+              ? assignmentProblem.score
+              : null,
+            score: null,
+            submissionTime: null
+          }
+        }
+        return {
+          // ...assignmentProblem,
+          order,
+          id: assignmentProblem.problem.id,
+          title: assignmentProblem.problem.title,
+          difficulty: assignmentProblem.problem.difficulty,
+          submissionCount: assignmentProblem.problem.submissionCount,
+          acceptedRate: assignmentProblem.problem.acceptedRate,
+          maxScore: assignment.isJudgeResultVisible
+            ? assignmentProblem.score
+            : null,
+          score: assignment.isJudgeResultVisible
+            ? ((submission.score * assignmentProblem.score) / 100).toFixed(0)
+            : null,
+          submissionTime: submission.createTime ?? null
+        }
+      }
+    )
+
+    const total = await this.prisma.assignmentProblem.count({
+      where: {
+        assignmentId
+      }
+    })
+
+    return {
+      data: assignmentProblemsWithScore,
+      total
+    }
+  }
+
+  /**
+   * 특정 대회 문제를 가져옵니다.
+   *
+   * 액세스 정책
+   *
+   * 대회 시작 전: 문제 액세스 불가 (Register 안하면 에러 메시지가 다름) //
+   * 대회 진행 중: Register한 경우 문제 액세스 가능 //
+   * 대회 종료 후: 누구나 문제 액세스 가능
+   * @see [Assignment Problem 정책](https://www.notion.so/skkuding/Assignment-Problem-list-ad4f2718af1748bdaff607abb958ba0b?pvs=4)
+   * @returns {RelatedProblemResponseDto} problem: 대회 문제 정보, order: 대회 문제 순서
+   */
+  async getAssignmentProblem({
+    assignmentId,
+    problemId,
+    userId,
+    groupId = OPEN_SPACE_ID
+  }: {
+    assignmentId: number
+    problemId: number
+    userId: number
+    groupId: number
+  }) {
+    const assignment = await this.assignmentService.getAssignment(
+      assignmentId,
+      groupId,
+      userId
+    )
+    const now = new Date()
+    if (assignment.isRegistered) {
+      if (now < assignment.startTime!) {
+        throw new ForbiddenAccessException(
+          'Cannot access to Assignment problem before the assignment starts.'
+        )
+      } else if (now > assignment.endTime!) {
+        throw new ForbiddenAccessException(
+          'Cannot access to Assignment problem after the assignment ends.'
+        )
+      }
+    } else {
+      throw new ForbiddenAccessException('Register to access this problem.')
+    }
+
+    const data = await this.prisma.assignmentProblem.findUniqueOrThrow({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        assignmentId_problemId: {
+          assignmentId,
           problemId
         }
       },
