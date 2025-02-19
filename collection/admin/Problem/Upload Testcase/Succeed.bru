@@ -1,0 +1,26 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  Apollo-Require-Preflight: true
+}
+
+body:multipart-form {
+  operations: { "query": "mutation($problemId: Int!, $input: UploadFileInput!) { uploadTestcase(problemId: $problemId, input: $input){id}}", "variables" : {"problemId": 2,"input": {"file": null}}}
+  map: { "nfile" : ["variables.input.file"]}
+  nfile: @file()
+}
+
+docs {
+  ## Upload Testcase
+  Testcase를 업로드합니다.
+}
