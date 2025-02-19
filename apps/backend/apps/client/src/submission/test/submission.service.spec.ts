@@ -119,7 +119,8 @@ const mockAssignment: Assignment = {
   isJudgeResultVisible: true,
   enableCopyPaste: true,
   createTime: new Date(),
-  updateTime: new Date()
+  updateTime: new Date(),
+  week: 1
 }
 const USERIP = '127.0.0.1'
 
@@ -585,8 +586,10 @@ describe('SubmissionService', () => {
         lastLogin: new Date(),
         createTime: new Date(),
         updateTime: new Date(),
-        studentId: null,
-        major: null
+        studentId: '2020000000',
+        major: null,
+        canCreateCourse: false,
+        canCreateContest: false
       }
       db.user.findFirst.resolves(adminUser)
       db.contestRecord.findUnique.resolves({})
@@ -643,8 +646,10 @@ describe('SubmissionService', () => {
         lastLogin: new Date(),
         createTime: new Date(),
         updateTime: new Date(),
-        studentId: null,
-        major: null
+        studentId: '2020000000',
+        major: null,
+        canCreateCourse: false,
+        canCreateContest: false
       }
       db.user.findFirst.resolves(adminUser)
       db.assignmentRecord.findUnique.resolves({})
