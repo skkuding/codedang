@@ -1,7 +1,5 @@
 'use client'
 
-import calendarIcon from '@/public/icons/calendar-default.svg'
-import Person from '@/public/icons/person.svg'
 import QuarterEllipse from '@/public/icons/quarter-ellipse.svg'
 import Image from 'next/image'
 // TODO: 백엔드 API 사용할 떄 필요할 것 같습니다(민규)
@@ -9,7 +7,6 @@ import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { BsPersonFill } from 'react-icons/bs'
 import { FaCalendar } from 'react-icons/fa'
-import { MdPerson } from 'react-icons/md'
 
 export function CourseInfoBox() {
   // TODO: 백엔드 API 사용할 떄 필요할 것 같습니다(민규)

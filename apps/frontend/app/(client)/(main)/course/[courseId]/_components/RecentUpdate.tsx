@@ -2,13 +2,13 @@
 
 import { cn } from '@/libs/utils'
 import type { CourseRecentUpdate, RecentUpdateType } from '@/types/type'
-import { useSearchParams } from 'next/navigation'
+// import { useSearchParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { AssignmentIcon, ExamIcon, GradeIcon, QnaIcon } from './UpdateIcon'
 
 export function RecentUpdate() {
-  const searchParams = useSearchParams()
+  // const searchParams = useSearchParams()
   // const courseId = searchParams.get('courseId')
   const [updates, setUpdates] = useState<CourseRecentUpdate[]>([])
 
