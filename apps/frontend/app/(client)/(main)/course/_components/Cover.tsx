@@ -52,7 +52,7 @@ export function Cover({ title, description }: CoverProps) {
             className="flex-shrink-0 max-md:hidden"
           />
           <div className="flex-col text-center">
-            <h2 className="flex-shrink-0 py-5 font-mono text-4xl font-bold text-white md:text-[56px]">
+            <h2 className="flex-shrink-0 py-5 text-4xl font-bold text-white md:text-[56px]">
               {title}
             </h2>
             <div className="flex-shrink-0 rounded-full bg-white px-16 py-1">
