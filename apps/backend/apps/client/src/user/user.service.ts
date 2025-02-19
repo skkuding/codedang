@@ -485,7 +485,9 @@ export class UserService {
           select: {
             realName: true
           }
-        }
+        },
+        canCreateContest: true,
+        canCreateCourse: true
       }
     })
     if (!userWithProfile) {

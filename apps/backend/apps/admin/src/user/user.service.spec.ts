@@ -10,7 +10,7 @@ import { stub } from 'sinon'
 import { joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
-import { UserService } from './user.service'
+import { GroupMemberService } from './user.service'
 
 const groupId = 2
 
@@ -23,8 +23,10 @@ const user1: User = {
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  studentId: null,
-  major: null
+  studentId: '2020000000',
+  major: null,
+  canCreateCourse: false,
+  canCreateContest: false
 }
 
 const user2: User = {
@@ -36,8 +38,10 @@ const user2: User = {
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  studentId: null,
-  major: null
+  studentId: '2020000000',
+  major: null,
+  canCreateCourse: false,
+  canCreateContest: false
 }
 
 const user3: User = {
@@ -49,8 +53,10 @@ const user3: User = {
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  studentId: null,
-  major: null
+  studentId: '2020000000',
+  major: null,
+  canCreateCourse: false,
+  canCreateContest: false
 }
 
 const userGroup1: UserGroup = {
@@ -101,23 +107,6 @@ const updateFindResult = [
   }
 ]
 
-const deleteFindResult = [
-  {
-    userId: user1.id,
-    user: {
-      role: user1.role
-    },
-    isGroupLeader: userGroup1.isGroupLeader
-  },
-  {
-    userId: user3.id,
-    user: {
-      role: user3.role
-    },
-    isGroupLeader: userGroup3.isGroupLeader
-  }
-]
-
 const db = {
   userGroup: {
     findMany: stub(),
@@ -125,7 +114,8 @@ const db = {
     count: stub(),
     update: stub(),
     delete: stub(),
-    create: stub()
+    create: stub(),
+    findUniqueOrThrow: stub()
   },
   user: {
     findUnique: stub(),
@@ -134,13 +124,13 @@ const db = {
   getPaginator: PrismaService.prototype.getPaginator
 }
 
-describe('UserService', () => {
-  let service: UserService
+describe('GroupMemberService', () => {
+  let service: GroupMemberService
   let cache: Cache
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        UserService,
+        GroupMemberService,
         { provide: PrismaService, useValue: db },
         {
           provide: CACHE_MANAGER,
@@ -152,7 +142,7 @@ describe('UserService', () => {
       ]
     }).compile()
 
-    service = module.get<UserService>(UserService)
+    service = module.get<GroupMemberService>(GroupMemberService)
     cache = module.get<Cache>(CACHE_MANAGER)
   })
 
@@ -318,29 +308,35 @@ describe('UserService', () => {
 
   describe('deleteGroupMember', () => {
     it('should return userGroup', async () => {
-      db.userGroup.findMany.resolves(deleteFindResult)
+      db.userGroup.findUniqueOrThrow.resolves({
+        isGroupLeader: false
+      })
       db.userGroup.delete.resolves(userGroup3)
 
       const res = await service.deleteGroupMember(
-        userGroup3.userId,
-        userGroup3.groupId
+        userGroup3.groupId,
+        userGroup3.userId
       )
       expect(res).to.deep.equal(userGroup3)
     })
 
     it('should throw BadRequestException when the userId is not member', async () => {
-      db.userGroup.findMany.resolves(deleteFindResult)
-
+      db.userGroup.findUniqueOrThrow.resolves({
+        isGroupLeader: false
+      })
       const res = async () =>
-        await service.deleteGroupMember(userGroup2.userId, userGroup2.groupId)
+        await service.deleteGroupMember(userGroup2.groupId, userGroup2.userId)
       expect(res()).to.be.rejectedWith(BadRequestException)
     })
 
     it('should throw BadRequestException when you try to delete manager but there is only one manager', async () => {
-      db.userGroup.findMany.resolves(deleteFindResult)
+      db.userGroup.findUniqueOrThrow.resolves({
+        isGroupLeader: true
+      })
+      db.userGroup.count.resolves(1)
 
       const res = async () =>
-        await service.deleteGroupMember(userGroup1.userId, userGroup1.groupId)
+        await service.deleteGroupMember(userGroup1.groupId, userGroup1.userId)
       expect(res()).to.be.rejectedWith(BadRequestException)
     })
   })
