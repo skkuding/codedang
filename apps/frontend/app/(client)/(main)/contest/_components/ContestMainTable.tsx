@@ -5,15 +5,16 @@ import {
   Paginator,
   SlotNavigation
 } from '@/components/PaginatorV2'
-import { usePagination } from '@/libs/hooks/usePaginationV3'
+import { usePagination } from '@/libs/hooks/usePaginationV2'
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
 import type { Contest } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import type { Session } from 'next-auth'
+import { useState, useEffect } from 'react'
 import { ContestDataTable } from './ContestDataTable'
 import { columns } from './ContestMainColumns'
 
-const itemsPerPage = 10
+const ITEMS_PER_PAGE = 10
 
 interface ContestMainTableProps {
   search: string
@@ -26,8 +27,13 @@ export function ContestMainTable({ search, session }: ContestMainTableProps) {
     queryFn: () => getOngoingUpcomingContests(search, session)
   })
 
+  const [filteredData, setFilteredData] = useState(contestData)
+
+  useEffect(() => {
+    setFilteredData(contestData)
+  }, [contestData])
+
   const {
-    paginatedItems,
     currentPage,
     firstPage,
     lastPage,
@@ -36,15 +42,16 @@ export function ContestMainTable({ search, session }: ContestMainTableProps) {
     prevDisabled,
     nextDisabled
   } = usePagination({
-    data: contestData,
-    totalCount: contestData?.length ?? 0,
-    itemsPerPage
+    data: filteredData,
+    totalCount: filteredData.length,
+    pagesPerSlot: 10,
+    itemsPerPage: ITEMS_PER_PAGE
   })
 
   return (
     <>
       <ContestDataTable
-        data={paginatedItems}
+        data={contestData}
         columns={columns}
         headerStyle={{
           title: 'text-[#8A8A8A] font-normal text-left w-2/5 md:w-1/2',
@@ -53,6 +60,9 @@ export function ContestMainTable({ search, session }: ContestMainTableProps) {
           period: 'text-[#8A8A8A] font-normal w-1/5 md:w-1/3'
         }}
         linked
+        itemsPerPage={ITEMS_PER_PAGE}
+        currentPage={currentPage}
+        setFilteredData={setFilteredData}
       />
       <Paginator>
         <SlotNavigation

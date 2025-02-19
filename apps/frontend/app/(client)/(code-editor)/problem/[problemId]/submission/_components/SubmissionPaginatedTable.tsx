@@ -28,7 +28,6 @@ export function SubmissionPaginatedTable({ problemId }: { problemId: number }) {
       problemId
     })
   )
-  console.log(data)
 
   const {
     paginatedItems,

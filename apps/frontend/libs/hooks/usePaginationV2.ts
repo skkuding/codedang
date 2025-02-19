@@ -14,34 +14,33 @@ interface Params<T extends Item> {
   totalCount: number
   itemsPerPage: number
   pagesPerSlot?: number
-  updateQueryParams: Dispatch<SetStateAction<PaginationQueryParams>>
+  updateQueryParams?: Dispatch<SetStateAction<PaginationQueryParams>>
 }
 
 const DEFAULT_PAGES_PER_SLOT = 5
-
 /**
- * Custom Hook for cursor-based pagination.
+ * Custom Hook for cursor-based pagination without 'take' query.
  * Use this hook after fetching data.
  *
- * @param data the list of items
+ * @param data the list of (filtered or not) items
  * @param totalCount the total count of data
  * @param itemsPerPage number of items in a page
- * @param pagesPerSlot number of pages in a slot (default: 5)
+ * @param pagesPerSlot number of pages in a slot (default: 10)
  * @param updateQueryParams the function of updating pagination query params
  */
 export const usePagination = <T extends Item>({
   data,
-  totalCount,
   itemsPerPage,
+  totalCount,
   pagesPerSlot = DEFAULT_PAGES_PER_SLOT,
   updateQueryParams
 }: Params<T>) => {
-  const [page, setPage] = useState(1) // TODO: 새로고침 후에 현재 페이지로 돌아갈 수 있도록 수정
+  const [page, setPage] = useState(1)
   const [slot, setSlot] = useState(0)
 
   const firstPage = slot * pagesPerSlot + 1
   const pageCount = Math.min(
-    Math.ceil(data.length / itemsPerPage),
+    Math.ceil(totalCount / itemsPerPage) - slot * pagesPerSlot,
     pagesPerSlot
   )
   const lastPage = firstPage + pageCount - 1
@@ -56,22 +55,23 @@ export const usePagination = <T extends Item>({
 
   // handle across-slot navigation
   const gotoSlot = (direction: 'prev' | 'next') => {
-    const newPage = direction === 'prev' ? firstPage - 1 : lastPage + 1
+    const newPage = direction === 'prev' ? page - 1 : page + 1
     setPage(newPage)
     setSlot(Math.floor((newPage - 1) / pagesPerSlot))
 
-    if (direction === 'prev') {
-      updateQueryParams(({ take }) => ({
-        cursor: data.at(0)?.id,
-        take: -Math.abs(take)
-      }))
-    }
-
-    if (direction === 'next') {
-      updateQueryParams(({ take }) => ({
-        cursor: data.at(-1)?.id,
-        take: Math.abs(take)
-      }))
+    if (updateQueryParams) {
+      if (direction === 'prev') {
+        updateQueryParams(({ take }) => ({
+          cursor: data.at(0)?.id,
+          take: -Math.abs(take ?? 0)
+        }))
+      }
+      if (direction === 'next') {
+        updateQueryParams(({ take }) => ({
+          cursor: data.at(-1)?.id,
+          take: Math.abs(take ?? 0)
+        }))
+      }
     }
   }
 
@@ -80,8 +80,8 @@ export const usePagination = <T extends Item>({
     firstPage,
     lastPage,
     currentPage: page,
-    prevDisabled: firstPage <= 1,
-    nextDisabled: lastPage * itemsPerPage >= totalCount,
+    prevDisabled: page <= 1,
+    nextDisabled: page * itemsPerPage >= totalCount,
     gotoPage,
     gotoSlot
   }

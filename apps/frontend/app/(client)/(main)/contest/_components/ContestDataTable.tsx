@@ -21,6 +21,7 @@ import {
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import { SearchBar } from '../../_components/SearchBar'
 import { ContestTitleFilter } from './ContestTitleFilter'
 
@@ -37,6 +38,9 @@ interface ContestDataTableProps<TData, TValue> {
   }
   linked?: boolean
   emptyMessage?: string
+  itemsPerPage: number
+  currentPage: number
+  setFilteredData: (data: TData[]) => void
 }
 
 /**
@@ -50,6 +54,12 @@ interface ContestDataTableProps<TData, TValue> {
  * name of the table, used for routing
  * @param linked
  * if true, each row is linked to the detail page
+ * @param itemsPerPage
+ * itemsPerPage to handle pagination within the table
+ * @param currentPage
+ * currentPage to handle pagination within the table
+ * @param setFilteredData
+ * setFilteredData to update filtered data
  */
 
 export function ContestDataTable<TData extends Item, TValue>({
@@ -57,7 +67,10 @@ export function ContestDataTable<TData extends Item, TValue>({
   data,
   headerStyle,
   linked = false,
-  emptyMessage = 'No results.'
+  emptyMessage = 'No results.',
+  itemsPerPage,
+  currentPage,
+  setFilteredData
 }: ContestDataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -69,6 +82,17 @@ export function ContestDataTable<TData extends Item, TValue>({
   })
   const router = useRouter()
   const currentPath = usePathname()
+
+  // Update filtered data whenever the filter changes
+  useEffect(() => {
+    setFilteredData(table.getFilteredRowModel().rows.map((row) => row.original))
+  }, [table.getFilteredRowModel().rows, setFilteredData])
+
+  // Calculate paginated items based on currentPage and itemsPerPage
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const paginatedItems = table
+    .getFilteredRowModel()
+    .rows.slice(startIndex, startIndex + itemsPerPage)
 
   return (
     <>
@@ -110,8 +134,8 @@ export function ContestDataTable<TData extends Item, TValue>({
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => {
+          {paginatedItems?.length ? (
+            paginatedItems.map((row) => {
               const href = `${currentPath}/${row.original.id}` as Route
               const handleClick = linked
                 ? () => {
