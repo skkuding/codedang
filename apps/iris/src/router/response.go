@@ -10,10 +10,10 @@ import (
 )
 
 type Response struct {
-	SubmissionId    int                     `json:"submissionId"`
-	JudgeResultCode handler.JudgeResultCode `json:"resultCode"`
-	JudgeResult     json.RawMessage         `json:"judgeResult"`
-	Error           string                  `json:"error"`
+	SubmissionId    int                `json:"submissionId"`
+	JudgeResultCode handler.ResultCode `json:"resultCode"`
+	JudgeResult     json.RawMessage    `json:"judgeResult"`
+	Error           string             `json:"error"`
 }
 
 func NewResponse(id string, data json.RawMessage, err error) *Response {
@@ -60,7 +60,7 @@ func (r *Response) Marshal() []byte {
 	}
 }
 
-func ErrorToResultCode(err error) handler.JudgeResultCode {
+func ErrorToResultCode(err error) handler.ResultCode {
 	if errors.Is(err, handler.ErrWrongAnswer) {
 		return handler.WRONG_ANSWER
 	}

@@ -57,7 +57,6 @@ function VisibleCell({ row }: { row: Row<DataTableContest> }) {
           // TODO: contest update API 수정되면 고치기
           updateVisible({
             variables: {
-              groupId: 1,
               input: {
                 id: row.original.id,
                 title: row.original.title,
