@@ -1,20 +1,32 @@
+import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
-import codedangBannerBottom from '@/public/logos/codedang-banner-bottom.svg'
-import codedangBannerMiddle from '@/public/logos/codedang-banner-middle.svg'
-import codedangBannerTop from '@/public/logos/codedang-banner-top.svg'
 import Image from 'next/image'
+import { FaArrowRightLong } from 'react-icons/fa6'
 
 interface CoverProps {
   title: string
-  description: string
+  welcomeText: string
+  mainText: string
+  buttonText: string
+}
+
+interface OvalIconProps {
+  position: string
+  transform: string
+  additionalClasses?: string
 }
 
 const bgColors: { [key: string]: string } = {
-  course: 'bg-gradient-to-r from-[#7460C5] to-[#CAC1EE]'
+  course: 'bg-gradient-to-r from-[#E9D0FF] via-[#DAB5FF] to-[#C9F]'
 }
 
-const textColors: { [key: string]: string } = {
-  course: 'text-[#7460C5]'
+const titleTextColors: { [key: string]: string } = {
+  course: 'text-[#3E29A0]'
+}
+
+const gradientTextColors: { [key: string]: string } = {
+  course:
+    'bg-gradient-to-r from-[#1D124A] via-[#3B2699] via-[#5942D7] to-[#5C3CCF] bg-clip-text text-transparent' // 그라디언트 보조 텍스트 색상
 }
 
 const icons: { [key: string]: string } = {
@@ -24,75 +36,84 @@ const icons: { [key: string]: string } = {
   course: '/banners/course.png'
 }
 
-export function Cover({ title, description }: CoverProps) {
+export function Cover({
+  title,
+  welcomeText,
+  mainText,
+  buttonText
+}: CoverProps) {
   return (
     <div className="w-screen">
       <div className="absolute left-0 top-0 z-[10] h-14 w-full bg-white" />
+
       <div
         className={cn(
           bgColors[title.toLowerCase()],
-          'z-[-10] flex h-[440px] items-center justify-center gap-20'
+          'relative z-[-10] flex h-[440px] items-center justify-center gap-20'
         )}
       >
-        <div className="flex h-full w-auto flex-shrink-0 flex-col justify-between max-md:hidden">
-          <Image src={codedangBannerTop} alt="코드당" width={64} height={64} />
-          <Image
-            src={codedangBannerBottom}
-            alt="코드당"
-            width={224}
-            height={224}
-          />
-        </div>
-        <div className="flex flex-col">
-          <Image
-            src={codedangBannerMiddle}
-            alt="코드당"
-            width={70}
-            height={70}
-            className="flex-shrink-0 max-md:hidden"
-          />
-          <div className="flex-col text-center">
-            <h2 className="flex-shrink-0 py-5 text-4xl font-bold text-white md:text-[56px]">
-              {title}
-            </h2>
-            <div className="flex-shrink-0 rounded-full bg-white px-16 py-1">
-              <span
-                className={cn(
-                  'min-w-max whitespace-nowrap text-lg',
-                  textColors[title.toLowerCase()]
-                )}
-              >
-                {description}
-              </span>
+        <div className="relative top-[5%] z-10 flex flex-col items-start">
+          <span
+            className={cn(titleTextColors[title.toLowerCase()], 'text-2xl')}
+          >
+            {welcomeText}
+          </span>
+          <div
+            className={cn(
+              gradientTextColors[title.toLowerCase()],
+              'my-5 text-4xl font-bold'
+            )}
+          >
+            <p>CODEDANG</p>
+            <p>{mainText}</p>
+          </div>
+          <Button variant="slate">
+            <div
+              className={cn(
+                titleTextColors[title.toLowerCase()],
+                'flex items-center gap-2 rounded-full border border-purple-950 px-5 py-2'
+              )}
+            >
+              <span className="font-semibold">{buttonText}</span>
+              <FaArrowRightLong />
             </div>
-          </div>
+          </Button>
         </div>
-
-        <div className="relative flex h-screen flex-shrink-0 items-center justify-center max-md:hidden">
-          <Image
-            src={icons[title.toLowerCase()]}
-            width={208}
-            height={247}
-            alt={title}
-            className="absolute right-[50%] top-[40%] flex-shrink-0 rotate-[19.478deg] max-md:hidden"
-          />
-
-          <div className="relative z-10 text-center max-md:hidden">
-            <h1 className="text-6xl font-extrabold text-white">CODEDANG</h1>
-            <p className="mt-4 text-2xl text-white">
-              SKKU Educational Coding Website
-            </p>
-          </div>
-
-          <Image
-            src={icons[title.toLowerCase()]}
-            width={249}
-            height={242}
-            alt={title}
-            className="absolute bottom-[40%] left-[50%] h-[15.13494rem] w-[15.60438rem] flex-shrink-0 rotate-[124.899deg] max-md:hidden"
-          />
-        </div>
+        <Image
+          src="/banners/book.png"
+          className="relative left-[10%] top-[5%] z-10"
+          alt="banner"
+          width={450}
+          height={387}
+          priority
+        />
+        <OvalIcon
+          position="left-[10%] -top-[50%]"
+          additionalClasses="w-[600px] h-[600px] scale-y-[0.7]"
+          transform="rotate-[340deg]"
+        />
+        <OvalIcon
+          position="right-[1%] top-[0%]"
+          additionalClasses="w-[1000px] h-[1000px] scale-y-[0.7]"
+          transform="rotate-[170deg]"
+        />
       </div>
     </div>
+  )
+}
+
+function OvalIcon({ position, transform, additionalClasses }: OvalIconProps) {
+  return (
+    <div
+      className={cn(
+        'absolute rounded-full',
+        position,
+        additionalClasses,
+        transform
+      )}
+      style={{
+        background: `linear-gradient(12deg, rgba(255, 255, 255, 0.47) 8.44%, rgba(255, 255, 255, 0.00) 75.57%)`
+      }}
+    />
   )
 }

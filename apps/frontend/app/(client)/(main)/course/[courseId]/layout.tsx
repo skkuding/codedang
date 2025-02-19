@@ -1,6 +1,6 @@
 import { Separator } from '@/components/shadcn/separator'
-import { Cover } from '../_components/Cover'
 import { CourseInfoBox } from './_components/CourseInfoBox'
+import { Cover } from './_components/Cover'
 import { Sidebar } from './_components/Sidebar'
 
 export default function Layout({ children }: { children: React.ReactNode }) {

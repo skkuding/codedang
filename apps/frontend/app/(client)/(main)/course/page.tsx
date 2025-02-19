@@ -25,7 +25,12 @@ export default async function Course() {
   const session = await auth()
   return (
     <>
-      <Cover title="COURSE" description="Check your course" />
+      <Cover
+        title="COURSE"
+        welcomeText="NICE TO SEE YOU"
+        mainText="COURSE HUB"
+        buttonText="CHECK YOUR COURSE"
+      />
       <div className="flex w-full max-w-7xl flex-col gap-5 p-5 py-8">
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<CardListFallback />}>
