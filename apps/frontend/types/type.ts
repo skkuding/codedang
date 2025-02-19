@@ -108,6 +108,12 @@ export interface ProblemDetail {
 
 // Contest type definition
 
+interface ProblemInContestInterface {
+  order: number
+  problem: {
+    title: string
+  }
+}
 export interface Contest {
   id: number
   title: string
@@ -122,6 +128,7 @@ export interface Contest {
   status: ContestStatus
   participants: number
   isRegistered: boolean
+  contestProblem: ProblemInContestInterface[]
 }
 
 export interface ContestAnnouncement {
@@ -203,15 +210,25 @@ export interface SubmissionDetail {
   }[]
 }
 
-export interface LeaderboardContestCodeEditorItem {
-  id: number
-  rank: number
-  userID: string
+interface LeaderboardProblemRecord {
+  score: number
+  order: number
+  problemId: number
   penalty: number
-  solved: {
-    solvedProblem: number
-    totalProblem: number
-  }
+  submissionCount: number
+}
+interface UserOnLeaderboard {
+  user: { username: string }
+  score: number
+  finalScore: number
+  totalPenalty: number
+  finalTotalPenalty: number
+  problemRecords: LeaderboardProblemRecord[]
+  rank: number
+}
+export interface Leaderboard {
+  maxscore: number
+  leaderboard: UserOnLeaderboard[]
 }
 
 // Test type definition

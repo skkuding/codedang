@@ -14,8 +14,7 @@ import {
   useReactTable,
   getCoreRowModel,
   flexRender,
-  type ColumnDef,
-  type Row
+  type ColumnDef
 } from '@tanstack/react-table'
 
 interface Item {
@@ -31,7 +30,7 @@ const headerStyle: Record<string, string | undefined> = {
   rank: 'w-[20%]',
   userID: 'w-[29%]',
   penalty: 'w-[30%]',
-  solved: 'w-[21%]'
+  solved: 'w-[22%]'
 }
 
 export function LeaderboardTable<TData extends Item, TValue>({

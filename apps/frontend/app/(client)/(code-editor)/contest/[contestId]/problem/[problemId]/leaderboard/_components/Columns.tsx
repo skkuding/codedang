@@ -1,10 +1,10 @@
 'use client'
 
-import type { LeaderboardContestCodeEditorItem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
+import type { LeaderboardItemCodeEditorPagination } from './LeaderboardPaginatedTable'
 
 // TODO: rank 1,2,3 순위의 색 파란색으로 바꿔주기
-export const columns: ColumnDef<LeaderboardContestCodeEditorItem>[] = [
+export const columns: ColumnDef<LeaderboardItemCodeEditorPagination>[] = [
   {
     header: 'Rank',
     accessorKey: 'rank',
@@ -12,8 +12,8 @@ export const columns: ColumnDef<LeaderboardContestCodeEditorItem>[] = [
   },
   {
     header: 'User ID',
-    accessorKey: 'userID',
-    cell: ({ row }) => <p className="text-sm">{row.original.userID}</p>
+    accessorKey: 'userId',
+    cell: ({ row }) => <p className="text-sm">{row.original.userId}</p>
   },
   {
     header: 'Penalty',
@@ -24,11 +24,7 @@ export const columns: ColumnDef<LeaderboardContestCodeEditorItem>[] = [
     header: 'Solved',
     accessorKey: 'solved',
     cell: ({ row }) => {
-      return (
-        <p className="text-sm">
-          {row.original.solved.solvedProblem}/{row.original.solved.totalProblem}
-        </p>
-      )
+      return <p className="text-sm">{row.original.solved}</p>
     }
   }
 ]
