@@ -16,6 +16,7 @@ import { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
 import { Request } from 'express'
 import { Span } from 'nestjs-otel'
+import { v4 as uuidv4 } from 'uuid'
 import {
   testKey,
   testcasesKey,
@@ -636,7 +637,7 @@ export class SubmissionService {
     userIp: string,
     submissionDto: CreateSubmissionDto,
     isUserTest = false
-  ): Promise<void> {
+  ): Promise<string> {
     const problem = await this.prisma.problem.findFirst({
       where: {
         id: problemId
@@ -679,6 +680,7 @@ export class SubmissionService {
       createTime: new Date(),
       updateTime: new Date()
     }
+    const testKey = uuidv4()
 
     // User Testcase에 대한 TEST 요청인 경우
     if (isUserTest) {
@@ -688,7 +690,7 @@ export class SubmissionService {
         testSubmission,
         (submissionDto as CreateUserTestSubmissionDto).userTestcases
       )
-      return
+      return testKey
     }
 
     // Open Testcase에 대한 TEST 요청인 경우
@@ -698,6 +700,7 @@ export class SubmissionService {
       submissionDto.code,
       testSubmission
     )
+    return testKey
   }
 
   /**

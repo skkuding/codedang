@@ -27,3 +27,8 @@ export interface PubSubSubmissionResult {
   submissionId: number
   result: TestcaseResult
 }
+
+export interface PubSubTestcaseResult {
+  userTest: boolean
+  testcaseResult: { id: number; result: string; output: string }
+}

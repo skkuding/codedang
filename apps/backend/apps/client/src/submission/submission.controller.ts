@@ -22,7 +22,8 @@ import {
 } from '@libs/pipe'
 import {
   RedisPubSubService,
-  type PubSubSubmissionResult
+  type PubSubSubmissionResult,
+  type PubSubTestcaseResult
 } from '@libs/redis-pubsub'
 import {
   CreateSubmissionDto,
@@ -212,7 +213,7 @@ export class SubmissionController {
    * @param {number} submissionId - 제출한 Submission의 ID
    * @returns {Observable<MessageEvent>} SSE 연결을 위한 Observable 객체를 반환하며, 테스트케이스 채점 결과가 포함된 MessageEvent를 전송함
    */
-  @Sse('result/:submissionId')
+  @Sse('submission-result/:submissionId')
   async getSubmissionTestcaseResult(
     @Req() req: AuthenticatedRequest,
     @Param('submissionId', ParseIntPipe) submissionId: number
@@ -243,6 +244,57 @@ export class SubmissionController {
               }
             }
 
+            subscriber.next({ data } as MessageEvent)
+          })
+        })
+        .catch((error) => {
+          subscriber.error(error)
+        })
+    })
+  }
+
+  @Sse(`test-result/:key`)
+  async getTestTestcaseResult(
+    @Req() req: AuthenticatedRequest,
+    @Param('key') key: string
+  ): Promise<Observable<MessageEvent>> {
+    return new Observable((subscriber) => {
+      this.redisPubSub
+        .subscribeToTest(key, (data: PubSubTestcaseResult) => {
+          subscriber.next({ data } as MessageEvent)
+          if (subscriber) {
+            subscriber.unsubscribe()
+          }
+        })
+        .then(() => {
+          return this.submissionService.getTestResult(req.user.id, false)
+        })
+        .then((testResult) => {
+          testResult.forEach((tc) => {
+            const data: PubSubTestcaseResult = {
+              userTest: false,
+              testcaseResult: {
+                id: tc.id,
+                result: tc.result,
+                output: tc.output || ''
+              }
+            }
+            subscriber.next({ data } as MessageEvent)
+          })
+        })
+        .then(() => {
+          return this.submissionService.getTestResult(req.user.id, true)
+        })
+        .then((testResult) => {
+          testResult.forEach((tc) => {
+            const data: PubSubTestcaseResult = {
+              userTest: true,
+              testcaseResult: {
+                id: tc.id,
+                result: tc.result,
+                output: tc.output || ''
+              }
+            }
             subscriber.next({ data } as MessageEvent)
           })
         })

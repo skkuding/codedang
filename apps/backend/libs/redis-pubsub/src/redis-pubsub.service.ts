@@ -3,7 +3,10 @@ import type { OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import type { ResultStatus } from '@prisma/client'
 import { createClient } from 'redis'
-import type { PubSubSubmissionResult } from './testcase-result.interface'
+import type {
+  PubSubSubmissionResult,
+  PubSubTestcaseResult
+} from './testcase-result.interface'
 
 @Injectable()
 export class RedisPubSubService implements OnModuleInit {
@@ -50,31 +53,10 @@ export class RedisPubSubService implements OnModuleInit {
     )
   }
 
-  async publishTestResult(
-    key: string,
-    result: {
-      result: ResultStatus
-      testcaseResult: {
-        submissionId: number
-        problemTestcaseId: number
-        result: ResultStatus
-        cpuTime: bigint
-        memoryUsage: number
-      }
-    }
-  ) {
-    //convert bigint to string for redis
-    const serializedResult: PubSubSubmissionResult = {
-      submissionId,
-      result: {
-        ...result.testcaseResult,
-        cpuTime: result.testcaseResult.cpuTime.toString()
-      }
-    }
-
+  async publishTestResult(key: string, result: PubSubTestcaseResult) {
     await this.client.publish(
-      this.testResultChannel(key),
-      JSON.stringify(serializedResult)
+      this.testTestcaseResultChannel(key),
+      JSON.stringify(result)
     )
   }
 
@@ -93,15 +75,25 @@ export class RedisPubSubService implements OnModuleInit {
     return subscriber
   }
 
+  async subscribeToTest(
+    key: string,
+    callback: (data: PubSubTestcaseResult) => void
+  ) {
+    const subscriber = this.client.duplicate()
+    await subscriber.connect()
+
+    await subscriber.subscribe(this.testTestcaseResultChannel(key), (message) =>
+      callback(JSON.parse(message))
+    )
+
+    return subscriber
+  }
+
   submissionTestcaseResultChannel(submissionId: number) {
     return `submission:${submissionId}`
   }
 
-  testResultChannel(key: string) {
+  testTestcaseResultChannel(key: string) {
     return `test:${key}`
-  }
-
-  userTestResultChannel(key: string) {
-    return `user-test:${key}`
   }
 }
