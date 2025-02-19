@@ -50,6 +50,34 @@ export class RedisPubSubService implements OnModuleInit {
     )
   }
 
+  async publishTestResult(
+    key: string,
+    result: {
+      result: ResultStatus
+      testcaseResult: {
+        submissionId: number
+        problemTestcaseId: number
+        result: ResultStatus
+        cpuTime: bigint
+        memoryUsage: number
+      }
+    }
+  ) {
+    //convert bigint to string for redis
+    const serializedResult: PubSubSubmissionResult = {
+      submissionId,
+      result: {
+        ...result.testcaseResult,
+        cpuTime: result.testcaseResult.cpuTime.toString()
+      }
+    }
+
+    await this.client.publish(
+      this.testResultChannel(key),
+      JSON.stringify(serializedResult)
+    )
+  }
+
   async subscribeToSubmission(
     submissionId: number,
     callback: (data: PubSubSubmissionResult) => void
@@ -67,5 +95,13 @@ export class RedisPubSubService implements OnModuleInit {
 
   submissionTestcaseResultChannel(submissionId: number) {
     return `submission:${submissionId}`
+  }
+
+  testResultChannel(key: string) {
+    return `test:${key}`
+  }
+
+  userTestResultChannel(key: string) {
+    return `user-test:${key}`
   }
 }
