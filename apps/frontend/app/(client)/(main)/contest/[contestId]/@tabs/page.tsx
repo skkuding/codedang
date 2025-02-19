@@ -79,6 +79,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
     startTime: new Date(data.startTime),
     endTime: new Date(data.endTime)
   }
+  console.log('data: ', data)
 
   const startTime = new Date(data.startTime)
   const endTime = new Date(data.endTime)
