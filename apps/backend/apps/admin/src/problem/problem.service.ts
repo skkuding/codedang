@@ -37,7 +37,7 @@ import type {
 } from './model/problem.input'
 import type { ProblemWithIsVisible } from './model/problem.output'
 import type { Template } from './model/template.input'
-import { Testcase } from './model/testcase.input'
+import type { Testcase } from './model/testcase.input'
 
 @Injectable()
 export class ProblemService {
@@ -248,12 +248,7 @@ export class ProblemService {
     )
   }
 
-  async uploadTestcase(
-    fileInput: UploadFileInput,
-    userId: number,
-    groupId: number,
-    problemId: number
-  ) {
+  async uploadTestcase(fileInput: UploadFileInput, problemId: number) {
     const { filename, mimetype, createReadStream } = await fileInput.file
     if (
       [
@@ -282,15 +277,22 @@ export class ProblemService {
 
     const input = row.getCell(header['Input']).text
     const output = row.getCell(header['Output']).text
-    const scoreWeight = parseInt(row.getCell(header['Score']).text)
-    const isHidden = row.getCell(header['Hidden']).text === 'O'
+    const scoreWeight =
+      header['Score'] !== undefined
+        ? parseInt(row.getCell(header['Score']).text)
+        : undefined
+    const isHidden =
+      header['Hidden'] !== undefined
+        ? row.getCell(header['Hidden']).text === 'O'
+        : undefined
     const testcase: Testcase = {
       input,
       output,
       scoreWeight,
       isHidden
     }
-    await this.createTestcase(problemId, testcase)
+
+    return await this.createTestcase(problemId, testcase)
   }
 
   async uploadImage(input: UploadFileInput, userId: number) {
