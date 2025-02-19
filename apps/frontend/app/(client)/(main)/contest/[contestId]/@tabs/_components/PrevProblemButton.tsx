@@ -17,7 +17,7 @@ export function PrevProblemButton(data: ContestTop) {
       </Button>
     </Link>
   ) : (
-    <Button className="mb-0 mt-14 h-[54px] w-[1208px] justify-start rounded-b-none rounded-t-xl border border-[#80808040] bg-white pl-6 font-light text-black hover:bg-white">
+    <Button className="pointer-events-none mb-0 mt-14 h-[54px] w-[1208px] justify-start rounded-b-none rounded-t-xl border border-[#80808040] bg-white pl-6 font-light text-black hover:bg-white">
       <div className="flex flex-row">
         <p className="mr-6 w-[100px] text-left text-base font-semibold text-[#737373]">
           Previous

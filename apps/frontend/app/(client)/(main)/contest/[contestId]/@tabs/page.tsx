@@ -135,7 +135,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
             height={312}
             className="h-[312px] w-[234px] rounded-xl border object-contain"
           />
-          <div className="absolute bottom-3 right-3">
+          <div className="absolute bottom-3 right-3 cursor-pointer">
             <BiggerImageButton url={imageUrl} />
           </div>
         </div>
@@ -220,7 +220,7 @@ function ContestSummary({
       <Button
         variant={'outline'}
         className={cn(
-          'mr-[14px] h-7 w-[87px] rounded-[14px] px-[17px] py-1 text-sm font-medium md:block'
+          'pointer-events-none mr-[14px] h-7 w-[87px] rounded-[14px] px-[17px] py-1 text-sm font-medium md:block'
         )}
       >
         {buttonname}
