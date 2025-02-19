@@ -49,7 +49,6 @@ export function LeaderboardPaginatedTable({
   contestId: number
 }) {
   const refreshTrigger = useLeaderboardSync((state) => state.refreshTrigger)
-  console.log('refreshTrigger: ', refreshTrigger)
 
   const fetchContestLeaderboard = async (contestId: number) => {
     const res: Leaderboard = await safeFetcherWithAuth

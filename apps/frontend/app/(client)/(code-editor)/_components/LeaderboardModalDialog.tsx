@@ -2,7 +2,8 @@ import {
   Dialog,
   DialogContent,
   DialogClose,
-  DialogTrigger
+  DialogTrigger,
+  DialogTitle
 } from '@/components/shadcn/dialog'
 import InfoIcon from '@/public/icons/info-icon.svg'
 import { X } from 'lucide-react'
@@ -22,8 +23,11 @@ export function LeaderboardModalDialog() {
         </DialogTrigger>
         <DialogContent
           showDarkOverlay={true}
-          className="h-[450px] w-[700px] max-w-none gap-0 space-y-0 rounded-[16px] border-none bg-slate-900 pb-[48px] pl-[40px] pt-[40px] text-gray-300 [&>button:last-child]:hidden"
+          className="h-[450px] w-[700px] max-w-none gap-0 space-y-0 rounded-[16px] border-none bg-slate-900 pb-12 pl-[40px] pt-[40px] text-gray-300 [&>button:last-child]:hidden"
         >
+          <DialogTitle className="sr-only">
+            Ranking System of Contest
+          </DialogTitle>
           <DialogClose className="absolute left-[644px] top-[24px]">
             <X className="h-[24px] w-[24px]" />
           </DialogClose>

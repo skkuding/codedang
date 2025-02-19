@@ -1,12 +1,12 @@
 import { create } from 'zustand'
 
 interface LeaderboardSync {
-  refreshTrigger: number // 새로고침 트리거 (숫자 값이 바뀌면 감지됨)
+  refreshTrigger: number
   triggerRefresh: () => void
 }
 
 export const useLeaderboardSync = create<LeaderboardSync>((set) => ({
-  refreshTrigger: 0, // 초기값 0
+  refreshTrigger: 0,
   triggerRefresh: () =>
-    set((state) => ({ refreshTrigger: state.refreshTrigger + 1 })) // 값 증가
+    set((state) => ({ refreshTrigger: state.refreshTrigger + 1 }))
 }))

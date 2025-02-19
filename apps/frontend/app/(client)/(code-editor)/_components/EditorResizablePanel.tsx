@@ -112,17 +112,12 @@ export function EditorMainResizablePanel({
             {tabValue === 'Leaderboard' ? (
               <div className="flex gap-x-4">
                 <LeaderboardModalDialog />
-                <Link
-                  replace
-                  href={`${base}/problem/${problem.id}/leaderboard` as Route}
-                >
-                  <Image
-                    src={syncIcon}
-                    alt="Sync"
-                    className="cursor-pointer"
-                    onClick={triggerRefresh}
-                  />
-                </Link>
+                <Image
+                  src={syncIcon}
+                  alt="Sync"
+                  className="cursor-pointer"
+                  onClick={triggerRefresh}
+                />
               </div>
             ) : null}
           </div>
