@@ -38,11 +38,11 @@ export default async function Contest({ searchParams }: ContestProps) {
 
       <div className="mb-12 mt-[101px] flex w-full flex-col gap-12">
         <div className="flex-col">
-          <Suspense fallback={<FinishedContestTableFallback />}>
-            <ErrorBoundary fallback={FetchErrorFallback}>
+          <ErrorBoundary fallback={FetchErrorFallback}>
+            <Suspense fallback={<FinishedContestTableFallback />}>
               <ContestMainTable search={search} session={session} />
-            </ErrorBoundary>
-          </Suspense>
+            </Suspense>
+          </ErrorBoundary>
         </div>
       </div>
     </>
