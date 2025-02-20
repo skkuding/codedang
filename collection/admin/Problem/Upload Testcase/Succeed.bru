@@ -15,7 +15,7 @@ headers {
 }
 
 body:multipart-form {
-  operations: { "query": "mutation($problemId: Int!, $input: UploadFileInput!) { uploadTestcase(problemId: $problemId, input: $input){id}}", "variables" : {"problemId": 2,"input": {"file": null}}}
+  operations: { "query": "mutation($problemId: Int!, $input: UploadFileInput!) { uploadTestcase(problemId: $problemId, input: $input){id input output scoreWeight isHidden}}", "variables" : {"problemId": 2,"input": {"file": null}}}
   map: { "nfile" : ["variables.input.file"]}
   nfile: @file()
 }
