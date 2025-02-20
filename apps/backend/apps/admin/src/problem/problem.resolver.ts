@@ -19,7 +19,12 @@ import {
 } from '@generated'
 import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
+import {
+  CursorValidationPipe,
+  GroupIDPipe,
+  ProblemIDPipe,
+  RequiredIntPipe
+} from '@libs/pipe'
 import { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { ImageSource } from './model/image.output'
 import {
@@ -68,7 +73,12 @@ export class ProblemResolver {
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async uploadTestcase(
     @Context('req') req: AuthenticatedRequest,
-    @Args('problemId', { type: () => Int }) problemId: number,
+    @Args(
+      'problemId',
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
+      ProblemIDPipe
+    )
+    problemId: number,
     @Args('input') input: UploadFileInput
   ) {
     return await this.problemService.uploadTestcase(input, problemId)
