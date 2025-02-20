@@ -22,7 +22,7 @@ import {
 import { ErrorBoundary } from '@suspensive/react'
 import { PlusCircleIcon } from 'lucide-react'
 import { Suspense, useState } from 'react'
-import type { AssignmentProblem } from '../_libs/schemas'
+import type { AssignmentProblem } from '../_libs/type'
 import {
   ImportProblemTable,
   ImportProblemTableFallback

@@ -16,7 +16,7 @@ import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { AssignmentProblemListLabel } from '../_components/AssignmentProblemListLabel'
 import { AssignmentProblemTable } from '../_components/AssignmentProblemTable'
 import { ImportDialog } from '../_components/ImportDialog'
-import type { AssignmentProblem } from '../_libs/schemas'
+import type { AssignmentProblem } from '../_libs/type'
 import { CreateAssignmentForm } from './_components/CreateAssignmentForm'
 
 export default function Page({ params }: { params: { groupId: string } }) {

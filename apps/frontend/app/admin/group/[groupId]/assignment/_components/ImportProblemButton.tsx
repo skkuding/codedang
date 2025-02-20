@@ -1,6 +1,6 @@
 import { useDataTable } from '@/app/admin/_components/table/context'
 import { Button } from '@/components/shadcn/button'
-import type { AssignmentProblem } from '../_libs/schemas'
+import type { AssignmentProblem } from '../_libs/type'
 import type { DataTableProblem } from './ImportProblemTableColumns'
 
 interface ImportProblemButtonProps {
