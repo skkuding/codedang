@@ -2,7 +2,6 @@
 
 import { KatexContent } from '@/components/KatexContent'
 import { Button } from '@/components/shadcn/button'
-import { GET_GROUP } from '@/graphql/group/queries'
 import periodIcon from '@/public/icons/period.svg'
 import { useSuspenseQuery } from '@apollo/client'
 import type { Route } from 'next'
@@ -13,12 +12,12 @@ import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
 export default function Page({ params }: { params: { groupId: string } }) {
   const { groupId } = params
 
-  const { data } = useSuspenseQuery(GET_GROUP, {
-    variables: {
-      groupId: Number(groupId)
-    }
-  })
-  const group = data.getGroup
+  // const { data } = useSuspenseQuery(GET_GROUP, {
+  //   variables: {
+  //     groupId: Number(groupId)
+  //   }
+  // })
+  // const group = data.getGroup
 
   return (
     <main className="flex flex-col gap-6 px-20 py-16">
@@ -27,7 +26,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
           <Link href="/admin/group">
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
-          <span className="text-4xl font-bold">{group.groupName}</span>
+          {/* <span className="text-4xl font-bold">{group.groupName}</span> */}
         </div>
         <Link href={`/admin/group/${groupId}/edit` as const}>
           <Button variant="default">
@@ -43,10 +42,10 @@ export default function Page({ params }: { params: { groupId: string } }) {
           2025 Spring
         </div>
       </div>
-      <KatexContent
+      {/* <KatexContent
         content={group.description}
         classname="prose mb-4 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12"
-      />
+      /> */}
     </main>
   )
 }

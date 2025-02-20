@@ -8,8 +8,6 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
-import { DELETE_GROUP } from '@/graphql/group/mutation'
-import { GET_GROUPS } from '@/graphql/group/queries'
 import { useApolloClient, useMutation, useSuspenseQuery } from '@apollo/client'
 import type { Route } from 'next'
 import { columns } from './Columns'
@@ -23,59 +21,60 @@ const headerStyle = {
 }
 
 export function GroupTable() {
-  const { data } = useSuspenseQuery(GET_GROUPS, {
-    variables: {
-      cursor: 1,
-      take: 5
-    }
-  })
-  const groups = data.getGroups.map((group) => ({
-    id: Number(group.id),
-    groupName: group.groupName,
-    description: group.description
-  }))
+  // const { data } = useSuspenseQuery(GET_GROUPS, {
+  //   variables: {
+  //     cursor: 1,
+  //     take: 5
+  //   }
+  // })
+  // const groups = data.getGroups.map((group) => ({
+  //   id: Number(group.id),
+  //   groupName: group.groupName,
+  //   description: group.description
+  // }))
 
   return (
-    <DataTableRoot data={groups} columns={columns}>
-      <div className="flex gap-2">
-        <DataTableSearchBar columndId="groupName" />
-        {/* TODO: 백엔드 구현 이후 Duplicate 버튼 추가 예정 */}
-        <ContestsDeleteButton />
-      </div>
-      <DataTable
-        headerStyle={headerStyle}
-        getHref={(data) => `/admin/group/${data.id}` as const}
-      />
-      <DataTablePagination />
-    </DataTableRoot>
+    <>dd</>
+    // <DataTableRoot data={groups} columns={columns}>
+    //   <div className="flex gap-2">
+    //     <DataTableSearchBar columndId="groupName" />
+    //     {/* TODO: 백엔드 구현 이후 Duplicate 버튼 추가 예정 */}
+    //     <ContestsDeleteButton />
+    //   </div>
+    //   <DataTable
+    //     headerStyle={headerStyle}
+    //     getHref={(data) => `/admin/group/${data.id}` as const}
+    //   />
+    //   <DataTablePagination />
+    // </DataTableRoot>
   )
 }
 
 function ContestsDeleteButton() {
   const client = useApolloClient()
-  const [deleteGroup] = useMutation(DELETE_GROUP)
+  // const [deleteGroup] = useMutation(DELETE_GROUP)
 
-  const deleteTarget = (id: number) => {
-    return deleteGroup({
-      variables: {
-        groupId: id
-      }
-    })
-  }
+  // const deleteTarget = (id: number) => {
+  //   return deleteGroup({
+  //     variables: {
+  //       groupId: id
+  //     }
+  //   })
+  // }
 
-  const onSuccess = () => {
-    client.refetchQueries({
-      include: [GET_GROUPS]
-    })
-  }
+  // const onSuccess = () => {
+  //   client.refetchQueries({
+  //     include: [GET_GROUPS]
+  //   })
+  // }
 
-  return (
-    <DataTableDeleteButton
-      target="group"
-      deleteTarget={deleteTarget}
-      onSuccess={onSuccess}
-    />
-  )
+  // return (
+  //   <DataTableDeleteButton
+  //     target="group"
+  //     deleteTarget={deleteTarget}
+  //     onSuccess={onSuccess}
+  //   />
+  // )
 }
 
 export function GroupTableFallback() {
