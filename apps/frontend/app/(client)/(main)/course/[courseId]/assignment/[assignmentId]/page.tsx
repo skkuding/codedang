@@ -1,7 +1,5 @@
 'use client'
 
-import { ContestStatusTimeDiff } from '@/components/ContestStatusTimeDiff'
-import { dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import ClockIcon from '@/public/icons/clock.svg'
 import Image from 'next/image'
@@ -19,6 +17,8 @@ export default function AssignmentDetail() {
     minutes: '00',
     seconds: '00'
   })
+
+  setTimeDiff({ days: 0, hours: '00', minutes: '00', seconds: '00' })
   return (
     <div>
       <div className="flex gap-2">

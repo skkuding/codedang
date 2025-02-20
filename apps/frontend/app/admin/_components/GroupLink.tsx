@@ -1,6 +1,4 @@
 import { cn } from '@/libs/utils'
-import { useQuery } from '@apollo/client'
-import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { FaUserGroup } from 'react-icons/fa6'

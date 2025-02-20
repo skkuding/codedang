@@ -1,10 +1,8 @@
 'use client'
 
 import { cn } from '@/libs/utils'
-import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import type { IconType } from 'react-icons'
 import { FaChartBar, FaUser, FaBell, FaPen, FaTrophy } from 'react-icons/fa6'
 
 export function SideBar() {

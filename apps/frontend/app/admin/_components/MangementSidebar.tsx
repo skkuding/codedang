@@ -14,8 +14,7 @@ import {
   FaPen,
   FaBook,
   FaBell,
-  FaAnglesLeft,
-  FaAngleDown
+  FaAnglesLeft
 } from 'react-icons/fa6'
 import { IoMdPeople, IoMdChatboxes, IoMdClose } from 'react-icons/io'
 import { IoHomeSharp } from 'react-icons/io5'
@@ -72,6 +71,7 @@ export function ManagementSidebar() {
     { path: '/admin/course/4' as const, code: 'MAT3003-03', name: '선형대수학' }
   ]
 
+  setIsMainSidebarExpanded(true)
   return (
     <div className="flex gap-5 px-6">
       <div>
