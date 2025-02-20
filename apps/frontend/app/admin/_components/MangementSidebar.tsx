@@ -4,12 +4,10 @@ import { Separator } from '@/components/shadcn/separator'
 import { cn } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import { motion } from 'framer-motion'
-import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import type { IconType } from 'react-icons'
 import { BiSolidCommentEdit } from 'react-icons/bi'
 import {
   FaChartBar,
