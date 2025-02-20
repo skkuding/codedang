@@ -31,31 +31,47 @@ export function ManagementSidebar() {
 
   const pathname = usePathname()
 
-  const mainNavItems: { name: string; path: Route; icon: IconType }[] = [
-    { name: 'Dashboard', path: '/admin', icon: FaChartBar },
-    { name: 'My Problems', path: '/admin/problem', icon: FaPen },
-    { name: 'My Courses', path: '/admin/course', icon: FaBook }
+  const mainNavItems = [
+    { name: 'Dashboard', path: '/admin' as const, icon: FaChartBar },
+    { name: 'My Problems', path: '/admin/problem' as const, icon: FaPen },
+    { name: 'My Courses', path: '/admin/course' as const, icon: FaBook }
   ]
 
-  const courseNavItems: { name: string; path: Route; icon: IconType }[] = [
-    { name: 'Home', path: '/admin/course', icon: IoHomeSharp },
-    { name: 'Notice', path: '/admin/course/notice', icon: FaBell },
-    { name: 'User', path: '/admin/course/user', icon: IoMdPeople },
+  const courseNavItems = [
+    { name: 'Home', path: '/admin/course' as const, icon: IoHomeSharp },
+    { name: 'Notice', path: '/admin/course/notice' as const, icon: FaBell },
+    { name: 'User', path: '/admin/course/user' as const, icon: IoMdPeople },
     {
       name: 'Assignment',
-      path: '/admin/course/assignment',
+      path: '/admin/course/assignment' as const,
       icon: MdAssignment
     },
-    { name: 'Exam', path: '/admin/course/exam', icon: MdEditDocument },
-    { name: 'Grade', path: '/admin/course/grade', icon: BiSolidCommentEdit },
-    { name: 'Q&A', path: '/admin/course/qna', icon: IoMdChatboxes }
+    { name: 'Exam', path: '/admin/course/exam' as const, icon: MdEditDocument },
+    {
+      name: 'Grade',
+      path: '/admin/course/grade' as const,
+      icon: BiSolidCommentEdit
+    },
+    { name: 'Q&A', path: '/admin/course/qna' as const, icon: IoMdChatboxes }
   ]
 
-  const courseItems: { path: Route; code: string; name: string }[] = [
-    { path: '/admin/course/1', code: 'SWE0000-00', name: '강의는열글자까지' },
-    { path: '/admin/course/2', code: 'SWE1001-01', name: '소프트웨어공학' },
-    { path: '/admin/course/3', code: 'CSE2002-02', name: '자료구조와알고리즘' },
-    { path: '/admin/course/4', code: 'MAT3003-03', name: '선형대수학' }
+  const courseItems = [
+    {
+      path: '/admin/course/1' as const,
+      code: 'SWE0000-00',
+      name: '강의는열글자까지'
+    },
+    {
+      path: '/admin/course/2' as const,
+      code: 'SWE1001-01',
+      name: '소프트웨어공학'
+    },
+    {
+      path: '/admin/course/3' as const,
+      code: 'CSE2002-02',
+      name: '자료구조와알고리즘'
+    },
+    { path: '/admin/course/4' as const, code: 'MAT3003-03', name: '선형대수학' }
   ]
 
   return (
