@@ -17,12 +17,12 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { SubmissionPublicationService } from '@libs/rabbitmq'
 import { StorageService } from '@libs/storage'
 import { Snippet } from '../class/create-submission.dto'
 import { problems } from '../mock/problem.mock'
 import { submissions, submissionDto } from '../mock/submission.mock'
 import { submissionResults } from '../mock/submissionResult.mock'
-import { SubmissionPublicationService } from '../submission-pub.service'
 import { SubmissionService } from '../submission.service'
 
 const db = {
