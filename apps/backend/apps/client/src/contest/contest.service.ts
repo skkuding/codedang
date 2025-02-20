@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma, Role, type Contest } from '@prisma/client'
+import { Prisma, type Contest } from '@prisma/client'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -365,33 +365,7 @@ export class ContestService {
     })
   }
 
-  async getContestLeaderboard(userId: number, contestId: number) {
-    const isRegistered =
-      (await this.prisma.contestRecord.findFirst({
-        where: {
-          userId,
-          contestId
-        }
-      })) != null
-
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id: userId
-      },
-      select: {
-        id: true,
-        role: true
-      }
-    })
-
-    if (
-      !isRegistered &&
-      user?.role !== Role.Admin &&
-      user?.role !== Role.SuperAdmin
-    ) {
-      throw new ForbiddenAccessException('Not registered in this contest')
-    }
-
+  async getContestLeaderboard(contestId: number) {
     const contest = await this.prisma.contest.findUnique({
       where: {
         id: contestId
@@ -439,14 +413,11 @@ export class ContestService {
             finalScore: true,
             finalSubmitCountPenalty: true,
             finalTimePenalty: true,
+            isFirstSolver: true,
             contestProblem: {
               select: {
-                order: true,
-                problem: {
-                  select: {
-                    id: true
-                  }
-                }
+                id: true,
+                order: true
               }
             }
           }
@@ -473,6 +444,23 @@ export class ContestService {
       }
     })
 
+    let beforeFreezeSubmissionCounts
+    if (contest?.freezeTime) {
+      beforeFreezeSubmissionCounts = await this.prisma.submission.groupBy({
+        by: ['userId', 'problemId'],
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          id: true
+        },
+        where: {
+          contestId,
+          createTime: {
+            lt: contest?.freezeTime
+          }
+        }
+      })
+    }
+
     // 유저별 문제별 제출 횟수를 매핑
     const submissionCountMap: {
       [userId: number]: { [problemId: number]: number }
@@ -486,33 +474,96 @@ export class ContestService {
       submissionCountMap[userId][problemId] = _count.id // 문제별 제출 횟수 저장
     })
 
+    const submissionCountMapBeforeFreeze: {
+      [userId: number]: { [problemId: number]: number }
+    } = {}
+    if (contest?.freezeTime) {
+      beforeFreezeSubmissionCounts.forEach((submission) => {
+        const { userId, problemId, _count } = submission
+        if (!userId || !problemId || !_count) return
+        if (!submissionCountMapBeforeFreeze[userId]) {
+          submissionCountMapBeforeFreeze[userId] = {}
+        }
+
+        submissionCountMapBeforeFreeze[userId][problemId] = _count.id
+      })
+    }
+
     let rank = 1
+    const allProblems = await this.prisma.contestProblem.findMany({
+      where: {
+        contestId
+      },
+      select: {
+        id: true,
+        order: true
+      }
+    }) // 모든 문제 목록이 포함된 배열
+
     const leaderboard = contestRecords.map((contestRecord) => {
-      const { contestProblemRecord, userId, ...rest } = contestRecord
-      const problemRecords = contestProblemRecord.map((record) => {
-        const {
-          contestProblem,
-          submitCountPenalty,
-          timePenalty,
-          finalScore,
-          finalSubmitCountPenalty,
-          finalTimePenalty,
-          ...rest
-        } = record
-        return {
-          ...rest,
-          order: contestProblem.order,
-          problemId: contestProblem.problem.id,
-          // TODO: last penalty를 사용할 때는 어떻게 할지 고민해보기
-          penalty: isFrozen
-            ? submitCountPenalty + timePenalty
-            : finalScore + finalSubmitCountPenalty + finalTimePenalty,
-          submissionCount:
-            submissionCountMap[userId!]?.[contestProblem.problem.id] ?? 0 // 기본값 0 설정
+      const {
+        contestProblemRecord,
+        userId,
+        score,
+        finalScore,
+        totalPenalty,
+        finalTotalPenalty,
+        ...rest
+      } = contestRecord
+
+      const problemRecords = allProblems.map((contestProblem) => {
+        const record = contestProblemRecord.find(
+          (r) => r.contestProblem.id === contestProblem.id
+        )
+
+        if (record) {
+          const {
+            contestProblem,
+            score,
+            submitCountPenalty,
+            timePenalty,
+            finalScore,
+            finalSubmitCountPenalty,
+            finalTimePenalty,
+            isFirstSolver
+          } = record
+
+          return {
+            order: contestProblem.order,
+            problemId: contestProblem.id,
+            penalty: isFrozen
+              ? submitCountPenalty + timePenalty
+              : finalScore + finalSubmitCountPenalty + finalTimePenalty,
+            submissionCount:
+              submissionCountMap[userId!]?.[contestProblem.id] ?? 0,
+            score: isFrozen ? score : finalScore,
+            isFrozen:
+              score !== finalScore ||
+              submissionCountMapBeforeFreeze[userId!]?.[contestProblem.id] !==
+                submissionCountMap[userId!]?.[contestProblem.id]
+                ? true
+                : false,
+            isFirstSolver
+          }
+        } else {
+          // contestProblemRecord가 없을 경우 기본값을 설정하여 반환
+          return {
+            order: contestProblem.order,
+            problemId: contestProblem.id,
+            penalty: 0, // 기본 패널티 값
+            submissionCount:
+              submissionCountMap[userId!]?.[contestProblem.id] ?? 0, // 기본 제출 횟수
+            score: 0, // 기본 점수
+            isFrozen: false,
+            isFirstSolver: false
+          }
         }
       })
+
       return {
         ...rest,
+        totalScore: isFrozen ? score : finalScore,
+        totalPenalty: isFrozen ? totalPenalty : finalTotalPenalty,
         problemRecords,
         rank: rank++
       }
