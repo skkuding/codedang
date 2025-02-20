@@ -13,7 +13,10 @@ const submissionId = 1 // (Get Submission Result 용) submissionId
 const key = 'key' // (Get Test|User-Test Result 용) key
 
 const paths = {
+  // Submission Result를 SSE로 조회
   getSubmissionResult: `http://localhost:4000/submission/submission-result/${submissionId}`,
+
+  // Test, User-Test Result를 SSE로 조회
   getTestResult: `http://localhost:4000/submission/test-result/${key}`
 }
 
