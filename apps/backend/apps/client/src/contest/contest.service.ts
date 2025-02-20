@@ -239,23 +239,19 @@ export class ContestService {
 
     const { invitationCode, ...contestDetails } = contest
     const invitationCodeExists = invitationCode != null
-    const now = new Date()
-    const contestProblems =
-      (isRegistered && now >= contest.startTime! && now <= contest.endTime!) ||
-      now >= contest.endTime!
-        ? await this.prisma.contestProblem.findMany({
-            where: { contestId: contest.id },
-            select: {
-              order: true,
-              problem: {
-                select: {
-                  title: true
-                }
-              }
-            },
-            orderBy: { order: 'asc' }
-          })
-        : {}
+
+    const contestProblems = await this.prisma.contestProblem.findMany({
+      where: { contestId: contest.id },
+      select: {
+        order: true,
+        problem: {
+          select: {
+            title: true
+          }
+        }
+      },
+      orderBy: { order: 'asc' }
+    })
 
     const navigate = (pos: 'prev' | 'next') => {
       type Order = 'asc' | 'desc'
