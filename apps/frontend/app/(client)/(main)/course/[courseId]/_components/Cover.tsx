@@ -18,10 +18,6 @@ const bgColors: { [key: string]: string } = {
   course: 'bg-[#F3F7FF]'
 }
 
-const titleTextColors: { [key: string]: string } = {
-  course: 'text-[#9784E4]'
-}
-
 export function Cover({ title, description }: CoverProps) {
   return (
     <div className="w-screen">
