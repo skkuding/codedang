@@ -12,7 +12,8 @@ import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
   DuplicateFoundException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { GroupService, InvitationService } from './group.service'
@@ -342,5 +343,56 @@ describe('InvitationService', () => {
       expect(res).to.equal('This group has no invitation to be revoked')
       expect(delSpy.called).to.be.false
     })
+  })
+
+  describe('inviteUser', () => {
+    it('should invite user for the group', async () => {
+      db.userGroup.create.resolves({
+        userId,
+        groupId,
+        isGroupLeader: false
+      })
+
+      const res = await service.inviteUser(groupId, userId, false)
+
+      expect(res).to.equal({
+        userId,
+        groupId,
+        isGroupLeader: false
+      })
+
+      // expect(db.userGroup.create).to.({
+      //   data: {
+      //     user: { connect: { id: userId } },
+      //     group: { connect: { id: groupId } },
+      //     isGroupLeader: false
+      //   }
+      // })
+    })
+  })
+
+  it('should throw error when user or group is not found', async () => {
+    db.userGroup.create.rejects({ code: 'P2025' })
+
+    await expect(service.inviteUser(groupId, userId, false)).to.be.rejectedWith(
+      NotFoundException
+    )
+  })
+
+  it('should throw error when user is already a member', async () => {
+    db.userGroup.create.rejects({ code: 'P2002' })
+
+    await expect(service.inviteUser(groupId, userId, false)).to.be.rejectedWith(
+      UnprocessableDataException
+    )
+  })
+
+  it('should throw unknown error when if an unexpected error occurs', async () => {
+    const unknownError = new Error('Unexpected error')
+    db.userGroup.create.rejects(unknownError)
+
+    await expect(service.inviteUser(groupId, userId, false)).to.be.rejectedWith(
+      unknownError
+    )
   })
 })
