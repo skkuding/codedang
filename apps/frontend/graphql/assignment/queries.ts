@@ -1,8 +1,8 @@
 import { gql } from '@generated'
 
 const GET_ASSIGNMENT = gql(`
-  query GetAssignment($assignmentId: Int!) {
-    getAssignment(assignmentId: $assignmentId) {
+  query GetAssignment($groupId: Int!, $assignmentId: Int!) {
+    getAssignment(groupId: $groupId,assignmentId: $assignmentId) {
       id
       enableCopyPaste
       isJudgeResultVisible
@@ -56,8 +56,9 @@ const GET_BELONGED_ASSIGNMENTS = gql(`
 `)
 
 const GET_ASSIGNMENT_SCORE_SUMMARIES = gql(`
-  query GetAssignmentScoreSummaries($assignmentId: Int!, $take: Int!) {
+  query GetAssignmentScoreSummaries($groupId: Int!, $assignmentId: Int!, $take: Int!) {
     getAssignmentScoreSummaries(
+      groupId: $groupId,
       assignmentId: $assignmentId,
       take: $take
     ) {
@@ -80,8 +81,8 @@ const GET_ASSIGNMENT_SCORE_SUMMARIES = gql(`
 `)
 
 const GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER = gql(`
-  query getAssignmentSubmissionSummariesByUserId($assignmentId: Int!, $userId: Int!, $take: Int!) {
-    getAssignmentSubmissionSummaryByUserId(assignmentId: $assignmentId, userId: $userId, take: $take) {
+  query getAssignmentSubmissionSummariesByUserId($groupId: Int!,$assignmentId: Int!, $userId: Int!, $take: Int!) {
+    getAssignmentSubmissionSummaryByUserId(assignmentId: $assignmentId, userId: $userId, take: $take, groupId: $groupId) {
       scoreSummary {
         assignmentPerfectScore
         problemScores {
