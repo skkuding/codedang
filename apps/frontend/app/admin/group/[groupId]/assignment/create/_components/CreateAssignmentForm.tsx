@@ -14,8 +14,8 @@ import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import type { AssignmentProblem } from '../../_libs/schemas'
 import { createSchema } from '../../_libs/schemas'
+import type { AssignmentProblem } from '../../_libs/type'
 
 interface CreateAssignmentFormProps {
   groupId: string
