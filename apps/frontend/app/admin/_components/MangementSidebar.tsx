@@ -23,7 +23,7 @@ import { MdAssignment, MdEditDocument } from 'react-icons/md'
 export function ManagementSidebar() {
   const [isCourseListOpened, setIsCourseListOpened] = useState(false)
   const [isCourseSidebarOpened, setIsCourseSidebarOpened] = useState(false)
-  const [isMainSidebarExpanded, setIsMainSidebarExpanded] = useState(true)
+  const [isMainSidebarExpanded] = useState(true)
   const [isCourseSidebarExpanded, setIsCourseSidebarExpanded] = useState(true)
 
   const pathname = usePathname()
@@ -71,7 +71,7 @@ export function ManagementSidebar() {
     { path: '/admin/course/4' as const, code: 'MAT3003-03', name: '선형대수학' }
   ]
 
-  setIsMainSidebarExpanded(true)
+  // setIsMainSidebarExpanded(true)
   return (
     <div className="flex gap-5 px-6">
       <div>
