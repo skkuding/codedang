@@ -61,8 +61,7 @@ const ongoingContests = [
     startTime: now.add(-1, 'day').toDate(),
     endTime: now.add(1, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
+    enableCopyPaste: true
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -81,8 +80,7 @@ const upcomingContests = [
     startTime: now.add(1, 'day').toDate(),
     endTime: now.add(2, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
+    enableCopyPaste: true
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -101,8 +99,7 @@ const finishedContests = [
     startTime: now.add(-2, 'day').toDate(),
     endTime: now.add(-1, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
+    enableCopyPaste: true
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -208,6 +205,11 @@ describe('ContestService', () => {
 
     it('should return contest', async () => {
       expect(await service.getContest(contestId, user01Id)).to.be.ok
+    })
+
+    it('should return contest problem', async () => {
+      const contest = await service.getContest(contestId, user01Id)
+      expect(contest).to.have.property('contestProblems')
     })
 
     it('should return optional fields if they exist', async () => {
