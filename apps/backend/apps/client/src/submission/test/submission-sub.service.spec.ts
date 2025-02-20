@@ -20,6 +20,7 @@ import {
 } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { SubmissionSubscriptionService } from '@libs/rabbitmq'
 import { problems } from '@admin/problem/mock/mock'
 import { assignmentRecord } from '../mock/assignmentRecord.mock'
 import { normalContest } from '../mock/contest.mock'
@@ -27,7 +28,6 @@ import { contestProblem } from '../mock/contestProblem.mock'
 import { contestRecordsMock } from '../mock/contestRecord.mock'
 import { submissions } from '../mock/submission.mock'
 import { submissionResults } from '../mock/submissionResult.mock'
-import { SubmissionSubscriptionService } from '../submission-sub.service'
 
 const judgeResult = {
   testcaseId: 1,

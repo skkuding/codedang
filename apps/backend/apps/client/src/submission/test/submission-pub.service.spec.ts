@@ -14,10 +14,10 @@ import {
 } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { SubmissionPublicationService } from '@libs/rabbitmq'
 import { JudgeRequest } from '../class/judge-request'
 import { problems } from '../mock/problem.mock'
 import { submissions } from '../mock/submission.mock'
-import { SubmissionPublicationService } from '../submission-pub.service'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const mockFunc = (...args: object[]) => []
