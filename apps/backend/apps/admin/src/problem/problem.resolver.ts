@@ -16,7 +16,8 @@ import {
   ProblemTestcase,
   WorkbookProblem
 } from '@generated'
-import { AuthenticatedRequest } from '@libs/auth'
+import { ContestRole } from '@prisma/client'
+import { AuthenticatedRequest, UseContestRolesGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
@@ -151,10 +152,12 @@ export class ProblemResolver {
 }
 
 @Resolver(() => ContestProblem)
+@UseContestRolesGuard(ContestRole.Manager)
 export class ContestProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 
   @Query(() => [ContestProblem], { name: 'getContestProblems' })
+  @UseContestRolesGuard(ContestRole.Reviewer)
   async getContestProblems(
     @Args(
       'groupId',
@@ -202,6 +205,7 @@ export class ContestProblemResolver {
   }
 
   @ResolveField('problem', () => ProblemWithIsVisible)
+  @UseContestRolesGuard(ContestRole.Reviewer)
   async getProblem(@Parent() contestProblem: ContestProblem) {
     return await this.problemService.getProblemById(contestProblem.problemId)
   }

@@ -27,10 +27,7 @@ export class AdminGuard extends RolesGuard {
       ADMIN_NOT_NEEDED_KEY,
       [context.getHandler(), context.getClass()]
     )
-    if (
-      isAdminNotNeeded === true &&
-      this.rolesHierarchy[role] >= this.rolesHierarchy[Role.Admin]
-    ) {
+    if (isAdminNotNeeded === true) {
       return true
     }
 

@@ -17,7 +17,10 @@ import {
   type AssignmentRecord,
   type Contest,
   type ContestRecord,
-  type ContestProblemRecord
+  type ContestProblemRecord,
+  type UserContest,
+  ContestRole,
+  type Prisma
 } from '@prisma/client'
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
@@ -33,6 +36,9 @@ const MAX_DATE: Date = new Date('2999-12-31T00:00:00.000Z')
 let superAdminUser: User
 let adminUser: User
 let managerUser: User
+let contestAdminUser: User
+let contestManagerUser: User
+let contestReviewerUser: User
 let publicGroup: Group
 let privateGroup: Group
 const users: User[] = []
@@ -50,6 +56,7 @@ const workbooks: Workbook[] = []
 const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
 const assignmentAnnouncements: Announcement[] = []
+const contestRecords: ContestRecord[] = []
 const contestAnnouncements: Announcement[] = []
 const contestProblemRecords: ContestProblemRecord[] = []
 
@@ -89,6 +96,46 @@ const createUsers = async () => {
       lastLogin: new Date(),
       role: Role.Manager,
       studentId: '2024000002',
+      major: 'Computer Science'
+    }
+  })
+
+  // create contest admin user
+  contestAdminUser = await prisma.user.create({
+    data: {
+      username: 'contestAdmin',
+      password: await hash('ContestAdmin'),
+      email: 'contestAdmin@example.com',
+      lastLogin: new Date(),
+      role: Role.User,
+      canCreateContest: true,
+      studentId: '2024000003',
+      major: 'Computer Science'
+    }
+  })
+
+  // create contest manager user
+  contestManagerUser = await prisma.user.create({
+    data: {
+      username: 'contestManager',
+      password: await hash('ContestManager'),
+      email: 'contestManager@example.com',
+      lastLogin: new Date(),
+      role: Role.User,
+      studentId: '2024000004',
+      major: 'Computer Science'
+    }
+  })
+
+  // create contest reviewer user
+  contestReviewerUser = await prisma.user.create({
+    data: {
+      username: 'contestReviewer',
+      password: await hash('ContestReviewer'),
+      email: 'contestReviewer@example.com',
+      lastLogin: new Date(),
+      role: Role.User,
+      studentId: '2024000005',
       major: 'Computer Science'
     }
   })
@@ -1365,6 +1412,26 @@ const createContests = async () => {
         invitationCode: null,
         enableCopyPaste: true
       }
+    },
+    {
+      data: {
+        title: '2025 SKKU 프로그래밍 대회',
+        description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
+        createdById: contestAdminUser.id,
+        groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행 예정...?',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
+        startTime: new Date('3024-01-01T00:00:00.000Z'),
+        endTime: new Date('3025-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
     }
   ]
 
@@ -2395,7 +2462,6 @@ const createAssignmentRecords = async () => {
 }
 
 const createContestRecords = async () => {
-  const contestRecords: ContestRecord[] = []
   // group 1 users
   const group1Users = await prisma.userGroup.findMany({
     where: {
@@ -2434,6 +2500,82 @@ const createContestRecords = async () => {
   return contestRecords
 }
 
+const createUserContests = async () => {
+  const userContests: Promise<UserContest | Prisma.BatchPayload>[] = []
+
+  // 1️⃣ contests 기반으로 Admin, Manager, Reviewer 추가 (먼저 실행)
+  for (const contest of contests) {
+    if (contest.createdById === contestAdminUser.id) {
+      userContests.push(
+        prisma.userContest.createMany({
+          data: [
+            {
+              contestId: contest.id,
+              userId: contestManagerUser.id,
+              role: ContestRole.Manager
+            },
+            {
+              contestId: contest.id,
+              userId: contestReviewerUser.id,
+              role: ContestRole.Reviewer
+            }
+          ],
+          skipDuplicates: true // ✅ 중복된 레코드가 있으면 무시
+        })
+      )
+    }
+
+    if (contest.createdById) {
+      userContests.push(
+        prisma.userContest.upsert({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            userId_contestId: {
+              userId: contest.createdById,
+              contestId: contest.id
+            }
+          },
+          update: {}, // ✅ 기존 데이터 유지
+          create: {
+            contestId: contest.id,
+            userId: contest.createdById,
+            role: ContestRole.Admin
+          }
+        })
+      )
+    }
+  }
+
+  // 2️⃣ 모든 비동기 작업을 병렬 실행
+  await Promise.all(userContests)
+
+  // 3️⃣ 마지막에 contestRecords 추가 (이제 Admin, Manager, Reviewer와 충돌 없음)
+  const participantPromises: Promise<UserContest>[] = []
+
+  for (const contestRecord of contestRecords) {
+    participantPromises.push(
+      prisma.userContest.upsert({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          userId_contestId: {
+            userId: contestRecord.userId!,
+            contestId: contestRecord.contestId
+          }
+        },
+        update: {}, // ✅ 기존 데이터 유지
+        create: {
+          contestId: contestRecord.contestId,
+          userId: contestRecord.userId!,
+          role: ContestRole.Participant
+        }
+      })
+    )
+  }
+
+  // 4️⃣ 모든 `contestRecords` 삽입 작업 병렬 실행
+  await Promise.all(participantPromises)
+}
+
 const createContestProblemRecords = async () => {
   // contest 1 problems for
   for (let i = 0; i < 5; ++i) {
@@ -2458,6 +2600,7 @@ const main = async () => {
   await createAssignments()
   await createContests()
   await createContestRecords()
+  await createUserContests()
   await createWorkbooks()
   await createSubmissions()
   await createAnnouncements()

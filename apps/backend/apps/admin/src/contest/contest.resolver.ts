@@ -1,7 +1,12 @@
 import { ParseBoolPipe } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { Contest, ContestProblem } from '@generated'
-import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
+import { ContestRole } from '@prisma/client'
+import {
+  AuthenticatedRequest,
+  UseContestRolesGuard,
+  UseRolesGuard
+} from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   CursorValidationPipe,
@@ -22,6 +27,7 @@ import { PublicizingResponse } from './model/publicizing-response.output'
 import { UserContestScoreSummaryWithUserInfo } from './model/score-summary'
 
 @Resolver(() => Contest)
+@UseContestRolesGuard(ContestRole.Manager)
 export class ContestResolver {
   constructor(private readonly contestService: ContestService) {}
 

@@ -363,8 +363,8 @@ model Contest {
 
 enum ContestRole {
   Participant
-  Reviewer
   Manager
+  Reviewer
   Admin
 }
 
