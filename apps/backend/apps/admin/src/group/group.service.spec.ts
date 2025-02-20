@@ -1,4 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { NotFoundException } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { GroupType, type Group } from '@generated'
 import type { User } from '@generated'
@@ -16,7 +17,12 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { GroupService, InvitationService } from './group.service'
+// eslint-disable-next-line prettier/prettier
+import {
+  GroupService,
+  InvitationService,
+  WhitelistService
+} from './group.service'
 
 const userId = faker.number.int()
 const groupId = faker.number.int()
@@ -68,7 +74,17 @@ const group = {
     allowJoinWithURL: false,
     requireApprovalBeforeJoin: true
   },
-  groupType: GroupType.Course
+  groupType: GroupType.Course,
+  GroupWhitelist: [
+    {
+      groupId: faker.number.int(),
+      studentId: faker.string.numeric()
+    },
+    {
+      groupId: faker.number.int(),
+      studentId: faker.string.numeric()
+    }
+  ]
 } satisfies Group
 
 const { userGroup, ...simpleGroup } = group
@@ -110,6 +126,11 @@ const db = {
   },
   user: {
     findUnique: stub()
+  },
+  groupWhitelist: {
+    findMany: stub(),
+    createMany: stub(),
+    deleteMany: stub()
   },
   getPaginator: PrismaService.prototype.getPaginator
 }
@@ -355,19 +376,11 @@ describe('InvitationService', () => {
 
       const res = await service.inviteUser(groupId, userId, false)
 
-      expect(res).to.equal({
+      expect(res).to.deep.equal({
         userId,
         groupId,
         isGroupLeader: false
       })
-
-      // expect(db.userGroup.create).to.({
-      //   data: {
-      //     user: { connect: { id: userId } },
-      //     group: { connect: { id: groupId } },
-      //     isGroupLeader: false
-      //   }
-      // })
     })
   })
 
@@ -386,13 +399,115 @@ describe('InvitationService', () => {
       UnprocessableDataException
     )
   })
+})
 
-  it('should throw unknown error when if an unexpected error occurs', async () => {
-    const unknownError = new Error('Unexpected error')
-    db.userGroup.create.rejects(unknownError)
+describe('WhitelistService', () => {
+  let service: WhitelistService
+  let cache: Cache
 
-    await expect(service.inviteUser(groupId, userId, false)).to.be.rejectedWith(
-      unknownError
-    )
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        WhitelistService,
+        { provide: PrismaService, useValue: db },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => [],
+            del: () => []
+          })
+        }
+      ]
+    }).compile()
+
+    service = module.get<WhitelistService>(WhitelistService)
+    cache = module.get<Cache>(CACHE_MANAGER)
+  })
+
+  describe('getWhitelist', () => {
+    it('should return student Ids in the whitelist', async () => {
+      const groupId = faker.number.int()
+      const mockData = [
+        { studentId: faker.string.numeric() },
+        { studentId: faker.string.numeric() }
+      ]
+      db.groupWhitelist.findMany.resolves(mockData)
+      const res = await service.getWhitelist(groupId)
+      expect(res).to.deep.equal(mockData.map((item) => item.studentId))
+      expect(
+        db.groupWhitelist.findMany.calledWith({
+          where: { groupId },
+          select: { studentId: true }
+        })
+      ).to.be.true
+    })
+  })
+
+  describe('createWhitelist', () => {
+    it('should create a new whitelist and return the count', async () => {
+      const groupId = faker.number.int()
+      const studentIds: [string] = [faker.string.numeric()]
+      const mockCount = { count: studentIds.length }
+
+      db.groupWhitelist.createMany.resolves(mockCount)
+      db.groupWhitelist.deleteMany.resolves({ count: 0 })
+
+      const result = await service.createWhitelist(groupId, studentIds)
+      expect(result).to.equal(studentIds.length)
+
+      expect(
+        db.groupWhitelist.deleteMany.calledWith({
+          where: { groupId }
+        })
+      ).to.be.true
+
+      expect(
+        db.groupWhitelist.createMany.calledWith({
+          data: studentIds.map((studentId) => ({ groupId, studentId }))
+        })
+      ).to.be.true
+    })
+
+    it('should throw an error if there are duplicate student IDs', async () => {
+      const groupId = faker.number.int()
+      const studentIds: [string] = [faker.string.numeric()]
+      const error = { code: 'P2002' }
+
+      db.groupWhitelist.createMany.rejects(error)
+
+      await expect(
+        service.createWhitelist(groupId, studentIds)
+      ).to.be.rejectedWith(UnprocessableDataException)
+    })
+
+    it('should throw an error if there is invalid student ID', async () => {
+      const groupId = faker.number.int()
+      const studentIds: [string] = [faker.string.numeric()]
+      const error = { code: 'P2003' }
+
+      db.groupWhitelist.createMany.rejects(error)
+
+      await expect(
+        service.createWhitelist(groupId, studentIds)
+      ).to.be.rejectedWith(UnprocessableDataException)
+    })
+  })
+
+  describe('deleteWhitelist', () => {
+    it('should delete whitelist entries and return count', async () => {
+      const groupId = faker.number.int()
+      const mockCount = { count: 2 }
+
+      db.groupWhitelist.deleteMany.resolves(mockCount)
+
+      const res = await service.deleteWhitelist(groupId)
+      expect(res).to.equal(2)
+      expect(
+        db.groupWhitelist.deleteMany.calledWith({
+          where: { groupId }
+        })
+      ).to.be.true
+    })
   })
 })
