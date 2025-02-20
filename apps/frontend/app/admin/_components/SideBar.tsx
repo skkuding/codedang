@@ -11,11 +11,11 @@ export function SideBar() {
   const pathname = usePathname()
 
   const navItems = [
-    { name: 'Dashboard', path: '/admin', icon: FaChartBar },
-    { name: 'User', path: '/admin/user', icon: FaUser },
-    { name: 'Notice', path: '/admin/notice', icon: FaBell },
-    { name: 'Problem', path: '/admin/problem', icon: FaPen },
-    { name: 'Contest', path: '/admin/contest', icon: FaTrophy }
+    { name: 'Dashboard', path: '/admin' as const, icon: FaChartBar },
+    { name: 'User', path: '/admin/user' as const, icon: FaUser },
+    { name: 'Notice', path: '/admin/notice' as const, icon: FaBell },
+    { name: 'Problem', path: '/admin/problem' as const, icon: FaPen },
+    { name: 'Contest', path: '/admin/contest' as const, icon: FaTrophy }
   ]
 
   return (
