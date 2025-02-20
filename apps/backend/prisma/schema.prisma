@@ -200,11 +200,11 @@ model Problem {
   /// template code item structure
   /// {
   ///   "lanaguage": Language,
-  ///   "code": {
-  ///             "id": number,
-  ///             "text": string,
-  ///             "locked": boolean
-  ///           }[]
+  ///   "initialCode": string,
+  ///   "readOnlyRanges": {
+  ///      "from": number
+  ///      "to": number
+  ///    }[]
   /// }
 
   template        Json[]     @default([])

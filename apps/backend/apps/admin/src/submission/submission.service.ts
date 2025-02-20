@@ -4,7 +4,7 @@ import { plainToInstance } from 'class-transformer'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { Language, ResultStatus } from '@admin/@generated'
-import { Snippet } from '@admin/problem/model/template.input'
+import { Range } from '@admin/problem/model/template.input'
 import { SubmissionOrder } from './enum/submission-order.enum'
 import type {
   GetAssignmentSubmissionsInput,
@@ -251,7 +251,7 @@ export class SubmissionService {
     if (!submission) {
       throw new EntityNotExistException('Submission')
     }
-    const code = plainToInstance(Snippet, submission.code)
+    const code = plainToInstance(Range, submission.code)
     const results = submission.submissionResult.map((result) => {
       return {
         ...result,
