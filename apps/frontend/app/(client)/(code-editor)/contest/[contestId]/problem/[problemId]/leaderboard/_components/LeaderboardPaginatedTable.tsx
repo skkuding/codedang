@@ -9,19 +9,13 @@ import {
 import { usePagination } from '@/libs/hooks/usePaginationV2'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import type { Contest, Leaderboard } from '@/types/type'
+import type { LeaderboardItemCodeEditorPagination } from '@/types/type'
 import { useSuspenseQueries } from '@tanstack/react-query'
 import { columns } from './Columns'
 import { LeaderboardTable, LeaderboardTableFallback } from './LeaderboardTable'
 
 const itemsPerPage = 17
 
-export interface LeaderboardItemCodeEditorPagination {
-  id: number
-  rank: number
-  userId: string
-  penalty: number
-  solved: string
-}
 interface BriefLeaderboardItem {
   user: {
     username: string
@@ -157,6 +151,6 @@ export function LeaderboardPaginatedTable({
   )
 }
 
-export function SubmissionPaginatedTableFallback() {
+export function LeaderboardPaginatedTableFallback() {
   return <LeaderboardTableFallback columns={columns} />
 }

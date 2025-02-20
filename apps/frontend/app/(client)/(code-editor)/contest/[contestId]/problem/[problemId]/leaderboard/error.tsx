@@ -14,5 +14,5 @@ export default function Error({ error }: Props) {
     captureError(error)
   }, [error])
 
-  return <ErrorDetail errorDetail="Failed to Load Submissions!" error={error} />
+  return <ErrorDetail errorDetail="Failed to Load Leaderboard!" error={error} />
 }

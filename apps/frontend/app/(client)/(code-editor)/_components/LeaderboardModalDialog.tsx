@@ -23,74 +23,74 @@ export function LeaderboardModalDialog() {
         </DialogTrigger>
         <DialogContent
           showDarkOverlay={true}
-          className="h-[450px] w-[700px] max-w-none gap-0 space-y-0 rounded-[16px] border-none bg-slate-900 pb-12 pl-[40px] pt-[40px] text-gray-300 [&>button:last-child]:hidden"
+          className="h-[450px] w-[700px] max-w-none gap-0 space-y-0 rounded-[16px] border-none bg-slate-900 pb-12 pl-10 pt-10 text-gray-300 [&>button:last-child]:hidden"
         >
           <DialogTitle className="sr-only">
             Ranking System of Contest
           </DialogTitle>
-          <DialogClose className="absolute left-[644px] top-[24px]">
-            <X className="h-[24px] w-[24px]" />
+          <DialogClose className="absolute left-[644px] top-6">
+            <X className="h-6 w-6" />
           </DialogClose>
-          <div className="flex flex-col gap-[24px] overflow-x-auto">
-            <div className="h-[26px] w-[226px] text-[18px] font-[600] text-white">
+          <p className="flex flex-col gap-6 overflow-x-auto">
+            <p className="h-[26px] w-[226px] text-[18px] font-[600] text-white">
               Ranking System of Contest
-            </div>
-            <div className="flex text-gray-400">
-              <div className="flex h-[24px] w-[24px] items-center justify-center rounded-full bg-slate-800 text-[11px] text-white">
+            </p>
+            <p className="flex text-gray-400">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 text-[11px] text-white">
                 1
               </div>
-              <div className="ml-[12px] flex flex-col">
-                <div className="text-[14px]">
+              <div className="ml-3 flex flex-col">
+                <p className="text-[14px]">
                   The ranking of each participants is determined
-                </div>
-                <div className="text-[14px]">
+                </p>
+                <p className="text-[14px]">
                   based on <b>the number of problems solved.</b>
-                </div>
+                </p>
               </div>
-            </div>
-            <div className="flex text-gray-400">
-              <div className="flex h-[24px] w-[24px] items-center justify-center rounded-full bg-slate-800 text-[11px] text-white">
+            </p>
+            <p className="flex text-gray-400">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 text-[11px] text-white">
                 2
               </div>
-              <div className="ml-[12px] flex flex-col space-y-[16px]">
-                <div>
-                  <div className="text-[14px]">
+              <div className="ml-4 flex flex-col space-y-4">
+                <p>
+                  <p className="text-[14px]">
                     If the number of problems solved is the same,
-                  </div>
-                  <div className="text-[14px]">
+                  </p>
+                  <p className="text-[14px]">
                     the ranking is determined in ascending order of{' '}
                     <b>penalty.</b>
-                  </div>
-                </div>
-                <div className="flex h-[104px] w-[548px] flex-col gap-[8px] rounded-md bg-gray-800 py-[14px] pl-[22px] pr-[69px]">
-                  <div className="h-[16px] text-[14px] text-white">
+                  </p>
+                </p>
+                <p className="flex h-[104px] w-[548px] flex-col gap-2 rounded-md bg-gray-800 py-[14px] pl-[22px] pr-[69px]">
+                  <p className="h-4 text-[14px] text-white">
                     <b>Penalty Calculation</b>
-                  </div>
-                  <div className="h-[48px]">
-                    <div className="mb-1 text-[14px]">
+                  </p>
+                  <p className="h-12">
+                    <p className="mb-1 text-[14px]">
                       Time from the start of the contest to Accepted (min.)
-                    </div>
-                    <div className="text-[14px]">
+                    </p>
+                    <p className="text-[14px]">
                       + (Number of submissions - 1) * 20
-                    </div>
-                  </div>
-                </div>
+                    </p>
+                  </p>
+                </p>
               </div>
-            </div>
-            <div className="flex text-gray-400">
-              <div className="flex h-[24px] w-[24px] items-center justify-center rounded-full bg-slate-800 text-[11px] text-white">
+            </p>
+            <p className="flex text-gray-400">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 text-[11px] text-white">
                 -
               </div>
-              <div className="ml-[12px] flex flex-col">
-                <div className="text-[14px]">
+              <div className="ml-3 flex flex-col">
+                <p className="text-[14px]">
                   If the number of problems solved and the penalty are the same,
-                </div>
-                <div className="text-[14px]">
+                </p>
+                <p className="text-[14px]">
                   they are considered to have the same rank.
-                </div>
+                </p>
               </div>
-            </div>
-          </div>
+            </p>
+          </p>
         </DialogContent>
       </Dialog>
     </div>

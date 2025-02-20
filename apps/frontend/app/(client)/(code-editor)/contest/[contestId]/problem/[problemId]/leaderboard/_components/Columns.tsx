@@ -1,7 +1,7 @@
 'use client'
 
+import type { LeaderboardItemCodeEditorPagination } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { LeaderboardItemCodeEditorPagination } from './LeaderboardPaginatedTable'
 
 export const columns: ColumnDef<LeaderboardItemCodeEditorPagination>[] = [
   {

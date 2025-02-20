@@ -3,10 +3,10 @@ import { TanstackQueryErrorBoundary } from '@/components/TanstackQueryErrorBound
 import { Suspense } from 'react'
 import {
   LeaderboardPaginatedTable,
-  SubmissionPaginatedTableFallback
+  LeaderboardPaginatedTableFallback
 } from './_components/LeaderboardPaginatedTable'
 
-export default function SubmissionPage({
+export default function LeaderboardPage({
   params
 }: {
   params: { problemId: string; contestId: string }
@@ -15,7 +15,7 @@ export default function SubmissionPage({
 
   return (
     <TanstackQueryErrorBoundary fallback={FetchErrorFallback}>
-      <Suspense fallback={<SubmissionPaginatedTableFallback />}>
+      <Suspense fallback={<LeaderboardPaginatedTableFallback />}>
         <LeaderboardPaginatedTable contestId={Number(contestId)} />
       </Suspense>
     </TanstackQueryErrorBoundary>

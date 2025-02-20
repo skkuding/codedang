@@ -230,7 +230,13 @@ export interface Leaderboard {
   maxscore: number
   leaderboard: UserOnLeaderboard[]
 }
-
+export interface LeaderboardItemCodeEditorPagination {
+  id: number
+  rank: number
+  userId: string
+  penalty: number
+  solved: string
+}
 // Test type definition
 
 export interface TestResult {
