@@ -2,15 +2,17 @@ import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import type { ProblemDataTop } from '@/types/type'
 import { RenderProblemColumn } from './RenderProblemColumn'
 
+interface RenderProblemListProps {
+  state: string
+  isRegistered: boolean
+  problemData: ProblemDataTop
+}
+
 export function RenderProblemList({
   state,
   isRegistered,
   problemData
-}: {
-  state: string
-  isRegistered: boolean
-  problemData: ProblemDataTop
-}) {
+}: RenderProblemListProps) {
   if (state === 'Upcoming') {
     return (
       <div className="h-[608px] w-[1208px] place-content-center rounded-2xl bg-[#d9d9d940]">

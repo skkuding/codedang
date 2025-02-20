@@ -204,8 +204,8 @@ export default async function ContestTop({ params }: ContestTopProps) {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-      <PrevNextProblemButton data={data} prev={prev} />
-      <PrevNextProblemButton data={data} prev={!prev} />
+      <PrevNextProblemButton contestData={data} prev={prev} />
+      <PrevNextProblemButton contestData={data} prev={!prev} />
       <GotoContestListButton />
     </div>
   )
