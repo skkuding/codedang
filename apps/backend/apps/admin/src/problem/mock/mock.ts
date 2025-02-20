@@ -375,7 +375,6 @@ export const exampleContest: Contest = {
   description: 'example',
   penalty: 20,
   lastPenalty: false,
-  groupId: 1,
   createdById: 1,
   isVisible: true,
   isRankVisible: true,
@@ -594,7 +593,8 @@ export const exampleAssignment: Assignment = {
   endTime: new Date(),
   createTime: new Date(),
   updateTime: new Date(),
-  invitationCode: '123456'
+  invitationCode: '123456',
+  week: 1
 }
 export const exampleAssignmentProblems: AssignmentProblem[] = [
   {
