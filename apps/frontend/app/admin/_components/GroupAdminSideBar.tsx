@@ -1,19 +1,21 @@
 'use client'
 
+import { Separator } from '@/components/shadcn/separator'
 import { cn } from '@/libs/utils'
+import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { FaChartBar, FaUser, FaBell, FaPen, FaTrophy } from 'react-icons/fa6'
+import type { IconType } from 'react-icons'
+import { FaChartBar, FaPen } from 'react-icons/fa6'
+import { GroupLink } from './GroupLink'
 
-export function SideBar() {
+export function GroupAdminSideBar() {
   const pathname = usePathname()
 
-  const navItems = [
-    { name: 'Dashboard', path: '/admin' as const, icon: FaChartBar },
-    { name: 'User', path: '/admin/user' as const, icon: FaUser },
-    { name: 'Notice', path: '/admin/notice' as const, icon: FaBell },
-    { name: 'Problem', path: '/admin/problem' as const, icon: FaPen },
-    { name: 'Contest', path: '/admin/contest' as const, icon: FaTrophy }
+  const navItems: { name: string; path: Route; icon: IconType }[] = [
+    { name: 'Dashboard', path: '/admin', icon: FaChartBar },
+    { name: 'My Problems', path: '/admin/problem', icon: FaPen },
+    { name: 'My Courses', path: '/admin/course', icon: FaPen }
   ]
 
   return (
@@ -37,6 +39,8 @@ export function SideBar() {
           {item.name}
         </Link>
       ))}
+      <Separator className="my-4 transition" />
+      <GroupLink />
     </div>
   )
 }
