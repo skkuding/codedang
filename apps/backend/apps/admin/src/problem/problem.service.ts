@@ -164,13 +164,8 @@ export class ProblemService {
         const code = row.getCell(header[`${language}SampleCode`]).text
         template.push({
           language,
-          code: [
-            {
-              id: 1,
-              text: code,
-              locked: false
-            }
-          ]
+          initialCode: code,
+          readOnlyRanges: []
         })
         languages.push(Language[language])
       }

@@ -41,13 +41,8 @@ export const problemId = 1
 export const groupId = 1
 export const template: Template = {
   language: Language.Cpp,
-  code: [
-    {
-      id: 1,
-      text: 'int main(void) {}',
-      locked: false
-    }
-  ]
+  initialCode: 'int main(void) {}',
+  readOnlyRanges: []
 }
 export const problems: Problem[] = [
   {
