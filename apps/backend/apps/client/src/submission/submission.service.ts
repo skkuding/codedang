@@ -715,6 +715,8 @@ export class SubmissionService {
     code: Snippet[],
     testSubmission: Submission
   ): Promise<void> {
+    await this.createTestSubmission(testSubmission, code, false) // DB에 Test Submission 기록 저장
+
     const rawTestcases = await this.prisma.problemTestcase.findMany({
       where: {
         problemId,
@@ -722,20 +724,17 @@ export class SubmissionService {
       }
     })
 
-    const testSubmissionId = (
-      await this.createTestSubmission(testSubmission, code, false)
-    ).id
     const testcaseIds: number[] = []
     for (const rawTestcase of rawTestcases) {
       await this.cacheManager.set(
-        testKey(testSubmissionId, rawTestcase.id),
+        testKey(userId, rawTestcase.id),
         { id: rawTestcase.id, result: 'Judging' },
         TEST_SUBMISSION_EXPIRE_TIME
       )
       testcaseIds.push(rawTestcase.id)
     }
-    await this.cacheManager.set(testcasesKey(testSubmissionId), testcaseIds)
-    testSubmission.id = testSubmissionId // 위에서 구분을 위해 userId로 지정했던 id를 testSubmissionId로 변경
+
+    await this.cacheManager.set(testcasesKey(userId), testcaseIds)
     await this.publish.publishJudgeRequestMessage(code, testSubmission, true)
   }
 
@@ -762,21 +761,19 @@ export class SubmissionService {
     testSubmission: Submission,
     userTestcases: { id: number; in: string; out: string }[]
   ): Promise<void> {
-    const testcaseIds: number[] = []
+    await this.createTestSubmission(testSubmission, code, true) // DB에 Test Submission 기록 저장
 
-    const testSubmissionId = (
-      await this.createTestSubmission(testSubmission, code, true)
-    ).id
+    const testcaseIds: number[] = []
     for (const testcase of userTestcases) {
       await this.cacheManager.set(
-        userTestKey(testSubmissionId, testcase.id),
+        userTestKey(userId, testcase.id),
         { id: testcase.id, result: 'Judging' },
         TEST_SUBMISSION_EXPIRE_TIME
       )
       testcaseIds.push(testcase.id)
     }
-    await this.cacheManager.set(userTestcasesKey(testSubmissionId), testcaseIds)
-    testSubmission.id = testSubmissionId
+
+    await this.cacheManager.set(userTestcasesKey(userId), testcaseIds)
     await this.publish.publishJudgeRequestMessage(
       code,
       testSubmission,
