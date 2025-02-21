@@ -11,7 +11,7 @@ module "codedang_api" {
   autoscaling_group = {
     name             = "Codedang-AutoScalingGroup-Api"
     max_size         = 10
-    desired_capacity = 2
+    desired_capacity = 1
   }
 
   autoscaling_policy = {

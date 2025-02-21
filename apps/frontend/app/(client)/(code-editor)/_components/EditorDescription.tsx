@@ -18,7 +18,7 @@ import {
 import { convertToLetter } from '@/libs/utils'
 import compileIcon from '@/public/icons/compile-version.svg'
 import type { ProblemDetail } from '@/types/type'
-import { sanitize } from 'isomorphic-dompurify'
+import DOMPurify from 'isomorphic-dompurify'
 import { FileText } from 'lucide-react'
 import Image from 'next/image'
 import CopyButton from './CopyButton'
@@ -131,7 +131,9 @@ export function EditorDescription({
           </AccordionTrigger>
           <AccordionContent>
             <pre
-              dangerouslySetInnerHTML={{ __html: sanitize(problem.hint) }}
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(problem.hint)
+              }}
               className="prose prose-invert max-w-full whitespace-pre-wrap break-keep text-sm leading-relaxed text-slate-300"
             />
           </AccordionContent>

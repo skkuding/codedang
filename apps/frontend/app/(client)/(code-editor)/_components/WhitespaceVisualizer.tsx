@@ -1,5 +1,5 @@
 import { cn } from '@/libs/utils'
-import { sanitize } from 'isomorphic-dompurify'
+import DOMPurify from 'isomorphic-dompurify'
 
 export function WhitespaceVisualizer({
   text = '',
@@ -37,7 +37,7 @@ export function WhitespaceVisualizer({
         className
       )}
       dangerouslySetInnerHTML={{
-        __html: sanitize(
+        __html: DOMPurify.sanitize(
           isTruncated ? truncatedText : highlightedWhitespaceText
         )
       }}

@@ -91,6 +91,9 @@ export default function TestcaseItem({
                 ? 'border-red-500'
                 : 'border-gray-300'
             )}
+            onWheel={(event) => {
+              event.currentTarget.blur()
+            }}
           />{' '}
           (%)
         </div>
