@@ -297,7 +297,7 @@ describe('AssignmentService', () => {
 
   describe('updateAssignment', () => {
     it('should return updated assignment', async () => {
-      db.assignment.findFirst.resolves(assignment)
+      db.assignment.findUnique.resolves(assignment)
       db.assignment.update.resolves(assignment)
 
       const res = await service.updateAssignment(groupId, updateInput)
@@ -313,7 +313,7 @@ describe('AssignmentService', () => {
 
   describe('deleteAssignment', () => {
     it('should return deleted assignment', async () => {
-      db.assignment.findFirst.resolves(assignment)
+      db.assignment.findUnique.resolves(assignment)
       db.assignment.delete.resolves(assignment)
 
       const res = await service.deleteAssignment(groupId, assignmentId)
