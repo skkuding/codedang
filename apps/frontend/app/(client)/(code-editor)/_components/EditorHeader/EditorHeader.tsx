@@ -1,6 +1,8 @@
 'use client'
 
 import { contestProblemQueries } from '@/app/(client)/_libs/queries/contestProblem'
+import { contestSubmissionQueries } from '@/app/(client)/_libs/queries/contestSubmission'
+import { problemSubmissionQueries } from '@/app/(client)/_libs/queries/problemSubmission'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,10 +23,10 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
-import { auth } from '@/libs/auth'
+import { useSession } from '@/libs/hooks/useSession'
 import { fetcherWithAuth } from '@/libs/utils'
 import submitIcon from '@/public/icons/submit.svg'
-import useAuthModalStore from '@/stores/authModal'
+import { useAuthModalStore } from '@/stores/authModal'
 import {
   useLanguageStore,
   useCodeStore,
@@ -49,7 +51,7 @@ import { useInterval } from 'react-use'
 import { toast } from 'sonner'
 import { useTestPollingStore } from '../context/TestPollingStoreProvider'
 import { BackCautionDialog } from './BackCautionDialog'
-import RunTestButton from './RunTestButton'
+import { RunTestButton } from './RunTestButton'
 
 interface ProblemEditorProps {
   problem: ProblemDetail
@@ -57,7 +59,7 @@ interface ProblemEditorProps {
   templateString: string
 }
 
-export default function Editor({
+export function EditorHeader({
   problem,
   contestId,
   templateString
@@ -79,7 +81,8 @@ export default function Editor({
   const storageKey = useRef(
     getStorageKey(language, problem.id, userName, contestId)
   )
-  const { currentModal, showSignIn } = useAuthModalStore((state) => state)
+  const session = useSession()
+  const showSignIn = useAuthModalStore((state) => state.showSignIn)
   const [showModal, setShowModal] = useState<boolean>(false)
   //const pushed = useRef(false)
   const whereToPush = useRef('')
@@ -117,22 +120,26 @@ export default function Editor({
   )
 
   useEffect(() => {
-    auth().then((session) => {
-      if (!session) {
+    if (!session) {
+      setTimeout(() => {
         toast.info('Log in to use submission & save feature')
-      } else {
-        setUserName(session.user.username)
-      }
-    })
-  }, [currentModal])
+      })
+    } else {
+      setUserName(session.user.username)
+    }
+  }, [session])
 
   useEffect(() => {
-    if (!templateString) return
+    if (!templateString) {
+      return
+    }
     const parsedTemplates = JSON.parse(templateString)
     const filteredTemplate = parsedTemplates.filter(
       (template: Template) => template.language === language
     )
-    if (filteredTemplate.length === 0) return
+    if (filteredTemplate.length === 0) {
+      return
+    }
     setTemplateCode(filteredTemplate[0].code[0].text)
   }, [language])
 
@@ -158,6 +165,12 @@ export default function Editor({
   }
   const submit = async () => {
     const code = getCode()
+
+    if (session === null) {
+      showSignIn()
+      toast.error('Log in first to submit your code')
+      return
+    }
 
     if (code === '') {
       toast.error('Please write code before submission')
@@ -194,22 +207,34 @@ export default function Editor({
         queryClient.invalidateQueries({
           queryKey: contestProblemQueries.lists(contestId)
         })
+        queryClient.invalidateQueries({
+          queryKey: contestSubmissionQueries.lists({
+            contestId,
+            problemId: problem.id
+          })
+        })
+      } else {
+        queryClient.invalidateQueries({
+          queryKey: problemSubmissionQueries.lists(problem.id)
+        })
       }
     } else {
       setIsSubmitting(false)
       if (res.status === 401) {
         showSignIn()
         toast.error('Log in first to submit your code')
-      } else toast.error('Please try again later.')
+      } else {
+        toast.error('Please try again later.')
+      }
     }
   }
 
-  const saveCode = async () => {
-    const session = await auth()
+  const saveCode = () => {
     const code = getCode()
 
-    if (!session) {
+    if (session === null) {
       toast.error('Log in first to save your code')
+      showSignIn()
     } else if (storageKey.current !== undefined) {
       localStorage.setItem(storageKey.current, code)
       toast.success('Successfully saved the code')
@@ -223,16 +248,22 @@ export default function Editor({
       localStorage.setItem(storageKey.current, templateCode)
       setCode(templateCode)
       toast.success('Successfully reset the code')
-    } else toast.error('Failed to reset the code')
+    } else {
+      toast.error('Failed to reset the code')
+    }
   }
 
   const checkSaved = () => {
     const code = getCode()
     if (storageKey.current !== undefined) {
       const storedCode = getCodeFromLocalStorage(storageKey.current)
-      if (storedCode && storedCode === code) return true
-      else if (!storedCode && templateCode === code) return true
-      else return false
+      if (storedCode && storedCode === code) {
+        return true
+      } else if (!storedCode && templateCode === code) {
+        return true
+      } else {
+        return false
+      }
     }
     return true
   }

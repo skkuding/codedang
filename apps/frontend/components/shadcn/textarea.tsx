@@ -14,8 +14,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         const end = target.selectionEnd
 
         // Insert 2 spaces at the current cursor position
-        target.value =
-          target.value.substring(0, start) + '  ' + target.value.substring(end)
+        target.value = `${target.value.substring(0, start)}  ${target.value.substring(end)}`
 
         // Move the cursor 2 characters forward
         target.selectionStart = target.selectionEnd = start + 2

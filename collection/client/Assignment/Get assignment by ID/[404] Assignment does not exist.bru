@@ -1,0 +1,22 @@
+meta {
+  name: [404] Assignment does not exist
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/assignment/999999
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 404
+  res("message"): eq Assignment does not exist
+  res("error"): eq Not Found
+  res("statusCode"): eq 404
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}

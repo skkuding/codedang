@@ -1,4 +1,4 @@
-export default function Label({
+export function Label({
   children,
   required = true
 }: {

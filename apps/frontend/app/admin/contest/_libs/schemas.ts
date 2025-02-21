@@ -1,28 +1,34 @@
-import { z } from 'zod'
+import * as v from 'valibot'
 
-export const createSchema = z.object({
-  title: z
-    .string()
-    .min(1, 'The title must contain at least 1 character(s)')
-    .max(200, 'The title can only be up to 200 characters long'),
-  isRankVisible: z.boolean(),
-  isVisible: z.boolean(),
-  description: z
-    .string()
-    .min(1)
-    .refine((value) => value !== '<p></p>'),
-  startTime: z.date(),
-  endTime: z.date(),
-  enableCopyPaste: z.boolean(),
-  isJudgeResultVisible: z.boolean(),
-  invitationCode: z
-    .string()
-    .regex(/^\d{6}$/, 'The invitation code must be a 6-digit number')
-    .nullish()
+export const createSchema = v.object({
+  title: v.pipe(
+    v.string(),
+    v.minLength(1, 'The title must contain at least 1 character(s)'),
+    v.maxLength(200, 'The title can only be up to 200 characters long')
+  ),
+
+  isRankVisible: v.boolean(),
+  isVisible: v.boolean(),
+  description: v.pipe(
+    v.string(),
+    v.minLength(1),
+    v.check((value) => value !== '<p></p>')
+  ),
+  startTime: v.date(),
+  endTime: v.date(),
+  enableCopyPaste: v.boolean(),
+  isJudgeResultVisible: v.boolean(),
+  invitationCode: v.nullable(
+    v.pipe(
+      v.string(),
+      v.regex(/^\d{6}$/, 'The invitation code must be a 6-digit number')
+    )
+  )
 })
 
-export const editSchema = createSchema.extend({
-  id: z.number()
+export const editSchema = v.object({
+  id: v.number(),
+  ...createSchema.entries
 })
 
 export interface ContestProblem {

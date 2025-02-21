@@ -1,6 +1,7 @@
 import { Button, type ButtonProps } from '@/components/shadcn/button'
+import { useSession } from '@/libs/hooks/useSession'
 import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
-import useAuthModalStore from '@/stores/authModal'
+import { useAuthModalStore } from '@/stores/authModal'
 import { useCodeStore } from '@/stores/editor'
 import type { TestcaseItem } from '@/types/type'
 import { useMutation } from '@tanstack/react-query'
@@ -15,12 +16,13 @@ interface RunTestButtonProps extends ButtonProps {
   saveCode: (code: string) => void
 }
 
-export default function RunTestButton({
+export function RunTestButton({
   problemId,
   language,
   saveCode,
   ...props
 }: RunTestButtonProps) {
+  const session = useSession()
   const setIsTesting = useTestPollingStore((state) => state.setIsTesting)
   const startPolling = useTestPollingStore((state) => state.startPolling)
   const showSignIn = useAuthModalStore((state) => state.showSignIn)
@@ -93,9 +95,15 @@ export default function RunTestButton({
     }
   })
 
-  const submitTest = async () => {
+  const submitTest = () => {
     const code = getCode()
     const testcases = getUserTestcases()
+
+    if (session === null) {
+      showSignIn()
+      toast.error('Log in first to test your code')
+      return
+    }
 
     if (code === '') {
       toast.error('Please write code before test')

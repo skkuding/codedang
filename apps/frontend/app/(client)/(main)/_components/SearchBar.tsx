@@ -2,11 +2,11 @@
 
 import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
-import { Search } from 'lucide-react'
 import type { Route } from 'next'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { IoSearch } from 'react-icons/io5'
 
 interface Inputs {
   search: string
@@ -16,7 +16,7 @@ interface SearchBarProps {
   className?: string
 }
 
-export default function SearchBar({ className }: SearchBarProps) {
+export function SearchBar({ className }: SearchBarProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParam = useSearchParams()
@@ -29,10 +29,12 @@ export default function SearchBar({ className }: SearchBarProps) {
     // set search data to newParam
     if (data.search) {
       newParam.set('search', data.search)
-    } else newParam.delete('search')
+    } else {
+      newParam.delete('search')
+    }
     const newParamString = newParam.toString()
     router.push(
-      `${pathname}${newParamString ? '?' + newParamString : ''}` as Route,
+      `${pathname}${newParamString ? `?${newParamString}` : ''}` as Route,
       {
         scroll: false
       }
@@ -49,10 +51,13 @@ export default function SearchBar({ className }: SearchBarProps) {
       className={cn('relative', className)}
       onSubmit={handleSubmit(onSubmit)}
     >
-      <Search className="text-muted-foreground absolute left-2 top-3 h-4 w-4" />
+      <IoSearch
+        className="text-muted-foreground absolute left-3 top-[10px] h-4 w-4"
+        color="#C4C4C4"
+      />
       <Input
         placeholder="Search"
-        className="px-8"
+        className="h-9 rounded-full px-8 placeholder:text-[#8A8A8A]"
         {...register('search')}
         defaultValue={search ?? ''}
       />

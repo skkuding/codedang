@@ -1,0 +1,40 @@
+meta {
+  name: [409] Already participated
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/assignment/1/participation?groupId=1&invitationCode=123456
+  body: none
+  auth: none
+}
+
+params:query {
+  groupId: 1
+  invitationCode: 123456
+}
+
+assert {
+  res.status: eq 409
+  res("message"): eq Already participated this assignment
+}
+
+script:pre-request {
+  const axios = require("axios")
+
+  await require("./login").loginUser(req);
+
+  const baseUrl = bru.getEnvVar("baseUrl");
+  const authorization = bru.getVar("jwtToken");
+
+  try {
+    await axios.post(
+      baseUrl + "/group/1/assignment/1/participation",
+      {},
+      {
+        headers: { authorization }
+      }
+    )
+  } catch (error) {}
+}

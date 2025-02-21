@@ -2,34 +2,29 @@ import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
 import invisibleIcon from '@/public/icons/invisible.svg'
 import visibleIcon from '@/public/icons/visible.svg'
-import type { SettingsFormat } from '@/types/type'
 import Image from 'next/image'
 import React from 'react'
-import type { FieldErrors, UseFormRegister } from 'react-hook-form'
+import { useSettingsContext } from './context'
 
 interface NewPwSectionProps {
-  newPasswordShow: boolean
-  setNewPasswordShow: React.Dispatch<React.SetStateAction<boolean>>
   newPasswordAble: boolean
   isPasswordsMatch: boolean
   newPassword: string
   confirmPassword: string
-  updateNow: boolean
-  register: UseFormRegister<SettingsFormat>
-  errors: FieldErrors<SettingsFormat>
 }
 
-export default function NewPwSection({
-  newPasswordShow,
-  setNewPasswordShow,
+export function NewPwSection({
   newPasswordAble,
   isPasswordsMatch,
   newPassword,
-  confirmPassword,
-  updateNow,
-  register,
-  errors
+  confirmPassword
 }: NewPwSectionProps) {
+  const {
+    passwordState: { newPasswordShow, setNewPasswordShow },
+    updateNow,
+    formState: { register, errors }
+  } = useSettingsContext()
+
   return (
     <>
       <div className="flex items-center gap-2">

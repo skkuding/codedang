@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import typography from '@tailwindcss/typography'
 import type { Config } from 'tailwindcss'
 import animate from 'tailwindcss-animate'
@@ -68,6 +67,9 @@ export default {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out'
+      },
+      borderRadius: {
+        'tab-button': '2.22px'
       }
     }
   },

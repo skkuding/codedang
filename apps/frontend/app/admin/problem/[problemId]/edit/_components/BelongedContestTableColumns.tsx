@@ -1,6 +1,6 @@
 'use client'
 
-import DataTableColumnHeader from '@/app/admin/_components/table/DataTableColumnHeader'
+import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import { cn } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -21,7 +21,9 @@ export const columns: ColumnDef<BelongedContest>[] = [
       <Checkbox
         onClick={(e) => e.stopPropagation()}
         checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        onCheckedChange={(value) =>
+          table.toggleAllPageRowsSelected(Boolean(value))
+        }
         aria-label="Select all"
         className="translate-y-[2px] bg-white"
       />
@@ -30,7 +32,7 @@ export const columns: ColumnDef<BelongedContest>[] = [
       <Checkbox
         onClick={(e) => e.stopPropagation()}
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
         aria-label="Select row"
         className="translate-y-[2px] bg-white"
       />

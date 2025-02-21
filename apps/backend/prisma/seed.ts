@@ -8,17 +8,21 @@ import {
   type User,
   type Problem,
   type Tag,
-  type Contest,
+  type Assignment,
   type Workbook,
   type Submission,
   type ProblemTestcase,
   type Announcement,
   type CodeDraft,
-  type ContestRecord
+  type AssignmentRecord,
+  type Contest,
+  type ContestRecord,
+  type ContestProblemRecord
 } from '@prisma/client'
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
+import { GroupType } from '@admin/@generated'
 
 const prisma = new PrismaClient()
 const fixturePath = join(__dirname, '__fixtures__')
@@ -29,12 +33,16 @@ const MAX_DATE: Date = new Date('2999-12-31T00:00:00.000Z')
 
 let superAdminUser: User
 let adminUser: User
-let managerUser: User
+let instructorUser: User
 let publicGroup: Group
 let privateGroup: Group
 const users: User[] = []
 const problems: Problem[] = []
 let problemTestcases: ProblemTestcase[] = []
+const assignments: Assignment[] = []
+const endedAssignments: Assignment[] = []
+const ongoingAssignments: Assignment[] = []
+const upcomingAssignments: Assignment[] = []
 const contests: Contest[] = []
 const endedContests: Contest[] = []
 const ongoingContests: Contest[] = []
@@ -42,7 +50,9 @@ const upcomingContests: Contest[] = []
 const workbooks: Workbook[] = []
 const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
-const announcements: Announcement[] = []
+const assignmentAnnouncements: Announcement[] = []
+const contestAnnouncements: Announcement[] = []
+const contestProblemRecords: ContestProblemRecord[] = []
 
 const createUsers = async () => {
   // create super admin user
@@ -71,16 +81,18 @@ const createUsers = async () => {
     }
   })
 
-  // create manager user
-  managerUser = await prisma.user.create({
+  // create non-admin user with canCreateCourse and canCreateContest
+  instructorUser = await prisma.user.create({
     data: {
-      username: 'manager',
-      password: await hash('Managermanager'),
-      email: 'manager@example.com',
+      username: 'instructor',
+      password: await hash('Instructorinstructor'),
+      email: 'inst@example.com',
       lastLogin: new Date(),
-      role: Role.Manager,
+      role: Role.User,
       studentId: '2024000002',
-      major: 'Computer Science'
+      major: 'Computer Science',
+      canCreateCourse: true,
+      canCreateContest: true
     }
   })
 
@@ -145,55 +157,40 @@ const createGroups = async () => {
   // create empty private group
   privateGroup = await prisma.group.create({
     data: {
-      groupName: 'Example Private Group',
-      description:
-        'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+      groupName: '정보보호개론',
+      groupType: GroupType.Course,
       config: {
-        showOnList: false,
-        allowJoinFromSearch: false,
+        showOnList: true,
+        allowJoinFromSearch: true,
         allowJoinWithURL: true,
-        requireApprovalBeforeJoin: true
+        requireApprovalBeforeJoin: false
+      },
+      courseInfo: {
+        create: {
+          courseNum: 'SWE3033',
+          classNum: 42,
+          professor: '형식킴',
+          semester: '2025 Spring',
+          email: 'example01@skku.edu',
+          website: 'https://seclab.com'
+        }
       }
     }
   })
   await prisma.userGroup.create({
     data: {
-      userId: managerUser.id,
+      userId: instructorUser.id,
       groupId: privateGroup.id,
       isGroupLeader: true
     }
   })
 
   // create empty private group
-  // 'showOnList'가 true 이면서 가입시 사전 승인이 필요한 그룹을 테스트할 때 사용합니다
+  // 'showOnList'가 true
   let tempGroup = await prisma.group.create({
     data: {
       groupName: 'Example Private Group 2',
-      description:
-        'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
-      config: {
-        showOnList: true,
-        allowJoinFromSearch: true,
-        allowJoinWithURL: true,
-        requireApprovalBeforeJoin: true
-      }
-    }
-  })
-  await prisma.userGroup.create({
-    data: {
-      userId: managerUser.id,
-      groupId: tempGroup.id,
-      isGroupLeader: true
-    }
-  })
-
-  // create empty private group
-  // 'showOnList'가 true 이면서 가입시 사전 승인이 필요없는 그룹을 테스트할 때 사용합니다
-  tempGroup = await prisma.group.create({
-    data: {
-      groupName: 'Example Private Group 3',
-      description:
-        'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+      description: 'This is an example private group just for testing.',
       config: {
         showOnList: true,
         allowJoinFromSearch: true,
@@ -204,7 +201,29 @@ const createGroups = async () => {
   })
   await prisma.userGroup.create({
     data: {
-      userId: managerUser.id,
+      userId: instructorUser.id,
+      groupId: tempGroup.id,
+      isGroupLeader: true
+    }
+  })
+
+  // create empty private group
+  // 'showOnList'가 true
+  tempGroup = await prisma.group.create({
+    data: {
+      groupName: 'Example Private Group 3',
+      description: 'This is an example private group just for testing.',
+      config: {
+        showOnList: true,
+        allowJoinFromSearch: true,
+        allowJoinWithURL: true,
+        requireApprovalBeforeJoin: false
+      }
+    }
+  })
+  await prisma.userGroup.create({
+    data: {
+      userId: instructorUser.id,
       groupId: tempGroup.id,
       isGroupLeader: true
     }
@@ -308,7 +327,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       },
       {
@@ -370,7 +389,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       },
       {
@@ -431,7 +450,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       },
       {
@@ -492,7 +511,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       },
       {
@@ -553,7 +572,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       },
       {
@@ -614,7 +633,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       }
     ]
@@ -659,7 +678,7 @@ const createProblems = async () => {
         timeLimit: 2000,
         memoryLimit: 512,
         source: '',
-        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
+        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingAssignments[0].endTime
       }
     })
   )
@@ -688,7 +707,7 @@ const createProblems = async () => {
         timeLimit: 2000,
         memoryLimit: 512,
         source: 'Canadian Computing Competition(CCC) 2012 Junior 2번',
-        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
+        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingAssignments[0].endTime
       }
     })
   )
@@ -717,7 +736,7 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'Canadian Computing Competition(CCC) 2013 Junior 2번',
-        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
+        visibleLockTime: new Date('2028-01-01T23:59:59.000Z') //ongoingAssignments[0].endTime
       }
     })
   )
@@ -746,7 +765,7 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'USACO 2012 US Open Bronze 1번',
-        visibleLockTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
+        visibleLockTime: new Date('2024-01-01T23:59:59.000Z') //endedAssignments[0].endTime
       }
     })
   )
@@ -775,7 +794,7 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'ICPC Regionals NCPC 2009 B번',
-        visibleLockTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
+        visibleLockTime: new Date('2024-01-01T23:59:59.000Z') //endedAssignments[0].endTime
       }
     })
   )
@@ -832,7 +851,7 @@ const createProblems = async () => {
         hint: '',
         timeLimit: 2000,
         memoryLimit: 512,
-        source: 'COCI 2019/2020 Contest #3 2번',
+        source: 'COCI 2019/2020 Assignment #3 2번',
         visibleLockTime: MIN_DATE
       }
     })
@@ -949,7 +968,12 @@ const createContests = async () => {
       title: string
       description: string
       createdById: number
-      groupId: number
+      posterUrl: string | null
+      participationTarget: string | null
+      competitionMethod: string | null
+      rankingMethod: string | null
+      problemFormat: string | null
+      benefits: string | null
       startTime: Date
       endTime: Date
       isVisible: boolean
@@ -993,7 +1017,12 @@ const createContests = async () => {
   아니하고는 처벌·보안처분 또는 강제노역을 받지 아니한다.
 </p>`,
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        posterUrl: `https://skkuding.dev/open-graph.png`,
+        participationTarget: '성균관대 재학생이라면 누구나',
+        competitionMethod: '온라인으로 진행',
+        rankingMethod: '맞춘 문제 수와 penalty로 산정',
+        problemFormat: '이러한 방식으로 출제될 거에요',
+        benefits: '참가자 전원 스타벅스 기프티콘 증정',
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1007,7 +1036,12 @@ const createContests = async () => {
         title: '24년도 소프트웨어학과 신입생 입학 테스트1',
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '성균관대학교 24학번 신입생',
+        competitionMethod: '강의실에서 오프라인으로 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 종합하여 순위 산출',
+        problemFormat: null,
+        benefits: '1등 10만원 / 2등 3만원',
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1021,7 +1055,12 @@ const createContests = async () => {
         title: '24년도 소프트웨어학과 신입생 입학 테스트2',
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        posterUrl: `https://skkuding.dev/open-graph.png`,
+        participationTarget: '성균관대학교 24학번 신입생',
+        competitionMethod: '강의실에서 오프라인으로 진행',
+        rankingMethod: null,
+        problemFormat: '문제 형태가 다음과 같습니다.',
+        benefits: '1등 10만원 / 2등 3만원',
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1035,7 +1074,12 @@ const createContests = async () => {
         title: '24년도 소프트웨어학과 신입생 입학 테스트3',
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        posterUrl: `https://skkuding.dev/open-graph.png`,
+        participationTarget: '성균관대학교 24학번 신입생',
+        competitionMethod: '강의실에서 오프라인으로 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 종합하여 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1049,7 +1093,12 @@ const createContests = async () => {
         title: '24년도 아늑배 스파게티 코드 만들기 대회',
         description: '<p>이 대회는 현재 진행 중입니다 ! (private group)</p>',
         createdById: superAdminUser.id,
-        groupId: privateGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '삼성학술정보관 지하1층에서 오프라인 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: '1등 총장상 + 50만원 / 2등 20만원 / 3등 15만원',
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1061,10 +1110,15 @@ const createContests = async () => {
     // Finished Contests
     {
       data: {
-        title: 'Long Time Ago Contest',
+        title: 'Long Time Ago Assignment',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공생',
+        competitionMethod: '온라인 진행',
+        rankingMethod: null,
+        problemFormat: null,
+        benefits: '1~3등에게 상위 대회 출전 자격 부여',
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1078,7 +1132,12 @@ const createContests = async () => {
         title: '23년도 소프트웨어학과 신입생 입학 테스트',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 23학번',
+        competitionMethod: '온라인 진행',
+        rankingMethod: '맞춘 문제 수를 기준으로 순위를 선정한다.',
+        problemFormat: '1번 문제: / 2번 문제: / 3번 문제: ',
+        benefits: '문제를 모두 맞춘 학생에게 격려금 지원',
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1092,7 +1151,12 @@ const createContests = async () => {
         title: '소프트의 아침',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘',
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1106,7 +1170,12 @@ const createContests = async () => {
         title: '소프트의 낮',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1120,7 +1189,12 @@ const createContests = async () => {
         title: '소프트의 밤',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1134,7 +1208,12 @@ const createContests = async () => {
         title: '2023 SKKU 프로그래밍 대회',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1148,7 +1227,12 @@ const createContests = async () => {
         title: '소프트의 오전',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1162,7 +1246,12 @@ const createContests = async () => {
         title: '소프트의 오후',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘',
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1176,7 +1265,12 @@ const createContests = async () => {
         title: '23년도 아늑배 스파게티 코드 만들기 대회',
         description: '<p>이 대회는 오래 전에 끝났어요 (private group)</p>',
         createdById: superAdminUser.id,
-        groupId: privateGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1188,10 +1282,15 @@ const createContests = async () => {
     // Upcoming Contests
     {
       data: {
-        title: 'Future Contest',
+        title: 'Future Assignment',
         description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행 예정...?',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1205,7 +1304,12 @@ const createContests = async () => {
         title: '2024 SKKU 프로그래밍 대회',
         description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행 예정...?',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1218,9 +1322,14 @@ const createContests = async () => {
       data: {
         title: '2024 스꾸딩 프로그래밍 대회',
         description:
-          '<p>이 대회는 언젠가 열리겠죠...? isVisible이 false인 contest입니다</p>',
+          '<p>이 대회는 언젠가 열리겠죠...? isVisible이 false인 assignment입니다</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        posterUrl: `https://skkuding.dev/open-graph.png`,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행 예정...?',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: null,
+        benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘',
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: false,
@@ -1234,7 +1343,12 @@ const createContests = async () => {
         title: '25년도 아늑배 스파게티 코드 만들기 대회',
         description: '<p>이 대회는 언젠가 열리겠죠...? (private group)</p>',
         createdById: superAdminUser.id,
-        groupId: privateGroup.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행 예정...?',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: null,
+        benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘',
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1276,6 +1390,347 @@ const createContests = async () => {
       data: {
         order: problem.id - 1,
         contestId: endedContests[0].id,
+        problemId: problem.id
+      }
+    })
+  }
+
+  // TODO: add records and ranks
+}
+
+const createAssignments = async () => {
+  const assignmentData: {
+    data: {
+      title: string
+      description: string
+      createdById: number
+      groupId: number
+      startTime: Date
+      endTime: Date
+      isVisible: boolean
+      isRankVisible: boolean
+      invitationCode: string | null
+      enableCopyPaste: boolean
+    }
+  }[] = [
+    // Ongoing Assignments
+    {
+      data: {
+        title: 'SKKU Coding Platform 모의과제',
+        description: `<p>
+  대통령은 내란 또는 외환의 죄를 범한 경우를 제외하고는 재직중 형사상의 소추를
+  받지 아니한다. 모든 국민은 자기의 행위가 아닌 친족의 행위로 인하여 불이익한
+  처우를 받지 아니한다.
+</p>
+
+<p>
+  위원은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니한다.
+  대통령은 국무회의의 의장이 되고, 국무총리는 부의장이 된다. 모든 국민은 헌법과
+  법률이 정한 법관에 의하여 법률에 의한 재판을 받을 권리를 가진다.
+</p>
+
+<p>
+  국회의원은 현행범인인 경우를 제외하고는 회기중 국회의 동의없이 체포 또는
+  구금되지 아니한다. 헌법재판소의 장은 국회의 동의를 얻어 재판관중에서 대통령이
+  임명한다.
+</p>
+
+<p>
+  국가는 지역간의 균형있는 발전을 위하여 지역경제를 육성할 의무를 진다. 제3항의
+  승인을 얻지 못한 때에는 그 처분 또는 명령은 그때부터 효력을 상실한다. 이 경우
+  그 명령에 의하여 개정 또는 폐지되었던 법률은 그 명령이 승인을 얻지 못한 때부터
+  당연히 효력을 회복한다.
+</p>
+
+<p>
+  모든 국민은 신체의 자유를 가진다. 누구든지 법률에 의하지 아니하고는
+  체포·구속·압수·수색 또는 심문을 받지 아니하며, 법률과 적법한 절차에 의하지
+  아니하고는 처벌·보안처분 또는 강제노역을 받지 아니한다.
+</p>`,
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2024-01-01T00:00:00.000Z'),
+        endTime: new Date('2028-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '24년도 소프트웨어학과 신입생 입학 과제1',
+        description: '<p>이 과제는 현재 진행 중입니다 !</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2024-01-01T00:00:00.000Z'),
+        endTime: new Date('2028-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: null,
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '24년도 소프트웨어학과 신입생 입학 과제2',
+        description: '<p>이 과제는 현재 진행 중입니다 !</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2024-01-01T00:00:00.000Z'),
+        endTime: new Date('2028-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '24년도 소프트웨어학과 신입생 입학 과제3',
+        description: '<p>이 과제는 현재 진행 중입니다 !</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2024-01-01T00:00:00.000Z'),
+        endTime: new Date('2028-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: null,
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '24년도 아늑배 스파게티 코드 만들기 과제',
+        description: '<p>이 과제는 현재 진행 중입니다 ! (private group)</p>',
+        createdById: superAdminUser.id,
+        groupId: privateGroup.id,
+        startTime: new Date('2024-01-01T00:00:00.000Z'),
+        endTime: new Date('2028-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: null,
+        enableCopyPaste: true
+      }
+    },
+    // Finished Assignments
+    {
+      data: {
+        title: 'Long Time Ago Assignment',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '23년도 소프트웨어학과 신입생 입학 과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '소프트의 아침과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '소프트의 낮과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '소프트의 밤과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '2023 SKKU 프로그래밍 과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '소프트의 오전과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '소프트의 오후과제',
+        description: '<p>이 과제는 오래 전에 끝났어요</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
+        invitationCode: null,
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '23년도 아늑배 스파게티 코드 만들기 과제',
+        description: '<p>이 과제는 오래 전에 끝났어요 (private group)</p>',
+        createdById: superAdminUser.id,
+        groupId: privateGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: null,
+        enableCopyPaste: true
+      }
+    },
+    // Upcoming Assignments
+    {
+      data: {
+        title: 'Future Assignment',
+        description: '<p>이 과제는 언젠가 열리겠죠...?</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('3024-01-01T00:00:00.000Z'),
+        endTime: new Date('3025-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '2024 SKKU 프로그래밍 과제',
+        description: '<p>이 과제는 언젠가 열리겠죠...?</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('3024-01-01T00:00:00.000Z'),
+        endTime: new Date('3025-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '2024 스꾸딩 프로그래밍 과제',
+        description:
+          '<p>이 과제는 언젠가 열리겠죠...? isVisible이 false인 assignment입니다</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('3024-01-01T00:00:00.000Z'),
+        endTime: new Date('3025-01-01T23:59:59.000Z'),
+        isVisible: false,
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
+    },
+    {
+      data: {
+        title: '25년도 아늑배 스파게티 코드 만들기 과제',
+        description: '<p>이 과제는 언젠가 열리겠죠...? (private group)</p>',
+        createdById: superAdminUser.id,
+        groupId: privateGroup.id,
+        startTime: new Date('3024-01-01T00:00:00.000Z'),
+        endTime: new Date('3025-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: null,
+        enableCopyPaste: true
+      }
+    }
+  ]
+
+  const now = new Date()
+  for (const obj of assignmentData) {
+    const assignment = await prisma.assignment.create(obj)
+    assignments.push(assignment)
+    if (now < obj.data.startTime) {
+      upcomingAssignments.push(assignment)
+    } else if (obj.data.endTime < now) {
+      endedAssignments.push(assignment)
+    } else {
+      ongoingAssignments.push(assignment)
+    }
+  }
+
+  // add problems to ongoing assignment
+  for (const problem of problems.slice(0, 3)) {
+    await prisma.assignmentProblem.create({
+      data: {
+        order: problem.id - 1,
+        assignmentId: ongoingAssignments[0].id,
+        problemId: problem.id,
+        score: problem.id * 10
+      }
+    })
+  }
+
+  // add problems to finished assignment
+  for (const problem of problems.slice(3, 5)) {
+    await prisma.assignmentProblem.create({
+      data: {
+        order: problem.id - 1,
+        assignmentId: endedAssignments[0].id,
         problemId: problem.id
       }
     })
@@ -1354,7 +1809,7 @@ int main(void) {
 
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[0].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[0].id,
       result: ResultStatus.Accepted,
       cpuTime: 12345,
@@ -1363,7 +1818,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.Accepted }
   })
@@ -1392,7 +1847,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[1].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[1].id,
       result: ResultStatus.WrongAnswer,
       cpuTime: 12345,
@@ -1401,7 +1856,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.WrongAnswer }
   })
@@ -1430,14 +1885,14 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[2].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[2].id,
       result: ResultStatus.CompileError
     }
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.CompileError }
   })
@@ -1462,7 +1917,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[3].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[3].id,
       result: ResultStatus.RuntimeError,
       cpuTime: 12345,
@@ -1471,7 +1926,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.RuntimeError }
   })
@@ -1500,7 +1955,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[4].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[4].id,
       result: ResultStatus.TimeLimitExceeded,
       cpuTime: 12345,
@@ -1509,7 +1964,192 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
+    },
+    data: { result: ResultStatus.TimeLimitExceeded }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[0].id,
+        problemId: problems[0].id,
+        assignmentId: ongoingAssignments[0].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `#include <stdio.h>
+int main(void) {
+    printf("Hello, World!\n");
+    return 0;
+}`
+          }
+        ],
+        language: Language.C,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[0].id,
+      result: ResultStatus.Accepted,
+      cpuTime: 12345,
+      memoryUsage: 12345
+    }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[submissions.length - 1].id
+    },
+    data: { result: ResultStatus.Accepted }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[1].id,
+        problemId: problems[1].id,
+        assignmentId: ongoingAssignments[0].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `#include <iostream>
+int main(void) {
+    std::cout << "Hello, World!" << endl;
+    return 0;
+}`
+          }
+        ],
+        language: Language.Cpp,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[1].id,
+      result: ResultStatus.WrongAnswer,
+      cpuTime: 12345,
+      memoryUsage: 12345
+    }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[submissions.length - 1].id
+    },
+    data: { result: ResultStatus.WrongAnswer }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[2].id,
+        problemId: problems[2].id,
+        assignmentId: ongoingAssignments[0].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}`
+          }
+        ],
+        language: Language.Java,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[2].id,
+      result: ResultStatus.CompileError
+    }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[submissions.length - 1].id
+    },
+    data: { result: ResultStatus.CompileError }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[3].id,
+        problemId: problems[3].id,
+        assignmentId: ongoingAssignments[0].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `print("Hello, World!")`
+          }
+        ],
+        language: Language.Python3,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[3].id,
+      result: ResultStatus.RuntimeError,
+      cpuTime: 12345,
+      memoryUsage: 12345
+    }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[submissions.length - 1].id
+    },
+    data: { result: ResultStatus.RuntimeError }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[4].id,
+        problemId: problems[4].id,
+        assignmentId: ongoingAssignments[0].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `#include <stdio.h>
+int main(void) {
+    printf("Hello, World!\n");
+    return 0;
+}`
+          }
+        ],
+        language: Language.C,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[4].id,
+      result: ResultStatus.TimeLimitExceeded,
+      cpuTime: 12345,
+      memoryUsage: 12345
+    }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.TimeLimitExceeded }
   })
@@ -1538,7 +2178,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[5].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[5].id,
       result: ResultStatus.MemoryLimitExceeded,
       cpuTime: 12345,
@@ -1547,7 +2187,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.MemoryLimitExceeded }
   })
@@ -1572,7 +2212,7 @@ int main(void) {
   )
   await prisma.submissionResult.create({
     data: {
-      submissionId: submissions[6].id,
+      submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[6].id,
       result: ResultStatus.OutputLimitExceeded,
       cpuTime: 12345,
@@ -1581,18 +2221,47 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[submissions.length - 1].id
     },
     data: { result: ResultStatus.OutputLimitExceeded }
   })
 }
 
 const createAnnouncements = async () => {
+  // For Assignments
   for (let i = 0; i < 5; ++i) {
-    announcements.push(
+    assignmentAnnouncements.push(
       await prisma.announcement.create({
         data: {
-          content: `Announcement_0_${i}`,
+          content: `Announcement(assignment)_0_${i}`,
+          assignmentId: ongoingAssignments[i].id
+        }
+      })
+    )
+  }
+
+  for (let i = 0; i < 5; ++i) {
+    assignmentAnnouncements.push(
+      await prisma.announcement.create({
+        data: {
+          content: `Announcement(assignment)_1_${i}...
+아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.
+모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.
+법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.
+일반사면을 명하려면 국회의 동의를 얻어야 한다. 연소자의 근로는 특별한 보호를 받는다.`,
+          assignmentId: ongoingAssignments[i].id,
+          problemId: problems[i].id
+        }
+      })
+    )
+  }
+
+  // For Contests
+  for (let i = 0; i < 5; ++i) {
+    contestAnnouncements.push(
+      await prisma.announcement.create({
+        data: {
+          content: `Announcement(contest)_0_${i}`,
           contestId: ongoingContests[i].id
         }
       })
@@ -1600,10 +2269,10 @@ const createAnnouncements = async () => {
   }
 
   for (let i = 0; i < 5; ++i) {
-    announcements.push(
+    contestAnnouncements.push(
       await prisma.announcement.create({
         data: {
-          content: `Announcement_1_${i}...
+          content: `Announcement(contest)_1_${i}...
 아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.
 모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.
 법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.
@@ -1672,8 +2341,8 @@ const createCodeDrafts = async () => {
   return codeDrafts
 }
 
-const createContestRecords = async () => {
-  const contestRecords: ContestRecord[] = []
+const createAssignmentRecords = async () => {
+  const assignmentRecords: AssignmentRecord[] = []
   // group 1 users
   const group1Users = await prisma.userGroup.findMany({
     where: {
@@ -1681,26 +2350,30 @@ const createContestRecords = async () => {
     }
   })
   for (const user of group1Users) {
-    const contestRecord = await prisma.contestRecord.create({
+    const assignmentRecord = await prisma.assignmentRecord.create({
       data: {
         userId: user.userId,
-        contestId: 1,
+        assignmentId: 1,
         acceptedProblemNum: 0,
         totalPenalty: 0
       }
     })
-    contestRecords.push(contestRecord)
+    assignmentRecords.push(assignmentRecord)
   }
 
-  // upcoming contest에 참가한 User 1의 contest register를 un-register하는 기능과,
-  // registered upcoming, ongoing, finished contest를 조회하는 기능을 확인하기 위함
+  // upcoming assignment에 참가한 User 1의 assignment register를 un-register하는 기능과,
+  // registered upcoming, ongoing, finished assignment를 조회하는 기능을 확인하기 위함
   const user01Id = 4
-  for (let contestId = 3; contestId <= contests.length; contestId += 2) {
-    contestRecords.push(
-      await prisma.contestRecord.create({
+  for (
+    let assignmentId = 3;
+    assignmentId <= assignments.length;
+    assignmentId += 2
+  ) {
+    assignmentRecords.push(
+      await prisma.assignmentRecord.create({
         data: {
           userId: user01Id,
-          contestId,
+          assignmentId,
           acceptedProblemNum: 0,
           score: 0,
           totalPenalty: 0
@@ -1709,7 +2382,81 @@ const createContestRecords = async () => {
     )
   }
 
+  return assignmentRecords
+}
+
+const createContestRecords = async () => {
+  const contestRecords: ContestRecord[] = []
+  // all users
+  const users = await prisma.user.findMany()
+  for (const user of users) {
+    const existingRecord = await prisma.contestRecord.findFirst({
+      where: {
+        contestId: 1,
+        userId: user.id
+      }
+    })
+    if (!existingRecord) {
+      const contestRecord = await prisma.contestRecord.create({
+        data: {
+          userId: user.id,
+          contestId: 1,
+          acceptedProblemNum: 0,
+          totalPenalty: 0
+        }
+      })
+      contestRecords.push(contestRecord)
+    }
+  }
+
+  // upcoming contest에 참가한 User 1의 contest register를 un-register하는 기능과,
+  // registered upcoming, ongoing, finished contest를 조회하는 기능을 확인하기 위함
+  const contests = await prisma.contest.findMany({
+    select: {
+      id: true
+    }
+  })
+  const user01Id = 4
+  for (let i = 0; i < contests.length; i += 2) {
+    const contestId = contests[i].id
+    const existingRecord = await prisma.contestRecord.findFirst({
+      where: {
+        contestId,
+        userId: user01Id
+      }
+    })
+    if (!existingRecord) {
+      contestRecords.push(
+        await prisma.contestRecord.create({
+          data: {
+            userId: user01Id,
+            contestId,
+            acceptedProblemNum: 0,
+            score: 0,
+            totalPenalty: 0
+          }
+        })
+      )
+    }
+  }
+
   return contestRecords
+}
+
+const createContestProblemRecords = async () => {
+  // contest 1 problems for
+  for (let i = 0; i < 5; ++i) {
+    contestProblemRecords.push(
+      await prisma.contestProblemRecord.create({
+        data: {
+          contestProblemId: i + 1,
+          contestRecordId: 1
+        }
+      })
+    )
+  }
+
+  return contestProblemRecords
 }
 
 const main = async () => {
@@ -1717,12 +2464,15 @@ const main = async () => {
   await createGroups()
   await createNotices()
   await createProblems()
+  await createAssignments()
   await createContests()
+  await createContestRecords()
   await createWorkbooks()
   await createSubmissions()
   await createAnnouncements()
   await createCodeDrafts()
-  await createContestRecords()
+  await createAssignmentRecords()
+  await createContestProblemRecords()
 }
 
 main()

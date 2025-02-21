@@ -15,7 +15,7 @@ interface SearchBarProps extends InputProps {
  * @param columnId
  * 검색 필터를 적용할 컬럼 아이디
  */
-export default function DataTableSearchBar({
+export function DataTableSearchBar({
   placeholder,
   className,
   columndId,

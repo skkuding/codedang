@@ -84,12 +84,12 @@ const copyPasteHandler = () => {
   })
 }
 
-export default function CodeEditor({
+export function CodeEditor({
   value,
   language,
   onChange,
   enableCopyPaste = true,
-  readOnly: readOnly = false,
+  readOnly = false,
   ...props
 }: Props) {
   return (

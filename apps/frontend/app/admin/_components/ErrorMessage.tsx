@@ -1,6 +1,6 @@
 import { PiWarningBold } from 'react-icons/pi'
 
-export default function ErrorMessage({
+export function ErrorMessage({
   message = 'required' //default value
 }: {
   message?: string

@@ -1,6 +1,6 @@
 'use client'
 
-import CodeEditor from '@/components/CodeEditor'
+import { CodeEditor } from '@/components/CodeEditor'
 import { Alert, AlertDescription, AlertTitle } from '@/components/shadcn/alert'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import {
@@ -18,7 +18,7 @@ import type { Language } from '@/types/type'
 import { useLazyQuery, useQuery } from '@apollo/client'
 import { IoWarning } from 'react-icons/io5'
 
-export default function SubmissionDetailAdmin({
+export function SubmissionDetailAdmin({
   submissionId
 }: {
   submissionId: number
@@ -155,7 +155,7 @@ export default function SubmissionDetailAdmin({
               <Table className="[&_*]:text-center [&_*]:text-xs [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:!border-neutral-200">
                 <TableHeader>
                   <TableRow>
-                    <TableHead></TableHead>
+                    <TableHead />
                     <TableHead className="!text-sm text-black">
                       Result
                     </TableHead>

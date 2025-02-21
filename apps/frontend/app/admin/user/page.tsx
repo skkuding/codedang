@@ -1,3 +1,5 @@
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
+import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 import { UserTable, UserTableFallback } from './_components/UserTable'
 
@@ -9,9 +11,11 @@ export default function User() {
       <div className="flex justify-between">
         <h1 className="text-4xl font-bold">User List</h1>
       </div>
-      <Suspense fallback={<UserTableFallback />}>
-        <UserTable />
-      </Suspense>
+      <ErrorBoundary fallback={FetchErrorFallback}>
+        <Suspense fallback={<UserTableFallback />}>
+          <UserTable />
+        </Suspense>
+      </ErrorBoundary>
     </div>
   )
 }

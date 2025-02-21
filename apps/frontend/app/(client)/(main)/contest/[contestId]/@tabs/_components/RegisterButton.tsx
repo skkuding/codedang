@@ -9,22 +9,22 @@ import {
   DialogTrigger
 } from '@/components/shadcn/dialog'
 import { Input } from '@/components/shadcn/input'
-import { cn, fetcherWithAuth } from '@/libs/utils'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { cn, safeFetcherWithAuth } from '@/libs/utils'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { z } from 'zod'
+import * as v from 'valibot'
 
 interface InvitationCodeInput {
   invitationCode: string
 }
 
-const schema = z.object({
-  invitationCode: z.string().length(6)
+const schema = v.object({
+  invitationCode: v.pipe(v.string(), v.length(6))
 })
 
-export default function RegisterButton({
+export function RegisterButton({
   id,
   state,
   title,
@@ -37,8 +37,8 @@ export default function RegisterButton({
 }) {
   const router = useRouter()
   const clickRegister = async (contestId: string) => {
-    await fetcherWithAuth
-      .post(`contest/${contestId}/participation`, {
+    try {
+      await safeFetcherWithAuth.post(`contest/${contestId}/participation`, {
         searchParams: invitationCodeExists
           ? {
               groupId: 1,
@@ -46,18 +46,12 @@ export default function RegisterButton({
             }
           : { groupId: 1 }
       })
-      .then((res) => {
-        if (!res.ok) {
-          toast.error(
-            invitationCodeExists ? 'Invalid code' : 'Failed to register'
-          )
-        } else {
-          toast.success(`Registered ${state} test successfully`)
-          router.push(`/contest/${contestId}/problem`)
-          router.refresh() // to update register state
-        }
-      })
-      .catch((err) => console.log(err))
+      toast.success(`Registered ${state} test successfully`)
+      router.refresh() // to update register state
+    } catch (error) {
+      console.error(error)
+      toast.error(invitationCodeExists ? 'Invalid code' : 'Failed to register')
+    }
   }
 
   const {
@@ -67,31 +61,31 @@ export default function RegisterButton({
     getValues,
     formState: { errors }
   } = useForm<InvitationCodeInput>({
-    resolver: zodResolver(schema)
+    resolver: valibotResolver(schema)
   })
 
-  const onSubmit = async () => {
+  const onSubmit = () => {
     clickRegister(id)
   }
 
   return !invitationCodeExists ? (
     // User not registered and no invitation code required
     <Button
-      className="px-12 py-6 text-lg disabled:bg-gray-300 disabled:text-gray-600"
+      className="h-12 w-[940px] rounded-full px-12 py-6 text-lg disabled:bg-gray-300 disabled:text-gray-600"
       disabled={state === 'Upcoming'}
       onClick={onSubmit}
     >
-      Register Now
+      Register Now!
     </Button>
   ) : (
     // User not registered and invitation code required
     <Dialog>
       <DialogTrigger asChild>
         <Button
-          className="px-12 py-6 text-lg disabled:bg-gray-300 disabled:text-gray-600"
+          className="h-12 w-[940px] rounded-full px-12 py-6 text-lg disabled:bg-gray-300 disabled:text-gray-600"
           disabled={state === 'Upcoming'}
         >
-          Register Now
+          Register Now!
         </Button>
       </DialogTrigger>
       <DialogContent className="flex w-[416px] flex-col gap-6 p-10">

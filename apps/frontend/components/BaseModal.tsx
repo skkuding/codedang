@@ -1,3 +1,4 @@
+import { cn } from '@/libs/utils'
 import { Loader2 } from 'lucide-react'
 import React, { type ReactNode } from 'react'
 import {
@@ -11,13 +12,15 @@ import {
 
 interface BaseModalProps {
   open: boolean
-  handleClose: () => void
+  handleClose?: () => void
   children?: ReactNode
   loading?: boolean
   loadingMessage?: string
   title?: string
   description?: string
   darkMode?: boolean
+  modalstyle?: string
+  headerstyle?: string
 }
 
 /**
@@ -26,7 +29,7 @@ interface BaseModalProps {
  * * Use BaseModal Component by creating a new component(which includes 'AlertDialogFooter') that extends BaseModal.
  * * AlertDialogFooter section (Button section) is separated using ConfirmModal component for reusability.
  */
-export default function BaseModal({
+export function BaseModal({
   open,
   handleClose,
   children,
@@ -34,7 +37,9 @@ export default function BaseModal({
   loadingMessage = '',
   title = '',
   description = '',
-  darkMode = false
+  darkMode = false,
+  modalstyle = '',
+  headerstyle = ''
 }: BaseModalProps) {
   const formattedDescription =
     description.split('\n').map((line, index) => <p key={index}>{line}</p>) ??
@@ -43,8 +48,8 @@ export default function BaseModal({
   return (
     <AlertDialog open={open} onOpenChange={handleClose}>
       <AlertDialogOverlay darkMode={darkMode} />
-      <AlertDialogContent className="max-w-[428px]">
-        <AlertDialogHeader>
+      <AlertDialogContent className={cn('max-w-[428px]', modalstyle)}>
+        <AlertDialogHeader className={headerstyle}>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription className="min-w-72">
             {loading ? (

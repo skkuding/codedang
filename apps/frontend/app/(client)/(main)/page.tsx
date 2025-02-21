@@ -1,8 +1,8 @@
-import FetchErrorFallback from '@/components/FetchErrorFallback'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { ErrorBoundary } from '@suspensive/react'
-import Carousel from './_components/Carousel'
-import ContestCards from './_components/ContestCards'
-import ProblemCards from './_components/ProblemCards'
+import { Carousel } from './_components/Carousel'
+import { ContestCards } from './_components/ContestCards'
+import { ProblemCards } from './_components/ProblemCards'
 
 const slides = [
   {
@@ -36,7 +36,8 @@ const slides = [
 
 export default function Home() {
   return (
-    <div className="flex w-full flex-col gap-16 lg:items-center">
+    // NOTE: Temporary margin top for codedang main page carousel to avoid header overlap (until main page design is finalized)
+    <div className="mt-14 flex w-full flex-col gap-16 lg:items-center">
       <Carousel slides={slides} />
       {/* <div className="flex w-full flex-col gap-3">
         <div className="flex w-full items-center justify-between text-gray-700">

@@ -13,7 +13,9 @@ data "aws_cloudfront_origin_request_policy" "exclude_host_header" {
 resource "aws_cloudfront_distribution" "codedang" {
   origin {
     #TODO : RC서버 Amplify 문제 해결
+
     domain_name = var.env == "production" ? "amplify.codedang.com" : "remove-sentry.d6pfxg2cc9yvf.amplifyapp.com"
+
     origin_id   = "frontend" # TODO: Add unique ID of Amplify
 
     custom_origin_config {
@@ -56,7 +58,9 @@ resource "aws_cloudfront_distribution" "codedang" {
   comment      = "Codedang-RC"
   http_version = "http2and3"
 
+
   aliases = var.env == "rc" ? ["rc.codedang.com"] : ["codedang.com"]
+
 
   default_cache_behavior {
     allowed_methods          = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
@@ -98,6 +102,7 @@ resource "aws_cloudfront_distribution" "codedang" {
     acm_certificate_arn            = var.env == "rc" ? local.network.route53_certificate_arn : null
     ssl_support_method             = var.env == "rc" ? "sni-only" : null
     minimum_protocol_version       = var.env == "rc" ? "TLSv1.2_2021" : null
+
   }
 }
 

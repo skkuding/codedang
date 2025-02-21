@@ -1,0 +1,36 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateAssignmentProblemsScore($groupId: Int!, $assignmentId: Int!, $problemIdsWithScore: [ProblemScoreInput!]!) {
+    updateAssignmentProblemsScore(groupId: $groupId, assignmentId: $assignmentId, problemIdsWithScore: $problemIdsWithScore) {
+      assignmentId
+      problemId
+      score
+      order
+    }
+  }
+
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "assignmentId": 1,
+    "problemIdsWithScore": [
+      {
+        "problemId": 1,
+        "score": 0
+      }
+    ]
+  }
+}

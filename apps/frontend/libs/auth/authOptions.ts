@@ -19,7 +19,7 @@ export const authOptions: NextAuthOptions = {
     maxAge: 24 * 60 * 60 // 24 hours
   },
   callbacks: {
-    jwt: async ({ token, user }: { token: JWT; user?: User }) => {
+    jwt: ({ token, user }: { token: JWT; user?: User }) => {
       if (user) {
         // When user logs in, set token. (Only when user tries to login, user will not be undefined.)
         token.username = user.username
@@ -32,7 +32,7 @@ export const authOptions: NextAuthOptions = {
 
       return token
     },
-    session: async ({ session, token }: { session: Session; token: JWT }) => {
+    session: ({ session, token }: { session: Session; token: JWT }) => {
       // When user requests session, then call jwt callback. and then call this callback.
       session.user = {
         username: token.username,

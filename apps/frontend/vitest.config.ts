@@ -5,12 +5,10 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
-    globals: true,
     setupFiles: ['./vitest.setup.ts'],
+    exclude: ['**/node_modules/**', '**/playwright/**'],
     env: {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       NEXT_PUBLIC_BASEURL: 'https://test.com/api',
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       NEXTAUTH_URL: 'https://test.com/next-auth/api/auth'
     }
   },

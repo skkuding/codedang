@@ -4,9 +4,9 @@ import {
   useController,
   useFormContext
 } from 'react-hook-form'
-import ErrorMessage from '../../_components/ErrorMessage'
+import { ErrorMessage } from '../../_components/ErrorMessage'
 import { isInvalid } from '../_libs/utils'
-import ExampleTextarea from './ExampleTextarea'
+import { ExampleTextarea } from './ExampleTextarea'
 
 interface TestcaseItemProps {
   blockEdit?: boolean
@@ -15,7 +15,7 @@ interface TestcaseItemProps {
   onRemove: () => void
 }
 
-export default function TestcaseItem({
+export function TestcaseItem({
   blockEdit,
   index,
   itemError,
@@ -47,7 +47,7 @@ export default function TestcaseItem({
               <p
                 className={cn(
                   'text-sm',
-                  isHiddenField.value == false
+                  isHiddenField.value === false
                     ? 'font-medium text-gray-500'
                     : 'text-gray-400'
                 )}
@@ -66,7 +66,7 @@ export default function TestcaseItem({
               <p
                 className={cn(
                   'text-sm',
-                  isHiddenField.value == true
+                  isHiddenField.value === true
                     ? 'font-medium text-gray-500'
                     : 'text-gray-400'
                 )}

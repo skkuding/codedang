@@ -3,7 +3,7 @@
 import { CREATE_NOTICE } from '@/graphql/notice/mutation'
 import { useMutation } from '@apollo/client'
 import type { CreateNoticeInput } from '@generated/graphql'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -14,9 +14,9 @@ interface CreateNoticeFormProps {
   children: ReactNode
 }
 
-export default function CreateNoticeForm({ children }: CreateNoticeFormProps) {
+export function CreateNoticeForm({ children }: CreateNoticeFormProps) {
   const methods = useForm<CreateNoticeInput>({
-    resolver: zodResolver(createSchema),
+    resolver: valibotResolver(createSchema),
     defaultValues: {
       title: '',
       content: '',
@@ -49,10 +49,8 @@ export default function CreateNoticeForm({ children }: CreateNoticeFormProps) {
   })
 
   return (
-    <>
-      <form className="flex w-[760px] flex-col gap-6" onSubmit={onSubmit}>
-        <FormProvider {...methods}>{children}</FormProvider>
-      </form>
-    </>
+    <form className="flex w-[760px] flex-col gap-6" onSubmit={onSubmit}>
+      <FormProvider {...methods}>{children}</FormProvider>
+    </form>
   )
 }

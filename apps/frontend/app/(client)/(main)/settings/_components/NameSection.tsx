@@ -1,25 +1,19 @@
 import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
-import type { SettingsFormat } from '@/types/type'
-import type { FieldErrors, UseFormRegister } from 'react-hook-form'
+import { useSettingsContext } from './context'
 
 interface NameSectionProps {
-  isLoading: boolean
-  updateNow: boolean
-  defaultProfileValues: { userProfile?: { realName?: string } }
-  register: UseFormRegister<SettingsFormat>
-  errors: FieldErrors<SettingsFormat>
   realName: string
 }
 
-export default function NameSection({
-  isLoading,
-  updateNow,
-  defaultProfileValues,
-  register,
-  errors,
-  realName
-}: NameSectionProps) {
+export function NameSection({ realName }: NameSectionProps) {
+  const {
+    isLoading,
+    updateNow,
+    defaultProfileValues,
+    formState: { register, errors }
+  } = useSettingsContext()
+
   return (
     <>
       <label className="-mb-4 text-xs">Name</label>
@@ -29,7 +23,7 @@ export default function NameSection({
             ? 'Loading...'
             : defaultProfileValues.userProfile?.realName || 'Enter your name'
         }
-        disabled={!!updateNow}
+        disabled={Boolean(updateNow)}
         {...register('realName')}
         className={cn(
           realName && (errors.realName ? 'border-red-500' : 'border-primary'),

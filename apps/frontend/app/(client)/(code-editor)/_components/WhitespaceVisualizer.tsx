@@ -26,7 +26,7 @@ export function WhitespaceVisualizer({
   const visibleLines = lines.slice(0, 3).join('\n')
   const truncatedText =
     lines.length > 3
-      ? visibleLines + '\n<span style="color: rgb(150, 150, 150);">...</span>'
+      ? `${visibleLines}\n<span style="color: rgb(150, 150, 150);">...</span>`
       : visibleLines
 
   return (

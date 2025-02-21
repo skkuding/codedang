@@ -64,7 +64,7 @@ const convertPrismaError2HTTPException = (
 ) => {
   const meta = exception.meta as {
     cause?: string
-    model?: string
+    modelName?: string
   }
 
   /*
@@ -72,8 +72,8 @@ const convertPrismaError2HTTPException = (
     해당 문제 해결되면 exception.message가 아닌 `meta`를 활용한 통일된 에러 메세지를 전달하도록 수정
     참고: https://github.com/prisma/prisma/issues/24449
   */
-  const extraDescription = meta?.model
-    ? ` : on model "${meta.model}", during "${meta.cause}"`
+  const extraDescription = meta?.modelName
+    ? ` : on model "${meta.modelName}", during "${meta.cause}"`
     : ''
 
   switch (exception.code) {

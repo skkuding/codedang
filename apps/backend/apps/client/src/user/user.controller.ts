@@ -6,20 +6,11 @@ import {
   Req,
   Res,
   Controller,
-  Logger,
   Delete,
-  Query,
-  NotFoundException,
-  InternalServerErrorException
+  Query
 } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
 import { Request, type Response } from 'express'
 import { AuthenticatedRequest, AuthNotNeededIfOpenSpace } from '@libs/auth'
-import {
-  EntityNotExistException,
-  UnidentifiedException,
-  UnprocessableDataException
-} from '@libs/exception'
 import { DeleteUserDto } from './dto/deleteUser.dto'
 import { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
@@ -33,8 +24,6 @@ import { UserService } from './user.service'
 
 @Controller('user')
 export class UserController {
-  private readonly logger = new Logger(UserController.name)
-
   constructor(private readonly userService: UserService) {}
 
   @Patch('password-reset')
@@ -96,32 +85,13 @@ export class UserController {
     @Req() req: AuthenticatedRequest,
     @Body() updateUserDto: UpdateUserDto
   ) {
-    try {
-      return await this.userService.updateUser(req, updateUserDto)
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name == 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      } else if (
-        error instanceof EntityNotExistException ||
-        error instanceof UnprocessableDataException ||
-        error instanceof UnidentifiedException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.userService.updateUser(req, updateUserDto)
   }
 }
 
 @Controller('email-auth')
 @AuthNotNeededIfOpenSpace()
 export class EmailAuthenticationController {
-  private readonly logger = new Logger(EmailAuthenticationController.name)
-
   constructor(private readonly userService: UserService) {}
 
   setJwtInHeader(res: Response, jwt: string) {

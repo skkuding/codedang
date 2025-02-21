@@ -1,15 +1,15 @@
 'use client'
 
-import OptionSelect from '@/app/admin/_components/OptionSelect'
+import { OptionSelect } from '@/app/admin/_components/OptionSelect'
 import { languages, levels } from '@/libs/constants'
 import type { Template } from '@generated/graphql'
 import type { Language } from '@generated/graphql'
 import { useEffect } from 'react'
 import { useFormContext, useController } from 'react-hook-form'
-import ErrorMessage from '../../_components/ErrorMessage'
-import CheckboxSelect from './CheckboxSelect'
+import { ErrorMessage } from '../../_components/ErrorMessage'
+import { CheckboxSelect } from './CheckboxSelect'
 
-export default function InfoForm() {
+export function InfoForm() {
   const {
     watch,
     control,
@@ -25,7 +25,7 @@ export default function InfoForm() {
       const templates: Template[] = [] // temp array to store templates
       const savedTemplates: Template[] = getValues('template') // templates saved in form
       watchedLanguages.map((language) => {
-        const temp = savedTemplates!.filter(
+        const temp = savedTemplates.filter(
           (template) => template.language === language
         )
         if (temp.length !== 0) {

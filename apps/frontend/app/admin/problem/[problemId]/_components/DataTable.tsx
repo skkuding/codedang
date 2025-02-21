@@ -65,10 +65,10 @@ interface DataTableProps<TData, TValue> {
  */
 
 interface Item {
-  id: number
+  id: number | string
 }
 
-export default function DataTable<TData extends Item, TValue>({
+export function DataTable<TData extends Item, TValue>({
   columns,
   data,
   headerStyle,

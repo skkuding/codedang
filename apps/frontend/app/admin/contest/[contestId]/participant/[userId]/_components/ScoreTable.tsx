@@ -1,8 +1,10 @@
 'use client'
 
-import DataTable from '@/app/admin/_components/table/DataTable'
-import DataTableFallback from '@/app/admin/_components/table/DataTableFallback'
-import DataTableRoot from '@/app/admin/_components/table/DataTableRoot'
+import {
+  DataTable,
+  DataTableFallback,
+  DataTableRoot
+} from '@/app/admin/_components/table'
 import { GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER } from '@/graphql/contest/queries'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'

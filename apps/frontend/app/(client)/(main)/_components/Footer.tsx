@@ -8,7 +8,7 @@ import { RiKakaoTalkFill } from 'react-icons/ri'
 import { TbBrandGithubFilled } from 'react-icons/tb'
 import { toast } from 'sonner'
 
-export default function Footer() {
+export function Footer() {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText('skkucodingplatform@gmail.com')

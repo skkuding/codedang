@@ -1,12 +1,14 @@
 'use client'
 
-import DataTable from '@/app/admin/_components/table/DataTable'
-import DataTableFallback from '@/app/admin/_components/table/DataTableFallback'
-import DataTablePagination from '@/app/admin/_components/table/DataTablePagination'
-import DataTableProblemFilter from '@/app/admin/_components/table/DataTableProblemFilter'
-import DataTableRoot from '@/app/admin/_components/table/DataTableRoot'
-import DataTableSearchBar from '@/app/admin/_components/table/DataTableSearchBar'
-import SubmissionDetailAdmin from '@/app/admin/contest/[contestId]/_components/SubmissionDetailAdmin'
+import {
+  DataTable,
+  DataTableFallback,
+  DataTablePagination,
+  DataTableProblemFilter,
+  DataTableRoot,
+  DataTableSearchBar
+} from '@/app/admin/_components/table'
+import { SubmissionDetailAdmin } from '@/app/admin/contest/[contestId]/_components/SubmissionDetailAdmin'
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { GET_CONTEST_SUBMISSIONS } from '@/graphql/submission/queries'
 import { useSuspenseQuery } from '@apollo/client'

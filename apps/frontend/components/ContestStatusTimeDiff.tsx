@@ -14,7 +14,7 @@ import { toast } from 'sonner'
 
 dayjs.extend(duration)
 
-export default function ContestStatusTimeDiff({
+export function ContestStatusTimeDiff({
   contest,
   textStyle,
   inContestEditor
@@ -54,11 +54,11 @@ export default function ContestStatusTimeDiff({
     const diff = dayjs.duration(Math.abs(dayjs(timeRef).diff(now)))
     const days = Math.floor(diff.asDays())
     const hours = Math.floor(diff.asHours() % 24)
-    const hours_str = hours.toString().padStart(2, '0')
+    const hoursStr = hours.toString().padStart(2, '0')
     const minutes = Math.floor(diff.asMinutes() % 60)
-    const minutes_str = minutes.toString().padStart(2, '0')
+    const minutesStr = minutes.toString().padStart(2, '0')
     const seconds = Math.floor(diff.asSeconds() % 60)
-    const seconds_str = seconds.toString().padStart(2, '0')
+    const secondsStr = seconds.toString().padStart(2, '0')
 
     if (inContestEditor) {
       if (days === 0 && hours === 0 && minutes === 5 && seconds === 0) {
@@ -71,9 +71,9 @@ export default function ContestStatusTimeDiff({
 
     setTimeDiff({
       days,
-      hours: hours_str,
-      minutes: minutes_str,
-      seconds: seconds_str
+      hours: hoursStr,
+      minutes: minutesStr,
+      seconds: secondsStr
     })
   }
 

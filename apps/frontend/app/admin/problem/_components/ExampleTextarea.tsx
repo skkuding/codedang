@@ -12,7 +12,7 @@ interface ExampleTextareaProps {
   register: any
   blockEdit?: boolean
 }
-export default function ExampleTextarea({
+export function ExampleTextarea({
   onRemove,
   inputName,
   outputName,

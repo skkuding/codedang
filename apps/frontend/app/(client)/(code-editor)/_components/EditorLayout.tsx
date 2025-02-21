@@ -1,5 +1,5 @@
-import ContestStatusTimeDiff from '@/components/ContestStatusTimeDiff'
-import HeaderAuthPanel from '@/components/auth/HeaderAuthPanel'
+import { ContestStatusTimeDiff } from '@/components/ContestStatusTimeDiff'
+import { HeaderAuthPanel } from '@/components/auth/HeaderAuthPanel'
 import { auth } from '@/libs/auth'
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
@@ -8,8 +8,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import type { GetContestProblemDetailResponse } from '../../_libs/apis/contestProblem'
-import ContestProblemDropdown from './ContestProblemDropdown'
-import EditorMainResizablePanel from './EditorResizablePanel'
+import { ContestProblemDropdown } from './ContestProblemDropdown'
+import { EditorMainResizablePanel } from './EditorResizablePanel'
 
 interface EditorLayoutProps {
   contestId?: number
@@ -17,7 +17,7 @@ interface EditorLayoutProps {
   children: React.ReactNode
 }
 
-export default async function EditorLayout({
+export async function EditorLayout({
   contestId,
   problemId,
   children
@@ -40,7 +40,7 @@ export default async function EditorLayout({
     problem = { ...contestProblem.problem, order: contestProblem.order }
 
     contest = await fetcher(`contest/${contestId}`).json()
-    contest ? (contest.status = 'ongoing') : null // TODO: refactor this after change status interactively
+    contest && (contest.status = 'ongoing') // TODO: refactor this after change status interactively
   } else {
     problem = await fetcher(`problem/${problemId}`).json()
   }

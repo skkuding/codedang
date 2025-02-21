@@ -1,6 +1,6 @@
 'use client'
 
-import CodeEditor from '@/components/CodeEditor'
+import { CodeEditor } from '@/components/CodeEditor'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -8,15 +8,19 @@ import {
 } from '@/components/shadcn/resizable'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
+import syncIcon from '@/public/icons/sync.svg'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
-import type { Language, ProblemDetail } from '@/types/type'
+import type { ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Suspense, useEffect } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Loading from '../problem/[problemId]/loading'
-import EditorHeader from './EditorHeader/EditorHeader'
-import TestcasePanel from './TestcasePanel/TestcasePanel'
+import { EditorHeader } from './EditorHeader/EditorHeader'
+import { LeaderboardModalDialog } from './LeaderboardModalDialog'
+import { TestcasePanel } from './TestcasePanel/TestcasePanel'
+import { useLeaderboardSync } from './context/ReFetchingLeaderboardStoreProvider'
 import { TestPollingStoreProvider } from './context/TestPollingStoreProvider'
 import { TestcaseStoreProvider } from './context/TestcaseStoreProvider'
 
@@ -27,15 +31,29 @@ interface ProblemEditorProps {
   enableCopyPaste?: boolean
 }
 
-export default function EditorMainResizablePanel({
+export function EditorMainResizablePanel({
   problem,
   contestId,
   enableCopyPaste = true,
   children
 }: ProblemEditorProps) {
+  const triggerRefresh = useLeaderboardSync((state) => state.triggerRefresh)
   const pathname = usePathname()
-  const base = contestId ? `/contest/${contestId}` : ''
+  const base = contestId ? (`/contest/${contestId}` as const) : ('' as const)
   const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
+  const [tabValue, setTabValue] = useState('Description')
+
+  useEffect(() => {
+    if (pathname.startsWith(`${base}/problem/${problem.id}/submission`)) {
+      setTabValue('Submission')
+    } else if (
+      pathname.startsWith(`${base}/problem/${problem.id}/leaderboard`)
+    ) {
+      setTabValue('Leaderboard')
+    } else {
+      setTabValue('Description')
+    }
+  }, [pathname])
 
   useEffect(() => {
     if (!problem.languages.includes(language)) {
@@ -55,35 +73,55 @@ export default function EditorMainResizablePanel({
       >
         <div className="grid-rows-editor grid h-full grid-cols-1">
           <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
-            <Tabs
-              value={
-                pathname.startsWith(`${base}/problem/${problem.id}/submission`)
-                  ? 'Submission'
-                  : 'Description'
-              }
-            >
-              <TabsList className="bg-slate-900">
-                <Link replace href={`${base}/problem/${problem.id}` as Route}>
+            <Tabs value={tabValue} className="flex-grow">
+              <TabsList className="rounded bg-slate-900">
+                <Link replace href={`${base}/problem/${problem.id}` as const}>
                   <TabsTrigger
                     value="Description"
-                    className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
+                    className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
                   >
                     Description
                   </TabsTrigger>
                 </Link>
                 <Link
                   replace
-                  href={`${base}/problem/${problem.id}/submission` as Route}
+                  href={`${base}/problem/${problem.id}/submission` as const}
                 >
                   <TabsTrigger
                     value="Submission"
-                    className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
+                    className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
                   >
                     Submissions
                   </TabsTrigger>
                 </Link>
+                {contestId && (
+                  <Link
+                    replace
+                    href={
+                      `/contest/${contestId}/problem/${problem.id}/leaderboard` as const
+                    }
+                  >
+                    <TabsTrigger
+                      value="Leaderboard"
+                      className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
+                    >
+                      Leaderboard
+                    </TabsTrigger>
+                  </Link>
+                )}
               </TabsList>
             </Tabs>
+            {tabValue === 'Leaderboard' ? (
+              <div className="flex gap-x-4">
+                <LeaderboardModalDialog />
+                <Image
+                  src={syncIcon}
+                  alt="Sync"
+                  className="cursor-pointer"
+                  onClick={triggerRefresh}
+                />
+              </div>
+            ) : null}
           </div>
           <ScrollArea className="[&>div>div]:!block">
             <Suspense fallback={<Loading />}>{children}</Suspense>
@@ -91,7 +129,7 @@ export default function EditorMainResizablePanel({
         </div>
       </ResizablePanel>
 
-      <ResizableHandle withHandle className="border-[0.5px] border-slate-700" />
+      <ResizableHandle className="border-[0.5px] border-slate-700" />
 
       <ResizablePanel defaultSize={65} className="bg-[#222939]">
         <div className="grid-rows-editor grid h-full">
@@ -121,10 +159,7 @@ export default function EditorMainResizablePanel({
                     <ScrollBar orientation="vertical" />
                   </ScrollArea>
                 </ResizablePanel>
-                <ResizableHandle
-                  withHandle
-                  className="border-[0.5px] border-slate-700"
-                />
+                <ResizableHandle className="border-[0.5px] border-slate-700" />
                 <ResizablePanel defaultSize={40}>
                   <TestcasePanel />
                 </ResizablePanel>
@@ -154,7 +189,7 @@ function CodeEditorInEditorResizablePanel({
   return (
     <CodeEditor
       value={code ?? ''}
-      language={language as Language}
+      language={language}
       onChange={setCode}
       enableCopyPaste={enableCopyPaste}
       height="100%"

@@ -1,10 +1,10 @@
-import useAuthModalStore from '@/stores/authModal'
+import { useAuthModalStore } from '@/stores/authModal'
 import { Transition } from '@headlessui/react'
-import RecoverAccount from './RecoverAccount'
-import SignIn from './SignIn'
-import SignUp from './SignUp'
+import { RecoverAccount } from './RecoverAccount/RecoverAccount'
+import { SignIn } from './SignIn'
+import { SignUp } from './SignUp/SignUp'
 
-export default function AuthModal() {
+export function AuthModal() {
   const { currentModal } = useAuthModalStore((state) => state)
   return (
     <>

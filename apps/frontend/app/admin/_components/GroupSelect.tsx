@@ -36,7 +36,7 @@ const groups = [
   }
 ]
 
-export default function GroupSelect() {
+export function GroupSelect() {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState(groups[0].id)
 
