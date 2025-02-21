@@ -26,8 +26,7 @@ export async function AssignmentTable({
     .json()
 
   return (
-    //여기에 DataTableWithToggleWithRoundBolder 컴포넌트 적용!
-    <DataTable //이걸 각 Row마다 토글이 가능하도록 수정을 하거나 해야할 것 같음.
+    <DataTable
       data={AssignmentData.data}
       columns={columns}
       headerStyle={{
