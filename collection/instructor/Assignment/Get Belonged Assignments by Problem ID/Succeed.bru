@@ -16,18 +16,21 @@ body:graphql {
       upcoming {
         id
         title
+        week
         problemScore
         totalScore
       }
       ongoing {
         id
         title
+        week
         problemScore
         totalScore
       }
       finished {
         id
         title
+        week
         problemScore
         totalScore
       }
@@ -49,7 +52,7 @@ docs {
   ## Get Assignments By Problem ID
   Problem ID를 가지고 Assignments정보를 가져옵니다.
   Ongoing, Upcoming, Finished로 Group된 Assignments를 반환합니다.
-
+  
   ### Error Cases
   - Problem ID에 해당하는 Problem이 없거나, 해당 Problem ID에 해당하는 Belonged Assignment가 0개인 경우 Problem or Assignment Problem Does not exist 에러를 반환합니다.
 }
