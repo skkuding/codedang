@@ -13,12 +13,13 @@ post {
 body:graphql {
   mutation {
     deleteAssignment(
-      assignmentId: 3
-      groupId: 2
+      assignmentId: 20
+      groupId: 3
     ) {
       id
       title
       description
+      week
       startTime
       endTime
     }

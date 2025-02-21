@@ -193,6 +193,7 @@ export class AssignmentResolver {
 
   @Query(() => AssignmentsGroupedByStatus)
   async getAssignmentsByProblemId(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('problemId', { type: () => Int }) problemId: number
   ) {
     return await this.assignmentService.getAssignmentsByProblemId(problemId)

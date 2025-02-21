@@ -10,6 +10,7 @@ import { Cache } from 'cache-manager'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import {
   EntityNotExistException,
+  ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -50,10 +51,9 @@ export class AssignmentService {
   }
 
   async getAssignment(assignmentId: number, groupId: number) {
-    const assignment = await this.prisma.assignment.findFirst({
+    const assignment = await this.prisma.assignment.findUnique({
       where: {
-        id: assignmentId,
-        groupId
+        id: assignmentId
       },
       include: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -65,6 +65,10 @@ export class AssignmentService {
 
     if (!assignment) {
       throw new EntityNotExistException('assignment')
+    }
+
+    if (groupId !== assignment.groupId) {
+      throw new ForbiddenAccessException('Forbidden Resource')
     }
 
     const { _count, ...data } = assignment
@@ -112,12 +116,12 @@ export class AssignmentService {
     groupId: number,
     assignment: UpdateAssignmentInput
   ): Promise<Assignment> {
-    const assignmentFound = await this.prisma.assignment.findFirst({
+    const assignmentFound = await this.prisma.assignment.findUnique({
       where: {
-        id: assignment.id,
-        groupId
+        id: assignment.id
       },
       select: {
+        groupId: true,
         startTime: true,
         endTime: true,
         assignmentProblem: {
@@ -127,9 +131,15 @@ export class AssignmentService {
         }
       }
     })
+
     if (!assignmentFound) {
       throw new EntityNotExistException('assignment')
     }
+
+    if (groupId !== assignmentFound.groupId) {
+      throw new ForbiddenAccessException('Forbidden Resource')
+    }
+
     const isEndTimeChanged =
       assignment.endTime && assignment.endTime !== assignmentFound.endTime
     assignment.startTime = assignment.startTime || assignmentFound.startTime
@@ -211,21 +221,26 @@ export class AssignmentService {
   }
 
   async deleteAssignment(groupId: number, assignmentId: number) {
-    const assignment = await this.prisma.assignment.findFirst({
+    const assignment = await this.prisma.assignment.findUnique({
       where: {
-        id: assignmentId,
-        groupId
+        id: assignmentId
       },
       select: {
         assignmentProblem: {
           select: {
             problemId: true
           }
-        }
+        },
+        groupId: true
       }
     })
+
     if (!assignment) {
       throw new EntityNotExistException('assignment')
+    }
+
+    if (groupId !== assignment.groupId) {
+      throw new ForbiddenAccessException('Forbidden Resource')
     }
 
     const problemIds = assignment.assignmentProblem.map(
@@ -253,8 +268,7 @@ export class AssignmentService {
   ) {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
-        id: assignmentId,
-        groupId
+        id: assignmentId
       },
       include: {
         submission: {
@@ -264,18 +278,26 @@ export class AssignmentService {
         }
       }
     })
+
     if (!assignment) {
       throw new EntityNotExistException('assignment')
+    }
+
+    if (groupId !== assignment.groupId) {
+      throw new ForbiddenAccessException('Forbidden Resource')
     }
 
     const assignmentProblems: AssignmentProblem[] = []
 
     for (const { problemId, score } of problemIdsWithScore) {
       const isProblemAlreadyImported =
-        await this.prisma.assignmentProblem.findFirst({
+        await this.prisma.assignmentProblem.findUnique({
           where: {
-            assignmentId,
-            problemId
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            assignmentId_problemId: {
+              assignmentId,
+              problemId
+            }
           }
         })
       if (isProblemAlreadyImported) {
@@ -336,8 +358,7 @@ export class AssignmentService {
   ) {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
-        id: assignmentId,
-        groupId
+        id: assignmentId
       },
       include: {
         submission: {
@@ -349,6 +370,10 @@ export class AssignmentService {
     })
     if (!assignment) {
       throw new EntityNotExistException('assignment')
+    }
+
+    if (groupId !== assignment.groupId) {
+      throw new ForbiddenAccessException('Forbidden Resource')
     }
 
     const assignmentProblems: AssignmentProblem[] = []
@@ -483,8 +508,7 @@ export class AssignmentService {
 
     const scoreSummary = await this.getAssignmentScoreSummary(
       userId,
-      assignmentId,
-      groupId
+      assignmentId
     )
 
     return {
@@ -597,11 +621,7 @@ export class AssignmentService {
   /**
    * 특정 user의 특정 Assignment에 대한 총점, 통과한 문제 개수와 각 문제별 테스트케이스 통과 개수를 불러옵니다.
    */
-  async getAssignmentScoreSummary(
-    userId: number,
-    assignmentId: number,
-    groupId: number
-  ) {
+  async getAssignmentScoreSummary(userId: number, assignmentId: number) {
     const [assignmentProblems, rawSubmissions] = await Promise.all([
       this.prisma.assignmentProblem.findMany({
         where: {
@@ -730,15 +750,18 @@ export class AssignmentService {
     searchingName?: string
   ) {
     const paginator = this.prisma.getPaginator(cursor)
-    const assignment = await this.prisma.assignment.findFirst({
+    const assignment = await this.prisma.assignment.findUnique({
       where: {
-        id: assignmentId,
-        groupId
+        id: assignmentId
       }
     })
 
     if (!assignment) {
-      throw new EntityNotExistException('assignment in group')
+      throw new EntityNotExistException('Assignment')
+    }
+
+    if (groupId !== assignment.groupId) {
+      throw new ForbiddenAccessException('Forbidden Resource')
     }
 
     const assignmentRecords = await this.prisma.assignmentRecord.findMany({
@@ -791,8 +814,7 @@ export class AssignmentService {
           major: record.user?.major,
           ...(await this.getAssignmentScoreSummary(
             record.userId as number,
-            assignmentId,
-            groupId
+            assignmentId
           ))
         }
       })
