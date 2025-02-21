@@ -662,7 +662,7 @@ export class SubmissionService {
       const testSubmission = await this.createTestSubmission(
         { ...submissionDto, problemId, userId, userIp },
         code,
-        false
+        true
       )
 
       await this.publishUserTestMessage(
@@ -677,7 +677,7 @@ export class SubmissionService {
     const testSubmission = await this.createTestSubmission(
       { ...submissionDto, problemId, userId, userIp },
       code,
-      true
+      false
     )
     await this.publishTestMessage(problemId, submissionDto.code, testSubmission)
     return testSubmission
