@@ -365,7 +365,7 @@ export class ContestService {
     })
   }
 
-  async getContestLeaderboard(contestId: number) {
+  async getContestLeaderboard(contestId: number, search?: string) {
     const contest = await this.prisma.contest.findUnique({
       where: {
         id: contestId
@@ -562,6 +562,7 @@ export class ContestService {
 
       return {
         ...rest,
+        username: rest.user!.username,
         totalScore: isFrozen ? score : finalScore,
         totalPenalty: isFrozen ? totalPenalty : finalTotalPenalty,
         problemRecords,
@@ -569,9 +570,15 @@ export class ContestService {
       }
     })
 
+    const filteredLeaderboard = search
+      ? leaderboard.filter(({ username }) =>
+          username.toLowerCase().includes(search.toLowerCase())
+        )
+      : leaderboard
+
     return {
       maxScore,
-      leaderboard
+      leaderboard: filteredLeaderboard
     }
   }
 }
