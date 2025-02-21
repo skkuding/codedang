@@ -66,7 +66,7 @@ const getUsername = async () => {
 const getCourses = async () => {
   try {
     const rawData: RawCourse[] = await safeFetcherWithAuth
-      .get('group/joined')
+      .get('course/joined')
       .json()
     const data: Course[] = rawData.map((item: RawCourse) => ({
       id: item.id,
