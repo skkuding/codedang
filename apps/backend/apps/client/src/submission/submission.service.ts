@@ -823,7 +823,7 @@ export class SubmissionService {
   async getTestResult(userId: number, isUserTest = false) {
     // 가장 최신의 Test Submission 불러오기
     const testSubmissionId = (
-      await this.prisma.testSubmission.findFirstOrThrow({
+      await this.prisma.testSubmission.findFirst({
         where: {
           userId
         },
@@ -831,7 +831,11 @@ export class SubmissionService {
           id: 'desc'
         }
       })
-    ).id
+    )?.id
+
+    if (!testSubmissionId) {
+      return []
+    }
 
     const testCasesKey = isUserTest
       ? userTestcasesKey(testSubmissionId)
