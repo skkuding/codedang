@@ -16,7 +16,6 @@ import type {
   CreateAssignmentInput,
   UpdateAssignmentInput
 } from './model/assignment.input'
-import type { AssignmentPublicizingRequest } from './model/publicizing-request.model'
 
 const assignmentId = 1
 const userId = 1
@@ -48,7 +47,8 @@ const assignment: Assignment = {
   createTime,
   updateTime,
   invitationCode,
-  assignmentProblem: []
+  assignmentProblem: [],
+  week: 1
 }
 
 const assignmentWithCount = {
@@ -69,7 +69,8 @@ const assignmentWithCount = {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
     assignmentRecord: 10
-  }
+  },
+  week: 1
 }
 
 const assignmentWithParticipants: AssignmentWithParticipants = {
@@ -87,7 +88,8 @@ const assignmentWithParticipants: AssignmentWithParticipants = {
   createTime,
   updateTime,
   participants: 10,
-  invitationCode
+  invitationCode,
+  week: 1
 }
 
 const group: Group = {
@@ -101,7 +103,8 @@ const group: Group = {
     requireApprovalBeforeJoin: true
   },
   createTime: faker.date.past(),
-  updateTime: faker.date.past()
+  updateTime: faker.date.past(),
+  groupType: 'Course'
 }
 
 const problem: Problem = {
@@ -175,12 +178,6 @@ const submissionsWithProblemTitleAndUsername = {
 //     updateTime: '2000-01-02'
 //   }
 // ]
-
-const publicizingRequest: AssignmentPublicizingRequest = {
-  assignmentId,
-  userId,
-  expireTime: new Date('2050-08-19T07:32:07.533Z')
-}
 
 const input = {
   title: 'test title10',
@@ -286,16 +283,6 @@ describe('AssignmentService', () => {
     })
   })
 
-  describe('getPublicizingRequests', () => {
-    it('should return an array of PublicizingRequest', async () => {
-      const cacheSpyGet = stub(cache, 'get').resolves([publicizingRequest])
-      const res = await service.getPublicizingRequests()
-
-      expect(cacheSpyGet.called).to.be.true
-      expect(res).to.deep.equal([publicizingRequest])
-    })
-  })
-
   describe('createAssignment', () => {
     it('should return created assignment', async () => {
       db.assignment.create.resolves(assignment)
@@ -333,33 +320,6 @@ describe('AssignmentService', () => {
 
     it('should throw error when groupId or assignmentId not exist', async () => {
       expect(service.deleteAssignment(1000, 1000)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-  })
-
-  describe('handlePublicizingRequest', () => {
-    it('should return accepted state', async () => {
-      db.assignment.update.resolves(assignment)
-
-      const cacheSpyGet = stub(cache, 'get').resolves([publicizingRequest])
-      const res = await service.handlePublicizingRequest(assignmentId, true)
-
-      expect(cacheSpyGet.called).to.be.true
-      expect(res).to.deep.equal({
-        assignmentId,
-        isAccepted: true
-      })
-    })
-
-    it('should throw error when groupId or assignmentId not exist', async () => {
-      expect(service.handlePublicizingRequest(1000, true)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-
-    it('should throw error when the assignment is not requested to public', async () => {
-      expect(service.handlePublicizingRequest(3, true)).to.be.rejectedWith(
         EntityNotExistException
       )
     })

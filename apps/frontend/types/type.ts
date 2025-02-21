@@ -12,9 +12,13 @@ export type AssignmentStatus =
   | 'registeredOngoing'
   | 'registeredUpcoming'
 
+export type RecentUpdateType = 'Assignment' | 'Grade' | 'QnA' | 'Exam'
+
 export type CourseStatus = 'ongoing' | 'finished'
 
 export type Level = 'Level1' | 'Level2' | 'Level3' | 'Level4' | 'Level5'
+
+export type SemesterSeason = 'Spring' | 'Summer' | 'Fall' | 'Winter'
 
 export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
 // Problem type definition
@@ -44,6 +48,21 @@ export interface Problem {
   tags: Tag[]
   languages: Language[]
   hasPassed: boolean | null
+}
+
+export interface ProblemDataTop {
+  data: {
+    order: number
+    id: number | string
+    title: string
+    difficulty: string
+    submissionCount: number
+    acceptedRate: number
+    maxScore: number
+    score: null | number
+    submissionTime: null | string
+  }[]
+  total: number
 }
 
 /**
@@ -93,13 +112,19 @@ export interface ProblemDetail {
 
 // Contest type definition
 
+interface ProblemInContestInterface {
+  order: number
+  problem: {
+    title: string
+  }
+}
 export interface Contest {
   id: number
   title: string
   startTime: Date
   endTime: Date
   group: {
-    id: string
+    id: number
     groupName: string
   }
   isJudgeResultVisible: boolean
@@ -107,6 +132,7 @@ export interface Contest {
   status: ContestStatus
   participants: number
   isRegistered: boolean
+  contestProblem: ProblemInContestInterface[]
 }
 
 export interface ContestAnnouncement {
@@ -188,6 +214,33 @@ export interface SubmissionDetail {
   }[]
 }
 
+interface LeaderboardProblemRecord {
+  score: number
+  order: number
+  problemId: number
+  penalty: number
+  submissionCount: number
+}
+interface UserOnLeaderboard {
+  user: { username: string }
+  score: number
+  finalScore: number
+  totalPenalty: number
+  finalTotalPenalty: number
+  problemRecords: LeaderboardProblemRecord[]
+  rank: number
+}
+export interface Leaderboard {
+  maxscore: number
+  leaderboard: UserOnLeaderboard[]
+}
+export interface LeaderboardItemCodeEditorPagination {
+  id: number
+  rank: number
+  userId: string
+  penalty: number
+  solved: string
+}
 // Test type definition
 
 export interface TestResult {
@@ -229,6 +282,20 @@ export interface Course {
   professor: string
 }
 
+export interface CourseNotice {
+  id: number
+  title: string
+  date: Date
+  isNew: boolean
+}
+
+export interface CourseRecentUpdate {
+  id: number
+  title: string
+  type: RecentUpdateType
+  isNew: boolean
+}
+
 export interface Assignment {
   id: number
   title: string
@@ -238,11 +305,15 @@ export interface Assignment {
     id: string
     groupName: string
   }
-  isJudgeResultVisible: boolean
-  enableCopyPaste: boolean
+  // TODO: Assignement에서 현재 사용 중이지 않은 필드로, 추후 필요시 사용할 예정 (민규)
+  // isJudgeResultVisible: boolean
+  // enableCopyPaste: boolean
+
+  // TODO: CI 오류나서 임시방편으로 주석 해제 했습니다(민규)
   status: AssignmentStatus
-  participants: number
-  isRegistered: boolean
+  // participants: number
+  // isRegistered: boolean
+  isGraded: boolean
 }
 
 export interface CalendarAssignment {
@@ -250,13 +321,3 @@ export interface CalendarAssignment {
   start: Date
   end: Date
 }
-
-// 일단은 DashboardCalendar에서 null처리를함으로써 필요가 없어진 것 같은데, 원작자 의견을 들어보고 코드를 삭제할 예정
-// export interface CalendarAssignmentEvent {
-//   event: {
-//     id: number
-//     title: string
-//     start: Date
-//     end: Date
-//   }
-// }

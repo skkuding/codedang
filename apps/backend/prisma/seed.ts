@@ -22,6 +22,7 @@ import {
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
+import { GroupType } from '@admin/@generated'
 
 const prisma = new PrismaClient()
 const fixturePath = join(__dirname, '__fixtures__')
@@ -32,7 +33,7 @@ const MAX_DATE: Date = new Date('2999-12-31T00:00:00.000Z')
 
 let superAdminUser: User
 let adminUser: User
-let managerUser: User
+let instructorUser: User
 let publicGroup: Group
 let privateGroup: Group
 const users: User[] = []
@@ -80,16 +81,18 @@ const createUsers = async () => {
     }
   })
 
-  // create manager user
-  managerUser = await prisma.user.create({
+  // create non-admin user with canCreateCourse and canCreateContest
+  instructorUser = await prisma.user.create({
     data: {
-      username: 'manager',
-      password: await hash('Managermanager'),
-      email: 'manager@example.com',
+      username: 'instructor',
+      password: await hash('Instructorinstructor'),
+      email: 'inst@example.com',
       lastLogin: new Date(),
-      role: Role.Manager,
+      role: Role.User,
       studentId: '2024000002',
-      major: 'Computer Science'
+      major: 'Computer Science',
+      canCreateCourse: true,
+      canCreateContest: true
     }
   })
 
@@ -154,55 +157,40 @@ const createGroups = async () => {
   // create empty private group
   privateGroup = await prisma.group.create({
     data: {
-      groupName: 'Example Private Group',
-      description:
-        'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+      groupName: '정보보호개론',
+      groupType: GroupType.Course,
       config: {
-        showOnList: false,
-        allowJoinFromSearch: false,
+        showOnList: true,
+        allowJoinFromSearch: true,
         allowJoinWithURL: true,
-        requireApprovalBeforeJoin: true
+        requireApprovalBeforeJoin: false
+      },
+      courseInfo: {
+        create: {
+          courseNum: 'SWE3033',
+          classNum: 42,
+          professor: '형식킴',
+          semester: '2025 Spring',
+          email: 'example01@skku.edu',
+          website: 'https://seclab.com'
+        }
       }
     }
   })
   await prisma.userGroup.create({
     data: {
-      userId: managerUser.id,
+      userId: instructorUser.id,
       groupId: privateGroup.id,
       isGroupLeader: true
     }
   })
 
   // create empty private group
-  // 'showOnList'가 true 이면서 가입시 사전 승인이 필요한 그룹을 테스트할 때 사용합니다
+  // 'showOnList'가 true
   let tempGroup = await prisma.group.create({
     data: {
       groupName: 'Example Private Group 2',
-      description:
-        'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
-      config: {
-        showOnList: true,
-        allowJoinFromSearch: true,
-        allowJoinWithURL: true,
-        requireApprovalBeforeJoin: true
-      }
-    }
-  })
-  await prisma.userGroup.create({
-    data: {
-      userId: managerUser.id,
-      groupId: tempGroup.id,
-      isGroupLeader: true
-    }
-  })
-
-  // create empty private group
-  // 'showOnList'가 true 이면서 가입시 사전 승인이 필요없는 그룹을 테스트할 때 사용합니다
-  tempGroup = await prisma.group.create({
-    data: {
-      groupName: 'Example Private Group 3',
-      description:
-        'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+      description: 'This is an example private group just for testing.',
       config: {
         showOnList: true,
         allowJoinFromSearch: true,
@@ -213,7 +201,29 @@ const createGroups = async () => {
   })
   await prisma.userGroup.create({
     data: {
-      userId: managerUser.id,
+      userId: instructorUser.id,
+      groupId: tempGroup.id,
+      isGroupLeader: true
+    }
+  })
+
+  // create empty private group
+  // 'showOnList'가 true
+  tempGroup = await prisma.group.create({
+    data: {
+      groupName: 'Example Private Group 3',
+      description: 'This is an example private group just for testing.',
+      config: {
+        showOnList: true,
+        allowJoinFromSearch: true,
+        allowJoinWithURL: true,
+        requireApprovalBeforeJoin: false
+      }
+    }
+  })
+  await prisma.userGroup.create({
+    data: {
+      userId: instructorUser.id,
       groupId: tempGroup.id,
       isGroupLeader: true
     }
@@ -317,7 +327,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       },
       {
@@ -379,7 +389,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       },
       {
@@ -440,7 +450,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       },
       {
@@ -501,7 +511,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       },
       {
@@ -562,7 +572,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       },
       {
@@ -623,7 +633,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: managerUser.id,
+        createdById: instructorUser.id,
         groupId: 1
       }
     ]
@@ -2409,10 +2419,9 @@ const createContestRecords = async () => {
   const user01Id = 4
   for (let i = 0; i < contests.length; i += 2) {
     const contestId = contests[i].id
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     const existingRecord = await prisma.contestRecord.findFirst({
       where: {
-        contestId: contestId,
+        contestId,
         userId: user01Id
       }
     })

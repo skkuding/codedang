@@ -5,7 +5,8 @@ import {
   Prisma,
   type Assignment,
   type Group,
-  type AssignmentRecord
+  type AssignmentRecord,
+  GroupType
 } from '@prisma/client'
 import { expect } from 'chai'
 import * as dayjs from 'dayjs'
@@ -41,9 +42,11 @@ const assignment = {
   enableCopyPaste: true,
   createTime: now.add(-1, 'day').toDate(),
   updateTime: now.add(-1, 'day').toDate(),
+  week: 1,
   group: {
     id: groupId,
-    groupName: 'group'
+    groupName: 'group',
+    groupType: GroupType.Course
   },
   invitationCode: '123456'
 } satisfies Assignment & {
