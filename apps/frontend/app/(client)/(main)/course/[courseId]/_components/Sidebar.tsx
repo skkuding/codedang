@@ -9,11 +9,10 @@ import noticeIcon from '@/public/icons/notice.svg'
 import qnaIcon from '@/public/icons/qna.svg'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 
 export function Sidebar() {
-  const searchParams = useSearchParams()
-  const courseId = searchParams.get('courseId')
+  const { courseId } = useParams()
 
   const navItems = [
     { name: 'Home', path: `/course/${courseId}` as const, icon: homeIcon },

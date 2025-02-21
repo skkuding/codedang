@@ -11,8 +11,8 @@ import {
   type ColumnDef
 } from '@tanstack/react-table'
 import type { ReactNode } from 'react'
-import { DEFAULT_COLUMN_VISIBILITY } from './constants'
-import { Provider } from './context'
+import { DEFAULT_COLUMN_VISIBILITY } from '../../app/admin/_components/table/constants'
+import { Provider } from '../../app/admin/_components/table/context'
 
 interface DataTableRootProps<TData extends { id: number }, TValue> {
   columns: ColumnDef<TData, TValue>[]
