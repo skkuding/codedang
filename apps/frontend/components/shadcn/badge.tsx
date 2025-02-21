@@ -18,14 +18,22 @@ const badgeVariants = cva(
         Level2: 'bg-level-light-2 text-level-dark-2 border-0',
         Level3: 'bg-level-light-3 text-level-dark-3 border-0',
         Level4: 'bg-level-light-4 text-level-dark-4 border-0',
-        Level5: 'bg-level-light-5 text-level-dark-5 border-0'
+        Level5: 'bg-level-light-5 text-level-dark-5 border-0',
+        Spring: 'bg-level-light-1 text-level-dark-1 border-0',
+        Summer: 'bg-level-light-2 text-level-dark-2 border-0',
+        Fall: 'bg-level-light-3 text-level-dark-3 border-0',
+        Winter: 'bg-level-light-4 text-level-dark-4 border-0'
       },
       textColors: {
         Level1: 'text-level-light-1',
         Level2: 'text-level-light-2',
         Level3: 'text-level-light-3',
         Level4: 'text-level-light-4',
-        Level5: 'text-level-light-5'
+        Level5: 'text-level-light-5',
+        Spring: 'text-level-light-1',
+        Summer: 'text-level-light-2',
+        Fall: 'text-level-light-3',
+        Winter: 'text-level-light-4'
       }
     },
     defaultVariants: {
