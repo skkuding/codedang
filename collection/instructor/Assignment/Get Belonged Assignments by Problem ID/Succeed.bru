@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  query GetAssignmentsByProblemId($problemId: Int!) {
-    getAssignmentsByProblemId(problemId: $problemId) {
+  query GetAssignmentsByProblemId($problemId: Int!, $groupId: Int!) {
+    getAssignmentsByProblemId(problemId: $problemId, groupId: $groupId) {
       upcoming {
         id
         title
@@ -36,11 +36,13 @@ body:graphql {
       }
     }
   }
+  
 }
 
 body:graphql:vars {
   {
-    "problemId": 1
+    "problemId": 1,
+    "groupId": 2
   }
 }
 
