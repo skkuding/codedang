@@ -55,7 +55,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
             raw.properties.type === RUN_MESSAGE_TYPE ||
             raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
           ) {
-            const testRequestedUserId = res.submissionId
+            const testRequestedUserId = res.submissionId // Test용 submissionId == Test 요청 유저의 userId
             await this.handleRunMessage(
               res,
               testRequestedUserId,
@@ -93,7 +93,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
   async handleRunMessage(
     msg: JudgerResponse,
-    submissionId: number,
+    userId: number,
     isUserTest = false
   ): Promise<void> {
     const status = Status(msg.resultCode)
@@ -111,16 +111,14 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       throw new UnprocessableDataException('judgeResult is empty')
     }
     if (!testcaseId) {
-      const key = isUserTest
-        ? userTestcasesKey(submissionId)
-        : testcasesKey(submissionId)
+      const key = isUserTest ? userTestcasesKey(userId) : testcasesKey(userId)
       const testcaseIds = (await this.cacheManager.get<number[]>(key)) ?? []
 
       for (const testcaseId of testcaseIds) {
         await this.cacheManager.set(
           isUserTest
-            ? userTestKey(submissionId, testcaseId)
-            : testKey(submissionId, testcaseId),
+            ? userTestKey(userId, testcaseId)
+            : testKey(userId, testcaseId),
           {
             id: testcaseId,
             result: status,
@@ -132,8 +130,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       return
     }
     const key = isUserTest
-      ? userTestKey(submissionId, testcaseId)
-      : testKey(submissionId, testcaseId)
+      ? userTestKey(userId, testcaseId)
+      : testKey(userId, testcaseId)
 
     const testcase = await this.cacheManager.get<{
       id: number
@@ -150,7 +148,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     const memoryUsage = msg.judgeResult.memory
 
     const testSubmission = await this.prisma.testSubmission.findUnique({
-      where: { id: submissionId }
+      where: { id: userId }
     })
     if (testSubmission) {
       const maxCpuTime = testSubmission.maxCpuTime || BigInt(0)

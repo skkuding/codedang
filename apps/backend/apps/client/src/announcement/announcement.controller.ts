@@ -44,8 +44,7 @@ export class AnnouncementController {
       } else {
         if (contestId) {
           return await this.announcementService.getContestAnnouncements(
-            contestId,
-            groupId
+            contestId
           )
         } else {
           return await this.announcementService.getAssignmentAnnouncements(

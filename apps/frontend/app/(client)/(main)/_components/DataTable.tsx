@@ -20,7 +20,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 
 interface Item {
-  id: number
+  id: number | string
 }
 
 interface DataTableProps<TData, TValue> {
@@ -86,7 +86,7 @@ export function DataTable<TData extends Item, TValue>({
   const currentPath = usePathname()
 
   return (
-    <Table className="table-fixed">
+    <Table className="table-fixed border-b-[1.5px] border-[#80808040]">
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow className="hover:bg-white" key={headerGroup.id}>
@@ -95,7 +95,7 @@ export function DataTable<TData extends Item, TValue>({
                 <TableHead
                   key={header.id}
                   className={cn(
-                    'text-center text-sm md:text-base',
+                    'border-b-[1.5px] border-[#80808040] text-center text-sm md:text-base',
                     headerStyle[header.id]
                   )}
                 >
@@ -126,7 +126,7 @@ export function DataTable<TData extends Item, TValue>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
-                className="cursor-pointer"
+                className="cursor-pointer border-b-[1.5px] border-[#80808040] hover:bg-[#80808014]"
                 onClick={handleClick}
               >
                 {row.getVisibleCells().map((cell) => (

@@ -1,6 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
-import { Role, type UserGroup } from '@prisma/client'
+import { GroupType, Role, type UserGroup } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { invitationCodeKey, joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME, OPEN_SPACE_ID } from '@libs/constants'
@@ -20,18 +20,34 @@ export class GroupService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getGroup(groupId: number, userId: number, invited = false) {
-    const isJoined = await this.prisma.userGroup.findFirst({
+  async getCourse(groupId: number, userId: number, invited = false) {
+    const isJoined = await this.prisma.userGroup.findUnique({
       where: {
-        userId,
-        groupId
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId,
+          groupId
+        }
       },
       select: {
         group: {
           select: {
             id: true,
             groupName: true,
-            description: true
+            groupType: true,
+            courseInfo: {
+              select: {
+                courseNum: true,
+                classNum: true,
+                professor: true,
+                semester: true,
+                week: true,
+                email: true,
+                phoneNum: true,
+                office: true,
+                website: true
+              }
+            }
           }
         },
         isGroupLeader: true
@@ -39,7 +55,7 @@ export class GroupService {
     })
 
     if (!isJoined) {
-      const filter = invited ? 'allowJoinFromURL' : 'showOnList'
+      const filter = invited ? 'allowJoinWithURL' : 'showOnList'
       const group = await this.prisma.group.findUniqueOrThrow({
         where: {
           id: groupId,
@@ -51,19 +67,20 @@ export class GroupService {
         select: {
           id: true,
           groupName: true,
-          description: true,
-          userGroup: true,
-          config: true
+          groupType: true,
+          courseInfo: {
+            select: {
+              courseNum: true,
+              classNum: true,
+              professor: true,
+              semester: true
+            }
+          }
         }
       })
 
       return {
-        id: group.id,
-        groupName: group.groupName,
-        description: group.description,
-        allowJoin: invited ? true : group.config?.['allowJoinFromSearch'],
-        memberNum: group.userGroup.length,
-        leaders: await this.getGroupLeaders(groupId),
+        ...group,
         isJoined: false
       }
     } else {
@@ -80,7 +97,7 @@ export class GroupService {
     if (!groupId) {
       throw new EntityNotExistException('Invalid invitation')
     }
-    return this.getGroup(groupId, userId, true)
+    return this.getCourse(groupId, userId, true)
   }
 
   async getGroupLeaders(groupId: number): Promise<string[]> {
@@ -170,7 +187,7 @@ export class GroupService {
     return { data: groups, total }
   }
 
-  async getJoinedGroups(userId: number) {
+  async getJoinedGroups(userId: number, groupType: GroupType) {
     return (
       await this.prisma.userGroup.findMany({
         where: {
@@ -184,39 +201,43 @@ export class GroupService {
             select: {
               id: true,
               groupName: true,
-              description: true,
-              userGroup: true
+              groupType: true,
+              description: groupType === GroupType.Study,
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              _count: { select: { userGroup: true } },
+              courseInfo: groupType === GroupType.Course
             }
           },
           isGroupLeader: true
         }
       })
-    ).map((userGroup) => {
-      return {
-        id: userGroup.group.id,
-        groupName: userGroup.group.groupName,
-        description: userGroup.group.description,
-        memberNum: userGroup.group.userGroup.length,
-        isGroupLeader: userGroup.isGroupLeader
-      }
-    })
+    )
+      .filter(({ group }) => groupType === group.groupType)
+      .map(({ group, isGroupLeader }) => {
+        return {
+          id: group.id,
+          groupName: group.groupName,
+          ...(group.description && { description: group.description }),
+          memberNum: group._count.userGroup,
+          isGroupLeader,
+          ...(group.courseInfo && { courseInfo: group.courseInfo })
+        }
+      })
   }
 
   async joinGroupById(
     userId: number,
     groupId: number,
-    invitation?: string
+    invitation: string
   ): Promise<{ userGroupData: Partial<UserGroup>; isJoined: boolean }> {
-    if (invitation) {
-      const invitedGroupId = await this.cacheManager.get<number>(
-        invitationCodeKey(invitation)
-      )
-      if (!invitedGroupId || groupId !== invitedGroupId) {
-        throw new ForbiddenAccessException('Invalid invitation')
-      }
+    const invitedGroupId = await this.cacheManager.get<number>(
+      invitationCodeKey(invitation)
+    )
+    if (!invitedGroupId || groupId !== invitedGroupId) {
+      throw new ForbiddenAccessException('Invalid invitation')
     }
 
-    const filter = invitation ? 'allowJoinFromURL' : 'allowJoinFromSearch'
+    const filter = invitation ? 'allowJoinWithURL' : 'allowJoinFromSearch'
     const group = await this.prisma.group.findUniqueOrThrow({
       where: {
         id: groupId,
@@ -278,6 +299,30 @@ export class GroupService {
         isJoined: false
       }
     } else {
+      const whitelist = (
+        await this.prisma.groupWhitelist.findMany({
+          where: {
+            groupId
+          },
+          select: {
+            studentId: true
+          }
+        })
+      ).map((list) => list.studentId)
+
+      if (whitelist.length) {
+        const { studentId } = await this.prisma.user.findUniqueOrThrow({
+          where: { id: userId },
+          select: {
+            studentId: true
+          }
+        })
+
+        if (!whitelist.includes(studentId)) {
+          throw new ForbiddenAccessException('Whitelist Violation')
+        }
+      }
+
       const userGroupData: UserGroupData = {
         userId,
         groupId,
@@ -311,20 +356,6 @@ export class GroupService {
       }
     })
     return deletedUserGroup
-  }
-
-  async getUserGroupLeaderList(userId: number): Promise<number[]> {
-    return (
-      await this.prisma.userGroup.findMany({
-        where: {
-          userId,
-          isGroupLeader: true
-        },
-        select: {
-          groupId: true
-        }
-      })
-    ).map((group) => group.groupId)
   }
 
   async createUserGroup(userGroupData: UserGroupData): Promise<UserGroup> {

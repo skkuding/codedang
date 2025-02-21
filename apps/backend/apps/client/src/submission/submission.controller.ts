@@ -78,8 +78,7 @@ export class SubmissionController {
         userIp,
         userId: req.user.id,
         problemId,
-        contestId,
-        groupId
+        contestId
       })
     } else if (assignmentId) {
       return await this.submissionService.submitToAssignment({
