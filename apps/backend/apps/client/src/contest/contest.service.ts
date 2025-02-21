@@ -201,41 +201,6 @@ export class ContestService {
       }
       throw error
     }
-    /* HACK: standings 업데이트 로직 수정 후 삭제
-    // get contest participants ranking using ContestRecord
-    const sortedContestRecordsWithUserDetail =
-      await this.prisma.contestRecord.findMany({
-        where: {
-          contestId: id
-        },
-        select: {
-          user: {
-            select: {
-              id: true,
-              username: true
-            }
-          },
-          score: true,
-          totalPenalty: true
-        },
-        orderBy: [
-          {
-            score: 'desc'
-          },
-          {
-            totalPenalty: 'asc'
-          }
-        ]
-      })
-
-    const UsersWithStandingDetail = sortedContestRecordsWithUserDetail.map(
-      (contestRecord, index) => ({
-        ...contestRecord,
-        standing: index + 1
-      })
-    )
-    */
-    // combine contest and sortedContestRecordsWithUserDetail
 
     const { invitationCode, ...contestDetails } = contest
     const invitationCodeExists = invitationCode != null
