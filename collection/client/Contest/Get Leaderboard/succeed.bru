@@ -5,7 +5,75 @@ meta {
 }
 
 get {
-  url: :id/leaderboard
+  url: {{baseUrl}}/contest/:id/leaderboard
   body: none
   auth: none
+}
+
+params:query {
+  ~search: user
+}
+
+params:path {
+  id: 1
+}
+
+docs {
+  # Get Leaderboard
+  contest의 리더보드를 return합니다.
+  
+  ## Query
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |search|string|검색하고자하는 string을 넣으면 해당 문자열이 포함된 유저명들만을 return합니다|
+  
+  ## Return
+  ## 🔹 Response Format
+  
+  ```json
+  {
+    "maxScore": 60,
+    "leaderboard": [
+      {
+        "user": {
+          "username": "super"
+        },
+        "totalScore": 0,
+        "totalPenalty": 0,
+        "problemRecords": [
+          {
+            "order": 0,
+            "problemId": 1,
+            "penalty": 0,
+            "submissionCount": 0,
+            "score": 0,
+            "isFrozen": false,
+            "isFirstSolver": false
+          }
+        ],
+        "rank": 1
+      }
+    ]
+  }
+  ```
+  
+  ## 🔹 Response Fields
+  
+  | Field | Type | Description |
+  |------------|--------|----------------------------|
+  | `maxScore` | `number` | Maximum possible score in the contest. |
+  | `leaderboard` | `array` | List of users and their contest results. |
+  | `leaderboard[].user` | `object` | User information. |
+  | `leaderboard[].user.username` | `string` | Username of the contestant. |
+  | `leaderboard[].totalScore` | `number` | The user's total score. |
+  | `leaderboard[].totalPenalty` | `number` | The total penalty time of the user. |
+  | `leaderboard[].problemRecords` | `array` | Records of each problem attempted by the user. |
+  | `leaderboard[].problemRecords[].order` | `number` | The order of the problem in the contest. |
+  | `leaderboard[].problemRecords[].problemId` | `number` | The ID of the problem. |
+  | `leaderboard[].problemRecords[].penalty` | `number` | The penalty score applied for the problem. |
+  | `leaderboard[].problemRecords[].submissionCount` | `number` | Number of submissions made by the user for this problem. |
+  | `leaderboard[].problemRecords[].score` | `number` | Score achieved for this problem. |
+  | `leaderboard[].problemRecords[].isFrozen` | `boolean` | Whether the score is frozen. |
+  | `leaderboard[].problemRecords[].isFirstSolver` | `boolean` | Indicates if the user was the first to solve this problem. |
+  | `leaderboard[].rank` | `number` | The user's ranking in the contest. |
 }
