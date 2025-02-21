@@ -14,6 +14,7 @@ import { LimitForm } from '../_components/LimitForm'
 import { PopoverVisibleInfo } from '../_components/PopoverVisibleInfo'
 import { TemplateField } from '../_components/TemplateField'
 import { TestcaseField } from '../_components/TestcaseField'
+import { LineSelectableCodeEditor } from '../_components/codeEditor'
 import { CreateProblemForm } from './_components/CreateProblemForm'
 
 export default function Page() {
@@ -75,6 +76,15 @@ export default function Page() {
               formElement="textarea"
               placeholder="Enter a hint"
             />
+
+            {/* TODO: 에디터가 작동 테스트용임, 아코디언으로 language 별로 에디터가 뜨도록 구현 필요 */}
+            <div className="rounded-md bg-[#121728]">
+              <LineSelectableCodeEditor
+                value={''}
+                language={'C'}
+                className="max-h-60 min-h-60 w-full"
+              />
+            </div>
 
             <SwitchField
               name="source"
