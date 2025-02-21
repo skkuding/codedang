@@ -15,7 +15,7 @@ export class AnnouncementService {
         select: {
           contestProblem: true,
           announcement: {
-            orderBy: { updateTime: 'desc' }
+            orderBy: { createTime: 'desc' }
           }
         }
       })
