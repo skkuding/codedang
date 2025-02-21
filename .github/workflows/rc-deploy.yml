@@ -43,11 +43,11 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ./apps/infra/rc/network
-        run: terraform plan -input=false -out=plan.out
+        run: terraform plan -input=false -out=plan.out -lock=false
 
       - name: Terraform Apply
         working-directory: ./apps/infra/rc/network
-        run: terraform apply -input=false plan.out
+        run: terraform apply -input=false plan.out -lock=false
 
   rc-deploy-storage:
     name: RC - Deploy Storage
@@ -81,11 +81,11 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ./apps/infra/rc/storage
-        run: terraform plan -input=false -out=plan.out
+        run: terraform plan -input=false -out=plan.out -lock=false
 
       - name: Terraform Apply
         working-directory: ./apps/infra/rc/storage
-        run: terraform apply -input=false plan.out
+        run: terraform apply -input=false plan.out -lock=false
 
   rc-deploy-codedang:
     name: RC - Deploy Codedang
@@ -126,8 +126,8 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ./apps/infra/rc/codedang
-        run: terraform plan -input=false -out=plan.out
+        run: terraform plan -input=false -out=plan.out -lock=false
 
       - name: Terraform Apply
         working-directory: ./apps/infra/rc/codedang
-        run: terraform apply -input=false plan.out
+        run: terraform apply -input=false plan.out -lock=false
