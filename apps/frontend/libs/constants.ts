@@ -135,16 +135,20 @@ export const status = ['Ongoing', 'Upcoming', 'Finished'] as const
  * Text colors for contest main page banner.
  * @constant
  */
-export const textColors: { [key: string]: string } = {
+export const contestTextColors: { [key: string]: string } = {
   recent: '#FFFFFF',
   upcoming: '#4B63FF'
+}
+
+export const courseTextcolors: { [key: string]: string } = {
+  course: '#FFFFFF'
 }
 
 /**
  * Oval icon colors for contest main page banner.
  * @constant
  */
-export const ovalIconColors: {
+export const contestOvalIconColors: {
   [key: string]: {
     leftup: string
     leftdown: string
@@ -163,5 +167,21 @@ export const ovalIconColors: {
     leftdown: '#A4BEFF',
     rightup: '#C8D9FF',
     rightdown: '#89ADFF'
+  }
+}
+
+export const courseOvalIconColors: {
+  [key: string]: {
+    leftup: string
+    leftdown: string
+    rightup: string
+    rightdown: string
+  }
+} = {
+  course: {
+    leftup: '#6B69FF',
+    leftdown: '#A8A2FF',
+    rightup: '#7F7DFF',
+    rightdown: '#4A32FF'
   }
 }
