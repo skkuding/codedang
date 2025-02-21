@@ -326,7 +326,8 @@ describe('ContestProblemService', () => {
         invitationCodeExists: true,
         isJudgeResultVisible: true,
         prev: null,
-        next: null
+        next: null,
+        contestProblems: []
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
       db.submission.findMany.resolves([])
@@ -336,8 +337,7 @@ describe('ContestProblemService', () => {
         contestId,
         userId,
         cursor: 1,
-        take: 1,
-        groupId: OPEN_SPACE_ID // 명시적 전달
+        take: 1
       })
 
       // then
@@ -360,7 +360,8 @@ describe('ContestProblemService', () => {
         invitationCodeExists: true,
         isJudgeResultVisible: true,
         prev: null,
-        next: null
+        next: null,
+        contestProblems: []
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
       db.submission.findMany.resolves([])
@@ -370,8 +371,7 @@ describe('ContestProblemService', () => {
         contestId,
         userId,
         cursor: 1,
-        take: 1,
-        groupId: OPEN_SPACE_ID // 명시적 전달
+        take: 1
       })
 
       // then
@@ -395,8 +395,7 @@ describe('ContestProblemService', () => {
           contestId,
           userId,
           cursor: 1,
-          take: 1,
-          groupId: OPEN_SPACE_ID // 명시적 전달
+          take: 1
         })
       ).to.be.rejectedWith(prismaNotFoundError)
     })
@@ -410,7 +409,8 @@ describe('ContestProblemService', () => {
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
-        next: null
+        next: null,
+        contestProblems: []
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
 
@@ -419,8 +419,7 @@ describe('ContestProblemService', () => {
           contestId,
           userId,
           cursor: 1,
-          take: 1,
-          groupId: OPEN_SPACE_ID // 명시적 전달
+          take: 1
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -434,7 +433,8 @@ describe('ContestProblemService', () => {
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
-        next: null
+        next: null,
+        contestProblems: []
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
 
@@ -443,8 +443,7 @@ describe('ContestProblemService', () => {
           contestId,
           userId,
           cursor: 1,
-          take: 1,
-          groupId: OPEN_SPACE_ID // 명시적 전달
+          take: 1
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -461,7 +460,8 @@ describe('ContestProblemService', () => {
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
-        next: null
+        next: null,
+        contestProblems: []
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
 
@@ -490,7 +490,8 @@ describe('ContestProblemService', () => {
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
-        next: null
+        next: null,
+        contestProblems: []
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
 
@@ -534,7 +535,8 @@ describe('ContestProblemService', () => {
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
-        next: null
+        next: null,
+        contestProblems: []
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       await expect(
@@ -556,7 +558,8 @@ describe('ContestProblemService', () => {
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
-        next: null
+        next: null,
+        contestProblems: []
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       await expect(
