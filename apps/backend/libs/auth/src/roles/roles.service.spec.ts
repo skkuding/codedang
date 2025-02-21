@@ -17,7 +17,9 @@ const user: User = {
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
   studentId: '0000000000',
-  major: 'default'
+  major: 'default',
+  canCreateContest: false,
+  canCreateCourse: false
 }
 
 const userGroup: UserGroup = {
@@ -34,7 +36,7 @@ const db = {
     findUniqueOrThrow: stub()
   },
   userGroup: {
-    findFirst: stub()
+    findUnique: stub()
   }
 }
 
@@ -71,7 +73,7 @@ describe('RolesService', () => {
   describe('getUserGroup', () => {
     it('should return isGroupLeader', async () => {
       const { isGroupLeader } = userGroup
-      db.userGroup.findFirst.resolves(isGroupLeader)
+      db.userGroup.findUnique.resolves(isGroupLeader)
 
       const result = await service.getUserGroup(
         userGroup.userId,

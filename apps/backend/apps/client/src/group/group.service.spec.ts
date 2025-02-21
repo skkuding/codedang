@@ -1,7 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { Prisma } from '@prisma/client'
+import { GroupType, Prisma } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import * as chai from 'chai'
@@ -72,20 +72,17 @@ describe('GroupService', () => {
     expect(service).to.be.ok
   })
 
-  describe('getGroup', () => {
-    it('should return groupData for join when user is not joined to a group', async () => {
+  describe('getCourse', () => {
+    it('should return courseData for join when user is not joined to a group', async () => {
       const user01Id = 4
       const groupId = 3
-      const res = await service.getGroup(groupId, user01Id)
+      const res = await service.getCourse(groupId, user01Id)
 
       expect(res).to.deep.equal({
         id: 3,
         groupName: 'Example Private Group 2',
-        description:
-          'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
-        allowJoin: true,
-        memberNum: 1,
-        leaders: ['manager'],
+        groupType: 'Course',
+        courseInfo: null,
         isJoined: false
       })
     })
@@ -94,13 +91,23 @@ describe('GroupService', () => {
       const user01Id = 4
       const groupId = 2
 
-      const res = await service.getGroup(groupId, user01Id)
+      const res = await service.getCourse(groupId, user01Id)
 
       expect(res).to.deep.equal({
         id: 2,
-        groupName: 'Example Private Group',
-        description:
-          'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+        groupName: '정보보호개론',
+        groupType: 'Course',
+        courseInfo: {
+          courseNum: 'SWE3033',
+          classNum: 42,
+          professor: '형식킴',
+          semester: '2025 Spring',
+          week: 16,
+          email: 'example01@skku.edu',
+          website: 'https://seclab.com',
+          office: null,
+          phoneNum: null
+        },
         isGroupLeader: true,
         isJoined: true
       })
@@ -110,14 +117,14 @@ describe('GroupService', () => {
       const user01Id = 4
       const groupId = 99999
 
-      await expect(service.getGroup(groupId, user01Id)).to.be.rejectedWith(
+      await expect(service.getCourse(groupId, user01Id)).to.be.rejectedWith(
         Prisma.PrismaClientKnownRequestError
       )
     })
   })
 
-  describe('getGroupByInvitation', () => {
-    it('should call getGroup', async () => {
+  describe('getCourseByInvitation', () => {
+    it('should call getCourse', async () => {
       const groupId = 2
       const userId = 4
       sandbox.stub(cache, 'get').resolves(groupId)
@@ -129,9 +136,19 @@ describe('GroupService', () => {
 
       expect(res).to.deep.equal({
         id: 2,
-        groupName: 'Example Private Group',
-        description:
-          'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+        groupName: '정보보호개론',
+        groupType: 'Course',
+        courseInfo: {
+          courseNum: 'SWE3033',
+          classNum: 42,
+          professor: '형식킴',
+          semester: '2025 Spring',
+          week: 16,
+          email: 'example01@skku.edu',
+          website: 'https://seclab.com',
+          office: null,
+          phoneNum: null
+        },
         isGroupLeader: true,
         isJoined: true
       })
@@ -156,21 +173,25 @@ describe('GroupService', () => {
       expect(res).to.deep.equal({
         data: [
           {
+            id: 2,
+            groupName: '정보보호개론',
+            description: null,
+            memberNum: 11
+          },
+          {
             id: 3,
             groupName: 'Example Private Group 2',
-            description:
-              'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+            description: 'This is an example private group just for testing.',
             memberNum: 1
           },
           {
             id: 4,
             groupName: 'Example Private Group 3',
-            description:
-              'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+            description: 'This is an example private group just for testing.',
             memberNum: 2
           }
         ],
-        total: 2
+        total: 3
       })
     })
   })
@@ -178,14 +199,24 @@ describe('GroupService', () => {
   describe('getJoinedGroups', () => {
     it('should return a list of groups to which user belongs to', async () => {
       const userId = 4
-      const res = await service.getJoinedGroups(userId)
+      const res = await service.getJoinedGroups(userId, GroupType.Course)
 
       expect(res).to.deep.equal([
         {
           id: 2,
-          groupName: 'Example Private Group',
-          description:
-            'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+          groupName: '정보보호개론',
+          courseInfo: {
+            groupId: 2,
+            courseNum: 'SWE3033',
+            classNum: 42,
+            professor: '형식킴',
+            semester: '2025 Spring',
+            week: 16,
+            email: 'example01@skku.edu',
+            website: 'https://seclab.com',
+            office: null,
+            phoneNum: null
+          },
           memberNum: 11,
           isGroupLeader: true
         }
@@ -204,7 +235,8 @@ describe('GroupService', () => {
           description: 'test',
           config: {
             allowJoinFromSearch: true,
-            requireApprovalBeforeJoin: false
+            requireApprovalBeforeJoin: false,
+            allowJoinWithURL: true
           }
         }
       })
@@ -213,7 +245,8 @@ describe('GroupService', () => {
 
     it('should return {isJoined: true} when group not set as requireApprovalBeforeJoin', async () => {
       groupId = await createTestGroup()
-      const res = await service.joinGroupById(userId, groupId)
+      sandbox.stub(cache, 'get').resolves(groupId)
+      const res = await service.joinGroupById(userId, groupId, 'invitationCode')
       const userGroupData: UserGroupData = {
         userId,
         groupId,
@@ -232,34 +265,9 @@ describe('GroupService', () => {
         })
     })
 
-    it('should return {isJoined: false} when group set as requireApprovalBeforeJoin', async () => {
-      groupId = await createTestGroup()
-      await transaction.group.update({
-        where: {
-          id: groupId
-        },
-        data: {
-          config: {
-            allowJoinFromSearch: true,
-            requireApprovalBeforeJoin: true
-          }
-        }
-      })
-
-      sandbox.stub(cache, 'get').resolves([])
-
-      const res = await service.joinGroupById(userId, groupId)
-      expect(res).to.deep.equal({
-        userGroupData: {
-          userId,
-          groupId
-        },
-        isJoined: false
-      })
-    })
-
     it('should throw ConflictFoundException when user is already group memeber', async () => {
       groupId = await createTestGroup()
+      sandbox.stub(cache, 'get').resolves(groupId)
       await transaction.userGroup.create({
         data: {
           userId,
@@ -270,34 +278,9 @@ describe('GroupService', () => {
         }
       })
 
-      await expect(service.joinGroupById(userId, groupId)).to.be.rejectedWith(
-        ConflictFoundException
-      )
-    })
-
-    it('should throw ConflictFoundException when join request already exists in cache', async () => {
-      groupId = await createTestGroup()
-      sandbox
-        .stub(cache, 'get')
-        .resolves([
-          { userId, expiresAt: Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME }
-        ])
-
-      await transaction.group.update({
-        where: {
-          id: groupId
-        },
-        data: {
-          config: {
-            allowJoinFromSearch: true,
-            requireApprovalBeforeJoin: true
-          }
-        }
-      })
-
-      await expect(service.joinGroupById(userId, groupId)).to.be.rejectedWith(
-        ConflictFoundException
-      )
+      await expect(
+        service.joinGroupById(userId, groupId, 'invitationCode')
+      ).to.be.rejectedWith(ConflictFoundException)
     })
   })
 
@@ -356,7 +339,7 @@ describe('GroupService', () => {
     it('should return group leaders', async () => {
       const res = await service.getGroupLeaders(2)
 
-      expect(res).to.deep.equal(['manager', 'user01'])
+      expect(res).to.deep.equal(['instructor', 'user01'])
     })
   })
 })
