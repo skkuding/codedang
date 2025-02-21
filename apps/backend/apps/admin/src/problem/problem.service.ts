@@ -37,6 +37,7 @@ import type {
 } from './model/problem.input'
 import type { ProblemWithIsVisible } from './model/problem.output'
 import type { Template } from './model/template.input'
+import { ImportedTestcaseHeader } from './model/testcase.constants'
 import type { Testcase } from './model/testcase.input'
 
 @Injectable()
@@ -265,7 +266,7 @@ export class ProblemService {
     const worksheet = (await workbook.xlsx.read(createReadStream()))
       .worksheets[0]
     worksheet.getRow(1).eachCell((cell, idx) => {
-      if (!ImportedProblemHeader.includes(cell.text))
+      if (!ImportedTestcaseHeader.includes(cell.text))
         throw new UnprocessableFileDataException(
           `Field ${cell.text} is not supported: ${1}`,
           filename
