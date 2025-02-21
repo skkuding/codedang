@@ -13,7 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator
 } from '@/components/shadcn/dropdown-menu'
-import { cn, fetcherWithAuth } from '@/libs/utils'
+import { cn, fetcherWithAuth, safeFetcherWithAuth } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
 import { LogOut, UserRoundCog, ChevronDown } from 'lucide-react'
 import type { Session } from 'next-auth'
@@ -31,6 +31,25 @@ interface HeaderAuthPanelProps {
   group?: 'default' | 'editor'
 }
 
+interface Course {
+  id: number
+  groupName: string
+  memberNum: number
+  isGroupLeader: boolean
+  courseInfo: {
+    groupId: number
+    courseNum: string
+    classNum: number
+    professor: string
+    semester: string
+    email: string
+    website: string
+    office: string | null
+    phoneNum: string | null
+    week: number
+  }
+}
+
 export function HeaderAuthPanel({
   session,
   group = 'default'
@@ -39,6 +58,7 @@ export function HeaderAuthPanel({
     (state) => state
   )
   const isUser = session?.user.role === 'User'
+  const [hasAnyGroupLeaderRole, setHasAnyGroupLeaderRole] = useState(false)
   const isEditor = group === 'editor'
   const [needsUpdate, setNeedsUpdate] = useState(false)
   const pathname = usePathname()
@@ -58,6 +78,20 @@ export function HeaderAuthPanel({
     if (session) {
       checkIfNeedsUpdate()
     }
+
+    async function fetchGroupLeaderRole() {
+      try {
+        const response: Course[] = await safeFetcherWithAuth
+          .get('course/joined')
+          .json()
+
+        const hasRole = response.some((course) => course.isGroupLeader)
+        setHasAnyGroupLeaderRole(hasRole)
+      } catch (error) {
+        console.error('Error fetching group leader role:', error)
+      }
+    }
+    fetchGroupLeaderRole()
   }, [session, pathname])
 
   const shouldShowDialog =
@@ -95,7 +129,7 @@ export function HeaderAuthPanel({
                   'mr-5 rounded-sm border-none bg-[#4C5565] px-0 font-normal text-white'
               )}
             >
-              {!isUser && (
+              {(hasAnyGroupLeaderRole || !isUser) && (
                 <Link href="/admin">
                   <DropdownMenuItem
                     className={cn(

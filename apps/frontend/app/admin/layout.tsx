@@ -1,7 +1,9 @@
 import { Separator } from '@/components/shadcn/separator'
+import { safeFetcherWithAuth } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import Image from 'next/image'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { ClientApolloProvider } from './_components/ApolloProvider'
 import { GroupAdminSideBar } from './_components/GroupAdminSideBar'
 import { ManagementSidebar } from './_components/MangementSidebar'
@@ -9,7 +11,47 @@ import { SideBar } from './_components/SideBar'
 
 // import { GroupSelect } from './_components/GroupSelect'
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+interface Course {
+  id: number
+  groupName: string
+  memberNum: number
+  isGroupLeader: boolean
+  courseInfo: {
+    groupId: number
+    courseNum: string
+    classNum: number
+    professor: string
+    semester: string
+    email: string
+    website: string
+    office: string | null
+    phoneNum: string | null
+    week: number
+  }
+}
+
+async function fetchGroupLeaderRole() {
+  try {
+    const response: Course[] = await safeFetcherWithAuth
+      .get('course/joined')
+      .json()
+
+    return response.some((course) => course.isGroupLeader)
+  } catch (error) {
+    console.error('Error fetching group leader role:', error)
+  }
+}
+
+export default async function Layout({
+  children
+}: {
+  children: React.ReactNode
+}) {
+  const hasAnyGroupLeaderRole = await fetchGroupLeaderRole()
+  console.log(hasAnyGroupLeaderRole)
+  if (!hasAnyGroupLeaderRole) {
+    redirect('/')
+  }
   return (
     <ClientApolloProvider>
       <div className="flex h-dvh bg-neutral-50">

@@ -12,16 +12,14 @@ import {
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
 import { useState } from 'react'
+import { IoDuplicateOutline } from 'react-icons/io5'
 import { PiTrashLight } from 'react-icons/pi'
 import { toast } from 'sonner'
-import { useDataTable } from './context'
+import { useDataTable } from '../../_components/table/context'
 
-interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
-  target: 'problem' | 'contest' | 'assignment' | 'group' | 'course'
-  deleteTarget: (id: number) => Promise<TPromise>
-  getCanDelete?: (selectedRows: TData[]) => Promise<boolean>
+interface DuplicateCourseButtonProps<TData extends { id: number }, TPromise> {
+  duplicateTarget: (id: number) => Promise<TPromise>
   onSuccess?: () => void
-  className?: string
 }
 
 /**
@@ -38,41 +36,25 @@ interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
  * @param className
  * tailwind 클래스명
  */
-export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
-  target,
-  deleteTarget,
-  getCanDelete,
+export function DuplicateCourseButton<TData extends { id: number }, TPromise>({
   onSuccess,
-  className
-}: DataTableDeleteButtonProps<TData, TPromise>) {
+  duplicateTarget
+}: DuplicateCourseButtonProps<TData, TPromise>) {
   const { table } = useDataTable<TData>()
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const handleDeleteButtonClick = async () => {
+  const handleDuplicateButtonClick = () => {
     if (table.getSelectedRowModel().rows.length === 0) {
       return
     }
-
-    if (!getCanDelete) {
-      setIsDialogOpen(true)
-      return
-    }
-
-    const selectedRows = table
-      .getSelectedRowModel()
-      .rows.map((row) => row.original)
-
-    const canDelete = await getCanDelete(selectedRows)
-    if (canDelete) {
-      setIsDialogOpen(true)
-    }
+    setIsDialogOpen(true)
   }
 
-  const handleDeleteRows = async () => {
+  const handleDuplicateRows = async () => {
     const selectedRows = table.getSelectedRowModel().rows
     const deletePromises = selectedRows.map((row) =>
-      deleteTarget(row.original.id)
+      duplicateTarget(row.original.id)
     )
 
     try {
@@ -81,7 +63,7 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
       table.resetPageIndex()
       onSuccess?.()
     } catch {
-      toast.error(`Failed to delete ${target}`)
+      toast.error(`Failed to duplicate course`)
     }
   }
 
@@ -90,28 +72,39 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
       <Button
         variant="outline"
         type="button"
-        onClick={handleDeleteButtonClick}
-        className={className}
+        onClick={handleDuplicateButtonClick}
       >
-        <PiTrashLight fontSize={18} />
+        <IoDuplicateOutline />
       </Button>
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to permanently delete{' '}
-              {table.getSelectedRowModel().rows.length} {target}(s)?
+            <AlertDialogTitle>Duplicate Course</AlertDialogTitle>
+            <AlertDialogDescription className="flex flex-col gap-3">
+              <div>
+                <p className="text-gray-700">Contents that will be copied:</p>
+                <ul className="ml-4 list-inside list-disc text-gray-700">
+                  <li>Title</li>
+                  <li>Description</li>
+                  <li>Assignments</li>
+                </ul>
+                <p className="mt-2 text-red-500">
+                  • Caution: The new contest will be set to be unpublished.
+                </p>
+                <p className="mt-2 text-gray-700">
+                  Are you sure you want to duplicate the selected course?
+                </p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button
-                onClick={handleDeleteRows}
-                className="bg-red-500 hover:bg-red-500/90"
+                onClick={handleDuplicateRows}
+                className="bg-primary hover:bg-primary-strong"
               >
-                Delete
+                Duplicate
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>

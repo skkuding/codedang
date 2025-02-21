@@ -1,8 +1,10 @@
 'use client'
 
 import { Separator } from '@/components/shadcn/separator'
+import { GET_COURSES } from '@/graphql/course/queries'
 import { cn } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
+import { useSuspenseQuery } from '@apollo/client'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -52,26 +54,36 @@ export function ManagementSidebar() {
     { name: 'Q&A', path: '/admin/course/qna' as const, icon: IoMdChatboxes }
   ]
 
-  const courseItems = [
-    {
-      path: '/admin/course/1' as const,
-      code: 'SWE0000-00',
-      name: '강의는열글자까지'
-    },
-    {
-      path: '/admin/course/2' as const,
-      code: 'SWE1001-01',
-      name: '소프트웨어공학'
-    },
-    {
-      path: '/admin/course/3' as const,
-      code: 'CSE2002-02',
-      name: '자료구조와알고리즘'
-    },
-    { path: '/admin/course/4' as const, code: 'MAT3003-03', name: '선형대수학' }
-  ]
+  // const courseItems = [
+  //   {
+  //     path: '/admin/course/1' as const,
+  //     code: 'SWE0000-00',
+  //     name: '강의는열글자까지'
+  //   },
+  //   {
+  //     path: '/admin/course/2' as const,
+  //     code: 'SWE1001-01',
+  //     name: '소프트웨어공학'
+  //   },
+  //   {
+  //     path: '/admin/course/3' as const,
+  //     code: 'CSE2002-02',
+  //     name: '자료구조와알고리즘'
+  //   },
+  //   { path: '/admin/course/4' as const, code: 'MAT3003-03', name: '선형대수학' }
+  // ]
 
-  // setIsMainSidebarExpanded(true)
+  // const { data } = useSuspenseQuery(GET_COURSES, {
+  //   variables: {
+  //     cursor: 1,
+  //     take: 5
+  //   }
+  // })
+  // const courses = data.getCourses.map((course) => ({
+  //   id: Number(course.id),
+  //   path: `admin/course/${course.id}`,
+  //   name: course.groupName
+  // }))
   return (
     <div className="flex gap-5 px-6">
       <div>
@@ -117,7 +129,7 @@ export function ManagementSidebar() {
                   </Link>
                 ))}
               </div>
-              {isCourseListOpened && (
+              {/* {isCourseListOpened && (
                 <div className="flex flex-col gap-3 text-xs">
                   {courseItems.map((course) => (
                     <Link
@@ -135,7 +147,7 @@ export function ManagementSidebar() {
                     </Link>
                   ))}
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         )}
