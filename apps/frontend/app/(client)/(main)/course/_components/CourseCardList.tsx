@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Carousel,
   CarouselContent,
@@ -5,11 +7,12 @@ import {
   CarouselNext,
   CarouselPrevious
 } from '@/components/shadcn/carousel'
-import { cn, safeFetcherWithAuth } from '@/libs/utils'
+import { cn, fetcherWithAuth, safeFetcherWithAuth } from '@/libs/utils'
 import type { JoinedCourse } from '@/types/type'
+import { useQuery } from '@tanstack/react-query'
 import type { Route } from 'next'
-import type { Session } from 'next-auth'
 import Link from 'next/link'
+import { useMemo } from 'react'
 import { CourseCard } from '../_components/CourseCard'
 import { RegisterCourseButton } from './RegisterCourseButton'
 
@@ -55,22 +58,28 @@ function getRandomColorArray(username: string) {
   return array
 }
 
-const getUsername = async () => {
-  try {
-    const data: Profile = await safeFetcherWithAuth.get('user').json()
-    return data.username
-  } catch {
-    return 'unknown'
-  }
-}
-
-interface CourseCardCarouselProps {
+interface CourseCardListProps {
   title: string
-  courses: JoinedCourse[]
 }
 
-async function CourseCardCarousel({ title, courses }: CourseCardCarouselProps) {
-  const colors = getRandomColorArray(await getUsername())
+export function CourseCardList({ title }: CourseCardListProps) {
+  // Get username and generate colors
+  const { data: username = 'unknown' } = useQuery({
+    queryKey: ['username'],
+    queryFn: async () => {
+      const data: Profile = await safeFetcherWithAuth.get('user').json()
+      return data.username
+    }
+  })
+
+  const colors = useMemo(() => getRandomColorArray(username), [username])
+
+  const { data: courses = [] } = useQuery({
+    queryKey: ['joinedCourses'],
+    queryFn: async () => {
+      return await fetcherWithAuth.get('course/joined').json<JoinedCourse[]>()
+    }
+  })
 
   return (
     <Carousel className="flex w-full flex-col gap-6">
@@ -106,19 +115,5 @@ async function CourseCardCarousel({ title, courses }: CourseCardCarouselProps) {
         </CarouselContent>
       </div>
     </Carousel>
-  )
-}
-
-interface CourseCardListProps {
-  title: string
-  session?: Session | null
-  courses: JoinedCourse[]
-}
-
-export function CourseCardList({ title, courses }: CourseCardListProps) {
-  return courses.length === 0 ? (
-    <div>No courses have been registered.</div>
-  ) : (
-    <CourseCardCarousel title={title} courses={courses} />
   )
 }

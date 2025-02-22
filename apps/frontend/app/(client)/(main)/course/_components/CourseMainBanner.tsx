@@ -2,8 +2,8 @@
 
 import { Button } from '@/components/shadcn/button'
 import { courseOvalIconColors, courseTextcolors } from '@/libs/constants'
-import { cn, fetcher } from '@/libs/utils'
-import { useQuery } from '@tanstack/react-query'
+import { cn } from '@/libs/utils'
+import type { JoinedCourse } from '@/types/type'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
@@ -34,19 +34,9 @@ const slides = [
   }
 ]
 
-export function CourseMainBanner() {
+export function CourseMainBanner({ course }: { course: JoinedCourse | null }) {
   const [facade, setFacade] = useState(0)
   const router = useRouter()
-
-  const { data } = useQuery({
-    queryKey: ['mostRecentContestId'],
-    queryFn: async () => {
-      const res: {
-        fastestUpcomingContestId: number
-      } = await fetcher.get('contest/banner').json()
-      return res
-    }
-  })
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -102,23 +92,22 @@ export function CourseMainBanner() {
                 >
                   {slide.mainDescription}
                 </p>
-                {/* router대신 Link 이용? 고민 */}
-                <Button
-                  variant="outline"
-                  className={cn(
-                    'mt-2 w-[209px] gap-[6px] rounded-full bg-transparent font-medium'
-                  )}
-                  style={{
-                    borderColor: courseTextcolors[slide.type],
-                    color: courseTextcolors[slide.type]
-                  }}
-                  onClick={() =>
-                    router.push(`/course/${data?.fastestUpcomingContestId}`)
-                  }
-                >
-                  {slide.buttonDescription}
-                  <FaArrowRight />
-                </Button>
+                {course ? (
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      'mt-2 w-[209px] gap-[6px] rounded-full bg-transparent font-medium'
+                    )}
+                    style={{
+                      borderColor: courseTextcolors[slide.type],
+                      color: courseTextcolors[slide.type]
+                    }}
+                    onClick={() => router.push(`/course/${course.id}`)}
+                  >
+                    {slide.buttonDescription}
+                    <FaArrowRight />
+                  </Button>
+                ) : null}
               </div>
 
               <div>
