@@ -18,10 +18,15 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
+import { CREATE_COURSE } from '@/graphql/course/mutation'
+import { useMutation } from '@apollo/client'
+import type { CourseInput } from '@generated/graphql'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useState } from 'react'
+import { useForm, type SubmitHandler } from 'react-hook-form'
 import { FiPlusCircle } from 'react-icons/fi'
-import { PiTrashLight } from 'react-icons/pi'
 import { toast } from 'sonner'
+import { courseSchema } from '../_libs/schema'
 
 interface CreateCourseButtonProps<TData extends { id: number }, TPromise> {
   onSuccess?: () => void
@@ -44,11 +49,53 @@ interface CreateCourseButtonProps<TData extends { id: number }, TPromise> {
 export function CreateCourseButton<TData extends { id: number }, TPromise>({
   onSuccess
 }: CreateCourseButtonProps<TData, TPromise>) {
+  const { handleSubmit, register, setValue } = useForm<CourseInput>({
+    resolver: valibotResolver(courseSchema)
+  })
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false)
-
   const [prefix, setPrefix] = useState('')
-  const [num, setNum] = useState('')
-  const [section, setSection] = useState('')
+  const [courseCode, setCourseCode] = useState('')
+  const [classNum, setClassNum] = useState('')
+  const [createCourse] = useMutation(CREATE_COURSE)
+
+  const onSubmit: SubmitHandler<CourseInput> = async (data) => {
+    try {
+      const { data: response, errors } = await createCourse({
+        variables: {
+          input: {
+            courseTitle: data.courseTitle,
+            courseNum: `${prefix}${courseCode}`,
+            classNum: parseInt(classNum, 10),
+            professor: data.professor,
+            semester: data.semester,
+            week: data.week,
+            email: data.email,
+            website: data.website,
+            office: data.office,
+            phoneNum: data.phoneNum,
+            config: {
+              showOnList: true,
+              allowJoinFromSearch: true,
+              allowJoinWithURL: true,
+              requireApprovalBeforeJoin: false
+            }
+          }
+        }
+      })
+
+      if (errors) {
+        console.error('GraphQL Errors:', errors)
+        toast.error('Failed to create course')
+        return
+      }
+
+      toast.success('Course created successfully!')
+      setIsAlertDialogOpen(false)
+    } catch (error) {
+      console.error('Error creating course:', error)
+      toast.error('An unexpected error occurred')
+    }
+  }
 
   const handlePrefixChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toUpperCase() // 대문자로 변환
@@ -57,19 +104,20 @@ export function CreateCourseButton<TData extends { id: number }, TPromise>({
     }
   }
 
-  const handleNumChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCourseCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '') // 숫자만 남기기
     if (/^\d{0,4}$/.test(value)) {
-      setNum(value)
+      setCourseCode(value)
     }
   }
 
-  const handleSectionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleClassNumChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '') // 숫자만 남기기
     if (/^\d{0,4}$/.test(value)) {
-      setSection(value)
+      setClassNum(value)
     }
   }
+
   return (
     <>
       <Button
@@ -86,136 +134,171 @@ export function CreateCourseButton<TData extends { id: number }, TPromise>({
             <AlertDialogTitle>Create Course</AlertDialogTitle>
           </AlertDialogHeader>
 
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-2">
-              <span className="font-bold">Professor</span>
-              <span className="text-red-500">*</span>
-            </div>
-            <Input id="professor" />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-2">
-              <span className="font-bold">Course Title</span>
-              <span className="text-red-500">*</span>
-            </div>
-
-            <Input id="course-title" />
-          </div>
-
-          <div className="flex justify-between gap-4">
-            <div className="flex w-2/3 flex-col gap-2">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            aria-label="Create course"
+            className="flex flex-col gap-3"
+          >
+            <div className="flex flex-col gap-2">
               <div className="flex gap-2">
-                <span className="font-bold">Course Code</span>
+                <span className="font-bold">Professor</span>
+                <span className="text-red-500">*</span>
+              </div>
+              <Input id="profName" />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                <span className="font-bold">Course Title</span>
                 <span className="text-red-500">*</span>
               </div>
 
-              <div className="flex gap-2">
+              <Input id="courseTitle" />
+            </div>
+
+            <div className="flex justify-between gap-4">
+              <div className="flex w-2/3 flex-col gap-2">
+                <div className="flex gap-2">
+                  <span className="font-bold">Course Code</span>
+                  <span className="text-red-500">*</span>
+                </div>
+
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    placeholder="SWE"
+                    value={prefix}
+                    onChange={handlePrefixChange}
+                    maxLength={3}
+                    className="w-full rounded border p-2"
+                  />
+                  <Input
+                    type="text"
+                    placeholder="0000"
+                    value={courseCode}
+                    onChange={handleCourseCodeChange}
+                    maxLength={4}
+                    className="w-full rounded border p-2"
+                  />
+                </div>
+              </div>
+              <div className="flex w-1/3 flex-col gap-2">
+                <div className="flex gap-2">
+                  <span className="font-bold">Class Section</span>
+                </div>
+
                 <Input
-                  id="course-prefix"
+                  {...register('classNum')}
                   type="text"
-                  placeholder="SWE"
-                  value={prefix}
-                  onChange={handlePrefixChange}
-                  maxLength={3}
-                  className="w-full rounded border p-2"
-                />
-                <Input
-                  id="course-num"
-                  type="text"
-                  placeholder="0000"
-                  value={num}
-                  onChange={handleNumChange}
-                  maxLength={4}
+                  onChange={handleClassNumChange}
+                  maxLength={2}
                   className="w-full rounded border p-2"
                 />
               </div>
             </div>
-            <div className="flex w-1/3 flex-col gap-2">
+
+            <div className="flex flex-col gap-2">
               <div className="flex gap-2">
-                <span className="font-bold">Class Section</span>
+                <span className="font-bold">Semester</span>
+                <span className="text-red-500">*</span>
               </div>
-
-              <Input
-                id="class-section"
-                type="text"
-                value={section}
-                onChange={handleSectionChange}
-                maxLength={2}
-                className="w-full rounded border p-2"
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-2">
-              <span className="font-bold">Semester</span>
-              <span className="text-red-500">*</span>
-            </div>
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose" />
-              </SelectTrigger>
-              <SelectContent className="rounded-md border border-gray-200 bg-white shadow-md">
-                <SelectItem value="2025-spring">2025 Spring</SelectItem>
-                <SelectItem value="2024-winter">2024 Winter</SelectItem>
-                <SelectItem value="2024-fall">2024 Fall</SelectItem>
-                <SelectItem value="2024-summer">2024 Summer</SelectItem>
-                <SelectItem value="2024-spring">2024 Spring</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-2">
-              <span className="font-bold">Week</span>
-              <span className="text-red-500">*</span>
-            </div>
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose" />
-              </SelectTrigger>
-              <SelectContent className="rounded-md border border-gray-200 bg-white shadow-md">
-                {Array.from({ length: 16 }, (_, i) => {
-                  const week = i + 1
-                  return (
-                    <SelectItem key={week} value={`${week}-weeks`}>
-                      {week} {week === 1 ? 'Week' : 'Weeks'}
-                    </SelectItem>
-                  )
-                })}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-2">
-              <span className="font-bold">Contact</span>
-            </div>
-            <Select>
-              <SelectTrigger className="w-[180px] rounded-md border border-gray-300 shadow-sm">
-                <SelectValue placeholder="Choose" />
-              </SelectTrigger>
-              <SelectContent className="rounded-md border border-gray-200 bg-white shadow-md">
-                <SelectItem value="email">Email</SelectItem>
-                <SelectItem value="website">Website</SelectItem>
-                <SelectItem value="office">Office</SelectItem>
-                <SelectItem value="phone">Phone Number</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button
-                onClick={() => {}}
-                className="bg-primary hover:bg-primary-strong"
+              <Select
+                onValueChange={(value) => setValue('semester', value)} // 선택값을 form 상태에 저장
+                // value={selectedSemester} // 현재 선택된 값
               >
-                Create
-              </Button>
-            </AlertDialogAction>
-          </AlertDialogFooter>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose" />
+                </SelectTrigger>
+                <SelectContent className="rounded-md border border-gray-200 bg-white shadow-md">
+                  <SelectItem value="2025-spring">2025 Spring</SelectItem>
+                  <SelectItem value="2024-winter">2024 Winter</SelectItem>
+                  <SelectItem value="2024-fall">2024 Fall</SelectItem>
+                  <SelectItem value="2024-summer">2024 Summer</SelectItem>
+                  <SelectItem value="2024-spring">2024 Spring</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                <span className="font-bold">Week</span>
+                <span className="text-red-500">*</span>
+              </div>
+              <Select
+                onValueChange={(weekCount) => {
+                  const parsedWeekCount = parseInt(weekCount, 10)
+                  setValue('week', parsedWeekCount)
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose" />
+                </SelectTrigger>
+                <SelectContent className="rounded-md border border-gray-200 bg-white shadow-md">
+                  {Array.from({ length: 16 }, (_, i) => {
+                    const week = i + 1
+                    return (
+                      <SelectItem key={week} value={week.toString()}>
+                        {week} {week === 1 ? 'Week' : 'Weeks'}
+                      </SelectItem>
+                    )
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                <span className="font-bold">Contact</span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="text-xs font-normal">Email</span>
+                <Input
+                  {...register('email')}
+                  type="email"
+                  className="w-full rounded border p-2"
+                  defaultValue={''}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="text-xs font-normal">Phone Number</span>
+                <Input
+                  {...register('phoneNum')}
+                  type="tel"
+                  className="w-full rounded border p-2"
+                  defaultValue={''}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="text-xs font-normal">Office</span>
+                <Input
+                  {...register('office')}
+                  type="tel"
+                  className="w-full rounded border p-2"
+                  defaultValue={''}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="text-xs font-normal">Website</span>
+                <Input
+                  {...register('website')}
+                  type="text"
+                  className="w-full rounded border p-2"
+                  defaultValue={''}
+                />
+              </div>
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction asChild>
+                <Button
+                  type="submit"
+                  className="bg-primary hover:bg-primary-strong"
+                >
+                  Create
+                </Button>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </form>
         </AlertDialogContent>
       </AlertDialog>
     </>

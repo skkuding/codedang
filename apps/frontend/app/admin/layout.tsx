@@ -1,6 +1,8 @@
 import { Separator } from '@/components/shadcn/separator'
+import { auth } from '@/libs/auth'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
+import type { Session } from 'next-auth'
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -48,10 +50,11 @@ export default async function Layout({
   children: React.ReactNode
 }) {
   const hasAnyGroupLeaderRole = await fetchGroupLeaderRole()
-  console.log(hasAnyGroupLeaderRole)
-  if (!hasAnyGroupLeaderRole) {
+  const session = await auth()
+  if (!hasAnyGroupLeaderRole && session?.user.role === 'User') {
     redirect('/')
   }
+
   return (
     <ClientApolloProvider>
       <div className="flex h-dvh bg-neutral-50">
