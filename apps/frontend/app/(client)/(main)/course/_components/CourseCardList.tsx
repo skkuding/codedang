@@ -81,6 +81,21 @@ export function CourseCardList({ title }: CourseCardListProps) {
     }
   })
 
+  if (courses.length === 0) {
+    return (
+      <div className="flex w-full flex-col gap-6">
+        <div className="flex w-full items-center justify-between">
+          <div className="text-2xl font-semibold text-black">
+            {title} <RegisterCourseButton />
+          </div>
+        </div>
+        <p className="text-lg font-light text-gray-500">
+          Please Register Course First!
+        </p>
+      </div>
+    )
+  }
+
   return (
     <Carousel className="flex w-full flex-col gap-6">
       <div className="flex w-full items-center justify-between">
