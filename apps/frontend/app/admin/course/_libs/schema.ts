@@ -1,18 +1,28 @@
 import * as v from 'valibot'
 
 export const courseSchema = v.object({
-  profName: v.pipe(v.string(), v.minLength(1, 'Required')),
+  professor: v.pipe(v.string(), v.minLength(1, 'Required')),
   courseTitle: v.pipe(v.string(), v.minLength(1, 'Required')),
-  courseCodePrefix: v.pipe(v.string(), v.minLength(1, 'Required')),
-  courseCodeNum: v.pipe(v.string(), v.regex(/^\d+$/, 'Must be a number')),
-  classSection: v.pipe(v.string(), v.minLength(1, 'Required')),
-  semester: v.pipe(v.string(), v.minLength(1, 'Required')),
-  weekCount: v.pipe(v.number(), v.minValue(1, 'Must be at least 1')),
-
-  email: v.optional(v.pipe(v.string(), v.email('Invalid email format'))),
-  phoneNumber: v.optional(
-    v.pipe(v.string(), v.regex(/^\d{10,15}$/, 'Invalid phone number'))
+  courseNum: v.pipe(
+    v.string(),
+    v.regex(/^[A-Za-z]{1,3}\d{1,4}$/, 'Invalid course number format')
   ),
+  classNum: v.pipe(
+    v.string(),
+    v.minLength(1, 'Class number must be at least 1'),
+    v.maxLength(99, 'Class number must be at most 99')
+  ),
+  semester: v.pipe(v.string(), v.minLength(1, 'Required')),
+  week: v.pipe(v.number(), v.minValue(1, 'Must be at least 1')),
+  email: v.optional(v.string()),
+  phoneNum: v.optional(v.string()),
   office: v.optional(v.string()),
-  website: v.optional(v.pipe(v.string(), v.url('Invalid URL')))
+  website: v.optional(v.string()),
+
+  config: v.object({
+    showOnList: v.boolean(),
+    allowJoinFromSearch: v.boolean(),
+    allowJoinWithURL: v.boolean(),
+    requireApprovalBeforeJoin: v.boolean()
+  })
 })

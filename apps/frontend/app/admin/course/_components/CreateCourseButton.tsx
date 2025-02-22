@@ -26,6 +26,7 @@ import { useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { FiPlusCircle } from 'react-icons/fi'
 import { toast } from 'sonner'
+import { ErrorMessage } from '../../_components/ErrorMessage'
 import { courseSchema } from '../_libs/schema'
 
 interface CreateCourseButtonProps<TData extends { id: number }, TPromise> {
@@ -49,23 +50,37 @@ interface CreateCourseButtonProps<TData extends { id: number }, TPromise> {
 export function CreateCourseButton<TData extends { id: number }, TPromise>({
   onSuccess
 }: CreateCourseButtonProps<TData, TPromise>) {
-  const { handleSubmit, register, setValue } = useForm<CourseInput>({
-    resolver: valibotResolver(courseSchema)
+  const {
+    handleSubmit,
+    register,
+    setValue,
+    trigger,
+    formState: { errors, isValid }
+  } = useForm<CourseInput>({
+    resolver: valibotResolver(courseSchema),
+    defaultValues: {
+      config: {
+        showOnList: true,
+        allowJoinFromSearch: true,
+        allowJoinWithURL: true,
+        requireApprovalBeforeJoin: false
+      }
+    }
   })
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false)
   const [prefix, setPrefix] = useState('')
   const [courseCode, setCourseCode] = useState('')
-  const [classNum, setClassNum] = useState('')
   const [createCourse] = useMutation(CREATE_COURSE)
 
   const onSubmit: SubmitHandler<CourseInput> = async (data) => {
+    console.log('Submitting...', data)
     try {
       const { data: response, errors } = await createCourse({
         variables: {
           input: {
             courseTitle: data.courseTitle,
             courseNum: `${prefix}${courseCode}`,
-            classNum: parseInt(classNum, 10),
+            classNum: Number(data.classNum),
             professor: data.professor,
             semester: data.semester,
             week: data.week,
@@ -73,15 +88,11 @@ export function CreateCourseButton<TData extends { id: number }, TPromise>({
             website: data.website,
             office: data.office,
             phoneNum: data.phoneNum,
-            config: {
-              showOnList: true,
-              allowJoinFromSearch: true,
-              allowJoinWithURL: true,
-              requireApprovalBeforeJoin: false
-            }
+            config: data.config
           }
         }
       })
+      console.log('createCourse response:', response)
 
       if (errors) {
         console.error('GraphQL Errors:', errors)
@@ -90,7 +101,7 @@ export function CreateCourseButton<TData extends { id: number }, TPromise>({
       }
 
       toast.success('Course created successfully!')
-      setIsAlertDialogOpen(false)
+      // setIsAlertDialogOpen(false)
     } catch (error) {
       console.error('Error creating course:', error)
       toast.error('An unexpected error occurred')
@@ -99,23 +110,14 @@ export function CreateCourseButton<TData extends { id: number }, TPromise>({
 
   const handlePrefixChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toUpperCase() // 대문자로 변환
-    if (/^[A-Za-z]{0,3}$/.test(value)) {
-      setPrefix(value)
-    }
+    setPrefix(value)
+    setValue('courseNum', prefix + courseCode)
   }
 
   const handleCourseCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '') // 숫자만 남기기
-    if (/^\d{0,4}$/.test(value)) {
-      setCourseCode(value)
-    }
-  }
-
-  const handleClassNumChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '') // 숫자만 남기기
-    if (/^\d{0,4}$/.test(value)) {
-      setClassNum(value)
-    }
+    setCourseCode(value)
+    setValue('courseNum', prefix + courseCode)
   }
 
   return (
@@ -144,7 +146,8 @@ export function CreateCourseButton<TData extends { id: number }, TPromise>({
                 <span className="font-bold">Professor</span>
                 <span className="text-red-500">*</span>
               </div>
-              <Input id="profName" />
+              <Input id="professor" {...register('professor')} />
+              {errors.professor && <ErrorMessage />}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -153,7 +156,8 @@ export function CreateCourseButton<TData extends { id: number }, TPromise>({
                 <span className="text-red-500">*</span>
               </div>
 
-              <Input id="courseTitle" />
+              <Input id="courseTitle" {...register('courseTitle')} />
+              {errors.courseTitle && <ErrorMessage />}
             </div>
 
             <div className="flex justify-between gap-4">
@@ -181,6 +185,7 @@ export function CreateCourseButton<TData extends { id: number }, TPromise>({
                     className="w-full rounded border p-2"
                   />
                 </div>
+                {errors.courseNum && <ErrorMessage />}
               </div>
               <div className="flex w-1/3 flex-col gap-2">
                 <div className="flex gap-2">
@@ -189,11 +194,13 @@ export function CreateCourseButton<TData extends { id: number }, TPromise>({
 
                 <Input
                   {...register('classNum')}
-                  type="text"
-                  onChange={handleClassNumChange}
+                  type="number"
                   maxLength={2}
                   className="w-full rounded border p-2"
                 />
+                {errors.classNum && (
+                  <ErrorMessage message={errors.classNum.message} />
+                )}
               </div>
             </div>
 
@@ -254,28 +261,33 @@ export function CreateCourseButton<TData extends { id: number }, TPromise>({
                 <span className="text-xs font-normal">Email</span>
                 <Input
                   {...register('email')}
-                  type="email"
+                  type="emailemail"
                   className="w-full rounded border p-2"
-                  defaultValue={''}
+                  // defaultValue=""
                 />
+                {errors.email && (
+                  <ErrorMessage message={errors.email.message} />
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 <span className="text-xs font-normal">Phone Number</span>
                 <Input
                   {...register('phoneNum')}
-                  type="tel"
+                  type="text"
                   className="w-full rounded border p-2"
-                  defaultValue={''}
+                  // defaultValue=""
                 />
+                {errors.phoneNum && <ErrorMessage />}
               </div>
               <div className="flex flex-col gap-2">
                 <span className="text-xs font-normal">Office</span>
                 <Input
                   {...register('office')}
-                  type="tel"
+                  type="text"
                   className="w-full rounded border p-2"
-                  defaultValue={''}
+                  // defaultValue=""
                 />
+                {errors.office && <ErrorMessage />}
               </div>
               <div className="flex flex-col gap-2">
                 <span className="text-xs font-normal">Website</span>
@@ -283,8 +295,11 @@ export function CreateCourseButton<TData extends { id: number }, TPromise>({
                   {...register('website')}
                   type="text"
                   className="w-full rounded border p-2"
-                  defaultValue={''}
+                  // defaultValue=""
                 />
+                {errors.website && (
+                  <ErrorMessage message={errors.website.message} />
+                )}
               </div>
             </div>
             <AlertDialogFooter>
@@ -293,6 +308,12 @@ export function CreateCourseButton<TData extends { id: number }, TPromise>({
                 <Button
                   type="submit"
                   className="bg-primary hover:bg-primary-strong"
+                  onClick={(event) => {
+                    if (!isValid) {
+                      event.preventDefault() // AlertDialog 닫힘 방지
+                      trigger()
+                    }
+                  }}
                 >
                   Create
                 </Button>

@@ -8,7 +8,7 @@ import {
   DataTableSearchBar
 } from '@/app/admin/_components/table'
 import { Button } from '@/components/shadcn/button'
-import { GET_COURSES } from '@/graphql/course/queries'
+import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { useApolloClient, useMutation, useSuspenseQuery } from '@apollo/client'
 import type { Route } from 'next'
 import { useState } from 'react'
@@ -35,13 +35,8 @@ export function GroupTable() {
   const [openEditDialog, setOpenEditDialog] = useState<boolean>(false)
   // const [deleteProblem] = useMutation(DELETE_PROBLEM)
 
-  const { data } = useSuspenseQuery(GET_COURSES, {
-    variables: {
-      cursor: 1,
-      take: 5
-    }
-  })
-  const courses = data.getCourses.map((course) => ({
+  const { data } = useSuspenseQuery(GET_COURSES_USER_LEAD)
+  const courses = data.getCoursesUserLead.map((course) => ({
     id: Number(course.id),
     title: course.groupName,
     code: course.courseInfo?.courseNum ?? '',
@@ -66,7 +61,7 @@ export function GroupTable() {
 
   const onSuccess = () => {
     client.refetchQueries({
-      include: [GET_COURSES]
+      include: [GET_COURSES_USER_LEAD]
     })
   }
 

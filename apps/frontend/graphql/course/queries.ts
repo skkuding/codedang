@@ -1,20 +1,19 @@
 import { gql } from '@generated'
 
-const GET_COURSES = gql(`
-    query GetCourses ($cursor: Int, $take: Int!) {
-    getCourses(cursor: $cursor, take: $take) {
+const GET_COURSES_USER_LEAD = gql(`
+  query GetCoursesUserLead {
+    getCoursesUserLead {
       id
       groupName
       groupType
-      courseInfo{
+      courseInfo {
         courseNum
         classNum
         professor
         semester
       }
-      config
     }
   }
 `)
 
-export { GET_COURSES }
+export { GET_COURSES_USER_LEAD }
