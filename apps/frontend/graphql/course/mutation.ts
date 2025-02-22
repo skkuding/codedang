@@ -36,4 +36,25 @@ const DELETE_COURSE = gql(`
     }
   }
 `)
-export { CREATE_COURSE, DELETE_COURSE }
+
+const UPDATE_COURSE = gql(`
+  mutation UpdateCourse($groupId: Int!, $input: CourseInput!){
+    updateCourse(groupId: $groupId, input: $input) {
+      id
+      groupName
+      groupType
+      config
+      courseInfo {
+        courseNum
+        classNum
+        professor
+        semester
+        email
+        website
+        office
+        phoneNum
+      }
+    }
+  }
+`)
+export { CREATE_COURSE, DELETE_COURSE, UPDATE_COURSE }

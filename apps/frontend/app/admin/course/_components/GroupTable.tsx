@@ -8,9 +8,10 @@ import {
   DataTableSearchBar
 } from '@/app/admin/_components/table'
 import { Button } from '@/components/shadcn/button'
-import { DELETE_COURSE } from '@/graphql/course/mutation'
+import { DELETE_COURSE, UPDATE_COURSE } from '@/graphql/course/mutation'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { useApolloClient, useMutation, useSuspenseQuery } from '@apollo/client'
+import type { CourseInput } from '@generated/graphql'
 import type { Route } from 'next'
 import { useState } from 'react'
 import { GoPencil } from 'react-icons/go'
@@ -19,7 +20,7 @@ import { PiTrashLight } from 'react-icons/pi'
 import { columns } from './Columns'
 import { DeleteCourseButton } from './DeleteCourseButton'
 import { DuplicateCourseButton } from './DuplicateCourseButton'
-import { EditCourseButton } from './EditCourseButton'
+import { UpdateCourseButton } from './UpdateCourseButton'
 
 const headerStyle = {
   select: '',
@@ -31,7 +32,8 @@ const headerStyle = {
 
 export function GroupTable() {
   const client = useApolloClient()
-  const [deleteProblem] = useMutation(DELETE_COURSE)
+  const [deleteCourse] = useMutation(DELETE_COURSE)
+  const [updateCourse] = useMutation(UPDATE_COURSE)
   // const [deleteProblem] = useMutation(DELETE_PROBLEM)
 
   const { data } = useSuspenseQuery(GET_COURSES_USER_LEAD)
@@ -47,15 +49,20 @@ export function GroupTable() {
   }))
 
   const deleteTarget = (id: number) => {
-    return deleteProblem({
+    return deleteCourse({
       variables: {
         groupId: id
       }
     })
   }
 
-  const editTarget = (id: number) => {
-    return Promise.resolve() // 빈 Promise 반환
+  const updateTarget = (id: number, courseInput: CourseInput) => {
+    return updateCourse({
+      variables: {
+        groupId: id,
+        input: courseInput
+      }
+    })
   }
 
   const duplicateTarget = (id: number) => {
@@ -74,7 +81,10 @@ export function GroupTable() {
         <div className="flex justify-between">
           <DataTableSearchBar columndId="courseName" />
           <div className="flex gap-2">
-            <EditCourseButton editTarget={editTarget} onSuccess={onSuccess} />
+            <UpdateCourseButton
+              updateTarget={updateTarget}
+              onSuccess={onSuccess}
+            />
             <DuplicateCourseButton
               duplicateTarget={duplicateTarget}
               onSuccess={onSuccess}
@@ -83,7 +93,6 @@ export function GroupTable() {
               target="course"
               deleteTarget={deleteTarget}
               onSuccess={onSuccess}
-              className="ml-auto"
             />
           </div>
         </div>
