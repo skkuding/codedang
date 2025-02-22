@@ -13,6 +13,7 @@ const CREATE_ASSIGNMENT = gql(`
       endTime
       startTime
       title
+      week
     }
   }
 `)
@@ -30,6 +31,7 @@ const UPDATE_ASSIGNMENT = gql(`
       endTime
       startTime
       title
+      week
     }
   }
 `)

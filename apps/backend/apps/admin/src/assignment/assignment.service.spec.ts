@@ -184,6 +184,7 @@ const input = {
   description: 'test description',
   startTime: faker.date.past(),
   endTime: faker.date.future(),
+  week: 1,
   isVisible: false,
   isRankVisible: false,
   enableCopyPaste: true,
@@ -196,6 +197,7 @@ const updateInput = {
   description: 'test description',
   startTime: faker.date.past(),
   endTime: faker.date.future(),
+  week: 1,
   isVisible: false,
   isRankVisible: false,
   enableCopyPaste: false
@@ -214,7 +216,7 @@ const db = {
     create: stub().resolves(AssignmentProblem),
     findMany: stub().resolves([AssignmentProblem]),
     findFirstOrThrow: stub().resolves(AssignmentProblem),
-    findFirst: stub().resolves(AssignmentProblem)
+    findUnique: stub().resolves(AssignmentProblem)
   },
   assignmentRecord: {
     findMany: stub().resolves([AssignmentRecord]),
@@ -295,7 +297,7 @@ describe('AssignmentService', () => {
 
   describe('updateAssignment', () => {
     it('should return updated assignment', async () => {
-      db.assignment.findFirst.resolves(assignment)
+      db.assignment.findUnique.resolves(assignment)
       db.assignment.update.resolves(assignment)
 
       const res = await service.updateAssignment(groupId, updateInput)
@@ -311,7 +313,7 @@ describe('AssignmentService', () => {
 
   describe('deleteAssignment', () => {
     it('should return deleted assignment', async () => {
-      db.assignment.findFirst.resolves(assignment)
+      db.assignment.findUnique.resolves(assignment)
       db.assignment.delete.resolves(assignment)
 
       const res = await service.deleteAssignment(groupId, assignmentId)
@@ -335,7 +337,7 @@ describe('AssignmentService', () => {
       db.assignment.findUnique.resolves(assignmentWithEmptySubmissions)
       db.problem.update.resolves(problem)
       db.assignmentProblem.create.resolves(assignmentProblem)
-      db.assignmentProblem.findFirst.resolves(null)
+      db.assignmentProblem.findUnique.resolves(null)
 
       const res = await Promise.all(
         await service.importProblemsToAssignment(groupId, assignmentId, [
@@ -349,7 +351,7 @@ describe('AssignmentService', () => {
     it('should return an empty array when the problem already exists in assignment', async () => {
       db.assignment.findUnique.resolves(assignmentWithEmptySubmissions)
       db.problem.update.resolves(problem)
-      db.assignmentProblem.findFirst.resolves(AssignmentProblem)
+      db.assignmentProblem.findUnique.resolves(AssignmentProblem)
 
       const res = await service.importProblemsToAssignment(
         groupId,
