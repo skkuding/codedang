@@ -27,7 +27,10 @@ function AssignmentAccordionItem({ week }: AssignmentAccordionItemProps) {
   return (
     <Accordion type="single" collapsible className="w-[1208px]">
       <AccordionItem value={week.toString()} className="mx-6 border-b-0">
-        <AccordionTrigger className="my-2 flex h-[68px] rounded-2xl px-8 text-lg font-semibold shadow-lg">
+        <AccordionTrigger
+          className="my-2 flex h-[68px] rounded-2xl px-8 text-lg font-semibold shadow-lg"
+          iconSize="w-7 h-7"
+        >
           <div className="relative text-left">
             <p className="text-primary absolute top-0 w-32 -translate-y-1/2">
               [Week {week}]
