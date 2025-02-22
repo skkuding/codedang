@@ -272,14 +272,30 @@ export interface RawCourse {
   isGroupLeader: boolean
 }
 
+export interface CourseInfo {
+  groupId: number
+  courseNum: string
+  classNum: number
+  professor: string
+  semester: string
+  email: string
+  website: string
+  office: string | null
+  phoneNum: string | null
+  week: number
+}
+
 export interface Course {
   id: number
   groupName: string
-  description: string
   memberNum: number
-  status: CourseStatus
-  semester: string
-  professor: string
+  isGroupLeader: boolean
+  courseInfo?: CourseInfo
+  isJoined: boolean
+}
+
+export type JoinedCourse = Omit<Course, 'isJoined'> & {
+  memberNum: number
 }
 
 export interface CourseNotice {
