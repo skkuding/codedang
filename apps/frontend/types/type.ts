@@ -276,10 +276,19 @@ export interface Course {
   id: number
   groupName: string
   description: string
-  memberNum: number
-  status: CourseStatus
-  semester: string
-  professor: string
+  courseInfo: {
+    courseNum: string
+    classNum: number
+    professor: string
+    semester: string
+    week: number
+    email: string | null
+    phoneNum: string | null
+    office: string | null
+    website: string | null
+  }
+  isGroupLeader: boolean
+  isJoined: boolean
 }
 
 export interface CourseNotice {
