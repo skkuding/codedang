@@ -10,7 +10,10 @@ import {
 import { Input } from '@/components/shadcn/input'
 import { Separator } from '@/components/shadcn/separator'
 import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
+import plusCircleIcon from '@/public/icons/plus-circle.svg'
 import type { Course } from '@/types/type'
+import { useQueryClient } from '@tanstack/react-query'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -20,11 +23,8 @@ export function RegisterCourseButton() {
     <>
       <Button variant="slate" onClick={() => setIsDialogOpen(true)}>
         <div className="border-primary flex h-[32px] w-[127px] items-center justify-center gap-2 rounded-full border">
-          <div className="border-primary relative flex h-5 w-5 items-center justify-center rounded-full border-2">
-            <div className="bg-primary absolute h-[2px] w-[60%] rounded-full" />
-            <div className="bg-primary absolute h-[60%] w-[2px] rounded-full" />
-          </div>
-          <span className="text-primary font-semibold">Register</span>
+          <Image src={plusCircleIcon} alt="plusIcon" />
+          <span className="text-primary text-lg font-semibold">Register</span>
         </div>
       </Button>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -84,6 +84,7 @@ function RegisterResult({
   const [isVerified, setIsVerified] = useState(false)
   const [apiError, setApiError] = useState<string>('')
   const [foundCourse, setFoundCourse] = useState<null | Course>(null)
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     const handleFindCourseByInvitation = async () => {
@@ -112,9 +113,9 @@ function RegisterResult({
       await safeFetcherWithAuth.post(`course/${foundCourse?.id}/join`, {
         searchParams: { invitation: invitationCode }
       })
-      setIsDialogOpened(false)
-      console.log('Successfully registered course.')
+      queryClient.invalidateQueries({ queryKey: ['joinedCourses'] })
       toast.success('Successfully registered course.')
+      setIsDialogOpened(false)
     } catch (error) {
       if (isHttpError(error) && error.response.status === 409) {
         setApiError('You have already requested or joined the group.')

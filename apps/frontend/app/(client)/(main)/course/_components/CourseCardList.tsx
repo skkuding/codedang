@@ -84,7 +84,7 @@ export function CourseCardList({ title }: CourseCardListProps) {
   return (
     <Carousel className="flex w-full flex-col gap-6">
       <div className="flex w-full items-center justify-between">
-        <div className="text-2xl font-semibold text-gray-700">
+        <div className="text-2xl font-semibold text-black">
           {title} <RegisterCourseButton />
         </div>
         <div className="flex items-center justify-end gap-2">

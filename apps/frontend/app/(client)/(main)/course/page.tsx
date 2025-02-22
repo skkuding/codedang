@@ -47,8 +47,8 @@ export default async function Course() {
             <CourseCardList title="MY COURSE" />
           </Suspense>
         </ErrorBoundary>
-        <Separator className="my-4" />
       </div>
+      <div className="h-[100px]" />
     </>
   )
 }
