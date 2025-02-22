@@ -28,7 +28,13 @@ export interface PubSubSubmissionResult {
   result: TestcaseResult
 }
 
-export interface PubSubTestcaseResult {
+/**
+ * Redis Pub/Sub을 통해 전달되는 제출 결과 데이터
+ *
+ * - `userTest`: User Testcase 여부 (false일 시, Sample Testcase에 대한 결과를 의미)
+ * - `testcaseResult`: 특정 테스트케이스의 실행 결과
+ */
+export interface PubSubTestResult {
   userTest: boolean
-  testcaseResult: { id: number; result: string; output: string }
+  result: { id: number; result: string; output: string }
 }

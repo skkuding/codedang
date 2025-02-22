@@ -23,7 +23,7 @@ import {
 import {
   RedisPubSubService,
   type PubSubSubmissionResult,
-  type PubSubTestcaseResult
+  type PubSubTestResult
 } from '@libs/redis-pubsub'
 import {
   CreateSubmissionDto,
@@ -223,7 +223,13 @@ export class SubmissionController {
     return new Observable((subscriber) => {
       this.redisPubSub
         .subscribeToSubmission(submissionId, (data: PubSubSubmissionResult) => {
-          subscriber.next({ data } as MessageEvent)
+          subscriber.next({
+            // data: {
+            //   ...data,
+            //   from: 'redis' // debug용
+            // }
+            data
+          } as MessageEvent)
         })
         .then(() => {
           return this.submissionService.getJudgedTestcasesBySubmissionId(
@@ -243,7 +249,13 @@ export class SubmissionController {
               }
             }
 
-            subscriber.next({ data } as MessageEvent)
+            subscriber.next({
+              // data: {
+              //   ...data,
+              //   from: 'db' // debug용
+              // }
+              data
+            } as MessageEvent)
           })
         })
         .catch((error) => {
@@ -259,20 +271,20 @@ export class SubmissionController {
   ): Promise<Observable<MessageEvent>> {
     return new Observable((subscriber) => {
       this.redisPubSub
-        .subscribeToTest(key, (data: PubSubTestcaseResult) => {
+        .subscribeToTest(key, (data: PubSubTestResult) => {
           subscriber.next({ data } as MessageEvent)
-          if (subscriber) {
-            subscriber.unsubscribe()
-          }
         })
         .then(() => {
-          return this.submissionService.getTestResult(req.user.id, false)
+          return Promise.all([
+            this.submissionService.getTestResult(req.user.id, false), // test
+            this.submissionService.getTestResult(req.user.id, true) // user-test
+          ])
         })
-        .then((testResult) => {
+        .then(([testResult, userTestResult]) => {
           testResult.forEach((tc) => {
-            const data: PubSubTestcaseResult = {
+            const data: PubSubTestResult = {
               userTest: false,
-              testcaseResult: {
+              result: {
                 id: tc.id,
                 result: tc.result,
                 output: tc.output || ''
@@ -280,15 +292,11 @@ export class SubmissionController {
             }
             subscriber.next({ data } as MessageEvent)
           })
-        })
-        .then(() => {
-          return this.submissionService.getTestResult(req.user.id, true)
-        })
-        .then((testResult) => {
-          testResult.forEach((tc) => {
-            const data: PubSubTestcaseResult = {
+
+          userTestResult.forEach((tc) => {
+            const data: PubSubTestResult = {
               userTest: true,
-              testcaseResult: {
+              result: {
                 id: tc.id,
                 result: tc.result,
                 output: tc.output || ''

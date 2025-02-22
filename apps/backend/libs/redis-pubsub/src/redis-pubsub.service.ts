@@ -5,7 +5,7 @@ import type { ResultStatus } from '@prisma/client'
 import { createClient } from 'redis'
 import type {
   PubSubSubmissionResult,
-  PubSubTestcaseResult
+  PubSubTestResult
 } from './testcase-result.interface'
 
 @Injectable()
@@ -53,7 +53,7 @@ export class RedisPubSubService implements OnModuleInit {
     )
   }
 
-  async publishTestResult(key: string, result: PubSubTestcaseResult) {
+  async publishTestResult(key: string, result: PubSubTestResult) {
     await this.client.publish(
       this.testTestcaseResultChannel(key),
       JSON.stringify(result)
@@ -77,7 +77,7 @@ export class RedisPubSubService implements OnModuleInit {
 
   async subscribeToTest(
     key: string,
-    callback: (data: PubSubTestcaseResult) => void
+    callback: (data: PubSubTestResult) => void
   ) {
     const subscriber = this.client.duplicate()
     await subscriber.connect()

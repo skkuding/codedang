@@ -16,7 +16,6 @@ import { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
 import { Request } from 'express'
 import { Span } from 'nestjs-otel'
-import { v4 as uuidv4 } from 'uuid'
 import {
   testKey,
   testcasesKey,
