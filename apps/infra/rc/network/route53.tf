@@ -4,26 +4,29 @@ provider "aws" {
 }
 
 resource "aws_route53_zone" "codedang" {
-  count = var.env == "production" ? 1 : 0
-  name  = "codedang.com"
+
+  count = var.env == "rc" ? 1 : 0
+  name  = "rc.codedang.com"
 }
 
 resource "aws_acm_certificate" "codedang" {
-  count             = var.env == "production" ? 1 : 0
-  domain_name       = "codedang.com"
+  count       = var.env == "rc" ? 1 : 0
+  domain_name = "rc.codedang.com"
+
   validation_method = "DNS"
   provider          = aws.us_east_1
 }
 
 resource "aws_route53_record" "certificate" {
-  for_each = var.env == "production" ? {
+
+  for_each = {
     for dvo in aws_acm_certificate.codedang[0].domain_validation_options : dvo.domain_name => {
       name    = dvo.resource_record_name
       zone_id = aws_route53_zone.codedang[0].zone_id
       type    = dvo.resource_record_type
       value   = dvo.resource_record_value
     }
-  } : {}
+  }
 
   allow_overwrite = true
   name            = each.value.name
@@ -34,7 +37,7 @@ resource "aws_route53_record" "certificate" {
 }
 
 resource "aws_acm_certificate_validation" "for_all_domains" {
-  count           = var.env == "production" ? 1 : 0
+  count           = var.env == "rc" ? 1 : 0
   provider        = aws.us_east_1
   certificate_arn = aws_acm_certificate.codedang[0].arn
   validation_record_fqdns = [
