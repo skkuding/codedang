@@ -18,16 +18,22 @@ export default async function ContestAnnouncement({
       }
     })
     .json()
-
   return (
-    <DataTable
-      data={contestAnnouncements}
-      columns={columns}
-      headerStyle={{
-        problem: 'w-[12%]',
-        content: 'w-[70%]',
-        updateTime: 'w-[18%]'
-      }}
-    />
+    <div className="pb-[120px]">
+      <p className="mb-20 mt-20 text-center text-2xl font-semibold text-[#3581FA]">
+        ANNOUNCEMENT
+      </p>
+      <DataTable
+        data={contestAnnouncements}
+        columns={columns}
+        headerStyle={{
+          no: 'text-[#808080b3] font-normal w-[9%]',
+          problem: 'text-[#808080b3] font-normal w-[15%]',
+          content: 'text-[#808080b3] font-normal w-[51%]',
+          createTime: 'text-[#808080b3] font-normal w-[25%]'
+        }}
+        tableStyle="hover:bg-white cursor-auto"
+      />
+    </div>
   )
 }

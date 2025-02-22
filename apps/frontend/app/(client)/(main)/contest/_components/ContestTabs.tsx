@@ -30,10 +30,10 @@ export function ContestTabs({ contestId }: { contestId: string }) {
           Overview
         </Link>
         <Link
-          href={`/contest/${id}/notice` as Route}
+          href={`/contest/${id}/announcement` as Route}
           className={cn(
             'flex w-1/2 justify-center p-[18px] text-lg',
-            isCurrentTab('notice') &&
+            isCurrentTab('announcement') &&
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
