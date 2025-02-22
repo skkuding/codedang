@@ -8,6 +8,7 @@ import {
   DataTableSearchBar
 } from '@/app/admin/_components/table'
 import { Button } from '@/components/shadcn/button'
+import { DELETE_COURSE } from '@/graphql/course/mutation'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { useApolloClient, useMutation, useSuspenseQuery } from '@apollo/client'
 import type { Route } from 'next'
@@ -30,9 +31,7 @@ const headerStyle = {
 
 export function GroupTable() {
   const client = useApolloClient()
-  const [openDuplicateDialog, setOpenDuplicateDialog] = useState<boolean>(false)
-  const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false)
-  const [openEditDialog, setOpenEditDialog] = useState<boolean>(false)
+  const [deleteProblem] = useMutation(DELETE_COURSE)
   // const [deleteProblem] = useMutation(DELETE_PROBLEM)
 
   const { data } = useSuspenseQuery(GET_COURSES_USER_LEAD)
@@ -48,7 +47,11 @@ export function GroupTable() {
   }))
 
   const deleteTarget = (id: number) => {
-    return Promise.resolve() // 빈 Promise 반환
+    return deleteProblem({
+      variables: {
+        groupId: id
+      }
+    })
   }
 
   const editTarget = (id: number) => {
