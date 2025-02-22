@@ -5,7 +5,12 @@ import type { Language } from '@/types/type'
 import type { ReactCodeMirrorProps } from '@uiw/react-codemirror'
 import ReactCodeMirror, { lineNumbers } from '@uiw/react-codemirror'
 import { checkboxGutter } from './GutterCheckbox'
-import { editorTheme, fontSize, languageParser } from './editorConfig'
+import {
+  editorTheme,
+  fontSize,
+  gutterStyle,
+  languageParser
+} from './editorConfig'
 
 interface LineSelectableCodeEditorProps extends ReactCodeMirrorProps {
   language: Language
@@ -24,6 +29,7 @@ export function LineSelectableCodeEditor({
         extensions={[
           ...checkboxGutter,
           lineNumbers(), // checkboxGutter 뒤에 lineNumbers가 오도록 명시
+          gutterStyle,
           fontSize,
           languageParser[language]()
         ]}

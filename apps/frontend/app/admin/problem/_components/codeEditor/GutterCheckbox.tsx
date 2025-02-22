@@ -1,5 +1,5 @@
 import { RangeSet, StateEffect, StateField } from '@codemirror/state'
-import { EditorView, gutter, GutterMarker } from '@uiw/react-codemirror'
+import { type EditorView, gutter, GutterMarker } from '@uiw/react-codemirror'
 
 class CheckboxMarker extends GutterMarker {
   checked: boolean
@@ -14,6 +14,7 @@ class CheckboxMarker extends GutterMarker {
     checkbox.type = 'checkbox'
     checkbox.style.cursor = 'pointer'
     checkbox.style.marginRight = '12px'
+    checkbox.style.accentColor = '#9B9B9B'
     checkbox.checked = this.checked
     return checkbox
   }
@@ -97,11 +98,6 @@ export const checkboxGutter = [
         toggleCheckbox(view, line.from)
         return true
       }
-    }
-  }),
-  EditorView.baseTheme({
-    '.cm-checkbox-gutter': {
-      cursor: 'pointer'
     }
   })
 ]

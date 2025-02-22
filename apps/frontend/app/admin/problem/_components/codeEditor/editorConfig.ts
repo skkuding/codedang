@@ -16,7 +16,7 @@ export const editorTheme = createTheme({
     selection: '#6199ff2f',
     selectionMatch: '#72a1ff59',
     lineHighlight: '#ffffff0f',
-    gutterBackground: '#121728',
+    gutterBackground: '#272E48',
     gutterActiveForeground: '#fff'
   },
   styles: [
@@ -47,6 +47,18 @@ export const editorTheme = createTheme({
 export const fontSize = EditorView.baseTheme({
   '&': {
     fontSize: '17px'
+  }
+})
+
+export const gutterStyle = EditorView.baseTheme({
+  '.cm-activeLineGutter': {
+    width: '26px'
+  },
+  '.cm-lineNumbers .cm-gutterElement': {
+    textAlign: 'left'
+  },
+  '.cm-foldGutter': {
+    width: '12px'
   }
 })
 
