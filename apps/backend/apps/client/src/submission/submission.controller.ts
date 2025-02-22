@@ -264,6 +264,14 @@ export class SubmissionController {
     })
   }
 
+  /**
+   * Server-Sent-Event(SSE)를 통해 테스트케이스 채점 결과를 실시간으로 송신합니다.
+   * Test API 호출을 통해 실행된 Testcase의 채점 결과를 실시간으로 송신합니다.
+   * 클라이언트는 해당 SSE 연결을 통해 채점 결과를 실시간으로 수신할 수 있습니다.
+   *
+   * @param {number} testSubmissionId - 제출한 Test Submission의 ID
+   * @returns {Observable<MessageEvent>} SSE 연결을 위한 Observable 객체를 반환하며, 테스트케이스 채점 결과가 포함된 MessageEvent를 전송함
+   */
   @Sse(`test-result/:testSubmissionId`)
   async getTestTestcaseResult(
     @Req() req: AuthenticatedRequest,
