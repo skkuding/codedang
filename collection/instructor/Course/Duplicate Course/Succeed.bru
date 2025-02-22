@@ -13,24 +13,28 @@ post {
 body:graphql {
   mutation {
     duplicateCourse(groupId: 2) {
-      id
-      groupName
-      groupType
-      config
-      courseInfo {
-        courseNum
-        classNum
-        professor
-        semester
-        week
-        email
-        website
-        office
-        phoneNum
+      duplicatedCourse {
+        id
+        groupName
+        groupType
+        config
+        courseInfo {
+          courseNum
+          classNum
+          professor
+          semester
+          week
+          email
+          website
+          office
+          phoneNum
+        }
       }
+      originAssignments
+      copiedAssignments
     }
   }
-
+  
 }
 
 docs {
