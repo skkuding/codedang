@@ -1,4 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { NotFoundException } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { GroupType, type Group } from '@generated'
 import type { User } from '@generated'
@@ -11,8 +12,8 @@ import { AuthenticatedUser } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
-  DuplicateFoundException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { GroupService, InvitationService } from './group.service'
@@ -39,21 +40,34 @@ const courseInput = {
   groupType: GroupType.Course
 }
 
+const courseInfo = {
+  groupId: 1,
+  courseNum: 'SWE3033',
+  classNum: 42,
+  professor: '김우주',
+  semester: '2025 Spring',
+  week: 16,
+  email: 'johndoe@example.com',
+  website: 'https://example.com',
+  office: 'Room 301',
+  phoneNum: '010-3333-2222'
+}
+
 const group = {
-  id: faker.number.int(),
+  id: 1,
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
   userGroup: [
     {
       userId: faker.number.int(),
-      groupId: faker.number.int(),
+      groupId: 1,
       isGroupLeader: true,
       createTime: faker.date.past(),
       updateTime: faker.date.past()
     },
     {
       userId: faker.number.int(),
-      groupId: faker.number.int(),
+      groupId: 1,
       isGroupLeader: false,
       createTime: faker.date.past(),
       updateTime: faker.date.past()
@@ -67,7 +81,8 @@ const group = {
     allowJoinWithURL: false,
     requireApprovalBeforeJoin: true
   },
-  groupType: GroupType.Course
+  groupType: GroupType.Course,
+  courseInfo
 } satisfies Group
 
 const { userGroup, ...simpleGroup } = group
@@ -96,6 +111,7 @@ const userWithOutCanCreate: User = {
 const db = {
   group: {
     findUnique: stub(),
+    findUniqueOrThrow: stub(),
     findFirst: stub(),
     findMany: stub().resolves([group]),
     create: stub().resolves(group),
@@ -266,6 +282,49 @@ describe('GroupService', () => {
       await expect(
         service.deleteGroup(groupId, GroupType.Course, userReq)
       ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+  })
+
+  describe('duplicateCourse', () => {
+    const userReq = new AuthenticatedUser(userId, user.username)
+    userReq.role = Role.User
+
+    it('should throw NotFoundException if user does not exist', async () => {
+      db.user.findUnique.resolves(null)
+
+      await expect(service.duplicateCourse(groupId, userId)).to.be.rejectedWith(
+        NotFoundException,
+        'User not found'
+      )
+    })
+
+    it('should throw ForbiddenAccessException if user cannot create course', async () => {
+      db.user.findUnique.resolves({ canCreateCourse: false })
+
+      await expect(service.duplicateCourse(groupId, userId)).to.be.rejectedWith(
+        ForbiddenAccessException,
+        'No Access to create course'
+      )
+    })
+
+    it('should throw UnprocessableDataException if group is not a course', async () => {
+      db.user.findUnique.resolves({ canCreateCourse: true })
+      db.group.findUniqueOrThrow.resolves({ courseInfo: null })
+
+      await expect(service.duplicateCourse(groupId, userId)).to.be.rejectedWith(
+        UnprocessableDataException,
+        'Invalid group ID for a course'
+      )
+    })
+
+    it('should duplicate course successfully', async () => {
+      db.user.findUnique.resolves({ canCreateCourse: true })
+      db.group.findUniqueOrThrow.resolves(group)
+      db.group.create.resolves(group)
+
+      const result = await service.duplicateCourse(groupId, userId)
+
+      expect(result).to.deep.equal(group)
     })
   })
 })
