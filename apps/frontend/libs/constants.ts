@@ -141,7 +141,7 @@ export const contestTextColors: { [key: string]: string } = {
 }
 
 export const courseTextcolors: { [key: string]: string } = {
-  course: '#FFFFFF'
+  course: '#2933A0'
 }
 
 /**

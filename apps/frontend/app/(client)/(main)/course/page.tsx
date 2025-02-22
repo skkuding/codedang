@@ -5,7 +5,7 @@ import { auth } from '@/libs/auth'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 import { CourseCardList } from './_components/CourseCardList'
-import { Cover } from './_components/Cover'
+import { CourseMainBanner } from './_components/CourseMainBanner'
 import { Dashboard } from './_components/Dashboard'
 
 function CardListFallback() {
@@ -24,12 +24,7 @@ export default async function Course() {
   const session = await auth()
   return (
     <>
-      <Cover
-        title="COURSE"
-        welcomeText="NICE TO SEE YOU"
-        mainText="COURSE HUB"
-        buttonText="CHECK YOUR COURSE"
-      />
+      <CourseMainBanner />
       <div className="flex w-full max-w-7xl flex-col gap-5 p-5 py-8">
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<CardListFallback />}>
