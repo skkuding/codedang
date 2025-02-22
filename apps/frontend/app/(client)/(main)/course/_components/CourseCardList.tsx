@@ -6,7 +6,7 @@ import {
   CarouselPrevious
 } from '@/components/shadcn/carousel'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
-import type { Course, RawCourse } from '@/types/type'
+import type { JoinedCourse } from '@/types/type'
 import type { Route } from 'next'
 import type { Session } from 'next-auth'
 import Link from 'next/link'
@@ -64,101 +64,58 @@ const getUsername = async () => {
   }
 }
 
-const getCourses = async () => {
-  try {
-    const rawData: RawCourse[] = await safeFetcherWithAuth
-      .get('course/joined')
-      .json()
-    const data: Course[] = rawData.map((item: RawCourse) => ({
-      id: item.id,
-      groupName: item.groupName,
-      description: item.description,
-      memberNum: item.memberNum,
-      status: 'ongoing',
-      semester: '2025 Spring',
-      professor: '하지민 회장'
-    }))
-    return data
-  } catch {
-    return []
-  }
-}
-
-type ItemsPerSlide = 2 | 3
-
 interface CourseCardCarouselProps {
-  itemsPerSlide: ItemsPerSlide
   title: string
-  data: Course[]
+  courses: JoinedCourse[]
 }
 
-async function CourseCardCarousel({
-  itemsPerSlide,
-  title,
-  data
-}: CourseCardCarouselProps) {
+async function CourseCardCarousel({ title, courses }: CourseCardCarouselProps) {
   const colors = getRandomColorArray(await getUsername())
 
-  const chunks = []
-
-  if (itemsPerSlide === 3) {
-    for (let i = 0; i < data.length; i += 3) {
-      chunks.push(data.slice(i, i + 3))
-    }
-  } else if (itemsPerSlide === 2) {
-    for (let i = 0; i < data.length; i += 2) {
-      chunks.push(data.slice(i, i + 2))
-    }
-  }
-
   return (
-    <Carousel
-      className={cn(itemsPerSlide === 3 ? 'max-xl:hidden' : 'xl:hidden')}
-    >
-      <div className="mb-5 flex items-center justify-between">
-        <div className="flex flex-row gap-5">
-          <span className="text-2xl font-bold text-gray-700">{title}</span>
-          <RegisterCourseButton />
+    <Carousel className="flex w-full flex-col gap-6">
+      <div className="flex w-full items-center justify-between">
+        <div className="text-2xl font-semibold text-gray-700">
+          {title} <RegisterCourseButton />
         </div>
         <div className="flex items-center justify-end gap-2">
           <CarouselPrevious />
           <CarouselNext />
         </div>
       </div>
-      <CarouselContent className="p-1">
-        {chunks.map((chunk) => (
-          <CarouselItem key={chunk[0].id} className="flex w-full gap-3">
-            {chunk.map((course, index) => (
+      <div className="-mx-24">
+        <CarouselContent className="my-[14px] ml-24 mr-3 gap-4">
+          {courses.map((course, index) => (
+            <CarouselItem key={course.groupName} className="flex pl-0">
               <Link
                 key={course.id}
                 href={`/course/${course.id}` as Route}
-                className={cn('block overflow-hidden p-2', 'w-1/4')}
+                className={cn('block overflow-hidden')}
               >
-                <CourseCard course={course} color={colors[index]} />
+                <CourseCard
+                  index={index}
+                  course={course}
+                  color={colors[index]}
+                />
               </Link>
-            ))}
-          </CarouselItem>
-        ))}
-      </CarouselContent>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </div>
     </Carousel>
   )
 }
 
 interface CourseCardListProps {
-  type: string
   title: string
   session?: Session | null
+  courses: JoinedCourse[]
 }
 
-export async function CourseCardList({ title }: CourseCardListProps) {
-  const data = await getCourses()
-
-  return data.length === 0 ? (
+export function CourseCardList({ title, courses }: CourseCardListProps) {
+  return courses.length === 0 ? (
     <div>No courses have been registered.</div>
   ) : (
-    <>
-      <CourseCardCarousel itemsPerSlide={3} title={title} data={data} />
-      <CourseCardCarousel itemsPerSlide={2} title={title} data={data} />
-    </>
+    <CourseCardCarousel title={title} courses={courses} />
   )
 }

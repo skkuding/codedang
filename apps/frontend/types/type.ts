@@ -264,14 +264,6 @@ export interface SettingsFormat {
   studentId: string
 }
 
-export interface RawCourse {
-  id: number
-  groupName: string
-  description: string
-  memberNum: number
-  isGroupLeader: boolean
-}
-
 export interface CourseInfo {
   groupId: number
   courseNum: string

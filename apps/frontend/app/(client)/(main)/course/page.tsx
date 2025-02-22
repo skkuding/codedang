@@ -2,6 +2,8 @@ import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Separator } from '@/components/shadcn/separator'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
+import { fetcherWithAuth } from '@/libs/utils'
+import type { JoinedCourse } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 import { CourseCardList } from './_components/CourseCardList'
@@ -22,6 +24,11 @@ function CardListFallback() {
 
 export default async function Course() {
   const session = await auth()
+
+  const joinedCourses = await fetcherWithAuth
+    .get('course/joined')
+    .json<JoinedCourse[]>()
+
   return (
     <>
       <CourseMainBanner />
@@ -30,8 +37,8 @@ export default async function Course() {
           <Suspense fallback={<CardListFallback />}>
             <CourseCardList
               title="MY COURSE"
-              type="Ongoing"
               session={session}
+              courses={joinedCourses}
             />
           </Suspense>
         </ErrorBoundary>
@@ -41,9 +48,6 @@ export default async function Course() {
             COURSE OVERVIEW
           </h1>
         </div>
-      </div>
-      <div className="w-full">
-        <Dashboard session={session} />
       </div>
     </>
   )
