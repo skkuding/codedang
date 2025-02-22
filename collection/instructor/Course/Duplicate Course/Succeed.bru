@@ -1,0 +1,40 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    duplicateCourse(groupId: 2) {
+      id
+      groupName
+      groupType
+      config
+      courseInfo {
+        courseNum
+        classNum
+        professor
+        semester
+        week
+        email
+        website
+        office
+        phoneNum
+      }
+    }
+  }
+
+}
+
+docs {
+  # Duplicate Group
+  ---
+  - `groupId`에 해당하는 Group을 복제합니다.
+}

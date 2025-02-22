@@ -254,7 +254,89 @@ export class GroupService {
       include: includeOption
     })
   }
+
+  async duplicateCourse(groupId: number, userId: number) {
+    const userWithCanCreateCourse = await this.prisma.user.findUnique({
+      where: {
+        id: userId
+      },
+      select: {
+        canCreateCourse: true
+      }
+    })
+    if (!userWithCanCreateCourse) {
+      throw new NotFoundException('User not found')
+    }
+
+    if (!userWithCanCreateCourse.canCreateCourse) {
+      throw new ForbiddenAccessException('No Access to create course')
+    }
+
+    const { courseInfo, ...originCourse } =
+      await this.prisma.group.findUniqueOrThrow({
+        where: {
+          id: groupId
+        },
+        select: {
+          groupName: true,
+          groupType: true,
+          courseInfo: true,
+          config: true
+        }
+      })
+
+    if (!courseInfo) {
+      throw new UnprocessableDataException('Invalid group ID for a course')
+    }
+
+    const duplicatedCourse = await this.prisma.group.create({
+      data: {
+        groupName: originCourse.groupName,
+        groupType: originCourse.groupType,
+        config: originCourse.config ?? {
+          showOnList: true,
+          allowJoinFromSearch: true,
+          allowJoinWithURL: true,
+          requireApprovalBeforeJoin: false
+        },
+        courseInfo: {
+          create: {
+            courseNum: courseInfo.courseNum,
+            classNum: courseInfo.classNum,
+            professor: courseInfo.professor,
+            semester: courseInfo.semester,
+            week: courseInfo.week,
+            email: courseInfo.email,
+            website: courseInfo.website,
+            office: courseInfo.office,
+            phoneNum: courseInfo.phoneNum
+          }
+        }
+      },
+      select: {
+        id: true,
+        groupName: true,
+        groupType: true,
+        config: true,
+        courseInfo: true
+      }
+    })
+    await this.prisma.userGroup.create({
+      data: {
+        user: {
+          connect: { id: userId }
+        },
+        group: {
+          connect: { id: duplicatedCourse.id }
+        },
+        isGroupLeader: true
+      }
+    })
+
+    return duplicatedCourse
+  }
 }
+
 @Injectable()
 export class InvitationService {
   constructor(

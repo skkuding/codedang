@@ -40,6 +40,14 @@ export class GroupResolver {
     return await this.groupService.deleteGroup(id, GroupType.Course, req.user)
   }
 
+  @Mutation(() => Group)
+  async duplicateCourse(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
+  ) {
+    return await this.groupService.duplicateCourse(groupId, req.user.id)
+  }
+
   @Query(() => [FindGroup])
   @SetMetadata(LEADER_NOT_NEEDED_KEY, true)
   async getCoursesUserLead(@Context('req') req: AuthenticatedRequest) {
