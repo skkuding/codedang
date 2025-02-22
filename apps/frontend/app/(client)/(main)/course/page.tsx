@@ -43,11 +43,6 @@ export default async function Course() {
           </Suspense>
         </ErrorBoundary>
         <Separator className="my-4" />
-        <div className="flex">
-          <h1 className="font-sans text-2xl font-semibold text-gray-700">
-            COURSE OVERVIEW
-          </h1>
-        </div>
       </div>
     </>
   )

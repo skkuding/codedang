@@ -10,7 +10,9 @@ import {
 import { Input } from '@/components/shadcn/input'
 import { Separator } from '@/components/shadcn/separator'
 import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
+import type { Course } from '@/types/type'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 export function RegisterCourseButton() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -27,9 +29,7 @@ export function RegisterCourseButton() {
       </Button>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="w-[416px]" title="register course">
-          <DialogHeader>
-            <DialogTitle />
-          </DialogHeader>
+          <DialogTitle>Register course</DialogTitle>
           <RegisterCourse />
         </DialogContent>
       </Dialog>
@@ -39,17 +39,19 @@ export function RegisterCourseButton() {
 
 function RegisterCourse() {
   const [isDialogOpened, setIsDialogOpened] = useState(false)
+  const [invitationCode, setInvitationCode] = useState('')
   return (
-    <div className="my-3 flex flex-col items-center gap-5 p-3">
-      <p className="font-semibold">Course Register</p>
+    <div className="my-3 flex flex-col items-center gap-5">
       <Input
         type="text"
-        className="focus-visible:border-primary w-[80%] focus-visible:ring-0"
+        className="focus-visible:border-primary focus-visible:ring-0"
         placeholder="Invitation Code"
+        value={invitationCode}
+        onChange={(e) => setInvitationCode(e.target.value)}
       />
       <Button
         variant="outline"
-        className="bg-primary h-[20%] w-[25%]"
+        className="bg-primary"
         onClick={() => setIsDialogOpened(true)}
       >
         <span className="text-white">Register</span>
@@ -59,33 +61,72 @@ function RegisterCourse() {
           <DialogHeader>
             <DialogTitle />
           </DialogHeader>
-          <RegisterResult />
+          <RegisterResult
+            invitationCode={invitationCode}
+            setInvitationCode={setInvitationCode}
+            setIsDialogOpened={setIsDialogOpened}
+          />
         </DialogContent>
       </Dialog>
     </div>
   )
 }
 
-function RegisterResult() {
+function RegisterResult({
+  invitationCode,
+  setInvitationCode,
+  setIsDialogOpened
+}: {
+  invitationCode: string
+  setInvitationCode: (value: string) => void
+  setIsDialogOpened: (value: boolean) => void
+}) {
   const [isVerified, setIsVerified] = useState(false)
   const [apiError, setApiError] = useState<string>('')
+  const [foundCourse, setFoundCourse] = useState<null | Course>(null)
+
   useEffect(() => {
-    const clickRegister = async () => {
+    const handleFindCourseByInvitation = async () => {
       try {
-        await safeFetcherWithAuth.post('group/4/join')
+        const data = await safeFetcherWithAuth
+          .get('course/invite', {
+            searchParams: { invitation: invitationCode }
+          })
+          .json<Course>()
         setIsVerified(true)
+        setFoundCourse(data)
       } catch (error) {
-        if (isHttpError(error) && error.response.status === 409) {
-          setApiError('You have already requested or joined the group.')
-        } else if (isHttpError(error) && error.response.status === 404) {
-          setApiError('Group is not found.')
+        if (isHttpError(error) && error.response.status === 404) {
+          setApiError('Invalid invitation code.')
         } else {
-          setApiError('Unexpected error occured.')
+          setApiError('Invalid request.')
         }
+        setInvitationCode('')
       }
     }
-    clickRegister()
+    handleFindCourseByInvitation()
   }, [])
+
+  const handleRegisterCourse = async () => {
+    try {
+      await safeFetcherWithAuth.post(`course/${foundCourse?.id}/join`, {
+        searchParams: { invitation: invitationCode }
+      })
+      setIsDialogOpened(false)
+      console.log('Successfully registered course.')
+      toast.success('Successfully registered course.')
+    } catch (error) {
+      if (isHttpError(error) && error.response.status === 409) {
+        setApiError('You have already requested or joined the group.')
+      } else if (isHttpError(error) && error.response.status === 404) {
+        setApiError('Group is not found.')
+      } else {
+        setApiError('Invalid invitation code.')
+      }
+      setIsVerified(false)
+      setInvitationCode('')
+    }
+  }
 
   return (
     <>
@@ -99,7 +140,23 @@ function RegisterResult() {
       <Separator orientation="horizontal" />
 
       {isVerified ? (
-        <span>Registered Successfully.</span>
+        <div className="flex flex-col gap-3 px-6 pb-6 text-sm font-light">
+          <span>Do you want to register this course?</span>
+          <span className="text-primary">
+            [{foundCourse?.courseInfo?.courseNum}-
+            {foundCourse?.courseInfo?.classNum}] {foundCourse?.groupName}
+          </span>
+
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              className="bg-primary"
+              onClick={handleRegisterCourse}
+            >
+              <span className="text-white">Register</span>
+            </Button>
+          </div>
+        </div>
       ) : (
         <div className="flex flex-col gap-3 px-6 pb-6 text-sm font-light">
           <span>{apiError}</span>
