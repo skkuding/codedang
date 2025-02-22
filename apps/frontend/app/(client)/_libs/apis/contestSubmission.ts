@@ -22,6 +22,7 @@ export const getContestSubmissionList = async ({
       searchParams
     }
   )
+  console.log('searchParams: ', searchParams)
 
   const data = await response.json<GetContestSubmissionListResponse>()
 
@@ -42,7 +43,7 @@ export const getContestSubmissionDetail = async ({
   const response = await safeFetcherWithAuth.get(`submission/${submissionId}`, {
     searchParams: { problemId, contestId }
   })
-
+  console.log('submission ID: ', submissionId)
   const data = await response.json<SubmissionDetail>()
   return data
 }
