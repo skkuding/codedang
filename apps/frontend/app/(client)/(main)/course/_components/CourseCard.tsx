@@ -16,24 +16,27 @@ interface CourseCardProps {
 
 export function CourseCard({ course, color }: CourseCardProps) {
   return (
-    <div className="flex w-[347px] flex-col justify-between rounded-lg border border-gray-200 shadow-none transition hover:scale-105 hover:opacity-80">
-      <div className={cn('h-40 rounded-t-lg', color)} />
-      <div className="flex w-full flex-col px-6 py-6">
+    <div className="flex h-[300px] w-[310px] flex-col justify-between rounded-lg border border-gray-200 shadow-none">
+      <div className={cn('h-[108px] rounded-t-lg', color)} />
+      <div className="flex h-[192px] w-full flex-col justify-between px-6 py-6">
         <StatusBadge variant={'ongoing'} />
-        <div className="line-clamp-4 w-[347px] text-ellipsis whitespace-pre-wrap py-3 text-lg font-semibold leading-tight text-black min-[400px]:line-clamp-2">
+        <div className="my-1 line-clamp-1 h-6 w-[347px] text-ellipsis whitespace-pre-wrap text-lg font-semibold leading-tight text-black">
+          [{course?.courseInfo?.courseNum}-{course?.courseInfo?.classNum}]{' '}
           {course.groupName}
         </div>
-        <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800">
-          <Image src={calendarFillIcon} alt="calendar-fill" />
-          <p className="my-2 text-sm font-medium text-neutral-600">
-            {course?.courseInfo?.semester}
-          </p>
-        </div>
-        <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800">
-          <Image src={personFillIcon} alt="person-fill" />
-          <p className="text-sm font-medium text-neutral-600">
-            Prof. {course?.courseInfo?.professor}{' '}
-          </p>
+        <div className="flex flex-col gap-1">
+          <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800">
+            <Image src={calendarFillIcon} alt="calendar-fill" />
+            <p className="my-2 text-sm font-medium text-neutral-600">
+              {course?.courseInfo?.semester}
+            </p>
+          </div>
+          <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800">
+            <Image src={personFillIcon} alt="person-fill" />
+            <p className="text-sm font-medium text-neutral-600">
+              Prof. {course?.courseInfo?.professor}{' '}
+            </p>
+          </div>
         </div>
       </div>
     </div>

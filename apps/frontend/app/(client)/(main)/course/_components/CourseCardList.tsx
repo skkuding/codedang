@@ -86,7 +86,10 @@ async function CourseCardCarousel({ title, courses }: CourseCardCarouselProps) {
       <div className="-mx-24">
         <CarouselContent className="my-[14px] ml-24 mr-3 gap-4">
           {courses.map((course, index) => (
-            <CarouselItem key={course.groupName} className="flex pl-0">
+            <CarouselItem
+              key={course.groupName}
+              className="flex pl-0 transition hover:scale-105 hover:opacity-80"
+            >
               <Link
                 key={course.id}
                 href={`/course/${course.id}` as Route}
