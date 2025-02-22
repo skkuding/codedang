@@ -53,9 +53,9 @@ export class RedisPubSubService implements OnModuleInit {
     )
   }
 
-  async publishTestResult(key: string, result: PubSubTestResult) {
+  async publishTestResult(testSubmissionId: number, result: PubSubTestResult) {
     await this.client.publish(
-      this.testTestcaseResultChannel(key),
+      this.testTestcaseResultChannel(testSubmissionId),
       JSON.stringify(result)
     )
   }
@@ -76,14 +76,15 @@ export class RedisPubSubService implements OnModuleInit {
   }
 
   async subscribeToTest(
-    key: string,
+    testSubmissionId: number,
     callback: (data: PubSubTestResult) => void
   ) {
     const subscriber = this.client.duplicate()
     await subscriber.connect()
 
-    await subscriber.subscribe(this.testTestcaseResultChannel(key), (message) =>
-      callback(JSON.parse(message))
+    await subscriber.subscribe(
+      this.testTestcaseResultChannel(testSubmissionId),
+      (message) => callback(JSON.parse(message))
     )
 
     return subscriber
@@ -93,7 +94,7 @@ export class RedisPubSubService implements OnModuleInit {
     return `submission:${submissionId}`
   }
 
-  testTestcaseResultChannel(key: string) {
-    return `test:${key}`
+  testTestcaseResultChannel(testSubmissionId: number) {
+    return `test:${testSubmissionId}`
   }
 }

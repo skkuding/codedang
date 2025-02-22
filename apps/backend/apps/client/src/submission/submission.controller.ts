@@ -264,14 +264,14 @@ export class SubmissionController {
     })
   }
 
-  @Sse(`test-result/:key`)
+  @Sse(`test-result/:testSubmissionId`)
   async getTestTestcaseResult(
     @Req() req: AuthenticatedRequest,
-    @Param('key') key: string
+    @Param('testSubmissionId', ParseIntPipe) testSubmissionId: number
   ): Promise<Observable<MessageEvent>> {
     return new Observable((subscriber) => {
       this.redisPubSub
-        .subscribeToTest(key, (data: PubSubTestResult) => {
+        .subscribeToTest(testSubmissionId, (data: PubSubTestResult) => {
           subscriber.next({ data } as MessageEvent)
         })
         .then(() => {

@@ -127,6 +127,15 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           },
           TEST_SUBMISSION_EXPIRE_TIME
         )
+
+        await this.redisPubSub.publishTestResult(submissionId, {
+          userTest: isUserTest,
+          result: {
+            id: testcaseId,
+            result: status,
+            output
+          }
+        })
       }
       return
     }
@@ -170,6 +179,14 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     }
 
     await this.cacheManager.set(key, testcase, TEST_SUBMISSION_EXPIRE_TIME)
+    await this.redisPubSub.publishTestResult(submissionId, {
+      userTest: isUserTest,
+      result: {
+        id: testcaseId,
+        result: status,
+        output
+      }
+    })
   }
 
   parseError(msg: JudgerResponse, status: ResultStatus): string {

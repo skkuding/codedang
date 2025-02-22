@@ -670,7 +670,6 @@ export class SubmissionService {
         testSubmission,
         (submissionDto as CreateUserTestSubmissionDto).userTestcases
       )
-
       return testSubmission
     }
 
@@ -822,20 +821,14 @@ export class SubmissionService {
     return submission
   }
 
-  async getTestResult(userId: number, isUserTest = false) {
-    // 가장 최신의 Test Submission 불러오기
-    const testSubmissionId = (
-      await this.prisma.testSubmission.findFirst({
-        where: {
-          userId
-        },
-        orderBy: {
-          id: 'desc'
-        }
-      })
-    )?.id
+  async getTestResult(testSubmissionId: number, isUserTest = false) {
+    const testSubmission = await this.prisma.testSubmission.findUnique({
+      where: {
+        id: testSubmissionId
+      }
+    })
 
-    if (!testSubmissionId) {
+    if (!testSubmission) {
       return []
     }
 
