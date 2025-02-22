@@ -1,7 +1,6 @@
 'use client'
 
 import { Separator } from '@/components/shadcn/separator'
-import { GET_COURSES } from '@/graphql/course/queries'
 import { cn } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import { useSuspenseQuery } from '@apollo/client'
