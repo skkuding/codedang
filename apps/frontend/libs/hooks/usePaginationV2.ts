@@ -14,7 +14,7 @@ interface Params<T extends Item> {
   totalCount: number
   itemsPerPage: number
   pagesPerSlot?: number
-  updateQueryParams: Dispatch<SetStateAction<PaginationQueryParams>>
+  updateQueryParams?: Dispatch<SetStateAction<PaginationQueryParams>>
 }
 
 const DEFAULT_PAGES_PER_SLOT = 5
@@ -60,18 +60,19 @@ export const usePagination = <T extends Item>({
     setPage(newPage)
     setSlot(Math.floor((newPage - 1) / pagesPerSlot))
 
-    if (direction === 'prev') {
-      updateQueryParams(({ take }) => ({
-        cursor: data.at(0)?.id,
-        take: -Math.abs(take)
-      }))
-    }
-
-    if (direction === 'next') {
-      updateQueryParams(({ take }) => ({
-        cursor: data.at(-1)?.id,
-        take: Math.abs(take)
-      }))
+    if (updateQueryParams) {
+      if (direction === 'prev') {
+        updateQueryParams(({ take }) => ({
+          cursor: data.at(0)?.id,
+          take: -Math.abs(take)
+        }))
+      }
+      if (direction === 'next') {
+        updateQueryParams(({ take }) => ({
+          cursor: data.at(-1)?.id,
+          take: Math.abs(take)
+        }))
+      }
     }
   }
 

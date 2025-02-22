@@ -10,24 +10,20 @@ const MEDIA_BUCKET_NAME = process.env.MEDIA_BUCKET_NAME
 //     ? [`${MEDIA_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com`]
 //     : ['stage.codedang.com', 'skkuding.dev']
 
-const remotePatterns =
-  process.env.NODE_ENV === 'production'
-    ? [
-        {
-          protocol: 'https',
-          hostname: `${MEDIA_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com`
-        }
-      ]
-    : [
-        {
-          protocol: 'https',
-          hostname: 'stage.codedang.com'
-        },
-        {
-          protocol: 'https',
-          hostname: 'skkuding.dev'
-        }
-      ]
+const remotePatterns = [
+  {
+    protocol: 'https',
+    hostname: `${MEDIA_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com`
+  },
+  {
+    protocol: 'https',
+    hostname: 'stage.codedang.com'
+  },
+  {
+    protocol: 'https',
+    hostname: 'skkuding.dev'
+  }
+]
 
 const nextConfig = {
   experimental: {
