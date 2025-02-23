@@ -12,12 +12,10 @@ import { AuthenticatedUser } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
-  DuplicateFoundException,
   ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-// eslint-disable-next-line prettier/prettier
 import {
   GroupService,
   InvitationService,
@@ -403,7 +401,6 @@ describe('InvitationService', () => {
 
 describe('WhitelistService', () => {
   let service: WhitelistService
-  let cache: Cache
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -422,7 +419,6 @@ describe('WhitelistService', () => {
     }).compile()
 
     service = module.get<WhitelistService>(WhitelistService)
-    cache = module.get<Cache>(CACHE_MANAGER)
   })
 
   describe('getWhitelist', () => {
