@@ -160,7 +160,10 @@ function AssignmentAccordionItem({ week }: AssignmentAccordionItemProps) {
             <div className="h-6 bg-[#F8F8F8]" />
             {assignments.length > 0 ? (
               assignments.map((assignment) => (
-                <Link href={`assignment/${assignment.id}`} key={assignment.id}>
+                <Link
+                  href={`assignment/${assignment.id}` as const}
+                  key={assignment.id}
+                >
                   <div
                     key={assignment.id}
                     className="flex items-center gap-10 border-b bg-[#F8F8F8] px-12 py-4"
