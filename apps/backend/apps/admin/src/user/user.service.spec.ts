@@ -128,7 +128,6 @@ const db = {
 
 describe('UserService', () => {
   let service: UserService
-  let cache: Cache
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -145,7 +144,6 @@ describe('UserService', () => {
     }).compile()
 
     service = module.get<UserService>(UserService)
-    cache = module.get<Cache>(CACHE_MANAGER)
   })
 
   it('should be defined', () => {
