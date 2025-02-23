@@ -5,6 +5,7 @@ import {
   AccordionTrigger
 } from '@/components/shadcn/accordion'
 import { cn, dateFormatter } from '@/libs/utils'
+import Link from 'next/link'
 
 interface AssignmentAccordionProps {
   week: number
@@ -159,23 +160,29 @@ function AssignmentAccordionItem({ week }: AssignmentAccordionItemProps) {
             <div className="h-6 bg-[#F8F8F8]" />
             {assignments.length > 0 ? (
               assignments.map((assignment) => (
-                <div
-                  key={assignment.id}
-                  className="flex items-center gap-10 border-b bg-[#F8F8F8] px-12 py-4"
-                >
-                  <span className="bg-primary h-2 w-2 rounded-full" />
-                  <p className="line-clamp-1 w-64 text-sm font-medium text-black">
-                    {assignment.title}
-                  </p>
-                  <p className="text-sm text-slate-500">
-                    {dateFormatter(assignment.startTime, 'YYYY-MM-DD HH:mm:ss')}{' '}
-                    - {dateFormatter(assignment.endTime, 'YYYY-MM-DD HH:mm:ss')}
-                  </p>
-                  <CountBadge
-                    solvedProblemCount={assignment.submittedProblemCount}
-                    problemCount={assignment.problemCount}
-                  />
-                </div>
+                <Link href={`assignment/${assignment.id}`} key={assignment.id}>
+                  <div
+                    key={assignment.id}
+                    className="flex items-center gap-10 border-b bg-[#F8F8F8] px-12 py-4"
+                  >
+                    <span className="bg-primary h-2 w-2 rounded-full" />
+                    <p className="line-clamp-1 w-64 text-sm font-medium text-black">
+                      {assignment.title}
+                    </p>
+                    <p className="text-sm text-slate-500">
+                      {dateFormatter(
+                        assignment.startTime,
+                        'YYYY-MM-DD HH:mm:ss'
+                      )}{' '}
+                      -{' '}
+                      {dateFormatter(assignment.endTime, 'YYYY-MM-DD HH:mm:ss')}
+                    </p>
+                    <CountBadge
+                      solvedProblemCount={assignment.submittedProblemCount}
+                      problemCount={assignment.problemCount}
+                    />
+                  </div>
+                </Link>
               ))
             ) : (
               <div className="bg-[#F8F8F8] px-8 py-4">
