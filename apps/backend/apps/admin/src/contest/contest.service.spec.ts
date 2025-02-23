@@ -217,9 +217,10 @@ const updateInput = {
 
 const db = {
   user: {
-    findUnique: stub().resolves({ role: Role.Admin })
+    findUnique: stub().resolves({ role: Role.Admin, canCreateContest: true })
   },
   userContest: {
+    create: stub().resolves(),
     findMany: stub().resolves([
       {
         role: ContestRole.Admin

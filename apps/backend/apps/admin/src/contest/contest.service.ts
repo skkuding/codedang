@@ -141,24 +141,22 @@ export class ContestService {
     }
 
     try {
-      return await this.prisma.$transaction(async (tx) => {
-        const createdContest = await tx.contest.create({
-          data: {
-            createdById: userId,
-            ...contest
-          }
-        })
-
-        await tx.userContest.create({
-          data: {
-            userId,
-            contestId: createdContest.id,
-            role: ContestRole.Admin
-          }
-        })
-
-        return createdContest
+      const createdContest = await this.prisma.contest.create({
+        data: {
+          createdById: userId,
+          ...contest
+        }
       })
+
+      await this.prisma.userContest.create({
+        data: {
+          userId,
+          contestId: createdContest.id,
+          role: ContestRole.Admin
+        }
+      })
+
+      return createdContest
     } catch (error) {
       throw new UnprocessableDataException(error.message)
     }
