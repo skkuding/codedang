@@ -29,10 +29,6 @@ import { toast } from 'sonner'
 import { ErrorMessage } from '../../_components/ErrorMessage'
 import { courseSchema } from '../_libs/schema'
 
-interface CreateCourseButtonProps<TData extends { id: number }, TPromise> {
-  onSuccess?: () => void
-}
-
 /**
  * 어드민 테이블의 삭제 버튼 컴포넌트
  * @desctiption 선택된 행들을 삭제하는 기능
@@ -47,9 +43,7 @@ interface CreateCourseButtonProps<TData extends { id: number }, TPromise> {
  * @param className
  * tailwind 클래스명
  */
-export function CreateCourseButton<TData extends { id: number }, TPromise>({
-  onSuccess
-}: CreateCourseButtonProps<TData, TPromise>) {
+export function CreateCourseButton<TData extends { id: number }, TPromise>() {
   const {
     handleSubmit,
     register,
@@ -210,8 +204,14 @@ export function CreateCourseButton<TData extends { id: number }, TPromise>({
                 <span className="text-red-500">*</span>
               </div>
               <Select
-                onValueChange={(value) => setValue('semester', value)} // 선택값을 form 상태에 저장
-                // value={selectedSemester} // 현재 선택된 값
+                onValueChange={(value) => {
+                  const year = value.split('-')[0]
+                  const season = value.split('-')[1]
+                  const capitalizedSeason =
+                    season.charAt(0).toUpperCase() + season.slice(1)
+                  setValue('semester', `${year} ${capitalizedSeason}`)
+                  console.log(`${year} ${capitalizedSeason}`)
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Choose" />

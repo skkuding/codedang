@@ -17,10 +17,11 @@ import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { useApolloClient, useMutation, useSuspenseQuery } from '@apollo/client'
 import type { CourseInput } from '@generated/graphql'
 import type { Route } from 'next'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { GoPencil } from 'react-icons/go'
 import { IoDuplicateOutline } from 'react-icons/io5'
 import { PiTrashLight } from 'react-icons/pi'
+import { DataTableSemesterFilter } from '../../_components/table/DataTableSemesterFilter'
 import { columns } from './Columns'
 import { DeleteCourseButton } from './DeleteCourseButton'
 import { DuplicateCourseButton } from './DuplicateCourseButton'
@@ -39,7 +40,7 @@ export function GroupTable() {
   const [deleteCourse] = useMutation(DELETE_COURSE)
   const [updateCourse] = useMutation(UPDATE_COURSE)
   const [duplicateCourse] = useMutation(DUPLICATE_COURSE)
-  // const [deleteProblem] = useMutation(DELETE_PROBLEM)
+  const [semesters, setSemesters] = useState<string[]>([])
 
   const { data } = useSuspenseQuery(GET_COURSES_USER_LEAD)
   const courses = data.getCoursesUserLead.map((course) => ({
@@ -50,8 +51,14 @@ export function GroupTable() {
     semester: course.courseInfo?.semester ?? '',
     studentCount: 0,
     visible: true
-    // description: course.description
   }))
+
+  useEffect(() => {
+    const uniqueSemesters = Array.from(
+      new Set(courses.map((course) => course.semester).filter(Boolean))
+    )
+    setSemesters(uniqueSemesters)
+  }, [])
 
   const deleteTarget = (id: number) => {
     return deleteCourse({
@@ -88,7 +95,13 @@ export function GroupTable() {
     <div>
       <DataTableRoot data={courses} columns={columns}>
         <div className="flex justify-between">
-          <DataTableSearchBar columndId="courseName" />
+          <div className="flex gap-2">
+            <DataTableSearchBar
+              columndId="courseName"
+              className="rounded-full"
+            />
+            <DataTableSemesterFilter semesters={semesters} />
+          </div>
           <div className="flex gap-2">
             <UpdateCourseButton
               updateTarget={updateTarget}
