@@ -401,8 +401,8 @@ model Contest {
 
 enum ContestRole {
   Participant
-  Manager
   Reviewer
+  Manager
   Admin
 }
 

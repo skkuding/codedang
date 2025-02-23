@@ -153,26 +153,20 @@ export class ProblemResolver {
 }
 
 @Resolver(() => ContestProblem)
-@UseContestRolesGuard(ContestRole.Manager)
+@UseContestRolesGuard(ContestRole.Reviewer)
 export class ContestProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 
   @Query(() => [ContestProblem], { name: 'getContestProblems' })
-  @UseContestRolesGuard(ContestRole.Reviewer)
   async getContestProblems(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
-    groupId: number,
     @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
     contestId: number
   ) {
-    return await this.problemService.getContestProblems(groupId, contestId)
+    return await this.problemService.getContestProblems(contestId)
   }
 
   @Mutation(() => [ContestProblem])
+  @UseContestRolesGuard(ContestRole.Manager)
   async updateContestProblemsScore(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('contestId', { type: () => Int }) contestId: number,
@@ -180,33 +174,25 @@ export class ContestProblemResolver {
     problemIdsWithScore: ProblemScoreInput[]
   ) {
     return await this.problemService.updateContestProblemsScore(
-      groupId,
       contestId,
       problemIdsWithScore
     )
   }
 
   @Mutation(() => [ContestProblem])
+  @UseContestRolesGuard(ContestRole.Manager)
   async updateContestProblemsOrder(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
-    groupId: number,
     @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
     contestId: number,
     @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
   ) {
     return await this.problemService.updateContestProblemsOrder(
-      groupId,
       contestId,
       orders
     )
   }
 
   @ResolveField('problem', () => ProblemWithIsVisible)
-  @UseContestRolesGuard(ContestRole.Reviewer)
   async getProblem(@Parent() contestProblem: ContestProblem) {
     return await this.problemService.getProblemById(contestProblem.problemId)
   }

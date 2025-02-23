@@ -601,7 +601,6 @@ export class ProblemService {
   }
 
   async getContestProblems(
-    groupId: number,
     contestId: number
   ): Promise<Partial<ContestProblem>[]> {
     await this.prisma.contest.findFirstOrThrow({
@@ -614,7 +613,6 @@ export class ProblemService {
   }
 
   async updateContestProblemsScore(
-    groupId: number,
     contestId: number,
     problemIdsWithScore: ProblemScoreInput[]
   ): Promise<Partial<ContestProblem>[]> {
@@ -639,7 +637,6 @@ export class ProblemService {
   }
 
   async updateContestProblemsOrder(
-    groupId: number,
     contestId: number,
     orders: number[]
   ): Promise<Partial<ContestProblem>[]> {
