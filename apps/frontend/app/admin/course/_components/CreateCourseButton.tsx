@@ -44,7 +44,7 @@ import { courseSchema } from '../_libs/schema'
  * @param className
  * tailwind 클래스명
  */
-export function CreateCourseButton<TData extends { id: number }, TPromise>() {
+export function CreateCourseButton() {
   const {
     handleSubmit,
     register,

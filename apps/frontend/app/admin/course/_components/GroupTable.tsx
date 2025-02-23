@@ -7,7 +7,6 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
-import { Button } from '@/components/shadcn/button'
 import {
   DELETE_COURSE,
   DUPLICATE_COURSE,
@@ -16,11 +15,7 @@ import {
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { useApolloClient, useMutation, useSuspenseQuery } from '@apollo/client'
 import type { CourseInput } from '@generated/graphql'
-import type { Route } from 'next'
 import { useEffect, useState } from 'react'
-import { GoPencil } from 'react-icons/go'
-import { IoDuplicateOutline } from 'react-icons/io5'
-import { PiTrashLight } from 'react-icons/pi'
 import { DataTableSemesterFilter } from '../../_components/table/DataTableSemesterFilter'
 import { columns } from './Columns'
 import { DeleteCourseButton } from './DeleteCourseButton'

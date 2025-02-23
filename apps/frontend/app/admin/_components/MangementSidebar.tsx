@@ -3,7 +3,6 @@
 import { Separator } from '@/components/shadcn/separator'
 import { cn } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
-import { useSuspenseQuery } from '@apollo/client'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -128,9 +127,9 @@ export function ManagementSidebar() {
                   </Link>
                 ))}
               </div>
-              {/* {isCourseListOpened && (
+              {isCourseListOpened && (
                 <div className="flex flex-col gap-3 text-xs">
-                  {courseItems.map((course) => (
+                  {/* {courseItems.map((course) => (
                     <Link
                       key={course.name}
                       href={course.path}
@@ -144,9 +143,9 @@ export function ManagementSidebar() {
                     >
                       [{course.code}] {course.name}
                     </Link>
-                  ))}
+                  ))} */}
                 </div>
-              )} */}
+              )}
             </div>
           </div>
         )}

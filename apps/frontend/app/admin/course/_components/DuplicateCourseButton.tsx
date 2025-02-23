@@ -13,11 +13,10 @@ import {
 import { Button } from '@/components/shadcn/button'
 import { useState } from 'react'
 import { IoDuplicateOutline } from 'react-icons/io5'
-import { PiTrashLight } from 'react-icons/pi'
 import { toast } from 'sonner'
 import { useDataTable } from '../../_components/table/context'
 
-interface DuplicateCourseButtonProps<TData extends { id: number }, TPromise> {
+interface DuplicateCourseButtonProps<TPromise> {
   duplicateTarget: (id: number) => Promise<TPromise>
   onSuccess?: () => void
 }
@@ -39,7 +38,7 @@ interface DuplicateCourseButtonProps<TData extends { id: number }, TPromise> {
 export function DuplicateCourseButton<TData extends { id: number }, TPromise>({
   onSuccess,
   duplicateTarget
-}: DuplicateCourseButtonProps<TData, TPromise>) {
+}: DuplicateCourseButtonProps<TPromise>) {
   const { table } = useDataTable<TData>()
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
