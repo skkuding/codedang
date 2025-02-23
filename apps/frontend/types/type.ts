@@ -294,6 +294,7 @@ export interface Course {
   }
   isGroupLeader: boolean
   isJoined: boolean
+}
 
 export type JoinedCourse = Omit<Course, 'isJoined'> & {
   memberNum: number
