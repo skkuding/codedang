@@ -275,8 +275,7 @@ export class ContestProblemService {
     contestId,
     userId,
     cursor,
-    take,
-    groupId = OPEN_SPACE_ID
+    take
   }: {
     contestId: number
     userId: number
@@ -402,8 +401,7 @@ export class ContestProblemService {
   async getContestProblem({
     contestId,
     problemId,
-    userId,
-    groupId = OPEN_SPACE_ID
+    userId
   }: {
     contestId: number
     problemId: number

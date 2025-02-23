@@ -6,12 +6,10 @@ import {
   Query,
   Req
 } from '@nestjs/common'
-import { ContestRole } from '@prisma/client'
 import {
   AuthNotNeededIfOpenSpace,
   UserNullWhenAuthFailedIfOpenSpace,
-  AuthenticatedRequest,
-  UseContestRolesGuard
+  AuthenticatedRequest
 } from '@libs/auth'
 import {
   CursorValidationPipe,
@@ -86,7 +84,6 @@ export class ProblemController {
 }
 
 @Controller('contest/:contestId/problem')
-@UseContestRolesGuard(ContestRole.Participant)
 export class ContestProblemController {
   constructor(private readonly contestProblemService: ContestProblemService) {}
 
