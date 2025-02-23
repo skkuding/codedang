@@ -54,7 +54,7 @@ const getContests = async () => {
   const data: {
     ongoing: Contest[]
     upcoming: Contest[]
-  } = await fetcher.get('contest/ongoing-upcoming').json()
+  } = await fetcher.get('contest').json()
 
   data.ongoing.forEach((contest) => {
     contest.status = 'ongoing'

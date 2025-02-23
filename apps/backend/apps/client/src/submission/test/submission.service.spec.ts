@@ -1,13 +1,16 @@
 import { HttpModule } from '@nestjs/axios'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
-import { Test, TestingModule } from '@nestjs/testing'
-import { Language, Role, Contest, User } from '@prisma/client'
-import { Cache } from 'cache-manager'
+import type { TestingModule } from '@nestjs/testing'
+import { Test } from '@nestjs/testing'
+import type { Contest, User, Assignment } from '@prisma/client'
+import { Language, Role } from '@prisma/client'
+import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
 import { spy, stub } from 'sinon'
+import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -15,7 +18,6 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
-import { ProblemRepository } from '@client/problem/problem.repository'
 import { Snippet } from '../class/create-submission.dto'
 import { problems } from '../mock/problem.mock'
 import { submissions, submissionDto } from '../mock/submission.mock'
@@ -30,7 +32,7 @@ const db = {
     findUnique: stub(),
     create: stub(),
     update: stub(),
-    count: stub().resolves(1)
+    count: stub()
   },
   submissionResult: {
     create: stub(),
@@ -48,7 +50,14 @@ const db = {
   contest: {
     findFirst: stub()
   },
+  assignment: {
+    findFirst: stub()
+  },
   contestProblem: {
+    findUnique: stub(),
+    findFirst: stub()
+  },
+  assignmentProblem: {
     findUnique: stub(),
     findFirst: stub()
   },
@@ -59,6 +68,10 @@ const db = {
     findUnique: stub(),
     update: stub()
   },
+  assignmentRecord: {
+    findUnique: stub(),
+    update: stub()
+  },
   user: {
     findFirst: stub()
   },
@@ -66,12 +79,37 @@ const db = {
 }
 
 const CONTEST_ID = 1
+const ASSIGNMENT_ID = 1
 const WORKBOOK_ID = 1
 const mockContest: Contest = {
   id: CONTEST_ID,
   createdById: 1,
-  groupId: 1,
   title: 'SKKU Coding Platform 모의대회',
+  description: 'test',
+  penalty: 20,
+  lastPenalty: false,
+  invitationCode: 'test',
+  startTime: new Date(),
+  endTime: new Date(),
+  isVisible: true,
+  isRankVisible: true,
+  isJudgeResultVisible: true,
+  enableCopyPaste: true,
+  createTime: new Date(),
+  updateTime: new Date(),
+  freezeTime: null,
+  posterUrl: 'posterUrl',
+  participationTarget: 'participationTarget',
+  competitionMethod: 'competitionMethod',
+  rankingMethod: 'rankingMethod',
+  problemFormat: 'problemFormat',
+  benefits: 'benefits'
+}
+const mockAssignment: Assignment = {
+  id: ASSIGNMENT_ID,
+  createdById: 1,
+  groupId: 1,
+  title: 'SKKU Coding Platform 모의과제',
   description: 'test',
   invitationCode: 'test',
   startTime: new Date(),
@@ -82,18 +120,12 @@ const mockContest: Contest = {
   enableCopyPaste: true,
   createTime: new Date(),
   updateTime: new Date(),
-  posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  week: 1
 }
 const USERIP = '127.0.0.1'
 
 describe('SubmissionService', () => {
   let service: SubmissionService
-  let problemRepository: ProblemRepository
   let publish: SubmissionPublicationService
   let cache: Cache
 
@@ -106,10 +138,6 @@ describe('SubmissionService', () => {
         ConfigService,
         TraceService,
         { provide: StorageService, useValue: { readObject: () => [] } },
-        {
-          provide: ProblemRepository,
-          useValue: { hasPassedProblem: () => [] }
-        },
         {
           provide: SubmissionPublicationService,
           useFactory: () => ({ publishJudgeRequestMessage: () => [] })
@@ -129,13 +157,39 @@ describe('SubmissionService', () => {
     }).compile()
 
     service = module.get<SubmissionService>(SubmissionService)
-    problemRepository = module.get<ProblemRepository>(ProblemRepository)
     publish = module.get<SubmissionPublicationService>(
       SubmissionPublicationService
     )
     cache = module.get<Cache>(CACHE_MANAGER)
     stub(cache, 'set').resolves()
     stub(cache, 'get').resolves([])
+  })
+
+  afterEach(() => {
+    db.submission.findMany.resetHistory()
+    db.submission.findFirst.resetHistory()
+    db.submission.findUnique.resetHistory()
+    db.submission.create.resetHistory()
+    db.submission.update.resetHistory()
+    db.submissionResult.create.resetHistory()
+    db.submissionResult.createMany.resetHistory()
+    db.submissionResult.updateMany.resetHistory()
+    db.problem.findFirst.resetHistory()
+    db.problem.findUnique.resetHistory()
+    db.problem.update.resetHistory()
+    db.problemTestcase.findMany.resetHistory()
+    db.contest.findFirst.resetHistory()
+    db.contestProblem.findUnique.resetHistory()
+    db.contestProblem.findFirst.resetHistory()
+    db.assignment.findFirst.resetHistory()
+    db.assignmentProblem.findUnique.resetHistory()
+    db.assignmentProblem.findFirst.resetHistory()
+    db.workbookProblem.findUnique.resetHistory()
+    db.contestRecord.findUnique.resetHistory()
+    db.contestRecord.update.resetHistory()
+    db.assignmentRecord.findUnique.resetHistory()
+    db.assignmentRecord.update.resetHistory()
+    db.user.findFirst.resetHistory()
   })
 
   it('should be defined', () => {
@@ -147,13 +201,13 @@ describe('SubmissionService', () => {
       db.problem.findFirst.resolves(problems[0])
       const createSpy = stub(service, 'createSubmission')
 
-      await service.submitToProblem(
+      await service.submitToProblem({
         submissionDto,
-        USERIP,
-        submissions[0].userId,
-        problems[0].id,
-        problems[0].groupId
-      )
+        userIp: USERIP,
+        userId: submissions[0].userId,
+        problemId: problems[0].id,
+        groupId: problems[0].groupId
+      })
       expect(createSpy.calledOnce).to.be.true
     })
 
@@ -162,13 +216,13 @@ describe('SubmissionService', () => {
       const createSpy = stub(service, 'createSubmission')
 
       await expect(
-        service.submitToProblem(
+        service.submitToProblem({
           submissionDto,
-          USERIP,
-          submissions[0].userId,
-          problems[0].id,
-          problems[0].groupId
-        )
+          userIp: USERIP,
+          userId: submissions[0].userId,
+          problemId: problems[0].id,
+          groupId: problems[0].groupId
+        })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
     })
@@ -187,14 +241,13 @@ describe('SubmissionService', () => {
       })
       db.contestProblem.findUnique.resolves({ problem: problems[0] })
 
-      await service.submitToContest(
+      await service.submitToContest({
         submissionDto,
-        USERIP,
-        submissions[0].userId,
-        problems[0].id,
-        CONTEST_ID,
-        problems[0].groupId
-      )
+        userIp: USERIP,
+        userId: submissions[0].userId,
+        problemId: problems[0].id,
+        contestId: CONTEST_ID
+      })
       expect(createSpy.calledOnce).to.be.true
     })
 
@@ -203,14 +256,55 @@ describe('SubmissionService', () => {
       db.contest.findFirst.resolves(null)
 
       await expect(
-        service.submitToContest(
+        service.submitToContest({
           submissionDto,
-          USERIP,
-          submissions[0].userId,
-          problems[0].id,
-          CONTEST_ID,
-          problems[0].groupId
-        )
+          userIp: USERIP,
+          userId: submissions[0].userId,
+          problemId: problems[0].id,
+          contestId: CONTEST_ID
+        })
+      ).to.be.rejectedWith(EntityNotExistException)
+      expect(createSpy.called).to.be.false
+    })
+  })
+
+  describe('submitToAssignment', () => {
+    it('should call createSubmission', async () => {
+      const createSpy = stub(service, 'createSubmission')
+      db.assignment.findFirst.resolves(mockAssignment)
+      db.assignmentRecord.findUnique.resolves({
+        assignment: {
+          groupId: 1,
+          startTime: new Date(Date.now() - 10000),
+          endTime: new Date(Date.now() + 10000)
+        }
+      })
+      db.assignmentProblem.findUnique.resolves({ problem: problems[0] })
+
+      await service.submitToAssignment({
+        submissionDto,
+        userIp: USERIP,
+        userId: submissions[0].userId,
+        problemId: problems[0].id,
+        assignmentId: ASSIGNMENT_ID,
+        groupId: problems[0].groupId
+      })
+      expect(createSpy.calledOnce).to.be.true
+    })
+
+    it('should throw exception if assignment is not ongoing', async () => {
+      const createSpy = stub(service, 'createSubmission')
+      db.assignment.findFirst.resolves(null)
+
+      await expect(
+        service.submitToAssignment({
+          submissionDto,
+          userIp: USERIP,
+          userId: submissions[0].userId,
+          problemId: problems[0].id,
+          assignmentId: ASSIGNMENT_ID,
+          groupId: problems[0].groupId
+        })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
     })
@@ -221,14 +315,14 @@ describe('SubmissionService', () => {
       const createSpy = stub(service, 'createSubmission')
       db.workbookProblem.findUnique.resolves({ problem: problems[0] })
 
-      await service.submitToWorkbook(
+      await service.submitToWorkbook({
         submissionDto,
-        USERIP,
-        submissions[0].userId,
-        problems[0].id,
-        WORKBOOK_ID,
-        problems[0].groupId
-      )
+        userIp: USERIP,
+        userId: submissions[0].userId,
+        problemId: problems[0].id,
+        workbookId: WORKBOOK_ID,
+        groupId: problems[0].groupId
+      })
       expect(createSpy.calledOnce).to.be.true
     })
 
@@ -237,14 +331,14 @@ describe('SubmissionService', () => {
       db.workbookProblem.findUnique.resolves(null)
 
       await expect(
-        service.submitToWorkbook(
+        service.submitToWorkbook({
           submissionDto,
-          USERIP,
-          submissions[0].userId,
-          problems[0].id,
-          WORKBOOK_ID,
-          problems[0].groupId
-        )
+          userIp: USERIP,
+          userId: submissions[0].userId,
+          problemId: problems[0].id,
+          workbookId: WORKBOOK_ID,
+          groupId: problems[0].groupId
+        })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
     })
@@ -257,12 +351,12 @@ describe('SubmissionService', () => {
       db.submission.create.resolves(submissions[0])
 
       expect(
-        await service.createSubmission(
+        await service.createSubmission({
           submissionDto,
-          problems[0],
-          submissions[0].userId,
-          USERIP
-        )
+          problem: problems[0],
+          userId: submissions[0].userId,
+          userIp: USERIP
+        })
       ).to.deep.equal(submissions[0])
       expect(createSpy.calledOnceWith(submissions[0])).to.be.true
       expect(publishSpy.calledOnce).to.be.true
@@ -278,56 +372,35 @@ describe('SubmissionService', () => {
       db.problemTestcase.findMany.resolves([{ id: 1 }, { id: 2 }, { id: 3 }])
 
       expect(
-        await service.createSubmission(
+        await service.createSubmission({
           submissionDto,
-          problems[0],
-          submissions[0].userId,
-          USERIP,
-          { contestId: CONTEST_ID }
-        )
+          problem: problems[0],
+          userId: submissions[0].userId,
+          userIp: USERIP,
+          idOptions: { contestId: CONTEST_ID }
+        })
       ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
       expect(publishSpy.calledOnce).to.be.true
     })
 
-    it('should create submission with workbookId', async () => {
-      const publishSpy = stub(publish, 'publishJudgeRequestMessage')
-      db.problemTestcase.findMany.resolves([{ id: 1 }, { id: 2 }, { id: 3 }])
-      db.problem.findUnique.resolves(problems[0])
-      db.submission.create.resolves({
-        ...submissions[0],
-        workbookId: WORKBOOK_ID
-      })
-
-      expect(
-        await service.createSubmission(
-          submissionDto,
-          problems[0],
-          submissions[0].userId,
-          USERIP,
-          { workbookId: WORKBOOK_ID }
-        )
-      ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
-      expect(publishSpy.calledOnce).to.be.true
-    })
-
-    it('should create submission with contestId', async () => {
+    it('should create submission with assignmentId', async () => {
       const publishSpy = stub(publish, 'publishJudgeRequestMessage')
       db.problem.findUnique.resolves(problems[0])
       db.submission.create.resolves({
         ...submissions[0],
-        contestId: CONTEST_ID
+        assignmentId: ASSIGNMENT_ID
       })
       db.problemTestcase.findMany.resolves([{ id: 1 }, { id: 2 }, { id: 3 }])
 
       expect(
-        await service.createSubmission(
+        await service.createSubmission({
           submissionDto,
-          problems[0],
-          submissions[0].userId,
-          USERIP,
-          { contestId: CONTEST_ID }
-        )
-      ).to.be.deep.equal({ ...submissions[0], contestId: CONTEST_ID })
+          problem: problems[0],
+          userId: submissions[0].userId,
+          userIp: USERIP,
+          idOptions: { assignmentId: ASSIGNMENT_ID }
+        })
+      ).to.be.deep.equal({ ...submissions[0], assignmentId: ASSIGNMENT_ID })
       expect(publishSpy.calledOnce).to.be.true
     })
 
@@ -340,13 +413,13 @@ describe('SubmissionService', () => {
       })
       db.problemTestcase.findMany.resolves([{ id: 1 }, { id: 2 }, { id: 3 }])
       expect(
-        await service.createSubmission(
+        await service.createSubmission({
           submissionDto,
-          problems[0],
-          submissions[0].userId,
-          USERIP,
-          { workbookId: WORKBOOK_ID }
-        )
+          problem: problems[0],
+          userId: submissions[0].userId,
+          userIp: USERIP,
+          idOptions: { workbookId: WORKBOOK_ID }
+        })
       ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
       expect(publishSpy.calledOnce).to.be.true
     })
@@ -355,12 +428,12 @@ describe('SubmissionService', () => {
       const publishSpy = stub(publish, 'publishJudgeRequestMessage')
 
       await expect(
-        service.createSubmission(
-          { ...submissionDto, language: Language.Python3 },
-          problems[0],
-          submissions[0].userId,
-          USERIP
-        )
+        service.createSubmission({
+          submissionDto: { ...submissionDto, language: Language.Python3 },
+          problem: problems[0],
+          userId: submissions[0].userId,
+          userIp: USERIP
+        })
       ).to.be.rejectedWith(ConflictFoundException)
       expect(publishSpy.calledOnce).to.be.false
     })
@@ -370,15 +443,15 @@ describe('SubmissionService', () => {
       const publishSpy = stub(publish, 'publishJudgeRequestMessage')
 
       await expect(
-        service.createSubmission(
-          {
+        service.createSubmission({
+          submissionDto: {
             ...submissionDto,
             code: plainToInstance(Snippet, submissions[1].code)
           },
-          problems[0],
-          submissions[0].userId,
-          USERIP
-        )
+          problem: problems[0],
+          userId: submissions[0].userId,
+          userIp: USERIP
+        })
       ).to.be.rejectedWith(ConflictFoundException)
       expect(validateSpy.returnValues[0]).to.be.false
       expect(publishSpy.calledOnce).to.be.false
@@ -389,6 +462,7 @@ describe('SubmissionService', () => {
     it('should return submissions', async () => {
       db.problem.findFirst.resolves(problems[0])
       db.submission.findMany.resolves(submissions)
+      db.submission.count.resolves(1)
 
       expect(
         await service.getSubmissions({ problemId: problems[0].id })
@@ -416,7 +490,6 @@ describe('SubmissionService', () => {
         }
       })
 
-      const passSpy = spy(problemRepository, 'hasPassedProblem')
       db.problem.findFirst.resolves(problems[0])
       db.submission.findFirst.resolves({
         ...submissions[0],
@@ -430,14 +503,15 @@ describe('SubmissionService', () => {
       })
 
       expect(
-        await service.getSubmission(
-          submissions[0].id,
-          problems[0].id,
-          submissions[0].userId,
-          Role.User,
-          undefined,
-          null
-        )
+        await service.getSubmission({
+          id: submissions[0].id,
+          problemId: problems[0].id,
+          userId: submissions[0].userId,
+          userRole: Role.User,
+          groupId: OPEN_SPACE_ID,
+          contestId: null,
+          assignmentId: null
+        })
       ).to.deep.equal({
         problemId: problems[0].id,
         username: 'username',
@@ -447,21 +521,21 @@ describe('SubmissionService', () => {
         result: submissions[0].result,
         testcaseResult
       })
-      expect(passSpy.called).to.be.false
     })
 
     it('should throw exception if problem is not found', async () => {
       db.problem.findFirst.resolves(null)
 
       await expect(
-        service.getSubmission(
-          submissions[0].id,
-          problems[0].id,
-          submissions[0].userId,
-          Role.User,
-          undefined,
-          null
-        )
+        service.getSubmission({
+          id: submissions[0].id,
+          problemId: problems[0].id,
+          userId: submissions[0].userId,
+          userRole: Role.User,
+          groupId: OPEN_SPACE_ID,
+          contestId: null,
+          assignmentId: null
+        })
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
@@ -470,39 +544,38 @@ describe('SubmissionService', () => {
       db.submission.findFirst.resolves(null)
 
       await expect(
-        service.getSubmission(
-          submissions[0].id,
-          problems[0].id,
-          submissions[0].userId,
-          Role.User,
-          undefined,
-          null
-        )
+        service.getSubmission({
+          id: submissions[0].id,
+          problemId: problems[0].id,
+          userId: submissions[0].userId,
+          userRole: Role.User,
+          groupId: OPEN_SPACE_ID,
+          contestId: null,
+          assignmentId: null
+        })
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
     it("should throw exception if submission is not user's and user has not passed this problem", async () => {
-      const passSpy = stub(problemRepository, 'hasPassedProblem').resolves(
-        false
-      )
       db.problem.findFirst.resolves(problems[0])
       db.submission.findFirst.resolves({ ...submissions[0], userId: 2 })
+      db.submission.count.resolves(0)
 
       await expect(
-        service.getSubmission(
-          submissions[0].id,
-          problems[0].id,
-          submissions[0].userId,
-          Role.User,
-          undefined,
-          null
-        )
+        service.getSubmission({
+          id: submissions[0].id,
+          problemId: problems[0].id,
+          userId: submissions[0].userId,
+          userRole: Role.User,
+          groupId: OPEN_SPACE_ID,
+          contestId: null,
+          assignmentId: null
+        })
       ).to.be.rejectedWith(ForbiddenAccessException)
-      expect(passSpy.calledOnce).to.be.true
     })
   })
 
-  describe('getContestSubmisssions', () => {
+  describe('getContestSubmissions', () => {
     it('should return submissions', async () => {
       const adminUser: User = {
         id: 1,
@@ -513,13 +586,16 @@ describe('SubmissionService', () => {
         lastLogin: new Date(),
         createTime: new Date(),
         updateTime: new Date(),
-        studentId: null,
-        major: null
+        studentId: '2020000000',
+        major: null,
+        canCreateCourse: false,
+        canCreateContest: false
       }
       db.user.findFirst.resolves(adminUser)
       db.contestRecord.findUnique.resolves({})
       db.contestProblem.findFirst.resolves({})
       db.submission.findMany.resolves(submissions)
+      db.submission.count.resolves(1)
       db.contest.findFirst.resolves({ isJudgeResultVisible: true })
 
       expect(
@@ -553,6 +629,66 @@ describe('SubmissionService', () => {
         service.getContestSubmissions({
           problemId: problems[0].id,
           contestId: CONTEST_ID,
+          userId: submissions[0].userId
+        })
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+  })
+
+  describe('getAssignmentSubmissions', () => {
+    it('should return submissions', async () => {
+      const adminUser: User = {
+        id: 1,
+        username: 'username',
+        password: '1234',
+        role: 'Admin',
+        email: 'test@test.com',
+        lastLogin: new Date(),
+        createTime: new Date(),
+        updateTime: new Date(),
+        studentId: '2020000000',
+        major: null,
+        canCreateCourse: false,
+        canCreateContest: false
+      }
+      db.user.findFirst.resolves(adminUser)
+      db.assignmentRecord.findUnique.resolves({})
+      db.assignmentProblem.findFirst.resolves({})
+      db.submission.findMany.resolves(submissions)
+      db.submission.count.resolves(1)
+      db.assignment.findFirst.resolves({ isJudgeResultVisible: true })
+
+      expect(
+        await service.getAssignmentSubmissions({
+          problemId: problems[0].id,
+          assignmentId: ASSIGNMENT_ID,
+          userId: submissions[0].userId
+        })
+      ).to.deep.equal({ data: submissions, total: 1 })
+    })
+
+    it('should throw exception if user is not registered to assignment', async () => {
+      db.user.findFirst.resolves(null)
+      db.assignmentRecord.findUnique.resolves(null)
+
+      await expect(
+        service.getAssignmentSubmissions({
+          problemId: problems[0].id,
+          assignmentId: ASSIGNMENT_ID,
+          userId: submissions[0].userId
+        })
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+
+    it("should throw exception if assignment doesn't have this problem", async () => {
+      db.user.findFirst.resolves({})
+      db.assignmentRecord.findUnique.resolves({})
+      db.assignmentProblem.findFirst.resolves(null)
+
+      await expect(
+        service.getAssignmentSubmissions({
+          problemId: problems[0].id,
+          assignmentId: ASSIGNMENT_ID,
           userId: submissions[0].userId
         })
       ).to.be.rejectedWith(EntityNotExistException)

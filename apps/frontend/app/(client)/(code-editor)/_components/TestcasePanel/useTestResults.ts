@@ -3,6 +3,7 @@ import type { TestResult } from '@/types/type'
 import { useQueries } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
+import { useShallow } from 'zustand/shallow'
 import { useTestPollingStore } from '../context/TestPollingStoreProvider'
 import { useTestcaseStore } from '../context/TestcaseStoreProvider'
 
@@ -60,6 +61,10 @@ export const useTestResults = () => {
     setIsTesting,
     stopPolling
   } = useTestPollingStore((state) => state)
+  const [getTestcases] = useTestcaseStore(
+    useShallow((state) => [state.getTestcases])
+  )
+  const testcases = getTestcases()
 
   const { data, isError } = useQueries({
     queries: [
@@ -84,7 +89,6 @@ export const useTestResults = () => {
     })
   })
 
-  const testcases = useTestcaseStore((state) => state.getTestcases())
   let userTestcaseCount = 1
   let sampleTestcaseCount = 1
   const testResults =

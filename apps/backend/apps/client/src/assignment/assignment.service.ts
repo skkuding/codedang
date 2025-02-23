@@ -17,6 +17,7 @@ const assignmentSelectOption = {
   invitationCode: true,
   enableCopyPaste: true,
   isJudgeResultVisible: true,
+  week: true,
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
     select: {
@@ -468,7 +469,7 @@ export class AssignmentService {
     groupId = OPEN_SPACE_ID
   ) {
     const [assignment, assignmentRecord] = await Promise.all([
-      this.prisma.contest.findUnique({
+      this.prisma.assignment.findUnique({
         where: { id: assignmentId, groupId }
       }),
       this.prisma.assignmentRecord.findFirst({
@@ -477,11 +478,11 @@ export class AssignmentService {
     ])
 
     if (!assignment) {
-      throw new EntityNotExistException('Contest')
+      throw new EntityNotExistException('Assignment')
     }
 
     if (!assignmentRecord) {
-      throw new EntityNotExistException('ContestRecord')
+      throw new EntityNotExistException('Assignment')
     }
 
     const now = new Date()

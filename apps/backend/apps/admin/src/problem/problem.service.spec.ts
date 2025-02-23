@@ -14,8 +14,11 @@ import { PrismaService } from '@libs/prisma'
 import { S3MediaProvider, S3Provider } from '@admin/storage/s3.provider'
 import { StorageService } from '@admin/storage/storage.service'
 import {
+  exampleAssignment,
+  exampleAssignmentProblems,
   exampleContest,
   exampleContestProblems,
+  exampleOrderUpdatedAssignmentProblems,
   exampleOrderUpdatedContestProblems,
   exampleOrderUpdatedWorkbookProblems,
   exampleProblemTags,
@@ -79,6 +82,14 @@ const db = {
     findFirstOrThrow: stub()
   },
   contestProblem: {
+    findFirstOrThrow: stub(),
+    findMany: stub(),
+    update: stub()
+  },
+  assignment: {
+    findFirstOrThrow: stub()
+  },
+  assignmentProblem: {
     findFirstOrThrow: stub(),
     findMany: stub(),
     update: stub()
@@ -199,7 +210,12 @@ describe('ProblemService', () => {
   describe('getProblems', () => {
     it('should return group problems', async () => {
       db.problem.findMany.resolves(problems)
-      const result = await service.getProblems({}, groupId, 1, 5)
+      const result = await service.getProblems({
+        input: {},
+        groupId,
+        cursor: 1,
+        take: 5
+      })
       expect(result).to.deep.equal(problemsWithIsVisible)
     })
   })
@@ -453,6 +469,131 @@ describe('ProblemService', () => {
       await expect(service.getContestProblems(-1, 1)).to.be.rejectedWith(
         EntityNotExistException
       )
+    })
+  })
+
+  describe('getAssignmentProblems', () => {
+    it('should return AssignmentProblems', async () => {
+      //given
+      db.assignment.findFirstOrThrow.resolves(exampleAssignment)
+      db.assignmentProblem.findMany.resolves(exampleAssignmentProblems)
+      //when
+      const result = await service.getAssignmentProblems(1, 1)
+      //then
+      expect(result).to.deep.equals(exampleAssignmentProblems)
+    })
+
+    it('should handle NotFoundError', async () => {
+      //given
+
+      db.assignment.findFirstOrThrow.rejects(
+        new EntityNotExistException('record not found')
+      )
+      // when & then
+      await expect(service.getAssignmentProblems(-1, 1)).to.be.rejectedWith(
+        EntityNotExistException
+      )
+    })
+  })
+
+  describe('updateAssignmentProblemsOrder', () => {
+    beforeEach(() => {
+      // 각 스텁의 동작 초기화
+      db.assignmentProblem.update.resetBehavior()
+      db.assignmentProblem.findFirstOrThrow.resetBehavior()
+      db.assignmentProblem.findMany.resetBehavior()
+      db.assignment.findFirstOrThrow.resetBehavior()
+    })
+    it('should return order-updated AssignmentProblems', async () => {
+      //given
+      const groupId = 1
+      const assignmentId = 1
+      const orders = [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
+      const exampleAssignmentProblemsToBeUpdated =
+        exampleAssignmentProblems.toSorted((a, b) => a.problemId - b.problemId)
+      db.assignment.findFirstOrThrow.resolves(exampleAssignment)
+      db.assignmentProblem.findMany.resolves(exampleAssignmentProblems)
+
+      // update가 Promise.all로 실행되기 때문에 각 쿼리에 대한 모의 응답을 반환하도록 설정
+      for (let i = 0; i < 10; i++) {
+        const record = exampleAssignmentProblemsToBeUpdated[i]
+        const newOrder = orders.indexOf(record.problemId) + 1
+        db.assignmentProblem.update
+          .withArgs({
+            where: {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              assignmentId_problemId: {
+                assignmentId,
+                problemId: record.problemId
+              }
+            },
+            data: { order: newOrder }
+          })
+          .resolves(exampleOrderUpdatedAssignmentProblems[i])
+      }
+      db.$transaction.resolves(exampleOrderUpdatedAssignmentProblems)
+      //when
+      const result = await service.updateAssignmentProblemsOrder(
+        groupId,
+        assignmentId,
+        orders
+      )
+      //then
+      expect(result).to.deep.equals(exampleOrderUpdatedAssignmentProblems)
+    })
+
+    it('should handle NotFound error', async () => {
+      //given
+      db.assignment.findFirstOrThrow.rejects(
+        new EntityNotExistException('record not found')
+      )
+      //when & then
+      await expect(
+        service.updateAssignmentProblemsOrder(
+          -1,
+          1,
+          [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
+        )
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+
+    it('should handle orders array length exception', async () => {
+      //given
+      db.assignment.findFirstOrThrow.resolves(exampleAssignment)
+      db.assignmentProblem.findMany.resolves(exampleAssignmentProblems)
+      //when & then
+      await expect(
+        service.updateAssignmentProblemsOrder(
+          1,
+          1,
+          [2, 3, 4, 5, 6, 7, 8, 9, 10]
+        )
+      ).to.be.rejectedWith(UnprocessableDataException)
+    })
+
+    it('should handle RecordNotFound error', async () => {
+      beforeEach(() => {
+        // stub의 동작 초기화
+        db.workbookProblem.update.resetBehavior()
+        db.workbookProblem.findFirstOrThrow.resetBehavior()
+        db.workbookProblem.findMany.resetBehavior()
+        db.$transaction.resetBehavior()
+      })
+      //given
+      db.assignmentProblem.findMany.resolves(exampleAssignmentProblems)
+
+      db.assignmentProblem.update.rejects(
+        new EntityNotExistException('record not found')
+      )
+      db.$transaction.rejects(new EntityNotExistException('record not found'))
+      //when & then
+      await expect(
+        service.updateAssignmentProblemsOrder(
+          1,
+          1,
+          [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
+        )
+      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 

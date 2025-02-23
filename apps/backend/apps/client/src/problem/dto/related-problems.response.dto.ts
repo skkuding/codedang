@@ -1,19 +1,44 @@
-import { Level } from '@prisma/client'
+import type { Level } from '@prisma/client'
 import { Exclude, Expose, Transform, Type } from 'class-transformer'
 import { IsOptional } from 'class-validator'
 
-@Exclude()
 export class RelatedProblemsResponseDto {
-  @Expose()
-  @Type(() => Problem)
   data: Problem[]
+  total: number
+}
+
+class Problem {
+  order: number
+  id: number
+  title: string
+  difficulty: Level
+  submissionCount: number
+  acceptedRate: number
+  maxScore: number | null
+  score: string | null
+  submissionTime: Date | null
+}
+
+/**
+ * @deprecated _가 없는 것으로 사용해주세요
+ */
+@Exclude()
+// eslint-disable-next-line
+export class _RelatedProblemsResponseDto {
+  @Expose()
+  @Type(() => _Problem)
+  data: _Problem[]
 
   @Expose()
   total: number
 }
 
+/**
+ * @deprecated _가 없는 것으로 사용해주세요
+ */
 @Exclude()
-class Problem {
+// eslint-disable-next-line
+class _Problem {
   @Expose()
   order: number
 

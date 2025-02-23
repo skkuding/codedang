@@ -1,0 +1,14 @@
+.fc-day-today {
+  background-color: #f8f8f8 !important;
+}
+/* .fc-event {
+  background-color: #3581fa !important;
+  color: white !important;
+} */
+.fc-col-header-cell {
+  color: #3581fa;
+}
+.fc-daygrid-event {
+  margin-bottom: 2px !important; /* 각 이벤트 간의 간격 */
+  padding: 2px !important; /* 이벤트 내부 패딩 */
+}
