@@ -37,8 +37,8 @@ import { PrismaService } from '@libs/prisma'
 import {
   CreateSubmissionDto,
   CreateUserTestSubmissionDto,
-  Snippet,
-  Template
+  Template,
+  type Range
 } from './class/create-submission.dto'
 import { SubmissionPublicationService } from './submission-pub.service'
 
@@ -471,6 +471,7 @@ export class SubmissionService {
     if (
       !this.isValidCode(
         code,
+        submissionDto.readOnlyRanges,
         submissionDto.language,
         plainToInstance(Template, problem.template)
       )
@@ -479,12 +480,18 @@ export class SubmissionService {
     }
 
     const submissionData = {
-      code: code.map((snippet) => ({ ...snippet })), // convert to plain object
+      code: [
+        {
+          id: 1,
+          text: code,
+          locked: false
+        }
+      ], // Note: 기존 Submission에 저장하던 형식을 유지하기 위해 위 형태로 code text 저장 (id와 locked는 의미 없음)
       result: ResultStatus.Judging,
       userId,
       userIp,
       problemId: problem.id,
-      codeSize: new TextEncoder().encode(code[0].text).length,
+      codeSize: new TextEncoder().encode(code).length,
       ...data
     }
 
@@ -542,53 +549,49 @@ export class SubmissionService {
   /**
    * 주어진 코드 스니펫 배열이 해당 프로그래밍 언어에 대한 문제 템플릿과 일치하는지 검사합니다.
    *
-   * 1. 해당 언어에 대한 템플릿을 찾습니다. 템플릿이 없거나 비어있으면 유효하다고 간주하여 true를 반환
-   * 2. 템플릿과 제출된 코드의 스니펫 수가 다른 경우 false를 반환
-   * 3. 템플릿과 코드를 지정된 순서대로 정렬
-   * 4. 각 스니펫을 순차적으로 비교
-   *    - 템플릿과 코드의 스니펫 ID가 일치하지 않으면 false를 반환
-   *    - 템플릿 스니펫이 잠긴 상태(locked)인데 코드의 내용(text)이 템플릿과 다르면 false를 반환
+   * 1. 해당 언어에 대한 템플릿을 찾습니다. 템플릿이 없으면 유효하다고 간주하여 true를 반환
+   * 2. 템플릿과 제출된 코드의 readOnlyRange를 비교합니다. 다르다면 locked 범위의 조작이 있었음을 의미하므로 false
    * 5. 모든 검사 통과 시 true를 반환
    *
-   * @param {Snippet[]} code - 제출된 코드 스니펫 배열
+   * @param {string} code - 제출된 유저 코드
+   * @param {Range[]} readOnlyRanges - 제출된 유저 코드에서 Locked 영역
    * @param {Language} language - 제출된 코드의 프로그래밍 언어
    * @param {Template[]} templates - 문제에 대한 템플릿 배열
    * @returns {boolean} 제출된 코드가 템플릿을 준수하면 true, 그렇지 않으면 false
    */
   isValidCode(
-    code: Snippet[],
+    code: string,
+    readOnlyRangesFromUser: Range[],
     language: Language,
     templates: Template[]
   ): boolean {
-    const template = templates.find((code) => code.language === language)?.code
-    if (!template || template.length === 0) return true
+    const template = templates.find((code) => code.language === language)
+    if (!template) return true
 
-    if (template.length !== code.length) return false
-    template.sort(this.snippetOrderCompare)
-    code.sort(this.snippetOrderCompare)
+    // 유저 코드에서 readOnlyRanges에 해당하는 코드 라인만 추출
+    const userCodeByLines = code.split('\n')
+    const readOnlyLinesOfUserCode = readOnlyRangesFromUser.flatMap(
+      ({ from, to }) => userCodeByLines.slice(from - 1, to)
+    )
 
-    for (let i = 0; i < template.length; i++) {
-      if (template[i].id !== code[i].id) return false
-      else if (template[i].locked && template[i].text !== code[i].text)
+    // Template initialCode에서 readOnlyRanges에 해당하는 코드 라인만 추출
+    const initialCodeByLines = template.initialCode.split('\n')
+    const readOnlyLinesOfInitialCode = template.readOnlyRanges.flatMap(
+      ({ from, to }) => initialCodeByLines.slice(from - 1, to)
+    )
+
+    // 유저 제출 코드에서의 Locked 영역과 initialCode의 Locked 영역 비교
+    // 다르다면 조작이 금지된 코드의 조작이 있었음을 의미하므로 return false
+    if (readOnlyLinesOfUserCode.length !== readOnlyLinesOfInitialCode.length) {
+      return false
+    }
+    for (let i = 0; i < readOnlyLinesOfUserCode.length; i++) {
+      if (readOnlyLinesOfUserCode[i] !== readOnlyLinesOfInitialCode[i]) {
         return false
+      }
     }
-    return true
-  }
 
-  /**
-   * 코드 스니펫 정렬 비교 함수
-   *
-   * @param {Snippet} a - 비교할 첫 번째 스니펫
-   * @param {Snippet} b - 비교할 두 번째 스니펫
-   * @returns {number} 정렬 순서 결정 값 (-1, 0, 1)
-   */
-  snippetOrderCompare(a: Snippet, b: Snippet): number {
-    if (a.id < b.id) {
-      return -1
-    } else if (a.id > b.id) {
-      return 1
-    }
-    return 0
+    return true
   }
 
   /**
@@ -650,6 +653,7 @@ export class SubmissionService {
     if (
       !this.isValidCode(
         code,
+        submissionDto.readOnlyRanges,
         submissionDto.language,
         plainToInstance(Template, problem.template)
       )
@@ -699,7 +703,7 @@ export class SubmissionService {
    */
   async publishTestMessage(
     problemId: number,
-    code: Snippet[],
+    code: string,
     testSubmission: TestSubmission
   ): Promise<void> {
     const rawTestcases = await this.prisma.problemTestcase.findMany({
@@ -734,13 +738,13 @@ export class SubmissionService {
    * 3. publishJudgeRequestMessage 메서드를 호출하여 사용자 테스트케이스에 대한
    *    채점 요청 메시지를 게시
    *
-   * @param {Snippet[]} code - 제출된 코드 스니펫 배열
+   * @param {string} code - 제출된 코드 text
    * @param {Submission} testSubmission - 테스트 제출 객체
    * @param {{ id: number; in: string; out: string }[]} userTestcases - 사용자 정의 테스트케이스 배열
    * @returns {Promise<void>} 모든 작업이 완료되면 반환되는 프로미스
    */
   async publishUserTestMessage(
-    code: Snippet[],
+    code: string,
     testSubmission: TestSubmission,
     userTestcases: { id: number; in: string; out: string }[]
   ): Promise<void> {
@@ -773,7 +777,7 @@ export class SubmissionService {
       Submission,
       'problemId' | 'language' | 'userId' | 'userIp'
     >,
-    codeSnippet: Snippet[],
+    code: string,
     isUserTest = false
   ): Promise<TestSubmission> {
     const problem = await this.prisma.problem.findFirst({
@@ -791,22 +795,19 @@ export class SubmissionService {
         `This problem does not support language ${testSubmissionData.language}`
       )
     }
-    if (
-      !this.isValidCode(
-        codeSnippet,
-        testSubmissionData.language,
-        plainToInstance(Template, problem.template)
-      )
-    ) {
-      throw new ConflictFoundException('Modifying template is not allowed')
-    }
 
     const submissionData = {
-      code: codeSnippet.map((snippet) => ({ ...snippet })),
+      code: [
+        {
+          id: 1,
+          text: code,
+          locked: false
+        }
+      ], // Note: 기존 Submission에 저장하던 형식을 유지하기 위해 위 형태로 code text 저장 (id와 locked는 의미 없음)
       userId: testSubmissionData.userId,
       userIp: testSubmissionData.userIp,
       problemId: testSubmissionData.problemId,
-      codeSize: new TextEncoder().encode(codeSnippet[0].text).length,
+      codeSize: new TextEncoder().encode(code).length,
       language: testSubmissionData.language
     }
 
@@ -1096,7 +1097,6 @@ export class SubmissionService {
         }
       }))
     ) {
-      const code = plainToInstance(Snippet, submission.code)
       const results = submission.submissionResult.map((result) => {
         return {
           ...result,
@@ -1121,7 +1121,9 @@ export class SubmissionService {
       return {
         problemId,
         username: submission.user?.username,
-        code: code.map((snippet) => snippet.text).join('\n'),
+        code: (
+          submission.code[0] as { id: number; text: string; locked: boolean }
+        ).text,
         language: submission.language,
         createTime: submission.createTime,
         result:
