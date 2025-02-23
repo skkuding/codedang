@@ -207,11 +207,6 @@ describe('ContestService', () => {
       expect(await service.getContest(contestId, user01Id)).to.be.ok
     })
 
-    it('should return contest problem', async () => {
-      const contest = await service.getContest(contestId, user01Id)
-      expect(contest).to.have.property('contestProblems')
-    })
-
     it('should return optional fields if they exist', async () => {
       expect(contest).to.have.property('posterUrl')
       expect(contest).to.have.property('participationTarget')
@@ -256,7 +251,7 @@ describe('ContestService', () => {
         service.createContestRecord({
           contestId: 999,
           userId: user01Id,
-          invitationCode: invitationCode
+          invitationCode
         })
       ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
     })

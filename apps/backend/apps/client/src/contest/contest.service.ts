@@ -205,19 +205,6 @@ export class ContestService {
     const { invitationCode, ...contestDetails } = contest
     const invitationCodeExists = invitationCode != null
 
-    const contestProblems = await this.prisma.contestProblem.findMany({
-      where: { contestId: contest.id },
-      select: {
-        order: true,
-        problem: {
-          select: {
-            title: true
-          }
-        }
-      },
-      orderBy: { order: 'asc' }
-    })
-
     const navigate = (pos: 'prev' | 'next') => {
       type Order = 'asc' | 'desc'
       const options =
@@ -243,7 +230,6 @@ export class ContestService {
       ...contestDetails,
       invitationCodeExists,
       isRegistered,
-      contestProblems,
       prev: await this.prisma.contest.findFirst(navigate('prev')),
       next: await this.prisma.contest.findFirst(navigate('next'))
     }
