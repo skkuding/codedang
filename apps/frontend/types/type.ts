@@ -280,9 +280,19 @@ export interface CourseInfo {
 export interface Course {
   id: number
   groupName: string
-  memberNum: number
+  description: string
+  courseInfo: {
+    courseNum: string
+    classNum: number
+    professor: string
+    semester: string
+    week: number
+    email: string | null
+    phoneNum: string | null
+    office: string | null
+    website: string | null
+  }
   isGroupLeader: boolean
-  courseInfo?: CourseInfo
   isJoined: boolean
 }
 
