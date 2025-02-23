@@ -14,9 +14,9 @@ import { Button } from '@/components/shadcn/button'
 import { useState } from 'react'
 import { PiTrashLight } from 'react-icons/pi'
 import { toast } from 'sonner'
-import { useDataTable } from './context'
+import { useDataTable } from '../../_components/table/context'
 
-interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
+interface DeleteCourseButtonProps<TData extends { id: number }, TPromise> {
   target: 'problem' | 'contest' | 'assignment' | 'group' | 'course'
   deleteTarget: (id: number) => Promise<TPromise>
   getCanDelete?: (selectedRows: TData[]) => Promise<boolean>
@@ -38,13 +38,13 @@ interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
  * @param className
  * tailwind 클래스명
  */
-export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
+export function DeleteCourseButton<TData extends { id: number }, TPromise>({
   target,
   deleteTarget,
   getCanDelete,
   onSuccess,
   className
-}: DataTableDeleteButtonProps<TData, TPromise>) {
+}: DeleteCourseButtonProps<TData, TPromise>) {
   const { table } = useDataTable<TData>()
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -98,10 +98,19 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to permanently delete{' '}
-              {table.getSelectedRowModel().rows.length} {target}(s)?
+            <AlertDialogTitle>Delete?</AlertDialogTitle>
+            <AlertDialogDescription className="flex flex-col gap-3">
+              <div>
+                Are you sure you want to permanently delete{' '}
+                {table.getSelectedRowModel().rows.length} {target}(s)?
+              </div>
+              <div className="flex flex-col">
+                {table.getSelectedRowModel().rows.map((row) => (
+                  <span key={row.id}>
+                    - {row.getValue('title')} [{row.getValue('code')}]
+                  </span>
+                ))}
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

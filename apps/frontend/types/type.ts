@@ -281,17 +281,7 @@ export interface Course {
   id: number
   groupName: string
   description: string
-  courseInfo: {
-    courseNum: string
-    classNum: number
-    professor: string
-    semester: string
-    week: number
-    email: string | null
-    phoneNum: string | null
-    office: string | null
-    website: string | null
-  }
+  courseInfo: CourseInfo
   isGroupLeader: boolean
   isJoined: boolean
 }
