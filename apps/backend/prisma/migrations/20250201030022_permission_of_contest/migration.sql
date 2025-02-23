@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "ContestRole" AS ENUM ('Participant', 'Reviewer', 'Manager');
+CREATE TYPE "ContestRole" AS ENUM ('Participant', 'Reviewer', 'Manager', 'Admin');
 
 -- CreateTable
 CREATE TABLE "ContestUser" (
