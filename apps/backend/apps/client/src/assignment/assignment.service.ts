@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma, type Assignment } from '@prisma/client'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -335,7 +334,7 @@ export class AssignmentService {
     return upcomingAssignment
   }
 
-  async getAssignment(id: number, groupId = OPEN_SPACE_ID, userId?: number) {
+  async getAssignment(id: number, groupId: number, userId?: number) {
     // check if the user has already registered this assignment
     // initial value is false
     let isRegistered = false
@@ -417,8 +416,8 @@ export class AssignmentService {
   async createAssignmentRecord(
     assignmentId: number,
     userId: number,
-    invitationCode?: string,
-    groupId = OPEN_SPACE_ID
+    groupId: number,
+    invitationCode?: string
   ) {
     const assignment = await this.prisma.assignment.findUniqueOrThrow({
       where: { id: assignmentId, groupId },
@@ -466,7 +465,7 @@ export class AssignmentService {
   async deleteAssignmentRecord(
     assignmentId: number,
     userId: number,
-    groupId = OPEN_SPACE_ID
+    groupId: number
   ) {
     const [assignment, assignmentRecord] = await Promise.all([
       this.prisma.assignment.findUnique({

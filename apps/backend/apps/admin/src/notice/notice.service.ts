@@ -8,57 +8,61 @@ export class NoticeService {
 
   async createNotice(
     userId: number,
-    groupId: number,
+    groupId: number | null,
     createNoticeInput: CreateNoticeInput
   ) {
     return await this.prisma.notice.create({
       data: {
         createdById: userId,
-        groupId,
+        groupId: groupId ?? undefined,
         ...createNoticeInput
       }
     })
   }
 
-  async deleteNotice(groupId: number, noticeId: number) {
+  async deleteNotice(groupId: number | null, noticeId: number) {
     return await this.prisma.notice.delete({
       where: {
         id: noticeId,
-        groupId
+        groupId: groupId ?? undefined
       }
     })
   }
 
   async updateNotice(
-    groupId: number,
+    groupId: number | null,
     noticeId: number,
     updateNoticeInput: UpdateNoticeInput
   ) {
     return await this.prisma.notice.update({
       where: {
         id: noticeId,
-        groupId
+        groupId: groupId ?? undefined
       },
       data: updateNoticeInput
     })
   }
 
-  async getNotice(groupId: number, noticeId: number) {
+  async getNotice(groupId: number | null, noticeId: number) {
     return await this.prisma.notice.findUniqueOrThrow({
       where: {
         id: noticeId,
-        groupId
+        groupId: groupId ?? undefined
       }
     })
   }
 
-  async getNotices(groupId: number, cursor: number | null, take: number) {
+  async getNotices(
+    groupId: number | null,
+    cursor: number | null,
+    take: number
+  ) {
     const paginator = this.prisma.getPaginator(cursor)
     return await this.prisma.notice.findMany({
       ...paginator,
       take,
       where: {
-        groupId
+        groupId: groupId ?? undefined
       }
     })
   }

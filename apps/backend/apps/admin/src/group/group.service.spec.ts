@@ -8,10 +8,8 @@ import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { spy, stub } from 'sinon'
 import { AuthenticatedUser } from '@libs/auth'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
-  DuplicateFoundException,
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -246,12 +244,6 @@ describe('GroupService', () => {
 
       const res = await service.updateCourse(groupId, courseInput)
       expect(res).to.deep.equal(updated)
-    })
-
-    it('should throw error when given group is open space', async () => {
-      await expect(
-        service.updateCourse(OPEN_SPACE_ID, courseInput)
-      ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })
 

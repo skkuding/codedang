@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
 
 @Injectable()
@@ -11,7 +10,7 @@ export class NoticeService {
     take,
     search,
     fixed = false,
-    groupId = OPEN_SPACE_ID
+    groupId
   }: {
     cursor: number | null
     take: number
@@ -67,7 +66,7 @@ export class NoticeService {
     return { data, total }
   }
 
-  async getNoticeByID(id: number, groupId = OPEN_SPACE_ID) {
+  async getNoticeByID(id: number, groupId: number) {
     const notice = await this.prisma.notice.findUniqueOrThrow({
       where: {
         id,

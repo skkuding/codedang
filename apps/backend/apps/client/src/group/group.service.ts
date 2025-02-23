@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { GroupType, Role, type UserGroup } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { invitationCodeKey, joinGroupCacheKey } from '@libs/cache'
-import { JOIN_GROUP_REQUEST_EXPIRE_TIME, OPEN_SPACE_ID } from '@libs/constants'
+import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -365,11 +365,7 @@ export class GroupService {
       }
     })
 
-    if (
-      user &&
-      (user.role === Role.SuperAdmin || user.role === Role.Admin) &&
-      userGroupData.groupId != OPEN_SPACE_ID
-    ) {
+    if (user && (user.role === Role.SuperAdmin || user.role === Role.Admin)) {
       userGroupData.isGroupLeader = true
     }
 

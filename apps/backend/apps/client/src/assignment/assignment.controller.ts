@@ -114,8 +114,8 @@ export class AssignmentController {
     return await this.assignmentService.createAssignmentRecord(
       assignmentId,
       req.user.id,
-      invitationCode,
-      groupId
+      groupId,
+      invitationCode
     )
   }
 

@@ -15,6 +15,7 @@ import {
   CursorValidationPipe,
   GroupIDPipe,
   IDValidationPipe,
+  NullableGroupIDPipe,
   RequiredIntPipe
 } from '@libs/pipe'
 import {
@@ -39,7 +40,7 @@ export class SubmissionController {
     @Headers('x-forwarded-for') userIp: string,
     @Body() submissionDto: CreateSubmissionDto,
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query('groupId', NullableGroupIDPipe) groupId: number | null,
     @Query('contestId', IDValidationPipe) contestId: number | null,
     @Query('assignmentId', IDValidationPipe) assignmentId: number | null,
     @Query('workbookId', IDValidationPipe) workbookId: number | null
@@ -58,8 +59,7 @@ export class SubmissionController {
         submissionDto,
         userIp,
         userId: req.user.id,
-        problemId,
-        groupId
+        problemId
       })
     } else if (contestId) {
       return await this.submissionService.submitToContest({
@@ -69,24 +69,31 @@ export class SubmissionController {
         problemId,
         contestId
       })
-    } else if (assignmentId) {
-      return await this.submissionService.submitToAssignment({
-        submissionDto,
-        userIp,
-        userId: req.user.id,
-        problemId,
-        assignmentId,
-        groupId
-      })
-    } else if (workbookId) {
-      return await this.submissionService.submitToWorkbook({
-        submissionDto,
-        userIp,
-        userId: req.user.id,
-        problemId,
-        workbookId,
-        groupId
-      })
+    } else {
+      if (!groupId) {
+        throw new UnprocessableDataException(
+          'groupId is required in the request when submitting to an assignment/workbook problem.'
+        )
+      }
+      if (assignmentId) {
+        return await this.submissionService.submitToAssignment({
+          submissionDto,
+          userIp,
+          userId: req.user.id,
+          problemId,
+          assignmentId,
+          groupId
+        })
+      } else if (workbookId) {
+        return await this.submissionService.submitToWorkbook({
+          submissionDto,
+          userIp,
+          userId: req.user.id,
+          problemId,
+          workbookId,
+          groupId
+        })
+      }
     }
   }
 
@@ -158,14 +165,12 @@ export class SubmissionController {
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number,
-    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('groupId', GroupIDPipe) groupId: number
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
     return await this.submissionService.getSubmissions({
       cursor,
       take,
-      problemId,
-      groupId
+      problemId
     })
   }
 
@@ -173,7 +178,7 @@ export class SubmissionController {
   async getSubmission(
     @Req() req: AuthenticatedRequest,
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query('groupId', NullableGroupIDPipe) groupId: number | null,
     @Query('contestId', IDValidationPipe) contestId: number | null,
     @Query('assignmentId', IDValidationPipe) assignmentId: number | null,
     @Param('id', new RequiredIntPipe('id')) id: number
@@ -181,6 +186,11 @@ export class SubmissionController {
     if (contestId && assignmentId) {
       throw new UnprocessableDataException(
         'Provide either contestId or assignmentId, not both.'
+      )
+    }
+    if ((contestId || assignmentId) && !groupId) {
+      throw new UnprocessableDataException(
+        'GroupId is required in the request when submitting to an assignment/workbook problem.'
       )
     }
     return await this.submissionService.getSubmission({
@@ -206,16 +216,14 @@ export class ContestSubmissionController {
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number,
-    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('groupId', GroupIDPipe) groupId: number
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
     return await this.submissionService.getContestSubmissions({
       cursor,
       take,
       problemId,
       contestId,
-      userId: req.user.id,
-      groupId
+      userId: req.user.id
     })
   }
 }

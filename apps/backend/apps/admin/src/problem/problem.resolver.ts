@@ -18,7 +18,6 @@ import {
   WorkbookProblem
 } from '@generated'
 import { AuthenticatedRequest } from '@libs/auth'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { ImageSource } from './model/image.output'
@@ -38,11 +37,7 @@ export class ProblemResolver {
   @Mutation(() => ProblemWithIsVisible)
   async createProblem(
     @Context('req') req: AuthenticatedRequest,
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
+    @Args('groupId', GroupIDPipe)
     groupId: number,
     @Args('input') input: CreateProblemInput
   ) {
@@ -53,11 +48,7 @@ export class ProblemResolver {
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async uploadProblems(
     @Context('req') req: AuthenticatedRequest,
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
+    @Args('groupId', GroupIDPipe)
     groupId: number,
     @Args('input') input: UploadFileInput
   ) {
@@ -82,11 +73,7 @@ export class ProblemResolver {
 
   @Query(() => [ProblemWithIsVisible])
   async getProblems(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
+    @Args('groupId', GroupIDPipe)
     groupId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
@@ -103,11 +90,7 @@ export class ProblemResolver {
 
   @Query(() => ProblemWithIsVisible)
   async getProblem(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
+    @Args('groupId', GroupIDPipe)
     groupId: number,
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
@@ -126,11 +109,7 @@ export class ProblemResolver {
 
   @Mutation(() => ProblemWithIsVisible)
   async updateProblem(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
+    @Args('groupId', GroupIDPipe)
     groupId: number,
     @Args('input') input: UpdateProblemInput
   ) {
@@ -139,11 +118,7 @@ export class ProblemResolver {
 
   @Mutation(() => ProblemWithIsVisible)
   async deleteProblem(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
+    @Args('groupId', GroupIDPipe)
     groupId: number,
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
@@ -157,11 +132,7 @@ export class ContestProblemResolver {
 
   @Query(() => [ContestProblem], { name: 'getContestProblems' })
   async getContestProblems(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
+    @Args('groupId', GroupIDPipe)
     groupId: number,
     @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
     contestId: number
@@ -185,11 +156,7 @@ export class ContestProblemResolver {
 
   @Mutation(() => [ContestProblem])
   async updateContestProblemsOrder(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
+    @Args('groupId', GroupIDPipe)
     groupId: number,
     @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
     contestId: number,
@@ -214,11 +181,7 @@ export class AssignmentProblemResolver {
 
   @Query(() => [AssignmentProblem], { name: 'getAssignmentProblems' })
   async getAssignmentProblems(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
+    @Args('groupId', GroupIDPipe)
     groupId: number,
     @Args(
       'assignmentId',
@@ -249,11 +212,7 @@ export class AssignmentProblemResolver {
 
   @Mutation(() => [AssignmentProblem])
   async updateAssignmentProblemsOrder(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
+    @Args('groupId', GroupIDPipe)
     groupId: number,
     @Args(
       'assignmentId',
@@ -282,11 +241,7 @@ export class WorkbookProblemResolver {
 
   @Query(() => [WorkbookProblem], { name: 'getWorkbookProblems' })
   async getWorkbookProblems(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
+    @Args('groupId', GroupIDPipe)
     groupId: number,
     @Args('workbookId', { type: () => Int }) workbookId: number
   ) {
@@ -295,11 +250,7 @@ export class WorkbookProblemResolver {
 
   @Mutation(() => [WorkbookProblem])
   async updateWorkbookProblemsOrder(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
+    @Args('groupId', GroupIDPipe)
     groupId: number,
     @Args('workbookId', { type: () => Int }) workbookId: number,
     // orders는 항상 workbookId에 해당하는 workbookProblems들이 모두 딸려 온다.

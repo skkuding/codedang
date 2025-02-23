@@ -1,14 +1,9 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException
-} from '@nestjs/common'
+import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { Cache } from 'cache-manager'
 import type { AuthenticatedUser } from '@libs/auth'
 import { invitationCodeKey, invitationGroupKey } from '@libs/cache'
-import { INVIATION_EXPIRE_TIME, OPEN_SPACE_ID } from '@libs/constants'
+import { INVIATION_EXPIRE_TIME } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -181,10 +176,6 @@ export class GroupService {
   }
 
   async updateCourse(id: number, input: CourseInput) {
-    if (id === OPEN_SPACE_ID) {
-      throw new ForbiddenAccessException('Open space cannot be updated')
-    }
-
     if (!input.config.showOnList) {
       input.config.allowJoinFromSearch = false
     }
