@@ -120,12 +120,6 @@ export const updateHistories = [
       current: 'New Description',
       previous: 'Old Description'
     }
-    // isTitleChanged: true,
-    // isDescriptionChanged: true,
-    // currentTitle: 'New Title',
-    // currentDescription: 'New Description',
-    // prevTitle: 'Old Title',
-    // prevDescription: 'Old Description'
   },
   {
     id: 2,
@@ -142,12 +136,6 @@ export const updateHistories = [
       current: 'New Description',
       previous: 'Old Description'
     }
-    // isTitleChanged: true,
-    // isDescriptionChanged: true,
-    // currentTitle: 'New New Title',
-    // currentDescription: 'New New Description',
-    // prevTitle: 'New Title',
-    // prevDescription: 'New Description'
   },
   {
     id: 3,
@@ -164,12 +152,6 @@ export const updateHistories = [
       current: 'New Description',
       previous: 'Old Description'
     }
-    // isTitleChanged: true,
-    // isDescriptionChanged: true,
-    // currentTitle: 'New Title',
-    // currentDescription: 'New Description',
-    // prevTitle: 'Old Title',
-    // prevDescription: 'Old Description'
   }
 ]
 
