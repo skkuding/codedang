@@ -52,26 +52,36 @@ export function ManagementSidebar() {
     { name: 'Q&A', path: '/admin/course/qna' as const, icon: IoMdChatboxes }
   ]
 
-  const courseItems = [
-    {
-      path: '/admin/course/1' as const,
-      code: 'SWE0000-00',
-      name: '강의는열글자까지'
-    },
-    {
-      path: '/admin/course/2' as const,
-      code: 'SWE1001-01',
-      name: '소프트웨어공학'
-    },
-    {
-      path: '/admin/course/3' as const,
-      code: 'CSE2002-02',
-      name: '자료구조와알고리즘'
-    },
-    { path: '/admin/course/4' as const, code: 'MAT3003-03', name: '선형대수학' }
-  ]
+  // const courseItems = [
+  //   {
+  //     path: '/admin/course/1' as const,
+  //     code: 'SWE0000-00',
+  //     name: '강의는열글자까지'
+  //   },
+  //   {
+  //     path: '/admin/course/2' as const,
+  //     code: 'SWE1001-01',
+  //     name: '소프트웨어공학'
+  //   },
+  //   {
+  //     path: '/admin/course/3' as const,
+  //     code: 'CSE2002-02',
+  //     name: '자료구조와알고리즘'
+  //   },
+  //   { path: '/admin/course/4' as const, code: 'MAT3003-03', name: '선형대수학' }
+  // ]
 
-  // setIsMainSidebarExpanded(true)
+  // const { data } = useSuspenseQuery(GET_COURSES, {
+  //   variables: {
+  //     cursor: 1,
+  //     take: 5
+  //   }
+  // })
+  // const courses = data.getCourses.map((course) => ({
+  //   id: Number(course.id),
+  //   path: `admin/course/${course.id}`,
+  //   name: course.groupName
+  // }))
   return (
     <div className="flex gap-5 px-6">
       <div>
@@ -119,7 +129,7 @@ export function ManagementSidebar() {
               </div>
               {isCourseListOpened && (
                 <div className="flex flex-col gap-3 text-xs">
-                  {courseItems.map((course) => (
+                  {/* {courseItems.map((course) => (
                     <Link
                       key={course.name}
                       href={course.path}
@@ -133,7 +143,7 @@ export function ManagementSidebar() {
                     >
                       [{course.code}] {course.name}
                     </Link>
-                  ))}
+                  ))} */}
                 </div>
               )}
             </div>

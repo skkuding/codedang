@@ -13,8 +13,9 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator
 } from '@/components/shadcn/dropdown-menu'
-import { cn, fetcherWithAuth } from '@/libs/utils'
+import { cn, fetcherWithAuth, safeFetcherWithAuth } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
+import type { Course } from '@/types/type'
 import { LogOut, UserRoundCog, ChevronDown } from 'lucide-react'
 import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
@@ -39,6 +40,7 @@ export function HeaderAuthPanel({
     (state) => state
   )
   const isUser = session?.user.role === 'User'
+  const [hasAnyGroupLeaderRole, setHasAnyGroupLeaderRole] = useState(false)
   const isEditor = group === 'editor'
   const [needsUpdate, setNeedsUpdate] = useState(false)
   const pathname = usePathname()
@@ -58,6 +60,21 @@ export function HeaderAuthPanel({
     if (session) {
       checkIfNeedsUpdate()
     }
+
+    async function fetchGroupLeaderRole() {
+      try {
+        const response: Course[] = await safeFetcherWithAuth
+          .get('course/joined')
+          .json()
+
+        const hasRole = response.some((course) => course.isGroupLeader)
+        setHasAnyGroupLeaderRole(hasRole)
+      } catch (error) {
+        //TODO: error handling
+        console.error('Error fetching group leader role:', error)
+      }
+    }
+    fetchGroupLeaderRole()
   }, [session, pathname])
 
   const shouldShowDialog =
@@ -95,7 +112,7 @@ export function HeaderAuthPanel({
                   'mr-5 rounded-sm border-none bg-[#4C5565] px-0 font-normal text-white'
               )}
             >
-              {!isUser && (
+              {(hasAnyGroupLeaderRole || !isUser) && (
                 <Link href="/admin">
                   <DropdownMenuItem
                     className={cn(

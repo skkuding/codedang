@@ -1,9 +1,9 @@
 'use client'
 
 import { Button } from '@/components/shadcn/button'
-import { contestOvalIconColors, contestTextColors } from '@/libs/constants'
-import { cn, fetcher } from '@/libs/utils'
-import { useQuery } from '@tanstack/react-query'
+import { courseOvalIconColors, courseTextcolors } from '@/libs/constants'
+import { cn } from '@/libs/utils'
+import type { JoinedCourse } from '@/types/type'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
@@ -22,41 +22,21 @@ interface BannerPageDotsProps {
 
 const slides = [
   {
-    type: 'recent',
-    subDescription: 'WELCOME TO',
-    mainDescription: 'CODEDANG\nCONTEST HUB',
-    buttonDescription: 'RECENT CONTEST',
-    bgcolor: 'bg-[#00183E]',
+    type: 'course',
+    subDescription: 'Structured Learning Course!',
+    mainDescription: `CODEDANG\nCOURSE HUB`,
+    buttonDescription: 'CHECK YOUR COURSE',
+    bgcolor: 'bg-[linear-gradient(95deg,_#E0D0FF_50.46%,_#9B99FF_82.55%)]',
     mainDescriptionColor:
-      'linear-gradient(96deg, #21AEF2 -6.62%, #3AFCF5 94.83%)',
-    img: '/banners/computer.png',
-    imgAlt: 'Recent Contest'
-  },
-  {
-    type: 'upcoming',
-    subDescription: 'Join now, showcase your skills!',
-    mainDescription: 'GET READY FOR\nUPCOMING CONTEST',
-    buttonDescription: 'UPCOMING CONTEST',
-    bgcolor: 'bg-[#E5EDFF]',
-    mainDescriptionColor: 'linear-gradient(90deg, #2D51EA 0%, #1A2E84 100%)',
-    img: '/banners/trophy-main.png',
-    imgAlt: 'Upcoming Contest'
+      'linear-gradient(100deg, #12134A -7.99%, #262799 23.9%, #4D3CCF 65.71%)',
+    img: '/banners/notebook.png',
+    imgAlt: 'Recent Course'
   }
 ]
 
-export function ContestMainBanner() {
+export function CourseMainBanner({ course }: { course: JoinedCourse | null }) {
   const [facade, setFacade] = useState(0)
   const router = useRouter()
-
-  const { data } = useQuery({
-    queryKey: ['mostRecentContestId'],
-    queryFn: async () => {
-      const res: {
-        fastestUpcomingContestId: number
-      } = await fetcher.get('contest/banner').json()
-      return res
-    }
-  })
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -98,12 +78,12 @@ export function ContestMainBanner() {
               <div className="flex w-[448px] flex-col justify-center gap-5 pl-3 text-4xl font-bold">
                 <p
                   className="text-[22px] font-medium leading-[130%]"
-                  style={{ color: contestTextColors[slide.type] }}
+                  style={{ color: courseTextcolors[slide.type] }}
                 >
                   {slide.subDescription}
                 </p>
                 <p
-                  className="text-4xl font-bold leading-[120%] text-transparent md:text-[42px]"
+                  className="whitespace-pre-line text-4xl font-bold leading-[120%] text-transparent md:text-[42px]"
                   style={{
                     background: slide.mainDescriptionColor,
                     WebkitBackgroundClip: 'text',
@@ -112,24 +92,22 @@ export function ContestMainBanner() {
                 >
                   {slide.mainDescription}
                 </p>
-                {/* router대신 Link 이용? 고민 */}
-                <Button
-                  variant="outline"
-                  className={cn(
-                    'mt-2 w-[209px] gap-[6px] rounded-full font-medium hover:bg-transparent',
-                    slide.bgcolor
-                  )}
-                  style={{
-                    borderColor: contestTextColors[slide.type],
-                    color: contestTextColors[slide.type]
-                  }}
-                  onClick={() =>
-                    router.push(`/contest/${data?.fastestUpcomingContestId}`)
-                  }
-                >
-                  {slide.buttonDescription}
-                  <FaArrowRight />
-                </Button>
+                {course ? (
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      'mt-2 w-[209px] gap-[6px] rounded-full bg-transparent font-medium'
+                    )}
+                    style={{
+                      borderColor: courseTextcolors[slide.type],
+                      color: courseTextcolors[slide.type]
+                    }}
+                    onClick={() => router.push(`/course/${course.id}`)}
+                  >
+                    {slide.buttonDescription}
+                    <FaArrowRight />
+                  </Button>
+                ) : null}
               </div>
 
               <div>
@@ -157,22 +135,22 @@ export function ContestMainBanner() {
               <OvalIcon
                 position="-left-[18%] top-[38%] h-[170px] w-[600px]"
                 transform="rotate(-35deg)"
-                backgroundColor={contestOvalIconColors[slide.type].leftup}
+                backgroundColor={courseOvalIconColors[slide.type].leftup}
               />
               <OvalIcon
                 position="-bottom-7 -left-[4%] h-[100px] w-[315px]"
                 transform="rotate(-35deg)"
-                backgroundColor={contestOvalIconColors[slide.type].leftdown}
+                backgroundColor={courseOvalIconColors[slide.type].leftdown}
               />
               <OvalIcon
                 position="right-[10%] top-0 h-[225px] w-[750px]"
                 transform="rotate(-30deg)"
-                backgroundColor={contestOvalIconColors[slide.type].rightup}
+                backgroundColor={courseOvalIconColors[slide.type].rightup}
               />
               <OvalIcon
                 position="-bottom-20 -right-[25%] rounded-none h-[350px] w-[1200px]"
                 transform="rotate(-30deg)"
-                backgroundColor={contestOvalIconColors[slide.type].rightdown}
+                backgroundColor={courseOvalIconColors[slide.type].rightdown}
               />
             </div>
           </div>
@@ -190,12 +168,6 @@ function BannerPageDots({ slideType }: BannerPageDotsProps) {
         className={cn(
           'z-10 h-[7px] w-[7px] rounded-full',
           slideType === 'recent' ? 'bg-white' : 'bg-[#A9A9A9]'
-        )}
-      />
-      <div
-        className={cn(
-          'z-10 h-[7px] w-[7px] rounded-full',
-          slideType === 'upcoming' ? 'bg-white' : 'bg-[#A9A9A9]'
         )}
       />
     </div>
