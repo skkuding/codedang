@@ -14,15 +14,6 @@ export class RolesService {
     })
   }
 
-  async getUserPermission(userId: number) {
-    return await this.prisma.user.findUniqueOrThrow({
-      where: { id: userId },
-      select: {
-        canCreateContest: true
-      }
-    })
-  }
-
   async getUserGroup(userId: number, groupId: number) {
     return await this.prisma.userGroup.findUnique({
       where: {
