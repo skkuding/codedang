@@ -4,7 +4,6 @@ import { Contest, ContestProblem } from '@generated'
 import { ContestRole } from '@prisma/client'
 import {
   AuthenticatedRequest,
-  UseRolesGuard,
   UseContestRolesGuard,
   UseDisableAdminGuard
 } from '@libs/auth'
@@ -80,7 +79,6 @@ export class ContestResolver {
    * @returns Publicizing Request 배열
    */
   @Query(() => [PublicizingRequest])
-  @UseRolesGuard()
   async getPublicizingRequests() {
     return await this.contestService.getPublicizingRequests()
   }
@@ -104,7 +102,6 @@ export class ContestResolver {
    * @returns
    */
   @Mutation(() => PublicizingResponse)
-  @UseRolesGuard()
   async handlePublicizingRequest(
     @Args('contestId', { type: () => Int }) contestId: number,
     @Args('isAccepted', ParseBoolPipe) isAccepted: boolean

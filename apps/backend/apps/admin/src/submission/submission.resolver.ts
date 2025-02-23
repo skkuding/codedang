@@ -1,4 +1,6 @@
 import { Args, Int, Query, Resolver } from '@nestjs/graphql'
+import { ContestRole } from '@prisma/client'
+import { UseContestRolesGuard } from '@libs/auth'
 import {
   SubmissionOrderPipe,
   CursorValidationPipe,
@@ -56,6 +58,7 @@ export class SubmissionResolver {
    * @see {@link https://github.com/skkuding/codedang/pull/1924}
    */
   @Query(() => [ContestSubmission])
+  @UseContestRolesGuard(ContestRole.Manager)
   async getContestSubmissions(
     @Args('input', {
       nullable: false,
