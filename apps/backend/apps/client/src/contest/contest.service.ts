@@ -533,7 +533,7 @@ export class ContestService {
             problemId: contestProblem.id,
             penalty: isFrozen
               ? submitCountPenalty + timePenalty
-              : finalScore + finalSubmitCountPenalty + finalTimePenalty,
+              : finalSubmitCountPenalty + finalTimePenalty,
             submissionCount:
               submissionCountMap[userId!]?.[contestProblem.id] ?? 0,
             score: isFrozen ? score : finalScore,
