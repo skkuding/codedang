@@ -29,7 +29,7 @@ interface DataTableProps<TData, TValue> {
   headerStyle: {
     [key: string]: string
   }
-  tableStyle?: string
+  tableRowStyle?: string
   linked?: boolean
   emptyMessage?: string
 }
@@ -75,7 +75,7 @@ export function DataTable<TData extends Item, TValue>({
   columns,
   data,
   headerStyle,
-  tableStyle,
+  tableRowStyle,
   linked = false,
   emptyMessage = 'No results.'
 }: DataTableProps<TData, TValue>) {
@@ -130,7 +130,7 @@ export function DataTable<TData extends Item, TValue>({
                 data-state={row.getIsSelected() && 'selected'}
                 className={cn(
                   'cursor-pointer border-b-[1.5px] border-[#80808040] hover:bg-[#80808014]',
-                  tableStyle
+                  tableRowStyle
                 )}
                 onClick={handleClick}
               >

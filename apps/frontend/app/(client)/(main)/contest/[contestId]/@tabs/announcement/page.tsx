@@ -20,7 +20,7 @@ export default async function ContestAnnouncement({
     .json()
   return (
     <div className="pb-[120px]">
-      <p className="mb-20 mt-20 text-center text-2xl font-semibold text-[#3581FA]">
+      <p className="text-primary my-20 text-center text-2xl font-semibold">
         ANNOUNCEMENT
       </p>
       <DataTable
@@ -32,7 +32,7 @@ export default async function ContestAnnouncement({
           content: 'text-[#808080b3] font-normal w-[51%]',
           createTime: 'text-[#808080b3] font-normal w-[25%]'
         }}
-        tableStyle="hover:bg-white cursor-auto"
+        tableRowStyle="hover:bg-white cursor-auto"
       />
     </div>
   )
