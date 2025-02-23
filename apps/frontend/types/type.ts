@@ -323,15 +323,12 @@ export interface Assignment {
     id: string
     groupName: string
   }
-  // TODO: Assignement에서 현재 사용 중이지 않은 필드로, 추후 필요시 사용할 예정 (민규)
-  // isJudgeResultVisible: boolean
-  // enableCopyPaste: boolean
-
-  // TODO: CI 오류나서 임시방편으로 주석 해제 했습니다(민규)
-  status: AssignmentStatus
-  // participants: number
-  // isRegistered: boolean
-  isGraded: boolean
+  enableCopyPaste: boolean
+  isJudgeResultVisible: boolean
+  week: number
+  description: string
+  invitationCodeExists: boolean
+  isRegistered: boolean
 }
 
 export interface CalendarAssignment {
