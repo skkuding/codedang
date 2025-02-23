@@ -46,6 +46,7 @@ export function GroupTable() {
   const courses = data.getCoursesUserLead.map((course) => ({
     id: Number(course.id),
     title: course.groupName,
+    professor: course.courseInfo?.professor,
     code: course.courseInfo?.courseNum ?? '',
     classNum: Number(course.courseInfo?.classNum ?? 0),
     semester: course.courseInfo?.semester ?? '',

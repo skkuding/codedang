@@ -8,9 +8,9 @@ export const courseSchema = v.object({
     v.regex(/^[A-Za-z]{1,3}\d{1,4}$/, 'Invalid course number format')
   ),
   classNum: v.pipe(
-    v.string(),
-    v.minLength(1, 'Class number must be at least 1'),
-    v.maxLength(99, 'Class number must be at most 99')
+    v.number(),
+    v.minValue(1, 'Class number must be at least 1'),
+    v.maxValue(99, 'Class number must be at most 99')
   ),
   semester: v.pipe(v.string(), v.minLength(1, 'Required')),
   week: v.pipe(v.number(), v.minValue(1, 'Must be at least 1')),

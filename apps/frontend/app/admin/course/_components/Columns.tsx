@@ -7,6 +7,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 export interface DataTableCourse {
   id: number
   title: string
+  professor: string | undefined
   code: string
   classNum: number
   semester: string
@@ -46,6 +47,15 @@ export const columns: ColumnDef<DataTableCourse>[] = [
     cell: ({ row }) => (
       <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
         {row.getValue('title')}
+      </p>
+    )
+  },
+  {
+    accessorKey: 'professor',
+    header: () => <p className="text-left">Professor</p>,
+    cell: ({ row }) => (
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+        {row.getValue('professor')}
       </p>
     )
   },

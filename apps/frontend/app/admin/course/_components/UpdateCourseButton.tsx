@@ -24,7 +24,7 @@ import type { SemesterSeason } from '@/types/type'
 import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
 import type { CourseInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { FiPlusCircle } from 'react-icons/fi'
 import { GoPencil } from 'react-icons/go'
@@ -81,6 +81,10 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
   const currentYear = new Date().getFullYear()
   const seasons: SemesterSeason[] = ['Spring', 'Summer', 'Fall', 'Winter']
 
+  useEffect(() => {
+    setValue('courseNum', `${prefix}${courseCode}`)
+  }, [prefix, courseCode, setValue])
+
   const handleUpdateRow: SubmitHandler<CourseInput> = async (data) => {
     const selectedRow = table.getSelectedRowModel().rows[0]
     console.log('Updating row...', selectedRow.original)
@@ -103,6 +107,7 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
       table.resetRowSelection()
       table.resetPageIndex()
       onSuccess?.()
+      toast.success('Course updated successfully!')
     } catch {
       toast.error(`Failed to update course`)
     }
@@ -111,13 +116,13 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
   const handlePrefixChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toUpperCase() // 대문자로 변환
     setPrefix(value)
-    setValue('courseNum', prefix + courseCode)
+    // setValue('courseNum', prefix + courseCode)
   }
 
   const handleCourseCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '') // 숫자만 남기기
     setCourseCode(value)
-    setValue('courseNum', prefix + courseCode)
+    // setValue('courseNum', prefix + courseCode)
   }
 
   const { refetch } = useQuery(GET_COURSE, {
@@ -150,10 +155,11 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
         const data = result.data.getCourse
 
         console.log('Updated Course Data:', data)
-
+        setPrefix(data.courseInfo?.courseNum.substring(0, 3) ?? '')
+        setCourseCode(data.courseInfo?.courseNum.substring(3) ?? '')
         reset({
           courseTitle: data.groupName,
-
+          courseNum: `${prefix}${courseCode}`,
           classNum: data.courseInfo?.classNum,
           professor: data.courseInfo?.professor,
           semester: data.courseInfo?.semester,
@@ -161,11 +167,14 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
           email: data.courseInfo?.email,
           website: data.courseInfo?.website,
           office: data.courseInfo?.office,
-          phoneNum: data.courseInfo?.phoneNum
+          phoneNum: data.courseInfo?.phoneNum,
+          config: {
+            showOnList: true,
+            allowJoinFromSearch: true,
+            allowJoinWithURL: true,
+            requireApprovalBeforeJoin: false
+          }
         })
-        // courseNum: `${prefix}${courseCode}`,
-        setPrefix(data.courseInfo?.courseNum.substring(0, 3) ?? '')
-        setCourseCode(data.courseInfo?.courseNum.substring(3) ?? '')
 
         // 상태 업데이트 후 Dialog 열기
         setIsAlertDialogOpen(true)
@@ -197,7 +206,9 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                 <span className="text-red-500">*</span>
               </div>
               <Input id="professor" {...register('professor')} />
-              {errors.professor && <ErrorMessage />}
+              {errors.professor && (
+                <ErrorMessage message={errors.professor.message} />
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -207,7 +218,9 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
               </div>
 
               <Input id="courseTitle" {...register('courseTitle')} />
-              {errors.courseTitle && <ErrorMessage />}
+              {errors.courseTitle && (
+                <ErrorMessage message={errors.courseTitle.message} />
+              )}
             </div>
 
             <div className="flex justify-between gap-4">
@@ -235,7 +248,9 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                     className="w-full rounded border p-2"
                   />
                 </div>
-                {errors.courseNum && <ErrorMessage />}
+                {errors.courseNum && (
+                  <ErrorMessage message={errors.courseNum.message} />
+                )}
               </div>
               <div className="flex w-1/3 flex-col gap-2">
                 <div className="flex gap-2">
@@ -243,7 +258,9 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                 </div>
 
                 <Input
-                  {...register('classNum')}
+                  {...register('classNum', {
+                    setValueAs: (v) => parseInt(v)
+                  })}
                   type="number"
                   maxLength={2}
                   className="w-full rounded border p-2"
@@ -277,6 +294,9 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                   ))}
                 </SelectContent>
               </Select>
+              {errors.semester && (
+                <ErrorMessage message={errors.semester.message} />
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -304,6 +324,7 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                   })}
                 </SelectContent>
               </Select>
+              {errors.week && <ErrorMessage message={errors.week.message} />}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -314,7 +335,7 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                 <span className="text-xs font-normal">Email</span>
                 <Input
                   {...register('email')}
-                  type="emailemail"
+                  type="email"
                   className="w-full rounded border p-2"
                   // defaultValue=""
                 />
@@ -330,7 +351,9 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                   className="w-full rounded border p-2"
                   // defaultValue=""
                 />
-                {errors.phoneNum && <ErrorMessage />}
+                {errors.phoneNum && (
+                  <ErrorMessage message={errors.phoneNum.message} />
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 <span className="text-xs font-normal">Office</span>
@@ -340,7 +363,9 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                   className="w-full rounded border p-2"
                   // defaultValue=""
                 />
-                {errors.office && <ErrorMessage />}
+                {errors.office && (
+                  <ErrorMessage message={errors.office.message} />
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 <span className="text-xs font-normal">Website</span>
@@ -368,7 +393,7 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                     }
                   }}
                 >
-                  Create
+                  Update
                 </Button>
               </AlertDialogAction>
             </AlertDialogFooter>

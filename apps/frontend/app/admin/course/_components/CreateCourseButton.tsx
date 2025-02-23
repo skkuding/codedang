@@ -190,11 +190,14 @@ export function CreateCourseButton<TData extends { id: number }, TPromise>() {
                 </div>
 
                 <Input
-                  {...register('classNum')}
+                  {...register('classNum', {
+                    setValueAs: (v) => parseInt(v)
+                  })}
                   type="number"
                   maxLength={2}
                   className="w-full rounded border p-2"
                 />
+
                 {errors.classNum && (
                   <ErrorMessage message={errors.classNum.message} />
                 )}
