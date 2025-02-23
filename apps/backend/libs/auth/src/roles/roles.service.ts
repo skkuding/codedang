@@ -24,10 +24,10 @@ export class RolesService {
   }
 
   async getUserGroup(userId: number, groupId: number) {
-    return await this.prisma.userGroup.findFirst({
+    return await this.prisma.userGroup.findUnique({
       where: {
-        userId,
-        groupId
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: { userId, groupId }
       },
       select: {
         isGroupLeader: true

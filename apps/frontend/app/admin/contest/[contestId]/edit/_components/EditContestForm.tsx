@@ -107,7 +107,6 @@ export function EditContestForm({
 
     await updateContest({
       variables: {
-        groupId: 1,
         input
       }
     })
@@ -119,7 +118,6 @@ export function EditContestForm({
 
     await removeProblemsFromContest({
       variables: {
-        groupId: 1,
         contestId,
         problemIds: prevProblemIds
       }
@@ -127,7 +125,6 @@ export function EditContestForm({
 
     await importProblemsToContest({
       variables: {
-        groupId: 1,
         contestId,
         problemIdsWithScore: problems.map((problem) => {
           return {

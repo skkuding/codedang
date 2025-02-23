@@ -4,6 +4,7 @@ import { RolesModule } from '@libs/auth'
 import { StorageModule } from '@admin/storage/storage.module'
 import { ProblemTagResolver, TagResolver } from './problem-tag.resolver'
 import {
+  AssignmentProblemResolver,
   ContestProblemResolver,
   ProblemResolver,
   WorkbookProblemResolver
@@ -15,12 +16,13 @@ import { IntScoreScalar } from './scalar/int-score.scalar'
   imports: [StorageModule, ConfigModule, RolesModule],
   providers: [
     ProblemResolver,
-    ProblemTagResolver,
-    TagResolver,
-    ProblemService,
     ContestProblemResolver,
     WorkbookProblemResolver,
-    IntScoreScalar
+    AssignmentProblemResolver,
+    ProblemService,
+    IntScoreScalar,
+    ProblemTagResolver,
+    TagResolver
   ],
   exports: [IntScoreScalar]
 })

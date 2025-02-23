@@ -12,7 +12,7 @@ import {
   AuthNotNeededIfOpenSpace,
   UserNullWhenAuthFailedIfOpenSpace
 } from '@libs/auth'
-import { GroupIDPipe, IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
+import { IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
 import { ContestService } from './contest.service'
 
 @Controller('contest')
@@ -37,24 +37,21 @@ export class ContestController {
   @UserNullWhenAuthFailedIfOpenSpace()
   async getContest(
     @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', new RequiredIntPipe('id')) id: number
   ) {
-    return await this.contestService.getContest(id, groupId, req.user?.id)
+    return await this.contestService.getContest(id, req.user?.id)
   }
 
   @Post(':id/participation')
   async registerContest(
     @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', IDValidationPipe) contestId: number,
     @Query('invitationCode') invitationCode?: string
   ) {
     return await this.contestService.registerContest({
       contestId,
       userId: req.user.id,
-      invitationCode,
-      groupId
+      invitationCode
     })
   }
 
@@ -62,14 +59,9 @@ export class ContestController {
   @Delete(':id/participation')
   async unregisterContest(
     @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', IDValidationPipe) contestId: number
   ) {
-    return await this.contestService.unregisterContest(
-      contestId,
-      req.user.id,
-      groupId
-    )
+    return await this.contestService.unregisterContest(contestId, req.user.id)
   }
 
   @Get(':id/leaderboard')

@@ -2,13 +2,71 @@ import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { UserGroup } from '@generated'
 import { User } from '@generated'
 import { OPEN_SPACE_ID } from '@libs/constants'
+import { UnprocessableDataException } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { GroupMember } from './model/groupMember.model'
-import { UserService } from './user.service'
+import { CanCreateCourseResult } from './model/user.output'
+import { UserService, GroupMemberService } from './user.service'
 
 @Resolver(() => User)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
+
+  /**
+   * 이메일 또는 학번으로 사용자를 조회합니다.
+   *
+   * @param {number} _groupId - 그룹의 ID (필터링 목적).
+   * @param {string} email - 조회할 사용자의 이메일 (선택적).
+   * @param {string} studentId - 조회할 사용자의 학번 (선택적).
+   * @returns {Promise<User[]>} - 조회된 사용자 목록을 반환합니다.
+   */
+  @Query(() => [User])
+  async getUserByEmailOrStudentId(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) _groupId: number,
+    @Args('email', { type: () => String, nullable: true })
+    email?: string,
+    @Args('studentId', { type: () => String, nullable: true })
+    studentId?: string
+  ) {
+    if (!!email === !!studentId) {
+      throw new UnprocessableDataException(
+        'Either email or studentId must be provided, but not both.'
+      )
+    }
+
+    return await this.userService.getUserByEmailOrStudentId(email, studentId)
+  }
+
+  @Mutation(() => CanCreateCourseResult)
+  async updateCanCreateCourse(
+    @Args('userId', { type: () => Int }, new RequiredIntPipe('userId'))
+    userId: number,
+    @Args('canCreateCourse', { type: () => Boolean }) canCreateCourse: boolean
+  ) {
+    return await this.userService.updateCanCreateCourse(userId, canCreateCourse)
+  }
+
+  @Query(() => [User])
+  async getUsers(
+    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
+    cursor: number | null,
+    @Args(
+      'take',
+      { type: () => Int, defaultValue: 10 },
+      new RequiredIntPipe('take')
+    )
+    take: number
+  ) {
+    return await this.userService.getUsers({
+      cursor,
+      take
+    })
+  }
+}
+
+@Resolver(() => GroupMember)
+export class GroupMemberResolver {
+  constructor(private readonly groupMemberService: GroupMemberService) {}
 
   /**
    * 특정 그룹의 멤버를 페이지네이션과 필터링 조건에 따라 조회함.
@@ -37,11 +95,11 @@ export class UserResolver {
     take: number,
     @Args('leaderOnly', { defaultValue: false }) leaderOnly: boolean
   ) {
-    return await this.userService.getGroupMembers({
-      groupId: groupId,
-      cursor: cursor,
-      take: take,
-      leaderOnly: leaderOnly
+    return await this.groupMemberService.getGroupMembers({
+      groupId,
+      cursor,
+      take,
+      leaderOnly
     })
   }
 
@@ -63,7 +121,7 @@ export class UserResolver {
     @Args('userId', { type: () => Int }, new RequiredIntPipe('userId'))
     userId: number
   ) {
-    return await this.userService.getGroupMember(groupId, userId)
+    return await this.groupMemberService.getGroupMember(groupId, userId)
   }
 
   /**
@@ -81,7 +139,7 @@ export class UserResolver {
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('toGroupLeader') toGroupLeader: boolean
   ) {
-    return await this.userService.updateGroupRole(
+    return await this.groupMemberService.updateGroupRole(
       userId,
       groupId,
       toGroupLeader
@@ -97,11 +155,10 @@ export class UserResolver {
    */
   @Mutation(() => UserGroup)
   async deleteGroupMember(
-    @Args('userId', { type: () => Int }, new RequiredIntPipe('userId'))
-    userId: number,
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('userId', { type: () => Int }) userId: number
   ) {
-    return await this.userService.deleteGroupMember(userId, groupId)
+    return await this.groupMemberService.deleteGroupMember(groupId, userId)
   }
 
   /**
@@ -113,7 +170,7 @@ export class UserResolver {
   async getJoinRequests(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
   ) {
-    return await this.userService.getJoinRequests(groupId)
+    return await this.groupMemberService.getJoinRequests(groupId)
   }
 
   /**
@@ -131,6 +188,10 @@ export class UserResolver {
     userId: number,
     @Args('isAccept') isAccept: boolean
   ) {
-    return await this.userService.handleJoinRequest(groupId, userId, isAccept)
+    return await this.groupMemberService.handleJoinRequest(
+      groupId,
+      userId,
+      isAccept
+    )
   }
 }

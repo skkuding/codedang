@@ -70,7 +70,7 @@ describe('AnnouncementService', () => {
 
   describe('getContestAnnouncements', () => {
     it('should return multiple contest announcements', async () => {
-      const res = await service.getContestAnnouncements(1, 1)
+      const res = await service.getContestAnnouncements(1)
       expect(res)
         .excluding(['createTime', 'updateTime', 'content'])
         .to.deep.equal([

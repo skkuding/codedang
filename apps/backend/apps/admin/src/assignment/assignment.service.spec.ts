@@ -16,7 +16,6 @@ import type {
   CreateAssignmentInput,
   UpdateAssignmentInput
 } from './model/assignment.input'
-import type { AssignmentPublicizingRequest } from './model/publicizing-request.model'
 
 const assignmentId = 1
 const userId = 1
@@ -48,7 +47,8 @@ const assignment: Assignment = {
   createTime,
   updateTime,
   invitationCode,
-  assignmentProblem: []
+  assignmentProblem: [],
+  week: 1
 }
 
 const assignmentWithCount = {
@@ -69,7 +69,8 @@ const assignmentWithCount = {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
     assignmentRecord: 10
-  }
+  },
+  week: 1
 }
 
 const assignmentWithParticipants: AssignmentWithParticipants = {
@@ -87,7 +88,8 @@ const assignmentWithParticipants: AssignmentWithParticipants = {
   createTime,
   updateTime,
   participants: 10,
-  invitationCode
+  invitationCode,
+  week: 1
 }
 
 const group: Group = {
@@ -101,7 +103,8 @@ const group: Group = {
     requireApprovalBeforeJoin: true
   },
   createTime: faker.date.past(),
-  updateTime: faker.date.past()
+  updateTime: faker.date.past(),
+  groupType: 'Course'
 }
 
 const problem: Problem = {
@@ -176,17 +179,12 @@ const submissionsWithProblemTitleAndUsername = {
 //   }
 // ]
 
-const publicizingRequest: AssignmentPublicizingRequest = {
-  assignmentId,
-  userId,
-  expireTime: new Date('2050-08-19T07:32:07.533Z')
-}
-
 const input = {
   title: 'test title10',
   description: 'test description',
   startTime: faker.date.past(),
   endTime: faker.date.future(),
+  week: 1,
   isVisible: false,
   isRankVisible: false,
   enableCopyPaste: true,
@@ -199,6 +197,7 @@ const updateInput = {
   description: 'test description',
   startTime: faker.date.past(),
   endTime: faker.date.future(),
+  week: 1,
   isVisible: false,
   isRankVisible: false,
   enableCopyPaste: false
@@ -217,7 +216,7 @@ const db = {
     create: stub().resolves(AssignmentProblem),
     findMany: stub().resolves([AssignmentProblem]),
     findFirstOrThrow: stub().resolves(AssignmentProblem),
-    findFirst: stub().resolves(AssignmentProblem)
+    findUnique: stub().resolves(AssignmentProblem)
   },
   assignmentRecord: {
     findMany: stub().resolves([AssignmentRecord]),
@@ -286,16 +285,6 @@ describe('AssignmentService', () => {
     })
   })
 
-  describe('getPublicizingRequests', () => {
-    it('should return an array of PublicizingRequest', async () => {
-      const cacheSpyGet = stub(cache, 'get').resolves([publicizingRequest])
-      const res = await service.getPublicizingRequests()
-
-      expect(cacheSpyGet.called).to.be.true
-      expect(res).to.deep.equal([publicizingRequest])
-    })
-  })
-
   describe('createAssignment', () => {
     it('should return created assignment', async () => {
       db.assignment.create.resolves(assignment)
@@ -308,7 +297,7 @@ describe('AssignmentService', () => {
 
   describe('updateAssignment', () => {
     it('should return updated assignment', async () => {
-      db.assignment.findFirst.resolves(assignment)
+      db.assignment.findUnique.resolves(assignment)
       db.assignment.update.resolves(assignment)
 
       const res = await service.updateAssignment(groupId, updateInput)
@@ -324,7 +313,7 @@ describe('AssignmentService', () => {
 
   describe('deleteAssignment', () => {
     it('should return deleted assignment', async () => {
-      db.assignment.findFirst.resolves(assignment)
+      db.assignment.findUnique.resolves(assignment)
       db.assignment.delete.resolves(assignment)
 
       const res = await service.deleteAssignment(groupId, assignmentId)
@@ -333,33 +322,6 @@ describe('AssignmentService', () => {
 
     it('should throw error when groupId or assignmentId not exist', async () => {
       expect(service.deleteAssignment(1000, 1000)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-  })
-
-  describe('handlePublicizingRequest', () => {
-    it('should return accepted state', async () => {
-      db.assignment.update.resolves(assignment)
-
-      const cacheSpyGet = stub(cache, 'get').resolves([publicizingRequest])
-      const res = await service.handlePublicizingRequest(assignmentId, true)
-
-      expect(cacheSpyGet.called).to.be.true
-      expect(res).to.deep.equal({
-        assignmentId,
-        isAccepted: true
-      })
-    })
-
-    it('should throw error when groupId or assignmentId not exist', async () => {
-      expect(service.handlePublicizingRequest(1000, true)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-
-    it('should throw error when the assignment is not requested to public', async () => {
-      expect(service.handlePublicizingRequest(3, true)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
@@ -375,7 +337,7 @@ describe('AssignmentService', () => {
       db.assignment.findUnique.resolves(assignmentWithEmptySubmissions)
       db.problem.update.resolves(problem)
       db.assignmentProblem.create.resolves(assignmentProblem)
-      db.assignmentProblem.findFirst.resolves(null)
+      db.assignmentProblem.findUnique.resolves(null)
 
       const res = await Promise.all(
         await service.importProblemsToAssignment(groupId, assignmentId, [
@@ -389,7 +351,7 @@ describe('AssignmentService', () => {
     it('should return an empty array when the problem already exists in assignment', async () => {
       db.assignment.findUnique.resolves(assignmentWithEmptySubmissions)
       db.problem.update.resolves(problem)
-      db.assignmentProblem.findFirst.resolves(AssignmentProblem)
+      db.assignmentProblem.findUnique.resolves(AssignmentProblem)
 
       const res = await service.importProblemsToAssignment(
         groupId,

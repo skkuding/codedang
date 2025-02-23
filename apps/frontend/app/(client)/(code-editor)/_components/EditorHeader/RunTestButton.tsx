@@ -1,4 +1,5 @@
 import { Button, type ButtonProps } from '@/components/shadcn/button'
+import { useSession } from '@/libs/hooks/useSession'
 import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
 import { useCodeStore } from '@/stores/editor'
@@ -21,6 +22,7 @@ export function RunTestButton({
   saveCode,
   ...props
 }: RunTestButtonProps) {
+  const session = useSession()
   const setIsTesting = useTestPollingStore((state) => state.setIsTesting)
   const startPolling = useTestPollingStore((state) => state.startPolling)
   const showSignIn = useAuthModalStore((state) => state.showSignIn)
@@ -96,6 +98,12 @@ export function RunTestButton({
   const submitTest = () => {
     const code = getCode()
     const testcases = getUserTestcases()
+
+    if (session === null) {
+      showSignIn()
+      toast.error('Log in first to test your code')
+      return
+    }
 
     if (code === '') {
       toast.error('Please write code before test')

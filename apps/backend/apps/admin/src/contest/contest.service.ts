@@ -1,14 +1,9 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import {
-  Inject,
-  Injectable,
-  UnprocessableEntityException
-} from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { Contest, ResultStatus, Submission } from '@generated'
 import type { ContestProblem } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import {
-  OPEN_SPACE_ID,
   PUBLICIZING_REQUEST_EXPIRE_TIME,
   PUBLICIZING_REQUEST_KEY,
   MIN_DATE,
@@ -34,12 +29,11 @@ export class ContestService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getContests(take: number, groupId: number, cursor: number | null) {
+  async getContests(take: number, cursor: number | null) {
     const paginator = this.prisma.getPaginator(cursor)
 
     const contests = await this.prisma.contest.findMany({
       ...paginator,
-      where: { groupId },
       take,
       include: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -84,7 +78,6 @@ export class ContestService {
   }
 
   async createContest(
-    groupId: number,
     userId: number,
     contest: CreateContestInput
   ): Promise<Contest> {
@@ -94,20 +87,10 @@ export class ContestService {
       )
     }
 
-    const group = await this.prisma.group.findUnique({
-      where: {
-        id: groupId
-      }
-    })
-    if (!group) {
-      throw new EntityNotExistException('Group')
-    }
-
     try {
       return await this.prisma.contest.create({
         data: {
           createdById: userId,
-          groupId,
           ...contest
         }
       })
@@ -116,14 +99,10 @@ export class ContestService {
     }
   }
 
-  async updateContest(
-    groupId: number,
-    contest: UpdateContestInput
-  ): Promise<Contest> {
+  async updateContest(contest: UpdateContestInput): Promise<Contest> {
     const contestFound = await this.prisma.contest.findFirst({
       where: {
-        id: contest.id,
-        groupId
+        id: contest.id
       },
       select: {
         startTime: true,
@@ -214,11 +193,10 @@ export class ContestService {
     }
   }
 
-  async deleteContest(groupId: number, contestId: number) {
+  async deleteContest(contestId: number) {
     const contest = await this.prisma.contest.findFirst({
       where: {
-        id: contestId,
-        groupId
+        id: contestId
       },
       select: {
         contestProblem: {
@@ -236,7 +214,7 @@ export class ContestService {
       (problem) => problem.problemId
     )
     if (problemIds.length) {
-      await this.removeProblemsFromContest(groupId, contestId, problemIds)
+      await this.removeProblemsFromContest(contestId, problemIds)
     }
 
     try {
@@ -299,9 +277,7 @@ export class ContestService {
           where: {
             id: contestId
           },
-          data: {
-            groupId: OPEN_SPACE_ID
-          }
+          data: {}
         })
       } catch (error) {
         throw new UnprocessableDataException(error.message)
@@ -314,17 +290,10 @@ export class ContestService {
     } as PublicizingResponse
   }
 
-  async createPublicizingRequest(groupId: number, contestId: number) {
-    if (groupId == OPEN_SPACE_ID) {
-      throw new UnprocessableEntityException(
-        'This contest is already publicized'
-      )
-    }
-
+  async createPublicizingRequest(contestId: number) {
     const contest = await this.prisma.contest.findFirst({
       where: {
-        id: contestId,
-        groupId
+        id: contestId
       }
     })
     if (!contest) {
@@ -360,14 +329,12 @@ export class ContestService {
   }
 
   async importProblemsToContest(
-    groupId: number,
     contestId: number,
     problemIdsWithScore: ProblemScoreInput[]
   ) {
     const contest = await this.prisma.contest.findUnique({
       where: {
-        id: contestId,
-        groupId
+        id: contestId
       },
       include: {
         submission: {
@@ -442,15 +409,10 @@ export class ContestService {
     return contestProblems
   }
 
-  async removeProblemsFromContest(
-    groupId: number,
-    contestId: number,
-    problemIds: number[]
-  ) {
+  async removeProblemsFromContest(contestId: number, problemIds: number[]) {
     const contest = await this.prisma.contest.findUnique({
       where: {
-        id: contestId,
-        groupId
+        id: contestId
       },
       include: {
         submission: {
@@ -608,18 +570,16 @@ export class ContestService {
   /**
    * Duplicate contest with contest problems and users who participated in the contest
    * Not copied: submission
-   * @param groupId group to duplicate contest
    * @param contestId contest to duplicate
    * @param userId user who tries to duplicates the contest
    * @returns
    */
-  async duplicateContest(groupId: number, contestId: number, userId: number) {
+  async duplicateContest(contestId: number, userId: number) {
     const [contestFound, contestProblemsFound, userContestRecords] =
       await Promise.all([
         this.prisma.contest.findFirst({
           where: {
-            id: contestId,
-            groupId
+            id: contestId
           }
         }),
         this.prisma.contestProblem.findMany({
@@ -658,7 +618,6 @@ export class ContestService {
               ...contestDataToCopy,
               title: 'Copy of ' + title,
               createdById: userId,
-              groupId,
               isVisible: newVisible
             }
           })

@@ -1,0 +1,45 @@
+meta {
+  name: [ERR] Nonexistent Assignment
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    importProblemsToAssignment(
+      groupId: 2
+      assignmentId: 99999
+      problemIdsWithScore: [
+        {
+          problemId: 7,
+          score: 20
+        },
+        {
+        	problemId: 8,
+          score: 30
+        },
+        {
+          problemId: 9,
+          score: 50
+        }
+      ]
+    ) {
+      assignmentId
+      problemId
+      createTime
+      updateTime
+      order
+      score
+    }
+  }
+}
+
+assert {
+  res.body.errors: isDefined
+}
