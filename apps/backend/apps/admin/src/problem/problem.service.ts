@@ -383,37 +383,55 @@ export class ProblemService {
     })
 
     const updatedFields: string[] = []
-    let isTitleChanged = false
-    let isLanguageChanged = false
-    let isDescriptionChanged = false
-    let isTestCaseChanged = false
-    let isLimitChanged = false
-    let isHintChanged = false
 
-    let latestTitle: string = problem.title
-    let latestLanguages: string[] = problem.languages
-    let latestDescription: string = problem.description
-    let latestTimeLimit: number = problem.timeLimit
-    let latestMemoryLimit: number = problem.memoryLimit
-    let latestHint: string = problem.hint
+    const titleInfo = {
+      isChanged: false,
+      current: problem.title,
+      previous: problem.title
+    }
+    const languageInfo = {
+      isChanged: false,
+      current: problem.languages,
+      previous: problem.languages
+    }
+    const descriptionInfo = {
+      isChanged: false,
+      current: problem.description,
+      previous: problem.description
+    }
+    const timeLimitInfo = {
+      isChanged: false,
+      current: problem.timeLimit,
+      previous: problem.timeLimit
+    }
+    const memoryLimitInfo = {
+      isChanged: false,
+      current: problem.memoryLimit,
+      previous: problem.memoryLimit
+    }
+    const hintInfo = {
+      isChanged: false,
+      current: problem.hint,
+      previous: problem.hint
+    }
 
     if (input.title && input.title !== problem.title) {
       updatedFields.push('Title')
-      isTitleChanged = true
-      latestTitle = input.title
+      titleInfo.isChanged = true
+      titleInfo.current = input.title
     }
     if (
       input.languages &&
       JSON.stringify(input.languages) !== JSON.stringify(problem.languages)
     ) {
       updatedFields.push('Language')
-      isLanguageChanged = true
-      latestLanguages = input.languages
+      languageInfo.isChanged = true
+      languageInfo.current = input.languages
     }
     if (input.description && input.description !== problem.description) {
       updatedFields.push('Description')
-      isDescriptionChanged = true
-      latestDescription = input.description
+      descriptionInfo.isChanged = true
+      descriptionInfo.current = input.description
     }
     if (testcases?.length) {
       const existingTestcases = await this.prisma.problemTestcase.findMany({
@@ -431,24 +449,22 @@ export class ProblemService {
         )
       ) {
         updatedFields.push('Testcase*')
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        isTestCaseChanged = true
       }
     }
     if (input.timeLimit && input.timeLimit !== problem.timeLimit) {
       updatedFields.push('Limit*')
-      isLimitChanged = true
-      latestTimeLimit = input.timeLimit
+      timeLimitInfo.isChanged = true
+      timeLimitInfo.current = input.timeLimit
     }
     if (input.memoryLimit && input.memoryLimit !== problem.memoryLimit) {
       updatedFields.push('Limit*')
-      isLimitChanged = true
-      latestMemoryLimit = input.memoryLimit
+      memoryLimitInfo.isChanged = true
+      memoryLimitInfo.current = input.memoryLimit
     }
     if (input.hint && input.hint !== problem.hint) {
       updatedFields.push('Hint')
-      isHintChanged = true
-      latestHint = input.hint
+      hintInfo.isChanged = true
+      hintInfo.current = input.hint
     }
 
     if (languages && !languages.length) {
@@ -510,25 +526,12 @@ export class ProblemService {
                 updatedFields: JSON.stringify(updatedFields),
                 updatedAt: new Date(),
 
-                isTitleChanged,
-                isLanguageChanged,
-                isDescriptionChanged,
-                isLimitChanged,
-                isHintChanged,
-
-                currentTitle: latestTitle,
-                currentLanguage: JSON.stringify(latestLanguages),
-                currentDescription: latestDescription,
-                currentTimeLimit: latestTimeLimit,
-                currentMemoryLimit: latestMemoryLimit,
-                currentHint: latestHint,
-
-                prevTitle: problem.title,
-                prevLanguage: JSON.stringify(problem.languages),
-                prevDescription: problem.description,
-                prevTimeLimit: problem.timeLimit,
-                prevMemoryLimit: problem.memoryLimit,
-                prevHint: problem.hint
+                titleInfo: JSON.stringify(titleInfo),
+                languageInfo: JSON.stringify(languageInfo),
+                descriptionInfo: JSON.stringify(descriptionInfo),
+                timeLimitInfo: JSON.stringify(timeLimitInfo),
+                memoryLimitInfo: JSON.stringify(memoryLimitInfo),
+                hintInfo: JSON.stringify(hintInfo)
               }
             ]
           }
