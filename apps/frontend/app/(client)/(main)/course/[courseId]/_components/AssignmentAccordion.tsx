@@ -9,6 +9,7 @@ import Link from 'next/link'
 
 interface AssignmentAccordionProps {
   week: number
+  courseId: string
 }
 
 const dummyAssignmentList = [
@@ -116,11 +117,14 @@ const dummyAssignmentList = [
   }
 ]
 
-export function AssignmentAccordion({ week }: AssignmentAccordionProps) {
+export function AssignmentAccordion({
+  week,
+  courseId
+}: AssignmentAccordionProps) {
   return (
     <div className="mt-3">
       {Array.from({ length: week }, (_, i) => i + 1).map((week: number) => (
-        <AssignmentAccordionItem key={week} week={week} />
+        <AssignmentAccordionItem key={week} week={week} courseId={courseId} />
       ))}
     </div>
   )
@@ -128,9 +132,13 @@ export function AssignmentAccordion({ week }: AssignmentAccordionProps) {
 
 interface AssignmentAccordionItemProps {
   week: number
+  courseId: string
 }
 
-function AssignmentAccordionItem({ week }: AssignmentAccordionItemProps) {
+function AssignmentAccordionItem({
+  week,
+  courseId
+}: AssignmentAccordionItemProps) {
   const assignments = dummyAssignmentList.filter(
     (assignment) => assignment.week === week
   )
@@ -161,7 +169,9 @@ function AssignmentAccordionItem({ week }: AssignmentAccordionItemProps) {
             {assignments.length > 0 ? (
               assignments.map((assignment) => (
                 <Link
-                  href={`assignment/${assignment.id}` as const}
+                  href={
+                    `/course/${courseId}/assignment/${assignment.id}` as const
+                  }
                   key={assignment.id}
                 >
                   <div

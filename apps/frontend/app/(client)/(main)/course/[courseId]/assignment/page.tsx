@@ -14,7 +14,7 @@ export default async function Assignment({
 
   return (
     <div className="mb-12 mt-[67px] flex w-full flex-col">
-      <AssignmentAccordion week={week} />
+      <AssignmentAccordion week={week} courseId={courseId} />
     </div>
   )
 }
