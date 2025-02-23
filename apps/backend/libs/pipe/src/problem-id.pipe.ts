@@ -3,13 +3,12 @@ import {
   Injectable,
   type PipeTransform
 } from '@nestjs/common'
-import { OPEN_SPACE_ID } from '@libs/constants'
 
 @Injectable()
 export class ProblemIDPipe implements PipeTransform {
   transform(value: unknown) {
     if (value == null) {
-      return OPEN_SPACE_ID
+      return null
     } else if (typeof value === 'string' || typeof value === 'number') {
       const id = typeof value === 'string' ? parseInt(value) : value
       if (id > 0) {
