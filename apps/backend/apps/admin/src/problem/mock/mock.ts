@@ -593,11 +593,11 @@ export const exampleAssignment: Assignment = {
   endTime: new Date(),
   createTime: new Date(),
   updateTime: new Date(),
-  invitationCode: '123456',
   week: 1
 }
 export const exampleAssignmentProblems: AssignmentProblem[] = [
   {
+    id: 1,
     order: 1,
     assignmentId: 1,
     problemId: 1,
@@ -606,6 +606,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 2,
     order: 2,
     assignmentId: 1,
     problemId: 2,
@@ -614,6 +615,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 3,
     order: 3,
     assignmentId: 1,
     problemId: 3,
@@ -622,6 +624,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 3,
     order: 4,
     assignmentId: 1,
     problemId: 4,
@@ -630,6 +633,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 4,
     order: 5,
     assignmentId: 1,
     problemId: 5,
@@ -638,6 +642,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 5,
     order: 6,
     assignmentId: 1,
     problemId: 6,
@@ -646,6 +651,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 6,
     order: 7,
     assignmentId: 1,
     problemId: 7,
@@ -654,6 +660,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 7,
     order: 8,
     assignmentId: 1,
     problemId: 8,
@@ -662,6 +669,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 8,
     order: 9,
     assignmentId: 1,
     problemId: 9,
@@ -670,6 +678,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 9,
     order: 10,
     assignmentId: 1,
     problemId: 10,
@@ -681,6 +690,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
 
 export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
   {
+    id: 1,
     order: 1,
     assignmentId: 1,
     problemId: 2,
@@ -689,6 +699,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 2,
     order: 2,
     assignmentId: 1,
     problemId: 3,
@@ -697,6 +708,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 3,
     order: 3,
     assignmentId: 1,
     problemId: 4,
@@ -705,6 +717,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 4,
     order: 4,
     assignmentId: 1,
     problemId: 5,
@@ -713,6 +726,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 5,
     order: 5,
     assignmentId: 1,
     problemId: 6,
@@ -721,6 +735,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 6,
     order: 6,
     assignmentId: 1,
     problemId: 7,
@@ -729,6 +744,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 7,
     order: 7,
     assignmentId: 1,
     problemId: 8,
@@ -737,6 +753,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 8,
     order: 8,
     assignmentId: 1,
     problemId: 9,
@@ -745,6 +762,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 9,
     order: 9,
     assignmentId: 1,
     problemId: 10,
@@ -753,6 +771,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     updateTime: new Date()
   },
   {
+    id: 10,
     order: 10,
     assignmentId: 1,
     problemId: 1,

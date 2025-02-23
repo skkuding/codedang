@@ -46,7 +46,6 @@ const assignment: Assignment = {
   enableCopyPaste: true,
   createTime,
   updateTime,
-  invitationCode,
   assignmentProblem: [],
   week: 1
 }
@@ -88,7 +87,6 @@ const assignmentWithParticipants: AssignmentWithParticipants = {
   createTime,
   updateTime,
   participants: 10,
-  invitationCode,
   week: 1
 }
 
@@ -137,6 +135,7 @@ const problem: Problem = {
 
 const assignmentProblem: AssignmentProblem = {
   order: 0,
+  id: 1,
   assignmentId,
   problemId,
   score: 50,

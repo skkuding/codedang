@@ -99,6 +99,7 @@ export const contestProblems = [
 
 export const assignmentProblems = [
   {
+    id: 1,
     order: 1,
     assignmentId: 1,
     problemId: 1,
@@ -110,6 +111,7 @@ export const assignmentProblems = [
     }
   },
   {
+    id: 2,
     order: 2,
     assignmentId: 1,
     problemId: 2,
@@ -161,6 +163,7 @@ export const contestProblemsWithScore = [
 
 export const assignmentProblemsWithScore = [
   {
+    id: 1,
     order: 1,
     assignmentId: 1,
     problemId: 1,
@@ -174,6 +177,7 @@ export const assignmentProblemsWithScore = [
     submissionTime: null
   },
   {
+    id: 2,
     order: 2,
     assignmentId: 1,
     problemId: 2,
