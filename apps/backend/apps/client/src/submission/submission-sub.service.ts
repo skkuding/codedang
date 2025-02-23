@@ -589,17 +589,30 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       })
 
     if (isAccepted) {
-      toBeAddedScore = (
-        await this.prisma.assignmentProblem.findFirstOrThrow({
-          where: {
+      const assignmentProblem = await this.prisma.assignmentProblem.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          assignmentId_problemId: {
             assignmentId,
             problemId: submission.problemId
-          },
-          select: {
-            score: true
           }
-        })
-      ).score
+        },
+        select: {
+          id: true,
+          score: true
+        }
+      })
+      toBeAddedScore = assignmentProblem!.score
+      await this.prisma.assignmentProblemRecord.update({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          assignmentProblemId_assignmentRecordId: {
+            assignmentProblemId: assignmentProblem!.id,
+            assignmentRecordId: assignmentRecord.id
+          }
+        },
+        data: { isAccepted: true }
+      })
       isFinishTimeToBeUpdated = true
       toBeAddedAcceptedProblemNum = 1
     } else {

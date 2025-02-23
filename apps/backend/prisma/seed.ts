@@ -1409,7 +1409,6 @@ const createAssignments = async () => {
       endTime: Date
       isVisible: boolean
       isRankVisible: boolean
-      invitationCode: string | null
       enableCopyPaste: boolean
     }
   }[] = [
