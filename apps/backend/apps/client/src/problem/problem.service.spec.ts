@@ -326,8 +326,7 @@ describe('ContestProblemService', () => {
         invitationCodeExists: true,
         isJudgeResultVisible: true,
         prev: null,
-        next: null,
-        contestProblems: []
+        next: null
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
       db.submission.findMany.resolves([])
@@ -360,8 +359,7 @@ describe('ContestProblemService', () => {
         invitationCodeExists: true,
         isJudgeResultVisible: true,
         prev: null,
-        next: null,
-        contestProblems: []
+        next: null
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
       db.submission.findMany.resolves([])
@@ -409,8 +407,7 @@ describe('ContestProblemService', () => {
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
-        next: null,
-        contestProblems: []
+        next: null
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
 
@@ -433,8 +430,7 @@ describe('ContestProblemService', () => {
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
-        next: null,
-        contestProblems: []
+        next: null
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
 
@@ -460,8 +456,7 @@ describe('ContestProblemService', () => {
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
-        next: null,
-        contestProblems: []
+        next: null
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
 
@@ -490,8 +485,7 @@ describe('ContestProblemService', () => {
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
-        next: null,
-        contestProblems: []
+        next: null
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
 
@@ -535,8 +529,7 @@ describe('ContestProblemService', () => {
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
-        next: null,
-        contestProblems: []
+        next: null
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       await expect(
@@ -558,8 +551,7 @@ describe('ContestProblemService', () => {
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
-        next: null,
-        contestProblems: []
+        next: null
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       await expect(
