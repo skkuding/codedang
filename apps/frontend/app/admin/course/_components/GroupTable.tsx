@@ -96,10 +96,7 @@ export function GroupTable() {
       <DataTableRoot data={courses} columns={columns}>
         <div className="flex justify-between">
           <div className="flex gap-2">
-            <DataTableSearchBar
-              columndId="courseName"
-              className="rounded-full"
-            />
+            <DataTableSearchBar columndId="title" className="rounded-full" />
             <DataTableSemesterFilter semesters={semesters} />
           </div>
           <div className="flex gap-2">

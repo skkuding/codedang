@@ -20,6 +20,7 @@ import {
 } from '@/components/shadcn/select'
 import { CREATE_COURSE, UPDATE_COURSE } from '@/graphql/course/mutation'
 import { GET_COURSE } from '@/graphql/course/queries'
+import type { SemesterSeason } from '@/types/type'
 import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
 import type { CourseInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
@@ -77,6 +78,8 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false)
   const [prefix, setPrefix] = useState('')
   const [courseCode, setCourseCode] = useState('')
+  const currentYear = new Date().getFullYear()
+  const seasons: SemesterSeason[] = ['Spring', 'Summer', 'Fall', 'Winter']
 
   const handleUpdateRow: SubmitHandler<CourseInput> = async (data) => {
     const selectedRow = table.getSelectedRowModel().rows[0]
@@ -150,7 +153,7 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
 
         reset({
           courseTitle: data.groupName,
-          courseNum: `${prefix}${courseCode}`,
+
           classNum: data.courseInfo?.classNum,
           professor: data.courseInfo?.professor,
           semester: data.courseInfo?.semester,
@@ -160,6 +163,9 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
           office: data.courseInfo?.office,
           phoneNum: data.courseInfo?.phoneNum
         })
+        // courseNum: `${prefix}${courseCode}`,
+        setPrefix(data.courseInfo?.courseNum.substring(0, 3) ?? '')
+        setCourseCode(data.courseInfo?.courseNum.substring(3) ?? '')
 
         // 상태 업데이트 후 Dialog 열기
         setIsAlertDialogOpen(true)
@@ -261,11 +267,14 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                   <SelectValue placeholder="Choose" />
                 </SelectTrigger>
                 <SelectContent className="rounded-md border border-gray-200 bg-white shadow-md">
-                  <SelectItem value="2025-spring">2025 Spring</SelectItem>
-                  <SelectItem value="2024-winter">2024 Winter</SelectItem>
-                  <SelectItem value="2024-fall">2024 Fall</SelectItem>
-                  <SelectItem value="2024-summer">2024 Summer</SelectItem>
-                  <SelectItem value="2024-spring">2024 Spring</SelectItem>
+                  {seasons.map((season) => (
+                    <SelectItem
+                      key={`${currentYear} ${season}`}
+                      value={`${currentYear} ${season}`}
+                    >
+                      {currentYear} {season}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
