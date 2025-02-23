@@ -427,7 +427,7 @@ describe('ProblemService', () => {
       db.contest.findFirstOrThrow.resolves(exampleContest)
       db.contestProblem.findMany.resolves(exampleContestProblems)
       //when
-      const result = await service.getContestProblems(1, 1)
+      const result = await service.getContestProblems(1)
       //then
       expect(result).to.deep.equals(exampleContestProblems)
     })
@@ -439,7 +439,7 @@ describe('ProblemService', () => {
         new EntityNotExistException('record not found')
       )
       // when & then
-      await expect(service.getContestProblems(-1, 1)).to.be.rejectedWith(
+      await expect(service.getContestProblems(-1)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
@@ -608,11 +608,7 @@ describe('ProblemService', () => {
       }
       db.$transaction.resolves(exampleOrderUpdatedContestProblems)
       //when
-      const result = await service.updateContestProblemsOrder(
-        groupId,
-        contestId,
-        orders
-      )
+      const result = await service.updateContestProblemsOrder(contestId, orders)
       //then
       expect(result).to.deep.equals(exampleOrderUpdatedContestProblems)
     })
@@ -624,11 +620,7 @@ describe('ProblemService', () => {
       )
       //when & then
       await expect(
-        service.updateContestProblemsOrder(
-          -1,
-          1,
-          [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
-        )
+        service.updateContestProblemsOrder(-1, [2, 3, 4, 5, 6, 7, 8, 9, 10, 1])
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
@@ -638,7 +630,7 @@ describe('ProblemService', () => {
       db.contestProblem.findMany.resolves(exampleContestProblems)
       //when & then
       await expect(
-        service.updateContestProblemsOrder(1, 1, [2, 3, 4, 5, 6, 7, 8, 9, 10])
+        service.updateContestProblemsOrder(1, [2, 3, 4, 5, 6, 7, 8, 9, 10])
       ).to.be.rejectedWith(UnprocessableDataException)
     })
 
@@ -659,11 +651,7 @@ describe('ProblemService', () => {
       db.$transaction.rejects(new EntityNotExistException('record not found'))
       //when & then
       await expect(
-        service.updateContestProblemsOrder(
-          1,
-          1,
-          [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
-        )
+        service.updateContestProblemsOrder(1, [2, 3, 4, 5, 6, 7, 8, 9, 10, 1])
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })

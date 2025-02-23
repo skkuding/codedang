@@ -234,14 +234,14 @@ describe('ContestService', () => {
     })
   })
 
-  describe('createContestRecord', () => {
+  describe('registerContest', () => {
     let contestRecordId = -1
     const invitationCode = '123456'
     const invalidInvitationCode = '000000'
 
     it('should throw error when the invitation code does not match', async () => {
       await expect(
-        service.createContestRecord({
+        service.registerContest({
           contestId: 1,
           userId: user01Id,
           invitationCode: invalidInvitationCode
@@ -251,17 +251,17 @@ describe('ContestService', () => {
 
     it('should throw error when the contest does not exist', async () => {
       await expect(
-        service.createContestRecord({
+        service.registerContest({
           contestId: 999,
           userId: user01Id,
-          invitationCode: invitationCode
+          invitationCode
         })
       ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
     })
 
     it('should throw error when user is participated in contest again', async () => {
       await expect(
-        service.createContestRecord({
+        service.registerContest({
           contestId,
           userId: user01Id,
           invitationCode
@@ -271,7 +271,7 @@ describe('ContestService', () => {
 
     it('should throw error when contest is not ongoing', async () => {
       await expect(
-        service.createContestRecord({
+        service.registerContest({
           contestId: 8,
           userId: user01Id,
           invitationCode
@@ -280,7 +280,7 @@ describe('ContestService', () => {
     })
 
     it('should register to a contest successfully', async () => {
-      const contestRecord = await service.createContestRecord({
+      const contestRecord = await service.registerContest({
         contestId: 2,
         userId: user01Id,
         invitationCode
@@ -294,7 +294,7 @@ describe('ContestService', () => {
     })
   })
 
-  describe('deleteContestRecord', () => {
+  describe('unregisterContest', () => {
     let contestRecord: ContestRecord | { id: number } = { id: -1 }
 
     afterEach(async () => {
@@ -327,25 +327,25 @@ describe('ContestService', () => {
       })
 
       expect(
-        await service.deleteContestRecord(newlyRegisteringContestId, user01Id)
+        await service.unregisterContest(newlyRegisteringContestId, user01Id)
       ).to.deep.equal(contestRecord)
     })
 
     it('should throw error when contest does not exist', async () => {
-      await expect(
-        service.deleteContestRecord(999, user01Id)
-      ).to.be.rejectedWith(EntityNotExistException)
+      await expect(service.unregisterContest(999, user01Id)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
 
     it('should throw error when contest record does not exist', async () => {
-      await expect(
-        service.deleteContestRecord(16, user01Id)
-      ).to.be.rejectedWith(EntityNotExistException)
+      await expect(service.unregisterContest(16, user01Id)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
 
     it('should throw error when contest is ongoing', async () => {
       await expect(
-        service.deleteContestRecord(contestId, user01Id)
+        service.unregisterContest(contestId, user01Id)
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })

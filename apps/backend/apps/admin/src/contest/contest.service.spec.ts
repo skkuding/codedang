@@ -289,7 +289,7 @@ describe('ContestService', () => {
     it('should return an array of contests', async () => {
       db.contest.findMany.resolves([contestWithCount])
 
-      const res = await service.getContests(5, 0)
+      const res = await service.getContests(userId, 5, 0)
       expect(res).to.deep.equal([contestWithParticipants])
     })
   })

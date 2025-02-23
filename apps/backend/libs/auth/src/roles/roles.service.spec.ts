@@ -16,7 +16,6 @@ const user: User = {
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  canCreateContest: false,
   studentId: '0000000000',
   major: 'default',
   canCreateContest: false,
