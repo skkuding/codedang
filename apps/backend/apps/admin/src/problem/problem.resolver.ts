@@ -73,11 +73,7 @@ export class ProblemResolver {
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async uploadTestcase(
     @Context('req') req: AuthenticatedRequest,
-    @Args(
-      'problemId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      ProblemIDPipe
-    )
+    @Args('problemId', { type: () => Int }, ProblemIDPipe)
     problemId: number,
     @Args('input') input: UploadFileInput
   ) {

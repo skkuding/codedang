@@ -8,7 +8,7 @@ import {
 export class ProblemIDPipe implements PipeTransform {
   transform(value: unknown) {
     if (value == null) {
-      return null
+      throw new BadRequestException('Problem ID must be included in Query')
     } else if (typeof value === 'string' || typeof value === 'number') {
       const id = typeof value === 'string' ? parseInt(value) : value
       if (id > 0) {
