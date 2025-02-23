@@ -449,7 +449,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     const isFreezed = contest.freezeTime && updateTime < contest.freezeTime
 
     await this.prisma.$transaction(async (prisma) => {
-      // 1️⃣ contestProblemRecord upsert
       await prisma.contestProblemRecord.upsert({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -488,7 +487,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       })
 
-      // 2️⃣ contestProblemRecord 다시 조회하여 점수 합산
       const contestProblemRecords = await prisma.contestProblemRecord.findMany({
         where: {
           contestRecordId
@@ -503,7 +501,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       })
 
-      // 3️⃣ 점수 및 페널티 재계산
       const [
         scoreSum,
         submitCountPenaltySum,
@@ -528,7 +525,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         [0, 0, 0, 0, 0, 0, 0, 0]
       )
 
-      // 4️⃣ contestRecord 업데이트 데이터 생성
       const updatedData = {
         finalScore: finalScoreSum,
         finalTotalPenalty: lastPenalty
@@ -543,16 +539,11 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         })
       }
 
-      console.log('Updating contestRecord with:', updatedData)
-
-      // 5️⃣ contestRecord 업데이트
       await prisma.contestRecord.update({
         // eslint-disable-next-line @typescript-eslint/naming-convention
         where: { contestId_userId: { contestId, userId } },
         data: updatedData
       })
-
-      console.log('contestRecord updated successfully!')
     })
   }
 

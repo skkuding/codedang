@@ -104,6 +104,9 @@ const db = {
   problem: {
     update: mockFunc,
     findFirstOrThrow: mockFunc
+  },
+  $transaction: async (fn: (prisma: typeof db) => Promise<unknown>) => {
+    return fn(db)
   }
 }
 
@@ -149,6 +152,13 @@ describe('SubmissionSubscriptionService', () => {
     amqpConnection = module.get<AmqpConnection>(AmqpConnection)
     cache = module.get<Cache>(CACHE_MANAGER)
     sandbox.stub(cache, 'get').resolves([])
+    sandbox
+      .stub(db, '$transaction')
+      .callsFake(
+        async <T>(fn: (prisma: typeof db) => Promise<T>): Promise<T> => {
+          return fn(db)
+        }
+      )
   })
 
   afterEach(() => {
@@ -668,7 +678,6 @@ describe('SubmissionSubscriptionService', () => {
       expect(
         problemRecordFindManySpy.calledOnceWith({
           where: {
-            contestProblemId: contestProblem.id,
             contestRecordId: contestRecordsMock[0].id
           },
           select: {
