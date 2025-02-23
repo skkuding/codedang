@@ -11,14 +11,14 @@ export default function AssignmentDetail() {
   //   'YYYY-MM-DD HH:mm:ss'
   // )
   // const formattedEndTime = dateFormatter(data.endTime, 'YYYY-MM-DD HH:mm:ss')
-  const [timeDiff, setTimeDiff] = useState({
+  const [timeDiff] = useState({
     days: 0,
     hours: '00',
     minutes: '00',
     seconds: '00'
   })
 
-  setTimeDiff({ days: 0, hours: '00', minutes: '00', seconds: '00' })
+  // setTimeDiff({ days: 0, hours: '00', minutes: '00', seconds: '00' })
   return (
     <div>
       <div className="flex gap-2">
