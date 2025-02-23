@@ -9,8 +9,9 @@ import { expect } from 'chai'
 import { stub } from 'sinon'
 import { joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
+import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { GroupMemberService } from './user.service'
+import { GroupMemberService, UserService } from './user.service'
 
 const groupId = 2
 
@@ -119,10 +120,96 @@ const db = {
   },
   user: {
     findUnique: stub(),
-    findMany: stub()
+    findMany: stub(),
+    update: stub()
   },
   getPaginator: PrismaService.prototype.getPaginator
 }
+
+describe('UserService', () => {
+  let service: UserService
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UserService,
+        { provide: PrismaService, useValue: db },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => []
+          })
+        }
+      ]
+    }).compile()
+
+    service = module.get<UserService>(UserService)
+  })
+
+  it('should be defined', () => {
+    expect(service).to.be.ok
+  })
+
+  describe('getUser', () => {
+    it('should return a user if found', async () => {
+      db.user.findUnique.resolves(user1)
+      const result = await service.getUser(user1.id)
+      expect(result).to.deep.equal(user1)
+    })
+
+    it('should throw an error if user not found', async () => {
+      db.user.findUnique.resolves(null)
+      await expect(service.getUser(user1.id)).to.be.rejectedWith(
+        EntityNotExistException,
+        'User'
+      )
+    })
+  })
+
+  describe('getUsers', () => {
+    it('should return a list of users', async () => {
+      db.user.findMany.resolves([user1, user2, user3])
+      const result = await service.getUsers({ cursor: null, take: 10 })
+      expect(result).to.deep.equal([user1, user2, user3])
+    })
+  })
+
+  describe('getUserByEmailOrStudentId', () => {
+    it('should return users by email', async () => {
+      db.user.findMany.resolves([user1])
+      const result = await service.getUserByEmailOrStudentId(
+        user1.email,
+        undefined
+      )
+      expect(result).to.deep.equal([user1])
+    })
+
+    it('should return users by studentId', async () => {
+      db.user.findMany.resolves([user2])
+      const result = await service.getUserByEmailOrStudentId(
+        undefined,
+        user2.studentId
+      )
+      expect(result).to.deep.equal([user2])
+    })
+  })
+
+  describe('updateCanCreateCourse', () => {
+    it('should update canCreateCourse flag', async () => {
+      db.user.update.resolves({
+        id: user1.id,
+        role: user1.role,
+        canCreateCourse: true
+      })
+      const result = await service.updateCanCreateCourse(user1.id, true)
+      expect(result).to.deep.equal({
+        id: user1.id,
+        role: user1.role,
+        canCreateCourse: true
+      })
+    })
+  })
+})
 
 describe('GroupMemberService', () => {
   let service: GroupMemberService
