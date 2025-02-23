@@ -70,9 +70,8 @@ export function CreateCourseButton() {
   const seasons: SemesterSeason[] = ['Spring', 'Summer', 'Fall', 'Winter']
 
   const onSubmit: SubmitHandler<CourseInput> = async (data) => {
-    console.log('Submitting...', data)
     try {
-      const { data: response, errors } = await createCourse({
+      const { data: errors } = await createCourse({
         variables: {
           input: {
             courseTitle: data.courseTitle,
@@ -89,17 +88,17 @@ export function CreateCourseButton() {
           }
         }
       })
-      console.log('createCourse response:', response)
 
       if (errors) {
+        //TODO: error handling
         console.error('GraphQL Errors:', errors)
         toast.error('Failed to create course')
         return
       }
 
       toast.success('Course created successfully!')
-      // setIsAlertDialogOpen(false)
     } catch (error) {
+      //TODO: error handling
       console.error('Error creating course:', error)
       toast.error('An unexpected error occurred')
     }
@@ -267,7 +266,6 @@ export function CreateCourseButton() {
                   {...register('email')}
                   type="emailemail"
                   className="w-full rounded border p-2"
-                  // defaultValue=""
                 />
                 {errors.email && (
                   <ErrorMessage message={errors.email.message} />
@@ -279,7 +277,6 @@ export function CreateCourseButton() {
                   {...register('phoneNum')}
                   type="text"
                   className="w-full rounded border p-2"
-                  // defaultValue=""
                 />
                 {errors.phoneNum && <ErrorMessage />}
               </div>
@@ -289,7 +286,6 @@ export function CreateCourseButton() {
                   {...register('office')}
                   type="text"
                   className="w-full rounded border p-2"
-                  // defaultValue=""
                 />
                 {errors.office && <ErrorMessage />}
               </div>
@@ -299,7 +295,6 @@ export function CreateCourseButton() {
                   {...register('website')}
                   type="text"
                   className="w-full rounded border p-2"
-                  // defaultValue=""
                 />
                 {errors.website && (
                   <ErrorMessage message={errors.website.message} />

@@ -15,6 +15,7 @@ import {
 } from '@/components/shadcn/dropdown-menu'
 import { cn, fetcherWithAuth, safeFetcherWithAuth } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
+import type { Course } from '@/types/type'
 import { LogOut, UserRoundCog, ChevronDown } from 'lucide-react'
 import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
@@ -29,25 +30,6 @@ import { UpdateInformation } from './UpdateInformation'
 interface HeaderAuthPanelProps {
   session: Session | null
   group?: 'default' | 'editor'
-}
-
-interface Course {
-  id: number
-  groupName: string
-  memberNum: number
-  isGroupLeader: boolean
-  courseInfo: {
-    groupId: number
-    courseNum: string
-    classNum: number
-    professor: string
-    semester: string
-    email: string
-    website: string
-    office: string | null
-    phoneNum: string | null
-    week: number
-  }
 }
 
 export function HeaderAuthPanel({
@@ -88,6 +70,7 @@ export function HeaderAuthPanel({
         const hasRole = response.some((course) => course.isGroupLeader)
         setHasAnyGroupLeaderRole(hasRole)
       } catch (error) {
+        //TODO: error handling
         console.error('Error fetching group leader role:', error)
       }
     }

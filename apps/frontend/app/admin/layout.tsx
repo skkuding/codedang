@@ -1,16 +1,10 @@
 import { Separator } from '@/components/shadcn/separator'
 import { auth } from '@/libs/auth'
 import { safeFetcherWithAuth } from '@/libs/utils'
-import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import type { Course } from '@/types/type'
-import type { Session } from 'next-auth'
-import Image from 'next/image'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { ClientApolloProvider } from './_components/ApolloProvider'
-import { GroupAdminSideBar } from './_components/GroupAdminSideBar'
 import { ManagementSidebar } from './_components/MangementSidebar'
-import { SideBar } from './_components/SideBar'
 
 async function fetchGroupLeaderRole() {
   try {
