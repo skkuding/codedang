@@ -17,6 +17,7 @@ const assignmentSelectOption = {
   invitationCode: true,
   enableCopyPaste: true,
   isJudgeResultVisible: true,
+  week: true,
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
     select: {

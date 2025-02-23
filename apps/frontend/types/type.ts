@@ -264,22 +264,40 @@ export interface SettingsFormat {
   studentId: string
 }
 
-export interface RawCourse {
-  id: number
-  groupName: string
-  description: string
-  memberNum: number
-  isGroupLeader: boolean
+export interface CourseInfo {
+  groupId: number
+  courseNum: string
+  classNum: number
+  professor: string
+  semester: string
+  email: string
+  website: string
+  office: string | null
+  phoneNum: string | null
+  week: number
 }
 
 export interface Course {
   id: number
   groupName: string
   description: string
+  courseInfo: {
+    courseNum: string
+    classNum: number
+    professor: string
+    semester: string
+    week: number
+    email: string | null
+    phoneNum: string | null
+    office: string | null
+    website: string | null
+  }
+  isGroupLeader: boolean
+  isJoined: boolean
+}
+
+export type JoinedCourse = Omit<Course, 'isJoined'> & {
   memberNum: number
-  status: CourseStatus
-  semester: string
-  professor: string
 }
 
 export interface CourseNotice {

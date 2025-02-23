@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/shadcn/button'
-import { ovalIconColors, textColors } from '@/libs/constants'
+import { contestOvalIconColors, contestTextColors } from '@/libs/constants'
 import { cn, fetcher } from '@/libs/utils'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
@@ -98,7 +98,7 @@ export function ContestMainBanner() {
               <div className="flex w-[448px] flex-col justify-center gap-5 pl-3 text-4xl font-bold">
                 <p
                   className="text-[22px] font-medium leading-[130%]"
-                  style={{ color: textColors[slide.type] }}
+                  style={{ color: contestTextColors[slide.type] }}
                 >
                   {slide.subDescription}
                 </p>
@@ -120,8 +120,8 @@ export function ContestMainBanner() {
                     slide.bgcolor
                   )}
                   style={{
-                    borderColor: textColors[slide.type],
-                    color: textColors[slide.type]
+                    borderColor: contestTextColors[slide.type],
+                    color: contestTextColors[slide.type]
                   }}
                   onClick={() =>
                     router.push(`/contest/${data?.fastestUpcomingContestId}`)
@@ -157,22 +157,22 @@ export function ContestMainBanner() {
               <OvalIcon
                 position="-left-[18%] top-[38%] h-[170px] w-[600px]"
                 transform="rotate(-35deg)"
-                backgroundColor={ovalIconColors[slide.type].leftup}
+                backgroundColor={contestOvalIconColors[slide.type].leftup}
               />
               <OvalIcon
                 position="-bottom-7 -left-[4%] h-[100px] w-[315px]"
                 transform="rotate(-35deg)"
-                backgroundColor={ovalIconColors[slide.type].leftdown}
+                backgroundColor={contestOvalIconColors[slide.type].leftdown}
               />
               <OvalIcon
                 position="right-[10%] top-0 h-[225px] w-[750px]"
                 transform="rotate(-30deg)"
-                backgroundColor={ovalIconColors[slide.type].rightup}
+                backgroundColor={contestOvalIconColors[slide.type].rightup}
               />
               <OvalIcon
                 position="-bottom-20 -right-[25%] rounded-none h-[350px] w-[1200px]"
                 transform="rotate(-30deg)"
-                backgroundColor={ovalIconColors[slide.type].rightdown}
+                backgroundColor={contestOvalIconColors[slide.type].rightdown}
               />
             </div>
           </div>

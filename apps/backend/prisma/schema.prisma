@@ -302,7 +302,7 @@ model Assignment {
   id                   Int      @id @default(autoincrement())
   createdBy            User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById          Int?     @map("created_by_id")
-  group                Group    @relation(fields: [groupId], references: [id])
+  group                Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId              Int      @map("group_id")
   week                 Int      @default(1)
   title                String
@@ -483,7 +483,7 @@ model Workbook {
   id          Int      @id @default(autoincrement())
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?     @map("created_by_id")
-  group       Group    @relation(fields: [groupId], references: [id])
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId     Int      @map("group_id")
   title       String
   description String
