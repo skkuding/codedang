@@ -9,7 +9,7 @@ import {
   WhitelistService
 } from './group.service'
 import { CourseInput } from './model/group.input'
-import { FindGroup } from './model/group.output'
+import { DuplicateCourse, FindGroup } from './model/group.output'
 
 @Resolver(() => Group)
 export class GroupResolver {
@@ -38,6 +38,14 @@ export class GroupResolver {
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
   ) {
     return await this.groupService.deleteGroup(id, GroupType.Course, req.user)
+  }
+
+  @Mutation(() => DuplicateCourse)
+  async duplicateCourse(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
+  ) {
+    return await this.groupService.duplicateCourse(groupId, req.user.id)
   }
 
   @Query(() => [FindGroup])

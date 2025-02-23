@@ -11,6 +11,7 @@ const GET_ASSIGNMENT = gql(`
       endTime
       startTime
       title
+      week
     }
   }
 `)
@@ -26,6 +27,7 @@ const GET_ASSIGNMENTS = gql(`
       participants
       isRankVisible
       isVisible
+      week
     }
   }
 `)

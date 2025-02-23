@@ -52,10 +52,9 @@ export class SubmissionSubscriptionService implements OnModuleInit {
             raw.properties.type === RUN_MESSAGE_TYPE ||
             raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
           ) {
-            const testRequestedUserId = res.submissionId
             await this.handleRunMessage(
               res,
-              testRequestedUserId,
+              res.submissionId,
               raw.properties.type === USER_TESTCASE_MESSAGE_TYPE ? true : false
             )
             return

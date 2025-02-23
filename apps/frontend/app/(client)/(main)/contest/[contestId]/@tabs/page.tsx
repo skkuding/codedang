@@ -14,10 +14,12 @@ import calendarIcon from '@/public/icons/calendar.svg'
 import type { Contest, ContestStatus, ProblemDataTop } from '@/types/type'
 import Image from 'next/image'
 import { BiggerImageButton } from './_components/BiggerImageButton'
+import { GotoContestListButton } from './_components/GotoContestListButton'
+import { PrevNextProblemButton } from './_components/PrevNextProblemButton'
 import { RegisterButton } from './_components/RegisterButton'
 import { RenderProblemList } from './_components/RenderProblemList'
 
-interface ContestTop {
+export interface ContestTop {
   id: number
   title: string
   description: string
@@ -105,6 +107,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
   const problemFormat = data.problemFormat
   const benefits = data.benefits
   const description = data.description
+  const prev = true
 
   return (
     <div>
@@ -131,35 +134,35 @@ export default async function ContestTop({ params }: ContestTopProps) {
             height={312}
             className="h-[312px] w-[234px] rounded-xl border object-contain"
           />
-          <div className="absolute bottom-3 right-3">
+          <div className="absolute bottom-3 right-3 cursor-pointer">
             <BiggerImageButton url={imageUrl} />
           </div>
         </div>
         <div className="mt-[34px] flex h-[312px] flex-col justify-between">
           <div className="flex flex-col gap-[14px]">
             <ContestSummary
-              buttonname="참여 대상"
+              buttonName="참여 대상"
               summary={participationTarget ? participationTarget : '없음'}
             />
             <ContestSummary
-              buttonname="진행 방식"
+              buttonName="진행 방식"
               summary={competitionMethod ? competitionMethod : '없음'}
             />
             <ContestSummary
-              buttonname="순위 산정"
+              buttonName="순위 산정"
               summary={rankingMethod ? rankingMethod : '없음'}
             />
             <ContestSummary
-              buttonname="문제 형태"
+              buttonName="문제 형태"
               summary={problemFormat ? problemFormat : '없음'}
             />
             <ContestSummary
-              buttonname="참여 혜택"
+              buttonName="참여 혜택"
               summary={benefits ? benefits : '없음'}
             />
           </div>
 
-          {session && state !== 'Finished' && (
+          {session && state !== 'Finished' && state !== 'Upcoming' && (
             <div className="h-[48px] w-[940px]">
               {data.isRegistered ? (
                 <Button className="text pointer-events-none h-[48px] w-[940px] rounded-[1000px] bg-[#80808014] text-[#3333334d]">
@@ -179,7 +182,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
       </div>
       <Accordion type="single" collapsible className="mt-16 w-[1208px]">
         <AccordionItem value="item-1" className="border-b-0">
-          <AccordionTrigger className="w-[74px] border-t-[1.5px] border-[#a2a2a240] text-lg font-semibold">
+          <AccordionTrigger className="h-[74px] w-[74px] border-t-[1.5px] border-[#a2a2a240] text-lg font-semibold">
             More Description
           </AccordionTrigger>
           <AccordionContent className="pb-8 text-base text-[#00000080]">
@@ -189,23 +192,30 @@ export default async function ContestTop({ params }: ContestTopProps) {
       </Accordion>
       <Accordion type="single" collapsible className="w-[1208px]">
         <AccordionItem value="item-1" className="border-b-0">
-          <AccordionTrigger className="w-[74px] border-t-[1.5px] border-[#a2a2a240] text-lg font-semibold">
+          <AccordionTrigger className="h-[74px] w-[74px] border-t-[1.5px] border-[#a2a2a240] text-lg font-semibold">
             Problem List
           </AccordionTrigger>
-          <AccordionContent className="pt-[22px] text-base text-[#00000080]">
-            {RenderProblemList(state, data.isRegistered, problemData)}
+          <AccordionContent className="mb-10 pb-0 pt-[3px] text-base text-[#00000080]">
+            <RenderProblemList
+              state={state}
+              isRegistered={data.isRegistered}
+              problemData={problemData}
+            />
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+      <PrevNextProblemButton contestData={data} prev={prev} />
+      <PrevNextProblemButton contestData={data} prev={!prev} />
+      <GotoContestListButton />
     </div>
   )
 }
 
 function ContestSummary({
-  buttonname,
+  buttonName,
   summary
 }: {
-  buttonname: string
+  buttonName: string
   summary: string
 }) {
   return (
@@ -213,10 +223,10 @@ function ContestSummary({
       <Button
         variant={'outline'}
         className={cn(
-          'mr-[14px] h-7 w-[87px] rounded-[14px] px-[17px] py-1 text-sm font-medium md:block'
+          'pointer-events-none mr-[14px] h-7 w-[87px] rounded-[14px] px-[17px] py-1 text-sm font-medium md:block'
         )}
       >
-        {buttonname}
+        {buttonName}
       </Button>
       <div className="text-[#333333e6] md:max-w-[838px]">{summary}</div>
     </div>

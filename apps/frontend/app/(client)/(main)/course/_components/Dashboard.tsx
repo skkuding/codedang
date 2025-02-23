@@ -81,6 +81,7 @@ export function Dashboard({ session }: { session?: Session | null }) {
 
   return (
     <>
+      {/* <DashboardCalendar data={calendarData} /> */}
       <div className="flex rounded-lg border border-neutral-300">
         <div className="flex-[2] border-r border-neutral-300 p-8">
           <h1 className="text-2xl font-bold">내일 할 일!</h1>
@@ -138,7 +139,7 @@ export function Dashboard({ session }: { session?: Session | null }) {
         </div>
       </div>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="w-[1280px] max-w-[1280px]">
+        <DialogContent className="max-w-[1280px]">
           <DashboardCalendar data={calendarData} />
         </DialogContent>
       </Dialog>

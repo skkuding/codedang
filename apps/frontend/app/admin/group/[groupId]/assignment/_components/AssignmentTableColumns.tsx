@@ -28,6 +28,7 @@ export interface DataTableAssignment {
   participants: number
   isVisible: boolean
   isRankVisible: boolean
+  week: number
 }
 
 function VisibleCell({ row }: { row: Row<DataTableAssignment> }) {
@@ -65,7 +66,8 @@ function VisibleCell({ row }: { row: Row<DataTableAssignment> }) {
                 endTime: row.original.endTime,
                 description: row.original.description,
                 isVisible: row.original.isVisible,
-                isRankVisible: row.original.isRankVisible
+                isRankVisible: row.original.isRankVisible,
+                week: row.original.week
               }
             }
           })
