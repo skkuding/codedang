@@ -50,7 +50,7 @@ export function GroupTable() {
     code: course.courseInfo?.courseNum ?? '',
     classNum: Number(course.courseInfo?.classNum ?? 0),
     semester: course.courseInfo?.semester ?? '',
-    studentCount: 0,
+    studentCount: course.memberNum,
     visible: true
   }))
 

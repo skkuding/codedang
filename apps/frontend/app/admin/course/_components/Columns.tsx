@@ -43,7 +43,11 @@ export const columns: ColumnDef<DataTableCourse>[] = [
   },
   {
     accessorKey: 'title',
-    header: () => <p className="text-left">Name</p>,
+    header: ({ column }) => (
+      <div className="flex justify-center">
+        <DataTableColumnHeader column={column} title="Course Title" />
+      </div>
+    ),
     cell: ({ row }) => (
       <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
         {row.getValue('title')}
@@ -52,7 +56,11 @@ export const columns: ColumnDef<DataTableCourse>[] = [
   },
   {
     accessorKey: 'professor',
-    header: () => <p className="text-left">Professor</p>,
+    header: ({ column }) => (
+      <div className="flex justify-center">
+        <DataTableColumnHeader column={column} title="Professor" />
+      </div>
+    ),
     cell: ({ row }) => (
       <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
         {row.getValue('professor')}
@@ -96,7 +104,11 @@ export const columns: ColumnDef<DataTableCourse>[] = [
   },
   {
     accessorKey: 'studentCount',
-    header: 'Members',
+    header: ({ column }) => (
+      <div className="flex justify-center">
+        <DataTableColumnHeader column={column} title="Members" />
+      </div>
+    ),
     cell: ({ row }) => (
       <p className="whitespace-nowrapfont-medium max-w-[700px] overflow-hidden text-ellipsis">
         {row.getValue('studentCount')}

@@ -78,6 +78,8 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false)
   const [prefix, setPrefix] = useState('')
   const [courseCode, setCourseCode] = useState('')
+  const [semester, setSemester] = useState('')
+  const [week, setWeek] = useState(0)
   const currentYear = new Date().getFullYear()
   const seasons: SemesterSeason[] = ['Spring', 'Summer', 'Fall', 'Winter']
 
@@ -157,6 +159,8 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
         console.log('Updated Course Data:', data)
         setPrefix(data.courseInfo?.courseNum.substring(0, 3) ?? '')
         setCourseCode(data.courseInfo?.courseNum.substring(3) ?? '')
+        setSemester(data.courseInfo?.semester ?? '')
+        setWeek(data.courseInfo?.week ?? 0)
         reset({
           courseTitle: data.groupName,
           courseNum: `${prefix}${courseCode}`,
@@ -278,7 +282,7 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
               </div>
               <Select
                 onValueChange={(value) => setValue('semester', value)} // 선택값을 form 상태에 저장
-                // value={selectedSemester} // 현재 선택된 값
+                defaultValue={semester.toString()}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Choose" />
@@ -309,6 +313,7 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                   const parsedWeekCount = parseInt(weekCount, 10)
                   setValue('week', parsedWeekCount)
                 }}
+                defaultValue={week.toString()}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Choose" />

@@ -12,6 +12,7 @@ const GET_COURSES_USER_LEAD = gql(`
         professor
         semester
       }
+      memberNum
     }
   }
 `)
