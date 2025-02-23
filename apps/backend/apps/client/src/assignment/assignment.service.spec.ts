@@ -62,6 +62,7 @@ const ongoingAssignments = [
     isJudgeResultVisible: true,
     startTime: now.add(-1, 'day').toDate(),
     endTime: now.add(1, 'day').toDate(),
+    week: 1,
     participants: 1,
     enableCopyPaste: true
   }
@@ -76,6 +77,7 @@ const upcomingAssignments = [
     isJudgeResultVisible: true,
     startTime: now.add(1, 'day').toDate(),
     endTime: now.add(2, 'day').toDate(),
+    week: 1,
     participants: 1,
     enableCopyPaste: true
   }
@@ -90,6 +92,7 @@ const finishedAssignments = [
     isJudgeResultVisible: true,
     startTime: now.add(-2, 'day').toDate(),
     endTime: now.add(-1, 'day').toDate(),
+    week: 1,
     participants: 1,
     enableCopyPaste: true
   }

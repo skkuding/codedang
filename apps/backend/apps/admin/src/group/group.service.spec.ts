@@ -44,21 +44,34 @@ const courseInput = {
   groupType: GroupType.Course
 }
 
+const courseInfo = {
+  groupId: 1,
+  courseNum: 'SWE3033',
+  classNum: 42,
+  professor: '김우주',
+  semester: '2025 Spring',
+  week: 16,
+  email: 'johndoe@example.com',
+  website: 'https://example.com',
+  office: 'Room 301',
+  phoneNum: '010-3333-2222'
+}
+
 const group = {
-  id: faker.number.int(),
+  id: 1,
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
   userGroup: [
     {
       userId: faker.number.int(),
-      groupId: faker.number.int(),
+      groupId: 1,
       isGroupLeader: true,
       createTime: faker.date.past(),
       updateTime: faker.date.past()
     },
     {
       userId: faker.number.int(),
-      groupId: faker.number.int(),
+      groupId: 1,
       isGroupLeader: false,
       createTime: faker.date.past(),
       updateTime: faker.date.past()
@@ -82,7 +95,8 @@ const group = {
       groupId: faker.number.int(),
       studentId: faker.string.numeric()
     }
-  ]
+  ],
+  courseInfo
 } satisfies Group
 
 const { userGroup, ...simpleGroup } = group
@@ -111,6 +125,7 @@ const userWithOutCanCreate: User = {
 const db = {
   group: {
     findUnique: stub(),
+    findUniqueOrThrow: stub(),
     findFirst: stub(),
     findMany: stub().resolves([group]),
     create: stub().resolves(group),
@@ -125,12 +140,25 @@ const db = {
   user: {
     findUnique: stub()
   },
+
   groupWhitelist: {
     findMany: stub(),
     createMany: stub(),
     deleteMany: stub()
   },
-  getPaginator: PrismaService.prototype.getPaginator
+  assignment: {
+    create: stub(),
+    findFirst: stub()
+  },
+  assignmentProblem: {
+    create: stub(),
+    findMany: stub()
+  },
+  getPaginator: PrismaService.prototype.getPaginator,
+  $transaction: stub().callsFake(async (callback) => {
+    // callback으로 스텁 db 객체를 넘겨주거나 원하는 로직을 수행
+    return callback(db)
+  })
 }
 
 describe('GroupService', () => {
@@ -286,6 +314,88 @@ describe('GroupService', () => {
       await expect(
         service.deleteGroup(groupId, GroupType.Course, userReq)
       ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+  })
+
+  describe('duplicateCourse', () => {
+    const userReq = new AuthenticatedUser(userId, user.username)
+    userReq.role = Role.User
+
+    it('should throw NotFoundException if user does not exist', async () => {
+      db.user.findUnique.resolves(null)
+
+      await expect(service.duplicateCourse(groupId, userId)).to.be.rejectedWith(
+        NotFoundException,
+        'User not found'
+      )
+    })
+
+    it('should throw ForbiddenAccessException if user cannot create course', async () => {
+      db.user.findUnique.resolves({ canCreateCourse: false })
+
+      await expect(service.duplicateCourse(groupId, userId)).to.be.rejectedWith(
+        ForbiddenAccessException,
+        'No Access to create course'
+      )
+    })
+
+    it('should throw UnprocessableDataException if group is not a course', async () => {
+      db.user.findUnique.resolves({ canCreateCourse: true })
+      db.group.findUniqueOrThrow.resolves({ courseInfo: null })
+
+      await expect(service.duplicateCourse(groupId, userId)).to.be.rejectedWith(
+        UnprocessableDataException,
+        'Invalid group ID for a course'
+      )
+    })
+
+    it('should duplicate course successfully', async () => {
+      db.user.findUnique.resolves({ canCreateCourse: true })
+      const groupWithAssignment = {
+        ...group,
+        assignment: [{ id: 999 }, { id: 1000 }]
+      }
+
+      db.assignmentProblem.findMany.resolves([
+        { order: 1, problemId: 1, score: 100 }
+      ])
+      db.group.findUniqueOrThrow.resolves(groupWithAssignment)
+      db.group.create.resolves(groupWithAssignment)
+
+      db.assignment.findFirst.onFirstCall().resolves({
+        id: 999,
+        groupId,
+        startTime: new Date(Date.now() - 1000),
+        endTime: new Date(Date.now() + 1000),
+        createTime: new Date(),
+        updateTime: new Date(),
+        title: 'Original Assignment'
+      })
+
+      db.assignment.findFirst.onSecondCall().resolves({
+        id: 1000,
+        groupId,
+        startTime: new Date(Date.now() - 1000),
+        endTime: new Date(Date.now() + 1000),
+        createTime: new Date(),
+        updateTime: new Date(),
+        title: 'Original Assignment'
+      })
+
+      db.assignment.create.onFirstCall().resolves({
+        id: 999
+      })
+      db.assignment.create.onSecondCall().resolves({
+        id: 1000
+      })
+
+      const result = await service.duplicateCourse(groupId, userId)
+
+      expect(result).to.deep.equal({
+        duplicatedCourse: groupWithAssignment,
+        originAssignments: [999, 1000],
+        copiedAssignments: [999, 1000]
+      })
     })
   })
 })
