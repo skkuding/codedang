@@ -1,5 +1,7 @@
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { auth } from '@/libs/auth'
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
+import { ErrorBoundary } from '@suspensive/react'
 import { AssignmentTabs } from './_components/AssignmentTabs'
 
 interface AssignmentDetailProps {
@@ -20,9 +22,9 @@ export default async function Layout({ params, tabs }: AssignmentDetailProps) {
 
   if (res.ok) {
     return (
-      <article>
+      <article className="flex flex-col gap-12 p-8">
         <AssignmentTabs assignmentId={assignmentId} courseId={courseId} />
-        {tabs}
+        <ErrorBoundary fallback={FetchErrorFallback}>{tabs}</ErrorBoundary>
       </article>
     )
   }
