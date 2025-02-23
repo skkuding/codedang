@@ -19,6 +19,7 @@ import {
   SelectValue
 } from '@/components/shadcn/select'
 import { CREATE_COURSE } from '@/graphql/course/mutation'
+import type { SemesterSeason } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import type { CourseInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
@@ -65,6 +66,8 @@ export function CreateCourseButton<TData extends { id: number }, TPromise>() {
   const [prefix, setPrefix] = useState('')
   const [courseCode, setCourseCode] = useState('')
   const [createCourse] = useMutation(CREATE_COURSE)
+  const currentYear = new Date().getFullYear()
+  const seasons: SemesterSeason[] = ['Spring', 'Summer', 'Fall', 'Winter']
 
   const onSubmit: SubmitHandler<CourseInput> = async (data) => {
     console.log('Submitting...', data)
@@ -205,23 +208,21 @@ export function CreateCourseButton<TData extends { id: number }, TPromise>() {
               </div>
               <Select
                 onValueChange={(value) => {
-                  const year = value.split('-')[0]
-                  const season = value.split('-')[1]
-                  const capitalizedSeason =
-                    season.charAt(0).toUpperCase() + season.slice(1)
-                  setValue('semester', `${year} ${capitalizedSeason}`)
-                  console.log(`${year} ${capitalizedSeason}`)
+                  setValue('semester', value)
                 }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Choose" />
                 </SelectTrigger>
                 <SelectContent className="rounded-md border border-gray-200 bg-white shadow-md">
-                  <SelectItem value="2025-spring">2025 Spring</SelectItem>
-                  <SelectItem value="2024-winter">2024 Winter</SelectItem>
-                  <SelectItem value="2024-fall">2024 Fall</SelectItem>
-                  <SelectItem value="2024-summer">2024 Summer</SelectItem>
-                  <SelectItem value="2024-spring">2024 Spring</SelectItem>
+                  {seasons.map((season) => (
+                    <SelectItem
+                      key={`${currentYear} ${season}`}
+                      value={`${currentYear} ${season}`}
+                    >
+                      {currentYear} {season}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
