@@ -19,7 +19,7 @@ import {
   PrismaTestService,
   type FlatTransactionClient
 } from '@libs/prisma'
-import { ContestService, type ContestResult } from './contest.service'
+import { ContestService } from './contest.service'
 
 const contestId = 1
 const user01Id = 4
@@ -51,65 +51,65 @@ const contest = {
   invitationCode: '123456'
 } satisfies Contest
 
-const ongoingContests = [
-  {
-    id: contest.id,
-    title: contest.title,
-    posterUrl: contest.posterUrl,
-    participationTarget: contest.participationTarget,
-    competitionMethod: contest.competitionMethod,
-    rankingMethod: contest.rankingMethod,
-    problemFormat: contest.problemFormat,
-    benefits: contest.benefits,
-    invitationCode: 'test',
-    isJudgeResultVisible: true,
-    startTime: now.add(-1, 'day').toDate(),
-    endTime: now.add(1, 'day').toDate(),
-    participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
-  }
-] satisfies Partial<ContestResult>[]
+// const ongoingContests = [
+//   {
+//     id: contest.id,
+//     title: contest.title,
+//     posterUrl: contest.posterUrl,
+//     participationTarget: contest.participationTarget,
+//     competitionMethod: contest.competitionMethod,
+//     rankingMethod: contest.rankingMethod,
+//     problemFormat: contest.problemFormat,
+//     benefits: contest.benefits,
+//     invitationCode: 'test',
+//     isJudgeResultVisible: true,
+//     startTime: now.add(-1, 'day').toDate(),
+//     endTime: now.add(1, 'day').toDate(),
+//     participants: 1,
+//     enableCopyPaste: true,
+//     contestProblem: []
+//   }
+// ] satisfies Partial<ContestResult>[]
 
-const upcomingContests = [
-  {
-    id: contest.id + 6,
-    title: contest.title,
-    posterUrl: null,
-    participationTarget: null,
-    competitionMethod: null,
-    rankingMethod: contest.rankingMethod,
-    problemFormat: contest.problemFormat,
-    benefits: contest.benefits,
-    invitationCode: 'test',
-    isJudgeResultVisible: true,
-    startTime: now.add(1, 'day').toDate(),
-    endTime: now.add(2, 'day').toDate(),
-    participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
-  }
-] satisfies Partial<ContestResult>[]
+// const upcomingContests = [
+//   {
+//     id: contest.id + 6,
+//     title: contest.title,
+//     posterUrl: null,
+//     participationTarget: null,
+//     competitionMethod: null,
+//     rankingMethod: contest.rankingMethod,
+//     problemFormat: contest.problemFormat,
+//     benefits: contest.benefits,
+//     invitationCode: 'test',
+//     isJudgeResultVisible: true,
+//     startTime: now.add(1, 'day').toDate(),
+//     endTime: now.add(2, 'day').toDate(),
+//     participants: 1,
+//     enableCopyPaste: true,
+//     contestProblem: []
+//   }
+// ] satisfies Partial<ContestResult>[]
 
-const finishedContests = [
-  {
-    id: contest.id + 1,
-    title: contest.title,
-    posterUrl: contest.posterUrl,
-    participationTarget: contest.participationTarget,
-    competitionMethod: contest.competitionMethod,
-    rankingMethod: null,
-    problemFormat: null,
-    benefits: null,
-    invitationCode: null,
-    isJudgeResultVisible: true,
-    startTime: now.add(-2, 'day').toDate(),
-    endTime: now.add(-1, 'day').toDate(),
-    participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
-  }
-] satisfies Partial<ContestResult>[]
+// const finishedContests = [
+//   {
+//     id: contest.id + 1,
+//     title: contest.title,
+//     posterUrl: contest.posterUrl,
+//     participationTarget: contest.participationTarget,
+//     competitionMethod: contest.competitionMethod,
+//     rankingMethod: null,
+//     problemFormat: null,
+//     benefits: null,
+//     invitationCode: null,
+//     isJudgeResultVisible: true,
+//     startTime: now.add(-2, 'day').toDate(),
+//     endTime: now.add(-1, 'day').toDate(),
+//     participants: 1,
+//     enableCopyPaste: true,
+//     contestProblem: []
+//   }
+// ] satisfies Partial<ContestResult>[]
 
 describe('ContestService', () => {
   let service: ContestService

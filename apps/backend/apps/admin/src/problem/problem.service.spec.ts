@@ -580,7 +580,6 @@ describe('ProblemService', () => {
     })
     it('should return order-updated ContestProblems', async () => {
       //given
-      const groupId = 1
       const contestId = 1
       const orders = [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
       const exampleContestProblemsToBeUpdated = exampleContestProblems.toSorted(

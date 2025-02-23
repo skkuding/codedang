@@ -1,7 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common'
 import { Contest, ResultStatus, Submission } from '@generated'
-import { Role, type ContestProblem } from '@prisma/client'
+import { ContestRole, Role, type ContestProblem } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import {
   PUBLICIZING_REQUEST_EXPIRE_TIME,
@@ -66,7 +66,10 @@ export class ContestService {
           ? {
               userContest: {
                 some: {
-                  userId
+                  userId,
+                  role: {
+                    in: ['Admin', 'Manager', 'Reviewer']
+                  }
                 }
               }
             }
@@ -138,11 +141,23 @@ export class ContestService {
     }
 
     try {
-      return await this.prisma.contest.create({
-        data: {
-          createdById: userId,
-          ...contest
-        }
+      return await this.prisma.$transaction(async (tx) => {
+        const createdContest = await tx.contest.create({
+          data: {
+            createdById: userId,
+            ...contest
+          }
+        })
+
+        await tx.userContest.create({
+          data: {
+            userId,
+            contestId: createdContest.id,
+            role: ContestRole.Admin
+          }
+        })
+
+        return createdContest
       })
     } catch (error) {
       throw new UnprocessableDataException(error.message)

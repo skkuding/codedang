@@ -7,7 +7,6 @@ import { expect } from 'chai'
 import * as chai from 'chai'
 import chaiExclude from 'chai-exclude'
 import * as sinon from 'sinon'
-import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException
