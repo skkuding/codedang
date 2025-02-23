@@ -25,7 +25,6 @@ const startTime = faker.date.past()
 const endTime = faker.date.future()
 const createTime = faker.date.past()
 const updateTime = faker.date.past()
-const invitationCode = '123456'
 const problemIdsWithScore = {
   problemId,
   score: 10
@@ -64,7 +63,6 @@ const assignmentWithCount = {
   enableCopyPaste: true,
   createTime,
   updateTime,
-  invitationCode,
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
     assignmentRecord: 10
