@@ -74,7 +74,7 @@ describe('GroupService', () => {
 
   describe('getCourse', () => {
     it('should return courseData for join when user is not joined to a group', async () => {
-      const user01Id = 4
+      const user01Id = 7
       const groupId = 3
       const res = await service.getCourse(groupId, user01Id)
 
@@ -88,7 +88,7 @@ describe('GroupService', () => {
     })
 
     it('should return groupData when user is joined to a group', async () => {
-      const user01Id = 4
+      const user01Id = 7
       const groupId = 2
 
       const res = await service.getCourse(groupId, user01Id)
@@ -114,7 +114,7 @@ describe('GroupService', () => {
     })
 
     it('should throw PrismaClientKnownRequestError when group not exists', async () => {
-      const user01Id = 4
+      const user01Id = 7
       const groupId = 99999
 
       await expect(service.getCourse(groupId, user01Id)).to.be.rejectedWith(
@@ -126,7 +126,7 @@ describe('GroupService', () => {
   describe('getCourseByInvitation', () => {
     it('should call getCourse', async () => {
       const groupId = 2
-      const userId = 4
+      const userId = 7
       sandbox.stub(cache, 'get').resolves(groupId)
 
       const res = await service.getGroupByInvitation(
@@ -198,7 +198,7 @@ describe('GroupService', () => {
 
   describe('getJoinedGroups', () => {
     it('should return a list of groups to which user belongs to', async () => {
-      const userId = 4
+      const userId = 7
       const res = await service.getJoinedGroups(userId, GroupType.Course)
 
       expect(res).to.deep.equal([
@@ -226,7 +226,7 @@ describe('GroupService', () => {
 
   describe('joinGroupById', () => {
     let groupId: number
-    const userId = 4
+    const userId = 7
 
     const createTestGroup = async function () {
       const group = await transaction.group.create({
@@ -286,7 +286,7 @@ describe('GroupService', () => {
 
   describe('leaveGroup', () => {
     const groupId = 3
-    const userId = 4
+    const userId = 7
     beforeEach(async () => {
       await transaction.userGroup.createMany({
         data: [

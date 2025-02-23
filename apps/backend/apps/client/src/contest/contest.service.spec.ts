@@ -1,7 +1,12 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { Prisma, type Contest, type ContestRecord } from '@prisma/client'
+import {
+  ContestRole,
+  Prisma,
+  type Contest,
+  type ContestRecord
+} from '@prisma/client'
 import { expect } from 'chai'
 import * as dayjs from 'dayjs'
 import {
@@ -156,7 +161,7 @@ describe('ContestService', () => {
     it('should return ongoing, upcoming contests when userId is undefined', async () => {
       const contests = await service.getContests()
       expect(contests.ongoing).to.have.lengthOf(5)
-      expect(contests.upcoming).to.have.lengthOf(4)
+      expect(contests.upcoming).to.have.lengthOf(5)
       expect(contests.finished).to.have.lengthOf(9)
     })
 
@@ -316,6 +321,13 @@ describe('ContestService', () => {
 
     it('should return deleted contest record', async () => {
       const newlyRegisteringContestId = 16
+      await transaction.userContest.create({
+        data: {
+          contestId: newlyRegisteringContestId,
+          userId: user01Id,
+          role: ContestRole.Participant
+        }
+      })
       contestRecord = await transaction.contestRecord.create({
         data: {
           contestId: newlyRegisteringContestId,
