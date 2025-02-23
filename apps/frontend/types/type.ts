@@ -5,6 +5,7 @@ export type ContestStatus =
   | 'registeredOngoing'
   | 'registeredUpcoming'
 
+// TODO: registeredOngoing registeredUpcoming 삭제하기
 export type AssignmentStatus =
   | 'ongoing'
   | 'upcoming'
@@ -326,6 +327,7 @@ export interface Assignment {
   enableCopyPaste: boolean
   isJudgeResultVisible: boolean
   week: number
+  status: AssignmentStatus
   description: string
   invitationCodeExists: boolean
   isRegistered: boolean
