@@ -78,7 +78,7 @@ services:
       - 6380:6379
 
   rabbitmq:
-    image: rabbitmq:3-management-alpine
+    image: rabbitmq:4-management-alpine
     container_name: codedang-rabbitmq
     ports:
       - 15672:15672 # Admin Management

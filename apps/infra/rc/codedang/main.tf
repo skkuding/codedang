@@ -12,7 +12,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "codedang-tf-state"
+    bucket         = "codedang-tf-state-rc"
     key            = "terraform/codedang.tfstate"
     region         = "ap-northeast-2"
     encrypt        = true

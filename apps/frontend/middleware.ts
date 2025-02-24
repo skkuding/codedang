@@ -1,7 +1,9 @@
 import { encode, getToken } from 'next-auth/jwt'
 import { NextResponse, type NextRequest } from 'next/server'
+import { useEffect, useState } from 'react'
 import { getJWTFromResponse } from './libs/auth/getJWTFromResponse'
 import { baseUrl } from './libs/constants'
+import { safeFetcherWithAuth } from './libs/utils'
 
 const sessionCookieName = process.env.NEXTAUTH_URL?.startsWith('https://')
   ? '__Secure-next-auth.session-token'
@@ -11,12 +13,12 @@ export const middleware = async (req: NextRequest) => {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
 
   // Handle unauthorized access to admin page
-  if (
-    req.nextUrl.pathname.startsWith('/admin') &&
-    (!token || token.role === 'User')
-  ) {
-    return NextResponse.redirect(new URL('/', req.url))
-  }
+  // if (
+  //   req.nextUrl.pathname.startsWith('/admin') &&
+  //   (!token || token.role === 'User')
+  // ) {
+  //   return NextResponse.redirect(new URL('/', req.url))
+  // }
 
   // Handle reissue of access token
   if (token && token.accessTokenExpires <= Date.now()) {

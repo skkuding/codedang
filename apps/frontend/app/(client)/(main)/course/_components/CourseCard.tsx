@@ -1,38 +1,52 @@
 'use client'
 
-//거의 이름만 바꿈.
-//원래 ContestStatusTimeDiff -> CourseStatusTimeDiff로 이름 바꿈. -> _components에 파일을 만들
-import { Progress } from '@/components/shadcn/progress'
 import { cn } from '@/libs/utils'
-import type { Course } from '@/types/type'
+import calendarFillIcon from '@/public/icons/calendar-fill.svg'
+import personFillIcon from '@/public/icons/person-fill.svg'
+import type { JoinedCourse } from '@/types/type'
+import Image from 'next/image'
 import 'react-circular-progressbar/dist/styles.css'
 import { StatusBadge } from '../../../(main)/_components/StatusBadge'
 
 interface CourseCardProps {
-  course: Course //type 변경 필요.
+  course: JoinedCourse
   color: string
+  index: number
 }
 
 export function CourseCard({ course, color }: CourseCardProps) {
-  //contest props -> course props로 변경해야..
-
   return (
-    <div className="flex w-full flex-col justify-between gap-2 rounded-lg border border-gray-200 shadow-none transition hover:scale-105 hover:opacity-80">
-      <div className={cn('h-40 w-full rounded-t-lg', color)} />
-      <div className="flex w-full flex-col gap-1 px-6 py-4">
-        <div className="line-clamp-4 text-ellipsis whitespace-pre-wrap text-lg font-semibold leading-tight text-black min-[400px]:line-clamp-2">
+    <div className="flex h-[300px] w-[310px] flex-col justify-between rounded-lg border border-gray-200 shadow-none">
+      <div className={cn('h-[108px] rounded-t-lg', color)} />
+      <div className="flex h-[192px] w-full flex-col justify-between px-6 py-6">
+        <StatusBadge variant={'ongoing'} />
+        <div className="my-1 line-clamp-1 h-6 w-[347px] text-ellipsis whitespace-pre-wrap text-lg font-semibold leading-tight text-black">
+          [{course?.courseInfo?.courseNum}_{course?.courseInfo?.classNum}]{' '}
           {course.groupName}
         </div>
-        <p className="text-sm font-normal">{course.professor}</p>
-        <p className="my-2 font-mono text-sm font-normal text-neutral-500">
-          {course.semester}
-        </p>
-        <div className="my-2 border-b" />
-        <StatusBadge variant={course.status} />
-        <div className="m-2">
-          <p className="text-primary pb-2 text-xs font-semibold">2주차</p>
-          <Progress value={75} className="w-2/3" />
-          <p className="pt-1 text-xs font-normal text-neutral-500">3/4</p>
+        <div className="flex flex-col gap-1">
+          <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800">
+            <Image
+              src={calendarFillIcon}
+              alt="calendar-fill"
+              width={16}
+              height={16}
+            />
+            <p className="my-2 text-sm font-medium text-neutral-600">
+              {course?.courseInfo?.semester}
+            </p>
+          </div>
+          <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800">
+            <Image
+              src={personFillIcon}
+              alt="person-fill"
+              width={16}
+              height={16}
+            />
+            <p className="text-sm font-medium text-neutral-600">
+              Prof. {course?.courseInfo?.professor}{' '}
+            </p>
+          </div>
         </div>
       </div>
     </div>

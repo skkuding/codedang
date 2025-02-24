@@ -27,17 +27,17 @@ export function ContestTabs({ contestId }: { contestId: string }) {
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
-          Overview
+          OVERVIEW
         </Link>
         <Link
-          href={`/contest/${id}/notice` as Route}
+          href={`/contest/${id}/announcement` as Route}
           className={cn(
             'flex w-1/2 justify-center p-[18px] text-lg',
-            isCurrentTab('notice') &&
+            isCurrentTab('announcement') &&
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
-          Announcement
+          ANNOUNCEMENT
         </Link>
         <Link
           href={`/contest/${id}/leaderboard` as Route}
@@ -47,7 +47,7 @@ export function ContestTabs({ contestId }: { contestId: string }) {
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
-          Leaderboard
+          LEADERBOARD
         </Link>
         <Link
           href={`/contest/${id}/statistics` as Route}
@@ -57,7 +57,7 @@ export function ContestTabs({ contestId }: { contestId: string }) {
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
-          Statistics
+          STATISTICS
         </Link>
         <Link
           href={`/contest/${id}/qna` as Route}
