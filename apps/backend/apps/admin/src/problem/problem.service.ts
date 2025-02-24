@@ -107,7 +107,7 @@ export class ProblemService {
   }
 
   async createTestcase(problemId: number, testcase: Testcase) {
-    return await this.prisma.problemTestcase.create({
+    const probelmTestcase = await this.prisma.problemTestcase.create({
       data: {
         problemId,
         input: testcase.input,
@@ -116,6 +116,7 @@ export class ProblemService {
         isHidden: testcase.isHidden
       }
     })
+    return { id: probelmTestcase.id }
   }
 
   async uploadProblems(
@@ -276,6 +277,12 @@ export class ProblemService {
     worksheet.spliceRows(1, 1)
     const row = worksheet.getRow(1)
 
+    if (!header['Input'] || !header['Output']) {
+      throw new UnprocessableFileDataException(
+        'Input and Output fields are required',
+        filename
+      )
+    }
     const input = row.getCell(header['Input']).text
     const output = row.getCell(header['Output']).text
     const scoreWeight =
@@ -293,7 +300,9 @@ export class ProblemService {
       isHidden
     }
 
-    return await this.createTestcase(problemId, testcase)
+    await this.createTestcase(problemId, testcase)
+
+    return testcase
   }
 
   async uploadImage(input: UploadFileInput, userId: number) {
