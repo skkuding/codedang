@@ -230,6 +230,7 @@ describe('ProblemService', () => {
 
   describe('updateProblem', () => {
     const testcase = { ...testcaseInput, id: 1 }
+    const userId = 1
     it('should return updated problem', async () => {
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.problem.update.resolves({ ...problems[0], title: 'revised' })
@@ -244,7 +245,8 @@ describe('ProblemService', () => {
           title: 'revised',
           testcases: [testcase]
         },
-        groupId
+        groupId,
+        userId
       )
       expect(result).to.deep.equal({
         ...problemsWithIsVisible[0],
@@ -261,7 +263,8 @@ describe('ProblemService', () => {
             id: problemId,
             languages: []
           },
-          groupId
+          groupId,
+          userId
         )
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(uploadSpy.called).to.be.false
@@ -276,7 +279,8 @@ describe('ProblemService', () => {
             id: problemId,
             template: [{ ...template, language: 'Java' }]
           },
-          groupId
+          groupId,
+          userId
         )
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(uploadSpy.called).to.be.false
@@ -291,7 +295,8 @@ describe('ProblemService', () => {
             id: problemId,
             isVisible: false
           },
-          groupId
+          groupId,
+          userId
         )
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(uploadSpy.called).to.be.false
