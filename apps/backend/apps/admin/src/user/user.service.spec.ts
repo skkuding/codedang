@@ -241,6 +241,7 @@ describe('GroupMemberService', () => {
     it('should return userGroups of groupLeaders', async () => {
       const result = [
         {
+          isGroupLeader: true,
           user: {
             id: user1.id,
             username: user1.username,
@@ -264,6 +265,7 @@ describe('GroupMemberService', () => {
       })
       expect(res).to.deep.equal([
         {
+          isGroupLeader: true,
           username: user1.username,
           userId: userGroup1.userId,
           name: '',
@@ -278,6 +280,7 @@ describe('GroupMemberService', () => {
     it('should return userGroups of groupMembers', async () => {
       const result = [
         {
+          isGroupLeader: false,
           user: {
             id: user2.id,
             username: user2.username,
@@ -301,6 +304,7 @@ describe('GroupMemberService', () => {
       })
       expect(res).to.deep.equal([
         {
+          isGroupLeader: false,
           username: user2.username,
           userId: userGroup2.userId,
           name: '',
