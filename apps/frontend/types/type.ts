@@ -333,6 +333,18 @@ export interface Assignment {
   isRegistered: boolean
 }
 
+export interface AssignmentProblem {
+  id: number
+  title: number
+  difficulty: Level
+  order: number
+  submissionCount: number
+  maxScore: number | null
+  score: string | null
+  submissionTime: string | null
+  acceptedRate: number
+}
+
 export interface CalendarAssignment {
   title: string
   start: Date
