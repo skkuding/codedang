@@ -336,8 +336,7 @@ describe('ContestProblemService', () => {
         contestId,
         userId,
         cursor: 1,
-        take: 1,
-        groupId: OPEN_SPACE_ID // 명시적 전달
+        take: 1
       })
 
       // then
@@ -370,8 +369,7 @@ describe('ContestProblemService', () => {
         contestId,
         userId,
         cursor: 1,
-        take: 1,
-        groupId: OPEN_SPACE_ID // 명시적 전달
+        take: 1
       })
 
       // then
@@ -395,8 +393,7 @@ describe('ContestProblemService', () => {
           contestId,
           userId,
           cursor: 1,
-          take: 1,
-          groupId: OPEN_SPACE_ID // 명시적 전달
+          take: 1
         })
       ).to.be.rejectedWith(prismaNotFoundError)
     })
@@ -419,8 +416,7 @@ describe('ContestProblemService', () => {
           contestId,
           userId,
           cursor: 1,
-          take: 1,
-          groupId: OPEN_SPACE_ID // 명시적 전달
+          take: 1
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -443,8 +439,7 @@ describe('ContestProblemService', () => {
           contestId,
           userId,
           cursor: 1,
-          take: 1,
-          groupId: OPEN_SPACE_ID // 명시적 전달
+          take: 1
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
