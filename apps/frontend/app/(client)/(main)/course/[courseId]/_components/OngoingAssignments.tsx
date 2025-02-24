@@ -1,9 +1,9 @@
 'use client'
 
-import checkBlue from '@/public/icons/check-blue.svg'
-import checkGray from '@/public/icons/check-gray.svg'
+// import checkBlue from '@/public/icons/check-blue.svg'
+// import checkGray from '@/public/icons/check-gray.svg'
 import type { Assignment } from '@/types/type'
-import Image from 'next/image'
+// import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -23,17 +23,27 @@ export function OngoingAssignments() {
                   startTime: new Date('2025-01-12'),
                   endTime: new Date('2024-01-22'),
                   group: { id: 'G1', groupName: 'Group A' },
-                  isGraded: true,
-                  status: 'ongoing'
+                  enableCopyPaste: true,
+                  isJudgeResultVisible: true,
+                  week: 16,
+                  status: 'ongoing',
+                  description: 'This is a description',
+                  invitationCodeExists: true,
+                  isRegistered: true
                 },
                 {
-                  id: 2,
+                  id: 1,
                   title: 'HelloWorld.java',
                   startTime: new Date('2025-01-12'),
                   endTime: new Date('2024-01-22'),
                   group: { id: 'G1', groupName: 'Group A' },
-                  isGraded: false,
-                  status: 'ongoing'
+                  enableCopyPaste: true,
+                  isJudgeResultVisible: true,
+                  week: 16,
+                  status: 'ongoing',
+                  description: 'This is a description',
+                  invitationCodeExists: true,
+                  isRegistered: true
                 }
               ]),
             1000
@@ -69,7 +79,8 @@ export function OngoingAssignments() {
               <td className="px-4 py-2">
                 {assignment.endTime.toLocaleDateString()}
               </td>
-              <td className="px-4 py-2">
+              {/* TODO: API 완성되면 isSubmitted로 대체 */}
+              {/* <td className="px-4 py-2">
                 {assignment.isGraded ? (
                   <Image
                     src={checkBlue}
@@ -87,7 +98,7 @@ export function OngoingAssignments() {
                     className="mr-2 inline-block"
                   />
                 )}
-              </td>
+              </td> */}
             </tr>
           ))}
         </tbody>
