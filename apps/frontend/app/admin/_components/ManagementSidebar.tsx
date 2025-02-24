@@ -1,6 +1,5 @@
 'use client'
 
-import { Button } from '@/components/shadcn/button'
 import { Separator } from '@/components/shadcn/separator'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { cn } from '@/libs/utils'
@@ -11,6 +10,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { FaHome, FaQuestion, FaStar } from 'react-icons/fa'
 import {
   FaSquarePollHorizontal,
   FaUser,
@@ -19,16 +19,9 @@ import {
   FaBook,
   FaTrophy,
   FaAnglesLeft,
-  FaAnglesRight
+  FaAnglesRight,
+  FaFilePen
 } from 'react-icons/fa6'
-import {
-  MdHome,
-  MdPeople,
-  MdAssignment,
-  MdEditDocument,
-  MdGrade,
-  MdQuestionAnswer
-} from 'react-icons/md'
 
 export function ManagementSidebar() {
   const [isMainSidebarExpanded, setIsMainSidebarExpanded] = useState(true)
@@ -48,28 +41,28 @@ export function ManagementSidebar() {
   ]
 
   const getCourseNavItems = (courseId: string) => [
-    { name: 'Home', path: `/admin/course/${courseId}`, icon: MdHome },
+    { name: 'Home', path: `/admin/course/${courseId}`, icon: FaHome },
     { name: 'Notice', path: `/admin/course/${courseId}/notice`, icon: FaBell },
     {
       name: 'Member',
       path: `/admin/course/${courseId}/member`,
-      icon: MdPeople
+      icon: FaUser
     },
     {
       name: 'Assignment',
       path: `/admin/course/${courseId}/assignment`,
-      icon: MdAssignment
+      icon: FaFilePen
     },
     {
       name: 'Exam',
       path: `/admin/course/${courseId}/exam`,
-      icon: MdEditDocument
+      icon: FaFilePen
     },
-    { name: 'Grade', path: `/admin/course/${courseId}/grade`, icon: MdGrade },
+    { name: 'Grade', path: `/admin/course/${courseId}/grade`, icon: FaStar },
     {
       name: 'Q&A',
       path: `/admin/course/${courseId}/qna`,
-      icon: MdQuestionAnswer
+      icon: FaQuestion
     }
   ]
 
@@ -96,17 +89,17 @@ export function ManagementSidebar() {
     })) || []
 
   const courseList = (
-    <div className="mt-2 flex flex-col gap-2 pl-8">
+    <div className="mt-2 flex flex-col gap-2 pl-4">
       {courseItems.map((course) => (
         <Link
           key={course.id}
           href={`/admin/course/${course.id}`}
           onClick={() => setIsCourseSidebarOpened(true)}
           className={cn(
-            'overflow-hidden overflow-ellipsis text-sm transition-colors',
+            'overflow-hidden overflow-ellipsis text-xs transition-colors',
             pathname.match(/\/admin\/course\/(\d+)/)?.[1] ===
               course.id.toString()
-              ? 'text-primary font-medium'
+              ? 'text-primary'
               : 'hover:text-primary text-gray-600'
           )}
         >
@@ -117,11 +110,11 @@ export function ManagementSidebar() {
   )
 
   return (
-    <div className="flex gap-5">
+    <div className="mx-6 flex h-full gap-5">
       <motion.div
-        initial={{ width: 230 }}
-        animate={{ width: isMainSidebarExpanded ? 230 : 60 }}
-        className="relative flex flex-col border-r border-gray-200 px-2"
+        initial={{ width: 190 }}
+        animate={{ width: isMainSidebarExpanded ? 190 : 32 }}
+        className="relative flex flex-col"
       >
         {/* Main Sidebar Toggle Button */}
         <button
@@ -131,15 +124,12 @@ export function ManagementSidebar() {
           {isMainSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
         </button>
 
-        <div className="mb-6 mt-4 pl-2">
+        <div className="mb-6 mt-20 px-4">
           {isMainSidebarExpanded ? (
-            <Image
-              src={codedangWithTextIcon}
-              alt="코드당"
-              width={135}
-              height={28}
-            />
-          ) : null}
+            <Image src={codedangWithTextIcon} alt="코드당" />
+          ) : (
+            <div className="h-5" />
+          )}
         </div>
         <Separator className="mb-4" />
 
@@ -159,15 +149,17 @@ export function ManagementSidebar() {
                   }
                 }}
                 className={cn(
-                  'flex items-center rounded px-3 py-2 transition',
+                  'flex items-center rounded px-2 py-2 transition',
                   pathname === item.path
                     ? 'bg-primary text-white'
                     : 'text-gray-600 hover:bg-gray-100'
                 )}
               >
-                <item.icon className="h-5 w-5" />
+                <item.icon className="h-4 w-4" />
                 {isMainSidebarExpanded && (
-                  <span className="ml-3 transition-all">{item.name}</span>
+                  <span className="ml-3 text-sm transition-all">
+                    {item.name}
+                  </span>
                 )}
               </Link>
               {item.path === '/admin/course' &&
@@ -181,9 +173,9 @@ export function ManagementSidebar() {
       {/* Course Sidebar */}
       {isCourseSidebarOpened && (
         <motion.div
-          initial={{ width: 230 }}
-          animate={{ width: isCourseSidebarExpanded ? 230 : 60 }}
-          className="relative flex flex-col border-r border-gray-200 px-2"
+          initial={{ width: 144 }}
+          animate={{ width: isCourseSidebarExpanded ? 144 : 44 }}
+          className="relative flex flex-col"
         >
           <button
             onClick={() => setIsCourseSidebarExpanded(!isCourseSidebarExpanded)}
@@ -191,8 +183,8 @@ export function ManagementSidebar() {
           >
             {isCourseSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
           </button>
-
-          <div className="mt-16 flex flex-col gap-2">
+          <div className="h-[3.8rem]" />
+          <div className="mt-20 flex flex-col gap-2">
             {getCourseNavItems(selectedCourseId).map((item) => (
               <Link
                 key={item.name}
@@ -204,7 +196,7 @@ export function ManagementSidebar() {
                     : 'text-gray-600 hover:bg-gray-100'
                 )}
               >
-                <item.icon className="h-5 w-5" />
+                <item.icon className="h-4 w-4" />
                 {isCourseSidebarExpanded && (
                   <span className="ml-3 transition-all">{item.name}</span>
                 )}
