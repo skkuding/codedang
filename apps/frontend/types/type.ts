@@ -218,6 +218,10 @@ export interface SubmissionDetail {
     updateTime: Date
   }[]
 }
+export interface ContestSubmission {
+  data: SubmissionItem[]
+  total: number
+}
 
 interface LeaderboardProblemRecord {
   score: number

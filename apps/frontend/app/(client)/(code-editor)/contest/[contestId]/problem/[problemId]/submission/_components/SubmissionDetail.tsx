@@ -9,7 +9,7 @@ import {
   TableRow
 } from '@/components/shadcn/table'
 import { dateFormatter, fetcherWithAuth, getResultColor } from '@/libs/utils'
-import type { SubmissionDetail, SubmissionItem } from '@/types/type'
+import type { SubmissionDetail, ContestSubmission } from '@/types/type'
 import { revalidateTag } from 'next/cache'
 import { IoIosLock } from 'react-icons/io'
 import { dataIfError } from '../_libs/dataIfError'
@@ -19,12 +19,6 @@ interface Props {
   submissionId: number
   contestId: number
 }
-
-interface ContestSubmission {
-  data: SubmissionItem[]
-  total: number
-}
-
 export async function SubmissionDetail({
   problemId,
   submissionId,
@@ -36,6 +30,8 @@ export async function SubmissionDetail({
       tags: [`submission/${submissionId}`]
     }
   })
+  const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
+
   const contestSubmissionRes = await fetcherWithAuth(
     `contest/${contestId}/submission`,
     {
@@ -45,10 +41,9 @@ export async function SubmissionDetail({
   const contestSubmission: ContestSubmission | null = contestSubmissionRes.ok
     ? await contestSubmissionRes.json()
     : null
-  const targetSubmission = await contestSubmission?.data.filter(
+  const targetSubmission = contestSubmission?.data.filter(
     (submission) => submission.id === submissionId
   )[0]
-  const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
 
   if (submission.result === 'Judging') {
     revalidateTag(`submission/${submissionId}`)
