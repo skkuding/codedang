@@ -103,7 +103,7 @@ export function EditorHeader({
         if (submission.result !== 'Judging') {
           setIsSubmitting(false)
           const href = contestId
-            ? `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}`
+            ? `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}?cellProblemId=${problem.id}`
             : `/problem/${problem.id}/submission/${submissionId}`
           router.replace(href as Route)
           //window.history.pushState(null, '', window.location.href)

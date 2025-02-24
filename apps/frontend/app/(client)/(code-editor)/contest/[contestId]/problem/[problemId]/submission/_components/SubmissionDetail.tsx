@@ -30,14 +30,6 @@ export async function SubmissionDetail({
   submissionId,
   contestId
 }: Props) {
-  console.log(
-    'problem id: ',
-    problemId,
-    ' submissionId: ',
-    submissionId,
-    'contestId: ',
-    contestId
-  )
   const res = await fetcherWithAuth(`submission/${submissionId}`, {
     searchParams: { problemId, contestId },
     next: {
@@ -47,11 +39,13 @@ export async function SubmissionDetail({
   const contestSubmissionRes = await fetcherWithAuth(
     `contest/${contestId}/submission`,
     {
-      searchParams: { problemId }
+      searchParams: { problemId, take: 100 }
     }
   )
-  const contestSubmission: ContestSubmission = await contestSubmissionRes.json()
-  const targetSubmission = contestSubmission.data.filter(
+  const contestSubmission: ContestSubmission | null = contestSubmissionRes.ok
+    ? await contestSubmissionRes.json()
+    : null
+  const targetSubmission = await contestSubmission?.data.filter(
     (submission) => submission.id === submissionId
   )[0]
   const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
@@ -80,7 +74,7 @@ export async function SubmissionDetail({
           </div>
           <div>
             <h2>Code Size</h2>
-            <p>{targetSubmission.codeSize}</p>
+            <p>{targetSubmission && targetSubmission.codeSize}</p>
           </div>
         </div>
         <ScrollBar orientation="horizontal" />
