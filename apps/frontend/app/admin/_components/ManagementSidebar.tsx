@@ -10,7 +10,7 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   FaSquarePollHorizontal,
   FaUser,
@@ -35,6 +35,7 @@ export function ManagementSidebar() {
   const [isCourseListOpened, setIsCourseListOpened] = useState(false)
   const [isCourseSidebarOpened, setIsCourseSidebarOpened] = useState(false)
   const [isCourseSidebarExpanded, setIsCourseSidebarExpanded] = useState(true)
+  const [selectedCourseId, setSelectedCourseId] = useState<string>('')
   const pathname = usePathname()
 
   const mainNavItems = [
@@ -46,19 +47,44 @@ export function ManagementSidebar() {
     { name: 'Contest', path: '/admin/contest', icon: FaTrophy }
   ]
 
-  const courseNavItems = [
-    { name: 'Home', path: '/admin/course', icon: MdHome },
-    { name: 'Notice', path: '/admin/course/notice', icon: FaBell },
-    { name: 'Member', path: '/admin/course/member', icon: MdPeople },
+  const getCourseNavItems = (courseId: string) => [
+    { name: 'Home', path: `/admin/course/${courseId}`, icon: MdHome },
+    { name: 'Notice', path: `/admin/course/${courseId}/notice`, icon: FaBell },
+    {
+      name: 'Member',
+      path: `/admin/course/${courseId}/member`,
+      icon: MdPeople
+    },
     {
       name: 'Assignment',
-      path: '/admin/course/assignment',
+      path: `/admin/course/${courseId}/assignment`,
       icon: MdAssignment
     },
-    { name: 'Exam', path: '/admin/course/exam', icon: MdEditDocument },
-    { name: 'Grade', path: '/admin/course/grade', icon: MdGrade },
-    { name: 'Q&A', path: '/admin/course/qna', icon: MdQuestionAnswer }
+    {
+      name: 'Exam',
+      path: `/admin/course/${courseId}/exam`,
+      icon: MdEditDocument
+    },
+    { name: 'Grade', path: `/admin/course/${courseId}/grade`, icon: MdGrade },
+    {
+      name: 'Q&A',
+      path: `/admin/course/${courseId}/qna`,
+      icon: MdQuestionAnswer
+    }
   ]
+
+  function extractCourseId(pathname: string) {
+    const match = pathname.match(/\/admin\/course\/(\d+)/)
+    return match?.[1] || ''
+  }
+
+  useEffect(() => {
+    const courseId = extractCourseId(pathname)
+    if (courseId) {
+      setSelectedCourseId(courseId)
+      setIsCourseSidebarOpened(true)
+    }
+  }, [pathname])
 
   const { data: coursesData } = useQuery(GET_COURSES_USER_LEAD)
 
@@ -167,7 +193,7 @@ export function ManagementSidebar() {
           </button>
 
           <div className="mt-16 flex flex-col gap-2">
-            {courseNavItems.map((item) => (
+            {getCourseNavItems(selectedCourseId).map((item) => (
               <Link
                 key={item.name}
                 href={item.path}
