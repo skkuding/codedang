@@ -8,186 +8,161 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { BiSolidCommentEdit } from 'react-icons/bi'
 import {
   FaChartBar,
+  FaUser,
+  FaBell,
   FaPen,
   FaBook,
-  FaBell,
-  FaAnglesLeft
+  FaTrophy,
+  FaAnglesLeft,
+  FaAnglesRight
 } from 'react-icons/fa6'
-import { IoMdPeople, IoMdChatboxes, IoMdClose } from 'react-icons/io'
-import { IoHomeSharp } from 'react-icons/io5'
-import { MdAssignment, MdEditDocument } from 'react-icons/md'
+import {
+  MdHome,
+  MdPeople,
+  MdAssignment,
+  MdEditDocument,
+  MdGrade,
+  MdQuestionAnswer
+} from 'react-icons/md'
 
 export function ManagementSidebar() {
+  const [isMainSidebarExpanded, setIsMainSidebarExpanded] = useState(true)
   const [isCourseListOpened, setIsCourseListOpened] = useState(false)
   const [isCourseSidebarOpened, setIsCourseSidebarOpened] = useState(false)
-  const [isMainSidebarExpanded] = useState(true)
   const [isCourseSidebarExpanded, setIsCourseSidebarExpanded] = useState(true)
-
   const pathname = usePathname()
 
   const mainNavItems = [
-    { name: 'Dashboard', path: '/admin' as const, icon: FaChartBar },
-    { name: 'My Problems', path: '/admin/problem' as const, icon: FaPen },
-    { name: 'My Courses', path: '/admin/course' as const, icon: FaBook }
+    { name: 'Dashboard', path: '/admin', icon: FaChartBar },
+    { name: 'User', path: '/admin/user', icon: FaUser },
+    { name: 'Notice', path: '/admin/notice', icon: FaBell },
+    { name: 'Problem', path: '/admin/problem', icon: FaPen },
+    { name: 'Course', path: '/admin/course', icon: FaBook },
+    { name: 'Contest', path: '/admin/contest', icon: FaTrophy }
   ]
 
   const courseNavItems = [
-    { name: 'Home', path: '/admin/course' as const, icon: IoHomeSharp },
-    { name: 'Notice', path: '/admin/course/notice' as const, icon: FaBell },
-    { name: 'User', path: '/admin/course/user' as const, icon: IoMdPeople },
+    { name: 'Home', path: '/admin/course', icon: MdHome },
+    { name: 'Notice', path: '/admin/course/notice', icon: FaBell },
+    { name: 'Member', path: '/admin/course/member', icon: MdPeople },
     {
       name: 'Assignment',
-      path: '/admin/course/assignment' as const,
+      path: '/admin/course/assignment',
       icon: MdAssignment
     },
-    { name: 'Exam', path: '/admin/course/exam' as const, icon: MdEditDocument },
-    {
-      name: 'Grade',
-      path: '/admin/course/grade' as const,
-      icon: BiSolidCommentEdit
-    },
-    { name: 'Q&A', path: '/admin/course/qna' as const, icon: IoMdChatboxes }
+    { name: 'Exam', path: '/admin/course/exam', icon: MdEditDocument },
+    { name: 'Grade', path: '/admin/course/grade', icon: MdGrade },
+    { name: 'Q&A', path: '/admin/course/qna', icon: MdQuestionAnswer }
   ]
 
   // const courseItems = [
-  //   {
-  //     path: '/admin/course/1' as const,
-  //     code: 'SWE0000-00',
-  //     name: '강의는열글자까지'
-  //   },
-  //   {
-  //     path: '/admin/course/2' as const,
-  //     code: 'SWE1001-01',
-  //     name: '소프트웨어공학'
-  //   },
-  //   {
-  //     path: '/admin/course/3' as const,
-  //     code: 'CSE2002-02',
-  //     name: '자료구조와알고리즘'
-  //   },
-  //   { path: '/admin/course/4' as const, code: 'MAT3003-03', name: '선형대수학' }
+  //   { id: 1, code: 'SWE3033', name: '소프트웨어공학' },
+  //   { id: 2, code: 'CSE2035', name: '자료구조와알고리즘' },
+  //   { id: 3, code: 'MAT2410', name: '선형대수학' }
   // ]
 
-  // const { data } = useSuspenseQuery(GET_COURSES, {
-  //   variables: {
-  //     cursor: 1,
-  //     take: 5
-  //   }
-  // })
-  // const courses = data.getCourses.map((course) => ({
-  //   id: Number(course.id),
-  //   path: `admin/course/${course.id}`,
-  //   name: course.groupName
-  // }))
   return (
-    <div className="flex gap-5 px-6">
-      <div>
-        {isMainSidebarExpanded && (
-          <div className="relative w-[230px] pt-20">
-            <IoMdClose className="absolute right-0 top-4 cursor-pointer text-2xl" />
-            <Link href="/" className="ml-6">
-              <Image
-                src={codedangLogo}
-                alt="코드당"
-                width={135.252}
-                height={28}
-              />
-            </Link>
-            <Separator className="my-4 transition" />
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2">
-                {mainNavItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.path}
-                    onClick={() => {
-                      if (item.path === '/admin/course') {
-                        setIsCourseListOpened(true)
-                      } else {
-                        setIsCourseSidebarOpened(false)
-                        setIsCourseListOpened(false)
-                      }
-                    }}
-                    className={cn(
-                      'rounded px-4 py-2 transition',
-                      (
-                        item.path === '/admin'
-                          ? pathname === item.path
-                          : pathname.startsWith(item.path)
-                      )
-                        ? 'bg-primary text-white hover:opacity-95'
-                        : 'text-slate-600 hover:bg-slate-100'
-                    )}
-                  >
-                    {item.icon && <item.icon className="mr-2 inline-block" />}
-                    {item.name}
-                  </Link>
-                ))}
-              </div>
-              {isCourseListOpened && (
-                <div className="flex flex-col gap-3 text-xs">
-                  {/* {courseItems.map((course) => (
-                    <Link
-                      key={course.name}
-                      href={course.path}
-                      onClick={() => {
-                        setIsCourseSidebarOpened(true)
-                        setIsCourseSidebarExpanded(true)
-                      }}
-                      className={cn(
-                        pathname === course.path ? 'text-primary' : 'text-black'
-                      )}
-                    >
-                      [{course.code}] {course.name}
-                    </Link>
-                  ))} */}
-                </div>
+    <div className="flex gap-5">
+      <motion.div
+        initial={{ width: 230 }}
+        animate={{ width: isMainSidebarExpanded ? 230 : 60 }}
+        className="relative flex flex-col border-r border-gray-200 px-2"
+      >
+        {/* Main Sidebar Toggle Button */}
+        <button
+          onClick={() => setIsMainSidebarExpanded(!isMainSidebarExpanded)}
+          className="absolute right-2 top-4 text-gray-500 hover:text-gray-700"
+        >
+          {isMainSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
+        </button>
+
+        {/* Logo */}
+        <div className="mb-6 mt-4 pl-2">
+          {isMainSidebarExpanded ? (
+            <Image src={codedangLogo} alt="코드당" width={135} height={28} />
+          ) : (
+            <div className="bg-primary h-7 w-7 rounded-full" />
+          )}
+        </div>
+        <Separator className="mb-4" />
+
+        {/* Main Navigation Items */}
+        <div className="flex flex-col gap-2">
+          {mainNavItems.map((item) => (
+            <Link
+              key={item.name}
+              href={item.path}
+              onClick={() => {
+                if (item.path === '/admin/course') {
+                  setIsCourseListOpened(!isCourseListOpened)
+                } else {
+                  setIsCourseSidebarOpened(false)
+                  setIsCourseListOpened(false)
+                }
+              }}
+              className={cn(
+                'flex items-center rounded px-3 py-2 transition',
+                pathname.startsWith(item.path)
+                  ? 'bg-primary text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
               )}
-            </div>
+            >
+              <item.icon className="h-5 w-5" />
+              {isMainSidebarExpanded && (
+                <span className="ml-3 transition-all">{item.name}</span>
+              )}
+            </Link>
+          ))}
+        </div>
+
+        {isMainSidebarExpanded && isCourseListOpened && (
+          <div className="mt-2 flex flex-col gap-2 pl-8">
+            {courseItems.map((course) => (
+              <Link
+                key={course.id}
+                href={`/admin/course/${course.id}`}
+                onClick={() => setIsCourseSidebarOpened(true)}
+                className="hover:text-primary text-sm text-gray-600"
+              >
+                [{course.code}] {course.name}
+              </Link>
+            ))}
           </div>
         )}
-      </div>
+      </motion.div>
+
+      {/* Course Sidebar */}
       {isCourseSidebarOpened && (
         <motion.div
-          initial={{ x: -260 }}
-          animate={{ x: isCourseSidebarOpened ? 0 : -260 }}
-          transition={{ type: 'spring', stiffness: 100, damping: 15 }}
-          className="relative flex flex-col gap-2"
+          initial={{ width: 230 }}
+          animate={{ width: isCourseSidebarExpanded ? 230 : 60 }}
+          className="relative flex flex-col border-r border-gray-200 px-2"
         >
-          <FaAnglesLeft
-            className="absolute right-0 top-4 cursor-pointer text-xl"
-            onClick={() => setIsCourseSidebarExpanded(false)}
-          />
-          <div className="flex h-screen flex-col gap-2 pt-20">
+          <button
+            onClick={() => setIsCourseSidebarExpanded(!isCourseSidebarExpanded)}
+            className="absolute right-2 top-4 text-gray-500 hover:text-gray-700"
+          >
+            {isCourseSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
+          </button>
+
+          <div className="mt-16 flex flex-col gap-2">
             {courseNavItems.map((item) => (
               <Link
                 key={item.name}
                 href={item.path}
                 className={cn(
-                  'flex items-center rounded px-4 py-2 transition',
-                  (
-                    item.path === '/admin/course'
-                      ? pathname === item.path
-                      : pathname.startsWith(item.path)
-                  )
-                    ? 'bg-primary text-white hover:opacity-95'
-                    : 'text-slate-600 hover:bg-slate-100'
+                  'flex items-center rounded px-3 py-2 transition',
+                  pathname === item.path
+                    ? 'bg-primary text-white'
+                    : 'text-gray-600 hover:bg-gray-100'
                 )}
               >
-                {item.icon && <item.icon className="mr-2" />}
-                <span
-                  className={cn(
-                    'overflow-hidden transition-all',
-                    isCourseSidebarExpanded
-                      ? 'w-auto opacity-100'
-                      : 'w-0 opacity-0'
-                  )}
-                >
-                  {item.name}
-                </span>
+                <item.icon className="h-5 w-5" />
+                {isCourseSidebarExpanded && (
+                  <span className="ml-3 transition-all">{item.name}</span>
+                )}
               </Link>
             ))}
           </div>
