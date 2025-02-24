@@ -455,7 +455,7 @@ export class ContestService {
         where: {
           contestId,
           createTime: {
-            lt: contest?.freezeTime
+            lt: contest.freezeTime
           }
         }
       })
@@ -489,7 +489,6 @@ export class ContestService {
       })
     }
 
-    let rank = 1
     const allProblems = await this.prisma.contestProblem.findMany({
       where: {
         contestId
@@ -500,6 +499,7 @@ export class ContestService {
       }
     }) // 모든 문제 목록이 포함된 배열
 
+    let rank = 1
     const leaderboard = contestRecords.map((contestRecord) => {
       const {
         contestProblemRecord,
@@ -508,7 +508,7 @@ export class ContestService {
         finalScore,
         totalPenalty,
         finalTotalPenalty,
-        ...rest
+        user
       } = contestRecord
 
       const problemRecords = allProblems.map((contestProblem) => {
@@ -561,8 +561,7 @@ export class ContestService {
       })
 
       return {
-        ...rest,
-        username: rest.user!.username,
+        username: user!.username,
         totalScore: isFrozen ? score : finalScore,
         totalPenalty: isFrozen ? totalPenalty : finalTotalPenalty,
         problemRecords,
