@@ -65,13 +65,11 @@ export class ContestController {
   }
 
   @Get(':id/leaderboard')
+  @AuthNotNeededIfOpenSpace()
   async getLeaderboard(
-    @Req() req: AuthenticatedRequest,
-    @Param('id', IDValidationPipe) contestId: number
+    @Param('id', IDValidationPipe) contestId: number,
+    @Query('search') search: string
   ) {
-    return await this.contestService.getContestLeaderboard(
-      req.user.id,
-      contestId
-    )
+    return await this.contestService.getContestLeaderboard(contestId, search)
   }
 }
