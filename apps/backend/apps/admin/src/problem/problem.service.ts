@@ -287,14 +287,14 @@ export class ProblemService {
     const output = row.getCell(header['Output']).text
     const scoreWeight =
       header['scoreWeight'] === undefined ||
-      row.getCell(header['scoreWeight']).text === ''
+      row.getCell(header['scoreWeight']).text.trim() === ''
         ? 1
-        : parseInt(row.getCell(header['scoreWeight']).text, 10) || 1
+        : parseInt(row.getCell(header['scoreWeight']).text.trim(), 10) || 1
     const isHidden =
       header['isHidden'] === undefined ||
-      row.getCell(header['isHidden']).text === ''
+      row.getCell(header['isHidden']).text.trim() === ''
         ? false
-        : row.getCell(header['isHidden']).text === 'O'
+        : row.getCell(header['isHidden']).text.trim() === 'O'
     const testcase: Testcase = {
       input,
       output,
