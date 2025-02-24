@@ -467,12 +467,12 @@ export class SubmissionService {
         `This problem does not support language ${submissionDto.language}`
       )
     }
-    const { code, ...data } = submissionDto
+    const { code, readOnlyRanges, language } = submissionDto
     if (
       !this.isValidCode(
         code,
-        submissionDto.readOnlyRanges,
-        submissionDto.language,
+        readOnlyRanges,
+        language,
         plainToInstance(Template, problem.template)
       )
     ) {
@@ -487,12 +487,12 @@ export class SubmissionService {
           locked: false
         }
       ], // Note: 기존 Submission에 저장하던 형식을 유지하기 위해 위 형태로 code text 저장 (id와 locked는 의미 없음)
+      language,
       result: ResultStatus.Judging,
       userId,
       userIp,
       problemId: problem.id,
-      codeSize: new TextEncoder().encode(code).length,
-      ...data
+      codeSize: new TextEncoder().encode(code).length
     }
 
     try {
@@ -649,12 +649,12 @@ export class SubmissionService {
         `This problem does not support language ${submissionDto.language}`
       )
     }
-    const { code } = submissionDto
+    const { code, language, readOnlyRanges } = submissionDto
     if (
       !this.isValidCode(
         code,
-        submissionDto.readOnlyRanges,
-        submissionDto.language,
+        readOnlyRanges,
+        language,
         plainToInstance(Template, problem.template)
       )
     ) {
