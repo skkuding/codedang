@@ -64,6 +64,7 @@ model User {
   CodeDraft        CodeDraft[]
   Image            Image[]
   testSubmission   TestSubmission[]
+  UpdateHistory    UpdateHistory[]
 
   @@map("user")
 }
@@ -242,14 +243,10 @@ model UpdateHistory {
   problemId     Int      @map("problem_id")
   problem       Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   updatedAt     DateTime @default(now()) @map("updated_at")
-  updatedFields Json     @map("updated_fields") // 변경된 필드 목록
-
-  titleInfo       Json
-  languageInfo    Json
-  descriptionInfo Json
-  timeLimitInfo   Json
-  hintInfo        Json
-  memoryLimitInfo Json
+  updatedFields String[] @map("updated_fields") // 변경된 필드 목록
+  updatedBy     User     @relation(fields: [updatedByid], references: [id])
+  updatedByid   Int
+  updatedInfo   Json[]
 
   @@map("updateHistory")
 }

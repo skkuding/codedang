@@ -140,9 +140,10 @@ export class ProblemResolver {
       GroupIDPipe
     )
     groupId: number,
-    @Args('input') input: UpdateProblemInput
+    @Args('input') input: UpdateProblemInput,
+    @Context('req') req: AuthenticatedRequest
   ) {
-    return await this.problemService.updateProblem(input, groupId)
+    return await this.problemService.updateProblem(input, groupId, req.user.id)
   }
 
   @Mutation(() => ProblemWithIsVisible)

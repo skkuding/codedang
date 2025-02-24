@@ -381,7 +381,11 @@ export class ProblemService {
     return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
-  async updateProblem(input: UpdateProblemInput, groupId: number) {
+  async updateProblem(
+    input: UpdateProblemInput,
+    groupId: number,
+    userId: number
+  ) {
     const { id, languages, template, tags, testcases, isVisible, ...data } =
       input
     const problem = await this.prisma.problem.findFirstOrThrow({
@@ -391,42 +395,43 @@ export class ProblemService {
       }
     })
 
+    const updatedByid = userId
+
     const updatedFields: string[] = []
 
     const titleInfo = {
-      isChanged: false,
+      updatedField: 'Title',
       current: problem.title,
       previous: problem.title
     }
     const languageInfo = {
-      isChanged: false,
+      updatedField: 'Language',
       current: problem.languages,
       previous: problem.languages
     }
     const descriptionInfo = {
-      isChanged: false,
+      updatedField: 'Description',
       current: problem.description,
       previous: problem.description
     }
     const timeLimitInfo = {
-      isChanged: false,
+      updatedField: 'TimeLimit',
       current: problem.timeLimit,
       previous: problem.timeLimit
     }
     const memoryLimitInfo = {
-      isChanged: false,
+      updatedField: 'MemoryLimit',
       current: problem.memoryLimit,
       previous: problem.memoryLimit
     }
     const hintInfo = {
-      isChanged: false,
+      updatedField: 'Hint',
       current: problem.hint,
       previous: problem.hint
     }
 
     if (input.title && input.title !== problem.title) {
       updatedFields.push('Title')
-      titleInfo.isChanged = true
       titleInfo.current = input.title
     }
     if (
@@ -434,12 +439,10 @@ export class ProblemService {
       JSON.stringify(input.languages) !== JSON.stringify(problem.languages)
     ) {
       updatedFields.push('Language')
-      languageInfo.isChanged = true
       languageInfo.current = input.languages
     }
     if (input.description && input.description !== problem.description) {
       updatedFields.push('Description')
-      descriptionInfo.isChanged = true
       descriptionInfo.current = input.description
     }
     if (testcases?.length) {
@@ -463,18 +466,15 @@ export class ProblemService {
       }
     }
     if (input.timeLimit && input.timeLimit !== problem.timeLimit) {
-      updatedFields.push('Limit*')
-      timeLimitInfo.isChanged = true
+      updatedFields.push('Time Limit*')
       timeLimitInfo.current = input.timeLimit
     }
     if (input.memoryLimit && input.memoryLimit !== problem.memoryLimit) {
-      updatedFields.push('Limit*')
-      memoryLimitInfo.isChanged = true
+      updatedFields.push('Memory Limit*')
       memoryLimitInfo.current = input.memoryLimit
     }
     if (input.hint && input.hint !== problem.hint) {
       updatedFields.push('Hint')
-      hintInfo.isChanged = true
       hintInfo.current = input.hint
     }
 
@@ -520,6 +520,21 @@ export class ProblemService {
       await this.updateTestcases(id, testcases)
     }
 
+    const updatedInfo = [
+      titleInfo,
+      languageInfo,
+      descriptionInfo,
+      timeLimitInfo,
+      memoryLimitInfo,
+      hintInfo
+    ]
+      .filter((info) => info.current !== info.previous)
+      .map(({ updatedField, current, previous }) => ({
+        updatedField,
+        current,
+        previous
+      }))
+
     const updatedProblem = await this.prisma.problem.update({
       where: { id },
       data: {
@@ -534,15 +549,10 @@ export class ProblemService {
           updateHistory: {
             create: [
               {
-                updatedFields: JSON.stringify(updatedFields),
+                updatedFields,
                 updatedAt: new Date(),
-
-                titleInfo: JSON.stringify(titleInfo),
-                languageInfo: JSON.stringify(languageInfo),
-                descriptionInfo: JSON.stringify(descriptionInfo),
-                timeLimitInfo: JSON.stringify(timeLimitInfo),
-                memoryLimitInfo: JSON.stringify(memoryLimitInfo),
-                hintInfo: JSON.stringify(hintInfo)
+                updatedByid,
+                updatedInfo
               }
             ]
           }
