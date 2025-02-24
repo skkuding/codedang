@@ -2429,7 +2429,7 @@ const createAssignmentRecords = async () => {
 
   // upcoming assignment에 참가한 User 1의 assignment register를 un-register하는 기능과,
   // registered upcoming, ongoing, finished assignment를 조회하는 기능을 확인하기 위함
-  const user01Id = 4
+  const user01Id = 7
   for (
     let assignmentId = 3;
     assignmentId <= assignments.length;
@@ -2478,7 +2478,7 @@ const createContestRecords = async () => {
       id: true
     }
   })
-  const user01Id = 4
+  const user01Id = 7
   for (let i = 0; i < contests.length; i += 2) {
     const contestId = contests[i].id
     const existingRecord = await prisma.contestRecord.findFirst({
@@ -2508,7 +2508,6 @@ const createContestRecords = async () => {
 const createUserContests = async () => {
   const userContests: Promise<UserContest | Prisma.BatchPayload>[] = []
 
-  // 1️⃣ contests 기반으로 Admin, Manager, Reviewer 추가 (먼저 실행)
   for (const contest of contests) {
     if (contest.createdById === contestAdminUser.id) {
       userContests.push(
@@ -2525,23 +2524,15 @@ const createUserContests = async () => {
               role: ContestRole.Reviewer
             }
           ],
-          skipDuplicates: true // ✅ 중복된 레코드가 있으면 무시
+          skipDuplicates: true
         })
       )
     }
 
     if (contest.createdById) {
       userContests.push(
-        prisma.userContest.upsert({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            userId_contestId: {
-              userId: contest.createdById,
-              contestId: contest.id
-            }
-          },
-          update: {}, // ✅ 기존 데이터 유지
-          create: {
+        prisma.userContest.create({
+          data: {
             contestId: contest.id,
             userId: contest.createdById,
             role: ContestRole.Admin
@@ -2551,7 +2542,6 @@ const createUserContests = async () => {
     }
   }
 
-  // 2️⃣ 모든 비동기 작업을 병렬 실행
   await Promise.all(userContests)
 
   // 3️⃣ 마지막에 contestRecords 추가 (이제 Admin, Manager, Reviewer와 충돌 없음)
@@ -2559,16 +2549,8 @@ const createUserContests = async () => {
 
   for (const contestRecord of contestRecords) {
     participantPromises.push(
-      prisma.userContest.upsert({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          userId_contestId: {
-            userId: contestRecord.userId!,
-            contestId: contestRecord.contestId
-          }
-        },
-        update: {}, // ✅ 기존 데이터 유지
-        create: {
+      prisma.userContest.create({
+        data: {
           contestId: contestRecord.contestId,
           userId: contestRecord.userId!,
           role: ContestRole.Participant
