@@ -163,22 +163,6 @@ describe('AssignmentService', () => {
     })
   })
 
-  describe('filterOngoing', () => {
-    it('should return ongoing assignments of the group', () => {
-      expect(service.filterOngoing(assignments)).to.deep.equal(
-        ongoingAssignments
-      )
-    })
-  })
-
-  describe('filterUpcoming', () => {
-    it('should return upcoming assignments of the group', () => {
-      expect(service.filterUpcoming(assignments)).to.deep.equal(
-        upcomingAssignments
-      )
-    })
-  })
-
   describe('getAssignment', () => {
     it('should throw error when assignment does not exist', async () => {
       await expect(

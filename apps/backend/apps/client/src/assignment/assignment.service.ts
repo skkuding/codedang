@@ -72,33 +72,6 @@ export class AssignmentService {
     }))
   }
 
-  // TODO: participants 대신 _count.assignmentRecord 그대로 사용하는 것 고려해보기
-  /** 가독성을 위해 _count.assignmentRecord를 participants로 변경한다. */
-  renameToParticipants(assignments: AssignmentSelectResult[]) {
-    return assignments.map(({ _count: countObject, ...rest }) => ({
-      ...rest,
-      participants: countObject.assignmentRecord
-    }))
-  }
-
-  filterOngoing(assignments: AssignmentResult[]) {
-    const now = new Date()
-    const ongoingAssignment = assignments
-      .filter(
-        (assignment) => assignment.startTime <= now && assignment.endTime > now
-      )
-      .sort((a, b) => a.endTime.getTime() - b.endTime.getTime())
-    return ongoingAssignment
-  }
-
-  filterUpcoming(assignments: AssignmentResult[]) {
-    const now = new Date()
-    const upcomingAssignment = assignments
-      .filter((assignment) => assignment.startTime > now)
-      .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
-    return upcomingAssignment
-  }
-
   async getAssignment(id: number, groupId = OPEN_SPACE_ID, userId?: number) {
     // check if the user has already registered this assignment
     // initial value is false
@@ -205,16 +178,6 @@ export class AssignmentService {
     return await this.prisma.assignmentRecord.create({
       data: { assignmentId, userId }
     })
-  }
-
-  async isVisible(assignmentId: number, groupId: number): Promise<boolean> {
-    return !!(await this.prisma.assignment.count({
-      where: {
-        id: assignmentId,
-        isVisible: true,
-        groupId
-      }
-    }))
   }
 
   async deleteAssignmentRecord(
