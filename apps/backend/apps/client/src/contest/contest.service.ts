@@ -329,7 +329,7 @@ export class ContestService {
     }))
   }
 
-  async deleteContestRecord(contestId: number, userId: number) {
+  async unregisterContest(contestId: number, userId: number) {
     const [contest, contestRecord] = await Promise.all([
       this.prisma.contest.findUnique({
         where: {

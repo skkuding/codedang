@@ -294,7 +294,7 @@ describe('ContestService', () => {
     })
   })
 
-  describe('deleteContestRecord', () => {
+  describe('unregisterContest', () => {
     let contestRecord: ContestRecord | { id: number } = { id: -1 }
 
     afterEach(async () => {
@@ -327,25 +327,25 @@ describe('ContestService', () => {
       })
 
       expect(
-        await service.deleteContestRecord(newlyRegisteringContestId, user01Id)
+        await service.unregisterContest(newlyRegisteringContestId, user01Id)
       ).to.deep.equal(contestRecord)
     })
 
     it('should throw error when contest does not exist', async () => {
-      await expect(
-        service.deleteContestRecord(999, user01Id)
-      ).to.be.rejectedWith(EntityNotExistException)
+      await expect(service.unregisterContest(999, user01Id)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
 
     it('should throw error when contest record does not exist', async () => {
-      await expect(
-        service.deleteContestRecord(16, user01Id)
-      ).to.be.rejectedWith(EntityNotExistException)
+      await expect(service.unregisterContest(16, user01Id)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
 
     it('should throw error when contest is ongoing', async () => {
       await expect(
-        service.deleteContestRecord(contestId, user01Id)
+        service.unregisterContest(contestId, user01Id)
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })

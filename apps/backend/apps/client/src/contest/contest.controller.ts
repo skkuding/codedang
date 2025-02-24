@@ -61,7 +61,7 @@ export class ContestController {
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) contestId: number
   ) {
-    return await this.contestService.deleteContestRecord(contestId, req.user.id)
+    return await this.contestService.unregisterContest(contestId, req.user.id)
   }
 
   @Get(':id/leaderboard')
