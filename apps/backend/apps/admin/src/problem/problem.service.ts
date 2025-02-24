@@ -107,7 +107,7 @@ export class ProblemService {
   }
 
   async createTestcase(problemId: number, testcase: Testcase) {
-    const probelmTestcase = await this.prisma.problemTestcase.create({
+    const problemTestcase = await this.prisma.problemTestcase.create({
       data: {
         problemId,
         input: testcase.input,
@@ -116,7 +116,7 @@ export class ProblemService {
         isHidden: testcase.isHidden
       }
     })
-    return { id: probelmTestcase.id }
+    return problemTestcase
   }
 
   async uploadProblems(
@@ -300,9 +300,7 @@ export class ProblemService {
       isHidden
     }
 
-    await this.createTestcase(problemId, testcase)
-
-    return testcase
+    return await this.createTestcase(problemId, testcase)
   }
 
   async uploadImage(input: UploadFileInput, userId: number) {
