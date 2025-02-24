@@ -1,8 +1,10 @@
 'use client'
 
 import { Separator } from '@/components/shadcn/separator'
+import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { cn } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
+import { useQuery } from '@apollo/client'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -57,11 +59,29 @@ export function ManagementSidebar() {
     { name: 'Q&A', path: '/admin/course/qna', icon: MdQuestionAnswer }
   ]
 
-  // const courseItems = [
-  //   { id: 1, code: 'SWE3033', name: '소프트웨어공학' },
-  //   { id: 2, code: 'CSE2035', name: '자료구조와알고리즘' },
-  //   { id: 3, code: 'MAT2410', name: '선형대수학' }
-  // ]
+  const { data: coursesData } = useQuery(GET_COURSES_USER_LEAD)
+
+  const courseItems =
+    coursesData?.getCoursesUserLead.map((course) => ({
+      id: course.id,
+      code: `${course?.courseInfo?.courseNum}-${course?.courseInfo?.classNum}`,
+      name: course.groupName
+    })) || []
+
+  const courseList = (
+    <div className="mt-2 flex flex-col gap-2 pl-8">
+      {courseItems.map((course) => (
+        <Link
+          key={course.id}
+          href={`/admin/course/${course.id}`}
+          onClick={() => setIsCourseSidebarOpened(true)}
+          className="hover:text-primary overflow-hidden overflow-ellipsis text-sm text-gray-600"
+        >
+          [{course.code}] {course.name}
+        </Link>
+      ))}
+    </div>
+  )
 
   return (
     <div className="flex gap-5">
@@ -91,46 +111,36 @@ export function ManagementSidebar() {
         {/* Main Navigation Items */}
         <div className="flex flex-col gap-2">
           {mainNavItems.map((item) => (
-            <Link
-              key={item.name}
-              href={item.path}
-              onClick={() => {
-                if (item.path === '/admin/course') {
-                  setIsCourseListOpened(!isCourseListOpened)
-                } else {
-                  setIsCourseSidebarOpened(false)
-                  setIsCourseListOpened(false)
-                }
-              }}
-              className={cn(
-                'flex items-center rounded px-3 py-2 transition',
-                pathname.startsWith(item.path)
-                  ? 'bg-primary text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              )}
-            >
-              <item.icon className="h-5 w-5" />
-              {isMainSidebarExpanded && (
-                <span className="ml-3 transition-all">{item.name}</span>
-              )}
-            </Link>
+            <div key={item.name}>
+              <Link
+                key={item.name}
+                href={item.path}
+                onClick={() => {
+                  if (item.path === '/admin/course') {
+                    setIsCourseListOpened(!isCourseListOpened)
+                  } else {
+                    setIsCourseSidebarOpened(false)
+                    setIsCourseListOpened(false)
+                  }
+                }}
+                className={cn(
+                  'flex items-center rounded px-3 py-2 transition',
+                  pathname.startsWith(item.path)
+                    ? 'bg-primary text-white'
+                    : 'text-gray-600 hover:bg-gray-100'
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                {isMainSidebarExpanded && (
+                  <span className="ml-3 transition-all">{item.name}</span>
+                )}
+              </Link>
+              {item.path === '/admin/course' &&
+                isCourseListOpened &&
+                courseList}
+            </div>
           ))}
         </div>
-
-        {isMainSidebarExpanded && isCourseListOpened && (
-          <div className="mt-2 flex flex-col gap-2 pl-8">
-            {courseItems.map((course) => (
-              <Link
-                key={course.id}
-                href={`/admin/course/${course.id}`}
-                onClick={() => setIsCourseSidebarOpened(true)}
-                className="hover:text-primary text-sm text-gray-600"
-              >
-                [{course.code}] {course.name}
-              </Link>
-            ))}
-          </div>
-        )}
       </motion.div>
 
       {/* Course Sidebar */}
