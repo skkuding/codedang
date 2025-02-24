@@ -4,7 +4,7 @@
 import { init } from '@sentry/nextjs'
 
 init({
-  dsn: 'https://10bd959e91328cfb75c274af2faa5fac@sentry.codedang.com/10',
+  dsn: process.env.SENTRY_DSN,
 
   // Adjust this value in production, or use tracesSampler for greater control
   tracesSampleRate: 1,
