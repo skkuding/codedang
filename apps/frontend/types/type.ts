@@ -193,6 +193,10 @@ export interface SubmissionItem {
   language: string
   result: string
   codeSize: number
+  problemId: number
+  problem: {
+    title: string
+  }
 }
 
 export interface SubmissionDetail {

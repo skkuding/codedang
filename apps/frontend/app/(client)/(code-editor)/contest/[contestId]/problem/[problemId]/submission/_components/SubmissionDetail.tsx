@@ -25,6 +25,14 @@ export async function SubmissionDetail({
   submissionId,
   contestId
 }: Props) {
+  console.log(
+    'problem id: ',
+    problemId,
+    ' submissionId: ',
+    submissionId,
+    'contestId: ',
+    contestId
+  )
   const res = await fetcherWithAuth(`submission/${submissionId}`, {
     searchParams: { problemId, contestId },
     next: {
@@ -43,10 +51,6 @@ export async function SubmissionDetail({
       <ScrollArea className="shrink-0 rounded-md">
         <div className="flex items-center justify-around gap-5 bg-slate-700 p-5 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
           <div>
-            <h2>User</h2>
-            <p>{submission.username}</p>
-          </div>
-          <div>
             <h2>Result</h2>
             <p className={getResultColor(submission.result)}>
               {submission.result}
@@ -59,6 +63,10 @@ export async function SubmissionDetail({
           <div>
             <h2>Submission Time</h2>
             <p>{dateFormatter(submission.createTime, 'YYYY-MM-DD HH:mm:ss')}</p>
+          </div>
+          <div>
+            <h2>Code Size</h2>
+            <p>{submission.username}</p>
           </div>
         </div>
         <ScrollBar orientation="horizontal" />
