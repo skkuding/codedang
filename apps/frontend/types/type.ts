@@ -139,7 +139,9 @@ export interface Contest {
 export interface ContestAnnouncement {
   id: number
   content: string
-  problemId: number
+  assignmentId: null | string
+  constestId: number
+  problemId: null | number
   createTime: string
   updateTime: string
 }
