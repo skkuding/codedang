@@ -286,13 +286,13 @@ export class ProblemService {
     const input = row.getCell(header['Input']).text
     const output = row.getCell(header['Output']).text
     const scoreWeight =
-      header['scoreWeight'] !== undefined
-        ? parseInt(row.getCell(header['scoreWeight']).text)
-        : undefined
+      header['scoreWeight'] === undefined || header['scoreWeight'].text === ''
+        ? 1
+        : parseInt(row.getCell(header['scoreWeight']).text)
     const isHidden =
-      header['isHidden'] !== undefined
-        ? row.getCell(header['isHidden']).text === 'O'
-        : undefined
+      header['isHidden'] === undefined || header['isHidden'].text === ''
+        ? false
+        : row.getCell(header['isHidden']).text === 'O'
     const testcase: Testcase = {
       input,
       output,
