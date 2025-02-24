@@ -12,7 +12,7 @@ post {
 
 body:graphql {
   query GetAssignmentProblems($groupId: Int!, $assignmentId: Int!) {
-    getAssignmentProblems(groupId: $groupId, assignemntId: $assignmentId) {
+    getAssignmentProblems(groupId: $groupId, assignmentId: $assignmentId) {
       order
       assignmentId
       problemId
@@ -33,7 +33,7 @@ body:graphql {
 body:graphql:vars {
   {
     "groupId": 1,
-    "assignemntId":  1
+    "assignmentId":  1
   }
 }
 
