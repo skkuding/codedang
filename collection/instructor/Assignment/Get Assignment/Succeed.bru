@@ -11,18 +11,21 @@ post {
 }
 
 body:graphql {
-  query GetAssignment($assignmentId: Int!) {
-    getAssignment(assignmentId: $assignmentId) {
+  query GetAssignment($assignmentId: Int!, $groupId: Int!) {
+    getAssignment(assignmentId: $assignmentId, groupId: $groupId) {
       id
       title
+      week
       participants
     }
   }
+  
 }
 
 body:graphql:vars {
   {
-    "assignmentId": 1
+    "assignmentId": 21,
+    "groupId": 2
   }
 }
 

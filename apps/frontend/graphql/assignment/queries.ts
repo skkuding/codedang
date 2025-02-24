@@ -11,6 +11,7 @@ const GET_ASSIGNMENT = gql(`
       endTime
       startTime
       title
+      week
     }
   }
 `)
@@ -26,13 +27,14 @@ const GET_ASSIGNMENTS = gql(`
       participants
       isRankVisible
       isVisible
+      week
     }
   }
 `)
 
 const GET_BELONGED_ASSIGNMENTS = gql(`
-  query GetAssignmentsByProblemId($problemId: Int!) {
-    getAssignmentsByProblemId(problemId: $problemId) {
+  query GetAssignmentsByProblemId($groupId: Int!, $problemId: Int!) {
+    getAssignmentsByProblemId(groupId: $groupId, problemId: $problemId) {
       upcoming {
         id
         title
