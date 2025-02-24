@@ -1,6 +1,6 @@
 import { DateTimePickerDemo } from '@/components/shadcn/date-time-picker-demo'
 import { useController, useFormContext } from 'react-hook-form'
-import { ErrorMessage } from '../../_components/ErrorMessage'
+import { ErrorMessage } from './ErrorMessage'
 
 export function TimeForm({ name }: { name: string }) {
   const {

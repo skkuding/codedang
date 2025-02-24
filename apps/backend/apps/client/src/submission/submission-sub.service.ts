@@ -52,10 +52,9 @@ export class SubmissionSubscriptionService implements OnModuleInit {
             raw.properties.type === RUN_MESSAGE_TYPE ||
             raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
           ) {
-            const testRequestedUserId = res.submissionId
             await this.handleRunMessage(
               res,
-              testRequestedUserId,
+              res.submissionId,
               raw.properties.type === USER_TESTCASE_MESSAGE_TYPE ? true : false
             )
             return
@@ -96,17 +95,10 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     const status = Status(msg.resultCode)
     const testcaseId = msg.judgeResult?.testcaseId
     const output = this.parseError(msg, status)
-    if (
-      status === ResultStatus.ServerError ||
-      status === ResultStatus.CompileError
-    ) {
-      await this.handleJudgeError(status, msg)
-      return
-    }
 
-    if (!msg.judgeResult) {
-      throw new UnprocessableDataException('judgeResult is empty')
-    }
+    // judgeResult 없음 => testcaseId 없음
+    // CompileError 또는 ServerError 발생을 의미
+    // 전체 테스트케이스 결과를 해당 에러로 저장하고 함수 종료
     if (!testcaseId) {
       const key = isUserTest
         ? userTestcasesKey(submissionId)
@@ -128,6 +120,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
       return
     }
+
     const key = isUserTest
       ? userTestKey(submissionId, testcaseId)
       : testKey(submissionId, testcaseId)
@@ -143,8 +136,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       testcase.output = output
     }
 
-    const cpuTime = BigInt(msg.judgeResult.cpuTime)
-    const memoryUsage = msg.judgeResult.memory
+    const cpuTime = BigInt(msg.judgeResult!.cpuTime)
+    const memoryUsage = msg.judgeResult!.memory
 
     const testSubmission = await this.prisma.testSubmission.findUnique({
       where: { id: submissionId }
