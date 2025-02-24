@@ -1,9 +1,10 @@
 'use client'
 
+import { Button } from '@/components/shadcn/button'
 import { Separator } from '@/components/shadcn/separator'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { cn } from '@/libs/utils'
-import codedangLogo from '@/public/logos/codedang-with-text.svg'
+import codedangWithTextIcon from '@/public/logos/codedang-with-text.svg'
 import { useQuery } from '@apollo/client'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
@@ -11,7 +12,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import {
-  FaChartBar,
+  FaSquarePollHorizontal,
   FaUser,
   FaBell,
   FaPen,
@@ -37,7 +38,7 @@ export function ManagementSidebar() {
   const pathname = usePathname()
 
   const mainNavItems = [
-    { name: 'Dashboard', path: '/admin', icon: FaChartBar },
+    { name: 'Dashboard', path: '/admin', icon: FaSquarePollHorizontal },
     { name: 'User', path: '/admin/user', icon: FaUser },
     { name: 'Notice', path: '/admin/notice', icon: FaBell },
     { name: 'Problem', path: '/admin/problem', icon: FaPen },
@@ -75,7 +76,13 @@ export function ManagementSidebar() {
           key={course.id}
           href={`/admin/course/${course.id}`}
           onClick={() => setIsCourseSidebarOpened(true)}
-          className="hover:text-primary overflow-hidden overflow-ellipsis text-sm text-gray-600"
+          className={cn(
+            'overflow-hidden overflow-ellipsis text-sm transition-colors',
+            pathname.match(/\/admin\/course\/(\d+)/)?.[1] ===
+              course.id.toString()
+              ? 'text-primary font-medium'
+              : 'hover:text-primary text-gray-600'
+          )}
         >
           [{course.code}] {course.name}
         </Link>
@@ -98,13 +105,15 @@ export function ManagementSidebar() {
           {isMainSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
         </button>
 
-        {/* Logo */}
         <div className="mb-6 mt-4 pl-2">
           {isMainSidebarExpanded ? (
-            <Image src={codedangLogo} alt="코드당" width={135} height={28} />
-          ) : (
-            <div className="bg-primary h-7 w-7 rounded-full" />
-          )}
+            <Image
+              src={codedangWithTextIcon}
+              alt="코드당"
+              width={135}
+              height={28}
+            />
+          ) : null}
         </div>
         <Separator className="mb-4" />
 
@@ -117,7 +126,7 @@ export function ManagementSidebar() {
                 href={item.path}
                 onClick={() => {
                   if (item.path === '/admin/course') {
-                    setIsCourseListOpened(!isCourseListOpened)
+                    setIsCourseListOpened(true)
                   } else {
                     setIsCourseSidebarOpened(false)
                     setIsCourseListOpened(false)
@@ -125,7 +134,7 @@ export function ManagementSidebar() {
                 }}
                 className={cn(
                   'flex items-center rounded px-3 py-2 transition',
-                  pathname.startsWith(item.path)
+                  pathname === item.path
                     ? 'bg-primary text-white'
                     : 'text-gray-600 hover:bg-gray-100'
                 )}
