@@ -60,7 +60,8 @@ export class UserService {
         email
       },
       select: {
-        username: true
+        username: true,
+        id: true
       }
     })
 

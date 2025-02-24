@@ -1,15 +1,34 @@
 import { Separator } from '@/components/shadcn/separator'
-import codedangLogo from '@/public/logos/codedang-with-text.svg'
-import Image from 'next/image'
-import Link from 'next/link'
+import { auth } from '@/libs/auth'
+import { safeFetcherWithAuth } from '@/libs/utils'
+import type { Course } from '@/types/type'
+import { redirect } from 'next/navigation'
 import { ClientApolloProvider } from './_components/ApolloProvider'
-import { GroupAdminSideBar } from './_components/GroupAdminSideBar'
 import { ManagementSidebar } from './_components/MangementSidebar'
-import { SideBar } from './_components/SideBar'
 
-// import { GroupSelect } from './_components/GroupSelect'
+async function fetchGroupLeaderRole() {
+  try {
+    const response: Course[] = await safeFetcherWithAuth
+      .get('course/joined')
+      .json()
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+    return response.some((course) => course.isGroupLeader)
+  } catch (error) {
+    console.error('Error fetching group leader role:', error)
+  }
+}
+
+export default async function Layout({
+  children
+}: {
+  children: React.ReactNode
+}) {
+  const hasAnyGroupLeaderRole = await fetchGroupLeaderRole()
+  const session = await auth()
+  if (!hasAnyGroupLeaderRole && session?.user.role === 'User') {
+    redirect('/')
+  }
+
   return (
     <ClientApolloProvider>
       <div className="flex h-dvh bg-neutral-50">

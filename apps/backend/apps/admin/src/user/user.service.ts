@@ -108,6 +108,7 @@ export class GroupMemberService {
         isGroupLeader: leaderOnly ? true : undefined
       },
       select: {
+        isGroupLeader: true,
         user: {
           select: {
             id: true,
@@ -128,6 +129,7 @@ export class GroupMemberService {
 
     return userGroups.map((userGroup) => {
       return {
+        isGroupLeader: userGroup.isGroupLeader,
         username: userGroup.user.username,
         userId: userGroup.user.id,
         name: userGroup.user.userProfile?.realName ?? '',
@@ -146,6 +148,7 @@ export class GroupMemberService {
         userId
       },
       select: {
+        isGroupLeader: true,
         user: {
           select: {
             id: true,
@@ -167,6 +170,7 @@ export class GroupMemberService {
       throw new EntityNotExistException('userGroup')
     }
     return {
+      isGroupLeader: userGroup.isGroupLeader,
       username: userGroup.user.username,
       userId: userGroup.user.id,
       name: userGroup.user.userProfile?.realName ?? '',
