@@ -233,7 +233,6 @@ model Problem {
   codeDraft         CodeDraft[]
   updateHistory     UpdateHistory[]
   testSubmission    TestSubmission[]
-  updateHistory     UpdateHistory[]
 
   @@map("problem")
 }
@@ -243,9 +242,9 @@ model UpdateHistory {
   problemId     Int      @map("problem_id")
   problem       Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   updatedAt     DateTime @default(now()) @map("updated_at")
-  updatedFields String[] @map("updated_fields") // 변경된 필드 목록
   updatedBy     User     @relation(fields: [updatedByid], references: [id])
   updatedByid   Int
+  updatedFields String[] @map("updated_fields") // 변경된 필드 목록
   updatedInfo   Json[]
 
   @@map("updateHistory")

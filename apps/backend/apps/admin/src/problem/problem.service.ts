@@ -461,8 +461,6 @@ export class ProblemService {
         )
       ) {
         updatedFields.push('Testcase*')
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        isTestCaseChanged = true
       }
     }
     if (input.timeLimit && input.timeLimit !== problem.timeLimit) {
