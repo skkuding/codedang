@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import type { Prisma } from '@prisma/client'
-import { plainToInstance } from 'class-transformer'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { Language, ResultStatus } from '@admin/@generated'
-import { Range } from '@admin/problem/model/template.input'
 import { SubmissionOrder } from './enum/submission-order.enum'
 import type {
   GetAssignmentSubmissionsInput,
@@ -251,7 +249,7 @@ export class SubmissionService {
     if (!submission) {
       throw new EntityNotExistException('Submission')
     }
-    const code = plainToInstance(Range, submission.code)
+
     const results = submission.submissionResult.map((result) => {
       return {
         ...result,
@@ -265,9 +263,13 @@ export class SubmissionService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { submissionResult, ...submissionWithoutResult } = submission
 
+    const code = (
+      submission.code[0] as { id: number; text: string; locked: boolean }
+    ).text
+
     return {
       ...submissionWithoutResult,
-      code: code.map((snippet) => snippet.text).join('\n'),
+      code,
       testcaseResult: results
     }
   }
