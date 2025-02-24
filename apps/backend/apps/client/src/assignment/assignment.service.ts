@@ -56,7 +56,7 @@ export class AssignmentService {
                 isSubmitted: true
               },
               select: {
-                assignmentProblemId: true
+                problemId: true
               }
             }
           }

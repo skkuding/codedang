@@ -592,7 +592,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           }
         },
         select: {
-          id: true,
           score: true
         }
       })
@@ -600,9 +599,10 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       await this.prisma.assignmentProblemRecord.update({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
-          assignmentProblemId_assignmentRecordId: {
-            assignmentProblemId: assignmentProblem!.id,
-            assignmentRecordId: assignmentRecord.id
+          assignmentId_userId_problemId: {
+            assignmentId,
+            userId,
+            problemId: submission.problemId
           }
         },
         data: { isAccepted: true }

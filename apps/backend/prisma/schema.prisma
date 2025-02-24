@@ -327,7 +327,6 @@ model Assignment {
 }
 
 model AssignmentProblem {
-  id                      Int                       @id @default(autoincrement())
   order                   Int
   assignment              Assignment                @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   assignmentId            Int                       @map("assignment_id")
@@ -339,8 +338,8 @@ model AssignmentProblem {
   updateTime              DateTime                  @updatedAt @map("update_time")
   AssignmentProblemRecord AssignmentProblemRecord[]
 
-  //@@id([assignmentId, problemId])
-  @@unique([assignmentId, problemId])
+  @@id([assignmentId, problemId])
+  //@@unique([assignmentId, problemId])
   @@map("assignment_problem")
 }
 
@@ -365,17 +364,18 @@ model AssignmentRecord {
 }
 
 model AssignmentProblemRecord {
-  assignmentProblemId Int @map("assignment_problem_id")
-  assignmentRecordId  Int @map("assignment_record_id")
+  assignmentId Int
+  userId       Int
+  problemId    Int
 
   score       Int     @default(0)
   isSubmitted Boolean @default(false) @map("is_submitted")
   isAccepted  Boolean @default(false) @map("is_accepted")
 
-  assignmentProblem AssignmentProblem @relation(fields: [assignmentProblemId], references: [id], onDelete: Cascade)
-  assignmentRecord  AssignmentRecord  @relation(fields: [assignmentRecordId], references: [id], onDelete: Cascade)
+  assignmentProblem AssignmentProblem @relation(fields: [assignmentId, problemId], references: [assignmentId, problemId], onDelete: Cascade)
+  assignmentRecord  AssignmentRecord  @relation(fields: [assignmentId, userId], references: [assignmentId, userId], onDelete: Cascade)
 
-  @@id([assignmentProblemId, assignmentRecordId])
+  @@id([assignmentId, userId, problemId])
   @@map("assignment_problem_record")
 }
 

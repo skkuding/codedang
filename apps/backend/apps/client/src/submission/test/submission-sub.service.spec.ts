@@ -765,7 +765,6 @@ describe('SubmissionSubscriptionService', () => {
             }
           },
           select: {
-            id: true,
             score: true
           }
         })
