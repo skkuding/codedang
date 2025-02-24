@@ -2544,7 +2544,6 @@ const createUserContests = async () => {
 
   await Promise.all(userContests)
 
-  // 3️⃣ 마지막에 contestRecords 추가 (이제 Admin, Manager, Reviewer와 충돌 없음)
   const participantPromises: Promise<UserContest>[] = []
 
   for (const contestRecord of contestRecords) {
@@ -2559,12 +2558,10 @@ const createUserContests = async () => {
     )
   }
 
-  // 4️⃣ 모든 `contestRecords` 삽입 작업 병렬 실행
   await Promise.all(participantPromises)
 }
 
 const createContestProblemRecords = async () => {
-  // contest 1 problems for
   for (let i = 0; i < 5; ++i) {
     contestProblemRecords.push(
       await prisma.contestProblemRecord.create({
