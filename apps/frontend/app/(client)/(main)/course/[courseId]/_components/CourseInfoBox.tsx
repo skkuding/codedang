@@ -18,7 +18,7 @@ export async function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
       <div className="relative m-4 flex h-[153px] w-[281px] flex-col justify-between rounded-xl p-7 shadow">
         <div className="flex flex-col text-sm font-semibold">
           <span>
-            [{`${course.courseInfo.courseNum}-${course.courseInfo.classNum}`}]
+            [{`${course.courseInfo.courseNum}_${course.courseInfo.classNum}`}]
           </span>
           <span className="line-clamp-2">{course.groupName}</span>
         </div>

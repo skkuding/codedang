@@ -21,7 +21,7 @@ export function CourseCard({ course, color }: CourseCardProps) {
       <div className="flex h-[192px] w-full flex-col justify-between px-6 py-6">
         <StatusBadge variant={'ongoing'} />
         <div className="my-1 line-clamp-1 h-6 w-[347px] text-ellipsis whitespace-pre-wrap text-lg font-semibold leading-tight text-black">
-          [{course?.courseInfo?.courseNum}-{course?.courseInfo?.classNum}]{' '}
+          [{course?.courseInfo?.courseNum}_{course?.courseInfo?.classNum}]{' '}
           {course.groupName}
         </div>
         <div className="flex flex-col gap-1">
