@@ -209,7 +209,7 @@ describe('ProblemService', () => {
       const problemId = 2
       const createTestcaseSpy = spy(service, 'createTestcase')
       db.problemTestcase.create.resetHistory()
-      db.problemTestcase.create.resolves({ id: 1 })
+      db.problemTestcase.create.resolves(testcaseData)
 
       const result = await service.uploadTestcase(
         testcaseUploadInput,
