@@ -593,7 +593,6 @@ export const exampleAssignment: Assignment = {
   endTime: new Date(),
   createTime: new Date(),
   updateTime: new Date(),
-  invitationCode: '123456',
   week: 1
 }
 export const exampleAssignmentProblems: AssignmentProblem[] = [
