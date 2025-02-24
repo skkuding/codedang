@@ -54,8 +54,8 @@ export default function Page() {
                 name: 'Example Frontend Span',
                 op: 'test'
               },
-              async () => {
-                throw await new Error('Sentry Example Frontend Error')
+              () => {
+                throw new Error('Sentry Example Frontend Error')
               }
             )
           }}
