@@ -16,7 +16,7 @@ export default function Layout({ children, params }: CourseLayoutProps) {
         <div className="flex flex-row">
           <nav className="w-auto border-r border-r-slate-200 bg-white p-2 px-6 pt-20 text-sm font-medium">
             <CourseInfoBox courseId={courseId} />
-            <Sidebar />
+            <Sidebar courseId={courseId} />
           </nav>
           <article className="w-full">
             <div>{children}</div>
