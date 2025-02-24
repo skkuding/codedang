@@ -203,6 +203,7 @@ export interface SubmissionDetail {
   problemId: number
   username: string
   code: string
+  codeSize: string
   language: Language
   createTime: Date
   result: string

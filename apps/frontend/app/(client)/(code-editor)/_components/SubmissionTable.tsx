@@ -81,7 +81,6 @@ export function SubmissionTable<
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
             const href = getHref(row)
-            console.log('href: ', href)
 
             return (
               <TableRow
