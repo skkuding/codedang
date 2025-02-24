@@ -1,4 +1,5 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
+import { Checkbox } from '@/components/shadcn/checkbox'
 import type { ColumnDef } from '@tanstack/react-table'
 
 export interface DataTableMember {
@@ -11,6 +12,31 @@ export interface DataTableMember {
 }
 
 export const columns: ColumnDef<DataTableMember>[] = [
+  {
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        onClick={(e) => e.stopPropagation()}
+        checked={table.getIsAllPageRowsSelected()}
+        onCheckedChange={(value) =>
+          table.toggleAllPageRowsSelected(Boolean(value))
+        }
+        aria-label="Select all"
+        className="translate-y-[2px] bg-white"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        onClick={(e) => e.stopPropagation()}
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
+        aria-label="Select row"
+        className="translate-y-[2px] bg-white"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false
+  },
   {
     accessorKey: 'studentId',
     header: ({ column }) => (
