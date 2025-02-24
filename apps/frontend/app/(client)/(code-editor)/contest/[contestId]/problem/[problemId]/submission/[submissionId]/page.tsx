@@ -22,7 +22,6 @@ export default function Page({
   const { submissionId, contestId } = params
   const { cellProblemId } = searchParams
 
-  // TODO seunghyeon: 밑에 Submission # 부분을 문제 이름으로 바꿔야 함
   return (
     <div className="flex flex-col gap-5 overflow-auto p-6">
       <div className="z-20 flex items-center gap-3">
