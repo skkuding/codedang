@@ -133,7 +133,6 @@ const problem: Problem = {
 
 const assignmentProblem: AssignmentProblem = {
   order: 0,
-  id: 1,
   assignmentId,
   problemId,
   score: 50,
