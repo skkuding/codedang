@@ -5,6 +5,7 @@ export type ContestStatus =
   | 'registeredOngoing'
   | 'registeredUpcoming'
 
+// TODO: registeredOngoing registeredUpcoming 삭제하기
 export type AssignmentStatus =
   | 'ongoing'
   | 'upcoming'
@@ -313,15 +314,25 @@ export interface Assignment {
     id: string
     groupName: string
   }
-  // TODO: Assignement에서 현재 사용 중이지 않은 필드로, 추후 필요시 사용할 예정 (민규)
-  // isJudgeResultVisible: boolean
-  // enableCopyPaste: boolean
-
-  // TODO: CI 오류나서 임시방편으로 주석 해제 했습니다(민규)
+  enableCopyPaste: boolean
+  isJudgeResultVisible: boolean
+  week: number
   status: AssignmentStatus
-  // participants: number
-  // isRegistered: boolean
-  isGraded: boolean
+  description: string
+  invitationCodeExists: boolean
+  isRegistered: boolean
+}
+
+export interface AssignmentProblem {
+  id: number
+  title: number
+  difficulty: Level
+  order: number
+  submissionCount: number
+  maxScore: number | null
+  score: string | null
+  submissionTime: string | null
+  acceptedRate: number
 }
 
 export interface CalendarAssignment {
