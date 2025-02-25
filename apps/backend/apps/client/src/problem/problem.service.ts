@@ -14,6 +14,7 @@ import type {
 } from '@admin/@generated'
 import { AssignmentService } from '@client/assignment/assignment.service'
 import { ContestService } from '@client/contest/contest.service'
+import type { Template } from '@client/submission/class/create-submission.dto'
 import { WorkbookService } from '@client/workbook/workbook.service'
 import { CodeDraftResponseDto } from './dto/code-draft.response.dto'
 import { CreateTemplateDto } from './dto/create-code-draft.dto'
@@ -66,6 +67,11 @@ const codeDraftSelectOption = {
   createTime: true,
   updateTime: true
 }
+
+const parseTemplate = (template: Prisma.JsonValue[]): Template[] => {
+  return template.length > 0 ? JSON.parse(template[0] as string) : template
+}
+
 @Injectable()
 export class ProblemService {
   constructor(private readonly prisma: PrismaService) {}
@@ -247,7 +253,8 @@ export class ProblemService {
 
     return {
       ...data,
-      tags
+      tags,
+      template: parseTemplate(data.template)
     }
   }
 }
@@ -477,6 +484,7 @@ export class ContestProblemService {
       order: data.order,
       problem: {
         ...problem,
+        template: parseTemplate(problem.template),
         tags
       }
     }
@@ -722,6 +730,7 @@ export class AssignmentProblemService {
       order: data.order,
       problem: {
         ...problem,
+        template: parseTemplate(problem.template),
         tags
       }
     }
@@ -897,6 +906,7 @@ export class WorkbookProblemService {
       order: data.order,
       problem: {
         ...problem,
+        template: parseTemplate(problem.template),
         tags
       }
     }
