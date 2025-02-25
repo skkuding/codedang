@@ -1,9 +1,13 @@
+import { AuthProvider } from '@/components/auth/AuthProvider'
 import { Toaster } from '@/components/shadcn/sonner'
+import { auth } from '@/libs/auth'
 import { metaBaseUrl } from '@/libs/constants'
+import { getBootstrapData } from '@/libs/posthog.server'
 import type { Metadata, Viewport } from 'next'
 import { IBM_Plex_Mono } from 'next/font/google'
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css'
 import './globals.css'
+import { PostHogProvider } from './posthog'
 
 // TODO: 추후에 페이지 별로 revalidate 시간 논의 및 조정 필요
 export const revalidate = 5
@@ -28,21 +32,28 @@ export const viewport: Viewport = {
   themeColor: '#3581FA'
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: {
   children: React.ReactNode
 }) {
+  const bootstrapData = await getBootstrapData()
+  const session = await auth()
+
   return (
     <html lang="en" className={mono.variable}>
       <body>
-        {children}
-        <Toaster
-          richColors
-          position="top-center"
-          closeButton={true}
-          duration={2000}
-        />
+        <PostHogProvider bootstrap={bootstrapData}>
+          {/**NOTE: remove comment if you want to track page view of users */}
+          {/* <PostHogPageView /> */}
+          <AuthProvider session={session}>{children}</AuthProvider>
+          <Toaster
+            richColors
+            position="top-center"
+            closeButton={true}
+            duration={2000}
+          />
+        </PostHogProvider>
       </body>
     </html>
   )

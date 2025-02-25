@@ -21,6 +21,7 @@ import {
 import { ProblemOrder } from './enum/problem-order.enum'
 import {
   ContestProblemService,
+  AssignmentProblemService,
   ProblemService,
   WorkbookProblemService
 } from './problem.service'
@@ -56,12 +57,12 @@ export class ProblemController {
         search
       })
     }
-    return await this.workbookProblemService.getWorkbookProblems(
-      workbookId!,
+    return await this.workbookProblemService.getWorkbookProblems({
+      workbookId,
       cursor,
       take,
       groupId
-    )
+    })
   }
 
   @Get(':problemId')
@@ -95,13 +96,12 @@ export class ContestProblemController {
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number
   ) {
-    return await this.contestProblemService.getContestProblems(
+    return await this.contestProblemService.getContestProblems({
       contestId,
-      req.user.id,
+      userId: req.user.id,
       cursor,
-      take,
-      groupId
-    )
+      take
+    })
   }
 
   @Get(':problemId')
@@ -111,11 +111,51 @@ export class ContestProblemController {
     @Param('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number
   ) {
-    return await this.contestProblemService.getContestProblem(
+    return await this.contestProblemService.getContestProblem({
       contestId,
       problemId,
-      req.user.id,
+      userId: req.user.id,
       groupId
-    )
+    })
+  }
+}
+
+@Controller('assignment/:assignmentId/problem')
+export class AssignmentProblemController {
+  constructor(
+    private readonly assignmentProblemService: AssignmentProblemService
+  ) {}
+
+  @Get()
+  async getAssignmentProblems(
+    @Req() req: AuthenticatedRequest,
+    @Param('assignmentId', IDValidationPipe) assignmentId: number,
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number
+  ) {
+    return await this.assignmentProblemService.getAssignmentProblems({
+      assignmentId,
+      userId: req.user.id,
+      cursor,
+      take,
+      groupId
+    })
+  }
+
+  @Get(':problemId')
+  async getAssignmentProblem(
+    @Req() req: AuthenticatedRequest,
+    @Param('assignmentId', IDValidationPipe) assignmentId: number,
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number,
+    @Query('groupId', GroupIDPipe) groupId: number
+  ) {
+    return await this.assignmentProblemService.getAssignmentProblem({
+      assignmentId,
+      problemId,
+      userId: req.user.id,
+      groupId
+    })
   }
 }

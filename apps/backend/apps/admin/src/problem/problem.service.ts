@@ -1,13 +1,15 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from '@nestjs/cache-manager'
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException
-} from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Language } from '@generated'
-import type { ContestProblem, Problem, Tag, WorkbookProblem } from '@generated'
+import type {
+  AssignmentProblem,
+  ContestProblem,
+  Problem,
+  Tag,
+  WorkbookProblem
+} from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput } from '@generated'
 import { Prisma } from '@prisma/client'
@@ -57,10 +59,12 @@ export class ProblemService {
         'A problem should support at least one language'
       )
     }
-    template.forEach((template) => {
-      if (!languages.includes(template.language)) {
+
+    // Check if the problem supports the language in the template
+    template.forEach((template: Template) => {
+      if (!languages.includes(template.language as Language)) {
         throw new UnprocessableDataException(
-          `This problem does not support ${template.language}`
+          `This problem does not support ${template.language as Language}`
         )
       }
     })
@@ -242,12 +246,12 @@ export class ProblemService {
 
     const fileSize = await this.getFileSize(createReadStream())
     try {
-      await this.storageService.uploadImage(
-        newFilename,
+      await this.storageService.uploadImage({
+        filename: newFilename,
         fileSize,
-        createReadStream(),
-        mimetype
-      )
+        content: createReadStream(),
+        type: mimetype
+      })
       await this.prisma.image.create({
         data: {
           filename: newFilename,
@@ -324,12 +328,17 @@ export class ProblemService {
     })
   }
 
-  async getProblems(
-    input: FilterProblemsInput,
-    groupId: number,
-    cursor: number | null,
+  async getProblems({
+    input,
+    groupId,
+    cursor,
+    take
+  }: {
+    input: FilterProblemsInput
+    groupId: number
+    cursor: number | null
     take: number
-  ) {
+  }) {
     const paginator = this.prisma.getPaginator(cursor)
 
     const whereOptions: ProblemWhereInput = {}
@@ -393,14 +402,14 @@ export class ProblemService {
       problem.visibleLockTime.getTime() !== MAX_DATE.getTime()
     ) {
       throw new UnprocessableDataException(
-        'Unable to set the visible property until the contest is over'
+        'Unable to set the visible property until the assignment/contest is over'
       )
     }
     const supportedLangs = languages ?? problem.languages
     template?.forEach((template) => {
-      if (!supportedLangs.includes(template.language)) {
+      if (!supportedLangs.includes(template.language as Language)) {
         throw new UnprocessableDataException(
-          `This problem does not support ${template.language}`
+          `This problem does not support ${template.language as Language}`
         )
       }
     })
@@ -596,7 +605,7 @@ export class ProblemService {
     contestId: number
   ): Promise<Partial<ContestProblem>[]> {
     await this.prisma.contest.findFirstOrThrow({
-      where: { id: contestId, groupId }
+      where: { id: contestId }
     })
     const contestProblems = await this.prisma.contestProblem.findMany({
       where: { contestId }
@@ -610,7 +619,7 @@ export class ProblemService {
     problemIdsWithScore: ProblemScoreInput[]
   ): Promise<Partial<ContestProblem>[]> {
     await this.prisma.contest.findFirstOrThrow({
-      where: { id: contestId, groupId }
+      where: { id: contestId }
     })
 
     const queries = problemIdsWithScore.map((record) => {
@@ -635,7 +644,7 @@ export class ProblemService {
     orders: number[]
   ): Promise<Partial<ContestProblem>[]> {
     await this.prisma.contest.findFirstOrThrow({
-      where: { id: contestId, groupId }
+      where: { id: contestId }
     })
 
     const contestProblems = await this.prisma.contestProblem.findMany({
@@ -665,6 +674,80 @@ export class ProblemService {
     return await this.prisma.$transaction(queries)
   }
 
+  async getAssignmentProblems(
+    groupId: number,
+    assignmentId: number
+  ): Promise<Partial<AssignmentProblem>[]> {
+    await this.prisma.assignment.findFirstOrThrow({
+      where: { id: assignmentId, groupId }
+    })
+    const assignmentProblems = await this.prisma.assignmentProblem.findMany({
+      where: { assignmentId }
+    })
+    return assignmentProblems
+  }
+
+  async updateAssignmentProblemsScore(
+    groupId: number,
+    assignmentId: number,
+    problemIdsWithScore: ProblemScoreInput[]
+  ): Promise<Partial<AssignmentProblem>[]> {
+    await this.prisma.assignment.findFirstOrThrow({
+      where: { id: assignmentId, groupId }
+    })
+
+    const queries = problemIdsWithScore.map((record) => {
+      return this.prisma.assignmentProblem.update({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          assignmentId_problemId: {
+            assignmentId,
+            problemId: record.problemId
+          }
+        },
+        data: { score: record.score }
+      })
+    })
+
+    return await this.prisma.$transaction(queries)
+  }
+
+  async updateAssignmentProblemsOrder(
+    groupId: number,
+    assignmentId: number,
+    orders: number[]
+  ): Promise<Partial<AssignmentProblem>[]> {
+    await this.prisma.assignment.findFirstOrThrow({
+      where: { id: assignmentId, groupId }
+    })
+
+    const assignmentProblems = await this.prisma.assignmentProblem.findMany({
+      where: { assignmentId }
+    })
+
+    if (orders.length !== assignmentProblems.length) {
+      throw new UnprocessableDataException(
+        'the length of orders and the length of assignmentProblem are not equal.'
+      )
+    }
+
+    const queries = assignmentProblems.map((record) => {
+      const newOrder = orders.indexOf(record.problemId)
+      return this.prisma.assignmentProblem.update({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          assignmentId_problemId: {
+            assignmentId,
+            problemId: record.problemId
+          }
+        },
+        data: { order: newOrder }
+      })
+    })
+
+    return await this.prisma.$transaction(queries)
+  }
+
   /**
    * 새로운 태그를 생성합니다
    * @param tagName - unique한 태그이름
@@ -672,7 +755,7 @@ export class ProblemService {
    * @throws DuplicateFoundException - 이미 존재하는 태그일 경우
    */
   async createTag(tagName: string): Promise<Tag> {
-    // throw error if tag already exists
+    // 존재하는 태그일 경우 에러를 throw합니다
     try {
       return await this.prisma.tag.create({
         data: {
@@ -686,7 +769,7 @@ export class ProblemService {
       )
         throw new DuplicateFoundException('tag')
 
-      throw new InternalServerErrorException(error)
+      throw error
     }
   }
 

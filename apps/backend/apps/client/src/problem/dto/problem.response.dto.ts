@@ -1,13 +1,38 @@
-import {
-  type Language,
-  Level,
-  type ProblemTestcase,
-  type Tag
-} from '@prisma/client'
+import type { Language, Level, ProblemTestcase, Tag } from '@prisma/client'
+import type { JsonValue } from '@prisma/client/runtime/library'
 import { Exclude, Expose } from 'class-transformer'
 
-@Exclude()
 export class ProblemResponseDto {
+  id: number
+  title: string
+  description: string
+  inputDescription: string
+  outputDescription: string
+  hint: string
+  engTitle: string | null
+  engDescription: string | null
+  engInputDescription: string | null
+  engOutputDescription: string | null
+  engHint: string | null
+  languages: Language[]
+  timeLimit: number
+  memoryLimit: number
+  difficulty: Level
+  source: string
+  submissionCount: number
+  acceptedCount: number
+  acceptedRate: number
+  tags: Partial<Tag>[]
+  template: JsonValue[]
+  problemTestcase: Pick<ProblemTestcase, 'id' | 'input' | 'output'>[]
+}
+
+/**
+ * @deprecated _가 없는 것으로 사용해주세요
+ */
+@Exclude()
+// eslint-disable-next-line
+export class _ProblemResponseDto {
   @Expose() id: number
   @Expose() title: string
   @Expose() description: string

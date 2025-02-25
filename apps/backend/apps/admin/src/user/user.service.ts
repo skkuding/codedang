@@ -5,31 +5,93 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common'
-import { UserGroup } from '@generated'
+import { UserGroup, type User } from '@generated'
 import { Role } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
   ConflictFoundException,
-  EntityNotExistException
+  EntityNotExistException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { GroupJoinRequest } from '@libs/types'
 
 @Injectable()
 export class UserService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getUser(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId
+      }
+    })
+
+    if (user == null) {
+      throw new EntityNotExistException('User')
+    }
+    return user
+  }
+
+  async getUsers({ cursor, take }: { cursor: number | null; take: number }) {
+    const paginator = this.prisma.getPaginator(cursor)
+
+    return await this.prisma.user.findMany({
+      ...paginator,
+      take
+    })
+  }
+
+  async getUserByEmailOrStudentId(
+    email?: string,
+    studentId?: string
+  ): Promise<User[]> {
+    const whereOption = email ? { email } : { studentId }
+    return await this.prisma.user.findMany({
+      where: whereOption,
+      include: {
+        userProfile: true
+      }
+    })
+  }
+
+  async updateCanCreateCourse(userId: number, canCreateCourse: boolean) {
+    return await this.prisma.user.update({
+      where: {
+        id: userId
+      },
+      data: {
+        canCreateCourse
+      },
+      select: {
+        id: true,
+        role: true,
+        canCreateCourse: true
+      }
+    })
+  }
+}
+
+@Injectable()
+export class GroupMemberService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getGroupMembers(
-    groupId: number,
-    cursor: number | null,
-    take: number,
+  async getGroupMembers({
+    groupId,
+    cursor,
+    take,
+    leaderOnly
+  }: {
+    groupId: number
+    cursor: number | null
+    take: number
     leaderOnly: boolean
-  ) {
+  }) {
     const paginator = this.prisma.getPaginator(cursor, (value) => ({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       userId_groupId: {
@@ -46,6 +108,7 @@ export class UserService {
         isGroupLeader: leaderOnly ? true : undefined
       },
       select: {
+        isGroupLeader: true,
         user: {
           select: {
             id: true,
@@ -66,6 +129,7 @@ export class UserService {
 
     return userGroups.map((userGroup) => {
       return {
+        isGroupLeader: userGroup.isGroupLeader,
         username: userGroup.user.username,
         userId: userGroup.user.id,
         name: userGroup.user.userProfile?.realName ?? '',
@@ -84,6 +148,7 @@ export class UserService {
         userId
       },
       select: {
+        isGroupLeader: true,
         user: {
           select: {
             id: true,
@@ -102,9 +167,10 @@ export class UserService {
       }
     })
     if (!userGroup) {
-      throw new EntityNotExistException(userGroup)
+      throw new EntityNotExistException('userGroup')
     }
     return {
+      isGroupLeader: userGroup.isGroupLeader,
       username: userGroup.user.username,
       userId: userGroup.user.id,
       name: userGroup.user.userProfile?.realName ?? '',
@@ -120,7 +186,6 @@ export class UserService {
     groupId: number,
     toGroupLeader: boolean
   ) {
-    // find the user
     const groupMember = await this.prisma.userGroup.findFirst({
       where: {
         groupId,
@@ -142,7 +207,6 @@ export class UserService {
       )
     }
 
-    const userRole = groupMember.user.role
     const groupLeaderNum = await this.prisma.userGroup.count({
       where: {
         groupId,
@@ -151,12 +215,8 @@ export class UserService {
     })
 
     if (groupMember.isGroupLeader && !toGroupLeader) {
-      if (userRole === Role.Admin || userRole === Role.SuperAdmin) {
-        throw new BadRequestException(`userId ${userId} is admin`)
-      }
-
       if (groupLeaderNum <= 1) {
-        throw new BadRequestException('One or more managers are required')
+        throw new BadRequestException('One or more leaders are required')
       }
     } else if (groupMember.isGroupLeader && toGroupLeader) {
       throw new BadRequestException(`userId ${userId} is already manager`)
@@ -178,40 +238,39 @@ export class UserService {
     })
   }
 
-  async deleteGroupMember(userId: number, groupId: number) {
-    const groupMembers = (
-      await this.prisma.userGroup.findMany({
+  async deleteGroupMember(groupId: number, userId: number) {
+    try {
+      const { isGroupLeader } = await this.prisma.userGroup.findUniqueOrThrow({
         where: {
-          groupId
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          userId_groupId: {
+            userId,
+            groupId
+          }
         },
         select: {
-          userId: true,
           isGroupLeader: true
         }
       })
-    ).map((userGroup) => {
-      return {
-        userId: userGroup.userId,
-        isGroupLeader: userGroup.isGroupLeader
+
+      if (isGroupLeader) {
+        const groupLeaderNum = await this.prisma.userGroup.count({
+          where: {
+            groupId,
+            isGroupLeader: true
+          }
+        })
+
+        if (groupLeaderNum <= 1) {
+          throw new BadRequestException('One or more leaders are required')
+        }
       }
-    })
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new UnprocessableDataException('Not a member')
+      }
 
-    const isGroupMember = groupMembers.some(
-      (member) => member.userId === userId
-    )
-
-    if (!isGroupMember) {
-      throw new BadRequestException(
-        `userId ${userId} is not a group member of groupId ${groupId}`
-      )
-    }
-
-    const manager = groupMembers
-      .filter((member) => true === member.isGroupLeader)
-      .map((member) => member.userId)
-
-    if (manager.length <= 1 && manager.includes(userId)) {
-      throw new BadRequestException('One or more managers are required')
+      throw error
     }
 
     return await this.prisma.userGroup.delete({
@@ -307,18 +366,5 @@ export class UserService {
     } else {
       return userId
     }
-  }
-
-  async getUser(userId: number) {
-    const user = this.prisma.user.findUnique({
-      where: {
-        id: userId
-      }
-    })
-
-    if (user == null) {
-      throw new EntityNotExistException('User')
-    }
-    return user
   }
 }

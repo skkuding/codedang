@@ -37,7 +37,8 @@ resource "rabbitmq_queue" "submission_queue" {
   vhost = rabbitmq_permissions.vh_perm.vhost
 
   settings {
-    durable = true
+    durable        = true
+    arguments_json = var.rabbitmq_arguments
   }
 }
 

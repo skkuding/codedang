@@ -214,7 +214,7 @@ export default function Page() {
     updateNow: Boolean(updateNow)
   }
   return (
-    <div className="flex w-full gap-20 py-6">
+    <div className="mt-[60px] flex w-full gap-20 pb-6">
       {/* Logo */}
       <LogoSection />
 

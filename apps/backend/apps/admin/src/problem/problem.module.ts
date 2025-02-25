@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { StorageModule } from '@admin/storage/storage.module'
 import { ProblemTagResolver, TagResolver } from './problem-tag.resolver'
 import {
+  AssignmentProblemResolver,
   ContestProblemResolver,
   ProblemResolver,
   WorkbookProblemResolver
@@ -14,12 +15,13 @@ import { IntScoreScalar } from './scalar/int-score.scalar'
   imports: [StorageModule, ConfigModule],
   providers: [
     ProblemResolver,
-    ProblemTagResolver,
-    TagResolver,
-    ProblemService,
     ContestProblemResolver,
     WorkbookProblemResolver,
-    IntScoreScalar
+    AssignmentProblemResolver,
+    ProblemService,
+    IntScoreScalar,
+    ProblemTagResolver,
+    TagResolver
   ],
   exports: [IntScoreScalar]
 })
