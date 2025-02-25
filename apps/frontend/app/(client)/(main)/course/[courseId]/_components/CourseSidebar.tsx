@@ -46,24 +46,18 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
   return (
     <div className="flex flex-col">
       <CourseInfoBox courseId={courseId} />
-      <Separator />
+      <Separator className="my-6" />
       <nav className="flex flex-col gap-2">
         {navItems.map((item) => (
           <Link
             key={item.name}
             href={item.path}
-            className="rounded px-4 py-2 transition"
+            className="flex gap-2 rounded-full bg-red-50 px-4 py-2"
           >
-            <Image
-              src={item.icon}
-              alt={item.name}
-              width={20}
-              className="mr-2 inline-block"
-            />
-            <span className="font-pretendard text-[1rem] font-bold leading-[1rem] text-[#21272A]">
+            <Image src={item.icon} alt={item.name} width={16} height={16} />
+            <span className="font-pretendard text-base font-medium text-[#474747]">
               {item.name}
             </span>
-            <Separator className="mt-2" />
           </Link>
         ))}
       </nav>

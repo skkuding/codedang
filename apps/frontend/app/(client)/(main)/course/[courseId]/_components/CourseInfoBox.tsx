@@ -15,7 +15,7 @@ export async function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
     const course: Course = await res.json()
 
     return (
-      <div className="flex flex-col gap-3 py-6">
+      <div className="flex flex-col gap-3">
         <div className="flex gap-1">
           <Image src={ongoingIcon} alt="calendar-fill" width={20} height={20} />
           {/* FIXME: 하드코딩된 ONGOING 대신 데이터를 받아와주세요 */}
