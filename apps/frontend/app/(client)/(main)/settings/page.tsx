@@ -56,8 +56,7 @@ export default function Page() {
   const [majorValue, setMajorValue] = useState(defaultProfileValues.major)
 
   useEffect(() => {
-    if (!isLoading && defaultProfileValues.major) {
-      console.log('Setting majorValue:', defaultProfileValues.major)
+    if (defaultProfileValues.major) {
       setMajorValue(defaultProfileValues.major)
     }
   }, [defaultProfileValues.major, isLoading])
@@ -213,7 +212,6 @@ export default function Page() {
       errors
     },
     updateNow: Boolean(updateNow)
-    //isLoading
   }
   return (
     <div className="flex w-full gap-20 py-6">
