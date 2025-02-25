@@ -146,12 +146,14 @@ function SidebarLink<T extends string>({
       href={item.path}
       className={cn(
         'flex items-center px-4 py-2 transition',
-        isActive ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100',
+        isActive ? 'bg-primary text-white' : 'text-[#474747] hover:bg-gray-100',
         isExpanded ? 'w-48 rounded-full' : 'rounded'
       )}
     >
       {item.icon}
-      {isExpanded && <span className="ml-3 text-sm">{item.name}</span>}
+      {isExpanded && (
+        <span className="ml-3 text-base font-medium">{item.name}</span>
+      )}
     </Link>
   )
 }
