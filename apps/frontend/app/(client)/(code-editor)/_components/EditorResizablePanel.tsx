@@ -161,6 +161,7 @@ export function EditorMainResizablePanel({
                 problem={problem}
                 contestId={contestId}
                 assignmentId={assignmentId}
+                courseId={courseId}
                 templateString={problem.template[0]}
               />
               <ResizablePanelGroup direction="vertical" className="h-32">
