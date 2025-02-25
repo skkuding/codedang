@@ -35,11 +35,11 @@ interface NavItem {
 
 const getCourseNavItems = (courseId: string): NavItem[] => [
   { name: 'Home', path: `/admin/course/${courseId}`, icon: FaHome },
-  {
-    name: 'Notice',
-    path: `/admin/course/${courseId}/notice`,
-    icon: FaBell
-  },
+  // {
+  //   name: 'Notice',
+  //   path: `/admin/course/${courseId}/notice`,
+  //   icon: FaBell
+  // },
   {
     name: 'Member',
     path: `/admin/course/${courseId}/user`,
@@ -50,21 +50,21 @@ const getCourseNavItems = (courseId: string): NavItem[] => [
     path: `/admin/course/${courseId}/assignment`,
     icon: FaFilePen
   },
-  {
-    name: 'Exam',
-    path: `/admin/course/${courseId}/exam`,
-    icon: FaFilePen
-  },
+  // {
+  //   name: 'Exam',
+  //   path: `/admin/course/${courseId}/exam`,
+  //   icon: FaFilePen
+  // },
   {
     name: 'Grade',
     path: `/admin/course/${courseId}/grade`,
     icon: FaStar
-  },
-  {
-    name: 'Q&A',
-    path: `/admin/course/${courseId}/qna`,
-    icon: FaQuestion
   }
+  // {
+  //   name: 'Q&A',
+  //   path: `/admin/course/${courseId}/qna`,
+  //   icon: FaQuestion
+  // }
 ]
 
 function SidebarLink({
@@ -83,8 +83,9 @@ function SidebarLink({
       href={item.path as Route}
       onClick={onClick}
       className={cn(
-        'flex items-center rounded-full px-4 py-2 transition',
-        isActive ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'
+        'flex items-center px-4 py-2 transition',
+        isActive ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100',
+        isExpanded ? 'rounded-full' : 'rounded'
       )}
     >
       <item.icon className="h-4 w-4" />
@@ -96,6 +97,7 @@ function SidebarLink({
 export function ManagementSidebar() {
   const session = useSession()
   const [isMainSidebarExpanded, setIsMainSidebarExpanded] = useState(true)
+  const [isAnimationComplete, setIsAnimationComplete] = useState(true)
   const [isCourseListOpened, setIsCourseListOpened] = useState(false)
   const [isCourseSidebarOpened, setIsCourseSidebarOpened] = useState(false)
   const [isCourseSidebarExpanded, setIsCourseSidebarExpanded] = useState(true)
@@ -176,8 +178,10 @@ export function ManagementSidebar() {
       {/* Main Sidebar */}
       <motion.div
         initial={{ width: 190 }}
-        animate={{ width: isMainSidebarExpanded ? 190 : 32 }}
+        animate={{ width: isMainSidebarExpanded ? 190 : 48 }}
         className="relative flex flex-col"
+        onAnimationStart={() => setIsAnimationComplete(false)}
+        onAnimationComplete={() => setIsAnimationComplete(true)}
       >
         <button
           onClick={() => setIsMainSidebarExpanded(!isMainSidebarExpanded)}
@@ -188,7 +192,9 @@ export function ManagementSidebar() {
 
         <div className="mb-6 mt-20 px-4">
           {isMainSidebarExpanded ? (
-            <Image src={codedangWithTextIcon} alt="코드당" />
+            <Link href="/">
+              <Image src={codedangWithTextIcon} alt="코드당" />
+            </Link>
           ) : (
             <div className="h-5" />
           )}
@@ -212,7 +218,12 @@ export function ManagementSidebar() {
                 }}
               />
               {item.path === '/admin/course' && isCourseListOpened && (
-                <div className="mt-2 flex flex-col gap-2 pl-8">
+                <div
+                  className={cn(
+                    'mt-4 flex flex-col gap-3 pl-4',
+                    isMainSidebarExpanded ? 'transition-all' : 'hidden'
+                  )}
+                >
                   {courseItems.map((course) => (
                     <Link
                       key={course.id}
@@ -240,7 +251,7 @@ export function ManagementSidebar() {
       {isCourseSidebarOpened && (
         <motion.div
           initial={{ width: 190 }}
-          animate={{ width: isCourseSidebarExpanded ? 190 : 44 }}
+          animate={{ width: isCourseSidebarExpanded ? 190 : 48 }}
           className="relative flex flex-col"
         >
           <button
