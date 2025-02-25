@@ -4,14 +4,14 @@ import type { ContestTop } from '../page'
 
 interface PrevNextProblemButtonProps {
   contestData: ContestTop
-  prev: boolean
+  previous: boolean
 }
 
 export function PrevNextProblemButton({
   contestData,
-  prev
+  previous
 }: PrevNextProblemButtonProps) {
-  if (prev) {
+  if (previous) {
     return contestData.prev !== null ? (
       <Link href={`/contest/${contestData.prev.id}`}>
         <Button className="mb-0 mt-[18px] h-[54px] w-[1208px] justify-start rounded-b-none rounded-t-xl border border-[#80808040] bg-white pl-6 font-light text-black hover:bg-[#80808014]">

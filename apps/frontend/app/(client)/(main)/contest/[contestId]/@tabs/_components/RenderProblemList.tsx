@@ -16,14 +16,14 @@ export function RenderProblemList({
 }: RenderProblemListProps) {
   if (state === 'Upcoming') {
     return (
-      <div className="flex h-[608px] w-[1208px] flex-col items-center justify-center rounded-2xl bg-[#d9d9d940]">
+      <div className="flex h-[608px] w-[1208px] flex-col items-center justify-center rounded-[20px] bg-[#d9d9d940]">
         <Image
           src={'/logos/welcomeNobg.png'}
           alt="No context"
           width={454}
           height={262}
         />
-        <p className="mt-[50px] text-center text-xl font-semibold text-[#000000]">
+        <p className="mt-[50px] text-center text-2xl font-semibold tracking-[-0.72px] text-[#000000]">
           {`Contest Hasn't Started`}
         </p>
         <p className="mt-2 text-center text-base font-normal text-[#00000080]">
@@ -33,14 +33,14 @@ export function RenderProblemList({
     )
   } else if (state === 'Ongoing' && !isRegistered) {
     return (
-      <div className="flex h-[608px] w-[1208px] flex-col items-center justify-center rounded-2xl bg-[#d9d9d940]">
+      <div className="flex h-[608px] w-[1208px] flex-col items-center justify-center rounded-[20px] bg-[#d9d9d940]">
         <Image
           src={'/logos/welcomeNobg.png'}
           alt="No context"
           width={454}
           height={262}
         />
-        <p className="mt-[50px] text-center text-xl font-semibold text-[#000000]">
+        <p className="mt-[50px] text-center text-2xl font-semibold tracking-[-0.72px] text-[#000000]">
           Please Register for The Contest First!
         </p>
         <p className="mt-2 text-center text-base font-normal text-[#00000080]">
