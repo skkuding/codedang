@@ -1,31 +1,29 @@
+'use client'
+
 import { Separator } from '@/components/shadcn/separator'
+import { cn } from '@/libs/utils'
 import assignmentIcon from '@/public/icons/assignment.svg'
-// import examIcon from '@/public/icons/exam.svg'
 import gradeIcon from '@/public/icons/grade.svg'
-// import homeIcon from '@/public/icons/home.svg'
-// import noticeIcon from '@/public/icons/notice.svg'
-// import qnaIcon from '@/public/icons/qna.svg'
+import { motion } from 'framer-motion'
+import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { CourseInfoBox } from './CourseInfoBox'
+import { usePathname } from 'next/navigation'
+import { useState } from 'react'
+import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6'
+
+// import { CourseInfoBox } from './CourseInfoBox'
 
 interface CourseSidebarProps {
   courseId: string
 }
 
 export function CourseSidebar({ courseId }: CourseSidebarProps) {
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true)
+
+  const pathname = usePathname()
+
   const navItems = [
-    // { name: 'Home', path: `/course/${courseId}` as const, icon: homeIcon },
-    // {
-    //   name: 'Notice',
-    //   path: `/course/${courseId}/notice` as const,
-    //   icon: noticeIcon
-    // },
-    // {
-    //   name: 'Exam',
-    //   path: `/course/${courseId}/exam` as const,
-    //   icon: examIcon
-    // },
     {
       name: 'Assignment',
       path: `/course/${courseId}/assignment` as const,
@@ -36,31 +34,64 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
       path: `/course/${courseId}/grade` as const,
       icon: gradeIcon
     }
-    // {
-    //   name: 'Q&A',
-    //   path: `/course/${courseId}/qna` as const,
-    //   icon: qnaIcon
-    // }
   ]
 
   return (
     <div className="flex flex-col">
-      <CourseInfoBox courseId={courseId} />
-      <Separator className="my-6" />
-      <nav className="flex flex-col gap-2">
-        {navItems.map((item) => (
-          <Link
-            key={item.name}
-            href={item.path}
-            className="flex gap-2 rounded-full px-4 py-2"
-          >
-            <Image src={item.icon} alt={item.name} width={16} height={16} />
-            <span className="font-pretendard text-base font-medium text-[#474747]">
-              {item.name}
-            </span>
-          </Link>
-        ))}
-      </nav>
+      <motion.div
+        initial={{ width: 190 }}
+        animate={{ width: isSidebarExpanded ? 190 : 48 }}
+        className="relative flex flex-col"
+      >
+        <button
+          onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
+          className="absolute right-2 top-4 text-gray-500 hover:text-gray-700"
+        >
+          {isSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
+        </button>
+        {/* <CourseInfoBox courseId={courseId} /> */}
+        <Separator className={cn(isSidebarExpanded ? 'my-6' : 'hidden')} />
+        <nav className="flex flex-col gap-2">
+          {navItems.map((item) => (
+            <SidebarLink
+              key={item.name}
+              item={item}
+              isActive={pathname === item.path}
+              isExpanded={isSidebarExpanded}
+            />
+          ))}
+        </nav>
+      </motion.div>
     </div>
+  )
+}
+
+interface NavItem<T extends string> {
+  name: string
+  path: Route<T>
+  icon: typeof assignmentIcon
+}
+
+function SidebarLink<T extends string>({
+  item,
+  isActive,
+  isExpanded
+}: {
+  item: NavItem<T>
+  isActive: boolean
+  isExpanded: boolean
+}) {
+  return (
+    <Link
+      href={item.path}
+      className={cn(
+        'flex items-center px-4 py-2 transition',
+        isActive ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100',
+        isExpanded ? 'rounded-full' : 'rounded'
+      )}
+    >
+      <Image src={item.icon} alt={item.name} width={16} height={16} />
+      {isExpanded && <span className="ml-3 text-sm">{item.name}</span>}
+    </Link>
   )
 }
