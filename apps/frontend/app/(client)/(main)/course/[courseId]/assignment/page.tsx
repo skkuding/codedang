@@ -2,11 +2,11 @@ import { safeFetcherWithAuth } from '@/libs/utils'
 import type { Course } from '@/types/type'
 import { AssignmentAccordion } from '../_components/AssignmentAccordion'
 
-export default async function Assignment({
-  params
-}: {
+interface AssignmentProps {
   params: { courseId: string }
-}) {
+}
+
+export default async function Assignment({ params }: AssignmentProps) {
   const { courseId } = params
 
   const course = await getCourse(courseId)
