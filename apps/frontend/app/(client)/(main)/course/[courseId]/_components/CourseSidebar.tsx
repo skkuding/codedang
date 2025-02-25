@@ -11,8 +11,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6'
-
-// import { CourseInfoBox } from './CourseInfoBox'
+import { CourseInfoBox } from './CourseInfoBox'
 
 interface CourseSidebarProps {
   courseId: string
@@ -39,19 +38,25 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
   return (
     <div className="flex flex-col">
       <motion.div
-        initial={{ width: 190 }}
-        animate={{ width: isSidebarExpanded ? 190 : 48 }}
+        initial={{ width: 240 }}
+        animate={{ width: isSidebarExpanded ? 240 : 48 }}
         className="relative flex flex-col"
       >
         <button
           onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-          className="absolute right-2 top-4 text-gray-500 hover:text-gray-700"
+          className="absolute right-4 top-12 text-gray-500 hover:text-gray-700"
         >
-          {isSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
+          {isSidebarExpanded ? (
+            <FaAnglesLeft className="text-[#9B9B9B]" />
+          ) : (
+            <FaAnglesRight className="text-[#9B9B9B]" />
+          )}
         </button>
-        {/* <CourseInfoBox courseId={courseId} /> */}
+        {isSidebarExpanded && <CourseInfoBox courseId={courseId} />}
         <Separator className={cn(isSidebarExpanded ? 'my-6' : 'hidden')} />
-        <nav className="flex flex-col gap-2">
+        <nav
+          className={cn('flex flex-col gap-2', !isSidebarExpanded && 'mt-36')}
+        >
           {navItems.map((item) => (
             <SidebarLink
               key={item.name}
