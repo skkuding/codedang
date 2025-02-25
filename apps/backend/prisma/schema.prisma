@@ -199,7 +199,7 @@ model Problem {
 
   /// template code item structure
   /// {
-  ///   "lanaguage": Language,
+  ///   "language": Language,
   ///   "initialCode": string,
   ///   "readOnlyRanges": {
   ///      "from": number
