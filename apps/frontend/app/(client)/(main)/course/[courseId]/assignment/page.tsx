@@ -1,5 +1,7 @@
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import type { Course } from '@/types/type'
+import { ErrorBoundary } from '@suspensive/react'
 import { AssignmentAccordion } from '../_components/AssignmentAccordion'
 
 interface AssignmentProps {
@@ -14,7 +16,9 @@ export default async function Assignment({ params }: AssignmentProps) {
 
   return (
     <div className="mb-12 mt-[67px] flex w-full flex-col">
-      <AssignmentAccordion week={week} courseId={courseId} />
+      <ErrorBoundary fallback={FetchErrorFallback}>
+        <AssignmentAccordion week={week} courseId={courseId} />
+      </ErrorBoundary>
     </div>
   )
 }
