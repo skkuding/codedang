@@ -287,8 +287,8 @@ export class SubmissionService {
       throw new EntityNotExistException('Assignment')
     }
 
-    // 과제에 등록되어 있는지 확인합니다.
-    const assignmentRecord = await this.prisma.assignmentRecord.findUnique({
+    // 과제에 등록되어있지 않으면 등록시켜줍니다.
+    await this.prisma.assignmentRecord.upsert({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         assignmentId_userId: {
@@ -296,7 +296,13 @@ export class SubmissionService {
           userId
         }
       },
+      create: {
+        assignmentId,
+        userId
+      },
+      update: {},
       select: {
+        id: true,
         assignment: {
           select: {
             groupId: true,
@@ -306,15 +312,7 @@ export class SubmissionService {
         }
       }
     })
-    if (!assignmentRecord) {
-      throw new EntityNotExistException('AssignmentRecord')
-    }
-    if (assignmentRecord.assignment.groupId !== groupId) {
-      throw new EntityNotExistException('Assignment')
-    } else if (
-      assignmentRecord.assignment.startTime > now ||
-      assignmentRecord.assignment.endTime <= now
-    ) {
+    if (assignment.startTime > now || assignment.endTime <= now) {
       throw new ConflictFoundException(
         'Submission is only allowed to ongoing assignments'
       )
@@ -336,6 +334,26 @@ export class SubmissionService {
       throw new EntityNotExistException('AssignmentProblem')
     }
     const { problem } = assignmentProblem
+
+    await this.prisma.assignmentProblemRecord.upsert({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        assignmentId_userId_problemId: {
+          assignmentId,
+          userId,
+          problemId: problem.id
+        }
+      },
+      create: {
+        assignmentId,
+        userId,
+        problemId: problem.id,
+        isSubmitted: true
+      },
+      update: {
+        isSubmitted: true
+      }
+    })
 
     const submission = await this.createSubmission({
       submissionDto,

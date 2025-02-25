@@ -100,8 +100,7 @@ export class ContestProblemController {
       contestId,
       userId: req.user.id,
       cursor,
-      take,
-      groupId
+      take
     })
   }
 

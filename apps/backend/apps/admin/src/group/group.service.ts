@@ -476,6 +476,12 @@ export class InvitationService {
             connect: { id: groupId }
           },
           isGroupLeader
+        },
+        select: {
+          userId: true,
+          groupId: true,
+          isGroupLeader: true,
+          user: true
         }
       })
     } catch (error) {

@@ -1,5 +1,3 @@
-'use client'
-
 import { Separator } from '@/components/shadcn/separator'
 import assignmentIcon from '@/public/icons/assignment.svg'
 import examIcon from '@/public/icons/exam.svg'
@@ -9,12 +7,12 @@ import noticeIcon from '@/public/icons/notice.svg'
 import qnaIcon from '@/public/icons/qna.svg'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 
-export function Sidebar() {
-  const searchParams = useSearchParams()
-  const courseId = searchParams.get('courseId')
+interface SidebarProps {
+  courseId: string
+}
 
+export function Sidebar({ courseId }: SidebarProps) {
   const navItems = [
     { name: 'Home', path: `/course/${courseId}` as const, icon: homeIcon },
     {

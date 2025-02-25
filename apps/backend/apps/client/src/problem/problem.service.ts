@@ -282,14 +282,12 @@ export class ContestProblemService {
     contestId,
     userId,
     cursor,
-    take,
-    groupId = OPEN_SPACE_ID
+    take
   }: {
     contestId: number
     userId: number
     cursor: number | null
     take: number
-    groupId: number
   }) {
     const contest = await this.contestService.getContest(contestId, userId)
     const now = new Date()
