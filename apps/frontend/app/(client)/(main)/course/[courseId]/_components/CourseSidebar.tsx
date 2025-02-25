@@ -9,7 +9,15 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6'
 import { CourseInfoBox } from './CourseInfoBox'
-import { AssignmentIcon, GradeIcon } from './SidebarIcons'
+import {
+  AssignmentIcon,
+  // ExamIcon,
+  GradeIcon
+  // HomeIcon,
+  // MemberIcon,
+  // NoticeIcon,
+  // QnaIcon
+} from './SidebarIcons'
 
 interface CourseSidebarProps {
   courseId: string
@@ -21,26 +29,61 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
   const pathname = usePathname()
 
   const navItems = [
+    // {
+    //   name: 'Home',
+    //   path: `/course/${courseId}` as const,
+    //   icon: <HomeIcon fill={getActiveColor(pathname, `/course/${courseId}`)} />
+    // },
+    // {
+    //   name: 'Notice',
+    //   path: `/course/${courseId}/notice` as const,
+    //   icon: (
+    //     <NoticeIcon
+    //       fill={getActiveColor(pathname, `/course/${courseId}/notice`)}
+    //     />
+    //   )
+    // },
+    // {
+    //   name: 'Member',
+    //   path: `/course/${courseId}/member` as const,
+    //   icon: (
+    //     <MemberIcon
+    //       fill={getActiveColor(pathname, `/course/${courseId}/member`)}
+    //     />
+    //   )
+    // },
     {
       name: 'Assignment',
       path: `/course/${courseId}/assignment` as const,
       icon: (
         <AssignmentIcon
-          fill={
-            pathname === `/course/${courseId}/assignment` ? 'white' : '#8A8A8A'
-          }
+          fill={getActiveColor(pathname, `/course/${courseId}/assignment`)}
         />
       )
     },
+    // {
+    //   name: 'Exam',
+    //   path: `/course/${courseId}/exam` as const,
+    //   icon: (
+    //     <ExamIcon fill={getActiveColor(pathname, `/course/${courseId}/exam`)} />
+    //   )
+    // },
     {
       name: 'Grade',
       path: `/course/${courseId}/grade` as const,
       icon: (
         <GradeIcon
-          fill={pathname === `/course/${courseId}/grade` ? 'white' : '#8A8A8A'}
+          fill={getActiveColor(pathname, `/course/${courseId}/grade`)}
         />
       )
     }
+    // {
+    //   name: 'Q&A',
+    //   path: `/course/${courseId}/qna` as const,
+    //   icon: (
+    //     <QnaIcon fill={getActiveColor(pathname, `/course/${courseId}/qna`)} />
+    //   )
+    // }
   ]
 
   return (
@@ -79,6 +122,10 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
   )
 }
 
+function getActiveColor(pathname: string, path: string) {
+  return pathname === path ? 'white' : '#8A8A8A'
+}
+
 interface NavItem<T extends string> {
   name: string
   path: Route<T>
@@ -100,7 +147,7 @@ function SidebarLink<T extends string>({
       className={cn(
         'flex items-center px-4 py-2 transition',
         isActive ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100',
-        isExpanded ? 'rounded-full' : 'rounded'
+        isExpanded ? 'w-48 rounded-full' : 'rounded'
       )}
     >
       {item.icon}
