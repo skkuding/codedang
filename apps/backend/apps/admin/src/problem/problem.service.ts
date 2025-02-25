@@ -107,16 +107,26 @@ export class ProblemService {
   }
 
   async createTestcase(problemId: number, testcase: Testcase) {
-    const problemTestcase = await this.prisma.problemTestcase.create({
-      data: {
-        problemId,
-        input: testcase.input,
-        output: testcase.output,
-        scoreWeight: testcase.scoreWeight,
-        isHidden: testcase.isHidden
-      }
-    })
-    return problemTestcase
+    try {
+      const problemTestcase = await this.prisma.problemTestcase.create({
+        data: {
+          problem: { connect: { id: problemId } },
+          input: testcase.input,
+          output: testcase.output,
+          scoreWeight: testcase.scoreWeight,
+          isHidden: testcase.isHidden
+        }
+      })
+      return problemTestcase
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      )
+        throw new EntityNotExistException('problem')
+
+      throw error
+    }
   }
 
   async uploadProblems(
