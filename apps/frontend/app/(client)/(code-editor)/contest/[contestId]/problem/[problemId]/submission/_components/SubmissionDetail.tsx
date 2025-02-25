@@ -52,21 +52,24 @@ export async function SubmissionDetail({
   return (
     <>
       <ScrollArea className="shrink-0 rounded-md">
-        <div className="flex items-center justify-around gap-5 bg-slate-700 p-5 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
+        <div className="flex items-center justify-around gap-3 bg-[#384151] p-5 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
           <div>
             <h2>Result</h2>
             <p className={getResultColor(submission.result)}>
               {submission.result}
             </p>
           </div>
+          <div className="h-10 w-[1px] bg-[#616060]" />
           <div>
             <h2>Language</h2>
-            <p>{submission.language}</p>
+            <p>{submission.language !== 'Cpp' ? submission.language : 'C++'}</p>
           </div>
+          <div className="h-10 w-[1px] bg-[#616060]" />
           <div>
             <h2>Submission Time</h2>
             <p>{dateFormatter(submission.createTime, 'YYYY-MM-DD HH:mm:ss')}</p>
           </div>
+          <div className="h-10 w-[1px] bg-[#616060]" />
           <div>
             <h2>Code Size</h2>
             <p>{targetSubmission && targetSubmission.codeSize}</p>
