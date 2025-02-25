@@ -48,7 +48,7 @@ export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
             width={16}
             height={16}
           />
-          <p className="font-medium text-neutral-600">
+          <p className="font-medium text-[#8A8A8A]">
             {course ? course.courseInfo.semester : ''}
           </p>
         </div>
@@ -59,7 +59,7 @@ export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
             width={16}
             height={16}
           />
-          <p className="font-medium text-neutral-600">
+          <p className="font-medium text-[#8A8A8A]">
             {course ? `${course.courseInfo.professor} 교수` : ''}
           </p>
         </div>
