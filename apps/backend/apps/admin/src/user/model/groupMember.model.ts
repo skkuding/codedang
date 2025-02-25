@@ -22,4 +22,7 @@ export class GroupMember {
 
   @Field(() => String)
   role: string
+
+  @Field(() => Boolean)
+  isGroupLeader: boolean
 }

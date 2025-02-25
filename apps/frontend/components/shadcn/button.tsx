@@ -9,15 +9,15 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-primary text-gray-50 hover:bg-primary-strong dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90',
+          'rounded-full bg-primary text-gray-50 hover:bg-primary-strong dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90',
         destructive:
           'bg-red-500 text-gray-50 hover:bg-red-500/90 dark:bg-red-900 dark:text-gray-50 dark:hover:bg-red-900/90',
         outline:
-          'border border-primary bg-white text-primary hover:bg-blue-100 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50',
+          'rounded-full border  bg-white hover:bg-[#EBEBEB] dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-[#EBEBEB] dark:hover:text-gray-50',
         secondary:
-          'border border-primary bg-gray-100 text-gray-900 hover:bg-gray-100/80 dark:bg-primary/20 dark:text-gray-50 dark:hover:bg-gray-800/80',
+          'rounded-full border border-primary bg-gray-100 text-gray-900 hover:bg-gray-100/80 dark:bg-primary/20 dark:text-gray-50 dark:hover:bg-gray-800/80',
         ghost:
-          'text-gray-500 hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-800 dark:hover:text-gray-50',
+          'rounded-full text-gray-500 hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-800 dark:hover:text-gray-50',
         link: 'text-gray-900 underline-offset-4 hover:underline dark:text-gray-50',
         slate: 'hover:text-primary-light',
         filter:

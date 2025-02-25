@@ -1,4 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { NotFoundException } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { GroupType, type Group } from '@generated'
 import type { User } from '@generated'
@@ -11,11 +12,15 @@ import { AuthenticatedUser } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
-  DuplicateFoundException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { GroupService, InvitationService } from './group.service'
+import {
+  GroupService,
+  InvitationService,
+  WhitelistService
+} from './group.service'
 
 const userId = faker.number.int()
 const groupId = faker.number.int()
@@ -39,21 +44,34 @@ const courseInput = {
   groupType: GroupType.Course
 }
 
+const courseInfo = {
+  groupId: 1,
+  courseNum: 'SWE3033',
+  classNum: 42,
+  professor: '김우주',
+  semester: '2025 Spring',
+  week: 16,
+  email: 'johndoe@example.com',
+  website: 'https://example.com',
+  office: 'Room 301',
+  phoneNum: '010-3333-2222'
+}
+
 const group = {
-  id: faker.number.int(),
+  id: 1,
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
   userGroup: [
     {
       userId: faker.number.int(),
-      groupId: faker.number.int(),
+      groupId: 1,
       isGroupLeader: true,
       createTime: faker.date.past(),
       updateTime: faker.date.past()
     },
     {
       userId: faker.number.int(),
-      groupId: faker.number.int(),
+      groupId: 1,
       isGroupLeader: false,
       createTime: faker.date.past(),
       updateTime: faker.date.past()
@@ -67,7 +85,18 @@ const group = {
     allowJoinWithURL: false,
     requireApprovalBeforeJoin: true
   },
-  groupType: GroupType.Course
+  groupType: GroupType.Course,
+  GroupWhitelist: [
+    {
+      groupId: faker.number.int(),
+      studentId: faker.string.numeric()
+    },
+    {
+      groupId: faker.number.int(),
+      studentId: faker.string.numeric()
+    }
+  ],
+  courseInfo
 } satisfies Group
 
 const { userGroup, ...simpleGroup } = group
@@ -96,6 +125,7 @@ const userWithOutCanCreate: User = {
 const db = {
   group: {
     findUnique: stub(),
+    findUniqueOrThrow: stub(),
     findFirst: stub(),
     findMany: stub().resolves([group]),
     create: stub().resolves(group),
@@ -110,7 +140,25 @@ const db = {
   user: {
     findUnique: stub()
   },
-  getPaginator: PrismaService.prototype.getPaginator
+
+  groupWhitelist: {
+    findMany: stub(),
+    createMany: stub(),
+    deleteMany: stub()
+  },
+  assignment: {
+    create: stub(),
+    findFirst: stub()
+  },
+  assignmentProblem: {
+    create: stub(),
+    findMany: stub()
+  },
+  getPaginator: PrismaService.prototype.getPaginator,
+  $transaction: stub().callsFake(async (callback) => {
+    // callback으로 스텁 db 객체를 넘겨주거나 원하는 로직을 수행
+    return callback(db)
+  })
 }
 
 describe('GroupService', () => {
@@ -268,6 +316,88 @@ describe('GroupService', () => {
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })
+
+  describe('duplicateCourse', () => {
+    const userReq = new AuthenticatedUser(userId, user.username)
+    userReq.role = Role.User
+
+    it('should throw NotFoundException if user does not exist', async () => {
+      db.user.findUnique.resolves(null)
+
+      await expect(service.duplicateCourse(groupId, userId)).to.be.rejectedWith(
+        NotFoundException,
+        'User not found'
+      )
+    })
+
+    it('should throw ForbiddenAccessException if user cannot create course', async () => {
+      db.user.findUnique.resolves({ canCreateCourse: false })
+
+      await expect(service.duplicateCourse(groupId, userId)).to.be.rejectedWith(
+        ForbiddenAccessException,
+        'No Access to create course'
+      )
+    })
+
+    it('should throw UnprocessableDataException if group is not a course', async () => {
+      db.user.findUnique.resolves({ canCreateCourse: true })
+      db.group.findUniqueOrThrow.resolves({ courseInfo: null })
+
+      await expect(service.duplicateCourse(groupId, userId)).to.be.rejectedWith(
+        UnprocessableDataException,
+        'Invalid group ID for a course'
+      )
+    })
+
+    it('should duplicate course successfully', async () => {
+      db.user.findUnique.resolves({ canCreateCourse: true })
+      const groupWithAssignment = {
+        ...group,
+        assignment: [{ id: 999 }, { id: 1000 }]
+      }
+
+      db.assignmentProblem.findMany.resolves([
+        { order: 1, problemId: 1, score: 100 }
+      ])
+      db.group.findUniqueOrThrow.resolves(groupWithAssignment)
+      db.group.create.resolves(groupWithAssignment)
+
+      db.assignment.findFirst.onFirstCall().resolves({
+        id: 999,
+        groupId,
+        startTime: new Date(Date.now() - 1000),
+        endTime: new Date(Date.now() + 1000),
+        createTime: new Date(),
+        updateTime: new Date(),
+        title: 'Original Assignment'
+      })
+
+      db.assignment.findFirst.onSecondCall().resolves({
+        id: 1000,
+        groupId,
+        startTime: new Date(Date.now() - 1000),
+        endTime: new Date(Date.now() + 1000),
+        createTime: new Date(),
+        updateTime: new Date(),
+        title: 'Original Assignment'
+      })
+
+      db.assignment.create.onFirstCall().resolves({
+        id: 999
+      })
+      db.assignment.create.onSecondCall().resolves({
+        id: 1000
+      })
+
+      const result = await service.duplicateCourse(groupId, userId)
+
+      expect(result).to.deep.equal({
+        duplicatedCourse: groupWithAssignment,
+        originAssignments: [999, 1000],
+        copiedAssignments: [999, 1000]
+      })
+    })
+  })
 })
 
 describe('InvitationService', () => {
@@ -341,6 +471,149 @@ describe('InvitationService', () => {
       const res = await service.revokeInvitation(groupId)
       expect(res).to.equal('This group has no invitation to be revoked')
       expect(delSpy.called).to.be.false
+    })
+  })
+
+  describe('inviteUser', () => {
+    it('should invite user for the group', async () => {
+      db.userGroup.create.resolves({
+        userId,
+        groupId,
+        isGroupLeader: false
+      })
+
+      const res = await service.inviteUser(groupId, userId, false)
+
+      expect(res).to.deep.equal({
+        userId,
+        groupId,
+        isGroupLeader: false
+      })
+    })
+  })
+
+  it('should throw error when user or group is not found', async () => {
+    db.userGroup.create.rejects({ code: 'P2025' })
+
+    await expect(service.inviteUser(groupId, userId, false)).to.be.rejectedWith(
+      NotFoundException
+    )
+  })
+
+  it('should throw error when user is already a member', async () => {
+    db.userGroup.create.rejects({ code: 'P2002' })
+
+    await expect(service.inviteUser(groupId, userId, false)).to.be.rejectedWith(
+      UnprocessableDataException
+    )
+  })
+})
+
+describe('WhitelistService', () => {
+  let service: WhitelistService
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        WhitelistService,
+        { provide: PrismaService, useValue: db },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => [],
+            del: () => []
+          })
+        }
+      ]
+    }).compile()
+
+    service = module.get<WhitelistService>(WhitelistService)
+  })
+
+  describe('getWhitelist', () => {
+    it('should return student Ids in the whitelist', async () => {
+      const groupId = faker.number.int()
+      const mockData = [
+        { studentId: faker.string.numeric() },
+        { studentId: faker.string.numeric() }
+      ]
+      db.groupWhitelist.findMany.resolves(mockData)
+      const res = await service.getWhitelist(groupId)
+      expect(res).to.deep.equal(mockData.map((item) => item.studentId))
+      expect(
+        db.groupWhitelist.findMany.calledWith({
+          where: { groupId },
+          select: { studentId: true }
+        })
+      ).to.be.true
+    })
+  })
+
+  describe('createWhitelist', () => {
+    it('should create a new whitelist and return the count', async () => {
+      const groupId = faker.number.int()
+      const studentIds: [string] = [faker.string.numeric()]
+      const mockCount = { count: studentIds.length }
+
+      db.groupWhitelist.createMany.resolves(mockCount)
+      db.groupWhitelist.deleteMany.resolves({ count: 0 })
+
+      const result = await service.createWhitelist(groupId, studentIds)
+      expect(result).to.equal(studentIds.length)
+
+      expect(
+        db.groupWhitelist.deleteMany.calledWith({
+          where: { groupId }
+        })
+      ).to.be.true
+
+      expect(
+        db.groupWhitelist.createMany.calledWith({
+          data: studentIds.map((studentId) => ({ groupId, studentId }))
+        })
+      ).to.be.true
+    })
+
+    it('should throw an error if there are duplicate student IDs', async () => {
+      const groupId = faker.number.int()
+      const studentIds: [string] = [faker.string.numeric()]
+      const error = { code: 'P2002' }
+
+      db.groupWhitelist.createMany.rejects(error)
+
+      await expect(
+        service.createWhitelist(groupId, studentIds)
+      ).to.be.rejectedWith(UnprocessableDataException)
+    })
+
+    it('should throw an error if there is invalid student ID', async () => {
+      const groupId = faker.number.int()
+      const studentIds: [string] = [faker.string.numeric()]
+      const error = { code: 'P2003' }
+
+      db.groupWhitelist.createMany.rejects(error)
+
+      await expect(
+        service.createWhitelist(groupId, studentIds)
+      ).to.be.rejectedWith(UnprocessableDataException)
+    })
+  })
+
+  describe('deleteWhitelist', () => {
+    it('should delete whitelist entries and return count', async () => {
+      const groupId = faker.number.int()
+      const mockCount = { count: 2 }
+
+      db.groupWhitelist.deleteMany.resolves(mockCount)
+
+      const res = await service.deleteWhitelist(groupId)
+      expect(res).to.equal(2)
+      expect(
+        db.groupWhitelist.deleteMany.calledWith({
+          where: { groupId }
+        })
+      ).to.be.true
     })
   })
 })
