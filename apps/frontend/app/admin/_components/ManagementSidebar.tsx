@@ -1,5 +1,6 @@
 'use client'
 
+import type { User } from '@/__generated__/graphql'
 import { Separator } from '@/components/shadcn/separator'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { useSession } from '@/libs/hooks/useSession'
@@ -7,10 +8,12 @@ import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import codedangWithTextIcon from '@/public/logos/codedang-with-text.svg'
 import { useQuery } from '@apollo/client'
 import { motion } from 'framer-motion'
+import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import type { IconType } from 'react-icons'
 import { FaHome, FaQuestion, FaStar } from 'react-icons/fa'
 import {
   FaSquarePollHorizontal,
@@ -32,16 +35,36 @@ interface NavItem {
 
 const getCourseNavItems = (courseId: string): NavItem[] => [
   { name: 'Home', path: `/admin/course/${courseId}`, icon: FaHome },
-  { name: 'Notice', path: `/admin/course/${courseId}/notice`, icon: FaBell },
-  { name: 'Member', path: `/admin/course/${courseId}/member`, icon: FaUser },
+  {
+    name: 'Notice',
+    path: `/admin/course/${courseId}/notice`,
+    icon: FaBell
+  },
+  {
+    name: 'Member',
+    path: `/admin/course/${courseId}/user`,
+    icon: FaUser
+  },
   {
     name: 'Assignment',
     path: `/admin/course/${courseId}/assignment`,
     icon: FaFilePen
   },
-  { name: 'Exam', path: `/admin/course/${courseId}/exam`, icon: FaFilePen },
-  { name: 'Grade', path: `/admin/course/${courseId}/grade`, icon: FaStar },
-  { name: 'Q&A', path: `/admin/course/${courseId}/qna`, icon: FaQuestion }
+  {
+    name: 'Exam',
+    path: `/admin/course/${courseId}/exam`,
+    icon: FaFilePen
+  },
+  {
+    name: 'Grade',
+    path: `/admin/course/${courseId}/grade`,
+    icon: FaStar
+  },
+  {
+    name: 'Q&A',
+    path: `/admin/course/${courseId}/qna`,
+    icon: FaQuestion
+  }
 ]
 
 function SidebarLink({
@@ -57,7 +80,7 @@ function SidebarLink({
 }) {
   return (
     <Link
-      href={item.path}
+      href={item.path as Route}
       onClick={onClick}
       className={cn(
         'flex items-center rounded-full px-4 py-2 transition',
@@ -71,7 +94,7 @@ function SidebarLink({
 }
 
 export function ManagementSidebar() {
-  const { data: session } = useSession()
+  const session = useSession()
   const [isMainSidebarExpanded, setIsMainSidebarExpanded] = useState(true)
   const [isCourseListOpened, setIsCourseListOpened] = useState(false)
   const [isCourseSidebarOpened, setIsCourseSidebarOpened] = useState(false)
@@ -89,10 +112,10 @@ export function ManagementSidebar() {
   useEffect(() => {
     const fetchUserPermissions = async () => {
       try {
-        const response = await safeFetcherWithAuth.get('user').json()
+        const user: User = await safeFetcherWithAuth.get('user').json()
         setUserPermissions({
-          canCreateCourse: response.canCreateCourse ?? false,
-          canCreateContest: response.canCreateContest ?? false
+          canCreateCourse: user.canCreateCourse ?? false,
+          canCreateContest: user.canCreateContest ?? false
         })
       } catch (error) {
         console.error('Error fetching user permissions:', error)
