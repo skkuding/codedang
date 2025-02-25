@@ -2,16 +2,14 @@
 
 import { Separator } from '@/components/shadcn/separator'
 import { cn } from '@/libs/utils'
-import assignmentIcon from '@/public/icons/assignment.svg'
-import gradeIcon from '@/public/icons/grade.svg'
 import { motion } from 'framer-motion'
 import type { Route } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6'
 import { CourseInfoBox } from './CourseInfoBox'
+import { AssignmentIcon, GradeIcon } from './SidebarIcons'
 
 interface CourseSidebarProps {
   courseId: string
@@ -26,12 +24,22 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
     {
       name: 'Assignment',
       path: `/course/${courseId}/assignment` as const,
-      icon: assignmentIcon
+      icon: (
+        <AssignmentIcon
+          fill={
+            pathname === `/course/${courseId}/assignment` ? 'white' : '#8A8A8A'
+          }
+        />
+      )
     },
     {
       name: 'Grade',
       path: `/course/${courseId}/grade` as const,
-      icon: gradeIcon
+      icon: (
+        <GradeIcon
+          fill={pathname === `/course/${courseId}/grade` ? 'white' : '#8A8A8A'}
+        />
+      )
     }
   ]
 
@@ -74,7 +82,7 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
 interface NavItem<T extends string> {
   name: string
   path: Route<T>
-  icon: typeof assignmentIcon
+  icon: React.ReactNode
 }
 
 function SidebarLink<T extends string>({
@@ -95,7 +103,7 @@ function SidebarLink<T extends string>({
         isExpanded ? 'rounded-full' : 'rounded'
       )}
     >
-      <Image src={item.icon} alt={item.name} width={16} height={16} />
+      {item.icon}
       {isExpanded && <span className="ml-3 text-sm">{item.name}</span>}
     </Link>
   )
