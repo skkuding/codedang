@@ -4,7 +4,7 @@ import { safeFetcherWithAuth } from '@/libs/utils'
 import type { Course } from '@/types/type'
 import { redirect } from 'next/navigation'
 import { ClientApolloProvider } from './_components/ApolloProvider'
-import { ManagementSidebar } from './_components/MangementSidebar'
+import { ManagementSidebar } from './_components/ManagementSidebar'
 
 async function fetchGroupLeaderRole() {
   try {
