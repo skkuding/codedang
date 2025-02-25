@@ -130,7 +130,7 @@ export function TestcasePanel() {
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
 
-        <div className="flex flex-shrink-0 items-center bg-[#121728] px-2">
+        <div className="flex flex-shrink-0 items-center bg-[#121728] px-2 py-2">
           <AddUserTestcaseDialog />
         </div>
       </div>

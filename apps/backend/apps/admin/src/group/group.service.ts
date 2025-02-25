@@ -1,18 +1,18 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { Cache } from 'cache-manager'
 import type { AuthenticatedUser } from '@libs/auth'
 import { invitationCodeKey, invitationGroupKey } from '@libs/cache'
 import { INVIATION_EXPIRE_TIME, OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
-  DuplicateFoundException,
   EntityNotExistException,
   ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { CreateGroupInput, UpdateGroupInput } from './model/group.input'
+import { GroupType, type Group } from '@admin/@generated'
+import type { CourseInput } from './model/group.input'
 
 @Injectable()
 export class GroupService {
@@ -21,57 +21,86 @@ export class GroupService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async createGroup(input: CreateGroupInput, userId: number) {
-    const duplicateName = await this.prisma.group.findUnique({
+  async createCourse(
+    input: CourseInput,
+    user: AuthenticatedUser
+  ): Promise<Partial<Group>> {
+    const userWithCanCreateCourse = await this.prisma.user.findUnique({
       where: {
-        groupName: input.groupName
+        id: user.id
+      },
+      select: {
+        canCreateCourse: true
       }
     })
-    if (duplicateName) {
-      throw new DuplicateFoundException('Group name')
+    if (!userWithCanCreateCourse) {
+      throw new NotFoundException('User not found')
     }
-    if (!input.config.showOnList) {
-      input.config.allowJoinFromSearch = false
+    if (!userWithCanCreateCourse.canCreateCourse) {
+      throw new ForbiddenAccessException('No Access to create course')
     }
 
     try {
-      const group = await this.prisma.group.create({
+      const createdCourse = await this.prisma.group.create({
         data: {
-          groupName: input.groupName,
-          description: input.description,
-          config: JSON.stringify(input.config)
+          groupName: input.courseTitle,
+          groupType: GroupType.Course,
+          config: JSON.parse(JSON.stringify(input.config)),
+          courseInfo: {
+            create: {
+              courseNum: input.courseNum,
+              classNum: input.classNum,
+              professor: input.professor,
+              semester: input.semester,
+              week: input.week,
+              email: input.email,
+              website: input.website,
+              office: input.office,
+              phoneNum: input.phoneNum
+            }
+          }
+        },
+        select: {
+          id: true,
+          groupName: true,
+          groupType: true,
+          config: true,
+          courseInfo: true
         }
       })
       await this.prisma.userGroup.create({
         data: {
           user: {
-            connect: { id: userId }
+            connect: { id: user.id }
           },
           group: {
-            connect: { id: group.id }
+            connect: { id: createdCourse.id }
           },
           isGroupLeader: true
         }
       })
-      return group
+      return createdCourse
     } catch (error) {
       throw new UnprocessableDataException(error.message)
     }
   }
 
-  async getGroups(cursor: number | null, take: number) {
+  async getCourses(cursor: number | null, take: number) {
     const paginator = this.prisma.getPaginator(cursor)
 
     return (
       await this.prisma.group.findMany({
         ...paginator,
         take,
+        where: {
+          groupType: GroupType.Course
+        },
         select: {
           id: true,
           groupName: true,
-          description: true,
           config: true,
-          userGroup: true
+          userGroup: true,
+          courseInfo: true
         }
       })
     ).map((data) => {
@@ -83,27 +112,54 @@ export class GroupService {
     })
   }
 
-  async getGroup(id: number) {
-    const data = await this.prisma.group.findUnique({
-      where: {
-        id
-      },
+  async getGroupsUserLead(userId: number, groupType: GroupType) {
+    return (
+      await this.prisma.userGroup.findMany({
+        where: {
+          userId,
+          isGroupLeader: true
+        },
+        select: {
+          group: {
+            select: {
+              id: true,
+              groupName: true,
+              groupType: true,
+              courseInfo: true,
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              _count: { select: { userGroup: true } }
+            }
+          }
+        }
+      })
+    )
+      .filter(({ group }) => group.groupType === groupType)
+      .map(({ group }) => ({
+        ...group,
+        memberNum: group._count.userGroup
+      }))
+  }
+
+  async getCourse(id: number) {
+    const group = await this.prisma.group.findUnique({
+      where: { id, groupType: GroupType.Course },
       include: {
-        userGroup: true
+        courseInfo: true,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: { select: { userGroup: true } }
       }
     })
 
-    if (!data) {
-      throw new EntityNotExistException('Group')
+    if (!group) {
+      throw new EntityNotExistException('Course')
     }
 
-    const { userGroup, ...group } = data
     const code = await this.cacheManager.get<string>(invitationGroupKey(id))
 
     return {
       ...group,
-      memberNum: userGroup.length,
-      ...(code && { invitationURL: '/invite/' + code })
+      memberNum: group._count.userGroup,
+      ...(code && { invitation: code })
     }
   }
 
@@ -119,20 +175,9 @@ export class GroupService {
     return group
   }
 
-  async updateGroup(id: number, input: UpdateGroupInput) {
+  async updateCourse(id: number, input: CourseInput) {
     if (id === OPEN_SPACE_ID) {
       throw new ForbiddenAccessException('Open space cannot be updated')
-    }
-    const duplicateName = await this.prisma.group.findFirst({
-      where: {
-        NOT: {
-          id
-        },
-        groupName: input.groupName
-      }
-    })
-    if (duplicateName) {
-      throw new DuplicateFoundException('Group name')
     }
 
     if (!input.config.showOnList) {
@@ -145,9 +190,28 @@ export class GroupService {
           id
         },
         data: {
-          groupName: input.groupName,
-          description: input.description,
-          config: JSON.stringify(input.config)
+          groupName: input.courseTitle,
+          groupType: GroupType.Course,
+          config: JSON.parse(JSON.stringify(input.config)),
+          courseInfo: {
+            update: {
+              courseNum: input.courseNum,
+              classNum: input.classNum,
+              professor: input.professor,
+              semester: input.semester,
+              email: input.email,
+              website: input.website,
+              office: input.office,
+              phoneNum: input.phoneNum
+            }
+          }
+        },
+        select: {
+          id: true,
+          groupName: true,
+          groupType: true,
+          config: true,
+          courseInfo: true
         }
       })
     } catch (error) {
@@ -155,37 +219,203 @@ export class GroupService {
     }
   }
 
-  async deleteGroup(id: number, user: AuthenticatedUser) {
-    if (id === OPEN_SPACE_ID) {
-      throw new ForbiddenAccessException('Open space cannot be deleted')
-    } else if (!user.isAdmin() && !user.isSuperAdmin()) {
-      const userGroup = await this.prisma.userGroup.findUnique({
+  async deleteGroup(id: number, groupType: GroupType, user: AuthenticatedUser) {
+    const userGroup = await this.prisma.userGroup.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId: user.id,
+          groupId: id
+        }
+      },
+      select: {
+        isGroupLeader: true
+      }
+    })
+
+    const includeOption =
+      groupType === GroupType.Course ? { courseInfo: true } : {}
+
+    if (!userGroup || !userGroup.isGroupLeader) {
+      throw new ForbiddenAccessException(
+        'Only group leader can delete the group'
+      )
+    }
+
+    return await this.prisma.group.delete({
+      where: {
+        id
+      },
+      include: includeOption
+    })
+  }
+
+  async duplicateCourse(groupId: number, userId: number) {
+    const userWithCanCreateCourse = await this.prisma.user.findUnique({
+      where: {
+        id: userId
+      },
+      select: {
+        canCreateCourse: true
+      }
+    })
+    if (!userWithCanCreateCourse) {
+      throw new NotFoundException('User not found')
+    }
+
+    if (!userWithCanCreateCourse.canCreateCourse) {
+      throw new ForbiddenAccessException('No Access to create course')
+    }
+
+    const { courseInfo, ...originCourse } =
+      await this.prisma.group.findUniqueOrThrow({
         where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          userId_groupId: {
-            userId: user.id,
-            groupId: id
+          id: groupId
+        },
+        select: {
+          groupName: true,
+          groupType: true,
+          courseInfo: true,
+          config: true,
+          assignment: {
+            select: {
+              id: true
+            }
+          }
+        }
+      })
+
+    if (!courseInfo) {
+      throw new UnprocessableDataException('Invalid group ID for a course')
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { groupId: _, ...duplicatedCourseInfo } = courseInfo
+
+    const duplicatedCourse = await this.prisma.$transaction(async (tx) => {
+      const duplicatedCourse = await tx.group.create({
+        data: {
+          groupName: originCourse.groupName,
+          groupType: originCourse.groupType,
+          config: originCourse.config ?? {
+            showOnList: true,
+            allowJoinFromSearch: true,
+            allowJoinWithURL: true,
+            requireApprovalBeforeJoin: false
+          },
+          courseInfo: {
+            create: duplicatedCourseInfo
           }
         },
         select: {
+          id: true,
+          groupName: true,
+          groupType: true,
+          config: true,
+          courseInfo: true
+        }
+      })
+      await tx.userGroup.create({
+        data: {
+          user: {
+            connect: { id: userId }
+          },
+          group: {
+            connect: { id: duplicatedCourse.id }
+          },
           isGroupLeader: true
         }
       })
 
-      if (!userGroup?.isGroupLeader) {
-        throw new ForbiddenAccessException(
-          'If not admin, only group leader can delete a group'
-        )
-      }
-    }
-
-    return await this.prisma.userGroup.deleteMany({
-      where: {
-        groupId: id
-      }
+      return duplicatedCourse
     })
-  }
 
+    let result = await Promise.all(
+      originCourse.assignment.map(async ({ id: assignmentId }) => {
+        const [assignmentFound, assignmentProblemsFound] = await Promise.all([
+          this.prisma.assignment.findFirst({
+            where: {
+              id: assignmentId,
+              groupId
+            }
+          }),
+          this.prisma.assignmentProblem.findMany({
+            where: {
+              assignmentId
+            }
+          })
+        ])
+
+        if (!assignmentFound) {
+          throw new EntityNotExistException('assignment')
+        }
+
+        // if assignment status is ongoing, visible would be true. else, false
+        const now = new Date()
+        let newVisible = false
+        if (
+          assignmentFound.startTime <= now &&
+          now <= assignmentFound.endTime
+        ) {
+          newVisible = true
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, createTime, updateTime, title, ...assignmentDataToCopy } =
+          assignmentFound
+
+        try {
+          return await this.prisma.$transaction(async (tx) => {
+            const newAssignment = await tx.assignment.create({
+              data: {
+                ...assignmentDataToCopy,
+                title,
+                createdById: userId,
+                groupId: duplicatedCourse.id,
+                isVisible: newVisible
+              }
+            })
+
+            // 2. copy assignment problems
+            await Promise.all(
+              assignmentProblemsFound.map((assignmentProblem) =>
+                tx.assignmentProblem.create({
+                  data: {
+                    order: assignmentProblem.order,
+                    assignmentId: newAssignment.id,
+                    problemId: assignmentProblem.problemId,
+                    score: assignmentProblem.score
+                  }
+                })
+              )
+            )
+
+            return id
+          })
+        } catch {
+          return null
+        }
+      })
+    )
+
+    result = result.filter((x) => x !== null)
+
+    return {
+      duplicatedCourse,
+      originAssignments: originCourse.assignment.map(
+        (assignment) => assignment.id
+      ),
+      copiedAssignments: result
+    }
+  }
+}
+
+@Injectable()
+export class InvitationService {
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+  ) {}
   async issueInvitation(id: number) {
     const group = await this.prisma.group.findUnique({
       where: { id },
@@ -233,5 +463,86 @@ export class GroupService {
     await this.cacheManager.del(invitationCodeKey(invitation))
     await this.cacheManager.del(invitationGroupKey(id))
     return `Revoked invitation code: ${invitation}`
+  }
+
+  async inviteUser(groupId: number, userId: number, isGroupLeader: boolean) {
+    try {
+      return await this.prisma.userGroup.create({
+        data: {
+          user: {
+            connect: { id: userId }
+          },
+          group: {
+            connect: { id: groupId }
+          },
+          isGroupLeader
+        },
+        select: {
+          userId: true,
+          groupId: true,
+          isGroupLeader: true,
+          user: true
+        }
+      })
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException('User or Group not found')
+      } else if (error.code === 'P2002') {
+        throw new UnprocessableDataException('Already a member')
+      }
+    }
+  }
+}
+
+@Injectable()
+export class WhitelistService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getWhitelist(groupId: number) {
+    return (
+      await this.prisma.groupWhitelist.findMany({
+        where: {
+          groupId
+        },
+        select: {
+          studentId: true
+        }
+      })
+    ).map((whitelist) => whitelist.studentId)
+  }
+
+  async createWhitelist(groupId: number, studentIds: [string]) {
+    this.deleteWhitelist(groupId)
+
+    const whitelistData = studentIds.map((studentId) => ({
+      groupId,
+      studentId
+    }))
+
+    try {
+      return (
+        await this.prisma.groupWhitelist.createMany({
+          data: whitelistData
+        })
+      ).count
+    } catch (err) {
+      if (err.code === 'P2002') {
+        throw new UnprocessableDataException('Duplicate studentId(s) detected')
+      } else if (err.code === 'P2003') {
+        throw new UnprocessableDataException('Invalid groupId')
+      } else {
+        throw err
+      }
+    }
+  }
+
+  async deleteWhitelist(groupId: number) {
+    return (
+      await this.prisma.groupWhitelist.deleteMany({
+        where: {
+          groupId
+        }
+      })
+    ).count
   }
 }

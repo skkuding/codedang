@@ -1,0 +1,46 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    updateAssignment(
+      groupId: 3
+      input: {
+        id: 20
+        title: "Updated Assignment Group 2"
+        description: "thisisupdatedassignment"
+        startTime: "2024-01-01"
+        endTime: "2030-01-01"
+        week: 7
+        isVisible: true
+        isRankVisible: true
+        enableCopyPaste: true
+        isJudgeResultVisible: true
+      }
+    ) {
+      id
+      title
+      description
+      week
+    }
+  }
+}
+
+assert {
+  res.body.data.updateAssignment: isDefined
+}
+
+docs {
+  # Update Assignment
+  ---
+  - Assignment를 update합니다.
+}

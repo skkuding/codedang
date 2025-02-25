@@ -124,3 +124,64 @@ export const majors = [
   'Applied AI Convergence / 응용AI융합학부',
   'Energy / 에너지학과'
 ] as const
+
+/**
+ * Statuses of the contests.
+ * @constant
+ */
+export const status = ['Ongoing', 'Upcoming', 'Finished'] as const
+
+/**
+ * Text colors for contest main page banner.
+ * @constant
+ */
+export const contestTextColors: { [key: string]: string } = {
+  recent: '#FFFFFF',
+  upcoming: '#4B63FF'
+}
+
+export const courseTextcolors: { [key: string]: string } = {
+  course: '#2933A0'
+}
+
+/**
+ * Oval icon colors for contest main page banner.
+ * @constant
+ */
+export const contestOvalIconColors: {
+  [key: string]: {
+    leftup: string
+    leftdown: string
+    rightup: string
+    rightdown: string
+  }
+} = {
+  recent: {
+    leftup: '#3581fa',
+    leftdown: '#D2E4FF',
+    rightup: '#7DAFFF',
+    rightdown: '#0151D3'
+  },
+  upcoming: {
+    leftup: '#8BAEFF',
+    leftdown: '#A4BEFF',
+    rightup: '#C8D9FF',
+    rightdown: '#89ADFF'
+  }
+}
+
+export const courseOvalIconColors: {
+  [key: string]: {
+    leftup: string
+    leftdown: string
+    rightup: string
+    rightdown: string
+  }
+} = {
+  course: {
+    leftup: '#6B69FF',
+    leftdown: '#A8A2FF',
+    rightup: '#7F7DFF',
+    rightdown: '#4A32FF'
+  }
+}

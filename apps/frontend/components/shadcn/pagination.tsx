@@ -1,7 +1,8 @@
 import { type ButtonProps, buttonVariants } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
-import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react'
+import { MoreHorizontal } from 'lucide-react'
 import * as React from 'react'
+import { FaCirclePlay } from 'react-icons/fa6'
 
 const Pagination = ({ className, ...props }: React.ComponentProps<'nav'>) => (
   <nav
@@ -48,9 +49,10 @@ const PaginationButton = ({
       aria-current={isActive ? 'page' : undefined}
       className={cn(
         buttonVariants({ variant: 'ghost', size }),
+        'text-base',
         isActive
-          ? 'text-primary-light bg-slate-700 hover:bg-slate-500'
-          : 'text-slate-300 hover:bg-slate-700 hover:text-slate-400',
+          ? 'text-primary-strong hover:text-primary-light hover:bg-gray-100'
+          : 'text-[#8A8A8A] hover:text-slate-400',
         className
       )}
       {...props}
@@ -94,13 +96,16 @@ const PaginationPrevious = ({
   <PaginationButton
     aria-label="Go to previous page"
     size="default"
-    className={cn(
-      isActive ? 'hover:text-primary-light' : 'cursor-not-allowed opacity-30',
-      className
-    )}
+    className={cn(!isActive && 'cursor-not-allowed', 'relative', className)}
     {...props}
   >
-    <ChevronLeft className="h-4 w-4" />
+    {!isActive && (
+      <div className="absolute z-0 h-4 w-4 rounded-full bg-[#C4C4C4]" />
+    )}
+    <FaCirclePlay
+      color={isActive ? '#3581FA' : '#EBEBEB'}
+      className="z-10 h-6 w-6 rotate-180"
+    />
   </PaginationButton>
 )
 PaginationPrevious.displayName = 'PaginationPrevious'
@@ -113,13 +118,16 @@ const PaginationNext = ({
   <PaginationButton
     aria-label="Go to next page"
     size="default"
-    className={cn(
-      isActive ? 'hover:text-primary-light' : 'cursor-not-allowed opacity-30',
-      className
-    )}
+    className={cn(!isActive && 'cursor-not-allowed', 'relative', className)}
     {...props}
   >
-    <ChevronRight className="h-4 w-4" />
+    {!isActive && (
+      <div className="absolute z-0 h-4 w-4 rounded-full bg-[#C4C4C4]" />
+    )}
+    <FaCirclePlay
+      color={isActive ? '#3581FA' : '#EBEBEB'}
+      className="z-10 h-6 w-6"
+    />
   </PaginationButton>
 )
 
