@@ -3,7 +3,6 @@ import { Inject, Injectable } from '@nestjs/common'
 import { Contest, ResultStatus, Submission } from '@generated'
 import type { ContestProblem } from '@prisma/client'
 import { Cache } from 'cache-manager'
-import { filter } from 'rxjs'
 import {
   PUBLICIZING_REQUEST_EXPIRE_TIME,
   PUBLICIZING_REQUEST_KEY,
@@ -16,7 +15,6 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { ContestLeaderboard } from './model/contest-leaderboard.model'
 import type { ContestWithScores } from './model/contest-with-scores.model'
 import type { CreateContestInput } from './model/contest.input'
 import type { UpdateContestInput } from './model/contest.input'
@@ -976,6 +974,7 @@ export class ContestService {
             finalScore: true,
             finalSubmitCountPenalty: true,
             finalTimePenalty: true,
+            isFirstSolver: true,
             contestProblem: {
               select: { order: true, problem: { select: { id: true } } }
             }
@@ -1012,6 +1011,7 @@ export class ContestService {
       const problemRecords = contestProblemRecord.map((record) => {
         const {
           contestProblem,
+          isFirstSolver,
           finalScore,
           finalSubmitCountPenalty,
           finalTimePenalty,
@@ -1024,6 +1024,7 @@ export class ContestService {
           problemId: contestProblem.problem.id,
           score: finalScore,
           penalty: finalSubmitCountPenalty + finalTimePenalty,
+          isFirstSolver,
           submissionCount:
             submissionCountMap[uid!]?.[contestProblem.problem.id] ?? 0 // 기본값 0 설정
         }

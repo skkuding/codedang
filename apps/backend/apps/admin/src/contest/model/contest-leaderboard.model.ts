@@ -16,6 +16,9 @@ export class ProblemRecord {
 
   @Field(() => Int)
   submissionCount: number
+
+  @Field(() => Boolean)
+  isFirstSolver: boolean
 }
 
 @ObjectType()

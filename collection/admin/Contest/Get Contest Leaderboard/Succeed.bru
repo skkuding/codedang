@@ -12,39 +12,39 @@ post {
 
 body:graphql {
   query GetContestLeaderboard($contestId: Int!) {
-    getContestLeaderboard(contestId: $contestId) {
-      maxScore
-      participatedNum
-      registeredNum
-      isFrozen
-      leaderboard {
-        rank
-        userId
-        username
-        finalScore
-        finalTotalPenalty
-        problemRecords {
-          order
-          problemId
-          score
-          penalty
-          submissionCount
+      getContestLeaderboard(contestId: $contestId) {
+        maxScore
+        participatedNum
+        registeredNum
+        isFrozen
+        leaderboard {
+          rank
+          userId
+          username
+          finalScore
+          finalTotalPenalty
+          problemRecords {
+            order
+            problemId
+            score
+            penalty
+            submissionCount
+            isFirstSolver
+          }
         }
       }
     }
-  }
-  
 }
 
 body:graphql:vars {
   {
-    "contestId": 1
+      "contestId": 1
   }
 }
 
 docs {
   ## Get Leaderboard
   
-  - Contest의 최고점수, 참여자 수, 등록자 수, Freeze 여부를 가져옵니다.
-  - 리더보드의 정보를 가져옵니다.
+    - Contest의 최고점수, 참여자 수, 등록자 수, Freeze 여부를 가져옵니다.
+    - 리더보드의 정보를 가져옵니다.
 }
