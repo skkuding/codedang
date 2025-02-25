@@ -11,7 +11,7 @@ export default function SubmissionPage({
 }: {
   params: { problemId: string; courseId: string; assignmentId: string }
 }) {
-  const { problemId, courseId, assignmentId } = params
+  const { problemId, assignmentId } = params
 
   return (
     <TanstackQueryErrorBoundary fallback={FetchErrorFallback}>

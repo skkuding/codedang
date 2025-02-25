@@ -1,9 +1,9 @@
+import { safeFetcherWithAuth } from '@/libs/utils'
 import type { AssignmentProblem, ProblemDetail } from '@/types/type'
 import type { PaginationQueryParams } from './types'
 
 export interface GetAssignmentProblemListRequest extends PaginationQueryParams {
-  groupId?: number
-  contestId: number
+  assignmentId: number
 }
 
 export interface GetAssignmentProblemListResponse {
@@ -11,7 +11,21 @@ export interface GetAssignmentProblemListResponse {
   total: number
 }
 
-// * api자리
+export const getAssignmentProblemList = async ({
+  assignmentId,
+  ...searchParams
+}: GetAssignmentProblemListRequest) => {
+  const response = await safeFetcherWithAuth.get(
+    `assignment/${assignmentId}/problem`,
+    {
+      searchParams
+    }
+  )
+
+  const data = response.json<GetAssignmentProblemListResponse>()
+
+  return data
+}
 
 // --------------------------------------------------------------------
 

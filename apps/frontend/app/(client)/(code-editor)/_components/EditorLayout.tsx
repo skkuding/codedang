@@ -11,6 +11,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import type { GetAssignmentProblemDetailResponse } from '../../_libs/apis/assignmentProblem'
 import type { GetContestProblemDetailResponse } from '../../_libs/apis/contestProblem'
+import { AssignmentProblemDropdown } from './AssignmentProblemDropdown'
 import { ContestProblemDropdown } from './ContestProblemDropdown'
 import { EditorMainResizablePanel } from './EditorResizablePanel'
 
@@ -129,8 +130,13 @@ const renderHeaderContent = ({
           {assignment.title}
         </Link>
         <p className="mx-2"> / </p>
-        {/* TODO: ContestProblemPropdown을 assignment와 공용으로 만들기 */}
-        <ContestProblemDropdown problem={problem} contestId={assignment.id} />
+        {courseId !== undefined && (
+          <AssignmentProblemDropdown
+            problem={problem}
+            assignmentId={assignment.id}
+            courseId={courseId}
+          />
+        )}
       </>
     )
   } else {
