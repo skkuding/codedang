@@ -11,7 +11,7 @@ import { motion } from 'framer-motion'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import type { IconType } from 'react-icons'
 import { FaHome, FaQuestion, FaStar } from 'react-icons/fa'
@@ -153,18 +153,14 @@ export function ManagementSidebar() {
     return items
   }
 
-  function extractCourseId(pathname: string) {
-    const match = pathname.match(/\/admin\/course\/(\d+)/)
-    return match?.[1] || ''
-  }
+  const params = useParams()
 
   useEffect(() => {
-    const courseId = extractCourseId(pathname)
-    if (courseId) {
-      setSelectedCourseId(courseId)
+    if (params.courseId) {
+      setSelectedCourseId(params.courseId as string)
       setIsCourseSidebarOpened(true)
     }
-  }, [pathname])
+  }, [params.courseId])
 
   const courseItems =
     coursesData?.getCoursesUserLead.map((course) => ({
@@ -221,7 +217,7 @@ export function ManagementSidebar() {
                 <div
                   className={cn(
                     'mt-4 flex flex-col gap-3 pl-4',
-                    isMainSidebarExpanded ? 'transition-all' : 'hidden'
+                    isMainSidebarExpanded && isAnimationComplete ? '' : 'hidden'
                   )}
                 >
                   {courseItems.map((course) => (
@@ -231,8 +227,7 @@ export function ManagementSidebar() {
                       onClick={() => setIsCourseSidebarOpened(true)}
                       className={cn(
                         'overflow-hidden overflow-ellipsis text-xs transition-colors',
-                        pathname.match(/\/admin\/course\/(\d+)/)?.[1] ===
-                          course.id.toString()
+                        params.courseId === course.id.toString()
                           ? 'text-primary'
                           : 'hover:text-primary text-gray-600'
                       )}
