@@ -239,7 +239,7 @@ interface LeaderboardProblemRecord {
   submissionCount: number
 }
 interface UserOnLeaderboard {
-  user: { username: string }
+  username: string
   score: number
   finalScore: number
   totalPenalty: number
