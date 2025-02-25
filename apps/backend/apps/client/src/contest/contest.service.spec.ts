@@ -61,8 +61,7 @@ const ongoingContests = [
     startTime: now.add(-1, 'day').toDate(),
     endTime: now.add(1, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
+    enableCopyPaste: true
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -81,8 +80,7 @@ const upcomingContests = [
     startTime: now.add(1, 'day').toDate(),
     endTime: now.add(2, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
+    enableCopyPaste: true
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -101,8 +99,7 @@ const finishedContests = [
     startTime: now.add(-2, 'day').toDate(),
     endTime: now.add(-1, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
+    enableCopyPaste: true
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -254,7 +251,7 @@ describe('ContestService', () => {
         service.createContestRecord({
           contestId: 999,
           userId: user01Id,
-          invitationCode: invitationCode
+          invitationCode
         })
       ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
     })
@@ -294,7 +291,7 @@ describe('ContestService', () => {
     })
   })
 
-  describe('deleteContestRecord', () => {
+  describe('unregisterContest', () => {
     let contestRecord: ContestRecord | { id: number } = { id: -1 }
 
     afterEach(async () => {
@@ -327,35 +324,32 @@ describe('ContestService', () => {
       })
 
       expect(
-        await service.deleteContestRecord(newlyRegisteringContestId, user01Id)
+        await service.unregisterContest(newlyRegisteringContestId, user01Id)
       ).to.deep.equal(contestRecord)
     })
 
     it('should throw error when contest does not exist', async () => {
-      await expect(
-        service.deleteContestRecord(999, user01Id)
-      ).to.be.rejectedWith(EntityNotExistException)
+      await expect(service.unregisterContest(999, user01Id)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
 
     it('should throw error when contest record does not exist', async () => {
-      await expect(
-        service.deleteContestRecord(16, user01Id)
-      ).to.be.rejectedWith(EntityNotExistException)
+      await expect(service.unregisterContest(16, user01Id)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
 
     it('should throw error when contest is ongoing', async () => {
       await expect(
-        service.deleteContestRecord(contestId, user01Id)
+        service.unregisterContest(contestId, user01Id)
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })
 
   describe('getContestLeaderboard', () => {
     it('should return leaderboard of the contest', async () => {
-      const leaderboard = await service.getContestLeaderboard(
-        user01Id,
-        contestId
-      )
+      const leaderboard = await service.getContestLeaderboard(contestId)
       expect(leaderboard).to.be.ok
     })
   })
