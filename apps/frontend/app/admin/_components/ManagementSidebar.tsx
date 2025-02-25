@@ -2,7 +2,8 @@
 
 import { Separator } from '@/components/shadcn/separator'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
-import { cn } from '@/libs/utils'
+import { useSession } from '@/libs/hooks/useSession'
+import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import codedangWithTextIcon from '@/public/logos/codedang-with-text.svg'
 import { useQuery } from '@apollo/client'
 import { motion } from 'framer-motion'
@@ -10,7 +11,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { IconType } from 'react-icons'
 import { FaHome, FaQuestion, FaStar } from 'react-icons/fa'
 import {
   FaSquarePollHorizontal,
@@ -21,8 +21,7 @@ import {
   FaTrophy,
   FaAnglesLeft,
   FaAnglesRight,
-  FaFilePen,
-  FaPerson
+  FaFilePen
 } from 'react-icons/fa6'
 
 interface NavItem {
@@ -30,15 +29,6 @@ interface NavItem {
   path: string
   icon: IconType
 }
-
-const mainNavItems: NavItem[] = [
-  { name: 'Dashboard', path: '/admin', icon: FaSquarePollHorizontal },
-  { name: 'User', path: '/admin/user', icon: FaUser },
-  { name: 'Notice', path: '/admin/notice', icon: FaBell },
-  { name: 'Problem', path: '/admin/problem', icon: FaPen },
-  { name: 'Course', path: '/admin/course', icon: FaBook },
-  { name: 'Contest', path: '/admin/contest', icon: FaTrophy }
-]
 
 const getCourseNavItems = (courseId: string): NavItem[] => [
   { name: 'Home', path: `/admin/course/${courseId}`, icon: FaHome },
@@ -81,14 +71,62 @@ function SidebarLink({
 }
 
 export function ManagementSidebar() {
+  const { data: session } = useSession()
   const [isMainSidebarExpanded, setIsMainSidebarExpanded] = useState(true)
   const [isCourseListOpened, setIsCourseListOpened] = useState(false)
   const [isCourseSidebarOpened, setIsCourseSidebarOpened] = useState(false)
   const [isCourseSidebarExpanded, setIsCourseSidebarExpanded] = useState(true)
   const [selectedCourseId, setSelectedCourseId] = useState<string>('')
+  const [userPermissions, setUserPermissions] = useState({
+    canCreateCourse: false,
+    canCreateContest: false
+  })
   const pathname = usePathname()
 
   const { data: coursesData } = useQuery(GET_COURSES_USER_LEAD)
+  const hasLeadCourses = (coursesData?.getCoursesUserLead?.length ?? 0) > 0
+
+  useEffect(() => {
+    const fetchUserPermissions = async () => {
+      try {
+        const response = await safeFetcherWithAuth.get('user').json()
+        setUserPermissions({
+          canCreateCourse: response.canCreateCourse ?? false,
+          canCreateContest: response.canCreateContest ?? false
+        })
+      } catch (error) {
+        console.error('Error fetching user permissions:', error)
+      }
+    }
+
+    if (session) {
+      fetchUserPermissions()
+    }
+  }, [session])
+
+  const getFilteredMainNavItems = () => {
+    const items: NavItem[] = []
+    const isAdmin = session?.user?.role !== 'User'
+
+    if (isAdmin) {
+      items.push(
+        { name: 'Dashboard', path: '/admin', icon: FaSquarePollHorizontal },
+        { name: 'User', path: '/admin/user', icon: FaUser },
+        { name: 'Notice', path: '/admin/notice', icon: FaBell }
+      )
+    }
+    items.push({ name: 'Problem', path: '/admin/problem', icon: FaPen })
+
+    if (userPermissions.canCreateCourse || hasLeadCourses) {
+      items.push({ name: 'Course', path: '/admin/course', icon: FaBook })
+    }
+
+    if (userPermissions.canCreateContest) {
+      items.push({ name: 'Contest', path: '/admin/contest', icon: FaTrophy })
+    }
+
+    return items
+  }
 
   function extractCourseId(pathname: string) {
     const match = pathname.match(/\/admin\/course\/(\d+)/)
@@ -135,7 +173,7 @@ export function ManagementSidebar() {
         <Separator className="mb-4" />
 
         <div className="flex flex-col gap-2">
-          {mainNavItems.map((item) => (
+          {getFilteredMainNavItems().map((item) => (
             <div key={item.name}>
               <SidebarLink
                 item={item}
