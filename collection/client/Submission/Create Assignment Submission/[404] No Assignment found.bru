@@ -10,7 +10,7 @@ post {
   auth: none
 }
 
-query {
+params:query {
   problemId: 1
   assignmentId: 999
   ~groupId: 1
@@ -19,14 +19,9 @@ query {
 
 body:json {
   {
-    "code": [
-      {
-        "id": 1,
-        "text": "#include <stdio.h>\nint main() { int a, b; scanf(\"%d%d\", &a, &b); printf(\"%d\\n\", a - b);}",
-        "locked": false
-      }
-    ],
-    "language": "C"
+    "code": "#include <stdio.h>\nint main() { int a, b; scanf(\"%d%d\", &a, &b); printf(\"%d\\n\", a + b);}",
+    "language": "C",
+    "readOnlyRanges": []
   }
 }
 
@@ -42,18 +37,18 @@ script:pre-request {
 
 docs {
   ## [404] No Assignment found
-
+  
   존재하지 `Assignment`에 Submission을 제출합니다.
-
+  
   ### Query
-
+  
   > 필수 query는 * 표시하였습니다.
-
+  
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |problemId *|Integer|문제 ID|
   |groupId|Integer|문제가 속한 Group ID (default: 1)|
   |assignmentId|Integer|문제가 속한 과제 ID|
   |workbookId|Integer|문제가 속한 문제집 ID|
-
+  
 }
