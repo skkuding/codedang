@@ -56,7 +56,6 @@ export async function EditorLayout({
     )
     if (!res.ok && res.status === 403) {
       redirect(
-        // TODO: ..!!!!
         `/course/${courseId}/assignment/${assignmentId}/finished/problem/${problemId}`
       )
     }
