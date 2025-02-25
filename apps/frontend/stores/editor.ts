@@ -57,7 +57,6 @@ export const getStorageKey = (
   problemId: number,
   userName: string,
   contestId?: number,
-  courseId?: number,
   assignmentId?: number
 ) => {
   if (userName === '') {
@@ -69,7 +68,7 @@ export const getStorageKey = (
   if (contestId) {
     problemKey += `_contest_${contestId}_language`
   } else if (assignmentId) {
-    problemKey += `_course_${courseId}_assignment_${assignmentId}_language`
+    problemKey += `_assignment_${assignmentId}_language`
   } else {
     problemKey += '_language'
   }

@@ -57,21 +57,18 @@ interface ProblemEditorProps {
   problem: ProblemDetail
   contestId?: number
   assignmentId?: number
-  courseId?: number
   templateString: string
 }
 
 export function EditorHeader({
   problem,
   contestId,
-  courseId,
   assignmentId,
   templateString
 }: ProblemEditorProps) {
   const { language, setLanguage } = useLanguageStore(
     problem.id,
     contestId,
-    courseId,
     assignmentId
   )()
   const setCode = useCodeStore((state) => state.setCode)
@@ -88,14 +85,7 @@ export function EditorHeader({
   const pathname = usePathname()
   const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
   const storageKey = useRef(
-    getStorageKey(
-      language,
-      problem.id,
-      userName,
-      contestId,
-      courseId,
-      assignmentId
-    )
+    getStorageKey(language, problem.id, userName, contestId, assignmentId)
   )
   const session = useSession()
   const showSignIn = useAuthModalStore((state) => state.showSignIn)
@@ -114,6 +104,10 @@ export function EditorHeader({
           ...(contestId && { contestId })
         }
       })
+      // TODO: Implement assignment submission
+      // if (assignmentId) {
+      // } else {
+      // }
       if (res.ok) {
         const submission: Submission = await res.json()
         if (submission.result !== 'Judging') {
