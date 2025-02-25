@@ -5,7 +5,7 @@ import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { useSession } from '@/libs/hooks/useSession'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import codedangWithTextIcon from '@/public/logos/codedang-with-text.svg'
-import { User } from '@/types/type'
+import type { User } from '@/types/type'
 import { useQuery } from '@apollo/client'
 import { motion } from 'framer-motion'
 import type { Route } from 'next'
@@ -14,7 +14,7 @@ import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import type { IconType } from 'react-icons'
-import { FaHome, FaQuestion, FaStar } from 'react-icons/fa'
+import { FaHome, FaStar } from 'react-icons/fa'
 import {
   FaSquarePollHorizontal,
   FaUser,
