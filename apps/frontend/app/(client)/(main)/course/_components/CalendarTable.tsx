@@ -15,7 +15,7 @@ const events: Event[] = [
     date: new Date(2025, 3, 4)
   },
   {
-    id: '4220EAEA-D515-4EB5-B71D-67CF223DC42F',
+    id: '4220EAEA-D515-4EB5-B71D-67CF223DC42D',
     title: '과제마감',
     date: new Date(2025, 3, 5)
   }
