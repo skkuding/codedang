@@ -400,8 +400,7 @@ export class ContestProblemService {
   async getContestProblem({
     contestId,
     problemId,
-    userId,
-    groupId = OPEN_SPACE_ID
+    userId
   }: {
     contestId: number
     problemId: number
@@ -504,8 +503,7 @@ export class AssignmentProblemService {
     assignmentId,
     userId,
     cursor,
-    take,
-    groupId = OPEN_SPACE_ID
+    take
   }: {
     assignmentId: number
     userId: number
@@ -515,19 +513,8 @@ export class AssignmentProblemService {
   }) {
     const assignment = await this.assignmentService.getAssignment(
       assignmentId,
-      groupId,
       userId
     )
-    const now = new Date()
-    if (assignment.isRegistered && assignment.startTime! > now) {
-      throw new ForbiddenAccessException(
-        'Cannot access problems before the assignment starts.'
-      )
-    } else if (!assignment.isRegistered && assignment.endTime! > now) {
-      throw new ForbiddenAccessException(
-        'Register to access the problems of this assignment.'
-      )
-    }
 
     const paginator = this.prisma.getPaginator(cursor, (value) => ({
       // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -641,8 +628,7 @@ export class AssignmentProblemService {
   async getAssignmentProblem({
     assignmentId,
     problemId,
-    userId,
-    groupId = OPEN_SPACE_ID
+    userId
   }: {
     assignmentId: number
     problemId: number
@@ -651,22 +637,14 @@ export class AssignmentProblemService {
   }) {
     const assignment = await this.assignmentService.getAssignment(
       assignmentId,
-      groupId,
       userId
     )
     const now = new Date()
-    if (assignment.isRegistered) {
-      if (now < assignment.startTime!) {
-        throw new ForbiddenAccessException(
-          'Cannot access to Assignment problem before the assignment starts.'
-        )
-      } else if (now > assignment.endTime!) {
-        throw new ForbiddenAccessException(
-          'Cannot access to Assignment problem after the assignment ends.'
-        )
-      }
-    } else {
-      throw new ForbiddenAccessException('Register to access this problem.')
+
+    if (now > assignment.endTime!) {
+      throw new ForbiddenAccessException(
+        'Cannot access to Assignment problem after the assignment ends.'
+      )
     }
 
     const data = await this.prisma.assignmentProblem.findUniqueOrThrow({
