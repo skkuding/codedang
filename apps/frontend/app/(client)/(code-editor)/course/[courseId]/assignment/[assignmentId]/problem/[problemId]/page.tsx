@@ -23,5 +23,7 @@ export default async function DescriptionPage({
   const { problem, order } =
     await res.json<GetAssignmentProblemDetailResponse>()
 
-  return <EditorDescription problem={{ ...problem, order }} />
+  return (
+    <EditorDescription problem={{ ...problem, order }} isAssignment={true} />
+  )
 }
