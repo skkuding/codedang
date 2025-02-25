@@ -3,15 +3,16 @@ import { Button } from '@/components/shadcn/button'
 import { fetcher } from '@/libs/utils'
 import exitIcon from '@/public/icons/exit.svg'
 import visitIcon from '@/public/icons/visit.svg'
+import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 
-export default async function ContestFinishedPage({
+export default async function AssignmentFinishedPage({
   params
 }: {
-  params: { problemId: string; contestId: string }
+  params: { problemId: string; assignmentId: string; courseId: string }
 }) {
-  const { problemId, contestId } = params
+  const { problemId, assignmentId, courseId } = params
 
   const isProblemPubliclyAvailable =
     (await fetcher.head(`problem/${problemId}`)).status === 200
@@ -20,7 +21,9 @@ export default async function ContestFinishedPage({
       <EditorSkeleton />
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-10 text-white backdrop-blur-md">
         <div className="text-center">
-          <h1 className="mb-8 font-mono text-2xl">The contest has finished!</h1>
+          <h1 className="mb-8 font-mono text-2xl">
+            The assignment has finished!
+          </h1>
           {isProblemPubliclyAvailable ? (
             <>
               <p className="mb-2 font-sans font-light">
@@ -33,7 +36,8 @@ export default async function ContestFinishedPage({
           ) : (
             <>
               <p className="mb-2 font-sans font-light">
-                This problem is now unavailable to students.
+                These problems are no longer available since the assignment has
+                finished.
               </p>
               <p className="mb-10 font-sans font-light">
                 Click the button below to exit the page.
@@ -51,7 +55,11 @@ export default async function ContestFinishedPage({
               </Button>
             </Link>
           )}
-          <Link href={`/contest/${contestId}/problem`}>
+          <Link
+            href={
+              `/course/${courseId}/assignment/${assignmentId}/problem` as Route
+            }
+          >
             <Button
               size="icon"
               className="ml-4 h-10 w-24 shrink-0 gap-[5px] rounded-[4px] bg-blue-500 font-sans hover:bg-blue-700"

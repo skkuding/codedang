@@ -56,15 +56,24 @@ import { RunTestButton } from './RunTestButton'
 interface ProblemEditorProps {
   problem: ProblemDetail
   contestId?: number
+  assignmentId?: number
+  courseId?: number
   templateString: string
 }
 
 export function EditorHeader({
   problem,
   contestId,
+  courseId,
+  assignmentId,
   templateString
 }: ProblemEditorProps) {
-  const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
+  const { language, setLanguage } = useLanguageStore(
+    problem.id,
+    contestId,
+    courseId,
+    assignmentId
+  )()
   const setCode = useCodeStore((state) => state.setCode)
   const getCode = useCodeStore((state) => state.getCode)
 
@@ -79,7 +88,14 @@ export function EditorHeader({
   const pathname = usePathname()
   const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
   const storageKey = useRef(
-    getStorageKey(language, problem.id, userName, contestId)
+    getStorageKey(
+      language,
+      problem.id,
+      userName,
+      contestId,
+      courseId,
+      assignmentId
+    )
   )
   const session = useSession()
   const showSignIn = useAuthModalStore((state) => state.showSignIn)
