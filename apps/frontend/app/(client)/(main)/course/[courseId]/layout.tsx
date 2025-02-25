@@ -12,7 +12,7 @@ export default function Layout({ children, params }: CourseLayoutProps) {
     <>
       <Cover title="COURSE" description="Check your course" />
       <div className="flex h-full w-full flex-col">
-        <div className="flex flex-row bg-red-50">
+        <div className="flex flex-row">
           <CourseSidebar courseId={courseId} />
           <article className="w-full">
             <div>{children}</div>
