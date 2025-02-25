@@ -42,7 +42,7 @@ export function ManagementSidebar() {
 
   const getCourseNavItems = (courseId: string) => [
     { name: 'Home', path: `/admin/course/${courseId}`, icon: FaHome },
-    { name: 'Notice', path: `/admin/course/${courseId}/notice`, icon: FaBell },
+    // { name: 'Notice', path: `/admin/course/${courseId}/notice`, icon: FaBell },
     {
       name: 'Member',
       path: `/admin/course/${courseId}/member`,
@@ -53,17 +53,17 @@ export function ManagementSidebar() {
       path: `/admin/course/${courseId}/assignment`,
       icon: FaFilePen
     },
-    {
-      name: 'Exam',
-      path: `/admin/course/${courseId}/exam`,
-      icon: FaFilePen
-    },
-    { name: 'Grade', path: `/admin/course/${courseId}/grade`, icon: FaStar },
-    {
-      name: 'Q&A',
-      path: `/admin/course/${courseId}/qna`,
-      icon: FaQuestion
-    }
+    // {
+    //   name: 'Exam',
+    //   path: `/admin/course/${courseId}/exam`,
+    //   icon: FaFilePen
+    // },
+    { name: 'Grade', path: `/admin/course/${courseId}/grade`, icon: FaStar }
+    // {
+    //   name: 'Q&A',
+    //   path: `/admin/course/${courseId}/qna`,
+    //   icon: FaQuestion
+    // }
   ]
 
   function extractCourseId(pathname: string) {
