@@ -29,7 +29,10 @@ export const columns: ColumnDef<SubmissionItem>[] = [
   {
     header: () => 'Language',
     accessorKey: 'language',
-    cell: ({ row }) => row.original.language
+    cell: ({ row }) => {
+      console.log('row language : ', row.original.language)
+      return row.original.language !== 'Cpp' ? row.original.language : 'C++'
+    }
   },
   {
     header: () => 'Submission Time',
