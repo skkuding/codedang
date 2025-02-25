@@ -315,6 +315,8 @@ model Assignment {
   enableCopyPaste      Boolean  @default(true) @map("enable_copy_paste") // 이 Assignment에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다.
   createTime           DateTime @default(now()) @map("create_time")
   updateTime           DateTime @updatedAt @map("update_time")
+  autoFinalizeScore    Boolean  @default(false) @map("auto_finalize_score") // Assignment이 종료되면 자동으로 finalScore를 계산합니다.
+  isFinalScoreVisible  Boolean  @default(false) @map("is_final_score_visible") // 이 Assignment에 포함된 문제의 최종 점수를 사용자에게 보여줄지 말지 결정합니다.
 
   assignmentProblem AssignmentProblem[]
   assignmentRecord  AssignmentRecord[]
@@ -344,13 +346,15 @@ model AssignmentProblem {
 }
 
 model AssignmentRecord {
-  id                      Int                       @id @default(autoincrement())
-  assignment              Assignment                @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId            Int                       @map("assignment_id")
-  user                    User?                     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId                  Int?                      @map("user_id")
-  acceptedProblemNum      Int                       @default(0) @map("accepted_problem_num")
-  score                   Int                       @default(0)
+  id                 Int        @id @default(autoincrement())
+  assignment         Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId       Int        @map("assignment_id")
+  user               User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId             Int?       @map("user_id")
+  acceptedProblemNum Int        @default(0) @map("accepted_problem_num")
+  score              Int        @default(0)
+  finalScore         Int        @default(0) @map("final_score")
+
   // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각
   finishTime              DateTime?                 @map("finish_time")
   // totalPenalty: Submission 시, AC를 받지 못했을 때, 올라가는 Counter
@@ -369,6 +373,7 @@ model AssignmentProblemRecord {
   problemId    Int
 
   score       Int     @default(0)
+  finalScore  Int     @default(0) @map("final_score")
   isSubmitted Boolean @default(false) @map("is_submitted")
   isAccepted  Boolean @default(false) @map("is_accepted")
 
