@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { Contest, ResultStatus, Submission } from '@generated'
 import type { ContestProblem } from '@prisma/client'
 import { Cache } from 'cache-manager'
+import { filter } from 'rxjs'
 import {
   PUBLICIZING_REQUEST_EXPIRE_TIME,
   PUBLICIZING_REQUEST_KEY,
@@ -15,6 +16,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { ContestLeaderboard } from './model/contest-leaderboard.model'
 import type { ContestWithScores } from './model/contest-with-scores.model'
 import type { CreateContestInput } from './model/contest.input'
 import type { UpdateContestInput } from './model/contest.input'
@@ -919,5 +921,134 @@ export class ContestService {
       (total, problem) => total + problem.score,
       0
     )
+  }
+
+  async getContestLeaderboard(contestId: number, search?: string) {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contestId },
+      select: { id: true, freezeTime: true }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest not found')
+    }
+
+    const participated = await this.prisma.submission.findMany({
+      where: { contestId },
+      distinct: ['userId']
+    })
+
+    const participatedNum = participated.length
+
+    const registered = await this.prisma.contestRecord.findMany({
+      where: { contestId },
+      distinct: ['userId']
+    })
+
+    const registeredNum = registered.length
+
+    // freeze 상태 확인
+    const isFrozen =
+      contest?.freezeTime != null && new Date() >= contest.freezeTime
+
+    // Contest의 최고 점수 계산
+    const sum = await this.prisma.contestProblem.aggregate({
+      where: {
+        contestId
+      },
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      _sum: {
+        score: true
+      }
+    })
+    const maxScore = sum._sum?.score ?? 0
+
+    // 항상 finalScore, finalTotalPenalty 사용
+    const contestRecords = await this.prisma.contestRecord.findMany({
+      where: { contestId },
+      select: {
+        userId: true,
+        user: { select: { username: true } },
+        finalScore: true,
+        finalTotalPenalty: true,
+        contestProblemRecord: {
+          select: {
+            finalScore: true,
+            finalSubmitCountPenalty: true,
+            finalTimePenalty: true,
+            contestProblem: {
+              select: { order: true, problem: { select: { id: true } } }
+            }
+          }
+        }
+      },
+      orderBy: [{ finalScore: 'desc' }, { finalTotalPenalty: 'asc' }]
+    })
+
+    // 문제별 제출 횟수 가져오기
+    const submissionCounts = await this.prisma.submission.groupBy({
+      by: ['userId', 'problemId'],
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      _count: { id: true },
+      where: { contestId }
+    })
+
+    // 제출 횟수 매핑
+    const submissionCountMap: Record<number, Record<number, number>> = {}
+    submissionCounts.forEach((submission) => {
+      const { userId, problemId, _count } = submission
+      if (!userId || !problemId || !_count) return
+      if (!submissionCountMap[userId]) {
+        submissionCountMap[userId] = {}
+      }
+      submissionCountMap[userId][problemId] = _count.id // 문제별 제출 횟수 저장
+    })
+
+    let rank = 1
+    const leaderboard = contestRecords.map((contestRecord) => {
+      const { contestProblemRecord, user, userId, ...rest } = contestRecord
+      const uid = userId ?? 0 // userId가 null이면 0으로 처리
+
+      const problemRecords = contestProblemRecord.map((record) => {
+        const {
+          contestProblem,
+          finalScore,
+          finalSubmitCountPenalty,
+          finalTimePenalty,
+          ...rest
+        } = record
+
+        return {
+          ...rest,
+          order: contestProblem.order,
+          problemId: contestProblem.problem.id,
+          score: finalScore,
+          penalty: finalSubmitCountPenalty + finalTimePenalty,
+          submissionCount:
+            submissionCountMap[uid!]?.[contestProblem.problem.id] ?? 0 // 기본값 0 설정
+        }
+      })
+      return {
+        userId: uid,
+        username: user?.username ?? 'Unknown',
+        ...rest,
+        problemRecords,
+        rank: rank++
+      }
+    })
+
+    const filteredLeaderboard = search
+      ? leaderboard.filter(({ username }) =>
+          username.toLowerCase().includes(search.toLowerCase())
+        )
+      : leaderboard
+
+    return {
+      maxScore,
+      participatedNum,
+      registeredNum,
+      leaderboard: filteredLeaderboard,
+      isFrozen
+    }
   }
 }
