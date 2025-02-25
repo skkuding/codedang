@@ -71,7 +71,7 @@ export function RegisterButton({
   return !invitationCodeExists ? (
     // User not registered and no invitation code required
     <Button
-      className="h-12 w-[940px] rounded-full px-12 py-6 text-lg disabled:bg-gray-300 disabled:text-gray-600"
+      className="bg-primary border-primary h-[46px] w-[940px] rounded-full px-12 py-6 text-[16px] font-bold text-white disabled:bg-gray-300 disabled:text-gray-600"
       disabled={state === 'Upcoming'}
       onClick={onSubmit}
     >
@@ -82,7 +82,7 @@ export function RegisterButton({
     <Dialog>
       <DialogTrigger asChild>
         <Button
-          className="h-12 w-[940px] rounded-full px-12 py-6 text-lg disabled:bg-gray-300 disabled:text-gray-600"
+          className="bg-primary border-primary h-[46px] w-[940px] rounded-full px-12 py-6 text-[16px] font-bold text-white disabled:bg-gray-300 disabled:text-gray-600"
           disabled={state === 'Upcoming'}
         >
           Register Now!
