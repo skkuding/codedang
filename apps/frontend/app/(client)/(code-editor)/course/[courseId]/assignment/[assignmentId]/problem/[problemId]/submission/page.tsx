@@ -18,7 +18,6 @@ export default function SubmissionPage({
       <Suspense fallback={<SubmissionPaginatedTableFallback />}>
         <SubmissionPaginatedTable
           problemId={Number(problemId)}
-          courseId={Number(courseId)}
           assignmentId={Number(assignmentId)}
         />
       </Suspense>
