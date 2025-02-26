@@ -7,8 +7,22 @@ interface LanguageStore {
   setLanguage: (language: Language) => void
 }
 
-export const useLanguageStore = (problemId: number, contestId?: number) => {
-  const languageKey = `${problemId}${contestId ? `_${contestId}` : ''}_language`
+export const useLanguageStore = (
+  problemId: number,
+  contestId?: number,
+  courseId?: number,
+  assignmentId?: number
+) => {
+  let languageKey = `${problemId}`
+
+  if (contestId) {
+    languageKey += `_contest_${contestId}_language`
+  } else if (assignmentId) {
+    languageKey += `_course_${courseId}_assignment_${assignmentId}_language`
+  } else {
+    languageKey += '_language'
+  }
+
   return create(
     persist<LanguageStore>(
       (set) => ({
@@ -42,12 +56,22 @@ export const getStorageKey = (
   language: Language,
   problemId: number,
   userName: string,
-  contestId?: number
+  contestId?: number,
+  assignmentId?: number
 ) => {
   if (userName === '') {
     return undefined
   }
-  const problemKey = `${userName}_${problemId}${contestId ? `_${contestId}` : ''}_${language}`
+
+  let problemKey = `${userName}_${problemId}`
+
+  if (contestId) {
+    problemKey += `_contest_${contestId}_language`
+  } else if (assignmentId) {
+    problemKey += `_assignment_${assignmentId}_language`
+  } else {
+    problemKey += '_language'
+  }
   return problemKey
 }
 

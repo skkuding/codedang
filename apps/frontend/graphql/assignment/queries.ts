@@ -6,7 +6,6 @@ const GET_ASSIGNMENT = gql(`
       id
       enableCopyPaste
       isJudgeResultVisible
-      invitationCode
       description
       endTime
       startTime

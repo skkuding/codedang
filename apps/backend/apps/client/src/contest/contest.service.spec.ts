@@ -61,8 +61,7 @@ const ongoingContests = [
     startTime: now.add(-1, 'day').toDate(),
     endTime: now.add(1, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
+    enableCopyPaste: true
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -81,8 +80,7 @@ const upcomingContests = [
     startTime: now.add(1, 'day').toDate(),
     endTime: now.add(2, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
+    enableCopyPaste: true
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -101,8 +99,7 @@ const finishedContests = [
     startTime: now.add(-2, 'day').toDate(),
     endTime: now.add(-1, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
+    enableCopyPaste: true
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -254,7 +251,7 @@ describe('ContestService', () => {
         service.createContestRecord({
           contestId: 999,
           userId: user01Id,
-          invitationCode: invitationCode
+          invitationCode
         })
       ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
     })
