@@ -80,7 +80,6 @@ export function SubmissionTable<
       <TableBody>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
-
             const href = getHref?.(row)
 
             return (
