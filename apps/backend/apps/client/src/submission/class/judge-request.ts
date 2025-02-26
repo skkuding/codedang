@@ -1,6 +1,5 @@
 import type { Language } from '@prisma/client'
 import { calculateMemoryLimit, calculateTimeLimit } from '@libs/constants'
-import type { Snippet } from './create-submission.dto'
 
 export class JudgeRequest {
   code: string
@@ -11,11 +10,11 @@ export class JudgeRequest {
   judgeMode: string
 
   constructor(
-    code: Snippet[],
+    code: string,
     language: Language,
     problem: { id: number; timeLimit: number; memoryLimit: number }
   ) {
-    this.code = code.map((snippet) => snippet.text).join('\n')
+    this.code = code
     this.language = language
     this.problemId = problem.id
     this.timeLimit = calculateTimeLimit(language, problem.timeLimit)
@@ -32,7 +31,7 @@ export class UserTestcaseJudgeRequest extends JudgeRequest {
   }[]
 
   constructor(
-    code: Snippet[],
+    code: string,
     language: Language,
     problem: { id: number; timeLimit: number; memoryLimit: number },
     userTestcases: { id: number; in: string; out: string }[]

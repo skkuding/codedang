@@ -186,7 +186,7 @@ describe('ProblemService', () => {
   })
 
   describe('uploadProblems', () => {
-    it('shoule return imported problems', async () => {
+    it('should return imported problems', async () => {
       const userId = 2
       const groupId = 2
       const createTestcasesSpy = spy(service, 'createTestcases')

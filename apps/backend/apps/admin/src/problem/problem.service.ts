@@ -36,7 +36,7 @@ import type {
   UpdateProblemTagInput
 } from './model/problem.input'
 import type { ProblemWithIsVisible } from './model/problem.output'
-import type { Template } from './model/template.input'
+import { Template } from './model/template.input'
 import type { Testcase } from './model/testcase.input'
 
 @Injectable()
@@ -76,7 +76,7 @@ export class ProblemService {
         groupId,
         createdById: userId,
         languages,
-        template: [JSON.stringify(template)],
+        template: template.map((t) => t as unknown as Prisma.InputJsonValue),
         problemTag: {
           create: tagIds.map((tagId) => {
             return { tagId }
@@ -84,6 +84,7 @@ export class ProblemService {
         }
       }
     })
+
     await this.createTestcases(problem.id, testcases)
     return this.changeVisibleLockTimeToIsVisible(problem)
   }
@@ -164,13 +165,8 @@ export class ProblemService {
         const code = row.getCell(header[`${language}SampleCode`]).text
         template.push({
           language,
-          code: [
-            {
-              id: 1,
-              text: code,
-              locked: false
-            }
-          ]
+          initialCode: code,
+          readOnlyRanges: []
         })
         languages.push(Language[language])
       }
@@ -351,7 +347,7 @@ export class ProblemService {
       whereOptions.languages = { hasSome: input.languages }
     }
 
-    const problems: Problem[] = await this.prisma.problem.findMany({
+    const problems = await this.prisma.problem.findMany({
       ...paginator,
       where: {
         ...whereOptions,
@@ -359,7 +355,13 @@ export class ProblemService {
       },
       take
     })
-    return this.changeVisibleLockTimeToIsVisible(problems)
+
+    let problemsWithIsVisible = this.changeVisibleLockTimeToIsVisible(problems)
+    if (!Array.isArray(problemsWithIsVisible)) {
+      problemsWithIsVisible = [problemsWithIsVisible]
+    }
+
+    return problemsWithIsVisible
   }
 
   async getProblem(id: number, groupId: number) {

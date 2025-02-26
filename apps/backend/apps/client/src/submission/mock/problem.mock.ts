@@ -15,9 +15,12 @@ export const problems: Problem[] = [
     template: [
       {
         language: Language.C,
-        code: [
-          { id: 1, text: 'code', locked: false },
-          { id: 2, text: 'unchanged', locked: true }
+        initialCode: 'code',
+        readOnlyRanges: [
+          {
+            from: 1,
+            to: 1
+          }
         ]
       }
     ],

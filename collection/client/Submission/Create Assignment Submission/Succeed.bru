@@ -19,14 +19,9 @@ params:query {
 
 body:json {
   {
-    "code": [
-      {
-        "id": 1,
-        "text": "#include <stdio.h>\nint main() { int a, b; scanf(\"%d%d\", &a, &b); printf(\"%d\\n\", a + b);}",
-        "locked": false
-      }
-    ],
-    "language": "C"
+    "code": "#include <stdio.h>\nint main() { int a, b; scanf(\"%d%d\", &a, &b); printf(\"%d\\n\", a + b);}",
+    "language": "C",
+    "readOnlyRanges": []
   }
 }
 
@@ -49,5 +44,4 @@ docs {
   |groupId|Integer|문제가 속한 Group ID (default: 1)|
   |assignmentId|Integer|문제가 속한 과제 ID|
   |workbookId|Integer|문제가 속한 문제집 ID|
-  |isTest|boolean|실제 제출인지 여부 (default: false)|
 }

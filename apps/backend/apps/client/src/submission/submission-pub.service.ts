@@ -14,7 +14,6 @@ import {
 } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { Snippet } from './class/create-submission.dto'
 import { JudgeRequest, UserTestcaseJudgeRequest } from './class/judge-request'
 
 @Injectable()
@@ -45,7 +44,7 @@ export class SubmissionPublicationService {
    */
   @Span()
   async publishJudgeRequestMessage(
-    code: Snippet[],
+    code: string,
     submission: Submission | TestSubmission,
     isTest = false,
     isUserTest = false,

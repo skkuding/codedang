@@ -13,10 +13,10 @@ import type {
 import { faker } from '@faker-js/faker'
 import { createReadStream } from 'fs'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
+import type { Template } from '@client/submission/class/create-submission.dto'
 import type { FileUploadDto } from '../dto/file-upload.dto'
 import type { UploadFileInput } from '../model/problem.input'
 import type { ProblemWithIsVisible } from '../model/problem.output'
-import type { Template } from '../model/template.input'
 import type { Testcase } from '../model/testcase.input'
 
 const changeVisibleLockTimeToIsVisible = function (
@@ -41,14 +41,10 @@ export const problemId = 1
 export const groupId = 1
 export const template: Template = {
   language: Language.Cpp,
-  code: [
-    {
-      id: 1,
-      text: 'int main(void) {}',
-      locked: false
-    }
-  ]
+  initialCode: 'int main(void) {}',
+  readOnlyRanges: []
 }
+
 export const problems: Problem[] = [
   {
     id: 1,
@@ -140,11 +136,10 @@ export const importedProblems: Problem[] = [
     hint: '',
     template: [
       {
-        code: {
-          text: '#include <stdio.h>\n\nint main()\n{\n        int num;\n        scanf("%d", &num);\n\n        printf("%d", num);\n  return 0;\n}',
-          readonly: false
-        },
-        language: 'C'
+        initialCode:
+          '#include <stdio.h>\n\nint main()\n{\n        int num;\n        scanf("%d", &num);\n\n        printf("%d", num);\n  return 0;\n}',
+        language: 'C',
+        readOnlyRanges: []
       }
     ],
     languages: ['C'],
@@ -176,18 +171,16 @@ export const importedProblems: Problem[] = [
     hint: '',
     template: [
       {
-        code: {
-          text: '#include <stdio.h>\n\nint main()\n{\n        int num;\n        scanf("%d", &num);\n\n        printf("%d", num);\n  return 0;\n}',
-          readonly: false
-        },
-        language: 'C'
+        initialCode:
+          '#include <stdio.h>\n\nint main()\n{\n        int num;\n        scanf("%d", &num);\n\n        printf("%d", num);\n  return 0;\n}',
+        language: 'C',
+        readOnlyRanges: []
       },
       {
-        code: {
-          text: "import java.util.Scanner;\n \npublic class Main {\n \n\tpublic static void main(String[] args) {\n\n\t\tScanner in = new Scanner(System.in);\n\t\t\n\t\tSystem.out.println('answer');\n \n\t\tin.close();\n\t}\n}",
-          readonly: false
-        },
-        language: 'Java'
+        initialCode:
+          "import java.util.Scanner;\n \npublic class Main {\n \n\tpublic static void main(String[] args) {\n\n\t\tScanner in = new Scanner(System.in);\n\t\t\n\t\tSystem.out.println('answer');\n \n\t\tin.close();\n\t}\n}",
+        language: 'Java',
+        readOnlyRanges: []
       }
     ],
     languages: ['C', 'Java'],

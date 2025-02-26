@@ -1,6 +1,12 @@
-import type { Language, Level, ProblemTestcase, Tag } from '@prisma/client'
-import type { JsonValue } from '@prisma/client/runtime/library'
+import type {
+  Language,
+  Level,
+  Prisma,
+  ProblemTestcase,
+  Tag
+} from '@prisma/client'
 import { Exclude, Expose } from 'class-transformer'
+import type { Template } from '@client/submission/class/create-submission.dto'
 
 export class ProblemResponseDto {
   id: number
@@ -23,7 +29,7 @@ export class ProblemResponseDto {
   acceptedCount: number
   acceptedRate: number
   tags: Partial<Tag>[]
-  template: JsonValue[]
+  template: Template[] | Prisma.JsonValue[]
   problemTestcase: Pick<ProblemTestcase, 'id' | 'input' | 'output'>[]
 }
 

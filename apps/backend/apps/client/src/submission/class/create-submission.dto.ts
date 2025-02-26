@@ -2,7 +2,6 @@ import { Language } from '@prisma/client'
 import { Type } from 'class-transformer'
 import {
   IsArray,
-  IsBoolean,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -11,33 +10,41 @@ import {
   ValidateNested
 } from 'class-validator'
 
-export class Snippet {
-  @IsNumber()
-  @IsNotEmpty()
-  id: number
+export class Template {
+  @IsEnum(Language)
+  language: Language
 
   @IsString()
-  @IsNotEmpty()
-  text: string
+  initialCode: string
 
-  @IsBoolean()
-  @IsNotEmpty()
-  locked: boolean
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Range)
+  readOnlyRanges: Range[]
 }
 
-export class Template {
-  language: Language
-  code: Snippet[]
+export class Range {
+  @IsNumber()
+  @IsNotEmpty()
+  from: number
+
+  @IsNumber()
+  @IsNotEmpty()
+  to: number
 }
 
 export class CreateSubmissionDto {
-  @ValidateNested({ each: true })
-  @Type(() => Snippet)
-  code: Snippet[]
+  @IsString()
+  code: string
 
   @IsEnum(Language)
   @IsNotEmpty()
   language: Language
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Range)
+  readOnlyRanges: Range[] // User Code에서의 readOnlyRanges
 }
 
 export class CreateUserTestSubmissionDto extends CreateSubmissionDto {

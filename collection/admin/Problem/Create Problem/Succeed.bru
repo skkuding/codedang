@@ -11,7 +11,7 @@ post {
 }
 
 body:graphql {
-  mutation CreateProblem($groupId: Int!, $input:  CreateProblemInput!) {
+  mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
     createProblem(groupId: $groupId, input: $input) {
       id
       createdById
@@ -21,8 +21,17 @@ body:graphql {
       inputDescription
       outputDescription
       hint
+      timeLimit
+      memoryLimit
       isVisible
-      template
+      template {
+        language
+        initialCode
+        readOnlyRanges {
+          from
+          to
+        }
+      }
       testcase {
         id
         input
@@ -32,6 +41,7 @@ body:graphql {
       updateTime
     }
   }
+  
 }
 
 body:graphql:vars {
@@ -43,20 +53,31 @@ body:graphql:vars {
       "inputDescription": "input description",
       "outputDescription": "output description",
       "hint": "hint",
-      "isVisible": false,
-      "template": {
+      "isVisible": true,
+      "template": [
+        {
         "language": "Cpp",
-        "code": [
+        "initialCode": "int main() {}",
+        "readOnlyRanges": [
           {
-            "id": 1,
-            "text": "int main() {}",
-            "locked": false
+            "from": 1,
+            "to": 1
           }
         ]
-      },
-      "languages": ["Cpp"],
-      "timeLimit": 0,
-      "memoryLimit": 0,
+      }, {
+        "language": "C",
+        "initialCode": "int main() {}",
+        "readOnlyRanges": [
+          {
+            "from": 1,
+            "to": 1
+          }
+        ]
+      }
+      ],
+      "languages": ["Cpp", "C"],
+      "timeLimit": 2000,
+      "memoryLimit": 128,
       "difficulty": "Level2",
       "source": "source",
       "testcases": [

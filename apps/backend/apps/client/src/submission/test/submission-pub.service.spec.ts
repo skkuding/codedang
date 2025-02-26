@@ -80,13 +80,16 @@ describe('SubmissionPublicationService', () => {
         .resolves(problems[0])
       const amqpSpy = sandbox.stub(amqpConnection, 'publish').resolves()
       const judgeRequest = new JudgeRequest(
-        submissions[0].code,
+        submissions[0].code[0].text,
         submission.language,
         problems[0]
       )
 
       await expect(
-        service.publishJudgeRequestMessage(submissions[0].code, submission)
+        service.publishJudgeRequestMessage(
+          submissions[0].code[0].text,
+          submission
+        )
       ).not.to.be.rejected
 
       expect(
@@ -117,14 +120,14 @@ describe('SubmissionPublicationService', () => {
         .resolves(problems[0])
       const amqpSpy = sandbox.stub(amqpConnection, 'publish').resolves()
       const judgeRequest = new JudgeRequest(
-        submissions[0].code,
+        submissions[0].code[0].text,
         submission.language,
         problems[0]
       )
 
       await expect(
         service.publishJudgeRequestMessage(
-          submissions[0].code,
+          submissions[0].code[0].text,
           submission,
           true
         )
@@ -156,7 +159,10 @@ describe('SubmissionPublicationService', () => {
       sandbox.stub(db.problem, 'findUnique').resolves(undefined)
 
       await expect(
-        service.publishJudgeRequestMessage(submissions[0].code, submission)
+        service.publishJudgeRequestMessage(
+          submissions[0].code[0].text,
+          submission
+        )
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })
