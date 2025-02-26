@@ -499,8 +499,6 @@ export class GroupService {
       }
     })
 
-    return {
-      assignments: formattedAssignments
-    }
+    return formattedAssignments
   }
 }
