@@ -18,8 +18,6 @@ export function AssignmentTabs({
 
   const basePathname = `/course/${courseId}/assignment/${assignmentId}` as const
 
-  console.log(pathname)
-
   const isCurrentTab = (tab: string) => {
     if (tab === '') {
       return pathname === basePathname

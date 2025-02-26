@@ -28,19 +28,35 @@ interface ProblemEditorProps {
   problem: ProblemDetail
   children: React.ReactNode
   contestId?: number
+  assignmentId?: number
+  courseId?: number
   enableCopyPaste?: boolean
 }
 
 export function EditorMainResizablePanel({
   problem,
   contestId,
+  assignmentId,
+  courseId,
   enableCopyPaste = true,
   children
 }: ProblemEditorProps) {
   const triggerRefresh = useLeaderboardSync((state) => state.triggerRefresh)
   const pathname = usePathname()
-  const base = contestId ? (`/contest/${contestId}` as const) : ('' as const)
-  const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
+  let base: string
+  if (contestId) {
+    base = `/contest/${contestId}` as const
+  } else if (assignmentId) {
+    base = `/course/${courseId}/assignment/${assignmentId}` as const
+  } else {
+    base = '' as const
+  }
+  const { language, setLanguage } = useLanguageStore(
+    problem.id,
+    contestId,
+    assignmentId,
+    courseId
+  )()
   const [tabValue, setTabValue] = useState('Description')
 
   useEffect(() => {
@@ -75,7 +91,7 @@ export function EditorMainResizablePanel({
           <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
             <Tabs value={tabValue} className="flex-grow">
               <TabsList className="rounded bg-slate-900">
-                <Link replace href={`${base}/problem/${problem.id}` as const}>
+                <Link replace href={`${base}/problem/${problem.id}` as Route}>
                   <TabsTrigger
                     value="Description"
                     className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
@@ -85,7 +101,7 @@ export function EditorMainResizablePanel({
                 </Link>
                 <Link
                   replace
-                  href={`${base}/problem/${problem.id}/submission` as const}
+                  href={`${base}/problem/${problem.id}/submission` as Route}
                 >
                   <TabsTrigger
                     value="Submission"
@@ -98,7 +114,7 @@ export function EditorMainResizablePanel({
                   <Link
                     replace
                     href={
-                      `/contest/${contestId}/problem/${problem.id}/leaderboard` as const
+                      `/contest/${contestId}/problem/${problem.id}/leaderboard` as Route
                     }
                   >
                     <TabsTrigger
@@ -136,12 +152,16 @@ export function EditorMainResizablePanel({
           <TestcaseStoreProvider
             problemId={problem.id}
             contestId={contestId}
+            assignmentId={assignmentId}
+            courseId={courseId}
             problemTestcase={problem.problemTestcase}
           >
             <TestPollingStoreProvider>
               <EditorHeader
                 problem={problem}
                 contestId={contestId}
+                assignmentId={assignmentId}
+                courseId={courseId}
                 templateString={problem.template[0]}
               />
               <ResizablePanelGroup direction="vertical" className="h-32">
@@ -153,6 +173,7 @@ export function EditorMainResizablePanel({
                     <CodeEditorInEditorResizablePanel
                       problemId={problem.id}
                       contestId={contestId}
+                      assignmentId={assignmentId}
                       enableCopyPaste={enableCopyPaste}
                     />
                     <ScrollBar orientation="horizontal" />
@@ -175,15 +196,17 @@ export function EditorMainResizablePanel({
 interface CodeEditorInEditorResizablePanelProps {
   problemId: number
   contestId?: number
+  assignmentId?: number
   enableCopyPaste: boolean
 }
 
 function CodeEditorInEditorResizablePanel({
   problemId,
   contestId,
+  assignmentId,
   enableCopyPaste
 }: CodeEditorInEditorResizablePanelProps) {
-  const { language } = useLanguageStore(problemId, contestId)()
+  const { language } = useLanguageStore(problemId, contestId, assignmentId)()
   const { code, setCode } = useCodeStore()
 
   return (
