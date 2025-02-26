@@ -47,7 +47,8 @@ const group: Group = {
     requireApprovalBeforeJoin: true
   },
   createTime: new Date(),
-  updateTime: new Date()
+  updateTime: new Date(),
+  groupType: 'Course'
 }
 
 const db = {

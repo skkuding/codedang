@@ -1,0 +1,57 @@
+meta {
+  name: [ERR] Update OpenSpace
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    updateCourse(
+      groupId: 1
+      input: {
+        courseTitle: "정보보호개론"
+        courseNum: "SWE3033"
+        classNum: 42
+        professor: "김우주"
+        semester: "2025 Spring"
+        email: "johndoe@example.com"
+        website: "https://example.com"
+        office: "Room 301"
+        phoneNum: "123-456-7890"
+        config: {
+          showOnList: true
+          allowJoinFromSearch: true
+          allowJoinWithURL: true
+          requireApprovalBeforeJoin: false
+        }
+      }
+    ) {
+      id
+      groupName
+      groupType
+      config
+      courseInfo {
+        courseNum
+        classNum
+        professor
+        semester
+        email
+        website
+        office
+        phoneNum
+      }
+    }
+  }
+  
+}
+
+assert {
+  res.status: eq 200
+  res.body.errors: isDefined
+}

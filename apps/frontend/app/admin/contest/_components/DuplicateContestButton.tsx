@@ -80,7 +80,6 @@ function EnabledDuplicateButton({
 
     duplicateContest({
       variables: {
-        groupId: 1,
         contestId
       },
       onCompleted: (data) => {
