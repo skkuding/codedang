@@ -21,6 +21,8 @@ body:graphql {
       inputDescription
       outputDescription
       hint
+      timeLimit
+      memoryLimit
       isVisible
       template {
         language
@@ -74,8 +76,8 @@ body:graphql:vars {
       }
       ],
       "languages": ["Cpp", "C"],
-      "timeLimit": 0,
-      "memoryLimit": 0,
+      "timeLimit": 2000,
+      "memoryLimit": 128,
       "difficulty": "Level2",
       "source": "source",
       "testcases": [
