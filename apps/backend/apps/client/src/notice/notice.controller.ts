@@ -6,12 +6,12 @@ import {
   DefaultValuePipe,
   ParseBoolPipe
 } from '@nestjs/common'
-import { AuthNotNeededIfOpenSpace } from '@libs/auth'
+import { AuthNotNeededIfPublic } from '@libs/auth'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { NoticeService } from './notice.service'
 
 @Controller('notice')
-@AuthNotNeededIfOpenSpace()
+@AuthNotNeededIfPublic()
 export class NoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 

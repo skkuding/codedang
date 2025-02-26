@@ -6,7 +6,7 @@ import {
   Query,
   Req
 } from '@nestjs/common'
-import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
+import { AuthNotNeededIfPublic, AuthenticatedRequest } from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import {
   CursorValidationPipe,
@@ -32,7 +32,7 @@ export class ProblemController {
   ) {}
 
   @Get()
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   async getProblems(
     @Req() req: AuthenticatedRequest,
     @Query('groupId', NullableGroupIDPipe) groupId: number | null,
@@ -67,7 +67,7 @@ export class ProblemController {
   }
 
   @Get(':problemId')
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   async getProblem(
     @Query('groupId', NullableGroupIDPipe) groupId: number | null,
     @Query('workbookId', IDValidationPipe) workbookId: number | null,

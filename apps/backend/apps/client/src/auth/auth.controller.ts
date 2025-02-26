@@ -12,7 +12,7 @@ import { AuthGuard } from '@nestjs/passport'
 import { Request, Response } from 'express'
 import {
   AuthenticatedRequest,
-  AuthNotNeededIfOpenSpace,
+  AuthNotNeededIfPublic,
   type JwtTokens
 } from '@libs/auth'
 import { REFRESH_TOKEN_COOKIE_OPTIONS } from '@libs/constants'
@@ -38,7 +38,7 @@ export class AuthController {
    * @param {LoginUserDto} loginUserDto - 로그인 유저의 정보
    * @param {Response} res - 리스폰스 객체
    */
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   @Post('login')
   async login(
     @Body() loginUserDto: LoginUserDto,
@@ -75,7 +75,7 @@ export class AuthController {
    * @returns {Promise<void>}
    * @throws {UnauthorizedException} refreshToken이 없거나 유효하지 않은 경우 예외 던짐.
    */
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   @Get('reissue')
   async reIssueJwtTokens(
     @Req() req: Request,
@@ -91,7 +91,7 @@ export class AuthController {
   /**
    * GitHub 로그인 페이지로 이동.
    */
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   @Get('github')
   @UseGuards(AuthGuard('github'))
   async moveToGithubLogin() {
@@ -99,7 +99,7 @@ export class AuthController {
   }
 
   /** github login page에서 로그인에 성공한 후 이 endpoint로 redirection */
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   @Get('github-callback')
   @UseGuards(AuthGuard('github'))
   async githubLogin(
@@ -111,7 +111,7 @@ export class AuthController {
   }
 
   /** Kakao Login page로 이동 */
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   @Get('kakao')
   @UseGuards(AuthGuard('kakao'))
   async moveToKakaoLogin() {
@@ -119,7 +119,7 @@ export class AuthController {
   }
 
   /** Kakao login page에서 로그인에 성공한 후 이 endpoint로 redirection */
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   @Get('kakao-callback')
   @UseGuards(AuthGuard('kakao'))
   async kakaoLogin(

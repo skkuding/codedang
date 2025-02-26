@@ -9,7 +9,7 @@ import {
   DefaultValuePipe,
   Headers
 } from '@nestjs/common'
-import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
+import { AuthNotNeededIfPublic, AuthenticatedRequest } from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import {
   CursorValidationPipe,
@@ -149,7 +149,7 @@ export class SubmissionController {
   }
 
   @Get()
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   async getSubmissions(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))

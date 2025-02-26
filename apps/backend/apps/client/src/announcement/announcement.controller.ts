@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
   Query
 } from '@nestjs/common'
-import { AuthNotNeededIfOpenSpace } from '@libs/auth'
+import { AuthNotNeededIfPublic } from '@libs/auth'
 import {
   EntityNotExistException,
   UnprocessableDataException
@@ -14,7 +14,7 @@ import { GroupIDPipe, IDValidationPipe } from '@libs/pipe'
 import { AnnouncementService } from './announcement.service'
 
 @Controller('announcement')
-@AuthNotNeededIfOpenSpace()
+@AuthNotNeededIfPublic()
 export class AnnouncementController {
   private readonly logger = new Logger(AnnouncementController.name)
 
