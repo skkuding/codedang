@@ -47,6 +47,7 @@ export async function SubmissionDetail({
   if (submission.result === 'Judging') {
     revalidateTag(`submission/${submissionId}`)
   }
+  console.log('submission testcase: ', submission)
 
   return (
     <>
