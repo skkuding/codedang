@@ -20,21 +20,24 @@ import {
   SelectValue
 } from '@/components/shadcn/select'
 import { Separator } from '@/components/shadcn/separator'
+import { Switch } from '@/components/shadcn/switch'
 import { Toggle } from '@/components/shadcn/toggle'
-import { CREATE_COURSE } from '@/graphql/course/mutation'
+import { CREATE_COURSE, CREATE_WHITE_LIST } from '@/graphql/course/mutation'
+import { GET_WHITE_LIST } from '@/graphql/course/queries'
 import { INVITE_USER, ISSUE_INVITATION } from '@/graphql/user/mutation'
 import { fetcherWithAuth } from '@/libs/utils'
 import type { MemberRole, SemesterSeason } from '@/types/type'
-import { useMutation } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 import { Role, type CourseInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useEffect, useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { FiPlusCircle, FiX } from 'react-icons/fi'
-import { IoCopyOutline } from 'react-icons/io5'
+import { IoCloudUpload, IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineEmail } from 'react-icons/md'
 import { RxReload } from 'react-icons/rx'
 import { toast } from 'sonner'
+import * as XLSX from 'xlsx'
 import { findUserSchema, inviteUserSchema } from '../_libs/schema'
 
 /**
@@ -201,7 +204,7 @@ function InviteManually({ courseId }: InviteManuallyProps) {
       className="flex flex-col gap-3"
     >
       <div className="flex flex-col gap-2">
-        <span className="font-bold">Invite Manually</span>
+        <span className="text-base font-bold">Invite Manually</span>
         <div className="flex justify-between">
           <div className="flex flex-col">
             <div className="flex justify-between">
@@ -247,7 +250,10 @@ function InviteManually({ courseId }: InviteManuallyProps) {
               </div>
             )}
           </div>
-          <Button type="submit" className="bg-primary hover:bg-primary-strong">
+          <Button
+            type="submit"
+            className="bg-primary hover:bg-primary-strong px-5"
+          >
             Invite
           </Button>
         </div>
@@ -277,24 +283,49 @@ interface InvitationCodeInput {
 }
 
 function InviteByCode({ courseId }: InviteByCodeProps) {
+  const [isInviteByCodeEnabled, setIsInviteByCodeEnabled] = useState(false) // 기본값: 숨김
+  const [isApprovalRequired, setIsApprovalRequired] = useState(false)
   const [issueInvitation] = useMutation(ISSUE_INVITATION)
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    getValues,
-    reset,
-    formState: { errors, isValid }
-  } = useForm<InvitationCodeInput>()
+  const [createWhitelist] = useMutation(CREATE_WHITE_LIST)
+  const [isUploaded, setIsUploaded] = useState(false)
+  const [studentIds, setstudentIds] = useState<string[]>([])
+  const [whitelistCount, setWhitelistCount] = useState<number | null>(null)
+  const [fileName, setFileName] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (whitelistCount !== null) {
+      setIsApprovalRequired(whitelistCount > 0)
+    }
+  }, [whitelistCount])
+  useEffect(() => {
+    if (isUploaded && whitelistCount) {
+      toast.success(`${whitelistCount} studentIds are registered.`)
+      console.log(courseId)
+    }
+  }, [isUploaded])
+
+  useEffect(() => {
+    if (studentIds.length > 0) {
+      handleCreateWhiteList()
+    }
+  }, [studentIds])
+
+  useQuery(GET_WHITE_LIST, {
+    variables: { groupId: courseId },
+    onCompleted: (data) => {
+      setWhitelistCount(data?.getWhitelist.length ?? 0)
+    }
+  })
+
+  const { register, getValues, reset } = useForm<InvitationCodeInput>()
+
   const handleUpdateButtonClick = async () => {
     try {
       const result = await issueInvitation({ variables: { groupId: courseId } })
 
       if (result.data) {
         const data = result.data.issueInvitation
-
         console.log('Issue Invitation:', data)
-        // setWeek(data.courseInfo?.week ?? 0)
         reset({
           issueInvitation: data
         })
@@ -303,6 +334,66 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
       console.error('Issue invitation error:', error)
     }
   }
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) {
+      return
+    }
+    setFileName(file.name) // 파일 이름 저장
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target?.result as ArrayBuffer)
+      const workbook = XLSX.read(data, { type: 'array' })
+      const sheetName = workbook.SheetNames[0]
+      const sheet = workbook.Sheets[sheetName]
+
+      // Excel 데이터를 JSON 형태로 변환
+      const jsonData = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 })
+      console.log('엑셀 변환 데이터:', jsonData) // 디버깅용
+
+      // 첫 번째 행을 헤더로 설정
+      const headers = jsonData[0].map((header: string) => header.trim()) // 공백 제거
+      const dataRows = jsonData.slice(1) // 실제 데이터 행
+
+      // "학번" 컬럼 찾기 (유동적으로)
+      const 학번Index = headers.findIndex((header) => header.includes('학번'))
+
+      if (학번Index === -1) {
+        toast.error("엑셀에서 '학번' 열을 찾을 수 없습니다.")
+        return
+      }
+
+      // 학번 데이터만 추출 (문자열에서 숫자만 추출)
+      const studentIdList = Array.from(
+        new Set(
+          dataRows
+            .map((row) => row[학번Index]?.toString() ?? '') // null 또는 undefined 방지
+            .filter((id) => id.trim() !== '') // 빈 문자열 제거
+        )
+      )
+
+      setstudentIds(studentIdList ?? [])
+    }
+
+    reader.readAsArrayBuffer(file)
+  }
+  /** 화이트리스트 생성 요청 */
+  const handleCreateWhiteList = async () => {
+    try {
+      const { data } = await createWhitelist({
+        variables: { groupId: courseId, studentIds }
+      })
+      console.log(data)
+      setWhitelistCount(data?.createWhitelist ?? 0)
+      setIsUploaded(true)
+      console.log(data?.createWhitelist)
+    } catch (error) {
+      console.error('Create white list error:', error)
+    }
+  }
+
   return (
     <form
       onSubmit={(event) => {
@@ -313,43 +404,78 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
       className="flex flex-col gap-3"
     >
       <div className="flex flex-col gap-2">
-        <span className="font-bold">Invite by Invitation Code</span>
-        <div className="flex justify-between">
-          <Input
-            id="issueInvitation"
-            className="w-[194px]"
-            {...register('issueInvitation')}
+        <div className="flex items-center gap-2">
+          <span className="text-base font-bold">Invite by Invitation Code</span>
+          <Switch
+            checked={isInviteByCodeEnabled}
+            onCheckedChange={() => setIsInviteByCodeEnabled((prev) => !prev)} // 상태 토글
           />
-          <div className="flex gap-2">
-            <Button
-              type="submit"
-              className="bg-primary hover:bg-primary-strong px-6"
-            >
-              <RxReload />
-            </Button>
-            <Button
-              type="button"
-              className="bg-primary hover:bg-primary-strong px-6"
-              onClick={() => {
-                const invitationCode = getValues('issueInvitation') // 현재 입력된 값 가져오기
-                console.log(invitationCode)
-                navigator.clipboard.writeText(invitationCode) // 클립보드에 복사
-              }}
-            >
-              <IoCopyOutline />
-            </Button>
-          </div>
-          {/* <Toggle
-            size="sm"
-            pressed={editor?.isActive('bold')}
-            onPressedChange={() => editor?.chain().focus().toggleBold().run()}
-          >
-            <Bold className="h-[14px] w-[14px]" />
-          </Toggle> */}
         </div>
-        {/* {findErrors.email && (
-          <ErrorMessage message={findErrors.email.message} />
-        )} */}
+
+        {isInviteByCodeEnabled && (
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-between">
+              <Input
+                id="issueInvitation"
+                className="w-[194px]"
+                {...register('issueInvitation')}
+              />
+              <div className="flex gap-2">
+                <Button
+                  type="submit"
+                  className="bg-primary hover:bg-primary-strong px-6"
+                >
+                  <RxReload size={17} strokeWidth={0.5} />
+                </Button>
+                <Button
+                  type="button"
+                  className="bg-primary hover:bg-primary-strong px-6"
+                  onClick={() => {
+                    const invitationCode = getValues('issueInvitation') // 현재 입력된 값 가져오기
+                    console.log(invitationCode)
+                    navigator.clipboard.writeText(invitationCode) // 클립보드에 복사
+                  }}
+                >
+                  <IoCopyOutline
+                    size={20}
+                    className="h-5 w-5 stroke-current text-white drop-shadow-md filter"
+                  />
+                </Button>
+              </div>
+            </div>
+            <div className="flex flex-col gap-3">
+              <span className="text-sm font-bold">Invitation Code Setting</span>
+              <div className="flex gap-2">
+                <span className="text-xs font-bold">
+                  Only approved accounts can enter
+                </span>
+                <Switch
+                  checked={isApprovalRequired}
+                  onCheckedChange={() => setIsApprovalRequired((prev) => !prev)}
+                />
+              </div>
+              {isApprovalRequired && (
+                <div className="flex justify-between">
+                  {fileName && (
+                    <span className="text-xs text-gray-600">{fileName}</span>
+                  )}
+                  {!fileName && (
+                    <label className="flex cursor-pointer items-center gap-2">
+                      <IoCloudUpload size={20} />
+                      <span className="text-xs">Upload File (Excel)</span>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept=".xlsx, .xls"
+                        onChange={handleFileUpload}
+                      />
+                    </label>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </form>
   )
