@@ -3,6 +3,7 @@
 import { safeFetcherWithAuth } from '@/libs/utils'
 import type { ContestSubmission } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { ALPHABET } from '../_libs/constants'
 
 interface Props {
   problemId: number
@@ -35,38 +36,9 @@ export function SubmissionDetailTitle({
     queryFn: () => fetchContestSubmissionTitle(contestId)
   })
 
-  const Alphabet = [
-    'A',
-    'B',
-    'C',
-    'D',
-    'E',
-    'F',
-    'G',
-    'H',
-    'I',
-    'J',
-    'K',
-    'L',
-    'M',
-    'N',
-    'O',
-    'P',
-    'Q',
-    'R',
-    'S',
-    'T',
-    'U',
-    'V',
-    'W',
-    'X',
-    'Y',
-    'Z'
-  ]
-
   const title =
     problemId > 0 && problemId <= 27
-      ? `${Alphabet[problemId - 1]}.${data}`
+      ? `${ALPHABET[problemId - 1]}.${data}`
       : '!'
   return (
     <div>
