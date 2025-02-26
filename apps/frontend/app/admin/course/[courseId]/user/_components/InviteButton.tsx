@@ -4,11 +4,9 @@ import { ErrorMessage } from '@/app/admin/_components/ErrorMessage'
 import {
   AlertDialog,
   AlertDialogContent,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogCancel,
-  AlertDialogAction
+  AlertDialogCancel
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
@@ -21,16 +19,14 @@ import {
 } from '@/components/shadcn/select'
 import { Separator } from '@/components/shadcn/separator'
 import { Switch } from '@/components/shadcn/switch'
-import { Toggle } from '@/components/shadcn/toggle'
-import { CREATE_COURSE, CREATE_WHITE_LIST } from '@/graphql/course/mutation'
+import { CREATE_WHITE_LIST } from '@/graphql/course/mutation'
 import { GET_WHITE_LIST } from '@/graphql/course/queries'
 import { INVITE_USER, ISSUE_INVITATION } from '@/graphql/user/mutation'
 import { fetcherWithAuth } from '@/libs/utils'
-import type { MemberRole, SemesterSeason } from '@/types/type'
+import type { MemberRole } from '@/types/type'
 import { useMutation, useQuery } from '@apollo/client'
-import { Role, type CourseInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { FiPlusCircle, FiX } from 'react-icons/fi'
 import { IoCloudUpload, IoCopyOutline } from 'react-icons/io5'
@@ -126,12 +122,6 @@ function InviteManually({ courseId }: InviteManuallyProps) {
   const [userId, setUserId] = useState(0)
   const [invitedList, setInvitedList] = useState<string[]>([''])
 
-  useEffect(() => {
-    if (userId !== 0) {
-      inviteHandleSubmit(onInvite)()
-    }
-  }, [userId])
-
   const [inviteUser] = useMutation(INVITE_USER)
 
   const onFind: SubmitHandler<FindUserInput> = async (data) => {
@@ -148,28 +138,31 @@ function InviteManually({ courseId }: InviteManuallyProps) {
     }
   }
 
-  const onInvite: SubmitHandler<InviteUserInput> = async (data) => {
-    console.log('onInvite')
-    const updatePromise = inviteUser({
-      variables: {
-        groupId: courseId,
-        isGroupLeader: data.isGroupLeader,
-        userId
+  const onInvite: SubmitHandler<InviteUserInput> = useCallback(
+    async (data) => {
+      console.log('onInvite')
+
+      const updatePromise = inviteUser({
+        variables: {
+          groupId: courseId,
+          isGroupLeader: data.isGroupLeader,
+          userId
+        }
+      })
+
+      try {
+        const result = await updatePromise
+        setInvitedList((prevList) => [
+          ...prevList,
+          `${result.data?.inviteUser.user.email} - ${result.data?.inviteUser.isGroupLeader ? 'Instructor' : 'Student'}`
+        ])
+        toast.success('Success to invite user')
+      } catch {
+        toast.error('Failed to invite user')
       }
-    })
-
-    try {
-      const result = await updatePromise
-      setInvitedList([
-        ...invitedList,
-        `${result.data?.inviteUser.user.email} - ${result.data?.inviteUser.isGroupLeader ? 'Instructor' : 'Student'}`
-      ])
-      toast.success('Invited successfully!')
-    } catch {
-      toast.error(`Failed to invite`)
-    }
-  }
-
+    },
+    [inviteUser, courseId, userId, setInvitedList] // 의존성 배열 설정
+  )
   // email검증
   const {
     register: findRegister,
@@ -193,6 +186,12 @@ function InviteManually({ courseId }: InviteManuallyProps) {
       isGroupLeader: false
     }
   })
+
+  useEffect(() => {
+    if (userId !== 0) {
+      inviteHandleSubmit(onInvite)()
+    }
+  }, [inviteHandleSubmit, onInvite, userId])
 
   return (
     <form
@@ -292,24 +291,6 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
   const [whitelistCount, setWhitelistCount] = useState<number | null>(null)
   const [fileName, setFileName] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (whitelistCount !== null) {
-      setIsApprovalRequired(whitelistCount > 0)
-    }
-  }, [whitelistCount])
-  useEffect(() => {
-    if (isUploaded && whitelistCount) {
-      toast.success(`${whitelistCount} studentIds are registered.`)
-      console.log(courseId)
-    }
-  }, [isUploaded])
-
-  useEffect(() => {
-    if (studentIds.length > 0) {
-      handleCreateWhiteList()
-    }
-  }, [studentIds])
-
   useQuery(GET_WHITE_LIST, {
     variables: { groupId: courseId },
     onCompleted: (data) => {
@@ -380,7 +361,8 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
     reader.readAsArrayBuffer(file)
   }
   /** 화이트리스트 생성 요청 */
-  const handleCreateWhiteList = async () => {
+
+  const handleCreateWhiteList = useCallback(async () => {
     try {
       const { data } = await createWhitelist({
         variables: { groupId: courseId, studentIds }
@@ -392,7 +374,25 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
     } catch (error) {
       console.error('Create white list error:', error)
     }
-  }
+  }, [createWhitelist, courseId, studentIds, setWhitelistCount, setIsUploaded]) // 의존성 배열 추가
+
+  useEffect(() => {
+    if (whitelistCount !== null) {
+      setIsApprovalRequired(whitelistCount > 0)
+    }
+  }, [whitelistCount])
+  useEffect(() => {
+    if (isUploaded && whitelistCount) {
+      toast.success(`${whitelistCount} studentIds are registered.`)
+      console.log(courseId)
+    }
+  }, [courseId, isUploaded, whitelistCount])
+
+  useEffect(() => {
+    if (studentIds.length > 0) {
+      handleCreateWhiteList()
+    }
+  }, [handleCreateWhiteList, studentIds])
 
   return (
     <form
