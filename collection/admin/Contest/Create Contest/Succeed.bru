@@ -13,9 +13,8 @@ post {
 body:graphql {
   mutation {
     createContest(
-      groupId: 2
       input: {
-        title: "New Contest Group 2"
+        title: "확인 contest"
         description: "thisisnewcontest"
         startTime: "2024-01-01"
         endTime: "2030-01-01"
@@ -34,7 +33,7 @@ body:graphql {
       isJudgeResultVisible
     }
   }
-  
+
 }
 
 assert {

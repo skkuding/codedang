@@ -30,6 +30,20 @@ export interface Tag {
   name: string
 }
 
+export interface User {
+  username: string
+  role: string
+  email: string
+  lastLogin: string
+  updateTime: string
+  studentId: string
+  major: string
+  userProfile: {
+    realName: string
+  }
+  canCreateContest: boolean
+  canCreateCourse: boolean
+}
 export interface Snippet {
   id: number
   locked: boolean
@@ -226,7 +240,7 @@ interface LeaderboardProblemRecord {
   submissionCount: number
 }
 interface UserOnLeaderboard {
-  user: { username: string }
+  username: string
   score: number
   finalScore: number
   totalPenalty: number
