@@ -382,27 +382,14 @@ export class SubmissionService {
     userIp,
     userId,
     problemId,
-    workbookId,
-    groupId
+    workbookId
   }: {
     submissionDto: CreateSubmissionDto
     userIp: string
     userId: number
     problemId: number
     workbookId: number
-    groupId: number
   }) {
-    const workbook = await this.prisma.workbook.findFirst({
-      where: {
-        id: workbookId,
-        groupId,
-        isVisible: true
-      }
-    })
-    if (!workbook) {
-      throw new EntityNotExistException('Workbook')
-    }
-
     const workbookProblem = await this.prisma.workbookProblem.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention

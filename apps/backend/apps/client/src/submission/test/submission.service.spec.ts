@@ -60,6 +60,9 @@ const db = {
     findUnique: stub(),
     findFirst: stub()
   },
+  workbook: {
+    findFirst: stub()
+  },
   workbookProblem: {
     findUnique: stub()
   },
@@ -309,7 +312,6 @@ describe('SubmissionService', () => {
   })
 
   describe('submitToWorkbook', () => {
-    const groupId = 1
     it('should call createSubmission', async () => {
       const createSpy = stub(service, 'createSubmission')
       db.workbookProblem.findUnique.resolves({ problem: problems[0] })
@@ -319,8 +321,7 @@ describe('SubmissionService', () => {
         userIp: USERIP,
         userId: submissions[0].userId,
         problemId: problems[0].id,
-        workbookId: WORKBOOK_ID,
-        groupId
+        workbookId: WORKBOOK_ID
       })
       expect(createSpy.calledOnce).to.be.true
     })
@@ -335,8 +336,7 @@ describe('SubmissionService', () => {
           userIp: USERIP,
           userId: submissions[0].userId,
           problemId: problems[0].id,
-          workbookId: WORKBOOK_ID,
-          groupId
+          workbookId: WORKBOOK_ID
         })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false

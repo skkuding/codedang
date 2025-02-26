@@ -13,7 +13,6 @@ import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import {
   CursorValidationPipe,
-  GroupIDPipe,
   IDValidationPipe,
   NullableGroupIDPipe,
   RequiredIntPipe
@@ -40,7 +39,6 @@ export class SubmissionController {
     @Headers('x-forwarded-for') userIp: string,
     @Body() submissionDto: CreateSubmissionDto,
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('groupId', NullableGroupIDPipe) groupId: number | null,
     @Query('contestId', IDValidationPipe) contestId: number | null,
     @Query('assignmentId', IDValidationPipe) assignmentId: number | null,
     @Query('workbookId', IDValidationPipe) workbookId: number | null
@@ -78,18 +76,12 @@ export class SubmissionController {
         assignmentId
       })
     } else if (workbookId) {
-      if (!groupId) {
-        throw new UnprocessableDataException(
-          'groupId is required in the request when submitting to a workbook problem.'
-        )
-      }
       return await this.submissionService.submitToWorkbook({
         submissionDto,
         userIp,
         userId: req.user.id,
         problemId,
-        workbookId,
-        groupId
+        workbookId
       })
     }
   }
