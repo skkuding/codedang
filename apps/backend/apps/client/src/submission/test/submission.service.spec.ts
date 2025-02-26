@@ -70,8 +70,7 @@ const db = {
   },
   assignmentRecord: {
     findUnique: stub(),
-    update: stub(),
-    upsert: stub()
+    update: stub()
   },
   assignmentProblemRecord: {
     upsert: stub()
@@ -275,7 +274,7 @@ describe('SubmissionService', () => {
     it('should call createSubmission', async () => {
       const createSpy = stub(service, 'createSubmission')
       db.assignment.findFirst.resolves(mockAssignment)
-      db.assignmentRecord.upsert.resolves({
+      db.assignmentRecord.findUnique.resolves({
         id: 1,
         assignment: {
           groupId: 1,
