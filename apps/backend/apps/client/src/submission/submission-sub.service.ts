@@ -188,6 +188,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   @Span()
   async handleJudgerMessage(msg: JudgerResponse): Promise<void> {
     const status = Status(msg.resultCode)
+
     if (
       status === ResultStatus.ServerError ||
       status === ResultStatus.CompileError
@@ -659,32 +660,21 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     if (toBeAddedScore > 0) {
       // isFinishTimeToBeUpdated = true
       toBeAddedAcceptedProblemNum = isAccepted ? 1 : 0
-      await this.prisma.assignmentRecord.update({
-        where: {
-          id: assignmentRecord.id
-        },
-        data: {
-          acceptedProblemNum:
-            assignmentRecord.acceptedProblemNum + toBeAddedAcceptedProblemNum,
-          score: assignmentRecord.score + toBeAddedScore,
-          finishTime: submission.updateTime
-        }
-      })
     } else if (toBeAddedScore < 0) {
       // isFinishTimeToBeUpdated = true
       toBeAddedAcceptedProblemNum = assignmentProblemRecord?.isAccepted ? -1 : 0
-      await this.prisma.assignmentRecord.update({
-        where: {
-          id: assignmentRecord.id
-        },
-        data: {
-          acceptedProblemNum:
-            assignmentRecord.acceptedProblemNum + toBeAddedAcceptedProblemNum,
-          score: assignmentRecord.score + toBeAddedScore,
-          finishTime: submission.updateTime
-        }
-      })
     }
+    await this.prisma.assignmentRecord.update({
+      where: {
+        id: assignmentRecord.id
+      },
+      data: {
+        acceptedProblemNum:
+          assignmentRecord.acceptedProblemNum + toBeAddedAcceptedProblemNum,
+        score: assignmentRecord.score + toBeAddedScore,
+        finishTime: submission.updateTime
+      }
+    })
   }
 
   async updateProblemScore(id: number) {
