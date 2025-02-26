@@ -2,7 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Language, UpdateHistory } from '@generated'
+import { Language } from '@generated'
 import type {
   AssignmentProblem,
   ContestProblem,
