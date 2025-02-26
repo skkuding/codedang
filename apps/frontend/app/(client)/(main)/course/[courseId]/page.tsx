@@ -1,9 +1,16 @@
 import { Separator } from '@/components/shadcn/separator'
-// import { OngoingAssignments } from './_components/OngoingAssignments'
+
+import { redirect } from 'next/navigation'
 import { RecentNotice } from './_components/RecentNotice'
 import { RecentUpdate } from './_components/RecentUpdate'
 
-export default function Dashboard() {
+interface DashboardProps {
+  params: { courseId: string }
+}
+export default function Dashboard({ params }: DashboardProps) {
+  const { courseId } = params
+  redirect(`/course/${courseId}/assignment`)
+
   return (
     <div className="flex flex-col">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center">
