@@ -278,13 +278,8 @@ export const mockTemplate: CreateTemplateDto = {
   template: [
     {
       language: Language.Cpp,
-      code: [
-        {
-          id: 1,
-          text: '#include <bits/stdc++.h>\n using namespace std;\n int main() { cout << "hello, world" << endl;\n return 0; }',
-          locked: false
-        }
-      ]
+      code: '#include <bits/stdc++.h>\n using namespace std;\n int main() { cout << "hello, world" << endl;\n return 0; }',
+      readOnlyRanges: []
     }
   ]
 }
