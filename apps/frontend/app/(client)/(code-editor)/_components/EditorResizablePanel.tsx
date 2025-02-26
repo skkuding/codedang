@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
 import syncIcon from '@/public/icons/sync.svg'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
 import type { ProblemDetail } from '@/types/type'
+import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -90,7 +91,7 @@ export function EditorMainResizablePanel({
           <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
             <Tabs value={tabValue} className="flex-grow">
               <TabsList className="rounded bg-slate-900">
-                <Link replace href={`${base}/problem/${problem.id}` as const}>
+                <Link replace href={`${base}/problem/${problem.id}` as Route}>
                   <TabsTrigger
                     value="Description"
                     className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
@@ -100,7 +101,7 @@ export function EditorMainResizablePanel({
                 </Link>
                 <Link
                   replace
-                  href={`${base}/problem/${problem.id}/submission` as const}
+                  href={`${base}/problem/${problem.id}/submission` as Route}
                 >
                   <TabsTrigger
                     value="Submission"
@@ -113,7 +114,7 @@ export function EditorMainResizablePanel({
                   <Link
                     replace
                     href={
-                      `/contest/${contestId}/problem/${problem.id}/leaderboard` as const
+                      `/contest/${contestId}/problem/${problem.id}/leaderboard` as Route
                     }
                   >
                     <TabsTrigger
