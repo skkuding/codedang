@@ -286,8 +286,7 @@ describe('SubmissionService', () => {
         userIp: USERIP,
         userId: submissions[0].userId,
         problemId: problems[0].id,
-        assignmentId: ASSIGNMENT_ID,
-        groupId: problems[0].groupId
+        assignmentId: ASSIGNMENT_ID
       })
       expect(createSpy.calledOnce).to.be.true
     })
@@ -302,8 +301,7 @@ describe('SubmissionService', () => {
           userIp: USERIP,
           userId: submissions[0].userId,
           problemId: problems[0].id,
-          assignmentId: ASSIGNMENT_ID,
-          groupId: problems[0].groupId
+          assignmentId: ASSIGNMENT_ID
         })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
@@ -311,6 +309,7 @@ describe('SubmissionService', () => {
   })
 
   describe('submitToWorkbook', () => {
+    const groupId = 1
     it('should call createSubmission', async () => {
       const createSpy = stub(service, 'createSubmission')
       db.workbookProblem.findUnique.resolves({ problem: problems[0] })
@@ -321,7 +320,7 @@ describe('SubmissionService', () => {
         userId: submissions[0].userId,
         problemId: problems[0].id,
         workbookId: WORKBOOK_ID,
-        groupId: problems[0].groupId
+        groupId
       })
       expect(createSpy.calledOnce).to.be.true
     })
@@ -337,7 +336,7 @@ describe('SubmissionService', () => {
           userId: submissions[0].userId,
           problemId: problems[0].id,
           workbookId: WORKBOOK_ID,
-          groupId: problems[0].groupId
+          groupId
         })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false

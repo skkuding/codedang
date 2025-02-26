@@ -177,27 +177,32 @@ describe('AssignmentService', () => {
 
   describe('createAssignmentRecord', () => {
     let assignmentRecordId = -1
+    const groupId = 1
 
     it('should throw error when the assignment does not exist', async () => {
       await expect(
-        service.createAssignmentRecord(999, user01Id)
+        service.createAssignmentRecord(999, user01Id, groupId)
       ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
     })
 
     it('should throw error when user is participated in assignment again', async () => {
       await expect(
-        service.createAssignmentRecord(assignmentId, user01Id)
+        service.createAssignmentRecord(assignmentId, user01Id, groupId)
       ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should throw error when assignment is not ongoing', async () => {
       await expect(
-        service.createAssignmentRecord(8, user01Id)
+        service.createAssignmentRecord(8, user01Id, groupId)
       ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should register to a assignment successfully', async () => {
-      const assignmentRecord = await service.createAssignmentRecord(2, user01Id)
+      const assignmentRecord = await service.createAssignmentRecord(
+        2,
+        user01Id,
+        groupId
+      )
       assignmentRecordId = assignmentRecord.id
       expect(
         await transaction.assignmentRecord.findUnique({
@@ -209,6 +214,7 @@ describe('AssignmentService', () => {
 
   describe('deleteAssignmentRecord', () => {
     let assignmentRecord: AssignmentRecord | { id: number } = { id: -1 }
+    const groupId = 1
 
     afterEach(async () => {
       try {
@@ -242,26 +248,27 @@ describe('AssignmentService', () => {
       expect(
         await service.deleteAssignmentRecord(
           newlyRegisteringAssignmentId,
-          user01Id
+          user01Id,
+          groupId
         )
       ).to.deep.equal(assignmentRecord)
     })
 
     it('should throw error when assignment does not exist', async () => {
       await expect(
-        service.deleteAssignmentRecord(999, user01Id)
+        service.deleteAssignmentRecord(999, user01Id, groupId)
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
     it('should throw error when assignment record does not exist', async () => {
       await expect(
-        service.deleteAssignmentRecord(16, user01Id)
+        service.deleteAssignmentRecord(16, user01Id, groupId)
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
     it('should throw error when assignment is ongoing', async () => {
       await expect(
-        service.deleteAssignmentRecord(assignmentId, user01Id)
+        service.deleteAssignmentRecord(assignmentId, user01Id, groupId)
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })

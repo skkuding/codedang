@@ -249,15 +249,13 @@ export class SubmissionService {
     userIp,
     userId,
     problemId,
-    assignmentId,
-    groupId
+    assignmentId
   }: {
     submissionDto: CreateSubmissionDto
     userIp: string
     userId: number
     problemId: number
     assignmentId: number
-    groupId: number
   }) {
     const now = new Date()
 
@@ -265,7 +263,6 @@ export class SubmissionService {
     const assignment = await this.prisma.assignment.findFirst({
       where: {
         id: assignmentId,
-        groupId,
         startTime: {
           lte: now
         },
@@ -290,7 +287,6 @@ export class SubmissionService {
       select: {
         assignment: {
           select: {
-            groupId: true,
             startTime: true,
             endTime: true
           }
@@ -301,9 +297,6 @@ export class SubmissionService {
       throw new ForbiddenAccessException(
         'User not participated in the assignment'
       )
-    }
-    if (assignmentRecord.assignment.groupId !== groupId) {
-      throw new EntityNotExistException('Assignment')
     }
     if (
       assignmentRecord.assignment.startTime > now ||
@@ -1316,14 +1309,12 @@ export class SubmissionService {
     problemId,
     assignmentId,
     userId,
-    groupId,
     cursor = null,
     take = 10
   }: {
     problemId: number
     assignmentId: number
     userId: number
-    groupId: number
     cursor?: number | null
     take?: number
   }) {
@@ -1365,8 +1356,7 @@ export class SubmissionService {
 
     const assignment = await this.prisma.assignment.findFirst({
       where: {
-        id: assignmentId,
-        groupId
+        id: assignmentId
       },
       select: {
         isJudgeResultVisible: true

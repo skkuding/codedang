@@ -69,31 +69,28 @@ export class SubmissionController {
         problemId,
         contestId
       })
-    } else {
+    } else if (assignmentId) {
+      return await this.submissionService.submitToAssignment({
+        submissionDto,
+        userIp,
+        userId: req.user.id,
+        problemId,
+        assignmentId
+      })
+    } else if (workbookId) {
       if (!groupId) {
         throw new UnprocessableDataException(
-          'groupId is required in the request when submitting to an assignment/workbook problem.'
+          'groupId is required in the request when submitting to a workbook problem.'
         )
       }
-      if (assignmentId) {
-        return await this.submissionService.submitToAssignment({
-          submissionDto,
-          userIp,
-          userId: req.user.id,
-          problemId,
-          assignmentId,
-          groupId
-        })
-      } else if (workbookId) {
-        return await this.submissionService.submitToWorkbook({
-          submissionDto,
-          userIp,
-          userId: req.user.id,
-          problemId,
-          workbookId,
-          groupId
-        })
-      }
+      return await this.submissionService.submitToWorkbook({
+        submissionDto,
+        userIp,
+        userId: req.user.id,
+        problemId,
+        workbookId,
+        groupId
+      })
     }
   }
 
@@ -239,16 +236,14 @@ export class AssignmentSubmissionController {
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number,
-    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('groupId', GroupIDPipe) groupId: number
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
     return await this.submissionService.getAssignmentSubmissions({
       cursor,
       take,
       problemId,
       assignmentId,
-      userId: req.user.id,
-      groupId
+      userId: req.user.id
     })
   }
 }
