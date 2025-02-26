@@ -214,4 +214,70 @@ export class AssignmentService {
       where: { assignmentId_userId: { assignmentId, userId } }
     })
   }
+
+  async getAnonymizedScores(assignmentId: number, groupId: number) {
+    const assignment = await this.prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      select: {
+        id: true,
+        groupId: true,
+        title: true,
+        endTime: true,
+        isRankVisible: true,
+        isFinalScoreVisible: true
+      }
+    })
+
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment not found')
+    }
+
+    if (assignment.groupId !== groupId) {
+      throw new ForbiddenAccessException(
+        'Not allowed to access this assignment'
+      )
+    }
+
+    const now = new Date()
+    if (now < assignment.endTime) {
+      throw new ForbiddenAccessException(
+        'Cannot view scores before assignment ends'
+      )
+    }
+
+    if (!assignment.isRankVisible) {
+      throw new ForbiddenAccessException(
+        'Scores are not visible for this assignment'
+      )
+    }
+
+    const assignmentRecords = await this.prisma.assignmentRecord.findMany({
+      where: { assignmentId },
+      select: {
+        userId: true,
+        score: true,
+        finalScore: true
+      }
+    })
+
+    const anonymizedScores = assignmentRecords
+      .filter((record) => record.userId !== null)
+      .map((record) => {
+        return {
+          score: record.score,
+          finalScore: record.finalScore
+        }
+      })
+
+    const sortedScores = anonymizedScores.sort(
+      (a, b) => (b.finalScore ?? b.score) - (a.finalScore ?? a.score)
+    )
+
+    return {
+      assignmentId: assignment.id,
+      title: assignment.title,
+      scores: sortedScores,
+      totalParticipants: sortedScores.length
+    }
+  }
 }

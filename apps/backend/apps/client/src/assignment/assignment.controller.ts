@@ -5,7 +5,8 @@ import {
   Req,
   Get,
   Query,
-  Delete
+  Delete,
+  BadRequestException
 } from '@nestjs/common'
 import {
   AuthenticatedRequest,
@@ -61,6 +62,24 @@ export class AssignmentController {
     return await this.assignmentService.deleteAssignmentRecord(
       assignmentId,
       req.user.id,
+      groupId
+    )
+  }
+
+  @Get(':id/score')
+  async getAnonymizedScores(
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Param('id', IDValidationPipe) assignmentId: number,
+    @Query('anonymized') anonymized: string
+  ) {
+    if (anonymized !== 'true') {
+      throw new BadRequestException(
+        'This API is only available with anonymized=true'
+      )
+    }
+
+    return await this.assignmentService.getAnonymizedScores(
+      assignmentId,
       groupId
     )
   }
