@@ -4,7 +4,7 @@ import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableCo
 import type {
   ScoreSummary,
   ProblemData
-} from '@/app/admin/contest/_libs/schemas'
+} from '@/app/admin/course/[courseId]/assignment/_libs/type'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 
 interface DataTableScoreSummary extends ScoreSummary {
@@ -65,7 +65,7 @@ export const createColumns = (
       )
     },
     {
-      accessorKey: 'userContestScore',
+      accessorKey: 'userAssignmentScore',
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
@@ -75,7 +75,8 @@ export const createColumns = (
       ),
       cell: ({ row }) => (
         <div>
-          {row.original.userContestScore}/{row.original.contestPerfectScore}
+          {row.original.userAssignmentScore}/
+          {row.original.assignmentPerfectScore}
         </div>
       )
     },

@@ -12,7 +12,7 @@ export interface ScoreSummary {
   username: string
   submittedProblemCount: number
   totalProblemCount: number
-  assignmentScore: number
+  userAssignmentScore: number
   assignmentPerfectScore: number
   problemScores: {
     problemId: number
