@@ -338,7 +338,7 @@ model AssignmentProblem {
   score                   Int                       @default(0)
   createTime              DateTime                  @default(now()) @map("create_time")
   updateTime              DateTime                  @updatedAt @map("update_time")
-  AssignmentProblemRecord AssignmentProblemRecord[]
+  assignmentProblemRecord AssignmentProblemRecord[]
 
   @@id([assignmentId, problemId])
   //@@unique([assignmentId, problemId])
@@ -362,7 +362,7 @@ model AssignmentRecord {
   totalPenalty            Int                       @default(0) @map("total_penalty")
   createTime              DateTime                  @default(now()) @map("create_time")
   updateTime              DateTime                  @updatedAt @map("update_time")
-  AssignmentProblemRecord AssignmentProblemRecord[]
+  assignmentProblemRecord AssignmentProblemRecord[]
 
   @@unique([assignmentId, userId])
   @@map("assignment_record")

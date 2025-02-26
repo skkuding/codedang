@@ -25,6 +25,7 @@ const GET_GROUP_MEMBERS = gql(`
     major
     studentId
     role
+    isGroupLeader
     }
   }
 `)

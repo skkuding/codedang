@@ -28,26 +28,22 @@ export class AssignmentController {
   }
 
   @Get(':id')
-  @UserNullWhenAuthFailedIfOpenSpace()
   async getAssignment(
     @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', new RequiredIntPipe('id')) id: number
   ) {
-    return await this.assignmentService.getAssignment(id, groupId, req.user?.id)
+    return await this.assignmentService.getAssignment(id, req.user.id)
   }
 
   @Post(':id/participation')
   async createAssignmentRecord(
     @Req() req: AuthenticatedRequest,
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Param('id', IDValidationPipe) assignmentId: number,
-    @Query('invitationCode') invitationCode?: string
+    @Param('id', IDValidationPipe) assignmentId: number
   ) {
     return await this.assignmentService.createAssignmentRecord(
       assignmentId,
       req.user.id,
-      invitationCode,
       groupId
     )
   }

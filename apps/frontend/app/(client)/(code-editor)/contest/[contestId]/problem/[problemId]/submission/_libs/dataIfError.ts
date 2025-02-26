@@ -14,6 +14,7 @@ return 0;
   language: 'C',
   createTime: new Date(),
   result: 'Accepted',
+  codeSize: '101',
   testcaseResult: Array.from({ length: 5 }, (_, i) => ({
     id: i,
     submissionId: 0,

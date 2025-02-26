@@ -1,25 +1,18 @@
 import { KatexContent } from '@/components/KatexContent'
-import { auth } from '@/libs/auth'
-import { fetcher, fetcherWithAuth } from '@/libs/utils'
+import { safeFetcherWithAuth } from '@/libs/utils'
 import type { Assignment } from '@/types/type'
 
 interface AssignmentInfoProps {
   params: {
+    courseId: string
     assignmentId: string
   }
 }
 
 export default async function AssginmentInfo({ params }: AssignmentInfoProps) {
-  const session = await auth()
   const { assignmentId } = params
 
-  const res = await (session ? fetcherWithAuth : fetcher).get(
-    `assignment/${assignmentId}`
-  )
-
-  if (!res.ok) {
-    throw new Error('Failed to fetch assignment')
-  }
+  const res = await safeFetcherWithAuth.get(`assignment/${assignmentId}`)
 
   const assignment: Assignment = await res.json()
   const description = assignment.description

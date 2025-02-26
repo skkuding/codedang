@@ -1,10 +1,10 @@
+import { EditorSkeleton } from '@/app/(client)/(code-editor)/_components/EditorSkeleton'
 import { Button } from '@/components/shadcn/button'
 import { fetcher } from '@/libs/utils'
 import exitIcon from '@/public/icons/exit.svg'
 import visitIcon from '@/public/icons/visit.svg'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ContestEditorSkeleton } from './_components/ContestEditorSkeleton'
 
 export default async function ContestFinishedPage({
   params
@@ -17,7 +17,7 @@ export default async function ContestFinishedPage({
     (await fetcher.head(`problem/${problemId}`)).status === 200
   return (
     <>
-      <ContestEditorSkeleton />
+      <EditorSkeleton />
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-10 text-white backdrop-blur-md">
         <div className="text-center">
           <h1 className="mb-8 font-mono text-2xl">The contest has finished!</h1>
