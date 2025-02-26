@@ -5,25 +5,36 @@ import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { SubmissionDetail } from '../_components/SubmissionDetail'
+import { SubmissionDetailTitle } from './_components/SubmissionDetailTitle'
 
 export default function Page({
-  params
+  params,
+  searchParams
 }: {
   params: {
-    problemId: string
     contestId: string
     submissionId: string
   }
+  searchParams: {
+    cellProblemId?: string
+  }
 }) {
-  const { submissionId, problemId, contestId } = params
+  const { submissionId, contestId } = params
+  const { cellProblemId } = searchParams
 
   return (
     <div className="flex flex-col gap-5 overflow-auto p-6">
       <div className="z-20 flex items-center gap-3">
-        <Link href={`/contest/${contestId}/problem/${problemId}/submission`}>
+        <Link
+          href={`/contest/${contestId}/problem/${cellProblemId}/submission`}
+        >
           <ArrowLeft className="size-5" />
         </Link>
-        <h1 className="text-xl font-bold">Submission #{submissionId}</h1>
+        <SubmissionDetailTitle
+          problemId={Number(cellProblemId)}
+          contestId={Number(contestId)}
+          submissionId={Number(submissionId)}
+        />
       </div>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense
@@ -36,7 +47,7 @@ export default function Page({
           }
         >
           <SubmissionDetail
-            problemId={Number(problemId)}
+            problemId={Number(cellProblemId)}
             contestId={Number(contestId)}
             submissionId={Number(submissionId)}
           />
