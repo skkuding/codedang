@@ -4,7 +4,8 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/shadcn/accordion'
-import { cn, dateFormatter } from '@/libs/utils'
+import { cn, dateFormatter, safeFetcherWithAuth } from '@/libs/utils'
+import type { Assignment } from '@/types/type'
 import Link from 'next/link'
 
 interface AssignmentAccordionProps {
@@ -12,134 +13,48 @@ interface AssignmentAccordionProps {
   courseId: string
 }
 
-const dummyAssignmentList = [
-  {
-    id: 3,
-    title: '24년도 소프트웨어학과 신입생 입학 과제2',
-    startTime: '2024-01-01T00:00:00.000Z',
-    endTime: '2028-01-01T23:59:59.000Z',
-    group: {
-      id: 1,
-      groupName: 'Example Group'
-    },
-    invitationCode: '123456',
-    enableCopyPaste: true,
-    isJudgeResultVisible: true,
-    week: 1,
-    participants: 1,
-    problemCount: 3,
-    submittedProblemCount: 1
-  },
-  {
-    id: 1,
-    title: 'SKKU Coding Platform 모의과제',
-    startTime: '2024-01-01T00:00:00.000Z',
-    endTime: '2028-01-01T23:59:59.000Z',
-    group: {
-      id: 1,
-      groupName: 'Example Group'
-    },
-    invitationCode: '123456',
-    enableCopyPaste: true,
-    isJudgeResultVisible: true,
-    week: 1,
-    participants: 13,
-    problemCount: 3,
-    submittedProblemCount: 3
-  },
-  {
-    id: 3,
-    title: '24년도 소프트웨어학과 신입생 입학 과제2',
-    startTime: '2024-01-01T00:00:00.000Z',
-    endTime: '2028-01-01T23:59:59.000Z',
-    group: {
-      id: 1,
-      groupName: 'Example Group'
-    },
-    invitationCode: '123456',
-    enableCopyPaste: true,
-    isJudgeResultVisible: true,
-    week: 2,
-    participants: 1,
-    problemCount: 3,
-    submittedProblemCount: 2
-  },
-  {
-    id: 1,
-    title: 'SKKU Coding Platform 모의과제',
-    startTime: '2024-01-01T00:00:00.000Z',
-    endTime: '2028-01-01T23:59:59.000Z',
-    group: {
-      id: 1,
-      groupName: 'Example Group'
-    },
-    invitationCode: '123456',
-    enableCopyPaste: true,
-    isJudgeResultVisible: true,
-    week: 3,
-    participants: 13,
-    problemCount: 5,
-    submittedProblemCount: 2
-  },
-  {
-    id: 3,
-    title: '24년도 소프트웨어학과 신입생 입학 과제2',
-    startTime: '2024-01-01T00:00:00.000Z',
-    endTime: '2028-01-01T23:59:59.000Z',
-    group: {
-      id: 1,
-      groupName: 'Example Group'
-    },
-    invitationCode: '123456',
-    enableCopyPaste: true,
-    isJudgeResultVisible: true,
-    week: 4,
-    participants: 1,
-    problemCount: 3,
-    submittedProblemCount: 3
-  },
-  {
-    id: 1,
-    title: 'SKKU Coding Platform 모의과제',
-    startTime: '2024-01-01T00:00:00.000Z',
-    endTime: '2028-01-01T23:59:59.000Z',
-    group: {
-      id: 1,
-      groupName: 'Example Group'
-    },
-    invitationCode: '123456',
-    enableCopyPaste: true,
-    isJudgeResultVisible: true,
-    week: 4,
-    participants: 13,
-    problemCount: 7,
-    submittedProblemCount: 2
-  }
-]
-
-export function AssignmentAccordion({
+export async function AssignmentAccordion({
   week,
   courseId
 }: AssignmentAccordionProps) {
+  const assignments = await getAssignmentList(courseId)
+
   return (
     <div className="mt-3">
       {Array.from({ length: week }, (_, i) => i + 1).map((week: number) => (
-        <AssignmentAccordionItem key={week} week={week} courseId={courseId} />
+        <AssignmentAccordionItem
+          key={week}
+          week={week}
+          courseId={courseId}
+          assignments={assignments}
+        />
       ))}
     </div>
   )
 }
 
+const getAssignmentList = async (groupId: string) => {
+  const response = await safeFetcherWithAuth.get('assignment', {
+    searchParams: {
+      groupId
+    }
+  })
+  const data = await response.json<Assignment[]>()
+  return data
+}
+
 interface AssignmentAccordionItemProps {
   week: number
   courseId: string
+  assignments: Assignment[]
 }
 
 function AssignmentAccordionItem({
   week,
-  courseId
+  courseId,
+  assignments
 }: AssignmentAccordionItemProps) {
-  const assignments = dummyAssignmentList.filter(
+  const filteredAssignments = assignments.filter(
     (assignment) => assignment.week === week
   )
 
@@ -166,8 +81,8 @@ function AssignmentAccordionItem({
         <AccordionContent className="-mb-4">
           <div className="overflow-hidden rounded-2xl border">
             <div className="h-6 bg-[#F8F8F8]" />
-            {assignments.length > 0 ? (
-              assignments.map((assignment) => (
+            {filteredAssignments.length > 0 ? (
+              filteredAssignments.map((assignment) => (
                 <Link
                   href={
                     `/course/${courseId}/assignment/${assignment.id}` as const
@@ -191,8 +106,8 @@ function AssignmentAccordionItem({
                       {dateFormatter(assignment.endTime, 'YYYY-MM-DD HH:mm:ss')}
                     </p>
                     <CountBadge
-                      solvedProblemCount={assignment.submittedProblemCount}
-                      problemCount={assignment.problemCount}
+                      solvedProblemCount={assignment.submittedNumber}
+                      problemCount={assignment.problemNumber}
                     />
                   </div>
                 </Link>

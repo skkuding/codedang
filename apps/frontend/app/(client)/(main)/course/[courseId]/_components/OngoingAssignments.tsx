@@ -17,34 +17,32 @@ export function OngoingAssignments() {
           setTimeout(
             () =>
               resolve([
-                {
-                  id: 1,
-                  title: 'HelloWorld.java',
-                  startTime: new Date('2025-01-12'),
-                  endTime: new Date('2024-01-22'),
-                  group: { id: 'G1', groupName: 'Group A' },
-                  enableCopyPaste: true,
-                  isJudgeResultVisible: true,
-                  week: 16,
-                  status: 'ongoing',
-                  description: 'This is a description',
-                  invitationCodeExists: true,
-                  isRegistered: true
-                },
-                {
-                  id: 1,
-                  title: 'HelloWorld.java',
-                  startTime: new Date('2025-01-12'),
-                  endTime: new Date('2024-01-22'),
-                  group: { id: 'G1', groupName: 'Group A' },
-                  enableCopyPaste: true,
-                  isJudgeResultVisible: true,
-                  week: 16,
-                  status: 'ongoing',
-                  description: 'This is a description',
-                  invitationCodeExists: true,
-                  isRegistered: true
-                }
+                // {
+                //   id: 1,
+                //   title: 'HelloWorld.java',
+                //   startTime: new Date('2025-01-12'),
+                //   endTime: new Date('2024-01-22'),
+                //   group: { id: 'G1', groupName: 'Group A' },
+                //   enableCopyPaste: true,
+                //   isJudgeResultVisible: true,
+                //   week: 16,
+                //   status: 'ongoing',
+                //   description: 'This is a description',
+                //   isRegistered: true
+                // },
+                // {
+                //   id: 1,
+                //   title: 'HelloWorld.java',
+                //   startTime: new Date('2025-01-12'),
+                //   endTime: new Date('2024-01-22'),
+                //   group: { id: 'G1', groupName: 'Group A' },
+                //   enableCopyPaste: true,
+                //   isJudgeResultVisible: true,
+                //   week: 16,
+                //   status: 'ongoing',
+                //   description: 'This is a description',
+                //   isRegistered: true
+                // }
               ]),
             1000
           )
