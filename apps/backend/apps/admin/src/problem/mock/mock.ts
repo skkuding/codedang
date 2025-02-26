@@ -115,6 +115,14 @@ export const testcaseInput: Testcase = {
   scoreWeight: 1
 }
 
+export const testcaseData: Testcase = {
+  input:
+    "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+  output: 'true',
+  scoreWeight: 1,
+  isHidden: false
+}
+
 const file: Promise<FileUploadDto> = new Promise((resolve) => {
   const data = {
     createReadStream: () =>
@@ -127,6 +135,20 @@ const file: Promise<FileUploadDto> = new Promise((resolve) => {
   resolve(data)
 })
 export const fileUploadInput: UploadFileInput = { file }
+
+const testcaseFile: Promise<FileUploadDto> = new Promise((resolve) => {
+  const data = {
+    createReadStream: () =>
+      createReadStream('apps/admin/src/problem/mock/testcaseData.xlsx'),
+    filename: 'testcaseData.xlsx',
+    mimetype:
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    encoding: '7bit'
+  }
+  resolve(data)
+})
+export const testcaseUploadInput: UploadFileInput = { file: testcaseFile }
+
 export const importedProblems: Problem[] = [
   {
     id: 32,
