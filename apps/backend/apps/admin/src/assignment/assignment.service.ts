@@ -156,6 +156,7 @@ export class AssignmentService {
       (problem) => problem.problemId
     )
     if (problemIds.length && isEndTimeChanged) {
+      await this.invalidateAssignmentScores(assignment.id)
       for (const problemId of problemIds) {
         try {
           // 문제가 포함된 대회 중 가장 늦게 끝나는 대회의 종료시각으로 visibleLockTime 설정
@@ -977,5 +978,34 @@ export class AssignmentService {
         comment: input.comment
       }
     })
+  }
+
+  async invalidateAssignmentScores(assignmentId: number) {
+    try {
+      await this.prisma.assignmentRecord.updateMany({
+        where: {
+          assignmentId
+        },
+        data: {
+          score: 0,
+          finalScore: null
+        }
+      })
+
+      await this.prisma.assignmentProblemRecord.updateMany({
+        where: {
+          assignmentId
+        },
+        data: {
+          score: 0, // 또는 null로 설정 가능
+          finalScore: null
+        }
+      })
+      return true
+    } catch (error) {
+      throw new UnprocessableDataException(
+        error + 'while invalidating assignment scores'
+      )
+    }
   }
 }
