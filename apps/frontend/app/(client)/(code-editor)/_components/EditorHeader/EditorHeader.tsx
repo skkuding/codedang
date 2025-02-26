@@ -1,5 +1,7 @@
 'use client'
 
+import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
+import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { contestProblemQueries } from '@/app/(client)/_libs/queries/contestProblem'
 import { contestSubmissionQueries } from '@/app/(client)/_libs/queries/contestSubmission'
 import { problemSubmissionQueries } from '@/app/(client)/_libs/queries/problemSubmission'
@@ -56,15 +58,23 @@ import { RunTestButton } from './RunTestButton'
 interface ProblemEditorProps {
   problem: ProblemDetail
   contestId?: number
+  assignmentId?: number
+  courseId?: number
   templateString: string
 }
 
 export function EditorHeader({
   problem,
   contestId,
+  assignmentId,
+  courseId,
   templateString
 }: ProblemEditorProps) {
-  const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
+  const { language, setLanguage } = useLanguageStore(
+    problem.id,
+    contestId,
+    assignmentId
+  )()
   const setCode = useCodeStore((state) => state.setCode)
   const getCode = useCodeStore((state) => state.getCode)
 
@@ -79,7 +89,7 @@ export function EditorHeader({
   const pathname = usePathname()
   const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
   const storageKey = useRef(
-    getStorageKey(language, problem.id, userName, contestId)
+    getStorageKey(language, problem.id, userName, contestId, assignmentId)
   )
   const session = useSession()
   const showSignIn = useAuthModalStore((state) => state.showSignIn)
@@ -92,19 +102,28 @@ export function EditorHeader({
 
   useInterval(
     async () => {
+      // TODO: Implement assignment submission
       const res = await fetcherWithAuth(`submission/${submissionId}`, {
         searchParams: {
           problemId: problem.id,
-          ...(contestId && { contestId })
+          ...(contestId && { contestId }),
+          ...(assignmentId && { assignmentId })
         }
       })
       if (res.ok) {
         const submission: Submission = await res.json()
         if (submission.result !== 'Judging') {
           setIsSubmitting(false)
-          const href = contestId
-            ? `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}?cellProblemId=${problem.id}`
-            : `/problem/${problem.id}/submission/${submissionId}`
+
+          let href = ''
+          if (contestId) {
+            href = `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}`
+          } else if (assignmentId) {
+            href = `/course/${courseId}/assignment/${assignmentId}/problem/${problem.id}/submission`
+          } else {
+            href = `/problem/${problem.id}/submission/${submissionId}`
+          }
+
           router.replace(href as Route)
           //window.history.pushState(null, '', window.location.href)
           if (submission.result === 'Accepted') {
@@ -148,13 +167,14 @@ export function EditorHeader({
       language,
       problem.id,
       userName,
-      contestId
+      contestId,
+      assignmentId
     )
     if (storageKey.current !== undefined) {
       const storedCode = getCodeFromLocalStorage(storageKey.current)
       setCode(storedCode || templateCode)
     }
-  }, [userName, problem, contestId, language, templateCode])
+  }, [userName, problem, contestId, assignmentId, language, templateCode])
 
   const storeCodeToLocalStorage = (code: string) => {
     if (storageKey.current !== undefined) {
@@ -192,7 +212,8 @@ export function EditorHeader({
       },
       searchParams: {
         problemId: problem.id,
-        ...(contestId && { contestId })
+        ...(contestId && { contestId }),
+        ...(assignmentId && { assignmentId })
       },
       next: {
         revalidate: 0
@@ -210,6 +231,16 @@ export function EditorHeader({
         queryClient.invalidateQueries({
           queryKey: contestSubmissionQueries.lists({
             contestId,
+            problemId: problem.id
+          })
+        })
+      } else if (assignmentId) {
+        queryClient.invalidateQueries({
+          queryKey: assignmentProblemQueries.lists(assignmentId)
+        })
+        queryClient.invalidateQueries({
+          queryKey: assignmentSubmissionQueries.lists({
+            assignmentId,
             problemId: problem.id
           })
         })
@@ -280,7 +311,8 @@ export function EditorHeader({
       language,
       problem.id,
       userName,
-      contestId
+      contestId,
+      assignmentId
     )
 
     // TODO: 배포 후 뒤로 가기 로직 재구현

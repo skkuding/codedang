@@ -5,13 +5,9 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/assignment/1?groupId=1
+  url: {{baseUrl}}/assignment/14
   body: none
   auth: none
-}
-
-params:query {
-  groupId: 1
 }
 
 assert {
@@ -31,7 +27,7 @@ assert {
 }
 
 script:pre-request {
-  await require("./login").loginUser2nd(req);
+  await require("./login").loginUser(req);
 }
 
 docs {

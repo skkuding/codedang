@@ -248,7 +248,7 @@ interface LeaderboardProblemRecord {
   submissionCount: number
 }
 interface UserOnLeaderboard {
-  user: { username: string }
+  username: string
   score: number
   finalScore: number
   totalPenalty: number
@@ -344,8 +344,9 @@ export interface Assignment {
   week: number
   status: AssignmentStatus
   description: string
-  invitationCodeExists: boolean
   isRegistered: boolean
+  problemNumber: number
+  submittedNumber: number
 }
 
 export interface AssignmentProblem {

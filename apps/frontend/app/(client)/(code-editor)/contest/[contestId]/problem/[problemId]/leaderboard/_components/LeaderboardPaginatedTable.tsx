@@ -8,7 +8,7 @@ import {
 } from '@/components/PaginatorV2'
 import { usePagination } from '@/libs/hooks/usePaginationV2'
 import { safeFetcherWithAuth } from '@/libs/utils'
-import type { Contest, Leaderboard } from '@/types/type'
+import type { Leaderboard } from '@/types/type'
 import type { LeaderboardItemCodeEditorPagination } from '@/types/type'
 import { useSuspenseQueries } from '@tanstack/react-query'
 import { columns } from './Columns'
@@ -17,9 +17,7 @@ import { LeaderboardTable, LeaderboardTableFallback } from './LeaderboardTable'
 const itemsPerPage = 17
 
 interface BriefLeaderboardItem {
-  user: {
-    username: string
-  }
+  username: string
   rank: number
   totalPenalty: number
   problemRecords: {
@@ -32,11 +30,39 @@ interface BriefLeaderboardItem {
 }
 
 interface LeaderboardItemCodeEditor {
-  rank: number
   userId: string
   penalty: number
   solved: number
+  problemLength: number
+  rank?: number
 }
+
+function rankCompetitors(
+  competitors: LeaderboardItemCodeEditor[]
+): LeaderboardItemCodeEditor[] {
+  competitors.sort((a, b) => {
+    if (a.solved !== b.solved) {
+      return b.solved - a.solved
+    }
+    return a.penalty - b.penalty
+  })
+
+  competitors.forEach((comp, index) => {
+    if (index > 0) {
+      const prev = competitors[index - 1]
+      if (comp.solved === prev.solved && comp.penalty === prev.penalty) {
+        comp.rank = prev.rank
+      } else {
+        comp.rank = index + 1
+      }
+    } else {
+      comp.rank = index + 1
+    }
+  })
+
+  return competitors
+}
+
 export function LeaderboardPaginatedTable({
   contestId
 }: {
@@ -53,11 +79,21 @@ export function LeaderboardPaginatedTable({
     const leaderboardItems: LeaderboardItemCodeEditor[] = []
 
     leaderboard.forEach((item) => {
+      let solvedProblems = 0
+      let totalPenalty = 0
+
+      item.problemRecords.forEach((problem) => {
+        if (problem.score === 1) {
+          solvedProblems++
+        }
+        totalPenalty += problem.penalty
+      })
+
       const leaderboardItem = {
-        rank: item.rank,
-        userId: item.user.username,
-        penalty: item.totalPenalty,
-        solved: item.problemRecords.length
+        userId: item.username,
+        penalty: totalPenalty,
+        solved: solvedProblems,
+        problemLength: item.problemRecords.length
       }
 
       leaderboardItems.push(leaderboardItem)
@@ -66,45 +102,30 @@ export function LeaderboardPaginatedTable({
     return leaderboardItems
   }
 
-  const fetchContestProblemSize = async (contestId: number) => {
-    const res: Contest = await safeFetcherWithAuth
-      .get(`contest/${contestId}`)
-      .json()
-
-    const problemSize = res.contestProblem.length
-
-    return problemSize
-  }
-
-  const [leaderboardQuery, ProblemSizeQuery] = useSuspenseQueries({
+  const [leaderboardQuery] = useSuspenseQueries({
     queries: [
       {
         queryKey: ['leaderboard', contestId, refreshTrigger],
         queryFn: () => {
           return fetchContestLeaderboard(contestId)
         }
-      },
-      {
-        queryKey: ['problem size', contestId, refreshTrigger],
-        queryFn: () => {
-          return fetchContestProblemSize(contestId)
-        }
       }
     ]
   })
 
   const apiData = {
-    leaderboard: leaderboardQuery.data,
-    problemSize: ProblemSizeQuery.data
+    leaderboard: leaderboardQuery.data
   }
+  const leaderboard = rankCompetitors(apiData.leaderboard)
 
   const paginationData: LeaderboardItemCodeEditorPagination[] = []
-  apiData.leaderboard.forEach((item, index) => {
-    const solvedString = `${item.solved.toString()}/${apiData.problemSize.toString()}`
+  leaderboard.forEach((item, index) => {
+    const solvedString = `${item.solved.toString()}/${item.problemLength.toString()}`
+    const contestRank = item.rank ? item.rank : 0
 
     paginationData.push({
       id: index,
-      rank: item.rank,
+      rank: contestRank,
       userId: item.userId,
       penalty: item.penalty,
       solved: solvedString
