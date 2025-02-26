@@ -502,7 +502,7 @@ export class ProblemService {
       }
     })
 
-    if (userRole != Role.User && problem.createdById != userId) {
+    if (userRole == Role.User && problem.createdById != userId) {
       const leaderGroupIds = (
         await this.prisma.userGroup.findMany({
           where: {
