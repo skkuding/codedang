@@ -58,6 +58,9 @@ const db = {
     findUniqueOrThrow: stub(),
     count: stub().resolves(2)
   },
+  assignmentRecord: {
+    findUnique: stub()
+  },
   workbookProblem: {
     findMany: stub(),
     findUniqueOrThrow: stub(),
@@ -617,8 +620,7 @@ describe('AssignmentProblemService', () => {
         assignmentId,
         userId,
         cursor: 1,
-        take: 1,
-        groupId
+        take: 1
       })
 
       // then
@@ -648,8 +650,7 @@ describe('AssignmentProblemService', () => {
         assignmentId,
         userId,
         cursor: 1,
-        take: 1,
-        groupId
+        take: 1
       })
 
       // then
@@ -673,50 +674,20 @@ describe('AssignmentProblemService', () => {
           assignmentId,
           userId,
           cursor: 1,
-          take: 1,
-          groupId
+          take: 1
         })
       ).to.be.rejectedWith(prismaNotFoundError)
     })
 
-    it('should throw ForbiddenAccessException when the user is registered but assignment is not started', async () => {
-      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
-      getAssignmentSpy.resolves({
-        startTime: faker.date.future(),
-        endTime: faker.date.future(),
-        isRegistered: true,
-        isJudgeResultVisible: true
-      })
-      db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
-
-      await expect(
-        service.getAssignmentProblems({
-          assignmentId,
-          userId,
-          cursor: 1,
-          take: 1,
-          groupId
-        })
-      ).to.be.rejectedWith(ForbiddenAccessException)
-    })
-
     it('should throw ForbiddenAccessException when the user is not registered and assignment is not ended', async () => {
-      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
-      getAssignmentSpy.resolves({
-        startTime: faker.date.past(),
-        endTime: faker.date.future(),
-        isRegistered: false,
-        isJudgeResultVisible: true
-      })
       db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
 
       await expect(
         service.getAssignmentProblems({
           assignmentId,
-          userId,
+          userId: 999,
           cursor: 1,
-          take: 1,
-          groupId
+          take: 1
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -738,8 +709,7 @@ describe('AssignmentProblemService', () => {
       const result = await service.getAssignmentProblem({
         assignmentId,
         problemId,
-        userId,
-        groupId
+        userId
       })
 
       // then
@@ -764,8 +734,7 @@ describe('AssignmentProblemService', () => {
       const result = await service.getAssignmentProblem({
         assignmentId,
         problemId,
-        userId,
-        groupId
+        userId
       })
 
       // then
@@ -785,46 +754,18 @@ describe('AssignmentProblemService', () => {
         service.getAssignmentProblem({
           assignmentId,
           problemId,
-          userId,
-          groupId
+          userId
         })
       ).to.be.rejectedWith(prismaNotFoundError)
     })
 
-    it('should throw ForbiddenAccessException when the user is registered but assignment is not started', async () => {
-      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
-      getAssignmentSpy.resolves({
-        startTime: faker.date.future(),
-        endTime: faker.date.future(),
-        isRegistered: true,
-        isJudgeResultVisible: true
-      })
-      db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
-      await expect(
-        service.getAssignmentProblem({
-          assignmentId,
-          problemId,
-          userId,
-          groupId
-        })
-      ).to.be.rejectedWith(ForbiddenAccessException)
-    })
-
     it('should throw ForbiddenAccessException when the user is not registered and assignment is not ended', async () => {
-      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
-      getAssignmentSpy.resolves({
-        startTime: faker.date.past(),
-        endTime: faker.date.future(),
-        isRegistered: false,
-        isJudgeResultVisible: true
-      })
       db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
       await expect(
         service.getAssignmentProblem({
           assignmentId,
           problemId,
-          userId,
-          groupId
+          userId: 999
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })

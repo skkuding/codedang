@@ -50,7 +50,7 @@ export class AssignmentService {
             userId
           },
           select: {
-            AssignmentProblemRecord: {
+            assignmentProblemRecord: {
               where: {
                 isSubmitted: true
               },
@@ -64,36 +64,55 @@ export class AssignmentService {
       orderBy: [{ week: 'asc' }, { startTime: 'asc' }]
     })
 
+    const now = new Date()
+
     return assignments.map(({ _count, assignmentRecord, ...assignment }) => ({
       ...assignment,
-      problemNumber: _count.assignmentProblem,
-      submittedNumber: assignmentRecord[0]?.AssignmentProblemRecord?.length ?? 0
+      problemNumber: now < assignment.startTime ? 0 : _count.assignmentProblem,
+      submittedNumber: assignmentRecord[0]?.assignmentProblemRecord?.length ?? 0
     }))
   }
 
-  async getAssignment(id: number, groupId: number, userId?: number) {
+  async getAssignment(id: number, userId: number) {
     // check if the user has already registered this assignment
     // initial value is false
-    let isRegistered = false
-    let assignment: Partial<Assignment>
-    if (userId) {
-      const hasRegistered = await this.prisma.assignmentRecord.findFirst({
-        where: { userId, assignmentId: id }
-      })
-      if (hasRegistered) {
-        isRegistered = true
-      }
+
+    let assignment
+
+    const isRegistered = await this.prisma.assignmentRecord.findUnique({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      where: { assignmentId_userId: { assignmentId: id, userId } }
+    })
+
+    if (!isRegistered) {
+      throw new ForbiddenAccessException(
+        'User not participated in the assignment'
+      )
     }
     try {
       assignment = await this.prisma.assignment.findUniqueOrThrow({
         where: {
           id,
-          groupId,
           isVisible: true
         },
         select: {
           ...assignmentSelectOption,
-          description: true
+          description: true,
+          assignmentRecord: {
+            where: {
+              userId
+            },
+            select: {
+              assignmentProblemRecord: {
+                where: {
+                  isSubmitted: true
+                },
+                select: {
+                  problemId: true
+                }
+              }
+            }
+          }
         }
       })
     } catch (error) {
@@ -141,18 +160,19 @@ export class AssignmentService {
     */
     // combine assignment and sortedAssignmentRecordsWithUserDetail
 
-    const assignmentDetails = assignment
+    const { _count, assignmentRecord, ...assignmentDetails } = assignment
+
     return {
       ...assignmentDetails,
-      isRegistered
+      problemNumber: _count.assignmentProblem,
+      submittedNumber: assignmentRecord[0].assignmentProblemRecord.length
     }
   }
 
   async createAssignmentRecord(
     assignmentId: number,
     userId: number,
-    groupId: number,
-    invitationCode?: string
+    groupId: number
   ) {
     const assignment = await this.prisma.assignment.findUniqueOrThrow({
       where: { id: assignmentId, groupId },
@@ -169,9 +189,13 @@ export class AssignmentService {
     if (hasRegistered) {
       throw new ConflictFoundException('Already participated this assignment')
     }
+
     const now = new Date()
     if (now >= assignment.endTime) {
       throw new ConflictFoundException('Cannot participate ended assignment')
+    }
+    if (now < assignment.startTime) {
+      throw new ConflictFoundException('Cannot participate upcoming assignment')
     }
 
     return await this.prisma.assignmentRecord.create({
