@@ -647,7 +647,6 @@ const createProblems = async () => {
         title: '정수 더하기',
         engTitle: 'Integer Addition',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/1-description.html'),
           'utf-8'
@@ -688,7 +687,6 @@ const createProblems = async () => {
       data: {
         title: '가파른 경사',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/2-description.html'),
           'utf-8'
@@ -717,7 +715,6 @@ const createProblems = async () => {
       data: {
         title: '회전 표지판',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/3-description.html'),
           'utf-8'
@@ -746,7 +743,6 @@ const createProblems = async () => {
       data: {
         title: '붕어빵',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/4-description.html'),
           'utf-8'
@@ -775,7 +771,6 @@ const createProblems = async () => {
       data: {
         title: '채권관계',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/5-description.html'),
           'utf-8'
@@ -804,7 +799,6 @@ const createProblems = async () => {
       data: {
         title: '타일 교환',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/6-description.html'),
           'utf-8'
@@ -833,7 +827,6 @@ const createProblems = async () => {
       data: {
         title: '천재 디자이너',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/7-description.html'),
           'utf8'
@@ -862,7 +855,6 @@ const createProblems = async () => {
       data: {
         title: '사이클 분할',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/8-description.html'),
           'utf-8'
@@ -891,7 +883,6 @@ const createProblems = async () => {
       data: {
         title: '수정중인 문제',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: `<p>수정 작업 중</p>`,
         difficulty: Level.Level3,
         inputDescription: `<p>비공개</p>`,

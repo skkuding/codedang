@@ -340,6 +340,16 @@ export class AssignmentService {
             data: {
               visibleLockTime: assignment.endTime
             }
+          }),
+          this.prisma.problem.update({
+            where: {
+              id: problemId
+            },
+            data: {
+              sharedGroups: {
+                connect: [{ id: groupId }]
+              }
+            }
           })
         ])
         assignmentProblems.push(assignmentProblem)
@@ -435,6 +445,16 @@ export class AssignmentService {
               assignmentId_problemId: {
                 assignmentId,
                 problemId
+              }
+            }
+          }),
+          this.prisma.problem.update({
+            where: {
+              id: problemId
+            },
+            data: {
+              sharedGroups: {
+                disconnect: [{ id: groupId }]
               }
             }
           })

@@ -53,7 +53,6 @@ export const problems: Problem[] = [
   {
     id: 1,
     createdById: 1,
-    groupId: 1,
     title: 'group problem0',
     description: 'description1',
     inputDescription: 'inputDescription1',
@@ -80,7 +79,6 @@ export const problems: Problem[] = [
   {
     id: 2,
     createdById: 1,
-    groupId: 1,
     title: 'group problem1',
     description: 'description2',
     inputDescription: 'inputDescription2',
@@ -131,7 +129,6 @@ export const importedProblems: Problem[] = [
   {
     id: 32,
     createdById: 2,
-    groupId: 2,
     title: '정수 더하기',
     description:
       '<p>두 정수 A와 B를 입력받은 다음, A+B를 출력하는 프로그램을 작성하시오. 첫째 줄에 A와 B가 주어진다. (0 < A, B < 10) 첫째 줄에 A+B를 출력한다. </p>',
@@ -167,7 +164,6 @@ export const importedProblems: Problem[] = [
   {
     id: 33,
     createdById: 2,
-    groupId: 2,
     title: '정수 빼기',
     description:
       '<p>두 정수 A와 B를 입력받은 다음, A-B를 출력하는 프로그램을 작성하시오. 첫째 줄에 A와 B가 주어진다. (0 < A, B < 10) 첫째 줄에 A-B를 출력한다. </p>',

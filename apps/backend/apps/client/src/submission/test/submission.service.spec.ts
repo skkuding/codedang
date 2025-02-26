@@ -204,8 +204,7 @@ describe('SubmissionService', () => {
         submissionDto,
         userIp: USERIP,
         userId: submissions[0].userId,
-        problemId: problems[0].id,
-        groupId: problems[0].groupId
+        problemId: problems[0].id
       })
       expect(createSpy.calledOnce).to.be.true
     })
@@ -219,8 +218,7 @@ describe('SubmissionService', () => {
           submissionDto,
           userIp: USERIP,
           userId: submissions[0].userId,
-          problemId: problems[0].id,
-          groupId: problems[0].groupId
+          problemId: problems[0].id
         })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false

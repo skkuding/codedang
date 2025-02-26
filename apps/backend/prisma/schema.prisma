@@ -131,6 +131,7 @@ model Group {
   assignment     Assignment[]
   workbook       Workbook[]
   GroupWhitelist GroupWhitelist[]
+  sharedProblems Problem[]
 
   @@map("group")
 }
@@ -219,6 +220,7 @@ model Problem {
   createTime      DateTime   @default(now()) @map("create_time")
   updateTime      DateTime   @updatedAt @map("update_time")
 
+  sharedGroups      Group[]
   problemTestcase   ProblemTestcase[]
   problemTag        ProblemTag[]
   assignmentProblem AssignmentProblem[]
