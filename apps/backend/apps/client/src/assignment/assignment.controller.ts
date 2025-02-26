@@ -64,22 +64,4 @@ export class AssignmentController {
       groupId
     )
   }
-
-  @Get(':id/grade')
-  async getAssignmentGrade(
-    @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number,
-    @Param('id', IDValidationPipe) assignmentId: number
-  ) {
-    return await this.assignmentService.getAssignmentGrade(
-      assignmentId,
-      req.user.id,
-      groupId
-    )
-  }
-
-  @Get('gradeSummary')
-  async getAssignmentGradeSummary(@User('id') userId: number) {
-    return await this.assignmentService.getAssignmentGradeSummary(userId)
-  }
 }

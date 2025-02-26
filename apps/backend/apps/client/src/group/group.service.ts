@@ -385,4 +385,122 @@ export class GroupService {
       }
     })
   }
+
+  async getAssignmentGradeSummary(userId: number, groupId: number) {
+    const assignmentRecords = await this.prisma.assignmentRecord.findMany({
+      where: { userId, assignment: { groupId } },
+      select: { assignmentId: true }
+    })
+
+    const assignmentIds = assignmentRecords.map((record) => record.assignmentId)
+
+    const assignments = await this.prisma.assignment.findMany({
+      where: {
+        id: { in: assignmentIds },
+        groupId
+      },
+      select: {
+        id: true,
+        title: true,
+        endTime: true,
+        isFinalScoreVisible: true,
+        autoFinalizeScore: true,
+        week: true,
+        assignmentProblem: {
+          select: {
+            problemId: true,
+            order: true,
+            score: true,
+            problem: {
+              select: {
+                id: true,
+                title: true
+              }
+            }
+          },
+          orderBy: { order: 'asc' }
+        }
+      },
+      orderBy: [{ week: 'asc' }, { endTime: 'asc' }]
+    })
+
+    const allAssignmentProblemRecords =
+      await this.prisma.assignmentProblemRecord.findMany({
+        where: {
+          userId,
+          assignmentId: { in: assignmentIds }
+        },
+        select: {
+          assignmentId: true,
+          problemId: true,
+          finalScore: true,
+          comment: true
+        }
+      })
+
+    const problemRecordsByAssignment = allAssignmentProblemRecords.reduce(
+      (grouped, record) => {
+        if (!grouped[record.assignmentId]) {
+          grouped[record.assignmentId] = []
+        }
+        grouped[record.assignmentId].push(record)
+        return grouped
+      },
+      {} as Record<number, typeof allAssignmentProblemRecords>
+    )
+
+    const formattedAssignments = assignments.map((assignment) => {
+      const assignmentProblemRecords =
+        problemRecordsByAssignment[assignment.id] || []
+
+      const problemRecordMap = assignmentProblemRecords.reduce(
+        (map, record) => {
+          map[record.problemId] = {
+            finalScore: record.finalScore,
+            comment: record.comment
+          }
+          return map
+        },
+        {} as Record<number, { finalScore: number | null; comment: string }>
+      )
+
+      const problems = assignment.assignmentProblem.map((ap) => ({
+        id: ap.problem.id,
+        title: ap.problem.title,
+        order: ap.order,
+        maxScore: ap.score,
+        problemRecord: problemRecordMap[ap.problemId] || null
+      }))
+
+      const userAssignmentFinalScore = assignmentProblemRecords.some(
+        (record) => record.finalScore === null
+      )
+        ? null
+        : assignmentProblemRecords.reduce(
+            (total, { finalScore }) => total + (finalScore as number),
+            0
+          )
+
+      const assignmentPerfectScore = assignment.assignmentProblem.reduce(
+        (total, { score }) => total + score,
+        0
+      )
+
+      return {
+        id: assignment.id,
+        title: assignment.title,
+        endTime: assignment.endTime,
+        isFinalScoreVisible: assignment.isFinalScoreVisible,
+        autoFinalizeScore: assignment.autoFinalizeScore,
+        week: assignment.week,
+        userAssignmentFinalScore,
+        assignmentPerfectScore,
+        problems
+      }
+    })
+
+    return {
+      assignments: formattedAssignments
+    }
+  }
 }
