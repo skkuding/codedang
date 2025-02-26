@@ -124,7 +124,7 @@ export function EditorHeader({
             href = `/problem/${problem.id}/submission/${submissionId}`
           }
 
-          router.replace(href as Route)
+          !contestId && router.replace(href as Route)
           //window.history.pushState(null, '', window.location.href)
           if (submission.result === 'Accepted') {
             confetti?.addConfetti()
