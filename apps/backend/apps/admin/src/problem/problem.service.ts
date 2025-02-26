@@ -76,7 +76,7 @@ export class ProblemService {
         groupId,
         createdById: userId,
         languages,
-        template: [JSON.stringify(template)],
+        template: template.map((t) => t as unknown as Prisma.InputJsonValue),
         problemTag: {
           create: tagIds.map((tagId) => {
             return { tagId }
@@ -86,8 +86,7 @@ export class ProblemService {
     })
 
     await this.createTestcases(problem.id, testcases)
-    const problemWithIsVisible = this.changeVisibleLockTimeToIsVisible(problem)
-    return { ...problemWithIsVisible, template }
+    return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
   async createTestcases(problemId: number, testcases: Array<Testcase>) {
@@ -348,21 +347,13 @@ export class ProblemService {
       whereOptions.languages = { hasSome: input.languages }
     }
 
-    const problems = (
-      await this.prisma.problem.findMany({
-        ...paginator,
-        where: {
-          ...whereOptions,
-          groupId
-        },
-        take
-      })
-    ).map((problem) => {
-      const { template, ...data } = problem
-      return {
-        ...data,
-        template: this.parseTemplate(template)
-      }
+    const problems = await this.prisma.problem.findMany({
+      ...paginator,
+      where: {
+        ...whereOptions,
+        groupId
+      },
+      take
     })
 
     let problemsWithIsVisible = this.changeVisibleLockTimeToIsVisible(problems)
@@ -380,10 +371,7 @@ export class ProblemService {
         groupId
       }
     })
-    return {
-      ...this.changeVisibleLockTimeToIsVisible(problem),
-      template: this.parseTemplate(problem.template)
-    }
+    return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
   async getProblemById(id: number) {
@@ -392,10 +380,7 @@ export class ProblemService {
         id
       }
     })
-    return {
-      ...this.changeVisibleLockTimeToIsVisible(problem),
-      template: this.parseTemplate(problem.template)
-    }
+    return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
@@ -462,10 +447,7 @@ export class ProblemService {
         problemTag
       }
     })
-    return {
-      ...this.changeVisibleLockTimeToIsVisible(updatedProblem),
-      template: this.parseTemplate(problem.template)
-    }
+    return this.changeVisibleLockTimeToIsVisible(updatedProblem)
   }
 
   async updateProblemTag(
@@ -550,14 +532,9 @@ export class ProblemService {
       await Promise.all(deleteFromS3Results)
     }
 
-    const deletedProblem = await this.prisma.problem.delete({
+    return await this.prisma.problem.delete({
       where: { id }
     })
-
-    return {
-      ...deletedProblem,
-      template: this.parseTemplate(deletedProblem.template)
-    }
   }
 
   extractUUIDs(input: string) {
@@ -866,15 +843,5 @@ export class ProblemService {
     return problemsWithIsVisible.length == 1
       ? problemsWithIsVisible[0]
       : problemsWithIsVisible
-  }
-
-  /**
-   * TODO / FIXME:
-   * Prisma Schema에 template이 JSON[]으로 정의되어 있음
-   * 따라서 template 필드에 저장된 전체 데이터가 **하나의** String 타입 값을 가지는 배열로 반환됨(template[0]만 parse하는 이유)
-   * 추후 Schema 변경 가능하면 Template 타입 값을 반환하도록 수정 필요
-   */
-  parseTemplate(template: Prisma.JsonValue[]): Template[] {
-    return template.length > 0 ? JSON.parse(template[0] as string) : template
   }
 }
