@@ -90,7 +90,7 @@ export function EditorMainResizablePanel({
           <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
             <Tabs value={tabValue} className="flex-grow">
               <TabsList className="rounded bg-slate-900">
-                <Link replace href={`${base}/problem/${problem.id}` as Route}>
+                <Link replace href={`${base}/problem/${problem.id}` as const}>
                   <TabsTrigger
                     value="Description"
                     className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
@@ -100,7 +100,7 @@ export function EditorMainResizablePanel({
                 </Link>
                 <Link
                   replace
-                  href={`${base}/problem/${problem.id}/submission` as Route}
+                  href={`${base}/problem/${problem.id}/submission` as const}
                 >
                   <TabsTrigger
                     value="Submission"
@@ -113,7 +113,7 @@ export function EditorMainResizablePanel({
                   <Link
                     replace
                     href={
-                      `/contest/${contestId}/problem/${problem.id}/leaderboard` as Route
+                      `/contest/${contestId}/problem/${problem.id}/leaderboard` as const
                     }
                   >
                     <TabsTrigger
