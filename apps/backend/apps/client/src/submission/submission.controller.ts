@@ -14,7 +14,6 @@ import { UnprocessableDataException } from '@libs/exception'
 import {
   CursorValidationPipe,
   IDValidationPipe,
-  NullableGroupIDPipe,
   RequiredIntPipe
 } from '@libs/pipe'
 import {
@@ -167,7 +166,6 @@ export class SubmissionController {
   async getSubmission(
     @Req() req: AuthenticatedRequest,
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('groupId', NullableGroupIDPipe) groupId: number | null,
     @Query('contestId', IDValidationPipe) contestId: number | null,
     @Query('assignmentId', IDValidationPipe) assignmentId: number | null,
     @Param('id', new RequiredIntPipe('id')) id: number
@@ -177,17 +175,11 @@ export class SubmissionController {
         'Provide either contestId or assignmentId, not both.'
       )
     }
-    if ((contestId || assignmentId) && !groupId) {
-      throw new UnprocessableDataException(
-        'GroupId is required in the request when submitting to an assignment/workbook problem.'
-      )
-    }
     return await this.submissionService.getSubmission({
       id,
       problemId,
       userId: req.user.id,
       userRole: req.user.role,
-      groupId,
       contestId,
       assignmentId
     })

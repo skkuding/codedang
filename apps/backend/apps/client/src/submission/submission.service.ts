@@ -932,7 +932,6 @@ export class SubmissionService {
     problemId,
     userId,
     userRole,
-    groupId,
     contestId,
     assignmentId
   }: {
@@ -940,7 +939,6 @@ export class SubmissionService {
     problemId: number
     userId: number
     userRole: Role
-    groupId: number | null
     contestId: number | null
     assignmentId: number | null
   }) {
@@ -951,7 +949,6 @@ export class SubmissionService {
       isJudgeResultVisible: boolean
     } | null = null
     let assignment: {
-      groupId: number
       startTime: Date
       endTime: Date
       isJudgeResultVisible: boolean
@@ -1004,9 +1001,6 @@ export class SubmissionService {
       })
       if (!assignmentRecord) {
         throw new EntityNotExistException('AssignmentRecord')
-      }
-      if (assignmentRecord.assignment.groupId !== groupId) {
-        throw new EntityNotExistException('Assignment')
       }
       assignment = assignmentRecord.assignment
       isJudgeResultVisible = assignment.isJudgeResultVisible
