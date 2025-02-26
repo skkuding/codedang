@@ -509,7 +509,7 @@ describe('SubmissionService', () => {
           problemId: problems[0].id,
           userId: submissions[0].userId,
           userRole: Role.User,
-          groupId: OPEN_SPACE_ID,
+          groupId: null,
           contestId: null,
           assignmentId: null
         })
@@ -533,7 +533,7 @@ describe('SubmissionService', () => {
           problemId: problems[0].id,
           userId: submissions[0].userId,
           userRole: Role.User,
-          groupId: OPEN_SPACE_ID,
+          groupId: null,
           contestId: null,
           assignmentId: null
         })
@@ -550,7 +550,7 @@ describe('SubmissionService', () => {
           problemId: problems[0].id,
           userId: submissions[0].userId,
           userRole: Role.User,
-          groupId: OPEN_SPACE_ID,
+          groupId: null,
           contestId: null,
           assignmentId: null
         })
@@ -568,7 +568,7 @@ describe('SubmissionService', () => {
           problemId: problems[0].id,
           userId: submissions[0].userId,
           userRole: Role.User,
-          groupId: OPEN_SPACE_ID,
+          groupId: null,
           contestId: null,
           assignmentId: null
         })
