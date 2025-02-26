@@ -70,9 +70,9 @@ export class AssignmentController {
   async getAnonymizedScores(
     @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', IDValidationPipe) assignmentId: number,
-    @Query('anonymized') anonymized: string
+    @Query('anonymized') anonymized: boolean
   ) {
-    if (anonymized !== 'true') {
+    if (!anonymized) {
       throw new BadRequestException(
         'This API is only available with anonymized=true'
       )
@@ -80,6 +80,19 @@ export class AssignmentController {
 
     return await this.assignmentService.getAnonymizedScores(
       assignmentId,
+      groupId
+    )
+  }
+
+  @Get(':id/score/me')
+  async getMyAssignmentProblemRecord(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) assignmentId: number,
+    @Query('groupId', GroupIDPipe) groupId: number
+  ) {
+    return await this.assignmentService.getMyAssignmentProblemRecord(
+      assignmentId,
+      req.user.id,
       groupId
     )
   }
