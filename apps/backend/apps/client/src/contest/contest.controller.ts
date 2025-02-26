@@ -12,7 +12,7 @@ import {
   AuthNotNeededIfOpenSpace,
   UserNullWhenAuthFailedIfOpenSpace
 } from '@libs/auth'
-import { GroupIDPipe, IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
+import { IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
 import { ContestService } from './contest.service'
 
 @Controller('contest')
@@ -37,24 +37,21 @@ export class ContestController {
   @UserNullWhenAuthFailedIfOpenSpace()
   async getContest(
     @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', new RequiredIntPipe('id')) id: number
   ) {
-    return await this.contestService.getContest(id, groupId, req.user?.id)
+    return await this.contestService.getContest(id, req.user?.id)
   }
 
   @Post(':id/participation')
   async createContestRecord(
     @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', IDValidationPipe) contestId: number,
     @Query('invitationCode') invitationCode?: string
   ) {
     return await this.contestService.createContestRecord({
       contestId,
       userId: req.user.id,
-      invitationCode,
-      groupId
+      invitationCode
     })
   }
 
@@ -62,24 +59,17 @@ export class ContestController {
   @Delete(':id/participation')
   async deleteContestRecord(
     @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', IDValidationPipe) contestId: number
   ) {
-    return await this.contestService.deleteContestRecord(
-      contestId,
-      req.user.id,
-      groupId
-    )
+    return await this.contestService.unregisterContest(contestId, req.user.id)
   }
 
   @Get(':id/leaderboard')
+  @AuthNotNeededIfOpenSpace()
   async getLeaderboard(
-    @Req() req: AuthenticatedRequest,
-    @Param('id', IDValidationPipe) contestId: number
+    @Param('id', IDValidationPipe) contestId: number,
+    @Query('search') search: string
   ) {
-    return await this.contestService.getContestLeaderboard(
-      req.user.id,
-      contestId
-    )
+    return await this.contestService.getContestLeaderboard(contestId, search)
   }
 }

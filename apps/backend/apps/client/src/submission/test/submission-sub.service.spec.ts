@@ -100,12 +100,20 @@ const db = {
     findUniqueOrThrow: mockFunc,
     update: mockFunc
   },
+
   assignmentProblem: {
-    findFirstOrThrow: mockFunc
+    findFirstOrThrow: mockFunc,
+    findUnique: mockFunc
+  },
+  assignmentProblemRecord: {
+    update: mockFunc
   },
   problem: {
     update: mockFunc,
     findFirstOrThrow: mockFunc
+  },
+  $transaction: async (fn: (prisma: typeof db) => Promise<unknown>) => {
+    return fn(db)
   }
 }
 
@@ -151,6 +159,13 @@ describe('SubmissionSubscriptionService', () => {
     amqpConnection = module.get<AmqpConnection>(AmqpConnection)
     cache = module.get<Cache>(CACHE_MANAGER)
     sandbox.stub(cache, 'get').resolves([])
+    sandbox
+      .stub(db, '$transaction')
+      .callsFake(
+        async <T>(fn: (prisma: typeof db) => Promise<T>): Promise<T> => {
+          return fn(db)
+        }
+      )
   })
 
   afterEach(() => {
@@ -670,7 +685,6 @@ describe('SubmissionSubscriptionService', () => {
       expect(
         problemRecordFindManySpy.calledOnceWith({
           where: {
-            contestProblemId: contestProblem.id,
             contestRecordId: contestRecordsMock[0].id
           },
           select: {
@@ -725,7 +739,7 @@ describe('SubmissionSubscriptionService', () => {
         .stub(db.assignmentRecord, 'findUniqueOrThrow')
         .resolves(assignmentRecord)
       const findFirstSpy = sandbox
-        .stub(db.assignmentProblem, 'findFirstOrThrow')
+        .stub(db.assignmentProblem, 'findUnique')
         .resolves({ score: 100 })
       const updateSpy = sandbox.stub(db.assignmentRecord, 'update').resolves()
 
@@ -755,8 +769,11 @@ describe('SubmissionSubscriptionService', () => {
       expect(
         findFirstSpy.calledOnceWith({
           where: {
-            assignmentId: assignmentSubmission.assignmentId,
-            problemId: assignmentSubmission.problemId
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            assignmentId_problemId: {
+              assignmentId: assignmentSubmission.assignmentId,
+              problemId: assignmentSubmission.problemId
+            }
           },
           select: {
             score: true
@@ -771,7 +788,7 @@ describe('SubmissionSubscriptionService', () => {
         .stub(db.assignmentRecord, 'findUniqueOrThrow')
         .resolves(assignmentRecord)
       const findFirstSpy = sandbox
-        .stub(db.assignmentProblem, 'findFirstOrThrow')
+        .stub(db.assignmentProblem, 'findUnique')
         .resolves({ score: 100 })
       const updateSpy = sandbox.stub(db.assignmentRecord, 'update').resolves()
 

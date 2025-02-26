@@ -36,17 +36,19 @@ enum Provider {
 }
 
 model User {
-  id         Int       @id @default(autoincrement())
-  username   String    @unique
+  id               Int       @id @default(autoincrement())
+  username         String    @unique
   /// @HideField()
-  password   String
-  role       Role      @default(User)
-  email      String    @unique
-  studentId  String?   @default("0000000000") @map("student_id")
-  major      String?   @default("none")
-  lastLogin  DateTime? @map("last_login")
-  createTime DateTime  @default(now()) @map("create_time")
-  updateTime DateTime  @updatedAt @map("update_time")
+  password         String
+  role             Role      @default(User)
+  email            String    @unique
+  studentId        String    @default("0000000000") @map("student_id")
+  major            String?   @default("none")
+  lastLogin        DateTime? @map("last_login")
+  createTime       DateTime  @default(now()) @map("create_time")
+  updateTime       DateTime  @updatedAt @map("update_time")
+  canCreateCourse  Boolean   @default(false) @map("can_create_course")
+  canCreateContest Boolean   @default(false) @map("can_create_contest")
 
   userProfile      UserProfile?
   userGroup        UserGroup[]
@@ -92,7 +94,7 @@ model UserProfile {
 model UserGroup {
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int      @map("user_id")
-  group         Group    @relation(fields: [groupId], references: [id])
+  group         Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId       Int      @map("group_id")
   isGroupLeader Boolean  @default(false) @map("is_group_leader")
   createTime    DateTime @default(now()) @map("create_time")
@@ -102,10 +104,17 @@ model UserGroup {
   @@map("user_group")
 }
 
+enum GroupType {
+  Course
+  Study
+}
+
 model Group {
-  id          Int      @id @default(autoincrement())
-  groupName   String   @unique @map("group_name")
-  description String
+  id          Int         @id @default(autoincrement())
+  groupName   String      @map("group_name")
+  groupType   GroupType   @default(Course) @map("group_type")
+  courseInfo  CourseInfo?
+  description String?
   /// config default value
   /// {
   ///   "showOnList": true,          // show on 'all groups' list
@@ -114,17 +123,42 @@ model Group {
   ///   "requireApprovalBeforeJoin": true
   /// }
   config      Json
-  createTime  DateTime @default(now()) @map("create_time")
-  updateTime  DateTime @updatedAt @map("update_time")
+  createTime  DateTime    @default(now()) @map("create_time")
+  updateTime  DateTime    @updatedAt @map("update_time")
 
-  userGroup  UserGroup[]
-  notice     Notice[]
-  problem    Problem[]
-  assignment Assignment[]
-  workbook   Workbook[]
-  contest    Contest[]
+  userGroup      UserGroup[]
+  notice         Notice[]
+  problem        Problem[]
+  assignment     Assignment[]
+  workbook       Workbook[]
+  GroupWhitelist GroupWhitelist[]
 
   @@map("group")
+}
+
+model GroupWhitelist {
+  group     Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   Int    @map("group_id")
+  studentId String @map("student_id")
+
+  @@id([groupId, studentId])
+  @@map("group_whitelist")
+}
+
+model CourseInfo {
+  groupId   Int     @id @map("group_id")
+  group     Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  courseNum String  @map("course_num")
+  classNum  Int?    @map("class_num")
+  professor String
+  semester  String
+  email     String?
+  website   String?
+  office    String?
+  phoneNum  String? @map("phone_num")
+  week      Int     @default(16) //양수만 허용됨
+
+  @@map("course_info")
 }
 
 model Notice {
@@ -268,11 +302,11 @@ model Assignment {
   id                   Int      @id @default(autoincrement())
   createdBy            User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById          Int?     @map("created_by_id")
-  group                Group    @relation(fields: [groupId], references: [id])
+  group                Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId              Int      @map("group_id")
+  week                 Int      @default(1)
   title                String
   description          String
-  invitationCode       String?  @map("invitation_code")
   startTime            DateTime @map("start_time")
   endTime              DateTime @map("end_time")
   isVisible            Boolean  @default(true) @map("is_visible")
@@ -288,50 +322,67 @@ model Assignment {
   announcement      Announcement[]
   testSubmission    TestSubmission[]
 
+  @@index([groupId, week])
   @@map("assignment")
 }
 
 model AssignmentProblem {
-  order        Int
-  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId Int        @map("assignment_id")
-  problem      Problem    @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId    Int        @map("problem_id")
+  order                   Int
+  assignment              Assignment                @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId            Int                       @map("assignment_id")
+  problem                 Problem                   @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId               Int                       @map("problem_id")
   // 각 문제의 점수 (비율 아님)
-  score        Int        @default(0)
-  createTime   DateTime   @default(now()) @map("create_time")
-  updateTime   DateTime   @updatedAt @map("update_time")
+  score                   Int                       @default(0)
+  createTime              DateTime                  @default(now()) @map("create_time")
+  updateTime              DateTime                  @updatedAt @map("update_time")
+  AssignmentProblemRecord AssignmentProblemRecord[]
 
   @@id([assignmentId, problemId])
-  // @@unique([assignmentId, problemId])
+  //@@unique([assignmentId, problemId])
   @@map("assignment_problem")
 }
 
 model AssignmentRecord {
-  id                 Int        @id @default(autoincrement())
-  assignment         Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId       Int        @map("assignment_id")
-  user               User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId             Int?       @map("user_id")
-  acceptedProblemNum Int        @default(0) @map("accepted_problem_num")
-  score              Int        @default(0)
+  id                      Int                       @id @default(autoincrement())
+  assignment              Assignment                @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId            Int                       @map("assignment_id")
+  user                    User?                     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId                  Int?                      @map("user_id")
+  acceptedProblemNum      Int                       @default(0) @map("accepted_problem_num")
+  score                   Int                       @default(0)
   // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각
-  finishTime         DateTime?  @map("finish_time")
+  finishTime              DateTime?                 @map("finish_time")
   // totalPenalty: Submission 시, AC를 받지 못했을 때, 올라가는 Counter
-  totalPenalty       Int        @default(0) @map("total_penalty")
-  createTime         DateTime   @default(now()) @map("create_time")
-  updateTime         DateTime   @updatedAt @map("update_time")
+  totalPenalty            Int                       @default(0) @map("total_penalty")
+  createTime              DateTime                  @default(now()) @map("create_time")
+  updateTime              DateTime                  @updatedAt @map("update_time")
+  AssignmentProblemRecord AssignmentProblemRecord[]
 
   @@unique([assignmentId, userId])
   @@map("assignment_record")
+}
+
+model AssignmentProblemRecord {
+  assignmentId Int
+  userId       Int
+  problemId    Int
+
+  score       Int     @default(0)
+  isSubmitted Boolean @default(false) @map("is_submitted")
+  isAccepted  Boolean @default(false) @map("is_accepted")
+
+  assignmentProblem AssignmentProblem @relation(fields: [assignmentId, problemId], references: [assignmentId, problemId], onDelete: Cascade)
+  assignmentRecord  AssignmentRecord  @relation(fields: [assignmentId, userId], references: [assignmentId, userId], onDelete: Cascade)
+
+  @@id([assignmentId, userId, problemId])
+  @@map("assignment_problem_record")
 }
 
 model Contest {
   id                   Int       @id @default(autoincrement())
   createdBy            User?     @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById          Int?      @map("created_by_id")
-  group                Group     @relation(fields: [groupId], references: [id])
-  groupId              Int       @map("group_id")
   title                String
   description          String
   // 대회의 페널티 (0 ≤ penalty ≤ 100),
@@ -449,7 +500,7 @@ model Workbook {
   id          Int      @id @default(autoincrement())
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?     @map("created_by_id")
-  group       Group    @relation(fields: [groupId], references: [id])
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId     Int      @map("group_id")
   title       String
   description String

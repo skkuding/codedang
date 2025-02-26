@@ -6,20 +6,16 @@ import { PrismaService } from '@libs/prisma'
 export class AnnouncementService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getContestAnnouncements(
-    contestId: number,
-    groupId: number
-  ): Promise<Announcement[]> {
+  async getContestAnnouncements(contestId: number): Promise<Announcement[]> {
     const { contestProblem, announcement } =
       await this.prisma.contest.findUniqueOrThrow({
         where: {
-          id: contestId,
-          groupId
+          id: contestId
         },
         select: {
           contestProblem: true,
           announcement: {
-            orderBy: { updateTime: 'desc' }
+            orderBy: { createTime: 'desc' }
           }
         }
       })
@@ -73,8 +69,7 @@ export class AnnouncementService {
         where: {
           problemId,
           contest: {
-            id: contestId,
-            groupId
+            id: contestId
           }
         },
         orderBy: { updateTime: 'desc' }

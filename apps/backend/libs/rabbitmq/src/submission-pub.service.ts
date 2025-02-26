@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
-import type { Submission } from '@prisma/client'
+import type { Submission, TestSubmission } from '@prisma/client'
 import { Span, TraceService } from 'nestjs-otel'
 import {
   EXCHANGE,
@@ -46,7 +46,7 @@ export class SubmissionPublicationService {
   @Span()
   async publishJudgeRequestMessage(
     code: Snippet[],
-    submission: Submission,
+    submission: Submission | TestSubmission,
     isTest = false,
     isUserTest = false,
     userTestcases?: { id: number; in: string; out: string }[],

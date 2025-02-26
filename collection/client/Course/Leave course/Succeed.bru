@@ -1,0 +1,26 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/course/2/leave
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Get Group Members
+  ---
+  - URL param으로 전달된 `groupId`에 해당하는 Group에 속해있는 User들의 `username` 리스트를 반환합니다.
+}

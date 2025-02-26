@@ -1,4 +1,4 @@
-import { type Group, Role, type User, type UserGroup } from '@prisma/client'
+import { Role, type User, type UserGroup, type Group } from '@prisma/client'
 
 export const groups: Group[] = [
   {
@@ -12,7 +12,8 @@ export const groups: Group[] = [
     description: 'mock public group with no approval',
     groupName: 'mock public group',
     createTime: new Date('2023-02-22T00:00:00.000Z'),
-    updateTime: new Date('2023-02-22T:00:00.000Z')
+    updateTime: new Date('2023-02-22T:00:00.000Z'),
+    groupType: 'Course'
   },
   {
     id: 2,
@@ -25,7 +26,8 @@ export const groups: Group[] = [
     description: 'mock public group with approval',
     groupName: 'mock public group 2',
     createTime: new Date('2023-02-22T00:00:00.000Z'),
-    updateTime: new Date('2023-02-22T10:00:00.000Z')
+    updateTime: new Date('2023-02-22T10:00:00.000Z'),
+    groupType: 'Course'
   },
   {
     id: 3,
@@ -38,7 +40,8 @@ export const groups: Group[] = [
     description: 'mock public group with approval',
     groupName: 'mock public group 2',
     createTime: new Date('2023-02-22T00:00:00.000Z'),
-    updateTime: new Date('2023-02-22T10:00:00.000Z')
+    updateTime: new Date('2023-02-22T10:00:00.000Z'),
+    groupType: 'Course'
   }
 ]
 
@@ -53,7 +56,9 @@ const users: User[] = [
     email: 'manager@skkuding.dev',
     lastLogin: new Date('2023-02-22T10:00:00.000Z'),
     studentId: '2024139898',
-    major: 'chemistry'
+    major: 'chemistry',
+    canCreateCourse: false,
+    canCreateContest: false
   },
   {
     id: 2,
@@ -65,7 +70,9 @@ const users: User[] = [
     email: 'user01@skkuding.dev',
     lastLogin: new Date('2023-02-22T10:00:00.000Z'),
     studentId: '2024123456',
-    major: 'chemistry'
+    major: 'chemistry',
+    canCreateCourse: false,
+    canCreateContest: false
   },
   {
     id: 3,
@@ -77,7 +84,9 @@ const users: User[] = [
     email: 'user02@skkuding.dev',
     lastLogin: new Date('2023-02-22T10:00:00.000Z'),
     studentId: '2024654321',
-    major: 'chemistry'
+    major: 'chemistry',
+    canCreateCourse: false,
+    canCreateContest: false
   },
   {
     id: 4,
@@ -89,7 +98,9 @@ const users: User[] = [
     email: 'user03@skkuding.dev',
     lastLogin: new Date('2023-02-22T10:00:00.000Z'),
     studentId: '2024312123',
-    major: 'chemistry'
+    major: 'chemistry',
+    canCreateCourse: false,
+    canCreateContest: false
   }
 ]
 
