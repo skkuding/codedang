@@ -5,8 +5,8 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
-  IsNumber,
   IsString,
+  Min,
   ValidateNested
 } from 'class-validator'
 
@@ -24,11 +24,13 @@ export class Template {
 }
 
 export class Range {
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   @IsNotEmpty()
   from: number
 
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   @IsNotEmpty()
   to: number
 }

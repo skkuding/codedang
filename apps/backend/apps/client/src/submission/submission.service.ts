@@ -586,6 +586,14 @@ export class SubmissionService {
     const template = templates.find((code) => code.language === language)
     if (!template) return true
 
+    // from <= to인지 검증
+    if (
+      readOnlyRangesFromUser.some(({ from, to }) => from > to) ||
+      template.readOnlyRanges.some(({ from, to }) => from > to)
+    ) {
+      return false
+    }
+
     // 유저 코드에서 readOnlyRanges에 해당하는 코드 라인만 추출
     const userCodeByLines = code.split('\n')
     const readOnlyLinesOfUserCode = readOnlyRangesFromUser.flatMap(
