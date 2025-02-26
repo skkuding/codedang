@@ -27,6 +27,8 @@ import {
   exampleWorkbook,
   exampleWorkbookProblems,
   fileUploadInput,
+  testcaseUploadInput,
+  user,
   importedProblems,
   importedProblemsWithIsVisible,
   problemId,
@@ -34,7 +36,7 @@ import {
   problemsWithIsVisible,
   template,
   testcaseInput,
-  user
+  testcaseData
 } from './mock/mock'
 import { ProblemService } from './problem.service'
 
@@ -203,6 +205,23 @@ describe('ProblemService', () => {
 
       expect(createTestcasesSpy.calledTwice).to.be.true
       expect(res).to.deep.equal(importedProblemsWithIsVisible)
+    })
+  })
+
+  describe('uploadTestcase', () => {
+    it('should return imported testcase', async () => {
+      const problemId = 2
+      const createTestcaseSpy = spy(service, 'createTestcase')
+      db.problemTestcase.create.resetHistory()
+      db.problemTestcase.create.resolves(testcaseData)
+
+      const result = await service.uploadTestcase(
+        testcaseUploadInput,
+        problemId
+      )
+
+      expect(createTestcaseSpy.calledOnce).to.be.true
+      expect(result).to.deep.equal(testcaseData)
     })
   })
 

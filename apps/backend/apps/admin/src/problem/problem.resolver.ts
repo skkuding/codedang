@@ -24,7 +24,12 @@ import {
 } from '@generated'
 import { Role } from '@prisma/client'
 import { AuthenticatedRequest } from '@libs/auth'
-import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
+import {
+  CursorValidationPipe,
+  GroupIDPipe,
+  ProblemIDPipe,
+  RequiredIntPipe
+} from '@libs/pipe'
 import { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { ImageSource } from './model/image.output'
 import {
@@ -63,6 +68,17 @@ export class ProblemResolver {
       req.user.id,
       req.user.role
     )
+  }
+
+  @Mutation(() => ProblemTestcase)
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+  async uploadTestcase(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('problemId', { type: () => Int }, ProblemIDPipe)
+    problemId: number,
+    @Args('input') input: UploadFileInput
+  ) {
+    return await this.problemService.uploadTestcase(input, problemId)
   }
 
   @Mutation(() => ImageSource)
