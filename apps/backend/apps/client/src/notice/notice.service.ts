@@ -16,13 +16,13 @@ export class NoticeService {
     take: number
     search?: string
     fixed?: boolean
-    groupId?: number
+    groupId: number | null
   }) {
     const paginator = this.prisma.getPaginator(cursor)
     const notices = await this.prisma.notice.findMany({
       ...paginator,
       where: {
-        groupId,
+        groupId: groupId ?? undefined,
         isVisible: true,
         isFixed: fixed,
         title: {
@@ -66,11 +66,11 @@ export class NoticeService {
     return { data, total }
   }
 
-  async getNoticeByID(id: number, groupId: number) {
+  async getNoticeByID(id: number, groupId: number | null) {
     const notice = await this.prisma.notice.findUniqueOrThrow({
       where: {
         id,
-        groupId,
+        groupId: groupId ?? undefined,
         isVisible: true
       },
       select: {

@@ -7,7 +7,11 @@ import {
   ParseBoolPipe
 } from '@nestjs/common'
 import { AuthNotNeededIfPublic } from '@libs/auth'
-import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
+import {
+  CursorValidationPipe,
+  NullableGroupIDPipe,
+  RequiredIntPipe
+} from '@libs/pipe'
 import { NoticeService } from './notice.service'
 
 @Controller('notice')
@@ -17,7 +21,7 @@ export class NoticeController {
 
   @Get()
   async getNotices(
-    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query('groupId', NullableGroupIDPipe) groupId: number | null,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number,
@@ -35,7 +39,7 @@ export class NoticeController {
 
   @Get(':id')
   async getNoticeByID(
-    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query('groupId', NullableGroupIDPipe) groupId: number | null,
     @Param('id', new RequiredIntPipe('id')) id: number
   ) {
     return await this.noticeService.getNoticeByID(id, groupId)
