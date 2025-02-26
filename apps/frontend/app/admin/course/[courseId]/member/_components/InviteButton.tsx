@@ -52,17 +52,14 @@ import { findUserSchema, inviteUserSchema } from '../_libs/schema'
  * tailwind 클래스명
  */
 
-interface InviteButtonProps<TData extends { id: number }, TPromise> {
+interface InviteButtonProps {
   onSuccess: () => void
   params: {
     courseId: number
   }
 }
 
-export function InviteButton<TData extends { id: number }, TPromise>({
-  onSuccess,
-  params
-}: InviteButtonProps<TData, TPromise>) {
+export function InviteButton({ onSuccess, params }: InviteButtonProps) {
   const { courseId } = params
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false)
 
@@ -127,25 +124,12 @@ function InviteManually({ courseId }: InviteManuallyProps) {
   const [invitedList, setInvitedList] = useState<string[]>([''])
 
   useEffect(() => {
-    if (userId) {
+    if (userId !== 0) {
       inviteHandleSubmit(onInvite)()
     }
   }, [userId])
 
   const [inviteUser] = useMutation(INVITE_USER)
-  const inviteTarget = (
-    groupId: number,
-    isGroupLeader: boolean,
-    userId: number
-  ) => {
-    return inviteUser({
-      variables: {
-        groupId,
-        isGroupLeader,
-        userId
-      }
-    })
-  }
 
   const onFind: SubmitHandler<FindUserInput> = async (data) => {
     const res = await fetcherWithAuth('user/email', {
@@ -163,15 +147,20 @@ function InviteManually({ courseId }: InviteManuallyProps) {
 
   const onInvite: SubmitHandler<InviteUserInput> = async (data) => {
     console.log('onInvite')
-    const updatePromise = inviteTarget(
-      Number(courseId),
-      data.isGroupLeader,
-      userId
-    )
+    const updatePromise = inviteUser({
+      variables: {
+        groupId: courseId,
+        isGroupLeader: data.isGroupLeader,
+        userId
+      }
+    })
 
     try {
       const result = await updatePromise
-      setInvitedList([...invitedList, result.data?.inviteUser.user.email ?? ''])
+      setInvitedList([
+        ...invitedList,
+        `${result.data?.inviteUser.user.email} - ${result.data?.inviteUser.isGroupLeader ? 'Instructor' : 'Student'}`
+      ])
       toast.success('Invited successfully!')
     } catch {
       toast.error(`Failed to invite`)
@@ -216,7 +205,7 @@ function InviteManually({ courseId }: InviteManuallyProps) {
         <div className="flex justify-between">
           <div className="flex flex-col">
             <div className="flex justify-between">
-              <div className="flex items-center border border-gray-300 px-2">
+              <div className="flex items-center rounded-lg border border-gray-300 px-2">
                 <MdOutlineEmail className="h-8 w-12 text-gray-400" />
                 <Input
                   id="email"
@@ -248,10 +237,10 @@ function InviteManually({ courseId }: InviteManuallyProps) {
                 </Select>
               </div>
             </div>
-            {invitedList.length > 0 && (
+            {invitedList.length > 1 && (
               <div className="flex flex-col rounded-md border border-gray-300">
                 {invitedList.map((user) => (
-                  <span key={user} className="text-gray-500">
+                  <span key={user} className="ml-3 p-1 text-gray-500">
                     {user}
                   </span>
                 ))}
