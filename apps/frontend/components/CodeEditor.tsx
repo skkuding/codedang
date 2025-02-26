@@ -55,6 +55,12 @@ const fontSize = EditorView.baseTheme({
   }
 })
 
+const editorPadding = EditorView.baseTheme({
+  '.cm-editor': {
+    padding: '8px'
+  }
+})
+
 const languageParser: Record<Language, () => LanguageSupport> = {
   Cpp: cpp,
   C: cpp,
@@ -93,13 +99,14 @@ export function CodeEditor({
   ...props
 }: Props) {
   return (
-    <ScrollArea className="rounded-md [&>div>div]:h-full">
+    <ScrollArea className="rounded-lg [&>div>div]:h-full">
       <ReactCodeMirror
         theme={editorTheme}
         extensions={[
           fontSize,
           languageParser[language](),
-          enableCopyPaste ? [] : copyPasteHandler()
+          enableCopyPaste ? [] : copyPasteHandler(),
+          editorPadding
         ]}
         value={value}
         onChange={onChange}

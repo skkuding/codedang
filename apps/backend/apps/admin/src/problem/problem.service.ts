@@ -37,6 +37,7 @@ import type {
 } from './model/problem.input'
 import type { ProblemWithIsVisible } from './model/problem.output'
 import type { Template } from './model/template.input'
+import { ImportedTestcaseHeader } from './model/testcase.constants'
 import type { Testcase } from './model/testcase.input'
 
 @Injectable()
@@ -103,6 +104,29 @@ export class ProblemService {
         return { index, id: problemTestcase.id }
       })
     )
+  }
+
+  async createTestcase(problemId: number, testcase: Testcase) {
+    try {
+      const problemTestcase = await this.prisma.problemTestcase.create({
+        data: {
+          problem: { connect: { id: problemId } },
+          input: testcase.input,
+          output: testcase.output,
+          scoreWeight: testcase.scoreWeight,
+          isHidden: testcase.isHidden
+        }
+      })
+      return problemTestcase
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      )
+        throw new EntityNotExistException('problem')
+
+      throw error
+    }
   }
 
   async uploadProblems(
@@ -234,6 +258,61 @@ export class ProblemService {
         return problem
       })
     )
+  }
+
+  async uploadTestcase(fileInput: UploadFileInput, problemId: number) {
+    const { filename, mimetype, createReadStream } = await fileInput.file
+    if (
+      [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-excel'
+      ].includes(mimetype) === false
+    ) {
+      throw new UnprocessableDataException(
+        'Extensions except Excel(.xlsx, .xls) are not supported.'
+      )
+    }
+    const header = {}
+    const workbook = new Workbook()
+    const worksheet = (await workbook.xlsx.read(createReadStream()))
+      .worksheets[0]
+    worksheet.getRow(1).eachCell((cell, idx) => {
+      if (!ImportedTestcaseHeader.includes(cell.text))
+        throw new UnprocessableFileDataException(
+          `Field ${cell.text} is not supported: ${1}`,
+          filename
+        )
+      header[cell.text] = idx
+    })
+    worksheet.spliceRows(1, 1)
+    const row = worksheet.getRow(1)
+
+    if (!header['Input'] || !header['Output']) {
+      throw new UnprocessableFileDataException(
+        'Input and Output fields are required',
+        filename
+      )
+    }
+    const input = row.getCell(header['Input']).text
+    const output = row.getCell(header['Output']).text
+    const scoreWeight =
+      header['scoreWeight'] === undefined ||
+      row.getCell(header['scoreWeight']).text.trim() === ''
+        ? 1
+        : parseInt(row.getCell(header['scoreWeight']).text.trim(), 10) || 1
+    const isHidden =
+      header['isHidden'] === undefined ||
+      row.getCell(header['isHidden']).text.trim() === ''
+        ? false
+        : row.getCell(header['isHidden']).text.trim() === 'O'
+    const testcase: Testcase = {
+      input,
+      output,
+      scoreWeight,
+      isHidden
+    }
+
+    return await this.createTestcase(problemId, testcase)
   }
 
   async uploadImage(input: UploadFileInput, userId: number) {

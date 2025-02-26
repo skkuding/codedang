@@ -165,52 +165,39 @@ describe('AssignmentService', () => {
 
   describe('getAssignment', () => {
     it('should throw error when assignment does not exist', async () => {
-      await expect(
-        service.getAssignment(999, groupId, user01Id)
-      ).to.be.rejectedWith(EntityNotExistException)
+      await expect(service.getAssignment(999, user01Id)).to.be.rejectedWith(
+        ForbiddenAccessException
+      )
     })
 
     it('should return assignment', async () => {
-      expect(await service.getAssignment(assignmentId, groupId, user01Id)).to.be
-        .ok
+      expect(await service.getAssignment(assignmentId, user01Id)).to.be.ok
     })
   })
 
   describe('createAssignmentRecord', () => {
     let assignmentRecordId = -1
-    const invitationCode = '123456'
-    const invalidInvitationCode = '000000'
-
-    it('should throw error when the invitation code does not match', async () => {
-      await expect(
-        service.createAssignmentRecord(1, user01Id, invalidInvitationCode)
-      ).to.be.rejectedWith(ConflictFoundException)
-    })
 
     it('should throw error when the assignment does not exist', async () => {
       await expect(
-        service.createAssignmentRecord(999, user01Id, invitationCode)
+        service.createAssignmentRecord(999, user01Id)
       ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
     })
 
     it('should throw error when user is participated in assignment again', async () => {
       await expect(
-        service.createAssignmentRecord(assignmentId, user01Id, invitationCode)
+        service.createAssignmentRecord(assignmentId, user01Id)
       ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should throw error when assignment is not ongoing', async () => {
       await expect(
-        service.createAssignmentRecord(8, user01Id, invitationCode)
+        service.createAssignmentRecord(8, user01Id)
       ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should register to a assignment successfully', async () => {
-      const assignmentRecord = await service.createAssignmentRecord(
-        2,
-        user01Id,
-        invitationCode
-      )
+      const assignmentRecord = await service.createAssignmentRecord(2, user01Id)
       assignmentRecordId = assignmentRecord.id
       expect(
         await transaction.assignmentRecord.findUnique({
