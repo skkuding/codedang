@@ -246,6 +246,13 @@ model UpdateHistory {
   updatedByid   Int
   updatedFields String[] @map("updated_fields") // 변경된 필드 목록
   updatedInfo   Json[]
+  /**
+   * {
+   * current:
+   * previsou:
+   * updatedField:
+   * }
+   */
 
   @@map("updateHistory")
 }

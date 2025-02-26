@@ -400,32 +400,32 @@ export class ProblemService {
     const updatedFields: string[] = []
 
     const titleInfo = {
-      updatedField: 'Title',
+      updatedField: 'title',
       current: problem.title,
       previous: problem.title
     }
     const languageInfo = {
-      updatedField: 'Language',
+      updatedField: 'language',
       current: problem.languages,
       previous: problem.languages
     }
     const descriptionInfo = {
-      updatedField: 'Description',
+      updatedField: 'description',
       current: problem.description,
       previous: problem.description
     }
     const timeLimitInfo = {
-      updatedField: 'TimeLimit',
+      updatedField: 'timeLimit',
       current: problem.timeLimit,
       previous: problem.timeLimit
     }
     const memoryLimitInfo = {
-      updatedField: 'MemoryLimit',
+      updatedField: 'memoryLimit',
       current: problem.memoryLimit,
       previous: problem.memoryLimit
     }
     const hintInfo = {
-      updatedField: 'Hint',
+      updatedField: 'hint',
       current: problem.hint,
       previous: problem.hint
     }
@@ -568,6 +568,9 @@ export class ProblemService {
     return await this.prisma.updateHistory.findMany({
       where: {
         problemId
+      },
+      include: {
+        updatedBy: true
       }
     })
   }

@@ -75,7 +75,8 @@ export const problems: Problem[] = [
     engDescription: null,
     engHint: null,
     engInputDescription: null,
-    engOutputDescription: null
+    engOutputDescription: null,
+    updateHistory: []
   },
   {
     id: 2,
@@ -102,7 +103,8 @@ export const problems: Problem[] = [
     engDescription: null,
     engHint: null,
     engInputDescription: null,
-    engOutputDescription: null
+    engOutputDescription: null,
+    updateHistory: []
   }
 ]
 
@@ -111,49 +113,55 @@ export const updateHistories = [
     id: 1,
     problemId: 1,
     updatedAt: new Date(),
-    updatedFields: JSON.stringify(['title', 'description']),
-    titleInfo: {
-      isChanged: false,
-      current: 'New Title',
-      previous: 'Old Title'
-    },
-    descriptionInfo: {
-      isChanged: false,
-      current: 'New Description',
-      previous: 'Old Description'
-    }
+    updatedFields: ['title', 'description'],
+    updatedInfo: [
+      {
+        current: 'New Title',
+        previous: 'Old Title',
+        updatedField: 'Title'
+      },
+      {
+        current: 'New Description',
+        previous: 'Old Description',
+        updatedField: 'Description'
+      }
+    ]
   },
   {
     id: 2,
     problemId: 1,
     updatedAt: new Date('2024-01-15T15:30:00Z'),
-    updatedFields: JSON.stringify(['TimeLimit', 'Testcase*']),
-    titleInfo: {
-      isChanged: false,
-      current: 'New Title',
-      previous: 'Old Title'
-    },
-    descriptionInfo: {
-      isChanged: false,
-      current: 'New Description',
-      previous: 'Old Description'
-    }
+    updatedFields: ['TimeLimit', 'Testcase*'],
+    updatedInfo: [
+      {
+        current: 'New Title',
+        previous: 'Old Title',
+        updatedField: 'Title'
+      },
+      {
+        current: 'New Description',
+        previous: 'Old Description',
+        updatedField: 'Description'
+      }
+    ]
   },
   {
     id: 3,
     problemId: 2,
     updatedAt: new Date('2024-01-20T08:45:00Z'),
-    updatedFields: JSON.stringify(['Language']),
-    titleInfo: {
-      isChanged: false,
-      current: 'New Title',
-      previous: 'Old Title'
-    },
-    descriptionInfo: {
-      isChanged: false,
-      current: 'New Description',
-      previous: 'Old Description'
-    }
+    updatedFields: ['Language'],
+    updatedInfo: [
+      {
+        current: 'New Title',
+        previous: 'Old Title',
+        updatedField: 'Title'
+      },
+      {
+        current: 'New Description',
+        previous: 'Old Description',
+        updatedField: 'Description'
+      }
+    ]
   }
 ]
 
