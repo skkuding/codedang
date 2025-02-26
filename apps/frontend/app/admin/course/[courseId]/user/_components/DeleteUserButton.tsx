@@ -17,7 +17,7 @@ import { useState } from 'react'
 import { PiTrashLight } from 'react-icons/pi'
 import { toast } from 'sonner'
 
-interface DeleteUserButtonProps<TData extends { id: number }, TPromise> {
+interface DeleteUserButtonProps<TPromise> {
   deleteTarget: (userId: number, groupId: number) => Promise<TPromise>
   onSuccess?: () => void
 }
@@ -39,7 +39,7 @@ interface DeleteUserButtonProps<TData extends { id: number }, TPromise> {
 export function DeleteUserButton<TData extends { id: number }, TPromise>({
   deleteTarget,
   onSuccess
-}: DeleteUserButtonProps<TData, TPromise>) {
+}: DeleteUserButtonProps<TPromise>) {
   const { table } = useDataTable<TData>()
   const params = useParams() // 경로에서 params 가져오기
   const groupId = Number(params.courseId) // 문자열이므로 숫자로 변환
