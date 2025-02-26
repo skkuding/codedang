@@ -7,7 +7,6 @@ import type { Contest, User, Assignment } from '@prisma/client'
 import { Language, Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
-import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
 import { spy, stub } from 'sinon'
 import { OPEN_SPACE_ID } from '@libs/constants'
@@ -18,7 +17,6 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
-import { Snippet } from '../class/create-submission.dto'
 import { problems } from '../mock/problem.mock'
 import { submissions, submissionDto } from '../mock/submission.mock'
 import { submissionResults } from '../mock/submissionResult.mock'
@@ -448,10 +446,7 @@ describe('SubmissionService', () => {
 
       await expect(
         service.createSubmission({
-          submissionDto: {
-            ...submissionDto,
-            code: plainToInstance(Snippet, submissions[1].code)
-          },
+          submissionDto: { ...submissionDto, code: 'wrong code' },
           problem: problems[0],
           userId: submissions[0].userId,
           userIp: USERIP
