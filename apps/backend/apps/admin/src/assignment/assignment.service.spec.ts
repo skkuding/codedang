@@ -184,7 +184,8 @@ const input = {
   isVisible: false,
   isRankVisible: false,
   enableCopyPaste: true,
-  isJudgeResultVisible: true
+  isJudgeResultVisible: true,
+  autoFinalizeScore: false
 } satisfies CreateAssignmentInput
 
 const updateInput = {
