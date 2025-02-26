@@ -450,7 +450,6 @@ export class ContestProblemService {
     const excludedFields = [
       'createTime',
       'createdById',
-      'groupId',
       'problemTag',
       'submission',
       'updateTime',

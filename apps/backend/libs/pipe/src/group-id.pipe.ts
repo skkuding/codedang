@@ -7,7 +7,7 @@ import {
 @Injectable()
 export class GroupIDPipe implements PipeTransform {
   transform(value: unknown) {
-    if (value === null) {
+    if (value == null) {
       throw new BadRequestException('Group ID must not be null')
     } else if (typeof value === 'string' || typeof value === 'number') {
       const id = typeof value === 'string' ? parseInt(value) : value
@@ -22,7 +22,7 @@ export class GroupIDPipe implements PipeTransform {
 @Injectable()
 export class NullableGroupIDPipe implements PipeTransform {
   transform(value: unknown) {
-    if (value === null) {
+    if (value == null) {
       return null
     } else if (typeof value === 'string' || typeof value === 'number') {
       const id = typeof value === 'string' ? parseInt(value) : value

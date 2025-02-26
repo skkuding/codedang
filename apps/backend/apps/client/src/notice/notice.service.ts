@@ -22,7 +22,7 @@ export class NoticeService {
     const notices = await this.prisma.notice.findMany({
       ...paginator,
       where: {
-        groupId: groupId ?? undefined,
+        groupId,
         isVisible: true,
         isFixed: fixed,
         title: {
@@ -70,7 +70,7 @@ export class NoticeService {
     const notice = await this.prisma.notice.findUniqueOrThrow({
       where: {
         id,
-        groupId: groupId ?? undefined,
+        groupId,
         isVisible: true
       },
       select: {

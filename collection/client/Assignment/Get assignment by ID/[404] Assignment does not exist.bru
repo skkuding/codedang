@@ -11,10 +11,10 @@ get {
 }
 
 assert {
-  res.status: eq 404
-  res("message"): eq Assignment does not exist
-  res("error"): eq Not Found
-  res("statusCode"): eq 404
+  res.status: eq 403
+  res("message"): eq User not participated in the assignment
+  res("error"): eq Forbidden
+  res("statusCode"): eq 403
 }
 
 script:pre-request {

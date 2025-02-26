@@ -14,7 +14,7 @@ export class NoticeService {
     return await this.prisma.notice.create({
       data: {
         createdById: userId,
-        groupId: groupId ?? undefined,
+        groupId,
         ...createNoticeInput
       }
     })
@@ -24,7 +24,7 @@ export class NoticeService {
     return await this.prisma.notice.delete({
       where: {
         id: noticeId,
-        groupId: groupId ?? undefined
+        groupId
       }
     })
   }
@@ -37,7 +37,7 @@ export class NoticeService {
     return await this.prisma.notice.update({
       where: {
         id: noticeId,
-        groupId: groupId ?? undefined
+        groupId
       },
       data: updateNoticeInput
     })
@@ -47,7 +47,7 @@ export class NoticeService {
     return await this.prisma.notice.findUniqueOrThrow({
       where: {
         id: noticeId,
-        groupId: groupId ?? undefined
+        groupId
       }
     })
   }
@@ -62,7 +62,7 @@ export class NoticeService {
       ...paginator,
       take,
       where: {
-        groupId: groupId ?? undefined
+        groupId
       }
     })
   }
