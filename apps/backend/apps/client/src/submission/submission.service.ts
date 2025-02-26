@@ -569,7 +569,7 @@ export class SubmissionService {
    *
    * 1. 해당 언어에 대한 템플릿을 찾습니다. 템플릿이 없으면 유효하다고 간주하여 true를 반환
    * 2. 템플릿과 제출된 코드의 readOnlyRange를 비교합니다. 다르다면 locked 범위의 조작이 있었음을 의미하므로 false
-   * 5. 모든 검사 통과 시 true를 반환
+   * 3. 모든 검사 통과 시 true를 반환
    *
    * @param {string} code - 제출된 유저 코드
    * @param {Range[]} readOnlyRanges - 제출된 유저 코드에서 Locked 영역
