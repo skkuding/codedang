@@ -245,7 +245,167 @@ export class GroupService {
       include: includeOption
     })
   }
+
+  async duplicateCourse(groupId: number, userId: number) {
+    const userWithCanCreateCourse = await this.prisma.user.findUnique({
+      where: {
+        id: userId
+      },
+      select: {
+        canCreateCourse: true
+      }
+    })
+    if (!userWithCanCreateCourse) {
+      throw new NotFoundException('User not found')
+    }
+
+    if (!userWithCanCreateCourse.canCreateCourse) {
+      throw new ForbiddenAccessException('No Access to create course')
+    }
+
+    const { courseInfo, ...originCourse } =
+      await this.prisma.group.findUniqueOrThrow({
+        where: {
+          id: groupId
+        },
+        select: {
+          groupName: true,
+          groupType: true,
+          courseInfo: true,
+          config: true,
+          assignment: {
+            select: {
+              id: true
+            }
+          }
+        }
+      })
+
+    if (!courseInfo) {
+      throw new UnprocessableDataException('Invalid group ID for a course')
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { groupId: _, ...duplicatedCourseInfo } = courseInfo
+
+    const duplicatedCourse = await this.prisma.$transaction(async (tx) => {
+      const duplicatedCourse = await tx.group.create({
+        data: {
+          groupName: originCourse.groupName,
+          groupType: originCourse.groupType,
+          config: originCourse.config ?? {
+            showOnList: true,
+            allowJoinFromSearch: true,
+            allowJoinWithURL: true,
+            requireApprovalBeforeJoin: false
+          },
+          courseInfo: {
+            create: duplicatedCourseInfo
+          }
+        },
+        select: {
+          id: true,
+          groupName: true,
+          groupType: true,
+          config: true,
+          courseInfo: true
+        }
+      })
+      await tx.userGroup.create({
+        data: {
+          user: {
+            connect: { id: userId }
+          },
+          group: {
+            connect: { id: duplicatedCourse.id }
+          },
+          isGroupLeader: true
+        }
+      })
+
+      return duplicatedCourse
+    })
+
+    let result = await Promise.all(
+      originCourse.assignment.map(async ({ id: assignmentId }) => {
+        const [assignmentFound, assignmentProblemsFound] = await Promise.all([
+          this.prisma.assignment.findFirst({
+            where: {
+              id: assignmentId,
+              groupId
+            }
+          }),
+          this.prisma.assignmentProblem.findMany({
+            where: {
+              assignmentId
+            }
+          })
+        ])
+
+        if (!assignmentFound) {
+          throw new EntityNotExistException('assignment')
+        }
+
+        // if assignment status is ongoing, visible would be true. else, false
+        const now = new Date()
+        let newVisible = false
+        if (
+          assignmentFound.startTime <= now &&
+          now <= assignmentFound.endTime
+        ) {
+          newVisible = true
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, createTime, updateTime, title, ...assignmentDataToCopy } =
+          assignmentFound
+
+        try {
+          return await this.prisma.$transaction(async (tx) => {
+            const newAssignment = await tx.assignment.create({
+              data: {
+                ...assignmentDataToCopy,
+                title,
+                createdById: userId,
+                groupId: duplicatedCourse.id,
+                isVisible: newVisible
+              }
+            })
+
+            // 2. copy assignment problems
+            await Promise.all(
+              assignmentProblemsFound.map((assignmentProblem) =>
+                tx.assignmentProblem.create({
+                  data: {
+                    order: assignmentProblem.order,
+                    assignmentId: newAssignment.id,
+                    problemId: assignmentProblem.problemId,
+                    score: assignmentProblem.score
+                  }
+                })
+              )
+            )
+
+            return id
+          })
+        } catch {
+          return null
+        }
+      })
+    )
+
+    result = result.filter((x) => x !== null)
+
+    return {
+      duplicatedCourse,
+      originAssignments: originCourse.assignment.map(
+        (assignment) => assignment.id
+      ),
+      copiedAssignments: result
+    }
+  }
 }
+
 @Injectable()
 export class InvitationService {
   constructor(
@@ -312,6 +472,12 @@ export class InvitationService {
             connect: { id: groupId }
           },
           isGroupLeader
+        },
+        select: {
+          userId: true,
+          groupId: true,
+          isGroupLeader: true,
+          user: true
         }
       })
     } catch (error) {

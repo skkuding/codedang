@@ -301,12 +301,11 @@ model Assignment {
   id                   Int      @id @default(autoincrement())
   createdBy            User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById          Int?     @map("created_by_id")
-  group                Group    @relation(fields: [groupId], references: [id])
+  group                Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId              Int      @map("group_id")
   week                 Int      @default(1)
   title                String
   description          String
-  invitationCode       String?  @map("invitation_code")
   startTime            DateTime @map("start_time")
   endTime              DateTime @map("end_time")
   isVisible            Boolean  @default(true) @map("is_visible")
@@ -327,38 +326,56 @@ model Assignment {
 }
 
 model AssignmentProblem {
-  order        Int
-  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId Int        @map("assignment_id")
-  problem      Problem    @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId    Int        @map("problem_id")
+  order                   Int
+  assignment              Assignment                @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId            Int                       @map("assignment_id")
+  problem                 Problem                   @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId               Int                       @map("problem_id")
   // 각 문제의 점수 (비율 아님)
-  score        Int        @default(0)
-  createTime   DateTime   @default(now()) @map("create_time")
-  updateTime   DateTime   @updatedAt @map("update_time")
+  score                   Int                       @default(0)
+  createTime              DateTime                  @default(now()) @map("create_time")
+  updateTime              DateTime                  @updatedAt @map("update_time")
+  AssignmentProblemRecord AssignmentProblemRecord[]
 
   @@id([assignmentId, problemId])
-  // @@unique([assignmentId, problemId])
+  //@@unique([assignmentId, problemId])
   @@map("assignment_problem")
 }
 
 model AssignmentRecord {
-  id                 Int        @id @default(autoincrement())
-  assignment         Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId       Int        @map("assignment_id")
-  user               User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId             Int?       @map("user_id")
-  acceptedProblemNum Int        @default(0) @map("accepted_problem_num")
-  score              Int        @default(0)
+  id                      Int                       @id @default(autoincrement())
+  assignment              Assignment                @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId            Int                       @map("assignment_id")
+  user                    User?                     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId                  Int?                      @map("user_id")
+  acceptedProblemNum      Int                       @default(0) @map("accepted_problem_num")
+  score                   Int                       @default(0)
   // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각
-  finishTime         DateTime?  @map("finish_time")
+  finishTime              DateTime?                 @map("finish_time")
   // totalPenalty: Submission 시, AC를 받지 못했을 때, 올라가는 Counter
-  totalPenalty       Int        @default(0) @map("total_penalty")
-  createTime         DateTime   @default(now()) @map("create_time")
-  updateTime         DateTime   @updatedAt @map("update_time")
+  totalPenalty            Int                       @default(0) @map("total_penalty")
+  createTime              DateTime                  @default(now()) @map("create_time")
+  updateTime              DateTime                  @updatedAt @map("update_time")
+  AssignmentProblemRecord AssignmentProblemRecord[]
 
   @@unique([assignmentId, userId])
   @@map("assignment_record")
+}
+
+model AssignmentProblemRecord {
+  assignmentId Int
+  userId       Int
+  problemId    Int
+
+  score       Int     @default(0)
+  isSubmitted Boolean @default(false) @map("is_submitted")
+  isAccepted  Boolean @default(false) @map("is_accepted")
+
+  assignmentProblem AssignmentProblem @relation(fields: [assignmentId, problemId], references: [assignmentId, problemId], onDelete: Cascade)
+  assignmentRecord  AssignmentRecord  @relation(fields: [assignmentId, userId], references: [assignmentId, userId], onDelete: Cascade)
+
+  @@id([assignmentId, userId, problemId])
+  @@map("assignment_problem_record")
 }
 
 model Contest {
@@ -482,7 +499,7 @@ model Workbook {
   id          Int      @id @default(autoincrement())
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?     @map("created_by_id")
-  group       Group    @relation(fields: [groupId], references: [id])
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId     Int      @map("group_id")
   title       String
   description String

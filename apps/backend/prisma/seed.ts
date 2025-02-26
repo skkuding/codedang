@@ -1400,7 +1400,6 @@ const createAssignments = async () => {
       endTime: Date
       isVisible: boolean
       isRankVisible: boolean
-      invitationCode: string | null
       enableCopyPaste: boolean
     }
   }[] = [
@@ -1444,7 +1443,6 @@ const createAssignments = async () => {
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1458,7 +1456,6 @@ const createAssignments = async () => {
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: null,
         enableCopyPaste: true
       }
     },
@@ -1472,7 +1469,6 @@ const createAssignments = async () => {
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1486,7 +1482,6 @@ const createAssignments = async () => {
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: null,
         enableCopyPaste: true
       }
     },
@@ -1500,7 +1495,6 @@ const createAssignments = async () => {
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: null,
         enableCopyPaste: true
       }
     },
@@ -1515,7 +1509,6 @@ const createAssignments = async () => {
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1529,7 +1522,6 @@ const createAssignments = async () => {
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1543,7 +1535,6 @@ const createAssignments = async () => {
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1557,7 +1548,6 @@ const createAssignments = async () => {
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1571,7 +1561,6 @@ const createAssignments = async () => {
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1585,7 +1574,6 @@ const createAssignments = async () => {
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1599,7 +1587,6 @@ const createAssignments = async () => {
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1613,7 +1600,6 @@ const createAssignments = async () => {
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
-        invitationCode: null,
         enableCopyPaste: true
       }
     },
@@ -1627,7 +1613,6 @@ const createAssignments = async () => {
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: null,
         enableCopyPaste: true
       }
     },
@@ -1642,7 +1627,6 @@ const createAssignments = async () => {
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1656,7 +1640,6 @@ const createAssignments = async () => {
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1671,7 +1654,6 @@ const createAssignments = async () => {
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: false,
         isRankVisible: true,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1685,7 +1667,6 @@ const createAssignments = async () => {
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: null,
         enableCopyPaste: true
       }
     }

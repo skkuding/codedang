@@ -69,7 +69,11 @@ const db = {
   },
   assignmentRecord: {
     findUnique: stub(),
-    update: stub()
+    update: stub(),
+    upsert: stub()
+  },
+  assignmentProblemRecord: {
+    upsert: stub()
   },
   user: {
     findFirst: stub()
@@ -110,15 +114,14 @@ const mockAssignment: Assignment = {
   groupId: 1,
   title: 'SKKU Coding Platform 모의과제',
   description: 'test',
-  invitationCode: 'test',
-  startTime: new Date(),
-  endTime: new Date(),
+  startTime: new Date(Date.now() - 10000),
+  endTime: new Date(Date.now() + 10000),
   isVisible: true,
   isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
-  createTime: new Date(),
-  updateTime: new Date(),
+  createTime: new Date(Date.now() - 10000),
+  updateTime: new Date(Date.now() - 10000),
   week: 1
 }
 const USERIP = '127.0.0.1'
@@ -269,7 +272,8 @@ describe('SubmissionService', () => {
     it('should call createSubmission', async () => {
       const createSpy = stub(service, 'createSubmission')
       db.assignment.findFirst.resolves(mockAssignment)
-      db.assignmentRecord.findUnique.resolves({
+      db.assignmentRecord.upsert.resolves({
+        id: 1,
         assignment: {
           groupId: 1,
           startTime: new Date(Date.now() - 10000),
