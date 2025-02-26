@@ -1031,7 +1031,7 @@ export class ContestService {
       })
       return {
         userId: uid,
-        username: user?.username ?? 'Unknown',
+        username: user!.username,
         ...rest,
         problemRecords,
         rank: rank++
