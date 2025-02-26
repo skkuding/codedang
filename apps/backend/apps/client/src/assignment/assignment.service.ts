@@ -214,4 +214,129 @@ export class AssignmentService {
       where: { assignmentId_userId: { assignmentId, userId } }
     })
   }
+
+  async getAssignmentGradeSummary(userId: number) {
+    // 1. 사용자가 등록된 모든 assignment 가져오기
+    const assignmentRecords = await this.prisma.assignmentRecord.findMany({
+      where: { userId },
+      select: { assignmentId: true }
+    })
+
+    const assignmentIds = assignmentRecords.map((record) => record.assignmentId)
+
+    // 2. 해당 assignment들의 상세 정보 가져오기
+    const assignments = await this.prisma.assignment.findMany({
+      where: {
+        id: { in: assignmentIds }
+      },
+      select: {
+        id: true,
+        title: true,
+        endTime: true,
+        isFinalScoreVisible: true,
+        autoFinalizeScore: true,
+        week: true,
+        assignmentProblem: {
+          select: {
+            problemId: true,
+            order: true,
+            score: true,
+            problem: {
+              select: {
+                id: true,
+                title: true
+              }
+            }
+          },
+          orderBy: { order: 'asc' }
+        }
+      },
+      orderBy: [{ week: 'asc' }, { endTime: 'asc' }]
+    })
+
+    // 3. 해당 사용자의 모든 assignment 문제 기록 가져오기
+    const allAssignmentProblemRecords =
+      await this.prisma.assignmentProblemRecord.findMany({
+        where: {
+          userId,
+          assignmentId: { in: assignmentIds }
+        },
+        select: {
+          assignmentId: true,
+          problemId: true,
+          finalScore: true,
+          comment: true
+        }
+      })
+
+    // 4. 문제 기록을 assignment별로 그룹화
+    const problemRecordsByAssignment = allAssignmentProblemRecords.reduce(
+      (grouped, record) => {
+        if (!grouped[record.assignmentId]) {
+          grouped[record.assignmentId] = []
+        }
+        grouped[record.assignmentId].push(record)
+        return grouped
+      },
+      {} as Record<number, typeof allAssignmentProblemRecords>
+    )
+
+    // 5. 각 assignment별로 결과 포맷팅
+    const formattedAssignments = assignments.map((assignment) => {
+      const assignmentProblemRecords =
+        problemRecordsByAssignment[assignment.id] || []
+
+      // 해당 assignment의 문제 기록 맵 생성
+      const problemRecordMap = assignmentProblemRecords.reduce(
+        (map, record) => {
+          map[record.problemId] = {
+            finalScore: record.finalScore,
+            comment: record.comment
+          }
+          return map
+        },
+        {} as Record<number, { finalScore: number | null; comment: string }>
+      )
+
+      // 문제 목록 포맷팅
+      const problems = assignment.assignmentProblem.map((ap) => ({
+        id: ap.problem.id,
+        title: ap.problem.title,
+        order: ap.order,
+        maxScore: ap.score,
+        problemRecord: problemRecordMap[ap.problemId] || null
+      }))
+
+      // 점수 계산
+      const userAssignmentFinalScore = assignmentProblemRecords.some(
+        (record) => record.finalScore === null
+      )
+        ? null
+        : assignmentProblemRecords.reduce(
+            (total, { finalScore }) => total + (finalScore as number),
+            0
+          )
+
+      const assignmentPerfectScore = assignment.assignmentProblem.reduce(
+        (total, { score }) => total + score,
+        0
+      )
+
+      return {
+        id: assignment.id,
+        title: assignment.title,
+        endTime: assignment.endTime,
+        isFinalScoreVisible: assignment.isFinalScoreVisible,
+        autoFinalizeScore: assignment.autoFinalizeScore,
+        week: assignment.week,
+        userAssignmentFinalScore,
+        assignmentPerfectScore,
+        problems
+      }
+    })
+
+    return {
+      assignments: formattedAssignments
+    }
+  }
 }
