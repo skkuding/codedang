@@ -210,12 +210,17 @@ export interface SubmissionItem {
   language: string
   result: string
   codeSize: number
+  problemId: number
+  problem: {
+    title: string
+  }
 }
 
 export interface SubmissionDetail {
   problemId: number
   username: string
   code: string
+  codeSize?: string
   language: Language
   createTime: Date
   result: string
@@ -229,6 +234,10 @@ export interface SubmissionDetail {
     createTime: Date
     updateTime: Date
   }[]
+}
+export interface ContestSubmission {
+  data: SubmissionItem[]
+  total: number
 }
 
 interface LeaderboardProblemRecord {
