@@ -91,6 +91,30 @@ const UPDATE_CONTEST_PROBLEMS_SCORES = gql(`
   }
 `)
 
+const UPDATE_ASSIGNMENT_PROBLEMS_ORDER = gql(`
+  mutation UpdateAssignmentProblemsOrder($groupId: Int!, $assignmentId: Int!, $orders: [Int!]!) {
+    updateAssignmentProblemsOrder(groupId: $groupId, assignmentId: $assignmentId, orders: $orders) {
+      order
+      assignmentId
+      problemId
+      score
+      createTime
+      updateTime
+    }
+  }
+`)
+
+const UPDATE_ASSIGNMENT_PROBLEMS_SCORES = gql(`
+  mutation UpdateAssignmentProblemsScore($groupId: Int!, $assignmentId: Int!, $problemIdsWithScore: [ProblemScoreInput!]!) {
+    updateAssignmentProblemsScore(groupId: $groupId, assignmentId: $assignmentId, problemIdsWithScore: $problemIdsWithScore) {
+      assignmentId
+      problemId
+      score
+      order
+    }
+  }
+`)
+
 const DELETE_PROBLEM = gql(`
   mutation DeleteProblem($groupId: Int!, $id: Int!) {
     deleteProblem(groupId: $groupId, id: $id) {
@@ -121,6 +145,8 @@ export {
   UPDATE_PROBLEM_VISIBLE,
   UPDATE_CONTEST_PROBLEMS_ORDER,
   UPDATE_CONTEST_PROBLEMS_SCORES,
+  UPDATE_ASSIGNMENT_PROBLEMS_ORDER,
+  UPDATE_ASSIGNMENT_PROBLEMS_SCORES,
   DELETE_PROBLEM,
   UPLOAD_PROBLEMS,
   UPLOAD_IMAGE
