@@ -93,7 +93,7 @@ function AssignmentAccordionItem({
         </AccordionTrigger>
         <AccordionContent className="-mb-4">
           <div className="overflow-hidden rounded-2xl border">
-            <div className="h-6 bg-[#F8F8F8]" />
+            <div className="h-6 bg-[#F3F3F3]" />
             {filteredAssignments.length > 0 ? (
               filteredAssignments.map((assignment) => (
                 <Link
@@ -104,20 +104,28 @@ function AssignmentAccordionItem({
                 >
                   <div
                     key={assignment.id}
-                    className="flex items-center gap-10 border-b bg-[#F8F8F8] px-12 py-4"
+                    className="flex items-center justify-between border-b bg-[#F8F8F8] px-12 py-6"
                   >
-                    <span className="bg-primary h-2 w-2 rounded-full" />
-                    <p className="line-clamp-1 w-64 text-sm font-medium text-black">
-                      {assignment.title}
-                    </p>
-                    <p className="text-sm text-slate-500">
-                      {dateFormatter(
-                        assignment.startTime,
-                        'YYYY-MM-DD HH:mm:ss'
-                      )}{' '}
-                      -{' '}
-                      {dateFormatter(assignment.endTime, 'YYYY-MM-DD HH:mm:ss')}
-                    </p>
+                    <div className="flex gap-6">
+                      <span className="bg-primary mt-[7px] h-[10px] w-[10px] rounded-full" />
+                      <div className="flex flex-col gap-[6px]">
+                        <p className="line-clamp-1 w-96 text-base font-medium text-black">
+                          {assignment.title}
+                        </p>
+                        <p className="text-base text-slate-500">
+                          {dateFormatter(
+                            assignment.startTime,
+                            'YYYY-MM-DD HH:mm:ss'
+                          )}{' '}
+                          -{' '}
+                          {dateFormatter(
+                            assignment.endTime,
+                            'YYYY-MM-DD HH:mm:ss'
+                          )}
+                        </p>
+                      </div>
+                    </div>
+
                     <CountBadge
                       solvedProblemCount={assignment.submittedNumber}
                       problemCount={assignment.problemNumber}
@@ -148,7 +156,12 @@ function CountBadge({ solvedProblemCount, problemCount }: CountBadgeProps) {
       ? 'bg-primary'
       : 'bg-[#C4C4C4]'
   return (
-    <div className={cn('rounded-full px-3 py-0.5 text-xs text-white', bgColor)}>
+    <div
+      className={cn(
+        'flex h-7 w-[61px] items-center justify-center rounded-full text-base font-semibold text-white',
+        bgColor
+      )}
+    >
       {solvedProblemCount}/{problemCount}
     </div>
   )
