@@ -59,7 +59,7 @@ export default function Page() {
     if (defaultProfileValues.major) {
       setMajorValue(defaultProfileValues.major)
     }
-  }, [defaultProfileValues.major, isLoading])
+  }, [defaultProfileValues.major])
 
   const {
     register,
