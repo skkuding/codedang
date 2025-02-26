@@ -1,5 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Test, TestingModule } from '@nestjs/testing'
+import type { TestingModule } from '@nestjs/testing'
+import { Test } from '@nestjs/testing'
 import { faker } from '@faker-js/faker'
 import { Prisma, ResultStatus } from '@prisma/client'
 import { expect } from 'chai'
@@ -14,7 +15,6 @@ import { PrismaService } from '@libs/prisma'
 import { AssignmentService } from '@client/assignment/assignment.service'
 import { ContestService } from '@client/contest/contest.service'
 import { GroupService } from '@client/group/group.service'
-import { assignmentRecord } from '@client/submission/mock/assignmentRecord.mock'
 import { WorkbookService } from '@client/workbook/workbook.service'
 import { CodeDraftResponseDto } from './dto/code-draft.response.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
@@ -468,8 +468,7 @@ describe('ContestProblemService', () => {
       const result = await service.getContestProblem({
         contestId,
         problemId,
-        userId,
-        groupId: OPEN_SPACE_ID
+        userId
       })
 
       // then
@@ -497,8 +496,7 @@ describe('ContestProblemService', () => {
       const result = await service.getContestProblem({
         contestId,
         problemId,
-        userId,
-        groupId: OPEN_SPACE_ID
+        userId
       })
 
       // then
@@ -518,8 +516,7 @@ describe('ContestProblemService', () => {
         service.getContestProblem({
           contestId,
           problemId,
-          userId,
-          groupId: OPEN_SPACE_ID
+          userId
         })
       ).to.be.rejectedWith(prismaNotFoundError)
     })
@@ -540,8 +537,7 @@ describe('ContestProblemService', () => {
         service.getContestProblem({
           contestId,
           problemId,
-          userId,
-          groupId: OPEN_SPACE_ID
+          userId
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -562,8 +558,7 @@ describe('ContestProblemService', () => {
         service.getContestProblem({
           contestId,
           problemId,
-          userId,
-          groupId: OPEN_SPACE_ID
+          userId
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -627,8 +622,7 @@ describe('AssignmentProblemService', () => {
         assignmentId,
         userId,
         cursor: 1,
-        take: 1,
-        groupId: OPEN_SPACE_ID // 명시적 전달
+        take: 1
       })
 
       // then
@@ -658,8 +652,7 @@ describe('AssignmentProblemService', () => {
         assignmentId,
         userId,
         cursor: 1,
-        take: 1,
-        groupId: OPEN_SPACE_ID // 명시적 전달
+        take: 1
       })
 
       // then
@@ -683,8 +676,7 @@ describe('AssignmentProblemService', () => {
           assignmentId,
           userId,
           cursor: 1,
-          take: 1,
-          groupId: OPEN_SPACE_ID // 명시적 전달
+          take: 1
         })
       ).to.be.rejectedWith(prismaNotFoundError)
     })
@@ -697,8 +689,7 @@ describe('AssignmentProblemService', () => {
           assignmentId,
           userId: 999,
           cursor: 1,
-          take: 1,
-          groupId: OPEN_SPACE_ID // 명시적 전달
+          take: 1
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -720,8 +711,7 @@ describe('AssignmentProblemService', () => {
       const result = await service.getAssignmentProblem({
         assignmentId,
         problemId,
-        userId,
-        groupId: OPEN_SPACE_ID
+        userId
       })
 
       // then
@@ -746,8 +736,7 @@ describe('AssignmentProblemService', () => {
       const result = await service.getAssignmentProblem({
         assignmentId,
         problemId,
-        userId,
-        groupId: OPEN_SPACE_ID
+        userId
       })
 
       // then
@@ -767,8 +756,7 @@ describe('AssignmentProblemService', () => {
         service.getAssignmentProblem({
           assignmentId,
           problemId,
-          userId,
-          groupId: OPEN_SPACE_ID
+          userId
         })
       ).to.be.rejectedWith(prismaNotFoundError)
     })
@@ -779,8 +767,7 @@ describe('AssignmentProblemService', () => {
         service.getAssignmentProblem({
           assignmentId,
           problemId,
-          userId: 999,
-          groupId: OPEN_SPACE_ID
+          userId: 999
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })

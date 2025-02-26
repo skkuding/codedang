@@ -405,7 +405,6 @@ export class ContestProblemService {
     contestId: number
     problemId: number
     userId: number
-    groupId: number
   }) {
     const contest = await this.contestService.getContest(contestId, userId)
     const now = new Date()
@@ -509,7 +508,6 @@ export class AssignmentProblemService {
     userId: number
     cursor: number | null
     take: number
-    groupId: number
   }) {
     const assignment = await this.assignmentService.getAssignment(
       assignmentId,
@@ -633,7 +631,6 @@ export class AssignmentProblemService {
     assignmentId: number
     problemId: number
     userId: number
-    groupId: number
   }) {
     const assignment = await this.assignmentService.getAssignment(
       assignmentId,

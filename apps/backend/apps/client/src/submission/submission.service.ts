@@ -313,7 +313,8 @@ export class SubmissionService {
     }
     if (assignmentRecord.assignment.groupId !== groupId) {
       throw new EntityNotExistException('Assignment')
-    } else if (
+    }
+    if (
       assignmentRecord.assignment.startTime > now ||
       assignmentRecord.assignment.endTime <= now
     ) {
