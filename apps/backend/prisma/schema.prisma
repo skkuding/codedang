@@ -354,7 +354,7 @@ model AssignmentRecord {
   acceptedProblemNum Int        @default(0) @map("accepted_problem_num")
   score              Int        @default(0)
   finalScore         Int?       @map("final_score")
-  comment            String?
+  comment            String     @default("")
 
   // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각
   finishTime              DateTime?                 @map("finish_time")
@@ -374,10 +374,11 @@ model AssignmentProblemRecord {
   problemId    Int
 
   score       Int     @default(0)
-  finalScore  Int?    @map("final_score")
-  comment     String?
   isSubmitted Boolean @default(false) @map("is_submitted")
   isAccepted  Boolean @default(false) @map("is_accepted")
+
+  finalScore Int?   @map("final_score")
+  comment    String @default("")
 
   assignmentProblem AssignmentProblem @relation(fields: [assignmentId, problemId], references: [assignmentId, problemId], onDelete: Cascade)
   assignmentRecord  AssignmentRecord  @relation(fields: [assignmentId, userId], references: [assignmentId, userId], onDelete: Cascade)
