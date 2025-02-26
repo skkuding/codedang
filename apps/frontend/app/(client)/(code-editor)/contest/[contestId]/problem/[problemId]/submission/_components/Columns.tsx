@@ -11,9 +11,9 @@ export const columns: ColumnDef<SubmissionItem>[] = [
     cell: ({ row }) => <p className="text-sm">{row.original.id}</p>
   },
   {
-    header: () => 'User ID',
-    accessorKey: 'username',
-    cell: ({ row }) => row.original.user.username
+    header: () => 'Problem',
+    accessorKey: 'problem',
+    cell: ({ row }) => row.original.problem.title
   },
   {
     header: () => 'Result',
@@ -29,7 +29,11 @@ export const columns: ColumnDef<SubmissionItem>[] = [
   {
     header: () => 'Language',
     accessorKey: 'language',
-    cell: ({ row }) => row.original.language
+    cell: ({ row }) => {
+      return (
+        <p>{row.original.language !== 'Cpp' ? row.original.language : 'C++'}</p>
+      )
+    }
   },
   {
     header: () => 'Submission Time',
