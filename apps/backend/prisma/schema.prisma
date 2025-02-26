@@ -353,7 +353,8 @@ model AssignmentRecord {
   userId             Int?       @map("user_id")
   acceptedProblemNum Int        @default(0) @map("accepted_problem_num")
   score              Int        @default(0)
-  finalScore         Int        @default(0) @map("final_score")
+  finalScore         Int?       @map("final_score")
+  comment            String?
 
   // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각
   finishTime              DateTime?                 @map("finish_time")
@@ -373,7 +374,8 @@ model AssignmentProblemRecord {
   problemId    Int
 
   score       Int     @default(0)
-  finalScore  Int     @default(0) @map("final_score")
+  finalScore  Int?    @map("final_score")
+  comment     String?
   isSubmitted Boolean @default(false) @map("is_submitted")
   isAccepted  Boolean @default(false) @map("is_accepted")
 
