@@ -60,7 +60,10 @@ export function ContestStatusTimeDiff({
     const seconds = Math.floor(diff.asSeconds() % 60)
     const secondsStr = seconds.toString().padStart(2, '0')
 
-    if (inContestEditor) {
+    if (
+      inContestEditor &&
+      (contestStatus === 'ongoing' || contestStatus === 'registeredOngoing')
+    ) {
       if (days === 0 && hours === 0 && minutes === 5 && seconds === 0) {
         toast.error('Contest ends in 5 minutes.', { duration: 10000 })
       }
@@ -99,7 +102,7 @@ export function ContestStatusTimeDiff({
     >
       {contestStatus === 'finished' ? (
         <>
-          <Image src={ClockIcon} alt="Clock" />
+          <Image src={ClockIcon} alt="Clock" width={20} height={20} />
           Finished
           <p className="overflow-hidden text-ellipsis whitespace-nowrap">
             {timeDiff.days > 0
@@ -110,7 +113,7 @@ export function ContestStatusTimeDiff({
         </>
       ) : (
         <>
-          <Image src={ClockIcon} alt="Clock" />
+          <Image src={ClockIcon} alt="Clock" width={20} height={20} />
           {contestStatus === 'ongoing' || contestStatus === 'registeredOngoing'
             ? 'Ends in'
             : 'Starts in'}
