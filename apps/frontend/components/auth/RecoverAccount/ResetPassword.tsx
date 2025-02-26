@@ -19,7 +19,7 @@ const schema = v.pipe(
     password: v.pipe(
       v.string(),
       v.minLength(8),
-      v.minLength(20),
+      v.maxLength(20),
       v.check((value) => {
         const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
         return !invalidPassword.test(value)
