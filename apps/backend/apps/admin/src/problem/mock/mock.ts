@@ -660,7 +660,7 @@ export const exampleOrderUpdatedContestProblems: ContestProblem[] = [
   }
 ]
 
-export const exampleAssignment: Assignment = {
+export const exampleAssignment = {
   id: 1,
   title: 'example',
   description: 'example',
@@ -674,8 +674,7 @@ export const exampleAssignment: Assignment = {
   endTime: new Date(),
   createTime: new Date(),
   updateTime: new Date(),
-  week: 1,
-  invitationCode: null
+  week: 1
 }
 export const exampleAssignmentProblems: AssignmentProblem[] = [
   {
