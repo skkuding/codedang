@@ -10,13 +10,9 @@ interface AssignmentInfoProps {
 }
 
 export default async function AssginmentInfo({ params }: AssignmentInfoProps) {
-  const { courseId, assignmentId } = params
+  const { assignmentId } = params
 
-  const res = await safeFetcherWithAuth.get(`assignment/${assignmentId}`, {
-    searchParams: {
-      groupId: courseId
-    }
-  })
+  const res = await safeFetcherWithAuth.get(`assignment/${assignmentId}`)
 
   const assignment: Assignment = await res.json()
   const description = assignment.description

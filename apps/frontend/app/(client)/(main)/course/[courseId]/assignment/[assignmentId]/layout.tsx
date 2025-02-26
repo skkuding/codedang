@@ -18,11 +18,7 @@ interface AssignmentDetailProps {
 export default async function Layout({ params, tabs }: AssignmentDetailProps) {
   const { assignmentId, courseId } = params
 
-  const res = await safeFetcherWithAuth.get(`assignment/${assignmentId}`, {
-    searchParams: {
-      groupId: courseId
-    }
-  })
+  const res = await safeFetcherWithAuth.get(`assignment/${assignmentId}`)
 
   const assignment: Assignment = await res.json()
   const formattedStartTime = dateFormatter(
