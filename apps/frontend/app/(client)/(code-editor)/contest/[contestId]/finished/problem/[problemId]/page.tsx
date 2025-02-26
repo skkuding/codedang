@@ -20,7 +20,9 @@ export default async function ContestFinishedPage({
       <EditorSkeleton />
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-10 text-white backdrop-blur-md">
         <div className="text-center">
-          <h1 className="mb-8 text-4xl font-bold">The contest has finished!</h1>
+          <h1 className="mb-[19px] text-4xl font-bold">
+            The contest has finished!
+          </h1>
           {isProblemPubliclyAvailable ? (
             <>
               <p className="mb-2 font-sans font-light">
@@ -36,7 +38,7 @@ export default async function ContestFinishedPage({
                 These problems are no longer available since the contest has
                 finished.
               </p>
-              <p className="mb-10 text-xl font-light">
+              <p className="mb-16 text-xl font-light">
                 Click the button below to go to the leaderboard.
               </p>
             </div>
