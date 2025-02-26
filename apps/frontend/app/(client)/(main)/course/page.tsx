@@ -1,5 +1,4 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
-import { Separator } from '@/components/shadcn/separator'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
 import { ErrorBoundary } from '@suspensive/react'
