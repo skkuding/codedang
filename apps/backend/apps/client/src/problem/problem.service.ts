@@ -1,22 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma, ResultStatus } from '@prisma/client'
 import { MIN_DATE, OPEN_SPACE_ID } from '@libs/constants'
-import {
-  ConflictFoundException,
-  EntityNotExistException,
-  ForbiddenAccessException,
-  UnprocessableDataException
-} from '@libs/exception'
+import { ForbiddenAccessException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type {
-  CodeDraftCreateInput,
-  CodeDraftUpdateInput
-} from '@admin/@generated'
 import { AssignmentService } from '@client/assignment/assignment.service'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
-import { CodeDraftResponseDto } from './dto/code-draft.response.dto'
-import { CreateTemplateDto } from './dto/create-code-draft.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
@@ -59,13 +48,6 @@ const problemSelectOption: Prisma.ProblemSelect = {
   }
 }
 
-const codeDraftSelectOption = {
-  userId: true,
-  problemId: true,
-  template: true,
-  createTime: true,
-  updateTime: true
-}
 @Injectable()
 export class ProblemService {
   constructor(private readonly prisma: PrismaService) {}
@@ -898,67 +880,5 @@ export class WorkbookProblemService {
         tags
       }
     }
-  }
-}
-
-@Injectable()
-export class CodeDraftService {
-  constructor(private readonly prisma: PrismaService) {}
-
-  async getCodeDraft(
-    userId: number,
-    problemId: number
-  ): Promise<CodeDraftResponseDto> {
-    const data = await this.prisma.codeDraft.findUniqueOrThrow({
-      where: {
-        codeDraftId: {
-          userId,
-          problemId
-        }
-      },
-      select: codeDraftSelectOption
-    })
-    return data
-  }
-
-  async upsertCodeDraft(
-    userId: number,
-    problemId: number,
-    createTemplateDto: CreateTemplateDto
-  ): Promise<CodeDraftResponseDto> {
-    let data
-    try {
-      data = await this.prisma.codeDraft.upsert({
-        where: {
-          codeDraftId: {
-            userId,
-            problemId
-          }
-        },
-        update: {
-          template:
-            createTemplateDto.template as CodeDraftUpdateInput['template']
-        },
-        create: {
-          userId,
-          problemId,
-          template:
-            createTemplateDto.template as CodeDraftCreateInput['template']
-        },
-        select: codeDraftSelectOption
-      })
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ConflictFoundException('CodeDraft already exists.')
-        } else if (error.code === 'P2003') {
-          throw new EntityNotExistException('User or Problem')
-        } else {
-          throw new UnprocessableDataException('Invalid data provided.')
-        }
-      }
-      throw error
-    }
-    return data
   }
 }
