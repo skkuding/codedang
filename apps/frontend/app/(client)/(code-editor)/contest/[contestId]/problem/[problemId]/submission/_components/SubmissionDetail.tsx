@@ -90,7 +90,7 @@ export async function SubmissionDetail({
       {submission.testcaseResult.length !== 0 && (
         <div>
           <div className="-ml-16 h-2 min-w-[200%] bg-[#121728]" />
-          <h2 className="mt-[30px] text-lg font-bold">Test case</h2>
+          <h2 className="mt-[30px] text-base font-bold">Test case</h2>
           <Table className="[&_*]:text-center [&_*]:text-sm [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:border-slate-600">
             <TableHeader className="[&_*]:text-slate-100">
               <TableRow>
