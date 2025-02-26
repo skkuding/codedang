@@ -90,7 +90,7 @@ export const columns: ColumnDef<DataTableMember>[] = [
     )
   },
   {
-    accessorKey: 'string',
+    accessorKey: 'role',
     header: ({ column }) => (
       <div className="flex justify-center">
         <DataTableColumnHeader column={column} title="Role" />
@@ -98,7 +98,7 @@ export const columns: ColumnDef<DataTableMember>[] = [
     ),
     cell: ({ row }) => (
       <p className="whitespace-nowrapfont-medium max-w-[700px] overflow-hidden text-ellipsis">
-        {row.getValue('string')}
+        {row.getValue('role')}
       </p>
     )
   },

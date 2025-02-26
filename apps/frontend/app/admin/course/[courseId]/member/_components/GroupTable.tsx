@@ -30,6 +30,7 @@ export function GroupTable() {
   const { data } = useSuspenseQuery(GET_GROUP_MEMBERS, {
     variables: { groupId, take: 1000, leaderOnly: false }
   })
+
   const members = data.getGroupMembers.map((member) => ({
     id: member.userId,
     username: member.username,
@@ -38,8 +39,15 @@ export function GroupTable() {
     email: member.email,
     major: member.major,
     studentId: member.studentId,
-    role: member.role
+    role: member.isGroupLeader ? getRole(member.role) : member.role
   }))
+  function getRole(role: string) {
+    if (role === 'User') {
+      return 'Instructor'
+    } else {
+      return role
+    }
+  }
 
   const deleteTarget = (userId: number, groupId: number) => {
     return deleteGroupMember({
@@ -60,7 +68,7 @@ export function GroupTable() {
     <div>
       <DataTableRoot data={members} columns={columns}>
         <div className="flex justify-between">
-          <DataTableSearchBar columndId="title" className="rounded-full" />
+          <DataTableSearchBar columndId="name" className="rounded-full" />
           <DeleteUserButton deleteTarget={deleteTarget} onSuccess={onSuccess} />
         </div>
         <DataTable headerStyle={headerStyle} />

@@ -6,6 +6,9 @@ const INVITE_USER = gql(`
       userId
       groupId
       isGroupLeader
+      user{
+        email
+      }
     }
   }
 `)
@@ -22,4 +25,10 @@ const DELETE_GROUP_MEMBER = gql(`
   }
 `)
 
-export { INVITE_USER, DELETE_GROUP_MEMBER }
+const ISSUE_INVITATION = gql(`
+  mutation issueInvitation($groupId: Int!) {
+    issueInvitation(groupId: $groupId)
+  }
+`)
+
+export { INVITE_USER, DELETE_GROUP_MEMBER, ISSUE_INVITATION }
