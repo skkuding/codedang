@@ -131,7 +131,9 @@ interface CountBadgeProps {
 
 function CountBadge({ solvedProblemCount, problemCount }: CountBadgeProps) {
   const bgColor =
-    solvedProblemCount === problemCount ? 'bg-primary' : 'bg-[#C4C4C4]'
+    solvedProblemCount === problemCount && problemCount !== 0
+      ? 'bg-primary'
+      : 'bg-[#C4C4C4]'
   return (
     <div className={cn('rounded-full px-3 py-0.5 text-xs text-white', bgColor)}>
       {solvedProblemCount}/{problemCount}
