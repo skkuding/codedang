@@ -335,8 +335,9 @@ export interface Assignment {
   week: number
   status: AssignmentStatus
   description: string
-  invitationCodeExists: boolean
   isRegistered: boolean
+  problemNumber: number
+  submittedNumber: number
 }
 
 export interface AssignmentProblem {
