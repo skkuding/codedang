@@ -1,5 +1,4 @@
 import { Separator } from '@/components/shadcn/separator'
-
 import { redirect } from 'next/navigation'
 import { RecentNotice } from './_components/RecentNotice'
 import { RecentUpdate } from './_components/RecentUpdate'
