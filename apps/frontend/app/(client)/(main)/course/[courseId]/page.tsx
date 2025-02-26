@@ -1,5 +1,5 @@
 import { Separator } from '@/components/shadcn/separator'
-import { OngoingAssignments } from './_components/OngoingAssignments'
+// import { OngoingAssignments } from './_components/OngoingAssignments'
 import { RecentNotice } from './_components/RecentNotice'
 import { RecentUpdate } from './_components/RecentUpdate'
 
@@ -16,7 +16,7 @@ export default function Dashboard() {
         </div>
       </div>
       <Separator />
-      <OngoingAssignments />
+      {/* <OngoingAssignments /> */}
     </div>
   )
 }
