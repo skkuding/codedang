@@ -53,7 +53,7 @@ export class AssignmentResolver {
   @Mutation(() => Assignment)
   async createAssignment(
     @Args('input') input: CreateAssignmentInput,
-    @Args('groupId', GroupIDPipe)
+    @Args('groupId', { type: () => Int }, GroupIDPipe)
     groupId: number,
     @Context('req') req: AuthenticatedRequest
   ) {

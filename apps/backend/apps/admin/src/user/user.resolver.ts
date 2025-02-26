@@ -78,7 +78,7 @@ export class GroupMemberResolver {
    */
   @Query(() => [GroupMember])
   async getGroupMembers(
-    @Args('groupId', GroupIDPipe)
+    @Args('groupId', { type: () => Int }, GroupIDPipe)
     groupId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
@@ -107,7 +107,7 @@ export class GroupMemberResolver {
    */
   @Query(() => GroupMember)
   async getGroupMember(
-    @Args('groupId', GroupIDPipe)
+    @Args('groupId', { type: () => Int }, GroupIDPipe)
     groupId: number,
     @Args('userId', { type: () => Int }, new RequiredIntPipe('userId'))
     userId: number

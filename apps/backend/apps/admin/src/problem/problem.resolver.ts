@@ -213,7 +213,7 @@ export class AssignmentProblemResolver {
 
   @Query(() => [AssignmentProblem], { name: 'getAssignmentProblems' })
   async getAssignmentProblems(
-    @Args('groupId', GroupIDPipe)
+    @Args('groupId', { type: () => Int }, GroupIDPipe)
     groupId: number,
     @Args(
       'assignmentId',
@@ -244,7 +244,7 @@ export class AssignmentProblemResolver {
 
   @Mutation(() => [AssignmentProblem])
   async updateAssignmentProblemsOrder(
-    @Args('groupId', GroupIDPipe)
+    @Args('groupId', { type: () => Int }, GroupIDPipe)
     groupId: number,
     @Args(
       'assignmentId',
@@ -273,7 +273,7 @@ export class WorkbookProblemResolver {
 
   @Query(() => [WorkbookProblem], { name: 'getWorkbookProblems' })
   async getWorkbookProblems(
-    @Args('groupId', GroupIDPipe)
+    @Args('groupId', { type: () => Int }, GroupIDPipe)
     groupId: number,
     @Args('workbookId', { type: () => Int }) workbookId: number
   ) {
@@ -282,7 +282,7 @@ export class WorkbookProblemResolver {
 
   @Mutation(() => [WorkbookProblem])
   async updateWorkbookProblemsOrder(
-    @Args('groupId', GroupIDPipe)
+    @Args('groupId', { type: () => Int }, GroupIDPipe)
     groupId: number,
     @Args('workbookId', { type: () => Int }) workbookId: number,
     // orders는 항상 workbookId에 해당하는 workbookProblems들이 모두 딸려 온다.
