@@ -28,13 +28,9 @@ export default function AssignmentProblem({ params }: AssignmentProblemProps) {
     number | null
   >(null)
 
-  const fetchAssignment = useCallback(async () => {
+  const fetchAssignmentStatus = useCallback(async () => {
     try {
-      const res = await fetcherWithAuth.get(`assignment/${assignmentId}`, {
-        searchParams: {
-          groupId: courseId
-        }
-      })
+      const res = await fetcherWithAuth.get(`assignment/${assignmentId}`)
       if (!res.ok) {
         return
       }
@@ -54,7 +50,7 @@ export default function AssignmentProblem({ params }: AssignmentProblemProps) {
     } catch (error) {
       console.error('Failed to fetch assignment:', error)
     }
-  }, [assignmentId, courseId])
+  }, [assignmentId])
 
   const fetchProblems = useCallback(async () => {
     try {
@@ -79,25 +75,19 @@ export default function AssignmentProblem({ params }: AssignmentProblemProps) {
 
   const participateAssignment = useCallback(async () => {
     try {
-      const res = await fetcherWithAuth.post(
-        `assignment/${assignmentId}/participation`,
-        {
-          searchParams: {
-            groupId: courseId
-          }
+      await fetcherWithAuth.post(`assignment/${assignmentId}/participation`, {
+        searchParams: {
+          groupId: courseId
         }
-      )
-      if (res.ok) {
-        await fetchProblems()
-      }
+      })
     } catch (error) {
       console.error('Failed to participate in assignment:', error)
     }
-  }, [assignmentId, courseId, fetchProblems])
+  }, [assignmentId, courseId])
 
   useEffect(() => {
     if (assignmentStatus === null) {
-      fetchAssignment()
+      fetchAssignmentStatus()
       return
     }
 
@@ -105,17 +95,15 @@ export default function AssignmentProblem({ params }: AssignmentProblemProps) {
       return
     }
 
-    if (assignmentStatus !== 'upcoming') {
-      if (fetchProblemStatusCode === null) {
-        fetchProblems()
-      } else if (fetchProblemStatusCode === 403) {
-        participateAssignment()
-      }
+    fetchProblems()
+    if (fetchProblemStatusCode === 403) {
+      participateAssignment()
+      fetchProblems()
     }
   }, [
     assignmentStatus,
+    fetchAssignmentStatus,
     fetchProblemStatusCode,
-    fetchAssignment,
     fetchProblems,
     participateAssignment
   ])
