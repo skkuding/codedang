@@ -23,6 +23,7 @@ import { useRouter } from 'next/navigation'
 
 interface Item {
   id: number
+  problemId?: number
 }
 
 interface SubmissionTableProps<TData, TValue, TRoute extends string> {
@@ -80,6 +81,7 @@ export function SubmissionTable<
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
             const href = getHref?.(row)
+
             return (
               <TableRow
                 key={row.id}
