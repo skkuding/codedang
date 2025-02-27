@@ -6,6 +6,7 @@ const GET_ASSIGNMENT = gql(`
       id
       enableCopyPaste
       isJudgeResultVisible
+      isFinalScoreVisible
       autoFinalizeScore
       description
       endTime
@@ -68,10 +69,12 @@ const GET_ASSIGNMENT_SCORE_SUMMARIES = gql(`
       totalProblemCount
       userAssignmentScore
       assignmentPerfectScore
+      userAssignmentFinalScore
       problemScores {
         problemId
         score
         maxScore
+        finalScore
       }
       userId
       username
@@ -90,10 +93,13 @@ const GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER = gql(`
         problemScores {
           problemId
           score
+          maxScore
+          finalScore
         }
         submittedProblemCount
         totalProblemCount
         userAssignmentScore
+        userAssignmentFinalScore
       }
       submissions {
         assignmentId
