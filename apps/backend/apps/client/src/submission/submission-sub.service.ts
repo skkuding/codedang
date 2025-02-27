@@ -193,8 +193,14 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       status === ResultStatus.ServerError ||
       status === ResultStatus.CompileError
     ) {
+      const submission = await this.prisma.submission.findUnique({
+        where: {
+          id: msg.submissionId
+        }
+      })
       await this.handleJudgeError(status, msg)
-      await this.calculateAssignmentSubmissionScoreWhenErrored(msg)
+      if (submission?.assignmentId)
+        await this.calculateAssignmentSubmissionScoreWhenErrored(submission)
       return
     }
 
@@ -678,19 +684,12 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     })
   }
 
-  async calculateAssignmentSubmissionScoreWhenErrored(msg: JudgerResponse) {
-    const submission = await this.prisma.submission.findUnique({
-      where: {
-        id: msg.submissionId
-      },
-      select: {
-        problemId: true,
-        assignmentId: true,
-        userId: true,
-        updateTime: true
-      }
-    })
-
+  async calculateAssignmentSubmissionScoreWhenErrored(
+    submission: Pick<
+      Submission,
+      'id' | 'problemId' | 'assignmentId' | 'userId' | 'updateTime'
+    >
+  ): Promise<void> {
     const assignmentId = submission!.assignmentId!
     const userId = submission!.userId!
     const problemId = submission!.problemId!
