@@ -31,7 +31,6 @@ export async function SubmissionDetail({
     }
   })
   const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
-
   const contestSubmissionRes = await fetcherWithAuth(
     `contest/${contestId}/submission`,
     {

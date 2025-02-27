@@ -110,3 +110,17 @@ export const getPageArray = (start: number, end: number) => {
     .fill(0)
     .map((_, i) => start + i)
 }
+
+interface OmitStringProps {
+  targetString: string
+  maxlength: number
+}
+
+export const omitString = ({ targetString, maxlength }: OmitStringProps) => {
+  if (targetString.length <= maxlength) {
+    return targetString
+  } else {
+    const result = `${targetString.slice(0, maxlength)}...`
+    return result
+  }
+}
