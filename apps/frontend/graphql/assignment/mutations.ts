@@ -8,8 +8,6 @@ const CREATE_ASSIGNMENT = gql(`
       isRankVisible
       enableCopyPaste
       isJudgeResultVisible
-      autoFinalizeScore
-      isFinalScoreVisible
       description
       endTime
       startTime
@@ -27,8 +25,6 @@ const UPDATE_ASSIGNMENT = gql(`
       isVisible
       enableCopyPaste
       isJudgeResultVisible
-      autoFinalizeScore
-      isFinalScoreVisible
       description
       endTime
       startTime

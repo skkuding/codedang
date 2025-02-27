@@ -45,7 +45,7 @@ export default function Page({
       <ScrollArea className="w-full">
         <main className="flex flex-col gap-6 px-20 py-16">
           <div className="flex items-center gap-4">
-            <Link href={`/admin/course/${courseId}`}>
+            <Link href={`/admin/course/${courseId}/assignment`}>
               <FaAngleLeft className="h-12" />
             </Link>
             <span className="text-4xl font-bold">Edit Assignment</span>
@@ -99,6 +99,7 @@ export default function Page({
             <SwitchField
               name="autoFinalizeScore"
               title="Automatic Grading"
+              hasValue={methods.getValues('autoFinalizeScore') || false}
               tooltip={true}
             >
               <p className="text-xs font-normal text-black">

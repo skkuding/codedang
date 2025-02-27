@@ -53,6 +53,7 @@ export function EditAssignmentForm({
         endTime: new Date(data.endTime),
         enableCopyPaste: data.enableCopyPaste,
         isJudgeResultVisible: data.isJudgeResultVisible,
+        autoFinalizeScore: data.autoFinalizeScore,
         isRankVisible: true,
         isVisible: true,
         week: data.week
