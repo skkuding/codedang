@@ -8,17 +8,9 @@ import {
 } from '@/components/shadcn/resizable'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/shadcn/tooltip'
-import bottomCenterIcon from '@/public/icons/bottom-center.svg'
 import syncIcon from '@/public/icons/sync.svg'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
 import type { ProblemDetail } from '@/types/type'
-import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -98,7 +90,7 @@ export function EditorMainResizablePanel({
           <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
             <Tabs value={tabValue} className="flex-grow">
               <TabsList className="rounded bg-slate-900">
-                <Link replace href={`${base}/problem/${problem.id}` as Route}>
+                <Link replace href={`${base}/problem/${problem.id}` as const}>
                   <TabsTrigger
                     value="Description"
                     className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
@@ -108,7 +100,7 @@ export function EditorMainResizablePanel({
                 </Link>
                 <Link
                   replace
-                  href={`${base}/problem/${problem.id}/submission` as Route}
+                  href={`${base}/problem/${problem.id}/submission` as const}
                 >
                   <TabsTrigger
                     value="Submission"
@@ -121,7 +113,7 @@ export function EditorMainResizablePanel({
                   <Link
                     replace
                     href={
-                      `/contest/${contestId}/problem/${problem.id}/leaderboard` as Route
+                      `/contest/${contestId}/problem/${problem.id}/leaderboard` as const
                     }
                   >
                     <TabsTrigger
@@ -137,29 +129,12 @@ export function EditorMainResizablePanel({
             {tabValue === 'Leaderboard' ? (
               <div className="flex gap-x-4">
                 <LeaderboardModalDialog />
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Image
-                        src={syncIcon}
-                        alt="Sync"
-                        className="cursor-pointer"
-                        onClick={triggerRefresh}
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent
-                      side="bottom"
-                      className="mt-1 flex h-[29px] w-[145px] items-center justify-center"
-                    >
-                      <Image
-                        src={bottomCenterIcon}
-                        alt="Tooltip arrow"
-                        className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform"
-                      />
-                      <p className="text-xs">Leaderboard is frozen</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Image
+                  src={syncIcon}
+                  alt="Sync"
+                  className="cursor-pointer"
+                  onClick={triggerRefresh}
+                />
               </div>
             ) : null}
           </div>
