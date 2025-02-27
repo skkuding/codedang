@@ -953,7 +953,6 @@ export class AssignmentService {
         assignment: {
           select: {
             groupId: true,
-            startTime: true,
             endTime: true
           }
         }

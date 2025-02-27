@@ -392,8 +392,7 @@ export class GroupService {
 
     const assignments = await this.prisma.assignment.findMany({
       where: {
-        id: { in: assignmentIds },
-        groupId
+        id: { in: assignmentIds }
       },
       select: {
         id: true,
