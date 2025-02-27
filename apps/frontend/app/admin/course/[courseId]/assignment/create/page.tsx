@@ -73,11 +73,11 @@ export default function Page({ params }: { params: { courseId: string } }) {
 
             <SwitchField
               name="autoFinalizeScore"
-              title="Automatic Grading"
+              title="Automatically Finalize Score"
               tooltip={true}
             >
               <p className="text-xs font-normal text-black">
-                Automatic Grading is Awesome!
+                Automatically Finalize Score without manual grading
               </p>
             </SwitchField>
 
