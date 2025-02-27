@@ -47,7 +47,7 @@ export function GradeAssignmentTable({ groupId }: AssignmentTableProps) {
       <DataTable
         headerStyle={headerStyle}
         getHref={(data) =>
-          `/admin/course/${groupId}/grade/assignment/${data.id}`
+          `/admin/course/${groupId}/grade/assignment/${data.id}` as Route
         }
       />
       <DataTablePagination showSelection />

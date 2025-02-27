@@ -15,8 +15,12 @@ import {
   GET_ASSIGNMENT_SCORE_SUMMARIES
 } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
+import excelIcon from '@/public/icons/excel.svg'
 import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
+import type { Route } from 'next'
+import Image from 'next/image'
 import { useState } from 'react'
+import { CSVLink } from 'react-csv'
 import { createColumns } from './Columns'
 
 export function ParticipantTable({
@@ -60,6 +64,73 @@ export function ParticipantTable({
     assignmentData?.isFinalScoreVisible
   )
 
+  const formatScore = (score: number): string => {
+    const fixedScore = Math.floor(score * 1000) / 1000
+    return fixedScore.toString()
+  }
+
+  const assignmentTitle = assignmentData?.title
+
+  const fileName = assignmentTitle
+    ? `${assignmentTitle.replace(/\s+/g, '_')}.csv`
+    : `course-${groupId}/assignment-${assignmentId}-participants.csv`
+
+  const problemList =
+    problemData?.map((problem) => ({
+      problemId: problem.problemId,
+      maxScore: problem.score,
+      title: problem.problem.title,
+      order: problem.order
+    })) || []
+
+  const problemHeaders = problemList.map((problem, index) => {
+    const problemLabel = String.fromCharCode(65 + index)
+    return {
+      label: `${problemLabel}(MAX ${problem.maxScore})`,
+      key: `problems[${index}].maxScore`
+    }
+  })
+
+  const headers = [
+    { label: 'Student Id', key: 'studentId' },
+    { label: 'Name', key: 'realName' },
+    {
+      label: `Raw Score(MAX ${summaries?.data.getAssignmentScoreSummaries[0]?.assignmentPerfectScore || 0})`,
+      key: 'rawScore'
+    },
+    {
+      label: `Final Score(MAX ${summaries?.data.getAssignmentScoreSummaries[0]?.assignmentPerfectScore || 0})`,
+      key: 'finalScore'
+    },
+
+    ...problemHeaders
+  ]
+
+  const csvData =
+    summaries.data.getAssignmentScoreSummaries.map((user) => {
+      const userProblemScores = problemList.map((problem) => {
+        const scoreData = user.problemScores.find(
+          (ps) => ps.problemId === problem.problemId
+        )
+
+        return {
+          maxScore: scoreData ? formatScore(scoreData.score) : '-'
+        }
+      })
+
+      return {
+        studentId: user.studentId,
+        realName: user.realName,
+        rawScore: user.userAssignmentScore
+          ? `${user.userAssignmentScore}`
+          : '-',
+        finalScore: user.userAssignmentFinalScore
+          ? `${user.userAssignmentFinalScore}`
+          : '-',
+        problems: userProblemScores
+      }
+    }) || []
+
   return (
     <div>
       <p className="mb-3 font-medium">
@@ -67,12 +138,13 @@ export function ParticipantTable({
         Participants
       </p>
       <DataTableRoot data={summariesData} columns={createColumns(problemData)}>
-        <div className="flex">
+        <div className="flex items-center gap-4">
           <DataTableSearchBar columndId="realName" placeholder="Search Name" />
-          <div>
+          <div className="flex items-center gap-2">
             Reveal Raw Score
             <Switch
               onCheckedChange={async (checked) => {
+                setRevealRawScore(checked)
                 await updateAssignment({
                   variables: {
                     groupId,
@@ -83,14 +155,15 @@ export function ParticipantTable({
                   }
                 })
               }}
-              checked={assignmentData?.isJudgeResultVisible}
+              checked={revealRawScore}
               className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
             />
           </div>
-          <div>
+          <div className="flex items-center gap-2">
             Reveal Final Score
             <Switch
               onCheckedChange={async (checked) => {
+                setRevealFinalScore(checked)
                 await updateAssignment({
                   variables: {
                     groupId,
@@ -101,14 +174,30 @@ export function ParticipantTable({
                   }
                 })
               }}
-              checked={assignmentData?.isFinalScoreVisible}
+              checked={revealFinalScore}
               className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
             />
           </div>
+
+          <CSVLink
+            data={csvData}
+            headers={headers}
+            filename={fileName}
+            className="ml-auto flex items-center gap-2 rounded-lg bg-blue-400 px-3 py-1.5 text-lg font-semibold text-white transition-opacity hover:opacity-85"
+          >
+            Export
+            <Image
+              src={excelIcon}
+              alt="Excel Icon"
+              width={20}
+              height={20}
+              className="ml-1"
+            />
+          </CSVLink>
         </div>
         <DataTable
           getHref={(data) =>
-            `/admin/course/${groupId}/grade/assignment/${assignmentId}/user/${data.id}`
+            `/admin/course/${groupId}/grade/assignment/${assignmentId}/user/${data.id}` as Route
           }
         />
         <DataTablePagination />

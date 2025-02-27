@@ -13,6 +13,7 @@ interface DataTableScoreSummary {
   totalProblemCount: number
   userAssignmentScore: number
   assignmentPerfectScore: number
+  userAssignmentFinalScore: number
   problemScores: {
     problemId: number
     score: number
