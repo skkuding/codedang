@@ -337,9 +337,11 @@ export class SubmissionService {
         assignmentId,
         userId,
         problemId: problem.id,
-        isSubmitted: false
+        isSubmitted: true
       },
-      update: {}
+      update: {
+        isSubmitted: true
+      }
     })
 
     const submission = await this.createSubmission({
