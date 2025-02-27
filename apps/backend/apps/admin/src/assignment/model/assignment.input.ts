@@ -60,8 +60,8 @@ export class UpdateAssignmentInput {
   @Field(() => GraphQLISODateTime, { nullable: true })
   endTime?: Date
 
-  @Field(() => Number, { nullable: false })
-  week!: number
+  @Field(() => Number, { nullable: true })
+  week?: number
 
   @Field(() => Boolean, { nullable: true })
   isVisible?: boolean
