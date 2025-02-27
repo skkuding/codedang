@@ -69,7 +69,9 @@ const assignmentWithCount = {
   _count: {
     assignmentRecord: 10
   },
-  week: 1
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: false
 }
 
 const assignmentWithParticipants: AssignmentWithParticipants = {
