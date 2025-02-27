@@ -28,10 +28,13 @@ body:graphql {
         problemScores {
           problemId
           score
+          maxScore
+          finalScore
         }
         submittedProblemCount
         totalProblemCount
         userAssignmentScore
+        userAssignmentFinalScore
       }
       submissions {
         assignmentId
@@ -54,7 +57,7 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "assignmentId": 1,
+    "assignmentId": 5,
     "groupId": 2,
     "userId": 4,
     "take": 500

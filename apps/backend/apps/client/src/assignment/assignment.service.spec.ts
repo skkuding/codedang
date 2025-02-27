@@ -47,7 +47,9 @@ const assignment = {
     id: groupId,
     groupName: 'group',
     groupType: GroupType.Course
-  }
+  },
+  autoFinalizeScore: true,
+  isFinalScoreVisible: true
 } satisfies Assignment & {
   group: Partial<Group>
 }

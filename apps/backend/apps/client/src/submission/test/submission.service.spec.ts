@@ -124,7 +124,9 @@ const mockAssignment: Assignment = {
   enableCopyPaste: true,
   createTime: new Date(Date.now() - 10000),
   updateTime: new Date(Date.now() - 10000),
-  week: 1
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: true
 }
 const USERIP = '127.0.0.1'
 
