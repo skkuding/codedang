@@ -7,8 +7,11 @@ import {
   Req,
   Query,
   DefaultValuePipe,
-  Headers
+  Headers,
+  ParseIntPipe,
+  Sse
 } from '@nestjs/common'
+import { Observable } from 'rxjs'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import {
@@ -18,6 +21,11 @@ import {
   RequiredIntPipe
 } from '@libs/pipe'
 import {
+  RedisPubSubService,
+  type PubSubSubmissionResult,
+  type PubSubTestResult
+} from '@libs/redis-pubsub'
+import {
   CreateSubmissionDto,
   CreateUserTestSubmissionDto
 } from './class/create-submission.dto'
@@ -25,7 +33,10 @@ import { SubmissionService } from './submission.service'
 
 @Controller('submission')
 export class SubmissionController {
-  constructor(private readonly submissionService: SubmissionService) {}
+  constructor(
+    private readonly submissionService: SubmissionService,
+    private readonly redisPubSub: RedisPubSubService
+  ) {}
 
   /**
    * 아직 채점되지 않은 제출 기록을 만들고, 채점 서버에 채점 요청을 보냅니다.
@@ -191,6 +202,120 @@ export class SubmissionController {
       groupId,
       contestId,
       assignmentId
+    })
+  }
+
+  /**
+   * Server-Sent-Event(SSE)를 통해 테스트케이스 채점 결과를 실시간으로 송신합니다.
+   * 클라이언트는 해당 SSE 연결을 통해 채점 결과를 실시간으로 수신할 수 있습니다.
+   *
+   * @param {number} submissionId - 제출한 Submission의 ID
+   * @returns {Observable<MessageEvent>} SSE 연결을 위한 Observable 객체를 반환하며, 테스트케이스 채점 결과가 포함된 MessageEvent를 전송함
+   */
+  @Sse('submission-result/:submissionId')
+  async getSubmissionTestcaseResult(
+    @Req() req: AuthenticatedRequest,
+    @Param('submissionId', ParseIntPipe) submissionId: number
+  ): Promise<Observable<MessageEvent>> {
+    const userId = req.user.id
+    await this.submissionService.checkSubmissionId(submissionId, userId)
+
+    return new Observable((subscriber) => {
+      this.redisPubSub
+        .subscribeToSubmission(submissionId, (data: PubSubSubmissionResult) => {
+          subscriber.next({
+            // data: {
+            //   ...data,
+            //   from: 'redis' // debug용
+            // }
+            data
+          } as MessageEvent)
+        })
+        .then(() => {
+          return this.submissionService.getJudgedTestcasesBySubmissionId(
+            submissionId
+          )
+        })
+        .then((judgedTestcases) => {
+          judgedTestcases.forEach((tc) => {
+            const data: PubSubSubmissionResult = {
+              submissionId,
+              result: {
+                submissionId,
+                problemTestcaseId: tc.problemTestcaseId,
+                result: tc.result,
+                cpuTime: tc.cpuTime ? tc.cpuTime.toString() : null,
+                memoryUsage: tc.memoryUsage ?? null
+              }
+            }
+
+            subscriber.next({
+              // data: {
+              //   ...data,
+              //   from: 'db' // debug용
+              // }
+              data
+            } as MessageEvent)
+          })
+        })
+        .catch((error) => {
+          subscriber.error(error)
+        })
+    })
+  }
+
+  /**
+   * Server-Sent-Event(SSE)를 통해 테스트케이스 채점 결과를 실시간으로 송신합니다.
+   * Test API 호출을 통해 실행된 Testcase의 채점 결과를 실시간으로 송신합니다.
+   * 클라이언트는 해당 SSE 연결을 통해 채점 결과를 실시간으로 수신할 수 있습니다.
+   *
+   * @param {number} testSubmissionId - 제출한 Test Submission의 ID
+   * @returns {Observable<MessageEvent>} SSE 연결을 위한 Observable 객체를 반환하며, 테스트케이스 채점 결과가 포함된 MessageEvent를 전송함
+   */
+  @Sse(`test-result/:testSubmissionId`)
+  async getTestTestcaseResult(
+    @Req() req: AuthenticatedRequest,
+    @Param('testSubmissionId', ParseIntPipe) testSubmissionId: number
+  ): Promise<Observable<MessageEvent>> {
+    return new Observable((subscriber) => {
+      this.redisPubSub
+        .subscribeToTest(testSubmissionId, (data: PubSubTestResult) => {
+          subscriber.next({ data } as MessageEvent)
+        })
+        .then(() => {
+          return Promise.all([
+            this.submissionService.getTestResult(req.user.id, false), // test
+            this.submissionService.getTestResult(req.user.id, true) // user-test
+          ])
+        })
+        .then(([testResult, userTestResult]) => {
+          testResult.forEach((tc) => {
+            const data: PubSubTestResult = {
+              userTest: false,
+              result: {
+                id: tc.id,
+                result: tc.result,
+                output: tc.output || ''
+              }
+            }
+            subscriber.next({ data } as MessageEvent)
+          })
+
+          userTestResult.forEach((tc) => {
+            const data: PubSubTestResult = {
+              userTest: true,
+              result: {
+                id: tc.id,
+                result: tc.result,
+                output: tc.output || ''
+              }
+            }
+            subscriber.next({ data } as MessageEvent)
+          })
+        })
+        .catch((error) => {
+          subscriber.error(error)
+        })
     })
   }
 }

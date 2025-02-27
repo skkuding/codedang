@@ -702,6 +702,7 @@ export class SubmissionService {
       code,
       false
     )
+
     await this.publishTestMessage(problemId, submissionDto.code, testSubmission)
     return testSubmission
   }
@@ -843,20 +844,14 @@ export class SubmissionService {
     return submission
   }
 
-  async getTestResult(userId: number, isUserTest = false) {
-    // 가장 최신의 Test Submission 불러오기
-    const testSubmissionId = (
-      await this.prisma.testSubmission.findFirst({
-        where: {
-          userId
-        },
-        orderBy: {
-          id: 'desc'
-        }
-      })
-    )?.id
+  async getTestResult(testSubmissionId: number, isUserTest = false) {
+    const testSubmission = await this.prisma.testSubmission.findUnique({
+      where: {
+        id: testSubmissionId
+      }
+    })
 
-    if (!testSubmissionId) {
+    if (!testSubmission) {
       return []
     }
 
@@ -1418,5 +1413,31 @@ export class SubmissionService {
     })
 
     return { data: submissions, total }
+  }
+
+  async checkSubmissionId(submissionId: number, userId: number) {
+    await this.prisma.submission.findFirstOrThrow({
+      where: {
+        id: submissionId,
+        userId
+      }
+    })
+  }
+
+  async getJudgedTestcasesBySubmissionId(submissionId: number) {
+    return await this.prisma.submissionResult.findMany({
+      where: {
+        submissionId,
+        result: {
+          not: 'Judging'
+        }
+      },
+      select: {
+        problemTestcaseId: true,
+        result: true,
+        cpuTime: true,
+        memoryUsage: true
+      }
+    })
   }
 }
