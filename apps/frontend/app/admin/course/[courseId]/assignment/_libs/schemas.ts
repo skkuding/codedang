@@ -18,8 +18,8 @@ export const createSchema = v.object({
   endTime: v.date(),
   week: v.number(),
   enableCopyPaste: v.boolean(),
-  isJudgeResultVisible: v.boolean()
-  // isAutomaticGrading: v.boolean()
+  isJudgeResultVisible: v.boolean(),
+  autoFinalizeScore: v.boolean()
 })
 
 export const editSchema = v.object({

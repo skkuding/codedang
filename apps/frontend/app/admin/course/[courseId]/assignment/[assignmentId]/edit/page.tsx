@@ -97,7 +97,7 @@ export default function Page({
             />
 
             <SwitchField
-              name="isAutomaticGrading"
+              name="autoFinalizeScore"
               title="Automatic Grading"
               tooltip={true}
             >

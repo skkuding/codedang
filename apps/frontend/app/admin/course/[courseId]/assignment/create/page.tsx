@@ -72,7 +72,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
             />
 
             <SwitchField
-              name="isAutomaticGrading"
+              name="autoFinalizeScore"
               title="Automatic Grading"
               tooltip={true}
             >

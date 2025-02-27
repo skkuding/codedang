@@ -158,7 +158,7 @@ export function EditAssignmentForm({
 
     setShouldSkipWarning(true)
     toast.success('Assignment updated successfully')
-    router.push(`/admin/course/${courseId}`)
+    router.push(`/admin/course/${courseId}/assignment`)
     router.refresh()
   }
 
