@@ -6,9 +6,9 @@ import {
 } from '@/components/shadcn/accordion'
 import { Dialog } from '@/components/shadcn/dialog'
 import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
+import { GradeDetailModal } from '../grade/_components/GradeDetailModal'
+import { SubmissionDetailModal } from '../grade/_components/SubmissionDetailModal'
 import { DetailButton } from './DetailButton'
-import { GradeDetailModal } from './GradeDetailModal'
-import { SubmissionDetailModal } from './SubmissionDetailModal'
 import { dummyResponse } from './dummy'
 
 interface GradeAccordionProps {
