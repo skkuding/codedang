@@ -11,11 +11,10 @@ post {
 }
 
 body:graphql {
-  query GetProblem($groupId: Int!, $id: Int!) {
-    getProblem(groupId: $groupId, id: $id) {
+  query GetProblem($id: Int!) {
+    getProblem(id: $id) {
       id
       createdById
-      groupId
       title
       description
       inputDescription
@@ -40,7 +39,6 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "groupId": 1,
     "id": 1
   }
 }
@@ -52,8 +50,8 @@ assert {
 docs {
   ## Get a Problem
   Problem을 가져옵니다.
-  
+
   ### Error Cases
   #### NOT_FOUND
-  존재하지 않는 groupId 또는 id를 전달하는 경우 발생합니다.
+  존재하지 않는 id를 전달하는 경우 발생합니다.
 }
