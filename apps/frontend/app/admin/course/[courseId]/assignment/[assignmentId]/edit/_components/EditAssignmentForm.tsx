@@ -11,6 +11,7 @@ import { UPDATE_ASSIGNMENT_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateAssignmentInput } from '@generated/graphql'
+import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
@@ -159,7 +160,7 @@ export function EditAssignmentForm({
 
     setShouldSkipWarning(true)
     toast.success('Assignment updated successfully')
-    router.push(`/admin/course/${courseId}/assignment`)
+    router.push(`/admin/course/${courseId}/assignment` as Route)
     router.refresh()
   }
 
