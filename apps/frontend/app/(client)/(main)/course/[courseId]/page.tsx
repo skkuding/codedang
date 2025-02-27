@@ -1,6 +1,5 @@
 import { Separator } from '@/components/shadcn/separator'
 import { redirect } from 'next/navigation'
-import { OngoingAssignments } from './_components/OngoingAssignments'
 import { RecentNotice } from './_components/RecentNotice'
 import { RecentUpdate } from './_components/RecentUpdate'
 
@@ -23,7 +22,7 @@ export default function Dashboard({ params }: DashboardProps) {
         </div>
       </div>
       <Separator />
-      <OngoingAssignments />
+      {/* <OngoingAssignments /> */}
     </div>
   )
 }

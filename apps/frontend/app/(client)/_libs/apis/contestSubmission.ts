@@ -42,7 +42,6 @@ export const getContestSubmissionDetail = async ({
   const response = await safeFetcherWithAuth.get(`submission/${submissionId}`, {
     searchParams: { problemId, contestId }
   })
-
   const data = await response.json<SubmissionDetail>()
   return data
 }

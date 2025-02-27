@@ -2,7 +2,6 @@ import { Args, Int, Query, Resolver } from '@nestjs/graphql'
 import {
   SubmissionOrderPipe,
   CursorValidationPipe,
-  GroupIDPipe,
   RequiredIntPipe
 } from '@libs/pipe'
 import { Submission } from '@admin/@generated'
@@ -34,19 +33,12 @@ export class SubmissionResolver {
   async getSubmissions(
     @Args('problemId', { type: () => Int }, new RequiredIntPipe('problemId'))
     problemId: number,
-    @Args('groupId', { type: () => Int, nullable: true }, GroupIDPipe)
-    groupId: number,
     @Args('cursor', { type: () => Int, nullable: true }, CursorValidationPipe)
     cursor: number | null,
     @Args('take', { nullable: true, defaultValue: 10, type: () => Int })
     take: number
   ): Promise<SubmissionsWithTotal> {
-    return this.submissionService.getSubmissions(
-      problemId,
-      groupId,
-      cursor,
-      take
-    )
+    return this.submissionService.getSubmissions(problemId, cursor, take)
   }
 
   /**

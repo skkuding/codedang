@@ -11,11 +11,10 @@ post {
 }
 
 body:graphql {
-  mutation DeleteProblem($groupId: Int!, $id: Int!) {
-    deleteProblem(groupId: $groupId, id: $id) {
+  mutation DeleteProblem($id: Int!) {
+    deleteProblem(id: $id) {
       id
       createdById
-      groupId
       title
       description
       inputDescription
@@ -27,8 +26,7 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "groupId": 99999,
-    "id": 5
+    "id": 99999
   }
 }
 

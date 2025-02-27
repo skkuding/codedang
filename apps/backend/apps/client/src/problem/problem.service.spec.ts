@@ -1,11 +1,11 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Test, TestingModule } from '@nestjs/testing'
+import type { TestingModule } from '@nestjs/testing'
+import { Test } from '@nestjs/testing'
 import { faker } from '@faker-js/faker'
 import { Prisma, ResultStatus } from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { stub } from 'sinon'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   EntityNotExistException,
   ForbiddenAccessException
@@ -57,6 +57,9 @@ const db = {
     findMany: stub(),
     findUniqueOrThrow: stub(),
     count: stub().resolves(2)
+  },
+  assignmentRecord: {
+    findUnique: stub()
   },
   workbookProblem: {
     findMany: stub(),
@@ -216,8 +219,7 @@ describe('ProblemService', () => {
       const result = await service.getProblems({
         userId: null,
         cursor: 1,
-        take: 2,
-        groupId: OPEN_SPACE_ID
+        take: 2
       })
 
       // then
@@ -464,8 +466,7 @@ describe('ContestProblemService', () => {
       const result = await service.getContestProblem({
         contestId,
         problemId,
-        userId,
-        groupId: OPEN_SPACE_ID
+        userId
       })
 
       // then
@@ -493,8 +494,7 @@ describe('ContestProblemService', () => {
       const result = await service.getContestProblem({
         contestId,
         problemId,
-        userId,
-        groupId: OPEN_SPACE_ID
+        userId
       })
 
       // then
@@ -514,8 +514,7 @@ describe('ContestProblemService', () => {
         service.getContestProblem({
           contestId,
           problemId,
-          userId,
-          groupId: OPEN_SPACE_ID
+          userId
         })
       ).to.be.rejectedWith(prismaNotFoundError)
     })
@@ -536,8 +535,7 @@ describe('ContestProblemService', () => {
         service.getContestProblem({
           contestId,
           problemId,
-          userId,
-          groupId: OPEN_SPACE_ID
+          userId
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -558,8 +556,7 @@ describe('ContestProblemService', () => {
         service.getContestProblem({
           contestId,
           problemId,
-          userId,
-          groupId: OPEN_SPACE_ID
+          userId
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -623,8 +620,7 @@ describe('AssignmentProblemService', () => {
         assignmentId,
         userId,
         cursor: 1,
-        take: 1,
-        groupId: OPEN_SPACE_ID // 명시적 전달
+        take: 1
       })
 
       // then
@@ -654,8 +650,7 @@ describe('AssignmentProblemService', () => {
         assignmentId,
         userId,
         cursor: 1,
-        take: 1,
-        groupId: OPEN_SPACE_ID // 명시적 전달
+        take: 1
       })
 
       // then
@@ -679,50 +674,20 @@ describe('AssignmentProblemService', () => {
           assignmentId,
           userId,
           cursor: 1,
-          take: 1,
-          groupId: OPEN_SPACE_ID // 명시적 전달
+          take: 1
         })
       ).to.be.rejectedWith(prismaNotFoundError)
     })
 
-    it('should throw ForbiddenAccessException when the user is registered but assignment is not started', async () => {
-      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
-      getAssignmentSpy.resolves({
-        startTime: faker.date.future(),
-        endTime: faker.date.future(),
-        isRegistered: true,
-        isJudgeResultVisible: true
-      })
-      db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
-
-      await expect(
-        service.getAssignmentProblems({
-          assignmentId,
-          userId,
-          cursor: 1,
-          take: 1,
-          groupId: OPEN_SPACE_ID // 명시적 전달
-        })
-      ).to.be.rejectedWith(ForbiddenAccessException)
-    })
-
     it('should throw ForbiddenAccessException when the user is not registered and assignment is not ended', async () => {
-      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
-      getAssignmentSpy.resolves({
-        startTime: faker.date.past(),
-        endTime: faker.date.future(),
-        isRegistered: false,
-        isJudgeResultVisible: true
-      })
       db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
 
       await expect(
         service.getAssignmentProblems({
           assignmentId,
-          userId,
+          userId: 999,
           cursor: 1,
-          take: 1,
-          groupId: OPEN_SPACE_ID // 명시적 전달
+          take: 1
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -744,8 +709,7 @@ describe('AssignmentProblemService', () => {
       const result = await service.getAssignmentProblem({
         assignmentId,
         problemId,
-        userId,
-        groupId: OPEN_SPACE_ID
+        userId
       })
 
       // then
@@ -770,8 +734,7 @@ describe('AssignmentProblemService', () => {
       const result = await service.getAssignmentProblem({
         assignmentId,
         problemId,
-        userId,
-        groupId: OPEN_SPACE_ID
+        userId
       })
 
       // then
@@ -791,46 +754,18 @@ describe('AssignmentProblemService', () => {
         service.getAssignmentProblem({
           assignmentId,
           problemId,
-          userId,
-          groupId: OPEN_SPACE_ID
+          userId
         })
       ).to.be.rejectedWith(prismaNotFoundError)
     })
 
-    it('should throw ForbiddenAccessException when the user is registered but assignment is not started', async () => {
-      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
-      getAssignmentSpy.resolves({
-        startTime: faker.date.future(),
-        endTime: faker.date.future(),
-        isRegistered: true,
-        isJudgeResultVisible: true
-      })
-      db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
-      await expect(
-        service.getAssignmentProblem({
-          assignmentId,
-          problemId,
-          userId,
-          groupId: OPEN_SPACE_ID
-        })
-      ).to.be.rejectedWith(ForbiddenAccessException)
-    })
-
     it('should throw ForbiddenAccessException when the user is not registered and assignment is not ended', async () => {
-      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
-      getAssignmentSpy.resolves({
-        startTime: faker.date.past(),
-        endTime: faker.date.future(),
-        isRegistered: false,
-        isJudgeResultVisible: true
-      })
       db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
       await expect(
         service.getAssignmentProblem({
           assignmentId,
           problemId,
-          userId,
-          groupId: OPEN_SPACE_ID
+          userId: 999
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -885,7 +820,7 @@ describe('WorkbookProblemService', () => {
         workbookId,
         cursor: 1,
         take: 1,
-        groupId: OPEN_SPACE_ID
+        groupId
       })
 
       // then
@@ -908,7 +843,7 @@ describe('WorkbookProblemService', () => {
         workbookId,
         cursor: 1,
         take: 1,
-        groupId: OPEN_SPACE_ID
+        groupId
       })
 
       // then
@@ -930,7 +865,7 @@ describe('WorkbookProblemService', () => {
           workbookId,
           cursor: 1,
           take: 1,
-          groupId: OPEN_SPACE_ID
+          groupId
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -943,7 +878,11 @@ describe('WorkbookProblemService', () => {
       db.workbookProblem.findUniqueOrThrow.resolves(mockWorkbookProblem)
 
       // when
-      const result = await service.getWorkbookProblem(workbookId, problemId)
+      const result = await service.getWorkbookProblem(
+        workbookId,
+        problemId,
+        groupId
+      )
 
       // then
       expect(result).to.be.deep.equal(
@@ -977,7 +916,7 @@ describe('WorkbookProblemService', () => {
 
       // then
       await expect(
-        service.getWorkbookProblem(workbookId, problemId)
+        service.getWorkbookProblem(workbookId, problemId, groupId)
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })

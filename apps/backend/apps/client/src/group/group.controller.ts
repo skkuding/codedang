@@ -13,7 +13,7 @@ import {
 import { GroupType } from '@prisma/client'
 import {
   AuthenticatedRequest,
-  AuthNotNeededIfOpenSpace,
+  AuthNotNeededIfPublic,
   GroupMemberGuard
 } from '@libs/auth'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
@@ -26,7 +26,7 @@ export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @Get()
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   async getGroups(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
