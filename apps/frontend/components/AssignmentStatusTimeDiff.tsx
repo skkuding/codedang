@@ -6,6 +6,7 @@ import type { Assignment } from '@/types/type'
 import type { AssignmentStatus } from '@/types/type'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
+import type { Route } from 'next'
 import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -24,7 +25,7 @@ export function AssignmentStatusTimeDiff({
   inAssignmentEditor: boolean
 }) {
   const router = useRouter()
-  const { problemId } = useParams()
+  const { problemId, courseId } = useParams()
 
   const [assignmentStatus, setAssignmentStatus] = useState<
     AssignmentStatus | undefined | null
@@ -87,7 +88,9 @@ export function AssignmentStatusTimeDiff({
   }, 1000)
 
   if (inAssignmentEditor && assignmentStatus === 'finished') {
-    router.push(`/contest/${assignment.id}/finished/problem/${problemId}`)
+    router.push(
+      `/course/${courseId}/assignment/${assignment.id}/finished/problem/${problemId}` as Route
+    )
   }
 
   return (

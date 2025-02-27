@@ -1,9 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import {
-  Inject,
-  Injectable,
-  UnprocessableEntityException
-} from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import {
   Assignment,
   ResultStatus,
@@ -11,16 +7,10 @@ import {
   AssignmentProblem
 } from '@generated'
 import { Cache } from 'cache-manager'
+import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import {
-  OPEN_SPACE_ID,
-  PUBLICIZING_REQUEST_EXPIRE_TIME,
-  PUBLICIZING_REQUEST_KEY,
-  MIN_DATE,
-  MAX_DATE
-} from '@libs/constants'
-import {
-  ConflictFoundException,
   EntityNotExistException,
+  ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -28,8 +18,6 @@ import type { AssignmentWithScores } from './model/assignment-with-scores.model'
 import type { CreateAssignmentInput } from './model/assignment.input'
 import type { UpdateAssignmentInput } from './model/assignment.input'
 import type { AssignmentProblemScoreInput } from './model/problem-score.input'
-import type { AssignmentPublicizingRequest } from './model/publicizing-request.model'
-import type { AssignmentPublicizingResponse } from './model/publicizing-response.output'
 
 @Injectable()
 export class AssignmentService {
@@ -62,8 +50,8 @@ export class AssignmentService {
     })
   }
 
-  async getAssignment(assignmentId: number) {
-    const assignment = await this.prisma.assignment.findFirst({
+  async getAssignment(assignmentId: number, groupId: number) {
+    const assignment = await this.prisma.assignment.findUnique({
       where: {
         id: assignmentId
       },
@@ -77,6 +65,10 @@ export class AssignmentService {
 
     if (!assignment) {
       throw new EntityNotExistException('assignment')
+    }
+
+    if (groupId !== assignment.groupId) {
+      throw new ForbiddenAccessException('Forbidden Resource')
     }
 
     const { _count, ...data } = assignment
@@ -124,12 +116,12 @@ export class AssignmentService {
     groupId: number,
     assignment: UpdateAssignmentInput
   ): Promise<Assignment> {
-    const assignmentFound = await this.prisma.assignment.findFirst({
+    const assignmentFound = await this.prisma.assignment.findUnique({
       where: {
-        id: assignment.id,
-        groupId
+        id: assignment.id
       },
       select: {
+        groupId: true,
         startTime: true,
         endTime: true,
         assignmentProblem: {
@@ -139,9 +131,15 @@ export class AssignmentService {
         }
       }
     })
+
     if (!assignmentFound) {
       throw new EntityNotExistException('assignment')
     }
+
+    if (groupId !== assignmentFound.groupId) {
+      throw new ForbiddenAccessException('Forbidden Resource')
+    }
+
     const isEndTimeChanged =
       assignment.endTime && assignment.endTime !== assignmentFound.endTime
     assignment.startTime = assignment.startTime || assignmentFound.startTime
@@ -223,21 +221,26 @@ export class AssignmentService {
   }
 
   async deleteAssignment(groupId: number, assignmentId: number) {
-    const assignment = await this.prisma.assignment.findFirst({
+    const assignment = await this.prisma.assignment.findUnique({
       where: {
-        id: assignmentId,
-        groupId
+        id: assignmentId
       },
       select: {
         assignmentProblem: {
           select: {
             problemId: true
           }
-        }
+        },
+        groupId: true
       }
     })
+
     if (!assignment) {
       throw new EntityNotExistException('assignment')
+    }
+
+    if (groupId !== assignment.groupId) {
+      throw new ForbiddenAccessException('Forbidden Resource')
     }
 
     const problemIds = assignment.assignmentProblem.map(
@@ -258,117 +261,6 @@ export class AssignmentService {
     }
   }
 
-  async getPublicizingRequests() {
-    const requests = await this.cacheManager.get<
-      AssignmentPublicizingRequest[]
-    >(PUBLICIZING_REQUEST_KEY)
-
-    if (!requests) {
-      return []
-    }
-
-    const filteredRequests = requests.filter(
-      (req) => new Date(req.expireTime) > new Date()
-    )
-
-    if (requests.length != filteredRequests.length) {
-      await this.cacheManager.set(
-        PUBLICIZING_REQUEST_KEY,
-        filteredRequests,
-        PUBLICIZING_REQUEST_EXPIRE_TIME
-      )
-    }
-
-    return filteredRequests
-  }
-
-  async handlePublicizingRequest(assignmentId: number, isAccepted: boolean) {
-    const requests = (await this.cacheManager.get(
-      PUBLICIZING_REQUEST_KEY
-    )) as Array<AssignmentPublicizingRequest>
-    if (!requests) {
-      throw new EntityNotExistException('AssignmentPublicizingRequest')
-    }
-
-    const request = requests.find((req) => req.assignmentId === assignmentId)
-    if (!request || new Date(request.expireTime) < new Date()) {
-      throw new EntityNotExistException('AssignmentPublicizingRequest')
-    }
-
-    await this.cacheManager.set(
-      PUBLICIZING_REQUEST_KEY,
-      requests.filter((req) => req.assignmentId != assignmentId),
-      PUBLICIZING_REQUEST_EXPIRE_TIME
-    )
-
-    if (isAccepted) {
-      try {
-        await this.prisma.assignment.update({
-          where: {
-            id: assignmentId
-          },
-          data: {
-            groupId: OPEN_SPACE_ID
-          }
-        })
-      } catch (error) {
-        throw new UnprocessableDataException(error.message)
-      }
-    }
-
-    return {
-      assignmentId,
-      isAccepted
-    } as AssignmentPublicizingResponse
-  }
-
-  async createPublicizingRequest(groupId: number, assignmentId: number) {
-    if (groupId == OPEN_SPACE_ID) {
-      throw new UnprocessableEntityException(
-        'This assignment is already publicized'
-      )
-    }
-
-    const assignment = await this.prisma.assignment.findFirst({
-      where: {
-        id: assignmentId,
-        groupId
-      }
-    })
-    if (!assignment) {
-      throw new EntityNotExistException('assignment')
-    }
-
-    let requests = (await this.cacheManager.get(
-      PUBLICIZING_REQUEST_KEY
-    )) as Array<AssignmentPublicizingRequest>
-    if (!requests) {
-      requests = []
-    }
-
-    const duplicatedRequest = requests.find(
-      (req) => req.assignmentId == assignmentId
-    )
-    if (duplicatedRequest) {
-      throw new ConflictFoundException('duplicated publicizing request')
-    }
-
-    const newRequest: AssignmentPublicizingRequest = {
-      assignmentId,
-      userId: assignment.createdById!, // TODO: createdById가 null일 경우 예외처리
-      expireTime: new Date(Date.now() + PUBLICIZING_REQUEST_EXPIRE_TIME)
-    }
-    requests.push(newRequest)
-
-    await this.cacheManager.set(
-      PUBLICIZING_REQUEST_KEY,
-      requests,
-      PUBLICIZING_REQUEST_EXPIRE_TIME
-    )
-
-    return newRequest
-  }
-
   async importProblemsToAssignment(
     groupId: number,
     assignmentId: number,
@@ -376,8 +268,7 @@ export class AssignmentService {
   ) {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
-        id: assignmentId,
-        groupId
+        id: assignmentId
       },
       include: {
         submission: {
@@ -387,18 +278,26 @@ export class AssignmentService {
         }
       }
     })
+
     if (!assignment) {
       throw new EntityNotExistException('assignment')
+    }
+
+    if (groupId !== assignment.groupId) {
+      throw new ForbiddenAccessException('Forbidden Resource')
     }
 
     const assignmentProblems: AssignmentProblem[] = []
 
     for (const { problemId, score } of problemIdsWithScore) {
       const isProblemAlreadyImported =
-        await this.prisma.assignmentProblem.findFirst({
+        await this.prisma.assignmentProblem.findUnique({
           where: {
-            assignmentId,
-            problemId
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            assignmentId_problemId: {
+              assignmentId,
+              problemId
+            }
           }
         })
       if (isProblemAlreadyImported) {
@@ -459,8 +358,7 @@ export class AssignmentService {
   ) {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
-        id: assignmentId,
-        groupId
+        id: assignmentId
       },
       include: {
         submission: {
@@ -472,6 +370,10 @@ export class AssignmentService {
     })
     if (!assignment) {
       throw new EntityNotExistException('assignment')
+    }
+
+    if (groupId !== assignment.groupId) {
+      throw new ForbiddenAccessException('Forbidden Resource')
     }
 
     const assignmentProblems: AssignmentProblem[] = []
@@ -551,6 +453,7 @@ export class AssignmentService {
     take: number,
     assignmentId: number,
     userId: number,
+    groupId: number,
     problemId: number | null,
     cursor: number | null
   ) {
@@ -841,11 +744,25 @@ export class AssignmentService {
 
   async getAssignmentScoreSummaries(
     assignmentId: number,
+    groupId: number,
     take: number,
     cursor: number | null,
     searchingName?: string
   ) {
     const paginator = this.prisma.getPaginator(cursor)
+    const assignment = await this.prisma.assignment.findUnique({
+      where: {
+        id: assignmentId
+      }
+    })
+
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+
+    if (groupId !== assignment.groupId) {
+      throw new ForbiddenAccessException('Forbidden Resource')
+    }
 
     const assignmentRecords = await this.prisma.assignmentRecord.findMany({
       ...paginator,

@@ -72,6 +72,9 @@ const db = {
     findUnique: stub(),
     update: stub()
   },
+  assignmentProblemRecord: {
+    upsert: stub()
+  },
   user: {
     findFirst: stub()
   },
@@ -84,7 +87,6 @@ const WORKBOOK_ID = 1
 const mockContest: Contest = {
   id: CONTEST_ID,
   createdById: 1,
-  groupId: 1,
   title: 'SKKU Coding Platform 모의대회',
   description: 'test',
   penalty: 20,
@@ -112,15 +114,15 @@ const mockAssignment: Assignment = {
   groupId: 1,
   title: 'SKKU Coding Platform 모의과제',
   description: 'test',
-  invitationCode: 'test',
-  startTime: new Date(),
-  endTime: new Date(),
+  startTime: new Date(Date.now() - 10000),
+  endTime: new Date(Date.now() + 10000),
   isVisible: true,
   isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
-  createTime: new Date(),
-  updateTime: new Date()
+  createTime: new Date(Date.now() - 10000),
+  updateTime: new Date(Date.now() - 10000),
+  week: 1
 }
 const USERIP = '127.0.0.1'
 
@@ -246,8 +248,7 @@ describe('SubmissionService', () => {
         userIp: USERIP,
         userId: submissions[0].userId,
         problemId: problems[0].id,
-        contestId: CONTEST_ID,
-        groupId: problems[0].groupId
+        contestId: CONTEST_ID
       })
       expect(createSpy.calledOnce).to.be.true
     })
@@ -262,8 +263,7 @@ describe('SubmissionService', () => {
           userIp: USERIP,
           userId: submissions[0].userId,
           problemId: problems[0].id,
-          contestId: CONTEST_ID,
-          groupId: problems[0].groupId
+          contestId: CONTEST_ID
         })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
@@ -275,6 +275,7 @@ describe('SubmissionService', () => {
       const createSpy = stub(service, 'createSubmission')
       db.assignment.findFirst.resolves(mockAssignment)
       db.assignmentRecord.findUnique.resolves({
+        id: 1,
         assignment: {
           groupId: 1,
           startTime: new Date(Date.now() - 10000),
@@ -588,8 +589,10 @@ describe('SubmissionService', () => {
         lastLogin: new Date(),
         createTime: new Date(),
         updateTime: new Date(),
-        studentId: null,
-        major: null
+        studentId: '2020000000',
+        major: null,
+        canCreateCourse: false,
+        canCreateContest: false
       }
       db.user.findFirst.resolves(adminUser)
       db.contestRecord.findUnique.resolves({})
@@ -646,8 +649,10 @@ describe('SubmissionService', () => {
         lastLogin: new Date(),
         createTime: new Date(),
         updateTime: new Date(),
-        studentId: null,
-        major: null
+        studentId: '2020000000',
+        major: null,
+        canCreateCourse: false,
+        canCreateContest: false
       }
       db.user.findFirst.resolves(adminUser)
       db.assignmentRecord.findUnique.resolves({})

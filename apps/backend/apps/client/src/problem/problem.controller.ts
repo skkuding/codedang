@@ -100,8 +100,7 @@ export class ContestProblemController {
       contestId,
       userId: req.user.id,
       cursor,
-      take,
-      groupId
+      take
     })
   }
 
@@ -109,14 +108,12 @@ export class ContestProblemController {
   async getContestProblem(
     @Req() req: AuthenticatedRequest,
     @Param('contestId', IDValidationPipe) contestId: number,
-    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('groupId', GroupIDPipe) groupId: number
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
     return await this.contestProblemService.getContestProblem({
       contestId,
       problemId,
-      userId: req.user.id,
-      groupId
+      userId: req.user.id
     })
   }
 }
@@ -140,8 +137,7 @@ export class AssignmentProblemController {
       assignmentId,
       userId: req.user.id,
       cursor,
-      take,
-      groupId
+      take
     })
   }
 
@@ -149,14 +145,12 @@ export class AssignmentProblemController {
   async getAssignmentProblem(
     @Req() req: AuthenticatedRequest,
     @Param('assignmentId', IDValidationPipe) assignmentId: number,
-    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('groupId', GroupIDPipe) groupId: number
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
     return await this.assignmentProblemService.getAssignmentProblem({
       assignmentId,
       problemId,
-      userId: req.user.id,
-      groupId
+      userId: req.user.id
     })
   }
 }

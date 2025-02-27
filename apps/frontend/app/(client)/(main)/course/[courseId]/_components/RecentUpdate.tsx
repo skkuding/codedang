@@ -1,24 +1,19 @@
 'use client'
 
-import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { cn } from '@/libs/utils'
+import type { CourseRecentUpdate, RecentUpdateType } from '@/types/type'
+// import { useSearchParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
-
-interface Notice {
-  id: number
-  title: string
-  isNew: boolean
-}
+import { toast } from 'sonner'
+import { AssignmentIcon, ExamIcon, GradeIcon, QnaIcon } from './UpdateIcon'
 
 export function RecentUpdate() {
-  const searchParams = useSearchParams()
-  const courseId = searchParams.get('courseId')
-  const [notices, setNotices] = useState<Notice[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  // const searchParams = useSearchParams()
+  // const courseId = searchParams.get('courseId')
+  const [updates, setUpdates] = useState<CourseRecentUpdate[]>([])
 
   useEffect(() => {
-    const fetchNotices = () => {
+    const fetchUpdates = () => {
       try {
         // TODO: API 연동 시 사용할 코드입니다.
         // const response = await fetch('')
@@ -36,71 +31,99 @@ export function RecentUpdate() {
         // setNotices(formattedData)
 
         // 이것은 샘플 데이터입니다.
-        setNotices([
+        setUpdates([
           {
             id: 999,
-            title: '[필독] 3주차 과제 1번 문제 수정사항',
-            isNew: true
+            title: 'Week 2 Assignment Uploaded',
+            isNew: true,
+            type: 'Assignment'
           },
           {
             id: 998,
-            title: '[필독] 확인된 공지명은 이렇게 보이는 식',
-            isNew: false
+            title: 'Week 1 Assignment Graded',
+            isNew: false,
+            type: 'Grade'
           },
-          { id: 997, title: '[샘플] 공지 테스트 3', isNew: false }
+          {
+            id: 997,
+            title: 'New Answer Registered',
+            isNew: false,
+            type: 'QnA'
+          }
         ])
       } catch (err) {
-        setError('공지사항을 불러오는 중 오류가 발생했습니다.')
-      } finally {
-        setLoading(false)
+        toast.error(`Failed to fetch updates: ${err}`)
       }
     }
 
-    fetchNotices()
+    fetchUpdates()
   }, [])
 
   return (
-    <div className="w-full rounded-xl border border-gray-300 p-5">
-      <div className="mb-2 flex items-center justify-between">
-        <span className="font-semibold text-gray-800">최근 공지</span>
-        <Link
-          href={`/course/${courseId}/notice` as const}
-          className="flex items-center text-sm text-gray-500"
-        >
-          show more <span className="ml-1">+</span>
-        </Link>
+    <div className="w-full rounded-xl p-4 shadow">
+      <div className="mb-2 flex justify-between">
+        <div>
+          <span className="text-primary mr-4 font-semibold">RECENT UPDATE</span>
+          <span className="text-sm font-semibold">{updates.length}</span>
+        </div>
       </div>
 
-      {loading && <p className="text-sm text-gray-500">Loading...</p>}
-
-      {error && <p className="text-sm text-red-500">{error}</p>}
-
-      {!loading && !error && (
-        <ul className="space-y-5 pt-3">
-          {notices.length > 0 ? (
-            notices.map((notice) => (
-              //TODO: 공지 요소 누르면 해당 페이지로 넘어가는 기능 필요!
-              <li
-                key={notice.id}
-                className="flex border-b pb-1 text-sm text-gray-700"
-              >
+      <ul className="space-y-5 pt-3">
+        {updates.length > 0 ? (
+          updates.map((update) => (
+            //TODO: 업데이트 요소 누르면 해당 페이지로 넘어가는 기능 필요!
+            <li
+              key={update.id}
+              className="flex justify-between border-b text-sm"
+            >
+              <div>
                 <span
-                  className={`mr-2 text-xs ${
-                    notice.isNew ? 'text-green-500' : 'text-red-500'
-                  }`}
+                  className={cn(
+                    'mr-1 text-xs',
+                    update.isNew ? 'text-primary' : 'text-[#8A8A8A]'
+                  )}
                 >
                   ●
                 </span>
-                <span className={notice.isNew ? 'font-bold' : ''}>
-                  {notice.title}
+                <div className="mr-2 inline-block h-5 w-5">
+                  <RecentUpdateIcon type={update.type} isNew={update.isNew} />
+                </div>
+                <span
+                  className={cn(
+                    'mr-2 text-xs',
+                    update.isNew ? 'text-black' : 'text-[#8A8A8A]'
+                  )}
+                >
+                  {update.title}
                 </span>
-              </li>
-            ))
-          ) : (
-            <p className="text-sm text-gray-500">공지사항이 없습니다.</p>
-          )}
-        </ul>
-      )}
+              </div>
+            </li>
+          ))
+        ) : (
+          <p className="text-sm text-gray-500">공지사항이 없습니다.</p>
+        )}
+      </ul>
     </div>
   )
+}
+
+interface RecentUpdateIconProps {
+  type: RecentUpdateType
+  isNew: boolean
+}
+
+function RecentUpdateIcon({ type, isNew }: RecentUpdateIconProps) {
+  const strokeColor = isNew ? 'black' : '#8A8A8A'
+  switch (type) {
+    case 'Assignment':
+      return <AssignmentIcon strokeColor={strokeColor} />
+    case 'Grade':
+      return <GradeIcon strokeColor={strokeColor} />
+    case 'QnA':
+      return <QnaIcon strokeColor={strokeColor} />
+    case 'Exam':
+      return <ExamIcon strokeColor={strokeColor} />
+    default:
+      throw new Error(`Unknown type: ${type}`)
+  }
 }

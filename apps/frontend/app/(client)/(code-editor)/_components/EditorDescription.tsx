@@ -16,10 +16,12 @@ import { ReferenceDialog } from './ReferenceDialog'
 
 export function EditorDescription({
   problem,
-  isContest = false
+  isContest = false,
+  isAssignment = false
 }: {
   problem: ProblemDetail
   isContest?: boolean
+  isAssignment?: boolean
 }) {
   const level = problem.difficulty
   const levelNumber = level.slice(-1)
@@ -29,7 +31,7 @@ export function EditorDescription({
       <div className="px-6">
         <div className="flex max-h-24 justify-between gap-4">
           <h1 className="mb-3 overflow-hidden text-ellipsis whitespace-nowrap text-xl font-bold">{`#${problem?.order !== undefined ? convertToLetter(problem.order) : problem.id}. ${problem.title}`}</h1>
-          {!isContest && (
+          {!isContest && !isAssignment && (
             <Badge
               className="h-6 w-[52px] whitespace-nowrap rounded-[4px] bg-neutral-500 p-[6px] text-xs font-medium hover:bg-neutral-500"
               textColors={level}

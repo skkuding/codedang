@@ -1,0 +1,37 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    inviteUser(groupId: 2, userId: 5, isGroupLeader: true){
+      userId
+      groupId
+      isGroupLeader
+      user{
+        email
+      }
+    }
+  }
+  
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.issueInvitation: isString
+}
+
+docs {
+  # Invite User
+  ---
+  - groupId, userId, isGroupLeader: true 에 따라 user를 초대합니다.
+  - Whitelist가 있더라도 무시하고 초대합니다. 
+}

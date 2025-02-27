@@ -1,4 +1,6 @@
+import { AuthProvider } from '@/components/auth/AuthProvider'
 import { Toaster } from '@/components/shadcn/sonner'
+import { auth } from '@/libs/auth'
 import { metaBaseUrl } from '@/libs/constants'
 import { getBootstrapData } from '@/libs/posthog.server'
 import type { Metadata, Viewport } from 'next'
@@ -36,6 +38,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const bootstrapData = await getBootstrapData()
+  const session = await auth()
 
   return (
     <html lang="en" className={mono.variable}>
@@ -43,7 +46,7 @@ export default async function RootLayout({
         <PostHogProvider bootstrap={bootstrapData}>
           {/**NOTE: remove comment if you want to track page view of users */}
           {/* <PostHogPageView /> */}
-          {children}
+          <AuthProvider session={session}>{children}</AuthProvider>
           <Toaster
             richColors
             position="top-center"
