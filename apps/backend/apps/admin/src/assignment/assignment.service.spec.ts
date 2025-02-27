@@ -46,7 +46,9 @@ const assignment: Assignment = {
   createTime,
   updateTime,
   assignmentProblem: [],
-  week: 1
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: false
 }
 
 const assignmentWithCount = {
@@ -67,7 +69,9 @@ const assignmentWithCount = {
   _count: {
     assignmentRecord: 10
   },
-  week: 1
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: false
 }
 
 const assignmentWithParticipants: AssignmentWithParticipants = {
@@ -85,7 +89,9 @@ const assignmentWithParticipants: AssignmentWithParticipants = {
   createTime,
   updateTime,
   participants: 10,
-  week: 1
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: false
 }
 
 const group: Group = {
@@ -183,7 +189,8 @@ const input = {
   isVisible: false,
   isRankVisible: false,
   enableCopyPaste: true,
-  isJudgeResultVisible: true
+  isJudgeResultVisible: true,
+  autoFinalizeScore: false
 } satisfies CreateAssignmentInput
 
 const updateInput = {
