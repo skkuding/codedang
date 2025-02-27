@@ -29,21 +29,21 @@ script:pre-request {
 
 docs {
   # 과제 익명화 점수 조회 API
-  
+
   ## 개요
-  
+
   특정 과제의 참여자들에 대한 익명화된 점수 정보를 조회합니다. 사용자 식별 정보 없이 점수 분포를 확인할 수 있습니다.
-  
+
   ## 파라미터
-  
+
   | **이름** | **타입** | **위치** | **필수 여부** | **설명** |
   | --- | --- | --- | --- | --- |
   | assignmentId | number | path | 필수 | 조회할 과제의 ID |
   | groupId | number | query | 필수 | 과제가 속한 그룹(코스) ID |
   | anonymized | boolean | query | 필수 | 반드시 true여야 함 |
-  
+
   ## 응답
-  
+
   ```
   {
     "assignmentId": 123,
@@ -53,9 +53,9 @@ docs {
     "finalScores": [90, 85]
   }
   ```
-  
+
   ## 응답 필드 설명
-  
+
   | **필드** | **타입** | **설명** |
   | --- | --- | --- |
   | assignmentId | number | 과제 ID |
@@ -63,30 +63,28 @@ docs {
   | totalParticipants | number | 총 참여자 수 |
   | scores | number[] | 자동 채점 점수 목록 (설정이 활성화된 경우에만 포함) |
   | finalScores | number[] | 최종 점수 목록 (설정이 활성화된 경우에만 포함, null 값 제외) |
-  
+
   ## 오류 코드 및 메시지
-  
+
   | **HTTP 상태 코드** | **오류 코드** | **메시지** | **설명** |
   | --- | --- | --- | --- |
   | 404 | EntityNotExistException | Assignment not found | 과제를 찾을 수 없음 |
   | 403 | ForbiddenAccessException | Not allowed to access this assignment | 과제에 대한 접근 권한이 없음 |
   | 403 | ForbiddenAccessException | Cannot view scores before assignment ends | 과제가 아직 종료되지 않음 |
-  | 409 | ConflictFoundException | Scores are currently being calculated. Please try again later. | 점수가 계산 중임 |
-  
-  ## 내부 처리 로직 
-  
+
+  ## 내부 처리 로직
+
   1. 과제 정보 확인 및 접근 권한 검증
   2. 과제 종료 여부 확인 (종료 전에는 점수 조회 불가)
   3. 점수 공개 설정 확인
   4. 점수가 아직 계산되지 않은 경우(0 또는 null), 백그라운드에서 재계산 작업 시작 및 에러 반환
   5. 유효한 사용자 레코드만 필터링
   6. 과제 설정에 따라 자동 채점 점수와 최종 점수를 선택적으로 포함하여 결과 반환
-  
+
   ## 특이사항
-  
+
   - 과제가 종료된 후에만 조회 가능합니다.
   - isJudgeResultVisible 설정이 활성화된 경우에만 자동 채점 점수(scores)가 포함됩니다.
   - isFinalScoreVisible 설정이 활성화된 경우에만 최종 점수(finalScores)가 포함됩니다.
   - null 값의 최종 점수는 finalScores 배열에서 제외됩니다.
-  - 점수가 아직 계산되지 않은 경우, 백그라운드에서 계산 작업을 시작하고 사용자에게 나중에 다시 시도하라는 메시지가 표시됩니다.
 }
