@@ -987,8 +987,7 @@ export class AssignmentService {
           assignmentId
         },
         data: {
-          score: 0,
-          finalScore: null
+          score: 0
         }
       })
 
@@ -997,8 +996,7 @@ export class AssignmentService {
           assignmentId
         },
         data: {
-          score: 0, // 또는 null로 설정 가능
-          finalScore: null
+          score: 0 // 또는 null로 설정 가능
         }
       })
       return true
