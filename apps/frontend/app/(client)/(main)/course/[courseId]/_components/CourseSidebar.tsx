@@ -17,7 +17,7 @@ import {
   // MemberIcon,
   // NoticeIcon,
   // QnaIcon
-} from './SidebarIcons'
+} from './Icons'
 
 interface CourseSidebarProps {
   courseId: string

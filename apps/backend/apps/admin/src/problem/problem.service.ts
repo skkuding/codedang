@@ -1,9 +1,7 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Cache } from '@nestjs/cache-manager'
-import { Inject, Injectable } from '@nestjs/common'
+import { ForbiddenException, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Language } from '@generated'
-import type {
+import {
   AssignmentProblem,
   ContestProblem,
   Problem,
@@ -12,6 +10,7 @@ import type {
 } from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput } from '@generated'
+import { Role } from '@prisma/client'
 import { Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
@@ -45,16 +44,22 @@ export class ProblemService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly storageService: StorageService,
-    private readonly config: ConfigService,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+    private readonly config: ConfigService
   ) {}
 
   async createProblem(
     input: CreateProblemInput,
     userId: number,
-    groupId: number
+    userRole: Role
   ) {
     const { languages, template, tagIds, testcases, isVisible, ...data } = input
+
+    if (userRole == Role.User && isVisible == true) {
+      throw new UnprocessableDataException(
+        'User cannot set a problem to public'
+      )
+    }
+
     if (!languages.length) {
       throw new UnprocessableDataException(
         'A problem should support at least one language'
@@ -74,7 +79,6 @@ export class ProblemService {
       data: {
         ...data,
         visibleLockTime: isVisible ? MIN_DATE : MAX_DATE,
-        groupId,
         createdById: userId,
         languages,
         template: [JSON.stringify(template)],
@@ -129,11 +133,7 @@ export class ProblemService {
     }
   }
 
-  async uploadProblems(
-    input: UploadFileInput,
-    userId: number,
-    groupId: number
-  ) {
+  async uploadProblems(input: UploadFileInput, userId: number, userRole: Role) {
     const { filename, mimetype, createReadStream } = await input.file
     if (
       [
@@ -254,7 +254,7 @@ export class ProblemService {
     })
     return await Promise.all(
       problems.map(async (data) => {
-        const problem = await this.createProblem(data, userId, groupId)
+        const problem = await this.createProblem(data, userId, userRole)
         return problem
       })
     )
@@ -408,19 +408,45 @@ export class ProblemService {
   }
 
   async getProblems({
+    userId,
     input,
-    groupId,
     cursor,
-    take
+    take,
+    my,
+    shared
   }: {
+    userId: number
     input: FilterProblemsInput
-    groupId: number
     cursor: number | null
     take: number
+    my: boolean
+    shared: boolean
   }) {
     const paginator = this.prisma.getPaginator(cursor)
 
     const whereOptions: ProblemWhereInput = {}
+
+    if (my) {
+      whereOptions.createdById = {
+        equals: userId
+      }
+    }
+    if (shared) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      whereOptions.sharedGroups = {
+        some: {
+          id: { in: leaderGroupIds }
+        }
+      }
+    }
+
     if (input.difficulty) {
       whereOptions.difficulty = {
         in: input.difficulty
@@ -433,19 +459,17 @@ export class ProblemService {
     const problems: Problem[] = await this.prisma.problem.findMany({
       ...paginator,
       where: {
-        ...whereOptions,
-        groupId
+        ...whereOptions
       },
       take
     })
     return this.changeVisibleLockTimeToIsVisible(problems)
   }
 
-  async getProblem(id: number, groupId: number) {
+  async getProblem(id: number) {
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
-        id,
-        groupId
+        id
       }
     })
     return this.changeVisibleLockTimeToIsVisible(problem)
@@ -460,15 +484,43 @@ export class ProblemService {
     return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
-  async updateProblem(input: UpdateProblemInput, groupId: number) {
+  async updateProblem(
+    input: UpdateProblemInput,
+    userRole: Role,
+    userId: number
+  ) {
     const { id, languages, template, tags, testcases, isVisible, ...data } =
       input
     const problem = await this.prisma.problem.findFirstOrThrow({
-      where: {
-        id,
-        groupId
+      where: { id },
+      include: {
+        sharedGroups: {
+          select: {
+            id: true
+          }
+        }
       }
     })
+
+    if (userRole == Role.User && problem.createdById != userId) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared) {
+        throw new ForbiddenException(
+          'User can only edit problems they created or were shared with'
+        )
+      }
+    }
 
     if (languages && !languages.length) {
       throw new UnprocessableDataException(
@@ -555,7 +607,7 @@ export class ProblemService {
       return { id: check.id }
     })
 
-    return await {
+    return {
       create: await Promise.all(createIds),
       delete: await Promise.all(deleteIds)
     }
@@ -583,13 +635,14 @@ export class ProblemService {
     }
   }
 
-  async deleteProblem(id: number, groupId: number) {
+  async deleteProblem(id: number, userRole: Role, userId: number) {
     const problem = await this.prisma.problem.findFirstOrThrow({
-      where: {
-        id,
-        groupId
-      }
+      where: { id }
     })
+
+    if (userRole == Role.User && problem.createdById !== userId) {
+      throw new ForbiddenException('User can only delete problems they created')
+    }
 
     // Problem description에 이미지가 포함되어 있다면 삭제
     const uuidImageFileNames = this.extractUUIDs(problem.description)
@@ -680,7 +733,6 @@ export class ProblemService {
   }
 
   async getContestProblems(
-    groupId: number,
     contestId: number
   ): Promise<Partial<ContestProblem>[]> {
     await this.prisma.contest.findFirstOrThrow({
@@ -693,7 +745,6 @@ export class ProblemService {
   }
 
   async updateContestProblemsScore(
-    groupId: number,
     contestId: number,
     problemIdsWithScore: ProblemScoreInput[]
   ): Promise<Partial<ContestProblem>[]> {
@@ -718,7 +769,6 @@ export class ProblemService {
   }
 
   async updateContestProblemsOrder(
-    groupId: number,
     contestId: number,
     orders: number[]
   ): Promise<Partial<ContestProblem>[]> {

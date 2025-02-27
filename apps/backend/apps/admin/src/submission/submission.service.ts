@@ -18,7 +18,6 @@ export class SubmissionService {
 
   async getSubmissions(
     problemId: number,
-    groupId: number,
     cursor: number | null,
     take: number
   ): Promise<SubmissionsWithTotal> {
@@ -26,8 +25,7 @@ export class SubmissionService {
 
     const problem = await this.prisma.problem.findFirst({
       where: {
-        id: problemId,
-        groupId
+        id: problemId
       }
     })
     if (!problem) {
