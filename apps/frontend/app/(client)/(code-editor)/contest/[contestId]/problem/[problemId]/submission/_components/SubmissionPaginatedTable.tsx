@@ -78,8 +78,7 @@ export function SubmissionPaginatedTable({
   } = usePagination({
     data: allSubmissions,
     totalCount: allSubmissions.length,
-    itemsPerPage,
-    updateQueryParams
+    itemsPerPage
   })
 
   return (

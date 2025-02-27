@@ -11,23 +11,22 @@ post {
 }
 
 body:graphql {
-  mutation UpdateProblem($groupId: Int!, $input: UpdateProblemInput!) {
-    updateProblem(groupId: $groupId, input: $input) {
+  mutation UpdateProblem($input: UpdateProblemInput!) {
+    updateProblem(input: $input) {
       id
       createdById
-      groupId
       title
       description
       inputDescription
       outputDescription
       hint
+      isVisible
     }
   }
 }
 
 body:graphql:vars {
   {
-    "groupId": 1,
     "input": {
       "id": 1,
       "isVisible": false
@@ -37,5 +36,5 @@ body:graphql:vars {
 
 assert {
   res.body.errors[0].extensions.code: eq UNPROCESSABLE
-  res.body.errors[0].message: eq Unable to set the visible property until the contest is over
+  res.body.errors[0].message: eq Unable to set the visible property until the assignment/contest is over
 }

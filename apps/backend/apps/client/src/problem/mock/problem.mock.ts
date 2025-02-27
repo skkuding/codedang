@@ -15,7 +15,6 @@ export const problems: Problem[] = [
   {
     id: 1,
     createdById: 1,
-    groupId: 1,
     title: 'public problem',
     description: '',
     inputDescription: '',
@@ -43,7 +42,6 @@ export const problems: Problem[] = [
   {
     id: 2,
     createdById: 1,
-    groupId: 1,
     title: 'problem',
     description: '',
     inputDescription: '',

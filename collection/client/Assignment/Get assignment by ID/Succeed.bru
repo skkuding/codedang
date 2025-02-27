@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/assignment/14
+  url: {{baseUrl}}/assignment/3
   body: none
   auth: none
 }
@@ -33,7 +33,7 @@ script:pre-request {
 docs {
   ## Get Assignment by ID
   
-  하나의 대회 정보와 Assignment 참여자 정보, 로그인한 유저가 해당 Assignment에 참여가능한지 여부에 대한 정보를 가져옵니다. (로그인 하지 않은 유저는 Open Space의 Assignment 정보만 볼 수 있고, `isRegistered`는 항상 `false`)
+  하나의 대회 정보와 Assignment 참여자 정보, 로그인한 유저가 해당 Assignment에 참여가능한지 여부에 대한 정보를 가져옵니다. (로그인 하지 않은 유저는 Public의 Assignment 정보만 볼 수 있고, `isRegistered`는 항상 `false`)
   ### Path
   
   | 이름 | 타입 | 설명 |

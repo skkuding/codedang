@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  query GetContestProblems($groupId: Int!, $contestId: Int!) {
-    getContestProblems(groupId: $groupId, contestId: $contestId) {
+  query GetContestProblems($contestId: Int!) {
+    getContestProblems(contestId: $contestId) {
       order
       contestId
       problemId
@@ -21,12 +21,11 @@ body:graphql {
       updateTime
     }
   }
-  
+
 }
 
 body:graphql:vars {
   {
-    "groupId": 1,
     "contestId":  99
   }
 }

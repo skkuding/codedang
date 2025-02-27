@@ -5,7 +5,6 @@ import {
   AssignmentProblemRecord
 } from '@generated'
 import { AuthenticatedRequest } from '@libs/auth'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -59,11 +58,7 @@ export class AssignmentResolver {
   @Mutation(() => Assignment)
   async createAssignment(
     @Args('input') input: CreateAssignmentInput,
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
+    @Args('groupId', { type: () => Int }, GroupIDPipe)
     groupId: number,
     @Context('req') req: AuthenticatedRequest
   ) {

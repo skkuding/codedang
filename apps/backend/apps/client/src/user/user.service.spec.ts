@@ -112,7 +112,6 @@ describe('UserService', () => {
   let emailService: EmailService
   let jwtService: JwtService
   let jwtAuthService: JwtAuthService
-  let groupService: GroupService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -133,7 +132,6 @@ describe('UserService', () => {
     emailService = module.get<EmailService>(EmailService)
     jwtService = module.get<JwtService>(JwtService)
     jwtAuthService = module.get<JwtAuthService>(JwtAuthService)
-    groupService = module.get<GroupService>(GroupService)
   })
 
   it('should be defined', () => {
@@ -389,7 +387,6 @@ describe('UserService', () => {
 
     let createUserSpy: SinonSpy
     let createUserProfileSpy: SinonSpy
-    let registerUserToPublicGroupSpy: SinonSpy
     let deletePinFromCacheSpy: SinonSpy
     beforeEach(() => {
       service.verifyJwtFromRequestHeader = fake.resolves({
@@ -400,7 +397,6 @@ describe('UserService', () => {
       })
       createUserSpy = spy(service, 'createUser')
       createUserProfileSpy = spy(service, 'createUserProfile')
-      registerUserToPublicGroupSpy = spy(service, 'registerUserToPublicGroup')
       deletePinFromCacheSpy = stub(service, 'deletePinFromCache')
 
       db.user.findUniqueOrThrow.resolves({ username: signUpDto.username })
@@ -418,7 +414,6 @@ describe('UserService', () => {
       expect(ret).to.deep.equal(user)
       expect(createUserSpy.calledOnce).to.be.true
       expect(createUserProfileSpy.calledOnce).to.be.true
-      expect(registerUserToPublicGroupSpy.calledOnce).to.be.true
     })
 
     it('should delete pin', async () => {
@@ -479,14 +474,6 @@ describe('UserService', () => {
         service.signUp(authRequestObject, signUpDto)
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(createUserSpy.calledOnce).to.be.false
-    })
-  })
-
-  describe('registerUserToPublicGroup', () => {
-    it('call group service to create user group', async () => {
-      const createUserGroupSpy = spy(groupService, 'createUserGroup')
-      await service.registerUserToPublicGroup(ID)
-      expect(createUserGroupSpy.calledOnce).to.be.true
     })
   })
 

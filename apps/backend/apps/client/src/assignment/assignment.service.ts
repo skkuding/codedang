@@ -2,12 +2,10 @@ import { Injectable } from '@nestjs/common'
 import {
   Prisma,
   ResultStatus,
-  type Assignment,
   type AssignmentProblem,
   type AssignmentProblemRecord,
   type Submission
 } from '@prisma/client'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -193,7 +191,7 @@ export class AssignmentService {
   async createAssignmentRecord(
     assignmentId: number,
     userId: number,
-    groupId = OPEN_SPACE_ID
+    groupId: number
   ) {
     const assignment = await this.prisma.assignment.findUniqueOrThrow({
       where: { id: assignmentId, groupId },
@@ -227,7 +225,7 @@ export class AssignmentService {
   async deleteAssignmentRecord(
     assignmentId: number,
     userId: number,
-    groupId = OPEN_SPACE_ID
+    groupId: number
   ) {
     const [assignment, assignmentRecord] = await Promise.all([
       this.prisma.assignment.findUnique({

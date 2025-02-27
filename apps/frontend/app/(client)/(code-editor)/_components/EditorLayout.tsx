@@ -2,7 +2,7 @@ import { AssignmentStatusTimeDiff } from '@/components/AssignmentStatusTimeDiff'
 import { ContestStatusTimeDiff } from '@/components/ContestStatusTimeDiff'
 import { HeaderAuthPanel } from '@/components/auth/HeaderAuthPanel'
 import { auth } from '@/libs/auth'
-import { fetcher, fetcherWithAuth } from '@/libs/utils'
+import { fetcher, fetcherWithAuth, omitString } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import type { Assignment, Contest, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
@@ -116,7 +116,9 @@ const renderHeaderContent = ({
     return (
       <>
         Contest <p className="mx-2"> / </p>
-        <Link href={`/contest/${contest.id}`}>{contest.title}</Link>
+        <Link href={`/contest/${contest.id}`}>
+          {omitString({ targetString: contest.title, maxlength: 20 })}
+        </Link>
         <p className="mx-2"> / </p>
         <ContestProblemDropdown problem={problem} contestId={contest.id} />
       </>
