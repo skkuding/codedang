@@ -7,10 +7,17 @@ interface CoverProps {
 }
 
 const bgColors: { [key: string]: string } = {
-  contest: 'bg-gradient-to-b from-[#7BD9D3] to-[#A7A5A1]',
-  problem: 'bg-gradient-to-b from-[#5861B7] to-[#99978E]',
-  notice: 'bg-gradient-to-b from-[#2F4672] to-[#4671B3]',
-  course: 'bg-gradient-to-b from-[#7460C5] to-[#CAC1EE]'
+  contest: 'bg-gradient-to-r from-[#D4E4FF] via-white to-[#7EAFFF]',
+  problem: 'bg-gradient-to-r from-white via-white to-[#D1A9E7]',
+  notice: 'bg-gradient-to-r from-white via-white to-[#6976FF]',
+  course: 'bg-gradient-to-r from-white via-white to-[#AD96FF]'
+}
+
+const bgImg: { [key: string]: string } = {
+  contest: '/banners/contestInnerBanner.png',
+  problem: '/banners/contestInnerBanner.png',
+  notice: '/banners/contestInnerBanner.png',
+  course: '/banners/contestInnerBanner.png'
 }
 
 const icons: { [key: string]: string } = {
@@ -28,21 +35,21 @@ const icons: { [key: string]: string } = {
 export function Cover({ title, description }: CoverProps) {
   return (
     <div className="w-screen">
-      <div className="absolute left-0 top-0 z-[10] h-14 w-full" />
+      <div className="relative left-0 top-0 z-[10] h-14 w-full" />
       <div
         className={cn(
           bgColors[title.toLowerCase()],
           'z-[-10] flex h-[344px] w-full justify-center'
         )}
       >
-        {/* <Image
-          src={icons[title.toLowerCase()]}
-          width={280}
-          height={280}
+        <Image
+          src={bgImg[title.toLowerCase()]}
+          width={1900}
+          height={344}
           alt={title}
-          className="max-md:hidden"
-        /> */}
-        <div className="relative justify-center pb-[91px] pt-[157px] text-center md:w-[1440px] md:flex-col md:items-center md:pl-[240.12px] md:pr-[838px] md:text-left">
+          className="absolute"
+        />
+        <div className="relative z-10 justify-center pb-[91px] pt-[157px] text-center md:w-[1440px] md:flex-col md:items-center md:pl-[240.12px] md:pr-[838px] md:text-left">
           <Image
             src={'/logos/codedang-rotated.svg'}
             width={92.6}
