@@ -11,23 +11,22 @@ post {
 }
 
 body:graphql {
-  mutation UpdateProblem($groupId: Int!, $input: UpdateProblemInput!) {
-    updateProblem(groupId: $groupId, input: $input) {
+  mutation UpdateProblem($input: UpdateProblemInput!) {
+    updateProblem(input: $input) {
       id
       createdById
-      groupId
       title
       description
       inputDescription
       outputDescription
       hint
+      isVisible
     }
   }
 }
 
 body:graphql:vars {
   {
-    "groupId": 1,
     "input": {
       "id": 4,
       "title": "updatedProblem",

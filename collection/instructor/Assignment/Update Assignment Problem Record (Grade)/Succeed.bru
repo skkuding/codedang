@@ -1,0 +1,74 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    updateAssignmentProblemRecord(
+      groupId: 2
+      input: {
+        assignmentId: 5
+        problemId: 7
+        userId: 4
+        comment:"updated Comment"
+        finalScore: 10
+      }
+    ) {
+      assignmentId
+      userId
+      problemId
+      isSubmitted
+      isAccepted
+      finalScore
+      comment
+    }
+  }
+}
+
+assert {
+  res.body.data.updateAssignment: isDefined
+}
+
+docs {
+  # Update Assignment Problem Record
+  ---
+  - Assignment Problem Record를 update합니다.
+  
+  - finalScore와 comment를 업데이트할 수 있습니다.
+  
+  ## 파라미터
+  groupId: 그룹 ID (number)
+  input: 업데이트할 정보 객체
+  
+  ## input
+  ```
+  {
+    "assignmentId": 1, (필수)
+    "userId": 123, (필수)
+    "problemId": 45, (필수)
+    "finalScore": 85,
+    "comment": "좋은 접근법이지만 시간 복잡도를 개선할 수 있습니다."
+  }
+  ```
+  
+  ## 응답
+  성공 시 업데이트된 AssignmentProblemRecord 객체가 반환됩니다.
+  
+  ## 오류 코드
+  404: 과제 문제를 찾을 수 없음
+  403: 접근 권한 없음 (다른 그룹의 과제에 접근 시도)
+  409: 종료되지 않은 과제는 채점할 수 없음
+  422: 최대 점수를 초과하는 점수 입력 시도
+  
+  ## 제한사항
+  과제가 종료된 후에만 채점이 가능합니다.
+  최종 점수는 문제의 배점을 초과할 수 없습니다
+}
