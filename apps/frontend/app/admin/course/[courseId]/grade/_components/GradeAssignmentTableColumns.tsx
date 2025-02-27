@@ -19,11 +19,10 @@ export const columns: ColumnDef<DataTableGrade>[] = [
       <DataTableColumnHeader column={column} title="Week" />
     ),
     cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
-        {row.getValue('week')}
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-center font-medium">
+        Week {row.getValue('week')}
       </p>
     ),
-    enableSorting: false,
     enableHiding: false
   },
   {

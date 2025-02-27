@@ -7,6 +7,7 @@ import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { dateFormatter } from '@/libs/utils'
 import { useQuery, useSuspenseQuery } from '@apollo/client'
 import { ErrorBoundary } from '@suspensive/react'
+import type { Route } from 'next'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -45,16 +46,18 @@ export default function Layout({
     <main className="flex flex-col gap-6 px-20 py-16">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/admin/contest">
+          <Link href={`/admin/course/${courseId}/grade` as Route}>
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
           <span className="text-4xl font-bold">{assignmentData?.title}</span>
         </div>
-        <Link href={`/admin/course/${courseId}/assignment/${assignmentId}`}>
+        <Link
+          href={`/admin/course/${courseId}/assignment/${assignmentId}` as Route}
+        >
           <Button variant="default">Go to Assignment Detail</Button>
         </Link>
       </div>
-      <div className="flex justify-between">
+      <div className="flex justify-between border-y border-gray-300 py-6">
         <div className="grid gap-2">
           {[
             {
