@@ -665,10 +665,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     toBeAddedScore = submissionScore - prevSubmissionScore
 
     if (toBeAddedScore > 0) {
-      // isFinishTimeToBeUpdated = true
       toBeAddedAcceptedProblemNum = isAccepted ? 1 : 0
     } else if (toBeAddedScore < 0) {
-      // isFinishTimeToBeUpdated = true
       toBeAddedAcceptedProblemNum = assignmentProblemRecord?.isAccepted ? -1 : 0
     }
     await this.prisma.assignmentRecord.update({
