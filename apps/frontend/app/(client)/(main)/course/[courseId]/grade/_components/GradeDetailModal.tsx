@@ -8,17 +8,17 @@ import {
 } from '@/components/shadcn/chart'
 import {
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle
 } from '@/components/shadcn/dialog'
-import type { Assignment } from '@/types/type'
+// import type { Assignment } from '@/types/type'
 import { MdArrowForwardIos } from 'react-icons/md'
 import { Bar, CartesianGrid, XAxis, BarChart, YAxis } from 'recharts'
 
-interface AssignmentModalProps {
-  assignment: Assignment
-}
+// TODO: assignemt 가져오기
+// interface AssignmentModalProps {
+//   assignment: Assignment
+// }
 
 const chartData = [
   { score: '0-10', count: 225, fill: '#3b82f6' }, // 파란색
