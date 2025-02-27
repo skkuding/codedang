@@ -4,8 +4,11 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/shadcn/accordion'
+import { Dialog } from '@/components/shadcn/dialog'
 import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
-import { GradeDetailIcon } from './Icons'
+import { DetailButton } from './DetailButton'
+import { GradeDetailModal } from './GradeDetailModal'
+import { SubmissionDetailModal } from './SubmissionDetailModal'
 import { dummyResponse } from './dummy'
 
 interface GradeAccordionProps {
@@ -83,7 +86,10 @@ function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
           <p className="line-clamp-1 w-[30%] font-medium">{assignment.title}</p>
           <div className="w-[4%]" />
           <div className="flex w-[11%] justify-center">
-            <DetailButton isActivated={assignment.isFinalScoreVisible} />
+            <Dialog>
+              <DetailButton isActivated={assignment.isFinalScoreVisible} />
+              <GradeDetailModal />
+            </Dialog>
           </div>
           <p className="w-[20%] text-center font-normal text-[#8A8A8A]">
             {dateFormatter(assignment.endTime, 'YYYY-MM-DD HH:mm:ss')}
@@ -114,9 +120,12 @@ function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
                 </div>
                 <div className="w-[4%]" />
                 <div className="flex w-[11%] justify-center">
-                  <DetailButton
-                    isActivated={problem.problemRecord.finalScore !== null}
-                  />
+                  <Dialog>
+                    <DetailButton
+                      isActivated={problem.problemRecord.finalScore !== null}
+                    />
+                    <SubmissionDetailModal />
+                  </Dialog>
                 </div>
                 <p className="w-[20%] text-center font-normal text-[#8A8A8A]">
                   -
@@ -163,22 +172,6 @@ function MissingBadge() {
   return (
     <div className="bg-level-light-1 text-error flex h-[24px] w-[80px] items-center justify-center rounded-full text-sm font-medium">
       Missing
-    </div>
-  )
-}
-
-interface DetailButtonProps {
-  isActivated: boolean
-}
-
-function DetailButton({ isActivated }: DetailButtonProps) {
-  return (
-    <div
-      className={cn(
-        isActivated ? 'cursor-pointer hover:opacity-70' : 'cursor-default'
-      )}
-    >
-      <GradeDetailIcon fill={isActivated ? '#3581FA' : '#C4C4C4'} />
     </div>
   )
 }
