@@ -39,15 +39,8 @@ export function GroupTable() {
     email: member.email,
     major: member.major,
     studentId: member.studentId,
-    role: member.isGroupLeader ? getRole(member.role) : member.role
+    role: member.isGroupLeader ? 'Instructor' : 'Student'
   }))
-  function getRole(role: string) {
-    if (role === 'User') {
-      return 'Instructor'
-    } else {
-      return role
-    }
-  }
 
   const deleteTarget = (userId: number, groupId: number) => {
     return deleteGroupMember({

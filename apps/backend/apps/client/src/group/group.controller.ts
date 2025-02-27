@@ -13,7 +13,7 @@ import {
 import { GroupType } from '@prisma/client'
 import {
   AuthenticatedRequest,
-  AuthNotNeededIfOpenSpace,
+  AuthNotNeededIfPublic,
   GroupMemberGuard
 } from '@libs/auth'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
@@ -26,7 +26,7 @@ export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @Get()
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   async getGroups(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
@@ -103,5 +103,14 @@ export class CourseController {
     @Param('groupId', GroupIDPipe) groupId: number
   ) {
     return await this.groupService.leaveGroup(req.user.id, groupId)
+  }
+
+  @Get(':groupId/grade')
+  async getAssignmentGradeSummary(
+    @Req() req: AuthenticatedRequest,
+    @Param('groupId', GroupIDPipe) groupId: number
+  ) {
+    const userId = req.user.id
+    return await this.groupService.getAssignmentGradeSummary(userId, groupId)
   }
 }

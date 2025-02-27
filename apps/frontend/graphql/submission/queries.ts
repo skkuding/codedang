@@ -43,6 +43,35 @@ const GET_CONTEST_SUBMISSIONS = gql(`
 }
 `)
 
+const GET_ASSIGNMENT_SUBMISSIONS = gql(`
+  query GetAssignmentSubmissions(
+    $input: GetAssignmentSubmissionsInput!,
+    $cursor: Int,
+    $take: Int,
+    $order: String
+  ) {
+    getAssignmentSubmissions(
+      input: $input,
+      cursor: $cursor,
+      take: $take,
+      order: $order
+    ) {
+      title
+      studentId
+      realname
+      username
+      result
+      language
+      submissionTime
+      codeSize
+      problemId
+      order
+      ip
+      id
+    }
+  }
+`)
+
 const GET_SUBMISSION = gql(`query GetSubmission(
   $id: Int!
 ) {
@@ -94,5 +123,6 @@ const GET_SUBMISSION = gql(`query GetSubmission(
 export {
   GET_CONTEST_SUBMISSIONS_COUNT,
   GET_CONTEST_SUBMISSIONS,
+  GET_ASSIGNMENT_SUBMISSIONS,
   GET_SUBMISSION
 }

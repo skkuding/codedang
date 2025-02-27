@@ -117,14 +117,14 @@ export function EditorHeader({
 
           let href = ''
           if (contestId) {
-            href = `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}`
+            href = `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}?cellProblemId=${problem.id}`
           } else if (assignmentId) {
             href = `/course/${courseId}/assignment/${assignmentId}/problem/${problem.id}/submission`
           } else {
             href = `/problem/${problem.id}/submission/${submissionId}`
           }
 
-          router.replace(href as Route)
+          !contestId && router.replace(href as Route)
           //window.history.pushState(null, '', window.location.href)
           if (submission.result === 'Accepted') {
             confetti?.addConfetti()

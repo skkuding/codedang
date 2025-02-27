@@ -15,7 +15,7 @@ headers {
 }
 
 body:multipart-form {
-  operations: { "query": "mutation($groupId: Int!, $input: UploadFileInput!) { uploadProblems(groupId: $groupId, input: $input){id createdById groupId title description template languages difficulty}}", "variables" : {"groupId": 2, "input": {"file": null}}}
+  operations: { "query": "mutation($input: UploadFileInput!) { uploadProblems(input: $input){id createdById title description template languages difficulty}}", "variables" : {"input": {"file": null}}}
   map: { "nfile" : ["variables.input.file"]}
   nfile: @file()
 }

@@ -80,16 +80,16 @@ export function InviteButton({ onSuccess, params }: InviteButtonProps) {
         Invite
       </Button>
       <AlertDialog open={isAlertDialogOpen} onOpenChange={handleOpenChange}>
-        <AlertDialogContent className="p-8">
-          <AlertDialogCancel className="absolute right-4 top-4 border-none">
+        <AlertDialogContent className="max-w-lg p-8">
+          <AlertDialogCancel className="absolute right-4 border-none">
             <FiX className="h-5 w-5" />
           </AlertDialogCancel>
           <AlertDialogHeader>
-            <AlertDialogTitle>Invite</AlertDialogTitle>
+            <AlertDialogTitle className="mb-4 text-xl">Invite</AlertDialogTitle>
           </AlertDialogHeader>
           <div className="flex flex-col gap-3">
             <InviteManually courseId={courseId} />
-            <Separator />
+            <Separator className="my-6" />
             <InviteByCode courseId={courseId} />
           </div>
         </AlertDialogContent>
@@ -204,7 +204,7 @@ function InviteManually({ courseId }: InviteManuallyProps) {
     >
       <div className="flex flex-col gap-2">
         <span className="text-base font-bold">Invite Manually</span>
-        <div className="flex justify-between">
+        <div className="mt-4 flex justify-start gap-4">
           <div className="flex flex-col">
             <div className="flex justify-between">
               <div className="flex items-center rounded-lg border border-gray-300 px-2">
@@ -251,7 +251,7 @@ function InviteManually({ courseId }: InviteManuallyProps) {
           </div>
           <Button
             type="submit"
-            className="bg-primary hover:bg-primary-strong px-5"
+            className="bg-primary hover:bg-primary-strong ml-2 px-5"
           >
             Invite
           </Button>
@@ -403,8 +403,8 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
       aria-label="Invite user"
       className="flex flex-col gap-3"
     >
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center gap-4">
           <span className="text-base font-bold">Invite by Invitation Code</span>
           <Switch
             checked={isInviteByCodeEnabled}
@@ -413,11 +413,12 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
         </div>
 
         {isInviteByCodeEnabled && (
-          <div className="flex flex-col gap-2">
-            <div className="flex justify-between">
+          <div className="flex flex-col gap-6">
+            <div className="flex justify-start gap-4">
               <Input
                 id="issueInvitation"
-                className="w-[194px]"
+                className="w-[194px] bg-slate-100"
+                readOnly
                 {...register('issueInvitation')}
               />
               <div className="flex gap-2">
@@ -443,10 +444,10 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
                 </Button>
               </div>
             </div>
-            <div className="flex flex-col gap-3">
-              <span className="text-sm font-bold">Invitation Code Setting</span>
-              <div className="flex gap-2">
-                <span className="text-xs font-bold">
+            <div className="flex flex-col gap-4">
+              {/* <span className="text-sm font-bold">Invitation Code Setting</span> */}
+              <div className="flex gap-4">
+                <span className="text-sm font-bold">
                   Only approved accounts can enter
                 </span>
                 <Switch

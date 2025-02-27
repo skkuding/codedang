@@ -49,17 +49,16 @@ body:graphql {
       }
     }
   }
-
+  
 }
 
 assert {
   res.status: eq 200
-  res.body.data.updateGroup: isDefined
+  res.body.data.updateCourse: isDefined
 }
 
 docs {
   # Update Group
   ---
   - Group 정보를 업데이트합니다.
-  - Open space는 업데이트 할 수 없습니다.
 }
