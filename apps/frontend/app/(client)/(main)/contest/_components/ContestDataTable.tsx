@@ -41,6 +41,7 @@ interface ContestDataTableProps<TData, TValue> {
   itemsPerPage: number
   currentPage: number
   setFilteredData: (data: TData[]) => void
+  resetPageIndex: () => void
 }
 
 /**
@@ -70,7 +71,8 @@ export function ContestDataTable<TData extends Item, TValue>({
   emptyMessage = 'No results.',
   itemsPerPage,
   currentPage,
-  setFilteredData
+  setFilteredData,
+  resetPageIndex
 }: ContestDataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -100,10 +102,10 @@ export function ContestDataTable<TData extends Item, TValue>({
         <h1 className="text-2xl font-semibold text-gray-700">CONTEST LIST</h1>
         <div className="flex gap-4">
           <ContestTitleFilter
-            table={table}
             column={table.getColumn('status')}
             title="State"
             options={status.map((item) => ({ value: item, label: item }))}
+            resetPageIndex={resetPageIndex}
           />
           <SearchBar className="w-60" />
         </div>

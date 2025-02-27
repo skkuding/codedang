@@ -60,7 +60,7 @@ export function EditContestForm({
   })
 
   useQuery(GET_CONTEST_PROBLEMS, {
-    variables: { groupId: 1, contestId },
+    variables: { contestId },
     onCompleted: (problemData) => {
       const data = problemData.getContestProblems
 
@@ -141,7 +141,6 @@ export function EditContestForm({
 
     await updateContestProblemsOrder({
       variables: {
-        groupId: 1,
         contestId,
         orders: orderArray
       }

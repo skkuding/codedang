@@ -76,7 +76,7 @@ function AssignmentAccordionItem({
             'border border-transparent',
             'data-[state=open]:border-primary data-[state=open]:-mb-6'
           )}
-          iconSize="w-7 h-7"
+          iconStyle="w-7 h-7"
         >
           <div className="relative w-full text-left text-base">
             <p className="text-primary absolute top-0 w-32 -translate-y-1/2">
