@@ -64,7 +64,7 @@ function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
             'relative',
             'hover:no-underline'
           )}
-          iconSize="w-5 h-5 absolute left-[40%]"
+          iconStyle="w-5 h-5 absolute left-[41%]"
         >
           <div className="flex w-full items-center text-left text-sm">
             <p className="text-primary w-[9%] font-semibold">
@@ -74,8 +74,8 @@ function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
               {assignment.title}
             </p>
             <div className="w-[4%]" />
-            <div className="w-[9%] text-center">!!</div>
-            <p className="w-[22%] text-center font-normal text-[#8A8A8A]">
+            <div className="w-[11%] text-center">!!</div>
+            <p className="w-[20%] text-center font-normal text-[#8A8A8A]">
               {dateFormatter(assignment.endTime, 'YYYY-MM-DD HH:mm:ss')}
             </p>
             <p className="w-[12%] text-center font-medium">
@@ -105,8 +105,8 @@ function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
                     </span>
                   </div>
                   <div className="w-[4%]" />
-                  <div className="w-[9%] text-center">!!</div>
-                  <p className="w-[22%] text-center font-normal text-[#8A8A8A]">
+                  <div className="w-[11%] text-center">!!</div>
+                  <p className="w-[20%] text-center font-normal text-[#8A8A8A]">
                     -
                   </p>
                   <p className="w-[12%] text-center font-medium">{`${problem.problemRecord.finalScore ?? '-'} / ${problem.maxScore}`}</p>
