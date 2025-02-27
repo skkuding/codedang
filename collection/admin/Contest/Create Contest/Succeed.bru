@@ -13,9 +13,8 @@ post {
 body:graphql {
   mutation {
     createContest(
-      groupId: 2
       input: {
-        title: "New Contest Group 2"
+        title: "New Contest 1"
         description: "thisisnewcontest"
         startTime: "2024-01-01"
         endTime: "2030-01-01"
@@ -24,17 +23,28 @@ body:graphql {
         enableCopyPaste: true
         isJudgeResultVisible: true
         invitationCode: "123456"
+        summary: {
+          participationTarget: "thisisparticipationtarget"
+          competitionMethod: "thisiscompetitionmethod"
+          rankingMethod: "thisisrankingmethod"
+          problemFormat: "thisisproblemformat"
+          benefits: "thisisbenefits"
+        }
       }
     ) {
       id
       title
       description
+      startTime
+      endTime
+      isVisible
+      isRankVisible
       enableCopyPaste
-      invitationCode
       isJudgeResultVisible
+      invitationCode
+      summary
     }
   }
-  
 }
 
 assert {
@@ -44,5 +54,13 @@ assert {
 docs {
   # Create Contest
   ---
-  - 주어진 Group에 새로운 Contest를 생성합니다.
+  - 새로운 Contest를 생성합니다.
+
+  ## Error Cases
+  ### End Time Earlier than Start Time
+  종료 시각이 시작 시간 이후여야 합니다.
+
+  ### Required Fields Not Entered
+  title, startTime, endTime은 필수로 입력되어야 합니다.
+
 }
