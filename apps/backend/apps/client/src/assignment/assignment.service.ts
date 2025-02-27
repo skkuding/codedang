@@ -298,17 +298,6 @@ export class AssignmentService {
       }
     })
 
-    const hasZeroScoreRecord = assignmentRecords.some(
-      (record) => record.score === 0 || record.score === null
-    )
-
-    if (hasZeroScoreRecord) {
-      this.recalculateAllAssignmentScores(assignmentId)
-      throw new ConflictFoundException(
-        'Scores are currently being calculated. Please try again later.'
-      )
-    }
-
     const validRecords = assignmentRecords.filter(
       (record) => record.userId !== null
     )
@@ -580,79 +569,6 @@ export class AssignmentService {
       userAssignmentScore,
       assignmentPerfectScore,
       userAssignmentFinalScore
-    }
-  }
-
-  public async recalculateAllAssignmentScores(assignmentId: number) {
-    try {
-      const assignmentRecords = await this.prisma.assignmentRecord.findMany({
-        where: { assignmentId },
-        select: {
-          userId: true
-        }
-      })
-
-      for (const record of assignmentRecords) {
-        if (!record.userId) continue
-
-        const { assignmentProblems, filteredSubmissions } =
-          await this.fetchAssignmentData(assignmentId, record.userId)
-
-        const latestSubmissions = this.calculateLatestSubmissions(
-          filteredSubmissions,
-          assignmentProblems
-        )
-
-        const userAssignmentScore = Object.values(latestSubmissions).reduce(
-          (total, data) => total + data.score,
-          0
-        )
-
-        await this.prisma.$transaction(async (tx) => {
-          await tx.assignmentRecord.update({
-            where: {
-              // eslint-disable-next-line @typescript-eslint/naming-convention
-              assignmentId_userId: {
-                assignmentId,
-                userId: record.userId as number
-              }
-            },
-            data: {
-              score: userAssignmentScore
-            }
-          })
-
-          for (const [problemId, data] of Object.entries(latestSubmissions)) {
-            await tx.assignmentProblemRecord.upsert({
-              where: {
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                assignmentId_userId_problemId: {
-                  assignmentId,
-                  userId: record.userId as number,
-                  problemId: parseInt(problemId)
-                }
-              },
-              create: {
-                assignmentId,
-                userId: record.userId as number,
-                problemId: parseInt(problemId),
-                score: data.score,
-                isSubmitted: true,
-                isAccepted: data.result === ResultStatus.Accepted
-              },
-              update: {
-                score: data.score,
-                isSubmitted: true,
-                isAccepted: data.result === ResultStatus.Accepted
-              }
-            })
-          }
-        })
-      }
-    } catch (error) {
-      console.error('Failed to recalculate assignment scores:', error)
-      // 이 과정에서 발생한 에러는 로깅만 하고 처리를 계속함
-      // 클라이언트에는 이미 ConflictFoundException이 반환되기 때문
     }
   }
 }
