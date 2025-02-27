@@ -78,6 +78,25 @@ const GET_CONTEST_PROBLEMS = gql(`
   }
 `)
 
+const GET_ASSIGNMENT_PROBLEMS = gql(`
+  query GetAssignmentProblems($groupId: Int!, $assignmentId: Int!) {
+    getAssignmentProblems(groupId: $groupId, assignmentId: $assignmentId) {
+      order
+      assignmentId
+      problemId
+      score
+      createTime
+      updateTime
+      problem {
+        id
+        title
+        description
+        isVisible
+      }
+    }
+  }
+`)
+
 const GET_TAGS = gql(`
   query GetTags {
     getTags {
@@ -106,6 +125,7 @@ export {
   GET_PROBLEMS,
   GET_PROBLEM_DETAIL,
   GET_CONTEST_PROBLEMS,
+  GET_ASSIGNMENT_PROBLEMS,
   GET_TAGS,
   GET_PROBLEM_TESTCASE
 }
