@@ -4,9 +4,9 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/shadcn/accordion'
-import { cn, dateFormatter, safeFetcherWithAuth } from '@/libs/utils'
+import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import type { Assignment } from '@/types/type'
-import Link from 'next/link'
+import { AssignmentLink } from './AssignmentLink'
 
 interface AssignmentAccordionProps {
   week: number
@@ -96,42 +96,11 @@ function AssignmentAccordionItem({
             <div className="h-6 bg-[#F3F3F3]" />
             {filteredAssignments.length > 0 ? (
               filteredAssignments.map((assignment) => (
-                <Link
-                  href={
-                    `/course/${courseId}/assignment/${assignment.id}` as const
-                  }
+                <AssignmentLink
                   key={assignment.id}
-                >
-                  <div
-                    key={assignment.id}
-                    className="flex items-center justify-between border-b bg-[#F8F8F8] px-12 py-6"
-                  >
-                    <div className="flex gap-6">
-                      <span className="bg-primary mt-[7px] h-[10px] w-[10px] rounded-full" />
-                      <div className="flex flex-col gap-[6px]">
-                        <p className="line-clamp-1 w-96 text-base font-medium text-black">
-                          {assignment.title}
-                        </p>
-                        <p className="text-base text-slate-500">
-                          {dateFormatter(
-                            assignment.startTime,
-                            'YYYY-MM-DD HH:mm:ss'
-                          )}{' '}
-                          -{' '}
-                          {dateFormatter(
-                            assignment.endTime,
-                            'YYYY-MM-DD HH:mm:ss'
-                          )}
-                        </p>
-                      </div>
-                    </div>
-
-                    <CountBadge
-                      solvedProblemCount={assignment.submittedNumber}
-                      problemCount={assignment.problemNumber}
-                    />
-                  </div>
-                </Link>
+                  assignment={assignment}
+                  courseId={courseId}
+                />
               ))
             ) : (
               <div className="bg-[#F8F8F8] px-8 py-4">
@@ -150,7 +119,10 @@ interface CountBadgeProps {
   problemCount: number
 }
 
-function CountBadge({ solvedProblemCount, problemCount }: CountBadgeProps) {
+export function CountBadge({
+  solvedProblemCount,
+  problemCount
+}: CountBadgeProps) {
   const bgColor =
     solvedProblemCount === problemCount && problemCount !== 0
       ? 'bg-primary'
