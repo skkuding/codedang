@@ -1,7 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { Contest, ResultStatus, Submission } from '@generated'
-import type { ContestProblem } from '@prisma/client'
+import { ContestProblem, Prisma } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import {
   PUBLICIZING_REQUEST_EXPIRE_TIME,
@@ -91,7 +91,10 @@ export class ContestService {
       return await this.prisma.contest.create({
         data: {
           createdById: userId,
-          ...contest
+          ...contest,
+          summary: contest.summary
+            ? (contest.summary as Prisma.InputJsonValue)
+            : Prisma.JsonNull
         }
       })
     } catch (error) {
@@ -185,7 +188,10 @@ export class ContestService {
         },
         data: {
           title: contest.title,
-          ...contest
+          ...contest,
+          summary: contest.summary
+            ? (contest.summary as Prisma.InputJsonValue)
+            : Prisma.JsonNull
         }
       })
     } catch (error) {
@@ -606,7 +612,7 @@ export class ContestService {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, createTime, updateTime, title, ...contestDataToCopy } =
+    const { id, createTime, updateTime, title, summary, ...contestDataToCopy } =
       contestFound
 
     try {
@@ -617,6 +623,7 @@ export class ContestService {
             data: {
               ...contestDataToCopy,
               title: 'Copy of ' + title,
+              summary: summary ?? {},
               createdById: userId,
               isVisible: newVisible
             }
