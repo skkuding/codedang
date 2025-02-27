@@ -17,7 +17,7 @@ interface ProblemGrade {
   order: number
   maxScore: number
   problemRecord: {
-    finalScore: number
+    finalScore: number | null
     comment: string
   }
 }
@@ -29,7 +29,7 @@ interface AssignmentGrade {
   isFinalScoreVisible: boolean
   autoFinalizeScore: boolean
   week: number
-  userAssignmentFinalScore: number
+  userAssignmentFinalScore: number | null
   assignmentPerfectScore: number
   problems: ProblemGrade[]
 }
@@ -78,10 +78,10 @@ function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
             <p className="w-[22%] text-center font-normal text-[#8A8A8A]">
               {dateFormatter(assignment.endTime, 'YYYY-MM-DD HH:mm:ss')}
             </p>
-            <p className="w-[10%] text-center font-medium">
-              {`${assignment.userAssignmentFinalScore} / ${assignment.assignmentPerfectScore}`}
+            <p className="w-[12%] text-center font-medium">
+              {`${assignment.userAssignmentFinalScore ?? '-'} / ${assignment.assignmentPerfectScore}`}
             </p>
-            <div className="flex w-[16%] justify-end">
+            <div className="flex w-[14%] justify-center">
               <GradedBadge isGraded={assignment.isFinalScoreVisible} />
             </div>
           </div>
@@ -109,8 +109,12 @@ function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
                   <p className="w-[22%] text-center font-normal text-[#8A8A8A]">
                     -
                   </p>
-                  <p className="w-[10%] text-center font-medium">{`${problem.problemRecord.finalScore} / ${problem.maxScore}`}</p>
-                  <div className="flex w-[16%] justify-end">.</div>
+                  <p className="w-[12%] text-center font-medium">{`${problem.problemRecord.finalScore ?? '-'} / ${problem.maxScore}`}</p>
+                  <div className="flex w-[14%] justify-center">
+                    {problem.problemRecord.finalScore === null && (
+                      <MissingBadge />
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -140,6 +144,14 @@ function GradedBadge({ className, isGraded }: CompleteBadgeProps) {
       )}
     >
       <p className="text-sm font-medium">{text}</p>
+    </div>
+  )
+}
+
+function MissingBadge() {
+  return (
+    <div className="bg-level-light-1 text-error flex h-[24px] w-[80px] items-center justify-center rounded-full text-sm font-medium">
+      Missing
     </div>
   )
 }

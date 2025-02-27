@@ -49,7 +49,7 @@ export const dummyResponse = {
       isFinalScoreVisible: false,
       autoFinalizeScore: true,
       week: 2,
-      userAssignmentFinalScore: 24,
+      userAssignmentFinalScore: null,
       assignmentPerfectScore: 30,
       problems: [
         {
@@ -68,7 +68,7 @@ export const dummyResponse = {
           order: 1,
           maxScore: 10,
           problemRecord: {
-            finalScore: 8,
+            finalScore: null,
             comment: 'AAA'
           }
         },
