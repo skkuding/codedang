@@ -363,20 +363,25 @@ model AssignmentRecord {
 }
 
 model Contest {
-  id                   Int       @id @default(autoincrement())
-  createdBy            User?     @relation(fields: [createdById], references: [id], onDelete: SetNull)
-  createdById          Int?      @map("created_by_id")
-  title                String
-  description          String
+  id          Int     @id @default(autoincrement())
+  createdBy   User?   @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById Int?    @map("created_by_id")
+  title       String
+  description String
   // 대회의 페널티 (0 ≤ penalty ≤ 100),
-  penalty              Int       @default(0)
-  lastPenalty          Boolean   @default(false) @map("last_penalty")
-  posterUrl            String?
-  participationTarget  String?
-  competitionMethod    String?
-  rankingMethod        String?
-  problemFormat        String?
-  benefits             String?
+  penalty     Int     @default(0)
+  lastPenalty Boolean @default(false) @map("last_penalty")
+  posterUrl   String?
+
+  /// summary structure
+  /// {
+  ///   "participationTarget": string,
+  ///   "competitionMethod": string,
+  ///   "rankingMethod": string,
+  ///   "problemFormat": string,
+  ///   "benefits": string
+  /// }
+  summary              Json?     @map("contest_summary")
   invitationCode       String?   @map("invitation_code")
   startTime            DateTime  @map("start_time")
   endTime              DateTime  @map("end_time")
