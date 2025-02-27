@@ -1,5 +1,9 @@
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
-import { Assignment, AssignmentProblem } from '@generated'
+import {
+  Assignment,
+  AssignmentProblem,
+  AssignmentProblemRecord
+} from '@generated'
 import { AuthenticatedRequest } from '@libs/auth'
 import {
   CursorValidationPipe,
@@ -8,6 +12,7 @@ import {
   RequiredIntPipe
 } from '@libs/pipe'
 import { AssignmentService } from './assignment.service'
+import { UpdateAssignmentProblemRecordInput } from './model/assignment-problem-record-input'
 import { AssignmentSubmissionSummaryForUser } from './model/assignment-submission-summary-for-user.model'
 import { AssignmentWithParticipants } from './model/assignment-with-participants.model'
 import { CreateAssignmentInput } from './model/assignment.input'
@@ -192,5 +197,16 @@ export class AssignmentResolver {
     @Args('problemId', { type: () => Int }) problemId: number
   ) {
     return await this.assignmentService.getAssignmentsByProblemId(problemId)
+  }
+
+  @Mutation(() => AssignmentProblemRecord)
+  async updateAssignmentProblemRecord(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('input') input: UpdateAssignmentProblemRecordInput
+  ) {
+    return await this.assignmentService.updateAssignmentProblemRecord(
+      groupId,
+      input
+    )
   }
 }

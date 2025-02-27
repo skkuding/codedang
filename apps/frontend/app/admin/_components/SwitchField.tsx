@@ -3,9 +3,16 @@
 import { Input } from '@/components/shadcn/input'
 import { Switch } from '@/components/shadcn/switch'
 import { Textarea } from '@/components/shadcn/textarea'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/shadcn/tooltip'
 import { cn } from '@/libs/utils'
 import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
+import { MdHelpOutline } from 'react-icons/md'
 import { inputStyle } from '../_libs/utils'
 import { ErrorMessage } from './ErrorMessage'
 import { Label } from './Label'
@@ -17,6 +24,8 @@ interface SwitchFieldProps {
   formElement?: 'input' | 'textarea'
   type?: string
   hasValue?: boolean
+  children?: React.ReactNode | React.ReactNode[]
+  tooltip?: boolean
 }
 
 export function SwitchField({
@@ -25,7 +34,9 @@ export function SwitchField({
   placeholder,
   formElement,
   type = 'text',
-  hasValue = false
+  hasValue = false,
+  children = null,
+  tooltip = false
 }: SwitchFieldProps) {
   const [isEnabled, setIsEnabled] = useState<boolean>(false)
   const {
@@ -44,6 +55,24 @@ export function SwitchField({
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-2">
         <Label required={false}>{title}</Label>
+        {tooltip && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button type="button">
+                  <MdHelpOutline className="text-gray-400 hover:text-gray-700" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent
+                side="top"
+                className="mb-2 bg-white px-4 py-2 shadow-md"
+              >
+                {children}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
         <Switch
           onCheckedChange={() => {
             if (name === 'invitationCode') {

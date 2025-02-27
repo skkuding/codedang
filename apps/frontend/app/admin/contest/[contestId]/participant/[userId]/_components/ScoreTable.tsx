@@ -26,7 +26,7 @@ export function ScoreTable({ userId, contestId }: ScoreTableProps) {
     submissions.data.getContestSubmissionSummaryByUserId.scoreSummary
 
   const problems = useSuspenseQuery(GET_CONTEST_PROBLEMS, {
-    variables: { groupId: 1, contestId }
+    variables: { contestId }
   })
   const problemData = problems.data.getContestProblems
     .slice()

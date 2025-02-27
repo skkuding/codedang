@@ -104,4 +104,13 @@ export class CourseController {
   ) {
     return await this.groupService.leaveGroup(req.user.id, groupId)
   }
+
+  @Get(':groupId/grade')
+  async getAssignmentGradeSummary(
+    @Req() req: AuthenticatedRequest,
+    @Param('groupId', GroupIDPipe) groupId: number
+  ) {
+    const userId = req.user.id
+    return await this.groupService.getAssignmentGradeSummary(userId, groupId)
+  }
 }
