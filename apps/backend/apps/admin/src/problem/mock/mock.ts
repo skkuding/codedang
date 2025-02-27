@@ -387,11 +387,13 @@ export const exampleContest: Contest = {
   updateTime: new Date(),
   invitationCode: '123456',
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    participationTarget: 'participationTarget',
+    competitionMethod: 'competitionMethod',
+    rankingMethod: 'rankingMethod',
+    problemFormat: 'problemFormat',
+    benefits: 'benefits'
+  }
 }
 export const exampleContestProblems: ContestProblem[] = [
   {
