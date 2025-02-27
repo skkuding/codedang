@@ -51,11 +51,13 @@ const contest: Contest = {
   invitationCode,
   contestProblem: [],
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    participationTarget: 'participationTarget',
+    competitionMethod: 'competitionMethod',
+    rankingMethod: 'rankingMethod',
+    problemFormat: 'problemFormat',
+    benefits: 'benefits'
+  }
 }
 
 const contestWithCount = {
@@ -80,11 +82,13 @@ const contestWithCount = {
     contestRecord: 10
   },
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    participationTarget: 'participationTarget',
+    competitionMethod: 'competitionMethod',
+    rankingMethod: 'rankingMethod',
+    problemFormat: 'problemFormat',
+    benefits: 'benefits'
+  }
 }
 
 const contestWithParticipants: ContestWithParticipants = {
@@ -107,11 +111,13 @@ const contestWithParticipants: ContestWithParticipants = {
   participants: 10,
   invitationCode,
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    participationTarget: 'participationTarget',
+    competitionMethod: 'competitionMethod',
+    rankingMethod: 'rankingMethod',
+    problemFormat: 'problemFormat',
+    benefits: 'benefits'
+  }
 }
 
 const problem: Problem = {

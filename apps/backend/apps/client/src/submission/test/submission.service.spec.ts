@@ -99,11 +99,13 @@ const mockContest: Contest = {
   updateTime: new Date(),
   freezeTime: null,
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    participationTarget: 'participationTarget',
+    competitionMethod: 'competitionMethod',
+    rankingMethod: 'rankingMethod',
+    problemFormat: 'problemFormat',
+    benefits: 'benefits'
+  }
 }
 const mockAssignment: Assignment = {
   id: ASSIGNMENT_ID,

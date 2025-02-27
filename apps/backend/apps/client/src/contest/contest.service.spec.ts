@@ -38,11 +38,13 @@ const contest = {
   createTime: now.add(-1, 'day').toDate(),
   updateTime: now.add(-1, 'day').toDate(),
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits',
+  summary: {
+    participationTarget: 'participationTarget',
+    competitionMethod: 'competitionMethod',
+    rankingMethod: 'rankingMethod',
+    problemFormat: 'problemFormat',
+    benefits: 'benefits'
+  },
   invitationCode: '123456'
 } satisfies Contest
 
@@ -51,11 +53,13 @@ const ongoingContests = [
     id: contest.id,
     title: contest.title,
     posterUrl: contest.posterUrl,
-    participationTarget: contest.participationTarget,
-    competitionMethod: contest.competitionMethod,
-    rankingMethod: contest.rankingMethod,
-    problemFormat: contest.problemFormat,
-    benefits: contest.benefits,
+    summary: {
+      participationTarget: contest.summary?.participationTarget,
+      competitionMethod: contest.summary?.competitionMethod,
+      rankingMethod: contest.summary?.rankingMethod,
+      problemFormat: contest.summary?.problemFormat,
+      benefits: contest.summary?.benefits
+    },
     invitationCode: 'test',
     isJudgeResultVisible: true,
     startTime: now.add(-1, 'day').toDate(),
@@ -70,11 +74,13 @@ const upcomingContests = [
     id: contest.id + 6,
     title: contest.title,
     posterUrl: null,
-    participationTarget: null,
-    competitionMethod: null,
-    rankingMethod: contest.rankingMethod,
-    problemFormat: contest.problemFormat,
-    benefits: contest.benefits,
+    summary: {
+      participationTarget: null,
+      competitionMethod: null,
+      rankingMethod: contest.summary?.rankingMethod,
+      problemFormat: contest.summary?.problemFormat,
+      benefits: contest.summary?.benefits
+    },
     invitationCode: 'test',
     isJudgeResultVisible: true,
     startTime: now.add(1, 'day').toDate(),
@@ -89,11 +95,13 @@ const finishedContests = [
     id: contest.id + 1,
     title: contest.title,
     posterUrl: contest.posterUrl,
-    participationTarget: contest.participationTarget,
-    competitionMethod: contest.competitionMethod,
-    rankingMethod: null,
-    problemFormat: null,
-    benefits: null,
+    summary: {
+      participationTarget: contest.summary?.participationTarget,
+      competitionMethod: contest.summary?.competitionMethod,
+      rankingMethod: null,
+      problemFormat: null,
+      benefits: null
+    },
     invitationCode: null,
     isJudgeResultVisible: true,
     startTime: now.add(-2, 'day').toDate(),
@@ -209,11 +217,14 @@ describe('ContestService', () => {
 
     it('should return optional fields if they exist', async () => {
       expect(contest).to.have.property('posterUrl')
-      expect(contest).to.have.property('participationTarget')
-      expect(contest).to.have.property('competitionMethod')
-      expect(contest).to.have.property('rankingMethod')
-      expect(contest).to.have.property('problemFormat')
-      expect(contest).to.have.property('benefits')
+      expect(contest).to.have.property('summary')
+      if (contest.summary) {
+        expect(contest.summary).to.have.property('participationTarget')
+        expect(contest.summary).to.have.property('competitionMethod')
+        expect(contest.summary).to.have.property('rankingMethod')
+        expect(contest.summary).to.have.property('problemFormat')
+        expect(contest.summary).to.have.property('benefits')
+      }
     })
 
     it('should return prev and next contest information', async () => {
