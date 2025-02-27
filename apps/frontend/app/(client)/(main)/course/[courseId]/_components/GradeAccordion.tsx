@@ -4,7 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/shadcn/accordion'
-import { cn, dateFormatter } from '@/libs/utils'
+import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
 import { dummyResponse } from './dummy'
 
 interface GradeAccordionProps {
@@ -73,7 +73,9 @@ function GradeAccordionItem({ courseId, assignment }: GradeAccordionItemProps) {
             </p>
             <div className="absolute left-20 top-0 flex -translate-y-1/2 gap-4">
               <p>{assignment.title}</p>
-              <p>{dateFormatter(assignment.endTime, 'YYYY-MM-DD HH:mm:ss')}</p>
+              <p className="text-[#8A8A8A]">
+                {dateFormatter(assignment.endTime, 'YYYY-MM-DD HH:mm:ss')}
+              </p>
               <p>
                 {`${assignment.userAssignmentFinalScore} / ${assignment.assignmentPerfectScore}`}
               </p>
@@ -92,7 +94,13 @@ function GradeAccordionItem({ courseId, assignment }: GradeAccordionItemProps) {
                 className="flex items-center justify-between border-b bg-[#F8F8F8] px-12 py-6"
               >
                 <div className="flex gap-6">
-                  <span className="bg-primary mt-[7px] h-[10px] w-[10px] rounded-full" />
+                  <p>
+                    <span className="text-primary">
+                      {convertToLetter(problem.order)}
+                    </span>{' '}
+                    {problem.title}
+                  </p>
+                  <p>{`${problem.problemRecord.finalScore} / ${problem.maxScore}`}</p>
                 </div>
               </div>
             ))}
