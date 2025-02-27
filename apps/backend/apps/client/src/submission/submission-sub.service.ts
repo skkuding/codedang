@@ -584,15 +584,16 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
     })
 
-    const totalScoreWeight = await this.prisma.problemTestcase.aggregate({
-      where: {
-        problemId: submission.problemId
-      },
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      _sum: {
-        scoreWeight: true
-      }
-    })
+    const { _sum: totalScoreWeight } =
+      await this.prisma.problemTestcase.aggregate({
+        where: {
+          problemId: submission.problemId
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _sum: {
+          scoreWeight: true
+        }
+      })
 
     const assignmentProblem = await this.prisma.assignmentProblem.findUnique({
       where: {
@@ -607,12 +608,9 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
     })
 
-    const intTotalScoreWeight = Math.floor(
-      totalScoreWeight._sum?.scoreWeight ?? assignmentProblem!.score
-    )
-
-    const submissionScore =
-      submissionRecord!.score * (assignmentProblem!.score / intTotalScoreWeight)
+    const realSubmissionScore =
+      submissionRecord!.score *
+      (assignmentProblem!.score / totalScoreWeight.scoreWeight!)
 
     const assignmentProblemRecord =
       await this.prisma.assignmentProblemRecord.findUnique({
@@ -642,20 +640,21 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       },
       update: {
-        score: submissionScore,
+        score: realSubmissionScore,
+        isSubmitted: true,
         isAccepted
       },
       create: {
         assignmentId,
         userId,
         problemId: submission.problemId,
-        score: submissionScore,
+        score: realSubmissionScore,
         isSubmitted: true,
         isAccepted
       }
     })
 
-    toBeAddedScore = submissionScore - prevSubmissionScore
+    toBeAddedScore = realSubmissionScore - prevSubmissionScore
 
     if (toBeAddedScore > 0) {
       toBeAddedAcceptedProblemNum = isAccepted ? 1 : 0
@@ -667,9 +666,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         id: assignmentRecord.id
       },
       data: {
-        acceptedProblemNum:
-          assignmentRecord.acceptedProblemNum + toBeAddedAcceptedProblemNum,
-        score: assignmentRecord.score + toBeAddedScore,
+        acceptedProblemNum: { increment: toBeAddedAcceptedProblemNum },
+        score: { increment: toBeAddedScore },
         finishTime: submission.updateTime
       }
     })
