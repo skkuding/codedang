@@ -62,8 +62,8 @@ export const columns: ColumnDef<Contest>[] = [
     accessorKey: 'period',
     cell: ({ row }) => (
       <p className="text-neutral-500">
-        {dateFormatter(row.original.startTime, 'YYYY-MM-DD')} ~
-        {dateFormatter(row.original.endTime, 'YYYY-MM-DD')}
+        {dateFormatter(row.original.startTime, 'YYYY-MM-DD HH:mm')} ~{' '}
+        {dateFormatter(row.original.endTime, 'YYYY-MM-DD HH:mm')}
       </p>
     )
   }

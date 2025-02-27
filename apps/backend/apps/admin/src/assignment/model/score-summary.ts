@@ -14,6 +14,9 @@ export class UserAssignmentScoreSummary {
   @Field(() => Int)
   assignmentPerfectScore: number
 
+  @Field(() => Float)
+  userAssignmentFinalScore: number
+
   @Field(() => [AssignmentProblemScore])
   problemScores: AssignmentProblemScore[]
 }
@@ -47,6 +50,9 @@ export class UserAssignmentScoreSummaryWithUserInfo {
   @Field(() => Int)
   assignmentPerfectScore: number
 
+  @Field(() => Float, { nullable: true })
+  userAssignmentFinalScore?: number
+
   @Field(() => [AssignmentProblemScore])
   problemScores: AssignmentProblemScore[]
 }
@@ -61,4 +67,7 @@ class AssignmentProblemScore {
 
   @Field(() => Int)
   maxScore: number
+
+  @Field(() => Int, { nullable: true })
+  finalScore?: number
 }

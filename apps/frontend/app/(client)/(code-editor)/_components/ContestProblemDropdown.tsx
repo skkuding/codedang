@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
-import { cn, convertToLetter, isHttpError } from '@/libs/utils'
+import { cn, convertToLetter, isHttpError, omitString } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-green.svg'
 import type { ProblemDetail } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
@@ -32,7 +32,7 @@ export function ContestProblemDropdown({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
-        <h1>{`${convertToLetter(problem.order)}. ${problem.title}`}</h1>
+        <h1>{`${convertToLetter(problem.order)}. ${omitString({ targetString: problem.title, maxlength: 20 })}`}</h1>
         <FaSortDown />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="border-slate-700 bg-slate-900">

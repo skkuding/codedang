@@ -29,7 +29,6 @@ body:graphql {
 body:graphql:vars {
   {
     "groupId": 2,
-    "cursor": 1,
     "take": 5,
     "leaderOnly": false
   }
@@ -50,7 +49,7 @@ docs {
   | 이름 | 타입 | 설명 |
   |--|--|--|
   |take|Int|한번에 가져올 데이터의 수, 기본값은 10.|
-  |groupId|Int|포함하지 않으면 Open Space에 대한 요청이 된다. 기본값은 1.|
+  |groupId|Int|포함하지 않으면 Public에 대한 요청이 된다.|
   |cursor|Int?|cursor값.|
   |leaderOnly|Boolean|해당 Group 내 Leader만을 반환할 것인지의 여부, 기본값은 false.|
   

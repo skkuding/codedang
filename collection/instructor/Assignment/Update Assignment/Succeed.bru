@@ -15,16 +15,18 @@ body:graphql {
     updateAssignment(
       groupId: 2
       input: {
-        id: 14
+        id: 5
         title: "Updated Assignment Group 2"
         description: "thisisupdatedassignment"
         startTime: "2024-01-01"
-        endTime: "2030-01-01"
+        endTime: "2024-01-02"
         week: 7
         isVisible: true
         isRankVisible: true
         enableCopyPaste: true
         isJudgeResultVisible: true
+        autoFinalizeScore: true
+        isFinalScoreVisible: true
       }
     ) {
       id

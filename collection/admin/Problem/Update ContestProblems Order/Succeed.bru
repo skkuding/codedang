@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  mutation UpdateContestProblemsOrder($groupId: Int!, $contestId: Int!, $orders: [Int!]!) {
-    updateContestProblemsOrder(groupId: $groupId, contestId: $contestId, orders: $orders) {
+  mutation UpdateContestProblemsOrder($contestId: Int!, $orders: [Int!]!) {
+    updateContestProblemsOrder(contestId: $contestId, orders: $orders) {
       order
       contestId
       problemId
@@ -26,7 +26,6 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "groupId": 1,
     "contestId": 1,
     "orders": [1, 2, 3, 4, 5, 6, 7, 8]
   }
@@ -47,5 +46,5 @@ docs {
   #### UNPROCESSABLE
   `orders`의 길이는 contest에 속한 문제들의 개수와 같아야 합니다.
   #### NOT_FOUND
-  존재하는 group id와 contest id가 필요합니다.
+  존재하는 contest id가 필요합니다.
 }
