@@ -264,22 +264,15 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   @Span()
   async updateTestcaseJudgeResult(
     submissionResult: Partial<SubmissionResult> &
-      Pick<SubmissionResult, 'result' | 'submissionId'>
+      Pick<SubmissionResult, 'result' | 'submissionId' | 'problemTestcaseId'>
   ): Promise<void> {
-    // TODO: submission의 값들이 아닌 submissionResult의 id 값으로 접근할 수 있도록 수정
-    const { id } = await this.prisma.submissionResult.findFirstOrThrow({
-      where: {
-        submissionId: submissionResult.submissionId,
-        problemTestcaseId: submissionResult.problemTestcaseId
-      },
-      select: {
-        id: true
-      }
-    })
-
     await this.prisma.submissionResult.update({
       where: {
-        id
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        submissionId_problemTestcaseId: {
+          submissionId: submissionResult.submissionId,
+          problemTestcaseId: submissionResult.problemTestcaseId
+        }
       },
       data: {
         result: submissionResult.result,
@@ -339,7 +332,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       data: { result: submissionResult }
     })
 
-    await this.updateProblemScore(submission.id)
+    await this.updateSubmissionScore(submission.id)
     await this.updateProblemAccepted(submission.problemId, allAccepted)
 
     if (submission.userId) {
@@ -766,7 +759,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     })
   }
 
-  async updateProblemScore(id: number) {
+  async updateSubmissionScore(id: number) {
     const submission = await this.prisma.submission.findUniqueOrThrow({
       where: {
         id
