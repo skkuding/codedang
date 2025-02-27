@@ -57,7 +57,7 @@ export default async function ContestFinishedPage({
           <Link href={`/contest/${contestId}/leaderboard`}>
             <Button
               size="icon"
-              className="ml-4 h-[46px] w-[209px] shrink-0 gap-[6px] rounded-[10000px] bg-blue-500 text-base hover:bg-blue-700"
+              className="ml-4 h-[46px] w-[209px] shrink-0 gap-[6px] rounded-full bg-blue-500 text-base hover:bg-blue-700"
             >
               <Image src={exitIcon} alt="exit" width={20} height={20} />
               View Leaderboard
