@@ -203,6 +203,30 @@ export class SubmissionService {
     return results
   }
 
+  async getAssignmentSubmission(
+    assignmentId: number,
+    userId: number,
+    problemId: number
+  ) {
+    const submissionId = await this.prisma.submission.findFirst({
+      where: {
+        assignmentId,
+        userId,
+        problemId
+      },
+      orderBy: { updateTime: 'desc' },
+      select: {
+        id: true
+      }
+    })
+
+    if (!submissionId) {
+      throw new EntityNotExistException('Submission')
+    }
+
+    return this.getSubmission(submissionId.id)
+  }
+
   getOrderBy(
     order: SubmissionOrder
   ): Prisma.SubmissionOrderByWithRelationInput {
