@@ -8,10 +8,7 @@ import {
   Delete,
   BadRequestException
 } from '@nestjs/common'
-import {
-  AuthenticatedRequest,
-  UserNullWhenAuthFailedIfOpenSpace
-} from '@libs/auth'
+import { AuthenticatedRequest } from '@libs/auth'
 import { GroupIDPipe, IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
 import { AssignmentService } from './assignment.service'
 

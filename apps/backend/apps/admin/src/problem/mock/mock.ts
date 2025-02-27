@@ -615,7 +615,9 @@ export const exampleAssignment: Assignment = {
   endTime: new Date(),
   createTime: new Date(),
   updateTime: new Date(),
-  week: 1
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: false
 }
 export const exampleAssignmentProblems: AssignmentProblem[] = [
   {

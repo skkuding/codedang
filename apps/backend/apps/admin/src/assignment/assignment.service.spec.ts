@@ -46,7 +46,9 @@ const assignment: Assignment = {
   createTime,
   updateTime,
   assignmentProblem: [],
-  week: 1
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: false
 }
 
 const assignmentWithCount = {
@@ -85,7 +87,9 @@ const assignmentWithParticipants: AssignmentWithParticipants = {
   createTime,
   updateTime,
   participants: 10,
-  week: 1
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: false
 }
 
 const group: Group = {
