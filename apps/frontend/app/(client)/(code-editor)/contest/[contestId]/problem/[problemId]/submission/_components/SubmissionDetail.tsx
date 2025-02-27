@@ -79,7 +79,7 @@ export async function SubmissionDetail({
       </ScrollArea>
       <div className="-ml-16 mt-[10px] h-2 min-w-[200%] bg-[#121728]" />
       <div className="mb-3 mt-3">
-        <h2 className="mb-[18px] text-lg font-bold">Source Code</h2>
+        <h2 className="mb-[18px] text-base font-bold">Source Code</h2>
         <CodeEditor
           value={submission.code}
           language={submission.language}
