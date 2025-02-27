@@ -12,6 +12,18 @@ export class FindGroup extends Group {
 }
 
 @ObjectType()
+export class DuplicateCourse {
+  @Field(() => Group, { nullable: false })
+  duplicatedCourse!: Group
+
+  @Field(() => [Int], { nullable: false })
+  originAssignments!: number
+
+  @Field(() => [Int], { nullable: false })
+  copiedAssignments!: number
+}
+
+@ObjectType()
 export class DeletedUserGroup {
   @Field(() => Int, { nullable: false })
   count!: number

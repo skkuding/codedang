@@ -5,6 +5,7 @@ export type ContestStatus =
   | 'registeredOngoing'
   | 'registeredUpcoming'
 
+// TODO: registeredOngoing registeredUpcoming 삭제하기
 export type AssignmentStatus =
   | 'ongoing'
   | 'upcoming'
@@ -23,11 +24,26 @@ export type SemesterSeason = 'Spring' | 'Summer' | 'Fall' | 'Winter'
 export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
 // Problem type definition
 
+export type MemberRole = 'Instructor' | 'Student'
 export interface Tag {
   id: number
   name: string
 }
 
+export interface User {
+  username: string
+  role: string
+  email: string
+  lastLogin: string
+  updateTime: string
+  studentId: string
+  major: string
+  userProfile: {
+    realName: string
+  }
+  canCreateContest: boolean
+  canCreateCourse: boolean
+}
 export interface Snippet {
   id: number
   locked: boolean
@@ -138,7 +154,9 @@ export interface Contest {
 export interface ContestAnnouncement {
   id: number
   content: string
-  problemId: number
+  assignmentId: null | string
+  constestId: number
+  problemId: null | number
   createTime: string
   updateTime: string
 }
@@ -193,12 +211,17 @@ export interface SubmissionItem {
   language: string
   result: string
   codeSize: number
+  problemId: number
+  problem: {
+    title: string
+  }
 }
 
 export interface SubmissionDetail {
   problemId: number
   username: string
   code: string
+  codeSize?: string
   language: Language
   createTime: Date
   result: string
@@ -213,6 +236,10 @@ export interface SubmissionDetail {
     updateTime: Date
   }[]
 }
+export interface ContestSubmission {
+  data: SubmissionItem[]
+  total: number
+}
 
 interface LeaderboardProblemRecord {
   score: number
@@ -222,7 +249,7 @@ interface LeaderboardProblemRecord {
   submissionCount: number
 }
 interface UserOnLeaderboard {
-  user: { username: string }
+  username: string
   score: number
   finalScore: number
   totalPenalty: number
@@ -264,22 +291,30 @@ export interface SettingsFormat {
   studentId: string
 }
 
-export interface RawCourse {
-  id: number
-  groupName: string
-  description: string
-  memberNum: number
-  isGroupLeader: boolean
+export interface CourseInfo {
+  groupId: number
+  courseNum: string
+  classNum: number
+  professor: string
+  semester: string
+  email: string
+  website: string
+  office: string | null
+  phoneNum: string | null
+  week: number
 }
 
 export interface Course {
   id: number
   groupName: string
   description: string
+  courseInfo: CourseInfo
+  isGroupLeader: boolean
+  isJoined: boolean
+}
+
+export type JoinedCourse = Omit<Course, 'isJoined'> & {
   memberNum: number
-  status: CourseStatus
-  semester: string
-  professor: string
 }
 
 export interface CourseNotice {
@@ -305,15 +340,26 @@ export interface Assignment {
     id: string
     groupName: string
   }
-  // TODO: Assignement에서 현재 사용 중이지 않은 필드로, 추후 필요시 사용할 예정 (민규)
-  // isJudgeResultVisible: boolean
-  // enableCopyPaste: boolean
-
-  // TODO: CI 오류나서 임시방편으로 주석 해제 했습니다(민규)
+  enableCopyPaste: boolean
+  isJudgeResultVisible: boolean
+  week: number
   status: AssignmentStatus
-  // participants: number
-  // isRegistered: boolean
-  isGraded: boolean
+  description: string
+  isRegistered: boolean
+  problemNumber: number
+  submittedNumber: number
+}
+
+export interface AssignmentProblem {
+  id: number
+  title: number
+  difficulty: Level
+  order: number
+  submissionCount: number
+  maxScore: number | null
+  score: string | null
+  submissionTime: string | null
+  acceptedRate: number
 }
 
 export interface CalendarAssignment {

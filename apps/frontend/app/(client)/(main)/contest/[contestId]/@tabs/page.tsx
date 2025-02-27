@@ -9,7 +9,6 @@ import { Button } from '@/components/shadcn/button'
 import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
-import { cn } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import type { Contest, ContestStatus, ProblemDataTop } from '@/types/type'
 import Image from 'next/image'
@@ -165,7 +164,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
           {session && state !== 'Finished' && state !== 'Upcoming' && (
             <div className="h-[48px] w-[940px]">
               {data.isRegistered ? (
-                <Button className="text pointer-events-none h-[48px] w-[940px] rounded-[1000px] bg-[#80808014] text-[#3333334d]">
+                <Button className="text pointer-events-none h-[48px] w-[940px] rounded-[1000px] bg-[#80808014] font-medium text-[#3333334d]">
                   Registered
                 </Button>
               ) : (
@@ -182,7 +181,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
       </div>
       <Accordion type="single" collapsible className="mt-16 w-[1208px]">
         <AccordionItem value="item-1" className="border-b-0">
-          <AccordionTrigger className="h-[74px] w-[74px] border-t-[1.5px] border-[#a2a2a240] text-lg font-semibold">
+          <AccordionTrigger className="h-[74px] border-t-[1.5px] border-[#a2a2a240] pr-[25px] text-lg font-semibold">
             More Description
           </AccordionTrigger>
           <AccordionContent className="pb-8 text-base text-[#00000080]">
@@ -192,7 +191,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
       </Accordion>
       <Accordion type="single" collapsible className="w-[1208px]">
         <AccordionItem value="item-1" className="border-b-0">
-          <AccordionTrigger className="h-[74px] w-[74px] border-t-[1.5px] border-[#a2a2a240] text-lg font-semibold">
+          <AccordionTrigger className="h-[74px] border-t-[1.5px] border-[#a2a2a240] pr-[25px] text-lg font-semibold">
             Problem List
           </AccordionTrigger>
           <AccordionContent className="mb-10 pb-0 pt-[3px] text-base text-[#00000080]">
@@ -204,8 +203,8 @@ export default async function ContestTop({ params }: ContestTopProps) {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-      <PrevNextProblemButton contestData={data} prev={prev} />
-      <PrevNextProblemButton contestData={data} prev={!prev} />
+      <PrevNextProblemButton contestData={data} previous={prev} />
+      <PrevNextProblemButton contestData={data} previous={!prev} />
       <GotoContestListButton />
     </div>
   )
@@ -222,9 +221,7 @@ function ContestSummary({
     <div className="flex w-full flex-row items-start">
       <Button
         variant={'outline'}
-        className={cn(
-          'pointer-events-none mr-[14px] h-7 w-[87px] rounded-[14px] px-[17px] py-1 text-sm font-medium md:block'
-        )}
+        className="text-primary border-primary-light pointer-events-none mr-[14px] h-7 w-[87px] rounded-[14px] px-[17px] py-1 text-sm font-medium md:block"
       >
         {buttonName}
       </Button>

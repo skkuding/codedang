@@ -61,17 +61,15 @@ export class ContestController {
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) contestId: number
   ) {
-    return await this.contestService.deleteContestRecord(contestId, req.user.id)
+    return await this.contestService.unregisterContest(contestId, req.user.id)
   }
 
   @Get(':id/leaderboard')
+  @AuthNotNeededIfOpenSpace()
   async getLeaderboard(
-    @Req() req: AuthenticatedRequest,
-    @Param('id', IDValidationPipe) contestId: number
+    @Param('id', IDValidationPipe) contestId: number,
+    @Query('search') search: string
   ) {
-    return await this.contestService.getContestLeaderboard(
-      req.user.id,
-      contestId
-    )
+    return await this.contestService.getContestLeaderboard(contestId, search)
   }
 }

@@ -307,11 +307,14 @@ export class SubmissionService {
       }
     })
     if (!assignmentRecord) {
-      throw new EntityNotExistException('AssignmentRecord')
+      throw new ForbiddenAccessException(
+        'User not participated in the assignment'
+      )
     }
     if (assignmentRecord.assignment.groupId !== groupId) {
       throw new EntityNotExistException('Assignment')
-    } else if (
+    }
+    if (
       assignmentRecord.assignment.startTime > now ||
       assignmentRecord.assignment.endTime <= now
     ) {
@@ -336,6 +339,26 @@ export class SubmissionService {
       throw new EntityNotExistException('AssignmentProblem')
     }
     const { problem } = assignmentProblem
+
+    await this.prisma.assignmentProblemRecord.upsert({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        assignmentId_userId_problemId: {
+          assignmentId,
+          userId,
+          problemId: problem.id
+        }
+      },
+      create: {
+        assignmentId,
+        userId,
+        problemId: problem.id,
+        isSubmitted: true
+      },
+      update: {
+        isSubmitted: true
+      }
+    })
 
     const submission = await this.createSubmission({
       submissionDto,
@@ -1270,7 +1293,13 @@ export class SubmissionService {
         createTime: true,
         language: true,
         result: true,
-        codeSize: true
+        codeSize: true,
+        problemId: true,
+        problem: {
+          select: {
+            title: true
+          }
+        }
       },
       orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
     })

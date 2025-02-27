@@ -1,59 +1,68 @@
 'use client'
 
-import QuarterEllipse from '@/public/icons/quarter-ellipse.svg'
+import { safeFetcherWithAuth } from '@/libs/utils'
+import calendarFillIcon from '@/public/icons/calendar-fill.svg'
+import ongoingIcon from '@/public/icons/ongoing.svg'
+import personFillIcon from '@/public/icons/person-fill.svg'
+import type { Course } from '@/types/type'
 import Image from 'next/image'
-// TODO: 백엔드 API 사용할 떄 필요할 것 같습니다(민규)
-// import { useSearchParams } from 'next/navigation'
-import { useState, useEffect } from 'react'
-import { BsPersonFill } from 'react-icons/bs'
-import { FaCalendar } from 'react-icons/fa'
+import { useEffect, useState } from 'react'
 
-export function CourseInfoBox() {
-  // TODO: 백엔드 API 사용할 떄 필요할 것 같습니다(민규)
-  // const searchParams = useSearchParams()\
-  // const courseId = searchParams.get('courseId')
-  const [courseCode, setCourseCode] = useState('')
-  const [courseName, setCourseName] = useState('')
-  const [courseSemester, setCourseSemester] = useState('')
-  const [profName, setProfName] = useState('')
+interface CourseInfoBoxProps {
+  courseId: string
+}
 
+export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
+  const [course, setCourse] = useState<Course>()
   useEffect(() => {
-    const fetch = () => {
+    const fetchCourse = async () => {
       try {
-        setCourseCode('SWE3011_41')
-        setCourseName('강의명은최대열세글자까지')
-        setCourseSemester('2025 Spring')
-        setProfName('박진영')
-      } catch (err) {
-        throw new Error(`Failed to fetch data: ${err}`)
+        const res: Course = await safeFetcherWithAuth
+          .get(`course/${courseId}`)
+          .json()
+        setCourse(res)
+      } catch {
+        console.error('Failed to fetch course')
       }
     }
-    fetch()
-  }, [])
+    fetchCourse()
+  }, [courseId])
 
   return (
-    <div className="relative m-4 flex h-[153px] w-[281px] flex-col justify-between rounded-xl p-7 shadow">
-      <div className="flex flex-col text-sm font-semibold">
-        <span>[{courseCode}]</span>
-        <span>{courseName}</span>
+    <div className="flex flex-col gap-3 px-2 pt-24">
+      <div className="flex gap-1">
+        <Image src={ongoingIcon} alt="calendar-fill" width={20} height={20} />
+        {/* FIXME: 하드코딩된 ONGOING 대신 데이터를 받아와주세요 */}
+        <p className="text-primary">{course && 'ONGOING'}</p>
       </div>
-      <div>
-        <div className="flex flex-col gap-1 text-xs">
-          <div className="flex">
-            <FaCalendar className="ml-[2px]" />
-            <span className="ml-1 font-light">{courseSemester}</span>
-          </div>
-          <div className="flex">
-            <BsPersonFill size={19} />
-            <span className="ml-1 font-light">Prof. {profName}</span>
-          </div>
+      <p className="line-clamp-2 w-56 break-words text-base font-semibold">
+        {course
+          ? `[${course.courseInfo.courseNum}_${course.courseInfo.classNum}] ${course.groupName}`
+          : ''}
+      </p>
+      <div className="flex flex-col gap-2">
+        <div className="flex gap-2">
+          <Image
+            src={calendarFillIcon}
+            alt="calendar-fill"
+            width={16}
+            height={16}
+          />
+          <p className="font-medium text-[#8A8A8A]">
+            {course ? course.courseInfo.semester : ''}
+          </p>
         </div>
-        <Image
-          src={QuarterEllipse}
-          alt="Quarter Ellipse"
-          layout="intrinsic"
-          className="absolute bottom-0 right-0"
-        />
+        <div className="flex gap-2">
+          <Image
+            src={personFillIcon}
+            alt="person-fill"
+            width={16}
+            height={16}
+          />
+          <p className="font-medium text-[#8A8A8A]">
+            {course ? `${course.courseInfo.professor} 교수` : ''}
+          </p>
+        </div>
       </div>
     </div>
   )
