@@ -1,5 +1,5 @@
+import { Cover } from '@/app/(client)/(main)/_components/Cover'
 import { CourseSidebar } from './_components/CourseSidebar'
-import { Cover } from './_components/Cover'
 
 interface CourseLayoutProps {
   children: React.ReactNode
