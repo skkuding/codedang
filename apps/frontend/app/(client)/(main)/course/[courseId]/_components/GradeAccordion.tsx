@@ -5,6 +5,7 @@ import {
   AccordionTrigger
 } from '@/components/shadcn/accordion'
 import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
+import { GradeDetailIcon } from './Icons'
 import { dummyResponse } from './dummy'
 
 interface GradeAccordionProps {
@@ -74,7 +75,9 @@ function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
               {assignment.title}
             </p>
             <div className="w-[4%]" />
-            <div className="w-[11%] text-center">!!</div>
+            <div className="flex w-[11%] justify-center">
+              <DetailButton isActivated={assignment.isFinalScoreVisible} />
+            </div>
             <p className="w-[20%] text-center font-normal text-[#8A8A8A]">
               {dateFormatter(assignment.endTime, 'YYYY-MM-DD HH:mm:ss')}
             </p>
@@ -105,7 +108,11 @@ function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
                     </span>
                   </div>
                   <div className="w-[4%]" />
-                  <div className="w-[11%] text-center">!!</div>
+                  <div className="flex w-[11%] justify-center">
+                    <DetailButton
+                      isActivated={problem.problemRecord.finalScore !== null}
+                    />
+                  </div>
                   <p className="w-[20%] text-center font-normal text-[#8A8A8A]">
                     -
                   </p>
@@ -152,6 +159,22 @@ function MissingBadge() {
   return (
     <div className="bg-level-light-1 text-error flex h-[24px] w-[80px] items-center justify-center rounded-full text-sm font-medium">
       Missing
+    </div>
+  )
+}
+
+interface DetailButtonProps {
+  isActivated: boolean
+}
+
+function DetailButton({ isActivated }: DetailButtonProps) {
+  return (
+    <div
+      className={cn(
+        isActivated ? 'cursor-pointer hover:opacity-70' : 'cursor-default'
+      )}
+    >
+      <GradeDetailIcon fill={isActivated ? '#3581FA' : '#C4C4C4'} />
     </div>
   )
 }
