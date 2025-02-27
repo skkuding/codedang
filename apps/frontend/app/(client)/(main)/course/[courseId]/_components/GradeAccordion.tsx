@@ -39,10 +39,23 @@ export function GradeAccordion({ courseId }: GradeAccordionProps) {
   // TODO: fetch assignment grades
   console.log(courseId)
   return (
-    <div className="mt-3">
+    <div className="mt-8">
+      <GradeAccordionHeader />
       {dummyResponse.data.map((assignment) => (
         <GradeAccordionItem key={assignment.id} assignment={assignment} />
       ))}
+    </div>
+  )
+}
+
+function GradeAccordionHeader() {
+  return (
+    <div className="flex h-8 items-center rounded-full bg-[#F5F5F5] px-8 text-center text-sm text-[#8A8A8A]">
+      <p className="w-[43%]">Title</p>
+      <p className="w-[11%]">Detail</p>
+      <p className="w-[20%]">Finished Time</p>
+      <p className="w-[12%]">Score</p>
+      <p className="w-[14%]">Status</p>
     </div>
   )
 }
@@ -54,10 +67,7 @@ interface GradeAccordionItemProps {
 function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
   return (
     <Accordion type="single" collapsible className="w-full">
-      <AccordionItem
-        value={assignment.week.toString()}
-        className="mx-6 border-b-0"
-      >
+      <AccordionItem value={assignment.week.toString()} className="border-b-0">
         <AccordionTrigger
           className={cn(
             'mt-4 flex w-full items-center rounded-2xl bg-white px-8 py-5 text-left text-sm shadow-md',
@@ -85,37 +95,41 @@ function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
             <GradedBadge isGraded={assignment.isFinalScoreVisible} />
           </div>
         </AccordionTrigger>
-        <AccordionContent className="-mb-4 w-full overflow-hidden rounded-2xl border">
-          <div className="h-6 bg-[#F3F3F3]" />
-          {assignment.problems.map((problem) => (
-            <div
-              key={problem.id}
-              className="flex w-full items-center border-b bg-[#F8F8F8] px-8 py-6"
-            >
-              <div className="w-[9%]" />
-              <div className="flex w-[30%] gap-3">
-                <span className="text-primary font-semibold">
-                  {convertToLetter(problem.order)}
-                </span>{' '}
-                <span className="line-clamp-1 font-medium text-[#171717]">
-                  {problem.title}
-                </span>
+        <AccordionContent className="-mb-4 w-full">
+          <div className="overflow-hidden rounded-2xl border">
+            <div className="h-6 bg-[#F3F3F3]" />
+            {assignment.problems.map((problem) => (
+              <div
+                key={problem.id}
+                className="flex w-full items-center border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
+              >
+                <div className="w-[9%]" />
+                <div className="flex w-[30%] gap-3">
+                  <span className="text-primary font-semibold">
+                    {convertToLetter(problem.order)}
+                  </span>{' '}
+                  <span className="line-clamp-1 font-medium text-[#171717]">
+                    {problem.title}
+                  </span>
+                </div>
+                <div className="w-[4%]" />
+                <div className="flex w-[11%] justify-center">
+                  <DetailButton
+                    isActivated={problem.problemRecord.finalScore !== null}
+                  />
+                </div>
+                <p className="w-[20%] text-center font-normal text-[#8A8A8A]">
+                  -
+                </p>
+                <p className="w-[12%] text-center font-medium">{`${problem.problemRecord.finalScore ?? '-'} / ${problem.maxScore}`}</p>
+                <div className="flex w-[14%] justify-center">
+                  {problem.problemRecord.finalScore === null && (
+                    <MissingBadge />
+                  )}
+                </div>
               </div>
-              <div className="w-[4%]" />
-              <div className="flex w-[11%] justify-center">
-                <DetailButton
-                  isActivated={problem.problemRecord.finalScore !== null}
-                />
-              </div>
-              <p className="w-[20%] text-center font-normal text-[#8A8A8A]">
-                -
-              </p>
-              <p className="w-[12%] text-center font-medium">{`${problem.problemRecord.finalScore ?? '-'} / ${problem.maxScore}`}</p>
-              <div className="flex w-[14%] justify-center">
-                {problem.problemRecord.finalScore === null && <MissingBadge />}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </AccordionContent>
       </AccordionItem>
     </Accordion>
