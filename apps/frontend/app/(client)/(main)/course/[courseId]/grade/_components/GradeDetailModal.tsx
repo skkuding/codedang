@@ -11,34 +11,93 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/shadcn/dialog'
-// import type { Assignment } from '@/types/type'
+import { safeFetcherWithAuth } from '@/libs/utils'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { MdArrowForwardIos } from 'react-icons/md'
 import { Bar, CartesianGrid, XAxis, BarChart, YAxis } from 'recharts'
 
-// TODO: assignemt 가져오기
-// interface AssignmentModalProps {
-//   assignment: Assignment
-// }
+interface ProblemScore {
+  problemId: number
+  score: number
+  maxScore: number
+  finalScore: number | null
+}
 
-const chartData = [
-  { score: '0-10', count: 225, fill: '#3b82f6' }, // 파란색
-  { score: '10-20', count: 270, fill: '#C3C3C3' },
-  { score: '20-30', count: 320, fill: '#C3C3C3' },
-  { score: '30-40', count: 380, fill: '#C3C3C3' },
-  { score: '40-50', count: 340, fill: '#C3C3C3' },
-  { score: '50-60', count: 410, fill: '#C3C3C3' },
-  { score: '60-70', count: 460, fill: '#C3C3C3' },
-  { score: '70-80', count: 430, fill: '#C3C3C3' },
-  { score: '80-90', count: 400, fill: '#C3C3C3' },
-  { score: '90-100', count: 370, fill: '#C3C3C3' }
-]
+interface AssignmentDetail {
+  submittedProblemCount: number
+  totalProblemCount: number
+  userAssignmentScore: number
+  assignmentPerfectScore: number
+  userAssignmentFinalScore: number
+  problemScores: ProblemScore[]
+}
+
 const chartConfig = {
   count: {
     label: 'Count'
   }
 } satisfies ChartConfig
 
-export function GradeDetailModal() {
+interface GradeDetailModalProps {
+  assignmentId: number
+  week: number
+}
+
+export function GradeDetailModal({
+  assignmentId,
+  week
+}: GradeDetailModalProps) {
+  const chartData = [
+    { score: '0-10', count: 225, fill: '#3b82f6' }, // 파란색
+    { score: '10-20', count: 270, fill: '#C3C3C3' },
+    { score: '20-30', count: 320, fill: '#C3C3C3' },
+    { score: '30-40', count: 380, fill: '#C3C3C3' },
+    { score: '40-50', count: 340, fill: '#C3C3C3' },
+    { score: '50-60', count: 410, fill: '#C3C3C3' },
+    { score: '60-70', count: 460, fill: '#C3C3C3' },
+    { score: '70-80', count: 430, fill: '#C3C3C3' },
+    { score: '80-90', count: 400, fill: '#C3C3C3' },
+    { score: '90-100', count: 370, fill: '#C3C3C3' }
+  ]
+  const fetch = (assignmentId: number) => {
+    // const res = await safeFetcherWithAuth
+    //   .get(`/assignment/${assignmentId}/score/me`)
+    //   .json()
+    const res = {
+      submittedProblemCount: 2,
+      totalProblemCount: 3,
+      userAssignmentScore: 25,
+      assignmentPerfectScore: 30,
+      userAssignmentFinalScore: 20,
+      problemScores: [
+        {
+          problemId: 7,
+          score: 15,
+          maxScore: 20,
+          finalScore: 10
+        },
+        {
+          problemId: 8,
+          score: 10,
+          maxScore: 10,
+          finalScore: 10
+        },
+        {
+          problemId: 9,
+          score: 0,
+          maxScore: 10,
+          finalScore: null
+        }
+      ]
+    }
+    return res
+  }
+  const assignmentQuery = useSuspenseQuery({
+    queryKey: ['assignment', assignmentId],
+    queryFn: () => fetch(assignmentId)
+  })
+
+  console.log(assignmentQuery.data)
   return (
     <DialogContent
       className="p-10 sm:max-w-2xl"

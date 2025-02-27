@@ -88,7 +88,10 @@ function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
           <div className="flex w-[11%] justify-center">
             <Dialog>
               <DetailButton isActivated={assignment.isFinalScoreVisible} />
-              <GradeDetailModal />
+              <GradeDetailModal
+                assignmentId={assignment.id}
+                week={assignment.week}
+              />
             </Dialog>
           </div>
           <p className="w-[20%] text-center font-normal text-[#8A8A8A]">

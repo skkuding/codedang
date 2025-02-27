@@ -54,7 +54,7 @@ export function GroupTable() {
       new Set(courses.map((course) => course.semester).filter(Boolean))
     )
     setSemesters(uniqueSemesters)
-  }, [courses])
+  }, [])
 
   const deleteTarget = (id: number) => {
     return deleteCourse({

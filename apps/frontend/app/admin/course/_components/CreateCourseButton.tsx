@@ -71,7 +71,7 @@ export function CreateCourseButton() {
 
   const onSubmit: SubmitHandler<CourseInput> = async (data) => {
     try {
-      const { data: errors } = await createCourse({
+      const { errors } = await createCourse({
         variables: {
           input: {
             courseTitle: data.courseTitle,
