@@ -27,7 +27,7 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
     <main className="flex flex-col gap-6 px-20 py-16">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href={`/admin/course/${courseId}` as Route}>
+          <Link href={`/admin/course/${courseId}/assignment` as Route}>
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
           <span className="text-4xl font-bold">{assignmentData?.title}</span>
