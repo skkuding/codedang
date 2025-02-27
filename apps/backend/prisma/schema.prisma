@@ -352,7 +352,7 @@ model AssignmentRecord {
   user               User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId             Int?       @map("user_id")
   acceptedProblemNum Int        @default(0) @map("accepted_problem_num")
-  score              Int        @default(0)      // Only used after assignment finished
+  score              Int        @default(0) // Only used after assignment finished
   finalScore         Int?       @map("final_score")
   comment            String     @default("")
 
@@ -373,7 +373,7 @@ model AssignmentProblemRecord {
   userId       Int
   problemId    Int
 
-  score       Int     @default(0)   // Only used after assignment finished
+  score       Int     @default(0) // Only used after assignment finished
   isSubmitted Boolean @default(false) @map("is_submitted")
   isAccepted  Boolean @default(false) @map("is_accepted")
 
@@ -603,6 +603,7 @@ model SubmissionResult {
   createTime        DateTime        @default(now()) @map("create_time")
   updateTime        DateTime        @updatedAt @map("update_time")
 
+  @@unique([submissionId, problemTestcaseId])
   @@map("submission_result")
 }
 

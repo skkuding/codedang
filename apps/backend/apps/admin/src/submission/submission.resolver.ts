@@ -100,6 +100,19 @@ export class SubmissionResolver {
     )
   }
 
+  @Query(() => SubmissionDetail)
+  async getAssignmentSubmission(
+    @Args('assignmentId', { type: () => Int }) assignmentId: number,
+    @Args('userId', { type: () => Int }) userId: number,
+    @Args('problemId', { type: () => Int }) problemId: number
+  ): Promise<SubmissionDetail> {
+    return await this.submissionService.getAssignmentSubmission(
+      assignmentId,
+      userId,
+      problemId
+    )
+  }
+
   /**
    * 특정 제출 내역에 대한 상세 정보를 불러옵니다.
    */

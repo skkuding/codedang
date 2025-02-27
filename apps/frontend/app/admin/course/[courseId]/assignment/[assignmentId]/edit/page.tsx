@@ -99,12 +99,12 @@ export default function Page({
 
             <SwitchField
               name="autoFinalizeScore"
-              title="Automatic Grading"
+              title="Automatically Finalize Score"
               hasValue={methods.getValues('autoFinalizeScore') || false}
               tooltip={true}
             >
               <p className="text-xs font-normal text-black">
-                Automatic Grading is Awesome!
+                Automatically Finalize Score (No Manual Review)
               </p>
             </SwitchField>
 
