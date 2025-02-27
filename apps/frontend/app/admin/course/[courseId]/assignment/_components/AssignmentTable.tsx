@@ -50,7 +50,9 @@ export function AssignmentTable({ groupId }: AssignmentTableProps) {
       </div>
       <DataTable
         headerStyle={headerStyle}
-        getHref={(data) => `/admin/course/${groupId}/assignment/${data.id}`}
+        getHref={(data) =>
+          `/admin/course/${groupId}/assignment/${data.id}` as Route
+        }
       />
       <DataTablePagination showSelection />
     </DataTableRoot>
