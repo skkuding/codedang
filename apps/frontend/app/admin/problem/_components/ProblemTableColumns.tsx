@@ -39,7 +39,6 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
           row.original.isVisible = !row.original.isVisible
           updateVisible({
             variables: {
-              groupId: 1,
               input: {
                 id: row.original.id,
                 isVisible: row.original.isVisible
