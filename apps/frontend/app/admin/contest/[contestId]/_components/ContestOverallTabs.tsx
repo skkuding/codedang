@@ -62,7 +62,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
   })
 
   const { data: problemData } = useQuery(GET_CONTEST_PROBLEMS, {
-    variables: { groupId: 1, contestId: id },
+    variables: { contestId: id },
     skip: !contestId
   })
 

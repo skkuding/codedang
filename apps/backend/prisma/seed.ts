@@ -40,8 +40,8 @@ let instructorUser: User
 let contestAdminUser: User
 let contestManagerUser: User
 let contestReviewerUser: User
-let publicGroup: Group
-let privateGroup: Group
+let privateGroup1: Group
+let privateGroup2: Group
 const users: User[] = []
 const problems: Problem[] = []
 let problemTestcases: ProblemTestcase[] = []
@@ -185,9 +185,7 @@ const createUsers = async () => {
 }
 
 const createGroups = async () => {
-  // create public group
-  // NOTE: ID가 1인 group은 모두에게 공개된 group
-  publicGroup = await prisma.group.create({
+  privateGroup1 = await prisma.group.create({
     data: {
       groupName: 'Example Group',
       description:
@@ -201,8 +199,7 @@ const createGroups = async () => {
     }
   })
 
-  // create empty private group
-  privateGroup = await prisma.group.create({
+  privateGroup2 = await prisma.group.create({
     data: {
       groupName: '정보보호개론',
       groupType: GroupType.Course,
@@ -227,7 +224,7 @@ const createGroups = async () => {
   await prisma.userGroup.create({
     data: {
       userId: instructorUser.id,
-      groupId: privateGroup.id,
+      groupId: privateGroup2.id,
       isGroupLeader: true
     }
   })
@@ -278,26 +275,26 @@ const createGroups = async () => {
 
   const allUsers = await prisma.user.findMany()
 
-  // add users to public group
+  // add users to private group 1
   // group leader: user01
   for (const user of allUsers) {
     await prisma.userGroup.create({
       data: {
         userId: user.id,
-        groupId: publicGroup.id,
+        groupId: privateGroup1.id,
         isGroupLeader: user.username === 'user01'
       }
     })
   }
 
-  // add users to private group
+  // add users to private group 2
   // group leader: user01
   // registered: user01, user03, user05, user07, user09
   for (const user of users) {
     await prisma.userGroup.create({
       data: {
         userId: user.id,
-        groupId: privateGroup.id,
+        groupId: privateGroup2.id,
         isGroupLeader: user.username === 'user01'
       }
     })
@@ -694,7 +691,6 @@ const createProblems = async () => {
         title: '정수 더하기',
         engTitle: 'Integer Addition',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/1-description.html'),
           'utf-8'
@@ -735,7 +731,6 @@ const createProblems = async () => {
       data: {
         title: '가파른 경사',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/2-description.html'),
           'utf-8'
@@ -764,7 +759,6 @@ const createProblems = async () => {
       data: {
         title: '회전 표지판',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/3-description.html'),
           'utf-8'
@@ -793,7 +787,6 @@ const createProblems = async () => {
       data: {
         title: '붕어빵',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/4-description.html'),
           'utf-8'
@@ -822,7 +815,6 @@ const createProblems = async () => {
       data: {
         title: '채권관계',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/5-description.html'),
           'utf-8'
@@ -851,7 +843,6 @@ const createProblems = async () => {
       data: {
         title: '타일 교환',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/6-description.html'),
           'utf-8'
@@ -880,7 +871,6 @@ const createProblems = async () => {
       data: {
         title: '천재 디자이너',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/7-description.html'),
           'utf8'
@@ -909,7 +899,6 @@ const createProblems = async () => {
       data: {
         title: '사이클 분할',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/8-description.html'),
           'utf-8'
@@ -938,7 +927,6 @@ const createProblems = async () => {
       data: {
         title: '수정중인 문제',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
         description: `<p>수정 작업 중</p>`,
         difficulty: Level.Level3,
         inputDescription: `<p>비공개</p>`,
@@ -1475,7 +1463,6 @@ const createAssignments = async () => {
       endTime: Date
       isVisible: boolean
       isRankVisible: boolean
-      invitationCode: string | null
       enableCopyPaste: boolean
     }
   }[] = [
@@ -1514,12 +1501,11 @@ const createAssignments = async () => {
   아니하고는 처벌·보안처분 또는 강제노역을 받지 아니한다.
 </p>`,
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        groupId: privateGroup1.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1528,12 +1514,11 @@ const createAssignments = async () => {
         title: '24년도 소프트웨어학과 신입생 입학 과제1',
         description: '<p>이 과제는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        groupId: privateGroup1.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: null,
         enableCopyPaste: true
       }
     },
@@ -1542,12 +1527,11 @@ const createAssignments = async () => {
         title: '24년도 소프트웨어학과 신입생 입학 과제2',
         description: '<p>이 과제는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        groupId: privateGroup1.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1556,12 +1540,11 @@ const createAssignments = async () => {
         title: '24년도 소프트웨어학과 신입생 입학 과제3',
         description: '<p>이 과제는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        groupId: privateGroup1.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: null,
         enableCopyPaste: true
       }
     },
@@ -1570,12 +1553,11 @@ const createAssignments = async () => {
         title: '24년도 아늑배 스파게티 코드 만들기 과제',
         description: '<p>이 과제는 현재 진행 중입니다 ! (private group)</p>',
         createdById: superAdminUser.id,
-        groupId: privateGroup.id,
+        groupId: privateGroup2.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: null,
         enableCopyPaste: true
       }
     },
@@ -1585,12 +1567,11 @@ const createAssignments = async () => {
         title: 'Long Time Ago Assignment',
         description: '<p>이 과제는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        groupId: privateGroup1.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1599,12 +1580,11 @@ const createAssignments = async () => {
         title: '23년도 소프트웨어학과 신입생 입학 과제',
         description: '<p>이 과제는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        groupId: privateGroup1.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1613,12 +1593,11 @@ const createAssignments = async () => {
         title: '소프트의 아침과제',
         description: '<p>이 과제는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        groupId: privateGroup1.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1627,12 +1606,11 @@ const createAssignments = async () => {
         title: '소프트의 낮과제',
         description: '<p>이 과제는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        groupId: privateGroup1.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1641,12 +1619,11 @@ const createAssignments = async () => {
         title: '소프트의 밤과제',
         description: '<p>이 과제는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        groupId: privateGroup1.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1655,12 +1632,11 @@ const createAssignments = async () => {
         title: '2023 SKKU 프로그래밍 과제',
         description: '<p>이 과제는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        groupId: privateGroup1.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1669,12 +1645,11 @@ const createAssignments = async () => {
         title: '소프트의 오전과제',
         description: '<p>이 과제는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        groupId: privateGroup1.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1683,12 +1658,11 @@ const createAssignments = async () => {
         title: '소프트의 오후과제',
         description: '<p>이 과제는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        groupId: privateGroup1.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
-        invitationCode: null,
         enableCopyPaste: true
       }
     },
@@ -1697,12 +1671,11 @@ const createAssignments = async () => {
         title: '23년도 아늑배 스파게티 코드 만들기 과제',
         description: '<p>이 과제는 오래 전에 끝났어요 (private group)</p>',
         createdById: superAdminUser.id,
-        groupId: privateGroup.id,
+        groupId: privateGroup2.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: null,
         enableCopyPaste: true
       }
     },
@@ -1712,12 +1685,11 @@ const createAssignments = async () => {
         title: 'Future Assignment',
         description: '<p>이 과제는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        groupId: privateGroup1.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1726,12 +1698,11 @@ const createAssignments = async () => {
         title: '2024 SKKU 프로그래밍 과제',
         description: '<p>이 과제는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        groupId: privateGroup1.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1741,12 +1712,11 @@ const createAssignments = async () => {
         description:
           '<p>이 과제는 언젠가 열리겠죠...? isVisible이 false인 assignment입니다</p>',
         createdById: superAdminUser.id,
-        groupId: publicGroup.id,
+        groupId: privateGroup1.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: false,
         isRankVisible: true,
-        invitationCode: '123456',
         enableCopyPaste: true
       }
     },
@@ -1755,12 +1725,11 @@ const createAssignments = async () => {
         title: '25년도 아늑배 스파게티 코드 만들기 과제',
         description: '<p>이 과제는 언젠가 열리겠죠...? (private group)</p>',
         createdById: superAdminUser.id,
-        groupId: privateGroup.id,
+        groupId: privateGroup2.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        invitationCode: null,
         enableCopyPaste: true
       }
     }
@@ -1789,6 +1758,16 @@ const createAssignments = async () => {
         score: problem.id * 10
       }
     })
+    await prisma.problem.update({
+      where: {
+        id: problem.id
+      },
+      data: {
+        sharedGroups: {
+          connect: [{ id: ongoingAssignments[0].groupId }]
+        }
+      }
+    })
   }
 
   // add problems to finished assignment
@@ -1798,6 +1777,16 @@ const createAssignments = async () => {
         order: problem.id - 1,
         assignmentId: endedAssignments[0].id,
         problemId: problem.id
+      }
+    })
+    await prisma.problem.update({
+      where: {
+        id: problem.id
+      },
+      data: {
+        sharedGroups: {
+          connect: [{ id: endedAssignments[0].groupId }]
+        }
       }
     })
   }
@@ -1813,7 +1802,7 @@ const createWorkbooks = async () => {
           title: '모의대회 문제집',
           description: '모의대회 문제들을 모아뒀습니다!',
           createdById: superAdminUser.id,
-          groupId: publicGroup.id
+          groupId: privateGroup1.id
         }
       })
     )
@@ -1825,7 +1814,7 @@ const createWorkbooks = async () => {
           title: '모의대회 문제집',
           description: '모의대회 문제들을 모아뒀습니다!',
           createdById: superAdminUser.id,
-          groupId: privateGroup.id
+          groupId: privateGroup2.id
         }
       })
     )

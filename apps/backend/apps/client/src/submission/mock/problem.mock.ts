@@ -6,7 +6,6 @@ export const problems: Problem[] = [
   {
     id: 1,
     createdById: 1,
-    groupId: 1,
     title: 'public problem',
     description: '',
     inputDescription: '',

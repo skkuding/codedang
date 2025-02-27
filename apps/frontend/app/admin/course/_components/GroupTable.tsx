@@ -54,7 +54,7 @@ export function GroupTable() {
       new Set(courses.map((course) => course.semester).filter(Boolean))
     )
     setSemesters(uniqueSemesters)
-  }, [])
+  }, [courses])
 
   const deleteTarget = (id: number) => {
     return deleteCourse({
@@ -111,39 +111,15 @@ export function GroupTable() {
             />
           </div>
         </div>
-        <DataTable headerStyle={headerStyle} />
+        <DataTable
+          headerStyle={headerStyle}
+          getHref={(data) => `/admin/course/${data.id}`}
+        />
         <DataTablePagination />
       </DataTableRoot>
     </div>
   )
 }
-
-// function ContestsDeleteButton() {
-//   const client = useApolloClient()
-//   const [deleteGroup] = useMutation(DELETE_GROUP)
-
-//   const deleteTarget = (id: number) => {
-//     return deleteGroup({
-//       variables: {
-//         groupId: id
-//       }
-//     })
-//   }
-
-//   const onSuccess = () => {
-//     client.refetchQueries({
-//       include: [GET_GROUPS]
-//     })
-//   }
-
-//   return (
-//     <DataTableDeleteButton
-//       target="group"
-//       deleteTarget={deleteTarget}
-//       onSuccess={onSuccess}
-//     />
-//   )
-// }
 
 export function GroupTableFallback() {
   return <DataTableFallback withSearchBar={false} columns={columns} />

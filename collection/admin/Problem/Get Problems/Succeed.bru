@@ -11,11 +11,10 @@ post {
 }
 
 body:graphql {
-  query GetProblems($groupId: Int!, $cursor: Int, $take: Int!, $input: FilterProblemsInput!) {
-    getProblems(groupId: $groupId, cursor: $cursor, take: $take, input: $input) {
+  query GetProblems($input: FilterProblemsInput!, $cursor: Int, $take: Int!, $my: Boolean, $shared: Boolean) {
+    getProblems(input: $input, cursor: $cursor, take: $take, input: $input, my: $my, shared: $shared) {
       id
       createdById
-      groupId
       title
       description
       inputDescription
@@ -35,13 +34,14 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "groupId": 1,
-    "cursor": 1,
-    "take": 10,
     "input": {
       "difficulty": ["Level1", "Level2", "Level3", "Level4", "Level5"],
       "languages": ["C", "Cpp", "Java", "Python3"]
-    }
+    },
+    "cursor": 1,
+    "take": 10,
+    "my": false,
+    "shared": false
   }
 }
 

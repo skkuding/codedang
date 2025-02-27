@@ -39,7 +39,7 @@ export function DataTableProblemFilter({ contestId }: { contestId: number }) {
   >([])
 
   const { data } = useQuery(GET_CONTEST_PROBLEMS, {
-    variables: { groupId: 1, contestId }
+    variables: { contestId }
   })
 
   useEffect(() => {
