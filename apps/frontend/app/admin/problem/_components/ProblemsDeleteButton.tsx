@@ -41,7 +41,6 @@ export function ProblemsDeleteButton() {
   const deleteTarget = (id: number) => {
     return deleteProblem({
       variables: {
-        groupId: 1,
         id
       }
     })

@@ -23,7 +23,7 @@ export function ParticipantTable({ contestId }: { contestId: number }) {
   }))
 
   const problems = useSuspenseQuery(GET_CONTEST_PROBLEMS, {
-    variables: { groupId: 1, contestId }
+    variables: { contestId }
   })
 
   const problemData = problems.data.getContestProblems
