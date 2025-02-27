@@ -20,7 +20,7 @@ export default async function ContestAnnouncement({
     .json()
   return (
     <div className="pb-[120px]">
-      <p className="text-primary my-20 text-center text-2xl font-semibold">
+      <p className="my-20 text-left text-2xl font-semibold text-black">
         ANNOUNCEMENT
       </p>
       <DataTable
