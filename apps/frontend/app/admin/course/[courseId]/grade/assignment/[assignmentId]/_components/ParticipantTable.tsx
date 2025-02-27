@@ -8,9 +8,15 @@ import {
   DataTableSearchBar
 } from '@/app/admin/_components/table'
 import { Skeleton } from '@/components/shadcn/skeleton'
-import { GET_ASSIGNMENT_SCORE_SUMMARIES } from '@/graphql/assignment/queries'
+import { Switch } from '@/components/shadcn/switch'
+import { UPDATE_ASSIGNMENT } from '@/graphql/assignment/mutations'
+import {
+  GET_ASSIGNMENT,
+  GET_ASSIGNMENT_SCORE_SUMMARIES
+} from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
-import { useSuspenseQuery } from '@apollo/client'
+import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
+import { useState } from 'react'
 import { createColumns } from './Columns'
 
 export function ParticipantTable({
@@ -20,6 +26,15 @@ export function ParticipantTable({
   groupId: number
   assignmentId: number
 }) {
+  const assignmentData = useQuery(GET_ASSIGNMENT, {
+    variables: {
+      groupId,
+      assignmentId
+    }
+  }).data?.getAssignment
+
+  const [updateAssignment, { error }] = useMutation(UPDATE_ASSIGNMENT)
+
   const summaries = useSuspenseQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
     variables: { groupId, assignmentId, take: 300 }
   })
@@ -38,6 +53,13 @@ export function ParticipantTable({
     .slice()
     .sort((a, b) => a.order - b.order)
 
+  const [revealRawScore, setRevealRawScore] = useState(
+    assignmentData?.isJudgeResultVisible
+  )
+  const [revealFinalScore, setRevealFinalScore] = useState(
+    assignmentData?.isFinalScoreVisible
+  )
+
   return (
     <div>
       <p className="mb-3 font-medium">
@@ -45,7 +67,45 @@ export function ParticipantTable({
         Participants
       </p>
       <DataTableRoot data={summariesData} columns={createColumns(problemData)}>
-        <DataTableSearchBar columndId="realName" placeholder="Search Name" />
+        <div className="flex">
+          <DataTableSearchBar columndId="realName" placeholder="Search Name" />
+          <div>
+            Reveal Raw Score
+            <Switch
+              onCheckedChange={async (checked) => {
+                await updateAssignment({
+                  variables: {
+                    groupId,
+                    input: {
+                      id: assignmentId,
+                      isJudgeResultVisible: checked
+                    }
+                  }
+                })
+              }}
+              checked={assignmentData?.isJudgeResultVisible}
+              className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
+            />
+          </div>
+          <div>
+            Reveal Final Score
+            <Switch
+              onCheckedChange={async (checked) => {
+                await updateAssignment({
+                  variables: {
+                    groupId,
+                    input: {
+                      id: assignmentId,
+                      isFinalScoreVisible: checked
+                    }
+                  }
+                })
+              }}
+              checked={assignmentData?.isFinalScoreVisible}
+              className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
+            />
+          </div>
+        </div>
         <DataTable
           getHref={(data) =>
             `/admin/course/${groupId}/grade/assignment/${assignmentId}/user/${data.id}`

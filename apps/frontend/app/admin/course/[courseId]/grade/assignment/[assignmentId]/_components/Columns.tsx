@@ -39,11 +39,11 @@ export const createColumns = (
         <DataTableColumnHeader
           column={column}
           title="Name"
-          className="flex justify-center"
+          className="flex justify-center border-r"
         />
       ),
       cell: ({ row }) => (
-        <div className="whitespace-nowrap text-center text-xs font-medium">
+        <div className="whitespace-nowrap border-r text-center text-xs font-medium">
           {row.original.realName}
         </div>
       ),
@@ -74,13 +74,13 @@ export const createColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Submit"
-          className="flex justify-center border-r"
+          title="Raw Score"
+          className="flex justify-center border-x"
         />
       ),
       cell: ({ row }) => (
-        <div className="flex justify-center border-r">
-          {row.original.userAssignmentScore}/
+        <div className="flex justify-center border-x">
+          {row.original.userAssignmentScore || '-'}/
           {row.original.assignmentPerfectScore}
         </div>
       )
@@ -90,14 +90,14 @@ export const createColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Total"
+          title="Final Score"
           className="flex justify-center"
         />
       ),
       cell: ({ row }) => (
         <div>
-          {row.original.userAssignmentFinalScore}/
-          {row.original.contestPerfectScore}
+          {row.original.userAssignmentFinalScore || '-'}/
+          {row.original.assignmentPerfectScore}
         </div>
       )
     }
