@@ -12,7 +12,7 @@ post {
 
 body:graphql {
   query {
-    getUserByEmailOrStudentId(groupId: 5, studentId: "2024000001") {
+    getUserByEmailOrStudentId(groupId: 2, studentId: "2024000001") {
       id
       email
       studentId
@@ -47,7 +47,7 @@ docs {
   ### Args / Query / Params / Body
   | 이름 | 타입 | 설명 |
   |--|--|--|
-  |groupId|Int|포함하지 않으면 Open Space에 대한 요청이 된다. 기본값은 1.|
+  |groupId|Int|포함하지 않으면 Public에 대한 요청이 된다.|
   |userId|Int!|필수|
   
   

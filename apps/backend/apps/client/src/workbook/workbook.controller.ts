@@ -6,12 +6,12 @@ import {
   Param,
   Query
 } from '@nestjs/common'
-import { AuthNotNeededIfOpenSpace } from '@libs/auth'
+import { AuthNotNeededIfPublic } from '@libs/auth'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { WorkbookService } from './workbook.service'
 
 @Controller('workbook')
-@AuthNotNeededIfOpenSpace()
+@AuthNotNeededIfPublic()
 export class WorkbookController {
   private readonly logger = new Logger(WorkbookController.name)
 

@@ -10,7 +10,7 @@ import {
   Query
 } from '@nestjs/common'
 import { Request, type Response } from 'express'
-import { AuthenticatedRequest, AuthNotNeededIfOpenSpace } from '@libs/auth'
+import { AuthenticatedRequest, AuthNotNeededIfPublic } from '@libs/auth'
 import { DeleteUserDto } from './dto/deleteUser.dto'
 import { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
@@ -27,7 +27,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Patch('password-reset')
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   async updatePassword(
     @Body() newPasswordDto: NewPasswordDto,
     @Req() req: Request
@@ -36,13 +36,13 @@ export class UserController {
   }
 
   @Post('sign-up')
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   async signUp(@Body() signUpDto: SignUpDto, @Req() req: Request) {
     await this.userService.signUp(req, signUpDto)
   }
 
   @Post('social-sign-up')
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   async socialSignUp(@Body() socialSignUpDto: SocialSignUpDto) {
     return await this.userService.socialSignUp(socialSignUpDto)
   }
@@ -69,13 +69,13 @@ export class UserController {
   }
 
   @Get('username-check')
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   async checkDuplicatedUsername(@Query() usernameDto: UsernameDto) {
     return await this.userService.checkDuplicatedUsername(usernameDto)
   }
 
   @Get('email')
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   async getUsernameByEmail(@Query() userEmailDto: UserEmailDto) {
     return await this.userService.getUsernameByEmail(userEmailDto)
   }
@@ -90,7 +90,7 @@ export class UserController {
 }
 
 @Controller('email-auth')
-@AuthNotNeededIfOpenSpace()
+@AuthNotNeededIfPublic()
 export class EmailAuthenticationController {
   constructor(private readonly userService: UserService) {}
 

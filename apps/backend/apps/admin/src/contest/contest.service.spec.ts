@@ -117,7 +117,6 @@ const contestWithParticipants: ContestWithParticipants = {
 const problem: Problem = {
   id: problemId,
   createdById: 2,
-  groupId: 2,
   title: 'test problem',
   description: 'thisistestproblem',
   inputDescription: 'inputdescription',
