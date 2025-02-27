@@ -32,7 +32,7 @@ export const dummyResponse = {
         },
         {
           id: 9,
-          title: '스꾸딩 크리스마스 세그먼트트트리 만들기',
+          title: '스꾸딩 크리스마스 세그먼트트리 만들고 오너먼츠 붙이기',
           order: 2,
           maxScore: 10,
           problemRecord: {

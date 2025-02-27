@@ -87,21 +87,30 @@ function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
           </div>
         </AccordionTrigger>
         <AccordionContent className="-mb-4">
-          <div className="overflow-hidden rounded-2xl border">
+          <div className="w-full overflow-hidden rounded-2xl border">
             <div className="h-6 bg-[#F3F3F3]" />
             {assignment.problems.map((problem) => (
               <div
                 key={problem.id}
-                className="flex items-center justify-between border-b bg-[#F8F8F8] px-12 py-6"
+                className="flex items-center justify-between border-b bg-[#F8F8F8] px-8 py-6"
               >
-                <div className="flex gap-6">
-                  <p>
-                    <span className="text-primary">
+                <div className="flex w-full">
+                  <div className="w-[9%]" />
+                  <div className="flex w-[30%] gap-3">
+                    <span className="text-primary font-semibold">
                       {convertToLetter(problem.order)}
                     </span>{' '}
-                    {problem.title}
+                    <span className="line-clamp-1 font-medium text-[#171717]">
+                      {problem.title}
+                    </span>
+                  </div>
+                  <div className="w-[4%]" />
+                  <div className="w-[9%] text-center">!!</div>
+                  <p className="w-[22%] text-center font-normal text-[#8A8A8A]">
+                    -
                   </p>
-                  <p>{`${problem.problemRecord.finalScore} / ${problem.maxScore}`}</p>
+                  <p className="w-[10%] text-center font-medium">{`${problem.problemRecord.finalScore} / ${problem.maxScore}`}</p>
+                  <div className="flex w-[16%] justify-end">.</div>
                 </div>
               </div>
             ))}
