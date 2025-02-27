@@ -719,7 +719,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           assignmentId_userId_problemId: {
             assignmentId,
             userId,
-            problemId: submission!.problemId
+            problemId
           }
         },
         select: {
