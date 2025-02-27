@@ -2,7 +2,7 @@ export const dummyResponse = {
   data: [
     {
       id: 1,
-      title: 'Autograde 꺼져있고 Grade 완료된 과제',
+      title: 'Autograde 꺼져있고 Grade 완료된 과제dfgdfgdf',
       endTime: '3025-01-01T23:59:59.000Z',
       isFinalScoreVisible: true,
       autoFinalizeScore: false,
@@ -44,9 +44,9 @@ export const dummyResponse = {
     },
     {
       id: 2,
-      title: 'Autograde 켜져있고 Grade 완료된 과제',
+      title: 'Autograde 켜져있고 Grade 미완료된 과제',
       endTime: '3025-01-01T23:59:59.000Z',
-      isFinalScoreVisible: true,
+      isFinalScoreVisible: false,
       autoFinalizeScore: true,
       week: 2,
       userAssignmentFinalScore: 24,

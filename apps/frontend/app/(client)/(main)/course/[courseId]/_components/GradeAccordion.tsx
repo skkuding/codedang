@@ -35,25 +35,22 @@ interface AssignmentGrade {
 }
 
 export function GradeAccordion({ courseId }: GradeAccordionProps) {
+  // TODO: fetch assignment grades
+  console.log(courseId)
   return (
     <div className="mt-3">
       {dummyResponse.data.map((assignment) => (
-        <GradeAccordionItem
-          key={assignment.id}
-          courseId={courseId}
-          assignment={assignment}
-        />
+        <GradeAccordionItem key={assignment.id} assignment={assignment} />
       ))}
     </div>
   )
 }
 
 interface GradeAccordionItemProps {
-  courseId: string
   assignment: AssignmentGrade
 }
 
-function GradeAccordionItem({ courseId, assignment }: GradeAccordionItemProps) {
+function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
   return (
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem
@@ -63,25 +60,29 @@ function GradeAccordionItem({ courseId, assignment }: GradeAccordionItemProps) {
         <AccordionTrigger
           className={cn(
             'mt-4 flex rounded-2xl bg-white px-8 py-5 text-lg font-semibold shadow-md',
-            'data-[state=open]:-mb-6'
+            'data-[state=open]:-mb-6',
+            'relative',
+            'hover:no-underline'
           )}
-          iconSize="w-7 h-7"
+          iconSize="w-5 h-5 absolute left-[40%]"
         >
-          <div className="relative w-full text-left text-sm">
-            <p className="text-primary absolute top-0 w-32 -translate-y-1/2">
+          <div className="flex w-full items-center text-left text-sm">
+            <p className="text-primary w-[9%] font-semibold">
               [Week {assignment.week}]
             </p>
-            <div className="absolute left-20 top-0 flex -translate-y-1/2 gap-4">
-              <p>{assignment.title}</p>
-              <p className="text-[#8A8A8A]">
-                {dateFormatter(assignment.endTime, 'YYYY-MM-DD HH:mm:ss')}
-              </p>
-              <p>
-                {`${assignment.userAssignmentFinalScore} / ${assignment.assignmentPerfectScore}`}
-              </p>
-              <div>
-                {assignment.isFinalScoreVisible ? 'Graded' : 'Submitted'}
-              </div>
+            <p className="line-clamp-1 w-[30%] font-medium">
+              {assignment.title}
+            </p>
+            <div className="w-[4%]" />
+            <div className="w-[9%] text-center">!!</div>
+            <p className="w-[22%] text-center font-normal text-[#8A8A8A]">
+              {dateFormatter(assignment.endTime, 'YYYY-MM-DD HH:mm:ss')}
+            </p>
+            <p className="w-[10%] text-center font-medium">
+              {`${assignment.userAssignmentFinalScore} / ${assignment.assignmentPerfectScore}`}
+            </p>
+            <div className="flex w-[16%] justify-end">
+              <GradedBadge isGraded={assignment.isFinalScoreVisible} />
             </div>
           </div>
         </AccordionTrigger>
@@ -112,24 +113,24 @@ function GradeAccordionItem({ courseId, assignment }: GradeAccordionItemProps) {
 }
 
 interface CompleteBadgeProps {
-  className: string
-  isCompleted: boolean
+  className?: string
+  isGraded: boolean
 }
 
-function CompleteBadge({ className, isCompleted }: CompleteBadgeProps) {
-  const badgeStyle = isCompleted
-    ? 'border-primary text-primary'
-    : 'border-[#C4C4C4] text-[#C4C4C4]'
-  const text = isCompleted ? 'Complete' : 'Incomplete'
+function GradedBadge({ className, isGraded }: CompleteBadgeProps) {
+  const badgeStyle = isGraded
+    ? 'border-transparent bg-primary text-white'
+    : 'border-primary text-primary'
+  const text = isGraded ? 'Graded' : 'Submitted'
   return (
     <div
       className={cn(
-        'flex h-[34px] w-[121px] items-center justify-center rounded-full border',
+        'flex h-[30px] w-[106px] items-center justify-center rounded-full border',
         badgeStyle,
         className
       )}
     >
-      <p className="text-[16px] font-medium">{text}</p>
+      <p className="text-sm font-medium">{text}</p>
     </div>
   )
 }
