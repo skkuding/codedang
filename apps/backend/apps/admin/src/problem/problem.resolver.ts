@@ -23,7 +23,7 @@ import {
   WorkbookProblem
 } from '@generated'
 import { Role } from '@prisma/client'
-import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
+import { AuthenticatedRequest } from '@libs/auth'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -41,7 +41,6 @@ import {
 import { ProblemWithIsVisible } from './model/problem.output'
 import { ProblemService } from './problem.service'
 
-@UseRolesGuard(Role.User)
 @Resolver(() => ProblemWithIsVisible)
 export class ProblemResolver {
   constructor(private readonly problemService: ProblemService) {}

@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { RolesModule } from '@libs/auth'
 import { StorageModule } from '@admin/storage/storage.module'
 import { ProblemTagResolver, TagResolver } from './problem-tag.resolver'
 import {
@@ -13,7 +12,7 @@ import { ProblemService } from './problem.service'
 import { IntScoreScalar } from './scalar/int-score.scalar'
 
 @Module({
-  imports: [StorageModule, ConfigModule, RolesModule],
+  imports: [StorageModule, ConfigModule],
   providers: [
     ProblemResolver,
     ContestProblemResolver,
