@@ -8,6 +8,13 @@ import {
 } from '@/components/shadcn/resizable'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/shadcn/tooltip'
+import bottomCenterIcon from '@/public/icons/bottom-center.svg'
 import syncIcon from '@/public/icons/sync.svg'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
 import type { ProblemDetail } from '@/types/type'
@@ -130,12 +137,29 @@ export function EditorMainResizablePanel({
             {tabValue === 'Leaderboard' ? (
               <div className="flex gap-x-4">
                 <LeaderboardModalDialog />
-                <Image
-                  src={syncIcon}
-                  alt="Sync"
-                  className="cursor-pointer"
-                  onClick={triggerRefresh}
-                />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Image
+                        src={syncIcon}
+                        alt="Sync"
+                        className="cursor-pointer"
+                        onClick={triggerRefresh}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="bottom"
+                      className="mt-1 flex h-[29px] w-[145px] items-center justify-center"
+                    >
+                      <Image
+                        src={bottomCenterIcon}
+                        alt="Tooltip arrow"
+                        className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform"
+                      />
+                      <p className="text-xs">Leaderboard is frozen</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             ) : null}
           </div>
