@@ -16,11 +16,7 @@ const contestSelectOption = {
   enableCopyPaste: true,
   isJudgeResultVisible: true,
   posterUrl: true,
-  participationTarget: true,
-  competitionMethod: true,
-  rankingMethod: true,
-  problemFormat: true,
-  benefits: true,
+  summary: true,
   contestRecord: {
     select: {
       userId: true
