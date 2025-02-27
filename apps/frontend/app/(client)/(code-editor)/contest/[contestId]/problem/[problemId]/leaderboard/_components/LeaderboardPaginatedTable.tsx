@@ -75,7 +75,6 @@ export function LeaderboardPaginatedTable({
       .get(`contest/${contestId}/leaderboard`)
       .json()
     const leaderboard: BriefLeaderboardItem[] = res.leaderboard
-    console.log('raw leaderboard: ', leaderboard)
 
     const leaderboardItems: LeaderboardItemCodeEditor[] = []
 
