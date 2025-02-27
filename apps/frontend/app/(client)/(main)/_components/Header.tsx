@@ -21,7 +21,7 @@ export async function Header() {
             />
           </Link>
 
-          <nav className="hidden gap-10 font-mono font-medium capitalize md:flex">
+          <nav className="hidden gap-10 font-semibold capitalize md:flex">
             <NavLink href="/notice" text="NOTICE" />
             <NavLink href="/contest" text="CONTEST" />
             <NavLink href="/problem" text="PROBLEM" />
