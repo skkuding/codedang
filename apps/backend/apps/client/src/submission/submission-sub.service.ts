@@ -193,14 +193,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       status === ResultStatus.ServerError ||
       status === ResultStatus.CompileError
     ) {
-      const submission = await this.prisma.submission.findUnique({
-        where: {
-          id: msg.submissionId
-        }
-      })
       await this.handleJudgeError(status, msg)
-      if (submission?.assignmentId)
-        await this.calculateAssignmentSubmissionScoreWhenErrored(submission)
       return
     }
 
@@ -630,7 +623,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     const prevSubmissionScore = assignmentProblemRecord?.score ?? 0
 
-    await this.prisma.assignmentProblemRecord.upsert({
+    await this.prisma.assignmentProblemRecord.update({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         assignmentId_userId_problemId: {
@@ -639,15 +632,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           problemId: submission.problemId
         }
       },
-      update: {
-        score: realSubmissionScore,
-        isSubmitted: true,
-        isAccepted
-      },
-      create: {
-        assignmentId,
-        userId,
-        problemId: submission.problemId,
+      data: {
         score: realSubmissionScore,
         isSubmitted: true,
         isAccepted
@@ -669,90 +654,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         acceptedProblemNum: { increment: toBeAddedAcceptedProblemNum },
         score: { increment: toBeAddedScore },
         finishTime: submission.updateTime
-      }
-    })
-  }
-
-  async calculateAssignmentSubmissionScoreWhenErrored(
-    submission: Pick<
-      Submission,
-      'id' | 'problemId' | 'assignmentId' | 'userId' | 'updateTime'
-    >
-  ): Promise<void> {
-    const assignmentId = submission!.assignmentId!
-    const userId = submission!.userId!
-    const problemId = submission!.problemId!
-
-    const assignmentRecord =
-      await this.prisma.assignmentRecord.findUniqueOrThrow({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          assignmentId_userId: {
-            assignmentId,
-            userId
-          }
-        },
-        select: {
-          id: true,
-          acceptedProblemNum: true,
-          score: true,
-          totalPenalty: true,
-          finishTime: true
-        }
-      })
-
-    const assignmentProblemRecord =
-      await this.prisma.assignmentProblemRecord.findUnique({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          assignmentId_userId_problemId: {
-            assignmentId,
-            userId,
-            problemId
-          }
-        },
-        select: {
-          score: true,
-          isAccepted: true
-        }
-      })
-
-    const prevSubmissionScore = assignmentProblemRecord?.score ?? 0
-    const prevAccepted = assignmentProblemRecord?.isAccepted ?? false
-
-    await this.prisma.assignmentProblemRecord.upsert({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        assignmentId_userId_problemId: {
-          assignmentId,
-          userId,
-          problemId
-        }
-      },
-      update: {
-        score: 0,
-        isAccepted: false
-      },
-      create: {
-        assignmentId,
-        userId,
-        problemId,
-        score: 0,
-        isSubmitted: true,
-        isAccepted: false
-      }
-    })
-
-    await this.prisma.assignmentRecord.update({
-      where: {
-        id: assignmentRecord.id
-      },
-      data: {
-        acceptedProblemNum: prevAccepted
-          ? assignmentRecord.acceptedProblemNum - 1
-          : assignmentRecord.acceptedProblemNum,
-        score: assignmentRecord.score - prevSubmissionScore,
-        finishTime: submission!.updateTime
       }
     })
   }
