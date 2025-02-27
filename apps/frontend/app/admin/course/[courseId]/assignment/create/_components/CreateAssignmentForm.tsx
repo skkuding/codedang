@@ -33,7 +33,6 @@ export function CreateAssignmentForm({
   const methods = useForm<CreateAssignmentInput>({
     resolver: valibotResolver(createSchema),
     defaultValues: {
-      invitationCode: null,
       isRankVisible: true,
       isVisible: true,
       enableCopyPaste: false,

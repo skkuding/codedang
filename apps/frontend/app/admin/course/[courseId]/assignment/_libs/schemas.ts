@@ -18,13 +18,8 @@ export const createSchema = v.object({
   endTime: v.date(),
   week: v.number(),
   enableCopyPaste: v.boolean(),
-  isJudgeResultVisible: v.boolean(),
-  invitationCode: v.nullable(
-    v.pipe(
-      v.string(),
-      v.regex(/^\d{6}$/, 'The invitation code must be a 6-digit number')
-    )
-  )
+  isJudgeResultVisible: v.boolean()
+  // isAutomaticGrading: v.boolean()
 })
 
 export const editSchema = v.object({

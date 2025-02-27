@@ -18,6 +18,7 @@ import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { AssignmentProblemListLabel } from '../../_components/AssignmentProblemListLabel'
 import { AssignmentProblemTable } from '../../_components/AssignmentProblemTable'
 import { ImportDialog } from '../../_components/ImportDialog'
+import { WeekComboBox } from '../../_components/WeekComboBox'
 import { editSchema } from '../../_libs/schemas'
 import type { AssignmentProblem } from '../../_libs/type'
 import { EditAssignmentForm } from './_components/EditAssignmentForm'
@@ -71,6 +72,10 @@ export default function Page({
               <FormSection title="End Time">
                 {methods.getValues('endTime') && <TimeForm name="endTime" />}
               </FormSection>
+
+              <FormSection title="Week">
+                {methods.getValues('week') && <WeekComboBox name="week" />}
+              </FormSection>
             </div>
 
             <FormSection title="Description">
@@ -92,13 +97,14 @@ export default function Page({
             />
 
             <SwitchField
-              name="invitationCode"
-              title="Invitation Code"
-              type="number"
-              formElement="input"
-              placeholder="Enter a invitation code"
-              hasValue={methods.getValues('invitationCode') !== null}
-            />
+              name="isAutomaticGrading"
+              title="Automatic Grading"
+              tooltip={true}
+            >
+              <p className="text-xs font-normal text-black">
+                Automatic Grading is Awesome!
+              </p>
+            </SwitchField>
 
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">

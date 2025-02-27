@@ -54,7 +54,8 @@ export function EditAssignmentForm({
         enableCopyPaste: data.enableCopyPaste,
         isJudgeResultVisible: data.isJudgeResultVisible,
         isRankVisible: true,
-        isVisible: true
+        isVisible: true,
+        week: data.week
       })
       setIsLoading(false)
     }

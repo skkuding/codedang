@@ -72,12 +72,14 @@ export default function Page({ params }: { params: { courseId: string } }) {
             />
 
             <SwitchField
-              name="invitationCode"
-              title="Invitation Code"
-              type="number"
-              formElement="input"
-              placeholder="Enter a invitation code"
-            />
+              name="isAutomaticGrading"
+              title="Automatic Grading"
+              tooltip={true}
+            >
+              <p className="text-xs font-normal text-black">
+                Automatic Grading is Awesome!
+              </p>
+            </SwitchField>
 
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
