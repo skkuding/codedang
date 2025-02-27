@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/shadcn/skeleton'
 import { GET_ASSIGNMENT_SCORE_SUMMARIES } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
+import type { Route } from 'next'
 import { useParams } from 'next/navigation'
 import { createColumns } from './Columns'
 
@@ -45,7 +46,7 @@ export function ParticipantTable({ assignmentId }: { assignmentId: number }) {
         <DataTableSearchBar columndId="realName" placeholder="Search Name" />
         <DataTable
           getHref={(data) =>
-            `/admin/course/${courseId}/assignment/${assignmentId}/participant/${data.id}`
+            `/admin/course/${courseId}/assignment/${assignmentId}/participant/${data.id}` as Route
           }
         />
         <DataTablePagination />

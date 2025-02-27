@@ -9,6 +9,7 @@ import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { cn } from '@/libs/utils'
 import excelIcon from '@/public/icons/excel.svg'
 import { useQuery } from '@apollo/client'
+import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -153,7 +154,7 @@ export function AssignmentOverallTabs({
     <div className="flex items-center justify-between">
       <div className="flex w-max gap-1 rounded-lg bg-slate-200 p-1">
         <Link
-          href={`/admin/course/${groupId}/assignment/${assignmentId}`}
+          href={`/admin/course/${groupId}/assignment/${assignmentId}` as Route}
           className={cn(
             'rounded-md px-3 py-1.5 text-lg font-semibold',
             isCurrentTab('') && 'text-primary bg-white font-bold'
@@ -162,7 +163,9 @@ export function AssignmentOverallTabs({
           Participant
         </Link>
         <Link
-          href={`/admin/course/${groupId}/assignment/${assignmentId}/submission`}
+          href={
+            `/admin/course/${groupId}/assignment/${assignmentId}/submission` as Route
+          }
           className={cn(
             'rounded-md px-3 py-1.5 text-lg font-semibold',
             isCurrentTab('submission') && 'text-primary bg-white font-bold'

@@ -10,6 +10,7 @@ import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { UpdateAssignmentInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import type { Route } from 'next'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -45,7 +46,7 @@ export default function Page({
       <ScrollArea className="w-full">
         <main className="flex flex-col gap-6 px-20 py-16">
           <div className="flex items-center gap-4">
-            <Link href={`/admin/course/${courseId}/assignment`}>
+            <Link href={`/admin/course/${courseId}/assignment` as Route}>
               <FaAngleLeft className="h-12" />
             </Link>
             <span className="text-4xl font-bold">Edit Assignment</span>
