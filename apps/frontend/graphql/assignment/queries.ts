@@ -6,6 +6,7 @@ const GET_ASSIGNMENT = gql(`
       id
       enableCopyPaste
       isJudgeResultVisible
+      autoFinalizeScore
       description
       endTime
       startTime
