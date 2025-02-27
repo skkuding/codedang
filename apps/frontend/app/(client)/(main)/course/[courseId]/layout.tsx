@@ -10,7 +10,10 @@ export default function Layout({ children, params }: CourseLayoutProps) {
   const { courseId } = params
   return (
     <>
-      <Cover title="COURSE" description="Check your course" />
+      <Cover
+        title="COURSE"
+        description="Structured Learning, Real-World Coding"
+      />
       <div className="flex h-full w-full flex-col">
         <div className="flex flex-row">
           <CourseSidebar courseId={courseId} />
