@@ -20,8 +20,9 @@ interface AssignmentTableProps {
 
 const headerStyle = {
   select: '',
-  title: 'w-3/5',
+  title: 'w-1/2',
   startTime: 'px-0 w-2/5',
+  week: 'px-0 w-1/5',
   isVisible: 'px-0 w-1/12'
 }
 
