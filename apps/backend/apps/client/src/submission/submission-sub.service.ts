@@ -574,7 +574,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       })
 
-    const submissionRecord = await this.prisma.submission.findUniqueOrThrow({
+    const submissionRecord = await this.prisma.submission.findUnique({
       where: {
         id: submission.id
       },

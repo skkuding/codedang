@@ -104,11 +104,16 @@ const db = {
     findUnique: mockFunc
   },
   assignmentProblemRecord: {
-    update: mockFunc
+    update: mockFunc,
+    findUnique: mockFunc,
+    upsert: mockFunc
   },
   problem: {
     update: mockFunc,
     findFirstOrThrow: mockFunc
+  },
+  problemTestcase: {
+    aggregate: mockFunc
   },
   $transaction: async (fn: (prisma: typeof db) => Promise<unknown>) => {
     return fn(db)
@@ -736,10 +741,10 @@ describe('SubmissionSubscriptionService', () => {
       const findUniqueSpy = sandbox
         .stub(db.assignmentRecord, 'findUniqueOrThrow')
         .resolves(assignmentRecord)
-      const findFirstSpy = sandbox
+      const updateSpy = sandbox.stub(db.assignmentRecord, 'update').resolves()
+      const getScoreSpy = sandbox
         .stub(db.assignmentProblem, 'findUnique')
         .resolves({ score: 100 })
-      const updateSpy = sandbox.stub(db.assignmentRecord, 'update').resolves()
 
       await service.calculateAssignmentSubmissionScore(
         assignmentSubmission,
@@ -765,7 +770,7 @@ describe('SubmissionSubscriptionService', () => {
         })
       ).to.be.true
       expect(
-        findFirstSpy.calledOnceWith({
+        getScoreSpy.calledOnceWith({
           where: {
             // eslint-disable-next-line @typescript-eslint/naming-convention
             assignmentId_problemId: {
@@ -785,7 +790,7 @@ describe('SubmissionSubscriptionService', () => {
       const findUniqueSpy = sandbox
         .stub(db.assignmentRecord, 'findUniqueOrThrow')
         .resolves(assignmentRecord)
-      const findFirstSpy = sandbox
+      const getScoreSpy = sandbox
         .stub(db.assignmentProblem, 'findUnique')
         .resolves({ score: 100 })
       const updateSpy = sandbox.stub(db.assignmentRecord, 'update').resolves()
@@ -813,7 +818,20 @@ describe('SubmissionSubscriptionService', () => {
           }
         })
       ).to.be.true
-      expect(findFirstSpy.notCalled).to.be.true
+      expect(
+        getScoreSpy.calledOnceWith({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            assignmentId_problemId: {
+              assignmentId: assignmentSubmission.assignmentId,
+              problemId: assignmentSubmission.problemId
+            }
+          },
+          select: {
+            score: true
+          }
+        })
+      ).to.be.true
       expect(updateSpy.calledOnce).to.be.true
     })
   })
