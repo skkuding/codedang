@@ -267,6 +267,7 @@ export class SubmissionService {
         },
         problem: true,
         contest: true,
+        assignment: true,
         submissionResult: true
       }
     })
