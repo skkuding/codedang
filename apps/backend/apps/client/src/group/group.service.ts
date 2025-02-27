@@ -464,7 +464,9 @@ export class GroupService {
         title: ap.problem.title,
         order: ap.order,
         maxScore: ap.score,
-        problemRecord: problemRecordMap[ap.problemId] || null
+        problemRecord: assignment.isFinalScoreVisible
+          ? problemRecordMap[ap.problemId] || null
+          : null
       }))
 
       const userAssignmentFinalScore = assignmentProblemRecords.some(
@@ -488,7 +490,9 @@ export class GroupService {
         isFinalScoreVisible: assignment.isFinalScoreVisible,
         autoFinalizeScore: assignment.autoFinalizeScore,
         week: assignment.week,
-        userAssignmentFinalScore,
+        userAssignmentFinalScore: assignment.isFinalScoreVisible
+          ? userAssignmentFinalScore
+          : null,
         assignmentPerfectScore,
         problems
       }
