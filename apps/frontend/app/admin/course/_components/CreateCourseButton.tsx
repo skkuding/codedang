@@ -89,13 +89,6 @@ export function CreateCourseButton() {
         }
       })
 
-      if (errors) {
-        //TODO: error handling
-        console.error('GraphQL Errors:', errors)
-        toast.error('Failed to create course')
-        return
-      }
-
       toast.success('Course created successfully!')
     } catch (error) {
       //TODO: error handling

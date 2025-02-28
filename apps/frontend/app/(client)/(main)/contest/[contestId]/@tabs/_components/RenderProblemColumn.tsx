@@ -35,11 +35,11 @@ export const RenderProblemColumn: ColumnDef<ProblemDataTop['data'][number]>[] =
       //NOTE: Put score data because No Info(Special Judge) data for now
       header: 'Info',
       accessorKey: 'score',
-      cell: ({ row }) => {
+      cell: () => {
         return (
           <div className="flex items-center justify-center p-0">
             <span className="text-sm font-normal text-black md:text-base">
-              {row.original.score}
+              {''}
             </span>
           </div>
         )
