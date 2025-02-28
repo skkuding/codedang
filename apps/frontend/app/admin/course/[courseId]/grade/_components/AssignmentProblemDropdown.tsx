@@ -13,59 +13,65 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { FaSortDown } from 'react-icons/fa'
 
-interface CurrentProblem {
-  id: number
-  order: number
-  title: string
-}
-
 interface AssignmentProblemDropdownProps {
-  problem: CurrentProblem
+  problemId: number
   assignmentId: number
   courseId: number
+  userId: number
+  isSubmitted: boolean
 }
 
 export function AssignmentProblemDropdown({
-  problem,
+  problemId,
   assignmentId,
-  courseId
+  courseId,
+  userId,
+  isSubmitted
 }: AssignmentProblemDropdownProps) {
-  const assignmentProblem = useQuery(GET_ASSIGNMENT_PROBLEMS, {
-    variables: {
-      groupId: courseId,
-      assignmentId
-    }
-  }).data?.getAssignmentProblems
+  const assignmentProblems =
+    useQuery(GET_ASSIGNMENT_PROBLEMS, {
+      variables: {
+        groupId: courseId,
+        assignmentId
+      }
+    }).data?.getAssignmentProblems ?? []
 
-  console.log(assignmentProblem)
+  const sortedProblems = [...assignmentProblems].sort(
+    (a, b) => a.order - b.order
+  )
+
+  const currentProblem = assignmentProblems.find(
+    (p) => p.problemId === problemId
+  )
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
-        <h1>{`${convertToLetter(problem.order)}. ${problem.title}`}</h1>
+        <h1>{`${convertToLetter(currentProblem?.order ?? 0)}. ${currentProblem?.problem.title}`}</h1>
         <FaSortDown />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="border-slate-700 bg-slate-900">
-        {assignmentProblem?.map((p) => (
+        {sortedProblems.map((p) => (
           <Link
-            key={p.problemId}
             href={
-              `/course/${courseId}/assignment/${assignmentId}/problem/${p.problemId}` as Route
+              `/admin/course/${courseId}/grade/assignment/${assignmentId}/user/${userId}/problem/${p.problemId}` as Route
             }
+            key={p.problemId}
           >
             <DropdownMenuItem
               className={cn(
                 'flex justify-between text-white hover:cursor-pointer focus:bg-slate-800 focus:text-white',
-                problem.id === p.problemId &&
+                currentProblem?.problemId === p.problemId &&
                   'text-primary-light focus:text-primary-light'
               )}
+              key={p.problemId}
             >
               {`${convertToLetter(p.order)}. ${p.problem.title}`}
-              {/* {p.submissionTime && (
+              {isSubmitted && (
                 <div className="flex items-center justify-center pl-2">
                   <Image src={checkIcon} alt="check" width={16} height={16} />
                 </div>
-              )} */}
+              )}
             </DropdownMenuItem>
           </Link>
         ))}

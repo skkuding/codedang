@@ -91,8 +91,51 @@ const GET_SUBMISSION = gql(`query GetSubmission(
   }
 }`)
 
+const GET_ASSIGNMENT_SUBMISSION = gql(`
+  query GetAssignmentSubmission(
+    $assignmentId: Int!
+    $userId: Int!
+    $problemId: Int!
+  ) {
+    getAssignmentSubmission(
+      assignmentId: $assignmentId
+      userId: $userId
+      problemId: $problemId
+    ) {
+      id
+      code
+      codeSize
+      language
+      result
+      score
+      updateTime
+      testcaseResult {
+        cpuTime
+        problemTestcaseId
+        result
+        memoryUsage
+      }
+      user {
+        id
+        studentId
+        username
+        userProfile {
+          realName
+        }
+      }
+      assignment{
+        title
+      }
+      problem {
+        title
+      }
+    }
+  }
+`)
+
 export {
   GET_CONTEST_SUBMISSIONS_COUNT,
   GET_CONTEST_SUBMISSIONS,
-  GET_SUBMISSION
+  GET_SUBMISSION,
+  GET_ASSIGNMENT_SUBMISSION
 }

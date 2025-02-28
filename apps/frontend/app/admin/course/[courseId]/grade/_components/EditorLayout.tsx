@@ -1,8 +1,9 @@
+'use client'
+
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
-import { GET_PROBLEM } from '@/graphql/problem/queries'
+import { GET_ASSIGNMENT_SUBMISSION } from '@/graphql/submission/queries'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import { useSuspenseQuery } from '@apollo/client'
-import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { AssignmentProblemDropdown } from './AssignmentProblemDropdown'
@@ -23,11 +24,21 @@ export function EditorLayout({
   userId,
   children
 }: EditorLayoutProps) {
-  const problem = {
-    id: 1,
-    title: '정수 더하기',
-    order: 0
-  }
+  const assignment = useSuspenseQuery(GET_ASSIGNMENT, {
+    variables: {
+      groupId: courseId,
+      assignmentId
+    }
+  }).data.getAssignment
+
+  const submissionData = useSuspenseQuery(GET_ASSIGNMENT_SUBMISSION, {
+    variables: {
+      assignmentId,
+      userId,
+      problemId
+    }
+  }).data?.getAssignmentSubmission
+
   return (
     <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
       <header className="flex h-12 justify-between bg-slate-900 px-6">
@@ -36,17 +47,19 @@ export function EditorLayout({
             <Image src={codedangLogo} alt="코드당" width={33} />
           </Link>
           <div className="flex items-center gap-1 font-medium">
-            {/* {assignment.title} */}
+            {assignment.title}
             <p className="mx-2"> / </p>
             <AssignmentProblemDropdown
-              problem={problem}
+              problemId={problemId}
               assignmentId={assignmentId}
               courseId={courseId}
+              userId={userId}
+              isSubmitted={submissionData !== undefined}
             />
           </div>
         </div>
       </header>
-      <EditorMainResizablePanel code={'code'}>
+      <EditorMainResizablePanel code={submissionData?.code ?? ''}>
         {children}
       </EditorMainResizablePanel>
     </div>
