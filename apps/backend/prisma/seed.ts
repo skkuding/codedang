@@ -963,6 +963,8 @@ const createContests = async () => {
       benefits: string | null
       startTime: Date
       endTime: Date
+      isVisible: boolean
+      isRankVisible: boolean
       invitationCode: string | null
       enableCopyPaste: boolean
     }
@@ -1010,6 +1012,8 @@ const createContests = async () => {
         benefits: '참가자 전원 스타벅스 기프티콘 증정',
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true
       }
@@ -1027,6 +1031,8 @@ const createContests = async () => {
         benefits: '1등 10만원 / 2등 3만원',
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
         invitationCode: null,
         enableCopyPaste: true
       }
@@ -1044,6 +1050,8 @@ const createContests = async () => {
         benefits: '1등 10만원 / 2등 3만원',
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true
       }
@@ -1061,6 +1069,8 @@ const createContests = async () => {
         benefits: null,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
         invitationCode: null,
         enableCopyPaste: true
       }
@@ -1078,6 +1088,8 @@ const createContests = async () => {
         benefits: '1등 총장상 + 50만원 / 2등 20만원 / 3등 15만원',
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
         invitationCode: null,
         enableCopyPaste: true
       }
@@ -1096,6 +1108,8 @@ const createContests = async () => {
         benefits: '1~3등에게 상위 대회 출전 자격 부여',
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true
       }
@@ -1113,6 +1127,8 @@ const createContests = async () => {
         benefits: '문제를 모두 맞춘 학생에게 격려금 지원',
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true
       }
@@ -1130,6 +1146,8 @@ const createContests = async () => {
         benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘',
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true
       }
@@ -1147,6 +1165,8 @@ const createContests = async () => {
         benefits: null,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true
       }
@@ -1164,6 +1184,8 @@ const createContests = async () => {
         benefits: null,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true
       }
@@ -1181,6 +1203,8 @@ const createContests = async () => {
         benefits: null,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true
       }
@@ -1198,6 +1222,8 @@ const createContests = async () => {
         benefits: null,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true
       }
@@ -1215,6 +1241,8 @@ const createContests = async () => {
         benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘',
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: false,
         invitationCode: null,
         enableCopyPaste: true
       }
@@ -1232,6 +1260,8 @@ const createContests = async () => {
         benefits: null,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
         invitationCode: null,
         enableCopyPaste: true
       }
@@ -1250,6 +1280,8 @@ const createContests = async () => {
         benefits: null,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true
       }
@@ -1267,6 +1299,8 @@ const createContests = async () => {
         benefits: null,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true
       }
@@ -1285,6 +1319,8 @@ const createContests = async () => {
         benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘',
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        isVisible: false,
+        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true
       }
@@ -1302,6 +1338,8 @@ const createContests = async () => {
         benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘',
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
         invitationCode: null,
         enableCopyPaste: true
       }
