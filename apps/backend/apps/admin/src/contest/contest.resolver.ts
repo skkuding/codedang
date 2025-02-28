@@ -5,7 +5,7 @@ import { ContestRole } from '@prisma/client'
 import {
   AuthenticatedRequest,
   UseContestRolesGuard,
-  UseDisableAdminGuard
+  UseDisableContestRolesGuard
 } from '@libs/auth'
 import {
   CursorValidationPipe,
@@ -31,7 +31,7 @@ export class ContestResolver {
   constructor(private readonly contestService: ContestService) {}
 
   @Query(() => [ContestWithParticipants])
-  @UseDisableAdminGuard()
+  @UseDisableContestRolesGuard()
   async getContests(
     @Args(
       'take',
@@ -55,7 +55,7 @@ export class ContestResolver {
   }
 
   @Mutation(() => Contest)
-  @UseDisableAdminGuard()
+  @UseDisableContestRolesGuard()
   async createContest(
     @Args('input') input: CreateContestInput,
     @Context('req') req: AuthenticatedRequest
