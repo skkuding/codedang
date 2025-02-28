@@ -15,7 +15,8 @@ export default async function Assignment({ params }: AssignmentProps) {
   const week = course.courseInfo.week
 
   return (
-    <div className="mb-12 mt-[67px] flex w-full flex-col">
+    <div className="mb-12 mt-20 flex w-full flex-col px-6">
+      <p className="text-2xl font-semibold">Assignment</p>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <AssignmentAccordion week={week} courseId={courseId} />
       </ErrorBoundary>
