@@ -80,6 +80,11 @@ export class UserController {
     return await this.userService.getUsernameByEmail(userEmailDto)
   }
 
+  @Patch('role')
+  async updateRole(@Body() body: { username: string }) {
+    return await this.userService.updateRole(body.username)
+  }
+
   @Patch('')
   async updateUser(
     @Req() req: AuthenticatedRequest,

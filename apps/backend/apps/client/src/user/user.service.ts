@@ -2,7 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
-import type { User, UserProfile } from '@prisma/client'
+import { Role, type User, type UserProfile } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { hash } from 'argon2'
 import { Cache } from 'cache-manager'
@@ -66,6 +66,20 @@ export class UserService {
 
     this.logger.debug(username, 'getUsernameByEmail')
     return username
+  }
+
+  //qa 계정용 api - rc 서버 테스트용
+  async updateRole(username: string) {
+    const user = await this.prisma.user.update({
+      where: { username },
+      data: {
+        role: Role.Admin,
+        canCreateContest: true
+      }
+    })
+
+    this.logger.debug(user, 'updateRole')
+    return user
   }
 
   async updateLastLogin(username: string) {
