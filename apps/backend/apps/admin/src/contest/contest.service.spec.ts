@@ -66,8 +66,6 @@ const contestWithCount = {
   startTime,
   endTime,
   freezeTime: null,
-  isVisible: true,
-  isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
   createTime,
@@ -192,8 +190,6 @@ const input = {
   description: 'test description',
   startTime: faker.date.past(),
   endTime: faker.date.future(),
-  isVisible: false,
-  isRankVisible: false,
   enableCopyPaste: true,
   isJudgeResultVisible: true
 } satisfies CreateContestInput
@@ -204,8 +200,6 @@ const updateInput = {
   description: 'test description',
   startTime: faker.date.past(),
   endTime: faker.date.future(),
-  isVisible: false,
-  isRankVisible: false,
   enableCopyPaste: false
 } satisfies UpdateContestInput
 
