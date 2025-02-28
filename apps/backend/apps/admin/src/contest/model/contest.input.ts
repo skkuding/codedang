@@ -22,12 +22,6 @@ export class CreateContestInput {
   endTime!: Date
 
   @Field(() => Boolean, { nullable: false })
-  isVisible!: boolean
-
-  @Field(() => Boolean, { nullable: false })
-  isRankVisible!: boolean
-
-  @Field(() => Boolean, { nullable: false })
   isJudgeResultVisible!: boolean
 
   @Field(() => Boolean, { nullable: true })
