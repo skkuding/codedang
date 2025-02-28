@@ -16,6 +16,7 @@ import { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
 import { Request } from 'express'
 import { Span } from 'nestjs-otel'
+import { Observable } from 'rxjs'
 import {
   testKey,
   testcasesKey,
@@ -35,6 +36,11 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import {
+  PubSubSubmissionResult,
+  PubSubTestResult,
+  RedisPubSubService
+} from '@libs/redis-pubsub'
+import {
   CreateSubmissionDto,
   CreateUserTestSubmissionDto,
   Snippet,
@@ -52,6 +58,7 @@ export class SubmissionService {
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
     private readonly publish: SubmissionPublicationService,
+    private readonly redisPubSubService: RedisPubSubService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -844,10 +851,15 @@ export class SubmissionService {
     return submission
   }
 
-  async getTestResult(testSubmissionId: number, isUserTest = false) {
+  async getTestResult(
+    userId: number,
+    testSubmissionId: number,
+    isUserTest = false
+  ) {
     const testSubmission = await this.prisma.testSubmission.findUnique({
       where: {
-        id: testSubmissionId
+        id: testSubmissionId,
+        userId
       }
     })
 
@@ -1207,6 +1219,100 @@ export class SubmissionService {
     const total = await this.prisma.submission.count({ where: { problemId } })
 
     return { data: submissions, total }
+  }
+
+  async getTestcaseResultOfSubmission(
+    userId: number,
+    submissionId: number
+  ): Promise<Observable<MessageEvent>> {
+    await this.prisma.submission.findFirstOrThrow({
+      where: {
+        id: submissionId,
+        userId
+      }
+    })
+
+    return new Observable((subscriber) => {
+      this.redisPubSubService
+        .subscribeToSubmission(submissionId, (data: PubSubSubmissionResult) => {
+          subscriber.next({ data } as MessageEvent)
+        })
+        .then(() => {
+          return this.getJudgedTestcasesBySubmissionId(submissionId)
+        })
+        .then((judgedTestcases) => {
+          judgedTestcases.forEach((tc) => {
+            const data: PubSubSubmissionResult = {
+              submissionId,
+              result: {
+                submissionId,
+                problemTestcaseId: tc.problemTestcaseId,
+                result: tc.result,
+                cpuTime: tc.cpuTime ? tc.cpuTime.toString() : null,
+                memoryUsage: tc.memoryUsage ?? null
+              }
+            }
+
+            subscriber.next({ data } as MessageEvent)
+          })
+        })
+        .catch((error) => {
+          subscriber.error(error)
+        })
+    })
+  }
+
+  async getTestcaseResultOfTest(
+    userId: number,
+    testSubmissionId: number
+  ): Promise<Observable<MessageEvent>> {
+    await this.prisma.testSubmission.findUniqueOrThrow({
+      where: {
+        id: testSubmissionId,
+        userId
+      }
+    })
+
+    return new Observable((subscriber) => {
+      this.redisPubSubService
+        .subscribeToTest(testSubmissionId, (data: PubSubTestResult) => {
+          subscriber.next({ data } as MessageEvent)
+        })
+        .then(() => {
+          return Promise.all([
+            this.getTestResult(userId, false), // test
+            this.getTestResult(userId, true) // user-test
+          ])
+        })
+        .then(([testResult, userTestResult]) => {
+          testResult.forEach((tc) => {
+            const data: PubSubTestResult = {
+              userTest: false,
+              result: {
+                id: tc.id,
+                result: tc.result,
+                output: tc.output || ''
+              }
+            }
+            subscriber.next({ data } as MessageEvent)
+          })
+
+          userTestResult.forEach((tc) => {
+            const data: PubSubTestResult = {
+              userTest: true,
+              result: {
+                id: tc.id,
+                result: tc.result,
+                output: tc.output || ''
+              }
+            }
+            subscriber.next({ data } as MessageEvent)
+          })
+        })
+        .catch((error) => {
+          subscriber.error(error)
+        })
+    })
   }
 
   @Span()

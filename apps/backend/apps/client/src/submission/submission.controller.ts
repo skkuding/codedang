@@ -21,11 +21,6 @@ import {
   RequiredIntPipe
 } from '@libs/pipe'
 import {
-  RedisPubSubService,
-  type PubSubSubmissionResult,
-  type PubSubTestResult
-} from '@libs/redis-pubsub'
-import {
   CreateSubmissionDto,
   CreateUserTestSubmissionDto
 } from './class/create-submission.dto'
@@ -33,10 +28,7 @@ import { SubmissionService } from './submission.service'
 
 @Controller('submission')
 export class SubmissionController {
-  constructor(
-    private readonly submissionService: SubmissionService,
-    private readonly redisPubSub: RedisPubSubService
-  ) {}
+  constructor(private readonly submissionService: SubmissionService) {}
 
   /**
    * 아직 채점되지 않은 제출 기록을 만들고, 채점 서버에 채점 요청을 보냅니다.
@@ -123,12 +115,17 @@ export class SubmissionController {
   /**
    * requestTest의 반환으로 받은 key를 통해 Test 결과를 조회합니다.
    * @returns Testcase별 결과가 담겨있는 Object
-   *
-   * @deprecated Polling -> SSE 방식으로 결과를 전송함에 따라 getTestTestcaseResult API로 대체됩니다.
    */
-  @Get('test')
-  async getTestResult(@Req() req: AuthenticatedRequest) {
-    return await this.submissionService.getTestResult(req.user.id)
+  @Get('test/:testSubmissionId')
+  async getTestResult(
+    @Req() req: AuthenticatedRequest,
+    @Param('testSubmissionId', IDValidationPipe) testSubmissionId: number
+  ) {
+    return await this.submissionService.getTestResult(
+      req.user.id,
+      testSubmissionId,
+      false
+    )
   }
 
   /**
@@ -154,12 +151,17 @@ export class SubmissionController {
   /**
    * 유저가 생성한 테스트케이스에 대한 실행 결과를 조회합니다.
    * @returns Testcase별 결과가 담겨있는 Object
-   *
-   * @deprecated Polling -> SSE 방식으로 결과를 전송함에 따라 getTestTestcaseResult API로 대체됩니다.
    */
-  @Get('user-test')
-  async getUserTestResult(@Req() req: AuthenticatedRequest) {
-    return await this.submissionService.getTestResult(req.user.id, true)
+  @Get('user-test/:testSubmissionId')
+  async getUserTestResult(
+    @Req() req: AuthenticatedRequest,
+    @Param('testSubmissionId', IDValidationPipe) testSubmissionId: number
+  ) {
+    return await this.submissionService.getTestResult(
+      req.user.id,
+      testSubmissionId,
+      true
+    )
   }
 
   @Get('delay-cause')
@@ -221,51 +223,10 @@ export class SubmissionController {
     @Req() req: AuthenticatedRequest,
     @Param('submissionId', ParseIntPipe) submissionId: number
   ): Promise<Observable<MessageEvent>> {
-    const userId = req.user.id
-    await this.submissionService.checkSubmissionId(submissionId, userId)
-
-    return new Observable((subscriber) => {
-      this.redisPubSub
-        .subscribeToSubmission(submissionId, (data: PubSubSubmissionResult) => {
-          subscriber.next({
-            // data: {
-            //   ...data,
-            //   from: 'redis' // debug용
-            // }
-            data
-          } as MessageEvent)
-        })
-        .then(() => {
-          return this.submissionService.getJudgedTestcasesBySubmissionId(
-            submissionId
-          )
-        })
-        .then((judgedTestcases) => {
-          judgedTestcases.forEach((tc) => {
-            const data: PubSubSubmissionResult = {
-              submissionId,
-              result: {
-                submissionId,
-                problemTestcaseId: tc.problemTestcaseId,
-                result: tc.result,
-                cpuTime: tc.cpuTime ? tc.cpuTime.toString() : null,
-                memoryUsage: tc.memoryUsage ?? null
-              }
-            }
-
-            subscriber.next({
-              // data: {
-              //   ...data,
-              //   from: 'db' // debug용
-              // }
-              data
-            } as MessageEvent)
-          })
-        })
-        .catch((error) => {
-          subscriber.error(error)
-        })
-    })
+    return await this.submissionService.getTestcaseResultOfSubmission(
+      req.user.id,
+      submissionId
+    )
   }
 
   /**
@@ -281,46 +242,10 @@ export class SubmissionController {
     @Req() req: AuthenticatedRequest,
     @Param('testSubmissionId', ParseIntPipe) testSubmissionId: number
   ): Promise<Observable<MessageEvent>> {
-    return new Observable((subscriber) => {
-      this.redisPubSub
-        .subscribeToTest(testSubmissionId, (data: PubSubTestResult) => {
-          subscriber.next({ data } as MessageEvent)
-        })
-        .then(() => {
-          return Promise.all([
-            this.submissionService.getTestResult(req.user.id, false), // test
-            this.submissionService.getTestResult(req.user.id, true) // user-test
-          ])
-        })
-        .then(([testResult, userTestResult]) => {
-          testResult.forEach((tc) => {
-            const data: PubSubTestResult = {
-              userTest: false,
-              result: {
-                id: tc.id,
-                result: tc.result,
-                output: tc.output || ''
-              }
-            }
-            subscriber.next({ data } as MessageEvent)
-          })
-
-          userTestResult.forEach((tc) => {
-            const data: PubSubTestResult = {
-              userTest: true,
-              result: {
-                id: tc.id,
-                result: tc.result,
-                output: tc.output || ''
-              }
-            }
-            subscriber.next({ data } as MessageEvent)
-          })
-        })
-        .catch((error) => {
-          subscriber.error(error)
-        })
-    })
+    return await this.submissionService.getTestcaseResultOfTest(
+      req.user.id,
+      testSubmissionId
+    )
   }
 }
 
