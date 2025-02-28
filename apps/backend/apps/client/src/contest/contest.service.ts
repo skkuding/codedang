@@ -12,6 +12,7 @@ const contestSelectOption = {
   title: true,
   startTime: true,
   endTime: true,
+  freezeTime: true,
   invitationCode: true,
   enableCopyPaste: true,
   isJudgeResultVisible: true,
