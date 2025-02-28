@@ -20,13 +20,6 @@ const bgImg: { [key: string]: string } = {
   course: '/banners/courseInnerBanner.png'
 }
 
-const icons: { [key: string]: string } = {
-  problem: '/banners/codedang.png',
-  notice: '/banners/notice.png',
-  contest: '/banners/contest.png',
-  course: '/banners/contest.png'
-}
-
 /**
  * @param title - title text
  * @param description - description text
