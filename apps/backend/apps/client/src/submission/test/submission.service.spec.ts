@@ -96,8 +96,6 @@ const mockContest: Contest = {
   invitationCode: 'test',
   startTime: new Date(),
   endTime: new Date(),
-  isVisible: true,
-  isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
   createTime: new Date(),
