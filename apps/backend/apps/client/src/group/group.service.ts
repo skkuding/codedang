@@ -399,6 +399,7 @@ export class GroupService {
         title: true,
         endTime: true,
         isFinalScoreVisible: true,
+        isJudgeResultVisible: true,
         autoFinalizeScore: true,
         week: true,
         assignmentProblem: {
@@ -428,6 +429,8 @@ export class GroupService {
         select: {
           assignmentId: true,
           problemId: true,
+          isSubmitted: true,
+          score: true,
           finalScore: true,
           comment: true
         }
@@ -450,13 +453,28 @@ export class GroupService {
 
       const problemRecordMap = assignmentProblemRecords.reduce(
         (map, record) => {
+          if (assignment.autoFinalizeScore) {
+            record.finalScore = record.score
+          }
           map[record.problemId] = {
-            finalScore: record.finalScore,
+            finalScore: assignment.isFinalScoreVisible
+              ? record.finalScore
+              : null,
+            score: assignment.isJudgeResultVisible ? record.score : null,
+            isSubmitted: record.isSubmitted,
             comment: record.comment
           }
           return map
         },
-        {} as Record<number, { finalScore: number | null; comment: string }>
+        {} as Record<
+          number,
+          {
+            finalScore: number | null
+            score: number | null
+            isSubmitted: boolean
+            comment: string
+          }
+        >
       )
 
       const problems = assignment.assignmentProblem.map((ap) => ({
@@ -464,9 +482,7 @@ export class GroupService {
         title: ap.problem.title,
         order: ap.order,
         maxScore: ap.score,
-        problemRecord: assignment.isFinalScoreVisible
-          ? problemRecordMap[ap.problemId] || null
-          : null
+        problemRecord: problemRecordMap[ap.problemId] || null
       }))
 
       const userAssignmentFinalScore = assignmentProblemRecords.some(
@@ -483,15 +499,22 @@ export class GroupService {
         0
       )
 
+      const userAssignmentJudgeScore = assignmentProblemRecords.reduce(
+        (total, { score }) => total + score,
+        0
+      )
+
       return {
         id: assignment.id,
         title: assignment.title,
         endTime: assignment.endTime,
-        isFinalScoreVisible: assignment.isFinalScoreVisible,
         autoFinalizeScore: assignment.autoFinalizeScore,
         week: assignment.week,
         userAssignmentFinalScore: assignment.isFinalScoreVisible
           ? userAssignmentFinalScore
+          : null,
+        userAssignmentJudgeScore: assignment.isJudgeResultVisible
+          ? userAssignmentJudgeScore
           : null,
         assignmentPerfectScore,
         problems
