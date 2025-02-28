@@ -9,7 +9,6 @@ import type {
 } from '@prisma/client'
 import { MIN_DATE } from '@libs/constants'
 import type { Problem } from '@admin/@generated'
-import type { CreateTemplateDto } from '../dto/create-code-draft.dto'
 
 export const problems: Problem[] = [
   {
@@ -230,59 +229,4 @@ export const mockUser = {
   lastLogin: undefined,
   createTime: undefined,
   updateTime: undefined
-}
-
-export const mockCodeDraft = {
-  id: 2,
-  userId: 4,
-  problemId: 2,
-  template: [
-    {
-      code: [
-        {
-          id: 1,
-          text: '#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n',
-          locked: true
-        },
-        {
-          id: 2,
-          text: '    cout << "hello, world" << endl;\n',
-          locked: false
-        },
-        {
-          id: 3,
-          text: '    return 0;\n}\n',
-          locked: true
-        }
-      ],
-      language: 'Cpp'
-    },
-    {
-      code: [
-        {
-          id: 1,
-          text: 'print("hello, world")\n',
-          locked: false
-        }
-      ],
-      language: 'Python3'
-    }
-  ],
-  createTime: '2023-12-27T16:17:11.260Z',
-  updateTime: '2023-12-27T16:17:11.260Z'
-}
-
-export const mockTemplate: CreateTemplateDto = {
-  template: [
-    {
-      language: Language.Cpp,
-      code: [
-        {
-          id: 1,
-          text: '#include <bits/stdc++.h>\n using namespace std;\n int main() { cout << "hello, world" << endl;\n return 0; }',
-          locked: false
-        }
-      ]
-    }
-  ]
 }
