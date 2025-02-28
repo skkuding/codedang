@@ -1,6 +1,6 @@
 import { Args, Int, Query, Resolver } from '@nestjs/graphql'
 import { ContestRole } from '@prisma/client'
-import { UseContestRolesGuard } from '@libs/auth'
+import { UseContestRolesGuard, UseGroupLeaderGuard } from '@libs/auth'
 import {
   SubmissionOrderPipe,
   CursorValidationPipe,
@@ -79,7 +79,9 @@ export class SubmissionResolver {
    * https://github.com/skkuding/codedang/pull/1924
    */
   @Query(() => [AssignmentSubmission])
+  @UseGroupLeaderGuard()
   async getAssignmentSubmissions(
+    @Args('groupId', { type: () => Int }) _groupId: number,
     @Args('input', {
       nullable: false,
       type: () => GetAssignmentSubmissionsInput
@@ -101,7 +103,9 @@ export class SubmissionResolver {
   }
 
   @Query(() => SubmissionDetail)
+  @UseGroupLeaderGuard()
   async getAssignmentSubmission(
+    @Args('groupId', { type: () => Int }) _groupId: number,
     @Args('assignmentId', { type: () => Int }) assignmentId: number,
     @Args('userId', { type: () => Int }) userId: number,
     @Args('problemId', { type: () => Int }) problemId: number

@@ -23,7 +23,12 @@ import {
   WorkbookProblem
 } from '@generated'
 import { ContestRole, Role } from '@prisma/client'
-import { AuthenticatedRequest, UseContestRolesGuard } from '@libs/auth'
+import {
+  AuthenticatedRequest,
+  UseContestRolesGuard,
+  UseDisableAdminGuard,
+  UseGroupLeaderGuard
+} from '@libs/auth'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -42,6 +47,7 @@ import { ProblemWithIsVisible } from './model/problem.output'
 import { ProblemService } from './problem.service'
 
 @Resolver(() => ProblemWithIsVisible)
+@UseDisableAdminGuard()
 export class ProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 
@@ -125,9 +131,10 @@ export class ProblemResolver {
 
   @Query(() => ProblemWithIsVisible)
   async getProblem(
+    @Context('req') req: AuthenticatedRequest,
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
-    return await this.problemService.getProblem(id)
+    return await this.problemService.getProblem(id, req.user.role, req.user.id)
   }
 
   @ResolveField('tag', () => [ProblemTag])
@@ -211,6 +218,7 @@ export class ContestProblemResolver {
 }
 
 @Resolver(() => AssignmentProblem)
+@UseGroupLeaderGuard()
 export class AssignmentProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 
@@ -271,6 +279,7 @@ export class AssignmentProblemResolver {
 }
 
 @Resolver(() => WorkbookProblem)
+@UseGroupLeaderGuard()
 export class WorkbookProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 

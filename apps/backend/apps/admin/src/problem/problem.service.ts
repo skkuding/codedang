@@ -466,12 +466,34 @@ export class ProblemService {
     return this.changeVisibleLockTimeToIsVisible(problems)
   }
 
-  async getProblem(id: number) {
+  async getProblem(id: number, userRole: Role, userId: number) {
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
         id
+      },
+      include: {
+        sharedGroups: true
       }
     })
+    if (userRole != Role.Admin) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared && problem.createdById != userId) {
+        throw new ForbiddenException(
+          'User can only edit problems they created or were shared with'
+        )
+      }
+    }
     return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
