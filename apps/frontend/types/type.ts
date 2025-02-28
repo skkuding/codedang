@@ -25,6 +25,8 @@ export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
 // Problem type definition
 
 export type MemberRole = 'Instructor' | 'Student'
+
+export type SubmissionResult = 'CompileError' | 'WrongAnswer' | 'Accepted'
 export interface Tag {
   id: number
   name: string
@@ -366,4 +368,57 @@ export interface CalendarAssignment {
   title: string
   start: Date
   end: Date
+}
+
+export interface ProblemScore {
+  problemId: number
+  score: number
+  maxScore: number
+  finalScore: number | null
+}
+
+export interface AssignmentScore {
+  submittedProblemCount: number
+  totalProblemCount: number
+  userAssignmentScore: number
+  assignmentPerfectScore: number
+  userAssignmentFinalScore: number | null
+  problemScores: ProblemScore[]
+}
+
+export interface ProblemSubmissionResult {
+  id: number
+  user: {
+    username: string
+  }
+  createTime: string
+  language: string
+  result: string
+  codeSize: number
+}
+
+export interface ProblemSubmissionResultResponse {
+  data: ProblemSubmissionResult[]
+  total: number
+}
+
+export interface TestcaseResult {
+  id: number
+  submissionId: number
+  problemTestcaseId: number
+  result: string
+  cpuTime: number | null
+  memoryUsage: number | null
+  createTime: string
+  updateTime: string
+}
+
+export interface SubmissionResponse {
+  problemId: number
+  username: string
+  code: string
+  language: string
+  createTime: string
+  result: string
+  testcaseResult: TestcaseResult[]
 }

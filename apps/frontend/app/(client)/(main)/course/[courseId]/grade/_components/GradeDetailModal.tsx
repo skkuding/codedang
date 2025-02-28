@@ -1,5 +1,6 @@
 'use client'
 
+import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import {
   ChartContainer,
   ChartTooltip,
@@ -41,63 +42,38 @@ const chartConfig = {
 interface GradeDetailModalProps {
   assignmentId: number
   week: number
+  courseId: number
 }
 
 export function GradeDetailModal({
   assignmentId,
-  week
+  week,
+  courseId
 }: GradeDetailModalProps) {
-  const chartData = [
-    { score: '0-10', count: 225, fill: '#3b82f6' }, // 파란색
-    { score: '10-20', count: 270, fill: '#C3C3C3' },
-    { score: '20-30', count: 320, fill: '#C3C3C3' },
-    { score: '30-40', count: 380, fill: '#C3C3C3' },
-    { score: '40-50', count: 340, fill: '#C3C3C3' },
-    { score: '50-60', count: 410, fill: '#C3C3C3' },
-    { score: '60-70', count: 460, fill: '#C3C3C3' },
-    { score: '70-80', count: 430, fill: '#C3C3C3' },
-    { score: '80-90', count: 400, fill: '#C3C3C3' },
-    { score: '90-100', count: 370, fill: '#C3C3C3' }
-  ]
-  const fetch = (assignmentId: number) => {
-    // const res = await safeFetcherWithAuth
-    //   .get(`/assignment/${assignmentId}/score/me`)
-    //   .json()
-    const res = {
-      submittedProblemCount: 2,
-      totalProblemCount: 3,
-      userAssignmentScore: 25,
-      assignmentPerfectScore: 30,
-      userAssignmentFinalScore: 20,
-      problemScores: [
-        {
-          problemId: 7,
-          score: 15,
-          maxScore: 20,
-          finalScore: 10
-        },
-        {
-          problemId: 8,
-          score: 10,
-          maxScore: 10,
-          finalScore: 10
-        },
-        {
-          problemId: 9,
-          score: 0,
-          maxScore: 10,
-          finalScore: null
-        }
-      ]
+  const { data } = useSuspenseQuery(
+    assignmentSubmissionQueries.score({ assignmentId, courseId })
+  )
+
+  const maxScore = data?.assignmentPerfectScore ?? 100
+  const userScore = data?.userAssignmentScore ?? 0
+
+  const interval = maxScore / 10
+
+  const chartData = Array.from({ length: 10 }, (_, index) => {
+    const lowerBound = index * interval
+    const upperBound = (index + 1) * interval
+    const label = `${lowerBound.toFixed(1)}-${upperBound.toFixed(1)}`
+
+    return {
+      score: label,
+      count: Math.floor(Math.random() * 500), // 더미 데이터 (추후 get anonymized scores요청 가능한 방법 알게되면 수정예정)
+      fill:
+        userScore >= lowerBound && userScore < upperBound
+          ? '#3b82f6'
+          : '#C3C3C3'
     }
-    return res
-  }
-  const assignmentQuery = useSuspenseQuery({
-    queryKey: ['assignment', assignmentId],
-    queryFn: () => fetch(assignmentId)
   })
 
-  console.log(assignmentQuery.data)
   return (
     <DialogContent
       className="p-10 sm:max-w-2xl"
@@ -108,7 +84,7 @@ export function GradeDetailModal({
           <div className="flex items-center gap-2 text-xl font-semibold">
             <span className="text-gray-300">Assignment</span>
             <MdArrowForwardIos />
-            <span className="text-primary">Week 3</span>
+            <span className="text-primary">Week {week}</span>
           </div>
         </DialogTitle>
       </DialogHeader>
@@ -175,7 +151,7 @@ export function GradeDetailModal({
                     axisLine={{
                       stroke: '#E5E5E5'
                     }}
-                    tick={{ fontSize: '10px', fill: 'black' }}
+                    tick={{ fontSize: '8px', fill: 'black' }}
                     // tick={{ fontSize: '8px' }} // ✅ 글자 크기 10px로 설정
                   />
                   <CartesianGrid vertical={false} strokeDasharray="4 4" />

@@ -132,6 +132,7 @@ function InviteManually({ courseId }: InviteManuallyProps) {
     })
     if (res.ok) {
       const userInfo: UserInfo = await res.json()
+      console.log(userInfo.id)
       setUserId(userInfo.id)
     } else {
       toast.error('Failed to find user')
@@ -159,6 +160,7 @@ function InviteManually({ courseId }: InviteManuallyProps) {
         toast.success('Success to invite user')
       } catch {
         toast.error('Failed to invite user')
+        console.log(userId)
       }
     },
     [inviteUser, courseId, userId, setInvitedList] // 의존성 배열 설정

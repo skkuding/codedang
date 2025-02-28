@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Accordion,
   AccordionContent,
@@ -6,6 +8,8 @@ import {
 } from '@/components/shadcn/accordion'
 import { Dialog } from '@/components/shadcn/dialog'
 import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
+import { useParams, usePathname, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
 import { GradeDetailModal } from '../grade/_components/GradeDetailModal'
 import { SubmissionDetailModal } from '../grade/_components/SubmissionDetailModal'
 import { DetailButton } from './DetailButton'
@@ -40,7 +44,6 @@ interface AssignmentGrade {
 
 export function GradeAccordion({ courseId }: GradeAccordionProps) {
   // TODO: fetch assignment grades
-  console.log(courseId)
   return (
     <div className="mt-8">
       <GradeAccordionHeader />
@@ -68,6 +71,10 @@ interface GradeAccordionItemProps {
 }
 
 function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
+  const params = useParams()
+  const courseId = Number(params.courseId)
+  const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false)
+  const [isProblemDialogOpen, setIsProblemDialogOpen] = useState(true)
   return (
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value={assignment.week.toString()} className="border-b-0">
@@ -86,12 +93,19 @@ function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
           <p className="line-clamp-1 w-[30%] font-medium">{assignment.title}</p>
           <div className="w-[4%]" />
           <div className="flex w-[11%] justify-center">
-            <Dialog>
+            <Dialog
+              open={isAssignmentDialogOpen}
+              onOpenChange={setIsAssignmentDialogOpen}
+            >
               <DetailButton isActivated={assignment.isFinalScoreVisible} />
-              <GradeDetailModal
-                assignmentId={assignment.id}
-                week={assignment.week}
-              />
+              {isAssignmentDialogOpen && (
+                <GradeDetailModal
+                  assignmentId={assignment.id}
+                  week={assignment.week}
+                  // courseId={courseId}
+                  courseId={1} // 요청한 course가 1번뿐임
+                />
+              )}
             </Dialog>
           </div>
           <p className="w-[20%] text-center font-normal text-[#8A8A8A]">
@@ -123,11 +137,22 @@ function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
                 </div>
                 <div className="w-[4%]" />
                 <div className="flex w-[11%] justify-center">
-                  <Dialog>
+                  <Dialog
+                    open={isProblemDialogOpen}
+                    onOpenChange={setIsProblemDialogOpen}
+                  >
                     <DetailButton
                       isActivated={problem.problemRecord.finalScore !== null}
                     />
-                    <SubmissionDetailModal />
+                    {isProblemDialogOpen && (
+                      <SubmissionDetailModal
+                        // problemId={problem.id}
+                        problemId={1} // 현재 존재하는 데이터로 요청
+                        assignmentId={assignment.id}
+                        week={assignment.week}
+                        title={problem.title}
+                      />
+                    )}
                   </Dialog>
                 </div>
                 <p className="w-[20%] text-center font-normal text-[#8A8A8A]">

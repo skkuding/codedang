@@ -1,9 +1,15 @@
 import { queryOptions } from '@tanstack/react-query'
 import {
+  getAssignmentScore,
   getAssignmentSubmissionDetail,
   getAssignmentSubmissionList,
+  getProblemSubmissionResult,
+  getTestResult,
+  type GetAssignmentScoreRequest,
   type GetAssignmentSubmissionDetailRequest,
-  type GetAssignmentSubmissionListRequest
+  type GetAssignmentSubmissionListRequest,
+  type GetProblemSubmissionResultRequest,
+  type GetTestResultRequest
 } from '../apis/assignmentSubmission'
 
 export const assignmentSubmissionQueries = {
@@ -58,5 +64,30 @@ export const assignmentSubmissionQueries = {
       ] as const,
       queryFn: () =>
         getAssignmentSubmissionDetail({ assignmentId, submissionId, problemId })
+    }),
+
+  score: ({ assignmentId, courseId }: GetAssignmentScoreRequest) =>
+    queryOptions({
+      queryKey: ['assignment', assignmentId, courseId],
+      queryFn: () => getAssignmentScore({ assignmentId, courseId })
+    }),
+
+  problemScore: ({
+    assignmentId,
+    problemId
+  }: GetProblemSubmissionResultRequest) =>
+    queryOptions({
+      queryKey: ['assignment', assignmentId, problemId],
+      queryFn: () => getProblemSubmissionResult({ assignmentId, problemId })
+    }),
+
+  testResult: ({
+    assignmentId,
+    problemId,
+    submissionId
+  }: GetTestResultRequest) =>
+    queryOptions({
+      queryKey: ['assignment', assignmentId, problemId, submissionId],
+      queryFn: () => getTestResult({ assignmentId, problemId, submissionId })
     })
 }
