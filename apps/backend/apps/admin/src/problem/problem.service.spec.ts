@@ -243,7 +243,11 @@ describe('ProblemService', () => {
   describe('getProblem', () => {
     it('should return a group problem', async () => {
       db.problem.findFirstOrThrow.resolves(problems[0])
-      const result = await service.getProblem(problemId)
+      const result = await service.getProblem(
+        problemId,
+        user[0].role!,
+        user[0].id!
+      )
       expect(result).to.deep.equal(problemsWithIsVisible[0])
     })
   })
