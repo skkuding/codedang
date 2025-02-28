@@ -10,11 +10,16 @@ import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
-import type { Contest, ContestStatus, ProblemDataTop } from '@/types/type'
+import type {
+  Contest,
+  ContestStatus,
+  ProblemDataTop,
+  ContestOrder
+} from '@/types/type'
 import Image from 'next/image'
 import { BiggerImageButton } from './_components/BiggerImageButton'
 import { GotoContestListButton } from './_components/GotoContestListButton'
-import { PrevNextProblemButton } from './_components/PrevNextProblemButton'
+//import { PrevNextProblemButton } from './_components/PrevNextProblemButton'
 import { RegisterButton } from './_components/RegisterButton'
 import { RenderProblemList } from './_components/RenderProblemList'
 
@@ -71,6 +76,18 @@ export default async function ContestTop({ params }: ContestTopProps) {
   const problemData: ProblemDataTop = await fetcherWithAuth
     .get(`contest/${contestId}/problem`)
     .json()
+  //const contestOrder: ContestOrder = await fetcherWithAuth.get(`contest`).json()
+  async function contestOrder() {
+    const data: {
+      ongoing: Contest[]
+      upcoming: Contest[]
+      finished: Contest[]
+    } = await fetcherWithAuth.get(`contest`).json()
+
+    return data.upcoming.concat(data.ongoing, data.finished)
+  }
+  const orderedContests: ContestOrder[] = await contestOrder()
+  console.log('orderedContests: ', orderedContests)
 
   const contest: Contest = {
     ...data,
@@ -107,6 +124,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
   const benefits = data.benefits
   const description = data.description
   const prev = true
+  const currentContestId = data.id
 
   return (
     <div>
@@ -203,8 +221,16 @@ export default async function ContestTop({ params }: ContestTopProps) {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-      <PrevNextProblemButton contestData={data} previous={prev} />
-      <PrevNextProblemButton contestData={data} previous={!prev} />
+      {/* <PrevNextProblemButton
+        contestData={orderedContests}
+        currentContestId={currentContestId}
+        previous={prev}
+      />
+      <PrevNextProblemButton
+        contestData={orderedContests}
+        currentContestId={currentContestId}
+        previous={!prev}
+      /> */}
       <GotoContestListButton />
     </div>
   )
