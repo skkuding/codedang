@@ -1,7 +1,7 @@
 'use client'
 
-import { SubmissionDetailPanel } from '@/app/admin/course/[courseId]/grade/_components/SubmissionDetailPanel'
 import { SubmissionSummary } from '@/app/admin/course/[courseId]/grade/_components/SubmissionSummary'
+import { SubmissionTestcase } from '@/app/admin/course/[courseId]/grade/_components/SubmissionTestcase'
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { GET_ASSIGNMENT_SUBMISSION } from '@/graphql/submission/queries'
@@ -47,9 +47,7 @@ export default function Page({ params }: PageProps) {
           <div className="h-3 bg-[#121728]" />
 
           <div className="px-6 py-2">
-            <SubmissionDetailPanel
-              submission={submission as SubmissionDetail}
-            />
+            <SubmissionTestcase submission={submission as SubmissionDetail} />
           </div>
 
           <div className="h-3 bg-[#121728]" />

@@ -8,13 +8,11 @@ import {
 } from '@/components/shadcn/table'
 import type { SubmissionDetail } from '@generated/graphql'
 
-interface SubmissionDetailPanelProps {
+interface SubmissionTestcaseProps {
   submission: SubmissionDetail
 }
 
-export function SubmissionDetailPanel({
-  submission
-}: SubmissionDetailPanelProps) {
+export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
   return (
     <div>
       {submission.testcaseResult.length !== 0 && (
@@ -32,7 +30,11 @@ export function SubmissionDetailPanel({
             <TableBody>
               {submission.testcaseResult.map((item) => (
                 <TableRow className="text-[#9B9B9B]" key={item.id}>
-                  <TableCell>{item.problemTestcaseId.toString()}</TableCell>
+                  <TableCell>
+                    <div className="py-2">
+                      {item.problemTestcaseId.toString()}
+                    </div>
+                  </TableCell>
                   <TableCell>{item.result}</TableCell>
                   <TableCell>
                     {item.cpuTime ? `${item.cpuTime} ms` : '-'}
