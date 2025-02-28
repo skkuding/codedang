@@ -7,14 +7,17 @@ import {
   ResizablePanelGroup
 } from '@/components/shadcn/resizable'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import type { Language } from '@/types/type'
 
 interface ProblemEditorProps {
   code: string
+  language: Language
   children: React.ReactNode
 }
 
 export function EditorMainResizablePanel({
   code,
+  language,
   children
 }: ProblemEditorProps) {
   return (
@@ -48,7 +51,7 @@ export function EditorMainResizablePanel({
               <ScrollArea className="h-full bg-[#121728]">
                 <CodeEditor
                   value={code}
-                  language={'C'}
+                  language={language}
                   readOnly
                   enableCopyPaste={true}
                   height="100%"

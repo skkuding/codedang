@@ -3,6 +3,7 @@
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_SUBMISSION } from '@/graphql/submission/queries'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
+import type { Language } from '@/types/type'
 import { useSuspenseQuery } from '@apollo/client'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -60,7 +61,10 @@ export function EditorLayout({
           </div>
         </div>
       </header>
-      <EditorMainResizablePanel code={submissionData?.code ?? ''}>
+      <EditorMainResizablePanel
+        language={submissionData?.language as Language}
+        code={submissionData?.code ?? ''}
+      >
         {children}
       </EditorMainResizablePanel>
     </div>
