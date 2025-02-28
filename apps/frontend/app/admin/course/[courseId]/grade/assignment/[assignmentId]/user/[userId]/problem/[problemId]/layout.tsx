@@ -1,6 +1,6 @@
 'use client'
 
-import { EditorLayout } from '@/app/admin/course/[courseId]/grade/_components/EditorLayout'
+import { EditorLayout } from '@/app/admin/course/[courseId]/grade/assignment/[assignmentId]/user/[userId]/problem/[problemId]/_components/EditorLayout'
 
 export default function layout({
   params,

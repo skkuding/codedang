@@ -1,8 +1,8 @@
 'use client'
 
-import { SubmissionAssessment } from '@/app/admin/course/[courseId]/grade/_components/SubmissionAssesment'
-import { SubmissionSummary } from '@/app/admin/course/[courseId]/grade/_components/SubmissionSummary'
-import { SubmissionTestcase } from '@/app/admin/course/[courseId]/grade/_components/SubmissionTestcase'
+import { SubmissionAssessment } from '@/app/admin/course/[courseId]/grade/assignment/[assignmentId]/user/[userId]/problem/[problemId]/_components/SubmissionAssesment'
+import { SubmissionSummary } from '@/app/admin/course/[courseId]/grade/assignment/[assignmentId]/user/[userId]/problem/[problemId]/_components/SubmissionSummary'
+import { SubmissionTestcase } from '@/app/admin/course/[courseId]/grade/assignment/[assignmentId]/user/[userId]/problem/[problemId]/_components/SubmissionTestcase'
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { GET_ASSIGNMENT_SUBMISSION } from '@/graphql/submission/queries'
