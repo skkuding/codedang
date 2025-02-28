@@ -1,5 +1,6 @@
 'use client'
 
+import { SubmissionAssessment } from '@/app/admin/course/[courseId]/grade/_components/SubmissionAssesment'
 import { SubmissionSummary } from '@/app/admin/course/[courseId]/grade/_components/SubmissionSummary'
 import { SubmissionTestcase } from '@/app/admin/course/[courseId]/grade/_components/SubmissionTestcase'
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
@@ -51,6 +52,10 @@ export default function Page({ params }: PageProps) {
           </div>
 
           <div className="h-3 bg-[#121728]" />
+
+          <div className="px-6 py-2">
+            <SubmissionAssessment />
+          </div>
         </Suspense>
       </ErrorBoundary>
     </div>
