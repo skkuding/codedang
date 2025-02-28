@@ -306,10 +306,14 @@ export class AssignmentService {
       totalParticipants: number
       scores?: number[]
       finalScores?: number[]
+      isAutoFinalizeScore: boolean
+      isFinalScoreVisible: boolean
     } = {
       assignmentId: assignment.id,
       title: assignment.title,
-      totalParticipants: validRecords.length
+      totalParticipants: validRecords.length,
+      isAutoFinalizeScore: assignment.isAutoFinalizeScore,
+      isFinalScoreVisible: assignment.isFinalScoreVisible
     }
 
     if (assignment.isJudgeResultVisible) {
