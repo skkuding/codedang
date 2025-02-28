@@ -64,6 +64,8 @@ export function EditorLayout({
       <EditorMainResizablePanel
         language={submissionData?.language as Language}
         code={submissionData?.code ?? ''}
+        courseId={courseId}
+        userId={userId}
       >
         {children}
       </EditorMainResizablePanel>

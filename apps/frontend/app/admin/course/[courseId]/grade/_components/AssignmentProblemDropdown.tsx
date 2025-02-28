@@ -7,7 +7,7 @@ import {
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { cn, convertToLetter } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-green.svg'
-import { useQuery } from '@apollo/client'
+import { useSuspenseQuery } from '@apollo/client'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -29,7 +29,7 @@ export function AssignmentProblemDropdown({
   isSubmitted
 }: AssignmentProblemDropdownProps) {
   const assignmentProblems =
-    useQuery(GET_ASSIGNMENT_PROBLEMS, {
+    useSuspenseQuery(GET_ASSIGNMENT_PROBLEMS, {
       variables: {
         groupId: courseId,
         assignmentId

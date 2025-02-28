@@ -7,19 +7,33 @@ import {
   ResizablePanelGroup
 } from '@/components/shadcn/resizable'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import { GET_GROUP_MEMBER } from '@/graphql/user/queries'
 import type { Language } from '@/types/type'
+import { useSuspenseQuery } from '@apollo/client'
+import { BiSolidUser } from 'react-icons/bi'
 
 interface ProblemEditorProps {
   code: string
   language: Language
+  courseId: number
+  userId: number
   children: React.ReactNode
 }
 
 export function EditorMainResizablePanel({
   code,
   language,
+  courseId,
+  userId,
   children
 }: ProblemEditorProps) {
+  const member = useSuspenseQuery(GET_GROUP_MEMBER, {
+    variables: {
+      groupId: courseId,
+      userId
+    }
+  }).data?.getGroupMember
+
   return (
     <ResizablePanelGroup
       direction="horizontal"
@@ -31,8 +45,11 @@ export function EditorMainResizablePanel({
         minSize={20}
       >
         <div className="grid-rows-editor grid h-full grid-cols-1">
-          <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
-            원래 Tab
+          <div className="flex h-full w-full items-center gap-2 border-b border-slate-700 bg-[#222939] px-6">
+            <BiSolidUser className="size-6 rounded-none text-gray-300" />
+            <p className="text-[18px] font-medium">
+              {member?.name}({member?.studentId})
+            </p>
           </div>
           <ScrollArea className="[&>div>div]:!block">{children}</ScrollArea>
         </div>
