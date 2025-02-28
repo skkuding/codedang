@@ -1040,7 +1040,6 @@ const createContests = async () => {
           participationTarget: '성균관대학교 24학번 신입생',
           competitionMethod: '강의실에서 오프라인으로 진행',
           rankingMethod: '맞춘 문제 수와 penalty를 종합하여 순위 산출',
-          problemFormat: null,
           benefits: '1등 10만원 / 2등 3만원'
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
@@ -1060,7 +1059,6 @@ const createContests = async () => {
         summary: {
           participationTarget: '성균관대학교 24학번 신입생',
           competitionMethod: '강의실에서 오프라인으로 진행',
-          rankingMethod: null,
           problemFormat: '문제 형태가 다음과 같습니다.',
           benefits: '1등 10만원 / 2등 3만원'
         },
@@ -1082,8 +1080,7 @@ const createContests = async () => {
           participationTarget: '성균관대학교 24학번 신입생',
           competitionMethod: '강의실에서 오프라인으로 진행',
           rankingMethod: '맞춘 문제 수와 penalty를 종합하여 순위 산출',
-          problemFormat: '문제 형식은 다음과 같습니다.',
-          benefits: null
+          problemFormat: '문제 형식은 다음과 같습니다.'
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
@@ -1124,8 +1121,6 @@ const createContests = async () => {
         summary: {
           participationTarget: '소프트웨어학과 원전공생',
           competitionMethod: '온라인 진행',
-          rankingMethod: null,
-          problemFormat: null,
           benefits: '1~3등에게 상위 대회 출전 자격 부여'
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
@@ -1188,8 +1183,7 @@ const createContests = async () => {
           participationTarget: '소프트웨어학과 원전공/복수전공',
           competitionMethod: '온라인 진행',
           rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-          problemFormat: '문제 형식은 다음과 같습니다.',
-          benefits: null
+          problemFormat: '문제 형식은 다음과 같습니다.'
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
@@ -1209,8 +1203,7 @@ const createContests = async () => {
           participationTarget: '소프트웨어학과 원전공/복수전공',
           competitionMethod: '온라인 진행',
           rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-          problemFormat: '문제 형식은 다음과 같습니다.',
-          benefits: null
+          problemFormat: '문제 형식은 다음과 같습니다.'
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
@@ -1230,8 +1223,7 @@ const createContests = async () => {
           participationTarget: '소프트웨어학과 원전공/복수전공',
           competitionMethod: '온라인 진행',
           rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-          problemFormat: '문제 형식은 다음과 같습니다.',
-          benefits: null
+          problemFormat: '문제 형식은 다음과 같습니다.'
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
@@ -1251,8 +1243,7 @@ const createContests = async () => {
           participationTarget: '소프트웨어학과 원전공/복수전공',
           competitionMethod: '온라인 진행',
           rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-          problemFormat: '문제 형식은 다음과 같습니다.',
-          benefits: null
+          problemFormat: '문제 형식은 다음과 같습니다.'
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
@@ -1293,8 +1284,7 @@ const createContests = async () => {
           participationTarget: '소프트웨어학과 원전공/복수전공',
           competitionMethod: '온라인 진행',
           rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-          problemFormat: '문제 형식은 다음과 같습니다.',
-          benefits: null
+          problemFormat: '문제 형식은 다음과 같습니다.'
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
@@ -1315,8 +1305,7 @@ const createContests = async () => {
           participationTarget: '소프트웨어학과 원전공/복수전공',
           competitionMethod: '온라인 진행 예정...?',
           rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-          problemFormat: '문제 형식은 다음과 같습니다.',
-          benefits: null
+          problemFormat: '문제 형식은 다음과 같습니다.'
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
@@ -1336,8 +1325,7 @@ const createContests = async () => {
           participationTarget: '소프트웨어학과 원전공/복수전공',
           competitionMethod: '온라인 진행 예정...?',
           rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-          problemFormat: '문제 형식은 다음과 같습니다.',
-          benefits: null
+          problemFormat: '문제 형식은 다음과 같습니다.'
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
@@ -1358,7 +1346,6 @@ const createContests = async () => {
           participationTarget: '소프트웨어학과 원전공/복수전공',
           competitionMethod: '온라인 진행 예정...?',
           rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-          problemFormat: null,
           benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘'
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
@@ -1379,7 +1366,6 @@ const createContests = async () => {
           participationTarget: '소프트웨어학과 원전공/복수전공',
           competitionMethod: '온라인 진행 예정...?',
           rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-          problemFormat: null,
           benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘'
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
