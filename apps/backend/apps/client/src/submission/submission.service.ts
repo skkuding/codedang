@@ -1048,7 +1048,13 @@ export class SubmissionService {
         code: true,
         createTime: true,
         result: true,
-        submissionResult: true,
+        submissionResult: {
+          include: {
+            problemTestcase: {
+              select: { isHidden: true }
+            }
+          }
+        },
         codeSize: true
       }
     })

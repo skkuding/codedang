@@ -14,8 +14,8 @@ export class UserAssignmentScoreSummary {
   @Field(() => Int)
   assignmentPerfectScore: number
 
-  @Field(() => Float)
-  userAssignmentFinalScore: number
+  @Field(() => Float, { nullable: true })
+  userAssignmentFinalScore?: number
 
   @Field(() => [AssignmentProblemScore])
   problemScores: AssignmentProblemScore[]
