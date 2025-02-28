@@ -6,7 +6,6 @@ import { Prisma, ResultStatus } from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { stub } from 'sinon'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import { ForbiddenAccessException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { AssignmentService } from '@client/assignment/assignment.service'
@@ -199,8 +198,7 @@ describe('ProblemService', () => {
       const result = await service.getProblems({
         userId: null,
         cursor: 1,
-        take: 2,
-        groupId: OPEN_SPACE_ID
+        take: 2
       })
 
       // then
@@ -801,7 +799,7 @@ describe('WorkbookProblemService', () => {
         workbookId,
         cursor: 1,
         take: 1,
-        groupId: OPEN_SPACE_ID
+        groupId
       })
 
       // then
@@ -824,7 +822,7 @@ describe('WorkbookProblemService', () => {
         workbookId,
         cursor: 1,
         take: 1,
-        groupId: OPEN_SPACE_ID
+        groupId
       })
 
       // then
@@ -846,7 +844,7 @@ describe('WorkbookProblemService', () => {
           workbookId,
           cursor: 1,
           take: 1,
-          groupId: OPEN_SPACE_ID
+          groupId
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -859,7 +857,11 @@ describe('WorkbookProblemService', () => {
       db.workbookProblem.findUniqueOrThrow.resolves(mockWorkbookProblem)
 
       // when
-      const result = await service.getWorkbookProblem(workbookId, problemId)
+      const result = await service.getWorkbookProblem(
+        workbookId,
+        problemId,
+        groupId
+      )
 
       // then
       expect(result).to.be.deep.equal(
@@ -893,7 +895,7 @@ describe('WorkbookProblemService', () => {
 
       // then
       await expect(
-        service.getWorkbookProblem(workbookId, problemId)
+        service.getWorkbookProblem(workbookId, problemId, groupId)
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })

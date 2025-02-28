@@ -47,7 +47,10 @@ export default async function Layout({ params, tabs }: ContestDetailProps) {
 
     return (
       <>
-        <Cover title="CONTEST" description="Contests of CODEDANG" />
+        <Cover
+          title="CONTEST"
+          description="Challenge yourself to a variety of questions!"
+        />
         <article>
           <ContestTabs contestId={contestId} />
           {tabs}
@@ -57,7 +60,10 @@ export default async function Layout({ params, tabs }: ContestDetailProps) {
   }
   return (
     <>
-      <Cover title="CONTEST" description="Contests of CODEDANG" />
+      <Cover
+        title="CONTEST"
+        description="Challenge yourself to a variety of questions!"
+      />
       <p className="text-center">No Results.</p>
     </>
   )

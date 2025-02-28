@@ -5,15 +5,14 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/submission?problemId=2&assignmentId=14&groupId=2
+  url: {{baseUrl}}/submission?problemId=1&assignmentId=1
   body: json
   auth: none
 }
 
 params:query {
-  problemId: 2
-  assignmentId: 14
-  groupId: 2
+  problemId: 1
+  assignmentId: 1
   ~workbookId: 1
 }
 
@@ -46,7 +45,6 @@ docs {
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |problemId *|Integer|문제 ID|
-  |groupId|Integer|문제가 속한 Group ID (default: 1)|
   |assignmentId|Integer|문제가 속한 과제 ID|
   |workbookId|Integer|문제가 속한 문제집 ID|
   |isTest|boolean|실제 제출인지 여부 (default: false)|

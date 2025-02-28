@@ -24,6 +24,7 @@ export type SemesterSeason = 'Spring' | 'Summer' | 'Fall' | 'Winter'
 export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
 // Problem type definition
 
+export type MemberRole = 'Instructor' | 'Student'
 export interface Tag {
   id: number
   name: string

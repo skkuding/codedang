@@ -9,11 +9,13 @@ import {
 import { Cache } from 'cache-manager'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import {
+  ConflictFoundException,
   EntityNotExistException,
   ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { UpdateAssignmentProblemRecordInput } from './model/assignment-problem-record-input'
 import type { AssignmentWithScores } from './model/assignment-with-scores.model'
 import type { CreateAssignmentInput } from './model/assignment.input'
 import type { UpdateAssignmentInput } from './model/assignment.input'
@@ -340,6 +342,16 @@ export class AssignmentService {
             data: {
               visibleLockTime: assignment.endTime
             }
+          }),
+          this.prisma.problem.update({
+            where: {
+              id: problemId
+            },
+            data: {
+              sharedGroups: {
+                connect: [{ id: groupId }]
+              }
+            }
           })
         ])
         assignmentProblems.push(assignmentProblem)
@@ -435,6 +447,16 @@ export class AssignmentService {
               assignmentId_problemId: {
                 assignmentId,
                 problemId
+              }
+            }
+          }),
+          this.prisma.problem.update({
+            where: {
+              id: problemId
+            },
+            data: {
+              sharedGroups: {
+                disconnect: [{ id: groupId }]
               }
             }
           })
@@ -622,22 +644,29 @@ export class AssignmentService {
    * 특정 user의 특정 Assignment에 대한 총점, 통과한 문제 개수와 각 문제별 테스트케이스 통과 개수를 불러옵니다.
    */
   async getAssignmentScoreSummary(userId: number, assignmentId: number) {
-    const [assignmentProblems, rawSubmissions] = await Promise.all([
-      this.prisma.assignmentProblem.findMany({
-        where: {
-          assignmentId
-        }
-      }),
-      this.prisma.submission.findMany({
-        where: {
-          userId,
-          assignmentId
-        },
-        orderBy: {
-          createTime: 'desc'
-        }
-      })
-    ])
+    const [assignmentProblems, rawSubmissions, assignmentProblemRecords] =
+      await Promise.all([
+        this.prisma.assignmentProblem.findMany({
+          where: {
+            assignmentId
+          }
+        }),
+        this.prisma.submission.findMany({
+          where: {
+            userId,
+            assignmentId
+          },
+          orderBy: {
+            createTime: 'desc'
+          }
+        }),
+        this.prisma.assignmentProblemRecord.findMany({
+          where: {
+            userId,
+            assignmentId
+          }
+        })
+      ])
 
     // 오직 현재 Assignment에 남아있는 문제들의 제출에 대해서만 ScoreSummary 계산
     const assignmentProblemIds = assignmentProblems.map(
@@ -645,6 +674,14 @@ export class AssignmentService {
     )
     const submissions = rawSubmissions.filter((submission) =>
       assignmentProblemIds.includes(submission.problemId)
+    )
+
+    const finalScoreMap = assignmentProblemRecords.reduce(
+      (map, record) => {
+        map[record.problemId] = record.finalScore
+        return map
+      },
+      {} as Record<number, number | null>
     )
 
     if (!submissions.length) {
@@ -673,13 +710,15 @@ export class AssignmentService {
       problemId: number
       score: number
       maxScore: number
+      finalScore: number | null
     }[] = []
 
     for (const problemId in latestSubmissions) {
       problemScores.push({
         problemId: parseInt(problemId),
         score: latestSubmissions[problemId].score,
-        maxScore: latestSubmissions[problemId].maxScore
+        maxScore: latestSubmissions[problemId].maxScore,
+        finalScore: finalScoreMap[parseInt(problemId)] ?? null
       })
     }
 
@@ -694,6 +733,14 @@ export class AssignmentService {
         (total, { score }) => total + score,
         0
       ), // Assignment의 만점
+      userAssignmentFinalScore: assignmentProblemRecords.some(
+        (record) => record.finalScore === null
+      )
+        ? null
+        : assignmentProblemRecords.reduce(
+            (total, { finalScore }) => total + (finalScore as number),
+            0
+          ),
       problemScores // 개별 Problem의 점수 리스트 (각 문제에서 몇 점을 획득했는지)
     }
 
@@ -886,5 +933,68 @@ export class AssignmentService {
       (total, problem) => total + problem.score,
       0
     )
+  }
+
+  async updateAssignmentProblemRecord(
+    groupId: number,
+    input: UpdateAssignmentProblemRecordInput
+  ) {
+    const now = new Date()
+
+    const assignmentProblem = await this.prisma.assignmentProblem.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        assignmentId_problemId: {
+          assignmentId: input.assignmentId,
+          problemId: input.problemId
+        }
+      },
+      include: {
+        assignment: {
+          select: {
+            groupId: true,
+            endTime: true
+          }
+        }
+      }
+    })
+
+    if (!assignmentProblem || !assignmentProblem.assignment) {
+      throw new EntityNotExistException('Assignment Problem')
+    }
+
+    const assignment = assignmentProblem.assignment
+
+    if (groupId !== assignment.groupId) {
+      throw new ForbiddenAccessException('Forbidden Resource')
+    }
+
+    if (now <= assignment.endTime) {
+      throw new ConflictFoundException('Can grade only finished assignments')
+    }
+
+    if (
+      input.finalScore !== undefined &&
+      input.finalScore > assignmentProblem.score
+    ) {
+      throw new UnprocessableDataException(
+        'The score cannot be greater than the maximum score'
+      )
+    }
+
+    return await this.prisma.assignmentProblemRecord.update({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        assignmentId_userId_problemId: {
+          assignmentId: input.assignmentId,
+          userId: input.userId,
+          problemId: input.problemId
+        }
+      },
+      data: {
+        finalScore: input.finalScore,
+        comment: input.comment
+      }
+    })
   }
 }

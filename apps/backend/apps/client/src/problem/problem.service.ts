@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma, ResultStatus } from '@prisma/client'
-import { MIN_DATE, OPEN_SPACE_ID } from '@libs/constants'
+import { MIN_DATE } from '@libs/constants'
 import { ForbiddenAccessException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { AssignmentService } from '@client/assignment/assignment.service'
@@ -61,11 +61,10 @@ export class ProblemService {
     userId: number | null
     cursor: number | null
     take: number
-    groupId: number
     order?: ProblemOrder
     search?: string
   }): Promise<ProblemsResponseDto> {
-    const { cursor, take, order, groupId, search } = options
+    const { cursor, take, order, search } = options
     const paginator = this.prisma.getPaginator(cursor)
 
     /* eslint-disable @typescript-eslint/naming-convention */
@@ -93,7 +92,6 @@ export class ProblemService {
       take,
       orderBy,
       where: {
-        groupId,
         title: {
           // TODO/FIXME: postgreSQL의 full text search를 사용하여 검색하려 했으나
           // 그럴 경우 띄어쓰기를 기준으로 나눠진 단어 단위로만 검색이 가능하다
@@ -182,7 +180,6 @@ export class ProblemService {
 
     const total = await this.prisma.problem.count({
       where: {
-        groupId,
         title: {
           // TODO: 검색 방식 변경 시 함께 변경 요함
           contains: search
@@ -197,15 +194,11 @@ export class ProblemService {
     }
   }
 
-  async getProblem(
-    problemId: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<ProblemResponseDto> {
+  async getProblem(problemId: number): Promise<ProblemResponseDto> {
     // const data = await this.problemRepository.getProblem(problemId, groupId)
     const data = await this.prisma.problem.findUniqueOrThrow({
       where: {
         id: problemId,
-        groupId,
         visibleLockTime: MIN_DATE
       },
       select: problemSelectOption
@@ -439,7 +432,6 @@ export class ContestProblemService {
     const excludedFields = [
       'createTime',
       'createdById',
-      'groupId',
       'problemTag',
       'submission',
       'updateTime',
@@ -694,7 +686,7 @@ export class WorkbookProblemService {
     workbookId,
     cursor,
     take,
-    groupId = OPEN_SPACE_ID
+    groupId
   }: {
     workbookId: number
     cursor: number | null
@@ -790,7 +782,7 @@ export class WorkbookProblemService {
   async getWorkbookProblem(
     workbookId: number,
     problemId: number,
-    groupId = OPEN_SPACE_ID
+    groupId: number
   ): Promise<RelatedProblemResponseDto> {
     const isVisible = await this.workbookService.isVisible(workbookId, groupId)
     if (!isVisible) {

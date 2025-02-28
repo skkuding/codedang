@@ -104,7 +104,6 @@ export function ScoreCautionDialog({
                 zeroSetContests.map((contestId) =>
                   updateContestsProblemsScores({
                     variables: {
-                      groupId: 1,
                       contestId: Number(contestId),
                       problemIdsWithScore: [{ problemId, score: 0 }]
                     }

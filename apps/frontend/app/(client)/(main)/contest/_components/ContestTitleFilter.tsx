@@ -13,12 +13,11 @@ import {
   PopoverTrigger
 } from '@/components/shadcn/popover'
 import { Separator } from '@/components/shadcn/separator'
-import type { Column, Table } from '@tanstack/react-table'
+import type { Column } from '@tanstack/react-table'
 import React, { type ReactNode } from 'react'
 import { IoFilter } from 'react-icons/io5'
 
 interface ContestTableMultiSelectFilterProps<TData, TValue> {
-  table: Table<TData>
   column?: Column<TData, TValue>
   title?: string
   options: {
@@ -26,15 +25,27 @@ interface ContestTableMultiSelectFilterProps<TData, TValue> {
     label: ReactNode
   }[]
   emptyMessage?: string
+  resetPageIndex: () => void
 }
 
 export function ContestTitleFilter<TData, TValue>({
-  table,
   column,
   title,
-  options
+  options,
+  resetPageIndex
 }: ContestTableMultiSelectFilterProps<TData, TValue>) {
   const selectedValues = getSelectedValues(column?.getFilterValue())
+
+  const handleFilterSelect = (value: string) => {
+    if (selectedValues.has(value)) {
+      selectedValues.delete(value)
+    } else {
+      selectedValues.add(value)
+    }
+    const filterValues = Array.from(selectedValues)
+    column?.setFilterValue(filterValues.length ? filterValues : undefined)
+    resetPageIndex()
+  }
 
   return (
     <Popover>
@@ -89,16 +100,7 @@ export function ContestTitleFilter<TData, TValue>({
                   value={value}
                   className="gap-x-2"
                   onSelect={() => {
-                    if (selectedValues.has(value)) {
-                      selectedValues.delete(value)
-                    } else {
-                      selectedValues.add(value)
-                    }
-                    const filterValues = Array.from(selectedValues)
-                    column?.setFilterValue(
-                      filterValues.length ? filterValues : undefined
-                    )
-                    table.resetPageIndex()
+                    handleFilterSelect(value)
                   }}
                 >
                   <Checkbox checked={selectedValues.has(value)} />
