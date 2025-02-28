@@ -40,7 +40,8 @@ export function EditorLayout({
   }).data?.getAssignmentSubmission
 
   return (
-    <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
+    // Admin Layout의 Sidebar를 무시하기 위한 fixed
+    <div className="grid-rows-editor fixed left-0 grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
       <header className="flex h-12 justify-between bg-slate-900 px-6">
         <div className="flex items-center justify-center gap-4 text-lg text-[#787E80]">
           <Link href="/">

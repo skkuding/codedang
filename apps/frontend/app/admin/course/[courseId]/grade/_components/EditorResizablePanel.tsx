@@ -39,6 +39,7 @@ export function EditorMainResizablePanel({
 
       <ResizablePanel defaultSize={65} className="bg-[#222939]">
         <div className="grid-rows-editor grid h-full">
+          <div className="flex border-b border-b-slate-700 bg-[#222939]" />
           <ResizablePanelGroup direction="vertical" className="h-32">
             <ResizablePanel
               defaultSize={60}
