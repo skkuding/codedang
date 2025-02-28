@@ -123,6 +123,8 @@ export class SubmissionController {
   /**
    * requestTest의 반환으로 받은 key를 통해 Test 결과를 조회합니다.
    * @returns Testcase별 결과가 담겨있는 Object
+   *
+   * @deprecated Polling -> SSE 방식으로 결과를 전송함에 따라 getTestTestcaseResult API로 대체됩니다.
    */
   @Get('test')
   async getTestResult(@Req() req: AuthenticatedRequest) {
@@ -152,6 +154,8 @@ export class SubmissionController {
   /**
    * 유저가 생성한 테스트케이스에 대한 실행 결과를 조회합니다.
    * @returns Testcase별 결과가 담겨있는 Object
+   *
+   * @deprecated Polling -> SSE 방식으로 결과를 전송함에 따라 getTestTestcaseResult API로 대체됩니다.
    */
   @Get('user-test')
   async getUserTestResult(@Req() req: AuthenticatedRequest) {
@@ -213,7 +217,7 @@ export class SubmissionController {
    * @returns {Observable<MessageEvent>} SSE 연결을 위한 Observable 객체를 반환하며, 테스트케이스 채점 결과가 포함된 MessageEvent를 전송함
    */
   @Sse('submission-result/:submissionId')
-  async getSubmissionTestcaseResult(
+  async getTestcaseResultOfSubmission(
     @Req() req: AuthenticatedRequest,
     @Param('submissionId', ParseIntPipe) submissionId: number
   ): Promise<Observable<MessageEvent>> {
@@ -273,7 +277,7 @@ export class SubmissionController {
    * @returns {Observable<MessageEvent>} SSE 연결을 위한 Observable 객체를 반환하며, 테스트케이스 채점 결과가 포함된 MessageEvent를 전송함
    */
   @Sse(`test-result/:testSubmissionId`)
-  async getTestTestcaseResult(
+  async getTestcaseResultOfTest(
     @Req() req: AuthenticatedRequest,
     @Param('testSubmissionId', ParseIntPipe) testSubmissionId: number
   ): Promise<Observable<MessageEvent>> {
