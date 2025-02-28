@@ -14,10 +14,12 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
+import { fetcherWithAuth } from '@/libs/utils'
 import bottomCenterIcon from '@/public/icons/bottom-center.svg'
 import syncIcon from '@/public/icons/sync.svg'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
-import type { ProblemDetail } from '@/types/type'
+import type { ProblemDetail, Contest } from '@/types/type'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -48,7 +50,30 @@ export function EditorMainResizablePanel({
   enableCopyPaste = true,
   children
 }: ProblemEditorProps) {
+  const fetchFreezeTime = async (contestId: number | undefined) => {
+    const res: Contest = await fetcherWithAuth
+      .get(`contest/${contestId}`)
+      .json()
+    const freezeTime = res.freezeTime
+
+    return freezeTime
+  }
+  const { data } = useSuspenseQuery({
+    queryKey: ['leaderboard freeze date', contestId],
+    queryFn: () => fetchFreezeTime(contestId)
+  })
+
   const triggerRefresh = useLeaderboardSync((state) => state.triggerRefresh)
+  const a = () => {
+    contestId = contestId ? contestId : -1
+    if (contestId === -1) {
+      alert('Wrong contestId detected!')
+      return
+    }
+    console.log('data: ', data)
+    triggerRefresh()
+  }
+
   const pathname = usePathname()
   let base: string
   if (contestId) {
@@ -144,7 +169,7 @@ export function EditorMainResizablePanel({
                         src={syncIcon}
                         alt="Sync"
                         className="cursor-pointer"
-                        onClick={triggerRefresh}
+                        onClick={a}
                       />
                     </TooltipTrigger>
                     <TooltipContent
