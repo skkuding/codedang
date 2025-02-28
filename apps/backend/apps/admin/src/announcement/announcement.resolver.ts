@@ -21,6 +21,16 @@ export class AnnouncementResolver {
     return this.announcementService.findAll()
   }
 
+  @Query(() => [Announcement], { name: 'announcementByProblemId' })
+  findByProblemId(@Args('problemId', { type: () => Int }) problemId: number) {
+    return this.announcementService.findByProblemId(problemId)
+  }
+
+  @Query(() => [Announcement], { name: 'announcementByContestId' })
+  findByContestId(@Args('contestId', { type: () => Int }) contestId: number) {
+    return this.announcementService.findByContestId(contestId)
+  }
+
   @Query(() => Announcement, { name: 'announcement' })
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.announcementService.findOne(id)

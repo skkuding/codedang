@@ -14,11 +14,29 @@ export class AnnouncementService {
   }
 
   findAll() {
-    return `This action returns all announcement`
+    return this.prisma.announcement.findMany()
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} announcement`
+    return this.prisma.announcement.findUniqueOrThrow({
+      where: { id }
+    })
+  }
+
+  findByProblemId(problemId: number) {
+    return this.prisma.announcement.findMany({
+      where: { problemId },
+      orderBy: { createTime: 'desc' },
+      select: { id: true, content: true, createTime: true, updateTime: true }
+    })
+  }
+
+  findByContestId(contestId: number) {
+    return this.prisma.announcement.findMany({
+      where: { contestId },
+      orderBy: { createTime: 'desc' },
+      select: { id: true, content: true, createTime: true, updateTime: true }
+    })
   }
 
   update(id: number, updateAnnouncementInput: UpdateAnnouncementInput) {
