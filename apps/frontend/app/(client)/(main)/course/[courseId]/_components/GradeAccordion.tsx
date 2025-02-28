@@ -1,5 +1,3 @@
-'use client'
-
 import {
   Accordion,
   AccordionContent,
@@ -8,7 +6,6 @@ import {
 } from '@/components/shadcn/accordion'
 import { Dialog } from '@/components/shadcn/dialog'
 import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
-import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { GradeDetailModal } from '../grade/_components/GradeDetailModal'
 import { SubmissionDetailModal } from '../grade/_components/SubmissionDetailModal'
@@ -48,7 +45,11 @@ export function GradeAccordion({ courseId }: GradeAccordionProps) {
     <div className="mt-8">
       <GradeAccordionHeader />
       {dummyResponse.data.map((assignment) => (
-        <GradeAccordionItem key={assignment.id} assignment={assignment} />
+        <GradeAccordionItem
+          key={assignment.id}
+          assignment={assignment}
+          courseId={Number(courseId)}
+        />
       ))}
     </div>
   )
@@ -68,11 +69,10 @@ function GradeAccordionHeader() {
 
 interface GradeAccordionItemProps {
   assignment: AssignmentGrade
+  courseId: number
 }
 
-function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
-  const params = useParams()
-  const courseId = Number(params.courseId)
+function GradeAccordionItem({ assignment, courseId }: GradeAccordionItemProps) {
   const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false)
   const [isProblemDialogOpen, setIsProblemDialogOpen] = useState(true)
   return (
