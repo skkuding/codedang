@@ -57,6 +57,18 @@ export class UserService {
     })
   }
 
+  //qa 계정용 api - rc 서버 테스트용
+  async updateRole(username: string) {
+    const user = await this.prisma.user.update({
+      where: { username },
+      data: {
+        role: Role.Admin,
+        canCreateContest: true
+      }
+    })
+    return user
+  }
+
   async updateCanCreateCourse(userId: number, canCreateCourse: boolean) {
     return await this.prisma.user.update({
       where: {
