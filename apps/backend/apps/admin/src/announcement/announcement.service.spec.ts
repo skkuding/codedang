@@ -87,19 +87,15 @@ describe('AnnouncementService', () => {
         })
       ).to.be.rejectedWith(PrismaClientKnownRequestError)
     })
-  })
 
-  describe('getAllAnnouncements', () => {
-    it('should return all announcements', async () => {
-      const result = await service.getAllAnnouncements()
-      expect(result).to.be.an('array')
-      expect(result[0]).to.be.an('object')
-      expect(result[0]).has.property('id')
-      expect(result[0]).has.property('contestId')
-      expect(result[0]).has.property('problemId')
-      expect(result[0]).has.property('content')
-      expect(result[0]).has.property('createTime')
-      expect(result[0]).has.property('updateTime')
+    it('should rejected if problemId is not exist', async () => {
+      await expect(
+        service.createAnnouncement({
+          content,
+          contestId,
+          problemId: 999
+        })
+      ).to.be.rejectedWith(PrismaClientKnownRequestError)
     })
   })
 

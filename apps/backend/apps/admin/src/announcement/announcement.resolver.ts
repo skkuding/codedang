@@ -1,6 +1,7 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { Announcement } from '@generated'
 import { AnnouncementService } from './announcement.service'
+import { AnnouncementWithProblemOrder } from './model/\bannouncement.output'
 import { CreateAnnouncementInput } from './model/create-announcement.input'
 import { UpdateAnnouncementInput } from './model/update-announcement.input'
 
@@ -10,20 +11,15 @@ export class AnnouncementResolver {
 
   @Mutation(() => Announcement)
   async createAnnouncement(
-    @Args('createAnnouncementInput')
-    createAnnouncementInput: CreateAnnouncementInput
+    @Args('input')
+    input: CreateAnnouncementInput
   ) {
-    return await this.announcementService.createAnnouncement(
-      createAnnouncementInput
-    )
+    return await this.announcementService.createAnnouncement(input)
   }
 
-  @Query(() => [Announcement], { name: 'announcement' })
-  async getAllAnnouncements() {
-    return await this.announcementService.getAllAnnouncements()
-  }
-
-  @Query(() => [Announcement], { name: 'announcementByContestId' })
+  @Query(() => [AnnouncementWithProblemOrder], {
+    name: 'announcementByContestId'
+  })
   async getAnnouncementsByContestId(
     @Args('contestId', { type: () => Int }) contestId: number
   ) {
@@ -37,12 +33,10 @@ export class AnnouncementResolver {
 
   @Mutation(() => Announcement)
   async updateAnnouncement(
-    @Args('updateAnnouncementInput')
-    updateAnnouncementInput: UpdateAnnouncementInput
+    @Args('input')
+    input: UpdateAnnouncementInput
   ) {
-    return await this.announcementService.updateAnnouncement(
-      updateAnnouncementInput
-    )
+    return await this.announcementService.updateAnnouncement(input)
   }
 
   @Mutation(() => Announcement)
