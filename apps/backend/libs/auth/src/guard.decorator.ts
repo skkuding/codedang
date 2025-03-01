@@ -24,10 +24,14 @@ export const UseGroupLeaderGuard = () => {
   )
 }
 
+export const CONTEST_ROLES_DISABLE_KEY = 'contest-roles-not-needed'
 export const UseContestRolesGuard = (role: ContestRole) => {
   return applyDecorators(
     SetMetadata(CONTEST_ROLES_KEY, role),
     SetMetadata(ADMIN_NOT_NEEDED_KEY, true),
     UseGuards(ContestRolesGuard)
   )
+}
+export const UseDisableContestRolesGuard = () => {
+  return applyDecorators(SetMetadata(CONTEST_ROLES_DISABLE_KEY, true))
 }

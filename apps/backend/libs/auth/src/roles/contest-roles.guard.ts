@@ -7,6 +7,7 @@ import { Reflector } from '@nestjs/core'
 import { GqlExecutionContext, type GqlContextType } from '@nestjs/graphql'
 import { ContestRole } from '@prisma/client'
 import type { AuthenticatedRequest } from '../authenticated-request.interface'
+import { CONTEST_ROLES_DISABLE_KEY } from '../guard.decorator'
 import { CONTEST_ROLES_KEY } from './contest-roles.decorator'
 import { RolesService } from './roles.service'
 
@@ -24,6 +25,13 @@ export class ContestRolesGuard implements CanActivate {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isContestRolesNotNeeded = this.reflector.getAllAndOverride<boolean>(
+      CONTEST_ROLES_DISABLE_KEY,
+      [context.getHandler(), context.getClass()]
+    )
+    if (isContestRolesNotNeeded === true) {
+      return true
+    }
     let request: AuthenticatedRequest
     let constestId: number
     if (context.getType<GqlContextType>() === 'graphql') {

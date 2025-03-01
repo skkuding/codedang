@@ -4,7 +4,6 @@ import { GroupMemberGuard, RolesModule } from '@libs/auth'
 import { AssignmentModule } from '@client/assignment/assignment.module'
 import { ContestModule } from '@client/contest/contest.module'
 import { WorkbookModule } from '@client/workbook/workbook.module'
-import { CodeDraftController } from './code-draft.controller'
 import {
   ContestProblemController,
   AssignmentProblemController,
@@ -14,7 +13,6 @@ import {
   ContestProblemService,
   AssignmentProblemService,
   ProblemService,
-  CodeDraftService,
   WorkbookProblemService
 } from './problem.service'
 
@@ -23,15 +21,13 @@ import {
   controllers: [
     ProblemController,
     ContestProblemController,
-    AssignmentProblemController,
-    CodeDraftController
+    AssignmentProblemController
   ],
   providers: [
     ProblemService,
     ContestProblemService,
     AssignmentProblemService,
     WorkbookProblemService,
-    CodeDraftService,
     { provide: APP_GUARD, useClass: GroupMemberGuard }
   ]
 })

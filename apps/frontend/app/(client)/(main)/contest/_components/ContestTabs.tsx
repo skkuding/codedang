@@ -22,7 +22,7 @@ export function ContestTabs({ contestId }: { contestId: string }) {
         <Link
           href={`/contest/${id}` as Route}
           className={cn(
-            'flex w-1/2 justify-center p-[18px] text-lg',
+            'flex w-1/2 justify-center p-[18px] py-[22.5px] text-lg',
             isCurrentTab('') &&
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
@@ -32,7 +32,7 @@ export function ContestTabs({ contestId }: { contestId: string }) {
         <Link
           href={`/contest/${id}/announcement` as Route}
           className={cn(
-            'flex w-1/2 justify-center p-[18px] text-lg',
+            'flex w-1/2 justify-center p-[18px] py-[22.5px] text-lg',
             isCurrentTab('announcement') &&
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
@@ -42,7 +42,7 @@ export function ContestTabs({ contestId }: { contestId: string }) {
         <Link
           href={`/contest/${id}/leaderboard` as Route}
           className={cn(
-            'flex w-1/2 justify-center p-[18px] text-lg',
+            'flex w-1/2 justify-center p-[18px] py-[22.5px] text-lg',
             isCurrentTab('leaderboard') &&
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
@@ -52,7 +52,7 @@ export function ContestTabs({ contestId }: { contestId: string }) {
         <Link
           href={`/contest/${id}/statistics` as Route}
           className={cn(
-            'flex w-1/2 justify-center p-[18px] text-lg',
+            'flex w-1/2 justify-center p-[18px] py-[22.5px] text-lg',
             isCurrentTab('statistics') &&
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
@@ -62,7 +62,7 @@ export function ContestTabs({ contestId }: { contestId: string }) {
         <Link
           href={`/contest/${id}/qna` as Route}
           className={cn(
-            'flex w-1/2 justify-center p-[18px] text-lg',
+            'flex w-1/2 justify-center p-[18px] py-[22.5px] text-lg',
             isCurrentTab('qna') &&
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
