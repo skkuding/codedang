@@ -11,6 +11,7 @@ import {
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
 import {
   Select,
   SelectContent,
@@ -126,202 +127,202 @@ export function CreateCourseButton() {
         Create
       </Button>
       <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
-        <AlertDialogContent className="p-8">
-          <AlertDialogHeader className="gap-2">
-            <AlertDialogTitle>Create Course</AlertDialogTitle>
-          </AlertDialogHeader>
+        <AlertDialogContent className="px-2 py-0">
+          <ScrollArea className="max-h-[700px] px-6 pt-8">
+            <AlertDialogHeader className="pb-6">
+              <AlertDialogTitle>Create Course</AlertDialogTitle>
+            </AlertDialogHeader>
 
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            aria-label="Create course"
-            className="flex flex-col gap-3"
-          >
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2">
-                <span className="font-bold">Professor</span>
-                <span className="text-red-500">*</span>
-              </div>
-              <Input id="professor" {...register('professor')} />
-              {errors.professor && <ErrorMessage />}
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2">
-                <span className="font-bold">Course Title</span>
-                <span className="text-red-500">*</span>
-              </div>
-
-              <Input id="courseTitle" {...register('courseTitle')} />
-              {errors.courseTitle && <ErrorMessage />}
-            </div>
-
-            <div className="flex justify-between gap-4">
-              <div className="flex w-2/3 flex-col gap-2">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              aria-label="Create course"
+              className="flex flex-col gap-3"
+            >
+              <div className="flex flex-col gap-2">
                 <div className="flex gap-2">
-                  <span className="font-bold">Course Code</span>
+                  <span className="font-bold">Professor</span>
+                  <span className="text-red-500">*</span>
+                </div>
+                <Input id="professor" {...register('professor')} />
+                {errors.professor && <ErrorMessage />}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <span className="font-bold">Course Title</span>
                   <span className="text-red-500">*</span>
                 </div>
 
-                <div className="flex gap-2">
-                  <Input
-                    type="text"
-                    placeholder="SWE"
-                    value={prefix}
-                    onChange={handlePrefixChange}
-                    maxLength={3}
-                    className="w-full rounded border p-2"
-                  />
-                  <Input
-                    type="text"
-                    placeholder="0000"
-                    value={courseCode}
-                    onChange={handleCourseCodeChange}
-                    maxLength={4}
-                    className="w-full rounded border p-2"
-                  />
-                </div>
-                {errors.courseNum && <ErrorMessage />}
+                <Input id="courseTitle" {...register('courseTitle')} />
+                {errors.courseTitle && <ErrorMessage />}
               </div>
-              <div className="flex w-1/3 flex-col gap-2">
-                <div className="flex gap-2">
-                  <span className="font-bold">Class Section</span>
+
+              <div className="flex justify-between gap-4">
+                <div className="flex w-2/3 flex-col gap-2">
+                  <div className="flex gap-2">
+                    <span className="font-bold">Course Code</span>
+                    <span className="text-red-500">*</span>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Input
+                      type="text"
+                      placeholder="SWE"
+                      value={prefix}
+                      onChange={handlePrefixChange}
+                      maxLength={3}
+                      className="w-full rounded border p-2"
+                    />
+                    <Input
+                      type="text"
+                      placeholder="0000"
+                      value={courseCode}
+                      onChange={handleCourseCodeChange}
+                      maxLength={4}
+                      className="w-full rounded border p-2"
+                    />
+                  </div>
+                  {errors.courseNum && <ErrorMessage />}
                 </div>
+                <div className="flex w-1/3 flex-col gap-2">
+                  <div className="flex gap-2">
+                    <span className="font-bold">Class Section</span>
+                  </div>
 
-                <Input
-                  {...register('classNum', {
-                    setValueAs: (v) => parseInt(v)
-                  })}
-                  type="number"
-                  maxLength={2}
-                  className="w-full rounded border p-2"
-                />
+                  <Input
+                    {...register('classNum', {
+                      setValueAs: (v) => parseInt(v)
+                    })}
+                    type="number"
+                    maxLength={2}
+                    className="w-full rounded border p-2"
+                  />
 
-                {errors.classNum && (
-                  <ErrorMessage message={errors.classNum.message} />
+                  {errors.classNum && (
+                    <ErrorMessage message={errors.classNum.message} />
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <span className="font-bold">Semester</span>
+                  <span className="text-red-500">*</span>
+                </div>
+                <Select
+                  onValueChange={(value) => {
+                    setValue('semester', value)
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-md border border-gray-200 bg-white shadow-md">
+                    {seasons.map((season) => (
+                      <SelectItem
+                        key={`${currentYear} ${season}`}
+                        value={`${currentYear} ${season}`}
+                      >
+                        {currentYear} {season}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.semester && (
+                  <ErrorMessage message={errors.semester.message} />
                 )}
               </div>
-            </div>
 
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2">
-                <span className="font-bold">Semester</span>
-                <span className="text-red-500">*</span>
-              </div>
-              <Select
-                onValueChange={(value) => {
-                  setValue('semester', value)
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose" />
-                </SelectTrigger>
-                <SelectContent className="rounded-md border border-gray-200 bg-white shadow-md">
-                  {seasons.map((season) => (
-                    <SelectItem
-                      key={`${currentYear} ${season}`}
-                      value={`${currentYear} ${season}`}
-                    >
-                      {currentYear} {season}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.semester && (
-                <ErrorMessage message={errors.semester.message} />
-              )}
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2">
-                <span className="font-bold">Week</span>
-                <span className="text-red-500">*</span>
-              </div>
-              <Select
-                onValueChange={(weekCount) => {
-                  const parsedWeekCount = parseInt(weekCount, 10)
-                  setValue('week', parsedWeekCount)
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose" />
-                </SelectTrigger>
-                <SelectContent className="rounded-md border border-gray-200 bg-white shadow-md">
-                  {Array.from({ length: 16 }, (_, i) => {
-                    const week = i + 1
-                    return (
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <span className="font-bold">Week</span>
+                  <span className="text-red-500">*</span>
+                </div>
+                <Select
+                  onValueChange={(weekCount) => {
+                    const parsedWeekCount = parseInt(weekCount, 10)
+                    setValue('week', parsedWeekCount)
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-md border border-gray-200 bg-white shadow-md">
+                    {[3, 6, 16].map((week) => (
                       <SelectItem key={week} value={week.toString()}>
                         {week} {week === 1 ? 'Week' : 'Weeks'}
                       </SelectItem>
-                    )
-                  })}
-                </SelectContent>
-              </Select>
-              {errors.week && <ErrorMessage message={errors.week.message} />}
-            </div>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.week && <ErrorMessage message={errors.week.message} />}
+              </div>
 
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2">
-                <span className="font-bold">Contact</span>
-              </div>
               <div className="flex flex-col gap-2">
-                <span className="text-xs font-normal">Email</span>
-                <Input
-                  {...register('email')}
-                  type="emailemail"
-                  className="w-full rounded border p-2"
-                />
-                {errors.email && (
-                  <ErrorMessage message={errors.email.message} />
-                )}
+                <div className="flex gap-2">
+                  <span className="font-bold">Contact</span>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <span className="text-xs font-normal">Email</span>
+                  <Input
+                    {...register('email')}
+                    type="emailemail"
+                    className="w-full rounded border p-2"
+                  />
+                  {errors.email && (
+                    <ErrorMessage message={errors.email.message} />
+                  )}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <span className="text-xs font-normal">Phone Number</span>
+                  <Input
+                    {...register('phoneNum')}
+                    type="text"
+                    className="w-full rounded border p-2"
+                  />
+                  {errors.phoneNum && <ErrorMessage />}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <span className="text-xs font-normal">Office</span>
+                  <Input
+                    {...register('office')}
+                    type="text"
+                    className="w-full rounded border p-2"
+                  />
+                  {errors.office && <ErrorMessage />}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <span className="text-xs font-normal">Website</span>
+                  <Input
+                    {...register('website')}
+                    type="text"
+                    className="w-full rounded border p-2"
+                  />
+                  {errors.website && (
+                    <ErrorMessage message={errors.website.message} />
+                  )}
+                </div>
               </div>
-              <div className="flex flex-col gap-2">
-                <span className="text-xs font-normal">Phone Number</span>
-                <Input
-                  {...register('phoneNum')}
-                  type="text"
-                  className="w-full rounded border p-2"
-                />
-                {errors.phoneNum && <ErrorMessage />}
-              </div>
-              <div className="flex flex-col gap-2">
-                <span className="text-xs font-normal">Office</span>
-                <Input
-                  {...register('office')}
-                  type="text"
-                  className="w-full rounded border p-2"
-                />
-                {errors.office && <ErrorMessage />}
-              </div>
-              <div className="flex flex-col gap-2">
-                <span className="text-xs font-normal">Website</span>
-                <Input
-                  {...register('website')}
-                  type="text"
-                  className="w-full rounded border p-2"
-                />
-                {errors.website && (
-                  <ErrorMessage message={errors.website.message} />
-                )}
-              </div>
-            </div>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction asChild>
-                <Button
-                  type="submit"
-                  className="bg-primary hover:bg-primary-strong"
-                  onClick={(event) => {
-                    if (!isValid) {
-                      event.preventDefault() // AlertDialog 닫힘 방지
-                      trigger()
-                    }
-                  }}
-                >
-                  Create
-                </Button>
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </form>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction asChild>
+                  <Button
+                    type="submit"
+                    className="bg-primary hover:bg-primary-strong"
+                    onClick={(event) => {
+                      if (!isValid) {
+                        event.preventDefault() // AlertDialog 닫힘 방지
+                        trigger()
+                      }
+                    }}
+                  >
+                    Create
+                  </Button>
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </form>
+            <div className="h-8" />
+          </ScrollArea>
         </AlertDialogContent>
       </AlertDialog>
     </>
