@@ -1,26 +1,85 @@
 import { Injectable } from '@nestjs/common'
-import type { CreateAnnouncementInput } from './dto/create-announcement.input'
-import type { UpdateAnnouncementInput } from './dto/update-announcement.input'
+import { PrismaService } from '@libs/prisma'
+import type { CreateAnnouncementInput } from './model/create-announcement.input'
+import type { UpdateAnnouncementInput } from './model/update-announcement.input'
 
 @Injectable()
 export class AnnouncementService {
-  create(createAnnouncementInput: CreateAnnouncementInput) {
-    return createAnnouncementInput
+  constructor(private readonly prisma: PrismaService) {}
+
+  async createAnnouncement(input: CreateAnnouncementInput) {
+    const { problemId, contestId, content } = input
+
+    await this.prisma.contest.findUniqueOrThrow({
+      where: { id: contestId }
+    })
+
+    if (problemId) {
+      await this.prisma.problem.findUniqueOrThrow({
+        where: { id: problemId }
+      })
+      await this.prisma.contestProblem.findUniqueOrThrow({
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        where: { contestId_problemId: { contestId, problemId } }
+      })
+    }
+
+    return await this.prisma.announcement.create({
+      data: {
+        problemId,
+        contestId,
+        content
+      }
+    })
   }
 
-  findAll() {
-    return `This action returns all announcement`
+  async getAnnouncementsByContestId(contestId: number) {
+    await this.prisma.contest.findUniqueOrThrow({ where: { id: contestId } })
+
+    const contestProblems = await this.prisma.contestProblem.findMany({
+      where: { contestId }
+    })
+    const problemOrderMap = {}
+    contestProblems.forEach((problem, index) => {
+      problemOrderMap[problem.problemId] = index
+    })
+
+    const announcements = await this.prisma.announcement.findMany({
+      where: { contestId },
+      orderBy: { createTime: 'desc' }
+    })
+
+    return announcements.map((announcement) => {
+      return {
+        ...announcement,
+        problemOrder: announcement.problemId
+          ? problemOrderMap[announcement.problemId]
+          : null
+      }
+    })
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} announcement`
+  async getAnnouncementById(id: number) {
+    return await this.prisma.announcement.findUniqueOrThrow({
+      where: { id }
+    })
   }
 
-  update(id: number, updateAnnouncementInput: UpdateAnnouncementInput) {
-    return updateAnnouncementInput
+  async updateAnnouncement(input: UpdateAnnouncementInput) {
+    const { id, ...rest } = input
+    await this.prisma.announcement.findUniqueOrThrow({ where: { id } })
+
+    return await this.prisma.announcement.update({
+      where: { id },
+      data: rest
+    })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} announcement`
+  async removeAnnouncement(id: number) {
+    await this.prisma.announcement.findUniqueOrThrow({ where: { id } })
+
+    return await this.prisma.announcement.delete({
+      where: { id }
+    })
   }
 }
