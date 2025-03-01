@@ -560,7 +560,6 @@ export class ProblemService {
       }
     })
 
-
     const updatedByid = userId
 
     const updatedFields: string[] = []

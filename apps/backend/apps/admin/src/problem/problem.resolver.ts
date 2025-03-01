@@ -162,7 +162,6 @@ export class ProblemResolver {
 
   @Mutation(() => ProblemWithIsVisible)
   async updateProblem(
-
     @Context('req') req: AuthenticatedRequest,
     @Args('input') input: UpdateProblemInput
   ) {

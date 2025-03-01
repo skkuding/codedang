@@ -240,10 +240,9 @@ model Problem {
   submission        Submission[]
   announcement      Announcement[]
 
-  codeDraft         CodeDraft[]
-  updateHistory     UpdateHistory[]
+  updateHistory UpdateHistory[]
 
-  testSubmission    TestSubmission[]
+  testSubmission TestSubmission[]
 
   @@map("problem")
 }
