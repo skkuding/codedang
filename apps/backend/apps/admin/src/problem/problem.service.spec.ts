@@ -217,7 +217,9 @@ describe('ProblemService', () => {
 
       const result = await service.uploadTestcase(
         testcaseUploadInput,
-        problemId
+        problemId,
+        user[0].role!,
+        user[0].id!
       )
 
       expect(createTestcaseSpy.calledOnce).to.be.true

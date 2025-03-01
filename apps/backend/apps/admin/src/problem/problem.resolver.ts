@@ -84,7 +84,12 @@ export class ProblemResolver {
     problemId: number,
     @Args('input') input: UploadFileInput
   ) {
-    return await this.problemService.uploadTestcase(input, problemId)
+    return await this.problemService.uploadTestcase(
+      input,
+      problemId,
+      req.user.role,
+      req.user.id
+    )
   }
 
   @Mutation(() => ImageSource)
