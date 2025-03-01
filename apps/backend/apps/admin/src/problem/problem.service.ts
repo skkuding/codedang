@@ -733,7 +733,7 @@ export class ProblemService {
               {
                 updatedFields,
                 updatedAt: new Date(),
-                updatedByid,
+                updatedBy: { connect: { id: updatedByid } },
                 updatedInfo
               }
             ]
