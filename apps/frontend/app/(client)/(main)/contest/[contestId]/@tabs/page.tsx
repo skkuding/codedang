@@ -17,6 +17,7 @@ import type {
   ContestOrder
 } from '@/types/type'
 import Image from 'next/image'
+import { getOngoingUpcomingContests } from '../_libs/apis'
 import { BiggerImageButton } from './_components/BiggerImageButton'
 import { GotoContestListButton } from './_components/GotoContestListButton'
 import { PrevNextProblemButton } from './_components/PrevNextProblemButton'
@@ -65,10 +66,17 @@ interface ContestTopProps {
   params: {
     contestId: string
   }
+  searchParams: {
+    search: string
+  }
 }
 
-export default async function ContestTop({ params }: ContestTopProps) {
+export default async function ContestTop({
+  params,
+  searchParams
+}: ContestTopProps) {
   const session = await auth()
+  const search = searchParams.search ?? ''
   const { contestId } = params
   const data: ContestTop = await fetcherWithAuth
     .get(`contest/${contestId}`)
@@ -76,17 +84,10 @@ export default async function ContestTop({ params }: ContestTopProps) {
   const problemData: ProblemDataTop = await fetcherWithAuth
     .get(`contest/${contestId}/problem`)
     .json()
-  //const contestOrder: ContestOrder = await fetcherWithAuth.get(`contest`).json()
-  async function contestOrder() {
-    const tempdata: {
-      ongoing: Contest[]
-      upcoming: Contest[]
-      finished: Contest[]
-    } = await fetcherWithAuth.get(`contest`).json()
-
-    return tempdata.upcoming.concat(tempdata.ongoing, tempdata.finished)
-  }
-  const orderedContests: ContestOrder[] = await contestOrder()
+  const orderedContests: ContestOrder[] = await getOngoingUpcomingContests(
+    search,
+    session
+  )
 
   const contest: Contest = {
     ...data,
@@ -114,17 +115,19 @@ export default async function ContestTop({ params }: ContestTopProps) {
   )
   const formattedEndTime = dateFormatter(data.endTime, 'YYYY-MM-DD HH:mm:ss')
 
-  const posterUrl = data.posterUrl
-  const imageUrl = posterUrl ? posterUrl : '/logos/welcome.png'
-  const participationTarget = data.participationTarget
-  const competitionMethod = data.competitionMethod
-  const rankingMethod = data.rankingMethod
-  const problemFormat = data.problemFormat
-  const benefits = data.benefits
-  const description = data.description
-  const prev = true
-  const currentContestId = data.id
+  const {
+    posterUrl,
+    participationTarget,
+    competitionMethod,
+    rankingMethod,
+    problemFormat,
+    benefits,
+    description,
+    id: currentContestId
+  } = data
 
+  const imageUrl = posterUrl || '/logos/welcome.png'
+  const prev = true
   return (
     <div>
       <h1 className="mt-24 w-[1208px] text-2xl font-bold">{data?.title}</h1>

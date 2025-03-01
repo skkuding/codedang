@@ -66,6 +66,7 @@ export function ContestMainTable({ search, session }: ContestMainTableProps) {
         currentPage={currentPage}
         setFilteredData={setFilteredData}
         resetPageIndex={resetPageIndex}
+        search={search}
       />
       <Paginator>
         <SlotNavigation
