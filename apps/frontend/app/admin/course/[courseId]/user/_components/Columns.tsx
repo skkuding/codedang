@@ -9,6 +9,7 @@ export interface DataTableMember {
   major: string
   studentId: string
   role: string
+  username: string
 }
 
 export const columns: ColumnDef<DataTableMember>[] = [
@@ -45,7 +46,7 @@ export const columns: ColumnDef<DataTableMember>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-medium">
         {row.getValue('studentId')}
       </p>
     )
@@ -58,13 +59,13 @@ export const columns: ColumnDef<DataTableMember>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-medium">
         {row.getValue('major')}
       </p>
     )
   },
   {
-    accessorKey: 'id',
+    accessorKey: 'username',
     header: ({ column }) => (
       <div className="flex justify-center">
         <DataTableColumnHeader column={column} title="User ID" />
@@ -72,7 +73,7 @@ export const columns: ColumnDef<DataTableMember>[] = [
     ),
     cell: ({ row }) => (
       <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-medium">
-        {row.getValue('id')}
+        {row.getValue('username')}
       </p>
     )
   },

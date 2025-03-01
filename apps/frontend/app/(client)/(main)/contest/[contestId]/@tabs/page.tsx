@@ -179,7 +179,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
             />
           </div>
 
-          {session && state !== 'Finished' && state !== 'Upcoming' && (
+          {session && state !== 'Finished' && (
             <div className="h-[48px] w-[940px]">
               {data.isRegistered ? (
                 <Button className="text pointer-events-none h-[48px] w-[940px] rounded-[1000px] bg-[#80808014] font-medium text-[#3333334d]">

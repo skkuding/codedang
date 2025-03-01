@@ -56,7 +56,6 @@ export function Cover({ title, description }: CoverProps) {
           </div>
         </div>
       </div>
-      <div className="h-16 w-full bg-white" />
     </div>
   )
 }

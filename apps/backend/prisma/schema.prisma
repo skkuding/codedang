@@ -61,7 +61,6 @@ model User {
   workbook         Workbook[]
   submission       Submission[]
   useroauth        UserOAuth?
-  CodeDraft        CodeDraft[]
   Image            Image[]
   testSubmission   TestSubmission[]
 
@@ -228,7 +227,6 @@ model Problem {
   contestProblem    ContestProblem[]
   submission        Submission[]
   announcement      Announcement[]
-  codeDraft         CodeDraft[]
   testSubmission    TestSubmission[]
 
   @@map("problem")
@@ -351,7 +349,7 @@ model AssignmentRecord {
   user               User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId             Int?       @map("user_id")
   acceptedProblemNum Int        @default(0) @map("accepted_problem_num")
-  score              Int        @default(0)      // Only used after assignment finished
+  score              Int        @default(0) // Only used after assignment finished
   finalScore         Int?       @map("final_score")
   comment            String     @default("")
 
@@ -372,7 +370,7 @@ model AssignmentProblemRecord {
   userId       Int
   problemId    Int
 
-  score       Int     @default(0)   // Only used after assignment finished
+  score       Int     @default(0) // Only used after assignment finished
   isSubmitted Boolean @default(false) @map("is_submitted")
   isAccepted  Boolean @default(false) @map("is_accepted")
 
@@ -582,6 +580,7 @@ model SubmissionResult {
   createTime        DateTime        @default(now()) @map("create_time")
   updateTime        DateTime        @updatedAt @map("update_time")
 
+  @@unique([submissionId, problemTestcaseId])
   @@map("submission_result")
 }
 
@@ -597,29 +596,6 @@ enum ResultStatus {
   ServerError
   SegmentationFaultError
   Blind // isJudgeResultVisible == False로 설정된 Assignment/Contest의 채점 결과를 반환할 때 사용
-}
-
-model CodeDraft {
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int     @map("user_id")
-  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId Int     @map("problem_id")
-
-  /// template code item structure
-  /// {
-  ///   "lanaguage": Language,
-  ///   "code": {
-  ///             "id": number,
-  ///             "text": string,
-  ///             "locked": boolean
-  ///           }[]
-  /// }
-  template   Json[]
-  createTime DateTime @default(now()) @map("create_time")
-  updateTime DateTime @updatedAt @map("update_time")
-
-  @@id(name: "codeDraftId", [userId, problemId])
-  @@map("code_draft")
 }
 
 model TestSubmission {
