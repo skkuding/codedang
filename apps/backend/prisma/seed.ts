@@ -16,7 +16,10 @@ import {
   type AssignmentRecord,
   type Contest,
   type ContestRecord,
-  type ContestProblemRecord
+  type ContestProblemRecord,
+  type UserContest,
+  ContestRole,
+  type Prisma
 } from '@prisma/client'
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
@@ -33,6 +36,9 @@ const MAX_DATE: Date = new Date('2999-12-31T00:00:00.000Z')
 let superAdminUser: User
 let adminUser: User
 let instructorUser: User
+let contestAdminUser: User
+let contestManagerUser: User
+let contestReviewerUser: User
 let privateGroup1: Group
 let privateGroup2: Group
 const users: User[] = []
@@ -50,6 +56,7 @@ const workbooks: Workbook[] = []
 const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
 const assignmentAnnouncements: Announcement[] = []
+const contestRecords: ContestRecord[] = []
 const contestAnnouncements: Announcement[] = []
 const contestProblemRecords: ContestProblemRecord[] = []
 
@@ -92,6 +99,46 @@ const createUsers = async () => {
       major: 'Computer Science',
       canCreateCourse: true,
       canCreateContest: true
+    }
+  })
+
+  // create contest admin user
+  contestAdminUser = await prisma.user.create({
+    data: {
+      username: 'contestAdmin',
+      password: await hash('ContestAdmin'),
+      email: 'contestAdmin@example.com',
+      lastLogin: new Date(),
+      role: Role.User,
+      canCreateContest: true,
+      studentId: '2024000003',
+      major: 'Computer Science'
+    }
+  })
+
+  // create contest manager user
+  contestManagerUser = await prisma.user.create({
+    data: {
+      username: 'contestManager',
+      password: await hash('ContestManager'),
+      email: 'contestManager@example.com',
+      lastLogin: new Date(),
+      role: Role.User,
+      studentId: '2024000004',
+      major: 'Computer Science'
+    }
+  })
+
+  // create contest reviewer user
+  contestReviewerUser = await prisma.user.create({
+    data: {
+      username: 'contestReviewer',
+      password: await hash('ContestReviewer'),
+      email: 'contestReviewer@example.com',
+      lastLogin: new Date(),
+      role: Role.User,
+      studentId: '2024000005',
+      major: 'Computer Science'
     }
   })
 
@@ -1343,6 +1390,25 @@ const createContests = async () => {
         invitationCode: null,
         enableCopyPaste: true
       }
+    },
+    {
+      data: {
+        title: '2025 SKKU 프로그래밍 대회',
+        description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
+        createdById: contestAdminUser.id,
+        posterUrl: null,
+        participationTarget: '소프트웨어학과 원전공/복수전공',
+        competitionMethod: '온라인 진행 예정...?',
+        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+        problemFormat: '문제 형식은 다음과 같습니다.',
+        benefits: null,
+        startTime: new Date('3024-01-01T00:00:00.000Z'),
+        endTime: new Date('3025-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
     }
   ]
 
@@ -2295,7 +2361,7 @@ const createAssignmentRecords = async () => {
 
   // upcoming assignment에 참가한 User 1의 assignment register를 un-register하는 기능과,
   // registered upcoming, ongoing, finished assignment를 조회하는 기능을 확인하기 위함
-  const user01Id = 4
+  const user01Id = 7
   for (
     let assignmentId = 3;
     assignmentId <= assignments.length;
@@ -2319,26 +2385,22 @@ const createAssignmentRecords = async () => {
 
 const createContestRecords = async () => {
   const contestRecords: ContestRecord[] = []
-  // all users
-  const users = await prisma.user.findMany()
-  for (const user of users) {
-    const existingRecord = await prisma.contestRecord.findFirst({
-      where: {
+  // group 1 users
+  const group1Users = await prisma.userGroup.findMany({
+    where: {
+      groupId: 1
+    }
+  })
+  for (const user of group1Users) {
+    const contestRecord = await prisma.contestRecord.create({
+      data: {
+        userId: user.userId,
         contestId: 1,
-        userId: user.id
+        acceptedProblemNum: 0,
+        totalPenalty: 0
       }
     })
-    if (!existingRecord) {
-      const contestRecord = await prisma.contestRecord.create({
-        data: {
-          userId: user.id,
-          contestId: 1,
-          acceptedProblemNum: 0,
-          totalPenalty: 0
-        }
-      })
-      contestRecords.push(contestRecord)
-    }
+    contestRecords.push(contestRecord)
   }
 
   // upcoming contest에 참가한 User 1의 contest register를 un-register하는 기능과,
@@ -2348,7 +2410,7 @@ const createContestRecords = async () => {
       id: true
     }
   })
-  const user01Id = 4
+  const user01Id = 7
   for (let i = 0; i < contests.length; i += 2) {
     const contestId = contests[i].id
     const existingRecord = await prisma.contestRecord.findFirst({
@@ -2375,8 +2437,63 @@ const createContestRecords = async () => {
   return contestRecords
 }
 
+const createUserContests = async () => {
+  const userContests: Promise<UserContest | Prisma.BatchPayload>[] = []
+
+  for (const contest of contests) {
+    if (contest.createdById === contestAdminUser.id) {
+      userContests.push(
+        prisma.userContest.createMany({
+          data: [
+            {
+              contestId: contest.id,
+              userId: contestManagerUser.id,
+              role: ContestRole.Manager
+            },
+            {
+              contestId: contest.id,
+              userId: contestReviewerUser.id,
+              role: ContestRole.Reviewer
+            }
+          ],
+          skipDuplicates: true
+        })
+      )
+    }
+
+    if (contest.createdById) {
+      userContests.push(
+        prisma.userContest.create({
+          data: {
+            contestId: contest.id,
+            userId: contest.createdById,
+            role: ContestRole.Admin
+          }
+        })
+      )
+    }
+  }
+
+  await Promise.all(userContests)
+
+  const participantPromises: Promise<UserContest>[] = []
+
+  for (const contestRecord of contestRecords) {
+    participantPromises.push(
+      prisma.userContest.create({
+        data: {
+          contestId: contestRecord.contestId,
+          userId: contestRecord.userId!,
+          role: ContestRole.Participant
+        }
+      })
+    )
+  }
+
+  await Promise.all(participantPromises)
+}
+
 const createContestProblemRecords = async () => {
-  // contest 1 problems for
   for (let i = 0; i < 5; ++i) {
     contestProblemRecords.push(
       await prisma.contestProblemRecord.create({
@@ -2399,6 +2516,7 @@ const main = async () => {
   await createAssignments()
   await createContests()
   await createContestRecords()
+  await createUserContests()
   await createWorkbooks()
   await createSubmissions()
   await createAnnouncements()

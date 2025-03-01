@@ -260,7 +260,43 @@ export class ProblemService {
     )
   }
 
-  async uploadTestcase(fileInput: UploadFileInput, problemId: number) {
+  async uploadTestcase(
+    fileInput: UploadFileInput,
+    problemId: number,
+    userRole: Role,
+    userId: number
+  ) {
+    const problem = await this.prisma.problem.findFirstOrThrow({
+      where: { id: problemId },
+      include: {
+        sharedGroups: {
+          select: {
+            id: true
+          }
+        }
+      }
+    })
+
+    if (userRole == Role.User && problem.createdById != userId) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared) {
+        throw new ForbiddenException(
+          'User can only edit problems they created or were shared with'
+        )
+      }
+    }
+
     const { filename, mimetype, createReadStream } = await fileInput.file
     if (
       [
@@ -466,12 +502,34 @@ export class ProblemService {
     return this.changeVisibleLockTimeToIsVisible(problems)
   }
 
-  async getProblem(id: number) {
+  async getProblem(id: number, userRole: Role, userId: number) {
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
         id
+      },
+      include: {
+        sharedGroups: true
       }
     })
+    if (userRole != Role.Admin) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared && problem.createdById != userId) {
+        throw new ForbiddenException(
+          'User can only edit problems they created or were shared with'
+        )
+      }
+    }
     return this.changeVisibleLockTimeToIsVisible(problem)
   }
 

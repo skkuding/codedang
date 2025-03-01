@@ -1,7 +1,12 @@
 import { ParseBoolPipe } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { Contest, ContestProblem } from '@generated'
-import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
+import { ContestRole } from '@prisma/client'
+import {
+  AuthenticatedRequest,
+  UseContestRolesGuard,
+  UseDisableContestRolesGuard
+} from '@libs/auth'
 import {
   CursorValidationPipe,
   IDValidationPipe,
@@ -21,10 +26,12 @@ import { PublicizingResponse } from './model/publicizing-response.output'
 import { UserContestScoreSummaryWithUserInfo } from './model/score-summary'
 
 @Resolver(() => Contest)
+@UseContestRolesGuard(ContestRole.Manager)
 export class ContestResolver {
   constructor(private readonly contestService: ContestService) {}
 
   @Query(() => [ContestWithParticipants])
+  @UseDisableContestRolesGuard()
   async getContests(
     @Args(
       'take',
@@ -33,9 +40,10 @@ export class ContestResolver {
     )
     take: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
-    cursor: number | null
+    cursor: number | null,
+    @Context('req') req: AuthenticatedRequest
   ) {
-    return await this.contestService.getContests(take, cursor)
+    return await this.contestService.getContests(req.user.id, take, cursor)
   }
 
   @Query(() => ContestWithParticipants)
@@ -47,6 +55,7 @@ export class ContestResolver {
   }
 
   @Mutation(() => Contest)
+  @UseDisableContestRolesGuard()
   async createContest(
     @Args('input') input: CreateContestInput,
     @Context('req') req: AuthenticatedRequest
@@ -71,7 +80,6 @@ export class ContestResolver {
    * @returns Publicizing Request 배열
    */
   @Query(() => [PublicizingRequest])
-  @UseRolesGuard()
   async getPublicizingRequests() {
     return await this.contestService.getPublicizingRequests()
   }
@@ -95,7 +103,6 @@ export class ContestResolver {
    * @returns
    */
   @Mutation(() => PublicizingResponse)
-  @UseRolesGuard()
   async handlePublicizingRequest(
     @Args('contestId', { type: () => Int }) contestId: number,
     @Args('isAccepted', ParseBoolPipe) isAccepted: boolean

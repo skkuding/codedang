@@ -73,7 +73,7 @@ export async function SubmissionDetail({
           <div className="h-10 w-[1px] bg-[#616060]" />
           <div>
             <h2>Code Size</h2>
-            <p>{targetSubmission && targetSubmission.codeSize}</p>
+            <p>{targetSubmission && targetSubmission.codeSize} B</p>
           </div>
         </div>
         <ScrollBar orientation="horizontal" />

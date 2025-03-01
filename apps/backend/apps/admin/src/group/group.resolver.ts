@@ -1,7 +1,10 @@
-import { SetMetadata } from '@nestjs/common'
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
 import { Group, GroupType, UserGroup } from '@generated'
-import { AuthenticatedRequest, LEADER_NOT_NEEDED_KEY } from '@libs/auth'
+import {
+  AuthenticatedRequest,
+  UseDisableAdminGuard,
+  UseGroupLeaderGuard
+} from '@libs/auth'
 import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
 import {
   GroupService,
@@ -16,7 +19,7 @@ export class GroupResolver {
   constructor(private readonly groupService: GroupService) {}
 
   @Mutation(() => Group)
-  @SetMetadata(LEADER_NOT_NEEDED_KEY, true)
+  @UseDisableAdminGuard()
   async createCourse(
     @Context('req') req: AuthenticatedRequest,
     @Args('input') input: CourseInput
@@ -25,6 +28,7 @@ export class GroupResolver {
   }
 
   @Mutation(() => Group)
+  @UseGroupLeaderGuard()
   async updateCourse(
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number,
     @Args('input') input: CourseInput
@@ -33,6 +37,7 @@ export class GroupResolver {
   }
 
   @Mutation(() => Group)
+  @UseGroupLeaderGuard()
   async deleteCourse(
     @Context('req') req: AuthenticatedRequest,
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
@@ -41,6 +46,7 @@ export class GroupResolver {
   }
 
   @Mutation(() => DuplicateCourse)
+  @UseGroupLeaderGuard()
   async duplicateCourse(
     @Context('req') req: AuthenticatedRequest,
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
@@ -49,7 +55,7 @@ export class GroupResolver {
   }
 
   @Query(() => [FindGroup])
-  @SetMetadata(LEADER_NOT_NEEDED_KEY, true)
+  @UseDisableAdminGuard()
   async getCoursesUserLead(@Context('req') req: AuthenticatedRequest) {
     return await this.groupService.getGroupsUserLead(
       req.user.id,
@@ -67,6 +73,7 @@ export class GroupResolver {
   }
 
   @Query(() => FindGroup)
+  @UseGroupLeaderGuard()
   async getCourse(
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
   ) {
@@ -75,6 +82,7 @@ export class GroupResolver {
 }
 
 @Resolver(() => UserGroup)
+@UseGroupLeaderGuard()
 export class InvitationResolver {
   constructor(private readonly invitationService: InvitationService) {}
   /**
@@ -116,6 +124,7 @@ export class InvitationResolver {
 }
 
 @Resolver()
+@UseGroupLeaderGuard()
 export class WhitelistResolver {
   constructor(private readonly whitelistService: WhitelistService) {}
 

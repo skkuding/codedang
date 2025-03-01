@@ -20,13 +20,6 @@ const bgImg: { [key: string]: string } = {
   course: '/banners/courseInnerBanner.png'
 }
 
-const icons: { [key: string]: string } = {
-  problem: '/banners/codedang.png',
-  notice: '/banners/notice.png',
-  contest: '/banners/contest.png',
-  course: '/banners/contest.png'
-}
-
 /**
  * @param title - title text
  * @param description - description text
@@ -63,7 +56,6 @@ export function Cover({ title, description }: CoverProps) {
           </div>
         </div>
       </div>
-      <div className="h-16 w-full bg-white" />
     </div>
   )
 }
