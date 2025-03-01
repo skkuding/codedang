@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/libs/utils'
-import calendarFillIcon from '@/public/icons/calendar-fill.svg'
+import calendarIcon from '@/public/icons/calendar.svg'
 import personFillIcon from '@/public/icons/person-fill.svg'
 import type { JoinedCourse } from '@/types/type'
 import Image from 'next/image'
@@ -26,12 +26,7 @@ export function CourseCard({ course, color }: CourseCardProps) {
         </div>
         <div className="flex flex-col gap-1">
           <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800">
-            <Image
-              src={calendarFillIcon}
-              alt="calendar-fill"
-              width={16}
-              height={16}
-            />
+            <Image src={calendarIcon} alt="calendar" width={16} height={16} />
             <p className="my-2 text-sm font-medium text-neutral-600">
               {course?.courseInfo?.semester}
             </p>

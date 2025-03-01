@@ -1,6 +1,6 @@
 'use client'
 
-import { dateFormatter, getResultColor } from '@/libs/utils'
+import { dateFormatter, getResultColor, omitString } from '@/libs/utils'
 import type { SubmissionItem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 
@@ -13,7 +13,8 @@ export const columns: ColumnDef<SubmissionItem>[] = [
   {
     header: () => 'Problem',
     accessorKey: 'problem',
-    cell: ({ row }) => row.original.problem.title
+    cell: ({ row }) =>
+      omitString({ targetString: row.original.problem.title, maxlength: 13 })
   },
   {
     header: () => 'Result',

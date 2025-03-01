@@ -17,7 +17,7 @@ import {
   // MemberIcon,
   // NoticeIcon,
   // QnaIcon
-} from './SidebarIcons'
+} from './Icons'
 
 interface CourseSidebarProps {
   courseId: string
@@ -112,7 +112,7 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
             <SidebarLink
               key={item.name}
               item={item}
-              isActive={pathname === item.path}
+              isActive={pathname.startsWith(item.path)}
               isExpanded={isSidebarExpanded}
             />
           ))}
@@ -123,7 +123,7 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
 }
 
 function getActiveColor(pathname: string, path: string) {
-  return pathname === path ? 'white' : '#8A8A8A'
+  return pathname.startsWith(path) ? 'white' : '#8A8A8A'
 }
 
 interface NavItem<T extends string> {

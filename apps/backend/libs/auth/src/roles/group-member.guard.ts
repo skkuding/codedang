@@ -4,7 +4,6 @@ import {
   Injectable
 } from '@nestjs/common'
 import { type GqlContextType, GqlExecutionContext } from '@nestjs/graphql'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import type { AuthenticatedRequest } from '../authenticated-request.interface'
 import { RolesService } from './roles.service'
 
@@ -14,7 +13,7 @@ export class GroupMemberGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     let request: AuthenticatedRequest
-    let groupId: number
+    let groupId: number | null
     if (context.getType<GqlContextType>() === 'graphql') {
       request = GqlExecutionContext.create(context).getContext().req
       groupId = parseInt(
@@ -25,13 +24,13 @@ export class GroupMemberGuard implements CanActivate {
       )
     } else {
       request = context.switchToHttp().getRequest()
-      groupId =
-        !request.query.groupId || request.query.groupId === '1'
-          ? OPEN_SPACE_ID
-          : parseInt(request.query.groupId as string)
+      groupId = !request.query.groupId
+        ? null
+        : parseInt(request.query.groupId as string)
     }
 
-    if (!request.user && groupId === OPEN_SPACE_ID) {
+    // Public
+    if (groupId === null) {
       return true
     }
 
@@ -40,7 +39,7 @@ export class GroupMemberGuard implements CanActivate {
       const userRole = (await this.service.getUserRole(user.id)).role
       user.role = userRole
     }
-    if (user.isAdmin() || user.isSuperAdmin() || groupId === OPEN_SPACE_ID) {
+    if (user.isAdmin() || user.isSuperAdmin()) {
       return true
     }
 

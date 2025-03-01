@@ -8,9 +8,11 @@ import type {
   Assignment,
   AssignmentProblem,
   ProblemTag,
-  Tag
+  Tag,
+  User
 } from '@generated'
 import { faker } from '@faker-js/faker'
+import { Role } from '@prisma/client'
 import { createReadStream } from 'fs'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import type { FileUploadDto } from '../dto/file-upload.dto'
@@ -49,11 +51,20 @@ export const template: Template = {
     }
   ]
 }
+export const user: Partial<User>[] = [
+  {
+    id: 1,
+    role: Role.Admin
+  },
+  {
+    id: 2,
+    role: Role.User
+  }
+]
 export const problems: Problem[] = [
   {
     id: 1,
-    createdById: 1,
-    groupId: 1,
+    createdById: user[0].id!,
     title: 'group problem0',
     description: 'description1',
     inputDescription: 'inputDescription1',
@@ -80,8 +91,7 @@ export const problems: Problem[] = [
   },
   {
     id: 2,
-    createdById: 1,
-    groupId: 1,
+    createdById: user[0].id!,
     title: 'group problem1',
     description: 'description2',
     inputDescription: 'inputDescription2',
@@ -211,8 +221,7 @@ export const testcaseUploadInput: UploadFileInput = { file: testcaseFile }
 export const importedProblems: Problem[] = [
   {
     id: 32,
-    createdById: 2,
-    groupId: 2,
+    createdById: user[1].id!,
     title: '정수 더하기',
     description:
       '<p>두 정수 A와 B를 입력받은 다음, A+B를 출력하는 프로그램을 작성하시오. 첫째 줄에 A와 B가 주어진다. (0 < A, B < 10) 첫째 줄에 A+B를 출력한다. </p>',
@@ -247,8 +256,7 @@ export const importedProblems: Problem[] = [
   },
   {
     id: 33,
-    createdById: 2,
-    groupId: 2,
+    createdById: user[1].id!,
     title: '정수 빼기',
     description:
       '<p>두 정수 A와 B를 입력받은 다음, A-B를 출력하는 프로그램을 작성하시오. 첫째 줄에 A와 B가 주어진다. (0 < A, B < 10) 첫째 줄에 A-B를 출력한다. </p>',
@@ -298,7 +306,7 @@ export const exampleWorkbook: Workbook = {
   title: 'example',
   description: 'example',
   groupId: 1,
-  createdById: 1,
+  createdById: user[0].id!,
   isVisible: true,
   createTime: new Date(),
   updateTime: new Date()
@@ -456,7 +464,7 @@ export const exampleContest: Contest = {
   description: 'example',
   penalty: 20,
   lastPenalty: false,
-  createdById: 1,
+  createdById: user[0].id!,
   isVisible: true,
   isRankVisible: true,
   enableCopyPaste: true,
@@ -665,7 +673,7 @@ export const exampleAssignment = {
   title: 'example',
   description: 'example',
   groupId: 1,
-  createdById: 1,
+  createdById: user[0].id!,
   isVisible: true,
   isRankVisible: true,
   enableCopyPaste: true,
@@ -674,7 +682,9 @@ export const exampleAssignment = {
   endTime: new Date(),
   createTime: new Date(),
   updateTime: new Date(),
-  week: 1
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: false
 }
 export const exampleAssignmentProblems: AssignmentProblem[] = [
   {

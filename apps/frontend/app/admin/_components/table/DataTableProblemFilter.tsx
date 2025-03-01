@@ -12,7 +12,10 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '@/components/shadcn/popover'
-import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
+import {
+  GET_ASSIGNMENT_PROBLEMS,
+  GET_CONTEST_PROBLEMS
+} from '@/graphql/problem/queries'
 import { cn } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
 import { useEffect, useState } from 'react'
@@ -28,7 +31,15 @@ const ALL_OPTION_LABEL = 'All Problems'
  * @param contestId
  * 문제를 가져올 대회의 아이디
  */
-export function DataTableProblemFilter({ contestId }: { contestId: number }) {
+export function DataTableProblemFilter({
+  contestId = 0,
+  groupId = 0,
+  assignmentId = 0
+}: {
+  contestId?: number
+  groupId?: number
+  assignmentId?: number
+}) {
   const { table } = useDataTable()
   const column = table.getColumn(PROBLEM_COLUMN_ID)
   const selectedValue = getSelectedValue(column?.getFilterValue())
@@ -38,13 +49,21 @@ export function DataTableProblemFilter({ contestId }: { contestId: number }) {
     { value: string | null; label: string }[]
   >([])
 
-  const { data } = useQuery(GET_CONTEST_PROBLEMS, {
-    variables: { groupId: 1, contestId }
+  const contestProblems = useQuery(GET_CONTEST_PROBLEMS, {
+    variables: { contestId },
+    skip: Boolean(groupId)
+  })
+
+  const assignmentProblems = useQuery(GET_ASSIGNMENT_PROBLEMS, {
+    variables: { groupId, assignmentId },
+    skip: Boolean(contestId)
   })
 
   useEffect(() => {
-    const sortedProblems =
-      data?.getContestProblems.slice().sort((a, b) => a.order - b.order) ?? []
+    const data = contestId
+      ? contestProblems?.data?.getContestProblems
+      : assignmentProblems?.data?.getAssignmentProblems
+    const sortedProblems = data?.slice().sort((a, b) => a.order - b.order) ?? []
     setOptions([
       { value: null, label: ALL_OPTION_LABEL },
       ...sortedProblems.map((problem) => ({
@@ -52,7 +71,7 @@ export function DataTableProblemFilter({ contestId }: { contestId: number }) {
         label: `${String.fromCharCode(65 + problem.order)}. ${problem.problem.title}`
       }))
     ])
-  }, [data])
+  }, [contestId, contestProblems, assignmentProblems])
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

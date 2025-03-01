@@ -1,0 +1,57 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getAssignmentProblemRecord(
+      groupId: 3
+      assignmentId: 19
+      problemId: 7
+      userId: 4
+    ) {
+      assignmentId
+      userId
+      problemId
+      score
+      isSubmitted
+      isAccepted
+      finalScore
+      comment
+    }
+  }
+}
+
+assert {
+  res.body.data.updateAssignment: isDefined
+}
+
+docs {
+  # Get Assignment Problem Record
+  ---
+  - Assignment Problem Record를 get합니다.
+  
+  - score, isSubmitted, isAccepted, finalScore, comment를 모두 가져올 수 있습니다.
+  
+  ## Args
+  groupId: 그룹 ID (number)
+  assignmentId: 과제 ID 
+  problemId: 문제 ID
+  userId: 사용자 ID
+  
+  
+  ## 오류 코드
+  404: 과제 문제를 찾을 수 없음
+  403: 접근 권한 없음 (다른 그룹의 과제에 접근 시도)
+  
+  ## 기타 사항
+  과제가 끝나지 않았어도 assignmentProblemRecord를 get할 수 있습니다. 
+}

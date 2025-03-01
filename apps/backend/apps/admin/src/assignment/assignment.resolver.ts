@@ -1,7 +1,10 @@
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
-import { Assignment, AssignmentProblem } from '@generated'
-import { AuthenticatedRequest } from '@libs/auth'
-import { OPEN_SPACE_ID } from '@libs/constants'
+import {
+  Assignment,
+  AssignmentProblem,
+  AssignmentProblemRecord
+} from '@generated'
+import { AuthenticatedRequest, UseGroupLeaderGuard } from '@libs/auth'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -9,6 +12,7 @@ import {
   RequiredIntPipe
 } from '@libs/pipe'
 import { AssignmentService } from './assignment.service'
+import { UpdateAssignmentProblemRecordInput } from './model/assignment-problem-record-input'
 import { AssignmentSubmissionSummaryForUser } from './model/assignment-submission-summary-for-user.model'
 import { AssignmentWithParticipants } from './model/assignment-with-participants.model'
 import { CreateAssignmentInput } from './model/assignment.input'
@@ -19,6 +23,7 @@ import { AssignmentProblemScoreInput } from './model/problem-score.input'
 import { UserAssignmentScoreSummaryWithUserInfo } from './model/score-summary'
 
 @Resolver(() => Assignment)
+@UseGroupLeaderGuard()
 export class AssignmentResolver {
   constructor(private readonly assignmentService: AssignmentService) {}
 
@@ -54,11 +59,7 @@ export class AssignmentResolver {
   @Mutation(() => Assignment)
   async createAssignment(
     @Args('input') input: CreateAssignmentInput,
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
+    @Args('groupId', { type: () => Int }, GroupIDPipe)
     groupId: number,
     @Context('req') req: AuthenticatedRequest
   ) {
@@ -197,5 +198,31 @@ export class AssignmentResolver {
     @Args('problemId', { type: () => Int }) problemId: number
   ) {
     return await this.assignmentService.getAssignmentsByProblemId(problemId)
+  }
+
+  @Mutation(() => AssignmentProblemRecord)
+  async updateAssignmentProblemRecord(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('input') input: UpdateAssignmentProblemRecordInput
+  ) {
+    return await this.assignmentService.updateAssignmentProblemRecord(
+      groupId,
+      input
+    )
+  }
+
+  @Query(() => AssignmentProblemRecord)
+  async getAssignmentProblemRecord(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('assignmentId', { type: () => Int }) assignmentId: number,
+    @Args('userId', { type: () => Int }) userId: number,
+    @Args('problemId', { type: () => Int }) problemId: number
+  ) {
+    return await this.assignmentService.getAssignmentProblemRecord({
+      groupId,
+      assignmentId,
+      problemId,
+      userId
+    })
   }
 }

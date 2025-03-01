@@ -10,7 +10,7 @@ import {
   JwtAuthModule,
   JwtAuthGuard,
   RolesModule,
-  GroupLeaderGuard
+  AdminGuard
 } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
 import { AdminExceptionFilter } from '@libs/exception'
@@ -65,7 +65,7 @@ import { UserModule } from './user/user.module'
   providers: [
     AdminService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_GUARD, useClass: GroupLeaderGuard },
+    { provide: APP_GUARD, useClass: AdminGuard },
     { provide: APP_FILTER, useClass: AdminExceptionFilter },
     LoggingPlugin
   ]

@@ -12,6 +12,7 @@ export default function Page({
   searchParams
 }: {
   params: {
+    problemId: string
     contestId: string
     submissionId: string
   }
@@ -19,15 +20,13 @@ export default function Page({
     cellProblemId?: string
   }
 }) {
-  const { submissionId, contestId } = params
+  const { problemId, submissionId, contestId } = params
   const { cellProblemId } = searchParams
 
   return (
     <div className="flex flex-col gap-5 overflow-auto p-6">
       <div className="z-20 flex items-center gap-3">
-        <Link
-          href={`/contest/${contestId}/problem/${cellProblemId}/submission`}
-        >
+        <Link href={`/contest/${contestId}/problem/${problemId}/submission`}>
           <ArrowLeft className="size-5" />
         </Link>
         <SubmissionDetailTitle

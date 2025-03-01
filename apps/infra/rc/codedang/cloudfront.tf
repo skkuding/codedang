@@ -16,7 +16,7 @@ resource "aws_cloudfront_distribution" "codedang" {
 
     domain_name = var.env == "production" ? "amplify.codedang.com" : "remove-sentry.d6pfxg2cc9yvf.amplifyapp.com"
 
-    origin_id   = "frontend" # TODO: Add unique ID of Amplify
+    origin_id = "frontend" # TODO: Add unique ID of Amplify
 
     custom_origin_config {
       http_port              = 80

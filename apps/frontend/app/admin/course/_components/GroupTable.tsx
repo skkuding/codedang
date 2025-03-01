@@ -15,7 +15,7 @@ import {
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { useApolloClient, useMutation, useSuspenseQuery } from '@apollo/client'
 import type { CourseInput } from '@generated/graphql'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { DataTableSemesterFilter } from '../../_components/table/DataTableSemesterFilter'
 import { columns } from './Columns'
 import { DeleteCourseButton } from './DeleteCourseButton'
@@ -38,23 +38,27 @@ export function GroupTable() {
   const [semesters, setSemesters] = useState<string[]>([])
 
   const { data } = useSuspenseQuery(GET_COURSES_USER_LEAD)
-  const courses = data.getCoursesUserLead.map((course) => ({
-    id: Number(course.id),
-    title: course.groupName,
-    professor: course.courseInfo?.professor,
-    code: course.courseInfo?.courseNum ?? '',
-    classNum: Number(course.courseInfo?.classNum ?? 0),
-    semester: course.courseInfo?.semester ?? '',
-    studentCount: course.memberNum,
-    visible: true
-  }))
+  const courses = useMemo(
+    () =>
+      data.getCoursesUserLead.map((course) => ({
+        id: Number(course.id),
+        title: course.groupName,
+        professor: course.courseInfo?.professor,
+        code: course.courseInfo?.courseNum ?? '',
+        classNum: Number(course.courseInfo?.classNum ?? 0),
+        semester: course.courseInfo?.semester ?? '',
+        studentCount: course.memberNum,
+        visible: true
+      })),
+    [data.getCoursesUserLead]
+  )
 
   useEffect(() => {
     const uniqueSemesters = Array.from(
       new Set(courses.map((course) => course.semester).filter(Boolean))
     )
     setSemesters(uniqueSemesters)
-  }, [])
+  }, [courses])
 
   const deleteTarget = (id: number) => {
     return deleteCourse({
@@ -111,39 +115,15 @@ export function GroupTable() {
             />
           </div>
         </div>
-        <DataTable headerStyle={headerStyle} />
+        <DataTable
+          headerStyle={headerStyle}
+          getHref={(data) => `/admin/course/${data.id}`}
+        />
         <DataTablePagination />
       </DataTableRoot>
     </div>
   )
 }
-
-// function ContestsDeleteButton() {
-//   const client = useApolloClient()
-//   const [deleteGroup] = useMutation(DELETE_GROUP)
-
-//   const deleteTarget = (id: number) => {
-//     return deleteGroup({
-//       variables: {
-//         groupId: id
-//       }
-//     })
-//   }
-
-//   const onSuccess = () => {
-//     client.refetchQueries({
-//       include: [GET_GROUPS]
-//     })
-//   }
-
-//   return (
-//     <DataTableDeleteButton
-//       target="group"
-//       deleteTarget={deleteTarget}
-//       onSuccess={onSuccess}
-//     />
-//   )
-// }
 
 export function GroupTableFallback() {
   return <DataTableFallback withSearchBar={false} columns={columns} />

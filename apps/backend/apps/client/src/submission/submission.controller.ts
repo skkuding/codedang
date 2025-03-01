@@ -9,11 +9,10 @@ import {
   DefaultValuePipe,
   Headers
 } from '@nestjs/common'
-import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
+import { AuthNotNeededIfPublic, AuthenticatedRequest } from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import {
   CursorValidationPipe,
-  GroupIDPipe,
   IDValidationPipe,
   RequiredIntPipe
 } from '@libs/pipe'
@@ -39,7 +38,6 @@ export class SubmissionController {
     @Headers('x-forwarded-for') userIp: string,
     @Body() submissionDto: CreateSubmissionDto,
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('groupId', GroupIDPipe) groupId: number,
     @Query('contestId', IDValidationPipe) contestId: number | null,
     @Query('assignmentId', IDValidationPipe) assignmentId: number | null,
     @Query('workbookId', IDValidationPipe) workbookId: number | null
@@ -58,8 +56,7 @@ export class SubmissionController {
         submissionDto,
         userIp,
         userId: req.user.id,
-        problemId,
-        groupId
+        problemId
       })
     } else if (contestId) {
       return await this.submissionService.submitToContest({
@@ -75,8 +72,7 @@ export class SubmissionController {
         userIp,
         userId: req.user.id,
         problemId,
-        assignmentId,
-        groupId
+        assignmentId
       })
     } else if (workbookId) {
       return await this.submissionService.submitToWorkbook({
@@ -84,8 +80,7 @@ export class SubmissionController {
         userIp,
         userId: req.user.id,
         problemId,
-        workbookId,
-        groupId
+        workbookId
       })
     }
   }
@@ -153,19 +148,17 @@ export class SubmissionController {
   }
 
   @Get()
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   async getSubmissions(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number,
-    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('groupId', GroupIDPipe) groupId: number
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
     return await this.submissionService.getSubmissions({
       cursor,
       take,
-      problemId,
-      groupId
+      problemId
     })
   }
 
@@ -173,7 +166,6 @@ export class SubmissionController {
   async getSubmission(
     @Req() req: AuthenticatedRequest,
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('groupId', GroupIDPipe) groupId: number,
     @Query('contestId', IDValidationPipe) contestId: number | null,
     @Query('assignmentId', IDValidationPipe) assignmentId: number | null,
     @Param('id', new RequiredIntPipe('id')) id: number
@@ -188,7 +180,6 @@ export class SubmissionController {
       problemId,
       userId: req.user.id,
       userRole: req.user.role,
-      groupId,
       contestId,
       assignmentId
     })
@@ -206,16 +197,14 @@ export class ContestSubmissionController {
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number,
-    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('groupId', GroupIDPipe) groupId: number
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
     return await this.submissionService.getContestSubmissions({
       cursor,
       take,
       problemId,
       contestId,
-      userId: req.user.id,
-      groupId
+      userId: req.user.id
     })
   }
 }
@@ -231,16 +220,14 @@ export class AssignmentSubmissionController {
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number,
-    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('groupId', GroupIDPipe) groupId: number
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
     return await this.submissionService.getAssignmentSubmissions({
       cursor,
       take,
       problemId,
       assignmentId,
-      userId: req.user.id,
-      groupId
+      userId: req.user.id
     })
   }
 }

@@ -113,7 +113,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
       <h1 className="mt-24 w-[1202px] text-2xl font-bold">{data?.title}</h1>
       <div className="mt-[30px] flex flex-col gap-[10px]">
         <div className="flex gap-2">
-          <Image src={calendarIcon} alt="calendar" width={20} height={20} />
+          <Image src={calendarIcon} alt="calendar" width={16} height={16} />
           <p className="font-medium text-[#333333e6]">
             {formattedStartTime} ~ {formattedEndTime}
           </p>
@@ -161,7 +161,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
             />
           </div>
 
-          {session && state !== 'Finished' && state !== 'Upcoming' && (
+          {session && state !== 'Finished' && (
             <div className="h-[48px] w-[940px]">
               {data.isRegistered ? (
                 <Button className="text pointer-events-none h-[48px] w-[940px] rounded-[1000px] bg-[#80808014] font-medium text-[#3333334d]">
