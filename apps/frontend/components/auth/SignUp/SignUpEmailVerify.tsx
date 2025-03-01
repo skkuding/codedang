@@ -14,7 +14,11 @@ interface EmailVerifyInput {
 }
 
 const schema = v.object({
-  email: v.pipe(v.string(), v.email('Invalid email address')),
+  email: v.pipe(
+    v.string(),
+    v.transform((value) => `${value}@skku.edu`), // Transform for validation only
+    v.email('Invalid email format')
+  ),
   verificationCode: v.pipe(
     v.string(),
     v.length(6, 'Code must be 6 characters long')
@@ -91,7 +95,8 @@ export function SignUpEmailVerify() {
   }
   const sendEmail = async () => {
     const { email } = getValues()
-    setEmailContent(email)
+    const fullEmail = `${email}@skku.edu` // Create the full email
+    setEmailContent(fullEmail)
     setEmailError('')
     await trigger('email')
 
@@ -102,7 +107,7 @@ export function SignUpEmailVerify() {
 
     try {
       await safeFetcher.post('email-auth/send-email/register-new', {
-        json: { email }
+        json: { email: fullEmail }
       })
       setSentEmail(true)
       setEmailError('')
@@ -149,42 +154,56 @@ export function SignUpEmailVerify() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex w-full flex-col gap-2"
+      className="flex w-full flex-col gap-1.5"
     >
-      <p className="mb-4 text-left font-mono text-xl font-bold text-blue-500">
-        Sign up
-      </p>
       {!sentEmail && (
-        <div>
-          <Input
-            id="email"
-            type="email"
-            className={cn(
-              'focus-visible:border-primary w-full focus-visible:ring-0',
-              (emailError || errors.email) &&
-                'border-red-500 focus-visible:border-red-500'
-            )}
-            placeholder="example@g.skku.edu"
-            {...register('email')}
-            onFocus={() => clearErrors('email')}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !sendButtonDisabled) {
-                e.preventDefault()
-                setSendButtonDisabled(true)
-                sendEmail()
-              }
-            }}
-          />
+        <>
+          <p className="text-left text-lg font-semibold text-black">
+            Join us to grow! 🌱
+          </p>
+          <p className="mb-5 text-left text-xs font-normal text-neutral-500">
+            You can only use <span className="text-blue-500">@skku.edu</span>{' '}
+            emails
+          </p>
+          <div className="flex flex-row gap-4">
+            <Input
+              id="email"
+              type="text"
+              className={cn(
+                'focus-visible:border-primary w-full rounded-full placeholder:text-gray-400 focus-visible:ring-0',
+                (emailError || errors.email) &&
+                  'border-red-500 focus-visible:border-red-500'
+              )}
+              placeholder="Your Kingo ID"
+              {...register('email')}
+              onFocus={() => clearErrors('email')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !sendButtonDisabled) {
+                  e.preventDefault()
+                  setSendButtonDisabled(true)
+                  sendEmail()
+                }
+              }}
+            />
+            <p className="content-center">@skku.edu</p>
+          </div>
           {errors.email && (
             <p className="mt-1 text-xs text-red-500">{errors.email?.message}</p>
           )}
           {emailError && (
             <p className="mt-1 text-xs text-red-500">{emailError}</p>
           )}
-        </div>
+        </>
       )}
       {sentEmail && (
         <div>
+          <p className="text-left text-lg font-semibold text-black">
+            We&apos;ve Sent an Email 📩
+          </p>
+          <p className="mb-5 text-left text-xs font-normal text-neutral-500">
+            Please check an email on{' '}
+            <span className="text-blue-500">eportal.skku.edu</span>
+          </p>
           <div className="flex justify-between">
             <div className="text-sm text-black">{emailContent}</div>
             {sentEmail && !expired && (
