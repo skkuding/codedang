@@ -60,11 +60,13 @@ describe('AnnouncementService', () => {
         .to.deep.equal([
           {
             id: 6,
-            contestId: 1
+            contestId: 1,
+            problemId: 1
           },
           {
             id: 1,
-            contestId: 1
+            contestId: 1,
+            problemId: null
           }
         ])
     })

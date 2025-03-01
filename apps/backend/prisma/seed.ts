@@ -49,6 +49,7 @@ const upcomingContests: Contest[] = []
 const workbooks: Workbook[] = []
 const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
+const contestRecords: ContestRecord[] = []
 const contestAnnouncements: Announcement[] = []
 const contestProblemRecords: ContestProblemRecord[] = []
 
