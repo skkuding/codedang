@@ -12,7 +12,6 @@ export * from './jwt/jwt-auth.guard'
 
 export * from './roles/roles.module'
 export * from './roles/roles.service'
-export * from './roles/roles.guard'
-export * from './roles/roles.decorator'
 export * from './roles/group-leader.guard'
 export * from './roles/group-member.guard'
+export * from './roles/admin.guard'

@@ -175,6 +175,23 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
     size: 250
   },
   {
+    accessorKey: 'week',
+    header: ({ column }) => (
+      <div className="flex justify-center">
+        <DataTableColumnHeader
+          column={column}
+          title="Week"
+          className="text-center"
+        />
+      </div>
+    ),
+    cell: ({ row }) => (
+      <p className="overflow-hidden whitespace-nowrap text-center font-normal">
+        {`Week ${row.original.week}`}
+      </p>
+    )
+  },
+  {
     accessorKey: 'isVisible',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Visible" />

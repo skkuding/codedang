@@ -15,7 +15,13 @@ import { useSuspenseQuery } from '@apollo/client'
 import { useState } from 'react'
 import { columns } from './Columns'
 
-export function SubmissionTable({ assignmentId }: { assignmentId: number }) {
+export function SubmissionTable({
+  groupId,
+  assignmentId
+}: {
+  groupId: number
+  assignmentId: number
+}) {
   const { data } = useSuspenseQuery(GET_ASSIGNMENT_SUBMISSIONS, {
     variables: {
       input: {
@@ -37,7 +43,10 @@ export function SubmissionTable({ assignmentId }: { assignmentId: number }) {
       >
         <div className="flex gap-4">
           <DataTableSearchBar columndId="realname" />
-          <DataTableProblemFilter contestId={assignmentId} />
+          <DataTableProblemFilter
+            groupId={groupId}
+            assignmentId={assignmentId}
+          />
         </div>
         <DataTable
           onRowClick={(_, row) => {
