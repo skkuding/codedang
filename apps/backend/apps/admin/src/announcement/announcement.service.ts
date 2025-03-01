@@ -1,54 +1,62 @@
 import { Injectable } from '@nestjs/common'
-import type { PrismaService } from '@libs/prisma'
-import type { CreateAnnouncementInput } from './dto/create-announcement.input'
-import type { UpdateAnnouncementInput } from './dto/update-announcement.input'
+import { PrismaService } from '@libs/prisma'
+import type { CreateAnnouncementInput } from './model/create-announcement.input'
+import type { UpdateAnnouncementInput } from './model/update-announcement.input'
 
 @Injectable()
 export class AnnouncementService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(createAnnouncementInput: CreateAnnouncementInput) {
-    return this.prisma.announcement.create({
-      data: createAnnouncementInput
+  async createAnnouncement(createAnnouncementInput: CreateAnnouncementInput) {
+    const { problemId, contestId, content } = createAnnouncementInput
+
+    await this.prisma.contest.findUniqueOrThrow({
+      where: { id: contestId }
+    })
+
+    return await this.prisma.announcement.create({
+      data: {
+        problemId,
+        contestId,
+        content
+      }
     })
   }
 
-  findAll() {
-    return this.prisma.announcement.findMany()
+  async getAllAnnouncements() {
+    return await this.prisma.announcement.findMany()
   }
 
-  findOne(id: number) {
-    return this.prisma.announcement.findUniqueOrThrow({
-      where: { id }
-    })
-  }
+  async getAnnouncementsByContestId(contestId: number) {
+    await this.prisma.contest.findUniqueOrThrow({ where: { id: contestId } })
 
-  findByProblemId(problemId: number) {
-    return this.prisma.announcement.findMany({
-      where: { problemId },
-      orderBy: { createTime: 'desc' },
-      select: { id: true, content: true, createTime: true, updateTime: true }
-    })
-  }
-
-  findByContestId(contestId: number) {
-    return this.prisma.announcement.findMany({
+    return await this.prisma.announcement.findMany({
       where: { contestId },
       orderBy: { createTime: 'desc' },
       select: { id: true, content: true, createTime: true, updateTime: true }
     })
   }
 
-  update(id: number, updateAnnouncementInput: UpdateAnnouncementInput) {
-    return this.prisma.announcement.update({
+  async getAnnouncementById(id: number) {
+    return await this.prisma.announcement.findUniqueOrThrow({
+      where: { id }
+    })
+  }
+
+  async updateAnnouncement(updateAnnouncementInput: UpdateAnnouncementInput) {
+    const { id } = updateAnnouncementInput
+    await this.prisma.announcement.findUniqueOrThrow({ where: { id } })
+
+    return await this.prisma.announcement.update({
       where: { id },
       data: updateAnnouncementInput
     })
   }
 
-  remove(id: number) {
-    // return `This action removes a #${id} announcement`
-    return this.prisma.announcement.delete({
+  async removeAnnouncement(id: number) {
+    await this.prisma.announcement.findUniqueOrThrow({ where: { id } })
+
+    return await this.prisma.announcement.delete({
       where: { id }
     })
   }

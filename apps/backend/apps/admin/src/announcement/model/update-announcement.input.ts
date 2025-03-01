@@ -7,7 +7,7 @@ export class UpdateAnnouncementInput {
 
   @Field(() => String, {
     description: 'content of announcement',
-    nullable: true
+    nullable: false
   })
-  content?: string
+  content: string
 }

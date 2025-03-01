@@ -1,54 +1,52 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { Announcement } from '@generated'
 import { AnnouncementService } from './announcement.service'
-import { CreateAnnouncementInput } from './dto/create-announcement.input'
-import { UpdateAnnouncementInput } from './dto/update-announcement.input'
+import { CreateAnnouncementInput } from './model/create-announcement.input'
+import { UpdateAnnouncementInput } from './model/update-announcement.input'
 
 @Resolver(() => Announcement)
 export class AnnouncementResolver {
   constructor(private readonly announcementService: AnnouncementService) {}
 
   @Mutation(() => Announcement)
-  createAnnouncement(
+  async createAnnouncement(
     @Args('createAnnouncementInput')
     createAnnouncementInput: CreateAnnouncementInput
   ) {
-    return this.announcementService.create(createAnnouncementInput)
+    return await this.announcementService.createAnnouncement(
+      createAnnouncementInput
+    )
   }
 
   @Query(() => [Announcement], { name: 'announcement' })
-  findAll() {
-    return this.announcementService.findAll()
-  }
-
-  @Query(() => [Announcement], { name: 'announcementByProblemId' })
-  findByProblemId(@Args('problemId', { type: () => Int }) problemId: number) {
-    return this.announcementService.findByProblemId(problemId)
+  async getAllAnnouncements() {
+    return await this.announcementService.getAllAnnouncements()
   }
 
   @Query(() => [Announcement], { name: 'announcementByContestId' })
-  findByContestId(@Args('contestId', { type: () => Int }) contestId: number) {
-    return this.announcementService.findByContestId(contestId)
+  async getAnnouncementsByContestId(
+    @Args('contestId', { type: () => Int }) contestId: number
+  ) {
+    return await this.announcementService.getAnnouncementsByContestId(contestId)
   }
 
   @Query(() => Announcement, { name: 'announcement' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.announcementService.findOne(id)
+  async getAnnouncementById(@Args('id', { type: () => Int }) id: number) {
+    return await this.announcementService.getAnnouncementById(id)
   }
 
   @Mutation(() => Announcement)
-  updateAnnouncement(
+  async updateAnnouncement(
     @Args('updateAnnouncementInput')
     updateAnnouncementInput: UpdateAnnouncementInput
   ) {
-    return this.announcementService.update(
-      updateAnnouncementInput.id,
+    return await this.announcementService.updateAnnouncement(
       updateAnnouncementInput
     )
   }
 
   @Mutation(() => Announcement)
-  removeAnnouncement(@Args('id', { type: () => Int }) id: number) {
-    return this.announcementService.remove(id)
+  async removeAnnouncement(@Args('id', { type: () => Int }) id: number) {
+    return await this.announcementService.removeAnnouncement(id)
   }
 }
