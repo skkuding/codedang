@@ -1,11 +1,13 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
-import { Announcement } from '@generated'
+import { Announcement, ContestRole } from '@generated'
+import { UseContestRolesGuard } from '@libs/auth'
 import { AnnouncementService } from './announcement.service'
 import { AnnouncementWithProblemOrder } from './model/\bannouncement.output'
 import { CreateAnnouncementInput } from './model/create-announcement.input'
 import { UpdateAnnouncementInput } from './model/update-announcement.input'
 
 @Resolver(() => Announcement)
+@UseContestRolesGuard(ContestRole.Manager)
 export class AnnouncementResolver {
   constructor(private readonly announcementService: AnnouncementService) {}
 
