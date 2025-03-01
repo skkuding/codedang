@@ -97,6 +97,16 @@ describe('AnnouncementService', () => {
         })
       ).to.be.rejectedWith(PrismaClientKnownRequestError)
     })
+
+    it('should rejected if problem is not in contest', async () => {
+      await expect(
+        service.createAnnouncement({
+          content,
+          contestId,
+          problemId: 4
+        })
+      ).to.be.rejectedWith(PrismaClientKnownRequestError)
+    })
   })
 
   describe('getAnnouncementsByContestId', () => {

@@ -18,6 +18,10 @@ export class AnnouncementService {
       await this.prisma.problem.findUniqueOrThrow({
         where: { id: problemId }
       })
+      await this.prisma.contestProblem.findUniqueOrThrow({
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        where: { contestId_problemId: { contestId, problemId } }
+      })
     }
 
     return await this.prisma.announcement.create({
