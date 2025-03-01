@@ -49,7 +49,7 @@ export default async function AssginmentInfo({ params }: AssignmentInfoProps) {
         </div>
         <div className="flex flex-col gap-3">
           <div className="flex gap-2">
-            <Image src={calendarIcon} alt="calendar" width={20} height={20} />
+            <Image src={calendarIcon} alt="calendar" width={16} height={16} />
             <p className="text-sm font-medium text-[#333333e6]">
               {formattedStartTime} ~ {formattedEndTime}
             </p>
