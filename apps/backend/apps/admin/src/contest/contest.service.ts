@@ -151,7 +151,6 @@ export class ContestService {
       })
 
       if (userContestRoles) {
-        // 대회 생성자를 포함한 대회 리뷰어, 매니저만 추가 가능 (participant, admin 제외)하도록 거르기
         const validRoles = ['Manager', 'Reviewer']
         userContestRoles.forEach((userContestRole) => {
           if (!validRoles.includes(userContestRole.contestRole)) {
@@ -189,7 +188,7 @@ export class ContestService {
   }
 
   async updateContest(contest: UpdateContestInput): Promise<Contest> {
-    const contestFound = await this.prisma.contest.findFirst({
+    const contestFound = await this.prisma.contest.findUniqueOrThrow({
       where: {
         id: contest.id
       },
@@ -200,12 +199,21 @@ export class ContestService {
           select: {
             problemId: true
           }
+        },
+        userContest: {
+          where: {
+            role: {
+              in: ['Manager', 'Reviewer']
+            }
+          },
+          select: {
+            userId: true,
+            role: true
+          }
         }
       }
     })
-    if (!contestFound) {
-      throw new EntityNotExistException('contest')
-    }
+
     const isEndTimeChanged =
       contest.endTime && contest.endTime !== contestFound.endTime
     contest.startTime = contest.startTime || contestFound.startTime
@@ -221,65 +229,113 @@ export class ContestService {
     )
     if (problemIds.length && isEndTimeChanged) {
       for (const problemId of problemIds) {
-        try {
-          // 문제가 포함된 대회 중 가장 늦게 끝나는 대회의 종료시각으로 visibleLockTime 설정
-          let visibleLockTime = contest.endTime
+        // 문제가 포함된 대회 중 가장 늦게 끝나는 대회의 종료시각으로 visibleLockTime 설정
+        let visibleLockTime = contest.endTime
 
-          const contestIds = (
-            await this.prisma.contestProblem.findMany({
-              where: {
-                problemId
-              }
-            })
-          )
-            .filter((contestProblem) => contestProblem.contestId !== contest.id)
-            .map((contestProblem) => contestProblem.contestId)
-
-          if (contestIds.length) {
-            const latestContest = await this.prisma.contest.findFirstOrThrow({
-              where: {
-                id: {
-                  in: contestIds
-                }
-              },
-              orderBy: {
-                endTime: 'desc'
-              },
-              select: {
-                endTime: true
-              }
-            })
-            if (contest.endTime < latestContest.endTime)
-              visibleLockTime = latestContest.endTime
-          }
-
-          await this.prisma.problem.update({
+        const contestIds = (
+          await this.prisma.contestProblem.findMany({
             where: {
-              id: problemId
-            },
-            data: {
-              visibleLockTime
+              problemId
             }
           })
-        } catch {
-          continue
+        )
+          .filter((contestProblem) => contestProblem.contestId !== contest.id)
+          .map((contestProblem) => contestProblem.contestId)
+
+        if (contestIds.length) {
+          const latestContest = await this.prisma.contest.findFirstOrThrow({
+            where: {
+              id: {
+                in: contestIds
+              }
+            },
+            orderBy: {
+              endTime: 'desc'
+            },
+            select: {
+              endTime: true
+            }
+          })
+          if (contest.endTime < latestContest.endTime)
+            visibleLockTime = latestContest.endTime
         }
+
+        await this.prisma.problem.update({
+          where: {
+            id: problemId
+          },
+          data: {
+            visibleLockTime
+          }
+        })
       }
     }
 
-    try {
-      return await this.prisma.contest.update({
-        where: {
-          id: contest.id
-        },
-        data: {
-          title: contest.title,
-          ...contest
-        }
+    // userContest 중 삭제된 userContestRole 삭제, 추가된 userContestRole 추가, 변경된 userContestRole 변경
+    if (contest.userContestRoles) {
+      const userContestRoles = contestFound.userContest
+      const newRoles = contest.userContestRoles || []
+      const rolesToDelete = userContestRoles.filter(
+        (role) => !newRoles.find((newRole) => newRole.userId === role.userId)
+      )
+      const rolesToAdd = newRoles.filter(
+        (newRole) =>
+          !userContestRoles.find((role) => role.userId === newRole.userId)
+      )
+      const rolesToUpdate = newRoles.filter((newRole) => {
+        const role = userContestRoles.find(
+          (role) => role.userId === newRole.userId
+        )
+        return role && role.role !== (newRole.contestRole as ContestRole)
       })
-    } catch (error) {
-      throw new UnprocessableDataException(error.message)
+
+      await Promise.all([
+        rolesToDelete.map((role) =>
+          this.prisma.userContest.delete({
+            where: {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              userId_contestId: {
+                userId: role.userId,
+                contestId: contest.id
+              }
+            }
+          })
+        ),
+        rolesToAdd.map((role) =>
+          this.prisma.userContest.create({
+            data: {
+              userId: role.userId,
+              contestId: contest.id,
+              role: role.contestRole as ContestRole
+            }
+          })
+        ),
+        rolesToUpdate.map((role) =>
+          this.prisma.userContest.update({
+            where: {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              userId_contestId: {
+                userId: role.userId,
+                contestId: contest.id
+              }
+            },
+            data: {
+              role: role.contestRole as ContestRole
+            }
+          })
+        )
+      ])
     }
+
+    return await this.prisma.contest.update({
+      where: {
+        id: contest.id
+      },
+      data: {
+        title: contest.title,
+        ...contest
+      }
+    })
   }
 
   async deleteContest(contestId: number) {
