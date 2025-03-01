@@ -83,7 +83,7 @@ export function LeaderboardPaginatedTable({
       let totalPenalty = 0
 
       item.problemRecords.forEach((problem) => {
-        if (problem.score === 1) {
+        if (problem.score !== 0) {
           solvedProblems++
         }
         totalPenalty += problem.penalty
