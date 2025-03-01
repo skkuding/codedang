@@ -47,6 +47,8 @@ export async function SubmissionDetail({
   if (submission.result === 'Judging') {
     revalidateTag(`submission/${submissionId}`)
   }
+  let sampleCount = 1
+  let hiddenCount = 1
 
   return (
     <>
@@ -100,24 +102,30 @@ export async function SubmissionDetail({
               </TableRow>
             </TableHeader>
             <TableBody className="text-[#B0B0B0]">
-              {submission.testcaseResult.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.id}</TableCell>
-                  <TableCell
-                    className={
-                      submission.result === 'Blind'
-                        ? 'text-neutral-400'
-                        : getResultColor(item.result)
-                    }
-                  >
-                    {item.result}
-                  </TableCell>
-                  <TableCell>{item.cpuTime} ms</TableCell>
-                  <TableCell>
-                    {(item.memoryUsage / (1024 * 1024)).toFixed(2)} MB
-                  </TableCell>
-                </TableRow>
-              ))}
+              {submission.testcaseResult.map((item) => {
+                return (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      {item.problemTestcase.isHidden
+                        ? `Hidden #${hiddenCount < 10 ? `0${hiddenCount++}` : hiddenCount++}`
+                        : `Sample #${sampleCount < 10 ? `0${sampleCount++}` : sampleCount++}`}
+                    </TableCell>
+                    <TableCell
+                      className={
+                        submission.result === 'Blind'
+                          ? 'text-neutral-400'
+                          : getResultColor(item.result)
+                      }
+                    >
+                      {item.result}
+                    </TableCell>
+                    <TableCell>{item.cpuTime} ms</TableCell>
+                    <TableCell>
+                      {(item.memoryUsage / (1024 * 1024)).toFixed(2)} MB
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </div>
