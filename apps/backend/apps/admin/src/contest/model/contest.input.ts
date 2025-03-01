@@ -1,5 +1,14 @@
 import { Field, GraphQLISODateTime, InputType, Int } from '@nestjs/graphql'
-import { IsNumberString, IsOptional, Length } from 'class-validator'
+import { Type } from 'class-transformer'
+import {
+  IsArray,
+  IsNumber,
+  IsNumberString,
+  IsOptional,
+  IsString,
+  Length,
+  ValidateNested
+} from 'class-validator'
 
 @InputType()
 export class CreateContestInput {
@@ -32,6 +41,12 @@ export class CreateContestInput {
 
   @Field(() => Boolean, { nullable: true })
   enableCopyPaste?: boolean
+
+  @IsArray()
+  @ValidateNested({ each: true }) // 배열 요소를 개별적으로 검사
+  @Type(() => UserContestRoleInput) // class-validator에서 객체 변환 적용
+  @Field(() => [UserContestRoleInput], { nullable: true })
+  userContestRoles?: UserContestRoleInput[]
 }
 
 @InputType()
@@ -68,4 +83,21 @@ export class UpdateContestInput {
 
   @Field(() => Boolean, { nullable: true })
   isJudgeResultVisible?: boolean
+
+  @IsArray()
+  @ValidateNested({ each: true }) // 배열 요소를 개별적으로 검사
+  @Type(() => UserContestRoleInput) // class-validator에서 객체 변환 적용
+  @Field(() => [UserContestRoleInput], { nullable: true })
+  userContestRoles?: UserContestRoleInput[]
+}
+
+@InputType()
+export class UserContestRoleInput {
+  @Field(() => Int, { nullable: false })
+  @IsNumber()
+  userId!: number
+
+  @Field(() => String, { nullable: false })
+  @IsString()
+  contestRole!: string
 }

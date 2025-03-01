@@ -141,12 +141,38 @@ export class ContestService {
     }
 
     try {
+      const { userContestRoles, ...contestData } = contest
+
       const createdContest = await this.prisma.contest.create({
         data: {
           createdById: userId,
-          ...contest
+          ...contestData
         }
       })
+
+      if (userContestRoles) {
+        // 대회 생성자를 포함한 대회 리뷰어, 매니저만 추가 가능 (participant, admin 제외)하도록 거르기
+        const validRoles = ['Manager', 'Reviewer']
+        userContestRoles.forEach((userContestRole) => {
+          if (!validRoles.includes(userContestRole.contestRole)) {
+            throw new UnprocessableDataException(
+              'Invalid contest role: ' + userContestRole.contestRole
+            )
+          }
+        })
+
+        await Promise.all(
+          userContestRoles.map((userContestRole) =>
+            this.prisma.userContest.create({
+              data: {
+                userId: userContestRole.userId,
+                contestId: createdContest.id,
+                role: userContestRole.contestRole as ContestRole
+              }
+            })
+          )
+        )
+      }
 
       await this.prisma.userContest.create({
         data: {
