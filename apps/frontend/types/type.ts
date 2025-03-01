@@ -234,7 +234,7 @@ export interface SubmissionDetail {
     memoryUsage: number
     createTime: Date
     updateTime: Date
-    problemTestcase: {
+    problemTestcase?: {
       isHidden: boolean
     }
   }[]
