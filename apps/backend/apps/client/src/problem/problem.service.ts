@@ -564,7 +564,7 @@ export class AssignmentProblemService {
           maxScore: assignment.isJudgeResultVisible
             ? assignmentProblem.score
             : null,
-          myScore: assignment.isJudgeResultVisible
+          score: assignment.isJudgeResultVisible
             ? ((submission.score * assignmentProblem.score) / 100).toFixed(0)
             : null
         }

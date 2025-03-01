@@ -509,6 +509,8 @@ export class GroupService {
         title: assignment.title,
         endTime: assignment.endTime,
         autoFinalizeScore: assignment.autoFinalizeScore,
+        isFinalScoreVisible: assignment.isFinalScoreVisible,
+        isJudgeResultVisible: assignment.isJudgeResultVisible,
         week: assignment.week,
         userAssignmentFinalScore: assignment.isFinalScoreVisible
           ? userAssignmentFinalScore
