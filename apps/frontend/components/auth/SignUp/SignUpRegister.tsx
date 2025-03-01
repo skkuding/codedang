@@ -295,7 +295,7 @@ export function SignUpRegister() {
                   checkedUsername === getValues('username')) ||
                   errors.username) &&
                   'bg-gray-400',
-                'flex h-8 w-11 items-center justify-center rounded-md'
+                'flex h-8 w-11 items-center justify-center rounded-full'
               )}
               disabled={Boolean(
                 (isUsernameAvailable &&
