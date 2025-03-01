@@ -22,7 +22,8 @@ import {
 import { ContestService } from './contest.service'
 
 const contestId = 1
-const user01Id = 4
+const user01Id = 7
+const contestAdminId = 4
 
 const now = dayjs()
 
@@ -371,10 +372,10 @@ describe('ContestService', () => {
 
   describe('getContestRoles', () => {
     it('should return contest roles', async () => {
-      const roles = await service.getContestRoles(user01Id)
+      const roles = await service.getContestRoles(contestAdminId)
       expect(roles).to.be.an('object')
       expect(roles).to.have.property('canCreateContest')
-      expect(roles).to.have.property('userContest')
+      expect(roles).to.have.property('userContests')
       expect(roles.userContests).to.be.an('array')
       expect(roles.userContests[0]).to.have.property('contestId')
       expect(roles.userContests[0]).to.have.property('role')
