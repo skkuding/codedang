@@ -141,7 +141,7 @@ export function ContestDataTable<TData extends Item, TValue>({
           {paginatedItems?.length ? (
             paginatedItems.map((row) => {
               const href =
-                `${currentPath}/${row.original.id}?search=${search}` as Route
+                `${currentPath}/${row.original.id}${search ? `?search=${search}` : ''}` as Route
               const handleClick = linked
                 ? () => {
                     router.push(href)

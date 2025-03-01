@@ -227,11 +227,13 @@ export default async function ContestTop({
         contestData={orderedContests}
         currentContestId={currentContestId}
         previous={prev}
+        search={search}
       />
       <PrevNextProblemButton
         contestData={orderedContests}
         currentContestId={currentContestId}
         previous={!prev}
+        search={search}
       />
       <GotoContestListButton />
     </div>
