@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { ContestRole, Prisma, Role, type Contest } from '@prisma/client'
+import { ContestRole, Prisma, type Contest } from '@prisma/client'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -548,5 +548,17 @@ export class ContestService {
       maxScore,
       leaderboard: filteredLeaderboard
     }
+  }
+
+  async getContestRoles(userId: number) {
+    return await this.prisma.userContest.findMany({
+      where: {
+        userId
+      },
+      select: {
+        contestId: true,
+        role: true
+      }
+    })
   }
 }

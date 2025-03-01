@@ -72,4 +72,10 @@ export class ContestController {
   ) {
     return await this.contestService.getContestLeaderboard(contestId, search)
   }
+
+  @Get('/role')
+  @UserNullWhenAuthFailedIfPublic()
+  async getContestRole(@Req() req: AuthenticatedRequest) {
+    return await this.contestService.getContestRoles(req.user.id)
+  }
 }
