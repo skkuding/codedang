@@ -210,4 +210,19 @@ export class AssignmentResolver {
       input
     )
   }
+
+  @Query(() => AssignmentProblemRecord)
+  async getAssignmentProblemRecord(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('assignmentId', { type: () => Int }) assignmentId: number,
+    @Args('userId', { type: () => Int }) userId: number,
+    @Args('problemId', { type: () => Int }) problemId: number
+  ) {
+    return await this.assignmentService.getAssignmentProblemRecord({
+      groupId,
+      assignmentId,
+      problemId,
+      userId
+    })
+  }
 }
