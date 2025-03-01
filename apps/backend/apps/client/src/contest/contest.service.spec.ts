@@ -368,4 +368,14 @@ describe('ContestService', () => {
       expect(leaderboard).to.be.ok
     })
   })
+
+  describe('getContestRoles', () => {
+    it('should return contest roles', async () => {
+      const roles = await service.getContestRoles(user01Id)
+      expect(roles).to.be.an('array')
+      expect(roles[0]).to.be.an('object')
+      expect(roles[0]).to.have.property('contestId')
+      expect(roles[0]).to.have.property('role')
+    })
+  })
 })
