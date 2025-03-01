@@ -23,6 +23,10 @@ body:graphql {
         enableCopyPaste: true
         isJudgeResultVisible: true
         invitationCode: "123456"
+        userContestRoles: [
+          { userId: 5, contestRole: "Manager" }
+          { userId: 6, contestRole: "Reviewer" }
+        ]
       }
     ) {
       id
@@ -33,7 +37,7 @@ body:graphql {
       isJudgeResultVisible
     }
   }
-
+  
 }
 
 assert {

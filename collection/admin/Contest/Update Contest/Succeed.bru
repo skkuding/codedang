@@ -23,7 +23,11 @@ body:graphql {
         isVisible: true
         isRankVisible: true
         enableCopyPaste: true
-        isJudgeResultVisible: true
+        isJudgeResultVisible: true,
+        userContestRoles: [
+          { userId: 5, contestRole: "Manager" }
+          { userId: 6, contestRole: "Reviewer" }
+        ]
       }
     ) {
       id
