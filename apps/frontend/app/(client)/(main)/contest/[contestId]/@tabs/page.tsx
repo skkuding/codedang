@@ -113,7 +113,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
       <h1 className="mt-24 w-[1202px] text-2xl font-bold">{data?.title}</h1>
       <div className="mt-[30px] flex flex-col gap-[10px]">
         <div className="flex gap-2">
-          <Image src={calendarIcon} alt="calendar" width={20} height={20} />
+          <Image src={calendarIcon} alt="calendar" width={16} height={16} />
           <p className="font-medium text-[#333333e6]">
             {formattedStartTime} ~ {formattedEndTime}
           </p>
