@@ -24,11 +24,19 @@ body:graphql {
         isRankVisible: true
         enableCopyPaste: true
         isJudgeResultVisible: true
+        summary: {
+          participationTarget: "thisisupdatedparticipationtarget"
+          competitionMethod: "thisisupdatedcompetitionmethod"
+          rankingMethod: "thisisupdatedrankingmethod"
+          problemFormat: "thisisupdatedproblemformat"
+          benefits: "thisisupdatedbenefits"
+        }
       }
     ) {
       id
       title
       description
+      summary
     }
   }
 }
@@ -41,4 +49,11 @@ docs {
   # Update Contest
   ---
   - Contest를 update합니다.
+
+  ## Error Cases
+  ### End Time Earlier than Start Time
+  종료 시각이 시작 시간 이후여야 합니다.
+
+  ### Nonexistent Contest
+  존재하는 Contest만 update 가능합니다.
 }
