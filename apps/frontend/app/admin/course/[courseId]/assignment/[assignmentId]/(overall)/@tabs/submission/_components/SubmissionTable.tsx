@@ -24,6 +24,7 @@ export function SubmissionTable({
 }) {
   const { data } = useSuspenseQuery(GET_ASSIGNMENT_SUBMISSIONS, {
     variables: {
+      groupId,
       input: {
         assignmentId
       },
