@@ -1,8 +1,6 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
-import { Badge } from '@/components/shadcn/badge'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import { cn } from '@/libs/utils'
-import type { SemesterSeason } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 
 export interface DataTableCourse {
@@ -75,7 +73,6 @@ export const columns: ColumnDef<DataTableCourse>[] = [
     ),
     cell: ({ row }) => {
       const yearSeason = row.original.semester
-      const season = yearSeason.split(' ')[1]
       return (
         <div className="flex justify-center">
           <div

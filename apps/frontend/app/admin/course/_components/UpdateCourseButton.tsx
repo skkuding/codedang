@@ -19,22 +19,20 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
-import { CREATE_COURSE, UPDATE_COURSE } from '@/graphql/course/mutation'
 import { GET_COURSE } from '@/graphql/course/queries'
 import type { SemesterSeason } from '@/types/type'
-import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
+import { useQuery } from '@apollo/client'
 import type { CourseInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useEffect, useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
-import { FiPlusCircle } from 'react-icons/fi'
 import { GoPencil } from 'react-icons/go'
 import { toast } from 'sonner'
 import { ErrorMessage } from '../../_components/ErrorMessage'
 import { useDataTable } from '../../_components/table/context'
 import { courseSchema } from '../_libs/schema'
 
-interface UpdateCourseButtonProps<TData extends { id: number }, TPromise> {
+interface UpdateCourseButtonProps<TPromise> {
   onSuccess?: () => void
   updateTarget: (id: number, courseInput: CourseInput) => Promise<TPromise>
 }
@@ -56,7 +54,7 @@ interface UpdateCourseButtonProps<TData extends { id: number }, TPromise> {
 export function UpdateCourseButton<TData extends { id: number }, TPromise>({
   updateTarget,
   onSuccess
-}: UpdateCourseButtonProps<TData, TPromise>) {
+}: UpdateCourseButtonProps<TPromise>) {
   const {
     handleSubmit,
     register,
