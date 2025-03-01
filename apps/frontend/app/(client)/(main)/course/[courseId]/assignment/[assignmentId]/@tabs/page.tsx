@@ -33,7 +33,7 @@ export default async function AssginmentInfo({ params }: AssignmentInfoProps) {
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="mt-[30px] flex flex-col gap-10">
+      <div className="flex flex-col gap-10">
         <div className="flex flex-col gap-3">
           <p className="text-2xl font-semibold">
             <span className="text-primary">[Week {assignment.week}] </span>
