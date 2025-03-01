@@ -95,7 +95,8 @@ export function SignUpEmailVerify() {
   }
   const sendEmail = async () => {
     const { email } = getValues()
-    const fullEmail = `${email}@skku.edu` // Create the full email
+    const fullEmail = `${email}@skku.edu` // Only accept skku.edu emails
+
     setEmailContent(fullEmail)
     setEmailError('')
     await trigger('email')
