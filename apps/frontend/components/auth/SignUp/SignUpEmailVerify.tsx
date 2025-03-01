@@ -4,6 +4,7 @@ import { baseUrl } from '@/libs/constants'
 import { cn, isHttpError, safeFetcher } from '@/libs/utils'
 import { useSignUpModalStore } from '@/stores/signUpModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import Link from 'next/link'
 import React, { useState, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import * as v from 'valibot'
@@ -203,7 +204,11 @@ export function SignUpEmailVerify() {
           </p>
           <p className="mb-5 text-left text-xs font-normal text-neutral-500">
             Please check an email on{' '}
-            <span className="text-blue-500">eportal.skku.edu</span>
+            <span className="text-blue-500">
+              <Link href="https://eportal.skku.edu/" target="_blank">
+                eportal.skku.edu
+              </Link>
+            </span>
           </p>
           <div className="flex justify-between">
             <div className="text-sm text-black">{emailContent}</div>
