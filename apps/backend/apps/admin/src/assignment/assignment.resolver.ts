@@ -4,7 +4,7 @@ import {
   AssignmentProblem,
   AssignmentProblemRecord
 } from '@generated'
-import { AuthenticatedRequest } from '@libs/auth'
+import { AuthenticatedRequest, UseGroupLeaderGuard } from '@libs/auth'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -23,6 +23,7 @@ import { AssignmentProblemScoreInput } from './model/problem-score.input'
 import { UserAssignmentScoreSummaryWithUserInfo } from './model/score-summary'
 
 @Resolver(() => Assignment)
+@UseGroupLeaderGuard()
 export class AssignmentResolver {
   constructor(private readonly assignmentService: AssignmentService) {}
 

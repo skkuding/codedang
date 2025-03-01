@@ -4,7 +4,7 @@ import { ContestProblem, ContestRecord } from '@generated'
 import { Problem } from '@generated'
 import { Contest } from '@generated'
 import { faker } from '@faker-js/faker'
-import { ResultStatus } from '@prisma/client'
+import { ContestRole, ResultStatus, Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
@@ -215,6 +215,17 @@ const updateInput = {
 } satisfies UpdateContestInput
 
 const db = {
+  user: {
+    findUnique: stub().resolves({ role: Role.Admin, canCreateContest: true })
+  },
+  userContest: {
+    create: stub().resolves(),
+    findMany: stub().resolves([
+      {
+        role: ContestRole.Admin
+      }
+    ])
+  },
   contest: {
     findFirst: stub().resolves(Contest),
     findUnique: stub().resolves(Contest),
@@ -288,7 +299,7 @@ describe('ContestService', () => {
     it('should return an array of contests', async () => {
       db.contest.findMany.resolves([contestWithCount])
 
-      const res = await service.getContests(5, 0)
+      const res = await service.getContests(userId, 5, 0)
       expect(res).to.deep.equal([contestWithParticipants])
     })
   })
