@@ -1,10 +1,13 @@
+-- CreateEnum
+CREATE TYPE "ProblemField" AS ENUM ('title', 'language', 'description', 'testcase', 'memoryLimit', 'timeLimit', 'hint');
+
 -- CreateTable
 CREATE TABLE "updateHistory" (
     "id" SERIAL NOT NULL,
     "problem_id" INTEGER NOT NULL,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedByid" INTEGER NOT NULL,
-    "updated_fields" TEXT[],
+    "updatedFields" "ProblemField"[],
     "updatedInfo" JSONB[],
 
     CONSTRAINT "updateHistory_pkey" PRIMARY KEY ("id")

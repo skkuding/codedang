@@ -35,6 +35,16 @@ enum Provider {
   google
 }
 
+enum ProblemField {
+  title
+  language
+  description
+  testcase
+  memoryLimit
+  timeLimit
+  hint
+}
+
 model User {
   id               Int       @id @default(autoincrement())
   username         String    @unique
@@ -239,13 +249,13 @@ model Problem {
 }
 
 model UpdateHistory {
-  id            Int      @id @default(autoincrement())
-  problemId     Int      @map("problem_id")
-  problem       Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  updatedAt     DateTime @default(now()) @map("updated_at")
-  updatedBy     User     @relation(fields: [updatedByid], references: [id])
+  id            Int            @id @default(autoincrement())
+  problemId     Int            @map("problem_id")
+  problem       Problem        @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  updatedAt     DateTime       @default(now()) @map("updated_at")
+  updatedBy     User           @relation(fields: [updatedByid], references: [id])
   updatedByid   Int
-  updatedFields String[] @map("updated_fields") // 변경된 필드 목록
+  updatedFields ProblemField[] // 변경된 필드 목록
   updatedInfo   Json[]
   /**
    * {

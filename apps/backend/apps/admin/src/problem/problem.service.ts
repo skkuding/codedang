@@ -597,18 +597,18 @@ export class ProblemService {
     }
 
     if (input.title && input.title !== problem.title) {
-      updatedFields.push('Title')
+      updatedFields.push('title')
       titleInfo.current = input.title
     }
     if (
       input.languages &&
       JSON.stringify(input.languages) !== JSON.stringify(problem.languages)
     ) {
-      updatedFields.push('Language')
+      updatedFields.push('language')
       languageInfo.current = input.languages
     }
     if (input.description && input.description !== problem.description) {
-      updatedFields.push('Description')
+      updatedFields.push('description')
       descriptionInfo.current = input.description
     }
     if (testcases?.length) {
@@ -626,19 +626,19 @@ export class ProblemService {
           }))
         )
       ) {
-        updatedFields.push('Testcase*')
+        updatedFields.push('testcase')
       }
     }
     if (input.timeLimit && input.timeLimit !== problem.timeLimit) {
-      updatedFields.push('Time Limit*')
+      updatedFields.push('timeLimit')
       timeLimitInfo.current = input.timeLimit
     }
     if (input.memoryLimit && input.memoryLimit !== problem.memoryLimit) {
-      updatedFields.push('Memory Limit*')
+      updatedFields.push('memoryLimit')
       memoryLimitInfo.current = input.memoryLimit
     }
     if (input.hint && input.hint !== problem.hint) {
-      updatedFields.push('Hint')
+      updatedFields.push('hint')
       hintInfo.current = input.hint
     }
     if (userRole == Role.User && problem.createdById != userId) {
