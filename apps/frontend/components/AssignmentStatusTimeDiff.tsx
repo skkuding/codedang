@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/libs/utils'
-import ClockIcon from '@/public/icons/clock.svg'
+import clockIcon from '@/public/icons/clock.svg'
 import type { Assignment } from '@/types/type'
 import type { AssignmentStatus } from '@/types/type'
 import dayjs from 'dayjs'
@@ -102,7 +102,7 @@ export function AssignmentStatusTimeDiff({
     >
       {assignmentStatus === 'finished' ? (
         <>
-          <Image src={ClockIcon} alt="Clock" />
+          <Image src={clockIcon} alt="clock" width={16} height={16} />
           Finished
           <p className="overflow-hidden text-ellipsis whitespace-nowrap">
             {timeDiff.days > 0
@@ -113,7 +113,7 @@ export function AssignmentStatusTimeDiff({
         </>
       ) : (
         <>
-          <Image src={ClockIcon} alt="Clock" />
+          <Image src={clockIcon} alt="clock" width={16} height={16} />
           {assignmentStatus === 'ongoing' ||
           assignmentStatus === 'registeredOngoing'
             ? 'Ends in'

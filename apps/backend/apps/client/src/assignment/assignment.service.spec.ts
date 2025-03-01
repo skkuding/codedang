@@ -23,7 +23,7 @@ import {
 import { AssignmentService, type AssignmentResult } from './assignment.service'
 
 const assignmentId = 1
-const user01Id = 4
+const user01Id = 7
 const groupId = 1
 
 const now = dayjs()

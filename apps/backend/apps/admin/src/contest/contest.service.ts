@@ -1,7 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common'
 import { Contest, ResultStatus, Submission } from '@generated'
-import type { ContestProblem } from '@prisma/client'
+import { ContestRole, Role, type ContestProblem } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import {
   PUBLICIZING_REQUEST_EXPIRE_TIME,
@@ -29,12 +29,52 @@ export class ContestService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getContests(take: number, cursor: number | null) {
+  async getContests(userId: number, take: number, cursor: number | null) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId
+      },
+      select: {
+        role: true,
+        canCreateContest: true
+      }
+    })
+    const userContests = await this.prisma.userContest.findMany({
+      where: {
+        userId,
+        role: {
+          in: ['Admin', 'Manager', 'Reviewer']
+        }
+      }
+    })
+
+    if (
+      user?.canCreateContest === false &&
+      user.role === Role.User &&
+      !userContests.length
+    ) {
+      throw new UnauthorizedException('You are not allowed to view contests')
+    }
+
     const paginator = this.prisma.getPaginator(cursor)
 
     const contests = await this.prisma.contest.findMany({
       ...paginator,
       take,
+      where: {
+        ...(user?.role === Role.User
+          ? {
+              userContest: {
+                some: {
+                  userId,
+                  role: {
+                    in: ['Admin', 'Manager', 'Reviewer']
+                  }
+                }
+              }
+            }
+          : {})
+      },
       include: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         _count: {
@@ -81,6 +121,19 @@ export class ContestService {
     userId: number,
     contest: CreateContestInput
   ): Promise<Contest> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId
+      },
+      select: {
+        role: true,
+        canCreateContest: true
+      }
+    })
+    if (user?.canCreateContest === false && user.role === Role.User) {
+      throw new UnauthorizedException('You are not allowed to create a contest')
+    }
+
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
@@ -88,12 +141,22 @@ export class ContestService {
     }
 
     try {
-      return await this.prisma.contest.create({
+      const createdContest = await this.prisma.contest.create({
         data: {
           createdById: userId,
           ...contest
         }
       })
+
+      await this.prisma.userContest.create({
+        data: {
+          userId,
+          contestId: createdContest.id,
+          role: ContestRole.Admin
+        }
+      })
+
+      return createdContest
     } catch (error) {
       throw new UnprocessableDataException(error.message)
     }
