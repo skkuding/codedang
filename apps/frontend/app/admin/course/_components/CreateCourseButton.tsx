@@ -19,8 +19,9 @@ import {
   SelectValue
 } from '@/components/shadcn/select'
 import { CREATE_COURSE } from '@/graphql/course/mutation'
+import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import type { SemesterSeason } from '@/types/type'
-import { useMutation } from '@apollo/client'
+import { useApolloClient, useMutation } from '@apollo/client'
 import type { CourseInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useState } from 'react'
@@ -69,6 +70,8 @@ export function CreateCourseButton() {
   const currentYear = new Date().getFullYear()
   const seasons: SemesterSeason[] = ['Spring', 'Summer', 'Fall', 'Winter']
 
+  const client = useApolloClient()
+
   const onSubmit: SubmitHandler<CourseInput> = async (data) => {
     try {
       const { data: errors } = await createCourse({
@@ -90,6 +93,9 @@ export function CreateCourseButton() {
       })
 
       toast.success('Course created successfully!')
+      client.refetchQueries({
+        include: [GET_COURSES_USER_LEAD]
+      })
     } catch (error) {
       //TODO: error handling
       console.error('Error creating course:', error)
@@ -220,6 +226,9 @@ export function CreateCourseButton() {
                   ))}
                 </SelectContent>
               </Select>
+              {errors.semester && (
+                <ErrorMessage message={errors.semester.message} />
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -247,6 +256,7 @@ export function CreateCourseButton() {
                   })}
                 </SelectContent>
               </Select>
+              {errors.week && <ErrorMessage message={errors.week.message} />}
             </div>
 
             <div className="flex flex-col gap-2">
