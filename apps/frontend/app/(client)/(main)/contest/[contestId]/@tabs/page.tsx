@@ -19,7 +19,7 @@ import type {
 import Image from 'next/image'
 import { BiggerImageButton } from './_components/BiggerImageButton'
 import { GotoContestListButton } from './_components/GotoContestListButton'
-//import { PrevNextProblemButton } from './_components/PrevNextProblemButton'
+import { PrevNextProblemButton } from './_components/PrevNextProblemButton'
 import { RegisterButton } from './_components/RegisterButton'
 import { RenderProblemList } from './_components/RenderProblemList'
 
@@ -78,16 +78,15 @@ export default async function ContestTop({ params }: ContestTopProps) {
     .json()
   //const contestOrder: ContestOrder = await fetcherWithAuth.get(`contest`).json()
   async function contestOrder() {
-    const data: {
+    const tempdata: {
       ongoing: Contest[]
       upcoming: Contest[]
       finished: Contest[]
     } = await fetcherWithAuth.get(`contest`).json()
 
-    return data.upcoming.concat(data.ongoing, data.finished)
+    return tempdata.upcoming.concat(tempdata.ongoing, tempdata.finished)
   }
   const orderedContests: ContestOrder[] = await contestOrder()
-  console.log('orderedContests: ', orderedContests)
 
   const contest: Contest = {
     ...data,
@@ -221,7 +220,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-      {/* <PrevNextProblemButton
+      <PrevNextProblemButton
         contestData={orderedContests}
         currentContestId={currentContestId}
         previous={prev}
@@ -230,7 +229,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
         contestData={orderedContests}
         currentContestId={currentContestId}
         previous={!prev}
-      /> */}
+      />
       <GotoContestListButton />
     </div>
   )
