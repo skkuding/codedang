@@ -106,7 +106,7 @@ export async function SubmissionDetail({
                 return (
                   <TableRow key={item.id}>
                     <TableCell>
-                      {item.problemTestcase.isHidden
+                      {item.problemTestcase && item.problemTestcase.isHidden
                         ? `Hidden #${hiddenCount < 10 ? `0${hiddenCount++}` : hiddenCount++}`
                         : `Sample #${sampleCount < 10 ? `0${sampleCount++}` : sampleCount++}`}
                     </TableCell>
