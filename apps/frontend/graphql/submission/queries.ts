@@ -45,12 +45,14 @@ const GET_CONTEST_SUBMISSIONS = gql(`
 
 const GET_ASSIGNMENT_SUBMISSIONS = gql(`
   query GetAssignmentSubmissions(
+    $groupId: Int!,
     $input: GetAssignmentSubmissionsInput!,
     $cursor: Int,
     $take: Int,
     $order: String
   ) {
     getAssignmentSubmissions(
+      groupId: $groupId,
       input: $input,
       cursor: $cursor,
       take: $take,
@@ -122,11 +124,13 @@ const GET_SUBMISSION = gql(`query GetSubmission(
 
 const GET_ASSIGNMENT_SUBMISSION = gql(`
   query GetAssignmentSubmission(
+    $groupId: Int!
     $assignmentId: Int!
     $userId: Int!
     $problemId: Int!
   ) {
     getAssignmentSubmission(
+      groupId: $groupId
       assignmentId: $assignmentId
       userId: $userId
       problemId: $problemId

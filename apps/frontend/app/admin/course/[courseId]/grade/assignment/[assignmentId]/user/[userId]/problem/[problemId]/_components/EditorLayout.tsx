@@ -34,6 +34,7 @@ export function EditorLayout({
 
   const submissionData = useSuspenseQuery(GET_ASSIGNMENT_SUBMISSION, {
     variables: {
+      groupId: courseId,
       assignmentId,
       userId,
       problemId

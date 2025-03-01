@@ -29,7 +29,10 @@ export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
             </TableHeader>
             <TableBody>
               {submission.testcaseResult.map((item) => (
-                <TableRow className="text-[#9B9B9B]" key={item.id}>
+                <TableRow
+                  className="text-[#9B9B9B]"
+                  key={item.problemTestcaseId}
+                >
                   <TableCell>
                     <div className="py-2">
                       {item.problemTestcaseId.toString()}

@@ -12,14 +12,20 @@ import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 
 interface PageProps {
-  params: { assignmentId: string; userId: string; problemId: string }
+  params: {
+    courseId: string
+    assignmentId: string
+    userId: string
+    problemId: string
+  }
 }
 
 export default function Page({ params }: PageProps) {
-  const { assignmentId, userId, problemId } = params
+  const { courseId, assignmentId, userId, problemId } = params
 
   const submission = useSuspenseQuery(GET_ASSIGNMENT_SUBMISSION, {
     variables: {
+      groupId: Number(courseId),
       assignmentId: Number(assignmentId),
       userId: Number(userId),
       problemId: Number(problemId)
