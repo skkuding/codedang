@@ -197,7 +197,7 @@ export function SignUpEmailVerify() {
         </>
       )}
       {sentEmail && (
-        <div>
+        <>
           <p className="text-left text-lg font-semibold text-black">
             We&apos;ve Sent an Email 📩
           </p>
@@ -215,7 +215,7 @@ export function SignUpEmailVerify() {
             type="number"
             className={cn(
               'hide-spin-button mt-2',
-              'focus-visible:border-primary w-full focus-visible:ring-0',
+              'focus-visible:border-primary w-full rounded-full focus-visible:ring-0',
               (errors.verificationCode || expired || codeError) &&
                 'border-red-500 focus-visible:border-red-500'
             )}
@@ -247,7 +247,7 @@ export function SignUpEmailVerify() {
                 : codeError}
             </p>
           )}
-        </div>
+        </>
       )}
       {(() => {
         if (!sentEmail) {
