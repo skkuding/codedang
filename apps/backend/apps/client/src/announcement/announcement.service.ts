@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
-import type { Announcement } from '@prisma/client'
+import { Announcement } from '@prisma/client'
+import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 
 @Injectable()
@@ -7,16 +8,18 @@ export class AnnouncementService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getContestAnnouncements(contestId: number): Promise<Announcement[]> {
-    const { announcement } = await this.prisma.contest.findUniqueOrThrow({
-      where: {
-        id: contestId
-      },
-      select: {
-        announcement: {
-          orderBy: { createTime: 'desc' }
+    try {
+      const { announcement } = await this.prisma.contest.findUniqueOrThrow({
+        where: { id: contestId },
+        select: {
+          announcement: {
+            orderBy: { createTime: 'desc' }
+          }
         }
-      }
-    })
-    return announcement
+      })
+      return announcement
+    } catch (error) {
+      throw new UnprocessableDataException('ContestId must be provided.')
+    }
   }
 }

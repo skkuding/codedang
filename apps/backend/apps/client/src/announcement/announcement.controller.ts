@@ -1,15 +1,5 @@
-import {
-  Controller,
-  Get,
-  Logger,
-  InternalServerErrorException,
-  Query
-} from '@nestjs/common'
+import { Controller, Get, Logger, Query } from '@nestjs/common'
 import { AuthNotNeededIfPublic } from '@libs/auth'
-import {
-  EntityNotExistException,
-  UnprocessableDataException
-} from '@libs/exception'
 import { IDValidationPipe } from '@libs/pipe'
 import { AnnouncementService } from './announcement.service'
 
@@ -25,20 +15,10 @@ export class AnnouncementController {
     @Query('contestId', IDValidationPipe) contestId: number
   ) {
     try {
-      if (!contestId) {
-        throw new UnprocessableDataException('ContestId must be provided.')
-      } else {
-        return await this.announcementService.getContestAnnouncements(contestId)
-      }
+      return await this.announcementService.getContestAnnouncements(contestId)
     } catch (error) {
-      if (
-        error instanceof EntityNotExistException ||
-        error instanceof UnprocessableDataException
-      ) {
-        throw error.convert2HTTPException()
-      }
       this.logger.error(error)
-      throw new InternalServerErrorException()
+      throw error
     }
   }
 }
