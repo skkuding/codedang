@@ -25,7 +25,7 @@ export function PrevNextProblemButton({
             <p className="mr-6 w-[100px] text-left text-base font-semibold text-[#737373]">
               Previous
             </p>
-            <p className="text-left text-base font-semibold text-[#737373]">
+            <p className="w-[1020px] truncate text-left text-base font-medium text-[#737373]">
               {contestData[currentIndex - 1].title}
             </p>
           </div>
@@ -37,7 +37,7 @@ export function PrevNextProblemButton({
           <p className="mr-6 w-[100px] text-left text-base font-semibold text-[#737373]">
             Previous
           </p>
-          <p className="text-left text-base font-semibold text-[#737373]">
+          <p className="text-left text-base font-medium text-[#737373]">
             No Previous Contest
           </p>
         </div>
@@ -51,7 +51,7 @@ export function PrevNextProblemButton({
             <p className="mr-6 w-[100px] text-left text-base font-semibold text-[#3581FA]">
               Next
             </p>
-            <p className="text-left text-base font-semibold">
+            <p className="w-[1020px] truncate text-left text-base font-medium">
               {contestData[currentIndex + 1].title}
             </p>
           </div>
@@ -63,7 +63,7 @@ export function PrevNextProblemButton({
           <p className="mr-6 w-[100px] text-left text-base font-semibold text-[#3581FA]">
             Next
           </p>
-          <p className="text-left text-base font-semibold">No Next Contest</p>
+          <p className="text-left text-base font-medium">No Next Contest</p>
         </div>
       </Button>
     )
