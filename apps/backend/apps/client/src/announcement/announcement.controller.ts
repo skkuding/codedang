@@ -10,7 +10,7 @@ import {
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
-import { GroupIDPipe, IDValidationPipe } from '@libs/pipe'
+import { IDValidationPipe } from '@libs/pipe'
 import { AnnouncementService } from './announcement.service'
 
 @Controller('announcement')
@@ -22,36 +22,13 @@ export class AnnouncementController {
 
   @Get()
   async getAnnouncements(
-    @Query('problemId', IDValidationPipe) problemId: number | null,
-    @Query('contestId', IDValidationPipe) contestId: number | null,
-    @Query('assignmentId', IDValidationPipe) assignmentId: number | null,
-    @Query('groupId', GroupIDPipe)
-    groupId: number
+    @Query('contestId', IDValidationPipe) contestId: number
   ) {
     try {
-      if (!!contestId === !!assignmentId) {
-        throw new UnprocessableDataException(
-          'Either contestId or assignmentId must be provided, but not both.'
-        )
-      }
-      if (problemId) {
-        return await this.announcementService.getProblemAnnouncements(
-          contestId,
-          assignmentId,
-          problemId,
-          groupId
-        )
+      if (!contestId) {
+        throw new UnprocessableDataException('ContestId must be provided.')
       } else {
-        if (contestId) {
-          return await this.announcementService.getContestAnnouncements(
-            contestId
-          )
-        } else {
-          return await this.announcementService.getAssignmentAnnouncements(
-            assignmentId!,
-            groupId
-          )
-        }
+        return await this.announcementService.getContestAnnouncements(contestId)
       }
     } catch (error) {
       if (
