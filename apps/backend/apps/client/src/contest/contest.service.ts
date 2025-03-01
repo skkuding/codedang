@@ -185,7 +185,8 @@ export class ContestService {
     try {
       contest = await this.prisma.contest.findUniqueOrThrow({
         where: {
-          id
+          id,
+          isVisible: true
         },
         select: {
           ...contestSelectOption,
@@ -213,7 +214,8 @@ export class ContestService {
           : { compare: { gt: id }, order: 'asc' as Order }
       return {
         where: {
-          id: options.compare
+          id: options.compare,
+          isVisible: true
         },
         orderBy: {
           id: options.order
@@ -272,6 +274,15 @@ export class ContestService {
     return await this.prisma.contestRecord.create({
       data: { contestId, userId }
     })
+  }
+
+  async isVisible(contestId: number): Promise<boolean> {
+    return !!(await this.prisma.contest.count({
+      where: {
+        id: contestId,
+        isVisible: true
+      }
+    }))
   }
 
   async unregisterContest(contestId: number, userId: number) {
