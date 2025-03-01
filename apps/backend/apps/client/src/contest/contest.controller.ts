@@ -33,6 +33,12 @@ export class ContestController {
     return await this.contestService.getBannerContests()
   }
 
+  @Get('/role')
+  @UserNullWhenAuthFailedIfPublic()
+  async getContestRole(@Req() req: AuthenticatedRequest) {
+    return await this.contestService.getContestRoles(req.user?.id)
+  }
+
   @Get(':id')
   @UserNullWhenAuthFailedIfPublic()
   async getContest(
@@ -71,11 +77,5 @@ export class ContestController {
     @Query('search') search: string
   ) {
     return await this.contestService.getContestLeaderboard(contestId, search)
-  }
-
-  @Get('/role')
-  @UserNullWhenAuthFailedIfPublic()
-  async getContestRole(@Req() req: AuthenticatedRequest) {
-    return await this.contestService.getContestRoles(req.user.id)
   }
 }

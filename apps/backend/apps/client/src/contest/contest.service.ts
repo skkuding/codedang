@@ -551,6 +551,10 @@ export class ContestService {
   }
 
   async getContestRoles(userId: number) {
+    if (!userId) {
+      return []
+    }
+
     return await this.prisma.userContest.findMany({
       where: {
         userId
