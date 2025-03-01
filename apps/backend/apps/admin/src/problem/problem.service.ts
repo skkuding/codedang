@@ -10,7 +10,7 @@ import {
 } from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput } from '@generated'
-import { Role } from '@prisma/client'
+import { ProblemField, Role } from '@prisma/client'
 import { Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
@@ -562,7 +562,7 @@ export class ProblemService {
 
     const updatedByid = userId
 
-    const updatedFields: string[] = []
+    const updatedFields: ProblemField[] = []
 
     const titleInfo = {
       updatedField: 'title',
@@ -596,18 +596,18 @@ export class ProblemService {
     }
 
     if (input.title && input.title !== problem.title) {
-      updatedFields.push('title')
+      updatedFields.push(ProblemField.title)
       titleInfo.current = input.title
     }
     if (
       input.languages &&
       JSON.stringify(input.languages) !== JSON.stringify(problem.languages)
     ) {
-      updatedFields.push('language')
+      updatedFields.push(ProblemField.language)
       languageInfo.current = input.languages
     }
     if (input.description && input.description !== problem.description) {
-      updatedFields.push('description')
+      updatedFields.push(ProblemField.description)
       descriptionInfo.current = input.description
     }
     if (testcases?.length) {
@@ -625,19 +625,19 @@ export class ProblemService {
           }))
         )
       ) {
-        updatedFields.push('testcase')
+        updatedFields.push(ProblemField.testcase)
       }
     }
     if (input.timeLimit && input.timeLimit !== problem.timeLimit) {
-      updatedFields.push('timeLimit')
+      updatedFields.push(ProblemField.timeLimit)
       timeLimitInfo.current = input.timeLimit
     }
     if (input.memoryLimit && input.memoryLimit !== problem.memoryLimit) {
-      updatedFields.push('memoryLimit')
+      updatedFields.push(ProblemField.memoryLimit)
       memoryLimitInfo.current = input.memoryLimit
     }
     if (input.hint && input.hint !== problem.hint) {
-      updatedFields.push('hint')
+      updatedFields.push(ProblemField.hint)
       hintInfo.current = input.hint
     }
     if (userRole == Role.User && problem.createdById != userId) {
