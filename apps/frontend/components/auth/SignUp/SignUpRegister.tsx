@@ -84,12 +84,18 @@ const schema = v.pipe(
     firstName: v.pipe(
       v.string(),
       v.minLength(1, 'Required'),
-      v.regex(/^[a-zA-Z]+$/, 'only English supported')
+      v.regex(
+        /^[a-zA-Z\p{Script=Hangul}]+$/u,
+        'only English and Korean supported'
+      )
     ),
     lastName: v.pipe(
       v.string(),
       v.minLength(1, 'Required'),
-      v.regex(/^[a-zA-Z]+$/, 'only English supported')
+      v.regex(
+        /^[a-zA-Z\p{Script=Hangul}]+$/u,
+        'only English and Korean supported'
+      )
     )
   }),
   v.forward(
