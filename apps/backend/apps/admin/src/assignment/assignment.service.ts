@@ -997,4 +997,48 @@ export class AssignmentService {
       }
     })
   }
+
+  async getAssignmentProblemRecord({
+    groupId,
+    userId,
+    assignmentId,
+    problemId
+  }: {
+    groupId: number
+    userId: number
+    assignmentId: number
+    problemId: number
+  }) {
+    const [assignmentProblemRecord, assignment] = await Promise.all([
+      this.prisma.assignmentProblemRecord.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          assignmentId_userId_problemId: {
+            assignmentId,
+            userId,
+            problemId
+          }
+        }
+      }),
+      this.prisma.assignment.findUnique({
+        where: {
+          id: assignmentId
+        }
+      })
+    ])
+
+    if (!assignmentProblemRecord) {
+      throw new EntityNotExistException('Assignment Problem Record')
+    }
+
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+
+    if (groupId !== assignment.groupId) {
+      throw new ForbiddenAccessException('Forbidden Resource')
+    }
+
+    return assignmentProblemRecord
+  }
 }
