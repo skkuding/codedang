@@ -26,7 +26,7 @@ import { GroupService } from '@client/group/group.service'
 import { UserService } from './user.service'
 
 const ID = 1
-const EMAIL_ADDRESS = 'email@email.com'
+const EMAIL_ADDRESS = 'email@skku.edu'
 const PASSWORD_RESET_PIN = 'thisIsPasswordResetPin'
 const PASSWORD_RESET_PIN_KEY = emailAuthenticationPinCacheKey(EMAIL_ADDRESS)
 const emailAuthJwtPayload = {
@@ -170,12 +170,24 @@ describe('UserService', () => {
       expect(createPinAndSendEmailSpy.calledOnce).to.be.true
     })
 
-    it('should not create pin and send email', async () => {
+    it('should not create pin and send email if duplicated user found', async () => {
       db.user.findUnique.resolves(user)
 
       await expect(
         service.sendPinForRegisterNewEmail(emailAuthJwtPayload)
       ).to.be.rejectedWith(DuplicateFoundException)
+      expect(createPinAndSendEmailSpy.called).to.be.false
+    })
+
+    it('should not create pin and send email if email not ends with @skku.edu', async () => {
+      db.user.findUnique.resolves(null)
+
+      const wrongEmailAuthJwtPayload = {
+        email: 'example@example.com'
+      }
+      await expect(
+        service.sendPinForRegisterNewEmail(wrongEmailAuthJwtPayload)
+      ).to.be.rejectedWith(UnprocessableDataException)
       expect(createPinAndSendEmailSpy.called).to.be.false
     })
   })
