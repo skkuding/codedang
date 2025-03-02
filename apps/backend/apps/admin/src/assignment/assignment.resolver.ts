@@ -140,7 +140,6 @@ export class AssignmentResolver {
       take,
       assignmentId,
       userId,
-      groupId,
       problemId,
       cursor
     )
