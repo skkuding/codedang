@@ -1,7 +1,12 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { Prisma, type Contest, type ContestRecord } from '@prisma/client'
+import {
+  ContestRole,
+  Prisma,
+  type Contest,
+  type ContestRecord
+} from '@prisma/client'
 import { expect } from 'chai'
 import * as dayjs from 'dayjs'
 import {
@@ -14,10 +19,11 @@ import {
   PrismaTestService,
   type FlatTransactionClient
 } from '@libs/prisma'
-import { ContestService, type ContestResult } from './contest.service'
+import { ContestService } from './contest.service'
 
 const contestId = 1
-const user01Id = 4
+const user01Id = 7
+const contestAdminId = 4
 
 const now = dayjs()
 
@@ -65,7 +71,8 @@ const ongoingContests = [
     startTime: now.add(-1, 'day').toDate(),
     endTime: now.add(1, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true
+    enableCopyPaste: true,
+    contestProblem: []
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -86,7 +93,8 @@ const upcomingContests = [
     startTime: now.add(1, 'day').toDate(),
     endTime: now.add(2, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true
+    enableCopyPaste: true,
+    contestProblem: []
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -107,7 +115,8 @@ const finishedContests = [
     startTime: now.add(-2, 'day').toDate(),
     endTime: now.add(-1, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true
+    enableCopyPaste: true,
+    contestProblem: []
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -161,7 +170,7 @@ describe('ContestService', () => {
     it('should return ongoing, upcoming contests when userId is undefined', async () => {
       const contests = await service.getContests()
       expect(contests.ongoing).to.have.lengthOf(5)
-      expect(contests.upcoming).to.have.lengthOf(4)
+      expect(contests.upcoming).to.have.lengthOf(5)
       expect(contests.finished).to.have.lengthOf(9)
     })
 
@@ -242,14 +251,14 @@ describe('ContestService', () => {
     })
   })
 
-  describe('createContestRecord', () => {
+  describe('registerContest', () => {
     let contestRecordId = -1
     const invitationCode = '123456'
     const invalidInvitationCode = '000000'
 
     it('should throw error when the invitation code does not match', async () => {
       await expect(
-        service.createContestRecord({
+        service.registerContest({
           contestId: 1,
           userId: user01Id,
           invitationCode: invalidInvitationCode
@@ -259,7 +268,7 @@ describe('ContestService', () => {
 
     it('should throw error when the contest does not exist', async () => {
       await expect(
-        service.createContestRecord({
+        service.registerContest({
           contestId: 999,
           userId: user01Id,
           invitationCode
@@ -269,7 +278,7 @@ describe('ContestService', () => {
 
     it('should throw error when user is participated in contest again', async () => {
       await expect(
-        service.createContestRecord({
+        service.registerContest({
           contestId,
           userId: user01Id,
           invitationCode
@@ -279,7 +288,7 @@ describe('ContestService', () => {
 
     it('should throw error when contest is not ongoing', async () => {
       await expect(
-        service.createContestRecord({
+        service.registerContest({
           contestId: 8,
           userId: user01Id,
           invitationCode
@@ -288,7 +297,7 @@ describe('ContestService', () => {
     })
 
     it('should register to a contest successfully', async () => {
-      const contestRecord = await service.createContestRecord({
+      const contestRecord = await service.registerContest({
         contestId: 2,
         userId: user01Id,
         invitationCode
@@ -324,6 +333,13 @@ describe('ContestService', () => {
 
     it('should return deleted contest record', async () => {
       const newlyRegisteringContestId = 16
+      await transaction.userContest.create({
+        data: {
+          contestId: newlyRegisteringContestId,
+          userId: user01Id,
+          role: ContestRole.Participant
+        }
+      })
       contestRecord = await transaction.contestRecord.create({
         data: {
           contestId: newlyRegisteringContestId,
@@ -362,6 +378,18 @@ describe('ContestService', () => {
     it('should return leaderboard of the contest', async () => {
       const leaderboard = await service.getContestLeaderboard(contestId)
       expect(leaderboard).to.be.ok
+    })
+  })
+
+  describe('getContestRoles', () => {
+    it('should return contest roles', async () => {
+      const roles = await service.getContestRoles(contestAdminId)
+      expect(roles).to.be.an('object')
+      expect(roles).to.have.property('canCreateContest')
+      expect(roles).to.have.property('userContests')
+      expect(roles.userContests).to.be.an('array')
+      expect(roles.userContests[0]).to.have.property('contestId')
+      expect(roles.userContests[0]).to.have.property('role')
     })
   })
 })

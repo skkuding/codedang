@@ -4,7 +4,6 @@ const CREATE_ASSIGNMENT = gql(`
   mutation CreateAssignment($groupId: Int!, $input: CreateAssignmentInput!) {
     createAssignment(groupId: $groupId, input: $input) {
       id
-      invitationCode
       isVisible
       isRankVisible
       enableCopyPaste
@@ -22,7 +21,6 @@ const UPDATE_ASSIGNMENT = gql(`
   mutation UpdateAssignment($groupId: Int!, $input: UpdateAssignmentInput!) {
     updateAssignment(groupId: $groupId, input: $input) {
       id
-      invitationCode
       isRankVisible
       isVisible
       enableCopyPaste
@@ -94,7 +92,6 @@ const DUPLICATE_ASSIGNMENT = gql(`
     duplicateAssignment(groupId: $groupId, assignmentId: $assignmentId) {
       assignment {
         id
-        invitationCode
         isRankVisible
         isVisible
         description

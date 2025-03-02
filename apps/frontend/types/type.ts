@@ -24,11 +24,26 @@ export type SemesterSeason = 'Spring' | 'Summer' | 'Fall' | 'Winter'
 export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
 // Problem type definition
 
+export type MemberRole = 'Instructor' | 'Student'
 export interface Tag {
   id: number
   name: string
 }
 
+export interface User {
+  username: string
+  role: string
+  email: string
+  lastLogin: string
+  updateTime: string
+  studentId: string
+  major: string
+  userProfile: {
+    realName: string
+  }
+  canCreateContest: boolean
+  canCreateCourse: boolean
+}
 export interface Snippet {
   id: number
   locked: boolean
@@ -136,6 +151,10 @@ export interface Contest {
   contestProblem: ProblemInContestInterface[]
 }
 
+export interface ContestOrder {
+  id: number
+  title: string
+}
 export interface ContestAnnouncement {
   id: number
   content: string
@@ -196,12 +215,17 @@ export interface SubmissionItem {
   language: string
   result: string
   codeSize: number
+  problemId: number
+  problem: {
+    title: string
+  }
 }
 
 export interface SubmissionDetail {
   problemId: number
   username: string
   code: string
+  codeSize?: string
   language: Language
   createTime: Date
   result: string
@@ -216,6 +240,10 @@ export interface SubmissionDetail {
     updateTime: Date
   }[]
 }
+export interface ContestSubmission {
+  data: SubmissionItem[]
+  total: number
+}
 
 interface LeaderboardProblemRecord {
   score: number
@@ -225,7 +253,7 @@ interface LeaderboardProblemRecord {
   submissionCount: number
 }
 interface UserOnLeaderboard {
-  user: { username: string }
+  username: string
   score: number
   finalScore: number
   totalPenalty: number
@@ -265,6 +293,7 @@ export interface SettingsFormat {
   confirmPassword: string
   realName: string
   studentId: string
+  email: string
 }
 
 export interface CourseInfo {
@@ -321,8 +350,9 @@ export interface Assignment {
   week: number
   status: AssignmentStatus
   description: string
-  invitationCodeExists: boolean
   isRegistered: boolean
+  problemNumber: number
+  submittedNumber: number
 }
 
 export interface AssignmentProblem {

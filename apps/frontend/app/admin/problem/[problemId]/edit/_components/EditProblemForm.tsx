@@ -40,7 +40,6 @@ export function EditProblemForm({
 
   useQuery(GET_PROBLEM, {
     variables: {
-      groupId: 1,
       id: Number(problemId)
     },
     onCompleted: (problemData) => {
@@ -119,7 +118,6 @@ export function EditProblemForm({
     if (pendingInput.current) {
       await updateProblem({
         variables: {
-          groupId: 1,
           input: pendingInput.current
         }
       })

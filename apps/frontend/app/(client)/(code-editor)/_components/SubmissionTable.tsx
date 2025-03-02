@@ -23,12 +23,13 @@ import { useRouter } from 'next/navigation'
 
 interface Item {
   id: number
+  problemId?: number
 }
 
 interface SubmissionTableProps<TData, TValue, TRoute extends string> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  getHref: (row: Row<TData>) => Route<TRoute>
+  getHref?: (row: Row<TData>) => Route<TRoute>
 }
 
 const headerStyle: Record<string, string | undefined> = {
@@ -79,14 +80,17 @@ export function SubmissionTable<
       <TableBody>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
-            const href = getHref(row)
+            const href = getHref?.(row)
+
             return (
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
                 className="cursor-pointer border-t border-slate-600 text-slate-300 hover:bg-slate-600/50 hover:font-semibold"
                 onClick={() => {
-                  router.replace(href)
+                  if (href) {
+                    router.replace(href)
+                  }
                 }}
               >
                 {row.getVisibleCells().map((cell) => (
@@ -106,7 +110,7 @@ export function SubmissionTable<
                       )}
                     </div>
                     {/* for prefetch */}
-                    <Link replace href={href} />
+                    {href && <Link replace href={href} />}
                   </TableCell>
                 ))}
               </TableRow>

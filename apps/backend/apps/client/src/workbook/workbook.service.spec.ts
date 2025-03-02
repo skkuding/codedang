@@ -133,10 +133,12 @@ describe('WorkbookService', () => {
 
   it('get a list of public workbooks (user)', async () => {
     db.workbook.findMany.resolves(visiblePublicWorkbooks)
+    const groupId = 1
 
     const returnedPublicWorkbooks = await workbookService.getWorkbooksByGroupId(
       0,
-      3
+      3,
+      groupId
     )
     expect(returnedPublicWorkbooks).to.deep.equal({
       data: visiblePublicWorkbooks,
@@ -160,6 +162,7 @@ describe('WorkbookService', () => {
 
   it('get details of a workbook (user)', async () => {
     let workbookId = 1
+    const groupId = 1
     db.workbook.findUnique.reset()
     db.workbook.findUnique
       .onFirstCall()
@@ -174,12 +177,15 @@ describe('WorkbookService', () => {
       .onSecondCall()
       .resolves([])
 
-    const returnedWorkbook = await workbookService.getWorkbook(workbookId)
+    const returnedWorkbook = await workbookService.getWorkbook(
+      workbookId,
+      groupId
+    )
     expect(returnedWorkbook).to.deep.equal(visibleOnePublicWorkbook)
 
     workbookId = 9999999
-    await expect(workbookService.getWorkbook(workbookId)).to.be.rejectedWith(
-      EntityNotExistException
-    )
+    await expect(
+      workbookService.getWorkbook(workbookId, groupId)
+    ).to.be.rejectedWith(EntityNotExistException)
   })
 })

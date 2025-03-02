@@ -4,6 +4,7 @@ import {
   SubmissionTable,
   SubmissionTableFallback
 } from '@/app/(client)/(code-editor)/_components/SubmissionTable'
+import { getContestProblemList } from '@/app/(client)/_libs/apis/contestProblem'
 import { contestSubmissionQueries } from '@/app/(client)/_libs/queries/contestSubmission'
 import {
   PageNavigation,
@@ -11,11 +12,12 @@ import {
   SlotNavigation
 } from '@/components/PaginatorV2'
 import { getTakeQueryParam, usePagination } from '@/libs/hooks/usePaginationV2'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import type { SubmissionItem } from '@/types/type'
+import { useSuspenseQuery, useSuspenseQueries } from '@tanstack/react-query'
 import { useState } from 'react'
 import { columns } from './Columns'
 
-const itemsPerPage = 20
+const itemsPerPage = 17
 
 export function SubmissionPaginatedTable({
   problemId,
@@ -28,12 +30,40 @@ export function SubmissionPaginatedTable({
     take: getTakeQueryParam({ itemsPerPage })
   })
 
-  const { data } = useSuspenseQuery(
-    contestSubmissionQueries.list({
-      ...queryParams,
-      problemId,
-      contestId
+  const problemIdList = useSuspenseQuery({
+    queryKey: ['Contest Problem', contestId],
+    queryFn: async () => {
+      const response = await getContestProblemList({
+        contestId,
+        ...queryParams
+      })
+      const problemIdList: number[] = []
+      response.data.map((problemData) => {
+        problemIdList.push(problemData.id)
+      })
+
+      return problemIdList
+    }
+  })
+
+  const [...allSubmissionsResponse] = useSuspenseQueries({
+    queries: problemIdList.data.map((problemIndex) =>
+      contestSubmissionQueries.list({
+        ...queryParams,
+        problemId: problemIndex,
+        contestId
+      })
+    )
+  })
+  const allSubmissions: SubmissionItem[] = []
+  allSubmissionsResponse.map((submissionPerProblem) => {
+    submissionPerProblem.data.data.map((submission) => {
+      allSubmissions.push(submission)
     })
+  })
+  allSubmissions.sort(
+    (a, b) =>
+      new Date(b.createTime).getTime() - new Date(a.createTime).getTime()
   )
 
   const {
@@ -46,10 +76,9 @@ export function SubmissionPaginatedTable({
     prevDisabled,
     nextDisabled
   } = usePagination({
-    data: data.data,
-    totalCount: data.total,
-    itemsPerPage,
-    updateQueryParams
+    data: allSubmissions,
+    totalCount: allSubmissions.length,
+    itemsPerPage
   })
 
   return (
@@ -58,7 +87,7 @@ export function SubmissionPaginatedTable({
         data={paginatedItems}
         columns={columns}
         getHref={(row) =>
-          `/contest/${contestId}/problem/${problemId}/submission/${row.original.id}`
+          `/contest/${contestId}/problem/${problemId}/submission/${row.original.id}?cellProblemId=${row.original.problemId}`
         }
       />
       <Paginator>

@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/submission/13?problemId=1&assignmentId=1
+  url: {{baseUrl}}/submission/14?problemId=1&assignmentId=1
   body: none
   auth: none
 }
@@ -14,7 +14,6 @@ params:query {
   problemId: 1
   assignmentId: 1
   ~contestId: 1
-  ~groupId: 1
 }
 
 script:pre-request {
@@ -33,7 +32,7 @@ docs {
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |problemId *|Integer|문제 ID|
-  |contestId|Integer|문제가 속한 대회 ID|
-  |groupId|Integer|문제가 속한 Group ID (default: 1)|
+  |contestId|Integer|문제가 속한 Contest ID|
+  |assignmentId|Integer|문제가 속한 Assignment ID|
   
 }

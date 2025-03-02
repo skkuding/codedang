@@ -10,7 +10,6 @@ import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
 import { spy, stub } from 'sinon'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -61,6 +60,9 @@ const db = {
     findUnique: stub(),
     findFirst: stub()
   },
+  workbook: {
+    findFirst: stub()
+  },
   workbookProblem: {
     findUnique: stub()
   },
@@ -71,6 +73,9 @@ const db = {
   assignmentRecord: {
     findUnique: stub(),
     update: stub()
+  },
+  assignmentProblemRecord: {
+    upsert: stub()
   },
   user: {
     findFirst: stub()
@@ -113,16 +118,17 @@ const mockAssignment: Assignment = {
   groupId: 1,
   title: 'SKKU Coding Platform 모의과제',
   description: 'test',
-  invitationCode: 'test',
-  startTime: new Date(),
-  endTime: new Date(),
+  startTime: new Date(Date.now() - 10000),
+  endTime: new Date(Date.now() + 10000),
   isVisible: true,
   isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
-  createTime: new Date(),
-  updateTime: new Date(),
-  week: 1
+  createTime: new Date(Date.now() - 10000),
+  updateTime: new Date(Date.now() - 10000),
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: true
 }
 const USERIP = '127.0.0.1'
 
@@ -207,8 +213,7 @@ describe('SubmissionService', () => {
         submissionDto,
         userIp: USERIP,
         userId: submissions[0].userId,
-        problemId: problems[0].id,
-        groupId: problems[0].groupId
+        problemId: problems[0].id
       })
       expect(createSpy.calledOnce).to.be.true
     })
@@ -222,8 +227,7 @@ describe('SubmissionService', () => {
           submissionDto,
           userIp: USERIP,
           userId: submissions[0].userId,
-          problemId: problems[0].id,
-          groupId: problems[0].groupId
+          problemId: problems[0].id
         })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
@@ -275,6 +279,7 @@ describe('SubmissionService', () => {
       const createSpy = stub(service, 'createSubmission')
       db.assignment.findFirst.resolves(mockAssignment)
       db.assignmentRecord.findUnique.resolves({
+        id: 1,
         assignment: {
           groupId: 1,
           startTime: new Date(Date.now() - 10000),
@@ -288,8 +293,7 @@ describe('SubmissionService', () => {
         userIp: USERIP,
         userId: submissions[0].userId,
         problemId: problems[0].id,
-        assignmentId: ASSIGNMENT_ID,
-        groupId: problems[0].groupId
+        assignmentId: ASSIGNMENT_ID
       })
       expect(createSpy.calledOnce).to.be.true
     })
@@ -304,8 +308,7 @@ describe('SubmissionService', () => {
           userIp: USERIP,
           userId: submissions[0].userId,
           problemId: problems[0].id,
-          assignmentId: ASSIGNMENT_ID,
-          groupId: problems[0].groupId
+          assignmentId: ASSIGNMENT_ID
         })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
@@ -322,8 +325,7 @@ describe('SubmissionService', () => {
         userIp: USERIP,
         userId: submissions[0].userId,
         problemId: problems[0].id,
-        workbookId: WORKBOOK_ID,
-        groupId: problems[0].groupId
+        workbookId: WORKBOOK_ID
       })
       expect(createSpy.calledOnce).to.be.true
     })
@@ -338,8 +340,7 @@ describe('SubmissionService', () => {
           userIp: USERIP,
           userId: submissions[0].userId,
           problemId: problems[0].id,
-          workbookId: WORKBOOK_ID,
-          groupId: problems[0].groupId
+          workbookId: WORKBOOK_ID
         })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
@@ -510,7 +511,6 @@ describe('SubmissionService', () => {
           problemId: problems[0].id,
           userId: submissions[0].userId,
           userRole: Role.User,
-          groupId: OPEN_SPACE_ID,
           contestId: null,
           assignmentId: null
         })
@@ -534,7 +534,6 @@ describe('SubmissionService', () => {
           problemId: problems[0].id,
           userId: submissions[0].userId,
           userRole: Role.User,
-          groupId: OPEN_SPACE_ID,
           contestId: null,
           assignmentId: null
         })
@@ -551,7 +550,6 @@ describe('SubmissionService', () => {
           problemId: problems[0].id,
           userId: submissions[0].userId,
           userRole: Role.User,
-          groupId: OPEN_SPACE_ID,
           contestId: null,
           assignmentId: null
         })
@@ -569,7 +567,6 @@ describe('SubmissionService', () => {
           problemId: problems[0].id,
           userId: submissions[0].userId,
           userRole: Role.User,
-          groupId: OPEN_SPACE_ID,
           contestId: null,
           assignmentId: null
         })

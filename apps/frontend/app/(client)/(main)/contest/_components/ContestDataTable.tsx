@@ -32,6 +32,7 @@ interface Item {
 
 interface ContestDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
+  search: string
   data: TData[]
   headerStyle: {
     [key: string]: string
@@ -41,6 +42,7 @@ interface ContestDataTableProps<TData, TValue> {
   itemsPerPage: number
   currentPage: number
   setFilteredData: (data: TData[]) => void
+  resetPageIndex: () => void
 }
 
 /**
@@ -65,12 +67,14 @@ interface ContestDataTableProps<TData, TValue> {
 export function ContestDataTable<TData extends Item, TValue>({
   columns,
   data,
+  search,
   headerStyle,
   linked = false,
   emptyMessage = 'No results.',
   itemsPerPage,
   currentPage,
-  setFilteredData
+  setFilteredData,
+  resetPageIndex
 }: ContestDataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -100,10 +104,10 @@ export function ContestDataTable<TData extends Item, TValue>({
         <h1 className="text-2xl font-semibold text-gray-700">CONTEST LIST</h1>
         <div className="flex gap-4">
           <ContestTitleFilter
-            table={table}
             column={table.getColumn('status')}
             title="State"
             options={status.map((item) => ({ value: item, label: item }))}
+            resetPageIndex={resetPageIndex}
           />
           <SearchBar className="w-60" />
         </div>
@@ -136,7 +140,8 @@ export function ContestDataTable<TData extends Item, TValue>({
         <TableBody>
           {paginatedItems?.length ? (
             paginatedItems.map((row) => {
-              const href = `${currentPath}/${row.original.id}` as Route
+              const href =
+                `${currentPath}/${row.original.id}${search ? `?search=${search}` : ''}` as Route
               const handleClick = linked
                 ? () => {
                     router.push(href)

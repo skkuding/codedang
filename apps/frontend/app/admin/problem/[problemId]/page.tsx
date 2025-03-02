@@ -18,7 +18,6 @@ export default function Page({ params }: { params: { problemId: string } }) {
 
   const problemData = useQuery(GET_PROBLEM_DETAIL, {
     variables: {
-      groupId: 1,
       id: Number(problemId)
     }
   }).data?.getProblem

@@ -12,14 +12,13 @@ get {
 
 params:query {
   problemId: 9999
-  ~groupId: 2
   ~take: 10
   ~cursor: 5
 }
 
 assert {
   res.status: eq 404
-  res.body.message: isDefined No ContestProblem found
+  res.body.message: isDefined No AssignmentProblem found
 }
 
 script:pre-request {

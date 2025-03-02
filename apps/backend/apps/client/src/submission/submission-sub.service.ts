@@ -257,22 +257,15 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   @Span()
   async updateTestcaseJudgeResult(
     submissionResult: Partial<SubmissionResult> &
-      Pick<SubmissionResult, 'result' | 'submissionId'>
+      Pick<SubmissionResult, 'result' | 'submissionId' | 'problemTestcaseId'>
   ): Promise<void> {
-    // TODO: submission의 값들이 아닌 submissionResult의 id 값으로 접근할 수 있도록 수정
-    const { id } = await this.prisma.submissionResult.findFirstOrThrow({
-      where: {
-        submissionId: submissionResult.submissionId,
-        problemTestcaseId: submissionResult.problemTestcaseId
-      },
-      select: {
-        id: true
-      }
-    })
-
     await this.prisma.submissionResult.update({
       where: {
-        id
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        submissionId_problemTestcaseId: {
+          submissionId: submissionResult.submissionId,
+          problemTestcaseId: submissionResult.problemTestcaseId
+        }
       },
       data: {
         result: submissionResult.result,
@@ -332,15 +325,15 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       data: { result: submissionResult }
     })
 
+    await this.updateSubmissionScore(submission.id)
+    await this.updateProblemAccepted(submission.problemId, allAccepted)
+
     if (submission.userId) {
       if (submission.contestId)
         await this.updateContestRecord(submission, allAccepted)
       else if (submission.assignmentId)
         await this.calculateAssignmentSubmissionScore(submission, allAccepted)
     }
-
-    await this.updateProblemScore(submission.id)
-    await this.updateProblemAccepted(submission.problemId, allAccepted)
   }
 
   @Span()
@@ -442,7 +435,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     const timePenalty = Math.floor((submitTime - startTime) / 60000)
 
     const isFreezed = contest.freezeTime && updateTime < contest.freezeTime
-
     await this.prisma.$transaction(async (prisma) => {
       await prisma.contestProblemRecord.upsert({
         where: {
@@ -546,7 +538,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   async calculateAssignmentSubmissionScore(
     submission: Pick<
       Submission,
-      'problemId' | 'assignmentId' | 'userId' | 'updateTime'
+      'id' | 'problemId' | 'assignmentId' | 'userId' | 'updateTime'
     >,
     isAccepted: boolean
   ): Promise<void> {
@@ -554,9 +546,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     const userId = submission.userId!
 
     let toBeAddedScore = 0,
-      toBeAddedPenalty = 0,
-      toBeAddedAcceptedProblemNum = 0,
-      isFinishTimeToBeUpdated = false
+      toBeAddedAcceptedProblemNum = 0
+    // isFinishTimeToBeUpdated = false
 
     const assignmentRecord =
       await this.prisma.assignmentRecord.findUniqueOrThrow({
@@ -576,41 +567,98 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       })
 
-    if (isAccepted) {
-      toBeAddedScore = (
-        await this.prisma.assignmentProblem.findFirstOrThrow({
-          where: {
-            assignmentId,
-            problemId: submission.problemId
-          },
-          select: {
-            score: true
-          }
-        })
-      ).score
-      isFinishTimeToBeUpdated = true
-      toBeAddedAcceptedProblemNum = 1
-    } else {
-      toBeAddedPenalty = 1
-    }
+    const submissionRecord = await this.prisma.submission.findUnique({
+      where: {
+        id: submission.id
+      },
+      select: {
+        updateTime: true,
+        score: true
+      }
+    })
 
+    const { _sum: totalScoreWeight } =
+      await this.prisma.problemTestcase.aggregate({
+        where: {
+          problemId: submission.problemId
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _sum: {
+          scoreWeight: true
+        }
+      })
+
+    const assignmentProblem = await this.prisma.assignmentProblem.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        assignmentId_problemId: {
+          assignmentId,
+          problemId: submission.problemId
+        }
+      },
+      select: {
+        score: true
+      }
+    })
+
+    const realSubmissionScore =
+      submissionRecord!.score *
+      (assignmentProblem!.score / totalScoreWeight.scoreWeight!)
+
+    const assignmentProblemRecord =
+      await this.prisma.assignmentProblemRecord.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          assignmentId_userId_problemId: {
+            assignmentId,
+            userId,
+            problemId: submission.problemId
+          }
+        },
+        select: {
+          score: true,
+          isAccepted: true
+        }
+      })
+
+    const prevSubmissionScore = assignmentProblemRecord?.score ?? 0
+
+    await this.prisma.assignmentProblemRecord.update({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        assignmentId_userId_problemId: {
+          assignmentId,
+          userId,
+          problemId: submission.problemId
+        }
+      },
+      data: {
+        score: realSubmissionScore,
+        isSubmitted: true,
+        isAccepted
+      }
+    })
+
+    toBeAddedScore = realSubmissionScore - prevSubmissionScore
+
+    if (toBeAddedScore > 0) {
+      toBeAddedAcceptedProblemNum = isAccepted ? 1 : 0
+    } else if (toBeAddedScore < 0) {
+      toBeAddedAcceptedProblemNum = assignmentProblemRecord?.isAccepted ? -1 : 0
+    }
     await this.prisma.assignmentRecord.update({
       where: {
         id: assignmentRecord.id
       },
       data: {
-        acceptedProblemNum:
-          assignmentRecord.acceptedProblemNum + toBeAddedAcceptedProblemNum,
-        score: assignmentRecord.score + toBeAddedScore,
-        totalPenalty: assignmentRecord.totalPenalty + toBeAddedPenalty,
-        finishTime: isFinishTimeToBeUpdated
-          ? submission.updateTime
-          : assignmentRecord.finishTime
+        acceptedProblemNum: { increment: toBeAddedAcceptedProblemNum },
+        score: { increment: toBeAddedScore },
+        finishTime: submission.updateTime
       }
     })
   }
 
-  async updateProblemScore(id: number) {
+  async updateSubmissionScore(id: number) {
     const submission = await this.prisma.submission.findUniqueOrThrow({
       where: {
         id
