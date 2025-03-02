@@ -3,7 +3,6 @@
 import { BaseModal } from '@/components/BaseModal'
 import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
-import { AiFillCloseSquare } from 'react-icons/ai'
 import { IoIosCloseCircle } from 'react-icons/io'
 import { IoSearchCircle } from 'react-icons/io5'
 
