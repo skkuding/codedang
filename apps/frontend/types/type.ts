@@ -238,6 +238,9 @@ export interface SubmissionDetail {
     memoryUsage: number
     createTime: Date
     updateTime: Date
+    problemTestcase?: {
+      isHidden: boolean
+    }
   }[]
 }
 export interface ContestSubmission {
