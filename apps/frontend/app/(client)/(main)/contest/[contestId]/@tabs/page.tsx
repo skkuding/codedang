@@ -10,8 +10,14 @@ import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
-import type { Contest, ContestStatus, ProblemDataTop } from '@/types/type'
+import type {
+  Contest,
+  ContestStatus,
+  ProblemDataTop,
+  ContestOrder
+} from '@/types/type'
 import Image from 'next/image'
+import { getOngoingUpcomingContests } from '../_libs/apis'
 import { BiggerImageButton } from './_components/BiggerImageButton'
 import { GotoContestListButton } from './_components/GotoContestListButton'
 import { PrevNextProblemButton } from './_components/PrevNextProblemButton'
@@ -60,10 +66,17 @@ interface ContestTopProps {
   params: {
     contestId: string
   }
+  searchParams: {
+    search: string
+  }
 }
 
-export default async function ContestTop({ params }: ContestTopProps) {
+export default async function ContestTop({
+  params,
+  searchParams
+}: ContestTopProps) {
   const session = await auth()
+  const search = searchParams.search ?? ''
   const { contestId } = params
   const data: ContestTop = await fetcherWithAuth
     .get(`contest/${contestId}`)
@@ -71,6 +84,10 @@ export default async function ContestTop({ params }: ContestTopProps) {
   const problemData: ProblemDataTop = await fetcherWithAuth
     .get(`contest/${contestId}/problem`)
     .json()
+  const orderedContests: ContestOrder[] = await getOngoingUpcomingContests(
+    search,
+    session
+  )
 
   const contest: Contest = {
     ...data,
@@ -98,19 +115,22 @@ export default async function ContestTop({ params }: ContestTopProps) {
   )
   const formattedEndTime = dateFormatter(data.endTime, 'YYYY-MM-DD HH:mm:ss')
 
-  const posterUrl = data.posterUrl
-  const imageUrl = posterUrl ? posterUrl : '/logos/welcome.png'
-  const participationTarget = data.participationTarget
-  const competitionMethod = data.competitionMethod
-  const rankingMethod = data.rankingMethod
-  const problemFormat = data.problemFormat
-  const benefits = data.benefits
-  const description = data.description
-  const prev = true
+  const {
+    posterUrl,
+    participationTarget,
+    competitionMethod,
+    rankingMethod,
+    problemFormat,
+    benefits,
+    description,
+    id: currentContestId
+  } = data
 
+  const imageUrl = posterUrl || '/logos/welcome.png'
+  const prev = true
   return (
     <div>
-      <h1 className="mt-24 w-[1202px] text-2xl font-bold">{data?.title}</h1>
+      <h1 className="mt-24 w-[1208px] text-2xl font-bold">{data?.title}</h1>
       <div className="mt-[30px] flex flex-col gap-[10px]">
         <div className="flex gap-2">
           <Image src={calendarIcon} alt="calendar" width={16} height={16} />
@@ -203,8 +223,18 @@ export default async function ContestTop({ params }: ContestTopProps) {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-      <PrevNextProblemButton contestData={data} previous={prev} />
-      <PrevNextProblemButton contestData={data} previous={!prev} />
+      <PrevNextProblemButton
+        contestData={orderedContests}
+        currentContestId={currentContestId}
+        previous={prev}
+        search={search}
+      />
+      <PrevNextProblemButton
+        contestData={orderedContests}
+        currentContestId={currentContestId}
+        previous={!prev}
+        search={search}
+      />
       <GotoContestListButton />
     </div>
   )

@@ -32,6 +32,7 @@ interface Item {
 
 interface ContestDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
+  search: string
   data: TData[]
   headerStyle: {
     [key: string]: string
@@ -66,6 +67,7 @@ interface ContestDataTableProps<TData, TValue> {
 export function ContestDataTable<TData extends Item, TValue>({
   columns,
   data,
+  search,
   headerStyle,
   linked = false,
   emptyMessage = 'No results.',
@@ -138,7 +140,8 @@ export function ContestDataTable<TData extends Item, TValue>({
         <TableBody>
           {paginatedItems?.length ? (
             paginatedItems.map((row) => {
-              const href = `${currentPath}/${row.original.id}` as Route
+              const href =
+                `${currentPath}/${row.original.id}${search ? `?search=${search}` : ''}` as Route
               const handleClick = linked
                 ? () => {
                     router.push(href)

@@ -6,7 +6,11 @@ import {
   Query,
   Req
 } from '@nestjs/common'
-import { AuthNotNeededIfPublic, AuthenticatedRequest } from '@libs/auth'
+import {
+  AuthNotNeededIfPublic,
+  AuthenticatedRequest,
+  UserNullWhenAuthFailedIfPublic
+} from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import {
   CursorValidationPipe,
@@ -94,6 +98,7 @@ export class ContestProblemController {
   constructor(private readonly contestProblemService: ContestProblemService) {}
 
   @Get()
+  @UserNullWhenAuthFailedIfPublic()
   async getContestProblems(
     @Req() req: AuthenticatedRequest,
     @Param('contestId', IDValidationPipe) contestId: number,
@@ -103,7 +108,7 @@ export class ContestProblemController {
   ) {
     return await this.contestProblemService.getContestProblems({
       contestId,
-      userId: req.user.id,
+      userId: req.user?.id,
       cursor,
       take
     })
