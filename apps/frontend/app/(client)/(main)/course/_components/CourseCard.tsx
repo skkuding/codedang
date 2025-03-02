@@ -27,7 +27,7 @@ export function CourseCard({ course, color }: CourseCardProps) {
         <div className="flex flex-col gap-1">
           <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800">
             <Image src={calendarIcon} alt="calendar" width={16} height={16} />
-            <p className="my-2 text-sm font-medium text-neutral-600">
+            <p className="my-2 text-sm font-medium text-[#8A8A8A]">
               {course?.courseInfo?.semester}
             </p>
           </div>
@@ -38,7 +38,7 @@ export function CourseCard({ course, color }: CourseCardProps) {
               width={16}
               height={16}
             />
-            <p className="text-sm font-medium text-neutral-600">
+            <p className="text-sm font-medium text-[#8A8A8A]">
               Prof. {course?.courseInfo?.professor}{' '}
             </p>
           </div>
