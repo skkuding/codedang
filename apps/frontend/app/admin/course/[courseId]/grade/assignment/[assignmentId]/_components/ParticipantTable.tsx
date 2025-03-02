@@ -37,7 +37,7 @@ export function ParticipantTable({
     }
   }).data?.getAssignment
 
-  const [updateAssignment, { error }] = useMutation(UPDATE_ASSIGNMENT)
+  const [updateAssignment] = useMutation(UPDATE_ASSIGNMENT)
 
   const summaries = useSuspenseQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
     variables: { groupId, assignmentId, take: 300 }
@@ -137,7 +137,10 @@ export function ParticipantTable({
         <span className="text-primary font-bold">{summariesData.length}</span>{' '}
         Participants
       </p>
-      <DataTableRoot data={summariesData} columns={createColumns(problemData)}>
+      <DataTableRoot
+        data={summariesData}
+        columns={createColumns(problemData, groupId, assignmentId)}
+      >
         <div className="flex items-center gap-4">
           <DataTableSearchBar columndId="realName" placeholder="Search Name" />
           <div className="flex items-center gap-2">
@@ -197,7 +200,7 @@ export function ParticipantTable({
         </div>
         <DataTable
           getHref={(data) =>
-            `/admin/course/${groupId}/grade/assignment/${assignmentId}/user/${data.id}` as Route
+            `/admin/course/${groupId}/grade/assignment/${assignmentId}/user/${data.id}/problem/1` as Route
           }
         />
         <DataTablePagination />
@@ -210,7 +213,7 @@ export function ParticipantTableFallback() {
   return (
     <div>
       <Skeleton className="mb-3 h-[24px] w-2/12" />
-      <DataTableFallback columns={createColumns([])} />
+      <DataTableFallback columns={createColumns([], 0, 0)} />
     </div>
   )
 }
