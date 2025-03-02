@@ -220,11 +220,11 @@ describe('ContestService', () => {
       expect(contest).to.have.property('posterUrl')
       expect(contest).to.have.property('summary')
       if (contest.summary) {
-        expect(contest.summary).to.have.property('participationTarget')
-        expect(contest.summary).to.have.property('competitionMethod')
-        expect(contest.summary).to.have.property('rankingMethod')
-        expect(contest.summary).to.have.property('problemFormat')
-        expect(contest.summary).to.have.property('benefits')
+        expect(contest.summary).to.have.property('참여대상')
+        expect(contest.summary).to.have.property('진행방식')
+        expect(contest.summary).to.have.property('순위산정')
+        expect(contest.summary).to.have.property('문제형태')
+        expect(contest.summary).to.have.property('참여혜택')
       }
     })
 
