@@ -8,6 +8,7 @@ import {
   PrismaTestService,
   type FlatTransactionClient
 } from '@libs/prisma'
+import type { ProblemOrder } from '@client/problem/enum/problem-order.enum'
 import { AnnouncementService } from './announcement.service'
 
 chai.use(chaiExclude)
@@ -61,12 +62,12 @@ describe('AnnouncementService', () => {
           {
             id: 6,
             contestId: 1,
-            problemId: 1
+            problemOrder: 0
           },
           {
             id: 1,
             contestId: 1,
-            problemId: null
+            problemOrder: null
           }
         ])
     })
