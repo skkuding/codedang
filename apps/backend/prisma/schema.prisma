@@ -397,11 +397,11 @@ model Contest {
 
   /// summary structure
   /// {
-  ///   "participationTarget": string,
-  ///   "competitionMethod": string,
-  ///   "rankingMethod": string,
-  ///   "problemFormat": string,
-  ///   "benefits": string
+  ///   참여대상: string,
+  ///   진행방식: string,
+  ///   순위산정: string,
+  ///   문제형태: string,
+  ///   참여혜택: string
   /// }
   summary              Json?     @map("contest_summary")
   invitationCode       String?   @map("invitation_code")
