@@ -7,7 +7,7 @@ import {
 } from '@/components/shadcn/accordion'
 import { Button } from '@/components/shadcn/button'
 import { auth } from '@/libs/auth'
-import { fetcherWithAuth } from '@/libs/utils'
+import { fetcher, fetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import type { Contest, ContestStatus, ProblemDataTop } from '@/types/type'
@@ -68,9 +68,10 @@ export default async function ContestTop({ params }: ContestTopProps) {
   const data: ContestTop = await fetcherWithAuth
     .get(`contest/${contestId}`)
     .json()
-  const problemData: ProblemDataTop = await fetcherWithAuth
+  const problemData: ProblemDataTop = await fetcher
     .get(`contest/${contestId}/problem`)
     .json()
+  console.log('problem Data in Page: ', problemData)
 
   const contest: Contest = {
     ...data,

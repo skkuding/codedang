@@ -49,6 +49,7 @@ export function RenderProblemList({
       </div>
     )
   } else {
+    console.log('problemData: ', problemData)
     if (problemData.total === 0) {
       return <div>No result.</div>
     } else {
