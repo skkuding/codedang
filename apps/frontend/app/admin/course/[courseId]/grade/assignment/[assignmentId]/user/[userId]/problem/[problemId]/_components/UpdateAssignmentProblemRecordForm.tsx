@@ -5,7 +5,7 @@ import { GET_ASSIGNMENT_PROBLEM_RECORD } from '@/graphql/assignment/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateAssignmentProblemRecordInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { updateAssignmentProblemRecordSchema } from '../_libs/schemas'
@@ -25,6 +25,8 @@ export function UpdateAssignmentProblemRecordForm({
   userId,
   problemId
 }: UpdateAssignmentProblemRecordFormProps) {
+  const [loading, setLoading] = useState(true)
+
   const methods = useForm<UpdateAssignmentProblemRecordInput>({
     resolver: valibotResolver(updateAssignmentProblemRecordSchema)
   })
@@ -45,6 +47,7 @@ export function UpdateAssignmentProblemRecordForm({
         finalScore: data.finalScore,
         comment: data.comment
       })
+      setLoading(false)
     }
   })
 
@@ -69,6 +72,10 @@ export function UpdateAssignmentProblemRecordForm({
       }
     })
   })
+
+  if (loading) {
+    return null
+  }
 
   return (
     <form onSubmit={onSubmit}>
