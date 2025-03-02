@@ -7,6 +7,7 @@ export interface Profile {
   }
   studentId: string
   major: string
+  email: string
 }
 
 export const fetchUserProfile = async (): Promise<Profile> => {

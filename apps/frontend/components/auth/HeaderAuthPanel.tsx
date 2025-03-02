@@ -169,10 +169,9 @@ export function HeaderAuthPanel({
               onClick={() => showSignIn()}
               variant={'outline'}
               className={cn(
-                'mr-3 hidden rounded-lg px-4 py-1 text-sm font-semibold md:block',
-                isEditor
-                  ? 'h-8 rounded-[4px] border-none bg-[#EAF3FF] text-[11px]'
-                  : ''
+                'border-primary text-primary mr-3 hidden bg-transparent px-5 py-1 text-sm font-semibold hover:bg-[#EAF3FF] active:bg-[#D7E5FE] md:block',
+                isEditor &&
+                  'h-8 border-none bg-[#EAF3FF] text-[11px] hover:bg-[#D7E5FE]'
               )}
             >
               Log In
@@ -184,10 +183,8 @@ export function HeaderAuthPanel({
                 showSignUp()
               }}
               className={cn(
-                'hidden rounded-lg px-4 py-1 text-sm md:block',
-                isEditor
-                  ? 'h-8 rounded-[4px] text-[11px] font-semibold'
-                  : 'font-bold'
+                'hidden px-5 py-1 text-sm font-semibold md:block',
+                isEditor && 'h-8 text-[11px]'
               )}
             >
               Sign Up

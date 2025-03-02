@@ -1,10 +1,7 @@
 'use client'
 
-import { KatexContent } from '@/components/KatexContent'
 import { Button } from '@/components/shadcn/button'
-import periodIcon from '@/public/icons/period.svg'
-import { useSuspenseQuery } from '@apollo/client'
-import type { Route } from 'next'
+import calendarIcon from '@/public/icons/calendar.svg'
 import Image from 'next/image'
 import Link from 'next/link'
 import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
@@ -38,7 +35,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
       <div className="flex justify-between">
         <p className="text-primary font-bold">Invitation code: 000409</p>
         <div className="flex items-center gap-2">
-          <Image src={periodIcon} alt="period" width={22} />
+          <Image src={calendarIcon} alt="calendar" width={22} />
           2025 Spring
         </div>
       </div>

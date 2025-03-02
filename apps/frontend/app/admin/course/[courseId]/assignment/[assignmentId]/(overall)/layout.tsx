@@ -4,7 +4,7 @@ import { KatexContent } from '@/components/KatexContent'
 import { Button } from '@/components/shadcn/button'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
 import { dateFormatter } from '@/libs/utils'
-import periodIcon from '@/public/icons/period.svg'
+import calendarIcon from '@/public/icons/calendar.svg'
 import { useQuery } from '@apollo/client'
 import type { Route } from 'next'
 import Image from 'next/image'
@@ -27,7 +27,7 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
     <main className="flex flex-col gap-6 px-20 py-16">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href={`/admin/course/${courseId}` as Route}>
+          <Link href={`/admin/course/${courseId}/assignment` as Route}>
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
           <span className="text-4xl font-bold">{assignmentData?.title}</span>
@@ -45,7 +45,7 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
       </div>
       <div className="flex justify-between">
         <div className="flex items-center gap-2">
-          <Image src={periodIcon} alt="period" width={22} />
+          <Image src={calendarIcon} alt="calendar" width={22} />
           <p className="font-semibold">
             {dateFormatter(assignmentData?.startTime, 'YY-MM-DD HH:mm')} ~{' '}
             {dateFormatter(assignmentData?.endTime, 'YY-MM-DD HH:mm')}

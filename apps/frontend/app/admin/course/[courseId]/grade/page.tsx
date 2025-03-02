@@ -1,7 +1,29 @@
+'use client'
+
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
+import { ErrorBoundary } from '@suspensive/react'
+import { useParams } from 'next/navigation'
+import { Suspense } from 'react'
+import {
+  GradeAssignmentTable,
+  GradeAssignmentTableFallback
+} from './_components/GradeAssignmentTable'
+
 export default function Page() {
+  const { courseId } = useParams() // 경로에서 params 가져오기
   return (
-    <main className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform">
-      <p className="font-medium text-slate-400">TODO: Show notice list</p>
-    </main>
+    <div className="container mx-auto space-y-5 py-10">
+      <div className="flex justify-between">
+        <h1 className="text-4xl font-bold">Grade</h1>
+      </div>
+      <h1 className="text-lg font-normal text-gray-500">
+        Here&apos;s a list you made
+      </h1>
+      <ErrorBoundary fallback={FetchErrorFallback}>
+        <Suspense fallback={<GradeAssignmentTableFallback />}>
+          <GradeAssignmentTable groupId={String(courseId)} />
+        </Suspense>
+      </ErrorBoundary>
+    </div>
   )
 }

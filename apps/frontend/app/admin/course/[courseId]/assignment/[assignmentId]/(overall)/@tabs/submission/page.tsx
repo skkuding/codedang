@@ -9,12 +9,15 @@ import {
 export default function Submission({
   params
 }: {
-  params: { assignmentId: string }
+  params: { courseId: string; assignmentId: string }
 }) {
   return (
     <ErrorBoundary fallback={FetchErrorFallback}>
       <Suspense fallback={<SubmissionTableFallback />}>
-        <SubmissionTable assignmentId={Number(params.assignmentId)} />
+        <SubmissionTable
+          groupId={Number(params.courseId)}
+          assignmentId={Number(params.assignmentId)}
+        />
       </Suspense>
     </ErrorBoundary>
   )

@@ -217,7 +217,9 @@ describe('ProblemService', () => {
 
       const result = await service.uploadTestcase(
         testcaseUploadInput,
-        problemId
+        problemId,
+        user[0].role!,
+        user[0].id!
       )
 
       expect(createTestcaseSpy.calledOnce).to.be.true
@@ -243,7 +245,11 @@ describe('ProblemService', () => {
   describe('getProblem', () => {
     it('should return a group problem', async () => {
       db.problem.findFirstOrThrow.resolves(problems[0])
-      const result = await service.getProblem(problemId)
+      const result = await service.getProblem(
+        problemId,
+        user[0].role!,
+        user[0].id!
+      )
       expect(result).to.deep.equal(problemsWithIsVisible[0])
     })
   })
@@ -652,7 +658,7 @@ describe('ProblemService', () => {
       )
       //when & then
       await expect(
-        service.updateContestProblemsOrder(1, [2, 3, 4, 5, 6, 7, 8, 9, 10, 1])
+        service.updateContestProblemsOrder(-1, [2, 3, 4, 5, 6, 7, 8, 9, 10, 1])
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
