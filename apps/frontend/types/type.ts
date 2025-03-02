@@ -151,6 +151,10 @@ export interface Contest {
   contestProblem: ProblemInContestInterface[]
 }
 
+export interface ContestOrder {
+  id: number
+  title: string
+}
 export interface ContestAnnouncement {
   id: number
   content: string
@@ -289,6 +293,7 @@ export interface SettingsFormat {
   confirmPassword: string
   realName: string
   studentId: string
+  email: string
 }
 
 export interface CourseInfo {

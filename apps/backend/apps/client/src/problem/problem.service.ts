@@ -253,7 +253,7 @@ export class ContestProblemService {
     take
   }: {
     contestId: number
-    userId: number
+    userId: number | null
     cursor: number | null
     take: number
   }) {

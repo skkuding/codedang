@@ -169,7 +169,7 @@ export class ContestService {
     }
   }
 
-  async getContest(id: number, userId?: number) {
+  async getContest(id: number, userId?: number | null) {
     // check if the user has already registered this contest
     // initial value is false
     let isRegistered = false
