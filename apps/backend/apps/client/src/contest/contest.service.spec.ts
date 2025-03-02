@@ -19,7 +19,7 @@ import {
   PrismaTestService,
   type FlatTransactionClient
 } from '@libs/prisma'
-import { ContestService } from './contest.service'
+import { ContestService, type ContestResult } from './contest.service'
 
 const contestId = 1
 const user01Id = 7
@@ -71,8 +71,7 @@ const ongoingContests = [
     startTime: now.add(-1, 'day').toDate(),
     endTime: now.add(1, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
+    enableCopyPaste: true
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -93,8 +92,7 @@ const upcomingContests = [
     startTime: now.add(1, 'day').toDate(),
     endTime: now.add(2, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
+    enableCopyPaste: true
   }
 ] satisfies Partial<ContestResult>[]
 
@@ -115,8 +113,7 @@ const finishedContests = [
     startTime: now.add(-2, 'day').toDate(),
     endTime: now.add(-1, 'day').toDate(),
     participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
+    enableCopyPaste: true
   }
 ] satisfies Partial<ContestResult>[]
 
