@@ -10,40 +10,38 @@ get {
   auth: none
 }
 
-query {
+params:query {
   contestId: 1
-  ~problemId: 1
-  ~groupId: 1
 }
 
 assert {
   res.status: eq 200
   res.body[0].id: isNumber
   res.body[0].content: isString
-  res.body[0].problemId: isNumber
   res.body[0].createTime: isString
   res.body[0].updateTime: isString
+  ~res.body[0].problemOrder: isNumber
 }
 
 docs {
   # Get Announcements
-  
+
   대회 또는 문제에 대한 안내 사항을 가져옵니다.
-  
+
   ## Query
-  
+
   > 필수 query는 * 표시하였습니다.
-  
+
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |contestId *|Integer|안내 사항이 속한 대회 ID|
   |problemId|Integer|안내 사항이 속한 문제  ID|
   |groupId|Integer|안내 사항이 속한 Group ID (default: 1)|
-  
+
   problemId가 주어진 경우, 해당하는 contest problem에 대한 안내 사항을 반환합니다.
-  
+
   ## Response
-  
+
   - `problemId`는 안내 사항과 연관된 문제의 order입니다.
   - `problemId`가 null이라면, 해당 안내 사항은 특정 문제에 국한된 것이 아니라 대회 자체에 대한 것입니다.
 }
