@@ -1414,11 +1414,12 @@ const createContests = async () => {
         description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: contestAdminUser.id,
         posterUrl: null,
-        participationTarget: '소프트웨어학과 원전공/복수전공',
-        competitionMethod: '온라인 진행 예정...?',
-        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-        problemFormat: '문제 형식은 다음과 같습니다.',
-        benefits: null,
+        summary: {
+          participationTarget: '소프트웨어학과 원전공/복수전공',
+          competitionMethod: '온라인 진행 예정...?',
+          rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+          problemFormat: '문제 형식은 다음과 같습니다.'
+        },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,

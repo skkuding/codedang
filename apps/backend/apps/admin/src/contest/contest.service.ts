@@ -1,7 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common'
 import { Contest, ResultStatus, Submission } from '@generated'
-import { ContestRole, Role, type ContestProblem } from '@prisma/client'
+import { ContestRole, Role, type ContestProblem, Prisma } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import {
   PUBLICIZING_REQUEST_EXPIRE_TIME,
