@@ -57,6 +57,7 @@ model User {
   assignment       Assignment[]
   assignmentRecord AssignmentRecord[]
   contest          Contest[]
+  userContest      UserContest[]
   contestRecord    ContestRecord[]
   workbook         Workbook[]
   submission       Submission[]
@@ -414,8 +415,28 @@ model Contest {
   submission     Submission[]
   announcement   Announcement[]
   testSubmission TestSubmission[]
+  userContest    UserContest[]
 
   @@map("contest")
+}
+
+enum ContestRole {
+  Participant
+  Reviewer
+  Manager
+  Admin
+}
+
+model UserContest {
+  userId    Int
+  contestId Int
+  role      ContestRole
+
+  user    User    @relation(fields: [userId], references: [id])
+  contest Contest @relation(fields: [contestId], references: [id])
+
+  @@id([userId, contestId])
+  @@map("user_contest")
 }
 
 model ContestProblem {

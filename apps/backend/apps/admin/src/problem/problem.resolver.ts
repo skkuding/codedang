@@ -22,8 +22,13 @@ import {
   ProblemTestcase,
   WorkbookProblem
 } from '@generated'
-import { Role } from '@prisma/client'
-import { AuthenticatedRequest } from '@libs/auth'
+import { ContestRole, Role } from '@prisma/client'
+import {
+  AuthenticatedRequest,
+  UseContestRolesGuard,
+  UseDisableAdminGuard,
+  UseGroupLeaderGuard
+} from '@libs/auth'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -42,6 +47,7 @@ import { ProblemWithIsVisible } from './model/problem.output'
 import { ProblemService } from './problem.service'
 
 @Resolver(() => ProblemWithIsVisible)
+@UseDisableAdminGuard()
 export class ProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 
@@ -78,7 +84,12 @@ export class ProblemResolver {
     problemId: number,
     @Args('input') input: UploadFileInput
   ) {
-    return await this.problemService.uploadTestcase(input, problemId)
+    return await this.problemService.uploadTestcase(
+      input,
+      problemId,
+      req.user.role,
+      req.user.id
+    )
   }
 
   @Mutation(() => ImageSource)
@@ -125,9 +136,10 @@ export class ProblemResolver {
 
   @Query(() => ProblemWithIsVisible)
   async getProblem(
+    @Context('req') req: AuthenticatedRequest,
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
-    return await this.problemService.getProblem(id)
+    return await this.problemService.getProblem(id, req.user.role, req.user.id)
   }
 
   @ResolveField('tag', () => [ProblemTag])
@@ -166,6 +178,7 @@ export class ProblemResolver {
 }
 
 @Resolver(() => ContestProblem)
+@UseContestRolesGuard(ContestRole.Reviewer)
 export class ContestProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 
@@ -178,6 +191,7 @@ export class ContestProblemResolver {
   }
 
   @Mutation(() => [ContestProblem])
+  @UseContestRolesGuard(ContestRole.Manager)
   async updateContestProblemsScore(
     @Args('contestId', { type: () => Int }) contestId: number,
     @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
@@ -190,6 +204,7 @@ export class ContestProblemResolver {
   }
 
   @Mutation(() => [ContestProblem])
+  @UseContestRolesGuard(ContestRole.Manager)
   async updateContestProblemsOrder(
     @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
     contestId: number,
@@ -208,6 +223,7 @@ export class ContestProblemResolver {
 }
 
 @Resolver(() => AssignmentProblem)
+@UseGroupLeaderGuard()
 export class AssignmentProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 
@@ -268,6 +284,7 @@ export class AssignmentProblemResolver {
 }
 
 @Resolver(() => WorkbookProblem)
+@UseGroupLeaderGuard()
 export class WorkbookProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 

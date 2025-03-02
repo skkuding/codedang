@@ -10,7 +10,7 @@ import {
   Parent
 } from '@nestjs/graphql'
 import { Group, Notice, User } from '@generated'
-import { AuthenticatedRequest } from '@libs/auth'
+import { AuthenticatedRequest, UseGroupLeaderGuard } from '@libs/auth'
 import {
   CursorValidationPipe,
   IDValidationPipe,
@@ -22,6 +22,7 @@ import { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 import { NoticeService } from './notice.service'
 
 @Resolver(() => Notice)
+@UseGroupLeaderGuard()
 export class NoticeResolver {
   private readonly logger = new Logger(NoticeResolver.name)
   constructor(
