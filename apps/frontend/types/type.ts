@@ -289,6 +289,7 @@ export interface SettingsFormat {
   confirmPassword: string
   realName: string
   studentId: string
+  email: string
 }
 
 export interface CourseInfo {

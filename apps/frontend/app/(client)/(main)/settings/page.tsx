@@ -12,6 +12,7 @@ import { updateUserProfile } from '../../_libs/apis/profile'
 import { profileQueries } from '../../_libs/queries/profile'
 import { ConfirmModal } from './_components/ConfirmModal'
 import { CurrentPwSection } from './_components/CurrentPwSection'
+import { EmailSection } from './_components/EmailSection'
 import { IdSection } from './_components/IdSection'
 import { LogoSection } from './_components/LogoSection'
 import { MajorSection } from './_components/MajorSection'
@@ -48,7 +49,8 @@ export default function Page() {
         realName: ''
       },
       studentId: '',
-      major: ''
+      major: '',
+      email: ''
     },
     retry: false
   })
@@ -228,6 +230,8 @@ export default function Page() {
           <TopicSection />
           {/* ID */}
           <IdSection />
+          {/* Email */}
+          <EmailSection />
           {/* Current password */}
           <CurrentPwSection
             currentPassword={currentPassword}

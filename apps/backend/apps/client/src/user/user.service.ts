@@ -83,6 +83,11 @@ export class UserService {
       throw new DuplicateFoundException('Email')
     }
 
+    if (!email.endsWith('@skku.edu')) {
+      this.logger.debug('invalid email domain', { email })
+      throw new UnprocessableDataException('Only @skku.edu emails are allowed')
+    }
+
     return this.createPinAndSendEmail(email)
   }
 
