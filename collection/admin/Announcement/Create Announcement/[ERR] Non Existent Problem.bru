@@ -1,0 +1,30 @@
+meta {
+  name: [ERR] Non Existent Problem
+  type: graphql
+  seq: 4
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createAnnouncement(
+      input: {
+        contestId: 1
+      	problemId: 999
+      	content: "test"
+      }
+    ) {
+      id
+      contestId
+      problemId
+      content
+      createTime
+      updateTime
+    }
+  }
+}

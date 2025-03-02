@@ -1,0 +1,41 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createAnnouncement(
+      input: {
+        contestId: 1
+      	problemId: 1
+      	content: "test"
+      }
+    ) {
+      id
+      contestId
+      problemId
+      content
+      createTime
+      updateTime
+    }
+  }
+}
+
+docs {
+  # Create Announcement
+  
+  ## `CreateAnnouncementInput`
+  | 필드명    | 타입    | 필수 여부 | 설명 |
+  |----------|--------|----------|-------------|
+  | contestId  | `Int`   | `true`       | 공지가 속한 콘테스트의 ID |
+  | problemId  | `Int`   | `false`   | 공지와 관련된 문제의 ID (문제 번호 아님) |
+  | content    | `String`   | `true`       | 공지 내용 |
+}
