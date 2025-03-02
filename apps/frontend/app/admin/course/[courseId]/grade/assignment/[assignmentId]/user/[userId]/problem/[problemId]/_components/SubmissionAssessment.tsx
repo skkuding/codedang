@@ -3,11 +3,7 @@
 import { DescriptionForm } from '@/app/admin/_components/DescriptionForm'
 import { Button } from '@/components/shadcn/button'
 import submitIcon from '@/public/icons/submit.svg'
-import type { UpdateAssignmentProblemRecordInput } from '@generated/graphql'
-import { valibotResolver } from '@hookform/resolvers/valibot'
 import Image from 'next/image'
-import { useForm } from 'react-hook-form'
-import { updateAssignmentProblemRecordSchema } from '../_libs/schemas'
 import { FinalScoreForm } from './FinalScoreForm'
 import { UpdateAssignmentProblemRecordForm } from './UpdateAssignmentProblemRecordForm'
 
@@ -24,10 +20,6 @@ export function SubmissionAssessment({
   userId,
   problemId
 }: SubmissionAssessmentProps) {
-  const methods = useForm<UpdateAssignmentProblemRecordInput>({
-    resolver: valibotResolver(updateAssignmentProblemRecordSchema)
-  })
-
   return (
     <UpdateAssignmentProblemRecordForm
       groupId={groupId}
