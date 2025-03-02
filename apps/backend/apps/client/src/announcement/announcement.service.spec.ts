@@ -8,7 +8,6 @@ import {
   PrismaTestService,
   type FlatTransactionClient
 } from '@libs/prisma'
-import type { ProblemOrder } from '@client/problem/enum/problem-order.enum'
 import { AnnouncementService } from './announcement.service'
 
 chai.use(chaiExclude)
