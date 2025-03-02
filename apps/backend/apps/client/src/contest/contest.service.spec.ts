@@ -45,77 +45,72 @@ const contest = {
   updateTime: now.add(-1, 'day').toDate(),
   posterUrl: 'posterUrl',
   summary: {
-    participationTarget: 'participationTarget',
-    competitionMethod: 'competitionMethod',
-    rankingMethod: 'rankingMethod',
-    problemFormat: 'problemFormat',
-    benefits: 'benefits'
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
   },
   invitationCode: '123456'
 } satisfies Contest
 
-const ongoingContests = [
-  {
-    id: contest.id,
-    title: contest.title,
-    posterUrl: contest.posterUrl,
-    summary: {
-      participationTarget: contest.summary?.participationTarget,
-      competitionMethod: contest.summary?.competitionMethod,
-      rankingMethod: contest.summary?.rankingMethod,
-      problemFormat: contest.summary?.problemFormat,
-      benefits: contest.summary?.benefits
-    },
-    invitationCode: 'test',
-    isJudgeResultVisible: true,
-    startTime: now.add(-1, 'day').toDate(),
-    endTime: now.add(1, 'day').toDate(),
-    participants: 1,
-    enableCopyPaste: true
-  }
-] satisfies Partial<ContestResult>[]
+// const ongoingContests = [
+//   {
+//     id: contest.id,
+//     title: contest.title,
+//     posterUrl: contest.posterUrl,
+//     summary: {
+//       참여대상: contest.summary?.참여대상,
+//       진행방식: contest.summary?.진행방식,
+//       순위산정: contest.summary?.순위산정,
+//       문제형태: contest.summary?.문제형태,
+//       참여혜택: contest.summary?.참여혜택
+//     },
+//     invitationCode: 'test',
+//     isJudgeResultVisible: true,
+//     startTime: now.add(-1, 'day').toDate(),
+//     endTime: now.add(1, 'day').toDate(),
+//     participants: 1,
+//     enableCopyPaste: true
+//   }
+// ] satisfies Partial<ContestResult>[]
 
-const upcomingContests = [
-  {
-    id: contest.id + 6,
-    title: contest.title,
-    posterUrl: null,
-    summary: {
-      participationTarget: null,
-      competitionMethod: null,
-      rankingMethod: contest.summary?.rankingMethod,
-      problemFormat: contest.summary?.problemFormat,
-      benefits: contest.summary?.benefits
-    },
-    invitationCode: 'test',
-    isJudgeResultVisible: true,
-    startTime: now.add(1, 'day').toDate(),
-    endTime: now.add(2, 'day').toDate(),
-    participants: 1,
-    enableCopyPaste: true
-  }
-] satisfies Partial<ContestResult>[]
+// const upcomingContests = [
+//   {
+//     id: contest.id + 6,
+//     title: contest.title,
+//     posterUrl: null,
+//     summary: {
+//       순위산정: contest.summary?.순위산정,
+//       문제형태: contest.summary?.문제형태,
+//       참여혜택: contest.summary?.참여혜택
+//     },
+//     invitationCode: 'test',
+//     isJudgeResultVisible: true,
+//     startTime: now.add(1, 'day').toDate(),
+//     endTime: now.add(2, 'day').toDate(),
+//     participants: 1,
+//     enableCopyPaste: true
+//   }
+// ] satisfies Partial<ContestResult>[]
 
-const finishedContests = [
-  {
-    id: contest.id + 1,
-    title: contest.title,
-    posterUrl: contest.posterUrl,
-    summary: {
-      participationTarget: contest.summary?.participationTarget,
-      competitionMethod: contest.summary?.competitionMethod,
-      rankingMethod: null,
-      problemFormat: null,
-      benefits: null
-    },
-    invitationCode: null,
-    isJudgeResultVisible: true,
-    startTime: now.add(-2, 'day').toDate(),
-    endTime: now.add(-1, 'day').toDate(),
-    participants: 1,
-    enableCopyPaste: true
-  }
-] satisfies Partial<ContestResult>[]
+// const finishedContests = [
+//   {
+//     id: contest.id + 1,
+//     title: contest.title,
+//     posterUrl: contest.posterUrl,
+//     summary: {
+//       참여대상: contest.summary?.참여대상,
+//       진행방식: contest.summary?.진행방식
+//     },
+//     invitationCode: null,
+//     isJudgeResultVisible: true,
+//     startTime: now.add(-2, 'day').toDate(),
+//     endTime: now.add(-1, 'day').toDate(),
+//     participants: 1,
+//     enableCopyPaste: true
+//   }
+// ] satisfies Partial<ContestResult>[]
 
 describe('ContestService', () => {
   let service: ContestService
