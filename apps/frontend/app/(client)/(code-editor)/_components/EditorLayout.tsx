@@ -40,7 +40,7 @@ export async function EditorLayout({
     const res = await fetcherWithAuth(
       `contest/${contestId}/problem/${problemId}`
     )
-    if (!res.ok && res.status === 403) {
+    if (!res.ok && (res.status === 403 || res.status === 401)) {
       redirect(`/contest/${contestId}/finished/problem/${problemId}`)
     }
 
