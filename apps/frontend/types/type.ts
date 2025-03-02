@@ -158,9 +158,8 @@ export interface ContestOrder {
 export interface ContestAnnouncement {
   id: number
   content: string
-  assignmentId: null | string
   constestId: number
-  problemId: null | number
+  problemOrder: null | number
   createTime: string
   updateTime: string
 }
