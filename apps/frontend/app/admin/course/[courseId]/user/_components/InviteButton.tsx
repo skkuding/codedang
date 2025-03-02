@@ -9,7 +9,8 @@ import {
   AlertDialogCancel,
   AlertDialogFooter,
   AlertDialogAction,
-  AlertDialogTrigger
+  AlertDialogTrigger,
+  AlertDialogDescription
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
@@ -442,18 +443,18 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
           open={isRevokeInvitationModalOpen}
           onOpenChange={setIsRevokeInvitationModalOpen}
         >
-          <AlertDialogContent className="max-w-lg p-8">
+          <AlertDialogContent className="p-8">
             <AlertDialogHeader>
               <AlertDialogTitle className="mb-4 text-xl">
                 Disable Invitation Code
               </AlertDialogTitle>
             </AlertDialogHeader>
-            <div className="flex flex-col gap-3">
+            <AlertDialogDescription>
               Students will no longer be able to join the course using the
               invitation code.
-            </div>
+            </AlertDialogDescription>
             <AlertDialogFooter>
-              <AlertDialogCancel className="rounded-md px-4 py-2">
+              <AlertDialogCancel className="px-4 py-2 text-neutral-400">
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction asChild>
@@ -497,11 +498,11 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
                         Update Invitation Code
                       </AlertDialogTitle>
                     </AlertDialogHeader>
-                    <div className="flex flex-col gap-3">
+                    <AlertDialogDescription>
                       The previous invitation code will no longer be available.
-                    </div>
+                    </AlertDialogDescription>
                     <AlertDialogFooter>
-                      <AlertDialogCancel className="rounded-md px-4 py-2">
+                      <AlertDialogCancel className="px-4 py-2 text-neutral-400">
                         Cancel
                       </AlertDialogCancel>
                       <AlertDialogAction asChild>
@@ -583,12 +584,12 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
                         Disable Student Whitelist
                       </AlertDialogTitle>
                     </AlertDialogHeader>
-                    <div className="flex flex-col gap-3">
+                    <AlertDialogDescription>
                       The student ID whitelist will be deleted, and anyone will
                       be able to join the course with an invitation code.
-                    </div>
+                    </AlertDialogDescription>
                     <AlertDialogFooter>
-                      <AlertDialogCancel className="rounded-md px-4 py-2">
+                      <AlertDialogCancel className="px-4 py-2 text-neutral-400">
                         Cancel
                       </AlertDialogCancel>
                       <AlertDialogAction asChild>
