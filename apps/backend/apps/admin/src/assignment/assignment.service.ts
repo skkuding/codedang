@@ -942,20 +942,58 @@ export class AssignmentService {
       )
     }
 
-    return await this.prisma.assignmentProblemRecord.update({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        assignmentId_userId_problemId: {
-          assignmentId: input.assignmentId,
-          userId: input.userId,
-          problemId: input.problemId
+    const updatedProblemRecord = await this.prisma.$transaction(
+      async (prisma) => {
+        const updatedRecord = await prisma.assignmentProblemRecord.update({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            assignmentId_userId_problemId: {
+              assignmentId: input.assignmentId,
+              userId: input.userId,
+              problemId: input.problemId
+            }
+          },
+          data: {
+            finalScore: input.finalScore,
+            comment: input.comment
+          }
+        })
+
+        const problemRecords = await prisma.assignmentProblemRecord.findMany({
+          where: {
+            assignmentId: input.assignmentId,
+            userId: input.userId
+          },
+          select: {
+            finalScore: true
+          }
+        })
+
+        if (!problemRecords.some(({ finalScore }) => finalScore === null)) {
+          const totalFinalScore = problemRecords.reduce(
+            (total, { finalScore }) => total + finalScore!,
+            0
+          )
+
+          await prisma.assignmentRecord.update({
+            where: {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              assignmentId_userId: {
+                assignmentId: input.assignmentId,
+                userId: input.userId
+              }
+            },
+            data: {
+              finalScore: totalFinalScore
+            }
+          })
         }
-      },
-      data: {
-        finalScore: input.finalScore,
-        comment: input.comment
+
+        return updatedRecord
       }
-    })
+    )
+
+    return updatedProblemRecord
   }
 
   async getAssignmentProblemRecord({
