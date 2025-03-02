@@ -257,10 +257,11 @@ model UpdateHistory {
   updatedFields ProblemField[] // 변경된 필드 목록
   updatedInfo   Json[]
   /**
+   * updatedInfo structure
    * {
-   * current:
-   * previsou:
-   * updatedField:
+   * "current":
+   * "previous":
+   * "updatedField":
    * }
    */
 

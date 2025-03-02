@@ -261,7 +261,6 @@ describe('ProblemService', () => {
 
   describe('updateProblem', () => {
     const testcase = { ...testcaseInput, id: 1 }
-    const userId = 1
     it('should return updated problem', async () => {
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.problem.update.resolves({ ...problems[0], title: 'revised' })

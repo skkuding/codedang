@@ -526,7 +526,7 @@ export class ProblemService {
       )
       if (!hasShared && problem.createdById != userId) {
         throw new ForbiddenException(
-          'User can only edit problems they created or were shared with'
+          'User can only retrieve problems they created or were shared with'
         )
       }
     }
@@ -559,6 +559,25 @@ export class ProblemService {
         }
       }
     })
+    if (userRole == Role.User && problem.createdById != userId) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared) {
+        throw new ForbiddenException(
+          'User can only edit problems they created or were shared with'
+        )
+      }
+    }
 
     const updatedByid = userId
 
@@ -639,25 +658,6 @@ export class ProblemService {
     if (input.hint && input.hint !== problem.hint) {
       updatedFields.push(ProblemField.hint)
       hintInfo.current = input.hint
-    }
-    if (userRole == Role.User && problem.createdById != userId) {
-      const leaderGroupIds = (
-        await this.prisma.userGroup.findMany({
-          where: {
-            userId,
-            isGroupLeader: true
-          }
-        })
-      ).map((group) => group.groupId)
-      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
-      const hasShared = sharedGroupIds.some((v) =>
-        new Set(leaderGroupIds).has(v)
-      )
-      if (!hasShared) {
-        throw new ForbiddenException(
-          'User can only edit problems they created or were shared with'
-        )
-      }
     }
 
     if (languages && !languages.length) {
