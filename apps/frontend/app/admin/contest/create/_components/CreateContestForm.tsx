@@ -98,7 +98,6 @@ export function CreateContestForm({
 
     await updateContestProblemsOrder({
       variables: {
-        groupId: 1,
         contestId,
         orders: orderArray
       }

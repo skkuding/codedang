@@ -57,11 +57,11 @@ model User {
   assignment       Assignment[]
   assignmentRecord AssignmentRecord[]
   contest          Contest[]
+  userContest      UserContest[]
   contestRecord    ContestRecord[]
   workbook         Workbook[]
   submission       Submission[]
   useroauth        UserOAuth?
-  CodeDraft        CodeDraft[]
   Image            Image[]
   testSubmission   TestSubmission[]
 
@@ -128,10 +128,10 @@ model Group {
 
   userGroup      UserGroup[]
   notice         Notice[]
-  problem        Problem[]
   assignment     Assignment[]
   workbook       Workbook[]
   GroupWhitelist GroupWhitelist[]
+  sharedProblems Problem[]
 
   @@map("group")
 }
@@ -165,8 +165,8 @@ model Notice {
   id          Int      @id @default(autoincrement())
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?     @map("created_by_id")
-  group       Group    @relation(fields: [groupId], references: [id])
-  groupId     Int      @map("group_id")
+  group       Group?   @relation(fields: [groupId], references: [id])
+  groupId     Int?     @map("group_id")
   title       String
   content     String
   isVisible   Boolean  @default(true) @map("is_visible")
@@ -181,8 +181,6 @@ model Problem {
   id          Int   @id @default(autoincrement())
   createdBy   User? @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?  @map("created_by_id")
-  group       Group @relation(fields: [groupId], references: [id])
-  groupId     Int   @map("group_id")
 
   title             String
   description       String
@@ -222,6 +220,7 @@ model Problem {
   createTime      DateTime   @default(now()) @map("create_time")
   updateTime      DateTime   @updatedAt @map("update_time")
 
+  sharedGroups      Group[]
   problemTestcase   ProblemTestcase[]
   problemTag        ProblemTag[]
   assignmentProblem AssignmentProblem[]
@@ -229,7 +228,6 @@ model Problem {
   contestProblem    ContestProblem[]
   submission        Submission[]
   announcement      Announcement[]
-  codeDraft         CodeDraft[]
   testSubmission    TestSubmission[]
 
   @@map("problem")
@@ -315,11 +313,12 @@ model Assignment {
   enableCopyPaste      Boolean  @default(true) @map("enable_copy_paste") // 이 Assignment에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다.
   createTime           DateTime @default(now()) @map("create_time")
   updateTime           DateTime @updatedAt @map("update_time")
+  autoFinalizeScore    Boolean  @default(false) @map("auto_finalize_score") // Assignment이 종료되면 자동으로 finalScore를 계산합니다.
+  isFinalScoreVisible  Boolean  @default(false) @map("is_final_score_visible") // 이 Assignment에 포함된 문제의 최종 점수를 사용자에게 보여줄지 말지 결정합니다.
 
   assignmentProblem AssignmentProblem[]
   assignmentRecord  AssignmentRecord[]
   submission        Submission[]
-  announcement      Announcement[]
   testSubmission    TestSubmission[]
 
   @@index([groupId, week])
@@ -336,7 +335,7 @@ model AssignmentProblem {
   score                   Int                       @default(0)
   createTime              DateTime                  @default(now()) @map("create_time")
   updateTime              DateTime                  @updatedAt @map("update_time")
-  AssignmentProblemRecord AssignmentProblemRecord[]
+  assignmentProblemRecord AssignmentProblemRecord[]
 
   @@id([assignmentId, problemId])
   //@@unique([assignmentId, problemId])
@@ -344,20 +343,23 @@ model AssignmentProblem {
 }
 
 model AssignmentRecord {
-  id                      Int                       @id @default(autoincrement())
-  assignment              Assignment                @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId            Int                       @map("assignment_id")
-  user                    User?                     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId                  Int?                      @map("user_id")
-  acceptedProblemNum      Int                       @default(0) @map("accepted_problem_num")
-  score                   Int                       @default(0)
+  id                 Int        @id @default(autoincrement())
+  assignment         Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId       Int        @map("assignment_id")
+  user               User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId             Int?       @map("user_id")
+  acceptedProblemNum Int        @default(0) @map("accepted_problem_num")
+  score              Int        @default(0) // Only used after assignment finished
+  finalScore         Int?       @map("final_score")
+  comment            String     @default("")
+
   // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각
   finishTime              DateTime?                 @map("finish_time")
   // totalPenalty: Submission 시, AC를 받지 못했을 때, 올라가는 Counter
   totalPenalty            Int                       @default(0) @map("total_penalty")
   createTime              DateTime                  @default(now()) @map("create_time")
   updateTime              DateTime                  @updatedAt @map("update_time")
-  AssignmentProblemRecord AssignmentProblemRecord[]
+  assignmentProblemRecord AssignmentProblemRecord[]
 
   @@unique([assignmentId, userId])
   @@map("assignment_record")
@@ -368,9 +370,12 @@ model AssignmentProblemRecord {
   userId       Int
   problemId    Int
 
-  score       Int     @default(0)
+  score       Int     @default(0) // Only used after assignment finished
   isSubmitted Boolean @default(false) @map("is_submitted")
   isAccepted  Boolean @default(false) @map("is_accepted")
+
+  finalScore Int?   @map("final_score")
+  comment    String @default("")
 
   assignmentProblem AssignmentProblem @relation(fields: [assignmentId, problemId], references: [assignmentId, problemId], onDelete: Cascade)
   assignmentRecord  AssignmentRecord  @relation(fields: [assignmentId, userId], references: [assignmentId, userId], onDelete: Cascade)
@@ -410,8 +415,28 @@ model Contest {
   submission     Submission[]
   announcement   Announcement[]
   testSubmission TestSubmission[]
+  userContest    UserContest[]
 
   @@map("contest")
+}
+
+enum ContestRole {
+  Participant
+  Reviewer
+  Manager
+  Admin
+}
+
+model UserContest {
+  userId    Int
+  contestId Int
+  role      ContestRole
+
+  user    User    @relation(fields: [userId], references: [id])
+  contest Contest @relation(fields: [contestId], references: [id])
+
+  @@id([userId, contestId])
+  @@map("user_contest")
 }
 
 model ContestProblem {
@@ -479,18 +504,14 @@ model ContestRecord {
 }
 
 model Announcement {
-  id           Int         @id @default(autoincrement())
-  content      String
-  // Assignment와 Contest 둘 중 하나만 설정되어 있어야 합니다 (XOR)
-  // 아닐시 DB단에서 에러 반환, 20250108111635_add_contest_tables migration 참고
-  assignment   Assignment? @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId Int?        @map("assignment_id")
-  contest      Contest?    @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId    Int?        @map("contest_id")
-  problem      Problem?    @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId    Int?        @map("problem_id")
-  createTime   DateTime    @default(now()) @map("create_time")
-  updateTime   DateTime    @updatedAt @map("update_time")
+  id         Int      @id @default(autoincrement())
+  content    String
+  contest    Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId  Int      @map("contest_id")
+  problem    Problem? @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId  Int?     @map("problem_id")
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
 
   @@unique([id])
   @@map("announcement")
@@ -582,6 +603,7 @@ model SubmissionResult {
   createTime        DateTime        @default(now()) @map("create_time")
   updateTime        DateTime        @updatedAt @map("update_time")
 
+  @@unique([submissionId, problemTestcaseId])
   @@map("submission_result")
 }
 
@@ -597,29 +619,6 @@ enum ResultStatus {
   ServerError
   SegmentationFaultError
   Blind // isJudgeResultVisible == False로 설정된 Assignment/Contest의 채점 결과를 반환할 때 사용
-}
-
-model CodeDraft {
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int     @map("user_id")
-  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId Int     @map("problem_id")
-
-  /// template code item structure
-  /// {
-  ///   "lanaguage": Language,
-  ///   "code": {
-  ///             "id": number,
-  ///             "text": string,
-  ///             "locked": boolean
-  ///           }[]
-  /// }
-  template   Json[]
-  createTime DateTime @default(now()) @map("create_time")
-  updateTime DateTime @updatedAt @map("update_time")
-
-  @@id(name: "codeDraftId", [userId, problemId])
-  @@map("code_draft")
 }
 
 model TestSubmission {

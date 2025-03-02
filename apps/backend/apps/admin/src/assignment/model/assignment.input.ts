@@ -35,6 +35,12 @@ export class CreateAssignmentInput {
 
   @Field(() => Boolean, { nullable: true })
   enableCopyPaste?: boolean
+
+  @Field(() => Boolean, { nullable: true })
+  autoFinalizeScore: boolean
+
+  @Field(() => Boolean, { nullable: true })
+  isFinalScoreVisible?: boolean
 }
 
 @InputType()
@@ -60,8 +66,8 @@ export class UpdateAssignmentInput {
   @Field(() => GraphQLISODateTime, { nullable: true })
   endTime?: Date
 
-  @Field(() => Number, { nullable: false })
-  week!: number
+  @Field(() => Number, { nullable: true })
+  week?: number
 
   @Field(() => Boolean, { nullable: true })
   isVisible?: boolean
@@ -74,4 +80,10 @@ export class UpdateAssignmentInput {
 
   @Field(() => Boolean, { nullable: true })
   isJudgeResultVisible?: boolean
+
+  @Field(() => Boolean, { nullable: true })
+  autoFinalizeScore?: boolean
+
+  @Field(() => Boolean, { nullable: true })
+  isFinalScoreVisible?: boolean
 }

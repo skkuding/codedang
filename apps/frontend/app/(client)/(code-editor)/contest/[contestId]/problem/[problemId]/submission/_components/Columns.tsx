@@ -1,6 +1,6 @@
 'use client'
 
-import { dateFormatter, getResultColor } from '@/libs/utils'
+import { dateFormatter, getResultColor, omitString } from '@/libs/utils'
 import type { SubmissionItem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 
@@ -11,9 +11,10 @@ export const columns: ColumnDef<SubmissionItem>[] = [
     cell: ({ row }) => <p className="text-sm">{row.original.id}</p>
   },
   {
-    header: () => 'User ID',
-    accessorKey: 'username',
-    cell: ({ row }) => row.original.user.username
+    header: () => 'Problem',
+    accessorKey: 'problem',
+    cell: ({ row }) =>
+      omitString({ targetString: row.original.problem.title, maxlength: 13 })
   },
   {
     header: () => 'Result',
@@ -29,7 +30,11 @@ export const columns: ColumnDef<SubmissionItem>[] = [
   {
     header: () => 'Language',
     accessorKey: 'language',
-    cell: ({ row }) => row.original.language
+    cell: ({ row }) => {
+      return (
+        <p>{row.original.language !== 'Cpp' ? row.original.language : 'C++'}</p>
+      )
+    }
   },
   {
     header: () => 'Submission Time',

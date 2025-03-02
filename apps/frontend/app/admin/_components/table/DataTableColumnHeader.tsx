@@ -31,14 +31,14 @@ export function DataTableColumnHeader<TData, TValue>({
   // Title column
   if (!column.getCanSort()) {
     return (
-      <div className={cn('w-[330px] text-left font-mono text-sm', className)}>
+      <div className={cn('text-left text-sm text-neutral-400', className)}>
         {title}
       </div>
     )
   }
 
   return (
-    <div className={cn('flex items-center space-x-2 font-mono', className)}>
+    <div className={cn('flex items-center space-x-2', className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button

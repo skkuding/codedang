@@ -18,7 +18,6 @@ export class SubmissionService {
 
   async getSubmissions(
     problemId: number,
-    groupId: number,
     cursor: number | null,
     take: number
   ): Promise<SubmissionsWithTotal> {
@@ -26,8 +25,7 @@ export class SubmissionService {
 
     const problem = await this.prisma.problem.findFirst({
       where: {
-        id: problemId,
-        groupId
+        id: problemId
       }
     })
     if (!problem) {
@@ -205,6 +203,30 @@ export class SubmissionService {
     return results
   }
 
+  async getAssignmentSubmission(
+    assignmentId: number,
+    userId: number,
+    problemId: number
+  ) {
+    const submissionId = await this.prisma.submission.findFirst({
+      where: {
+        assignmentId,
+        userId,
+        problemId
+      },
+      orderBy: { updateTime: 'desc' },
+      select: {
+        id: true
+      }
+    })
+
+    if (!submissionId) {
+      throw new EntityNotExistException('Submission')
+    }
+
+    return this.getSubmission(submissionId.id)
+  }
+
   getOrderBy(
     order: SubmissionOrder
   ): Prisma.SubmissionOrderByWithRelationInput {
@@ -245,6 +267,7 @@ export class SubmissionService {
         },
         problem: true,
         contest: true,
+        assignment: true,
         submissionResult: true
       }
     })
