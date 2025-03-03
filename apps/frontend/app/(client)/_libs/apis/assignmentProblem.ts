@@ -4,6 +4,7 @@ import type { PaginationQueryParams } from './types'
 
 export interface GetAssignmentProblemListRequest extends PaginationQueryParams {
   assignmentId: number
+  groupId: number
 }
 
 export interface GetAssignmentProblemListResponse {
