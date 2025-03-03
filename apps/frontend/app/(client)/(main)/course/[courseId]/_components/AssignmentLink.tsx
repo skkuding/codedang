@@ -18,6 +18,15 @@ export function AssignmentLink({ assignment, courseId }: AssignmentLinkProps) {
   const handleClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
 
+    // TODO: should use server date !!
+    const now = new Date()
+    const startTime = new Date(assignment.startTime)
+
+    if (now < startTime) {
+      toast.error('Cannot participate in upcoming assignment')
+      return
+    }
+
     const res = await fetcherWithAuth.post(
       `assignment/${assignment.id}/participation`,
       {
