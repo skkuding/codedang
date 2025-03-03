@@ -18,8 +18,6 @@ export class StorageService {
   ) {}
 
   /**
-   * @deprecated testcase를 더 이상 S3에 저장하지 않습니다.
-   *
    * Object(testcase)를 업로드합니다.
    * @param filename 파일 이름
    * @param content 파일 내용
@@ -68,8 +66,6 @@ export class StorageService {
   // TODO: uploadFile
 
   /**
-   * @deprecated testcase를 더 이상 S3에 저장하지 않습니다.
-   *
    * Object(testcase)를 불러옵니다.
    * @param filename 파일 이름
    * @returns S3에 저장된 Object
@@ -85,8 +81,6 @@ export class StorageService {
   }
 
   /**
-   * @deprecated testcase를 더 이상 S3에 저장하지 않습니다.
-   *
    * S3에 저장된 Object(testcase)를 삭제합니다.
    * @param filename 파일 이름
    */
