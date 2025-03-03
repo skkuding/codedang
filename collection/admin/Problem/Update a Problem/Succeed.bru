@@ -21,6 +21,12 @@ body:graphql {
       outputDescription
       hint
       isVisible
+      updateHistory{
+          updatedAt
+          updatedFields
+          updatedByid
+          updatedInfo
+      }
     }
   }
 }
@@ -29,7 +35,7 @@ body:graphql:vars {
   {
     "input": {
       "id": 4,
-      "title": "updatedProblem",
+      "title": "New Title",
       "description": "updated description",
       "inputDescription": "updated input description",
       "outputDescription": "updated output description",

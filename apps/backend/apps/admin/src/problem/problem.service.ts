@@ -10,7 +10,7 @@ import {
 } from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput } from '@generated'
-import { Role } from '@prisma/client'
+import { ProblemField, Role } from '@prisma/client'
 import { Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
@@ -526,7 +526,7 @@ export class ProblemService {
       )
       if (!hasShared && problem.createdById != userId) {
         throw new ForbiddenException(
-          'User can only edit problems they created or were shared with'
+          'User can only retrieve problems they created or were shared with'
         )
       }
     }
@@ -559,7 +559,6 @@ export class ProblemService {
         }
       }
     })
-
     if (userRole == Role.User && problem.createdById != userId) {
       const leaderGroupIds = (
         await this.prisma.userGroup.findMany({
@@ -578,6 +577,87 @@ export class ProblemService {
           'User can only edit problems they created or were shared with'
         )
       }
+    }
+
+    const updatedByid = userId
+
+    const updatedFields: ProblemField[] = []
+
+    const titleInfo = {
+      updatedField: 'title',
+      current: problem.title,
+      previous: problem.title
+    }
+    const languageInfo = {
+      updatedField: 'language',
+      current: problem.languages,
+      previous: problem.languages
+    }
+    const descriptionInfo = {
+      updatedField: 'description',
+      current: problem.description,
+      previous: problem.description
+    }
+    const timeLimitInfo = {
+      updatedField: 'timeLimit',
+      current: problem.timeLimit,
+      previous: problem.timeLimit
+    }
+    const memoryLimitInfo = {
+      updatedField: 'memoryLimit',
+      current: problem.memoryLimit,
+      previous: problem.memoryLimit
+    }
+    const hintInfo = {
+      updatedField: 'hint',
+      current: problem.hint,
+      previous: problem.hint
+    }
+
+    if (input.title && input.title !== problem.title) {
+      updatedFields.push(ProblemField.title)
+      titleInfo.current = input.title
+    }
+    if (
+      input.languages &&
+      JSON.stringify(input.languages) !== JSON.stringify(problem.languages)
+    ) {
+      updatedFields.push(ProblemField.language)
+      languageInfo.current = input.languages
+    }
+    if (input.description && input.description !== problem.description) {
+      updatedFields.push(ProblemField.description)
+      descriptionInfo.current = input.description
+    }
+    if (testcases?.length) {
+      const existingTestcases = await this.prisma.problemTestcase.findMany({
+        where: { problemId: id }
+      })
+      if (
+        JSON.stringify(testcases) !==
+        JSON.stringify(
+          existingTestcases.map((tc) => ({
+            input: tc.input,
+            output: tc.output,
+            scoreWeight: tc.scoreWeight,
+            isHidden: tc.isHidden
+          }))
+        )
+      ) {
+        updatedFields.push(ProblemField.testcase)
+      }
+    }
+    if (input.timeLimit && input.timeLimit !== problem.timeLimit) {
+      updatedFields.push(ProblemField.timeLimit)
+      timeLimitInfo.current = input.timeLimit
+    }
+    if (input.memoryLimit && input.memoryLimit !== problem.memoryLimit) {
+      updatedFields.push(ProblemField.memoryLimit)
+      memoryLimitInfo.current = input.memoryLimit
+    }
+    if (input.hint && input.hint !== problem.hint) {
+      updatedFields.push(ProblemField.hint)
+      hintInfo.current = input.hint
     }
 
     if (languages && !languages.length) {
@@ -622,6 +702,21 @@ export class ProblemService {
       await this.updateTestcases(id, testcases)
     }
 
+    const updatedInfo = [
+      titleInfo,
+      languageInfo,
+      descriptionInfo,
+      timeLimitInfo,
+      memoryLimitInfo,
+      hintInfo
+    ]
+      .filter((info) => info.current !== info.previous)
+      .map(({ updatedField, current, previous }) => ({
+        updatedField,
+        current,
+        previous
+      }))
+
     const updatedProblem = await this.prisma.problem.update({
       where: { id },
       data: {
@@ -631,10 +726,37 @@ export class ProblemService {
         }),
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
-        problemTag
+        problemTag,
+        ...(updatedFields.length > 0 && {
+          updateHistory: {
+            create: [
+              {
+                updatedFields,
+                updatedAt: new Date(),
+                updatedBy: { connect: { id: updatedByid } },
+                updatedInfo
+              }
+            ]
+          }
+        })
+      },
+      include: {
+        updateHistory: true // 항상 updateHistory 포함
       }
     })
+
     return this.changeVisibleLockTimeToIsVisible(updatedProblem)
+  }
+
+  async getProblemUpdateHistory(problemId: number) {
+    return await this.prisma.updateHistory.findMany({
+      where: {
+        problemId
+      },
+      include: {
+        updatedBy: true
+      }
+    })
   }
 
   async updateProblemTag(
