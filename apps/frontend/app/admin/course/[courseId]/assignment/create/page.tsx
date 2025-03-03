@@ -63,12 +63,12 @@ export default function Page({ params }: { params: { courseId: string } }) {
 
             <SwitchField
               name="enableCopyPaste"
-              title="Enable participants Copy/Pasting"
+              title="Enable Participants Copy/Pasting"
             />
 
             <SwitchField
               name="isJudgeResultVisible"
-              title="Reveal scores to participants"
+              title="Reveal Scores to Participants"
             />
 
             <SwitchField
