@@ -1,5 +1,15 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { Checkbox } from '@/components/shadcn/checkbox'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/shadcn/select'
+import { UPDATE_GROUP_MEMBER } from '@/graphql/user/mutation'
+import { useMutation } from '@apollo/client'
 import type { ColumnDef } from '@tanstack/react-table'
 
 export interface DataTableMember {
@@ -12,7 +22,9 @@ export interface DataTableMember {
   username: string
 }
 
-export const columns: ColumnDef<DataTableMember>[] = [
+export const createColumns = (
+  groupId: number
+): ColumnDef<DataTableMember>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -98,9 +110,13 @@ export const columns: ColumnDef<DataTableMember>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <p className="whitespace-nowrapfont-medium max-w-[700px] overflow-hidden text-ellipsis">
-        {row.getValue('role')}
-      </p>
+      <div className="flex justify-center">
+        <RoleSelect
+          groupId={groupId}
+          userId={row.original.id}
+          role={row.original.role}
+        />
+      </div>
     )
   },
   {
@@ -117,3 +133,35 @@ export const columns: ColumnDef<DataTableMember>[] = [
     )
   }
 ]
+
+function RoleSelect({
+  groupId,
+  userId,
+  role
+}: {
+  groupId: number
+  userId: number
+  role: string
+}) {
+  const [updateGroupMember] = useMutation(UPDATE_GROUP_MEMBER)
+  return (
+    <Select
+      onValueChange={async (value) => {
+        await updateGroupMember({
+          variables: { groupId, userId, toGroupLeader: value === 'Instructor' }
+        })
+      }}
+      defaultValue={role}
+    >
+      <SelectTrigger className="w-28">
+        <SelectValue placeholder={role} />
+      </SelectTrigger>
+      <SelectContent className="bg-white">
+        <SelectGroup>
+          <SelectItem value="Instructor">Instructor</SelectItem>
+          <SelectItem value="Student">Student</SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  )
+}
