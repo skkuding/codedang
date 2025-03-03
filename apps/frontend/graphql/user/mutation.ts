@@ -43,9 +43,16 @@ const ISSUE_INVITATION = gql(`
   }
 `)
 
+const REVOKE_INVITATION = gql(`
+  mutation revokeInvitation($groupId: Int!) {
+    revokeInvitation(groupId: $groupId)
+  }
+`)
+
 export {
   INVITE_USER,
   DELETE_GROUP_MEMBER,
   UPDATE_GROUP_MEMBER,
-  ISSUE_INVITATION
+  ISSUE_INVITATION,
+  REVOKE_INVITATION
 }
