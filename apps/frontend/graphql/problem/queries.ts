@@ -33,9 +33,53 @@ const GET_PROBLEM = gql(`
   }
 `)
 
+const GET_ALL_PROBLEMS = gql(`
+  query GetAllProblems($cursor: Int, $take: Int!, $input: FilterProblemsInput!) {
+    getProblems(cursor: $cursor, take: $take, input: $input) {
+      id
+      title
+      updateTime
+      difficulty
+      submissionCount
+      acceptedRate
+      isVisible
+      languages
+      tag {
+        id
+        tag {
+          id
+          name
+        }
+      }
+    }
+  }
+`)
+
 const GET_MY_PROBLEMS = gql(`
-  query GetProblems($cursor: Int, $take: Int!, $input: FilterProblemsInput!) {
+  query GetMyProblems($cursor: Int, $take: Int!, $input: FilterProblemsInput!) {
     getProblems(cursor: $cursor, take: $take, input: $input, my: true) {
+      id
+      title
+      updateTime
+      difficulty
+      submissionCount
+      acceptedRate
+      isVisible
+      languages
+      tag {
+        id
+        tag {
+          id
+          name
+        }
+      }
+    }
+  }
+`)
+
+const GET_SHARED_PROBLEMS = gql(`
+  query GetSharedProblems($cursor: Int, $take: Int!, $input: FilterProblemsInput!) {
+    getProblems(cursor: $cursor, take: $take, input: $input, shared: true) {
       id
       title
       updateTime
@@ -123,7 +167,9 @@ const GET_PROBLEM_TESTCASE = gql(`
 
 export {
   GET_PROBLEM,
+  GET_ALL_PROBLEMS,
   GET_MY_PROBLEMS,
+  GET_SHARED_PROBLEMS,
   GET_PROBLEM_DETAIL,
   GET_CONTEST_PROBLEMS,
   GET_ASSIGNMENT_PROBLEMS,

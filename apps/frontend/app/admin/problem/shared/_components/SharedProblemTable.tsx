@@ -1,4 +1,4 @@
-import { GET_MY_PROBLEMS } from '@/graphql/problem/queries'
+import { GET_SHARED_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
 import {
@@ -9,12 +9,11 @@ import {
   DataTablePagination,
   DataTableRoot,
   DataTableSearchBar
-} from '../../_components/table'
-import { columns } from './ProblemTableColumns'
-import { ProblemsDeleteButton } from './ProblemsDeleteButton'
+} from '../../../_components/table'
+import { columns } from '../../_components/ProblemTableColumns'
 
 export function SharedProblemTable() {
-  const { data } = useSuspenseQuery(GET_MY_PROBLEMS, {
+  const { data } = useSuspenseQuery(GET_SHARED_PROBLEMS, {
     variables: {
       take: 500,
       input: {
@@ -54,7 +53,6 @@ export function SharedProblemTable() {
         <DataTableSearchBar columndId="title" />
         <DataTableLangFilter />
         <DataTableLevelFilter />
-        <ProblemsDeleteButton />
       </div>
       <DataTable getHref={(data) => `/admin/problem/${data.id}`} />
       <DataTablePagination showSelection />

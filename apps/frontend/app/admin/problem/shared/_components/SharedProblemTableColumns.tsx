@@ -6,7 +6,7 @@ import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
 import type { Level } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
-import { ContainedContests } from './ContainedContests'
+import { ContainedContests } from '../../_components/ContainedContests'
 
 interface Tag {
   id: number

@@ -11,7 +11,6 @@ import {
   DialogTitle,
   DialogClose
 } from '@/components/shadcn/dialog'
-import { useSession } from '@/libs/hooks/useSession'
 import { ErrorBoundary } from '@suspensive/react'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
@@ -24,8 +23,6 @@ export default function Page({
 }: {
   searchParams: { import: boolean | undefined }
 }) {
-  const session = useSession()
-  const isAdmin = session?.user.role === 'admin'
   const [openDialog, setOpenDialog] = useState<boolean>(false)
 
   useEffect(() => {
@@ -41,7 +38,7 @@ export default function Page({
       <div className="container mx-auto space-y-5 py-10">
         <div className="flex justify-between">
           <div>
-            <p className="text-4xl font-bold">Problem List</p>
+            <p className="text-4xl font-bold">My Problem List</p>
             <p className="flex text-lg text-slate-500">
               Here&apos;s a list you made
             </p>
