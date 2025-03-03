@@ -1,5 +1,5 @@
 meta {
-  name: [ERR] End Time Earlier than Start Time
+  name: [ERR] Required Fields Not Entered
   type: graphql
   seq: 2
 }
@@ -31,17 +31,18 @@ body:graphql {
 body:graphql:vars {
   {
     "input": {
-      "title": "New Contest 2",
-      "description": "this is new contest",
-      "startTime": "2030-01-01",
-      "endTime": "2020-01-01",
+      "description": "new contest without title",
+      "startTime": "2024-01-01",
+      "endTime": "2030-01-01",
       "isVisible": true,
       "isRankVisible": true,
       "enableCopyPaste": true,
       "isJudgeResultVisible": true,
       "invitationCode": "123456",
       "summary": {
-        "참여대상": "participationTarget",
+        "참여대상": {
+          "test": "participationTarget"
+        },
         "진행방식": "competitionMethod",
         "순위산정": "rankingMethod",
         "문제형태": "problemFormat",
@@ -52,5 +53,5 @@ body:graphql:vars {
 }
 
 assert {
-  res.body.errors: isDefined
+  res.body.errors[0].message: eq summary should be String
 }

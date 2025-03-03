@@ -1,6 +1,6 @@
 'use client'
 
-import { SubmissionAssessment } from '@/app/admin/course/[courseId]/grade/assignment/[assignmentId]/user/[userId]/problem/[problemId]/_components/SubmissionAssesment'
+import { SubmissionAssessment } from '@/app/admin/course/[courseId]/grade/assignment/[assignmentId]/user/[userId]/problem/[problemId]/_components/SubmissionAssessment'
 import { SubmissionSummary } from '@/app/admin/course/[courseId]/grade/assignment/[assignmentId]/user/[userId]/problem/[problemId]/_components/SubmissionSummary'
 import { SubmissionTestcase } from '@/app/admin/course/[courseId]/grade/assignment/[assignmentId]/user/[userId]/problem/[problemId]/_components/SubmissionTestcase'
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
@@ -60,7 +60,12 @@ export default function Page({ params }: PageProps) {
           <div className="h-3 bg-[#121728]" />
 
           <div className="px-6 py-2">
-            <SubmissionAssessment />
+            <SubmissionAssessment
+              groupId={Number(courseId)}
+              assignmentId={Number(assignmentId)}
+              userId={Number(userId)}
+              problemId={Number(problemId)}
+            />
           </div>
         </Suspense>
       </ErrorBoundary>

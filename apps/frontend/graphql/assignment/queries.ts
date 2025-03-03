@@ -119,10 +119,20 @@ const GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER = gql(`
   }
 `)
 
+const GET_ASSIGNMENT_PROBLEM_RECORD = gql(`
+  query GetAssignmentProblemRecord($groupId: Int!, $assignmentId: Int!, $problemId: Int!, $userId: Int!, ) {
+    getAssignmentProblemRecord(groupId: $groupId, assignmentId: $assignmentId, problemId: $problemId, userId: $userId) {
+      finalScore
+      comment
+    }
+  }
+`)
+
 export {
   GET_ASSIGNMENT,
   GET_ASSIGNMENTS,
   GET_BELONGED_ASSIGNMENTS,
   GET_ASSIGNMENT_SCORE_SUMMARIES,
-  GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER
+  GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER,
+  GET_ASSIGNMENT_PROBLEM_RECORD
 }
