@@ -40,9 +40,9 @@ interface Props {
 export function StatusBadge({ variant }: Props) {
   const { image, text, color } = variants[variant]
   return (
-    <div className="inline-flex items-center gap-2">
+    <div className="inline-flex items-center gap-[6px]">
       <Image src={image} alt={text} />
-      <p className={cn('font-mono font-medium', color)}>{text}</p>
+      <p className={cn('font-sans text-sm font-semibold', color)}>{text}</p>
     </div>
   )
 }

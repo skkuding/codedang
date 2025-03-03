@@ -6,6 +6,7 @@ import {
   Submission,
   AssignmentProblem
 } from '@generated'
+import { GroupType } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import {
@@ -475,7 +476,6 @@ export class AssignmentService {
     take: number,
     assignmentId: number,
     userId: number,
-    groupId: number,
     problemId: number | null,
     cursor: number | null
   ) {
@@ -644,20 +644,11 @@ export class AssignmentService {
    * 특정 user의 특정 Assignment에 대한 총점, 통과한 문제 개수와 각 문제별 테스트케이스 통과 개수를 불러옵니다.
    */
   async getAssignmentScoreSummary(userId: number, assignmentId: number) {
-    const [assignmentProblems, rawSubmissions, assignmentProblemRecords] =
-      await Promise.all([
+    const [assignmentProblems, rawAssignmentProblemRecords] = await Promise.all(
+      [
         this.prisma.assignmentProblem.findMany({
           where: {
             assignmentId
-          }
-        }),
-        this.prisma.submission.findMany({
-          where: {
-            userId,
-            assignmentId
-          },
-          orderBy: {
-            createTime: 'desc'
           }
         }),
         this.prisma.assignmentProblemRecord.findMany({
@@ -666,64 +657,34 @@ export class AssignmentService {
             assignmentId
           }
         })
-      ])
+      ]
+    )
 
     // 오직 현재 Assignment에 남아있는 문제들의 제출에 대해서만 ScoreSummary 계산
     const assignmentProblemIds = assignmentProblems.map(
       (assignmentProblem) => assignmentProblem.problemId
     )
-    const submissions = rawSubmissions.filter((submission) =>
-      assignmentProblemIds.includes(submission.problemId)
+    const assignmentProblemRecords = rawAssignmentProblemRecords.filter(
+      (record) => assignmentProblemIds.includes(record.problemId)
     )
 
-    const finalScoreMap = assignmentProblemRecords.reduce(
-      (map, record) => {
-        map[record.problemId] = record.finalScore
+    const maxScoreMap = assignmentProblems.reduce(
+      (map, problem) => {
+        map[problem.problemId] = problem.score
         return map
       },
-      {} as Record<number, number | null>
+      {} as Record<number, number>
     )
 
-    if (!submissions.length) {
-      return {
-        submittedProblemCount: 0,
-        totalProblemCount: assignmentProblems.length,
-        userAssignmentScore: 0,
-        assignmentPerfectScore: assignmentProblems.reduce(
-          (total, { score }) => total + score,
-          0
-        ),
-        problemScores: []
-      }
-    }
-
-    // 하나의 Problem에 대해 여러 개의 Submission이 존재한다면, 마지막에 제출된 Submission만을 점수 계산에 반영함
-    const latestSubmissions: {
-      [problemId: string]: {
-        result: ResultStatus
-        score: number // Problem에서 획득한 점수 (maxScore 만점 기준)
-        maxScore: number // Assignment에서 Problem이 갖는 배점(만점)
-      }
-    } = await this.getlatestSubmissions(submissions)
-
-    const problemScores: {
-      problemId: number
-      score: number
-      maxScore: number
-      finalScore: number | null
-    }[] = []
-
-    for (const problemId in latestSubmissions) {
-      problemScores.push({
-        problemId: parseInt(problemId),
-        score: latestSubmissions[problemId].score,
-        maxScore: latestSubmissions[problemId].maxScore,
-        finalScore: finalScoreMap[parseInt(problemId)] ?? null
-      })
-    }
+    const problemScores = assignmentProblemRecords.map((record) => ({
+      problemId: record.problemId,
+      score: record.score,
+      maxScore: maxScoreMap[record.problemId],
+      finalScore: record.finalScore
+    }))
 
     const scoreSummary = {
-      submittedProblemCount: Object.keys(latestSubmissions).length, // Assignment에 존재하는 문제 중 제출된 문제의 개수
+      submittedProblemCount: assignmentProblemRecords.length, // Assignment에 존재하는 문제 중 제출된 문제의 개수
       totalProblemCount: assignmentProblems.length, // Assignment에 존재하는 Problem의 총 개수
       userAssignmentScore: problemScores.reduce(
         (total, { score }) => total + score,
@@ -738,7 +699,7 @@ export class AssignmentService {
       )
         ? null
         : assignmentProblemRecords.reduce(
-            (total, { finalScore }) => total + (finalScore as number),
+            (total, { finalScore }) => total + finalScore!,
             0
           ),
       problemScores // 개별 Problem의 점수 리스트 (각 문제에서 몇 점을 획득했는지)
@@ -870,7 +831,38 @@ export class AssignmentService {
     return assignmentRecordsWithScoreSummary
   }
 
-  async getAssignmentsByProblemId(problemId: number) {
+  async getAssignmentsByProblemId(problemId: number, userId: number) {
+    const problem = await this.prisma.problem.findFirstOrThrow({
+      where: { id: problemId },
+      include: {
+        sharedGroups: {
+          select: {
+            id: true
+          }
+        }
+      }
+    })
+
+    if (problem.createdById !== userId) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared) {
+        throw new ForbiddenAccessException(
+          'User can only edit problems they created or were shared with'
+        )
+      }
+    }
+
     const assignmentProblems = await this.prisma.assignmentProblem.findMany({
       where: {
         problemId
@@ -982,20 +974,58 @@ export class AssignmentService {
       )
     }
 
-    return await this.prisma.assignmentProblemRecord.update({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        assignmentId_userId_problemId: {
-          assignmentId: input.assignmentId,
-          userId: input.userId,
-          problemId: input.problemId
+    const updatedProblemRecord = await this.prisma.$transaction(
+      async (prisma) => {
+        const updatedRecord = await prisma.assignmentProblemRecord.update({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            assignmentId_userId_problemId: {
+              assignmentId: input.assignmentId,
+              userId: input.userId,
+              problemId: input.problemId
+            }
+          },
+          data: {
+            finalScore: input.finalScore,
+            comment: input.comment
+          }
+        })
+
+        const problemRecords = await prisma.assignmentProblemRecord.findMany({
+          where: {
+            assignmentId: input.assignmentId,
+            userId: input.userId
+          },
+          select: {
+            finalScore: true
+          }
+        })
+
+        if (!problemRecords.some(({ finalScore }) => finalScore === null)) {
+          const totalFinalScore = problemRecords.reduce(
+            (total, { finalScore }) => total + finalScore!,
+            0
+          )
+
+          await prisma.assignmentRecord.update({
+            where: {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              assignmentId_userId: {
+                assignmentId: input.assignmentId,
+                userId: input.userId
+              }
+            },
+            data: {
+              finalScore: totalFinalScore
+            }
+          })
         }
-      },
-      data: {
-        finalScore: input.finalScore,
-        comment: input.comment
+
+        return updatedRecord
       }
-    })
+    )
+
+    return updatedProblemRecord
   }
 
   async getAssignmentProblemRecord({

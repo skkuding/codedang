@@ -210,9 +210,6 @@ export class AssignmentService {
     }
 
     const now = new Date()
-    if (now >= assignment.endTime) {
-      throw new ConflictFoundException('Cannot participate ended assignment')
-    }
     if (now < assignment.startTime) {
       throw new ConflictFoundException('Cannot participate upcoming assignment')
     }
