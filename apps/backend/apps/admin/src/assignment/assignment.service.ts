@@ -6,6 +6,7 @@ import {
   Submission,
   AssignmentProblem
 } from '@generated'
+import { GroupType } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import {
@@ -872,7 +873,15 @@ export class AssignmentService {
 
   async getAssignmentsByProblemId(problemId: number, userId: number) {
     const leadingGroup = await this.prisma.userGroup.findFirst({
-      where: { userId, isGroupLeader: true },
+      where: {
+        userId,
+        isGroupLeader: true,
+        group: {
+          groupType: {
+            equals: GroupType.Course
+          }
+        }
+      },
       select: { groupId: true }
     })
 
