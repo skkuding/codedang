@@ -34,8 +34,8 @@ const GET_ASSIGNMENTS = gql(`
 `)
 
 const GET_BELONGED_ASSIGNMENTS = gql(`
-  query GetAssignmentsByProblemId($groupId: Int!, $problemId: Int!) {
-    getAssignmentsByProblemId(groupId: $groupId, problemId: $problemId) {
+  query GetAssignmentsByProblemId($problemId: Int!) {
+    getAssignmentsByProblemId(problemId: $problemId) {
       upcoming {
         id
         title

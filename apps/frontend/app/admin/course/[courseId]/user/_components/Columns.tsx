@@ -1,6 +1,18 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { Checkbox } from '@/components/shadcn/checkbox'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/shadcn/select'
+import { UPDATE_GROUP_MEMBER } from '@/graphql/user/mutation'
+import { useMutation } from '@apollo/client'
 import type { ColumnDef } from '@tanstack/react-table'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 export interface DataTableMember {
   id: number
@@ -12,7 +24,9 @@ export interface DataTableMember {
   username: string
 }
 
-export const columns: ColumnDef<DataTableMember>[] = [
+export const createColumns = (
+  groupId: number
+): ColumnDef<DataTableMember>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -46,7 +60,7 @@ export const columns: ColumnDef<DataTableMember>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-medium">
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
         {row.getValue('studentId')}
       </p>
     )
@@ -59,7 +73,7 @@ export const columns: ColumnDef<DataTableMember>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-medium">
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
         {row.getValue('major')}
       </p>
     )
@@ -72,7 +86,7 @@ export const columns: ColumnDef<DataTableMember>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-medium">
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
         {row.getValue('username')}
       </p>
     )
@@ -85,7 +99,7 @@ export const columns: ColumnDef<DataTableMember>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <p className="whitespace-nowrapfont-medium max-w-[700px] overflow-hidden text-ellipsis">
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
         {row.getValue('name')}
       </p>
     )
@@ -98,9 +112,13 @@ export const columns: ColumnDef<DataTableMember>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <p className="whitespace-nowrapfont-medium max-w-[700px] overflow-hidden text-ellipsis">
-        {row.getValue('role')}
-      </p>
+      <div className="flex justify-center">
+        <RoleSelect
+          groupId={groupId}
+          userId={row.original.id}
+          role={row.original.role}
+        />
+      </div>
     )
   },
   {
@@ -111,9 +129,51 @@ export const columns: ColumnDef<DataTableMember>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <p className="whitespace-nowrapfont-medium max-w-[700px] overflow-hidden text-ellipsis">
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
         {row.getValue('email')}
       </p>
     )
   }
 ]
+
+interface RoleSelectProps {
+  groupId: number
+  userId: number
+  role: string
+}
+
+function RoleSelect({ groupId, userId, role }: RoleSelectProps) {
+  const [selectedRole, setSelectedRole] = useState(role)
+  const [updateGroupMember] = useMutation(UPDATE_GROUP_MEMBER)
+  return (
+    <Select
+      value={selectedRole}
+      onValueChange={async (value) => {
+        try {
+          await updateGroupMember({
+            variables: {
+              groupId,
+              userId,
+              toGroupLeader: value === 'Instructor'
+            }
+          })
+          setSelectedRole(value)
+          toast.success('Successfully changed role')
+        } catch (error) {
+          toast.error('Failed to change role')
+          console.error(error)
+        }
+      }}
+    >
+      <SelectTrigger className="w-min border-0 font-semibold focus:ring-0 focus:ring-offset-0">
+        <SelectValue placeholder={role} />
+      </SelectTrigger>
+      <SelectContent className="bg-white font-semibold">
+        <SelectGroup>
+          <SelectItem value="Instructor">Instructor</SelectItem>
+          <SelectItem value="Student">Student</SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  )
+}

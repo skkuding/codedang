@@ -11,7 +11,7 @@ import { DELETE_GROUP_MEMBER } from '@/graphql/user/mutation'
 import { GET_GROUP_MEMBERS } from '@/graphql/user/queries'
 import { useApolloClient, useMutation, useSuspenseQuery } from '@apollo/client'
 import { useParams } from 'next/navigation'
-import { columns } from './Columns'
+import { createColumns } from './Columns'
 import { DeleteUserButton } from './DeleteUserButton'
 
 const headerStyle = {
@@ -59,7 +59,7 @@ export function GroupTable() {
 
   return (
     <div>
-      <DataTableRoot data={members} columns={columns}>
+      <DataTableRoot data={members} columns={createColumns(groupId)}>
         <div className="flex justify-between">
           <DataTableSearchBar columndId="name" className="rounded-full" />
           <DeleteUserButton deleteTarget={deleteTarget} onSuccess={onSuccess} />
@@ -72,5 +72,5 @@ export function GroupTable() {
 }
 
 export function GroupTableFallback() {
-  return <DataTableFallback withSearchBar={false} columns={columns} />
+  return <DataTableFallback withSearchBar={false} columns={createColumns(1)} />
 }

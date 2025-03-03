@@ -203,7 +203,7 @@ export class SubmissionService {
     return results
   }
 
-  async getAssignmentSubmission(
+  async getAssignmentLatestSubmission(
     assignmentId: number,
     userId: number,
     problemId: number
