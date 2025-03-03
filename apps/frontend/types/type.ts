@@ -151,12 +151,15 @@ export interface Contest {
   contestProblem: ProblemInContestInterface[]
 }
 
+export interface ContestOrder {
+  id: number
+  title: string
+}
 export interface ContestAnnouncement {
   id: number
   content: string
-  assignmentId: null | string
   constestId: number
-  problemId: null | number
+  problemOrder: null | number
   createTime: string
   updateTime: string
 }
@@ -234,6 +237,9 @@ export interface SubmissionDetail {
     memoryUsage: number
     createTime: Date
     updateTime: Date
+    problemTestcase?: {
+      isHidden: boolean
+    }
   }[]
 }
 export interface ContestSubmission {
@@ -289,6 +295,7 @@ export interface SettingsFormat {
   confirmPassword: string
   realName: string
   studentId: string
+  email: string
 }
 
 export interface CourseInfo {

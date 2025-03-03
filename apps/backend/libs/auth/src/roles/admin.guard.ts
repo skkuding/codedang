@@ -4,26 +4,29 @@ import {
   Injectable
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
-import { type GqlContextType, GqlExecutionContext } from '@nestjs/graphql'
+import { GqlExecutionContext, type GqlContextType } from '@nestjs/graphql'
 import { Role } from '@prisma/client'
 import type { AuthenticatedRequest } from '../authenticated-request.interface'
-import { ROLES_KEY } from './roles.decorator'
+import { ADMIN_NOT_NEEDED_KEY } from '../guard.decorator'
 import { RolesService } from './roles.service'
 
 @Injectable()
-export class RolesGuard implements CanActivate {
-  #rolesHierarchy = {}
-
+export class AdminGuard implements CanActivate {
   constructor(
-    private readonly reflector: Reflector,
-    private readonly service: RolesService
-  ) {
-    Object.keys(Role).forEach((key, index) => {
-      this.#rolesHierarchy[key] = index
-    })
-  }
+    protected reflector: Reflector,
+    protected readonly service: RolesService
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // 반드시 admin 이상이 아니더라도 통과할 수 있는 경우를 상정 -> 이때는 각 guard 에서 해당 로직을 검증하는 것으로 처리
+    const isAdminNotNeeded = this.reflector.getAllAndOverride<boolean>(
+      ADMIN_NOT_NEEDED_KEY,
+      [context.getHandler(), context.getClass()]
+    )
+    if (isAdminNotNeeded === true) {
+      return true
+    }
+
     let request: AuthenticatedRequest
     if (context.getType<GqlContextType>() === 'graphql') {
       request = GqlExecutionContext.create(context).getContext().req
@@ -31,20 +34,15 @@ export class RolesGuard implements CanActivate {
       request = context.switchToHttp().getRequest()
     }
 
-    const role =
-      this.reflector.getAllAndOverride<Role>(ROLES_KEY, [
-        context.getHandler(),
-        context.getClass()
-      ]) ?? Role.User
-
     const user = request.user
     if (!user.role) {
       const userRole = (await this.service.getUserRole(user.id)).role
       user.role = userRole
     }
-    if (this.#rolesHierarchy[user.role] >= this.#rolesHierarchy[role]) {
-      return true
+
+    if (user.role === Role.User) {
+      return false
     }
-    return false
+    return true
   }
 }

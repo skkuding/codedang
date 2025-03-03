@@ -69,7 +69,7 @@ function AssignmentAccordionItem({
 
   return (
     <Accordion type="single" collapsible className="w-full">
-      <AccordionItem value={week.toString()} className="mx-6 border-b-0">
+      <AccordionItem value={week.toString()} className="border-b-0">
         <AccordionTrigger
           className={cn(
             'mt-4 flex rounded-2xl bg-white px-8 py-5 text-lg font-semibold shadow-md',

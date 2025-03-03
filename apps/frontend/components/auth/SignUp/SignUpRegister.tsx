@@ -84,12 +84,12 @@ const schema = v.pipe(
     firstName: v.pipe(
       v.string(),
       v.minLength(1, 'Required'),
-      v.regex(/^[a-zA-Z]+$/, 'only English supported')
+      v.regex(/^[가-힣a-zA-Z ]*$/, 'only English and Korean supported')
     ),
     lastName: v.pipe(
       v.string(),
       v.minLength(1, 'Required'),
-      v.regex(/^[a-zA-Z]+$/, 'only English supported')
+      v.regex(/^[가-힣a-zA-Z ]*$/, 'only English and Korean supported')
     )
   }),
   v.forward(
@@ -295,7 +295,7 @@ export function SignUpRegister() {
                   checkedUsername === getValues('username')) ||
                   errors.username) &&
                   'bg-gray-400',
-                'flex h-8 w-11 items-center justify-center rounded-md'
+                'flex h-8 w-11 items-center justify-center rounded-full'
               )}
               disabled={Boolean(
                 (isUsernameAvailable &&

@@ -1,6 +1,7 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { UserGroup } from '@generated'
 import { User } from '@generated'
+import { UseGroupLeaderGuard } from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { GroupMember } from './model/groupMember.model'
@@ -20,6 +21,7 @@ export class UserResolver {
    * @returns {Promise<User[]>} - 조회된 사용자 목록을 반환합니다.
    */
   @Query(() => [User])
+  @UseGroupLeaderGuard()
   async getUserByEmailOrStudentId(
     @Args('groupId', { type: () => Int }, GroupIDPipe) _groupId: number,
     @Args('email', { type: () => String, nullable: true })
@@ -64,6 +66,7 @@ export class UserResolver {
 }
 
 @Resolver(() => GroupMember)
+@UseGroupLeaderGuard()
 export class GroupMemberResolver {
   constructor(private readonly groupMemberService: GroupMemberService) {}
 

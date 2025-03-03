@@ -253,7 +253,7 @@ export class ContestProblemService {
     take
   }: {
     contestId: number
-    userId: number
+    userId: number | null
     cursor: number | null
     take: number
   }) {
@@ -561,15 +561,12 @@ export class AssignmentProblemService {
           id: assignmentProblem.problem.id,
           title: assignmentProblem.problem.title,
           difficulty: assignmentProblem.problem.difficulty,
-          submissionCount: assignmentProblem.problem.submissionCount,
-          acceptedRate: assignmentProblem.problem.acceptedRate,
           maxScore: assignment.isJudgeResultVisible
             ? assignmentProblem.score
             : null,
           score: assignment.isJudgeResultVisible
             ? ((submission.score * assignmentProblem.score) / 100).toFixed(0)
-            : null,
-          submissionTime: submission.createTime ?? null
+            : null
         }
       }
     )
