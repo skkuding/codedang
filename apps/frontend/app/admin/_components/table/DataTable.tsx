@@ -96,11 +96,29 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                   }
                 }}
               >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="text-center md:p-4">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+                {row.getVisibleCells().map((cell) => {
+                  const meta = cell.column.columnDef.meta as {
+                    link: (row: TData) => string
+                  }
+                  const href = meta?.link(row.original)
+                  return (
+                    <TableCell
+                      key={cell.id}
+                      className="text-center md:p-4"
+                      onClick={(e) => {
+                        if (href) {
+                          e.stopPropagation()
+                          router.push(href as Route)
+                        }
+                      }}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  )
+                })}
               </TableRow>
             ))
           ) : (

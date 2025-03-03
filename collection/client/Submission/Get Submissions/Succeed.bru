@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/submission?problemId=6
+  url: {{baseUrl}}/submission?problemId=1
   body: none
   auth: none
 }
 
 params:query {
-  problemId: 6
+  problemId: 1
   ~take: 10
   ~cursor: 5
 }
@@ -28,13 +28,13 @@ script:pre-request {
 
 docs {
   # Get Submissions
-
+  
   문제의 제출 내역을 가져옵니다.
-
+  
   ## Query
-
+  
   > 필수 query는 * 표시하였습니다.
-
+  
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |problemId *|Integer|문제 ID|

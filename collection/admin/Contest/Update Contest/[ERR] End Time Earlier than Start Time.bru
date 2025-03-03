@@ -11,24 +11,43 @@ post {
 }
 
 body:graphql {
-  mutation {
-    updateContest(
-      groupId: 2
-      input: {
-        id: 3
-        title: "Updated Contest Group 2"
-        description: "thisisupdatedcontest"
-        startTime: "2030-01-01"
-        endTime: "2020-01-01"
-        isVisible: true
-        isRankVisible: true
-        enableCopyPaste: true
-        isJudgeResultVisible: true
-      }
-    ) {
+  mutation UpdateContest($input: UpdateContestInput!) {
+    updateContest(input: $input) {
       id
       title
       description
+      startTime
+      endTime
+      isVisible
+      isRankVisible
+      enableCopyPaste
+      isJudgeResultVisible
+      invitationCode
+      summary
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "id": 2,
+      "title": "Updated Contest 2",
+      "description": "thisisupdatedcontest",
+      "startTime": "2030-01-01",
+      "endTime": "2020-01-01",
+      "isVisible": true,
+      "isRankVisible": true,
+      "enableCopyPaste": true,
+      "isJudgeResultVisible": true,
+      "invitationCode": "123456",
+      "summary": {
+        "참여대상": "updatedparticipationTarget",
+        "진행방식": "updatedcompetitionMethod",
+        "순위산정": "updatedrankingMethod",
+        "문제형태": "updatedproblemFormat",
+        "참여혜택": "updatedbenefits"
+      }
     }
   }
 }

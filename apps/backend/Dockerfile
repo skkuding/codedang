@@ -8,6 +8,9 @@ ARG app_env=production
 FROM node:20.18.0-alpine AS builder
 ARG target
 
+# Install bash for swc-node
+RUN apk add --no-cache bash
+
 COPY . /build
 WORKDIR /build
 
@@ -24,6 +27,9 @@ RUN npm run build ${target}
 FROM node:20.18.0-alpine
 ARG target
 ARG app_env
+
+# Install bash for swc-node in production
+RUN apk add --no-cache bash
 
 ENV APP_ENV=${app_env}
 ENV TARGET=${target}
