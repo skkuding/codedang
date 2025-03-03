@@ -133,11 +133,19 @@ export class ContestService {
     if (user?.canCreateContest === false && user.role === Role.User) {
       throw new UnauthorizedException('You are not allowed to create a contest')
     }
-
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
       )
+    }
+    if (contest.summary) {
+      for (const [, val] of Object.entries(contest.summary)) {
+        if (typeof val !== 'string') {
+          throw new UnprocessableDataException(
+            'Summary must contain only strings'
+          )
+        }
+      }
     }
 
     try {
@@ -191,6 +199,15 @@ export class ContestService {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
       )
+    }
+    if (contest.summary) {
+      for (const [, val] of Object.entries(contest.summary)) {
+        if (typeof val !== 'string') {
+          throw new UnprocessableDataException(
+            'Summary must contain only strings'
+          )
+        }
+      }
     }
 
     const problemIds = contestFound.contestProblem.map(
