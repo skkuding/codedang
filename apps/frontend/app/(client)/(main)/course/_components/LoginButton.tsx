@@ -12,7 +12,7 @@ export function LoginButton({ className }: LoginButtonProps) {
 
   return (
     <Button onClick={() => showSignIn()} className={className}>
-      Log In
+      Log in
     </Button>
   )
 }

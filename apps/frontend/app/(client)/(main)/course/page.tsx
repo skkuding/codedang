@@ -36,7 +36,7 @@ export default async function Course() {
             <p>This page is only available to logged-in users.</p>
             <p>Click the button below to login.</p>
           </div>
-          <LoginButton className="mt-6 flex h-[46px] w-52 items-center justify-center text-base font-bold" />
+          <LoginButton className="mt-6 flex h-[46px] w-60 items-center justify-center text-base font-bold" />
         </div>
       </>
     )
