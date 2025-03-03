@@ -827,7 +827,8 @@ export class SubmissionService {
     const testSubmissionId = (
       await this.prisma.testSubmission.findFirst({
         where: {
-          userId
+          userId,
+          isUserTest
         },
         orderBy: {
           id: 'desc'

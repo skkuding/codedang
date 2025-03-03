@@ -1,9 +1,4 @@
-import {
-  ForbiddenException,
-  ParseArrayPipe,
-  UsePipes,
-  ValidationPipe
-} from '@nestjs/common'
+import { ParseArrayPipe, UsePipes, ValidationPipe } from '@nestjs/common'
 import {
   Args,
   Context,
@@ -30,6 +25,7 @@ import {
   UseDisableAdminGuard,
   UseGroupLeaderGuard
 } from '@libs/auth'
+import { ForbiddenAccessException } from '@libs/exception'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -121,7 +117,7 @@ export class ProblemResolver {
     shared: boolean
   ) {
     if (!my && !shared && req.user.role == Role.User) {
-      throw new ForbiddenException(
+      throw new ForbiddenAccessException(
         'User does not have permission for all problems'
       )
     }

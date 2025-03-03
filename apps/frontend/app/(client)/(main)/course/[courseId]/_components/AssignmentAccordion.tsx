@@ -85,10 +85,12 @@ function AssignmentAccordionItem({
             <p className="absolute left-32 top-0 w-32 -translate-y-1/2">
               {week}주차
             </p>
-            <CompleteBadge
-              className="absolute right-4 top-0 -translate-y-1/2"
-              isCompleted={isCompleted}
-            />
+            {filteredAssignments.length !== 0 && (
+              <CompleteBadge
+                className="absolute right-4 top-0 -translate-y-1/2"
+                isCompleted={isCompleted}
+              />
+            )}
           </div>
         </AccordionTrigger>
         <AccordionContent className="-mb-4">
