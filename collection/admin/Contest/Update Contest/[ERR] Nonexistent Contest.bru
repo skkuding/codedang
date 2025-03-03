@@ -11,23 +11,36 @@ post {
 }
 
 body:graphql {
-  mutation {
-    updateContest(
-      input: {
-        id: 99999
-        title: "Updated Contest Group 2"
-        description: "thisisupdatedcontest"
-        startTime: "2024-01-01"
-        endTime: "2030-01-01"
-        isVisible: true
-        isRankVisible: true
-        enableCopyPaste: true
-        isJudgeResultVisible: true
-      }
-    ) {
+  mutation UpdateContest($input: UpdateContestInput!) {
+    updateContest(input: $input) {
       id
       title
       description
+      startTime
+      endTime
+      isVisible
+      isRankVisible
+      enableCopyPaste
+      isJudgeResultVisible
+      invitationCode
+      summary
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "id": 99999,
+      "title": "nonexistent Contest",
+      "description": "thisisnonexistentcontest",
+      "startTime": "2024-01-01",
+      "endTime": "2030-01-01",
+      "isVisible": true,
+      "isRankVisible": true,
+      "enableCopyPaste": true,
+      "isJudgeResultVisible": true,
+      "invitationCode": "123456"
     }
   }
 }

@@ -11,31 +11,43 @@ post {
 }
 
 body:graphql {
-  mutation {
-    updateContest(
-      input: {
-        id: 3
-        title: "Updated Contest Group 2"
-        description: "thisisupdatedcontest"
-        startTime: "2024-01-01"
-        endTime: "2030-01-01"
-        isVisible: true
-        isRankVisible: true
-        enableCopyPaste: true
-        isJudgeResultVisible: true
-        summary: {
-          참여대상: "updatedparticipationTarget",
-          진행방식: "updatedcompetitionMethod",
-          순위산정: "updatedrankingMethod",
-          문제형태: "updatedproblemFormat",
-          참여혜택: "updatedbenefits"
-        }
-      }
-    ) {
+  mutation UpdateContest($input: UpdateContestInput!) {
+    updateContest(input: $input) {
       id
       title
       description
+      startTime
+      endTime
+      isVisible
+      isRankVisible
+      enableCopyPaste
+      isJudgeResultVisible
+      invitationCode
       summary
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "id": 3,
+      "title": "Updated Contest 2",
+      "description": "thisisupdatedcontest",
+      "startTime": "2024-01-01",
+      "endTime": "2030-01-01",
+      "isVisible": true,
+      "isRankVisible": true,
+      "enableCopyPaste": true,
+      "isJudgeResultVisible": true,
+      "invitationCode": "123456",
+      "summary": {
+        "참여대상": "updatedparticipationTarget",
+        "진행방식": "updatedcompetitionMethod",
+        "순위산정": "updatedrankingMethod",
+        "문제형태": "updatedproblemFormat",
+        "참여혜택": "updatedbenefits"
+      }
     }
   }
 }
@@ -48,11 +60,11 @@ docs {
   # Update Contest
   ---
   - Contest를 update합니다.
-
+  
   ## Error Cases
   ### End Time Earlier than Start Time
   종료 시각이 시작 시간 이후여야 합니다.
-
+  
   ### Nonexistent Contest
   존재하는 Contest만 update 가능합니다.
 }
