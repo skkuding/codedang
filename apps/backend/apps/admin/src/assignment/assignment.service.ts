@@ -872,21 +872,35 @@ export class AssignmentService {
   }
 
   async getAssignmentsByProblemId(problemId: number, userId: number) {
-    const leadingGroup = await this.prisma.userGroup.findFirst({
-      where: {
-        userId,
-        isGroupLeader: true,
-        group: {
-          groupType: {
-            equals: GroupType.Course
+    const problem = await this.prisma.problem.findFirstOrThrow({
+      where: { id: problemId },
+      include: {
+        sharedGroups: {
+          select: {
+            id: true
           }
         }
-      },
-      select: { groupId: true }
+      }
     })
 
-    if (!leadingGroup) {
-      throw new ForbiddenAccessException('Only instructors are allowed')
+    if (problem.createdById !== userId) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared) {
+        throw new ForbiddenAccessException(
+          'User can only edit problems they created or were shared with'
+        )
+      }
     }
 
     const assignmentProblems = await this.prisma.assignmentProblem.findMany({
