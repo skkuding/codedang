@@ -99,7 +99,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
               disabled={isCreating}
             >
               <IoMdCheckmarkCircleOutline fontSize={20} />
-              <div className="mb-[2px] text-base">Create</div>
+              <div className="text-base">Create</div>
             </Button>
           </CreateAssignmentForm>
         </main>

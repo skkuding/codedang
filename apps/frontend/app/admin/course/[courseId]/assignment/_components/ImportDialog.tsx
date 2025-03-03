@@ -44,7 +44,7 @@ export function ImportDialog({ problems, setProblems }: ImportDialogProps) {
             className="flex h-[36px] w-48 items-center gap-2 px-0"
           >
             <PlusCircleIcon className="h-4 w-4" />
-            <div className="mb-[2px] text-sm">Import · Edit problem</div>
+            <div className="text-sm">Import · Edit problem</div>
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent className="p-8">
@@ -61,8 +61,8 @@ export function ImportDialog({ problems, setProblems }: ImportDialogProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-md px-4 py-2">
-              Cancel
+            <AlertDialogCancel asChild>
+              <Button variant="outline">Cancel</Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button type="button" onClick={() => setShowImportDialog(true)}>
