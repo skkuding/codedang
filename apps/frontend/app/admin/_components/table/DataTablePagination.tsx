@@ -9,6 +9,7 @@ import {
 } from '@/components/shadcn/select'
 import { cn, getPageArray } from '@/libs/utils'
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
+import { FaCirclePlay } from 'react-icons/fa6'
 import { useDataTable } from './context'
 
 interface DataTablePaginationProps {
@@ -47,25 +48,31 @@ export function DataTablePagination({
           `${table.getFilteredSelectedRowModel().rows.length} of${' '}
           ${table.getFilteredRowModel().rows.length} row(s) selected`}
       </div>
-      <div className="absolute left-1/2 flex -translate-x-1/2 transform gap-5">
+      <div className="absolute left-1/2 flex -translate-x-1/2 transform gap-[33px]">
         <button
           type="button"
-          className="-mr-1 text-neutral-600 disabled:text-neutral-300"
+          className="mr-[10px] flex items-center justify-center text-neutral-600 disabled:text-neutral-300"
           disabled={!table.getCanPreviousPage()}
           onClick={() => {
             table.previousPage()
           }}
         >
-          <ChevronLeftIcon className="h-4 w-4" />
+          {!table.getCanPreviousPage() && (
+            <div className="absolute z-0 h-6 w-6 rounded-full bg-[#C4C4C4]" />
+          )}
+          <FaCirclePlay
+            color={table.getCanPreviousPage() ? '#3581FA' : '#EBEBEB'}
+            className="z-10 h-6 w-6 rotate-180"
+          />
         </button>
         {pages.map((pageNumber) => (
           <button
             key={pageNumber}
             type="button"
             className={cn(
-              'font-mono text-sm font-medium',
+              'text-base font-medium text-[#8A8A8A]',
               table.getState().pagination.pageIndex === pageNumber - 1 &&
-                'text-primary'
+                'text-primary-strong'
             )}
             onClick={() => {
               table.setPageIndex(pageNumber - 1)
@@ -76,13 +83,19 @@ export function DataTablePagination({
         ))}
         <button
           type="button"
-          className="-ml-1 text-neutral-600 disabled:text-neutral-300"
+          className="ml-[10px] flex items-center justify-center text-neutral-600 disabled:text-neutral-300"
           disabled={!table.getCanNextPage()}
           onClick={() => {
             table.nextPage()
           }}
         >
-          <ChevronRightIcon className="h-4 w-4" />
+          {!table.getCanNextPage() && (
+            <div className="absolute z-0 h-6 w-6 rounded-full bg-[#C4C4C4]" />
+          )}
+          <FaCirclePlay
+            color={table.getCanNextPage() ? '#3581FA' : '#EBEBEB'}
+            className="z-10 h-6 w-6"
+          />
         </button>
       </div>
       <div className="flex items-center space-x-6 lg:space-x-8">

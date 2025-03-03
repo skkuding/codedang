@@ -62,11 +62,13 @@ export function ContestTable() {
         {/* <DuplicateContestButton /> */}
         <ContestsDeleteButton />
       </div>
-      <DataTable
-        headerStyle={headerStyle}
-        getHref={(data) => `/admin/contest/${data.id}`}
-      />
-      <DataTablePagination showSelection />
+      <div className="space-y-[42px]">
+        <DataTable
+          headerStyle={headerStyle}
+          getHref={(data) => `/admin/contest/${data.id}`}
+        />
+        <DataTablePagination showSelection />
+      </div>
     </DataTableRoot>
   )
 }
