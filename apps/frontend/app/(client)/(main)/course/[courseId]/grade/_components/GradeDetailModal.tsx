@@ -138,9 +138,9 @@ export function GradeDetailModal({
       <DialogHeader>
         <DialogTitle>
           <div className="flex items-center gap-2 text-lg font-medium">
-            <span>Assignment</span>
+            <span>Week {gradedAssignment.week}</span>
             <MdArrowForwardIos />
-            <span className="text-primary">Week {gradedAssignment.week}</span>
+            <span className="text-primary">{gradedAssignment.title}</span>
           </div>
         </DialogTitle>
       </DialogHeader>
@@ -172,29 +172,36 @@ export function GradeDetailModal({
               </tr>
             </thead>
             <tbody>
+              {!gradedAssignment.autoFinalizeScore && (
+                <tr className="text-gray-500">
+                  <td className="bg-primary-light w-[80px] px-2 py-2 text-xs text-white">
+                    Submitted
+                  </td>
+                  <td className="border-[0.5px] px-3 py-2 text-xs">
+                    {mySubmittedScore}
+                  </td>
+                  <td className="border-[0.5px] px-3 py-2 text-xs">
+                    {scoresStats.mean}
+                  </td>
+                  <td className="border-[0.5px] px-3 py-2 text-xs">
+                    {scoresStats.median}
+                  </td>
+                  <td className="border-[0.5px] px-3 py-2 text-xs">
+                    {scoresStats.min}
+                  </td>
+                  <td className="border-[0.5px] px-3 py-2 text-xs">
+                    {scoresStats.max}
+                  </td>
+                </tr>
+              )}
               <tr className="text-gray-500">
-                <td className="bg-primary-light w-[80px] px-2 py-2 text-xs text-white">
-                  Submitted
-                </td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">
-                  {mySubmittedScore}
-                </td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">
-                  {scoresStats.mean}
-                </td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">
-                  {scoresStats.median}
-                </td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">
-                  {scoresStats.min}
-                </td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">
-                  {scoresStats.mean}
-                </td>
-              </tr>
-              <tr className="text-gray-500">
-                <td className="bg-primary-light w-[80px] rounded-bl-md px-2 py-2 text-xs text-white">
+                <td className="bg-primary-light flex w-[80px] flex-col items-center rounded-bl-md px-2 py-2 text-xs text-white">
                   Graded
+                  {gradedAssignment.autoFinalizeScore && (
+                    <span className="text-primary mt-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium shadow-sm">
+                      Auto
+                    </span>
+                  )}
                 </td>
                 <td className="border-[0.5px] px-3 py-2 text-xs">
                   {myGradedScore}
@@ -209,7 +216,7 @@ export function GradeDetailModal({
                   {finalScoresStats.min}
                 </td>
                 <td className="border-[0.5px] px-3 py-2 text-xs">
-                  {finalScoresStats.mean}
+                  {finalScoresStats.max}
                 </td>
               </tr>
             </tbody>

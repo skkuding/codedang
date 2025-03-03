@@ -58,7 +58,11 @@ interface GradeAccordionItemProps {
 
 function GradeAccordionItem({ assignment, courseId }: GradeAccordionItemProps) {
   const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false)
-  const [isProblemDialogOpen, setIsProblemDialogOpen] = useState(false)
+  const [openProblemId, setOpenProblemId] = useState<number | null>(null)
+
+  const handleOpenChange = (problemId: number | null) => {
+    setOpenProblemId(problemId)
+  }
   return (
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value={assignment.week.toString()} className="border-b-0">
@@ -97,7 +101,11 @@ function GradeAccordionItem({ assignment, courseId }: GradeAccordionItemProps) {
             {`${assignment.userAssignmentFinalScore ?? '-'} / ${assignment.assignmentPerfectScore}`}
           </p>
           <div className="flex w-[14%] justify-center">
-            <GradedBadge isGraded={assignment.isFinalScoreVisible} />
+            {assignment.problems.every(
+              (problem) => !problem.problemRecord?.isSubmitted
+            ) ? null : (
+              <GradedBadge isGraded={assignment.isFinalScoreVisible} />
+            )}
           </div>
         </AccordionTrigger>
         <AccordionContent className="-mb-4 w-full">
@@ -120,19 +128,21 @@ function GradeAccordionItem({ assignment, courseId }: GradeAccordionItemProps) {
                 <div className="w-[4%]" />
                 <div className="flex w-[11%] justify-center">
                   <Dialog
-                    open={isProblemDialogOpen}
-                    onOpenChange={setIsProblemDialogOpen}
+                    open={openProblemId === problem.id}
+                    onOpenChange={(isOpen) =>
+                      handleOpenChange(isOpen ? problem.id : null)
+                    }
                   >
                     <DetailButton
-                      // isActivated={assignment.isFinalScoreVisible}
-                      isActivated={true}
+                      isActivated={
+                        assignment.isFinalScoreVisible &&
+                        Boolean(problem?.problemRecord?.isSubmitted)
+                      }
                     />
-                    {isProblemDialogOpen && (
+                    {openProblemId === problem.id && (
                       <SubmissionDetailModal
                         problemId={problem.id}
-                        assignmentId={assignment.id}
-                        week={assignment.week}
-                        title={problem.title}
+                        gradedAssignment={assignment}
                       />
                     )}
                   </Dialog>

@@ -16,7 +16,10 @@ import {
   type AssignmentRecord,
   type Contest,
   type ContestRecord,
-  type ContestProblemRecord
+  type ContestProblemRecord,
+  type UserContest,
+  ContestRole,
+  type Prisma
 } from '@prisma/client'
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
@@ -33,6 +36,9 @@ const MAX_DATE: Date = new Date('2999-12-31T00:00:00.000Z')
 let superAdminUser: User
 let adminUser: User
 let instructorUser: User
+let contestAdminUser: User
+let contestManagerUser: User
+let contestReviewerUser: User
 let privateGroup1: Group
 let privateGroup2: Group
 const users: User[] = []
@@ -49,7 +55,7 @@ const upcomingContests: Contest[] = []
 const workbooks: Workbook[] = []
 const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
-const assignmentAnnouncements: Announcement[] = []
+const contestRecords: ContestRecord[] = []
 const contestAnnouncements: Announcement[] = []
 const contestProblemRecords: ContestProblemRecord[] = []
 
@@ -92,6 +98,46 @@ const createUsers = async () => {
       major: 'Computer Science',
       canCreateCourse: true,
       canCreateContest: true
+    }
+  })
+
+  // create contest admin user
+  contestAdminUser = await prisma.user.create({
+    data: {
+      username: 'contestAdmin',
+      password: await hash('ContestAdmin'),
+      email: 'contestAdmin@example.com',
+      lastLogin: new Date(),
+      role: Role.User,
+      canCreateContest: true,
+      studentId: '2024000003',
+      major: 'Computer Science'
+    }
+  })
+
+  // create contest manager user
+  contestManagerUser = await prisma.user.create({
+    data: {
+      username: 'contestManager',
+      password: await hash('ContestManager'),
+      email: 'contestManager@example.com',
+      lastLogin: new Date(),
+      role: Role.User,
+      studentId: '2024000004',
+      major: 'Computer Science'
+    }
+  })
+
+  // create contest reviewer user
+  contestReviewerUser = await prisma.user.create({
+    data: {
+      username: 'contestReviewer',
+      password: await hash('ContestReviewer'),
+      email: 'contestReviewer@example.com',
+      lastLogin: new Date(),
+      role: Role.User,
+      studentId: '2024000005',
+      major: 'Computer Science'
     }
   })
 
@@ -956,11 +1002,7 @@ const createContests = async () => {
       description: string
       createdById: number
       posterUrl: string | null
-      participationTarget: string | null
-      competitionMethod: string | null
-      rankingMethod: string | null
-      problemFormat: string | null
-      benefits: string | null
+      summary: Prisma.InputJsonValue
       startTime: Date
       endTime: Date
       isVisible: boolean
@@ -1005,11 +1047,13 @@ const createContests = async () => {
 </p>`,
         createdById: superAdminUser.id,
         posterUrl: `https://skkuding.dev/open-graph.png`,
-        participationTarget: '성균관대 재학생이라면 누구나',
-        competitionMethod: '온라인으로 진행',
-        rankingMethod: '맞춘 문제 수와 penalty로 산정',
-        problemFormat: '이러한 방식으로 출제될 거에요',
-        benefits: '참가자 전원 스타벅스 기프티콘 증정',
+        summary: {
+          참여대상: '성균관대 재학생이라면 누구나',
+          진행방식: '온라인으로 진행',
+          순위산정: '맞춘 문제 수와 penalty로 산정',
+          문제형태: '이러한 방식으로 출제될 거에요',
+          참여혜택: '참가자 전원 스타벅스 기프티콘 증정'
+        },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1024,11 +1068,12 @@ const createContests = async () => {
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
         posterUrl: null,
-        participationTarget: '성균관대학교 24학번 신입생',
-        competitionMethod: '강의실에서 오프라인으로 진행',
-        rankingMethod: '맞춘 문제 수와 penalty를 종합하여 순위 산출',
-        problemFormat: null,
-        benefits: '1등 10만원 / 2등 3만원',
+        summary: {
+          참여대상: '성균관대학교 24학번 신입생',
+          진행방식: '강의실에서 오프라인으로 진행',
+          순위산정: '맞춘 문제 수와 penalty를 종합하여 순위 산출',
+          참여혜택: '1등 10만원 / 2등 3만원'
+        },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1043,11 +1088,12 @@ const createContests = async () => {
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
         posterUrl: `https://skkuding.dev/open-graph.png`,
-        participationTarget: '성균관대학교 24학번 신입생',
-        competitionMethod: '강의실에서 오프라인으로 진행',
-        rankingMethod: null,
-        problemFormat: '문제 형태가 다음과 같습니다.',
-        benefits: '1등 10만원 / 2등 3만원',
+        summary: {
+          참여대상: '성균관대학교 24학번 신입생',
+          진행방식: '강의실에서 오프라인으로 진행',
+          문제형태: '문제 형태가 다음과 같습니다.',
+          참여혜택: '1등 10만원 / 2등 3만원'
+        },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1062,11 +1108,12 @@ const createContests = async () => {
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
         posterUrl: `https://skkuding.dev/open-graph.png`,
-        participationTarget: '성균관대학교 24학번 신입생',
-        competitionMethod: '강의실에서 오프라인으로 진행',
-        rankingMethod: '맞춘 문제 수와 penalty를 종합하여 순위 산출',
-        problemFormat: '문제 형식은 다음과 같습니다.',
-        benefits: null,
+        summary: {
+          참여대상: '성균관대학교 24학번 신입생',
+          진행방식: '강의실에서 오프라인으로 진행',
+          순위산정: '맞춘 문제 수와 penalty를 종합하여 순위 산출',
+          문제형태: '문제 형식은 다음과 같습니다.'
+        },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1081,11 +1128,13 @@ const createContests = async () => {
         description: '<p>이 대회는 현재 진행 중입니다 ! (private group)</p>',
         createdById: superAdminUser.id,
         posterUrl: null,
-        participationTarget: '소프트웨어학과 원전공/복수전공',
-        competitionMethod: '삼성학술정보관 지하1층에서 오프라인 진행',
-        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-        problemFormat: '문제 형식은 다음과 같습니다.',
-        benefits: '1등 총장상 + 50만원 / 2등 20만원 / 3등 15만원',
+        summary: {
+          참여대상: '소프트웨어학과 원전공/복수전공',
+          진행방식: '삼성학술정보관 지하1층에서 오프라인 진행',
+          순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+          문제형태: '문제 형식은 다음과 같습니다.',
+          참여혜택: '1등 총장상 + 50만원 / 2등 20만원 / 3등 15만원'
+        },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1101,11 +1150,11 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         posterUrl: null,
-        participationTarget: '소프트웨어학과 원전공생',
-        competitionMethod: '온라인 진행',
-        rankingMethod: null,
-        problemFormat: null,
-        benefits: '1~3등에게 상위 대회 출전 자격 부여',
+        summary: {
+          참여대상: '소프트웨어학과 원전공생',
+          진행방식: '온라인 진행',
+          참여혜택: '1~3등에게 상위 대회 출전 자격 부여'
+        },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1120,11 +1169,13 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         posterUrl: null,
-        participationTarget: '소프트웨어학과 23학번',
-        competitionMethod: '온라인 진행',
-        rankingMethod: '맞춘 문제 수를 기준으로 순위를 선정한다.',
-        problemFormat: '1번 문제: / 2번 문제: / 3번 문제: ',
-        benefits: '문제를 모두 맞춘 학생에게 격려금 지원',
+        summary: {
+          참여대상: '소프트웨어학과 23학번',
+          진행방식: '온라인 진행',
+          순위산정: '맞춘 문제 수를 기준으로 순위를 선정한다.',
+          문제형태: '1번 문제: / 2번 문제: / 3번 문제: ',
+          참여혜택: '문제를 모두 맞춘 학생에게 격려금 지원'
+        },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1139,11 +1190,13 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         posterUrl: null,
-        participationTarget: '소프트웨어학과 원전공/복수전공',
-        competitionMethod: '온라인 진행',
-        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-        problemFormat: '문제 형식은 다음과 같습니다.',
-        benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘',
+        summary: {
+          참여대상: '소프트웨어학과 원전공/복수전공',
+          진행방식: '온라인 진행',
+          순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+          문제형태: '문제 형식은 다음과 같습니다.',
+          참여혜택: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘'
+        },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1158,11 +1211,12 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         posterUrl: null,
-        participationTarget: '소프트웨어학과 원전공/복수전공',
-        competitionMethod: '온라인 진행',
-        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-        problemFormat: '문제 형식은 다음과 같습니다.',
-        benefits: null,
+        summary: {
+          참여대상: '소프트웨어학과 원전공/복수전공',
+          진행방식: '온라인 진행',
+          순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+          문제형태: '문제 형식은 다음과 같습니다.'
+        },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1177,11 +1231,12 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         posterUrl: null,
-        participationTarget: '소프트웨어학과 원전공/복수전공',
-        competitionMethod: '온라인 진행',
-        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-        problemFormat: '문제 형식은 다음과 같습니다.',
-        benefits: null,
+        summary: {
+          참여대상: '소프트웨어학과 원전공/복수전공',
+          진행방식: '온라인 진행',
+          순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+          문제형태: '문제 형식은 다음과 같습니다.'
+        },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1196,11 +1251,12 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         posterUrl: null,
-        participationTarget: '소프트웨어학과 원전공/복수전공',
-        competitionMethod: '온라인 진행',
-        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-        problemFormat: '문제 형식은 다음과 같습니다.',
-        benefits: null,
+        summary: {
+          참여대상: '소프트웨어학과 원전공/복수전공',
+          진행방식: '온라인 진행',
+          순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+          문제형태: '문제 형식은 다음과 같습니다.'
+        },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1215,11 +1271,12 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         posterUrl: null,
-        participationTarget: '소프트웨어학과 원전공/복수전공',
-        competitionMethod: '온라인 진행',
-        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-        problemFormat: '문제 형식은 다음과 같습니다.',
-        benefits: null,
+        summary: {
+          참여대상: '소프트웨어학과 원전공/복수전공',
+          진행방식: '온라인 진행',
+          순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+          문제형태: '문제 형식은 다음과 같습니다.'
+        },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1234,11 +1291,13 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         posterUrl: null,
-        participationTarget: '소프트웨어학과 원전공/복수전공',
-        competitionMethod: '온라인 진행',
-        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-        problemFormat: '문제 형식은 다음과 같습니다.',
-        benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘',
+        summary: {
+          참여대상: '소프트웨어학과 원전공/복수전공',
+          진행방식: '온라인 진행',
+          순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+          문제형태: '문제 형식은 다음과 같습니다.',
+          참여혜택: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘'
+        },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1253,11 +1312,12 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요 (private group)</p>',
         createdById: superAdminUser.id,
         posterUrl: null,
-        participationTarget: '소프트웨어학과 원전공/복수전공',
-        competitionMethod: '온라인 진행',
-        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-        problemFormat: '문제 형식은 다음과 같습니다.',
-        benefits: null,
+        summary: {
+          참여대상: '소프트웨어학과 원전공/복수전공',
+          진행방식: '온라인 진행',
+          순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+          문제형태: '문제 형식은 다음과 같습니다.'
+        },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1273,11 +1333,12 @@ const createContests = async () => {
         description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
         posterUrl: null,
-        participationTarget: '소프트웨어학과 원전공/복수전공',
-        competitionMethod: '온라인 진행 예정...?',
-        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-        problemFormat: '문제 형식은 다음과 같습니다.',
-        benefits: null,
+        summary: {
+          참여대상: '소프트웨어학과 원전공/복수전공',
+          진행방식: '온라인 진행 예정...?',
+          순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+          문제형태: '문제 형식은 다음과 같습니다.'
+        },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1292,11 +1353,12 @@ const createContests = async () => {
         description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
         posterUrl: null,
-        participationTarget: '소프트웨어학과 원전공/복수전공',
-        competitionMethod: '온라인 진행 예정...?',
-        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-        problemFormat: '문제 형식은 다음과 같습니다.',
-        benefits: null,
+        summary: {
+          참여대상: '소프트웨어학과 원전공/복수전공',
+          진행방식: '온라인 진행 예정...?',
+          순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+          문제형태: '문제 형식은 다음과 같습니다.'
+        },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1312,11 +1374,12 @@ const createContests = async () => {
           '<p>이 대회는 언젠가 열리겠죠...? isVisible이 false인 assignment입니다</p>',
         createdById: superAdminUser.id,
         posterUrl: `https://skkuding.dev/open-graph.png`,
-        participationTarget: '소프트웨어학과 원전공/복수전공',
-        competitionMethod: '온라인 진행 예정...?',
-        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-        problemFormat: null,
-        benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘',
+        summary: {
+          참여대상: '소프트웨어학과 원전공/복수전공',
+          진행방식: '온라인 진행 예정...?',
+          순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+          참여혜택: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘'
+        },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: false,
@@ -1331,11 +1394,12 @@ const createContests = async () => {
         description: '<p>이 대회는 언젠가 열리겠죠...? (private group)</p>',
         createdById: superAdminUser.id,
         posterUrl: null,
-        participationTarget: '소프트웨어학과 원전공/복수전공',
-        competitionMethod: '온라인 진행 예정...?',
-        rankingMethod: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
-        problemFormat: null,
-        benefits: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘',
+        summary: {
+          참여대상: '소프트웨어학과 원전공/복수전공',
+          진행방식: '온라인 진행 예정...?',
+          순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+          참여혜택: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘'
+        },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
@@ -1343,12 +1407,34 @@ const createContests = async () => {
         invitationCode: null,
         enableCopyPaste: true
       }
+    },
+    {
+      data: {
+        title: '2025 SKKU 프로그래밍 대회',
+        description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
+        createdById: contestAdminUser.id,
+        posterUrl: null,
+        summary: {
+          참여대상: '소프트웨어학과 원전공/복수전공',
+          진행방식: '온라인 진행 예정...?',
+          순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+          문제형태: '문제 형식은 다음과 같습니다.'
+        },
+        startTime: new Date('3024-01-01T00:00:00.000Z'),
+        endTime: new Date('3025-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        invitationCode: '123456',
+        enableCopyPaste: true
+      }
     }
   ]
 
   const now = new Date()
   for (const obj of contestData) {
-    const contest = await prisma.contest.create(obj)
+    const contest = await prisma.contest.create({
+      data: obj.data
+    })
     contests.push(contest)
     if (now < obj.data.startTime) {
       upcomingContests.push(contest)
@@ -2216,34 +2302,6 @@ int main(void) {
 }
 
 const createAnnouncements = async () => {
-  // For Assignments
-  for (let i = 0; i < 5; ++i) {
-    assignmentAnnouncements.push(
-      await prisma.announcement.create({
-        data: {
-          content: `Announcement(assignment)_0_${i}`,
-          assignmentId: ongoingAssignments[i].id
-        }
-      })
-    )
-  }
-
-  for (let i = 0; i < 5; ++i) {
-    assignmentAnnouncements.push(
-      await prisma.announcement.create({
-        data: {
-          content: `Announcement(assignment)_1_${i}...
-아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.
-모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.
-법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.
-일반사면을 명하려면 국회의 동의를 얻어야 한다. 연소자의 근로는 특별한 보호를 받는다.`,
-          assignmentId: ongoingAssignments[i].id,
-          problemId: problems[i].id
-        }
-      })
-    )
-  }
-
   // For Contests
   for (let i = 0; i < 5; ++i) {
     contestAnnouncements.push(
@@ -2295,7 +2353,7 @@ const createAssignmentRecords = async () => {
 
   // upcoming assignment에 참가한 User 1의 assignment register를 un-register하는 기능과,
   // registered upcoming, ongoing, finished assignment를 조회하는 기능을 확인하기 위함
-  const user01Id = 4
+  const user01Id = 7
   for (
     let assignmentId = 3;
     assignmentId <= assignments.length;
@@ -2319,26 +2377,22 @@ const createAssignmentRecords = async () => {
 
 const createContestRecords = async () => {
   const contestRecords: ContestRecord[] = []
-  // all users
-  const users = await prisma.user.findMany()
-  for (const user of users) {
-    const existingRecord = await prisma.contestRecord.findFirst({
-      where: {
+  // group 1 users
+  const group1Users = await prisma.userGroup.findMany({
+    where: {
+      groupId: 1
+    }
+  })
+  for (const user of group1Users) {
+    const contestRecord = await prisma.contestRecord.create({
+      data: {
+        userId: user.userId,
         contestId: 1,
-        userId: user.id
+        acceptedProblemNum: 0,
+        totalPenalty: 0
       }
     })
-    if (!existingRecord) {
-      const contestRecord = await prisma.contestRecord.create({
-        data: {
-          userId: user.id,
-          contestId: 1,
-          acceptedProblemNum: 0,
-          totalPenalty: 0
-        }
-      })
-      contestRecords.push(contestRecord)
-    }
+    contestRecords.push(contestRecord)
   }
 
   // upcoming contest에 참가한 User 1의 contest register를 un-register하는 기능과,
@@ -2348,7 +2402,7 @@ const createContestRecords = async () => {
       id: true
     }
   })
-  const user01Id = 4
+  const user01Id = 7
   for (let i = 0; i < contests.length; i += 2) {
     const contestId = contests[i].id
     const existingRecord = await prisma.contestRecord.findFirst({
@@ -2375,8 +2429,63 @@ const createContestRecords = async () => {
   return contestRecords
 }
 
+const createUserContests = async () => {
+  const userContests: Promise<UserContest | Prisma.BatchPayload>[] = []
+
+  for (const contest of contests) {
+    if (contest.createdById === contestAdminUser.id) {
+      userContests.push(
+        prisma.userContest.createMany({
+          data: [
+            {
+              contestId: contest.id,
+              userId: contestManagerUser.id,
+              role: ContestRole.Manager
+            },
+            {
+              contestId: contest.id,
+              userId: contestReviewerUser.id,
+              role: ContestRole.Reviewer
+            }
+          ],
+          skipDuplicates: true
+        })
+      )
+    }
+
+    if (contest.createdById) {
+      userContests.push(
+        prisma.userContest.create({
+          data: {
+            contestId: contest.id,
+            userId: contest.createdById,
+            role: ContestRole.Admin
+          }
+        })
+      )
+    }
+  }
+
+  await Promise.all(userContests)
+
+  const participantPromises: Promise<UserContest>[] = []
+
+  for (const contestRecord of contestRecords) {
+    participantPromises.push(
+      prisma.userContest.create({
+        data: {
+          contestId: contestRecord.contestId,
+          userId: contestRecord.userId!,
+          role: ContestRole.Participant
+        }
+      })
+    )
+  }
+
+  await Promise.all(participantPromises)
+}
+
 const createContestProblemRecords = async () => {
-  // contest 1 problems for
   for (let i = 0; i < 5; ++i) {
     contestProblemRecords.push(
       await prisma.contestProblemRecord.create({
@@ -2399,6 +2508,7 @@ const main = async () => {
   await createAssignments()
   await createContests()
   await createContestRecords()
+  await createUserContests()
   await createWorkbooks()
   await createSubmissions()
   await createAnnouncements()

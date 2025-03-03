@@ -1,18 +1,14 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
-import { Badge } from '@/components/shadcn/badge'
 import { Checkbox } from '@/components/shadcn/checkbox'
-import type { SemesterSeason } from '@/types/type'
+import { cn } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 
 export interface DataTableCourse {
   id: number
   title: string
-  professor: string | undefined
   code: string
-  classNum: number
   semester: string
   studentCount: number
-  visible: boolean
 }
 
 export const columns: ColumnDef<DataTableCourse>[] = [
@@ -44,38 +40,26 @@ export const columns: ColumnDef<DataTableCourse>[] = [
   {
     accessorKey: 'title',
     header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Course Title" />
+      <div className="flex text-left">
+        <DataTableColumnHeader column={column} title="Title" />
       </div>
     ),
     cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+      <p className="overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
         {row.getValue('title')}
       </p>
-    )
-  },
-  {
-    accessorKey: 'professor',
-    header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Professor" />
-      </div>
     ),
-    cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
-        {row.getValue('professor')}
-      </p>
-    )
+    enableSorting: false
   },
   {
     accessorKey: 'code',
     header: ({ column }) => (
       <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Course Code" />
+        <DataTableColumnHeader column={column} title="Num" />
       </div>
     ),
     cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-medium">
+      <p className="overflow-hidden text-ellipsis whitespace-nowrap font-medium">
         {row.getValue('code')}
       </p>
     )
@@ -89,15 +73,15 @@ export const columns: ColumnDef<DataTableCourse>[] = [
     ),
     cell: ({ row }) => {
       const yearSeason = row.original.semester
-      const season = yearSeason.split(' ')[1]
       return (
-        <div>
-          <Badge
-            variant={season as SemesterSeason}
-            className="whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
+        <div className="flex justify-center">
+          <div
+            className={cn(
+              'border-primary text-primary flex h-[30px] w-[116px] items-center justify-center rounded-full border'
+            )}
           >
-            {yearSeason}
-          </Badge>
+            <p className="text-sm font-medium">{yearSeason}</p>
+          </div>
         </div>
       )
     }
@@ -106,13 +90,18 @@ export const columns: ColumnDef<DataTableCourse>[] = [
     accessorKey: 'studentCount',
     header: ({ column }) => (
       <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Members" />
+        <DataTableColumnHeader
+          column={column}
+          title="Members"
+          className="text-center"
+        />
       </div>
     ),
     cell: ({ row }) => (
-      <p className="whitespace-nowrapfont-medium max-w-[700px] overflow-hidden text-ellipsis">
+      <p className="overflow-hidden text-ellipsis whitespace-nowrap font-medium">
         {row.getValue('studentCount')}
       </p>
-    )
+    ),
+    enableSorting: false
   }
 ]

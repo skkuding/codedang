@@ -74,7 +74,7 @@ export const assignmentSubmissionQueries = {
       queryFn: () => getAnonymizedScores({ assignmentId, courseId })
     }),
 
-  problemScore: ({
+  submissionResults: ({
     assignmentId,
     problemId
   }: GetProblemSubmissionResultsRequest) =>
@@ -91,7 +91,7 @@ export const assignmentSubmissionQueries = {
     queryOptions({
       queryKey: ['assignment', assignmentId, problemId, submissionId],
       queryFn: () => getTestResult({ assignmentId, problemId, submissionId }),
-      enabled: Boolean(submissionId !== 0)
+      enabled: Boolean(submissionId)
     }),
 
   grades: ({ groupId }: GetAssignmentGradesRequest) =>

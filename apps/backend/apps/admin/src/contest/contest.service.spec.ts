@@ -4,7 +4,7 @@ import { ContestProblem, ContestRecord } from '@generated'
 import { Problem } from '@generated'
 import { Contest } from '@generated'
 import { faker } from '@faker-js/faker'
-import { ResultStatus } from '@prisma/client'
+import { ContestRole, ResultStatus, Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
@@ -51,11 +51,13 @@ const contest: Contest = {
   invitationCode,
   contestProblem: [],
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 
 const contestWithCount = {
@@ -80,11 +82,13 @@ const contestWithCount = {
     contestRecord: 10
   },
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 
 const contestWithParticipants: ContestWithParticipants = {
@@ -107,11 +111,13 @@ const contestWithParticipants: ContestWithParticipants = {
   participants: 10,
   invitationCode,
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 
 const problem: Problem = {
@@ -215,8 +221,20 @@ const updateInput = {
 } satisfies UpdateContestInput
 
 const db = {
+  user: {
+    findUnique: stub().resolves({ role: Role.Admin, canCreateContest: true })
+  },
+  userContest: {
+    create: stub().resolves(),
+    findMany: stub().resolves([
+      {
+        role: ContestRole.Admin
+      }
+    ])
+  },
   contest: {
     findFirst: stub().resolves(Contest),
+    findUniqueOrThrow: stub().resolves(Contest),
     findUnique: stub().resolves(Contest),
     findMany: stub().resolves([Contest]),
     create: stub().resolves(Contest),
@@ -288,7 +306,7 @@ describe('ContestService', () => {
     it('should return an array of contests', async () => {
       db.contest.findMany.resolves([contestWithCount])
 
-      const res = await service.getContests(5, 0)
+      const res = await service.getContests(userId, 5, 0)
       expect(res).to.deep.equal([contestWithParticipants])
     })
   })
@@ -314,7 +332,7 @@ describe('ContestService', () => {
 
   describe('updateContest', () => {
     it('should return updated contest', async () => {
-      db.contest.findFirst.resolves(contest)
+      db.contest.findUniqueOrThrow.resolves(contest)
       db.contest.update.resolves(contest)
 
       const res = await service.updateContest(updateInput)

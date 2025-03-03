@@ -1,0 +1,19 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/contest/role
+  body: none
+  auth: none
+}
+
+docs {
+  # Get Contest Role
+  
+  모든 constest에 대한 role들을 함께 조회합니다.
+  
+  로그인하지 않을 시 빈 배열을 return
+}

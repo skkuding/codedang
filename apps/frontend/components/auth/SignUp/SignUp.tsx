@@ -8,7 +8,6 @@ import Image from 'next/image'
 import { IoMdArrowBack } from 'react-icons/io'
 import { SignUpEmailVerify } from './SignUpEmailVerify'
 import { SignUpRegister } from './SignUpRegister'
-import { SignUpWelcome } from './SignUpWelcome'
 
 export function SignUp() {
   const { showSignIn } = useAuthModalStore((state) => state)
@@ -32,9 +31,8 @@ export function SignUp() {
         width={100}
       />
 
-      {modalPage === 0 && <SignUpWelcome />}
-      {modalPage === 1 && <SignUpEmailVerify />}
-      {modalPage === 2 && <SignUpRegister />}
+      {modalPage === 0 && <SignUpEmailVerify />}
+      {modalPage === 1 && <SignUpRegister />}
 
       {modalPage === 0 && (
         <div className="absolute bottom-6 flex items-center justify-center">
