@@ -151,8 +151,6 @@ function InviteManually({ courseId }: InviteManuallyProps) {
 
   const onInvite: SubmitHandler<InviteUserInput> = useCallback(
     async (data) => {
-      console.log('onInvite')
-
       const updatePromise = inviteUser({
         variables: {
           groupId: courseId,
@@ -340,7 +338,6 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
 
       if (result.data) {
         const data = result.data.issueInvitation
-        console.log('Issue Invitation:', data)
         reset({
           issueInvitation: data
         })
@@ -396,10 +393,8 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
         const { data } = await createWhitelist({
           variables: { groupId: courseId, studentIds: studentIdList }
         })
-        console.log(data)
         setWhitelistCount(data?.createWhitelist ?? 0)
         setIsUploaded(true)
-        console.log(data?.createWhitelist)
       } catch (error) {
         console.error('Create white list error:', error)
       }
@@ -411,7 +406,6 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
   useEffect(() => {
     if (isUploaded && whitelistCount) {
       toast.success(`${whitelistCount} studentIds are registered.`)
-      console.log(courseId)
     }
   }, [courseId, isUploaded, whitelistCount])
 
