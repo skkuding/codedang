@@ -16,8 +16,8 @@ export function ProblemTabs() {
   }
 
   return (
-    <div className="flex w-full justify-center">
-      <div className="flex w-1/2 text-[#333333] md:gap-[60px]">
+    <div className="my-16 flex w-full justify-center">
+      <div className="flex w-full text-[#333333] md:gap-[60px]">
         <Link
           href={'/admin/problem' as Route}
           className={cn(

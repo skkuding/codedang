@@ -3,6 +3,7 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
+import { ProblemTabs } from '../_components/ProblemTabs'
 import {
   SharedProblemTable,
   SharedProblemTableFallback
@@ -10,7 +11,7 @@ import {
 
 export default function Page() {
   return (
-    <div className="container mx-auto space-y-5 py-10">
+    <div className="container mx-auto py-10">
       <div className="flex justify-between">
         <div>
           <p className="text-4xl font-bold">Shared Problem List</p>
@@ -19,6 +20,8 @@ export default function Page() {
           </p>
         </div>
       </div>
+
+      <ProblemTabs />
 
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<SharedProblemTableFallback />}>
