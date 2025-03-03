@@ -1,10 +1,13 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
+import welcomeLogo from '@/public/logos/welcome.png'
 import { ErrorBoundary } from '@suspensive/react'
+import Image from 'next/image'
 import { Suspense } from 'react'
 import { CourseCardList } from './_components/CourseCardList'
 import { CourseMainBanner } from './_components/CourseMainBanner'
+import { LoginButton } from './_components/LoginButton'
 
 function CardListFallback() {
   return (
@@ -25,13 +28,15 @@ export default async function Course() {
     return (
       <>
         <CourseMainBanner course={null} />
-        <div className="flex w-full max-w-7xl flex-col items-center justify-center p-5 py-8">
-          <h2 className="text-xl font-semibold text-gray-700">
-            Please Login First
-          </h2>
-          <p className="mt-2 text-gray-500">
-            You need to login to view your courses.
-          </p>
+        <div className="flex w-full max-w-7xl flex-col items-center justify-center p-5 py-48">
+          {/* TODO: 투명 배경 이미지로 바꾸고, 문구 컨펌 받기기 */}
+          <Image src={welcomeLogo} alt="welcome" />
+          <p className="mt-10 text-2xl font-semibold">Please Login!</p>
+          <div className="mt-2 text-center text-base font-normal text-[#7F7F7F]">
+            <p>This page is only available to logged-in users.</p>
+            <p>Click the button below to login.</p>
+          </div>
+          <LoginButton className="mt-6 flex h-[46px] w-52 items-center justify-center text-base font-bold" />
         </div>
       </>
     )
