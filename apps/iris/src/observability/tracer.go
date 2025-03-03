@@ -50,6 +50,7 @@ func newTraceProvider(res *resource.Resource, bsp sdktrace.SpanProcessor) *sdktr
 func newResource(ctx context.Context) (*resource.Resource, error) {
 	// Create a new resource with a service name and the service version.
 	r, err := resource.New(ctx,
+		resource.WithFromEnv(), // collect environment information including AWS resources' metadata
 		resource.WithAttributes(
 			// the service name used to display traces in backends
 			semconv.ServiceNameKey.String("IRIS"),
