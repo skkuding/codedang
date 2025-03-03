@@ -1,6 +1,6 @@
 import { Field, GraphQLISODateTime, InputType, Int } from '@nestjs/graphql'
 import { IsNumberString, IsOptional, Length } from 'class-validator'
-import GraphQLJSON from 'graphql-type-json'
+import { GraphQLJSONObject } from 'graphql-type-json'
 
 @InputType()
 export class CreateContestInput {
@@ -34,9 +34,8 @@ export class CreateContestInput {
   @Field(() => Boolean, { nullable: true })
   enableCopyPaste?: boolean
 
-  @Field(() => GraphQLJSON, { nullable: true })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  summary?: any
+  @Field(() => GraphQLJSONObject, { nullable: true })
+  summary?: object
 }
 
 @InputType()
@@ -74,7 +73,6 @@ export class UpdateContestInput {
   @Field(() => Boolean, { nullable: true })
   isJudgeResultVisible?: boolean
 
-  @Field(() => GraphQLJSON, { nullable: true })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  summary?: any
+  @Field(() => GraphQLJSONObject, { nullable: true })
+  summary?: object
 }
