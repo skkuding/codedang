@@ -30,7 +30,6 @@ export default async function Course() {
       <>
         <CourseMainBanner course={null} />
         <div className="flex w-full max-w-7xl flex-col items-center justify-center p-5 py-48">
-          {/* TODO: 투명 배경 이미지로 바꾸고, 문구 컨펌 받기기 */}
           <Image src={welcomeLogo} alt="welcome" />
           <p className="mt-10 text-2xl font-semibold">Please Login!</p>
           <div className="mt-2 text-center text-base font-normal text-[#7F7F7F]">
