@@ -1,12 +1,8 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { Badge } from '@/components/shadcn/badge'
 import { Checkbox } from '@/components/shadcn/checkbox'
-import { Switch } from '@/components/shadcn/switch'
-import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
 import type { Level } from '@/types/type'
-import { useMutation } from '@apollo/client'
-import type { ColumnDef, Row } from '@tanstack/react-table'
-import { ContainedContests } from '../../_components/ContainedContests'
+import type { ColumnDef } from '@tanstack/react-table'
 
 interface Tag {
   id: number
@@ -18,38 +14,8 @@ export interface SharedDataTableProblem {
   title: string
   updateTime: string
   difficulty: string
-  submissionCount: number
-  acceptedRate: number
-  isVisible: boolean | null
   languages: string[]
   tag: { id: number; tag: Tag }[]
-}
-
-function VisibleCell({ row }: { row: Row<SharedDataTableProblem> }) {
-  const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
-
-  return (
-    <div className="ml-8 flex items-center space-x-2">
-      <Switch
-        id="hidden-mode"
-        onClick={(e) => e.stopPropagation()}
-        disabled={row.original.isVisible === null}
-        checked={row.original.isVisible === true}
-        onCheckedChange={() => {
-          row.original.isVisible = !row.original.isVisible
-          updateVisible({
-            variables: {
-              input: {
-                id: row.original.id,
-                isVisible: row.original.isVisible
-              }
-            }
-          })
-        }}
-      />
-      <ContainedContests problemId={row.original.id} />
-    </div>
-  )
 }
 
 export const columns: ColumnDef<SharedDataTableProblem>[] = [
@@ -58,20 +24,16 @@ export const columns: ColumnDef<SharedDataTableProblem>[] = [
     header: ({ table }) => (
       <Checkbox
         checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) =>
-          table.toggleAllPageRowsSelected(Boolean(value))
-        }
         aria-label="Select all"
         className="translate-y-[2px]"
+        disabled={true}
       />
     ),
     cell: ({ row }) => (
       <Checkbox
-        onClick={(e) => e.stopPropagation()}
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
         aria-label="Select row"
         className="translate-y-[2px]"
+        disabled={true}
       />
     ),
     enableSorting: false,
@@ -116,7 +78,11 @@ export const columns: ColumnDef<SharedDataTableProblem>[] = [
   {
     accessorKey: 'updateTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Update" />
+      <DataTableColumnHeader
+        column={column}
+        title="Update"
+        className="justify-center"
+      />
     ),
     cell: ({ row }) => {
       return <div>{row.original.updateTime.substring(2, 10)}</div>
@@ -125,7 +91,11 @@ export const columns: ColumnDef<SharedDataTableProblem>[] = [
   {
     accessorKey: 'difficulty',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Level" />
+      <DataTableColumnHeader
+        column={column}
+        title="Level"
+        className="justify-center"
+      />
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
@@ -143,35 +113,6 @@ export const columns: ColumnDef<SharedDataTableProblem>[] = [
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
-    }
-  },
-  {
-    accessorKey: 'submissionCount',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Submission" />
-    ),
-    cell: ({ row }) => {
-      return <div>{row.getValue('submissionCount')}</div>
-    }
-  },
-  {
-    accessorKey: 'acceptedRate',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Success Rate" />
-    ),
-    cell: ({ row }) => {
-      const acceptedRate: number = row.getValue('acceptedRate')
-      const acceptedRateFloat = (acceptedRate * 100).toFixed(2)
-      return <div>{acceptedRateFloat}%</div>
-    }
-  },
-  {
-    accessorKey: 'isVisible',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Visible" />
-    ),
-    cell: ({ row }) => {
-      return <VisibleCell row={row} />
     }
   }
 ]
