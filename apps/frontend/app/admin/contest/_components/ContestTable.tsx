@@ -27,17 +27,33 @@ export function ContestTable() {
       take: 300
     }
   })
-  console.log('data:', data)
 
   const contests = data.getContests.map((contest) => ({
     ...contest,
     id: Number(contest.id)
   }))
-  console.log('contests:', contests)
+  const now = new Date()
+
+  const contestsWithStatus = contests.map((contest) => {
+    const startTime = new Date(contest.startTime)
+    const endTime = new Date(contest.endTime)
+    let status = 'Upcoming'
+
+    if (now >= startTime && now <= endTime) {
+      status = 'Ongoing'
+    } else if (now > endTime) {
+      status = 'Finished'
+    }
+
+    return {
+      ...contest,
+      status
+    }
+  })
 
   return (
     <DataTableRoot
-      data={contests}
+      data={contestsWithStatus}
       columns={columns}
       defaultSortState={[{ id: 'startTime', desc: true }]}
     >

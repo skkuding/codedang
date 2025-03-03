@@ -1,9 +1,9 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Button } from '@/components/shadcn/button'
 import { ErrorBoundary } from '@suspensive/react'
-import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense } from 'react'
+import { HiMiniPlusCircle } from 'react-icons/hi2'
 import { ContestTable, ContestTableFallback } from './_components/ContestTable'
 
 export const dynamic = 'force-dynamic'
@@ -18,10 +18,10 @@ export default function Page() {
             Here&apos;s a list you made
           </p>
         </div>
-        <Button variant="default" asChild>
+        <Button variant="default" className="w-[120px]" asChild>
           <Link href="/admin/contest/create">
-            <PlusCircleIcon className="mr-2 h-4 w-4" />
-            Create
+            <HiMiniPlusCircle className="mr-2 h-5 w-5" />
+            <span className="text-lg">Create</span>
           </Link>
         </Button>
       </div>

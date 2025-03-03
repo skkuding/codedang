@@ -10,7 +10,7 @@ import {
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
 import { UPDATE_CONTEST_VISIBLE } from '@/graphql/contest/mutations'
-import { cn, dateFormatter } from '@/libs/utils'
+import { cn, dateFormatter, getStatusColor } from '@/libs/utils'
 import invisibleIcon from '@/public/icons/invisible.svg'
 import visibleIcon from '@/public/icons/visible.svg'
 import { useMutation } from '@apollo/client'
@@ -28,6 +28,7 @@ export interface DataTableContest {
   participants: number
   isVisible: boolean
   isRankVisible: boolean
+  status: string
 }
 
 function VisibleCell({ row }: { row: Row<DataTableContest> }) {
@@ -184,15 +185,23 @@ export const columns: ColumnDef<DataTableContest>[] = [
       </p>
     ),
     size: 250
+  },
+  {
+    accessorKey: 'status',
+    header: ({ column }) => (
+      <div className="flex justify-center">
+        <DataTableColumnHeader column={column} title="State" />
+      </div>
+    ),
+    cell: ({ row }) => (
+      <p
+        className={cn(
+          `flex h-7 w-20 items-center justify-center rounded-full border border-solid text-center font-normal text-neutral-500 md:w-[92px]`,
+          getStatusColor(row.original.status)
+        )}
+      >
+        {row.original.status}
+      </p>
+    )
   }
-  // {
-  //   accessorKey: 'isVisible',
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="Visible" />
-  //   ),
-  //   cell: ({ row }) => {
-  //     return <VisibleCell row={row} />
-  //   },
-  //   size: 100
-  // }
 ]
