@@ -45,7 +45,7 @@ export default async function Course() {
   return (
     <>
       <CourseMainBanner course={null} />
-      <div className="flex w-full max-w-7xl flex-col gap-5 p-5 pb-8 pt-[100px]">
+      <div className="flex w-full max-w-7xl flex-col gap-5 px-5 pt-[100px]">
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<CardListFallback />}>
             <CourseCardList title="MY COURSE" />
