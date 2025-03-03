@@ -99,6 +99,28 @@ const GET_SHARED_PROBLEMS = gql(`
   }
 `)
 
+const GET_MY_OR_SHARED_PROBLEMS = gql(`
+  query GET_MY_OR_SHARED_PROBLEMS($cursor: Int, $take: Int!, $input: FilterProblemsInput!) {
+    getProblems(cursor: $cursor, take: $take, input: $input, shared: true) {
+      id
+      title
+      updateTime
+      difficulty
+      submissionCount
+      acceptedRate
+      isVisible
+      languages
+      tag {
+        id
+        tag {
+          id
+          name
+        }
+      }
+    }
+  }
+`)
+
 const GET_PROBLEM_DETAIL = gql(`
   query GetProblemDetail($id: Int!) {
     getProblem(id: $id) {
@@ -170,6 +192,7 @@ export {
   GET_ALL_PROBLEMS,
   GET_MY_PROBLEMS,
   GET_SHARED_PROBLEMS,
+  GET_MY_OR_SHARED_PROBLEMS,
   GET_PROBLEM_DETAIL,
   GET_CONTEST_PROBLEMS,
   GET_ASSIGNMENT_PROBLEMS,
