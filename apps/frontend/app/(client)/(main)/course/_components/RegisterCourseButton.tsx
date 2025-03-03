@@ -21,11 +21,13 @@ export function RegisterCourseButton() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   return (
     <>
-      <Button variant="slate" onClick={() => setIsDialogOpen(true)}>
-        <div className="border-primary flex h-8 w-[127px] items-center justify-center gap-2 rounded-full border">
-          <Image src={plusCircleIcon} alt="plusIcon" />
-          <span className="text-primary text-lg font-semibold">Register</span>
-        </div>
+      <Button
+        variant="outline"
+        onClick={() => setIsDialogOpen(true)}
+        className="border-primary flex h-8 w-[127px] items-center justify-center gap-2 rounded-full border hover:bg-[#EAF3FF]"
+      >
+        <Image src={plusCircleIcon} alt="plusIcon" />
+        <span className="text-primary text-lg font-semibold">Register</span>
       </Button>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="w-[416px]" title="register course">
