@@ -25,6 +25,18 @@ const DELETE_GROUP_MEMBER = gql(`
   }
 `)
 
+const UPDATE_GROUP_MEMBER = gql(`
+  mutation UpdateGroupMember($userId: Int!, $groupId: Int!, $toGroupLeader: Boolean!) {
+    updateGroupMember(userId: $userId, groupId: $groupId, toGroupLeader: $toGroupLeader) {
+      userId
+      groupId
+      isGroupLeader
+      createTime
+      updateTime
+    }
+  }
+`)
+
 const ISSUE_INVITATION = gql(`
   mutation issueInvitation($groupId: Int!) {
     issueInvitation(groupId: $groupId)
@@ -37,4 +49,10 @@ const REVOKE_INVITATION = gql(`
   }
 `)
 
-export { INVITE_USER, DELETE_GROUP_MEMBER, ISSUE_INVITATION, REVOKE_INVITATION }
+export {
+  INVITE_USER,
+  DELETE_GROUP_MEMBER,
+  UPDATE_GROUP_MEMBER,
+  ISSUE_INVITATION,
+  REVOKE_INVITATION
+}
