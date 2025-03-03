@@ -6,7 +6,7 @@ import {
   DialogTrigger
 } from '@/components/shadcn/dialog'
 import { UPLOAD_PROBLEMS } from '@/graphql/problem/mutations'
-import { GET_PROBLEMS } from '@/graphql/problem/queries'
+import { GET_MY_PROBLEMS } from '@/graphql/problem/queries'
 import { useApolloClient, useMutation } from '@apollo/client'
 import { UploadIcon, UploadCloudIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
@@ -65,7 +65,7 @@ export function UploadDialog() {
       document.getElementById('closeDialog')?.click()
       resetFile()
       client.refetchQueries({
-        include: [GET_PROBLEMS]
+        include: [GET_MY_PROBLEMS]
       })
     } catch (error) {
       toast.error('Failed to upload file')

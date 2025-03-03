@@ -33,9 +33,9 @@ const GET_PROBLEM = gql(`
   }
 `)
 
-const GET_PROBLEMS = gql(`
+const GET_MY_PROBLEMS = gql(`
   query GetProblems($cursor: Int, $take: Int!, $input: FilterProblemsInput!) {
-    getProblems(cursor: $cursor, take: $take, input: $input) {
+    getProblems(cursor: $cursor, take: $take, input: $input, my: true) {
       id
       title
       updateTime
@@ -123,7 +123,7 @@ const GET_PROBLEM_TESTCASE = gql(`
 
 export {
   GET_PROBLEM,
-  GET_PROBLEMS,
+  GET_MY_PROBLEMS,
   GET_PROBLEM_DETAIL,
   GET_CONTEST_PROBLEMS,
   GET_ASSIGNMENT_PROBLEMS,

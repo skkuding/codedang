@@ -13,7 +13,7 @@ import {
 import { columns } from './ProblemTableColumns'
 import { ProblemsDeleteButton } from './ProblemsDeleteButton'
 
-export function ProblemTable() {
+export function SharedProblemTable() {
   const { data } = useSuspenseQuery(GET_MY_PROBLEMS, {
     variables: {
       take: 500,
@@ -62,6 +62,6 @@ export function ProblemTable() {
   )
 }
 
-export function ProblemTableFallback() {
+export function SharedProblemTableFallback() {
   return <DataTableFallback columns={columns} />
 }

@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogClose
 } from '@/components/shadcn/dialog'
+import { useSession } from '@/libs/hooks/useSession'
 import { ErrorBoundary } from '@suspensive/react'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
@@ -23,6 +24,8 @@ export default function Page({
 }: {
   searchParams: { import: boolean | undefined }
 }) {
+  const session = useSession()
+  const isAdmin = session?.user.role === 'admin'
   const [openDialog, setOpenDialog] = useState<boolean>(false)
 
   useEffect(() => {
@@ -55,6 +58,7 @@ export default function Page({
             </div>
           )}
         </div>
+
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<ProblemTableFallback />}>
             <ProblemTable />
