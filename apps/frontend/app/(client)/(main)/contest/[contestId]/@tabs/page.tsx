@@ -30,17 +30,15 @@ export interface ContestTop {
   description: string
   startTime: string
   endTime: string
-  group: {
-    id: number
-    groupName: string
-  }
   isJudgeResultVisible: boolean
   posterUrl?: string
-  participationTarget?: string
-  competitionMethod?: string
-  rankingMethod?: string
-  problemFormat?: string
-  benefits?: string
+  summary: {
+    문제형태?: string
+    순위산정?: string
+    진행방식?: string
+    참여대상?: string
+    참여혜택?: string
+  }
   contestProblem: {
     order: number
     problem: {
@@ -115,16 +113,7 @@ export default async function ContestTop({
   )
   const formattedEndTime = dateFormatter(data.endTime, 'YYYY-MM-DD HH:mm:ss')
 
-  const {
-    posterUrl,
-    participationTarget,
-    competitionMethod,
-    rankingMethod,
-    problemFormat,
-    benefits,
-    description,
-    id: currentContestId
-  } = data
+  const { posterUrl, summary, description, id: currentContestId } = data
 
   const imageUrl = posterUrl || '/logos/welcome.png'
   const prev = true
@@ -161,23 +150,23 @@ export default async function ContestTop({
           <div className="flex flex-col gap-[14px]">
             <ContestSummary
               buttonName="참여 대상"
-              summary={participationTarget ? participationTarget : '없음'}
+              summary={summary.참여대상 ? summary.참여대상 : '없음'}
             />
             <ContestSummary
               buttonName="진행 방식"
-              summary={competitionMethod ? competitionMethod : '없음'}
+              summary={summary.진행방식 ? summary.진행방식 : '없음'}
             />
             <ContestSummary
               buttonName="순위 산정"
-              summary={rankingMethod ? rankingMethod : '없음'}
+              summary={summary.순위산정 ? summary.순위산정 : '없음'}
             />
             <ContestSummary
               buttonName="문제 형태"
-              summary={problemFormat ? problemFormat : '없음'}
+              summary={summary.문제형태 ? summary.문제형태 : '없음'}
             />
             <ContestSummary
               buttonName="참여 혜택"
-              summary={benefits ? benefits : '없음'}
+              summary={summary.참여혜택 ? summary.참여혜택 : '없음'}
             />
           </div>
 
