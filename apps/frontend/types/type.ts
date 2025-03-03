@@ -376,24 +376,3 @@ export interface CalendarAssignment {
   start: Date
   end: Date
 }
-
-export interface TestcaseResult {
-  id: number
-  submissionId: number
-  problemTestcaseId: number
-  result: string
-  cpuTime: number | null
-  memoryUsage: number | null
-  createTime: string
-  updateTime: string
-}
-
-export interface SubmissionResponse {
-  problemId: number
-  username: string
-  code: string
-  language: string
-  createTime: string
-  result: string
-  testcaseResult: TestcaseResult[]
-}

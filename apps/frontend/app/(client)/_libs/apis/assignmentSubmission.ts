@@ -1,10 +1,5 @@
 import { safeFetcherWithAuth } from '@/libs/utils'
-import type {
-  SubmissionDetail,
-  SubmissionItem,
-  SubmissionResponse
-} from '@/types/type'
-import type { NumberSchema } from 'valibot'
+import type { SubmissionDetail, SubmissionItem } from '@/types/type'
 import type { PaginationQueryParams } from './types'
 
 export interface GetAssignmentSubmissionListRequest
@@ -124,6 +119,26 @@ export interface GetTestResultRequest {
   assignmentId: number
   problemId: number
   submissionId: number
+}
+
+export interface SubmissionResponse {
+  problemId: number
+  username: string
+  code: string
+  language: string
+  createTime: string
+  result: string
+  testcaseResult: TestcaseResult[]
+}
+export interface TestcaseResult {
+  id: number
+  submissionId: number
+  problemTestcaseId: number
+  result: string
+  cpuTime: number | null
+  memoryUsage: number | null
+  createTime: string
+  updateTime: string
 }
 
 export const getTestResult = async ({

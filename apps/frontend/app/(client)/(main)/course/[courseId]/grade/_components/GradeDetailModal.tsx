@@ -1,9 +1,6 @@
 'use client'
 
-import type {
-  AssignmentGrade,
-  GetAssignmentGradesResponse
-} from '@/app/(client)/_libs/apis/assignmentSubmission'
+import type { AssignmentGrade } from '@/app/(client)/_libs/apis/assignmentSubmission'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import {
   ChartContainer,
@@ -16,27 +13,10 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/shadcn/dialog'
-import { safeFetcherWithAuth } from '@/libs/utils'
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { MdArrowForwardIos } from 'react-icons/md'
 import { Bar, CartesianGrid, XAxis, BarChart, YAxis } from 'recharts'
-
-interface ProblemScore {
-  problemId: number
-  score: number
-  maxScore: number
-  finalScore: number | null
-}
-
-interface AssignmentDetail {
-  submittedProblemCount: number
-  totalProblemCount: number
-  userAssignmentScore: number
-  assignmentPerfectScore: number
-  userAssignmentFinalScore: number
-  problemScores: ProblemScore[]
-}
 
 const chartConfig = {
   count: {

@@ -1,36 +1,17 @@
 'use client'
 
-import type {
-  AssignmentGrade,
-  ProblemSubmissionResultsResponse
-} from '@/app/(client)/_libs/apis/assignmentSubmission'
+import type { AssignmentGrade } from '@/app/(client)/_libs/apis/assignmentSubmission'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
-import { contestSubmissionQueries } from '@/app/(client)/_libs/queries/contestSubmission'
 import { CodeEditor } from '@/components/CodeEditor'
 import {
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle
 } from '@/components/shadcn/dialog'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Separator } from '@/components/shadcn/separator'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/shadcn/table'
 import { dateFormatter } from '@/libs/utils'
-import type { ContestProblem, Language, SubmissionResponse } from '@/types/type'
-import {
-  useQuery,
-  useQueryClient,
-  useSuspenseQuery
-} from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { MdArrowForwardIos } from 'react-icons/md'
 
 interface SubmissionDetailModalProps {
@@ -110,7 +91,7 @@ export function SubmissionDetailModal({
 
           <span className="text-sm font-medium">Last Submission</span>
           <ScrollArea className="rounded-md">
-            <div className="flex items-center justify-around gap-5 border border-gray-300 bg-gray-50 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-3 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
+            <div className="flex items-center justify-around gap-5 rounded-lg border border-[#E6E6E6] bg-gray-50 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-3 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
               <div>
                 <h2>User ID</h2>
                 <p>{submissions?.data[0]?.user.username}</p>

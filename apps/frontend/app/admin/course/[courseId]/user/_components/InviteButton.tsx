@@ -132,7 +132,6 @@ function InviteManually({ courseId }: InviteManuallyProps) {
     })
     if (res.ok) {
       const userInfo: UserInfo = await res.json()
-      console.log(userInfo.id)
       setUserId(userInfo.id)
     } else {
       toast.error('Failed to find user')
@@ -141,8 +140,6 @@ function InviteManually({ courseId }: InviteManuallyProps) {
 
   const onInvite: SubmitHandler<InviteUserInput> = useCallback(
     async (data) => {
-      console.log('onInvite')
-
       const updatePromise = inviteUser({
         variables: {
           groupId: courseId,
@@ -160,7 +157,6 @@ function InviteManually({ courseId }: InviteManuallyProps) {
         toast.success('Success to invite user')
       } catch {
         toast.error('Failed to invite user')
-        console.log(userId)
       }
     },
     [inviteUser, courseId, userId, setInvitedList] // 의존성 배열 설정
@@ -308,7 +304,6 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
 
       if (result.data) {
         const data = result.data.issueInvitation
-        console.log('Issue Invitation:', data)
         reset({
           issueInvitation: data
         })
@@ -334,7 +329,6 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
 
       // Excel 데이터를 JSON 형태로 변환
       const jsonData = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 })
-      console.log('엑셀 변환 데이터:', jsonData) // 디버깅용
 
       // 첫 번째 행을 헤더로 설정
       const headers = jsonData[0].map((header: string) => header.trim()) // 공백 제거
@@ -369,10 +363,8 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
       const { data } = await createWhitelist({
         variables: { groupId: courseId, studentIds }
       })
-      console.log(data)
       setWhitelistCount(data?.createWhitelist ?? 0)
       setIsUploaded(true)
-      console.log(data?.createWhitelist)
     } catch (error) {
       console.error('Create white list error:', error)
     }
@@ -386,7 +378,6 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
   useEffect(() => {
     if (isUploaded && whitelistCount) {
       toast.success(`${whitelistCount} studentIds are registered.`)
-      console.log(courseId)
     }
   }, [courseId, isUploaded, whitelistCount])
 
@@ -435,7 +426,6 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
                   className="bg-primary hover:bg-primary-strong px-6"
                   onClick={() => {
                     const invitationCode = getValues('issueInvitation') // 현재 입력된 값 가져오기
-                    console.log(invitationCode)
                     navigator.clipboard.writeText(invitationCode) // 클립보드에 복사
                   }}
                 >
