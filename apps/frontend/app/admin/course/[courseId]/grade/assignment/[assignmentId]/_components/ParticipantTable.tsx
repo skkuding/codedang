@@ -200,7 +200,7 @@ export function ParticipantTable({
         </div>
         <DataTable
           getHref={(data) =>
-            `/admin/course/${groupId}/grade/assignment/${assignmentId}/user/${data.id}/problem/1` as Route
+            `/admin/course/${groupId}/grade/assignment/${assignmentId}/user/${data.id}/problem/${problemData[0].problemId}` as Route
           }
         />
         <DataTablePagination />
