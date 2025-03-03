@@ -359,6 +359,24 @@ export class AssignmentService {
       } catch (error) {
         throw new UnprocessableDataException(error.message)
       }
+
+      const assignmentParticipants =
+        await this.prisma.assignmentRecord.findMany({
+          where: {
+            assignmentId
+          },
+          select: {
+            userId: true
+          }
+        })
+
+      const assignmentProblemRecordsData = assignmentParticipants.map(
+        ({ userId }) => ({ assignmentId, userId: userId!, problemId })
+      )
+
+      await this.prisma.assignmentProblemRecord.createMany({
+        data: assignmentProblemRecordsData
+      })
     }
 
     return assignmentProblems
