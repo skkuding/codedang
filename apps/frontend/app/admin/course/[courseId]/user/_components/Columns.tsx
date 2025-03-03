@@ -11,6 +11,7 @@ import {
 import { UPDATE_GROUP_MEMBER } from '@/graphql/user/mutation'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef } from '@tanstack/react-table'
+import { useState } from 'react'
 
 export interface DataTableMember {
   id: number
@@ -58,7 +59,7 @@ export const createColumns = (
       </div>
     ),
     cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-medium">
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
         {row.getValue('studentId')}
       </p>
     )
@@ -71,7 +72,7 @@ export const createColumns = (
       </div>
     ),
     cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-medium">
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
         {row.getValue('major')}
       </p>
     )
@@ -84,7 +85,7 @@ export const createColumns = (
       </div>
     ),
     cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-medium">
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
         {row.getValue('username')}
       </p>
     )
@@ -97,7 +98,7 @@ export const createColumns = (
       </div>
     ),
     cell: ({ row }) => (
-      <p className="whitespace-nowrapfont-medium max-w-[700px] overflow-hidden text-ellipsis">
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
         {row.getValue('name')}
       </p>
     )
@@ -127,7 +128,7 @@ export const createColumns = (
       </div>
     ),
     cell: ({ row }) => (
-      <p className="whitespace-nowrapfont-medium max-w-[700px] overflow-hidden text-ellipsis">
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
         {row.getValue('email')}
       </p>
     )
@@ -143,20 +144,30 @@ function RoleSelect({
   userId: number
   role: string
 }) {
+  const [selectedRole, setSelectedRole] = useState(role)
   const [updateGroupMember] = useMutation(UPDATE_GROUP_MEMBER)
   return (
     <Select
+      value={selectedRole}
       onValueChange={async (value) => {
-        await updateGroupMember({
-          variables: { groupId, userId, toGroupLeader: value === 'Instructor' }
-        })
+        try {
+          await updateGroupMember({
+            variables: {
+              groupId,
+              userId,
+              toGroupLeader: value === 'Instructor'
+            }
+          })
+          setSelectedRole(value)
+        } catch (error) {
+          console.error(error)
+        }
       }}
-      defaultValue={role}
     >
-      <SelectTrigger className="w-28">
+      <SelectTrigger className="w-min border-0 font-semibold focus:ring-0 focus:ring-offset-0">
         <SelectValue placeholder={role} />
       </SelectTrigger>
-      <SelectContent className="bg-white">
+      <SelectContent className="bg-white font-semibold">
         <SelectGroup>
           <SelectItem value="Instructor">Instructor</SelectItem>
           <SelectItem value="Student">Student</SelectItem>
