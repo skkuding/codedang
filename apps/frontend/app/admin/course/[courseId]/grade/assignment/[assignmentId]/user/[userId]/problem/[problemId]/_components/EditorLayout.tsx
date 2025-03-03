@@ -1,10 +1,12 @@
 'use client'
 
+import { HeaderAuthPanel } from '@/components/auth/HeaderAuthPanel'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_SUBMISSION } from '@/graphql/submission/queries'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import type { Language } from '@/types/type'
 import { useSuspenseQuery } from '@apollo/client'
+import type { Session } from 'next-auth'
 import Image from 'next/image'
 import Link from 'next/link'
 import { AssignmentProblemDropdown } from './AssignmentProblemDropdown'
@@ -15,6 +17,7 @@ interface EditorLayoutProps {
   assignmentId: number
   problemId: number
   userId: number
+  session: Session | null
   children: React.ReactNode
 }
 
@@ -23,6 +26,7 @@ export function EditorLayout({
   assignmentId,
   problemId,
   userId,
+  session,
   children
 }: EditorLayoutProps) {
   const assignment = useSuspenseQuery(GET_ASSIGNMENT, {
@@ -61,6 +65,7 @@ export function EditorLayout({
             />
           </div>
         </div>
+        <HeaderAuthPanel session={session} group="editor" />
       </header>
       <EditorMainResizablePanel
         language={submissionData?.language as Language}
