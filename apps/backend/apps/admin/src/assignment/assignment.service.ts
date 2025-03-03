@@ -870,7 +870,16 @@ export class AssignmentService {
     return assignmentRecordsWithScoreSummary
   }
 
-  async getAssignmentsByProblemId(problemId: number) {
+  async getAssignmentsByProblemId(problemId: number, userId: number) {
+    const leadingGroupNum = await this.prisma.userGroup.findFirst({
+      where: { userId, isGroupLeader: true },
+      select: { groupId: true }
+    })
+
+    if (!leadingGroupNum) {
+      throw new ForbiddenAccessException('Only instructors are allowed')
+    }
+
     const assignmentProblems = await this.prisma.assignmentProblem.findMany({
       where: {
         problemId

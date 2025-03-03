@@ -1,10 +1,16 @@
+import { SetMetadata } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import {
   Assignment,
   AssignmentProblem,
   AssignmentProblemRecord
 } from '@generated'
-import { AuthenticatedRequest, UseGroupLeaderGuard } from '@libs/auth'
+import {
+  ADMIN_NOT_NEEDED_KEY,
+  AUTH_NOT_NEEDED_KEY,
+  AuthenticatedRequest,
+  UseGroupLeaderGuard
+} from '@libs/auth'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -193,11 +199,15 @@ export class AssignmentResolver {
   }
 
   @Query(() => AssignmentsGroupedByStatus)
+  @SetMetadata(ADMIN_NOT_NEEDED_KEY, true)
   async getAssignmentsByProblemId(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('problemId', { type: () => Int }) problemId: number
+    @Args('problemId', { type: () => Int }) problemId: number,
+    @Context('req') req: AuthenticatedRequest
   ) {
-    return await this.assignmentService.getAssignmentsByProblemId(problemId)
+    return await this.assignmentService.getAssignmentsByProblemId(
+      problemId,
+      req.user.id
+    )
   }
 
   @Mutation(() => AssignmentProblemRecord)
