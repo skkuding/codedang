@@ -12,7 +12,6 @@ import {
   DataTableSearchBar
 } from '../../_components/table'
 import { columns } from './ContestTableColumns'
-import { DuplicateContestButton } from './DuplicateContestButton'
 
 const headerStyle = {
   select: '',
@@ -28,11 +27,13 @@ export function ContestTable() {
       take: 300
     }
   })
+  console.log('data:', data)
 
   const contests = data.getContests.map((contest) => ({
     ...contest,
     id: Number(contest.id)
   }))
+  console.log('contests:', contests)
 
   return (
     <DataTableRoot
@@ -40,9 +41,9 @@ export function ContestTable() {
       columns={columns}
       defaultSortState={[{ id: 'startTime', desc: true }]}
     >
-      <div className="flex gap-2">
+      <div className="mb-6 flex justify-between">
         <DataTableSearchBar columndId="title" />
-        <DuplicateContestButton />
+        {/* <DuplicateContestButton /> */}
         <ContestsDeleteButton />
       </div>
       <DataTable
@@ -77,6 +78,7 @@ function ContestsDeleteButton() {
       target="contest"
       deleteTarget={deleteTarget}
       onSuccess={onSuccess}
+      className="h-9 w-12"
     />
   )
 }

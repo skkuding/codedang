@@ -10,11 +10,13 @@ export const dynamic = 'force-dynamic'
 
 export default function Page() {
   return (
-    <div className="container mx-auto space-y-5 py-10">
+    <div className="container mx-auto space-y-[46px] py-20">
       <div className="flex justify-between">
         <div>
-          <p className="text-4xl font-bold">Contest List</p>
-          <p className="text-lg text-slate-500">Here&apos;s a list you made</p>
+          <p className="text-[32px] font-bold">CONTEST LIST</p>
+          <p className="text-base text-[#787E80]">
+            Here&apos;s a list you made
+          </p>
         </div>
         <Button variant="default" asChild>
           <Link href="/admin/contest/create">

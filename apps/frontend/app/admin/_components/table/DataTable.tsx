@@ -60,9 +60,9 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
   const { table } = useDataTable<TData>()
 
   return (
-    <ScrollArea className="max-w-full rounded border">
+    <ScrollArea className="max-w-full rounded border-none">
       <Table>
-        <TableHeader className="bg-neutral-100 [&_tr]:border-b-gray-200">
+        <TableHeader className="[&_tr]:border-[#80808040]">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
