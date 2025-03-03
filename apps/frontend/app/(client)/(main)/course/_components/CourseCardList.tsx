@@ -84,7 +84,7 @@ export function CourseCardList({ title }: CourseCardListProps) {
   if (courses.length === 0) {
     return (
       <div className="flex w-full flex-col gap-10">
-        <div className="flex items-center gap-4 text-2xl font-semibold text-black">
+        <div className="flex gap-4 text-2xl font-semibold text-black">
           {title}
           <RegisterCourseButton />
         </div>
@@ -101,8 +101,9 @@ export function CourseCardList({ title }: CourseCardListProps) {
   return (
     <Carousel className="flex w-full flex-col gap-6">
       <div className="flex w-full items-center justify-between">
-        <div className="text-2xl font-semibold text-black">
-          {title} <RegisterCourseButton />
+        <div className="flex gap-4 text-2xl font-semibold text-black">
+          {title}
+          <RegisterCourseButton />
         </div>
         <div className="flex items-center justify-end gap-2">
           <CarouselPrevious />
