@@ -370,38 +370,6 @@ export interface CalendarAssignment {
   end: Date
 }
 
-export interface ProblemScore {
-  problemId: number
-  score: number
-  maxScore: number
-  finalScore: number | null
-}
-
-export interface AssignmentScore {
-  submittedProblemCount: number
-  totalProblemCount: number
-  userAssignmentScore: number
-  assignmentPerfectScore: number
-  userAssignmentFinalScore: number | null
-  problemScores: ProblemScore[]
-}
-
-export interface ProblemSubmissionResult {
-  id: number
-  user: {
-    username: string
-  }
-  createTime: string
-  language: string
-  result: string
-  codeSize: number
-}
-
-export interface ProblemSubmissionResultResponse {
-  data: ProblemSubmissionResult[]
-  total: number
-}
-
 export interface TestcaseResult {
   id: number
   submissionId: number

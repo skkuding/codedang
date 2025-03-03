@@ -1,5 +1,6 @@
 'use client'
 
+import type { ProblemSubmissionResultsResponse } from '@/app/(client)/_libs/apis/assignmentSubmission'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { contestSubmissionQueries } from '@/app/(client)/_libs/queries/contestSubmission'
 import { CodeEditor } from '@/components/CodeEditor'
@@ -20,8 +21,13 @@ import {
   TableRow
 } from '@/components/shadcn/table'
 import { dateFormatter } from '@/libs/utils'
-import type { ContestProblem } from '@/types/type'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import type { ContestProblem, SubmissionResponse } from '@/types/type'
+import {
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery
+} from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 import { MdArrowForwardIos } from 'react-icons/md'
 
 interface SubmissionDetailModalProps {
@@ -36,44 +42,33 @@ export function SubmissionDetailModal({
   week,
   title
 }: SubmissionDetailModalProps) {
-  const problem: ContestProblem = {
-    id: 1,
-    title: 101, // 제목이 숫자로 되어있는데, 원래 string이어야 하는 경우 수정 필요
-    difficulty: 'Level1', // Level 타입이 enum이라면 적절한 값으로 변경
-    order: 1,
-    submissionCount: 120,
-    maxScore: 100,
-    score: '75',
-    submissionTime: '2025-02-27T12:00:00Z',
-    acceptedRate: 78.5
-  }
-  const submissionId = 1
-  const contestId = 1
-  // const problemId = 1
+  // const problem: ContestProblem = {
+  //   id: 1,
+  //   title: 101, // 제목이 숫자로 되어있는데, 원래 string이어야 하는 경우 수정 필요
+  //   difficulty: 'Level1', // Level 타입이 enum이라면 적절한 값으로 변경
+  //   order: 1,
+  //   submissionCount: 120,
+  //   maxScore: 100,
+  //   score: '75',
+  //   submissionTime: '2025-02-27T12:00:00Z',
+  //   acceptedRate: 78.5
+  // }
+  // const submissionId = 1
+  // const contestId = 1
+  // // const problemId = 1
 
-  const { data: submissions } = useSuspenseQuery(
-    assignmentSubmissionQueries.problemScore({ assignmentId, problemId })
+  const { data: submissions } = useQuery(
+    assignmentSubmissionQueries.submissionResults({ assignmentId, problemId })
   )
 
-  const { data: testResults } = useSuspenseQuery(
+  const { data: testResults } = useQuery(
     assignmentSubmissionQueries.testResult({
       assignmentId,
       problemId,
-      // submissionId: submissions.data[0].id
-      submissionId: 249
+      submissionId: submissions?.data?.[0]?.id ?? 0
     })
   )
 
-  // const { results } = useSuspenseQuery(
-  //   assignmentSubmissionQueries.problemScore({ assignmentId, problemId })
-  // )
-  // const { data: submission } = useSuspenseQuery(
-  //   contestSubmissionQueries.detail({
-  //     contestId,
-  //     submissionId,
-  //     problemId
-  //   })
-  // )
   return (
     <DialogContent
       className="max-h-[80vh] overflow-auto p-14 sm:max-w-2xl"
@@ -106,7 +101,7 @@ export function SubmissionDetailModal({
           <div className="flex items-center justify-around gap-5 border border-gray-300 bg-gray-50 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-3 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
             <div>
               <h2>User ID</h2>
-              <p>{submissions.data[0].user.username}</p>
+              <p>{submissions?.data[0]?.user.username}</p>
             </div>
             <Separator
               orientation="vertical"
@@ -114,7 +109,7 @@ export function SubmissionDetailModal({
             />
             <div>
               <h2>Language</h2>
-              <p>{submissions.data[0].language}</p>
+              <p>{submissions?.data[0]?.language}</p>
             </div>
             <Separator
               orientation="vertical"
@@ -122,7 +117,7 @@ export function SubmissionDetailModal({
             />
             <div>
               <h2>Code Size</h2>
-              <p>{submissions.data[0].codeSize}</p>
+              <p>{submissions?.data[0]?.codeSize}</p>
             </div>
             <Separator
               orientation="vertical"
@@ -132,7 +127,7 @@ export function SubmissionDetailModal({
               <h2>Submission Time</h2>
               <p>
                 {dateFormatter(
-                  submissions.data[0].createTime,
+                  submissions?.data[0]?.createTime ?? '',
                   'YYYY-MM-DD HH:mm:ss'
                 )}
               </p>
@@ -143,7 +138,7 @@ export function SubmissionDetailModal({
             />
             <div>
               <h2>Result</h2>
-              <p>{submissions.data[0].result}</p>
+              <p>{submissions?.data[0]?.result}</p>
             </div>
           </div>
           <ScrollBar orientation="horizontal" />
@@ -165,7 +160,7 @@ export function SubmissionDetailModal({
               </tr>
             </thead>
             <tbody>
-              {testResults.testcaseResult.map((test, index) => (
+              {testResults?.testcaseResult.map((test, index) => (
                 <tr key={test.id} className="border-b">
                   <td
                     className={`bg-primary w-[60px] px-2 py-3 text-xs font-light text-white ${

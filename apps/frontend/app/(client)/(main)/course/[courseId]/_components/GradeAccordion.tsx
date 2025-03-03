@@ -1,3 +1,7 @@
+'use client'
+
+import type { AssignmentGrade } from '@/app/(client)/_libs/apis/assignmentSubmission'
+import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import {
   Accordion,
   AccordionContent,
@@ -6,45 +10,25 @@ import {
 } from '@/components/shadcn/accordion'
 import { Dialog } from '@/components/shadcn/dialog'
 import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
+import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { GradeDetailModal } from '../grade/_components/GradeDetailModal'
 import { SubmissionDetailModal } from '../grade/_components/SubmissionDetailModal'
 import { DetailButton } from './DetailButton'
-import { dummyResponse } from './dummy'
 
 interface GradeAccordionProps {
   courseId: string
 }
 
-interface ProblemGrade {
-  id: number
-  title: string
-  order: number
-  maxScore: number
-  problemRecord: {
-    finalScore: number | null
-    comment: string
-  }
-}
-
-interface AssignmentGrade {
-  id: number
-  title: string
-  endTime: string
-  isFinalScoreVisible: boolean
-  autoFinalizeScore: boolean
-  week: number
-  userAssignmentFinalScore: number | null
-  assignmentPerfectScore: number
-  problems: ProblemGrade[]
-}
-
 export function GradeAccordion({ courseId }: GradeAccordionProps) {
-  // TODO: fetch assignment grades
+  const { data } = useQuery(
+    assignmentSubmissionQueries.grades({ groupId: Number(courseId) })
+  )
+
   return (
     <div className="mt-8">
       <GradeAccordionHeader />
-      {dummyResponse.data.map((assignment) => (
+      {data?.map((assignment) => (
         <GradeAccordionItem
           key={assignment.id}
           assignment={assignment}
@@ -74,7 +58,7 @@ interface GradeAccordionItemProps {
 
 function GradeAccordionItem({ assignment, courseId }: GradeAccordionItemProps) {
   const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false)
-  const [isProblemDialogOpen, setIsProblemDialogOpen] = useState(true)
+  const [isProblemDialogOpen, setIsProblemDialogOpen] = useState(false)
   return (
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value={assignment.week.toString()} className="border-b-0">
@@ -100,10 +84,8 @@ function GradeAccordionItem({ assignment, courseId }: GradeAccordionItemProps) {
               <DetailButton isActivated={assignment.isFinalScoreVisible} />
               {isAssignmentDialogOpen && (
                 <GradeDetailModal
-                  assignmentId={assignment.id}
-                  week={assignment.week}
-                  // courseId={courseId}
-                  courseId={1} // 요청한 course가 1번뿐임
+                  courseId={courseId}
+                  gradedAssignment={assignment}
                 />
               )}
             </Dialog>
@@ -142,12 +124,12 @@ function GradeAccordionItem({ assignment, courseId }: GradeAccordionItemProps) {
                     onOpenChange={setIsProblemDialogOpen}
                   >
                     <DetailButton
-                      isActivated={problem.problemRecord.finalScore !== null}
+                      // isActivated={assignment.isFinalScoreVisible}
+                      isActivated={true}
                     />
                     {isProblemDialogOpen && (
                       <SubmissionDetailModal
-                        // problemId={problem.id}
-                        problemId={1} // 현재 존재하는 데이터로 요청
+                        problemId={problem.id}
                         assignmentId={assignment.id}
                         week={assignment.week}
                         title={problem.title}
@@ -158,11 +140,12 @@ function GradeAccordionItem({ assignment, courseId }: GradeAccordionItemProps) {
                 <p className="w-[20%] text-center font-normal text-[#8A8A8A]">
                   -
                 </p>
-                <p className="w-[12%] text-center font-medium">{`${problem.problemRecord.finalScore ?? '-'} / ${problem.maxScore}`}</p>
+                <p className="w-[12%] text-center font-medium">{`${problem.problemRecord?.finalScore ?? '-'} / ${problem.maxScore}`}</p>
                 <div className="flex w-[14%] justify-center">
-                  {problem.problemRecord.finalScore === null && (
+                  {!problem.problemRecord ||
+                  problem.problemRecord.isSubmitted === false ? (
                     <MissingBadge />
-                  )}
+                  ) : null}
                 </div>
               </div>
             ))}

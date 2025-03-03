@@ -1,5 +1,9 @@
 'use client'
 
+import type {
+  AssignmentGrade,
+  GetAssignmentGradesResponse
+} from '@/app/(client)/_libs/apis/assignmentSubmission'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import {
   ChartContainer,
@@ -14,6 +18,7 @@ import {
 } from '@/components/shadcn/dialog'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useCallback, useMemo } from 'react'
 import { MdArrowForwardIos } from 'react-icons/md'
 import { Bar, CartesianGrid, XAxis, BarChart, YAxis } from 'recharts'
 
@@ -40,39 +45,90 @@ const chartConfig = {
 } satisfies ChartConfig
 
 interface GradeDetailModalProps {
-  assignmentId: number
-  week: number
   courseId: number
+  gradedAssignment: AssignmentGrade
 }
 
 export function GradeDetailModal({
-  assignmentId,
-  week,
-  courseId
+  courseId,
+  gradedAssignment
 }: GradeDetailModalProps) {
   const { data } = useSuspenseQuery(
-    assignmentSubmissionQueries.score({ assignmentId, courseId })
+    assignmentSubmissionQueries.anonymizedScores({
+      assignmentId: gradedAssignment.id,
+      courseId
+    })
   )
 
-  const maxScore = data?.assignmentPerfectScore ?? 100
-  const userScore = data?.userAssignmentScore ?? 0
+  const maxScore = gradedAssignment.assignmentPerfectScore
+  const mySubmittedScore = gradedAssignment.userAssignmentJudgeScore
+  const myGradedScore = gradedAssignment.userAssignmentFinalScore
 
-  const interval = maxScore / 10
+  // 점수 데이터를 기반으로 히스토그램 데이터 생성
+  const generateChartData = useCallback(
+    (scores: number[], maxScore: number) => {
+      const interval = maxScore / 10
+      const userScore = myGradedScore ?? mySubmittedScore ?? 0 // myGradedScore가 null이면 mySubmittedScore 사용
 
-  const chartData = Array.from({ length: 10 }, (_, index) => {
-    const lowerBound = index * interval
-    const upperBound = (index + 1) * interval
-    const label = `${lowerBound.toFixed(1)}-${upperBound.toFixed(1)}`
+      return Array.from({ length: 10 }, (_, index) => {
+        const lowerBound = index * interval
+        const upperBound = (index + 1) * interval
+        const label = `${lowerBound.toFixed(1)}-${upperBound.toFixed(1)}`
 
-    return {
-      score: label,
-      count: Math.floor(Math.random() * 500), // 더미 데이터 (추후 get anonymized scores요청 가능한 방법 알게되면 수정예정)
-      fill:
-        userScore >= lowerBound && userScore < upperBound
-          ? '#3b82f6'
-          : '#C3C3C3'
+        const count = scores.filter(
+          (score) => score >= lowerBound && score < upperBound
+        ).length
+
+        return {
+          score: label,
+          count,
+          fill:
+            userScore >= lowerBound && userScore < upperBound
+              ? '#3b82f6'
+              : '#C3C3C3'
+        }
+      })
+    },
+    [myGradedScore, mySubmittedScore] // 의존성 배열 추가
+  )
+
+  // 통계 계산 함수
+  const calculateStatistics = (scores: number[]) => {
+    if (!scores.length) {
+      return { mean: null, median: null, max: null }
     }
-  })
+
+    const sortedScores = [...scores].sort((a, b) => a - b)
+    const mean =
+      sortedScores.reduce((sum, score) => sum + score, 0) / scores.length
+    const median =
+      sortedScores.length % 2 === 0
+        ? (sortedScores[sortedScores.length / 2 - 1] +
+            sortedScores[sortedScores.length / 2]) /
+          2
+        : sortedScores[Math.floor(sortedScores.length / 2)]
+    const min = sortedScores[sortedScores.length - 1]
+    const max = sortedScores[sortedScores.length - 1]
+
+    return { mean, median, max, min }
+  }
+
+  // scores와 finalScores의 데이터 가공 (useMemo로 감싸기)
+  const scores = useMemo(() => data.scores ?? [], [data.scores])
+  const finalScores = useMemo(() => data.finalScores ?? [], [data.finalScores])
+
+  const chartData = useMemo(() => {
+    if (finalScores.length > 0) {
+      return generateChartData(finalScores, maxScore)
+    }
+    return generateChartData(scores, maxScore)
+  }, [finalScores, scores, maxScore, generateChartData])
+
+  const scoresStats = useMemo(() => calculateStatistics(scores), [scores])
+  const finalScoresStats = useMemo(
+    () => calculateStatistics(finalScores),
+    [finalScores]
+  )
 
   return (
     <DialogContent
@@ -84,7 +140,7 @@ export function GradeDetailModal({
           <div className="flex items-center gap-2 text-lg font-medium">
             <span>Assignment</span>
             <MdArrowForwardIos />
-            <span className="text-primary">Week {week}</span>
+            <span className="text-primary">Week {gradedAssignment.week}</span>
           </div>
         </DialogTitle>
       </DialogHeader>
@@ -105,6 +161,9 @@ export function GradeDetailModal({
                   Mean
                 </th>
                 <th className="border-primary-light px-3 py-2 text-xs font-light">
+                  Median
+                </th>
+                <th className="border-primary-light px-3 py-2 text-xs font-light">
                   Min
                 </th>
                 <th className="border-primary-light rounded-tr-md px-3 py-2 text-xs font-light">
@@ -117,19 +176,41 @@ export function GradeDetailModal({
                 <td className="bg-primary-light w-[80px] px-2 py-2 text-xs text-white">
                   Submitted
                 </td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">90</td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">80</td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">0</td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">100</td>
+                <td className="border-[0.5px] px-3 py-2 text-xs">
+                  {mySubmittedScore}
+                </td>
+                <td className="border-[0.5px] px-3 py-2 text-xs">
+                  {scoresStats.mean}
+                </td>
+                <td className="border-[0.5px] px-3 py-2 text-xs">
+                  {scoresStats.median}
+                </td>
+                <td className="border-[0.5px] px-3 py-2 text-xs">
+                  {scoresStats.min}
+                </td>
+                <td className="border-[0.5px] px-3 py-2 text-xs">
+                  {scoresStats.mean}
+                </td>
               </tr>
               <tr className="text-gray-500">
                 <td className="bg-primary-light w-[80px] rounded-bl-md px-2 py-2 text-xs text-white">
                   Graded
                 </td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">100</td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">85</td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">0</td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">100</td>
+                <td className="border-[0.5px] px-3 py-2 text-xs">
+                  {myGradedScore}
+                </td>
+                <td className="border-[0.5px] px-3 py-2 text-xs">
+                  {finalScoresStats.mean}
+                </td>
+                <td className="border-[0.5px] px-3 py-2 text-xs">
+                  {finalScoresStats.median}
+                </td>
+                <td className="border-[0.5px] px-3 py-2 text-xs">
+                  {finalScoresStats.min}
+                </td>
+                <td className="border-[0.5px] px-3 py-2 text-xs">
+                  {finalScoresStats.mean}
+                </td>
               </tr>
             </tbody>
           </table>
@@ -163,16 +244,6 @@ export function GradeDetailModal({
                 </BarChart>
               </ChartContainer>
             </div>
-          </div>
-        </div>
-        <div className="flex flex-col gap-3">
-          <span className="text-sm font-medium">Comment</span>
-          <div className="flex-col rounded border p-4">
-            <span className="text-xs font-light">
-              정말 수고 많았습니다. 문제들을 살펴보니 많이 틀렸네요. 이걸 저렇게
-              바꾸고 저걸 이렇게 바꿔보는건 어떨까요? 수고하셨습니다.
-              수고하셨습니다. 수고하셨습니다.
-            </span>
           </div>
         </div>
       </div>

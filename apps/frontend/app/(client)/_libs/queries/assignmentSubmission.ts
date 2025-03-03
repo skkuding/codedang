@@ -1,14 +1,16 @@
 import { queryOptions } from '@tanstack/react-query'
 import {
-  getAssignmentScore,
+  getAnonymizedScores,
+  getAssignmentGrades,
   getAssignmentSubmissionDetail,
   getAssignmentSubmissionList,
-  getProblemSubmissionResult,
+  getProblemSubmissionResults,
   getTestResult,
-  type GetAssignmentScoreRequest,
+  type GetAnonymizedScoresRequest,
+  type GetAssignmentGradesRequest,
   type GetAssignmentSubmissionDetailRequest,
   type GetAssignmentSubmissionListRequest,
-  type GetProblemSubmissionResultRequest,
+  type GetProblemSubmissionResultsRequest,
   type GetTestResultRequest
 } from '../apis/assignmentSubmission'
 
@@ -66,19 +68,19 @@ export const assignmentSubmissionQueries = {
         getAssignmentSubmissionDetail({ assignmentId, submissionId, problemId })
     }),
 
-  score: ({ assignmentId, courseId }: GetAssignmentScoreRequest) =>
+  anonymizedScores: ({ assignmentId, courseId }: GetAnonymizedScoresRequest) =>
     queryOptions({
       queryKey: ['assignment', assignmentId, courseId],
-      queryFn: () => getAssignmentScore({ assignmentId, courseId })
+      queryFn: () => getAnonymizedScores({ assignmentId, courseId })
     }),
 
   problemScore: ({
     assignmentId,
     problemId
-  }: GetProblemSubmissionResultRequest) =>
+  }: GetProblemSubmissionResultsRequest) =>
     queryOptions({
       queryKey: ['assignment', assignmentId, problemId],
-      queryFn: () => getProblemSubmissionResult({ assignmentId, problemId })
+      queryFn: () => getProblemSubmissionResults({ assignmentId, problemId })
     }),
 
   testResult: ({
@@ -88,6 +90,13 @@ export const assignmentSubmissionQueries = {
   }: GetTestResultRequest) =>
     queryOptions({
       queryKey: ['assignment', assignmentId, problemId, submissionId],
-      queryFn: () => getTestResult({ assignmentId, problemId, submissionId })
+      queryFn: () => getTestResult({ assignmentId, problemId, submissionId }),
+      enabled: Boolean(submissionId !== 0)
+    }),
+
+  grades: ({ groupId }: GetAssignmentGradesRequest) =>
+    queryOptions({
+      queryKey: ['assignmentGrades', groupId],
+      queryFn: () => getAssignmentGrades({ groupId })
     })
 }
