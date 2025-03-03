@@ -8,7 +8,6 @@ import {
   SelectValue
 } from '@/components/shadcn/select'
 import { cn, getPageArray } from '@/libs/utils'
-import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 import { FaCirclePlay } from 'react-icons/fa6'
 import { useDataTable } from './context'
 

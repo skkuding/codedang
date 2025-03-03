@@ -59,7 +59,6 @@ export function ContestTable() {
     >
       <div className="mb-6 flex justify-between">
         <DataTableSearchBar columndId="title" />
-        {/* <DuplicateContestButton /> */}
         <ContestsDeleteButton />
       </div>
       <div className="space-y-[42px]">

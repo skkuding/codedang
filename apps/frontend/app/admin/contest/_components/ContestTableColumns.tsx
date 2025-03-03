@@ -2,22 +2,8 @@
 
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { Checkbox } from '@/components/shadcn/checkbox'
-import { Switch } from '@/components/shadcn/switch'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/shadcn/tooltip'
-import { UPDATE_CONTEST_VISIBLE } from '@/graphql/contest/mutations'
 import { cn, dateFormatter, getStatusColor } from '@/libs/utils'
-import invisibleIcon from '@/public/icons/invisible.svg'
-import visibleIcon from '@/public/icons/visible.svg'
-import { useMutation } from '@apollo/client'
-import * as TooltipPrimitive from '@radix-ui/react-tooltip'
-import type { ColumnDef, Row } from '@tanstack/react-table'
-import Image from 'next/image'
-import { toast } from 'sonner'
+import type { ColumnDef } from '@tanstack/react-table'
 
 export interface DataTableContest {
   id: number
@@ -29,90 +15,6 @@ export interface DataTableContest {
   isVisible: boolean
   isRankVisible: boolean
   status: string
-}
-
-function VisibleCell({ row }: { row: Row<DataTableContest> }) {
-  const [updateVisible] = useMutation(UPDATE_CONTEST_VISIBLE)
-
-  return (
-    <div className="ml-4 flex items-center space-x-2">
-      <Switch
-        onClick={(e) => e.stopPropagation()}
-        id="hidden-mode"
-        checked={row.original.isVisible}
-        onCheckedChange={() => {
-          row.original.isVisible = !row.original.isVisible
-          const currentTime = dateFormatter(new Date(), 'YYYY-MM-DD HH:mm:ss')
-          const startTime = dateFormatter(
-            row.original.startTime,
-            'YYYY-MM-DD HH:mm:ss'
-          )
-          const endTime = dateFormatter(
-            row.original.endTime,
-            'YYYY-MM-DD HH:mm:ss'
-          )
-          if (currentTime > startTime && currentTime < endTime) {
-            toast.error('Cannot change visibility of ongoing contest')
-            return
-          }
-          // TODO: contest update API 수정되면 고치기
-          updateVisible({
-            variables: {
-              input: {
-                id: row.original.id,
-                title: row.original.title,
-                startTime: row.original.startTime,
-                endTime: row.original.endTime,
-                description: row.original.description,
-                isVisible: row.original.isVisible,
-                isRankVisible: row.original.isRankVisible
-              }
-            }
-          })
-        }}
-      />
-      <div className="flex items-center justify-center">
-        {
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={(e) => e.stopPropagation()}
-                  className="h-6 w-6"
-                >
-                  {row.original.isVisible ? (
-                    <Image src={visibleIcon} alt="Visible" />
-                  ) : (
-                    <Image src={invisibleIcon} alt="Invisible" />
-                  )}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent
-                className={cn(
-                  row.original.isVisible ? 'bg-primary' : 'bg-black'
-                )}
-                align="end"
-                alignOffset={-20}
-              >
-                {row.original.isVisible ? (
-                  <p>This contest is visible</p>
-                ) : (
-                  <p>This contest is not visible to users</p>
-                )}
-                <TooltipPrimitive.Arrow
-                  className={cn(
-                    'fill-current',
-                    row.original.isVisible ? 'text-primary' : 'text-black'
-                  )}
-                />
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        }
-      </div>
-    </div>
-  )
 }
 
 export const columns: ColumnDef<DataTableContest>[] = [
