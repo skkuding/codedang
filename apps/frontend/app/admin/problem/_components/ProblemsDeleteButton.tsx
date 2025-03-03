@@ -1,6 +1,6 @@
 import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import { DELETE_PROBLEM } from '@/graphql/problem/mutations'
-import { GET_MY_PROBLEMS } from '@/graphql/problem/queries'
+import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useApolloClient, useLazyQuery, useMutation } from '@apollo/client'
 import { toast } from 'sonner'
 import { DataTableDeleteButton } from '../../_components/table/DataTableDeleteButton'
@@ -48,7 +48,7 @@ export function ProblemsDeleteButton() {
 
   const onSuccess = () => {
     client.refetchQueries({
-      include: [GET_MY_PROBLEMS]
+      include: [GET_PROBLEMS]
     })
   }
 

@@ -7,7 +7,7 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
-import { GET_MY_OR_SHARED_PROBLEMS } from '@/graphql/problem/queries'
+import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
 import { toast } from 'sonner'
@@ -27,7 +27,7 @@ export function ImportProblemTable({
   checkedProblems: AssignmentProblem[]
   onSelectedExport: (selectedRows: AssignmentProblem[]) => void
 }) {
-  const { data } = useSuspenseQuery(GET_MY_OR_SHARED_PROBLEMS, {
+  const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       take: 500,
       input: {
@@ -39,7 +39,9 @@ export function ImportProblemTable({
           Level.Level5
         ],
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3]
-      }
+      },
+      shared: true,
+      my: true
     }
   })
 

@@ -1,4 +1,4 @@
-import { GET_MY_PROBLEMS } from '@/graphql/problem/queries'
+import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
 import {
@@ -14,7 +14,7 @@ import { columns } from './ProblemTableColumns'
 import { ProblemsDeleteButton } from './ProblemsDeleteButton'
 
 export function ProblemTable() {
-  const { data } = useSuspenseQuery(GET_MY_PROBLEMS, {
+  const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       take: 500,
       input: {
@@ -26,7 +26,9 @@ export function ProblemTable() {
           Level.Level5
         ],
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3]
-      }
+      },
+      my: true,
+      shared: false
     }
   })
 

@@ -1,4 +1,4 @@
-import { GET_SHARED_PROBLEMS } from '@/graphql/problem/queries'
+import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
 import {
@@ -13,7 +13,7 @@ import {
 import { columns } from '../_components/SharedProblemTableColumns'
 
 export function SharedProblemTable() {
-  const { data } = useSuspenseQuery(GET_SHARED_PROBLEMS, {
+  const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       take: 500,
       input: {
@@ -25,7 +25,9 @@ export function SharedProblemTable() {
           Level.Level5
         ],
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3]
-      }
+      },
+      shared: true,
+      my: false
     }
   })
 
