@@ -1,4 +1,3 @@
-import { SetMetadata } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import {
   Assignment,
@@ -6,9 +5,8 @@ import {
   AssignmentProblemRecord
 } from '@generated'
 import {
-  ADMIN_NOT_NEEDED_KEY,
-  AUTH_NOT_NEEDED_KEY,
   AuthenticatedRequest,
+  UseDisableAdminGuard,
   UseGroupLeaderGuard
 } from '@libs/auth'
 import {
@@ -199,7 +197,7 @@ export class AssignmentResolver {
   }
 
   @Query(() => AssignmentsGroupedByStatus)
-  @SetMetadata(ADMIN_NOT_NEEDED_KEY, true)
+  @UseDisableAdminGuard()
   async getAssignmentsByProblemId(
     @Args('problemId', { type: () => Int }) problemId: number,
     @Context('req') req: AuthenticatedRequest
