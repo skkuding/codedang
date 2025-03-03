@@ -871,12 +871,12 @@ export class AssignmentService {
   }
 
   async getAssignmentsByProblemId(problemId: number, userId: number) {
-    const leadingGroupNum = await this.prisma.userGroup.findFirst({
+    const leadingGroup = await this.prisma.userGroup.findFirst({
       where: { userId, isGroupLeader: true },
       select: { groupId: true }
     })
 
-    if (!leadingGroupNum) {
+    if (!leadingGroup) {
       throw new ForbiddenAccessException('Only instructors are allowed')
     }
 
