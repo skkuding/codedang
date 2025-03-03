@@ -17,6 +17,7 @@ import {
 import {
   AssignmentProblem,
   ContestProblem,
+  Group,
   Image,
   ProblemTag,
   ProblemTestcase,
@@ -140,6 +141,11 @@ export class ProblemResolver {
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
     return await this.problemService.getProblem(id, req.user.role, req.user.id)
+  }
+
+  @ResolveField('sharedGroups', () => [Group])
+  async getSharedGroups(@Parent() problem: ProblemWithIsVisible) {
+    return await this.problemService.getSharedGroups(problem.id)
   }
 
   @ResolveField('tag', () => [ProblemTag])

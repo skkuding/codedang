@@ -991,6 +991,16 @@ export class ProblemService {
     return tag
   }
 
+  async getSharedGroups(problemId: number) {
+    return await this.prisma.problem
+      .findUnique({
+        where: {
+          id: problemId
+        }
+      })
+      .sharedGroups()
+  }
+
   async getProblemTags(problemId: number) {
     return await this.prisma.problemTag.findMany({
       where: {
