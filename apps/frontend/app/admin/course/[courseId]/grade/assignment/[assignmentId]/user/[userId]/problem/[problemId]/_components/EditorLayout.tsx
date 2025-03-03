@@ -2,7 +2,7 @@
 
 import { HeaderAuthPanel } from '@/components/auth/HeaderAuthPanel'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
-import { GET_ASSIGNMENT_SUBMISSION } from '@/graphql/submission/queries'
+import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import type { Language } from '@/types/type'
 import { useSuspenseQuery } from '@apollo/client'
@@ -36,14 +36,14 @@ export function EditorLayout({
     }
   }).data.getAssignment
 
-  const submissionData = useSuspenseQuery(GET_ASSIGNMENT_SUBMISSION, {
+  const submissionData = useSuspenseQuery(GET_ASSIGNMENT_LATEST_SUBMISSION, {
     variables: {
       groupId: courseId,
       assignmentId,
       userId,
       problemId
     }
-  }).data?.getAssignmentSubmission
+  }).data?.getAssignmentLatestSubmission
 
   return (
     // Admin Layout의 Sidebar를 무시하기 위한 fixed
