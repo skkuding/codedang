@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { Suspense } from 'react'
 import { CourseCardList } from './_components/CourseCardList'
 import { CourseMainBanner } from './_components/CourseMainBanner'
+import { CourseSubBanner } from './_components/CourseSubBanner'
 import { LoginButton } from './_components/LoginButton'
 
 function CardListFallback() {
@@ -52,6 +53,7 @@ export default async function Course() {
           </Suspense>
         </ErrorBoundary>
       </div>
+      <CourseSubBanner />
       <div className="h-[100px]" />
     </>
   )
