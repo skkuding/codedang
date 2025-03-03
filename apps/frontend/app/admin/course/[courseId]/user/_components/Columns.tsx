@@ -12,6 +12,7 @@ import { UPDATE_GROUP_MEMBER } from '@/graphql/user/mutation'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef } from '@tanstack/react-table'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 export interface DataTableMember {
   id: number
@@ -157,7 +158,9 @@ function RoleSelect({ groupId, userId, role }: RoleSelectProps) {
             }
           })
           setSelectedRole(value)
+          toast.success('Successfully changed role')
         } catch (error) {
+          toast.error('Failed to change role')
           console.error(error)
         }
       }}
