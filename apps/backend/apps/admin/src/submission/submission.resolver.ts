@@ -104,13 +104,13 @@ export class SubmissionResolver {
 
   @Query(() => SubmissionDetail)
   @UseGroupLeaderGuard()
-  async getAssignmentSubmission(
+  async getAssignmentLatestSubmission(
     @Args('groupId', { type: () => Int }) _groupId: number,
     @Args('assignmentId', { type: () => Int }) assignmentId: number,
     @Args('userId', { type: () => Int }) userId: number,
     @Args('problemId', { type: () => Int }) problemId: number
   ): Promise<SubmissionDetail> {
-    return await this.submissionService.getAssignmentSubmission(
+    return await this.submissionService.getAssignmentLatestSubmission(
       assignmentId,
       userId,
       problemId
