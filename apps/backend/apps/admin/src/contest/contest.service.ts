@@ -291,10 +291,11 @@ export class ContestService {
       }
     }
 
+    const { id, summary, userContestRoles: newRoles, ...contestData } = contest
+
     // userContest 중 삭제된 userContestRole 삭제, 추가된 userContestRole 추가, 변경된 userContestRole 변경
-    if (contest.userContestRoles) {
+    if (newRoles) {
       const userContestRoles = contestFound.userContest
-      const newRoles = contest.userContestRoles || []
       const rolesToDelete = userContestRoles.filter(
         (role) => !newRoles.find((newRole) => newRole.userId === role.userId)
       )
@@ -349,14 +350,13 @@ export class ContestService {
 
     return await this.prisma.contest.update({
       where: {
-        id: contest.id
+        id
       },
       data: {
-        title: contest.title,
-        summary: contest.summary
+        summary: summary
           ? (contest.summary as Prisma.InputJsonValue)
           : Prisma.JsonNull,
-        ...contest
+        ...contestData
       }
     })
   }
