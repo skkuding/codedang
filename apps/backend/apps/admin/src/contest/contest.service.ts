@@ -1,7 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common'
 import { Contest, ResultStatus, Submission } from '@generated'
-import { ContestRole, Role, type ContestProblem } from '@prisma/client'
+import { ContestRole, Role, type ContestProblem, Prisma } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import {
   PUBLICIZING_REQUEST_EXPIRE_TIME,
@@ -133,19 +133,30 @@ export class ContestService {
     if (user?.canCreateContest === false && user.role === Role.User) {
       throw new UnauthorizedException('You are not allowed to create a contest')
     }
-
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
       )
     }
+    if (contest.summary) {
+      for (const [, val] of Object.entries(contest.summary)) {
+        if (typeof val !== 'string') {
+          throw new UnprocessableDataException(
+            'Summary must contain only strings'
+          )
+        }
+      }
+    }
 
     try {
-      const { userContestRoles, ...contestData } = contest
+      const { summary, userContestRoles, ...contestData } = contest
 
       const createdContest = await this.prisma.contest.create({
         data: {
           createdById: userId,
+          summary: summary
+            ? (summary as Prisma.InputJsonValue)
+            : Prisma.JsonNull,
           ...contestData
         }
       })
@@ -222,6 +233,15 @@ export class ContestService {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
       )
+    }
+    if (contest.summary) {
+      for (const [, val] of Object.entries(contest.summary)) {
+        if (typeof val !== 'string') {
+          throw new UnprocessableDataException(
+            'Summary must contain only strings'
+          )
+        }
+      }
     }
 
     const problemIds = contestFound.contestProblem.map(
@@ -333,6 +353,9 @@ export class ContestService {
       },
       data: {
         title: contest.title,
+        summary: contest.summary
+          ? (contest.summary as Prisma.InputJsonValue)
+          : Prisma.JsonNull,
         ...contest
       }
     })
@@ -751,7 +774,7 @@ export class ContestService {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, createTime, updateTime, title, ...contestDataToCopy } =
+    const { id, createTime, updateTime, title, summary, ...contestDataToCopy } =
       contestFound
 
     try {
@@ -762,6 +785,7 @@ export class ContestService {
             data: {
               ...contestDataToCopy,
               title: 'Copy of ' + title,
+              summary: summary ?? {},
               createdById: userId,
               isVisible: newVisible
             }

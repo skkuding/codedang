@@ -9,6 +9,7 @@ import {
   Length,
   ValidateNested
 } from 'class-validator'
+import GraphQLJSON from 'graphql-type-json'
 
 @InputType()
 export class CreateContestInput {
@@ -47,6 +48,9 @@ export class CreateContestInput {
   @Type(() => UserContestRoleInput) // class-validator에서 객체 변환 적용
   @Field(() => [UserContestRoleInput], { nullable: true })
   userContestRoles?: UserContestRoleInput[]
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  summary?: Record<string, string>
 }
 
 @InputType()
@@ -100,4 +104,6 @@ export class UserContestRoleInput {
   @Field(() => String, { nullable: false })
   @IsString()
   contestRole!: string
+  @Field(() => GraphQLJSON, { nullable: true })
+  summary?: Record<string, string>
 }

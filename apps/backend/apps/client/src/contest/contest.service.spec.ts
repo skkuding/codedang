@@ -19,10 +19,11 @@ import {
   PrismaTestService,
   type FlatTransactionClient
 } from '@libs/prisma'
-import { ContestService } from './contest.service'
+import { ContestService, type ContestResult } from './contest.service'
 
 const contestId = 1
-const user01Id = 4
+const user01Id = 7
+const contestAdminId = 4
 
 const now = dayjs()
 
@@ -43,11 +44,13 @@ const contest = {
   createTime: now.add(-1, 'day').toDate(),
   updateTime: now.add(-1, 'day').toDate(),
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits',
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  },
   invitationCode: '123456'
 } satisfies Contest
 
@@ -56,18 +59,19 @@ const contest = {
 //     id: contest.id,
 //     title: contest.title,
 //     posterUrl: contest.posterUrl,
-//     participationTarget: contest.participationTarget,
-//     competitionMethod: contest.competitionMethod,
-//     rankingMethod: contest.rankingMethod,
-//     problemFormat: contest.problemFormat,
-//     benefits: contest.benefits,
+//     summary: {
+//       참여대상: contest.summary?.참여대상,
+//       진행방식: contest.summary?.진행방식,
+//       순위산정: contest.summary?.순위산정,
+//       문제형태: contest.summary?.문제형태,
+//       참여혜택: contest.summary?.참여혜택
+//     },
 //     invitationCode: 'test',
 //     isJudgeResultVisible: true,
 //     startTime: now.add(-1, 'day').toDate(),
 //     endTime: now.add(1, 'day').toDate(),
 //     participants: 1,
-//     enableCopyPaste: true,
-//     contestProblem: []
+//     enableCopyPaste: true
 //   }
 // ] satisfies Partial<ContestResult>[]
 
@@ -76,18 +80,17 @@ const contest = {
 //     id: contest.id + 6,
 //     title: contest.title,
 //     posterUrl: null,
-//     participationTarget: null,
-//     competitionMethod: null,
-//     rankingMethod: contest.rankingMethod,
-//     problemFormat: contest.problemFormat,
-//     benefits: contest.benefits,
+//     summary: {
+//       순위산정: contest.summary?.순위산정,
+//       문제형태: contest.summary?.문제형태,
+//       참여혜택: contest.summary?.참여혜택
+//     },
 //     invitationCode: 'test',
 //     isJudgeResultVisible: true,
 //     startTime: now.add(1, 'day').toDate(),
 //     endTime: now.add(2, 'day').toDate(),
 //     participants: 1,
-//     enableCopyPaste: true,
-//     contestProblem: []
+//     enableCopyPaste: true
 //   }
 // ] satisfies Partial<ContestResult>[]
 
@@ -96,18 +99,16 @@ const contest = {
 //     id: contest.id + 1,
 //     title: contest.title,
 //     posterUrl: contest.posterUrl,
-//     participationTarget: contest.participationTarget,
-//     competitionMethod: contest.competitionMethod,
-//     rankingMethod: null,
-//     problemFormat: null,
-//     benefits: null,
+//     summary: {
+//       참여대상: contest.summary?.참여대상,
+//       진행방식: contest.summary?.진행방식
+//     },
 //     invitationCode: null,
 //     isJudgeResultVisible: true,
 //     startTime: now.add(-2, 'day').toDate(),
 //     endTime: now.add(-1, 'day').toDate(),
 //     participants: 1,
-//     enableCopyPaste: true,
-//     contestProblem: []
+//     enableCopyPaste: true
 //   }
 // ] satisfies Partial<ContestResult>[]
 
@@ -217,11 +218,14 @@ describe('ContestService', () => {
 
     it('should return optional fields if they exist', async () => {
       expect(contest).to.have.property('posterUrl')
-      expect(contest).to.have.property('participationTarget')
-      expect(contest).to.have.property('competitionMethod')
-      expect(contest).to.have.property('rankingMethod')
-      expect(contest).to.have.property('problemFormat')
-      expect(contest).to.have.property('benefits')
+      expect(contest).to.have.property('summary')
+      if (contest.summary) {
+        expect(contest.summary).to.have.property('참여대상')
+        expect(contest.summary).to.have.property('진행방식')
+        expect(contest.summary).to.have.property('순위산정')
+        expect(contest.summary).to.have.property('문제형태')
+        expect(contest.summary).to.have.property('참여혜택')
+      }
     })
 
     it('should return prev and next contest information', async () => {
@@ -366,6 +370,18 @@ describe('ContestService', () => {
     it('should return leaderboard of the contest', async () => {
       const leaderboard = await service.getContestLeaderboard(contestId)
       expect(leaderboard).to.be.ok
+    })
+  })
+
+  describe('getContestRoles', () => {
+    it('should return contest roles', async () => {
+      const roles = await service.getContestRoles(contestAdminId)
+      expect(roles).to.be.an('object')
+      expect(roles).to.have.property('canCreateContest')
+      expect(roles).to.have.property('userContests')
+      expect(roles.userContests).to.be.an('array')
+      expect(roles.userContests[0]).to.have.property('contestId')
+      expect(roles.userContests[0]).to.have.property('role')
     })
   })
 })

@@ -19,8 +19,8 @@ export const columns: ColumnDef<ContestAnnouncement>[] = [
     accessorKey: 'problem',
     cell: ({ row }) => (
       <div className="h-full text-base">
-        {row.original.problemId !== null
-          ? convertToLetter(row.original.problemId)
+        {row.original.problemOrder !== null
+          ? convertToLetter(row.original.problemOrder)
           : ''}
       </div>
     )

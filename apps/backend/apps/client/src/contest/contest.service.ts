@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { ContestRole, Prisma, Role, type Contest } from '@prisma/client'
+import { ContestRole, Prisma, type Contest } from '@prisma/client'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -17,11 +17,7 @@ const contestSelectOption = {
   enableCopyPaste: true,
   isJudgeResultVisible: true,
   posterUrl: true,
-  participationTarget: true,
-  competitionMethod: true,
-  rankingMethod: true,
-  problemFormat: true,
-  benefits: true,
+  summary: true,
   contestRecord: {
     select: {
       userId: true
@@ -169,7 +165,7 @@ export class ContestService {
     }
   }
 
-  async getContest(id: number, userId?: number) {
+  async getContest(id: number, userId?: number | null) {
     // check if the user has already registered this contest
     // initial value is false
     let isRegistered = false
@@ -547,6 +543,38 @@ export class ContestService {
     return {
       maxScore,
       leaderboard: filteredLeaderboard
+    }
+  }
+
+  async getContestRoles(userId: number) {
+    if (!userId) {
+      return {
+        canCreateContest: false,
+        userContests: []
+      }
+    }
+
+    const userContests = await this.prisma.userContest.findMany({
+      where: {
+        userId
+      },
+      select: {
+        contestId: true,
+        role: true
+      }
+    })
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId
+      },
+      select: {
+        canCreateContest: true
+      }
+    })
+
+    return {
+      canCreateContest: user?.canCreateContest ?? false,
+      userContests
     }
   }
 }
