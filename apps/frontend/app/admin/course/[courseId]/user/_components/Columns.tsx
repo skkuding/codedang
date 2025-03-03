@@ -135,15 +135,13 @@ export const createColumns = (
   }
 ]
 
-function RoleSelect({
-  groupId,
-  userId,
-  role
-}: {
+interface RoleSelectProps {
   groupId: number
   userId: number
   role: string
-}) {
+}
+
+function RoleSelect({ groupId, userId, role }: RoleSelectProps) {
   const [selectedRole, setSelectedRole] = useState(role)
   const [updateGroupMember] = useMutation(UPDATE_GROUP_MEMBER)
   return (
