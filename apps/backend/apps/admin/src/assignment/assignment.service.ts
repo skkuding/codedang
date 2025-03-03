@@ -6,6 +6,7 @@ import {
   Submission,
   AssignmentProblem
 } from '@generated'
+import { GroupType } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import {
@@ -830,7 +831,38 @@ export class AssignmentService {
     return assignmentRecordsWithScoreSummary
   }
 
-  async getAssignmentsByProblemId(problemId: number) {
+  async getAssignmentsByProblemId(problemId: number, userId: number) {
+    const problem = await this.prisma.problem.findFirstOrThrow({
+      where: { id: problemId },
+      include: {
+        sharedGroups: {
+          select: {
+            id: true
+          }
+        }
+      }
+    })
+
+    if (problem.createdById !== userId) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared) {
+        throw new ForbiddenAccessException(
+          'User can only edit problems they created or were shared with'
+        )
+      }
+    }
+
     const assignmentProblems = await this.prisma.assignmentProblem.findMany({
       where: {
         problemId
