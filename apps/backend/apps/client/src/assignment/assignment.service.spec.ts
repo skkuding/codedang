@@ -192,14 +192,27 @@ describe('AssignmentService', () => {
         service.createAssignmentRecord(assignmentId, user01Id, groupId)
       ).to.be.rejectedWith(ConflictFoundException)
     })
+    it('should register to a assignment successfully on finished assignment', async () => {
+      const assignmentRecord = await service.createAssignmentRecord(
+        8,
+        user01Id,
+        groupId
+      )
+      assignmentRecordId = assignmentRecord.id
+      expect(
+        await transaction.assignmentRecord.findUnique({
+          where: { id: assignmentRecordId }
+        })
+      ).to.deep.equals(assignmentRecord)
+    })
 
-    it('should throw error when assignment is not ongoing', async () => {
+    it('should throw error when assignment is upcoming', async () => {
       await expect(
-        service.createAssignmentRecord(8, user01Id, groupId)
+        service.createAssignmentRecord(15, user01Id, groupId)
       ).to.be.rejectedWith(ConflictFoundException)
     })
 
-    it('should register to a assignment successfully', async () => {
+    it('should register to a assignment successfully on ', async () => {
       const assignmentRecord = await service.createAssignmentRecord(
         2,
         user01Id,
