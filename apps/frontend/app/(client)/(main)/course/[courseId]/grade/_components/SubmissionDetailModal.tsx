@@ -98,7 +98,7 @@ export function SubmissionDetailModal({
               </div>
               <Separator
                 orientation="vertical"
-                className="h-[60px] w-[0.5px] bg-gray-400"
+                className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
               />
               <div>
                 <h2>Language</h2>
@@ -106,7 +106,7 @@ export function SubmissionDetailModal({
               </div>
               <Separator
                 orientation="vertical"
-                className="h-[60px] w-[0.5px] bg-gray-400"
+                className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
               />
               <div>
                 <h2>Code Size</h2>
@@ -114,7 +114,7 @@ export function SubmissionDetailModal({
               </div>
               <Separator
                 orientation="vertical"
-                className="h-[60px] w-[0.5px] bg-gray-400"
+                className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
               />
               <div>
                 <h2>Submission Time</h2>
@@ -127,7 +127,7 @@ export function SubmissionDetailModal({
               </div>
               <Separator
                 orientation="vertical"
-                className="h-[60px] w-[0.5px] bg-gray-400"
+                className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
               />
               <div>
                 <h2>Result</h2>
