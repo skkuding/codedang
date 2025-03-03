@@ -234,6 +234,7 @@ const db = {
   },
   contest: {
     findFirst: stub().resolves(Contest),
+    findUniqueOrThrow: stub().resolves(Contest),
     findUnique: stub().resolves(Contest),
     findMany: stub().resolves([Contest]),
     create: stub().resolves(Contest),
@@ -331,7 +332,7 @@ describe('ContestService', () => {
 
   describe('updateContest', () => {
     it('should return updated contest', async () => {
-      db.contest.findFirst.resolves(contest)
+      db.contest.findUniqueOrThrow.resolves(contest)
       db.contest.update.resolves(contest)
 
       const res = await service.updateContest(updateInput)
