@@ -24,7 +24,6 @@ body:graphql {
       isJudgeResultVisible
       invitationCode
       summary
-      userContestRoles
     }
   }
 }
@@ -49,7 +48,7 @@ body:graphql:vars {
         "참여혜택": "benefits"
       },
       "userContestRoles": [
-        { "userId": 5, "contestRole": "Manager" }
+        { "userId": 5, "contestRole": "Manager" },
         { "userId": 6, "contestRole": "Reviewer" }
       ]
     }
@@ -64,12 +63,12 @@ docs {
   # Create Contest
   ---
   - 새로운 Contest를 생성합니다.
-
+  
   ## Error Cases
   ### End Time Earlier than Start Time
   종료 시각이 시작 시간 이후여야 합니다.
-
+  
   ### Required Fields Not Entered
   title, startTime, endTime은 필수로 입력되어야 합니다.
-
+  
 }
