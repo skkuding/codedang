@@ -32,7 +32,7 @@ export function CreateProblemForm({ children }: CreateProblemFormProps) {
       hint: '',
       source: '',
       template: [],
-      isVisible: true
+      isVisible: false
     }
   })
 
