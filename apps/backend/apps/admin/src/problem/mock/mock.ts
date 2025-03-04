@@ -409,6 +409,7 @@ export const exampleContest: Contest = {
   isVisible: true,
   isRankVisible: true,
   enableCopyPaste: true,
+  evaluateWithSampleTestcase: false,
   isJudgeResultVisible: true,
   startTime: new Date(),
   endTime: new Date(),

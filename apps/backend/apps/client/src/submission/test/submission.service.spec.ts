@@ -100,6 +100,7 @@ const mockContest: Contest = {
   isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
+  evaluateWithSampleTestcase: false,
   createTime: new Date(),
   updateTime: new Date(),
   freezeTime: null,
