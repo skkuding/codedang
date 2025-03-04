@@ -10,6 +10,7 @@ import {
 import { Input } from '@/components/shadcn/input'
 import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
 import infoIcon from '@/public/icons/info.svg'
+import personFillIcon from '@/public/icons/person-fill.svg'
 import plusCircleIcon from '@/public/icons/plus-circle.svg'
 import type { Course } from '@/types/type'
 import { useQueryClient } from '@tanstack/react-query'
@@ -60,7 +61,7 @@ function RegisterCourse() {
         <span className="text-white">Register</span>
       </Button>
       <Dialog open={isDialogOpened} onOpenChange={setIsDialogOpened}>
-        <DialogContent className="w-[538px] py-6">
+        <DialogContent className="w-fit rounded-2xl p-0 px-0 py-6">
           <DialogHeader>
             <DialogTitle />
           </DialogHeader>
@@ -152,39 +153,63 @@ function RegisterResult({
   }
 
   return (
-    <div className="flex w-full flex-col items-center px-4">
-      {!isVerified && (
-        <Image
-          src={infoIcon}
-          alt="info"
-          width={50}
-          height={50}
-          className="mb-3"
-        />
-      )}
-
+    <div className="flex w-fit justify-center">
       {isVerified ? (
-        <div className="flex flex-col gap-3 px-6 pb-6 text-sm font-light">
-          <span>Do you want to register this course?</span>
-          <span className="text-primary">
-            [{foundCourse?.courseInfo?.courseNum}-
-            {foundCourse?.courseInfo?.classNum}] {foundCourse?.groupName}
-          </span>
+        <div className="flex w-full flex-col gap-3 px-10 pb-6">
+          <p className="text-center text-xl font-medium">Verified</p>
+          <div className="flex w-full flex-col gap-2 rounded-[10px] bg-[#F2F6F7] px-6 py-4">
+            <p className="text-primary text-base font-semibold">
+              [{foundCourse?.courseInfo?.courseNum}-
+              {foundCourse?.courseInfo?.classNum}] {foundCourse?.groupName}
+            </p>
+            <div className="flex gap-2">
+              <Image
+                src={personFillIcon}
+                alt="person-fill"
+                width={16}
+                height={16}
+              />
+              <p className="text-sm font-medium text-[#8A8A8A]">
+                Prof. {foundCourse?.courseInfo.professor}
+              </p>
+            </div>
+          </div>
 
-          <div className="flex justify-end gap-3">
+          <p className="text-sm font-normal text-[#737373]">
+            Are you sure you want to register this course?
+          </p>
+
+          <div className="flex w-full justify-between">
             <Button
               variant="outline"
-              className="bg-primary"
-              onClick={handleRegisterCourse}
+              onClick={() => setIsDialogOpened(false)}
+              className="h-[44px] w-[166px]"
             >
-              <span className="text-white">Register</span>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleRegisterCourse}
+              className="h-[44px] w-[166px]"
+            >
+              Register
             </Button>
           </div>
         </div>
       ) : (
-        <div className="flex flex-col gap-3 text-center">
-          <p className="text-xl font-medium">{subTitle}</p>
-          <p className="text-xs font-normal text-[#737373]">{description}</p>
+        <div className="flex w-[512px] flex-col items-center justify-center">
+          <Image
+            src={infoIcon}
+            alt="info"
+            width={50}
+            height={50}
+            className="mb-3"
+          />
+          <div className="flex flex-col gap-3 text-center">
+            <p className="text-xl font-medium">{subTitle}</p>
+            <span className="w-[436px] text-xs font-normal text-[#737373]">
+              {description}
+            </span>
+          </div>
         </div>
       )}
     </div>
