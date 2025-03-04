@@ -75,6 +75,7 @@ const contestWithCount = {
   isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
+  evaluateWithSampleTestcase: false,
   createTime,
   updateTime,
   invitationCode,

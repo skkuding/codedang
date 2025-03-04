@@ -428,7 +428,13 @@ describe('SubmissionSubscriptionService', () => {
             createTime: true,
             submissionResult: {
               select: {
-                result: true
+                result: true,
+                problemTestcaseId: true
+              }
+            },
+            contest: {
+              select: {
+                evaluateWithSampleTestcase: true
               }
             }
           }
@@ -525,7 +531,13 @@ describe('SubmissionSubscriptionService', () => {
             updateTime: true,
             submissionResult: {
               select: {
-                result: true
+                result: true,
+                problemTestcaseId: true
+              }
+            },
+            contest: {
+              select: {
+                evaluateWithSampleTestcase: true
               }
             }
           }

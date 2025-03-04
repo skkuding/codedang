@@ -301,13 +301,34 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         updateTime: true,
         submissionResult: {
           select: {
-            result: true
+            result: true,
+            problemTestcaseId: true
+          }
+        },
+        contest: {
+          select: {
+            evaluateWithSampleTestcase: true
           }
         }
       }
     })
 
     if (!submission) return
+
+    if (submission.contest?.evaluateWithSampleTestcase) {
+      const testcaseSet = new Set(
+        (
+          await this.prisma.problemTestcase.findMany({
+            where: { problemId: submission.problemId, isHidden: false },
+            select: { id: true }
+          })
+        ).map((tc) => tc.id)
+      )
+
+      submission.submissionResult = submission.submissionResult.filter((sr) =>
+        testcaseSet.has(sr.problemTestcaseId)
+      )
+    }
 
     const allAccepted = submission.submissionResult.every(
       (submissionResult) => submissionResult.result === ResultStatus.Accepted
@@ -336,6 +357,34 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     }
   }
 
+  /**
+   * 업데이트된 제출 결과를 반영하여 대회 참가자의 점수 및 패널티를 갱신하는 함수
+   *
+   * @param {Pick<Submission, 'problemId' | 'contestId' | 'userId' | 'createTime' | 'updateTime'>} submission
+   *   - 제출 정보 객체 (문제 ID, 대회 ID, 사용자 ID, 제출 생성 및 수정 시간 포함)
+   * @param {boolean} isAccepted
+   *   - 제출 결과가 `Accepted`인지 여부
+   * @throws {UnprocessableDataException}
+   *   - `contestId` 또는 `userId`가 없는 경우 예외 발생
+   * @returns {Promise<void>}
+   *   - 이 함수는 반환값이 없으며, 대회 참가자의 점수 및 패널티를 업데이트한다.
+   *
+   * @description
+   * 이 함수는 대회에서 새로운 `Accepted` 제출이 발생했을 때 해당 참가자의 점수 및 패널티를 업데이트하는 역할을 합니다.
+   *
+   * **주요 동작 흐름:**
+   * 1. `contestId`와 `userId`가 없으면 예외를 발생시킵니다.
+   * 2. 제출된 문제에 대한 기존 `Accepted` 제출을 조회하여 **새로운 Accepted 제출인지 확인**합니다.
+   * 3. 참가자가 **이 문제의 첫 번째 해결자인지 확인**합니다.
+   * 4. 대회 및 문제 정보를 조회하여 점수 및 패널티 계산에 필요한 데이터를 가져옵니다.
+   * 5. **패널티 계산:**
+   *    - `submitCountPenalty`: 제출 횟수에 따른 패널티
+   *    - `timePenalty`: 제출 시간에 따른 패널티 (대회 시작 시간과 비교)
+   * 6. 점수를 업데이트할 때 `freezeTime`을 고려하여 공개 여부를 결정합니다.
+   * 7. `contestProblemRecord`를 `upsert()`하여 참가자의 문제 해결 기록을 갱신합니다.
+   * 8. 참가자의 전체 점수를 다시 계산하고, `contestRecord`에 반영합니다.
+   */
+
   @Span()
   async updateContestRecord(
     submission: Pick<
@@ -351,90 +400,60 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         `contestId: ${contestId}, userId: ${userId} is empty`
       )
 
-    const _submissions = await this.prisma.submission.findMany({
-      where: {
-        contestId,
-        problemId,
-        result: ResultStatus.Accepted
-      },
-      select: {
-        id: true,
-        userId: true,
-        createTime: true
-      }
-    })
+    const [contest, contestProblem, contestRecord, submissions] =
+      await Promise.all([
+        this.prisma.contest.findUniqueOrThrow({
+          where: { id: contestId ?? -1 },
+          select: {
+            startTime: true,
+            penalty: true,
+            lastPenalty: true,
+            freezeTime: true,
+            submission: { where: { userId }, select: { id: true } }
+          }
+        }),
+        this.prisma.contestProblem.findUniqueOrThrow({
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          where: { contestId_problemId: { contestId, problemId } },
+          select: { id: true, score: true }
+        }),
+        this.prisma.contestRecord.findUniqueOrThrow({
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          where: { contestId_userId: { contestId, userId } },
+          select: { id: true }
+        }),
+        this.prisma.submission.findMany({
+          where: { contestId, problemId, result: ResultStatus.Accepted },
+          select: { id: true, userId: true, createTime: true }
+        })
+      ])
 
-    const isNewAccept =
-      _submissions.filter((submission) => submission.userId === userId)
-        .length === 1
-
+    const isNewAccept = submissions.some((sub) => sub.userId === userId)
     if (!isNewAccept || !isAccepted) return
 
-    // 재채점시 고려하여 만들었음.
-    const isFirstSolver =
-      _submissions.filter((submssion) => submssion.createTime < createTime)
-        .length === 0
+    const isFirstSolver = !submissions.some(
+      (sub) => sub.createTime < createTime
+    )
 
-    const _contest = await this.prisma.contest.findUniqueOrThrow({
-      where: {
-        id: contestId ?? -1
-      },
-      select: {
-        startTime: true,
-        penalty: true,
-        lastPenalty: true,
-        freezeTime: true,
-        submission: {
-          where: {
-            userId
-          },
-          select: {
-            id: true
-          }
-        }
-      }
-    })
-
-    const contestProblem = await this.prisma.contestProblem.findUniqueOrThrow({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        contestId_problemId: {
-          contestId,
-          problemId
-        }
-      },
-      select: {
-        id: true,
-        score: true
-      }
-    })
-
-    const contestRecord = await this.prisma.contestRecord.findUniqueOrThrow({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        contestId_userId: {
-          contestId,
-          userId
-        }
-      },
-      select: {
-        id: true
-      }
-    })
-
-    const { submission: submissions, ...contest } = _contest
-    const { penalty, lastPenalty } = contest
+    const { startTime, penalty, lastPenalty, freezeTime } = contest
     const { id: contestProblemId, score } = contestProblem
     const contestRecordId = contestRecord.id
+    const submitCount = contest.submission.length
 
-    const submitCount = submissions.length
     const submitCountPenalty = Math.floor(penalty * (submitCount - 1))
+    const timePenalty = Math.floor(
+      (new Date(updateTime).getTime() - new Date(startTime).getTime()) / 60000
+    )
+    const isFreezed = freezeTime && updateTime < freezeTime
 
-    const submitTime = new Date(updateTime).getTime()
-    const startTime = new Date(contest.startTime).getTime()
-    const timePenalty = Math.floor((submitTime - startTime) / 60000)
+    const contestProblemRecordData = {
+      finalScore: score,
+      finalTimePenalty: timePenalty,
+      finalSubmitCountPenalty: submitCountPenalty,
+      isFirstSolver,
+      ...(!isFreezed ? { score, submitCountPenalty, timePenalty } : {})
+    }
 
-    const isFreezed = contest.freezeTime && updateTime < contest.freezeTime
     await this.prisma.$transaction(async (prisma) => {
       await prisma.contestProblemRecord.upsert({
         where: {
@@ -444,40 +463,16 @@ export class SubmissionSubscriptionService implements OnModuleInit {
             contestRecordId
           }
         },
-        update: {
-          ...(!isFreezed
-            ? {
-                score,
-                submitCountPenalty,
-                timePenalty
-              }
-            : {}),
-          finalScore: score,
-          finalTimePenalty: timePenalty,
-          finalSubmitCountPenalty: submitCountPenalty,
-          isFirstSolver
-        },
+        update: contestProblemRecordData,
         create: {
           contestProblemId,
           contestRecordId,
-          ...(!isFreezed
-            ? {
-                score,
-                timePenalty,
-                submitCountPenalty
-              }
-            : {}),
-          finalScore: score,
-          finalTimePenalty: timePenalty,
-          finalSubmitCountPenalty: submitCountPenalty,
-          isFirstSolver
+          ...contestProblemRecordData
         }
       })
 
       const contestProblemRecords = await prisma.contestProblemRecord.findMany({
-        where: {
-          contestRecordId
-        },
+        where: { contestRecordId },
         select: {
           score: true,
           timePenalty: true,
@@ -488,7 +483,39 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       })
 
-      const [
+      const initialStats = {
+        scoreSum: 0,
+        submitCountPenaltySum: 0,
+        timePenaltySum: 0,
+        maxTimePenalty: 0,
+        finalScoreSum: 0,
+        finalSubmitCountPenaltySum: 0,
+        finalTimePenaltySum: 0,
+        finalMaxTimePenalty: 0
+      }
+
+      const contestStats = { ...initialStats }
+
+      contestProblemRecords.forEach((record) => {
+        contestStats.scoreSum += record.score
+        contestStats.submitCountPenaltySum += record.submitCountPenalty
+        contestStats.timePenaltySum += record.timePenalty
+        contestStats.maxTimePenalty = Math.max(
+          contestStats.maxTimePenalty,
+          record.timePenalty
+        )
+
+        contestStats.finalScoreSum += record.finalScore
+        contestStats.finalSubmitCountPenaltySum +=
+          record.finalSubmitCountPenalty
+        contestStats.finalTimePenaltySum += record.finalTimePenalty
+        contestStats.finalMaxTimePenalty = Math.max(
+          contestStats.finalMaxTimePenalty,
+          record.finalTimePenalty
+        )
+      })
+
+      const {
         scoreSum,
         submitCountPenaltySum,
         timePenaltySum,
@@ -497,31 +524,34 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         finalSubmitCountPenaltySum,
         finalTimePenaltySum,
         finalMaxTimePenalty
-      ] = contestProblemRecords.reduce(
-        (acc, record) => {
-          acc[0] += record.score
-          acc[1] += record.submitCountPenalty
-          acc[2] += record.timePenalty
-          acc[3] = Math.max(acc[3], record.timePenalty)
-          acc[4] += record.finalScore
-          acc[5] += record.finalSubmitCountPenalty
-          acc[6] += record.finalTimePenalty
-          acc[7] = Math.max(acc[7], record.finalTimePenalty)
-          return acc
-        },
-        [0, 0, 0, 0, 0, 0, 0, 0]
-      )
+      } = contestStats
+
+      const calculatePenalty = (
+        lastPenalty: boolean,
+        timePenalty: number,
+        submitCountPenalty: number,
+        maxTimePenalty: number
+      ) =>
+        lastPenalty
+          ? maxTimePenalty + submitCountPenalty
+          : timePenalty + submitCountPenalty
 
       const updatedData = {
         finalScore: finalScoreSum,
-        finalTotalPenalty: lastPenalty
-          ? finalMaxTimePenalty + finalSubmitCountPenaltySum
-          : finalTimePenaltySum + finalSubmitCountPenaltySum,
+        finalTotalPenalty: calculatePenalty(
+          lastPenalty,
+          finalTimePenaltySum,
+          finalSubmitCountPenaltySum,
+          finalMaxTimePenalty
+        ),
         ...(!isFreezed && {
           score: scoreSum,
-          totalPenalty: lastPenalty
-            ? maxTimePenalty + submitCountPenaltySum
-            : timePenaltySum + submitCountPenaltySum,
+          totalPenalty: calculatePenalty(
+            lastPenalty,
+            timePenaltySum,
+            submitCountPenaltySum,
+            maxTimePenalty
+          ),
           lastAcceptedTime: updateTime
         })
       }
@@ -669,9 +699,61 @@ export class SubmissionSubscriptionService implements OnModuleInit {
             problemTestcase: true,
             result: true
           }
-        }
+        },
+        contest: {
+          select: {
+            evaluateWithSampleTestcase: true
+          }
+        },
+        problemId: true
       }
     })
+
+    if (submission.contest?.evaluateWithSampleTestcase) {
+      // 문제 테스트케이스 ID 목록 가져오기
+      const problemTestcaseIds = new Set(
+        (
+          await this.prisma.problemTestcase.findMany({
+            where: { problemId: submission.problemId, isHidden: false },
+            select: { id: true }
+          })
+        ).map((tc) => tc.id)
+      )
+
+      // 유효한 테스트케이스만 필터링
+      submission.submissionResult = submission.submissionResult.filter((sr) =>
+        problemTestcaseIds.has(sr.problemTestcase.id)
+      )
+
+      // 총 점수 가중치 계산
+      const scoreWeightSum = submission.submissionResult.reduce(
+        (acc, sr) => acc + sr.problemTestcase.scoreWeight,
+        0
+      )
+
+      if (scoreWeightSum > 0) {
+        // (1) 정수 변환을 위한 가중치 계산
+        let totalRounded = 0
+        const weights = submission.submissionResult.map((sr) => {
+          const raw = (sr.problemTestcase.scoreWeight / scoreWeightSum) * 100
+          const rounded = Math.round(raw)
+          totalRounded += rounded
+          return { sr, raw, rounded }
+        })
+
+        // (2) 오차 계산 및 보정
+        const diff = 100 - totalRounded
+        weights
+          .sort((a, b) => (b.raw % 1) - (a.raw % 1)) // 소수점 큰 순 정렬
+          .slice(0, Math.abs(diff)) // 필요한 개수만큼 조정
+          .forEach((w) => (w.rounded += Math.sign(diff)))
+
+        // (3) 최종 값 반영 (기존 submissionResult 배열 그대로 사용)
+        weights.forEach((w) => {
+          w.sr.problemTestcase.scoreWeight = w.rounded
+        })
+      }
+    }
 
     let score = 0
     submission.submissionResult.map((submissionResult) => {
