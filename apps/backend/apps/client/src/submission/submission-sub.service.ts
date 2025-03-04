@@ -315,7 +315,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     if (!submission) return
 
-    if (!submission.contest?.evaluateWithSampleTestcase) {
+    if (submission.contest && !submission.contest.evaluateWithSampleTestcase) {
       const testcaseSet = new Set(
         (
           await this.prisma.problemTestcase.findMany({
@@ -711,7 +711,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
     })
 
-    if (submission.contest?.evaluateWithSampleTestcase) {
+    if (submission.contest && !submission.contest.evaluateWithSampleTestcase) {
       // 문제 테스트케이스 ID 목록 가져오기
       const problemTestcaseIds = new Set(
         (
