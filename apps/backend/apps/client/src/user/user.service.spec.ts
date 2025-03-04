@@ -26,7 +26,7 @@ import { GroupService } from '@client/group/group.service'
 import { UserService } from './user.service'
 
 const ID = 1
-const EMAIL_ADDRESS = 'email@email.com'
+const EMAIL_ADDRESS = 'email@skku.edu'
 const PASSWORD_RESET_PIN = 'thisIsPasswordResetPin'
 const PASSWORD_RESET_PIN_KEY = emailAuthenticationPinCacheKey(EMAIL_ADDRESS)
 const emailAuthJwtPayload = {
@@ -112,7 +112,6 @@ describe('UserService', () => {
   let emailService: EmailService
   let jwtService: JwtService
   let jwtAuthService: JwtAuthService
-  let groupService: GroupService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -133,7 +132,6 @@ describe('UserService', () => {
     emailService = module.get<EmailService>(EmailService)
     jwtService = module.get<JwtService>(JwtService)
     jwtAuthService = module.get<JwtAuthService>(JwtAuthService)
-    groupService = module.get<GroupService>(GroupService)
   })
 
   it('should be defined', () => {
@@ -172,12 +170,24 @@ describe('UserService', () => {
       expect(createPinAndSendEmailSpy.calledOnce).to.be.true
     })
 
-    it('should not create pin and send email', async () => {
+    it('should not create pin and send email if duplicated user found', async () => {
       db.user.findUnique.resolves(user)
 
       await expect(
         service.sendPinForRegisterNewEmail(emailAuthJwtPayload)
       ).to.be.rejectedWith(DuplicateFoundException)
+      expect(createPinAndSendEmailSpy.called).to.be.false
+    })
+
+    it('should not create pin and send email if email not ends with @skku.edu', async () => {
+      db.user.findUnique.resolves(null)
+
+      const wrongEmailAuthJwtPayload = {
+        email: 'example@example.com'
+      }
+      await expect(
+        service.sendPinForRegisterNewEmail(wrongEmailAuthJwtPayload)
+      ).to.be.rejectedWith(UnprocessableDataException)
       expect(createPinAndSendEmailSpy.called).to.be.false
     })
   })
@@ -389,7 +399,6 @@ describe('UserService', () => {
 
     let createUserSpy: SinonSpy
     let createUserProfileSpy: SinonSpy
-    let registerUserToPublicGroupSpy: SinonSpy
     let deletePinFromCacheSpy: SinonSpy
     beforeEach(() => {
       service.verifyJwtFromRequestHeader = fake.resolves({
@@ -400,7 +409,6 @@ describe('UserService', () => {
       })
       createUserSpy = spy(service, 'createUser')
       createUserProfileSpy = spy(service, 'createUserProfile')
-      registerUserToPublicGroupSpy = spy(service, 'registerUserToPublicGroup')
       deletePinFromCacheSpy = stub(service, 'deletePinFromCache')
 
       db.user.findUniqueOrThrow.resolves({ username: signUpDto.username })
@@ -418,7 +426,6 @@ describe('UserService', () => {
       expect(ret).to.deep.equal(user)
       expect(createUserSpy.calledOnce).to.be.true
       expect(createUserProfileSpy.calledOnce).to.be.true
-      expect(registerUserToPublicGroupSpy.calledOnce).to.be.true
     })
 
     it('should delete pin', async () => {
@@ -479,14 +486,6 @@ describe('UserService', () => {
         service.signUp(authRequestObject, signUpDto)
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(createUserSpy.calledOnce).to.be.false
-    })
-  })
-
-  describe('registerUserToPublicGroup', () => {
-    it('call group service to create user group', async () => {
-      const createUserGroupSpy = spy(groupService, 'createUserGroup')
-      await service.registerUserToPublicGroup(ID)
-      expect(createUserGroupSpy.calledOnce).to.be.true
     })
   })
 

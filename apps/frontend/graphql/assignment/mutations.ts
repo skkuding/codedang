@@ -4,7 +4,6 @@ const CREATE_ASSIGNMENT = gql(`
   mutation CreateAssignment($groupId: Int!, $input: CreateAssignmentInput!) {
     createAssignment(groupId: $groupId, input: $input) {
       id
-      invitationCode
       isVisible
       isRankVisible
       enableCopyPaste
@@ -22,7 +21,6 @@ const UPDATE_ASSIGNMENT = gql(`
   mutation UpdateAssignment($groupId: Int!, $input: UpdateAssignmentInput!) {
     updateAssignment(groupId: $groupId, input: $input) {
       id
-      invitationCode
       isRankVisible
       isVisible
       enableCopyPaste
@@ -94,7 +92,6 @@ const DUPLICATE_ASSIGNMENT = gql(`
     duplicateAssignment(groupId: $groupId, assignmentId: $assignmentId) {
       assignment {
         id
-        invitationCode
         isRankVisible
         isVisible
         description
@@ -117,6 +114,20 @@ const DUPLICATE_ASSIGNMENT = gql(`
   }
 `)
 
+const UPDATE_ASSIGNMENT_PROBLEM_RECORD = gql(`
+  mutation UpdateAssignmentProblemRecord($groupId: Int!, $input: UpdateAssignmentProblemRecordInput!) {
+    updateAssignmentProblemRecord(groupId: $groupId, input: $input) {
+      assignmentId
+      userId
+      problemId
+      isSubmitted
+      isAccepted
+      finalScore
+      comment
+    }
+  }
+`)
+
 export {
   CREATE_ASSIGNMENT,
   UPDATE_ASSIGNMENT,
@@ -124,5 +135,6 @@ export {
   DELETE_ASSIGNMENT,
   IMPORT_PROBLEMS_TO_ASSIGNMENT,
   REMOVE_PROBLEMS_FROM_ASSIGNMENT,
-  DUPLICATE_ASSIGNMENT
+  DUPLICATE_ASSIGNMENT,
+  UPDATE_ASSIGNMENT_PROBLEM_RECORD
 }

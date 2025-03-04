@@ -4,198 +4,105 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/shadcn/accordion'
-import { cn, dateFormatter } from '@/libs/utils'
-import Link from 'next/link'
+import { cn, safeFetcherWithAuth } from '@/libs/utils'
+import type { Assignment } from '@/types/type'
+import { AssignmentLink } from './AssignmentLink'
 
 interface AssignmentAccordionProps {
   week: number
   courseId: string
 }
 
-const dummyAssignmentList = [
-  {
-    id: 3,
-    title: '24년도 소프트웨어학과 신입생 입학 과제2',
-    startTime: '2024-01-01T00:00:00.000Z',
-    endTime: '2028-01-01T23:59:59.000Z',
-    group: {
-      id: 1,
-      groupName: 'Example Group'
-    },
-    invitationCode: '123456',
-    enableCopyPaste: true,
-    isJudgeResultVisible: true,
-    week: 1,
-    participants: 1,
-    problemCount: 3,
-    submittedProblemCount: 1
-  },
-  {
-    id: 1,
-    title: 'SKKU Coding Platform 모의과제',
-    startTime: '2024-01-01T00:00:00.000Z',
-    endTime: '2028-01-01T23:59:59.000Z',
-    group: {
-      id: 1,
-      groupName: 'Example Group'
-    },
-    invitationCode: '123456',
-    enableCopyPaste: true,
-    isJudgeResultVisible: true,
-    week: 1,
-    participants: 13,
-    problemCount: 3,
-    submittedProblemCount: 3
-  },
-  {
-    id: 3,
-    title: '24년도 소프트웨어학과 신입생 입학 과제2',
-    startTime: '2024-01-01T00:00:00.000Z',
-    endTime: '2028-01-01T23:59:59.000Z',
-    group: {
-      id: 1,
-      groupName: 'Example Group'
-    },
-    invitationCode: '123456',
-    enableCopyPaste: true,
-    isJudgeResultVisible: true,
-    week: 2,
-    participants: 1,
-    problemCount: 3,
-    submittedProblemCount: 2
-  },
-  {
-    id: 1,
-    title: 'SKKU Coding Platform 모의과제',
-    startTime: '2024-01-01T00:00:00.000Z',
-    endTime: '2028-01-01T23:59:59.000Z',
-    group: {
-      id: 1,
-      groupName: 'Example Group'
-    },
-    invitationCode: '123456',
-    enableCopyPaste: true,
-    isJudgeResultVisible: true,
-    week: 3,
-    participants: 13,
-    problemCount: 5,
-    submittedProblemCount: 2
-  },
-  {
-    id: 3,
-    title: '24년도 소프트웨어학과 신입생 입학 과제2',
-    startTime: '2024-01-01T00:00:00.000Z',
-    endTime: '2028-01-01T23:59:59.000Z',
-    group: {
-      id: 1,
-      groupName: 'Example Group'
-    },
-    invitationCode: '123456',
-    enableCopyPaste: true,
-    isJudgeResultVisible: true,
-    week: 4,
-    participants: 1,
-    problemCount: 3,
-    submittedProblemCount: 3
-  },
-  {
-    id: 1,
-    title: 'SKKU Coding Platform 모의과제',
-    startTime: '2024-01-01T00:00:00.000Z',
-    endTime: '2028-01-01T23:59:59.000Z',
-    group: {
-      id: 1,
-      groupName: 'Example Group'
-    },
-    invitationCode: '123456',
-    enableCopyPaste: true,
-    isJudgeResultVisible: true,
-    week: 4,
-    participants: 13,
-    problemCount: 7,
-    submittedProblemCount: 2
-  }
-]
-
-export function AssignmentAccordion({
+export async function AssignmentAccordion({
   week,
   courseId
 }: AssignmentAccordionProps) {
+  const assignments = await getAssignmentList(courseId)
+
   return (
     <div className="mt-3">
       {Array.from({ length: week }, (_, i) => i + 1).map((week: number) => (
-        <AssignmentAccordionItem key={week} week={week} courseId={courseId} />
+        <AssignmentAccordionItem
+          key={week}
+          week={week}
+          courseId={courseId}
+          assignments={assignments}
+        />
       ))}
     </div>
   )
 }
 
+const getAssignmentList = async (groupId: string) => {
+  const response = await safeFetcherWithAuth.get('assignment', {
+    searchParams: {
+      groupId
+    }
+  })
+  const data = await response.json<Assignment[]>()
+  return data
+}
+
 interface AssignmentAccordionItemProps {
   week: number
   courseId: string
+  assignments: Assignment[]
 }
 
 function AssignmentAccordionItem({
   week,
-  courseId
+  courseId,
+  assignments
 }: AssignmentAccordionItemProps) {
-  const assignments = dummyAssignmentList.filter(
+  const filteredAssignments = assignments.filter(
     (assignment) => assignment.week === week
   )
+  const isCompleted =
+    filteredAssignments.length === 0
+      ? false
+      : filteredAssignments.every((assignment) => {
+          return (
+            assignment.submittedNumber === assignment.problemNumber &&
+            assignment.problemNumber !== 0
+          )
+        })
 
   return (
     <Accordion type="single" collapsible className="w-full">
-      <AccordionItem value={week.toString()} className="mx-6 border-b-0">
+      <AccordionItem value={week.toString()} className="border-b-0">
         <AccordionTrigger
           className={cn(
-            'mt-4 flex rounded-2xl bg-white px-8 py-4 text-lg font-semibold shadow-md',
+            'mt-4 flex rounded-2xl bg-white px-8 py-5 text-lg font-semibold shadow-md',
             'border border-transparent',
             'data-[state=open]:border-primary data-[state=open]:-mb-6'
           )}
-          iconSize="w-7 h-7"
+          iconStyle="w-7 h-7"
         >
-          <div className="relative text-left text-sm">
+          <div className="relative w-full text-left text-base">
             <p className="text-primary absolute top-0 w-32 -translate-y-1/2">
               [Week {week}]
             </p>
             <p className="absolute left-32 top-0 w-32 -translate-y-1/2">
               {week}주차
             </p>
+            {filteredAssignments.length !== 0 && (
+              <CompleteBadge
+                className="absolute right-4 top-0 -translate-y-1/2"
+                isCompleted={isCompleted}
+              />
+            )}
           </div>
         </AccordionTrigger>
         <AccordionContent className="-mb-4">
           <div className="overflow-hidden rounded-2xl border">
-            <div className="h-6 bg-[#F8F8F8]" />
-            {assignments.length > 0 ? (
-              assignments.map((assignment) => (
-                <Link
-                  href={
-                    `/course/${courseId}/assignment/${assignment.id}` as const
-                  }
+            <div className="h-6 bg-[#F3F3F3]" />
+            {filteredAssignments.length > 0 ? (
+              filteredAssignments.map((assignment) => (
+                <AssignmentLink
                   key={assignment.id}
-                >
-                  <div
-                    key={assignment.id}
-                    className="flex items-center gap-10 border-b bg-[#F8F8F8] px-12 py-4"
-                  >
-                    <span className="bg-primary h-2 w-2 rounded-full" />
-                    <p className="line-clamp-1 w-64 text-sm font-medium text-black">
-                      {assignment.title}
-                    </p>
-                    <p className="text-sm text-slate-500">
-                      {dateFormatter(
-                        assignment.startTime,
-                        'YYYY-MM-DD HH:mm:ss'
-                      )}{' '}
-                      -{' '}
-                      {dateFormatter(assignment.endTime, 'YYYY-MM-DD HH:mm:ss')}
-                    </p>
-                    <CountBadge
-                      solvedProblemCount={assignment.submittedProblemCount}
-                      problemCount={assignment.problemCount}
-                    />
-                  </div>
-                </Link>
+                  assignment={assignment}
+                  courseId={courseId}
+                />
               ))
             ) : (
               <div className="bg-[#F8F8F8] px-8 py-4">
@@ -214,12 +121,45 @@ interface CountBadgeProps {
   problemCount: number
 }
 
-function CountBadge({ solvedProblemCount, problemCount }: CountBadgeProps) {
+export function CountBadge({
+  solvedProblemCount,
+  problemCount
+}: CountBadgeProps) {
   const bgColor =
-    solvedProblemCount === problemCount ? 'bg-primary' : 'bg-[#C4C4C4]'
+    solvedProblemCount === problemCount && problemCount !== 0
+      ? 'bg-primary'
+      : 'bg-[#C4C4C4]'
   return (
-    <div className={cn('rounded-full px-3 py-0.5 text-xs text-white', bgColor)}>
+    <div
+      className={cn(
+        'flex h-7 w-[61px] items-center justify-center rounded-full text-base font-semibold text-white',
+        bgColor
+      )}
+    >
       {solvedProblemCount}/{problemCount}
+    </div>
+  )
+}
+
+interface CompleteBadgeProps {
+  className: string
+  isCompleted: boolean
+}
+
+function CompleteBadge({ className, isCompleted }: CompleteBadgeProps) {
+  const badgeStyle = isCompleted
+    ? 'border-primary text-primary'
+    : 'border-[#C4C4C4] text-[#C4C4C4]'
+  const text = isCompleted ? 'Complete' : 'Incomplete'
+  return (
+    <div
+      className={cn(
+        'flex h-[34px] w-[121px] items-center justify-center rounded-full border',
+        badgeStyle,
+        className
+      )}
+    >
+      <p className="text-[16px] font-medium">{text}</p>
     </div>
   )
 }

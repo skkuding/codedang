@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  mutation UpdateContestProblemsOrder($groupId: Int!, $contestId: Int!, $orders: [Int!]!) {
-    updateContestProblemsOrder(groupId: $groupId, contestId: $contestId, orders: $orders) {
+  mutation UpdateContestProblemsOrder($contestId: Int!, $orders: [Int!]!) {
+    updateContestProblemsOrder(contestId: $contestId, orders: $orders) {
       order
       contestId
       problemId
@@ -21,12 +21,11 @@ body:graphql {
       updateTime
     }
   }
-  
+
 }
 
 body:graphql:vars {
   {
-    "groupId": 1,
     "contestId": 1,
     "orders": [8, 7, 6, 5, 4, 3, 2]
   }

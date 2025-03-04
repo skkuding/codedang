@@ -12,10 +12,13 @@ post {
 
 body:graphql {
   mutation {
-    inviteUser(groupId: 5, userId: 8, isGroupLeader: true){
+    inviteUser(groupId: 2, userId: 5, isGroupLeader: true){
       userId
       groupId
       isGroupLeader
+      user{
+        email
+      }
     }
   }
   

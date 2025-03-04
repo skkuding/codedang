@@ -14,5 +14,10 @@ export default function Error({ error }: Props) {
     captureError(error)
   }, [error])
 
-  return <ErrorDetail errorDetail="Failed to Load Notice Page!" error={error} />
+  return (
+    <ErrorDetail
+      errorDetail="Failed to Load Grade Detail Page!"
+      error={error}
+    />
+  )
 }

@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  query GetContestProblems($groupId: Int!, $contestId: Int!) {
-    getContestProblems(groupId: $groupId, contestId: $contestId) {
+  query GetContestProblems($contestId: Int!) {
+    getContestProblems(contestId: $contestId) {
       order
       contestId
       problemId
@@ -27,12 +27,11 @@ body:graphql {
       }
     }
   }
-  
+
 }
 
 body:graphql:vars {
   {
-    "groupId": 1,
     "contestId":  1
   }
 }
@@ -44,8 +43,8 @@ assert {
 docs {
   ## Get Contest Problems
   Contest Problem들을 가져옵니다.
-  
+
   ### Error Cases
   #### NOT_FOUND
-  존재하는 group id와 contest id가 필요합니다.
+  존재하는 contest id가 필요합니다.
 }

@@ -73,7 +73,6 @@ export function CreateProblemForm({ children }: CreateProblemFormProps) {
     const input = methods.getValues()
     await createProblem({
       variables: {
-        groupId: 1,
         input
       }
     })

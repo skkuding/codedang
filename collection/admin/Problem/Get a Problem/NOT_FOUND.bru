@@ -11,24 +11,22 @@ post {
 }
 
 body:graphql {
-  query GetProblem($groupId: Int!, $id: Int!) {
-    getProblem(groupId: $groupId, id: $id) {
+  query GetProblem($id: Int!) {
+    getProblem(id: $id) {
       id
-      groupId
       inputDescription
       outputDescription
       languages
       submissionCount
       difficulty
-      exposeTime
+      isVisible
     }
   }
 }
 
 body:graphql:vars {
   {
-    "groupId": 99999,
-    "id": 1
+    "id": 9999
   }
 }
 

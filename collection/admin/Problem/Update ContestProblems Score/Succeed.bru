@@ -11,20 +11,19 @@ post {
 }
 
 body:graphql {
-  mutation UpdateContestProblemsScore($groupId: Int!, $contestId: Int!, $problemIdsWithScore: [ProblemScoreInput!]!) {
-    updateContestProblemsScore(groupId: $groupId, contestId: $contestId, problemIdsWithScore: $problemIdsWithScore) {
+  mutation UpdateContestProblemsScore($contestId: Int!, $problemIdsWithScore: [ProblemScoreInput!]!) {
+    updateContestProblemsScore(contestId: $contestId, problemIdsWithScore: $problemIdsWithScore) {
       contestId
       problemId
       score
       order
     }
   }
-  
+
 }
 
 body:graphql:vars {
   {
-    "groupId": 1,
     "contestId": 1,
     "problemIdsWithScore": [
       {

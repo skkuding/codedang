@@ -8,9 +8,11 @@ import type {
   Assignment,
   AssignmentProblem,
   ProblemTag,
-  Tag
+  Tag,
+  User
 } from '@generated'
 import { faker } from '@faker-js/faker'
+import { Role } from '@prisma/client'
 import { createReadStream } from 'fs'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import type { FileUploadDto } from '../dto/file-upload.dto'
@@ -49,11 +51,20 @@ export const template: Template = {
     }
   ]
 }
+export const user: Partial<User>[] = [
+  {
+    id: 1,
+    role: Role.Admin
+  },
+  {
+    id: 2,
+    role: Role.User
+  }
+]
 export const problems: Problem[] = [
   {
     id: 1,
-    createdById: 1,
-    groupId: 1,
+    createdById: user[0].id!,
     title: 'group problem0',
     description: 'description1',
     inputDescription: 'inputDescription1',
@@ -79,8 +90,7 @@ export const problems: Problem[] = [
   },
   {
     id: 2,
-    createdById: 1,
-    groupId: 1,
+    createdById: user[0].id!,
     title: 'group problem1',
     description: 'description2',
     inputDescription: 'inputDescription2',
@@ -115,6 +125,14 @@ export const testcaseInput: Testcase = {
   scoreWeight: 1
 }
 
+export const testcaseData: Testcase = {
+  input:
+    "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+  output: 'true',
+  scoreWeight: 1,
+  isHidden: false
+}
+
 const file: Promise<FileUploadDto> = new Promise((resolve) => {
   const data = {
     createReadStream: () =>
@@ -127,11 +145,24 @@ const file: Promise<FileUploadDto> = new Promise((resolve) => {
   resolve(data)
 })
 export const fileUploadInput: UploadFileInput = { file }
+
+const testcaseFile: Promise<FileUploadDto> = new Promise((resolve) => {
+  const data = {
+    createReadStream: () =>
+      createReadStream('apps/admin/src/problem/mock/testcaseData.xlsx'),
+    filename: 'testcaseData.xlsx',
+    mimetype:
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    encoding: '7bit'
+  }
+  resolve(data)
+})
+export const testcaseUploadInput: UploadFileInput = { file: testcaseFile }
+
 export const importedProblems: Problem[] = [
   {
     id: 32,
-    createdById: 2,
-    groupId: 2,
+    createdById: user[1].id!,
     title: '정수 더하기',
     description:
       '<p>두 정수 A와 B를 입력받은 다음, A+B를 출력하는 프로그램을 작성하시오. 첫째 줄에 A와 B가 주어진다. (0 < A, B < 10) 첫째 줄에 A+B를 출력한다. </p>',
@@ -166,8 +197,7 @@ export const importedProblems: Problem[] = [
   },
   {
     id: 33,
-    createdById: 2,
-    groupId: 2,
+    createdById: user[1].id!,
     title: '정수 빼기',
     description:
       '<p>두 정수 A와 B를 입력받은 다음, A-B를 출력하는 프로그램을 작성하시오. 첫째 줄에 A와 B가 주어진다. (0 < A, B < 10) 첫째 줄에 A-B를 출력한다. </p>',
@@ -217,7 +247,7 @@ export const exampleWorkbook: Workbook = {
   title: 'example',
   description: 'example',
   groupId: 1,
-  createdById: 1,
+  createdById: user[0].id!,
   isVisible: true,
   createTime: new Date(),
   updateTime: new Date()
@@ -375,7 +405,7 @@ export const exampleContest: Contest = {
   description: 'example',
   penalty: 20,
   lastPenalty: false,
-  createdById: 1,
+  createdById: user[0].id!,
   isVisible: true,
   isRankVisible: true,
   enableCopyPaste: true,
@@ -387,11 +417,13 @@ export const exampleContest: Contest = {
   updateTime: new Date(),
   invitationCode: '123456',
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 export const exampleContestProblems: ContestProblem[] = [
   {
@@ -584,7 +616,7 @@ export const exampleAssignment: Assignment = {
   title: 'example',
   description: 'example',
   groupId: 1,
-  createdById: 1,
+  createdById: user[0].id!,
   isVisible: true,
   isRankVisible: true,
   enableCopyPaste: true,
@@ -593,8 +625,9 @@ export const exampleAssignment: Assignment = {
   endTime: new Date(),
   createTime: new Date(),
   updateTime: new Date(),
-  invitationCode: '123456',
-  week: 1
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: false
 }
 export const exampleAssignmentProblems: AssignmentProblem[] = [
   {

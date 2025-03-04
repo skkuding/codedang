@@ -25,7 +25,6 @@ const startTime = faker.date.past()
 const endTime = faker.date.future()
 const createTime = faker.date.past()
 const updateTime = faker.date.past()
-const invitationCode = '123456'
 const problemIdsWithScore = {
   problemId,
   score: 10
@@ -46,9 +45,10 @@ const assignment: Assignment = {
   enableCopyPaste: true,
   createTime,
   updateTime,
-  invitationCode,
   assignmentProblem: [],
-  week: 1
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: false
 }
 
 const assignmentWithCount = {
@@ -65,12 +65,13 @@ const assignmentWithCount = {
   enableCopyPaste: true,
   createTime,
   updateTime,
-  invitationCode,
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
     assignmentRecord: 10
   },
-  week: 1
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: false
 }
 
 const assignmentWithParticipants: AssignmentWithParticipants = {
@@ -88,8 +89,9 @@ const assignmentWithParticipants: AssignmentWithParticipants = {
   createTime,
   updateTime,
   participants: 10,
-  invitationCode,
-  week: 1
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: false
 }
 
 const group: Group = {
@@ -110,7 +112,6 @@ const group: Group = {
 const problem: Problem = {
   id: problemId,
   createdById: 2,
-  groupId: 2,
   title: 'test problem',
   description: 'thisistestproblem',
   inputDescription: 'inputdescription',
@@ -188,7 +189,8 @@ const input = {
   isVisible: false,
   isRankVisible: false,
   enableCopyPaste: true,
-  isJudgeResultVisible: true
+  isJudgeResultVisible: true,
+  autoFinalizeScore: false
 } satisfies CreateAssignmentInput
 
 const updateInput = {

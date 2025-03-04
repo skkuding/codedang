@@ -16,7 +16,6 @@ import { ProblemsDeleteButton } from './ProblemsDeleteButton'
 export function ProblemTable() {
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
-      groupId: 1,
       take: 500,
       input: {
         difficulty: [
@@ -27,7 +26,9 @@ export function ProblemTable() {
           Level.Level5
         ],
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3]
-      }
+      },
+      my: true,
+      shared: false
     }
   })
 

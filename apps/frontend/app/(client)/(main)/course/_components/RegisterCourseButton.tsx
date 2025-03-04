@@ -8,8 +8,9 @@ import {
   DialogTitle
 } from '@/components/shadcn/dialog'
 import { Input } from '@/components/shadcn/input'
-import { Separator } from '@/components/shadcn/separator'
 import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
+import infoIcon from '@/public/icons/info.svg'
+import personFillIcon from '@/public/icons/person-fill.svg'
 import plusCircleIcon from '@/public/icons/plus-circle.svg'
 import type { Course } from '@/types/type'
 import { useQueryClient } from '@tanstack/react-query'
@@ -21,15 +22,22 @@ export function RegisterCourseButton() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   return (
     <>
-      <Button variant="slate" onClick={() => setIsDialogOpen(true)}>
-        <div className="border-primary flex h-8 w-[127px] items-center justify-center gap-2 rounded-full border">
-          <Image src={plusCircleIcon} alt="plusIcon" />
-          <span className="text-primary text-lg font-semibold">Register</span>
-        </div>
+      <Button
+        variant="outline"
+        onClick={() => setIsDialogOpen(true)}
+        className="border-primary flex h-8 w-[127px] items-center justify-center gap-2 rounded-full border hover:bg-[#EAF3FF]"
+      >
+        <Image src={plusCircleIcon} alt="plusIcon" />
+        <span className="text-primary text-lg font-semibold">Register</span>
       </Button>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="w-[416px]" title="register course">
-          <DialogTitle>Register course</DialogTitle>
+        <DialogContent
+          className="h-[254px] w-[416px] px-10 py-[52px] sm:rounded-2xl"
+          title="register course"
+        >
+          <DialogTitle className="text-center text-xl font-medium">
+            Course Register
+          </DialogTitle>
           <RegisterCourse />
         </DialogContent>
       </Dialog>
@@ -41,7 +49,7 @@ function RegisterCourse() {
   const [isDialogOpened, setIsDialogOpened] = useState(false)
   const [invitationCode, setInvitationCode] = useState('')
   return (
-    <div className="my-3 flex flex-col items-center gap-5">
+    <div className="flex flex-col items-center gap-7">
       <Input
         type="text"
         className="focus-visible:border-primary focus-visible:ring-0"
@@ -49,15 +57,11 @@ function RegisterCourse() {
         value={invitationCode}
         onChange={(e) => setInvitationCode(e.target.value)}
       />
-      <Button
-        variant="outline"
-        className="bg-primary"
-        onClick={() => setIsDialogOpened(true)}
-      >
+      <Button className="w-full" onClick={() => setIsDialogOpened(true)}>
         <span className="text-white">Register</span>
       </Button>
       <Dialog open={isDialogOpened} onOpenChange={setIsDialogOpened}>
-        <DialogContent className="w-[416px] p-0">
+        <DialogContent className="w-fit p-0 px-0 py-6 sm:rounded-2xl">
           <DialogHeader>
             <DialogTitle />
           </DialogHeader>
@@ -82,7 +86,8 @@ function RegisterResult({
   setIsDialogOpened: (value: boolean) => void
 }) {
   const [isVerified, setIsVerified] = useState(false)
-  const [apiError, setApiError] = useState<string>('')
+  const [subTitle, setSubTitle] = useState('')
+  const [description, setDescription] = useState('')
   const [foundCourse, setFoundCourse] = useState<null | Course>(null)
   const queryClient = useQueryClient()
 
@@ -98,9 +103,13 @@ function RegisterResult({
         setFoundCourse(data)
       } catch (error) {
         if (isHttpError(error) && error.response.status === 404) {
-          setApiError('Invalid invitation code.')
+          setSubTitle('Invalid Code')
+          setDescription(
+            'If the issue persists, please contact the instructor or administrator.'
+          )
         } else {
-          setApiError('Invalid request.')
+          setSubTitle('Invalid Request')
+          setDescription('')
         }
         setInvitationCode('')
       }
@@ -118,11 +127,25 @@ function RegisterResult({
       setIsDialogOpened(false)
     } catch (error) {
       if (isHttpError(error) && error.response.status === 409) {
-        setApiError('You have already requested or joined the group.')
+        setSubTitle('Already requested or joined the group')
+        setDescription(
+          'If the issue persists, please contact the instructor or administrator.'
+        )
       } else if (isHttpError(error) && error.response.status === 404) {
-        setApiError('Group is not found.')
+        setSubTitle('Group not found')
+        setDescription(
+          'If the issue persists, please contact the instructor or administrator.'
+        )
+      } else if (isHttpError(error) && error.response.status === 403) {
+        setSubTitle('Not authorized for this course')
+        setDescription(
+          'The instructor of this course has not approved the enrollment for this student ID. If the issue persists, please contact the instructor or administrator.'
+        )
       } else {
-        setApiError('Invalid invitation code.')
+        setSubTitle('Invalid Code')
+        setDescription(
+          'If the issue persists, please contact the instructor or administrator.'
+        )
       }
       setIsVerified(false)
       setInvitationCode('')
@@ -130,39 +153,65 @@ function RegisterResult({
   }
 
   return (
-    <>
-      <div className="flex flex-col justify-center px-6 pt-4">
-        {isVerified ? (
-          <span className="text-primary">Verified</span>
-        ) : (
-          <span className="text-error">Unverified</span>
-        )}
-      </div>
-      <Separator orientation="horizontal" />
-
+    <div className="flex w-fit justify-center">
       {isVerified ? (
-        <div className="flex flex-col gap-3 px-6 pb-6 text-sm font-light">
-          <span>Do you want to register this course?</span>
-          <span className="text-primary">
-            [{foundCourse?.courseInfo?.courseNum}-
-            {foundCourse?.courseInfo?.classNum}] {foundCourse?.groupName}
-          </span>
+        <div className="flex w-full flex-col gap-3 px-10 pb-6">
+          <p className="text-center text-xl font-medium">Verified</p>
+          <div className="flex w-full flex-col gap-2 rounded-[10px] bg-[#F2F6F7] px-6 py-4">
+            <p className="text-primary text-base font-semibold">
+              [{foundCourse?.courseInfo?.courseNum}-
+              {foundCourse?.courseInfo?.classNum}] {foundCourse?.groupName}
+            </p>
+            <div className="flex gap-2">
+              <Image
+                src={personFillIcon}
+                alt="person-fill"
+                width={16}
+                height={16}
+              />
+              <p className="text-sm font-medium text-[#8A8A8A]">
+                Prof. {foundCourse?.courseInfo.professor}
+              </p>
+            </div>
+          </div>
 
-          <div className="flex justify-end gap-3">
+          <p className="text-sm font-normal text-[#737373]">
+            Are you sure you want to register this course?
+          </p>
+
+          <div className="flex w-full justify-between">
             <Button
               variant="outline"
-              className="bg-primary"
-              onClick={handleRegisterCourse}
+              onClick={() => setIsDialogOpened(false)}
+              className="h-[44px] w-[166px]"
             >
-              <span className="text-white">Register</span>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleRegisterCourse}
+              className="h-[44px] w-[166px]"
+            >
+              Register
             </Button>
           </div>
         </div>
       ) : (
-        <div className="flex flex-col gap-3 px-6 pb-6 text-sm font-light">
-          <span>{apiError}</span>
+        <div className="flex w-[512px] flex-col items-center justify-center">
+          <Image
+            src={infoIcon}
+            alt="info"
+            width={50}
+            height={50}
+            className="mb-3"
+          />
+          <div className="flex flex-col gap-3 text-center">
+            <p className="text-xl font-medium">{subTitle}</p>
+            <span className="w-[436px] text-xs font-normal text-[#737373]">
+              {description}
+            </span>
+          </div>
         </div>
       )}
-    </>
+    </div>
   )
 }

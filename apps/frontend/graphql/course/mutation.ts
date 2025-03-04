@@ -83,4 +83,24 @@ const DUPLICATE_COURSE = gql(`
     }
   }
 `)
-export { CREATE_COURSE, DELETE_COURSE, UPDATE_COURSE, DUPLICATE_COURSE }
+
+const CREATE_WHITE_LIST = gql(`
+  mutation createWhitelist($groupId: Int!, $studentIds: [String!]!){
+    createWhitelist(groupId: $groupId, studentIds: $studentIds)
+  }
+`)
+
+const DELETE_WHITE_LIST = gql(`
+  mutation deleteWhitelist($groupId: Int!){
+    deleteWhitelist(groupId: $groupId)
+  }
+`)
+
+export {
+  CREATE_COURSE,
+  DELETE_COURSE,
+  UPDATE_COURSE,
+  DUPLICATE_COURSE,
+  CREATE_WHITE_LIST,
+  DELETE_WHITE_LIST
+}
