@@ -1,6 +1,6 @@
 import { HttpService } from '@nestjs/axios'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable, Logger } from '@nestjs/common'
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
   ResultStatus,
@@ -1387,5 +1387,66 @@ export class SubmissionService {
     })
 
     return { data: submissions, total }
+  }
+
+  async getLatestAssignmentProblemSubmission(
+    problemId: number,
+    assignmentId: number,
+    userId: number
+  ) {
+    const isParticipated = await this.prisma.assignmentRecord.findUnique({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      where: { assignmentId_userId: { assignmentId, userId } }
+    })
+
+    if (!isParticipated) {
+      throw new ForbiddenAccessException(
+        'User not participated in the assignment'
+      )
+    }
+
+    const rawSubmission = await this.prisma.submission.findFirst({
+      where: { userId, assignmentId, problemId },
+      orderBy: {
+        updateTime: 'desc'
+      },
+      select: {
+        id: true,
+        userId: true,
+        user: {
+          select: {
+            username: true
+          }
+        },
+        language: true,
+        code: true,
+        createTime: true,
+        result: true,
+        submissionResult: {
+          include: {
+            problemTestcase: {
+              select: { isHidden: true }
+            }
+          }
+        },
+        codeSize: true
+      }
+    })
+
+    if (!rawSubmission) {
+      throw new NotFoundException('Submission')
+    }
+
+    const filteredSubmissionResult = rawSubmission.submissionResult
+      .filter((result) => !result.problemTestcase.isHidden)
+      .map(({ id, cpuTime, memoryUsage, problemTestcaseId, result }) => ({
+        id,
+        cpuTime,
+        memoryUsage,
+        problemTestcaseId,
+        result
+      }))
+
+    return { ...rawSubmission, submissionResult: filteredSubmissionResult }
   }
 }
