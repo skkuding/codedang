@@ -57,7 +57,6 @@ export function ContestMainBanner() {
       return res
     }
   })
-  const tmp = undefined
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -124,7 +123,9 @@ export function ContestMainBanner() {
                     borderColor: contestTextColors[slide.type],
                     color: contestTextColors[slide.type]
                   }}
-                  onClick={() => router.push(`/contest/${tmp}`)}
+                  onClick={() =>
+                    router.push(`/contest/${data?.fastestUpcomingContestId}`)
+                  }
                 >
                   {slide.buttonDescription}
                   <FaArrowRight />
