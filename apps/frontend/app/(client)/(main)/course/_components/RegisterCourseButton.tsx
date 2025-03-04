@@ -105,7 +105,7 @@ function RegisterResult({
         if (isHttpError(error) && error.response.status === 404) {
           setSubTitle('Invalid Code')
           setDescription(
-            'The instructor of this course has not approved the enrollment for this student ID. If the issue persists, please contact the instructor or administrator.'
+            'If the issue persists, please contact the instructor or administrator.'
           )
         } else {
           setSubTitle('Invalid Request')
