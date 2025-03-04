@@ -9,11 +9,10 @@ import {
   DataTablePagination,
   DataTableRoot,
   DataTableSearchBar
-} from '../../_components/table'
-import { columns } from './ProblemTableColumns'
-import { ProblemsDeleteButton } from './ProblemsDeleteButton'
+} from '../../../_components/table'
+import { columns } from '../_components/SharedProblemTableColumns'
 
-export function ProblemTable() {
+export function SharedProblemTable() {
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       take: 500,
@@ -27,15 +26,14 @@ export function ProblemTable() {
         ],
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3]
       },
-      my: true,
-      shared: false
+      shared: true,
+      my: false
     }
   })
 
   const problems = data.getProblems.map((problem) => ({
     ...problem,
     id: Number(problem.id),
-    isVisible: problem.isVisible !== undefined ? problem.isVisible : null,
     languages: problem.languages ?? [],
     tag: problem.tag.map(({ id, tag }) => ({
       id: Number(id),
@@ -56,7 +54,6 @@ export function ProblemTable() {
         <DataTableSearchBar columndId="title" />
         <DataTableLangFilter />
         <DataTableLevelFilter />
-        <ProblemsDeleteButton />
       </div>
       <DataTable getHref={(data) => `/admin/problem/${data.id}`} />
       <DataTablePagination showSelection />
@@ -64,6 +61,6 @@ export function ProblemTable() {
   )
 }
 
-export function ProblemTableFallback() {
+export function SharedProblemTableFallback() {
   return <DataTableFallback columns={columns} />
 }
