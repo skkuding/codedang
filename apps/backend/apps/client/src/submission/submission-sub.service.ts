@@ -315,11 +315,11 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     if (!submission) return
 
-    if (submission.contest?.evaluateWithSampleTestcase) {
+    if (!submission.contest?.evaluateWithSampleTestcase) {
       const testcaseSet = new Set(
         (
           await this.prisma.problemTestcase.findMany({
-            where: { problemId: submission.problemId, isHidden: false },
+            where: { problemId: submission.problemId, isHidden: true },
             select: { id: true }
           })
         ).map((tc) => tc.id)
@@ -403,7 +403,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     const [contest, contestProblem, contestRecord, submissions] =
       await Promise.all([
         this.prisma.contest.findUniqueOrThrow({
-          where: { id: contestId ?? -1 },
+          where: { id: contestId },
           select: {
             startTime: true,
             penalty: true,
@@ -428,7 +428,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         })
       ])
 
-    const isNewAccept = submissions.some((sub) => sub.userId === userId)
+    const isNewAccept =
+      submissions.filter((sub) => sub.userId === userId).length === 1
     if (!isNewAccept || !isAccepted) return
 
     const isFirstSolver = !submissions.some(
@@ -440,6 +441,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     const contestRecordId = contestRecord.id
     const submitCount = contest.submission.length
 
+    // 패널티 계산 공식 : (제출 횟수 - 1) * 패널티 + (대회 시작부터 Accepted까지 걸린 시간, 분)
     const submitCountPenalty = Math.floor(penalty * (submitCount - 1))
     const timePenalty = Math.floor(
       (new Date(updateTime).getTime() - new Date(startTime).getTime()) / 60000
