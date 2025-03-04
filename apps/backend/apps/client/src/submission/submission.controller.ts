@@ -7,7 +7,8 @@ import {
   Req,
   Query,
   DefaultValuePipe,
-  Headers
+  Headers,
+  Patch
 } from '@nestjs/common'
 import { AuthNotNeededIfPublic, AuthenticatedRequest } from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
@@ -83,6 +84,23 @@ export class SubmissionController {
         workbookId
       })
     }
+  }
+
+  @Patch('rejudgeByProblem')
+  async rejudgeByProblem(@Query('problemId') problemId: string): Promise<{
+    successCount: number
+    failedSubmissions: { submissionId: number; error: string }[]
+  }> {
+    const problemIdNumber = parseInt(problemId, 10)
+    return this.submissionService.rejudgeSubmissionsByProblem(problemIdNumber)
+  }
+
+  @Patch('rejudgeBySubmission')
+  async rejudgeBySubmission(
+    @Query('submissionId') submissionId: string
+  ): Promise<{ success: boolean; error?: string }> {
+    const submissionIdNumber = parseInt(submissionId, 10)
+    return this.submissionService.rejudgeSubmissionById(submissionIdNumber)
   }
 
   /**
