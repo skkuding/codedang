@@ -41,10 +41,9 @@ export function RegisterButton({
       await safeFetcherWithAuth.post(`contest/${contestId}/participation`, {
         searchParams: invitationCodeExists
           ? {
-              groupId: 1,
               invitationCode: getValues('invitationCode')
             }
-          : { groupId: 1 }
+          : {}
       })
       toast.success(`Registered ${state} test successfully`)
       router.refresh() // to update register state

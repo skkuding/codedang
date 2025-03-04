@@ -1018,12 +1018,24 @@ export class ProblemService {
   }
 
   changeVisibleLockTimeToIsVisible(
-    problems: Problem[] | Problem
-  ): ProblemWithIsVisible[] | ProblemWithIsVisible {
-    const problemsWithIsVisible = (
-      Array.isArray(problems) ? problems : [problems]
-    ).map((problem: Problem) => {
-      const { visibleLockTime, ...data } = problem
+    problems: Problem | Problem[]
+  ): ProblemWithIsVisible | ProblemWithIsVisible[] {
+    if (Array.isArray(problems)) {
+      return problems.map((problem) => {
+        const { visibleLockTime, ...data } = problem
+        return {
+          isVisible:
+            visibleLockTime.getTime() === MIN_DATE.getTime()
+              ? true
+              : visibleLockTime < new Date() ||
+                  visibleLockTime.getTime() === MAX_DATE.getTime()
+                ? false
+                : null,
+          ...data
+        }
+      })
+    } else {
+      const { visibleLockTime, ...data } = problems
       return {
         isVisible:
           visibleLockTime.getTime() === MIN_DATE.getTime()
@@ -1034,9 +1046,6 @@ export class ProblemService {
               : null,
         ...data
       }
-    })
-    return problemsWithIsVisible.length == 1
-      ? problemsWithIsVisible[0]
-      : problemsWithIsVisible
+    }
   }
 }
