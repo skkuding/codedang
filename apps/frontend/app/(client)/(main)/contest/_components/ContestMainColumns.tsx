@@ -1,11 +1,11 @@
 'use client'
 
-import { cn, dateFormatter } from '@/libs/utils'
+import { cn, dateFormatter, getStatusColor } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-darkgray.svg'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
-import { getStatusColor, getStatusText } from '../_libs/utils'
+import { getStatusText } from '../_libs/utils'
 
 export const columns: ColumnDef<Contest>[] = [
   {

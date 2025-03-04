@@ -122,6 +122,7 @@ export function ManagementSidebar() {
         setUserPermissions({
           canCreateCourse: user.canCreateCourse ?? false,
           canCreateContest: user.canCreateContest ?? false
+          // canCreateContest: true
         })
       } catch (error) {
         console.error('Error fetching user permissions:', error)

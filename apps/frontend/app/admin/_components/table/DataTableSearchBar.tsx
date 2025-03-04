@@ -31,13 +31,13 @@ export function DataTableSearchBar({
 
   return (
     <div className="relative">
-      <IoSearch className="text-muted-foreground absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+      <IoSearch className="text-muted-foreground absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-[#C4C4C4]" />
       <Input
         placeholder={placeholder ?? 'Search'}
         value={typeof filterValue === 'string' ? filterValue : ''}
         onChange={(e) => onChangeValue(e.currentTarget.value)}
         className={cn(
-          'h-10 w-[150px] bg-transparent pl-8 lg:w-[250px]',
+          'h-10 w-[150px] bg-transparent pl-8 lg:w-[390px]',
           className
         )}
         {...props}
