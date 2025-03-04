@@ -61,7 +61,7 @@ function RegisterCourse() {
         <span className="text-white">Register</span>
       </Button>
       <Dialog open={isDialogOpened} onOpenChange={setIsDialogOpened}>
-        <DialogContent className="w-fit rounded-2xl p-0 px-0 py-6">
+        <DialogContent className="w-fit p-0 px-0 py-6 sm:rounded-2xl">
           <DialogHeader>
             <DialogTitle />
           </DialogHeader>
