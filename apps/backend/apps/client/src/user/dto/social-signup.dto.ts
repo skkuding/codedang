@@ -14,7 +14,7 @@ export class SocialSignUpDto {
   @IsNotEmpty()
   readonly username: string
 
-  @Matches(/^[a-zA-Z\s]+$/)
+  @Matches(/^[가-힣a-zA-Z \s]+$/)
   @IsNotEmpty()
   readonly realName: string
 
