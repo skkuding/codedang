@@ -50,18 +50,11 @@ export function ImportProblemTable({
     console.error('Error fetching data:', error)
   }
 
-  const problems = data.getProblems.map((problem) => ({
+  const problems = Array.from(uniqueProblemsMap.values()).map((problem) => ({
     ...problem,
     id: Number(problem.id),
     isVisible: problem.isVisible !== undefined ? problem.isVisible : null,
     languages: problem.languages ?? [],
-    tag: problem.tag.map(({ id, tag }) => ({
-      id: Number(id),
-      tag: {
-        ...tag,
-        id: Number(tag.id)
-      }
-    })),
     score: checkedProblems.find((item) => item.id === Number(problem.id))
       ?.score,
     order: checkedProblems.find((item) => item.id === Number(problem.id))?.order

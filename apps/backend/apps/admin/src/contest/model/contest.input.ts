@@ -43,6 +43,9 @@ export class CreateContestInput {
   @Field(() => Boolean, { nullable: true })
   enableCopyPaste?: boolean
 
+  @Field(() => Boolean, { nullable: true })
+  evaluateWithSampleTestcase?: boolean
+
   @IsArray()
   @ValidateNested({ each: true }) // 배열 요소를 개별적으로 검사
   @Type(() => UserContestRoleInput) // class-validator에서 객체 변환 적용
@@ -87,6 +90,9 @@ export class UpdateContestInput {
 
   @Field(() => Boolean, { nullable: true })
   isJudgeResultVisible?: boolean
+
+  @Field(() => Boolean, { nullable: true })
+  evaluateWithSampleTestcase?: boolean
 
   @IsArray()
   @ValidateNested({ each: true }) // 배열 요소를 개별적으로 검사
