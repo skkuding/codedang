@@ -1405,6 +1405,19 @@ export class SubmissionService {
       )
     }
 
+    const isJudgeResultVisible = (
+      await this.prisma.assignment.findUnique({
+        where: { id: assignmentId },
+        select: {
+          isJudgeResultVisible: true
+        }
+      })
+    )?.isJudgeResultVisible
+
+    if (isJudgeResultVisible === undefined) {
+      throw new NotFoundException('Assignment')
+    }
+
     const rawSubmission = await this.prisma.submission.findFirst({
       where: { userId, assignmentId, problemId },
       orderBy: {
@@ -1421,14 +1434,8 @@ export class SubmissionService {
         language: true,
         code: true,
         createTime: true,
-        result: true,
-        submissionResult: {
-          include: {
-            problemTestcase: {
-              select: { isHidden: true }
-            }
-          }
-        },
+        result: isJudgeResultVisible ? true : false,
+        submissionResult: isJudgeResultVisible ? true : false,
         codeSize: true
       }
     })
@@ -1437,16 +1444,20 @@ export class SubmissionService {
       throw new NotFoundException('Submission')
     }
 
-    const filteredSubmissionResult = rawSubmission.submissionResult
-      .filter((result) => !result.problemTestcase.isHidden)
-      .map(({ id, cpuTime, memoryUsage, problemTestcaseId, result }) => ({
-        id,
-        cpuTime,
-        memoryUsage,
-        problemTestcaseId,
-        result
-      }))
+    if (isJudgeResultVisible) {
+      const filteredSubmissionResult = rawSubmission.submissionResult.map(
+        ({ id, cpuTime, memoryUsage, problemTestcaseId, result }) => ({
+          id,
+          cpuTime,
+          memoryUsage,
+          problemTestcaseId,
+          result
+        })
+      )
 
-    return { ...rawSubmission, submissionResult: filteredSubmissionResult }
+      return { ...rawSubmission, submissionResult: filteredSubmissionResult }
+    }
+
+    return { ...rawSubmission, result: ResultStatus.Blind }
   }
 }
