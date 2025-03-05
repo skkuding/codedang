@@ -221,7 +221,9 @@ export function GradeDetailModal({
                       stroke: '#E5E5E5'
                     }}
                     tick={{ fontSize: '8px', fill: 'black' }}
-                    // tick={{ fontSize: '8px' }} // ✅ 글자 크기 10px로 설정
+                    tickFormatter={(value) => {
+                      return value.replace(/\.0/g, '')
+                    }}
                   />
                   <CartesianGrid vertical={false} strokeDasharray="4 4" />
                   <Bar dataKey="count" radius={[10, 10, 0, 0]} />
