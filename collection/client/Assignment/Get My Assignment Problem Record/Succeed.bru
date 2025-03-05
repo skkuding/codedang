@@ -5,13 +5,17 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/assignment/:id/score/me
+  url: {{baseUrl}}/assignment/:id/score/me?groupId=2
   body: none
   auth: none
 }
 
+params:query {
+  groupId: 2
+}
+
 params:path {
-  id: 2
+  id: 5
 }
 
 assert {

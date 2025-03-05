@@ -6,7 +6,11 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogCancel
+  AlertDialogCancel,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogTrigger,
+  AlertDialogDescription
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
@@ -19,18 +23,25 @@ import {
 } from '@/components/shadcn/select'
 import { Separator } from '@/components/shadcn/separator'
 import { Switch } from '@/components/shadcn/switch'
-import { CREATE_WHITE_LIST } from '@/graphql/course/mutation'
-import { GET_WHITE_LIST } from '@/graphql/course/queries'
-import { INVITE_USER, ISSUE_INVITATION } from '@/graphql/user/mutation'
+import { TooltipProvider, TooltipTrigger } from '@/components/shadcn/tooltip'
+import { CREATE_WHITE_LIST, DELETE_WHITE_LIST } from '@/graphql/course/mutation'
+import { GET_COURSE, GET_WHITE_LIST } from '@/graphql/course/queries'
+import {
+  INVITE_USER,
+  ISSUE_INVITATION,
+  REVOKE_INVITATION
+} from '@/graphql/user/mutation'
 import { fetcherWithAuth } from '@/libs/utils'
 import type { MemberRole } from '@/types/type'
 import { useMutation, useQuery } from '@apollo/client'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { Tooltip, TooltipContent } from '@radix-ui/react-tooltip'
 import { useCallback, useEffect, useState } from 'react'
+import { CSVLink } from 'react-csv'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { FiPlusCircle, FiX } from 'react-icons/fi'
 import { IoCloudUpload, IoCopyOutline } from 'react-icons/io5'
-import { MdOutlineEmail } from 'react-icons/md'
+import { MdHelpOutline, MdOutlineEmail } from 'react-icons/md'
 import { RxReload } from 'react-icons/rx'
 import { toast } from 'sonner'
 import * as XLSX from 'xlsx'
@@ -81,7 +92,7 @@ export function InviteButton({ onSuccess, params }: InviteButtonProps) {
       </Button>
       <AlertDialog open={isAlertDialogOpen} onOpenChange={handleOpenChange}>
         <AlertDialogContent className="max-w-lg p-8">
-          <AlertDialogCancel className="absolute right-4 border-none">
+          <AlertDialogCancel className="absolute right-4 top-4 border-none">
             <FiX className="h-5 w-5" />
           </AlertDialogCancel>
           <AlertDialogHeader>
@@ -140,8 +151,6 @@ function InviteManually({ courseId }: InviteManuallyProps) {
 
   const onInvite: SubmitHandler<InviteUserInput> = useCallback(
     async (data) => {
-      console.log('onInvite')
-
       const updatePromise = inviteUser({
         variables: {
           groupId: courseId,
@@ -285,16 +294,39 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
   const [isInviteByCodeEnabled, setIsInviteByCodeEnabled] = useState(false) // 기본값: 숨김
   const [isApprovalRequired, setIsApprovalRequired] = useState(false)
   const [issueInvitation] = useMutation(ISSUE_INVITATION)
+  const [revokeInvitation] = useMutation(REVOKE_INVITATION)
   const [createWhitelist] = useMutation(CREATE_WHITE_LIST)
+  const [deleteWhitelist] = useMutation(DELETE_WHITE_LIST, {
+    refetchQueries: [
+      { query: GET_WHITE_LIST, variables: { groupId: courseId } }
+    ]
+  })
   const [isUploaded, setIsUploaded] = useState(false)
   const [studentIds, setstudentIds] = useState<string[]>([])
   const [whitelistCount, setWhitelistCount] = useState<number | null>(null)
-  const [fileName, setFileName] = useState<string | null>(null)
+  const [fileName, setFileName] = useState<string>('Whitelist.csv')
+  const [isRevokeInvitationModalOpen, setIsRevokeInvitationModalOpen] =
+    useState(false)
+  const [isDeleteWhitelistModalOpen, setIsDeleteWhitelistModalOpen] =
+    useState(false)
 
   useQuery(GET_WHITE_LIST, {
     variables: { groupId: courseId },
     onCompleted: (data) => {
-      setWhitelistCount(data?.getWhitelist.length ?? 0)
+      setstudentIds(data?.getWhitelist)
+      setIsApprovalRequired(data?.getWhitelist.length > 0)
+    }
+  })
+
+  useQuery(GET_COURSE, {
+    variables: { groupId: courseId },
+    onCompleted: (data) => {
+      setIsInviteByCodeEnabled(Boolean(data?.getCourse.invitation))
+      if (data?.getCourse.invitation) {
+        reset({
+          issueInvitation: data.getCourse.invitation
+        })
+      }
     }
   })
 
@@ -306,7 +338,6 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
 
       if (result.data) {
         const data = result.data.issueInvitation
-        console.log('Issue Invitation:', data)
         reset({
           issueInvitation: data
         })
@@ -321,10 +352,10 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
     if (!file) {
       return
     }
-    setFileName(file.name) // 파일 이름 저장
+    setFileName(file.name.replace(/\.[^/.]+$/, '.csv')) // 파일 이름 저장
 
     const reader = new FileReader()
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       const data = new Uint8Array(e.target?.result as ArrayBuffer)
       const workbook = XLSX.read(data, { type: 'array' })
       const sheetName = workbook.SheetNames[0]
@@ -332,67 +363,51 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
 
       // Excel 데이터를 JSON 형태로 변환
       const jsonData = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 })
-      console.log('엑셀 변환 데이터:', jsonData) // 디버깅용
 
       // 첫 번째 행을 헤더로 설정
       const headers = jsonData[0].map((header: string) => header.trim()) // 공백 제거
       const dataRows = jsonData.slice(1) // 실제 데이터 행
 
-      // "학번" 컬럼 찾기 (유동적으로)
-      const 학번Index = headers.findIndex((header) => header.includes('학번'))
+      // "studentId" 컬럼 찾기 (유동적으로)
+      const studentIdIndex = headers.findIndex((header) =>
+        header.includes('studentId')
+      )
 
-      if (학번Index === -1) {
-        toast.error("엑셀에서 '학번' 열을 찾을 수 없습니다.")
+      if (studentIdIndex === -1) {
+        toast.error("Cannot find 'studentId' Column")
         return
       }
 
-      // 학번 데이터만 추출 (문자열에서 숫자만 추출)
+      // studentId 데이터만 추출 (문자열에서 숫자만 추출)
       const studentIdList = Array.from(
         new Set(
           dataRows
-            .map((row) => row[학번Index]?.toString() ?? '') // null 또는 undefined 방지
+            .map((row) => row[studentIdIndex]?.toString() ?? '') // null 또는 undefined 방지
             .filter((id) => id.trim() !== '') // 빈 문자열 제거
         )
       )
 
       setstudentIds(studentIdList ?? [])
+      /** 화이트리스트 생성 요청 */
+      try {
+        const { data } = await createWhitelist({
+          variables: { groupId: courseId, studentIds: studentIdList }
+        })
+        setWhitelistCount(data?.createWhitelist ?? 0)
+        setIsUploaded(true)
+      } catch (error) {
+        console.error('Create white list error:', error)
+      }
     }
 
     reader.readAsArrayBuffer(file)
   }
-  /** 화이트리스트 생성 요청 */
 
-  const handleCreateWhiteList = useCallback(async () => {
-    try {
-      const { data } = await createWhitelist({
-        variables: { groupId: courseId, studentIds }
-      })
-      console.log(data)
-      setWhitelistCount(data?.createWhitelist ?? 0)
-      setIsUploaded(true)
-      console.log(data?.createWhitelist)
-    } catch (error) {
-      console.error('Create white list error:', error)
-    }
-  }, [createWhitelist, courseId, studentIds, setWhitelistCount, setIsUploaded]) // 의존성 배열 추가
-
-  useEffect(() => {
-    if (whitelistCount !== null) {
-      setIsApprovalRequired(whitelistCount > 0)
-    }
-  }, [whitelistCount])
   useEffect(() => {
     if (isUploaded && whitelistCount) {
       toast.success(`${whitelistCount} studentIds are registered.`)
-      console.log(courseId)
     }
   }, [courseId, isUploaded, whitelistCount])
-
-  useEffect(() => {
-    if (studentIds.length > 0) {
-      handleCreateWhiteList()
-    }
-  }, [handleCreateWhiteList, studentIds])
 
   return (
     <form
@@ -408,32 +423,99 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
           <span className="text-base font-bold">Invite by Invitation Code</span>
           <Switch
             checked={isInviteByCodeEnabled}
-            onCheckedChange={() => setIsInviteByCodeEnabled((prev) => !prev)} // 상태 토글
+            onCheckedChange={(checked) => {
+              if (!checked) {
+                setIsRevokeInvitationModalOpen(true)
+              } else {
+                handleUpdateButtonClick()
+                setIsInviteByCodeEnabled(true)
+              }
+            }} // 상태 토글
           />
         </div>
+        <AlertDialog
+          open={isRevokeInvitationModalOpen}
+          onOpenChange={setIsRevokeInvitationModalOpen}
+        >
+          <AlertDialogContent className="p-8">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="mb-4 text-xl">
+                Disable Invitation Code
+              </AlertDialogTitle>
+            </AlertDialogHeader>
+            <AlertDialogDescription>
+              Students will no longer be able to join the course using the
+              invitation code.
+            </AlertDialogDescription>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="px-4 py-2 text-neutral-400">
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction asChild>
+                <Button
+                  type="button"
+                  onClick={async () => {
+                    await revokeInvitation({ variables: { groupId: courseId } })
+                    setIsInviteByCodeEnabled(false)
+                    setIsRevokeInvitationModalOpen(false)
+                  }}
+                >
+                  Ok
+                </Button>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {isInviteByCodeEnabled && (
           <div className="flex flex-col gap-6">
             <div className="flex justify-start gap-4">
               <Input
                 id="issueInvitation"
-                className="w-[194px] bg-slate-100"
+                className="w-[194px]"
                 readOnly
                 {...register('issueInvitation')}
               />
               <div className="flex gap-2">
-                <Button
-                  type="submit"
-                  className="bg-primary hover:bg-primary-strong px-6"
-                >
-                  <RxReload size={17} strokeWidth={0.5} />
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      type="button"
+                      className="bg-primary hover:bg-primary-strong px-6"
+                    >
+                      <RxReload size={17} strokeWidth={0.5} />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="max-w-lg p-8">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="mb-4 text-xl">
+                        Update Invitation Code
+                      </AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <AlertDialogDescription>
+                      The previous invitation code will no longer be available.
+                    </AlertDialogDescription>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="px-4 py-2 text-neutral-400">
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction asChild>
+                        <Button
+                          type="button"
+                          onClick={() => handleUpdateButtonClick()}
+                        >
+                          Ok
+                        </Button>
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
                 <Button
                   type="button"
                   className="bg-primary hover:bg-primary-strong px-6"
                   onClick={() => {
                     const invitationCode = getValues('issueInvitation') // 현재 입력된 값 가져오기
-                    console.log(invitationCode)
+                    toast.success('Copied Successfully')
                     navigator.clipboard.writeText(invitationCode) // 클립보드에 복사
                   }}
                 >
@@ -444,34 +526,111 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
                 </Button>
               </div>
             </div>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
               {/* <span className="text-sm font-bold">Invitation Code Setting</span> */}
-              <div className="flex gap-4">
+              <div className="flex gap-2">
                 <span className="text-sm font-bold">
                   Only approved accounts can enter
                 </span>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button type="button">
+                        <MdHelpOutline className="text-gray-400 hover:text-gray-700" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="top"
+                      className="mb-2 bg-white px-4 py-2 text-xs font-normal shadow-md"
+                    >
+                      When you upload a file, the existing whitelist is{' '}
+                      <span className="font-medium">deleted</span> and replaced.
+                      <br />
+                      You can download the sample file{' '}
+                      <a href="/Whitelist_Sample.csv" className="text-primary">
+                        here
+                      </a>
+                      .
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <Switch
                   checked={isApprovalRequired}
-                  onCheckedChange={() => setIsApprovalRequired((prev) => !prev)}
+                  onCheckedChange={(checked) => {
+                    if (!checked) {
+                      if (studentIds.length > 0) {
+                        setIsDeleteWhitelistModalOpen(true)
+                      } else {
+                        setIsApprovalRequired(false)
+                      }
+                    } else {
+                      setIsApprovalRequired(true)
+                    }
+                  }}
                 />
+                <AlertDialog
+                  open={isDeleteWhitelistModalOpen}
+                  onOpenChange={setIsDeleteWhitelistModalOpen}
+                >
+                  <AlertDialogContent className="max-w-lg p-8">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="mb-4 text-xl">
+                        Disable Student Whitelist
+                      </AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <AlertDialogDescription>
+                      The student ID whitelist will be deleted, and anyone will
+                      be able to join the course with an invitation code.
+                    </AlertDialogDescription>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="px-4 py-2 text-neutral-400">
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction asChild>
+                        <Button
+                          type="button"
+                          onClick={async () => {
+                            await deleteWhitelist({
+                              variables: { groupId: courseId }
+                            })
+                            setstudentIds([])
+                            setIsApprovalRequired(false)
+                            setIsDeleteWhitelistModalOpen(false)
+                          }}
+                        >
+                          Ok
+                        </Button>
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
+
               {isApprovalRequired && (
-                <div className="flex justify-between">
-                  {fileName && (
-                    <span className="text-xs text-gray-600">{fileName}</span>
+                <div className="flex flex-col gap-2">
+                  {studentIds.length > 0 && (
+                    <span className="text-xs">
+                      Current Whitelist:{' '}
+                      <CSVLink
+                        data={studentIds.map((id) => ({ studentId: id }))}
+                        headers={[{ label: 'studentId', key: 'studentId' }]}
+                        filename={fileName}
+                        className="text-primary mb-2 text-xs"
+                      >
+                        {fileName}
+                      </CSVLink>
+                    </span>
                   )}
-                  {!fileName && (
-                    <label className="flex cursor-pointer items-center gap-2">
-                      <IoCloudUpload size={20} />
-                      <span className="text-xs">Upload File (Excel)</span>
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept=".xlsx, .xls"
-                        onChange={handleFileUpload}
-                      />
-                    </label>
-                  )}
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <IoCloudUpload size={20} />
+                    <span className="text-xs">Upload File (Excel)</span>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept=".csv, .xlsx, .xls"
+                      onChange={handleFileUpload}
+                    />
+                  </label>
                 </div>
               )}
             </div>

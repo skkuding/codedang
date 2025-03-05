@@ -11,24 +11,42 @@ post {
 }
 
 body:graphql {
-  mutation {
-    createContest(
-      groupId: 2
-      input: {
-        title: "New Contest Group 2"
-        description: "thisisnewcontest"
-        startTime: "2030-01-01"
-        endTime: "2020-01-01"
-        isVisible: true
-        isRankVisible: true
-        enableCopyPaste: true
-        invitationCode:"123456"
-        isJudgeResultVisible: true
-      }
-    ) {
+  mutation CreateContest($input: CreateContestInput!) {
+    createContest(input: $input) {
       id
       title
       description
+      startTime
+      endTime
+      isVisible
+      isRankVisible
+      enableCopyPaste
+      isJudgeResultVisible
+      invitationCode
+      summary
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "title": "New Contest 2",
+      "description": "this is new contest",
+      "startTime": "2030-01-01",
+      "endTime": "2020-01-01",
+      "isVisible": true,
+      "isRankVisible": true,
+      "enableCopyPaste": true,
+      "isJudgeResultVisible": true,
+      "invitationCode": "123456",
+      "summary": {
+        "참여대상": "participationTarget",
+        "진행방식": "competitionMethod",
+        "순위산정": "rankingMethod",
+        "문제형태": "problemFormat",
+        "참여혜택": "benefits"
+      }
     }
   }
 }

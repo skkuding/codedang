@@ -3,7 +3,7 @@
 import { BaseModal } from '@/components/BaseModal'
 import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
-import { AiFillCloseSquare } from 'react-icons/ai'
+import { IoIosCloseCircle } from 'react-icons/io'
 import { IoSearchCircle } from 'react-icons/io5'
 
 interface ModalProps {
@@ -38,7 +38,7 @@ export function BiggerImageButton({ url }: ModalProps) {
 
   return (
     <>
-      <IoSearchCircle onClick={OpenModal} className="h-6 w-6" />
+      <IoSearchCircle onClick={OpenModal} className="h-8 w-8" />
       <BaseModal
         open={openModal}
         darkMode={false}
@@ -53,9 +53,10 @@ export function BiggerImageButton({ url }: ModalProps) {
             height={624}
             className="h-[624px] w-[468px] rounded-2xl border-0 object-contain"
           />
-          <AiFillCloseSquare
+          <IoIosCloseCircle
+            color="#3333334D"
             onClick={CloseModal}
-            className="absolute right-[15px] top-4 h-10 w-10"
+            className="absolute right-[15px] top-4 h-12 w-12 cursor-pointer"
           />
         </div>
       </BaseModal>

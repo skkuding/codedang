@@ -1,9 +1,4 @@
-import {
-  ForbiddenException,
-  ParseArrayPipe,
-  UsePipes,
-  ValidationPipe
-} from '@nestjs/common'
+import { ParseArrayPipe, UsePipes, ValidationPipe } from '@nestjs/common'
 import {
   Args,
   Context,
@@ -17,6 +12,7 @@ import {
 import {
   AssignmentProblem,
   ContestProblem,
+  Group,
   Image,
   ProblemTag,
   ProblemTestcase,
@@ -29,6 +25,7 @@ import {
   UseDisableAdminGuard,
   UseGroupLeaderGuard
 } from '@libs/auth'
+import { ForbiddenAccessException } from '@libs/exception'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -120,7 +117,7 @@ export class ProblemResolver {
     shared: boolean
   ) {
     if (!my && !shared && req.user.role == Role.User) {
-      throw new ForbiddenException(
+      throw new ForbiddenAccessException(
         'User does not have permission for all problems'
       )
     }
@@ -140,6 +137,11 @@ export class ProblemResolver {
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
     return await this.problemService.getProblem(id, req.user.role, req.user.id)
+  }
+
+  @ResolveField('sharedGroups', () => [Group])
+  async getSharedGroups(@Parent() problem: ProblemWithIsVisible) {
+    return await this.problemService.getSharedGroups(problem.id)
   }
 
   @ResolveField('tag', () => [ProblemTag])

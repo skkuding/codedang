@@ -4,7 +4,11 @@ import {
   AssignmentProblem,
   AssignmentProblemRecord
 } from '@generated'
-import { AuthenticatedRequest, UseGroupLeaderGuard } from '@libs/auth'
+import {
+  AuthenticatedRequest,
+  UseDisableAdminGuard,
+  UseGroupLeaderGuard
+} from '@libs/auth'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -141,7 +145,6 @@ export class AssignmentResolver {
       take,
       assignmentId,
       userId,
-      groupId,
       problemId,
       cursor
     )
@@ -193,11 +196,15 @@ export class AssignmentResolver {
   }
 
   @Query(() => AssignmentsGroupedByStatus)
+  @UseDisableAdminGuard()
   async getAssignmentsByProblemId(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('problemId', { type: () => Int }) problemId: number
+    @Args('problemId', { type: () => Int }) problemId: number,
+    @Context('req') req: AuthenticatedRequest
   ) {
-    return await this.assignmentService.getAssignmentsByProblemId(problemId)
+    return await this.assignmentService.getAssignmentsByProblemId(
+      problemId,
+      req.user.id
+    )
   }
 
   @Mutation(() => AssignmentProblemRecord)
