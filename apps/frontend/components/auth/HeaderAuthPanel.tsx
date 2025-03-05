@@ -40,6 +40,8 @@ export function HeaderAuthPanel({
     (state) => state
   )
   const isUser = session?.user.role === 'User'
+  const [hasCanCreateCoursePermission, setHasCanCreateCoursePermission] =
+    useState(false)
   const [hasAnyGroupLeaderRole, setHasAnyGroupLeaderRole] = useState(false)
   const isEditor = group === 'editor'
   const [needsUpdate, setNeedsUpdate] = useState(false)
@@ -49,12 +51,19 @@ export function HeaderAuthPanel({
   useEffect(() => {
     const checkIfNeedsUpdate = async () => {
       const userResponse = await fetcherWithAuth.get('user')
-      const user: { role: string; studentId: string; major: string } =
-        await userResponse.json()
+      const user: {
+        role: string
+        studentId: string
+        major: string
+        canCreateCourse: boolean
+      } = await userResponse.json()
       const updateNeeded =
         user.role === 'User' &&
         (user.studentId === '0000000000' || user.major === 'none')
 
+      if (user.canCreateCourse) {
+        setHasCanCreateCoursePermission(true)
+      }
       setNeedsUpdate(updateNeeded)
     }
     if (session) {
@@ -112,7 +121,9 @@ export function HeaderAuthPanel({
                   'mr-5 rounded-sm border-none bg-[#4C5565] px-0 font-normal text-white'
               )}
             >
-              {(hasAnyGroupLeaderRole || !isUser) && (
+              {(hasAnyGroupLeaderRole ||
+                hasCanCreateCoursePermission ||
+                !isUser) && (
                 <Link href="/admin">
                   <DropdownMenuItem
                     className={cn(

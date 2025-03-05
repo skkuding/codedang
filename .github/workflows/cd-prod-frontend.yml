@@ -1,0 +1,27 @@
+name: CD - Production Frontend
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-northeast-2
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Trigger Amplify Frontend Build
+        run: curl -X POST -d {} "${{ secrets.AMPLIFY_WEBHOOK }}" -H "Content-Type:application/json"

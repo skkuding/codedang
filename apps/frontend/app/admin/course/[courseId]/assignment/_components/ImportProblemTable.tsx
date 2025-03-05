@@ -27,39 +27,49 @@ export function ImportProblemTable({
   checkedProblems: AssignmentProblem[]
   onSelectedExport: (selectedRows: AssignmentProblem[]) => void
 }) {
-  const { data } = useSuspenseQuery(GET_PROBLEMS, {
-    variables: {
-      take: 500,
-      input: {
-        difficulty: [
-          Level.Level1,
-          Level.Level2,
-          Level.Level3,
-          Level.Level4,
-          Level.Level5
-        ],
-        languages: [Language.C, Language.Cpp, Language.Java, Language.Python3]
-      }
+  const queryVariables = {
+    take: 500,
+    input: {
+      difficulty: [
+        Level.Level1,
+        Level.Level2,
+        Level.Level3,
+        Level.Level4,
+        Level.Level5
+      ],
+      languages: [Language.C, Language.Cpp, Language.Java, Language.Python3]
     }
-  })
-  try {
-    console.log('Fetched Data:', data)
-  } catch (error) {
-    console.error('Error fetching data:', error)
   }
 
-  const problems = data.getProblems.map((problem) => ({
+  const { data: myData } = useSuspenseQuery(GET_PROBLEMS, {
+    variables: {
+      ...queryVariables,
+      shared: false,
+      my: true
+    }
+  })
+
+  // 공유된 문제 가져오기
+  const { data: sharedData } = useSuspenseQuery(GET_PROBLEMS, {
+    variables: {
+      ...queryVariables,
+      shared: true,
+      my: false
+    }
+  })
+
+  const combinedProblems = [...myData.getProblems, ...sharedData.getProblems]
+
+  const uniqueProblemsMap = new Map()
+  combinedProblems.forEach((problem) => {
+    uniqueProblemsMap.set(problem.id, problem)
+  })
+
+  const problems = Array.from(uniqueProblemsMap.values()).map((problem) => ({
     ...problem,
     id: Number(problem.id),
     isVisible: problem.isVisible !== undefined ? problem.isVisible : null,
     languages: problem.languages ?? [],
-    tag: problem.tag.map(({ id, tag }) => ({
-      id: Number(id),
-      tag: {
-        ...tag,
-        id: Number(tag.id)
-      }
-    })),
     score: checkedProblems.find((item) => item.id === Number(problem.id))
       ?.score,
     order: checkedProblems.find((item) => item.id === Number(problem.id))?.order
