@@ -30,6 +30,8 @@ export function ImportProblemTable({
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       take: 500,
+      my: true,
+      shared: false,
       input: {
         difficulty: [
           Level.Level1,
