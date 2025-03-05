@@ -15,9 +15,6 @@ export default function Error({ error }: Props) {
   }, [error])
 
   return (
-    <ErrorDetail
-      errorDetail="Failed to Load Assignment Create Page!"
-      error={error}
-    />
+    <ErrorDetail errorDetail="Failed to Load Problem List!" error={error} />
   )
 }

@@ -12,7 +12,6 @@ import {
   DataTableSearchBar
 } from '../../_components/table'
 import { columns } from './ContestTableColumns'
-import { DuplicateContestButton } from './DuplicateContestButton'
 
 const headerStyle = {
   select: '',
@@ -33,23 +32,42 @@ export function ContestTable() {
     ...contest,
     id: Number(contest.id)
   }))
+  const now = new Date()
+
+  const contestsWithStatus = contests.map((contest) => {
+    const startTime = new Date(contest.startTime)
+    const endTime = new Date(contest.endTime)
+    let status = 'Upcoming'
+
+    if (now >= startTime && now <= endTime) {
+      status = 'Ongoing'
+    } else if (now > endTime) {
+      status = 'Finished'
+    }
+
+    return {
+      ...contest,
+      status
+    }
+  })
 
   return (
     <DataTableRoot
-      data={contests}
+      data={contestsWithStatus}
       columns={columns}
       defaultSortState={[{ id: 'startTime', desc: true }]}
     >
-      <div className="flex gap-2">
+      <div className="mb-6 flex justify-between">
         <DataTableSearchBar columndId="title" />
-        <DuplicateContestButton />
         <ContestsDeleteButton />
       </div>
-      <DataTable
-        headerStyle={headerStyle}
-        getHref={(data) => `/admin/contest/${data.id}`}
-      />
-      <DataTablePagination showSelection />
+      <div className="space-y-[42px]">
+        <DataTable
+          headerStyle={headerStyle}
+          getHref={(data) => `/admin/contest/${data.id}`}
+        />
+        <DataTablePagination showSelection />
+      </div>
     </DataTableRoot>
   )
 }
@@ -77,6 +95,7 @@ function ContestsDeleteButton() {
       target="contest"
       deleteTarget={deleteTarget}
       onSuccess={onSuccess}
+      className="h-9 w-12"
     />
   )
 }

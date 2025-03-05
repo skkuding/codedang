@@ -25,6 +25,8 @@ export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
 // Problem type definition
 
 export type MemberRole = 'Instructor' | 'Student'
+
+export type SubmissionResult = 'CompileError' | 'WrongAnswer' | 'Accepted'
 export interface Tag {
   id: number
   name: string

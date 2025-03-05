@@ -1,3 +1,7 @@
+'use client'
+
+import type { AssignmentGrade } from '@/app/(client)/_libs/apis/assignmentSubmission'
+import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import {
   Accordion,
   AccordionContent,
@@ -6,46 +10,30 @@ import {
 } from '@/components/shadcn/accordion'
 import { Dialog } from '@/components/shadcn/dialog'
 import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
+import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import { GradeDetailModal } from '../grade/_components/GradeDetailModal'
+import { SubmissionDetailModal } from '../grade/_components/SubmissionDetailModal'
 import { DetailButton } from './DetailButton'
-import { GradeDetailModal } from './GradeDetailModal'
-import { SubmissionDetailModal } from './SubmissionDetailModal'
-import { dummyResponse } from './dummy'
 
 interface GradeAccordionProps {
   courseId: string
 }
 
-interface ProblemGrade {
-  id: number
-  title: string
-  order: number
-  maxScore: number
-  problemRecord: {
-    finalScore: number | null
-    comment: string
-  }
-}
-
-interface AssignmentGrade {
-  id: number
-  title: string
-  endTime: string
-  isFinalScoreVisible: boolean
-  autoFinalizeScore: boolean
-  week: number
-  userAssignmentFinalScore: number | null
-  assignmentPerfectScore: number
-  problems: ProblemGrade[]
-}
-
 export function GradeAccordion({ courseId }: GradeAccordionProps) {
-  // TODO: fetch assignment grades
-  console.log(courseId)
+  const { data } = useQuery(
+    assignmentSubmissionQueries.grades({ groupId: Number(courseId) })
+  )
+
   return (
     <div className="mt-8">
       <GradeAccordionHeader />
-      {dummyResponse.data.map((assignment) => (
-        <GradeAccordionItem key={assignment.id} assignment={assignment} />
+      {data?.map((assignment) => (
+        <GradeAccordionItem
+          key={assignment.id}
+          assignment={assignment}
+          courseId={Number(courseId)}
+        />
       ))}
     </div>
   )
@@ -65,9 +53,16 @@ function GradeAccordionHeader() {
 
 interface GradeAccordionItemProps {
   assignment: AssignmentGrade
+  courseId: number
 }
 
-function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
+function GradeAccordionItem({ assignment, courseId }: GradeAccordionItemProps) {
+  const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false)
+  const [openProblemId, setOpenProblemId] = useState<number | null>(null)
+
+  const handleOpenChange = (problemId: number | null) => {
+    setOpenProblemId(problemId)
+  }
   return (
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value={assignment.week.toString()} className="border-b-0">
@@ -86,9 +81,17 @@ function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
           <p className="line-clamp-1 w-[30%] font-medium">{assignment.title}</p>
           <div className="w-[4%]" />
           <div className="flex w-[11%] justify-center">
-            <Dialog>
+            <Dialog
+              open={isAssignmentDialogOpen}
+              onOpenChange={setIsAssignmentDialogOpen}
+            >
               <DetailButton isActivated={assignment.isFinalScoreVisible} />
-              <GradeDetailModal />
+              {isAssignmentDialogOpen && (
+                <GradeDetailModal
+                  courseId={courseId}
+                  gradedAssignment={assignment}
+                />
+              )}
             </Dialog>
           </div>
           <p className="w-[20%] text-center font-normal text-[#8A8A8A]">
@@ -98,7 +101,11 @@ function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
             {`${assignment.userAssignmentFinalScore ?? '-'} / ${assignment.assignmentPerfectScore}`}
           </p>
           <div className="flex w-[14%] justify-center">
-            <GradedBadge isGraded={assignment.isFinalScoreVisible} />
+            {assignment.problems.every(
+              (problem) => !problem.problemRecord?.isSubmitted
+            ) ? null : (
+              <GradedBadge isGraded={assignment.isFinalScoreVisible} />
+            )}
           </div>
         </AccordionTrigger>
         <AccordionContent className="-mb-4 w-full">
@@ -120,21 +127,35 @@ function GradeAccordionItem({ assignment }: GradeAccordionItemProps) {
                 </div>
                 <div className="w-[4%]" />
                 <div className="flex w-[11%] justify-center">
-                  <Dialog>
+                  <Dialog
+                    open={openProblemId === problem.id}
+                    onOpenChange={(isOpen) =>
+                      handleOpenChange(isOpen ? problem.id : null)
+                    }
+                  >
                     <DetailButton
-                      isActivated={problem.problemRecord.finalScore !== null}
+                      isActivated={
+                        assignment.isFinalScoreVisible &&
+                        Boolean(problem?.problemRecord?.isSubmitted)
+                      }
                     />
-                    <SubmissionDetailModal />
+                    {openProblemId === problem.id && (
+                      <SubmissionDetailModal
+                        problemId={problem.id}
+                        gradedAssignment={assignment}
+                      />
+                    )}
                   </Dialog>
                 </div>
                 <p className="w-[20%] text-center font-normal text-[#8A8A8A]">
                   -
                 </p>
-                <p className="w-[12%] text-center font-medium">{`${problem.problemRecord.finalScore ?? '-'} / ${problem.maxScore}`}</p>
+                <p className="w-[12%] text-center font-medium">{`${problem.problemRecord?.finalScore ?? '-'} / ${problem.maxScore}`}</p>
                 <div className="flex w-[14%] justify-center">
-                  {problem.problemRecord.finalScore === null && (
+                  {!problem.problemRecord ||
+                  problem.problemRecord.isSubmitted === false ? (
                     <MissingBadge />
-                  )}
+                  ) : null}
                 </div>
               </div>
             ))}
