@@ -1,9 +1,11 @@
+import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
 import { AssignmentStatusTimeDiff } from '@/components/AssignmentStatusTimeDiff'
 import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
 import { dateFormatter, safeFetcherWithAuth } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import type { Assignment } from '@/types/type'
+import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 
 interface AssignmentInfoProps {
@@ -12,9 +14,24 @@ interface AssignmentInfoProps {
     assignmentId: string
   }
 }
+export type GetAssignmentRecordResponse = {
+  submittedProblemCount: number
+  totalProblemCount: number
+  userAssignmentScore: number
+  assignmentPerfectScore: number
+  userAssignmentFinalScore: number | null
+  problemScores: ProblemScore[] | null
+}
+interface ProblemScore {
+  problemId: number
+  score: number | null
+  maxScore: number
+  finalScore: number | null
+}
 
 export default async function AssginmentInfo({ params }: AssignmentInfoProps) {
   const { assignmentId } = params
+  const { courseId } = params
 
   const res = await safeFetcherWithAuth.get(`assignment/${assignmentId}`)
 
@@ -29,6 +46,16 @@ export default async function AssginmentInfo({ params }: AssignmentInfoProps) {
     'YYYY-MM-DD HH:mm:ss'
   )
 
+  // const { data: testResults } = useQuery(
+  //   assignmentProblemQueries.record({
+  //     assignmentId: Number(assignmentId),
+  //     groupId: Number(courseId)
+  //   })
+  // )
+  const recordRes = await safeFetcherWithAuth.get(
+    `assignment/${assignmentId}/score/me?groupId=${courseId}`
+  )
+  const recordData = await recordRes.json<GetAssignmentRecordResponse>()
   const description = assignment.description
 
   return (
@@ -44,7 +71,14 @@ export default async function AssginmentInfo({ params }: AssignmentInfoProps) {
             <div className="border-primary flex h-[31px] w-[125px] items-center justify-center rounded-full border text-lg">
               Total score
             </div>
-            <span className="text-xl font-semibold">100/100</span>
+            <span className="text-xl font-semibold">
+              {recordData.problemScores?.length &&
+              recordData.problemScores.length > 0
+                ? (recordData.userAssignmentFinalScore ?? '-')
+                : '-'}
+              {' / '}
+              {recordData.assignmentPerfectScore}
+            </span>
           </div>
         </div>
         <div className="flex flex-col gap-3">
