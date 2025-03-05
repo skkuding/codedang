@@ -1,4 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { SchedulerRegistry } from '@nestjs/schedule'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { AssignmentProblem, Group, AssignmentRecord } from '@generated'
 import { Problem } from '@generated'
@@ -224,6 +225,9 @@ const db = {
     findMany: stub().resolves([AssignmentRecord]),
     create: stub().resolves(AssignmentRecord)
   },
+  assignmentProblemRecord: {
+    createMany: stub().resolves([])
+  },
   problem: {
     update: stub().resolves(Problem),
     updateMany: stub().resolves([Problem]),
@@ -265,6 +269,10 @@ describe('AssignmentService', () => {
               keys: () => []
             }
           })
+        },
+        {
+          provide: SchedulerRegistry,
+          useValue: new SchedulerRegistry()
         }
       ]
     }).compile()
