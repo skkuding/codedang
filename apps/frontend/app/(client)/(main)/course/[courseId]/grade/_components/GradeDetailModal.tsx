@@ -105,10 +105,11 @@ export function GradeDetailModal({
   }, [finalScores, scores, maxScore, generateChartData])
 
   const scoresStats = useMemo(() => calculateStatistics(scores), [scores])
-  const finalScoresStats = useMemo(
-    () => calculateStatistics(finalScores),
-    [finalScores]
-  )
+  const finalScoresStats = useMemo(() => {
+    return gradedAssignment.autoFinalizeScore
+      ? calculateStatistics(scores)
+      : calculateStatistics(finalScores)
+  }, [finalScores, gradedAssignment.autoFinalizeScore, scores])
 
   return (
     <DialogContent
