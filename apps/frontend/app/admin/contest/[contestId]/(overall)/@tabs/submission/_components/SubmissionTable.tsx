@@ -21,7 +21,7 @@ export function SubmissionTable({ contestId }: { contestId: number }) {
       input: {
         contestId
       },
-      take: 1000
+      take: 5000
     }
   })
 
