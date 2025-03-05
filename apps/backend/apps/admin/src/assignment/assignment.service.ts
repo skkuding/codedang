@@ -1,11 +1,12 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { SchedulerRegistry } from '@nestjs/schedule'
 import {
   Assignment,
   ResultStatus,
   Submission,
-  AssignmentProblem
+  AssignmentProblem,
+  type AssignmentProblemRecordCreateManyInput
 } from '@generated'
 import { Cache } from 'cache-manager'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
@@ -1132,6 +1133,48 @@ export class AssignmentService {
   }
 
   async endTimeReached(assignmentId: number, groupId: number) {
-    console.log('Helllllllllolololololololo')
+    const courseMembers = await this.prisma.userGroup.findMany({
+      where: { groupId, isGroupLeader: false },
+      select: { userId: true }
+    })
+
+    if (courseMembers.length === 0) {
+      throw new NotFoundException('Course Member')
+    }
+
+    const assignmentParticipants = await this.prisma.assignmentRecord.findMany({
+      where: { assignmentId },
+      select: { userId: true }
+    })
+
+    const nonParticipants = courseMembers.filter(
+      ({ userId }) =>
+        !assignmentParticipants
+          .map((participant) => participant.userId)
+          .includes(userId)
+    )
+
+    const assignmentProblems = await this.prisma.assignmentProblem.findMany({
+      where: { assignmentId },
+      select: { problemId: true }
+    })
+
+    const assignmentProblemData = nonParticipants.flatMap(({ userId }) =>
+      assignmentProblems.map(({ problemId }) => ({
+        assignmentId,
+        userId,
+        problemId
+      }))
+    )
+
+    await this.prisma.$transaction(async (prisma) => {
+      await prisma.assignmentRecord.createMany({
+        data: nonParticipants.map(({ userId }) => ({ userId, assignmentId }))
+      })
+
+      await prisma.assignmentProblemRecord.createMany({
+        data: assignmentProblemData
+      })
+    })
   }
 }
