@@ -72,9 +72,11 @@ export default async function AssginmentInfo({ params }: AssignmentInfoProps) {
               Total score
             </div>
             <span className="text-xl font-semibold">
-              {recordData.problemScores?.length &&
-              recordData.problemScores.length > 0
-                ? (recordData.userAssignmentFinalScore ?? '-')
+              {recordData.problemScores && recordData.problemScores?.length > 0
+                ? recordData.problemScores.reduce(
+                    (sum, problem) => sum + (problem.score ?? 0),
+                    0
+                  )
                 : '-'}
               {' / '}
               {recordData.assignmentPerfectScore}
