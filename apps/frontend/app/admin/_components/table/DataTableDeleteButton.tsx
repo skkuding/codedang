@@ -11,6 +11,7 @@ import {
   AlertDialogTitle
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
+import { error } from 'console'
 import { useState } from 'react'
 import { FaTrash } from 'react-icons/fa'
 import { toast } from 'sonner'
@@ -80,7 +81,7 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
       table.resetRowSelection()
       table.resetPageIndex()
       onSuccess?.()
-    } catch {
+    } catch (error) {
       toast.error(`Failed to delete ${target}`)
     }
   }
