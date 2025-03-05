@@ -403,17 +403,18 @@ model Contest {
   ///   문제형태: string,
   ///   참여혜택: string
   /// }
-  summary              Json?     @map("contest_summary")
-  invitationCode       String?   @map("invitation_code")
-  startTime            DateTime  @map("start_time")
-  endTime              DateTime  @map("end_time")
-  freezeTime           DateTime? @map("freeze_time")
-  isVisible            Boolean   @default(true) @map("is_visible")
-  isRankVisible        Boolean   @default(true) @map("is_rank_visible")
-  isJudgeResultVisible Boolean   @default(true) @map("is_judge_result_visible") // 이 Contest에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다.
-  enableCopyPaste      Boolean   @default(true) @map("enable_copy_paste") // 이 Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다.
-  createTime           DateTime  @default(now()) @map("create_time")
-  updateTime           DateTime  @updatedAt @map("update_time")
+  summary                    Json?     @map("contest_summary")
+  invitationCode             String?   @map("invitation_code")
+  startTime                  DateTime  @map("start_time")
+  endTime                    DateTime  @map("end_time")
+  freezeTime                 DateTime? @map("freeze_time")
+  isVisible                  Boolean   @default(true) @map("is_visible")
+  isRankVisible              Boolean   @default(true) @map("is_rank_visible")
+  isJudgeResultVisible       Boolean   @default(true) @map("is_judge_result_visible") /// 이 Contest에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다.
+  evaluateWithSampleTestcase Boolean   @default(false) @map("evaluate_with_sample_testcase") /// 이 Contest에 포함된 문제의 채점을 샘플 테스트케이스를 포함하여 할지 말지 결정합니다.
+  enableCopyPaste            Boolean   @default(true) @map("enable_copy_paste") /// 이 Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다.
+  createTime                 DateTime  @default(now()) @map("create_time")
+  updateTime                 DateTime  @updatedAt @map("update_time")
 
   contestProblem ContestProblem[]
   contestRecord  ContestRecord[]
@@ -465,12 +466,9 @@ model ContestProblem {
 model ContestProblemRecord {
   contestProblemId        Int       @map("contest_problem_id")
   contestRecordId         Int       @map("contest_record_id")
-  score                   Int       @default(0)
-  // finishTime: Pariticipant가 가장 최근에 좋은 제출을 받은 시각
-  finishTime              DateTime? @map("finish_time")
-  // (좋은 제출 전까지 유저 u가 문제 p에 제출한 횟수) × (대회의 페널티)
-  submitCountPenalty      Int       @default(0)
-  // 대회 시작부터 좋은 제출이 제출되기까지 쇼요된 시간, 단위는 분
+  score                   Int       @default(0) /// finishTime: Pariticipant가 가장 최근에 좋은 제출을 받은 시각
+  finishTime              DateTime? @map("finish_time") /// (좋은 제출 전까지 유저 u가 문제 p에 제출한 횟수) × (대회의 페널티)
+  submitCountPenalty      Int       @default(0) /// 대회 시작부터 좋은 제출이 제출되기까지 쇼요된 시간, 단위는 분
   timePenalty             Int       @default(0)
   finalScore              Int       @default(0) @map("final_score")
   finalTimePenalty        Int       @default(0) @map("final_time_penalty")
@@ -495,9 +493,7 @@ model ContestRecord {
   acceptedProblemNum   Int                    @default(0) @map("accepted_problem_num")
   score                Int                    @default(0)
   finalScore           Int                    @default(0) @map("final_score")
-  // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각
   lastAcceptedTime     DateTime?              @map("finish_time")
-  // totalPenalty: Submission 시, AC를 받지 못했을 때, 올라가는 Counter
   totalPenalty         Int                    @default(0) @map("total_penalty")
   finalTotalPenalty    Int                    @default(0) @map("final_total_penalty")
   createTime           DateTime               @default(now()) @map("create_time")

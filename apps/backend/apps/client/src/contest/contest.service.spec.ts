@@ -19,7 +19,7 @@ import {
   PrismaTestService,
   type FlatTransactionClient
 } from '@libs/prisma'
-import { ContestService, type ContestResult } from './contest.service'
+import { ContestService } from './contest.service'
 
 const contestId = 1
 const user01Id = 7
@@ -41,6 +41,7 @@ const contest = {
   isJudgeResultVisible: true,
   isRankVisible: true,
   enableCopyPaste: true,
+  evaluateWithSampleTestcase: false,
   createTime: now.add(-1, 'day').toDate(),
   updateTime: now.add(-1, 'day').toDate(),
   posterUrl: 'posterUrl',
@@ -161,7 +162,7 @@ describe('ContestService', () => {
   describe('getContests', () => {
     it('should return ongoing, upcoming contests when userId is undefined', async () => {
       const contests = await service.getContests()
-      expect(contests.ongoing).to.have.lengthOf(5)
+      expect(contests.ongoing).to.have.lengthOf(6)
       expect(contests.upcoming).to.have.lengthOf(5)
       expect(contests.finished).to.have.lengthOf(9)
     })
