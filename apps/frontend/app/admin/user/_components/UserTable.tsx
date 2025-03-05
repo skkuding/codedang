@@ -15,7 +15,7 @@ export function UserTable() {
     variables: {
       groupId: 1,
       cursor: 1,
-      take: 1000,
+      take: 5000,
       leaderOnly: false
     }
   })
