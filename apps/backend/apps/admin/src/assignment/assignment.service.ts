@@ -1,12 +1,12 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
+import { SchedulerRegistry } from '@nestjs/schedule'
 import {
   Assignment,
   ResultStatus,
   Submission,
   AssignmentProblem
 } from '@generated'
-import { GroupType } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import {
@@ -26,6 +26,7 @@ import type { AssignmentProblemScoreInput } from './model/problem-score.input'
 export class AssignmentService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly schedulerRegistry: SchedulerRegistry,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -103,13 +104,25 @@ export class AssignmentService {
     }
 
     try {
-      return await this.prisma.assignment.create({
+      const createdAssignment = await this.prisma.assignment.create({
         data: {
           createdById: userId,
           groupId,
           ...assignment
         }
       })
+
+      const milliseconds = new Date(assignment.endTime).getTime() - Date.now()
+
+      if (milliseconds >= 0) {
+        const timeout = setTimeout(
+          () => this.endTimeReached(createdAssignment.id, groupId),
+          milliseconds
+        )
+        this.schedulerRegistry.addTimeout(String(createdAssignment.id), timeout)
+      }
+
+      return createdAssignment
     } catch (error) {
       throw new UnprocessableDataException(error.message)
     }
@@ -151,6 +164,27 @@ export class AssignmentService {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
       )
+    }
+
+    if (isEndTimeChanged) {
+      try {
+        const oldTimeout = this.schedulerRegistry.getTimeout(
+          String(assignment.id)
+        )
+        clearTimeout(oldTimeout)
+        this.schedulerRegistry.deleteTimeout(String(assignment.id))
+        // eslint-disable-next-line no-empty
+      } catch {}
+
+      const milliseconds = new Date(assignment.endTime).getTime() - Date.now()
+
+      if (milliseconds >= 0) {
+        const newTimeout = setTimeout(
+          () => this.endTimeReached(assignment.id, groupId),
+          milliseconds
+        )
+        this.schedulerRegistry.addTimeout(String(assignment.id), newTimeout)
+      }
     }
 
     const problemIds = assignmentFound.assignmentProblem.map(
@@ -252,6 +286,13 @@ export class AssignmentService {
     if (problemIds.length) {
       await this.removeProblemsFromAssignment(groupId, assignmentId, problemIds)
     }
+
+    try {
+      const timeout = this.schedulerRegistry.getTimeout(String(assignmentId))
+      clearTimeout(timeout)
+      this.schedulerRegistry.deleteTimeout(String(assignmentId))
+      // eslint-disable-next-line no-empty
+    } catch {}
 
     try {
       return await this.prisma.assignment.delete({
@@ -1088,5 +1129,9 @@ export class AssignmentService {
     }
 
     return assignmentProblemRecord
+  }
+
+  async endTimeReached(assignmentId: number, groupId: number) {
+    console.log('Helllllllllolololololololo')
   }
 }
