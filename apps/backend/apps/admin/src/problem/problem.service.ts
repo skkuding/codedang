@@ -549,6 +549,13 @@ export class ProblemService {
   ) {
     const { id, languages, template, tags, testcases, isVisible, ...data } =
       input
+
+    if (userRole == Role.User && isVisible == true) {
+      throw new UnprocessableDataException(
+        'User cannot set a problem to public'
+      )
+    }
+
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: { id },
       include: {
