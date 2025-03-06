@@ -12,12 +12,12 @@ import {
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
 import { useState } from 'react'
-import { PiTrashLight } from 'react-icons/pi'
+import { FaTrash } from 'react-icons/fa'
 import { toast } from 'sonner'
 import { useDataTable } from './context'
 
 interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
-  target: 'problem' | 'contest'
+  target: 'problem' | 'contest' | 'assignment' | 'group' | 'course'
   deleteTarget: (id: number) => Promise<TPromise>
   getCanDelete?: (selectedRows: TData[]) => Promise<boolean>
   onSuccess?: () => void
@@ -93,23 +93,25 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
         onClick={handleDeleteButtonClick}
         className={className}
       >
-        <PiTrashLight fontSize={18} />
+        <FaTrash fontSize={13} color={'#8A8A8A'} />
       </Button>
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="gap-6 shadow-lg sm:rounded-lg md:h-[159px] md:w-[408px]">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle>Delete?</AlertDialogTitle>
+            <AlertDialogDescription className="text-xs">
               Are you sure you want to permanently delete{' '}
               {table.getSelectedRowModel().rows.length} {target}(s)?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="border-[#80808040] text-sm font-bold text-[#3333334D]">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button
                 onClick={handleDeleteRows}
-                className="bg-red-500 hover:bg-red-500/90"
+                className="bg-[#FF3B2F] text-sm font-bold hover:bg-red-500/90"
               >
                 Delete
               </Button>

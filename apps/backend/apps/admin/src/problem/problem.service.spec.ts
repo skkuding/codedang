@@ -14,8 +14,11 @@ import { PrismaService } from '@libs/prisma'
 import { S3MediaProvider, S3Provider } from '@admin/storage/s3.provider'
 import { StorageService } from '@admin/storage/storage.service'
 import {
+  exampleAssignment,
+  exampleAssignmentProblems,
   exampleContest,
   exampleContestProblems,
+  exampleOrderUpdatedAssignmentProblems,
   exampleOrderUpdatedContestProblems,
   exampleOrderUpdatedWorkbookProblems,
   exampleProblemTags,
@@ -24,14 +27,16 @@ import {
   exampleWorkbook,
   exampleWorkbookProblems,
   fileUploadInput,
-  groupId,
+  testcaseUploadInput,
+  user,
   importedProblems,
   importedProblemsWithIsVisible,
   problemId,
   problems,
   problemsWithIsVisible,
   template,
-  testcaseInput
+  testcaseInput,
+  testcaseData
 } from './mock/mock'
 import { ProblemService } from './problem.service'
 
@@ -78,6 +83,14 @@ const db = {
     findFirstOrThrow: stub()
   },
   contestProblem: {
+    findFirstOrThrow: stub(),
+    findMany: stub(),
+    update: stub()
+  },
+  assignment: {
+    findFirstOrThrow: stub()
+  },
+  assignmentProblem: {
     findFirstOrThrow: stub(),
     findMany: stub(),
     update: stub()
@@ -142,7 +155,7 @@ describe('ProblemService', () => {
       const result = await service.createProblem(
         input,
         problems[0].createdById!,
-        groupId
+        user[0].role!
       )
       expect(result).to.deep.equal(problemsWithIsVisible[0])
     })
@@ -154,7 +167,7 @@ describe('ProblemService', () => {
         service.createProblem(
           { ...input, languages: [] },
           problems[0].createdById!,
-          groupId
+          user[0].role!
         )
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(uploadSpy.called).to.be.false
@@ -167,7 +180,7 @@ describe('ProblemService', () => {
         service.createProblem(
           { ...input, template: [{ ...template, language: 'Java' }] },
           problems[0].createdById!,
-          groupId
+          user[0].role!
         )
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(uploadSpy.called).to.be.false
@@ -176,18 +189,41 @@ describe('ProblemService', () => {
 
   describe('uploadProblems', () => {
     it('shoule return imported problems', async () => {
-      const userId = 2
-      const groupId = 2
+      const userId = user[1].id!
+      const userRole = user[1].role!
       const createTestcasesSpy = spy(service, 'createTestcases')
       db.problem.create.resetHistory()
       db.problem.create.onCall(0).resolves(importedProblems[0])
       db.problem.create.onCall(1).resolves(importedProblems[1])
       db.problemTestcase.create.resolves({ index: 1, id: 1 })
 
-      const res = await service.uploadProblems(fileUploadInput, userId, groupId)
+      const res = await service.uploadProblems(
+        fileUploadInput,
+        userId,
+        userRole
+      )
 
       expect(createTestcasesSpy.calledTwice).to.be.true
       expect(res).to.deep.equal(importedProblemsWithIsVisible)
+    })
+  })
+
+  describe('uploadTestcase', () => {
+    it('should return imported testcase', async () => {
+      const problemId = 2
+      const createTestcaseSpy = spy(service, 'createTestcase')
+      db.problemTestcase.create.resetHistory()
+      db.problemTestcase.create.resolves(testcaseData)
+
+      const result = await service.uploadTestcase(
+        testcaseUploadInput,
+        problemId,
+        user[0].role!,
+        user[0].id!
+      )
+
+      expect(createTestcaseSpy.calledOnce).to.be.true
+      expect(result).to.deep.equal(testcaseData)
     })
   })
 
@@ -195,10 +231,12 @@ describe('ProblemService', () => {
     it('should return group problems', async () => {
       db.problem.findMany.resolves(problems)
       const result = await service.getProblems({
+        userId: user[0].id!,
         input: {},
-        groupId,
         cursor: 1,
-        take: 5
+        take: 5,
+        my: false,
+        shared: false
       })
       expect(result).to.deep.equal(problemsWithIsVisible)
     })
@@ -207,7 +245,11 @@ describe('ProblemService', () => {
   describe('getProblem', () => {
     it('should return a group problem', async () => {
       db.problem.findFirstOrThrow.resolves(problems[0])
-      const result = await service.getProblem(problemId, groupId)
+      const result = await service.getProblem(
+        problemId,
+        user[0].role!,
+        user[0].id!
+      )
       expect(result).to.deep.equal(problemsWithIsVisible[0])
     })
   })
@@ -228,7 +270,8 @@ describe('ProblemService', () => {
           title: 'revised',
           testcases: [testcase]
         },
-        groupId
+        user[0].role!,
+        user[0].id!
       )
       expect(result).to.deep.equal({
         ...problemsWithIsVisible[0],
@@ -245,7 +288,8 @@ describe('ProblemService', () => {
             id: problemId,
             languages: []
           },
-          groupId
+          user[0].role!,
+          user[0].id!
         )
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(uploadSpy.called).to.be.false
@@ -260,7 +304,8 @@ describe('ProblemService', () => {
             id: problemId,
             template: [{ ...template, language: 'Java' }]
           },
-          groupId
+          user[0].role!,
+          user[0].id!
         )
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(uploadSpy.called).to.be.false
@@ -275,7 +320,8 @@ describe('ProblemService', () => {
             id: problemId,
             isVisible: false
           },
-          groupId
+          user[0].role!,
+          user[0].id!
         )
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(uploadSpy.called).to.be.false
@@ -286,7 +332,11 @@ describe('ProblemService', () => {
     it('should return deleted problem', async () => {
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.problem.delete.resolves(problems[0])
-      const result = await service.deleteProblem(problemId, groupId)
+      const result = await service.deleteProblem(
+        problemId,
+        user[0].role!,
+        user[0].id!
+      )
       expect(result).to.deep.equal(problems[0])
     })
   })
@@ -416,7 +466,7 @@ describe('ProblemService', () => {
       db.contest.findFirstOrThrow.resolves(exampleContest)
       db.contestProblem.findMany.resolves(exampleContestProblems)
       //when
-      const result = await service.getContestProblems(1, 1)
+      const result = await service.getContestProblems(1)
       //then
       expect(result).to.deep.equals(exampleContestProblems)
     })
@@ -428,9 +478,134 @@ describe('ProblemService', () => {
         new EntityNotExistException('record not found')
       )
       // when & then
-      await expect(service.getContestProblems(-1, 1)).to.be.rejectedWith(
+      await expect(service.getContestProblems(-1)).to.be.rejectedWith(
         EntityNotExistException
       )
+    })
+  })
+
+  describe('getAssignmentProblems', () => {
+    it('should return AssignmentProblems', async () => {
+      //given
+      db.assignment.findFirstOrThrow.resolves(exampleAssignment)
+      db.assignmentProblem.findMany.resolves(exampleAssignmentProblems)
+      //when
+      const result = await service.getAssignmentProblems(1, 1)
+      //then
+      expect(result).to.deep.equals(exampleAssignmentProblems)
+    })
+
+    it('should handle NotFoundError', async () => {
+      //given
+
+      db.assignment.findFirstOrThrow.rejects(
+        new EntityNotExistException('record not found')
+      )
+      // when & then
+      await expect(service.getAssignmentProblems(-1, 1)).to.be.rejectedWith(
+        EntityNotExistException
+      )
+    })
+  })
+
+  describe('updateAssignmentProblemsOrder', () => {
+    beforeEach(() => {
+      // 각 스텁의 동작 초기화
+      db.assignmentProblem.update.resetBehavior()
+      db.assignmentProblem.findFirstOrThrow.resetBehavior()
+      db.assignmentProblem.findMany.resetBehavior()
+      db.assignment.findFirstOrThrow.resetBehavior()
+    })
+    it('should return order-updated AssignmentProblems', async () => {
+      //given
+      const groupId = 1
+      const assignmentId = 1
+      const orders = [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
+      const exampleAssignmentProblemsToBeUpdated =
+        exampleAssignmentProblems.toSorted((a, b) => a.problemId - b.problemId)
+      db.assignment.findFirstOrThrow.resolves(exampleAssignment)
+      db.assignmentProblem.findMany.resolves(exampleAssignmentProblems)
+
+      // update가 Promise.all로 실행되기 때문에 각 쿼리에 대한 모의 응답을 반환하도록 설정
+      for (let i = 0; i < 10; i++) {
+        const record = exampleAssignmentProblemsToBeUpdated[i]
+        const newOrder = orders.indexOf(record.problemId) + 1
+        db.assignmentProblem.update
+          .withArgs({
+            where: {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              assignmentId_problemId: {
+                assignmentId,
+                problemId: record.problemId
+              }
+            },
+            data: { order: newOrder }
+          })
+          .resolves(exampleOrderUpdatedAssignmentProblems[i])
+      }
+      db.$transaction.resolves(exampleOrderUpdatedAssignmentProblems)
+      //when
+      const result = await service.updateAssignmentProblemsOrder(
+        groupId,
+        assignmentId,
+        orders
+      )
+      //then
+      expect(result).to.deep.equals(exampleOrderUpdatedAssignmentProblems)
+    })
+
+    it('should handle NotFound error', async () => {
+      //given
+      db.assignment.findFirstOrThrow.rejects(
+        new EntityNotExistException('record not found')
+      )
+      //when & then
+      await expect(
+        service.updateAssignmentProblemsOrder(
+          -1,
+          1,
+          [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
+        )
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+
+    it('should handle orders array length exception', async () => {
+      //given
+      db.assignment.findFirstOrThrow.resolves(exampleAssignment)
+      db.assignmentProblem.findMany.resolves(exampleAssignmentProblems)
+      //when & then
+      await expect(
+        service.updateAssignmentProblemsOrder(
+          1,
+          1,
+          [2, 3, 4, 5, 6, 7, 8, 9, 10]
+        )
+      ).to.be.rejectedWith(UnprocessableDataException)
+    })
+
+    it('should handle RecordNotFound error', async () => {
+      beforeEach(() => {
+        // stub의 동작 초기화
+        db.workbookProblem.update.resetBehavior()
+        db.workbookProblem.findFirstOrThrow.resetBehavior()
+        db.workbookProblem.findMany.resetBehavior()
+        db.$transaction.resetBehavior()
+      })
+      //given
+      db.assignmentProblem.findMany.resolves(exampleAssignmentProblems)
+
+      db.assignmentProblem.update.rejects(
+        new EntityNotExistException('record not found')
+      )
+      db.$transaction.rejects(new EntityNotExistException('record not found'))
+      //when & then
+      await expect(
+        service.updateAssignmentProblemsOrder(
+          1,
+          1,
+          [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
+        )
+      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 
@@ -444,7 +619,6 @@ describe('ProblemService', () => {
     })
     it('should return order-updated ContestProblems', async () => {
       //given
-      const groupId = 1
       const contestId = 1
       const orders = [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
       const exampleContestProblemsToBeUpdated = exampleContestProblems.toSorted(
@@ -472,11 +646,7 @@ describe('ProblemService', () => {
       }
       db.$transaction.resolves(exampleOrderUpdatedContestProblems)
       //when
-      const result = await service.updateContestProblemsOrder(
-        groupId,
-        contestId,
-        orders
-      )
+      const result = await service.updateContestProblemsOrder(contestId, orders)
       //then
       expect(result).to.deep.equals(exampleOrderUpdatedContestProblems)
     })
@@ -488,11 +658,7 @@ describe('ProblemService', () => {
       )
       //when & then
       await expect(
-        service.updateContestProblemsOrder(
-          -1,
-          1,
-          [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
-        )
+        service.updateContestProblemsOrder(-1, [2, 3, 4, 5, 6, 7, 8, 9, 10, 1])
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
@@ -502,7 +668,7 @@ describe('ProblemService', () => {
       db.contestProblem.findMany.resolves(exampleContestProblems)
       //when & then
       await expect(
-        service.updateContestProblemsOrder(1, 1, [2, 3, 4, 5, 6, 7, 8, 9, 10])
+        service.updateContestProblemsOrder(1, [2, 3, 4, 5, 6, 7, 8, 9, 10])
       ).to.be.rejectedWith(UnprocessableDataException)
     })
 
@@ -523,11 +689,7 @@ describe('ProblemService', () => {
       db.$transaction.rejects(new EntityNotExistException('record not found'))
       //when & then
       await expect(
-        service.updateContestProblemsOrder(
-          1,
-          1,
-          [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
-        )
+        service.updateContestProblemsOrder(1, [2, 3, 4, 5, 6, 7, 8, 9, 10, 1])
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })

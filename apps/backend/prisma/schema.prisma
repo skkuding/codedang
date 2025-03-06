@@ -36,17 +36,19 @@ enum Provider {
 }
 
 model User {
-  id         Int       @id @default(autoincrement())
-  username   String    @unique
+  id               Int       @id @default(autoincrement())
+  username         String    @unique
   /// @HideField()
-  password   String
-  role       Role      @default(User)
-  email      String    @unique
-  studentId  String?   @default("0000000000") @map("student_id")
-  major      String?   @default("none")
-  lastLogin  DateTime? @map("last_login")
-  createTime DateTime  @default(now()) @map("create_time")
-  updateTime DateTime  @updatedAt @map("update_time")
+  password         String
+  role             Role      @default(User)
+  email            String    @unique
+  studentId        String    @default("0000000000") @map("student_id")
+  major            String?   @default("none")
+  lastLogin        DateTime? @map("last_login")
+  createTime       DateTime  @default(now()) @map("create_time")
+  updateTime       DateTime  @updatedAt @map("update_time")
+  canCreateCourse  Boolean   @default(false) @map("can_create_course")
+  canCreateContest Boolean   @default(false) @map("can_create_contest")
 
   userProfile      UserProfile?
   userGroup        UserGroup[]
@@ -55,12 +57,13 @@ model User {
   assignment       Assignment[]
   assignmentRecord AssignmentRecord[]
   contest          Contest[]
+  userContest      UserContest[]
   contestRecord    ContestRecord[]
   workbook         Workbook[]
   submission       Submission[]
   useroauth        UserOAuth?
-  CodeDraft        CodeDraft[]
   Image            Image[]
+  testSubmission   TestSubmission[]
 
   @@map("user")
 }
@@ -91,7 +94,7 @@ model UserProfile {
 model UserGroup {
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int      @map("user_id")
-  group         Group    @relation(fields: [groupId], references: [id])
+  group         Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId       Int      @map("group_id")
   isGroupLeader Boolean  @default(false) @map("is_group_leader")
   createTime    DateTime @default(now()) @map("create_time")
@@ -101,10 +104,17 @@ model UserGroup {
   @@map("user_group")
 }
 
+enum GroupType {
+  Course
+  Study
+}
+
 model Group {
-  id          Int      @id @default(autoincrement())
-  groupName   String   @unique @map("group_name")
-  description String
+  id          Int         @id @default(autoincrement())
+  groupName   String      @map("group_name")
+  groupType   GroupType   @default(Course) @map("group_type")
+  courseInfo  CourseInfo?
+  description String?
   /// config default value
   /// {
   ///   "showOnList": true,          // show on 'all groups' list
@@ -113,25 +123,50 @@ model Group {
   ///   "requireApprovalBeforeJoin": true
   /// }
   config      Json
-  createTime  DateTime @default(now()) @map("create_time")
-  updateTime  DateTime @updatedAt @map("update_time")
+  createTime  DateTime    @default(now()) @map("create_time")
+  updateTime  DateTime    @updatedAt @map("update_time")
 
-  userGroup  UserGroup[]
-  notice     Notice[]
-  problem    Problem[]
-  assignment Assignment[]
-  workbook   Workbook[]
-  contest    Contest[]
+  userGroup      UserGroup[]
+  notice         Notice[]
+  assignment     Assignment[]
+  workbook       Workbook[]
+  GroupWhitelist GroupWhitelist[]
+  sharedProblems Problem[]
 
   @@map("group")
+}
+
+model GroupWhitelist {
+  group     Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   Int    @map("group_id")
+  studentId String @map("student_id")
+
+  @@id([groupId, studentId])
+  @@map("group_whitelist")
+}
+
+model CourseInfo {
+  groupId   Int     @id @map("group_id")
+  group     Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  courseNum String  @map("course_num")
+  classNum  Int?    @map("class_num")
+  professor String
+  semester  String
+  email     String?
+  website   String?
+  office    String?
+  phoneNum  String? @map("phone_num")
+  week      Int     @default(16) //양수만 허용됨
+
+  @@map("course_info")
 }
 
 model Notice {
   id          Int      @id @default(autoincrement())
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?     @map("created_by_id")
-  group       Group    @relation(fields: [groupId], references: [id])
-  groupId     Int      @map("group_id")
+  group       Group?   @relation(fields: [groupId], references: [id])
+  groupId     Int?     @map("group_id")
   title       String
   content     String
   isVisible   Boolean  @default(true) @map("is_visible")
@@ -146,8 +181,6 @@ model Problem {
   id          Int   @id @default(autoincrement())
   createdBy   User? @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?  @map("created_by_id")
-  group       Group @relation(fields: [groupId], references: [id])
-  groupId     Int   @map("group_id")
 
   title             String
   description       String
@@ -187,6 +220,7 @@ model Problem {
   createTime      DateTime   @default(now()) @map("create_time")
   updateTime      DateTime   @updatedAt @map("update_time")
 
+  sharedGroups      Group[]
   problemTestcase   ProblemTestcase[]
   problemTag        ProblemTag[]
   assignmentProblem AssignmentProblem[]
@@ -194,7 +228,7 @@ model Problem {
   contestProblem    ContestProblem[]
   submission        Submission[]
   announcement      Announcement[]
-  codeDraft         CodeDraft[]
+  testSubmission    TestSubmission[]
 
   @@map("problem")
 }
@@ -266,11 +300,11 @@ model Assignment {
   id                   Int      @id @default(autoincrement())
   createdBy            User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById          Int?     @map("created_by_id")
-  group                Group    @relation(fields: [groupId], references: [id])
+  group                Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId              Int      @map("group_id")
+  week                 Int      @default(1)
   title                String
   description          String
-  invitationCode       String?  @map("invitation_code")
   startTime            DateTime @map("start_time")
   endTime              DateTime @map("end_time")
   isVisible            Boolean  @default(true) @map("is_visible")
@@ -279,28 +313,32 @@ model Assignment {
   enableCopyPaste      Boolean  @default(true) @map("enable_copy_paste") // 이 Assignment에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다.
   createTime           DateTime @default(now()) @map("create_time")
   updateTime           DateTime @updatedAt @map("update_time")
+  autoFinalizeScore    Boolean  @default(false) @map("auto_finalize_score") // Assignment이 종료되면 자동으로 finalScore를 계산합니다.
+  isFinalScoreVisible  Boolean  @default(false) @map("is_final_score_visible") // 이 Assignment에 포함된 문제의 최종 점수를 사용자에게 보여줄지 말지 결정합니다.
 
   assignmentProblem AssignmentProblem[]
   assignmentRecord  AssignmentRecord[]
   submission        Submission[]
-  announcement      Announcement[]
+  testSubmission    TestSubmission[]
 
+  @@index([groupId, week])
   @@map("assignment")
 }
 
 model AssignmentProblem {
-  order        Int
-  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId Int        @map("assignment_id")
-  problem      Problem    @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId    Int        @map("problem_id")
+  order                   Int
+  assignment              Assignment                @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId            Int                       @map("assignment_id")
+  problem                 Problem                   @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId               Int                       @map("problem_id")
   // 각 문제의 점수 (비율 아님)
-  score        Int        @default(0)
-  createTime   DateTime   @default(now()) @map("create_time")
-  updateTime   DateTime   @updatedAt @map("update_time")
+  score                   Int                       @default(0)
+  createTime              DateTime                  @default(now()) @map("create_time")
+  updateTime              DateTime                  @updatedAt @map("update_time")
+  assignmentProblemRecord AssignmentProblemRecord[]
 
   @@id([assignmentId, problemId])
-  // @@unique([assignmentId, problemId])
+  //@@unique([assignmentId, problemId])
   @@map("assignment_problem")
 }
 
@@ -311,51 +349,100 @@ model AssignmentRecord {
   user               User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId             Int?       @map("user_id")
   acceptedProblemNum Int        @default(0) @map("accepted_problem_num")
-  score              Int        @default(0)
+  score              Int        @default(0) // Only used after assignment finished
+  finalScore         Int?       @map("final_score")
+  comment            String     @default("")
+
   // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각
-  finishTime         DateTime?  @map("finish_time")
+  finishTime              DateTime?                 @map("finish_time")
   // totalPenalty: Submission 시, AC를 받지 못했을 때, 올라가는 Counter
-  totalPenalty       Int        @default(0) @map("total_penalty")
-  createTime         DateTime   @default(now()) @map("create_time")
-  updateTime         DateTime   @updatedAt @map("update_time")
+  totalPenalty            Int                       @default(0) @map("total_penalty")
+  createTime              DateTime                  @default(now()) @map("create_time")
+  updateTime              DateTime                  @updatedAt @map("update_time")
+  assignmentProblemRecord AssignmentProblemRecord[]
 
   @@unique([assignmentId, userId])
   @@map("assignment_record")
 }
 
+model AssignmentProblemRecord {
+  assignmentId Int
+  userId       Int
+  problemId    Int
+
+  score       Int     @default(0) // Only used after assignment finished
+  isSubmitted Boolean @default(false) @map("is_submitted")
+  isAccepted  Boolean @default(false) @map("is_accepted")
+
+  finalScore Int?   @map("final_score")
+  comment    String @default("")
+
+  assignmentProblem AssignmentProblem @relation(fields: [assignmentId, problemId], references: [assignmentId, problemId], onDelete: Cascade)
+  assignmentRecord  AssignmentRecord  @relation(fields: [assignmentId, userId], references: [assignmentId, userId], onDelete: Cascade)
+
+  @@id([assignmentId, userId, problemId])
+  @@map("assignment_problem_record")
+}
+
 model Contest {
-  id                   Int      @id @default(autoincrement())
-  createdBy            User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
-  createdById          Int?     @map("created_by_id")
-  group                Group    @relation(fields: [groupId], references: [id])
-  groupId              Int      @map("group_id")
-  title                String
-  description          String
+  id          Int     @id @default(autoincrement())
+  createdBy   User?   @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById Int?    @map("created_by_id")
+  title       String
+  description String
   // 대회의 페널티 (0 ≤ penalty ≤ 100),
-  penalty              Int      @default(0)
-  lastPenalty          Boolean  @default(false) @map("last_penalty")
-  posterUrl            String?
-  participationTarget  String?
-  competitionMethod    String?
-  rankingMethod        String?
-  problemFormat        String?
-  benefits             String?
-  invitationCode       String?  @map("invitation_code")
-  startTime            DateTime @map("start_time")
-  endTime              DateTime @map("end_time")
-  isVisible            Boolean  @default(true) @map("is_visible")
-  isRankVisible        Boolean  @default(true) @map("is_rank_visible")
-  isJudgeResultVisible Boolean  @default(true) @map("is_judge_result_visible") // 이 Contest에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다.
-  enableCopyPaste      Boolean  @default(true) @map("enable_copy_paste") // 이 Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다.
-  createTime           DateTime @default(now()) @map("create_time")
-  updateTime           DateTime @updatedAt @map("update_time")
+  penalty     Int     @default(0)
+  lastPenalty Boolean @default(false) @map("last_penalty")
+  posterUrl   String?
+
+  /// summary structure
+  /// {
+  ///   참여대상: string,
+  ///   진행방식: string,
+  ///   순위산정: string,
+  ///   문제형태: string,
+  ///   참여혜택: string
+  /// }
+  summary                    Json?     @map("contest_summary")
+  invitationCode             String?   @map("invitation_code")
+  startTime                  DateTime  @map("start_time")
+  endTime                    DateTime  @map("end_time")
+  freezeTime                 DateTime? @map("freeze_time")
+  isVisible                  Boolean   @default(true) @map("is_visible")
+  isRankVisible              Boolean   @default(true) @map("is_rank_visible")
+  isJudgeResultVisible       Boolean   @default(true) @map("is_judge_result_visible") /// 이 Contest에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다.
+  evaluateWithSampleTestcase Boolean   @default(false) @map("evaluate_with_sample_testcase") /// 이 Contest에 포함된 문제의 채점을 샘플 테스트케이스를 포함하여 할지 말지 결정합니다.
+  enableCopyPaste            Boolean   @default(true) @map("enable_copy_paste") /// 이 Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다.
+  createTime                 DateTime  @default(now()) @map("create_time")
+  updateTime                 DateTime  @updatedAt @map("update_time")
 
   contestProblem ContestProblem[]
   contestRecord  ContestRecord[]
   submission     Submission[]
   announcement   Announcement[]
+  testSubmission TestSubmission[]
+  userContest    UserContest[]
 
   @@map("contest")
+}
+
+enum ContestRole {
+  Participant
+  Reviewer
+  Manager
+  Admin
+}
+
+model UserContest {
+  userId    Int
+  contestId Int
+  role      ContestRole
+
+  user    User    @relation(fields: [userId], references: [id])
+  contest Contest @relation(fields: [contestId], references: [id])
+
+  @@id([userId, contestId])
+  @@map("user_contest")
 }
 
 model ContestProblem {
@@ -377,18 +464,18 @@ model ContestProblem {
 }
 
 model ContestProblemRecord {
-  contestProblemId   Int       @map("contest_problem_id")
-  contestRecordId    Int       @map("contest_record_id")
-  score              Int       @default(0)
-  // finishTime: Pariticipant가 가장 최근에 좋은 제출을 받은 시각
-  finishTime         DateTime? @map("finish_time")
-  // (좋은 제출 전까지 유저 u가 문제 p에 제출한 횟수) × (대회의 페널티)
-  submitCountPenalty Int       @default(0)
-  // 대회 시작부터 좋은 제출이 제출되기까지 쇼요된 시간, 단위는 분
-  timePenalty        Int       @default(0)
-  isFirstSolver      Boolean   @default(false) @map("is_first_solver")
-  createTime         DateTime  @default(now()) @map("create_time")
-  updateTime         DateTime  @updatedAt @map("update_time")
+  contestProblemId        Int       @map("contest_problem_id")
+  contestRecordId         Int       @map("contest_record_id")
+  score                   Int       @default(0) /// finishTime: Pariticipant가 가장 최근에 좋은 제출을 받은 시각
+  finishTime              DateTime? @map("finish_time") /// (좋은 제출 전까지 유저 u가 문제 p에 제출한 횟수) × (대회의 페널티)
+  submitCountPenalty      Int       @default(0) /// 대회 시작부터 좋은 제출이 제출되기까지 쇼요된 시간, 단위는 분
+  timePenalty             Int       @default(0)
+  finalScore              Int       @default(0) @map("final_score")
+  finalTimePenalty        Int       @default(0) @map("final_time_penalty")
+  finalSubmitCountPenalty Int       @default(0) @map("final_submit_count_penalty")
+  isFirstSolver           Boolean   @default(false) @map("is_first_solver")
+  createTime              DateTime  @default(now()) @map("create_time")
+  updateTime              DateTime  @updatedAt @map("update_time")
 
   contestProblem ContestProblem @relation(fields: [contestProblemId], references: [id], onDelete: Cascade)
   contestRecord  ContestRecord  @relation(fields: [contestRecordId], references: [id], onDelete: Cascade)
@@ -405,10 +492,10 @@ model ContestRecord {
   userId               Int?                   @map("user_id")
   acceptedProblemNum   Int                    @default(0) @map("accepted_problem_num")
   score                Int                    @default(0)
-  // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각
+  finalScore           Int                    @default(0) @map("final_score")
   lastAcceptedTime     DateTime?              @map("finish_time")
-  // totalPenalty: Submission 시, AC를 받지 못했을 때, 올라가는 Counter
   totalPenalty         Int                    @default(0) @map("total_penalty")
+  finalTotalPenalty    Int                    @default(0) @map("final_total_penalty")
   createTime           DateTime               @default(now()) @map("create_time")
   updateTime           DateTime               @updatedAt @map("update_time")
   contestProblemRecord ContestProblemRecord[]
@@ -418,18 +505,14 @@ model ContestRecord {
 }
 
 model Announcement {
-  id           Int         @id @default(autoincrement())
-  content      String
-  // Assignment와 Contest 둘 중 하나만 설정되어 있어야 합니다 (XOR)
-  // 아닐시 DB단에서 에러 반환, 20250108111635_add_contest_tables migration 참고
-  assignment   Assignment? @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId Int?        @map("assignment_id")
-  contest      Contest?    @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId    Int?        @map("contest_id")
-  problem      Problem?    @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId    Int?        @map("problem_id")
-  createTime   DateTime    @default(now()) @map("create_time")
-  updateTime   DateTime    @updatedAt @map("update_time")
+  id         Int      @id @default(autoincrement())
+  content    String
+  contest    Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId  Int      @map("contest_id")
+  problem    Problem? @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId  Int?     @map("problem_id")
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
 
   @@unique([id])
   @@map("announcement")
@@ -439,7 +522,7 @@ model Workbook {
   id          Int      @id @default(autoincrement())
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?     @map("created_by_id")
-  group       Group    @relation(fields: [groupId], references: [id])
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId     Int      @map("group_id")
   title       String
   description String
@@ -449,6 +532,7 @@ model Workbook {
 
   workbookProblem WorkbookProblem[]
   submission      Submission[]
+  testSubmission  TestSubmission[]
 
   @@map("workbook")
 }
@@ -513,6 +597,7 @@ model SubmissionResult {
   createTime        DateTime        @default(now()) @map("create_time")
   updateTime        DateTime        @updatedAt @map("update_time")
 
+  @@unique([submissionId, problemTestcaseId])
   @@map("submission_result")
 }
 
@@ -530,25 +615,34 @@ enum ResultStatus {
   Blind // isJudgeResultVisible == False로 설정된 Assignment/Contest의 채점 결과를 반환할 때 사용
 }
 
-model CodeDraft {
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int     @map("user_id")
-  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId Int     @map("problem_id")
-
-  /// template code item structure
+model TestSubmission {
+  id             Int         @id @default(autoincrement())
+  user           User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId         Int?        @map("user_id")
+  userIp         String?     @map("user_ip")
+  problem        Problem     @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId      Int         @map("problem_id")
+  assignment     Assignment? @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId   Int?        @map("assignment_id")
+  contest        Contest?    @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId      Int?        @map("contest_id")
+  workbook       Workbook?   @relation(fields: [workbookId], references: [id])
+  workbookId     Int?        @map("workbook_id")
+  /// code item structure
   /// {
-  ///   "lanaguage": Language,
-  ///   "code": {
-  ///             "id": number,
-  ///             "text": string,
-  ///             "locked": boolean
-  ///           }[]
+  ///   "id": number,
+  ///   "text": string,
+  ///   "locked": boolean
   /// }
-  template   Json[]
+  language       Language
+  code           Json[]
+  codeSize       Int?        @map("code_size")
+  isUserTest     Boolean     @default(false) @map("is_user_test")
+  maxCpuTime     BigInt?     @map("max_cpu_time")
+  maxMemoryUsage Int?        @map("max_memory_usage")
+
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
-  @@id(name: "codeDraftId", [userId, problemId])
-  @@map("code_draft")
+  @@map("test_submission")
 }

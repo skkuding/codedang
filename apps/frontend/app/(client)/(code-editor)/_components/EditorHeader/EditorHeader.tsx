@@ -1,5 +1,7 @@
 'use client'
 
+import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
+import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { contestProblemQueries } from '@/app/(client)/_libs/queries/contestProblem'
 import { contestSubmissionQueries } from '@/app/(client)/_libs/queries/contestSubmission'
 import { problemSubmissionQueries } from '@/app/(client)/_libs/queries/problemSubmission'
@@ -23,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
-import { auth } from '@/libs/auth'
+import { useSession } from '@/libs/hooks/useSession'
 import { fetcherWithAuth } from '@/libs/utils'
 import submitIcon from '@/public/icons/submit.svg'
 import { useAuthModalStore } from '@/stores/authModal'
@@ -56,15 +58,23 @@ import { RunTestButton } from './RunTestButton'
 interface ProblemEditorProps {
   problem: ProblemDetail
   contestId?: number
+  assignmentId?: number
+  courseId?: number
   templateString: string
 }
 
 export function EditorHeader({
   problem,
   contestId,
+  assignmentId,
+  courseId,
   templateString
 }: ProblemEditorProps) {
-  const { language, setLanguage } = useLanguageStore(problem.id, contestId)()
+  const { language, setLanguage } = useLanguageStore(
+    problem.id,
+    contestId,
+    assignmentId
+  )()
   const setCode = useCodeStore((state) => state.setCode)
   const getCode = useCodeStore((state) => state.getCode)
 
@@ -79,9 +89,10 @@ export function EditorHeader({
   const pathname = usePathname()
   const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
   const storageKey = useRef(
-    getStorageKey(language, problem.id, userName, contestId)
+    getStorageKey(language, problem.id, userName, contestId, assignmentId)
   )
-  const { currentModal, showSignIn } = useAuthModalStore((state) => state)
+  const session = useSession()
+  const showSignIn = useAuthModalStore((state) => state.showSignIn)
   const [showModal, setShowModal] = useState<boolean>(false)
   //const pushed = useRef(false)
   const whereToPush = useRef('')
@@ -91,20 +102,29 @@ export function EditorHeader({
 
   useInterval(
     async () => {
+      // TODO: Implement assignment submission
       const res = await fetcherWithAuth(`submission/${submissionId}`, {
         searchParams: {
           problemId: problem.id,
-          ...(contestId && { contestId })
+          ...(contestId && { contestId }),
+          ...(assignmentId && { assignmentId })
         }
       })
       if (res.ok) {
         const submission: Submission = await res.json()
         if (submission.result !== 'Judging') {
           setIsSubmitting(false)
-          const href = contestId
-            ? `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}`
-            : `/problem/${problem.id}/submission/${submissionId}`
-          router.replace(href as Route)
+
+          let href = ''
+          if (contestId) {
+            href = `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}?cellProblemId=${problem.id}`
+          } else if (assignmentId) {
+            href = `/course/${courseId}/assignment/${assignmentId}/problem/${problem.id}/submission`
+          } else {
+            href = `/problem/${problem.id}/submission/${submissionId}`
+          }
+
+          !contestId && router.replace(href as Route)
           //window.history.pushState(null, '', window.location.href)
           if (submission.result === 'Accepted') {
             confetti?.addConfetti()
@@ -118,18 +138,15 @@ export function EditorHeader({
     loading && submissionId ? 500 : null
   )
 
-  const checkSession = async () => {
-    const session = await auth()
+  useEffect(() => {
     if (!session) {
-      toast.info('Log in to use submission & save feature')
+      setTimeout(() => {
+        toast.info('Log in to use submission & save feature')
+      })
     } else {
       setUserName(session.user.username)
     }
-  }
-
-  useEffect(() => {
-    checkSession()
-  }, [currentModal])
+  }, [session])
 
   useEffect(() => {
     if (!templateString) {
@@ -150,13 +167,14 @@ export function EditorHeader({
       language,
       problem.id,
       userName,
-      contestId
+      contestId,
+      assignmentId
     )
     if (storageKey.current !== undefined) {
       const storedCode = getCodeFromLocalStorage(storageKey.current)
       setCode(storedCode || templateCode)
     }
-  }, [userName, problem, contestId, language, templateCode])
+  }, [userName, problem, contestId, assignmentId, language, templateCode])
 
   const storeCodeToLocalStorage = (code: string) => {
     if (storageKey.current !== undefined) {
@@ -167,6 +185,12 @@ export function EditorHeader({
   }
   const submit = async () => {
     const code = getCode()
+
+    if (session === null) {
+      showSignIn()
+      toast.error('Log in first to submit your code')
+      return
+    }
 
     if (code === '') {
       toast.error('Please write code before submission')
@@ -188,7 +212,8 @@ export function EditorHeader({
       },
       searchParams: {
         problemId: problem.id,
-        ...(contestId && { contestId })
+        ...(contestId && { contestId }),
+        ...(assignmentId && { assignmentId })
       },
       next: {
         revalidate: 0
@@ -209,6 +234,16 @@ export function EditorHeader({
             problemId: problem.id
           })
         })
+      } else if (assignmentId) {
+        queryClient.invalidateQueries({
+          queryKey: assignmentProblemQueries.lists(assignmentId)
+        })
+        queryClient.invalidateQueries({
+          queryKey: assignmentSubmissionQueries.lists({
+            assignmentId,
+            problemId: problem.id
+          })
+        })
       } else {
         queryClient.invalidateQueries({
           queryKey: problemSubmissionQueries.lists(problem.id)
@@ -225,12 +260,12 @@ export function EditorHeader({
     }
   }
 
-  const saveCode = async () => {
-    const session = await auth()
+  const saveCode = () => {
     const code = getCode()
 
-    if (!session) {
+    if (session === null) {
       toast.error('Log in first to save your code')
+      showSignIn()
     } else if (storageKey.current !== undefined) {
       localStorage.setItem(storageKey.current, code)
       toast.success('Successfully saved the code')
@@ -276,7 +311,8 @@ export function EditorHeader({
       language,
       problem.id,
       userName,
-      contestId
+      contestId,
+      assignmentId
     )
 
     // TODO: 배포 후 뒤로 가기 로직 재구현
@@ -337,19 +373,21 @@ export function EditorHeader({
               Reset
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent className="border border-slate-800 bg-slate-900">
+          <AlertDialogContent className="h-[200px] w-[500px] rounded-2xl border border-slate-800 bg-slate-900 pb-7 pl-8 pr-[30px] pt-8 sm:rounded-2xl">
             <AlertDialogHeader>
-              <AlertDialogTitle className="text-slate-50">
+              <AlertDialogTitle className="font-size-5 text-slate-50">
                 Reset code
               </AlertDialogTitle>
-              <AlertDialogDescription className="text-slate-300">
+              <AlertDialogDescription className="font-size-4 text-slate-300">
                 Are you sure you want to reset to the default code?
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex gap-2">
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel className="self-end rounded-[1000px] border-none bg-[#DCE3E5] text-[#787E80] hover:bg-[#c9cfd1]">
+                Cancel
+              </AlertDialogCancel>
               <AlertDialogAction
-                className="bg-red-500 hover:bg-red-600"
+                className="self-end rounded-[1000px] bg-red-500 hover:bg-red-600"
                 onClick={resetCode}
               >
                 Reset

@@ -1,10 +1,10 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { ContestProblem, Group, ContestRecord } from '@generated'
+import { ContestProblem, ContestRecord } from '@generated'
 import { Problem } from '@generated'
 import { Contest } from '@generated'
 import { faker } from '@faker-js/faker'
-import { ResultStatus } from '@prisma/client'
+import { ContestRole, ResultStatus, Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
@@ -20,7 +20,6 @@ import type { PublicizingRequest } from './model/publicizing-request.model'
 
 const contestId = 1
 const userId = 1
-const groupId = 1
 const problemId = 2
 const startTime = faker.date.past()
 const endTime = faker.date.future()
@@ -36,43 +35,47 @@ const problemIdsWithScore = {
 const contest: Contest = {
   id: contestId,
   createdById: userId,
-  groupId,
   title: 'title',
   description: 'description',
   penalty: 20,
   lastPenalty: false,
   startTime,
   endTime,
+  freezeTime: null,
   isVisible: true,
   isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
+  evaluateWithSampleTestcase: false,
   createTime,
   updateTime,
   invitationCode,
   contestProblem: [],
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 
 const contestWithCount = {
   id: contestId,
   createdById: userId,
-  groupId,
   title: 'title',
   description: 'description',
   penalty: 20,
   lastPenalty: false,
   startTime,
   endTime,
+  freezeTime: null,
   isVisible: true,
   isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
+  evaluateWithSampleTestcase: false,
   createTime,
   updateTime,
   invitationCode,
@@ -81,57 +84,48 @@ const contestWithCount = {
     contestRecord: 10
   },
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 
 const contestWithParticipants: ContestWithParticipants = {
   id: contestId,
   createdById: userId,
-  groupId,
   title: 'title',
   description: 'description',
   penalty: 20,
   lastPenalty: false,
   startTime,
   endTime,
+
+  freezeTime: null,
   isVisible: true,
   isRankVisible: true,
   enableCopyPaste: true,
   isJudgeResultVisible: true,
+  evaluateWithSampleTestcase: false,
   createTime,
   updateTime,
   participants: 10,
   invitationCode,
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
-}
-
-const group: Group = {
-  id: groupId,
-  groupName: 'groupName',
-  description: 'description',
-  config: {
-    showOnList: true,
-    allowJoinFromSearch: true,
-    allowJoinWithURL: false,
-    requireApprovalBeforeJoin: true
-  },
-  createTime: faker.date.past(),
-  updateTime: faker.date.past()
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 
 const problem: Problem = {
   id: problemId,
   createdById: 2,
-  groupId: 2,
   title: 'test problem',
   description: 'thisistestproblem',
   inputDescription: 'inputdescription',
@@ -230,8 +224,20 @@ const updateInput = {
 } satisfies UpdateContestInput
 
 const db = {
+  user: {
+    findUnique: stub().resolves({ role: Role.Admin, canCreateContest: true })
+  },
+  userContest: {
+    create: stub().resolves(),
+    findMany: stub().resolves([
+      {
+        role: ContestRole.Admin
+      }
+    ])
+  },
   contest: {
     findFirst: stub().resolves(Contest),
+    findUniqueOrThrow: stub().resolves(Contest),
     findUnique: stub().resolves(Contest),
     findMany: stub().resolves([Contest]),
     create: stub().resolves(Contest),
@@ -252,9 +258,6 @@ const db = {
     update: stub().resolves(Problem),
     updateMany: stub().resolves([Problem]),
     findFirstOrThrow: stub().resolves(Problem)
-  },
-  group: {
-    findUnique: stub().resolves(Group)
   },
   submission: {
     findMany: stub().resolves([submissionsWithProblemTitleAndUsername])
@@ -306,7 +309,7 @@ describe('ContestService', () => {
     it('should return an array of contests', async () => {
       db.contest.findMany.resolves([contestWithCount])
 
-      const res = await service.getContests(5, 2, 0)
+      const res = await service.getContests(userId, 5, 0)
       expect(res).to.deep.equal([contestWithParticipants])
     })
   })
@@ -324,26 +327,19 @@ describe('ContestService', () => {
   describe('createContest', () => {
     it('should return created contest', async () => {
       db.contest.create.resolves(contest)
-      db.group.findUnique.resolves(group)
 
-      const res = await service.createContest(groupId, userId, input)
+      const res = await service.createContest(userId, input)
       expect(res).to.deep.equal(contest)
     })
   })
 
   describe('updateContest', () => {
     it('should return updated contest', async () => {
-      db.contest.findFirst.resolves(contest)
+      db.contest.findUniqueOrThrow.resolves(contest)
       db.contest.update.resolves(contest)
 
-      const res = await service.updateContest(groupId, updateInput)
+      const res = await service.updateContest(updateInput)
       expect(res).to.deep.equal(contest)
-    })
-
-    it('should throw error when groupId or contestId not exist', async () => {
-      expect(service.updateContest(1000, updateInput)).to.be.rejectedWith(
-        EntityNotExistException
-      )
     })
   })
 
@@ -352,12 +348,12 @@ describe('ContestService', () => {
       db.contest.findFirst.resolves(contest)
       db.contest.delete.resolves(contest)
 
-      const res = await service.deleteContest(groupId, contestId)
+      const res = await service.deleteContest(contestId)
       expect(res).to.deep.equal(contest)
     })
 
-    it('should throw error when groupId or contestId not exist', async () => {
-      expect(service.deleteContest(1000, 1000)).to.be.rejectedWith(
+    it('should throw error when contestId not exist', async () => {
+      expect(service.deleteContest(1000)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
@@ -377,7 +373,7 @@ describe('ContestService', () => {
       })
     })
 
-    it('should throw error when groupId or contestId not exist', async () => {
+    it('should throw error when contestId not exist', async () => {
       expect(service.handlePublicizingRequest(1000, true)).to.be.rejectedWith(
         EntityNotExistException
       )
@@ -403,9 +399,7 @@ describe('ContestService', () => {
       db.contestProblem.findFirst.resolves(null)
 
       const res = await Promise.all(
-        await service.importProblemsToContest(groupId, contestId, [
-          problemIdsWithScore
-        ])
+        await service.importProblemsToContest(contestId, [problemIdsWithScore])
       )
 
       expect(res).to.deep.equal([contestProblem])
@@ -416,7 +410,7 @@ describe('ContestService', () => {
       db.problem.update.resolves(problem)
       db.contestProblem.findFirst.resolves(ContestProblem)
 
-      const res = await service.importProblemsToContest(groupId, contestId, [
+      const res = await service.importProblemsToContest(contestId, [
         problemIdsWithScore
       ])
 
@@ -425,7 +419,7 @@ describe('ContestService', () => {
 
     it('should throw error when the contestId not exist', async () => {
       expect(
-        service.importProblemsToContest(groupId, 9999, [problemIdsWithScore])
+        service.importProblemsToContest(9999, [problemIdsWithScore])
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })

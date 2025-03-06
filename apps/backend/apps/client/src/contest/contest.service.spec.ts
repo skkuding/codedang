@@ -2,9 +2,9 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import {
+  ContestRole,
   Prisma,
   type Contest,
-  type Group,
   type ContestRecord
 } from '@prisma/client'
 import { expect } from 'chai'
@@ -19,113 +19,99 @@ import {
   PrismaTestService,
   type FlatTransactionClient
 } from '@libs/prisma'
-import { ContestService, type ContestResult } from './contest.service'
+import { ContestService } from './contest.service'
 
 const contestId = 1
-const user01Id = 4
-const groupId = 1
+const user01Id = 7
+const contestAdminId = 4
 
 const now = dayjs()
 
 const contest = {
   id: contestId,
   createdById: 1,
-  groupId,
   title: 'title',
   description: 'description',
   penalty: 100,
   lastPenalty: false,
   startTime: now.add(-1, 'day').toDate(),
   endTime: now.add(1, 'day').toDate(),
+  freezeTime: null,
   isVisible: true,
   isJudgeResultVisible: true,
   isRankVisible: true,
   enableCopyPaste: true,
+  evaluateWithSampleTestcase: false,
   createTime: now.add(-1, 'day').toDate(),
   updateTime: now.add(-1, 'day').toDate(),
-  group: {
-    id: groupId,
-    groupName: 'group'
-  },
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits',
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  },
   invitationCode: '123456'
-} satisfies Contest & {
-  group: Partial<Group>
-}
+} satisfies Contest
 
-const ongoingContests = [
-  {
-    id: contest.id,
-    group: contest.group,
-    title: contest.title,
-    posterUrl: contest.posterUrl,
-    participationTarget: contest.participationTarget,
-    competitionMethod: contest.competitionMethod,
-    rankingMethod: contest.rankingMethod,
-    problemFormat: contest.problemFormat,
-    benefits: contest.benefits,
-    invitationCode: 'test',
-    isJudgeResultVisible: true,
-    startTime: now.add(-1, 'day').toDate(),
-    endTime: now.add(1, 'day').toDate(),
-    participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
-  }
-] satisfies Partial<ContestResult>[]
+// const ongoingContests = [
+//   {
+//     id: contest.id,
+//     title: contest.title,
+//     posterUrl: contest.posterUrl,
+//     summary: {
+//       참여대상: contest.summary?.참여대상,
+//       진행방식: contest.summary?.진행방식,
+//       순위산정: contest.summary?.순위산정,
+//       문제형태: contest.summary?.문제형태,
+//       참여혜택: contest.summary?.참여혜택
+//     },
+//     invitationCode: 'test',
+//     isJudgeResultVisible: true,
+//     startTime: now.add(-1, 'day').toDate(),
+//     endTime: now.add(1, 'day').toDate(),
+//     participants: 1,
+//     enableCopyPaste: true
+//   }
+// ] satisfies Partial<ContestResult>[]
 
-const upcomingContests = [
-  {
-    id: contest.id + 6,
-    group: contest.group,
-    title: contest.title,
-    posterUrl: null,
-    participationTarget: null,
-    competitionMethod: null,
-    rankingMethod: contest.rankingMethod,
-    problemFormat: contest.problemFormat,
-    benefits: contest.benefits,
-    invitationCode: 'test',
-    isJudgeResultVisible: true,
-    startTime: now.add(1, 'day').toDate(),
-    endTime: now.add(2, 'day').toDate(),
-    participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
-  }
-] satisfies Partial<ContestResult>[]
+// const upcomingContests = [
+//   {
+//     id: contest.id + 6,
+//     title: contest.title,
+//     posterUrl: null,
+//     summary: {
+//       순위산정: contest.summary?.순위산정,
+//       문제형태: contest.summary?.문제형태,
+//       참여혜택: contest.summary?.참여혜택
+//     },
+//     invitationCode: 'test',
+//     isJudgeResultVisible: true,
+//     startTime: now.add(1, 'day').toDate(),
+//     endTime: now.add(2, 'day').toDate(),
+//     participants: 1,
+//     enableCopyPaste: true
+//   }
+// ] satisfies Partial<ContestResult>[]
 
-const finishedContests = [
-  {
-    id: contest.id + 1,
-    group: contest.group,
-    title: contest.title,
-    posterUrl: contest.posterUrl,
-    participationTarget: contest.participationTarget,
-    competitionMethod: contest.competitionMethod,
-    rankingMethod: null,
-    problemFormat: null,
-    benefits: null,
-    invitationCode: null,
-    isJudgeResultVisible: true,
-    startTime: now.add(-2, 'day').toDate(),
-    endTime: now.add(-1, 'day').toDate(),
-    participants: 1,
-    enableCopyPaste: true,
-    contestProblem: []
-  }
-] satisfies Partial<ContestResult>[]
-
-const contests = [
-  ...ongoingContests,
-  ...finishedContests,
-  ...upcomingContests
-] satisfies Partial<ContestResult>[]
+// const finishedContests = [
+//   {
+//     id: contest.id + 1,
+//     title: contest.title,
+//     posterUrl: contest.posterUrl,
+//     summary: {
+//       참여대상: contest.summary?.참여대상,
+//       진행방식: contest.summary?.진행방식
+//     },
+//     invitationCode: null,
+//     isJudgeResultVisible: true,
+//     startTime: now.add(-2, 'day').toDate(),
+//     endTime: now.add(-1, 'day').toDate(),
+//     participants: 1,
+//     enableCopyPaste: true
+//   }
+// ] satisfies Partial<ContestResult>[]
 
 describe('ContestService', () => {
   let service: ContestService
@@ -176,13 +162,13 @@ describe('ContestService', () => {
   describe('getContests', () => {
     it('should return ongoing, upcoming contests when userId is undefined', async () => {
       const contests = await service.getContests()
-      expect(contests.ongoing).to.have.lengthOf(5)
-      expect(contests.upcoming).to.have.lengthOf(4)
+      expect(contests.ongoing).to.have.lengthOf(6)
+      expect(contests.upcoming).to.have.lengthOf(5)
       expect(contests.finished).to.have.lengthOf(9)
     })
 
     it('a contest should contain following fields when userId is undefined', async () => {
-      const contests = await service.getContests(groupId)
+      const contests = await service.getContests()
       expect(contests.ongoing[0]).to.have.property('title')
       expect(contests.ongoing[0]).to.have.property('startTime')
       expect(contests.ongoing[0]).to.have.property('endTime')
@@ -200,7 +186,7 @@ describe('ContestService', () => {
       expect(contests.finished[0]).to.have.property('isRegistered')
     })
 
-    it("shold return contests whose title contains '신입생'", async () => {
+    it("should return contests whose title contains '신입생'", async () => {
       const keyword = '신입생'
       const contests = await service.getContests(user01Id, keyword)
 
@@ -222,26 +208,29 @@ describe('ContestService', () => {
 
   describe('getContest', () => {
     it('should throw error when contest does not exist', async () => {
-      await expect(
-        service.getContest(999, groupId, user01Id)
-      ).to.be.rejectedWith(EntityNotExistException)
+      await expect(service.getContest(999, user01Id)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
 
     it('should return contest', async () => {
-      expect(await service.getContest(contestId, groupId, user01Id)).to.be.ok
+      expect(await service.getContest(contestId, user01Id)).to.be.ok
     })
 
     it('should return optional fields if they exist', async () => {
       expect(contest).to.have.property('posterUrl')
-      expect(contest).to.have.property('participationTarget')
-      expect(contest).to.have.property('competitionMethod')
-      expect(contest).to.have.property('rankingMethod')
-      expect(contest).to.have.property('problemFormat')
-      expect(contest).to.have.property('benefits')
+      expect(contest).to.have.property('summary')
+      if (contest.summary) {
+        expect(contest.summary).to.have.property('참여대상')
+        expect(contest.summary).to.have.property('진행방식')
+        expect(contest.summary).to.have.property('순위산정')
+        expect(contest.summary).to.have.property('문제형태')
+        expect(contest.summary).to.have.property('참여혜택')
+      }
     })
 
     it('should return prev and next contest information', async () => {
-      const contest = await service.getContest(contestId, groupId, user01Id)
+      const contest = await service.getContest(contestId, user01Id)
       if (contest.prev) {
         expect(contest.prev).to.have.property('id')
         expect(contest.prev.id).to.be.lessThan(contestId)
@@ -255,14 +244,14 @@ describe('ContestService', () => {
     })
   })
 
-  describe('createContestRecord', () => {
+  describe('registerContest', () => {
     let contestRecordId = -1
     const invitationCode = '123456'
     const invalidInvitationCode = '000000'
 
     it('should throw error when the invitation code does not match', async () => {
       await expect(
-        service.createContestRecord({
+        service.registerContest({
           contestId: 1,
           userId: user01Id,
           invitationCode: invalidInvitationCode
@@ -272,39 +261,39 @@ describe('ContestService', () => {
 
     it('should throw error when the contest does not exist', async () => {
       await expect(
-        service.createContestRecord({
+        service.registerContest({
           contestId: 999,
           userId: user01Id,
-          invitationCode: invitationCode
+          invitationCode
         })
       ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
     })
 
     it('should throw error when user is participated in contest again', async () => {
       await expect(
-        service.createContestRecord({
-          contestId: contestId,
+        service.registerContest({
+          contestId,
           userId: user01Id,
-          invitationCode: invitationCode
+          invitationCode
         })
       ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should throw error when contest is not ongoing', async () => {
       await expect(
-        service.createContestRecord({
+        service.registerContest({
           contestId: 8,
           userId: user01Id,
-          invitationCode: invitationCode
+          invitationCode
         })
       ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should register to a contest successfully', async () => {
-      const contestRecord = await service.createContestRecord({
+      const contestRecord = await service.registerContest({
         contestId: 2,
         userId: user01Id,
-        invitationCode: invitationCode
+        invitationCode
       })
       contestRecordId = contestRecord.id
       expect(
@@ -315,7 +304,7 @@ describe('ContestService', () => {
     })
   })
 
-  describe('deleteContestRecord', () => {
+  describe('unregisterContest', () => {
     let contestRecord: ContestRecord | { id: number } = { id: -1 }
 
     afterEach(async () => {
@@ -337,6 +326,13 @@ describe('ContestService', () => {
 
     it('should return deleted contest record', async () => {
       const newlyRegisteringContestId = 16
+      await transaction.userContest.create({
+        data: {
+          contestId: newlyRegisteringContestId,
+          userId: user01Id,
+          role: ContestRole.Participant
+        }
+      })
       contestRecord = await transaction.contestRecord.create({
         data: {
           contestId: newlyRegisteringContestId,
@@ -348,36 +344,45 @@ describe('ContestService', () => {
       })
 
       expect(
-        await service.deleteContestRecord(newlyRegisteringContestId, user01Id)
+        await service.unregisterContest(newlyRegisteringContestId, user01Id)
       ).to.deep.equal(contestRecord)
     })
 
     it('should throw error when contest does not exist', async () => {
-      await expect(
-        service.deleteContestRecord(999, user01Id)
-      ).to.be.rejectedWith(EntityNotExistException)
+      await expect(service.unregisterContest(999, user01Id)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
 
     it('should throw error when contest record does not exist', async () => {
-      await expect(
-        service.deleteContestRecord(16, user01Id)
-      ).to.be.rejectedWith(EntityNotExistException)
+      await expect(service.unregisterContest(16, user01Id)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
 
     it('should throw error when contest is ongoing', async () => {
       await expect(
-        service.deleteContestRecord(contestId, user01Id)
+        service.unregisterContest(contestId, user01Id)
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })
 
   describe('getContestLeaderboard', () => {
     it('should return leaderboard of the contest', async () => {
-      const leaderboard = await service.getContestLeaderboard(
-        user01Id,
-        contestId
-      )
+      const leaderboard = await service.getContestLeaderboard(contestId)
       expect(leaderboard).to.be.ok
+    })
+  })
+
+  describe('getContestRoles', () => {
+    it('should return contest roles', async () => {
+      const roles = await service.getContestRoles(contestAdminId)
+      expect(roles).to.be.an('object')
+      expect(roles).to.have.property('canCreateContest')
+      expect(roles).to.have.property('userContests')
+      expect(roles.userContests).to.be.an('array')
+      expect(roles.userContests[0]).to.have.property('contestId')
+      expect(roles.userContests[0]).to.have.property('role')
     })
   })
 })

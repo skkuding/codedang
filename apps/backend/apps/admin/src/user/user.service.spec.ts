@@ -9,8 +9,9 @@ import { expect } from 'chai'
 import { stub } from 'sinon'
 import { joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
+import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { UserService } from './user.service'
+import { GroupMemberService, UserService } from './user.service'
 
 const groupId = 2
 
@@ -23,8 +24,10 @@ const user1: User = {
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  studentId: null,
-  major: null
+  studentId: '2020000000',
+  major: null,
+  canCreateCourse: false,
+  canCreateContest: false
 }
 
 const user2: User = {
@@ -36,8 +39,10 @@ const user2: User = {
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  studentId: null,
-  major: null
+  studentId: '2020000000',
+  major: null,
+  canCreateCourse: false,
+  canCreateContest: false
 }
 
 const user3: User = {
@@ -49,8 +54,10 @@ const user3: User = {
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  studentId: null,
-  major: null
+  studentId: '2020000000',
+  major: null,
+  canCreateCourse: false,
+  canCreateContest: false
 }
 
 const userGroup1: UserGroup = {
@@ -101,23 +108,6 @@ const updateFindResult = [
   }
 ]
 
-const deleteFindResult = [
-  {
-    userId: user1.id,
-    user: {
-      role: user1.role
-    },
-    isGroupLeader: userGroup1.isGroupLeader
-  },
-  {
-    userId: user3.id,
-    user: {
-      role: user3.role
-    },
-    isGroupLeader: userGroup3.isGroupLeader
-  }
-]
-
 const db = {
   userGroup: {
     findMany: stub(),
@@ -125,18 +115,19 @@ const db = {
     count: stub(),
     update: stub(),
     delete: stub(),
-    create: stub()
+    create: stub(),
+    findUniqueOrThrow: stub()
   },
   user: {
     findUnique: stub(),
-    findMany: stub()
+    findMany: stub(),
+    update: stub()
   },
   getPaginator: PrismaService.prototype.getPaginator
 }
 
 describe('UserService', () => {
   let service: UserService
-  let cache: Cache
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -153,6 +144,92 @@ describe('UserService', () => {
     }).compile()
 
     service = module.get<UserService>(UserService)
+  })
+
+  it('should be defined', () => {
+    expect(service).to.be.ok
+  })
+
+  describe('getUser', () => {
+    it('should return a user if found', async () => {
+      db.user.findUnique.resolves(user1)
+      const result = await service.getUser(user1.id)
+      expect(result).to.deep.equal(user1)
+    })
+
+    it('should throw an error if user not found', async () => {
+      db.user.findUnique.resolves(null)
+      await expect(service.getUser(user1.id)).to.be.rejectedWith(
+        EntityNotExistException,
+        'User'
+      )
+    })
+  })
+
+  describe('getUsers', () => {
+    it('should return a list of users', async () => {
+      db.user.findMany.resolves([user1, user2, user3])
+      const result = await service.getUsers({ cursor: null, take: 10 })
+      expect(result).to.deep.equal([user1, user2, user3])
+    })
+  })
+
+  describe('getUserByEmailOrStudentId', () => {
+    it('should return users by email', async () => {
+      db.user.findMany.resolves([user1])
+      const result = await service.getUserByEmailOrStudentId(
+        user1.email,
+        undefined
+      )
+      expect(result).to.deep.equal([user1])
+    })
+
+    it('should return users by studentId', async () => {
+      db.user.findMany.resolves([user2])
+      const result = await service.getUserByEmailOrStudentId(
+        undefined,
+        user2.studentId
+      )
+      expect(result).to.deep.equal([user2])
+    })
+  })
+
+  describe('updateCanCreateCourse', () => {
+    it('should update canCreateCourse flag', async () => {
+      db.user.update.resolves({
+        id: user1.id,
+        role: user1.role,
+        canCreateCourse: true
+      })
+      const result = await service.updateCanCreateCourse(user1.id, true)
+      expect(result).to.deep.equal({
+        id: user1.id,
+        role: user1.role,
+        canCreateCourse: true
+      })
+    })
+  })
+})
+
+describe('GroupMemberService', () => {
+  let service: GroupMemberService
+  let cache: Cache
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        GroupMemberService,
+        { provide: PrismaService, useValue: db },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => []
+          })
+        }
+      ]
+    }).compile()
+
+    service = module.get<GroupMemberService>(GroupMemberService)
     cache = module.get<Cache>(CACHE_MANAGER)
   })
 
@@ -164,6 +241,7 @@ describe('UserService', () => {
     it('should return userGroups of groupLeaders', async () => {
       const result = [
         {
+          isGroupLeader: true,
           user: {
             id: user1.id,
             username: user1.username,
@@ -187,6 +265,7 @@ describe('UserService', () => {
       })
       expect(res).to.deep.equal([
         {
+          isGroupLeader: true,
           username: user1.username,
           userId: userGroup1.userId,
           name: '',
@@ -201,6 +280,7 @@ describe('UserService', () => {
     it('should return userGroups of groupMembers', async () => {
       const result = [
         {
+          isGroupLeader: false,
           user: {
             id: user2.id,
             username: user2.username,
@@ -224,6 +304,7 @@ describe('UserService', () => {
       })
       expect(res).to.deep.equal([
         {
+          isGroupLeader: false,
           username: user2.username,
           userId: userGroup2.userId,
           name: '',
@@ -318,29 +399,35 @@ describe('UserService', () => {
 
   describe('deleteGroupMember', () => {
     it('should return userGroup', async () => {
-      db.userGroup.findMany.resolves(deleteFindResult)
+      db.userGroup.findUniqueOrThrow.resolves({
+        isGroupLeader: false
+      })
       db.userGroup.delete.resolves(userGroup3)
 
       const res = await service.deleteGroupMember(
-        userGroup3.userId,
-        userGroup3.groupId
+        userGroup3.groupId,
+        userGroup3.userId
       )
       expect(res).to.deep.equal(userGroup3)
     })
 
     it('should throw BadRequestException when the userId is not member', async () => {
-      db.userGroup.findMany.resolves(deleteFindResult)
-
+      db.userGroup.findUniqueOrThrow.resolves({
+        isGroupLeader: false
+      })
       const res = async () =>
-        await service.deleteGroupMember(userGroup2.userId, userGroup2.groupId)
+        await service.deleteGroupMember(userGroup2.groupId, userGroup2.userId)
       expect(res()).to.be.rejectedWith(BadRequestException)
     })
 
     it('should throw BadRequestException when you try to delete manager but there is only one manager', async () => {
-      db.userGroup.findMany.resolves(deleteFindResult)
+      db.userGroup.findUniqueOrThrow.resolves({
+        isGroupLeader: true
+      })
+      db.userGroup.count.resolves(1)
 
       const res = async () =>
-        await service.deleteGroupMember(userGroup1.userId, userGroup1.groupId)
+        await service.deleteGroupMember(userGroup1.groupId, userGroup1.userId)
       expect(res()).to.be.rejectedWith(BadRequestException)
     })
   })

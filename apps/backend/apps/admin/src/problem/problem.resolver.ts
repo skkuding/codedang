@@ -10,15 +10,28 @@ import {
   Parent
 } from '@nestjs/graphql'
 import {
+  AssignmentProblem,
   ContestProblem,
+  Group,
   Image,
   ProblemTag,
   ProblemTestcase,
   WorkbookProblem
 } from '@generated'
-import { AuthenticatedRequest } from '@libs/auth'
-import { OPEN_SPACE_ID } from '@libs/constants'
-import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
+import { ContestRole, Role } from '@prisma/client'
+import {
+  AuthenticatedRequest,
+  UseContestRolesGuard,
+  UseDisableAdminGuard,
+  UseGroupLeaderGuard
+} from '@libs/auth'
+import { ForbiddenAccessException } from '@libs/exception'
+import {
+  CursorValidationPipe,
+  GroupIDPipe,
+  ProblemIDPipe,
+  RequiredIntPipe
+} from '@libs/pipe'
 import { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { ImageSource } from './model/image.output'
 import {
@@ -31,36 +44,49 @@ import { ProblemWithIsVisible } from './model/problem.output'
 import { ProblemService } from './problem.service'
 
 @Resolver(() => ProblemWithIsVisible)
+@UseDisableAdminGuard()
 export class ProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 
   @Mutation(() => ProblemWithIsVisible)
   async createProblem(
     @Context('req') req: AuthenticatedRequest,
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
-    groupId: number,
     @Args('input') input: CreateProblemInput
   ) {
-    return await this.problemService.createProblem(input, req.user.id, groupId)
+    return await this.problemService.createProblem(
+      input,
+      req.user.id,
+      req.user.role
+    )
   }
 
   @Mutation(() => [ProblemWithIsVisible])
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async uploadProblems(
     @Context('req') req: AuthenticatedRequest,
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
-    groupId: number,
     @Args('input') input: UploadFileInput
   ) {
-    return await this.problemService.uploadProblems(input, req.user.id, groupId)
+    return await this.problemService.uploadProblems(
+      input,
+      req.user.id,
+      req.user.role
+    )
+  }
+
+  @Mutation(() => ProblemTestcase)
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+  async uploadTestcase(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('problemId', { type: () => Int }, ProblemIDPipe)
+    problemId: number,
+    @Args('input') input: UploadFileInput
+  ) {
+    return await this.problemService.uploadTestcase(
+      input,
+      problemId,
+      req.user.role,
+      req.user.id
+    )
   }
 
   @Mutation(() => ImageSource)
@@ -81,36 +107,41 @@ export class ProblemResolver {
 
   @Query(() => [ProblemWithIsVisible])
   async getProblems(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
-    groupId: number,
+    @Context('req') req: AuthenticatedRequest,
+    @Args('input') input: FilterProblemsInput,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
     @Args('take', { defaultValue: 10, type: () => Int }) take: number,
-    @Args('input') input: FilterProblemsInput
+    @Args('my', { defaultValue: false, type: () => Boolean }) my: boolean,
+    @Args('shared', { defaultValue: false, type: () => Boolean })
+    shared: boolean
   ) {
+    if (!my && !shared && req.user.role == Role.User) {
+      throw new ForbiddenAccessException(
+        'User does not have permission for all problems'
+      )
+    }
     return await this.problemService.getProblems({
+      userId: req.user.id,
       input,
-      groupId,
       cursor,
-      take
+      take,
+      my,
+      shared
     })
   }
 
   @Query(() => ProblemWithIsVisible)
   async getProblem(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
-    groupId: number,
+    @Context('req') req: AuthenticatedRequest,
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
-    return await this.problemService.getProblem(id, groupId)
+    return await this.problemService.getProblem(id, req.user.role, req.user.id)
+  }
+
+  @ResolveField('sharedGroups', () => [Group])
+  async getSharedGroups(@Parent() problem: ProblemWithIsVisible) {
+    return await this.problemService.getSharedGroups(problem.id)
   }
 
   @ResolveField('tag', () => [ProblemTag])
@@ -125,77 +156,63 @@ export class ProblemResolver {
 
   @Mutation(() => ProblemWithIsVisible)
   async updateProblem(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
-    groupId: number,
+    @Context('req') req: AuthenticatedRequest,
     @Args('input') input: UpdateProblemInput
   ) {
-    return await this.problemService.updateProblem(input, groupId)
+    return await this.problemService.updateProblem(
+      input,
+      req.user.role,
+      req.user.id
+    )
   }
 
   @Mutation(() => ProblemWithIsVisible)
   async deleteProblem(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
-    groupId: number,
+    @Context('req') req: AuthenticatedRequest,
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
-    return await this.problemService.deleteProblem(id, groupId)
+    return await this.problemService.deleteProblem(
+      id,
+      req.user.role,
+      req.user.id
+    )
   }
 }
 
 @Resolver(() => ContestProblem)
+@UseContestRolesGuard(ContestRole.Reviewer)
 export class ContestProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 
   @Query(() => [ContestProblem], { name: 'getContestProblems' })
   async getContestProblems(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
-    groupId: number,
     @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
     contestId: number
   ) {
-    return await this.problemService.getContestProblems(groupId, contestId)
+    return await this.problemService.getContestProblems(contestId)
   }
 
   @Mutation(() => [ContestProblem])
+  @UseContestRolesGuard(ContestRole.Manager)
   async updateContestProblemsScore(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('contestId', { type: () => Int }) contestId: number,
     @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
     problemIdsWithScore: ProblemScoreInput[]
   ) {
     return await this.problemService.updateContestProblemsScore(
-      groupId,
       contestId,
       problemIdsWithScore
     )
   }
 
   @Mutation(() => [ContestProblem])
+  @UseContestRolesGuard(ContestRole.Manager)
   async updateContestProblemsOrder(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
-    groupId: number,
     @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
     contestId: number,
     @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
   ) {
     return await this.problemService.updateContestProblemsOrder(
-      groupId,
       contestId,
       orders
     )
@@ -207,17 +224,75 @@ export class ContestProblemResolver {
   }
 }
 
+@Resolver(() => AssignmentProblem)
+@UseGroupLeaderGuard()
+export class AssignmentProblemResolver {
+  constructor(private readonly problemService: ProblemService) {}
+
+  @Query(() => [AssignmentProblem], { name: 'getAssignmentProblems' })
+  async getAssignmentProblems(
+    @Args('groupId', { type: () => Int }, GroupIDPipe)
+    groupId: number,
+    @Args(
+      'assignmentId',
+      { type: () => Int },
+      new RequiredIntPipe('assignmenttId')
+    )
+    assignmentId: number
+  ) {
+    return await this.problemService.getAssignmentProblems(
+      groupId,
+      assignmentId
+    )
+  }
+
+  @Mutation(() => [AssignmentProblem])
+  async updateAssignmentProblemsScore(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('assignmentId', { type: () => Int }) assignmentId: number,
+    @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
+    problemIdsWithScore: ProblemScoreInput[]
+  ) {
+    return await this.problemService.updateAssignmentProblemsScore(
+      groupId,
+      assignmentId,
+      problemIdsWithScore
+    )
+  }
+
+  @Mutation(() => [AssignmentProblem])
+  async updateAssignmentProblemsOrder(
+    @Args('groupId', { type: () => Int }, GroupIDPipe)
+    groupId: number,
+    @Args(
+      'assignmentId',
+      { type: () => Int },
+      new RequiredIntPipe('assignmentId')
+    )
+    assignmentId: number,
+    @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
+  ) {
+    return await this.problemService.updateAssignmentProblemsOrder(
+      groupId,
+      assignmentId,
+      orders
+    )
+  }
+
+  @ResolveField('problem', () => ProblemWithIsVisible)
+  async getProblem(@Parent() assignmentProblem: AssignmentProblem) {
+    return await this.problemService.getProblemById(assignmentProblem.problemId)
+  }
+}
+
 @Resolver(() => WorkbookProblem)
+@UseGroupLeaderGuard()
 export class WorkbookProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 
   @Query(() => [WorkbookProblem], { name: 'getWorkbookProblems' })
   async getWorkbookProblems(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
+    @Args('groupId', { type: () => Int }, GroupIDPipe)
     groupId: number,
     @Args('workbookId', { type: () => Int }) workbookId: number
   ) {
@@ -226,11 +301,7 @@ export class WorkbookProblemResolver {
 
   @Mutation(() => [WorkbookProblem])
   async updateWorkbookProblemsOrder(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
+    @Args('groupId', { type: () => Int }, GroupIDPipe)
     groupId: number,
     @Args('workbookId', { type: () => Int }) workbookId: number,
     // orders는 항상 workbookId에 해당하는 workbookProblems들이 모두 딸려 온다.

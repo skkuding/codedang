@@ -31,14 +31,19 @@ export function DataTableColumnHeader<TData, TValue>({
   // Title column
   if (!column.getCanSort()) {
     return (
-      <div className={cn('w-[330px] text-left font-mono text-sm', className)}>
+      <div
+        className={cn(
+          'text-left text-sm font-normal text-[#8A8A8A]',
+          className
+        )}
+      >
         {title}
       </div>
     )
   }
 
   return (
-    <div className={cn('flex items-center space-x-2 font-mono', className)}>
+    <div className={cn('flex items-center space-x-2', className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -49,7 +54,7 @@ export function DataTableColumnHeader<TData, TValue>({
               column.getIsSorted() ? 'text-black' : ''
             )}
           >
-            <span>{title}</span>
+            <span className="font-normal text-[#8A8A8A]">{title}</span>
             {(() => {
               const sort = column.getIsSorted()
               if (sort === 'desc') {

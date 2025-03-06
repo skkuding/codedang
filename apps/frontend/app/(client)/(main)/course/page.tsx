@@ -1,12 +1,14 @@
-import { Cover } from '@/app/(client)/(main)/_components/Cover'
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
-import { Separator } from '@/components/shadcn/separator'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
+import welcomeLogo from '@/public/logos/welcome.png'
 import { ErrorBoundary } from '@suspensive/react'
+import Image from 'next/image'
 import { Suspense } from 'react'
 import { CourseCardList } from './_components/CourseCardList'
-import { Dashboard } from './_components/Dashboard'
+import { CourseMainBanner } from './_components/CourseMainBanner'
+import { CourseSubBanner } from './_components/CourseSubBanner'
+import { LoginButton } from './_components/LoginButton'
 
 function CardListFallback() {
   return (
@@ -22,28 +24,36 @@ function CardListFallback() {
 
 export default async function Course() {
   const session = await auth()
+
+  if (!session) {
+    return (
+      <>
+        <CourseMainBanner course={null} />
+        <div className="flex w-full max-w-7xl flex-col items-center justify-center p-5 py-48">
+          <Image src={welcomeLogo} alt="welcome" />
+          <p className="mt-10 text-2xl font-semibold">Please Login!</p>
+          <div className="mt-2 text-center text-base font-normal text-[#7F7F7F]">
+            <p>This page is only available to logged-in users.</p>
+            <p>Click the button below to login.</p>
+          </div>
+          <LoginButton className="mt-6 flex h-[46px] w-60 items-center justify-center text-base font-bold" />
+        </div>
+      </>
+    )
+  }
+
   return (
     <>
-      <Cover title="COURSE" description="Courses of CODEDANG" />
-      <div className="flex w-full max-w-7xl flex-col gap-5 p-5 py-8">
+      <CourseMainBanner course={null} />
+      <div className="flex w-full max-w-7xl flex-col gap-5 px-5 pt-[100px]">
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<CardListFallback />}>
-            <CourseCardList
-              title="My Course"
-              type="Ongoing"
-              session={session}
-            />
+            <CourseCardList title="MY COURSE" />
           </Suspense>
         </ErrorBoundary>
-        <Separator className="my-4" />
-        <div className="flex">
-          <h1 className="text-2xl font-bold text-gray-700">Course Overview</h1>
-        </div>
       </div>
-      {/* TODO: 완성되면 주석해제 할 거예요! */}
-      <div className="w-full">
-        <Dashboard session={session} />
-      </div>
+      <CourseSubBanner />
+      <div className="h-[100px]" />
     </>
   )
 }

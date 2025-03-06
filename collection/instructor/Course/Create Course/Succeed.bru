@@ -1,0 +1,69 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createCourse(
+      input: {
+        courseTitle: "방승현보호개론"
+        courseNum: "SWE6958"
+        classNum: 1
+        professor: "방승현"
+        semester: "2025 Spring"
+        week: 16
+        email: "gasidori@naver.com"
+        website: ""
+        office: ""
+        phoneNum: ""
+        config: {
+          showOnList: true
+          allowJoinFromSearch: true
+          allowJoinWithURL: true
+          requireApprovalBeforeJoin: false
+        }
+      }
+    ) {
+      id
+      groupName
+      groupType
+      config
+      courseInfo {
+        courseNum
+        classNum
+        professor
+        semester
+        week
+        email
+        website
+        office
+        phoneNum
+      }
+    }
+  }
+  
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.createGroup.groupName: isString
+  res.body.data.createGroup.description: isString
+  res.body.data.createGroup: isDefined
+}
+
+docs {
+  # Create Course
+  ---
+  - Course를 생성합니다.
+  - 요청하는 user는 canCreateCourse 권한이 있어야 합니다. admin이여도 canCreateCourse 권한이 있어야 course 생성이 가능합니다.
+  - course 생성자는 자동으로 해당 Course의 Instructor가 됩니다.
+  
+}

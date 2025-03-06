@@ -1,21 +1,19 @@
 'use client'
 
 import { cn } from '@/libs/utils'
-import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import type { IconType } from 'react-icons'
 import { FaChartBar, FaUser, FaBell, FaPen, FaTrophy } from 'react-icons/fa6'
 
 export function SideBar() {
   const pathname = usePathname()
 
-  const navItems: { name: string; path: Route; icon: IconType }[] = [
-    { name: 'Dashboard', path: '/admin', icon: FaChartBar },
-    { name: 'User', path: '/admin/user', icon: FaUser },
-    { name: 'Notice', path: '/admin/notice', icon: FaBell },
-    { name: 'Problem', path: '/admin/problem', icon: FaPen },
-    { name: 'Contest', path: '/admin/contest', icon: FaTrophy }
+  const navItems = [
+    { name: 'Dashboard', path: '/admin' as const, icon: FaChartBar },
+    { name: 'User', path: '/admin/user' as const, icon: FaUser },
+    { name: 'Notice', path: '/admin/notice' as const, icon: FaBell },
+    { name: 'Problem', path: '/admin/problem' as const, icon: FaPen },
+    { name: 'Contest', path: '/admin/contest' as const, icon: FaTrophy }
   ]
 
   return (

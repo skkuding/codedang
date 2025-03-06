@@ -6,29 +6,39 @@ import type { ColumnDef } from '@tanstack/react-table'
 
 export const columns: ColumnDef<ContestAnnouncement>[] = [
   {
+    header: 'No',
+    accessorKey: 'no',
+    cell: ({ row, table }) => (
+      <div className="h-full text-base">
+        {table.getCoreRowModel().rows.length - row.index}
+      </div>
+    )
+  },
+  {
     header: 'Problem',
     accessorKey: 'problem',
     cell: ({ row }) => (
-      <div className="h-full">
-        {row.original.problemId !== null
-          ? convertToLetter(row.original.problemId)
+      <div className="h-full text-base">
+        {row.original.problemOrder !== null
+          ? convertToLetter(row.original.problemOrder)
           : ''}
       </div>
     )
   },
   {
-    header: () => 'Description',
+    header: () => 'Announcement',
     accessorKey: 'content',
     cell: ({ row }) => (
-      <div className="text-left [tr:not(.expanded)_&]:truncate">
-        {row.original.content}
-      </div>
+      <div className="text-left text-base">{row.original.content}</div>
     )
   },
   {
-    header: () => 'Posted',
-    accessorKey: 'updateTime',
-    cell: ({ row }) =>
-      dateFormatter(row.original.updateTime, 'YYYY-MM-DD HH:mm')
+    header: () => 'Date',
+    accessorKey: 'createTime',
+    cell: ({ row }) => (
+      <div className="text-[#808080]">
+        {dateFormatter(row.original.createTime, 'YYYY-MM-DD HH:mm')}
+      </div>
+    )
   }
 ]

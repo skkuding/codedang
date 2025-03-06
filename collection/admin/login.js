@@ -19,6 +19,31 @@ const loginAdmin = async (req) => {
   })
 }
 
+const loginContestAdmin = async (req) => {
+  await login(req, {
+    username: 'contestAdmin',
+    password: 'ContestAdmin'
+  })
+}
+
+const loginContestManager = async (req) => {
+
+  await login(req, {
+    username: 'contestManager',
+    password: 'ContestManager'
+  })
+}
+
+const loginContestReviewer = async (req) => {
+  await login(req, {
+    username: 'contestReviewer',
+    password: 'ContestReviewer'
+  })
+}
+
 module.exports = {
-  loginAdmin
+  loginAdmin,
+  loginContestAdmin,
+  loginContestManager,
+  loginContestReviewer,
 }

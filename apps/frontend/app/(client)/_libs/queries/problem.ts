@@ -5,7 +5,7 @@ export const problemQueries = {
   all: () => ['problem'] as const,
   infiniteList: (params: GetProblemListRequest) =>
     getInfiniteQueryOptions({
-      queryKey: [...problemQueries.all(), 'list'] as const,
+      queryKey: [...problemQueries.all(), 'list', params] as const,
       queryFn: ({ pageParam }) =>
         getProblemList({
           ...params,

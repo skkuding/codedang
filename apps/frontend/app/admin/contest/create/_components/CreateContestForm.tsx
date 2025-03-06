@@ -68,7 +68,6 @@ export function CreateContestForm({
 
     const { data } = await createContest({
       variables: {
-        groupId: 1,
         input
       }
     })
@@ -83,7 +82,6 @@ export function CreateContestForm({
 
     await importProblemsToContest({
       variables: {
-        groupId: 1,
         contestId,
         problemIdsWithScore: problems.map((problem) => {
           return {
@@ -100,7 +98,6 @@ export function CreateContestForm({
 
     await updateContestProblemsOrder({
       variables: {
-        groupId: 1,
         contestId,
         orders: orderArray
       }

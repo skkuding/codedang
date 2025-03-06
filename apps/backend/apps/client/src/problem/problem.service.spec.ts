@@ -1,39 +1,35 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Test, TestingModule } from '@nestjs/testing'
+import type { TestingModule } from '@nestjs/testing'
+import { Test } from '@nestjs/testing'
 import { faker } from '@faker-js/faker'
 import { Prisma, ResultStatus } from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { stub } from 'sinon'
-import { OPEN_SPACE_ID } from '@libs/constants'
-import {
-  EntityNotExistException,
-  ForbiddenAccessException
-} from '@libs/exception'
+import { ForbiddenAccessException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { AssignmentService } from '@client/assignment/assignment.service'
 import { ContestService } from '@client/contest/contest.service'
 import { GroupService } from '@client/group/group.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
-import { CodeDraftResponseDto } from './dto/code-draft.response.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { _ProblemsResponseDto } from './dto/problems.response.dto'
 import { _RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { _RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import {
+  assignmentProblems,
   contestProblems,
   problemTag,
   problems,
   workbookProblems,
-  mockUser,
-  mockTemplate,
   tag,
-  mockCodeDraft,
-  contestProblemsWithScore
+  contestProblemsWithScore,
+  assignmentProblemsWithScore
 } from './mock/problem.mock'
 import {
   ContestProblemService,
+  AssignmentProblemService,
   ProblemService,
-  CodeDraftService,
   WorkbookProblemService
 } from './problem.service'
 
@@ -49,6 +45,14 @@ const db = {
     findUniqueOrThrow: stub(),
     count: stub().resolves(2)
   },
+  assignmentProblem: {
+    findMany: stub(),
+    findUniqueOrThrow: stub(),
+    count: stub().resolves(2)
+  },
+  assignmentRecord: {
+    findUnique: stub()
+  },
   workbookProblem: {
     findMany: stub(),
     findUniqueOrThrow: stub(),
@@ -63,16 +67,14 @@ const db = {
   contest: {
     findUniqueOrThrow: stub()
   },
+  assignment: {
+    findUniqueOrThrow: stub()
+  },
   user: {
     findUniqueOrThrow: stub()
   },
   submission: {
     findMany: stub()
-  },
-  codeDraft: {
-    findMany: stub(),
-    findUniqueOrThrow: stub(),
-    upsert: stub()
   },
   getPaginator: PrismaService.prototype.getPaginator
 }
@@ -85,19 +87,12 @@ const prismaNotFoundError = new Prisma.PrismaClientKnownRequestError(
   }
 )
 
-const prismaForignKeyConstraintError = new Prisma.PrismaClientKnownRequestError(
-  'Foreign key constraint failed on the field',
-  {
-    code: 'P2003',
-    clientVersion: '5.1.1'
-  }
-)
-
 const ARBITRARY_VAL = 1
 const problemId = ARBITRARY_VAL
 const groupId = ARBITRARY_VAL
 const userId = ARBITRARY_VAL
 const contestId = ARBITRARY_VAL
+const assignmentId = ARBITRARY_VAL
 const workbookId = ARBITRARY_VAL
 const mockProblem = Object.assign({}, problems[0])
 const mockProblems = problems.map((problem) => {
@@ -129,6 +124,29 @@ const mockContestProblemsWithScore = contestProblemsWithScore.map(
       ...contestProblem,
       problem: Object.assign({}, mockProblems[0]),
       contest: {
+        startTime: new Date()
+      },
+      maxScore: 0,
+      submissionTime: null
+    }
+  }
+)
+
+const mockAssignmentProblem = {
+  ...Object.assign({}, assignmentProblems[0]),
+  problem: Object.assign({ tags: [tag] }, mockProblems[0])
+}
+
+const mockAssignmentProblems = assignmentProblems.map((assignmentProblem) => {
+  return { ...assignmentProblem, problem: Object.assign({}, mockProblems[0]) }
+})
+
+const mockAssignmentProblemsWithScore = assignmentProblemsWithScore.map(
+  (assignmentProblem) => {
+    return {
+      ...assignmentProblem,
+      problem: Object.assign({}, mockProblems[0]),
+      assignment: {
         startTime: new Date()
       },
       maxScore: 0,
@@ -180,8 +198,7 @@ describe('ProblemService', () => {
       const result = await service.getProblems({
         userId: null,
         cursor: 1,
-        take: 2,
-        groupId: OPEN_SPACE_ID
+        take: 2
       })
 
       // then
@@ -300,8 +317,7 @@ describe('ContestProblemService', () => {
         contestId,
         userId,
         cursor: 1,
-        take: 1,
-        groupId: OPEN_SPACE_ID // 명시적 전달
+        take: 1
       })
 
       // then
@@ -334,8 +350,7 @@ describe('ContestProblemService', () => {
         contestId,
         userId,
         cursor: 1,
-        take: 1,
-        groupId: OPEN_SPACE_ID // 명시적 전달
+        take: 1
       })
 
       // then
@@ -359,8 +374,7 @@ describe('ContestProblemService', () => {
           contestId,
           userId,
           cursor: 1,
-          take: 1,
-          groupId: OPEN_SPACE_ID // 명시적 전달
+          take: 1
         })
       ).to.be.rejectedWith(prismaNotFoundError)
     })
@@ -383,8 +397,7 @@ describe('ContestProblemService', () => {
           contestId,
           userId,
           cursor: 1,
-          take: 1,
-          groupId: OPEN_SPACE_ID // 명시적 전달
+          take: 1
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -407,8 +420,7 @@ describe('ContestProblemService', () => {
           contestId,
           userId,
           cursor: 1,
-          take: 1,
-          groupId: OPEN_SPACE_ID // 명시적 전달
+          take: 1
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -433,8 +445,7 @@ describe('ContestProblemService', () => {
       const result = await service.getContestProblem({
         contestId,
         problemId,
-        userId,
-        groupId: OPEN_SPACE_ID
+        userId
       })
 
       // then
@@ -462,8 +473,7 @@ describe('ContestProblemService', () => {
       const result = await service.getContestProblem({
         contestId,
         problemId,
-        userId,
-        groupId: OPEN_SPACE_ID
+        userId
       })
 
       // then
@@ -483,8 +493,7 @@ describe('ContestProblemService', () => {
         service.getContestProblem({
           contestId,
           problemId,
-          userId,
-          groupId: OPEN_SPACE_ID
+          userId
         })
       ).to.be.rejectedWith(prismaNotFoundError)
     })
@@ -505,8 +514,7 @@ describe('ContestProblemService', () => {
         service.getContestProblem({
           contestId,
           problemId,
-          userId,
-          groupId: OPEN_SPACE_ID
+          userId
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -527,8 +535,216 @@ describe('ContestProblemService', () => {
         service.getContestProblem({
           contestId,
           problemId,
+          userId
+        })
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+  })
+})
+
+describe('AssignmentProblemService', () => {
+  let service: AssignmentProblemService
+  let assignmentService: AssignmentService
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AssignmentProblemService,
+        AssignmentService,
+        GroupService,
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => []
+          })
+        },
+        { provide: PrismaService, useValue: db }
+      ]
+    }).compile()
+
+    service = module.get<AssignmentProblemService>(AssignmentProblemService)
+    assignmentService = module.get<AssignmentService>(AssignmentService)
+  })
+
+  afterEach(() => {
+    db.assignmentProblem.findMany.reset()
+    db.assignmentProblem.findUniqueOrThrow.reset()
+    db.submission.findMany.reset()
+  })
+
+  it('should be defined', () => {
+    expect(service).to.be.ok
+  })
+
+  it('should be defined', () => {
+    expect(assignmentService).to.be.ok
+  })
+
+  describe('getAssignmentProblems', () => {
+    it('should return public assignment problems', async () => {
+      // given
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        isRegistered: true,
+        isJudgeResultVisible: true
+      })
+      db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
+      db.submission.findMany.resolves([])
+
+      // when
+      const result = await service.getAssignmentProblems({
+        assignmentId,
+        userId,
+        cursor: 1,
+        take: 1
+      })
+
+      // then
+      expect(result).to.deep.equal(
+        // Deprecated
+        plainToInstance(_RelatedProblemsResponseDto, {
+          data: mockAssignmentProblemsWithScore,
+          total: mockAssignmentProblemsWithScore.length
+        })
+      )
+    })
+
+    it('should return group assignment problems', async () => {
+      // given
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        isRegistered: true,
+        isJudgeResultVisible: true
+      })
+      db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
+      db.submission.findMany.resolves([])
+
+      // when
+      const result = await service.getAssignmentProblems({
+        assignmentId,
+        userId,
+        cursor: 1,
+        take: 1
+      })
+
+      // then
+      expect(result).to.deep.equal(
+        // Deprecated
+        plainToInstance(_RelatedProblemsResponseDto, {
+          data: mockAssignmentProblemsWithScore,
+          total: mockAssignmentProblemsWithScore.length
+        })
+      )
+    })
+
+    it('should throw PrismaClientKnownRequestError when the assignment is not visible', async () => {
+      // given
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.rejects(prismaNotFoundError)
+
+      // then
+      await expect(
+        service.getAssignmentProblems({
+          assignmentId,
           userId,
-          groupId: OPEN_SPACE_ID
+          cursor: 1,
+          take: 1
+        })
+      ).to.be.rejectedWith(prismaNotFoundError)
+    })
+
+    it('should throw ForbiddenAccessException when the user is not registered and assignment is not ended', async () => {
+      db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
+
+      await expect(
+        service.getAssignmentProblems({
+          assignmentId,
+          userId: 999,
+          cursor: 1,
+          take: 1
+        })
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+  })
+
+  describe('getAssignmentProblem', () => {
+    it('should return the public assignment problem', async () => {
+      // given
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        isRegistered: true,
+        isJudgeResultVisible: true
+      })
+      db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
+
+      // when
+      const result = await service.getAssignmentProblem({
+        assignmentId,
+        problemId,
+        userId
+      })
+
+      // then
+      expect(result).to.be.deep.equal(
+        // Deprecated
+        plainToInstance(_RelatedProblemResponseDto, mockAssignmentProblem)
+      )
+    })
+
+    it('should return the group assignment problem', async () => {
+      // given
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        isRegistered: true,
+        isJudgeResultVisible: true
+      })
+      db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
+
+      // when
+      const result = await service.getAssignmentProblem({
+        assignmentId,
+        problemId,
+        userId
+      })
+
+      // then
+      expect(result).to.be.deep.equal(
+        // Deprecated
+        plainToInstance(_RelatedProblemResponseDto, mockAssignmentProblem)
+      )
+    })
+
+    it('should throw PrismaClientKnownRequestError when the assignment is not visible', async () => {
+      // given
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.rejects(prismaNotFoundError)
+
+      // then
+      await expect(
+        service.getAssignmentProblem({
+          assignmentId,
+          problemId,
+          userId
+        })
+      ).to.be.rejectedWith(prismaNotFoundError)
+    })
+
+    it('should throw ForbiddenAccessException when the user is not registered and assignment is not ended', async () => {
+      db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
+      await expect(
+        service.getAssignmentProblem({
+          assignmentId,
+          problemId,
+          userId: 999
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -583,7 +799,7 @@ describe('WorkbookProblemService', () => {
         workbookId,
         cursor: 1,
         take: 1,
-        groupId: OPEN_SPACE_ID
+        groupId
       })
 
       // then
@@ -606,7 +822,7 @@ describe('WorkbookProblemService', () => {
         workbookId,
         cursor: 1,
         take: 1,
-        groupId: OPEN_SPACE_ID
+        groupId
       })
 
       // then
@@ -628,7 +844,7 @@ describe('WorkbookProblemService', () => {
           workbookId,
           cursor: 1,
           take: 1,
-          groupId: OPEN_SPACE_ID
+          groupId
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
@@ -641,7 +857,11 @@ describe('WorkbookProblemService', () => {
       db.workbookProblem.findUniqueOrThrow.resolves(mockWorkbookProblem)
 
       // when
-      const result = await service.getWorkbookProblem(workbookId, problemId)
+      const result = await service.getWorkbookProblem(
+        workbookId,
+        problemId,
+        groupId
+      )
 
       // then
       expect(result).to.be.deep.equal(
@@ -675,90 +895,8 @@ describe('WorkbookProblemService', () => {
 
       // then
       await expect(
-        service.getWorkbookProblem(workbookId, problemId)
+        service.getWorkbookProblem(workbookId, problemId, groupId)
       ).to.be.rejectedWith(ForbiddenAccessException)
-    })
-  })
-})
-
-describe('CodeDraftService', () => {
-  let service: CodeDraftService
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CodeDraftService,
-        { provide: PrismaService, useValue: db },
-        {
-          provide: CACHE_MANAGER,
-          useFactory: () => ({
-            set: () => [],
-            get: () => [],
-            del: () => [],
-            store: {
-              keys: () => []
-            }
-          })
-        }
-      ]
-    }).compile()
-
-    service = module.get<CodeDraftService>(CodeDraftService)
-  })
-
-  it('should be defined', () => {
-    expect(service).to.be.ok
-  })
-
-  describe('getCodeDraft', () => {
-    it('should return Code Draft', async () => {
-      // given
-      db.codeDraft.findUniqueOrThrow.resolves(mockCodeDraft)
-      // when
-      const result = await service.getCodeDraft(mockUser.id, mockProblem.id)
-
-      // then
-      expect(result).to.deep.equal(
-        // Deprecated
-        plainToInstance(CodeDraftResponseDto, mockCodeDraft)
-      )
-    })
-
-    it('should throw PrismaClientKnownRequestError when the code draft does not exist', async () => {
-      // given
-      db.codeDraft.findUniqueOrThrow.rejects(prismaNotFoundError)
-      // then
-      await expect(
-        service.getCodeDraft(mockUser.id, mockProblem.id)
-      ).to.be.rejectedWith(prismaNotFoundError)
-    })
-  })
-
-  describe('upsertCodeDraft', () => {
-    it('should upsert code draft', async () => {
-      // given
-      db.codeDraft.upsert.resolves(mockCodeDraft)
-      // when
-      const result = await service.upsertCodeDraft(
-        mockUser.id,
-        mockProblem.id,
-        mockTemplate
-      )
-
-      // then
-      expect(result).to.deep.equal(
-        // Deprecated
-        plainToInstance(CodeDraftResponseDto, mockCodeDraft)
-      )
-    })
-
-    it('should throw PrismaClientKnownRequestError when the user or problem does not exist', async () => {
-      // given
-      db.codeDraft.upsert.rejects(prismaForignKeyConstraintError)
-      // then
-      await expect(
-        service.upsertCodeDraft(mockUser.id, mockProblem.id, mockTemplate)
-      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 })

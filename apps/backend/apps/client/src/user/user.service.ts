@@ -24,7 +24,6 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { EmailService } from '@client/email/email.service'
 import { GroupService } from '@client/group/group.service'
-import type { UserGroupData } from '@client/group/interface/user-group-data.interface'
 import type { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import type { NewPasswordDto } from './dto/newPassword.dto'
 import type { SignUpDto } from './dto/signup.dto'
@@ -60,7 +59,8 @@ export class UserService {
         email
       },
       select: {
-        username: true
+        username: true,
+        id: true
       }
     })
 
@@ -81,6 +81,11 @@ export class UserService {
     if (duplicatedUser) {
       this.logger.debug('email duplicated')
       throw new DuplicateFoundException('Email')
+    }
+
+    if (!email.endsWith('@skku.edu')) {
+      this.logger.debug('invalid email domain', { email })
+      throw new UnprocessableDataException('Only @skku.edu emails are allowed')
     }
 
     return this.createPinAndSendEmail(email)
@@ -283,7 +288,6 @@ export class UserService {
       realName: signUpDto.realName
     }
     await this.createUserProfile(CreateUserProfileData)
-    await this.registerUserToPublicGroup(user.id)
 
     return user
   }
@@ -318,7 +322,6 @@ export class UserService {
     }
 
     await this.createUserProfile(profile)
-    await this.registerUserToPublicGroup(user.id)
     await this.createUserOAuth(socialSignUpDto, user.id)
 
     return user
@@ -381,15 +384,6 @@ export class UserService {
     })
     this.logger.debug(userProfile, 'createUserProfile')
     return userProfile
-  }
-
-  async registerUserToPublicGroup(userId: number) {
-    const userGroupData: UserGroupData = {
-      userId,
-      groupId: 1,
-      isGroupLeader: false
-    }
-    await this.groupService.createUserGroup(userGroupData)
   }
 
   async deleteUser(username: string, password: string) {
@@ -485,7 +479,9 @@ export class UserService {
           select: {
             realName: true
           }
-        }
+        },
+        canCreateContest: true,
+        canCreateCourse: true
       }
     })
     if (!userWithProfile) {

@@ -1,0 +1,45 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/assignment/5/submission?problemId=1
+  body: none
+  auth: none
+}
+
+params:query {
+  problemId: 1
+  ~take: 1
+  ~cursor: 5
+}
+
+assert {
+  res.status: eq 200
+  res.body[0]: isJson
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Get Contest Submissions
+  
+  > 로그인이 필요한 API입니다.
+  
+  Assignment 문제의 제출 내역을 가져옵니다.
+  
+  ## Query
+  
+  > 필수 query는 * 표시하였습니다.
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |problemId *|Integer|문제 ID|
+  |take|Integer|가져올 제출 내역 개수 (default: 10)|
+  |cursor|Integer|cursor 값 다음의 ID를 가진 제출 내역들을 반환|
+  
+}

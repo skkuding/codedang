@@ -1,0 +1,50 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetContestProblems($contestId: Int!) {
+    getContestProblems(contestId: $contestId) {
+      order
+      contestId
+      problemId
+      score
+      createTime
+      updateTime
+      problem {
+        id
+        title
+        description
+        isVisible
+      }
+    }
+  }
+
+}
+
+body:graphql:vars {
+  {
+    "contestId":  1
+  }
+}
+
+assert {
+  res.body.data.getContestProblems: isDefined
+}
+
+docs {
+  ## Get Contest Problems
+  Contest Problem들을 가져옵니다.
+
+  ### Error Cases
+  #### NOT_FOUND
+  존재하는 contest id가 필요합니다.
+}

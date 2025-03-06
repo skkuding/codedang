@@ -1,0 +1,51 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetAssignmentProblems($groupId: Int!, $assignmentId: Int!) {
+    getAssignmentProblems(groupId: $groupId, assignmentId: $assignmentId) {
+      order
+      assignmentId
+      problemId
+      score
+      createTime
+      updateTime
+      problem {
+        id
+        title
+        description
+        isVisible
+      }
+    }
+  }
+
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "assignmentId":  1
+  }
+}
+
+assert {
+  res.body.data.getAssignmentProblems: isDefined
+}
+
+docs {
+  ## Get Assignment Problems
+  Assignment Problem들을 가져옵니다.
+
+  ### Error Cases
+  #### NOT_FOUND
+  존재하는 group id와 assignment id가 필요합니다.
+}

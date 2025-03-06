@@ -1,0 +1,47 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/course/:groupId/grade
+  body: none
+  auth: none
+}
+
+params:path {
+  groupId: 2
+}
+
+assert {
+  res.status: eq 200
+  res("data")[0].id: isNumber
+  res("data")[0].title: isString
+  res("data")[0].startTime: isString
+  res("data")[0].endTime: isString
+  res("data")[0].group.id: isNumber
+  res("data")[0].group.groupName: isString
+  res("data")[0].participants: isNumber
+  res("data")[0].isJudgeResultVisible: isBoolean
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  ## Get Assignment Grade Summary
+  
+  특정 과목/그룹 내에서 사용자가 참여한 모든 과제에 대한 포괄적인 성적 요약 정보를 제공합니다.
+  
+  
+  
+  ### Query
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |groupId	|number	| Course(Grade) ID
+  
+  
+}

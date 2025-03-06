@@ -10,9 +10,10 @@ import {
   Req,
   UseGuards
 } from '@nestjs/common'
+import { GroupType } from '@prisma/client'
 import {
   AuthenticatedRequest,
-  AuthNotNeededIfOpenSpace,
+  AuthNotNeededIfPublic,
   GroupMemberGuard
 } from '@libs/auth'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
@@ -25,7 +26,7 @@ export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @Get()
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   async getGroups(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
@@ -36,45 +37,7 @@ export class GroupController {
 
   @Get('joined')
   async getJoinedGroups(@Req() req: AuthenticatedRequest) {
-    return await this.groupService.getJoinedGroups(req.user.id)
-  }
-
-  @Get(':groupId')
-  async getGroup(
-    @Req() req: AuthenticatedRequest,
-    @Param('groupId', GroupIDPipe) groupId: number
-  ) {
-    return await this.groupService.getGroup(groupId, req.user.id)
-  }
-
-  @Get('invite/:invitation')
-  async getGroupByInvitation(
-    @Req() req: AuthenticatedRequest,
-    @Param('invitation') invitation: string
-  ) {
-    return await this.groupService.getGroupByInvitation(invitation, req.user.id)
-  }
-
-  @Post(':groupId/join')
-  async joinGroupById(
-    @Req() req: AuthenticatedRequest,
-    @Param('groupId', GroupIDPipe) groupId: number,
-    @Query('invitation') invitation?: string
-  ) {
-    return await this.groupService.joinGroupById(
-      req.user.id,
-      groupId,
-      invitation
-    )
-  }
-
-  @Delete(':groupId/leave')
-  @UseGuards(GroupMemberGuard)
-  async leaveGroup(
-    @Req() req: AuthenticatedRequest,
-    @Param('groupId', GroupIDPipe) groupId: number
-  ) {
-    return await this.groupService.leaveGroup(req.user.id, groupId)
+    return await this.groupService.getJoinedGroups(req.user.id, GroupType.Study)
   }
 
   @Get(':groupId/leaders')
@@ -87,5 +50,67 @@ export class GroupController {
   @UseGuards(GroupMemberGuard)
   async getGroupMembers(@Param('groupId', GroupIDPipe) groupId: number) {
     return await this.groupService.getGroupMembers(groupId)
+  }
+}
+
+@Controller('course')
+export class CourseController {
+  private readonly logger = new Logger(CourseController.name)
+
+  constructor(private readonly groupService: GroupService) {}
+
+  @Get('invite')
+  async getCourseByInvitation(
+    @Req() req: AuthenticatedRequest,
+    @Query('invitation') invitation: string
+  ) {
+    return await this.groupService.getGroupByInvitation(invitation, req.user.id)
+  }
+
+  @Get('joined')
+  async getJoinedCourses(@Req() req: AuthenticatedRequest) {
+    return await this.groupService.getJoinedGroups(
+      req.user.id,
+      GroupType.Course
+    )
+  }
+
+  @Get(':groupId')
+  async getCourse(
+    @Req() req: AuthenticatedRequest,
+    @Param('groupId', GroupIDPipe) groupId: number
+  ) {
+    return await this.groupService.getCourse(groupId, req.user.id)
+  }
+
+  @Post(':groupId/join')
+  async joinCourseById(
+    @Req() req: AuthenticatedRequest,
+    @Param('groupId', GroupIDPipe) groupId: number,
+    @Query('invitation') invitation: string
+  ) {
+    return await this.groupService.joinGroupById(
+      req.user.id,
+      groupId,
+      invitation
+    )
+  }
+
+  @Delete(':groupId/leave')
+  @UseGuards(GroupMemberGuard)
+  async leaveCourse(
+    @Req() req: AuthenticatedRequest,
+    @Param('groupId', GroupIDPipe) groupId: number
+  ) {
+    return await this.groupService.leaveGroup(req.user.id, groupId)
+  }
+
+  @Get(':groupId/grade')
+  async getAssignmentGradeSummary(
+    @Req() req: AuthenticatedRequest,
+    @Param('groupId', GroupIDPipe) groupId: number
+  ) {
+    const userId = req.user.id
+    return await this.groupService.getAssignmentGradeSummary(userId, groupId)
   }
 }

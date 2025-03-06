@@ -110,3 +110,32 @@ export const getPageArray = (start: number, end: number) => {
     .fill(0)
     .map((_, i) => start + i)
 }
+
+interface OmitStringProps {
+  targetString: string
+  maxlength: number
+}
+
+export const omitString = ({ targetString, maxlength }: OmitStringProps) => {
+  if (targetString.length <= maxlength) {
+    return targetString
+  } else {
+    const result = `${targetString.slice(0, maxlength)}...`
+    return result
+  }
+}
+
+/**
+ *
+ * @param status status of the contest
+ * @returns text style for the status
+ */
+export const getStatusColor = (status: string): string => {
+  if (status.toLowerCase().includes('upcoming')) {
+    return 'text-white border-primary bg-primary font-medium'
+  } else if (status.toLowerCase().includes('ongoing')) {
+    return 'text-primary border-primary font-medium'
+  } else {
+    return 'text-[#8A8A8A] border-[#C4C4C4]'
+  }
+}

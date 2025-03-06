@@ -1,15 +1,19 @@
 import { faker } from '@faker-js/faker'
 import { Language, Level, Role } from '@prisma/client'
-import type { Contest, ContestProblem, WorkbookProblem } from '@prisma/client'
+import type {
+  Contest,
+  ContestProblem,
+  Assignment,
+  AssignmentProblem,
+  WorkbookProblem
+} from '@prisma/client'
 import { MIN_DATE } from '@libs/constants'
 import type { Problem } from '@admin/@generated'
-import type { CreateTemplateDto } from '../dto/create-code-draft.dto'
 
 export const problems: Problem[] = [
   {
     id: 1,
     createdById: 1,
-    groupId: 1,
     title: 'public problem',
     description: '',
     inputDescription: '',
@@ -37,7 +41,6 @@ export const problems: Problem[] = [
   {
     id: 2,
     createdById: 1,
-    groupId: 1,
     title: 'problem',
     description: '',
     inputDescription: '',
@@ -91,6 +94,31 @@ export const contestProblems = [
   }
 ] satisfies Array<ContestProblem & { contest: Partial<Contest> }>
 
+export const assignmentProblems = [
+  {
+    order: 1,
+    assignmentId: 1,
+    problemId: 1,
+    score: 0,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    assignment: {
+      startTime: new Date()
+    }
+  },
+  {
+    order: 2,
+    assignmentId: 1,
+    problemId: 2,
+    score: 0,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    assignment: {
+      startTime: new Date()
+    }
+  }
+] satisfies Array<AssignmentProblem & { assignment: Partial<Assignment> }>
+
 export const contestProblemsWithScore = [
   {
     id: 1,
@@ -122,6 +150,41 @@ export const contestProblemsWithScore = [
   }
 ] satisfies Array<
   Omit<ContestProblem, 'score'> & { contest: Partial<Contest> } & {
+    maxScore: number
+    submissionTime: Date | null
+    score: number | null
+  }
+>
+
+export const assignmentProblemsWithScore = [
+  {
+    order: 1,
+    assignmentId: 1,
+    problemId: 1,
+    score: null,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    assignment: {
+      startTime: new Date()
+    },
+    maxScore: 0,
+    submissionTime: null
+  },
+  {
+    order: 2,
+    assignmentId: 1,
+    problemId: 2,
+    score: null,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    assignment: {
+      startTime: new Date()
+    },
+    maxScore: 0,
+    submissionTime: null
+  }
+] satisfies Array<
+  Omit<AssignmentProblem, 'score'> & { assignment: Partial<Assignment> } & {
     maxScore: number
     submissionTime: Date | null
     score: number | null
@@ -166,59 +229,4 @@ export const mockUser = {
   lastLogin: undefined,
   createTime: undefined,
   updateTime: undefined
-}
-
-export const mockCodeDraft = {
-  id: 2,
-  userId: 4,
-  problemId: 2,
-  template: [
-    {
-      code: [
-        {
-          id: 1,
-          text: '#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n',
-          locked: true
-        },
-        {
-          id: 2,
-          text: '    cout << "hello, world" << endl;\n',
-          locked: false
-        },
-        {
-          id: 3,
-          text: '    return 0;\n}\n',
-          locked: true
-        }
-      ],
-      language: 'Cpp'
-    },
-    {
-      code: [
-        {
-          id: 1,
-          text: 'print("hello, world")\n',
-          locked: false
-        }
-      ],
-      language: 'Python3'
-    }
-  ],
-  createTime: '2023-12-27T16:17:11.260Z',
-  updateTime: '2023-12-27T16:17:11.260Z'
-}
-
-export const mockTemplate: CreateTemplateDto = {
-  template: [
-    {
-      language: Language.Cpp,
-      code: [
-        {
-          id: 1,
-          text: '#include <bits/stdc++.h>\n using namespace std;\n int main() { cout << "hello, world" << endl;\n return 0; }',
-          locked: false
-        }
-      ]
-    }
-  ]
 }
