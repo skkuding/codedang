@@ -1,5 +1,8 @@
+'use client'
+
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import { useSession } from '@/libs/hooks/useSession'
 import Link from 'next/link'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
@@ -17,6 +20,8 @@ import { TestcaseField } from '../_components/TestcaseField'
 import { CreateProblemForm } from './_components/CreateProblemForm'
 
 export default function Page() {
+  const session = useSession()
+  const isAdmin = session?.user?.role !== 'User'
   return (
     <ConfirmNavigation>
       <ScrollArea className="shrink-0">
@@ -36,7 +41,7 @@ export default function Page() {
 
               <FormSection title="Visible">
                 <PopoverVisibleInfo />
-                <VisibleForm />
+                <VisibleForm blockEdit={!isAdmin} />
               </FormSection>
             </div>
 
