@@ -58,6 +58,7 @@
     "class-validator": "^0.14.1",
     "colorette": "^2.0.20",
     "cookie-parser": "^1.4.7",
+    "cron": "3.5.0",
     "cross-env": "^7.0.3",
     "dayjs": "^1.11.13",
     "exceljs": "^4.4.0",

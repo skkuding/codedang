@@ -194,6 +194,9 @@ importers:
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
+      cron:
+        specifier: 3.5.0
+        version: 3.5.0
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3

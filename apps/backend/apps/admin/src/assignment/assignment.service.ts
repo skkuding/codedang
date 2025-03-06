@@ -8,6 +8,7 @@ import {
   AssignmentProblem
 } from '@generated'
 import { Cache } from 'cache-manager'
+import { CronJob } from 'cron'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -112,16 +113,19 @@ export class AssignmentService {
         }
       })
 
-      const milliseconds = new Date(assignment.endTime).getTime() - Date.now()
+      const endTime = new Date(assignment.endTime)
 
-      if (milliseconds >= 0) {
-        const timeout = setTimeout(
-          () => this.endTimeReached(createdAssignment.id, groupId),
-          milliseconds
-        )
-        this.schedulerRegistry.addTimeout(String(createdAssignment.id), timeout)
+      if (endTime.getTime() >= Date.now()) {
+        const cronExpression = `${endTime.getSeconds()} ${endTime.getMinutes()} ${endTime.getHours()} ${endTime.getDate()} ${endTime.getMonth() + 1} *`
+
+        const job = new CronJob(cronExpression, () => {
+          this.endTimeReached(createdAssignment.id, groupId)
+          this.schedulerRegistry.deleteCronJob(String(createdAssignment.id))
+        })
+
+        this.schedulerRegistry.addCronJob(String(createdAssignment.id), job)
+        job.start()
       }
-
       return createdAssignment
     } catch (error) {
       throw new UnprocessableDataException(error.message)
@@ -168,22 +172,22 @@ export class AssignmentService {
 
     if (isEndTimeChanged) {
       try {
-        const oldTimeout = this.schedulerRegistry.getTimeout(
-          String(assignment.id)
-        )
-        clearTimeout(oldTimeout)
-        this.schedulerRegistry.deleteTimeout(String(assignment.id))
+        this.schedulerRegistry.deleteCronJob(String(assignment.id))
         // eslint-disable-next-line no-empty
       } catch {}
 
-      const milliseconds = new Date(assignment.endTime).getTime() - Date.now()
+      const endTime = new Date(assignment.endTime)
 
-      if (milliseconds >= 0) {
-        const newTimeout = setTimeout(
-          () => this.endTimeReached(assignment.id, groupId),
-          milliseconds
-        )
-        this.schedulerRegistry.addTimeout(String(assignment.id), newTimeout)
+      if (endTime.getTime() >= Date.now()) {
+        const cronExpression = `${endTime.getSeconds()} ${endTime.getMinutes()} ${endTime.getHours()} ${endTime.getDate()} ${endTime.getMonth() + 1} *`
+
+        const job = new CronJob(cronExpression, () => {
+          this.endTimeReached(assignment.id, groupId)
+          this.schedulerRegistry.deleteCronJob(String(assignment.id))
+        })
+
+        this.schedulerRegistry.addCronJob(String(assignment.id), job)
+        job.start()
       }
     }
 
@@ -288,9 +292,7 @@ export class AssignmentService {
     }
 
     try {
-      const timeout = this.schedulerRegistry.getTimeout(String(assignmentId))
-      clearTimeout(timeout)
-      this.schedulerRegistry.deleteTimeout(String(assignmentId))
+      this.schedulerRegistry.deleteCronJob(String(assignmentId))
       // eslint-disable-next-line no-empty
     } catch {}
 
