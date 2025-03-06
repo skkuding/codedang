@@ -47,10 +47,14 @@ export function ConfirmModal({
           </ul>
         </div>
         <div className="text-[13px] font-normal text-[#737373]">
-          <p>If the problems is changed,</p>
-          <p>the submissions of these assignment problem will be lost.</p>
-          <p>If these problems,</p>
-          <p>The score of existing submissions could be not consistent</p>
+          <p>
+            Deleting a problem from an assignment will remove all previous
+            submissions.
+          </p>
+          <p>
+            Modifying scores may result in inconsistency between the scores of
+            existing submissions and new submissions.
+          </p>
         </div>
         <AlertDialogFooter>
           <AlertDialogCancel asChild>
