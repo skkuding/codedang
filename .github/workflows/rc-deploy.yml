@@ -41,6 +41,36 @@ jobs:
         working-directory: ./apps/infra/rc/network
         run: terraform init -backend-config="bucket=codedang-tf-state-rc"
 
+      - name: Check Existing AWS Codedang Resources
+        working-directory: ./apps/infra/rc/codedang
+        run: |
+          if terraform state list | grep -q .; then
+            echo "Resources found. Proceeding with destroy."
+            echo "CODEDANG_DESTROY_REQUIRED=true" >> $GITHUB_ENV
+          else
+            echo "No resources found. Skipping destroy."
+            echo "CODEDANG_DESTROY_REQUIRED=false" >> $GITHUB_ENV
+          fi
+      - name: Terraform Destroy If There's Existing Codedang Resources
+        if: env.CODEDANG_DESTROY_REQUIRED == 'true'
+        working-directory: ./apps/infra/rc/codedang
+        run: terraform destroy -auto-approve
+
+      - name: Check Existing AWS Storage Resources
+        working-directory: ./apps/infra/rc/storage
+        run: |
+          if terraform state list | grep -q .; then
+            echo "Resources found. Proceeding with destroy."
+            echo "STORAGE_DESTROY_REQUIRED=true" >> $GITHUB_ENV
+          else
+            echo "No resources found. Skipping destroy."
+            echo "STORAGE_DESTROY_REQUIRED=false" >> $GITHUB_ENV
+          fi
+      - name: Terraform Destroy If There's Existing Storage Resources
+        if: env.STORAGE_DESTROY_REQUIRED == 'true'
+        working-directory: ./apps/infra/rc/storage
+        run: terraform destroy -auto-approve
+
       - name: Terraform Plan
         working-directory: ./apps/infra/rc/network
         run: terraform plan -input=false -out=plan.out
@@ -88,15 +118,17 @@ jobs:
         run: terraform apply -input=false plan.out
 
   rc-deploy-codedang:
-    name: RC - Deploy Codedang
+    name: RC - Build & Upload Docker Image and Deploy Terraform Codedang Project
     runs-on: ubuntu-latest
-    needs: [rc-deploy-network, rc-deploy-storage]
     environment: production
     defaults:
       run:
         shell: bash
 
     steps:
+      - name: Trigger RC - CD - Build Images Workflow
+        uses: ./.github/workflows/rc-build-image.yml
+
       - uses: actions/checkout@v4
 
       - uses: aws-actions/configure-aws-credentials@v4
@@ -109,7 +141,7 @@ jobs:
           terraform_version: 1.5.2
 
       - name: Create Terraform variable file
-        working-directory: ./apps/infra/rc/codedang
+        working-directory: ./apps/infra/rc/${{ github.event.inputs.terraform_project }}
         run: |
           echo "$TFVARS_RC" >> terraform.tfvars
           echo "$OAUTH_GITHUB" >> terraform.tfvars
@@ -123,6 +155,10 @@ jobs:
       - name: Terraform Init
         working-directory: ./apps/infra/rc/codedang
         run: terraform init -backend-config="bucket=codedang-tf-state-rc"
+
+      - name: Terraform Destroy
+        working-directory: ./apps/infra/rc/codedang
+        run: terraform destroy -auto-approve
 
       - name: Terraform Plan
         working-directory: ./apps/infra/rc/codedang
