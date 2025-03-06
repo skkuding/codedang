@@ -141,7 +141,7 @@ jobs:
           terraform_version: 1.5.2
 
       - name: Create Terraform variable file
-        working-directory: ./apps/infra/rc/${{ github.event.inputs.terraform_project }}
+        working-directory: ./apps/infra/rc/codedang
         run: |
           echo "$TFVARS_RC" >> terraform.tfvars
           echo "$OAUTH_GITHUB" >> terraform.tfvars
