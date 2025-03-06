@@ -28,7 +28,7 @@ export function TotalScoreLabel({
         `assignment/${assignmentId}/score/me`,
         {
           searchParams: {
-            courseId
+            groupId: courseId
           }
         }
       ).json()
