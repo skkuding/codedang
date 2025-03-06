@@ -1,6 +1,7 @@
 'use client'
 
-import { GET_GROUP_MEMBERS } from '@/graphql/user/queries'
+import { GET_USERS } from '@/graphql/user/queries'
+import { dateFormatter } from '@/libs/utils'
 import { useSuspenseQuery } from '@apollo/client'
 import {
   DataTable,
@@ -11,21 +12,31 @@ import {
 import { columns } from './Columns'
 
 export function UserTable() {
-  const { data } = useSuspenseQuery(GET_GROUP_MEMBERS, {
+  const { data } = useSuspenseQuery(GET_USERS, {
     variables: {
-      groupId: 1,
-      cursor: 1,
-      take: 5000,
-      leaderOnly: false
+      take: 5000
     }
   })
-  const users = data.getGroupMembers.map((member) => ({
-    ...member,
-    id: member.userId
+  const users = data.getUsers
+
+  const mappedUsers = users.map((user) => ({
+    id: Number(user.id),
+    username: user.username,
+    realName: user.userProfile ? user.userProfile.realName : '-',
+    email: user.email,
+    studentId: user.studentId,
+    major: user.major ?? '-',
+    role: user.role,
+    canCreateCourse: user.canCreateCourse,
+    canCreateContest: user.canCreateContest,
+    lastLogin: dateFormatter(user.lastLogin, 'YYYY-MM-DD HH:mm:ss'),
+    createTime: user.userProfile
+      ? dateFormatter(user.userProfile.createTime, 'YYYY-MM-DD HH:mm:ss')
+      : '-'
   }))
 
   return (
-    <DataTableRoot data={users} columns={columns}>
+    <DataTableRoot data={mappedUsers} columns={columns}>
       <DataTable />
       <DataTablePagination />
     </DataTableRoot>
