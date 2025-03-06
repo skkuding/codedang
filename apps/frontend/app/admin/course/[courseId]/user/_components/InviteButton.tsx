@@ -101,7 +101,10 @@ export function InviteButton({ onSuccess, params }: InviteButtonProps) {
           <div className="flex flex-col gap-3">
             <InviteManually courseId={courseId} />
             <Separator className="my-6" />
-            <InviteByCode courseId={courseId} />
+            <InviteByCode
+              courseId={courseId}
+              isAlertDialogOpen={isAlertDialogOpen}
+            />
           </div>
         </AlertDialogContent>
       </AlertDialog>
@@ -284,18 +287,23 @@ function InviteManually({ courseId }: InviteManuallyProps) {
 
 interface InviteByCodeProps {
   courseId: number
+  isAlertDialogOpen: boolean
 }
 
 interface InvitationCodeInput {
   issueInvitation: string
 }
 
-function InviteByCode({ courseId }: InviteByCodeProps) {
+function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
   const [isInviteByCodeEnabled, setIsInviteByCodeEnabled] = useState(false) // 기본값: 숨김
   const [isApprovalRequired, setIsApprovalRequired] = useState(false)
   const [issueInvitation] = useMutation(ISSUE_INVITATION)
   const [revokeInvitation] = useMutation(REVOKE_INVITATION)
-  const [createWhitelist] = useMutation(CREATE_WHITE_LIST)
+  const [createWhitelist] = useMutation(CREATE_WHITE_LIST, {
+    refetchQueries: [
+      { query: GET_WHITE_LIST, variables: { groupId: courseId } }
+    ]
+  })
   const [deleteWhitelist] = useMutation(DELETE_WHITE_LIST, {
     refetchQueries: [
       { query: GET_WHITE_LIST, variables: { groupId: courseId } }
@@ -310,15 +318,14 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
   const [isDeleteWhitelistModalOpen, setIsDeleteWhitelistModalOpen] =
     useState(false)
 
-  useQuery(GET_WHITE_LIST, {
+  const { refetch: refetchWhiteList } = useQuery(GET_WHITE_LIST, {
     variables: { groupId: courseId },
     onCompleted: (data) => {
       setstudentIds(data?.getWhitelist)
       setIsApprovalRequired(data?.getWhitelist.length > 0)
     }
   })
-
-  useQuery(GET_COURSE, {
+  const { refetch: refetchInvitationCode } = useQuery(GET_COURSE, {
     variables: { groupId: courseId },
     onCompleted: (data) => {
       setIsInviteByCodeEnabled(Boolean(data?.getCourse.invitation))
@@ -329,6 +336,13 @@ function InviteByCode({ courseId }: InviteByCodeProps) {
       }
     }
   })
+
+  useEffect(() => {
+    if (isAlertDialogOpen) {
+      refetchWhiteList()
+      refetchInvitationCode()
+    }
+  }, [isAlertDialogOpen, refetchInvitationCode, refetchWhiteList])
 
   const { register, getValues, reset } = useForm<InvitationCodeInput>()
 

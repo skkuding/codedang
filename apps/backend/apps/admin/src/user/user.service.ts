@@ -40,7 +40,10 @@ export class UserService {
 
     return await this.prisma.user.findMany({
       ...paginator,
-      take
+      take,
+      include: {
+        userProfile: true
+      }
     })
   }
 
