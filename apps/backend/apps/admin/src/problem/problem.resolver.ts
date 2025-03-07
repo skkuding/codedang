@@ -143,11 +143,9 @@ export class ProblemResolver {
     return await this.problemService.getProblem(id, req.user.role, req.user.id)
   }
 
-  @Query(() => [UpdateHistory])
-  async getProblemUpdateHistory(
-    @Args('problemId', { type: () => Int }) problemId: number
-  ): Promise<UpdateHistory[]> {
-    return this.problemService.getProblemUpdateHistory(problemId)
+  @ResolveField('updateHistory', () => [UpdateHistory])
+  async getProblemUpdateHistory(@Parent() problem: ProblemWithIsVisible) {
+    return await this.problemService.getProblemUpdateHistory(problem.id)
   }
 
   @ResolveField('tag', () => [ProblemTag])

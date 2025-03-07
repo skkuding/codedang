@@ -9,7 +9,7 @@ import {
   WorkbookProblem
 } from '@generated'
 import { Level } from '@generated'
-import type { ProblemWhereInput } from '@generated'
+import type { ProblemWhereInput, UpdateHistory } from '@generated'
 import { ProblemField, Role } from '@prisma/client'
 import { Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
@@ -583,52 +583,31 @@ export class ProblemService {
 
     const updatedFields: ProblemField[] = []
 
-    const titleInfo = {
-      updatedField: 'title',
-      current: problem.title,
-      previous: problem.title
-    }
-    const languageInfo = {
-      updatedField: 'language',
-      current: problem.languages,
-      previous: problem.languages
-    }
-    const descriptionInfo = {
-      updatedField: 'description',
-      current: problem.description,
-      previous: problem.description
-    }
-    const timeLimitInfo = {
-      updatedField: 'timeLimit',
-      current: problem.timeLimit,
-      previous: problem.timeLimit
-    }
-    const memoryLimitInfo = {
-      updatedField: 'memoryLimit',
-      current: problem.memoryLimit,
-      previous: problem.memoryLimit
-    }
-    const hintInfo = {
-      updatedField: 'hint',
-      current: problem.hint,
-      previous: problem.hint
-    }
+    const fields = [
+      'title',
+      'languages',
+      'description',
+      'timeLimit',
+      'memoryLimit',
+      'hint'
+    ]
 
-    if (input.title && input.title !== problem.title) {
-      updatedFields.push(ProblemField.title)
-      titleInfo.current = input.title
-    }
-    if (
-      input.languages &&
-      JSON.stringify(input.languages) !== JSON.stringify(problem.languages)
-    ) {
-      updatedFields.push(ProblemField.language)
-      languageInfo.current = input.languages
-    }
-    if (input.description && input.description !== problem.description) {
-      updatedFields.push(ProblemField.description)
-      descriptionInfo.current = input.description
-    }
+    const updatedInfos = fields.map((field) => ({
+      updatedField: field,
+      current: problem[field],
+      previous: problem[field]
+    }))
+
+    updatedInfos.forEach((info) => {
+      if (
+        input[info.updatedField] &&
+        input[info.updatedField] !== info.previous
+      ) {
+        updatedFields.push(ProblemField[info.updatedField])
+        info.current = input[info.updatedField]
+      }
+    })
+
     if (testcases?.length) {
       const existingTestcases = await this.prisma.problemTestcase.findMany({
         where: { problemId: id }
@@ -647,17 +626,24 @@ export class ProblemService {
         updatedFields.push(ProblemField.testcase)
       }
     }
-    if (input.timeLimit && input.timeLimit !== problem.timeLimit) {
-      updatedFields.push(ProblemField.timeLimit)
-      timeLimitInfo.current = input.timeLimit
-    }
-    if (input.memoryLimit && input.memoryLimit !== problem.memoryLimit) {
-      updatedFields.push(ProblemField.memoryLimit)
-      memoryLimitInfo.current = input.memoryLimit
-    }
-    if (input.hint && input.hint !== problem.hint) {
-      updatedFields.push(ProblemField.hint)
-      hintInfo.current = input.hint
+    if (userRole == Role.User && problem.createdById != userId) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared) {
+        throw new ForbiddenException(
+          'User can only edit problems they created or were shared with'
+        )
+      }
     }
 
     if (languages && !languages.length) {
@@ -702,14 +688,7 @@ export class ProblemService {
       await this.updateTestcases(id, testcases)
     }
 
-    const updatedInfo = [
-      titleInfo,
-      languageInfo,
-      descriptionInfo,
-      timeLimitInfo,
-      memoryLimitInfo,
-      hintInfo
-    ]
+    const updatedInfo = updatedInfos
       .filter((info) => info.current !== info.previous)
       .map(({ updatedField, current, previous }) => ({
         updatedField,
@@ -748,7 +727,7 @@ export class ProblemService {
     return this.changeVisibleLockTimeToIsVisible(updatedProblem)
   }
 
-  async getProblemUpdateHistory(problemId: number) {
+  async getProblemUpdateHistory(problemId: number): Promise<UpdateHistory[]> {
     return await this.prisma.updateHistory.findMany({
       where: {
         problemId
