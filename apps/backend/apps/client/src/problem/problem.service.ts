@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { Prisma, ResultStatus } from '@prisma/client'
 import { MIN_DATE } from '@libs/constants'
 import { ForbiddenAccessException } from '@libs/exception'
