@@ -1,3 +1,4 @@
+import { dataIfError } from '@/app/(client)/(code-editor)/_libs/dataIfError'
 import { CodeEditor } from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import {
@@ -12,7 +13,6 @@ import { dateFormatter, fetcherWithAuth, getResultColor } from '@/libs/utils'
 import type { SubmissionDetail, ContestSubmission } from '@/types/type'
 import { revalidateTag } from 'next/cache'
 import { IoIosLock } from 'react-icons/io'
-import { dataIfError } from '../_libs/dataIfError'
 
 interface Props {
   problemId: number
