@@ -26,7 +26,9 @@ export function ProblemTable() {
           Level.Level5
         ],
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3]
-      }
+      },
+      my: true,
+      shared: false
     }
   })
 

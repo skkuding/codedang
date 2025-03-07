@@ -57,7 +57,10 @@ const submission: Submission & { submissionResult: SubmissionResult[] } = {
 
 const contestSubmission = {
   ...submission,
-  contestId: 1
+  contestId: 1,
+  contest: {
+    evaluateWithSampleTestcase: true
+  }
 }
 
 const assignmentSubmission = {
@@ -113,6 +116,7 @@ const db = {
     findFirstOrThrow: mockFunc
   },
   problemTestcase: {
+    findMany: mockFunc,
     aggregate: mockFunc
   },
   $transaction: async (fn: (prisma: typeof db) => Promise<unknown>) => {
@@ -428,7 +432,13 @@ describe('SubmissionSubscriptionService', () => {
             createTime: true,
             submissionResult: {
               select: {
-                result: true
+                result: true,
+                problemTestcaseId: true
+              }
+            },
+            contest: {
+              select: {
+                evaluateWithSampleTestcase: true
               }
             }
           }
@@ -525,7 +535,13 @@ describe('SubmissionSubscriptionService', () => {
             updateTime: true,
             submissionResult: {
               select: {
-                result: true
+                result: true,
+                problemTestcaseId: true
+              }
+            },
+            contest: {
+              select: {
+                evaluateWithSampleTestcase: true
               }
             }
           }

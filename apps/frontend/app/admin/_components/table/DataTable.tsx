@@ -60,9 +60,9 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
   const { table } = useDataTable<TData>()
 
   return (
-    <ScrollArea className="max-w-full rounded border">
+    <ScrollArea className="max-w-full rounded">
       <Table>
-        <TableHeader className="bg-neutral-100 [&_tr]:border-b-gray-200">
+        <TableHeader className="[&_td]:border-[#80808040]">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
@@ -79,7 +79,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
           ))}
         </TableHeader>
 
-        <TableBody>
+        <TableBody className="[&_td]:border-[#80808040]">
           {table.getRowModel().rows.length > 0 ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
@@ -96,11 +96,29 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                   }
                 }}
               >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="text-center md:p-4">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+                {row.getVisibleCells().map((cell) => {
+                  const meta = cell.column.columnDef.meta as {
+                    link: (row: TData) => string
+                  }
+                  const href = meta?.link(row.original)
+                  return (
+                    <TableCell
+                      key={cell.id}
+                      className="text-center md:p-4"
+                      onClick={(e) => {
+                        if (href) {
+                          e.stopPropagation()
+                          router.push(href as Route)
+                        }
+                      }}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  )
+                })}
               </TableRow>
             ))
           ) : (

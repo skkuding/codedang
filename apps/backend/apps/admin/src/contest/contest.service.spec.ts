@@ -46,16 +46,19 @@ const contest: Contest = {
   isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
+  evaluateWithSampleTestcase: false,
   createTime,
   updateTime,
   invitationCode,
   contestProblem: [],
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 
 const contestWithCount = {
@@ -72,6 +75,7 @@ const contestWithCount = {
   isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
+  evaluateWithSampleTestcase: false,
   createTime,
   updateTime,
   invitationCode,
@@ -80,11 +84,13 @@ const contestWithCount = {
     contestRecord: 10
   },
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 
 const contestWithParticipants: ContestWithParticipants = {
@@ -102,16 +108,19 @@ const contestWithParticipants: ContestWithParticipants = {
   isRankVisible: true,
   enableCopyPaste: true,
   isJudgeResultVisible: true,
+  evaluateWithSampleTestcase: false,
   createTime,
   updateTime,
   participants: 10,
   invitationCode,
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 
 const problem: Problem = {
@@ -228,6 +237,7 @@ const db = {
   },
   contest: {
     findFirst: stub().resolves(Contest),
+    findUniqueOrThrow: stub().resolves(Contest),
     findUnique: stub().resolves(Contest),
     findMany: stub().resolves([Contest]),
     create: stub().resolves(Contest),
@@ -325,7 +335,7 @@ describe('ContestService', () => {
 
   describe('updateContest', () => {
     it('should return updated contest', async () => {
-      db.contest.findFirst.resolves(contest)
+      db.contest.findUniqueOrThrow.resolves(contest)
       db.contest.update.resolves(contest)
 
       const res = await service.updateContest(updateInput)

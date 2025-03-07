@@ -21,6 +21,10 @@ body:graphql {
       outputDescription
       hint
       isVisible
+      sharedGroups {
+        id
+        groupName
+      }
       testcase {
         id
         input
@@ -56,7 +60,7 @@ assert {
 docs {
   ## Get a Problem
   Problem을 가져옵니다.
-
+  
   ### Error Cases
   #### NOT_FOUND
   존재하지 않는 id를 전달하는 경우 발생합니다.

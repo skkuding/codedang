@@ -25,6 +25,8 @@ export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
 // Problem type definition
 
 export type MemberRole = 'Instructor' | 'Student'
+
+export type SubmissionResult = 'CompileError' | 'WrongAnswer' | 'Accepted'
 export interface Tag {
   id: number
   name: string
@@ -139,9 +141,12 @@ export interface Contest {
   title: string
   startTime: Date
   endTime: Date
-  group: {
-    id: number
-    groupName: string
+  summary: {
+    문제형태?: string
+    순위산정?: string
+    진행방식?: string
+    참여대상?: string
+    참여혜택?: string
   }
   isJudgeResultVisible: boolean
   enableCopyPaste: boolean

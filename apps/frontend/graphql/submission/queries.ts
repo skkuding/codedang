@@ -122,14 +122,14 @@ const GET_SUBMISSION = gql(`query GetSubmission(
   }
 }`)
 
-const GET_ASSIGNMENT_SUBMISSION = gql(`
-  query GetAssignmentSubmission(
+const GET_ASSIGNMENT_LATEST_SUBMISSION = gql(`
+  query GetAssignmentLatestSubmission(
     $groupId: Int!
     $assignmentId: Int!
     $userId: Int!
     $problemId: Int!
   ) {
-    getAssignmentSubmission(
+    getAssignmentLatestSubmission(
       groupId: $groupId
       assignmentId: $assignmentId
       userId: $userId
@@ -169,7 +169,7 @@ const GET_ASSIGNMENT_SUBMISSION = gql(`
 export {
   GET_CONTEST_SUBMISSIONS_COUNT,
   GET_CONTEST_SUBMISSIONS,
-  GET_ASSIGNMENT_SUBMISSION,
+  GET_ASSIGNMENT_LATEST_SUBMISSION,
   GET_ASSIGNMENT_SUBMISSIONS,
   GET_SUBMISSION
 }

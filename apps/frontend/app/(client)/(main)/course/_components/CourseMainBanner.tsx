@@ -156,7 +156,6 @@ export function CourseMainBanner({ course }: { course: JoinedCourse | null }) {
           </div>
         ))}
       </div>
-      <div className="h-[100px]" />
     </div>
   )
 }
