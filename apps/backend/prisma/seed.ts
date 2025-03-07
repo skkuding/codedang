@@ -1008,6 +1008,7 @@ const createContests = async () => {
       isVisible: boolean
       isRankVisible: boolean
       invitationCode: string | null
+      evaluateWithSampleTestcase: boolean
       enableCopyPaste: boolean
     }
   }[] = [
@@ -1059,7 +1060,8 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: true,
         invitationCode: '123456',
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     {
@@ -1079,7 +1081,8 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: true,
         invitationCode: null,
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     {
@@ -1099,7 +1102,8 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: true,
         invitationCode: '123456',
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     {
@@ -1119,7 +1123,8 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: true,
         invitationCode: null,
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     {
@@ -1140,7 +1145,8 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: true,
         invitationCode: null,
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     // Finished Contests
@@ -1160,7 +1166,8 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: false,
         invitationCode: '123456',
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     {
@@ -1181,7 +1188,8 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: true,
         invitationCode: '123456',
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     {
@@ -1202,7 +1210,8 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: false,
         invitationCode: '123456',
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     {
@@ -1222,7 +1231,8 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: false,
         invitationCode: '123456',
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     {
@@ -1242,7 +1252,8 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: false,
         invitationCode: '123456',
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     {
@@ -1262,7 +1273,8 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: false,
         invitationCode: '123456',
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     {
@@ -1282,7 +1294,8 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: false,
         invitationCode: '123456',
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     {
@@ -1303,7 +1316,8 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: false,
         invitationCode: null,
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     {
@@ -1323,7 +1337,8 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: true,
         invitationCode: null,
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     // Upcoming Contests
@@ -1344,7 +1359,8 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: true,
         invitationCode: '123456',
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     {
@@ -1364,7 +1380,8 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: true,
         invitationCode: '123456',
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     {
@@ -1385,7 +1402,8 @@ const createContests = async () => {
         isVisible: false,
         isRankVisible: true,
         invitationCode: '123456',
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     {
@@ -1405,7 +1423,8 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: true,
         invitationCode: null,
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
       }
     },
     {
@@ -1425,7 +1444,29 @@ const createContests = async () => {
         isVisible: true,
         isRankVisible: true,
         invitationCode: '123456',
-        enableCopyPaste: true
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: false
+      }
+    },
+    {
+      data: {
+        title: '2025 SKKU 프로그래밍 대회',
+        description: '<p>sample testcase 확인을 위한 대회</p>',
+        createdById: contestAdminUser.id,
+        posterUrl: null,
+        summary: {
+          참여대상: '소프트웨어학과 원전공/복수전공',
+          진행방식: '온라인 진행 예정...?',
+          순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
+          문제형태: '문제 형식은 다음과 같습니다.'
+        },
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('3025-01-01T23:59:59.000Z'),
+        isVisible: true,
+        isRankVisible: true,
+        enableCopyPaste: true,
+        evaluateWithSampleTestcase: true,
+        invitationCode: null
       }
     }
   ]

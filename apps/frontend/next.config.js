@@ -26,8 +26,8 @@ const remotePatterns = [
 
 const nextConfig = {
   experimental: {
-    typedRoutes: process.env.NODE_ENV !== 'development',
-    instrumentationHook: process.env.NODE_ENV !== 'development'
+    typedRoutes: process.env.NODE_ENV !== 'development'
+    // instrumentationHook: process.env.NODE_ENV !== 'development'
   },
   images: {
     remotePatterns
@@ -35,7 +35,8 @@ const nextConfig = {
   output: 'standalone',
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL
-  },
+  }
+  /**
   // Custom Webpack Config
   webpack: (config, { webpack }) => {
     // NOTE: https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/tree-shaking/
@@ -52,6 +53,7 @@ const nextConfig = {
     // return the modified config
     return config
   }
+  */
 }
 
 module.exports = withBundleAnalyzer(nextConfig)

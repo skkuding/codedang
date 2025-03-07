@@ -1,13 +1,14 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, NotFoundException } from '@nestjs/common'
+import { SchedulerRegistry } from '@nestjs/schedule'
 import {
   Assignment,
   ResultStatus,
   Submission,
   AssignmentProblem
 } from '@generated'
-import { GroupType } from '@prisma/client'
 import { Cache } from 'cache-manager'
+import { CronJob } from 'cron'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -26,6 +27,7 @@ import type { AssignmentProblemScoreInput } from './model/problem-score.input'
 export class AssignmentService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly schedulerRegistry: SchedulerRegistry,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -103,13 +105,28 @@ export class AssignmentService {
     }
 
     try {
-      return await this.prisma.assignment.create({
+      const createdAssignment = await this.prisma.assignment.create({
         data: {
           createdById: userId,
           groupId,
           ...assignment
         }
       })
+
+      const endTime = new Date(assignment.endTime)
+
+      if (endTime.getTime() >= Date.now()) {
+        const cronExpression = `${endTime.getSeconds()} ${endTime.getMinutes()} ${endTime.getHours()} ${endTime.getDate()} ${endTime.getMonth() + 1} *`
+
+        const job = new CronJob(cronExpression, () => {
+          this.endTimeReached(createdAssignment.id, groupId)
+          this.schedulerRegistry.deleteCronJob(String(createdAssignment.id))
+        })
+
+        this.schedulerRegistry.addCronJob(String(createdAssignment.id), job)
+        job.start()
+      }
+      return createdAssignment
     } catch (error) {
       throw new UnprocessableDataException(error.message)
     }
@@ -151,6 +168,27 @@ export class AssignmentService {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
       )
+    }
+
+    if (isEndTimeChanged) {
+      try {
+        this.schedulerRegistry.deleteCronJob(String(assignment.id))
+        // eslint-disable-next-line no-empty
+      } catch {}
+
+      const endTime = new Date(assignment.endTime)
+
+      if (endTime.getTime() >= Date.now()) {
+        const cronExpression = `${endTime.getSeconds()} ${endTime.getMinutes()} ${endTime.getHours()} ${endTime.getDate()} ${endTime.getMonth() + 1} *`
+
+        const job = new CronJob(cronExpression, () => {
+          this.endTimeReached(assignment.id, groupId)
+          this.schedulerRegistry.deleteCronJob(String(assignment.id))
+        })
+
+        this.schedulerRegistry.addCronJob(String(assignment.id), job)
+        job.start()
+      }
     }
 
     const problemIds = assignmentFound.assignmentProblem.map(
@@ -252,6 +290,11 @@ export class AssignmentService {
     if (problemIds.length) {
       await this.removeProblemsFromAssignment(groupId, assignmentId, problemIds)
     }
+
+    try {
+      this.schedulerRegistry.deleteCronJob(String(assignmentId))
+      // eslint-disable-next-line no-empty
+    } catch {}
 
     try {
       return await this.prisma.assignment.delete({
@@ -359,6 +402,24 @@ export class AssignmentService {
       } catch (error) {
         throw new UnprocessableDataException(error.message)
       }
+
+      const assignmentParticipants =
+        await this.prisma.assignmentRecord.findMany({
+          where: {
+            assignmentId
+          },
+          select: {
+            userId: true
+          }
+        })
+
+      const assignmentProblemRecordsData = assignmentParticipants.map(
+        ({ userId }) => ({ assignmentId, userId: userId!, problemId })
+      )
+
+      await this.prisma.assignmentProblemRecord.createMany({
+        data: assignmentProblemRecordsData
+      })
     }
 
     return assignmentProblems
@@ -1070,5 +1131,51 @@ export class AssignmentService {
     }
 
     return assignmentProblemRecord
+  }
+
+  async endTimeReached(assignmentId: number, groupId: number) {
+    const courseMembers = await this.prisma.userGroup.findMany({
+      where: { groupId, isGroupLeader: false },
+      select: { userId: true }
+    })
+
+    if (courseMembers.length === 0) {
+      throw new NotFoundException('Course Member')
+    }
+
+    const assignmentParticipants = await this.prisma.assignmentRecord.findMany({
+      where: { assignmentId },
+      select: { userId: true }
+    })
+
+    const nonParticipants = courseMembers.filter(
+      ({ userId }) =>
+        !assignmentParticipants
+          .map((participant) => participant.userId)
+          .includes(userId)
+    )
+
+    const assignmentProblems = await this.prisma.assignmentProblem.findMany({
+      where: { assignmentId },
+      select: { problemId: true }
+    })
+
+    const assignmentProblemData = nonParticipants.flatMap(({ userId }) =>
+      assignmentProblems.map(({ problemId }) => ({
+        assignmentId,
+        userId,
+        problemId
+      }))
+    )
+
+    await this.prisma.$transaction(async (prisma) => {
+      await prisma.assignmentRecord.createMany({
+        data: nonParticipants.map(({ userId }) => ({ userId, assignmentId }))
+      })
+
+      await prisma.assignmentProblemRecord.createMany({
+        data: assignmentProblemData
+      })
+    })
   }
 }

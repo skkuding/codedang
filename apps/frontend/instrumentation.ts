@@ -3,7 +3,7 @@ import { init } from '@sentry/nextjs'
 export const register = () => {
   if (['nodejs', 'edge'].includes(process.env.NEXT_RUNTIME ?? '')) {
     init({
-      dsn: 'https://10bd959e91328cfb75c274af2faa5fac@sentry.codedang.com/10',
+      dsn: 'https://e7ad1fd7113c361ca7e511afc732c5ed@sentry.codedang.com/2',
 
       // Adjust this value in production, or use tracesSampler for greater control
       tracesSampleRate: 1,

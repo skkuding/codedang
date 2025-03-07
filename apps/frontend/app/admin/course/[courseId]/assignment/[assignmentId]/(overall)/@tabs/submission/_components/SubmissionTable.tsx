@@ -28,7 +28,7 @@ export function SubmissionTable({
       input: {
         assignmentId
       },
-      take: 1000
+      take: 5000
     }
   })
 
