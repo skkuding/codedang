@@ -1448,7 +1448,7 @@ export class SubmissionService {
       const filteredSubmissionResult = rawSubmission.submissionResult.map(
         ({ id, cpuTime, memoryUsage, problemTestcaseId, result }) => ({
           id,
-          cpuTime,
+          cpuTime: cpuTime?.toString(),
           memoryUsage,
           problemTestcaseId,
           result

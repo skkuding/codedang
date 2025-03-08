@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import {
   ConflictFoundException,
@@ -272,7 +272,7 @@ export class AssignmentService {
     })
 
     if (!assignment) {
-      throw new EntityNotExistException('Assignment not found')
+      throw new EntityNotExistException('Assignment')
     }
 
     if (assignment.groupId !== groupId) {
@@ -365,7 +365,7 @@ export class AssignmentService {
     })
 
     if (!assignment) {
-      throw new NotFoundException('Assignment')
+      throw new EntityNotExistException('Assignment')
     }
 
     const assignmentRecord = await this.prisma.assignmentRecord.findUnique({
