@@ -75,7 +75,7 @@ export function GradeDetailModal({
   // 통계 계산 함수
   const calculateStatistics = (scores: number[]) => {
     if (!scores.length) {
-      return { mean: null, median: null, max: null }
+      return { mean: null, median: null, max: null, min: null }
     }
 
     const sortedScores = [...scores].sort((a, b) => a - b)
@@ -87,8 +87,8 @@ export function GradeDetailModal({
             sortedScores[sortedScores.length / 2]) /
           2
         : sortedScores[Math.floor(sortedScores.length / 2)]
-    const min = sortedScores[sortedScores.length - 1]
-    const max = sortedScores[sortedScores.length - 1]
+    const min = sortedScores[0] // 최소값 수정
+    const max = sortedScores[sortedScores.length - 1] // 최대값 유지
 
     return { mean, median, max, min }
   }
@@ -153,7 +153,7 @@ export function GradeDetailModal({
               </tr>
             </thead>
             <tbody>
-              {!gradedAssignment.autoFinalizeScore && (
+              {!gradedAssignment.isFinalScoreVisible && (
                 <tr className="text-gray-500">
                   <td className="bg-primary-light w-[80px] px-2 py-2 text-xs text-white">
                     Submitted
@@ -175,31 +175,33 @@ export function GradeDetailModal({
                   </td>
                 </tr>
               )}
-              <tr className="text-gray-500">
-                <td className="bg-primary-light flex w-[80px] flex-col items-center rounded-bl-md px-2 py-2 text-xs text-white">
-                  Graded
-                  {gradedAssignment.autoFinalizeScore && (
-                    <span className="text-primary mt-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium shadow-sm">
-                      Auto
-                    </span>
-                  )}
-                </td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">
-                  {myGradedScore}
-                </td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">
-                  {finalScoresStats.mean}
-                </td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">
-                  {finalScoresStats.median}
-                </td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">
-                  {finalScoresStats.min}
-                </td>
-                <td className="border-[0.5px] px-3 py-2 text-xs">
-                  {finalScoresStats.max}
-                </td>
-              </tr>
+              {gradedAssignment.isFinalScoreVisible && (
+                <tr className="text-gray-500">
+                  <td className="bg-primary-light flex w-[80px] flex-col items-center rounded-bl-md px-2 py-2 text-xs text-white">
+                    Graded
+                    {gradedAssignment.autoFinalizeScore && (
+                      <span className="text-primary mt-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium shadow-sm">
+                        Auto
+                      </span>
+                    )}
+                  </td>
+                  <td className="border-[0.5px] px-3 py-2 text-xs">
+                    {myGradedScore}
+                  </td>
+                  <td className="border-[0.5px] px-3 py-2 text-xs">
+                    {finalScoresStats.mean}
+                  </td>
+                  <td className="border-[0.5px] px-3 py-2 text-xs">
+                    {finalScoresStats.median}
+                  </td>
+                  <td className="border-[0.5px] px-3 py-2 text-xs">
+                    {finalScoresStats.min}
+                  </td>
+                  <td className="border-[0.5px] px-3 py-2 text-xs">
+                    {finalScoresStats.max}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
           <div className="-ml-9 flex h-[281px] w-[600px] flex-col items-center rounded">
