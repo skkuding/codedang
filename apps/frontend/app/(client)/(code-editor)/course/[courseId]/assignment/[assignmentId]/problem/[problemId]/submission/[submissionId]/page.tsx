@@ -5,7 +5,8 @@ import { ArrowLeft } from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { Suspense } from 'react'
-import { SubmissionDetail } from '../_components/SubmissionDetail'
+import { SubmissionDetail } from './_components/SubmissionDetail'
+import { SubmissionDetailTitle } from './_components/SubmissionDetailTitle'
 
 export default function Page({
   params
@@ -29,6 +30,10 @@ export default function Page({
         >
           <ArrowLeft className="size-5" />
         </Link>
+        <SubmissionDetailTitle
+          problemId={Number(problemId)}
+          assignmentId={Number(assignmentId)}
+        />
       </div>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense
