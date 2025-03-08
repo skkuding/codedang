@@ -197,8 +197,11 @@ export class AssignmentService {
       where: { id: assignmentId, groupId },
       select: {
         startTime: true,
-        endTime: true,
-        groupId: true
+        assignmentProblem: {
+          select: {
+            problemId: true
+          }
+        }
       }
     })
 
@@ -214,8 +217,20 @@ export class AssignmentService {
       throw new ConflictFoundException('Cannot participate upcoming assignment')
     }
 
-    return await this.prisma.assignmentRecord.create({
-      data: { assignmentId, userId }
+    const problemRecordData = assignment.assignmentProblem.map(
+      ({ problemId }) => ({ assignmentId, userId, problemId })
+    )
+
+    return await this.prisma.$transaction(async (prisma) => {
+      const createdAssignmentRecord = await prisma.assignmentRecord.create({
+        data: { assignmentId, userId }
+      })
+
+      await prisma.assignmentProblemRecord.createMany({
+        data: problemRecordData
+      })
+
+      return createdAssignmentRecord
     })
   }
 

@@ -7,6 +7,7 @@ import calendarIcon from '@/public/icons/calendar.svg'
 import type { Assignment } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
+import { TotalScoreLabel } from '../_components/TotalScoreLabel'
 
 interface AssignmentInfoProps {
   params: {
@@ -29,9 +30,8 @@ interface ProblemScore {
   finalScore: number | null
 }
 
-export default async function AssginmentInfo({ params }: AssignmentInfoProps) {
-  const { assignmentId } = params
-  const { courseId } = params
+export default async function AssignmentInfo({ params }: AssignmentInfoProps) {
+  const { assignmentId, courseId } = params
 
   const res = await safeFetcherWithAuth.get(`assignment/${assignmentId}`)
 
@@ -66,22 +66,7 @@ export default async function AssginmentInfo({ params }: AssignmentInfoProps) {
             <span className="text-primary">[Week {assignment.week}] </span>
             {assignment.title}
           </p>
-          {/* TODO: fetch score */}
-          <div className="text-primary flex gap-2">
-            <div className="border-primary flex h-[31px] w-[125px] items-center justify-center rounded-full border text-lg">
-              Total score
-            </div>
-            <span className="text-xl font-semibold">
-              {recordData.problemScores && recordData.problemScores?.length > 0
-                ? recordData.problemScores.reduce(
-                    (sum, problem) => sum + (problem.score ?? 0),
-                    0
-                  )
-                : '-'}
-              {' / '}
-              {recordData.assignmentPerfectScore}
-            </span>
-          </div>
+          <TotalScoreLabel assignmentId={assignmentId} courseId={courseId} />
         </div>
         <div className="flex flex-col gap-3">
           <div className="flex gap-2">
