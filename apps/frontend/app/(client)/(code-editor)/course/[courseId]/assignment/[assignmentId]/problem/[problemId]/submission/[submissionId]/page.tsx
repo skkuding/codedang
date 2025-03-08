@@ -25,7 +25,7 @@ export default function Page({
       <div className="z-20 flex items-center gap-3">
         <Link
           href={
-            `course/${courseId}}/assignment/${assignmentId}/problem/${problemId}/submission` as Route
+            `course/${courseId}/assignment/${assignmentId}/problem/${problemId}/submission` as Route
           }
         >
           <ArrowLeft className="size-5" />
