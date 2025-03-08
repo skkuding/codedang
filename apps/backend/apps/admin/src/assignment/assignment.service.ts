@@ -769,48 +769,6 @@ export class AssignmentService {
     return scoreSummary
   }
 
-  async getlatestSubmissions(submissions: Submission[]) {
-    const latestSubmissions: {
-      [problemId: string]: {
-        result: ResultStatus
-        score: number // Problem에서 획득한 점수
-        maxScore: number // Assignment에서 Problem이 갖는 배점
-      }
-    } = {}
-
-    for (const submission of submissions) {
-      const problemId = submission.problemId
-      if (problemId in latestSubmissions) continue
-
-      const assignmentProblem = await this.prisma.assignmentProblem.findUnique({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          assignmentId_problemId: {
-            assignmentId: submission.assignmentId!,
-            problemId: submission.problemId
-          }
-        },
-        select: {
-          score: true
-        }
-      })
-
-      if (!assignmentProblem) {
-        throw new EntityNotExistException('assignmentProblem')
-      }
-
-      const maxScore = assignmentProblem.score
-
-      latestSubmissions[problemId] = {
-        result: submission.result as ResultStatus,
-        score: (submission.score / 100) * maxScore, // assignment에 할당된 Problem의 총점에 맞게 계산
-        maxScore
-      }
-    }
-
-    return latestSubmissions
-  }
-
   async getAssignmentScoreSummaries(
     assignmentId: number,
     groupId: number,
