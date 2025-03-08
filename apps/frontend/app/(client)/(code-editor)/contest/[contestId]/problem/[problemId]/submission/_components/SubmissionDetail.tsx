@@ -78,7 +78,7 @@ export async function SubmissionDetail({
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
-      <div className="-ml-16 mt-[10px] h-2 min-w-[200%] bg-[#121728]" />
+      <div className="-ml-16 mt-[10px] h-2 min-w-[100%] bg-[#121728]" />
       <div className="mb-3 mt-3">
         <h2 className="mb-[18px] text-lg font-bold">Source Code</h2>
         <CodeEditor
@@ -90,7 +90,7 @@ export async function SubmissionDetail({
       </div>
       {submission.testcaseResult.length !== 0 && (
         <div>
-          <div className="-ml-16 h-2 min-w-[200%] bg-[#121728]" />
+          <div className="-ml-16 h-2 min-w-[100%] bg-[#121728]" />
           <h2 className="mt-[30px] text-base font-bold">Test case</h2>
           <Table className="[&_*]:text-center [&_*]:text-sm [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:border-slate-600">
             <TableHeader className="[&_*]:text-slate-100">
