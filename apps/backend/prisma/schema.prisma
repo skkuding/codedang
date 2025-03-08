@@ -35,6 +35,16 @@ enum Provider {
   google
 }
 
+enum ProblemField {
+  title
+  language
+  description
+  testcase
+  memoryLimit
+  timeLimit
+  hint
+}
+
 model User {
   id               Int       @id @default(autoincrement())
   username         String    @unique
@@ -64,6 +74,7 @@ model User {
   useroauth        UserOAuth?
   Image            Image[]
   testSubmission   TestSubmission[]
+  UpdateHistory    UpdateHistory[]
 
   @@map("user")
 }
@@ -228,9 +239,33 @@ model Problem {
   contestProblem    ContestProblem[]
   submission        Submission[]
   announcement      Announcement[]
-  testSubmission    TestSubmission[]
+
+  updateHistory UpdateHistory[]
+
+  testSubmission TestSubmission[]
 
   @@map("problem")
+}
+
+model UpdateHistory {
+  id            Int            @id @default(autoincrement())
+  problemId     Int            @map("problem_id")
+  problem       Problem        @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  updatedAt     DateTime       @default(now()) @map("updated_at")
+  updatedBy     User           @relation(fields: [updatedByid], references: [id])
+  updatedByid   Int
+  updatedFields ProblemField[] // 변경된 필드 목록
+  updatedInfo   Json[]
+  /**
+   * updatedInfo structure
+   * {
+   * "current":
+   * "previous":
+   * "updatedField":
+   * }
+   */
+
+  @@map("updateHistory")
 }
 
 model Image {

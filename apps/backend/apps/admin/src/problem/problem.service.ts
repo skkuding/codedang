@@ -9,8 +9,8 @@ import {
   WorkbookProblem
 } from '@generated'
 import { Level } from '@generated'
-import type { ProblemWhereInput } from '@generated'
-import { Role } from '@prisma/client'
+import type { ProblemWhereInput, UpdateHistory } from '@generated'
+import { ProblemField, Role } from '@prisma/client'
 import { Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
@@ -526,7 +526,7 @@ export class ProblemService {
       )
       if (!hasShared && problem.createdById != userId) {
         throw new ForbiddenException(
-          'User can only edit problems they created or were shared with'
+          'User can only retrieve problems they created or were shared with'
         )
       }
     }
@@ -566,7 +566,73 @@ export class ProblemService {
         }
       }
     })
+    if (userRole == Role.User && problem.createdById != userId) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared) {
+        throw new ForbiddenException(
+          'User can only edit problems they created or were shared with'
+        )
+      }
+    }
 
+    const updatedByid = userId
+
+    const updatedFields: ProblemField[] = []
+
+    const fields = [
+      'title',
+      'languages',
+      'description',
+      'timeLimit',
+      'memoryLimit',
+      'hint'
+    ]
+
+    const updatedInfos = fields.map((field) => ({
+      updatedField: field,
+      current: problem[field],
+      previous: problem[field]
+    }))
+
+    updatedInfos.forEach((info) => {
+      if (
+        input[info.updatedField] &&
+        input[info.updatedField] !== info.previous
+      ) {
+        updatedFields.push(ProblemField[info.updatedField])
+        info.current = input[info.updatedField]
+      }
+    })
+
+    if (testcases?.length) {
+      const existingTestcases = await this.prisma.problemTestcase.findMany({
+        where: { problemId: id }
+      })
+      if (
+        JSON.stringify(testcases) !==
+        JSON.stringify(
+          existingTestcases.map((tc) => ({
+            input: tc.input,
+            output: tc.output,
+            scoreWeight: tc.scoreWeight,
+            isHidden: tc.isHidden
+          }))
+        )
+      ) {
+        updatedFields.push(ProblemField.testcase)
+      }
+    }
     if (userRole == Role.User && problem.createdById != userId) {
       const leaderGroupIds = (
         await this.prisma.userGroup.findMany({
@@ -629,6 +695,14 @@ export class ProblemService {
       await this.updateTestcases(id, testcases)
     }
 
+    const updatedInfo = updatedInfos
+      .filter((info) => info.current !== info.previous)
+      .map(({ updatedField, current, previous }) => ({
+        updatedField,
+        current,
+        previous
+      }))
+
     const updatedProblem = await this.prisma.problem.update({
       where: { id },
       data: {
@@ -638,10 +712,37 @@ export class ProblemService {
         }),
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
-        problemTag
+        problemTag,
+        ...(updatedFields.length > 0 && {
+          updateHistory: {
+            create: [
+              {
+                updatedFields,
+                updatedAt: new Date(),
+                updatedBy: { connect: { id: updatedByid } },
+                updatedInfo
+              }
+            ]
+          }
+        })
+      },
+      include: {
+        updateHistory: true // 항상 updateHistory 포함
       }
     })
+
     return this.changeVisibleLockTimeToIsVisible(updatedProblem)
+  }
+
+  async getProblemUpdateHistory(problemId: number): Promise<UpdateHistory[]> {
+    return await this.prisma.updateHistory.findMany({
+      where: {
+        problemId
+      },
+      include: {
+        updatedBy: true
+      }
+    })
   }
 
   async updateProblemTag(

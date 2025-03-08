@@ -1,4 +1,10 @@
-import type { Language, Level, ProblemTestcase, Tag } from '@prisma/client'
+import type {
+  Language,
+  Level,
+  ProblemTestcase,
+  Tag,
+  UpdateHistory
+} from '@prisma/client'
 import type { JsonValue } from '@prisma/client/runtime/library'
 import { Exclude, Expose } from 'class-transformer'
 
@@ -25,6 +31,7 @@ export class ProblemResponseDto {
   tags: Partial<Tag>[]
   template: JsonValue[]
   problemTestcase: Pick<ProblemTestcase, 'id' | 'input' | 'output'>[]
+  updateHistory: UpdateHistory[]
 }
 
 /**

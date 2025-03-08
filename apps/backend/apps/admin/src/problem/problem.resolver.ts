@@ -16,6 +16,7 @@ import {
   Image,
   ProblemTag,
   ProblemTestcase,
+  UpdateHistory,
   WorkbookProblem
 } from '@generated'
 import { ContestRole, Role } from '@prisma/client'
@@ -137,6 +138,11 @@ export class ProblemResolver {
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
     return await this.problemService.getProblem(id, req.user.role, req.user.id)
+  }
+
+  @ResolveField('updateHistory', () => [UpdateHistory])
+  async getProblemUpdateHistory(@Parent() problem: ProblemWithIsVisible) {
+    return await this.problemService.getProblemUpdateHistory(problem.id)
   }
 
   @ResolveField('sharedGroups', () => [Group])
