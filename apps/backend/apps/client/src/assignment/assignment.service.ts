@@ -322,9 +322,13 @@ export class AssignmentService {
     }
 
     if (assignment.isFinalScoreVisible) {
-      result.finalScores = validRecords
-        .map((record) => record.finalScore)
-        .filter((score) => score !== null)
+      if (assignment.autoFinalizeScore) {
+        result.finalScores = result.scores
+      } else {
+        result.finalScores = validRecords
+          .map((record) => record.finalScore)
+          .filter((score) => score !== null)
+      }
     }
 
     return result
