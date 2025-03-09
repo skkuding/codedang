@@ -1021,25 +1021,23 @@ export class AssignmentService {
           }
         })
 
-        if (!problemRecords.some(({ finalScore }) => finalScore === null)) {
-          const totalFinalScore = problemRecords.reduce(
-            (total, { finalScore }) => total + finalScore!,
-            0
-          )
+        const totalFinalScore = problemRecords.reduce(
+          (total, { finalScore }) => total + (finalScore ?? 0),
+          0
+        )
 
-          await prisma.assignmentRecord.update({
-            where: {
-              // eslint-disable-next-line @typescript-eslint/naming-convention
-              assignmentId_userId: {
-                assignmentId: input.assignmentId,
-                userId: input.userId
-              }
-            },
-            data: {
-              finalScore: totalFinalScore
+        await prisma.assignmentRecord.update({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            assignmentId_userId: {
+              assignmentId: input.assignmentId,
+              userId: input.userId
             }
-          })
-        }
+          },
+          data: {
+            finalScore: totalFinalScore
+          }
+        })
 
         return updatedRecord
       }
