@@ -1,11 +1,9 @@
-import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
 import { AssignmentStatusTimeDiff } from '@/components/AssignmentStatusTimeDiff'
 import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
 import { dateFormatter, safeFetcherWithAuth } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import type { Assignment } from '@/types/type'
-import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { TotalScoreLabel } from '../_components/TotalScoreLabel'
 
@@ -46,16 +44,6 @@ export default async function AssignmentInfo({ params }: AssignmentInfoProps) {
     'YYYY-MM-DD HH:mm:ss'
   )
 
-  // const { data: testResults } = useQuery(
-  //   assignmentProblemQueries.record({
-  //     assignmentId: Number(assignmentId),
-  //     groupId: Number(courseId)
-  //   })
-  // )
-  const recordRes = await safeFetcherWithAuth.get(
-    `assignment/${assignmentId}/score/me?groupId=${courseId}`
-  )
-  const recordData = await recordRes.json<GetAssignmentRecordResponse>()
   const description = assignment.description
 
   return (
