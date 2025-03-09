@@ -1,12 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { SchedulerRegistry } from '@nestjs/schedule'
-import {
-  Assignment,
-  ResultStatus,
-  Submission,
-  AssignmentProblem
-} from '@generated'
+import { Assignment, AssignmentProblem } from '@generated'
 import { Cache } from 'cache-manager'
 import { CronJob } from 'cron'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
@@ -125,6 +120,8 @@ export class AssignmentService {
 
         this.schedulerRegistry.addCronJob(String(createdAssignment.id), job)
         job.start()
+      } else {
+        this.endTimeReached(createdAssignment.id, groupId)
       }
       return createdAssignment
     } catch (error) {
@@ -188,6 +185,8 @@ export class AssignmentService {
 
         this.schedulerRegistry.addCronJob(String(assignment.id), job)
         job.start()
+      } else {
+        this.endTimeReached(assignment.id, groupId)
       }
     }
 
@@ -745,7 +744,9 @@ export class AssignmentService {
     }))
 
     const scoreSummary = {
-      submittedProblemCount: assignmentProblemRecords.length, // Assignment에 존재하는 문제 중 제출된 문제의 개수
+      submittedProblemCount: assignmentProblemRecords.filter(
+        (record) => record.isSubmitted
+      ).length, // Assignment에 존재하는 문제 중 제출된 문제의 개수
       totalProblemCount: assignmentProblems.length, // Assignment에 존재하는 Problem의 총 개수
       userAssignmentScore: problemScores.reduce(
         (total, { score }) => total + score,
@@ -767,48 +768,6 @@ export class AssignmentService {
     }
 
     return scoreSummary
-  }
-
-  async getlatestSubmissions(submissions: Submission[]) {
-    const latestSubmissions: {
-      [problemId: string]: {
-        result: ResultStatus
-        score: number // Problem에서 획득한 점수
-        maxScore: number // Assignment에서 Problem이 갖는 배점
-      }
-    } = {}
-
-    for (const submission of submissions) {
-      const problemId = submission.problemId
-      if (problemId in latestSubmissions) continue
-
-      const assignmentProblem = await this.prisma.assignmentProblem.findUnique({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          assignmentId_problemId: {
-            assignmentId: submission.assignmentId!,
-            problemId: submission.problemId
-          }
-        },
-        select: {
-          score: true
-        }
-      })
-
-      if (!assignmentProblem) {
-        throw new EntityNotExistException('assignmentProblem')
-      }
-
-      const maxScore = assignmentProblem.score
-
-      latestSubmissions[problemId] = {
-        result: submission.result as ResultStatus,
-        score: (submission.score / 100) * maxScore, // assignment에 할당된 Problem의 총점에 맞게 계산
-        maxScore
-      }
-    }
-
-    return latestSubmissions
   }
 
   async getAssignmentScoreSummaries(
@@ -1062,25 +1021,23 @@ export class AssignmentService {
           }
         })
 
-        if (!problemRecords.some(({ finalScore }) => finalScore === null)) {
-          const totalFinalScore = problemRecords.reduce(
-            (total, { finalScore }) => total + finalScore!,
-            0
-          )
+        const totalFinalScore = problemRecords.reduce(
+          (total, { finalScore }) => total + (finalScore ?? 0),
+          0
+        )
 
-          await prisma.assignmentRecord.update({
-            where: {
-              // eslint-disable-next-line @typescript-eslint/naming-convention
-              assignmentId_userId: {
-                assignmentId: input.assignmentId,
-                userId: input.userId
-              }
-            },
-            data: {
-              finalScore: totalFinalScore
+        await prisma.assignmentRecord.update({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            assignmentId_userId: {
+              assignmentId: input.assignmentId,
+              userId: input.userId
             }
-          })
-        }
+          },
+          data: {
+            finalScore: totalFinalScore
+          }
+        })
 
         return updatedRecord
       }
