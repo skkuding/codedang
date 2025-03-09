@@ -19,11 +19,13 @@ import { columns } from './Columns'
 const itemsPerPage = 20
 
 interface SubmissionPaginatedTableProps {
+  courseId: number
   assignmentId: number
   problemId: number
 }
 
 export function SubmissionPaginatedTable({
+  courseId,
   assignmentId,
   problemId
 }: SubmissionPaginatedTableProps) {
@@ -60,7 +62,9 @@ export function SubmissionPaginatedTable({
       <SubmissionTable
         data={paginatedItems}
         columns={columns}
-        getHref={(row) => `submission/${row.original.id}` as Route}
+        getHref={(row) =>
+          `/course/${courseId}/assignment/${assignmentId}/problem/${problemId}/submission/${row.original.id}` as Route
+        }
       />
       <Paginator>
         <SlotNavigation
