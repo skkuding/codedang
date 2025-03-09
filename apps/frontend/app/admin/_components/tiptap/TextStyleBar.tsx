@@ -60,35 +60,35 @@ export function TextStyleBar({ editor }: TextStyleBarProps) {
         onPressedChange={() => editor.chain().focus().toggleBold().run()}
         className="h-7 w-7 p-1"
       >
-        <BoldIcon />
+        <BoldIcon className="text-neutral-600" />
       </Toggle>
       <Toggle
         pressed={editor?.isActive('italic')}
         onPressedChange={() => editor.chain().focus().toggleItalic().run()}
         className="h-7 w-7 p-1"
       >
-        <ItalicIcon />
+        <ItalicIcon className="text-neutral-600" />
       </Toggle>
       <Toggle
         pressed={editor?.isActive('underline')}
         onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
         className="h-7 w-7 p-1"
       >
-        <UnderlineIcon />
+        <UnderlineIcon className="text-neutral-600" />
       </Toggle>
       <Toggle
         pressed={editor?.isActive('strike')}
         onPressedChange={() => editor.chain().focus().toggleStrike().run()}
         className="h-7 w-7 p-1"
       >
-        <StrikeIcon />
+        <StrikeIcon className="text-neutral-600" />
       </Toggle>
       <Toggle
         pressed={editor?.isActive('code')}
         onPressedChange={() => editor.chain().focus().toggleCode().run()}
         className="h-7 w-7 p-1"
       >
-        <CodeIcon />
+        <CodeIcon className="text-neutral-600" />
       </Toggle>
       <Popover open={isLinkPopoverOpen} onOpenChange={setIsLinkPopoverOpen}>
         <PopoverTrigger className="flex items-center">
@@ -97,7 +97,7 @@ export function TextStyleBar({ editor }: TextStyleBarProps) {
             onClick={handleSetLink}
             className="h-7 w-7 p-1"
           >
-            <LinkIcon />
+            <LinkIcon className="text-neutral-600" />
           </Toggle>
         </PopoverTrigger>
         <PopoverContent className="flex gap-2 rounded-lg border bg-white p-2">
@@ -109,7 +109,7 @@ export function TextStyleBar({ editor }: TextStyleBarProps) {
             onChange={(e) => setLinkUrl(e.target.value)}
           />
           <Button variant="ghost" onClick={saveLink} className="h-7 w-7 p-1">
-            <SaveIcon />
+            <SaveIcon className="text-neutral-600" />
           </Button>
           <Button
             variant="ghost"
@@ -117,7 +117,7 @@ export function TextStyleBar({ editor }: TextStyleBarProps) {
             disabled={!editor.isActive('link')}
             className="h-7 w-7 p-1"
           >
-            <TrashIcon />
+            <TrashIcon className="text-neutral-600" />
           </Button>
         </PopoverContent>
       </Popover>

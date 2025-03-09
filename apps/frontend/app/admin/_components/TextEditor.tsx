@@ -290,9 +290,9 @@ export function TextEditor({
           >
             <TextStyleBar editor={editor} />
           </BubbleMenu>
-          <div className="flex items-center border bg-white p-1">
+          <div className="flex flex-wrap items-center border bg-white p-1">
             <TextStyleBar editor={editor} />
-            <div className="mx-1 h-full flex-shrink-0 border-r border-red-500 bg-black" />
+            <div className="mx-1 h-full flex-shrink-0 bg-black" />
             <Toggle
               pressed={editor.isActive('heading', { level: 1 })}
               onPressedChange={() => {
@@ -301,7 +301,7 @@ export function TextEditor({
               }}
               className="h-7 w-7 p-1"
             >
-              <Heading1 />
+              <Heading1 className="text-neutral-600" />
             </Toggle>
             <Toggle
               pressed={editor.isActive('heading', { level: 2 })}
@@ -311,7 +311,7 @@ export function TextEditor({
               }}
               className="h-7 w-7 p-1"
             >
-              <Heading2 />
+              <Heading2 className="text-neutral-600" />
             </Toggle>
             <Toggle
               pressed={editor.isActive('heading', { level: 3 })}
@@ -321,7 +321,7 @@ export function TextEditor({
               }}
               className="h-7 w-7 p-1"
             >
-              <Heading3 />
+              <Heading3 className="text-neutral-600" />
             </Toggle>
             <InsertDialog
               open={isKatexDialogOpen}
@@ -339,7 +339,7 @@ export function TextEditor({
                   </Tex>
                 </>
               }
-              triggerIcon={<SquareRadical />}
+              triggerIcon={<SquareRadical className="text-neutral-600" />}
               onOpenChange={(open) => {
                 setIsKatexDialogOpen(open)
                 if (!open) {
@@ -368,7 +368,7 @@ export function TextEditor({
               }}
               className="h-7 w-7 p-1 text-black"
             >
-              <FileCode2 />
+              <FileCode2 className="text-neutral-600" />
             </Button>
             <InsertDialog
               open={isImageDialogOpen}
@@ -387,7 +387,7 @@ export function TextEditor({
                   <p className="text-sm"> * Image must be under 5MB</p>
                 </>
               }
-              triggerIcon={<ImagePlus />}
+              triggerIcon={<ImagePlus className="text-neutral-600" />}
               onOpenChange={(open) => {
                 setIsImageDialogOpen(open)
                 if (!open) {
@@ -407,7 +407,7 @@ export function TextEditor({
               }}
               className="h-7 w-7 p-1"
             >
-              <List />
+              <List className="text-neutral-600" />
             </Toggle>
             <Toggle
               pressed={editor.isActive('orderedList')}
@@ -417,7 +417,7 @@ export function TextEditor({
               }}
               className="h-7 w-7 p-1"
             >
-              <ListOrdered />
+              <ListOrdered className="text-neutral-600" />
             </Toggle>
             <Dialog
               open={isTableDialogOpen}
@@ -498,7 +498,7 @@ export function TextEditor({
                     }
                   }}
                 >
-                  <Grid3X3 />
+                  <Grid3X3 className="text-neutral-600" />
                 </Toggle>
               </PopoverTrigger>
               <PopoverContent className="flex gap-2 rounded-lg border bg-white p-2">
@@ -510,14 +510,14 @@ export function TextEditor({
                   }}
                   className="h-7 w-7 p-1"
                 >
-                  <ArrowDownToLine />
+                  <ArrowDownToLine className="text-neutral-600" />
                 </Button>
                 <Button
                   variant="ghost"
                   onClick={() => editor.commands.deleteRow()}
                   className="h-7 w-7 p-1"
                 >
-                  <ArrowUpFromLine />
+                  <ArrowUpFromLine className="text-neutral-600" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -527,14 +527,14 @@ export function TextEditor({
                   }}
                   className="h-7 w-7 p-1"
                 >
-                  <ArrowRightToLine />
+                  <ArrowRightToLine className="text-neutral-600" />
                 </Button>
                 <Button
                   variant="ghost"
                   onClick={() => editor.commands.deleteColumn()}
                   className="h-7 w-7 p-1"
                 >
-                  <ArrowLeftFromLine />
+                  <ArrowLeftFromLine className="text-neutral-600" />
                 </Button>
                 <Button
                   variant="ghost"

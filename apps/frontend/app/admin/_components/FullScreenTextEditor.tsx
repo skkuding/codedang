@@ -271,7 +271,7 @@ export function FullScreenTextEditor({
           </BubbleMenu>
           <div className="flex items-center border bg-white p-1">
             <TextStyleBar editor={editor} />
-            <div className="mx-1 h-full flex-shrink-0 border-r border-red-500 bg-black" />
+            <div className="mx-1 h-full flex-shrink-0 bg-black" />
             <Toggle
               pressed={editor.isActive('heading', { level: 1 })}
               onPressedChange={() => {
