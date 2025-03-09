@@ -17,30 +17,30 @@ import { IoIosLock } from 'react-icons/io'
 interface Props {
   problemId: number
   submissionId: number
-  contestId: number
+  assignmentId: number
 }
+
 export async function SubmissionDetail({
   problemId,
   submissionId,
-  contestId
+  assignmentId
 }: Props) {
   const res = await fetcherWithAuth(`submission/${submissionId}`, {
-    searchParams: { problemId, contestId },
+    searchParams: { problemId, assignmentId },
     next: {
       tags: [`submission/${submissionId}`]
     }
   })
   const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
-  const contestSubmissionRes = await fetcherWithAuth(
-    `contest/${contestId}/submission`,
+  const assignmentSubmissionRes = await fetcherWithAuth(
+    `assignment/${assignmentId}/submission`,
     {
       searchParams: { problemId, take: 100 }
     }
   )
-  const contestSubmission: ContestSubmission | null = contestSubmissionRes.ok
-    ? await contestSubmissionRes.json()
-    : null
-  const targetSubmission = contestSubmission?.data.filter(
+  const assignmentSubmission: ContestSubmission | null =
+    assignmentSubmissionRes.ok ? await assignmentSubmissionRes.json() : null
+  const targetSubmission = assignmentSubmission?.data.filter(
     (submission) => submission.id === submissionId
   )[0]
 
@@ -135,7 +135,7 @@ export async function SubmissionDetail({
           <IoIosLock size={100} />
           <p className="mt-4 text-xl font-semibold">Access Denied</p>
           <p className="w-10/12 text-center">
-            {`During the contest, you are not allowed to view others' answers.
+            {`During the assignment, you are not allowed to view others' answers.
 `}
           </p>
         </div>
