@@ -496,7 +496,7 @@ export class AssignmentProblemService {
       }
     }))
 
-    const [assignmentProblems, submissions] = await Promise.all([
+    const [assignmentProblems, assignmentProblemRecords] = await Promise.all([
       this.prisma.assignmentProblem.findMany({
         ...paginator,
         take,
@@ -513,7 +513,7 @@ export class AssignmentProblemService {
           score: true
         }
       }),
-      this.prisma.submission.findMany({
+      this.prisma.assignmentProblemRecord.findMany({
         where: {
           userId,
           assignmentId
@@ -521,61 +521,40 @@ export class AssignmentProblemService {
         select: {
           problemId: true,
           score: true,
-          createTime: true
-        },
-        orderBy: {
-          createTime: 'desc'
+          isSubmitted: true
         }
       })
     ])
 
-    const submissionMap = new Map<number, { score: number; createTime: Date }>()
-    for (const submission of submissions) {
-      if (!submissionMap.has(submission.problemId)) {
-        submissionMap.set(submission.problemId, submission)
-      }
+    const problemRecordMap = new Map<
+      number,
+      { score: number; isSubmitted: boolean }
+    >()
+    for (const record of assignmentProblemRecords) {
+      problemRecordMap.set(record.problemId, record)
     }
 
     const assignmentProblemsWithScore = assignmentProblems.map(
       (assignmentProblem) => {
-        const { problemId, problem, order } = assignmentProblem
-        const submission = submissionMap.get(problemId)
-        if (!submission) {
-          return {
-            order,
-            id: problem.id,
-            title: problem.title,
-            difficulty: problem.difficulty,
-            submissionCount: problem.submissionCount,
-            acceptedRate: problem.acceptedRate,
-            maxScore: assignment.isJudgeResultVisible
-              ? assignmentProblem.score
-              : null,
-            score: null,
-            submissionTime: null
-          }
-        }
+        const { problem, order } = assignmentProblem
+        const assignmentProblemRecord = problemRecordMap.get(problem.id)
         return {
-          // ...assignmentProblem,
           order,
-          id: assignmentProblem.problem.id,
-          title: assignmentProblem.problem.title,
-          difficulty: assignmentProblem.problem.difficulty,
-          maxScore: assignment.isJudgeResultVisible
-            ? assignmentProblem.score
-            : null,
+          id: problem.id,
+          title: problem.title,
+          difficulty: problem.difficulty,
+          submissionCount: problem.submissionCount,
+          acceptedRate: problem.acceptedRate,
+          maxScore: assignmentProblem.score,
+          isJudgeResultVisible: assignment.isJudgeResultVisible,
           score: assignment.isJudgeResultVisible
-            ? ((submission.score * assignmentProblem.score) / 100).toFixed(0)
+            ? assignmentProblemRecord?.score
             : null
         }
       }
     )
 
-    const total = await this.prisma.assignmentProblem.count({
-      where: {
-        assignmentId
-      }
-    })
+    const total = assignmentProblems.length
 
     return {
       data: assignmentProblemsWithScore,

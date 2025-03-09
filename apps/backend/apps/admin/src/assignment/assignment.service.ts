@@ -1,12 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { SchedulerRegistry } from '@nestjs/schedule'
-import {
-  Assignment,
-  ResultStatus,
-  Submission,
-  AssignmentProblem
-} from '@generated'
+import { Assignment, AssignmentProblem } from '@generated'
 import { Cache } from 'cache-manager'
 import { CronJob } from 'cron'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
