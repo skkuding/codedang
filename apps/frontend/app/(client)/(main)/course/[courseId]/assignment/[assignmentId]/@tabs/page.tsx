@@ -13,6 +13,20 @@ interface AssignmentInfoProps {
     assignmentId: string
   }
 }
+export type GetAssignmentRecordResponse = {
+  submittedProblemCount: number
+  totalProblemCount: number
+  userAssignmentScore: number
+  assignmentPerfectScore: number
+  userAssignmentFinalScore: number | null
+  problemScores: ProblemScore[] | null
+}
+interface ProblemScore {
+  problemId: number
+  score: number | null
+  maxScore: number
+  finalScore: number | null
+}
 
 export default async function AssignmentInfo({ params }: AssignmentInfoProps) {
   const { assignmentId, courseId } = params

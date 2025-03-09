@@ -24,7 +24,8 @@ interface DataTableScoreSummary {
 export const createColumns = (
   problemData: ProblemData[],
   courseId: number,
-  assignmentId: number
+  assignmentId: number,
+  isAssignmentFinished: boolean
 ): ColumnDef<DataTableScoreSummary>[] => {
   return [
     {
@@ -72,8 +73,11 @@ export const createColumns = (
         )
       },
       meta: {
-        link: (row: DataTableScoreSummary) =>
-          `/admin/course/${courseId}/grade/assignment/${assignmentId}/user/${row.id}/problem/${problem.problemId}`
+        link: (row: DataTableScoreSummary) => {
+          return isAssignmentFinished
+            ? `/admin/course/${courseId}/grade/assignment/${assignmentId}/user/${row.id}/problem/${problem.problemId}`
+            : null
+        }
       }
     })),
     {

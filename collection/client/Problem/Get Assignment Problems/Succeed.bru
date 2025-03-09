@@ -33,21 +33,21 @@ script:pre-request {
 
 docs {
   # Get Assignment Problems
-  
+
   > 로그인이 필요한 API입니다.
-  
+
   과제의 문제 목록을 가져옵니다.
-  
+
   ## Query
-  
+
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |take      |Integer|가져올 문제 개수 (default: 10)|
   |cursor    |Integer|cursor 값 다음의 ID를 가진 문제들을 반환|
   |groupId   |Integer|과제가 속한 Group ID (default: 1)|
-  
+
   ## Constraints
-  
+
   - 과제에 등록한 사용자는 과제 시작 전까지 문제를 열람할 수 없습니다.
   - 과제에 등록하지 않은 사용자는 과제가 끝나기 전까지 문제를 열람할 수 없습니다.
 }
