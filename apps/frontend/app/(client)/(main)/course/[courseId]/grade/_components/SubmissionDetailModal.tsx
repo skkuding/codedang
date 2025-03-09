@@ -56,13 +56,28 @@ export function SubmissionDetailModal({
         <DialogHeader>
           <DialogTitle>
             <div className="flex items-center gap-2 overflow-hidden truncate whitespace-nowrap text-lg font-medium">
-              <span>Week {gradedAssignment.week}</span>
+              <span
+                title={`Week ${gradedAssignment.week}`}
+                className="max-w-[80px] truncate"
+              >
+                Week {gradedAssignment.week}
+              </span>
               <MdArrowForwardIos />
-              <span className="text-primary overflow-hidden truncate whitespace-nowrap">
+              <span
+                title={gradedAssignment.title}
+                className="text-primary max-w-[200px] overflow-hidden truncate"
+              >
                 {gradedAssignment.title}
               </span>
               <MdArrowForwardIos />
-              <span className="max-w-[200px] overflow-hidden truncate whitespace-nowrap">
+              <span
+                title={
+                  gradedAssignment.problems.find(
+                    (problem) => problem.id === problemId
+                  )?.title || 'Not found'
+                }
+                className="max-w-[200px] overflow-hidden truncate"
+              >
                 {gradedAssignment.problems.find(
                   (problem) => problem.id === problemId
                 )?.title || 'Not found'}
