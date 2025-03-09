@@ -120,6 +120,8 @@ export class AssignmentService {
 
         this.schedulerRegistry.addCronJob(String(createdAssignment.id), job)
         job.start()
+      } else {
+        this.endTimeReached(createdAssignment.id, groupId)
       }
       return createdAssignment
     } catch (error) {
@@ -183,6 +185,8 @@ export class AssignmentService {
 
         this.schedulerRegistry.addCronJob(String(assignment.id), job)
         job.start()
+      } else {
+        this.endTimeReached(assignment.id, groupId)
       }
     }
 
