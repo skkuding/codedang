@@ -744,7 +744,9 @@ export class AssignmentService {
     }))
 
     const scoreSummary = {
-      submittedProblemCount: assignmentProblemRecords.length, // Assignment에 존재하는 문제 중 제출된 문제의 개수
+      submittedProblemCount: assignmentProblemRecords.filter(
+        (record) => record.isSubmitted
+      ).length, // Assignment에 존재하는 문제 중 제출된 문제의 개수
       totalProblemCount: assignmentProblems.length, // Assignment에 존재하는 Problem의 총 개수
       userAssignmentScore: problemScores.reduce(
         (total, { score }) => total + score,
