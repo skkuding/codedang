@@ -9,14 +9,15 @@ import {
 export default function SubmissionPage({
   params
 }: {
-  params: { problemId: string; assignmentId: string }
+  params: { courseId: string; assignmentId: string; problemId: string }
 }) {
-  const { assignmentId, problemId } = params
+  const { courseId, assignmentId, problemId } = params
 
   return (
     <TanstackQueryErrorBoundary fallback={FetchErrorFallback}>
       <Suspense fallback={<SubmissionPaginatedTableFallback />}>
         <SubmissionPaginatedTable
+          courseId={Number(courseId)}
           assignmentId={Number(assignmentId)}
           problemId={Number(problemId)}
         />

@@ -2,7 +2,6 @@ import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { ErrorBoundary } from '@suspensive/react'
 import { ArrowLeft } from 'lucide-react'
-import type { Route } from 'next'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { SubmissionDetail } from './_components/SubmissionDetail'
@@ -25,7 +24,7 @@ export default function Page({
       <div className="z-20 flex items-center gap-3">
         <Link
           href={
-            `course/${courseId}/assignment/${assignmentId}/problem/${problemId}/submission` as Route
+            `/course/${courseId}/assignment/${assignmentId}/problem/${problemId}/submission` as const
           }
         >
           <ArrowLeft className="size-5" />
