@@ -546,10 +546,10 @@ export class AssignmentProblemService {
           submissionCount: problem.submissionCount,
           acceptedRate: problem.acceptedRate,
           maxScore: assignmentProblem.score,
-          isJudgeResultVisible: assignment.isJudgeResultVisible,
           score: assignment.isJudgeResultVisible
             ? assignmentProblemRecord?.score
-            : null
+            : null,
+          submissionTime: null
         }
       }
     )
