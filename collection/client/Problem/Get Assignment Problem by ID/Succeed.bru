@@ -5,13 +5,14 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/assignment/1/problem/?groupId=1
+  url: {{baseUrl}}/assignment/:assignmentId/problem/:problemId
   body: none
   auth: none
 }
 
-params:query {
-  groupId: 1
+params:path {
+  problemId: 1
+  assignmentId: 14
 }
 
 assert {
