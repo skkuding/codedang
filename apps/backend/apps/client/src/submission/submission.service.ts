@@ -1336,23 +1336,31 @@ export class SubmissionService {
           id: problemId
         },
         assignmentId
+      },
+      select: {
+        order: true,
+        problem: {
+          select: {
+            id: true,
+            title: true
+          }
+        },
+        assignment: {
+          select: {
+            id: true,
+            isJudgeResultVisible: true,
+            title: true
+          }
+        }
       }
     })
+
     if (!assignmentProblem) {
       throw new EntityNotExistException('AssignmentProblem')
     }
 
-    const assignment = await this.prisma.assignment.findFirst({
-      where: {
-        id: assignmentId
-      },
-      select: {
-        isJudgeResultVisible: true
-      }
-    })
-    if (!assignment) {
-      throw new EntityNotExistException('Assignment')
-    }
+    const { assignment } = assignmentProblem
+
     const isJudgeResultVisible = assignment.isJudgeResultVisible
 
     const submissions = await this.prisma.submission.findMany({
@@ -1386,7 +1394,7 @@ export class SubmissionService {
       where: { problemId, assignmentId }
     })
 
-    return { data: submissions, total }
+    return { data: submissions, total, assignmentProblem }
   }
 
   async getLatestAssignmentProblemSubmission(
