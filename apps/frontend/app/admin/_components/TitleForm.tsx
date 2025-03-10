@@ -30,7 +30,7 @@ export function TitleForm({ placeholder }: { placeholder: string }) {
         })}
         onChange={onInputHandler}
       />
-      <span className="absolute right-4 top-1/4 text-sm text-[#8A8A8A]">
+      <span className="absolute right-4 top-[24%] text-sm text-[#8A8A8A]">
         {inputCount}/120
       </span>
       {errors.title &&

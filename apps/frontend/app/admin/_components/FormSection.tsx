@@ -17,8 +17,8 @@ export function FormSection({
   return (
     <div
       className={cn(
-        'flex w-[641px] justify-between',
-        isFlexColumn && 'flex-col'
+        'flex w-full justify-between',
+        isFlexColumn && 'flex-col gap-[18px]'
       )}
     >
       <div className="flex items-center gap-3 text-lg">

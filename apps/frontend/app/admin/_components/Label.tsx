@@ -7,7 +7,7 @@ export function Label({
 }) {
   return (
     <div>
-      <span className="font-bold">{children} </span>
+      <span className="text-lg font-semibold">{children} </span>
       {required && <span className="text-red-500">*</span>}
     </div>
   )

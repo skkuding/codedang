@@ -9,11 +9,13 @@ import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { ConfirmNavigation } from '../../_components/ConfirmNavigation'
 import { DescriptionForm } from '../../_components/DescriptionForm'
 import { FormSection } from '../../_components/FormSection'
+import { SummaryForm } from '../../_components/SummaryForm'
 import { SwitchField } from '../../_components/SwitchField'
 import { TimeForm } from '../../_components/TimeForm'
 import { TitleForm } from '../../_components/TitleForm'
 import { ContestProblemListLabel } from '../_components/ContestProblemListLabel'
 import { ContestProblemTable } from '../_components/ContestProblemTable'
+import { CreateContestLabel } from '../_components/CreateContestLabel'
 import { ImportDialog } from '../_components/ImportDialog'
 import type { ContestProblem } from '../_libs/schemas'
 import { CreateContestForm } from './_components/CreateContestForm'
@@ -54,11 +56,38 @@ export default function Page() {
               </div>
             </div>
 
-            <FormSection title="Description" isFlexColumn={true}>
+            <FormSection title="Summary" isLabeled={false} isFlexColumn={true}>
+              {/* <DescriptionForm name="description" /> */}
+              <SummaryForm name="Summary" />
+            </FormSection>
+
+            <FormSection
+              title="More Description"
+              isLabeled={false}
+              isFlexColumn={true}
+            >
               <DescriptionForm name="description" />
             </FormSection>
 
-            <SwitchField
+            <div className="flex h-[114px] w-full flex-col justify-center gap-3 rounded-xl border bg-[#8080800D] px-10">
+              {/* Temporary Switch Field for Evaluate with sample Testcases included */}
+              <SwitchField
+                name="invitationCode"
+                title="Invitation Code"
+                type="number"
+                formElement="input"
+                placeholder="Enter a invitation code"
+              />
+              <SwitchField
+                name="invitationCode"
+                title="Invitation Code"
+                type="number"
+                formElement="input"
+                placeholder="Enter a invitation code"
+              />
+            </div>
+
+            {/* <SwitchField
               name="enableCopyPaste"
               title="Enable participants Copy/Pasting"
             />
@@ -66,19 +95,30 @@ export default function Page() {
             <SwitchField
               name="isJudgeResultVisible"
               title="Reveal scores to participants"
-            />
-
-            <SwitchField
-              name="invitationCode"
-              title="Invitation Code"
-              type="number"
-              formElement="input"
-              placeholder="Enter a invitation code"
-            />
+            /> */}
 
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <ContestProblemListLabel />
+                <CreateContestLabel
+                  title="Add manager / reviewer"
+                  content={`Contest managers have all permissions except for creating and editing the contest.\nYou can also import problems created by the contest manager into this contest.\nContest reviewers can view the problem list before the contest starts.`}
+                />
+                <ImportDialog problems={problems} setProblems={setProblems} />
+              </div>
+              {/* 임시로 ContestProblemTabnle 넣어놓음 */}
+              <ContestProblemTable
+                problems={problems}
+                setProblems={setProblems}
+                disableInput={false}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center justify-between">
+                <CreateContestLabel
+                  title="Contest Problem List"
+                  content={`If contest problems are imported from the ‘All Problem List’,<br>the problems will automatically become invisible state.<br>After the contests are all over, you can manually make the problem visible again.`}
+                />
                 <ImportDialog problems={problems} setProblems={setProblems} />
               </div>
               <ContestProblemTable
@@ -90,7 +130,7 @@ export default function Page() {
 
             <Button
               type="submit"
-              className="flex h-[36px] w-[100px] items-center gap-2 px-0"
+              className="flex h-[36px] w-full items-center gap-2 px-0"
               disabled={isCreating}
             >
               <IoMdCheckmarkCircleOutline fontSize={20} />
