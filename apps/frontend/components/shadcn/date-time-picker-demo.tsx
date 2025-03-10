@@ -9,8 +9,10 @@ import {
 } from '@/components/shadcn/popover'
 import { TimePickerDemo } from '@/components/shadcn/time-picker-demo'
 import { cn } from '@/libs/utils'
+import calendarIcon from '@/public/icons/calendar.svg'
 import { format } from 'date-fns'
 import { Calendar as CalendarIcon } from 'lucide-react'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
 export const DateTimePickerDemo = ({
@@ -44,8 +46,21 @@ export const DateTimePickerDemo = ({
             !date && 'text-muted-foreground'
           )}
         >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, 'PPP HH:mm:ss') : <span>Pick a date</span>}
+          {/* <CalendarIcon className="mr-2 h-4 w-4" /> */}
+          <Image
+            className="mr-2 h-4 w-4"
+            style={{ filter: 'grayscale(100%)' }}
+            src={calendarIcon}
+            alt="calendar"
+            width={16}
+            height={16}
+          />
+
+          {date ? (
+            format(date, 'PPP HH:mm:ss')
+          ) : (
+            <span className="text-[#C4C4C4]">Pick a date</span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">

@@ -21,8 +21,8 @@ export function FormSection({
         isFlexColumn && 'flex-col'
       )}
     >
-      <div className="flex items-center gap-3">
-        <span className="font-bold">{title}</span>
+      <div className="flex items-center gap-3 text-lg">
+        <span className="font-semibold">{title}</span>
         {isLabeled && <span className="mt-1 text-red-500">*</span>}
         {badge}
       </div>
