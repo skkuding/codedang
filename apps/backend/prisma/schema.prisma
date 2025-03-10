@@ -443,8 +443,6 @@ model Contest {
   startTime                  DateTime  @map("start_time")
   endTime                    DateTime  @map("end_time")
   freezeTime                 DateTime? @map("freeze_time")
-  isVisible                  Boolean   @default(true) @map("is_visible")
-  isRankVisible              Boolean   @default(true) @map("is_rank_visible")
   isJudgeResultVisible       Boolean   @default(true) @map("is_judge_result_visible") /// 이 Contest에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다.
   evaluateWithSampleTestcase Boolean   @default(false) @map("evaluate_with_sample_testcase") /// 이 Contest에 포함된 문제의 채점을 샘플 테스트케이스를 포함하여 할지 말지 결정합니다.
   enableCopyPaste            Boolean   @default(true) @map("enable_copy_paste") /// 이 Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다.
