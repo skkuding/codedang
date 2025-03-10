@@ -1,9 +1,9 @@
 'use client'
 
 import { safeFetcherWithAuth } from '@/libs/utils'
-import type { ContestSubmission } from '@/types/type'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { ALPHABET } from '../_libs/constants'
+import { convertToLetter } from '@/libs/utils'
+import type { ContestSubmission, ContestProblem } from '@/types/type'
+import { useSuspenseQueries } from '@tanstack/react-query'
 
 interface Props {
   problemId: number
@@ -31,14 +31,31 @@ export function SubmissionDetailTitle({
     return problemTitle
   }
 
-  const { data } = useSuspenseQuery({
-    queryKey: ['submission title', contestId],
-    queryFn: () => fetchContestSubmissionTitle(contestId)
+  async function fetchContestProblemById(contestId: number, problemId: number) {
+    const res: ContestProblem = await safeFetcherWithAuth(
+      `contest/${contestId}/problem/${problemId}`
+    ).json()
+    const order = res.order
+
+    return order
+  }
+
+  const [problemTitle, problemOrder] = useSuspenseQueries({
+    queries: [
+      {
+        queryKey: ['submission title', contestId],
+        queryFn: () => fetchContestSubmissionTitle(contestId)
+      },
+      {
+        queryKey: ['problem order', contestId, problemId],
+        queryFn: () => fetchContestProblemById(contestId, problemId)
+      }
+    ]
   })
 
   const title =
-    problemId > 0 && problemId <= 27
-      ? `${ALPHABET[problemId - 1]}.${data}`
+    problemOrder.data >= 0 && problemOrder.data <= 27
+      ? `${convertToLetter(problemOrder.data)}.${problemTitle.data}`
       : '!'
   return (
     <div>

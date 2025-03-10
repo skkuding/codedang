@@ -102,6 +102,7 @@ export function SubmissionTable<
                       paddingLeft: 2,
                       paddingRight: 2
                     }}
+                    className="border-b-2 border-slate-700"
                   >
                     <div className="text-center text-xs">
                       {flexRender(
