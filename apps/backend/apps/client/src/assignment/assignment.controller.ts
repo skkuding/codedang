@@ -80,13 +80,11 @@ export class AssignmentController {
   @Get(':id/score/me')
   async getMyAssignmentProblemRecord(
     @Req() req: AuthenticatedRequest,
-    @Param('id', IDValidationPipe) assignmentId: number,
-    @Query('groupId', GroupIDPipe) groupId: number
+    @Param('id', IDValidationPipe) assignmentId: number
   ) {
     return await this.assignmentService.getMyAssignmentProblemRecord(
       assignmentId,
-      req.user.id,
-      groupId
+      req.user.id
     )
   }
 }

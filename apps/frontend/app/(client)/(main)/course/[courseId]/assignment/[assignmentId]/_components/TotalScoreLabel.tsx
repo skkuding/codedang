@@ -25,12 +25,7 @@ export function TotalScoreLabel({
   useEffect(() => {
     async function getMyScoreSummary() {
       const myScoreSummary = await fetcherWithAuth<ScoreSummary>(
-        `assignment/${assignmentId}/score/me`,
-        {
-          searchParams: {
-            groupId: courseId
-          }
-        }
+        `assignment/${assignmentId}/score/me`
       ).json()
       setMyScoreSummary(myScoreSummary)
     }

@@ -54,6 +54,9 @@ const db = {
   assignmentRecord: {
     findUnique: stub()
   },
+  assignmentProblemRecord: {
+    findMany: stub()
+  },
   workbookProblem: {
     findMany: stub(),
     findUniqueOrThrow: stub(),
@@ -153,8 +156,7 @@ const mockAssignmentProblemsWithScore = assignmentProblemsWithScore.map(
       assignment: {
         startTime: new Date()
       },
-      maxScore: 0,
-      submissionTime: null
+      maxScore: 0
     }
   }
 )
@@ -608,6 +610,9 @@ describe('AssignmentProblemService', () => {
       })
       db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
       db.submission.findMany.resolves([])
+      db.assignmentProblemRecord.findMany.resolves([
+        { problemId: 1, score: null }
+      ])
 
       // when
       const result = await service.getAssignmentProblems({
@@ -638,6 +643,9 @@ describe('AssignmentProblemService', () => {
       })
       db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
       db.submission.findMany.resolves([])
+      db.assignmentProblemRecord.findMany.resolves([
+        { problemId: 1, score: null }
+      ])
 
       // when
       const result = await service.getAssignmentProblems({
