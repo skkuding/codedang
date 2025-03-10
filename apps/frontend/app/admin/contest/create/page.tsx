@@ -26,28 +26,35 @@ export default function Page() {
     <ConfirmNavigation>
       <ScrollArea className="w-full">
         <main className="flex flex-col gap-6 px-20 py-16">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Link href="/admin/contest">
               <FaAngleLeft className="h-12" />
             </Link>
-            <span className="text-4xl font-bold">Create Contest</span>
+            <span className="text-[32px] font-bold">CREATE CONTEST</span>
           </div>
 
           <CreateContestForm problems={problems} setIsCreating={setIsCreating}>
-            <FormSection title="Title">
-              <TitleForm placeholder="Name your contest" />
-            </FormSection>
-
-            <div className="flex gap-6">
-              <FormSection title="Start Time">
-                <TimeForm name="startTime" />
-              </FormSection>
-              <FormSection title="End Time">
-                <TimeForm name="endTime" />
-              </FormSection>
+            <div className="flex justify-between gap-[26px]">
+              <div className="h-[312px] w-[234px] rounded-xl border">
+                {/* Temporary div for image */}
+              </div>
+              <div className="flex flex-col justify-between">
+                <FormSection title="Title">
+                  <TitleForm placeholder="Name your contest" />
+                </FormSection>
+                <FormSection title="Start Time">
+                  <TimeForm name="startTime" />
+                </FormSection>
+                <FormSection title="End Time">
+                  <TimeForm name="endTime" />
+                </FormSection>
+                <div className="h-[114px] w-[641px] rounded-xl border">
+                  {/* Temporary Leaderboard Freeze div */}
+                </div>
+              </div>
             </div>
 
-            <FormSection title="Description">
+            <FormSection title="Description" isFlexColumn={true}>
               <DescriptionForm name="description" />
             </FormSection>
 

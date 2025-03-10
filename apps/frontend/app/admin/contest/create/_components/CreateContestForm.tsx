@@ -111,7 +111,7 @@ export function CreateContestForm({
 
   return (
     <form
-      className="flex w-[760px] flex-col gap-6"
+      className="flex w-[901px] flex-col gap-6"
       onSubmit={methods.handleSubmit(isSubmittable)}
     >
       <FormProvider {...methods}>{children}</FormProvider>

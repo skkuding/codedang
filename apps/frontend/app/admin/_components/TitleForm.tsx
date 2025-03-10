@@ -12,12 +12,12 @@ export function TitleForm({ placeholder }: { placeholder: string }) {
     formState: { errors }
   } = useFormContext()
   return (
-    <>
+    <div>
       <Input
         id="title"
         type="text"
         placeholder={placeholder}
-        className={cn(inputStyle, 'w-[500px]')}
+        className={cn(inputStyle, 'w-[492px]')}
         {...register('title', {
           required: true
         })}
@@ -28,6 +28,6 @@ export function TitleForm({ placeholder }: { placeholder: string }) {
         ) : (
           <ErrorMessage message={errors.title.message?.toString()} />
         ))}
-    </>
+    </div>
   )
 }
