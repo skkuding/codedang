@@ -39,6 +39,7 @@ export function Cover({ title, description }: CoverProps) {
           alt={title}
           className="absolute"
           fill
+          priority
         />
         <div className="absolute z-10 justify-self-center pb-[91px] pt-[157px] text-center md:w-[1440px] md:flex-col md:items-center md:pl-[240.12px] md:pr-[838px] md:text-left">
           <Image

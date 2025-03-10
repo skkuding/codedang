@@ -6,7 +6,7 @@ import { SubmissionTestcase } from '@/app/admin/course/[courseId]/grade/assignme
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
-import { useSuspenseQuery } from '@apollo/client'
+import { useQuery } from '@apollo/client'
 import type { SubmissionDetail } from '@generated/graphql'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
@@ -23,19 +23,48 @@ interface PageProps {
 export default function Page({ params }: PageProps) {
   const { courseId, assignmentId, userId, problemId } = params
 
-  const submission = useSuspenseQuery(GET_ASSIGNMENT_LATEST_SUBMISSION, {
+  const { data, error } = useQuery(GET_ASSIGNMENT_LATEST_SUBMISSION, {
     variables: {
       groupId: Number(courseId),
       assignmentId: Number(assignmentId),
       userId: Number(userId),
       problemId: Number(problemId)
     }
-  }).data?.getAssignmentLatestSubmission
+  })
+
+  if (error) {
+    return (
+      <div>
+        <div className="px-6 py-4">
+          <SubmissionSummary submission={null} />
+        </div>
+
+        <div className="h-3 bg-[#121728]" />
+
+        <div className="px-6 py-2">
+          <SubmissionTestcase submission={null} />
+        </div>
+
+        <div className="h-3 bg-[#121728]" />
+
+        <div className="px-6 py-6">
+          <SubmissionAssessment
+            groupId={Number(courseId)}
+            assignmentId={Number(assignmentId)}
+            userId={Number(userId)}
+            problemId={Number(problemId)}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  const submission = data?.getAssignmentLatestSubmission
 
   return (
     <div className="flex flex-col gap-5 overflow-auto">
       <div className="z-20 flex items-center gap-3 px-6 pt-6">
-        <h1 className="text-xl font-bold">Submission #{submission.id}</h1>
+        <h1 className="text-xl font-bold">Submission #{submission?.id}</h1>
       </div>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense

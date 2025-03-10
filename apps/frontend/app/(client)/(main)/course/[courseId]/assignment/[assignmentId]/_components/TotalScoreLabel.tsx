@@ -11,7 +11,7 @@ interface TotalScoreLabelProps {
 interface ScoreSummary {
   submittedProblemCount: number
   totalProblemCount: number
-  userAssignmentScore: number
+  userAssignmentJudgeScore: number
   assignmentPerfectScore: number
   userAssignmentFinalScore: number
 }
@@ -25,12 +25,7 @@ export function TotalScoreLabel({
   useEffect(() => {
     async function getMyScoreSummary() {
       const myScoreSummary = await fetcherWithAuth<ScoreSummary>(
-        `assignment/${assignmentId}/score/me`,
-        {
-          searchParams: {
-            groupId: courseId
-          }
-        }
+        `assignment/${assignmentId}/score/me`
       ).json()
       setMyScoreSummary(myScoreSummary)
     }
@@ -43,7 +38,7 @@ export function TotalScoreLabel({
         Total score
       </div>
       <span className="text-xl font-semibold">
-        {myScoreSummary?.userAssignmentScore}/
+        {myScoreSummary?.userAssignmentJudgeScore}/
         {myScoreSummary?.assignmentPerfectScore}
       </span>
     </div>
