@@ -1,9 +1,9 @@
 'use client'
 
 import { safeFetcherWithAuth } from '@/libs/utils'
+import { convertToLetter } from '@/libs/utils'
 import type { ContestSubmission, ContestProblem } from '@/types/type'
 import { useSuspenseQueries } from '@tanstack/react-query'
-import { ALPHABET } from '../_libs/constants'
 
 interface Props {
   problemId: number
@@ -39,7 +39,6 @@ export function SubmissionDetailTitle({
 
     return order
   }
-  const order = fetchContestProblemById(contestId, problemId)
 
   const [problemTitle, problemOrder] = useSuspenseQueries({
     queries: [
@@ -53,11 +52,10 @@ export function SubmissionDetailTitle({
       }
     ]
   })
-  const data = problemTitle.data
 
   const title =
     problemOrder.data >= 0 && problemOrder.data <= 27
-      ? `${ALPHABET[problemOrder.data]}.${data}`
+      ? `${convertToLetter(problemOrder.data)}.${problemTitle.data}`
       : '!'
   return (
     <div>
