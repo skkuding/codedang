@@ -11,7 +11,7 @@ interface TotalScoreLabelProps {
 interface ScoreSummary {
   submittedProblemCount: number
   totalProblemCount: number
-  userAssignmentScore: number
+  userAssignmentJudgeScore: number
   assignmentPerfectScore: number
   userAssignmentFinalScore: number
 }
@@ -38,7 +38,7 @@ export function TotalScoreLabel({
         Total score
       </div>
       <span className="text-xl font-semibold">
-        {myScoreSummary?.userAssignmentScore}/
+        {myScoreSummary?.userAssignmentJudgeScore}/
         {myScoreSummary?.assignmentPerfectScore}
       </span>
     </div>
