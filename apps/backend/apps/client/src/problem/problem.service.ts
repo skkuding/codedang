@@ -220,10 +220,27 @@ export class ProblemService {
       })
     ).map((tag) => tag.tag)
 
+    const updateHistory = await this.getProblemUpdateHistory(problemId)
+
     return {
       ...data,
-      tags
+      tags,
+      updateHistory
     }
+  }
+
+  async getProblemUpdateHistory(problemId: number) {
+    // 업데이트 히스토리 조회
+    const updateHistory = await this.prisma.updateHistory.findMany({
+      where: { problemId },
+      orderBy: { updatedAt: 'desc' } // 최신순 정렬
+    })
+
+    // if (!updateHistory.length) {
+    //   throw new NotFoundException('No update history found for this problem.')
+    // }
+
+    return updateHistory
   }
 }
 

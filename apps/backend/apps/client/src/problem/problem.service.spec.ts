@@ -24,7 +24,8 @@ import {
   workbookProblems,
   tag,
   contestProblemsWithScore,
-  assignmentProblemsWithScore
+  assignmentProblemsWithScore,
+  mockUpdateHistory
 } from './mock/problem.mock'
 import {
   ContestProblemService,
@@ -77,6 +78,9 @@ const db = {
     findUniqueOrThrow: stub()
   },
   submission: {
+    findMany: stub()
+  },
+  updateHistory: {
     findMany: stub()
   },
   getPaginator: PrismaService.prototype.getPaginator
@@ -255,6 +259,17 @@ describe('ProblemService', () => {
       await expect(service.getProblem(problemId)).to.be.rejectedWith(
         prismaNotFoundError
       )
+    })
+  })
+
+  describe('getProblemUpdateHistory', () => {
+    it('should return the update history of problem', async () => {
+      db.problem.findUniqueOrThrow.resolves(mockProblem)
+      db.updateHistory.findMany.resolves(mockUpdateHistory)
+
+      const result = await service.getProblemUpdateHistory(problemId)
+
+      expect(result).to.deep.equal(mockUpdateHistory)
     })
   })
 })
