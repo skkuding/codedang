@@ -212,6 +212,7 @@ export interface Submission {
 
 export interface SubmissionItem {
   id: number
+  order: string
   user: {
     username: string
   }
