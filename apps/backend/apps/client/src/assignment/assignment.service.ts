@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { assign } from 'nodemailer/lib/shared'
 import {
   ConflictFoundException,
   EntityNotExistException,
