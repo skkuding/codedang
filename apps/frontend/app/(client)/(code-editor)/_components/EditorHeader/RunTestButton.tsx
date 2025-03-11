@@ -13,6 +13,7 @@ import { useTestcaseStore } from '../context/TestcaseStoreProvider'
 interface RunTestButtonProps extends ButtonProps {
   problemId: number
   language: string
+  setIsSubmitting: (state: boolean) => void
   saveCode: (code: string) => void
 }
 
@@ -20,6 +21,7 @@ export function RunTestButton({
   problemId,
   language,
   saveCode,
+  setIsSubmitting,
   ...props
 }: RunTestButtonProps) {
   const session = useSession()
@@ -111,6 +113,7 @@ export function RunTestButton({
     }
 
     setIsTesting(true)
+    setIsSubmitting(false)
     mutate({ code, testcases })
   }
 

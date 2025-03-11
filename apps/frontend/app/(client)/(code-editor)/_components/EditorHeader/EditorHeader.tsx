@@ -410,6 +410,7 @@ export function EditorHeader({
           language={language}
           disabled={loading}
           saveCode={storeCodeToLocalStorage}
+          setIsSubmitting={setIsSubmitting}
         />
         <Button
           className="h-8 shrink-0 gap-1 rounded-[4px] px-2 font-normal"
