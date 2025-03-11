@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
+import { assign } from 'nodemailer/lib/shared'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -425,6 +426,25 @@ export class AssignmentService {
       >
     )
 
+    const submissions = await this.prisma.submission.findMany({
+      where: { userId, assignmentId },
+      select: {
+        problemId: true,
+        updateTime: true
+      },
+      orderBy: {
+        updateTime: 'desc'
+      }
+    })
+
+    const submissionMap = new Map<number, Date>()
+
+    for (const submission of submissions) {
+      if (!submissionMap.has(submission.problemId)) {
+        submissionMap.set(submission.problemId, submission.updateTime)
+      }
+    }
+
     if (assignment.autoFinalizeScore) {
       assignmentRecord.finalScore = assignmentRecord.score
     }
@@ -434,7 +454,8 @@ export class AssignmentService {
       title: ap.problem.title,
       order: ap.order,
       maxScore: ap.score,
-      problemRecord: problemRecordMap[ap.problemId] || null
+      problemRecord: problemRecordMap[ap.problemId] || null,
+      submissionTime: submissionMap.get(ap.problemId)
     }))
 
     const assignmentPerfectScore = assignment.assignmentProblem.reduce(
