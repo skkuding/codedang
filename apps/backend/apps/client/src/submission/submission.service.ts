@@ -1429,7 +1429,7 @@ export class SubmissionService {
     const rawSubmission = await this.prisma.submission.findFirst({
       where: { userId, assignmentId, problemId },
       orderBy: {
-        updateTime: 'desc'
+        createTime: 'desc'
       },
       select: {
         id: true,
