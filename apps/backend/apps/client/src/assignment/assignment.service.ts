@@ -429,10 +429,10 @@ export class AssignmentService {
       where: { userId, assignmentId },
       select: {
         problemId: true,
-        updateTime: true
+        createTime: true
       },
       orderBy: {
-        updateTime: 'desc'
+        createTime: 'desc'
       }
     })
 
@@ -440,7 +440,7 @@ export class AssignmentService {
 
     for (const submission of submissions) {
       if (!submissionMap.has(submission.problemId)) {
-        submissionMap.set(submission.problemId, submission.updateTime)
+        submissionMap.set(submission.problemId, submission.createTime)
       }
     }
 
