@@ -1,13 +1,13 @@
 'use client'
 
 import { convertToLetter, dateFormatter } from '@/libs/utils'
-import type { AssignmentProblem } from '@/types/type'
+import type { ProblemGrade } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Suspense } from 'react'
 import { MySubmission, MySubmissionFallback } from './MySubmission'
 
-export const columns: ColumnDef<AssignmentProblem>[] = [
+export const columns: ColumnDef<ProblemGrade>[] = [
   {
     header: '#',
     accessorKey: 'order',
@@ -26,33 +26,33 @@ export const columns: ColumnDef<AssignmentProblem>[] = [
       )
     }
   },
-  {
-    header: 'My Submission',
-    accessorKey: 'submit',
-    cell: ({ row }) =>
-      row.original.submissionTime && (
-        <div className="flex items-center justify-center">
-          <ErrorBoundary fallback={null}>
-            <Suspense fallback={<MySubmissionFallback />}>
-              <MySubmission problem={row.original} />
-            </Suspense>
-          </ErrorBoundary>
-        </div>
-      )
-  },
-  {
-    header: () => 'Submission Time',
-    accessorKey: 'submissionTime',
-    cell: ({ row }) =>
-      row.original.submissionTime &&
-      dateFormatter(row.original.submissionTime, 'YYYY-MM-DD HH:mm:ss')
-  },
+  // {
+  //   header: 'My Submission',
+  //   accessorKey: 'submit',
+  //   cell: ({ row }) =>
+  //     row.original.submissionTime && (
+  //       <div className="flex items-center justify-center">
+  //         <ErrorBoundary fallback={null}>
+  //           <Suspense fallback={<MySubmissionFallback />}>
+  //             <MySubmission problem={row.original} />
+  //           </Suspense>
+  //         </ErrorBoundary>
+  //       </div>
+  //     )
+  // },
+  // {
+  //   header: () => 'Submission Time',
+  //   accessorKey: 'submissionTime',
+  //   cell: ({ row }) =>
+  //     row.original.submissionTime &&
+  //     dateFormatter(row.original.submissionTime, 'YYYY-MM-DD HH:mm:ss')
+  // },
   {
     header: () => 'Score',
     accessorKey: 'score',
     cell: ({ row }) =>
       row.original.maxScore !== null
-        ? `${row.original.score ?? '-'} / ${row.original.maxScore}`
+        ? `${row.original.problemRecord?.score ?? '-'} / ${row.original.maxScore}`
         : null
   }
 ]

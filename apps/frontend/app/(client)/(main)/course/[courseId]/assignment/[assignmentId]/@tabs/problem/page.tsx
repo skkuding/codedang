@@ -6,7 +6,12 @@ import {
   fetcherWithAuth,
   getStatusWithStartEnd
 } from '@/libs/utils'
-import type { Assignment, AssignmentProblem } from '@/types/type'
+import type {
+  Assignment,
+  AssignmentGrade,
+  AssignmentProblem,
+  ProblemGrade
+} from '@/types/type'
 import { useCallback, useEffect, useState } from 'react'
 import { columns } from './_components/Columns'
 
@@ -14,16 +19,11 @@ interface AssignmentProblemProps {
   params: { courseId: string; assignmentId: string }
 }
 
-interface AssignmentApiResponse {
-  data: AssignmentProblem[]
-  total: number
-}
-
 export default function AssignmentProblem({ params }: AssignmentProblemProps) {
   const { courseId, assignmentId } = params
 
   const [assignmentStatus, setAssignmentStatus] = useState<string | null>(null)
-  const [problems, setProblems] = useState<AssignmentProblem[]>([])
+  const [problems, setProblems] = useState<ProblemGrade[]>([])
   const [fetchProblemStatusCode, setFetchProblemStatusCode] = useState<
     number | null
   >(null)
@@ -54,24 +54,19 @@ export default function AssignmentProblem({ params }: AssignmentProblemProps) {
 
   const fetchProblems = useCallback(async () => {
     try {
-      const res = await fetcherWithAuth.get<AssignmentApiResponse>(
-        `assignment/${assignmentId}/problem`,
-        {
-          searchParams: {
-            groupId: courseId
-          }
-        }
+      const res = await fetcherWithAuth.get<AssignmentGrade>(
+        `assignment/${assignmentId}/score/me`
       )
       setFetchProblemStatusCode(res.status)
 
       if (res.ok) {
         const problemsData = await res.json()
-        setProblems(problemsData.data)
+        setProblems(problemsData.problems)
       }
     } catch (error) {
       console.error('Failed to fetch problems:', error)
     }
-  }, [assignmentId, courseId])
+  }, [assignmentId])
 
   const participateAssignment = useCallback(async () => {
     try {

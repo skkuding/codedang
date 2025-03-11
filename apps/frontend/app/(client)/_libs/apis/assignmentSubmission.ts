@@ -1,5 +1,9 @@
 import { safeFetcherWithAuth } from '@/libs/utils'
-import type { SubmissionDetail, SubmissionItem } from '@/types/type'
+import type {
+  AssignmentGrade,
+  SubmissionDetail,
+  SubmissionItem
+} from '@/types/type'
 import type { PaginationQueryParams } from './types'
 
 export interface GetAssignmentSubmissionListRequest
@@ -160,34 +164,6 @@ export interface GetAssignmentGradesRequest {
 }
 
 export type GetAssignmentGradesResponse = AssignmentGrade[]
-
-export interface AssignmentGrade {
-  id: number
-  title: string
-  endTime: string
-  autoFinalizeScore: boolean
-  isFinalScoreVisible: boolean
-  isJudgeResultVisible: boolean
-  week: number
-  userAssignmentFinalScore: number | null
-  userAssignmentJudgeScore: number | null
-  assignmentPerfectScore: number
-  problems: ProblemGrade[]
-}
-export interface ProblemGrade {
-  id: number
-  title: string
-  order: number
-  maxScore: number
-  problemRecord: ProblemRecord | null
-}
-
-export interface ProblemRecord {
-  finalScore: number
-  score: number
-  isSubmitted: boolean
-  comment: string
-}
 
 export const getAssignmentGrades = async ({
   groupId
