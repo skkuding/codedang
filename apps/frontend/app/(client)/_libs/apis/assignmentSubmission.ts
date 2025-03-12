@@ -79,7 +79,26 @@ export const getAnonymizedScores = async ({
   )
 
   const data = await response.json<AnonymizedScore>()
-  console.log('Fetched data:', data)
+  return data
+}
+
+export interface GetLatestProblemSubmissionResultRequest {
+  assignmentId: number
+  problemId: number
+}
+
+export const getLatestProblemSubmissionResult = async ({
+  assignmentId,
+  problemId
+}: GetLatestProblemSubmissionResultRequest) => {
+  const response = await safeFetcherWithAuth.get(
+    `assignment/${assignmentId}/submission/latest`,
+    {
+      searchParams: { problemId }
+    }
+  )
+
+  const data = await response.json<ProblemSubmissionResult>()
   return data
 }
 
@@ -115,7 +134,6 @@ export const getProblemSubmissionResults = async ({
   )
 
   const data = await response.json<ProblemSubmissionResultsResponse>()
-  console.log('Fetched data:', data)
   return data
 }
 
@@ -155,7 +173,6 @@ export const getTestResult = async ({
   })
 
   const data = await response.json<SubmissionResponse>()
-  console.log('Fetched data:', data)
   return data
 }
 
@@ -170,6 +187,5 @@ export const getAssignmentGrades = async ({
 }: GetAssignmentGradesRequest) => {
   const response = await safeFetcherWithAuth.get(`course/${groupId}/grade`)
   const data = await response.json<GetAssignmentGradesResponse>()
-  console.log('Fetched data:', data)
   return data
 }
