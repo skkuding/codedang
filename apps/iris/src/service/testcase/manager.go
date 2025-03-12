@@ -11,15 +11,15 @@ type TestcaseManager interface {
 }
 
 type testcaseManager struct {
-	database loader.Read
+	source loader.Read
 }
 
-func NewTestcaseManager(database loader.Read) *testcaseManager {
-	return &testcaseManager{database: database}
+func NewTestcaseManager(source loader.Read) *testcaseManager {
+	return &testcaseManager{source: source}
 }
 
 func (t *testcaseManager) GetTestcase(problemId string, hidden bool) (Testcase, error) {
-	data, err := t.database.Get(problemId)
+	data, err := t.source.Get(problemId)
 	if err != nil {
 		return Testcase{}, fmt.Errorf("GetTestcase: %w", err)
 	}
