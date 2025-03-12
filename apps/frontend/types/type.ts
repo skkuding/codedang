@@ -400,6 +400,7 @@ export interface ProblemGrade {
   order: number
   maxScore: number
   problemRecord: ProblemRecord | null
+  submissionTime: string
 }
 
 export interface ProblemRecord {

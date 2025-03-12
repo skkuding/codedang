@@ -1,6 +1,5 @@
 'use client'
 
-import type { AssignmentGrade } from '@/app/(client)/_libs/apis/assignmentSubmission'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { CodeEditor } from '@/components/CodeEditor'
 import {
@@ -11,6 +10,7 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Separator } from '@/components/shadcn/separator'
 import { dateFormatter } from '@/libs/utils'
+import type { AssignmentGrade } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import { MdArrowForwardIos } from 'react-icons/md'
 
