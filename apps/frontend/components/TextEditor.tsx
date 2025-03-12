@@ -1,6 +1,6 @@
 'use client'
 
-import { CautionDialog } from '@/app/admin/problem/_components/CautionDialog'
+import { CautionDialog } from '@/app/admin/_components/CautionDialog'
 import {
   Dialog,
   DialogContent,

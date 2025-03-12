@@ -1,5 +1,6 @@
 'use client'
 
+import { CautionDialog } from '@/app/admin/_components/CautionDialog'
 import { useConfirmNavigationContext } from '@/app/admin/_components/ConfirmNavigation'
 import { createSchema } from '@/app/admin/problem/_libs/schemas'
 import { CREATE_PROBLEM } from '@/graphql/problem/mutations'
@@ -11,7 +12,6 @@ import { useRouter } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { CautionDialog } from '../../_components/CautionDialog'
 import { validateScoreWeight } from '../../_libs/utils'
 
 interface CreateProblemFormProps {

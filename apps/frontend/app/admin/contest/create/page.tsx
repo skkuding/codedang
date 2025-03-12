@@ -13,12 +13,12 @@ import { SummaryForm } from '../../_components/SummaryForm'
 import { SwitchField } from '../../_components/SwitchField'
 import { TimeForm } from '../../_components/TimeForm'
 import { TitleForm } from '../../_components/TitleForm'
-import { ContestProblemListLabel } from '../_components/ContestProblemListLabel'
 import { ContestProblemTable } from '../_components/ContestProblemTable'
 import { CreateContestLabel } from '../_components/CreateContestLabel'
 import { ImportDialog } from '../_components/ImportDialog'
 import type { ContestProblem } from '../_libs/schemas'
 import { CreateContestForm } from './_components/CreateContestForm'
+import { ImageUploadSection } from './_components/ImageUploadSection'
 
 export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
@@ -37,9 +37,7 @@ export default function Page() {
 
           <CreateContestForm problems={problems} setIsCreating={setIsCreating}>
             <div className="flex justify-between gap-[26px]">
-              <div className="h-[312px] w-[234px] rounded-xl border">
-                {/* Temporary div for image */}
-              </div>
+              <ImageUploadSection />
               <div className="flex flex-col justify-between">
                 <FormSection title="Title">
                   <TitleForm placeholder="Name your contest" />
