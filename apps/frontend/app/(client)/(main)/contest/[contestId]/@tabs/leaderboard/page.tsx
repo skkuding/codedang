@@ -1,22 +1,51 @@
-import comingSoonLogo from '@/public/logos/coming-soon.png'
+'use client'
+
+import { Input } from '@/components/shadcn/input'
+import InfoIcon from '@/public/icons/file-info-gray.svg'
+import SearchIcon from '@/public/icons/search.svg'
 import Image from 'next/image'
+import { useState } from 'react'
+
+function handleSearch(text: string) {
+  alert(`검색할래요 ${text}를.`)
+}
 
 export default function ContestLeaderBoard() {
+  const [searchText, setSearchText] = useState('')
+
   return (
-    <div className="flex flex-col items-center justify-center py-[218px]">
-      <Image
-        className="pb-10"
-        src={comingSoonLogo}
-        alt="coming-soon"
-        width={300}
-        height={300}
-      />
-      <div className="flex flex-col items-center">
-        <h2 className="pb-2 text-xl font-semibold">COMING SOON!</h2>
-        <p className="text-center text-base text-neutral-500">
-          This page is being prepared.
-          <br /> We will provide an update as soon as possible.
-        </p>
+    <div>
+      <div className="mt-[96px] flex flex-row">
+        <div className="h-[34px] text-[24px] font-bold">
+          CHECK YOUR RANKING!
+        </div>
+        <Image
+          src={InfoIcon}
+          alt="info-icon"
+          width={32}
+          height={32}
+          className="ml-1"
+        />
+      </div>
+      <div className="relative mt-[30px]">
+        <Image
+          src={SearchIcon}
+          alt="search"
+          className="absolute left-5 top-1/2 -translate-y-1/2"
+          onClick={() => {
+            handleSearch(searchText)
+          }}
+        />
+        <Input
+          placeholder="Search"
+          className="pl-[52px] text-[18px] font-normal"
+          onChange={(e) => setSearchText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSearch(searchText)
+            }
+          }}
+        />
       </div>
     </div>
   )
