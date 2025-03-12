@@ -1,13 +1,17 @@
 'use client'
 
+import { Dialog } from '@/components/shadcn/dialog'
 import { convertToLetter, dateFormatter } from '@/libs/utils'
-import type { ProblemGrade } from '@/types/type'
+import type { AssignmentGrade, ProblemGrade } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
 import type { ColumnDef } from '@tanstack/react-table'
-import { Suspense } from 'react'
-import { MySubmission, MySubmissionFallback } from './MySubmission'
+import { useState } from 'react'
+import { DetailButton } from '../../../../../_components/DetailButton'
+import { SubmissionDetailModal } from '../../../../../grade/_components/SubmissionDetailModal'
 
-export const columns: ColumnDef<ProblemGrade>[] = [
+export const columns = (
+  assignment: AssignmentGrade
+): ColumnDef<ProblemGrade>[] => [
   {
     header: '#',
     accessorKey: 'order',
@@ -28,17 +32,10 @@ export const columns: ColumnDef<ProblemGrade>[] = [
   },
   {
     header: 'My Submission',
-    accessorKey: 'submit',
-    cell: ({ row }) =>
-      row.original.submissionTime && (
-        <div className="flex items-center justify-center">
-          <ErrorBoundary fallback={null}>
-            <Suspense fallback={<MySubmissionFallback />}>
-              <MySubmission problem={row.original} />
-            </Suspense>
-          </ErrorBoundary>
-        </div>
-      )
+    accessorKey: 'problemRecord',
+    cell: ({ row }) => (
+      <SubmissionCell problem={row.original} assignment={assignment} />
+    )
   },
   {
     header: () => 'Submission Time',
@@ -56,3 +53,44 @@ export const columns: ColumnDef<ProblemGrade>[] = [
         : null
   }
 ]
+
+interface SubmissionCellProps {
+  problem: ProblemGrade
+  assignment: AssignmentGrade
+}
+
+function SubmissionCell({ problem, assignment }: SubmissionCellProps) {
+  const [openProblemId, setOpenProblemId] = useState<number | null>(null)
+
+  const handleOpenChange = (problemId: number | null) => {
+    setOpenProblemId(problemId)
+  }
+
+  return problem.submissionTime ? (
+    <div className="flex items-center justify-center">
+      <ErrorBoundary fallback={null}>
+        {/* <Suspense fallback={<MySubmissionFallback />}> */}
+        <div className="flex w-[11%] justify-center">
+          <Dialog
+            open={openProblemId === problem.id}
+            onOpenChange={(isOpen) =>
+              handleOpenChange(isOpen ? problem.id : null)
+            }
+          >
+            <DetailButton
+              isActivated={new Date() > new Date(assignment.endTime)}
+            />
+            {openProblemId === problem.id && (
+              <SubmissionDetailModal
+                problemId={problem.id}
+                gradedAssignment={assignment}
+                showEvaluation={false}
+              />
+            )}
+          </Dialog>
+        </div>
+        {/* </Suspense> */}
+      </ErrorBoundary>
+    </div>
+  ) : null
+}

@@ -142,6 +142,7 @@ function GradeAccordionItem({ assignment, courseId }: GradeAccordionItemProps) {
                       <SubmissionDetailModal
                         problemId={problem.id}
                         gradedAssignment={assignment}
+                        showEvaluation={true}
                       />
                     )}
                   </Dialog>

@@ -17,10 +17,12 @@ import { MdArrowForwardIos } from 'react-icons/md'
 interface SubmissionDetailModalProps {
   problemId: number
   gradedAssignment: AssignmentGrade
+  showEvaluation: boolean
 }
 export function SubmissionDetailModal({
   problemId,
-  gradedAssignment
+  gradedAssignment,
+  showEvaluation
 }: SubmissionDetailModalProps) {
   const { data: submission } = useQuery(
     assignmentSubmissionQueries.lastestSubmissionResult({
@@ -86,26 +88,28 @@ export function SubmissionDetailModal({
           </DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-2">
-            <span className="flex h-[30px] w-[140px] items-center justify-center rounded-full border border-blue-500 font-bold text-blue-500">
-              <span className="text-lg">
-                {gradedAssignment.problems.find(
-                  (problem) => problem.id === problemId
-                )?.problemRecord?.finalScore ??
-                  gradedAssignment.problems.find(
+          {showEvaluation && (
+            <div className="flex flex-col gap-2">
+              <span className="flex h-[30px] w-[140px] items-center justify-center rounded-full border border-blue-500 font-bold text-blue-500">
+                <span className="text-lg">
+                  {gradedAssignment.problems.find(
                     (problem) => problem.id === problemId
-                  )?.problemRecord?.score}
+                  )?.problemRecord?.finalScore ??
+                    gradedAssignment.problems.find(
+                      (problem) => problem.id === problemId
+                    )?.problemRecord?.score}
+                </span>
+                {'  /  '}
+                <span className="text-lg">
+                  {
+                    gradedAssignment.problems.find(
+                      (problem) => problem.id === problemId
+                    )?.maxScore
+                  }
+                </span>
               </span>
-              {'  /  '}
-              <span className="text-lg">
-                {
-                  gradedAssignment.problems.find(
-                    (problem) => problem.id === problemId
-                  )?.maxScore
-                }
-              </span>
-            </span>
-          </div>
+            </div>
+          )}
 
           {submission && (
             <div>
@@ -217,16 +221,18 @@ export function SubmissionDetailModal({
               </table>
             </div>
           )}
-          <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium">Comment</span>
-            <div className="flex-col rounded border p-4">
-              <span className="text-xs">
-                {gradedAssignment.problems.find(
-                  (problem) => problem.id === problemId
-                )?.problemRecord?.comment || ''}
-              </span>
+          {showEvaluation && (
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-medium">Comment</span>
+              <div className="flex-col rounded border p-4">
+                <span className="text-xs">
+                  {gradedAssignment.problems.find(
+                    (problem) => problem.id === problemId
+                  )?.problemRecord?.comment || ''}
+                </span>
+              </div>
             </div>
-          </div>
+          )}
           <div>
             <h2 className="mb-3 text-base font-medium">Source Code</h2>
             <CodeEditor

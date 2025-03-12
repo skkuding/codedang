@@ -23,6 +23,7 @@ export default function AssignmentProblem({ params }: AssignmentProblemProps) {
   const { courseId, assignmentId } = params
 
   const [assignmentStatus, setAssignmentStatus] = useState<string | null>(null)
+  const [assignmentGrade, setAssignmentGrade] = useState<AssignmentGrade>()
   const [problems, setProblems] = useState<ProblemGrade[]>([])
   const [fetchProblemStatusCode, setFetchProblemStatusCode] = useState<
     number | null
@@ -49,6 +50,24 @@ export default function AssignmentProblem({ params }: AssignmentProblemProps) {
       )
     } catch (error) {
       console.error('Failed to fetch assignment:', error)
+    }
+  }, [assignmentId])
+
+  const fetchAssignmentGrade = useCallback(async () => {
+    try {
+      console.log('Fetching assignment grade...') // 호출 확인
+      const res = await fetcherWithAuth.get(
+        `assignment/${assignmentId}/score/me`
+      )
+      if (!res.ok) {
+        return
+      }
+
+      const assignmentGradeData: AssignmentGrade = await res.json()
+
+      setAssignmentGrade(assignmentGradeData)
+    } catch (error) {
+      console.error('Failed to fetch assignment grade:', error)
     }
   }, [assignmentId])
 
@@ -91,12 +110,14 @@ export default function AssignmentProblem({ params }: AssignmentProblemProps) {
     }
 
     fetchProblems()
+    fetchAssignmentGrade()
     if (fetchProblemStatusCode === 403) {
       participateAssignment()
       fetchProblems()
     }
   }, [
     assignmentStatus,
+    fetchAssignmentGrade,
     fetchAssignmentStatus,
     fetchProblemStatusCode,
     fetchProblems,
@@ -116,10 +137,15 @@ export default function AssignmentProblem({ params }: AssignmentProblemProps) {
     )
   }
 
+  if (!assignmentGrade) {
+    console.log('fail')
+    return null // assignmentGrade가 없으면 렌더링하지 않음
+  }
+
   return (
     <DataTable
       data={problems}
-      columns={columns}
+      columns={columns(assignmentGrade)} // assignment 전달
       headerStyle={{
         order: 'w-[6%]',
         title: 'text-left w-[36%]',
