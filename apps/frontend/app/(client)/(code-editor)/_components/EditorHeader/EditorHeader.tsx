@@ -135,7 +135,7 @@ export function EditorHeader({
         toast.error('Please try again later.')
       }
     },
-    loading && submissionId ? 500 : null
+    isSubmitting && submissionId ? 500 : null
   )
 
   useEffect(() => {
