@@ -113,7 +113,6 @@ export function RunTestButton({
     }
 
     setIsTesting(true)
-    setIsSubmitting(false)
     mutate({ code, testcases })
   }
 
