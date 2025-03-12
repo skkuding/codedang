@@ -79,6 +79,27 @@ export const getAnonymizedScores = async ({
   return data
 }
 
+export interface GetLatestProblemSubmissionResultRequest {
+  assignmentId: number
+  problemId: number
+}
+
+export const getLatestProblemSubmissionResult = async ({
+  assignmentId,
+  problemId
+}: GetLatestProblemSubmissionResultRequest) => {
+  const response = await safeFetcherWithAuth.get(
+    `assignment/${assignmentId}/submission/latest`,
+    {
+      searchParams: { problemId }
+    }
+  )
+
+  const data = await response.json<ProblemSubmissionResult>()
+  console.log('Fetched data:', data)
+  return data
+}
+
 export interface GetProblemSubmissionResultsRequest {
   assignmentId: number
   problemId: number
