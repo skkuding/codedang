@@ -7,7 +7,7 @@
 */
 -- AlterTable
 ALTER TABLE "contest" ADD COLUMN     "last_penalty" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "penalty" INTEGER NOT NULL DEFAULT 20;
+ADD COLUMN     "penalty" INTEGER NOT NULL DEFAULT 0;
 
 -- AlterTable
 ALTER TABLE "contest_problem" DROP CONSTRAINT "contest_problem_pkey",

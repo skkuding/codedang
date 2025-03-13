@@ -442,6 +442,7 @@ model Contest {
   invitationCode             String?   @map("invitation_code")
   startTime                  DateTime  @map("start_time")
   endTime                    DateTime  @map("end_time")
+  unfreeze                   Boolean   @default(false)
   freezeTime                 DateTime? @map("freeze_time")
   isVisible                  Boolean   @default(true) @map("is_visible")
   isRankVisible              Boolean   @default(true) @map("is_rank_visible")

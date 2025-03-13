@@ -206,6 +206,7 @@ export class ContestService {
       select: {
         startTime: true,
         endTime: true,
+        freezeTime: true,
         contestProblem: {
           select: {
             problemId: true
@@ -241,6 +242,40 @@ export class ContestService {
             'Summary must contain only strings'
           )
         }
+      }
+    }
+
+    const isFreezeTimeChanged =
+      contest.freezeTime && contest.freezeTime !== contestFound.freezeTime
+    if (isFreezeTimeChanged) {
+      const now = new Date()
+      if (contest.freezeTime && contest.freezeTime < now) {
+        throw new UnprocessableDataException(
+          'The freeze time must be later than the current time'
+        )
+      }
+      if (contestFound.freezeTime && contestFound.freezeTime < now) {
+        throw new UnprocessableDataException(
+          'Cannot change freeze time after the freeze time has passed already'
+        )
+      }
+    }
+
+    if (contest.unfreeze) {
+      if (!contestFound.freezeTime) {
+        throw new UnprocessableDataException(
+          'Cannot unfreeze a contest that has not been frozen'
+        )
+      }
+      if (contestFound.freezeTime < new Date()) {
+        throw new UnprocessableDataException(
+          'Cannot unfreeze a contest that has already been unfrozen'
+        )
+      }
+      if (contest.unfreeze && contest.endTime > new Date()) {
+        throw new UnprocessableDataException(
+          'Cannot unfreeze a contest that has not ended yet'
+        )
       }
     }
 
@@ -1093,7 +1128,7 @@ export class ContestService {
   async getContestLeaderboard(contestId: number, search?: string) {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
-      select: { id: true, freezeTime: true }
+      select: { id: true, freezeTime: true, unfreeze: true }
     })
 
     if (!contest) {
@@ -1116,7 +1151,9 @@ export class ContestService {
 
     // freeze 상태 확인
     const isFrozen =
-      contest?.freezeTime != null && new Date() >= contest.freezeTime
+      contest?.freezeTime != null &&
+      new Date() >= contest.freezeTime &&
+      !contest.unfreeze
 
     // Contest의 최고 점수 계산
     const sum = await this.prisma.contestProblem.aggregate({
