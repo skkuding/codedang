@@ -18,7 +18,8 @@ import { CreateContestLabel } from '../_components/CreateContestLabel'
 import { ImportDialog } from '../_components/ImportDialog'
 import type { ContestProblem } from '../_libs/schemas'
 import { CreateContestForm } from './_components/CreateContestForm'
-import { ImageUploadSection } from './_components/ImageUploadSection'
+import { FreezeSection } from './_components/FreezeSection'
+import { PosterUploadForm } from './_components/PosterUploadForm'
 
 export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
@@ -37,7 +38,8 @@ export default function Page() {
 
           <CreateContestForm problems={problems} setIsCreating={setIsCreating}>
             <div className="flex justify-between gap-[26px]">
-              <ImageUploadSection />
+              <PosterUploadForm name="posterUrl" />
+
               <div className="flex flex-col justify-between">
                 <FormSection title="Title">
                   <TitleForm placeholder="Name your contest" />
@@ -48,9 +50,8 @@ export default function Page() {
                 <FormSection title="End Time">
                   <TimeForm name="endTime" />
                 </FormSection>
-                <div className="h-[114px] w-[641px] rounded-xl border">
-                  {/* Temporary Leaderboard Freeze div */}
-                </div>
+
+                <FreezeSection />
               </div>
             </div>
 

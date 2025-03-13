@@ -6,9 +6,23 @@ import imageUpload from '@/public/icons/image-upload.svg'
 import { useMutation } from '@apollo/client'
 import Image from 'next/image'
 import React, { useCallback, useRef, useState } from 'react'
+import { useController, useFormContext } from 'react-hook-form'
 
-export function ImageUploadSection() {
-  const [imageUrl, setImageUrl] = useState<string | undefined>('')
+interface PosterUploadFormProps {
+  name: string
+}
+
+export function PosterUploadForm({ name }: PosterUploadFormProps) {
+  const {
+    control,
+    formState: { errors }
+  } = useFormContext()
+
+  const { field } = useController({
+    name,
+    control
+  })
+
   const [isLoading, setIsLoading] = useState(false)
   const [isCautionDialogOpen, setIsCautionDialogOpen] = useState(false)
   const [cautionDialogDescription, setCautionDialogDescription] =
@@ -17,7 +31,7 @@ export function ImageUploadSection() {
 
   const addImage = useCallback((imageUrl: string | undefined) => {
     if (imageUrl) {
-      setImageUrl(imageUrl)
+      field.onChange(imageUrl)
       setIsLoading(false)
     }
   }, [])
@@ -64,19 +78,19 @@ export function ImageUploadSection() {
     <>
       <div
         onClick={handleClick}
-        className="relative z-10 flex h-[312px] w-[234px] cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border bg-[#80808014] text-[#3333334D]"
+        className="relative z-10 flex h-[312px] w-[234px] cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-[#80808029] bg-[#80808014] text-[#3333334D]"
       >
         {isLoading ? (
           <div className="text-center text-[11px] font-normal">Loading...</div>
         ) : (
           <Image
-            src={imageUrl || imageUpload}
+            src={field.value || imageUpload}
             alt="Contest Image"
-            width={imageUrl ? 234 : undefined}
-            height={imageUrl ? 312 : undefined}
+            width={field.value ? 234 : undefined}
+            height={field.value ? 312 : undefined}
           />
         )}
-        {!imageUrl && !isLoading && (
+        {!field.value && !isLoading && (
           <>
             <h1 className="text-xs font-semibold">Upload Your Poster</h1>
             <p className="text-center text-[11px] font-normal">
