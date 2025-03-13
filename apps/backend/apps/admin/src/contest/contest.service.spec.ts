@@ -41,6 +41,7 @@ const contest: Contest = {
   lastPenalty: false,
   startTime,
   endTime,
+  unfreeze: false,
   freezeTime: null,
   isVisible: true,
   isRankVisible: true,
@@ -102,7 +103,7 @@ const contestWithParticipants: ContestWithParticipants = {
   lastPenalty: false,
   startTime,
   endTime,
-
+  unfreeze: false,
   freezeTime: null,
   isVisible: true,
   isRankVisible: true,
