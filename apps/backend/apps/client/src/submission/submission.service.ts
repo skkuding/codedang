@@ -1,6 +1,6 @@
 import { HttpService } from '@nestjs/axios'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable, Logger } from '@nestjs/common'
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
   ResultStatus,
@@ -1522,23 +1522,31 @@ export class SubmissionService {
           id: problemId
         },
         assignmentId
+      },
+      select: {
+        order: true,
+        problem: {
+          select: {
+            id: true,
+            title: true
+          }
+        },
+        assignment: {
+          select: {
+            id: true,
+            isJudgeResultVisible: true,
+            title: true
+          }
+        }
       }
     })
+
     if (!assignmentProblem) {
       throw new EntityNotExistException('AssignmentProblem')
     }
 
-    const assignment = await this.prisma.assignment.findFirst({
-      where: {
-        id: assignmentId
-      },
-      select: {
-        isJudgeResultVisible: true
-      }
-    })
-    if (!assignment) {
-      throw new EntityNotExistException('Assignment')
-    }
+    const { assignment } = assignmentProblem
+
     const isJudgeResultVisible = assignment.isJudgeResultVisible
 
     const submissions = await this.prisma.submission.findMany({
@@ -1572,6 +1580,78 @@ export class SubmissionService {
       where: { problemId, assignmentId }
     })
 
-    return { data: submissions, total }
+    return { data: submissions, total, assignmentProblem }
+  }
+
+  async getLatestAssignmentProblemSubmission(
+    problemId: number,
+    assignmentId: number,
+    userId: number
+  ) {
+    const isParticipated = await this.prisma.assignmentRecord.findUnique({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      where: { assignmentId_userId: { assignmentId, userId } }
+    })
+
+    if (!isParticipated) {
+      throw new ForbiddenAccessException(
+        'User not participated in the assignment'
+      )
+    }
+
+    const isJudgeResultVisible = (
+      await this.prisma.assignment.findUnique({
+        where: { id: assignmentId },
+        select: {
+          isJudgeResultVisible: true
+        }
+      })
+    )?.isJudgeResultVisible
+
+    if (isJudgeResultVisible === undefined) {
+      throw new NotFoundException('Assignment')
+    }
+
+    const rawSubmission = await this.prisma.submission.findFirst({
+      where: { userId, assignmentId, problemId },
+      orderBy: {
+        createTime: 'desc'
+      },
+      select: {
+        id: true,
+        userId: true,
+        user: {
+          select: {
+            username: true
+          }
+        },
+        language: true,
+        code: true,
+        createTime: true,
+        result: isJudgeResultVisible ? true : false,
+        submissionResult: isJudgeResultVisible ? true : false,
+        codeSize: true
+      }
+    })
+
+    if (!rawSubmission) {
+      throw new NotFoundException('Submission')
+    }
+
+    if (isJudgeResultVisible) {
+      const filteredSubmissionResult = rawSubmission.submissionResult.map(
+        ({ id, cpuTime, memoryUsage, problemTestcaseId, result }) => ({
+          id,
+          cpuTime: cpuTime?.toString(),
+          memoryUsage,
+          problemTestcaseId,
+          result
+        })
+      )
+
+      return { ...rawSubmission, submissionResult: filteredSubmissionResult }
+    }
+
+    return { ...rawSubmission, result: ResultStatus.Blind }
   }
 }

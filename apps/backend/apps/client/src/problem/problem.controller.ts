@@ -91,6 +91,11 @@ export class ProblemController {
       groupId
     )
   }
+
+  @Get(':problemId/update-history')
+  async getProblemUpdateHistory(@Param('problemId') problemId: number) {
+    return await this.problemService.getProblemUpdateHistory(problemId)
+  }
 }
 
 @Controller('contest/:contestId/problem')

@@ -214,7 +214,7 @@ export class SubmissionService {
         userId,
         problemId
       },
-      orderBy: { updateTime: 'desc' },
+      orderBy: { createTime: 'desc' },
       select: {
         id: true
       }

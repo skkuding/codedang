@@ -47,7 +47,7 @@ export function AssignmentTable({ groupId }: AssignmentTableProps) {
     >
       <div className="flex justify-between gap-2">
         <DataTableSearchBar columndId="title" />
-        <AssignmentsDeleteButton />
+        <AssignmentsDeleteButton groupId={groupId} />
       </div>
       <DataTable
         headerStyle={headerStyle}
@@ -60,14 +60,18 @@ export function AssignmentTable({ groupId }: AssignmentTableProps) {
   )
 }
 
-function AssignmentsDeleteButton() {
+interface AssignmentsDeleteButtonProp {
+  groupId: string
+}
+
+function AssignmentsDeleteButton({ groupId }: AssignmentsDeleteButtonProp) {
   const client = useApolloClient()
   const [deleteAssignment] = useMutation(DELETE_ASSIGNMENT)
 
   const deleteTarget = (id: number) => {
     return deleteAssignment({
       variables: {
-        groupId: 1,
+        groupId: Number(groupId),
         assignmentId: id
       }
     })

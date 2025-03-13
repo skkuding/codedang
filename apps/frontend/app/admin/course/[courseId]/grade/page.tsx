@@ -17,7 +17,7 @@ export default function Page() {
         <h1 className="text-4xl font-bold">Grade</h1>
       </div>
       <h1 className="text-lg font-normal text-gray-500">
-        Here&apos;s a list you made
+        Here’s a list of all assignments available for grading or review
       </h1>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<GradeAssignmentTableFallback />}>

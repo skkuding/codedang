@@ -248,4 +248,17 @@ export class AssignmentSubmissionController {
       userId: req.user.id
     })
   }
+
+  @Get('/latest')
+  async getLatestAssignmentProblemSubmission(
+    @Req() req: AuthenticatedRequest,
+    @Param('assignmentId', IDValidationPipe) assignmentId: number,
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number
+  ) {
+    return await this.submissionService.getLatestAssignmentProblemSubmission(
+      problemId,
+      assignmentId,
+      req.user.id
+    )
+  }
 }

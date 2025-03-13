@@ -230,3 +230,11 @@ export const mockUser = {
   createTime: undefined,
   updateTime: undefined
 }
+
+export const mockUpdateHistory = {
+  id: 1,
+  updatedFields: 'title',
+  updatedAt: faker.date.past(),
+  updatedByid: 1,
+  updatedInfo: '{}'
+}

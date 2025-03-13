@@ -14,7 +14,7 @@ import { BiSolidUser } from 'react-icons/bi'
 
 interface ProblemEditorProps {
   code: string
-  language: Language
+  language: string
   courseId: number
   userId: number
   children: React.ReactNode
@@ -68,7 +68,7 @@ export function EditorMainResizablePanel({
               <ScrollArea className="h-full bg-[#121728]">
                 <CodeEditor
                   value={code}
-                  language={language}
+                  language={language as Language}
                   readOnly
                   enableCopyPaste={true}
                   height="100%"

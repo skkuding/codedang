@@ -1,5 +1,25 @@
 import { gql } from '@generated'
 
+const GET_USERS = gql(`
+  query GetUsers($cursor: Int, $take: Int!) {
+    getUsers(cursor: $cursor, take: $take) {
+      id
+      userProfile {
+        realName
+        createTime
+      }
+      username
+      email
+      studentId
+      major
+      role
+      canCreateCourse
+      canCreateContest
+      lastLogin
+    }
+  }
+`)
+
 const GET_GROUP_MEMBER =
   gql(`query GetGroupMember($groupId: Int!, $userId: Int!) {
     getGroupMember(groupId: $groupId, userId: $userId) {
@@ -29,4 +49,4 @@ const GET_GROUP_MEMBERS = gql(`
   }
 `)
 
-export { GET_GROUP_MEMBER, GET_GROUP_MEMBERS }
+export { GET_USERS, GET_GROUP_MEMBER, GET_GROUP_MEMBERS }
