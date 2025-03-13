@@ -12,6 +12,7 @@ interface PosterUploadFormProps {
   name: string
 }
 
+// TODO: imageUrl api 없음
 export function PosterUploadForm({ name }: PosterUploadFormProps) {
   const {
     control,

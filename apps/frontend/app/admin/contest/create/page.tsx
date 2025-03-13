@@ -18,7 +18,7 @@ import { CreateContestLabel } from '../_components/CreateContestLabel'
 import { ImportDialog } from '../_components/ImportDialog'
 import type { ContestProblem } from '../_libs/schemas'
 import { CreateContestForm } from './_components/CreateContestForm'
-import { FreezeSection } from './_components/FreezeSection'
+import { FreezeForm } from './_components/FreezeForm'
 import { PosterUploadForm } from './_components/PosterUploadForm'
 
 export default function Page() {
@@ -51,7 +51,7 @@ export default function Page() {
                   <TimeForm name="endTime" />
                 </FormSection>
 
-                <FreezeSection />
+                <FreezeForm name="leaderboardFreeze" />
               </div>
             </div>
 
