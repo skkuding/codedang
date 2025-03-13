@@ -71,6 +71,7 @@ const contestWithCount = {
   lastPenalty: false,
   startTime,
   endTime,
+  unfreeze: false,
   freezeTime: null,
   isVisible: true,
   isRankVisible: true,

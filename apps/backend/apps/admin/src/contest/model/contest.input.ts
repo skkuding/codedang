@@ -22,10 +22,10 @@ export class CreateContestInput {
   @Field(() => Int, { nullable: true })
   penalty?: number
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Boolean, { nullable: true })
   lastPenalty?: boolean
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => String, { nullable: true })
   posterUrl?: string
 
   @IsOptional()
@@ -82,10 +82,10 @@ export class UpdateContestInput {
   @Field(() => Int, { nullable: true })
   penalty?: number
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Boolean, { nullable: true })
   lastPenalty?: boolean
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => String, { nullable: true })
   posterUrl?: string
 
   @IsOptional()
