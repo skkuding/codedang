@@ -15,6 +15,7 @@ import {
 import { ContestService } from './contest.service'
 import { ContestLeaderboard } from './model/contest-leaderboard.model'
 import { ContestSubmissionSummaryForUser } from './model/contest-submission-summary-for-user.model'
+import { ContestUpdateHistories } from './model/contest-update-histories.model'
 import { ContestWithParticipants } from './model/contest-with-participants.model'
 import { CreateContestInput } from './model/contest.input'
 import { UpdateContestInput } from './model/contest.input'
@@ -213,5 +214,12 @@ export class ContestResolver {
     @Args('contestId', { type: () => Int }) contestId: number
   ) {
     return this.contestService.getContestLeaderboard(contestId)
+  }
+
+  @Query(() => ContestUpdateHistories)
+  async getContestUpdateHistories(
+    @Args('contestId', { type: () => Int }) contestId: number
+  ) {
+    return await this.contestService.getContestUpdateHistories(contestId)
   }
 }

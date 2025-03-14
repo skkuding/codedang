@@ -1221,4 +1221,41 @@ export class ContestService {
       isFrozen
     }
   }
+
+  async getContestUpdateHistories(contestId: number) {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contestId },
+      select: { id: true, startTime: true, endTime: true }
+    })
+
+    const contestProblems = await this.prisma.contestProblem.findMany({
+      where: { contestId },
+      select: { problemId: true, order: true }
+    })
+
+    const contestUpdateHistories = await this.prisma.updateHistory.findMany({
+      where: {
+        problemId: {
+          in: contestProblems.map((problem) => problem.problemId)
+        },
+        updatedAt: {
+          gte: contest?.startTime,
+          lte: contest?.endTime
+        }
+      },
+      orderBy: {
+        updatedAt: 'desc'
+      }
+    })
+
+    return {
+      updateHistories: contestUpdateHistories.map((history) => ({
+        ...history,
+        order:
+          contestProblems.find(
+            (problem) => problem.problemId === history.problemId
+          )?.order ?? null
+      }))
+    }
+  }
 }
