@@ -2,7 +2,7 @@ import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { Announcement, ContestRole } from '@generated'
 import { UseContestRolesGuard } from '@libs/auth'
 import { AnnouncementService } from './announcement.service'
-import { AnnouncementWithProblemOrder } from './model/\bannouncement.output'
+import { AnnouncementWithProblemOrder } from './model/announcement.output'
 import { CreateAnnouncementInput } from './model/create-announcement.input'
 import { UpdateAnnouncementInput } from './model/update-announcement.input'
 
