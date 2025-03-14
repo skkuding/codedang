@@ -1233,6 +1233,7 @@ export class ContestService {
       select: { problemId: true, order: true }
     })
 
+    // 대회 진행 중 수정된 문제들의 update history 가져오기
     const contestUpdateHistories = await this.prisma.updateHistory.findMany({
       where: {
         problemId: {
@@ -1248,6 +1249,7 @@ export class ContestService {
       }
     })
 
+    // order: ContestProblem의 order를 매핑
     return {
       updateHistories: contestUpdateHistories.map((history) => ({
         ...history,
