@@ -85,7 +85,9 @@ function GradeAccordionItem({ assignment, courseId }: GradeAccordionItemProps) {
               open={isAssignmentDialogOpen}
               onOpenChange={setIsAssignmentDialogOpen}
             >
-              <DetailButton isActivated={assignment.isFinalScoreVisible} />
+              <DetailButton
+                isActivated={new Date() > new Date(assignment.endTime)}
+              />
               {isAssignmentDialogOpen && (
                 <GradeDetailModal
                   courseId={courseId}
@@ -134,10 +136,7 @@ function GradeAccordionItem({ assignment, courseId }: GradeAccordionItemProps) {
                     }
                   >
                     <DetailButton
-                      isActivated={
-                        assignment.isFinalScoreVisible &&
-                        Boolean(problem?.problemRecord?.isSubmitted)
-                      }
+                      isActivated={new Date() > new Date(assignment.endTime)}
                     />
                     {openProblemId === problem.id && (
                       <SubmissionDetailModal

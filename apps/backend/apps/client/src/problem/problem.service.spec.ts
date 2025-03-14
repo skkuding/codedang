@@ -24,7 +24,8 @@ import {
   workbookProblems,
   tag,
   contestProblemsWithScore,
-  assignmentProblemsWithScore
+  assignmentProblemsWithScore,
+  mockUpdateHistory
 } from './mock/problem.mock'
 import {
   ContestProblemService,
@@ -53,6 +54,9 @@ const db = {
   assignmentRecord: {
     findUnique: stub()
   },
+  assignmentProblemRecord: {
+    findMany: stub()
+  },
   workbookProblem: {
     findMany: stub(),
     findUniqueOrThrow: stub(),
@@ -74,6 +78,9 @@ const db = {
     findUniqueOrThrow: stub()
   },
   submission: {
+    findMany: stub()
+  },
+  updateHistory: {
     findMany: stub()
   },
   getPaginator: PrismaService.prototype.getPaginator
@@ -149,8 +156,7 @@ const mockAssignmentProblemsWithScore = assignmentProblemsWithScore.map(
       assignment: {
         startTime: new Date()
       },
-      maxScore: 0,
-      submissionTime: null
+      maxScore: 0
     }
   }
 )
@@ -253,6 +259,17 @@ describe('ProblemService', () => {
       await expect(service.getProblem(problemId)).to.be.rejectedWith(
         prismaNotFoundError
       )
+    })
+  })
+
+  describe('getProblemUpdateHistory', () => {
+    it('should return the update history of problem', async () => {
+      db.problem.findUniqueOrThrow.resolves(mockProblem)
+      db.updateHistory.findMany.resolves(mockUpdateHistory)
+
+      const result = await service.getProblemUpdateHistory(problemId)
+
+      expect(result).to.deep.equal(mockUpdateHistory)
     })
   })
 })
@@ -593,6 +610,9 @@ describe('AssignmentProblemService', () => {
       })
       db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
       db.submission.findMany.resolves([])
+      db.assignmentProblemRecord.findMany.resolves([
+        { problemId: 1, score: null }
+      ])
 
       // when
       const result = await service.getAssignmentProblems({
@@ -623,6 +643,9 @@ describe('AssignmentProblemService', () => {
       })
       db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
       db.submission.findMany.resolves([])
+      db.assignmentProblemRecord.findMany.resolves([
+        { problemId: 1, score: null }
+      ])
 
       // when
       const result = await service.getAssignmentProblems({

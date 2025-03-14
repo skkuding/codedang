@@ -84,6 +84,15 @@ const GET_ASSIGNMENT_PROBLEMS = gql(`
   }
 `)
 
+const GET_ASSIGNMENT_PROBLEM_MAX_SCORE = gql(`
+  query GetAssignmentProblemMaxScore($groupId: Int!, $assignmentId: Int!) {
+    getAssignmentProblems(groupId: $groupId, assignmentId: $assignmentId) {
+      problemId
+      score
+    }
+  }
+`)
+
 const GET_CONTEST_PROBLEMS = gql(`
   query GetContestProblems($contestId: Int!) {
     getContestProblems(contestId: $contestId) {
@@ -127,6 +136,7 @@ export {
   GET_PROBLEM_DETAIL,
   GET_CONTEST_PROBLEMS,
   GET_ASSIGNMENT_PROBLEMS,
+  GET_ASSIGNMENT_PROBLEM_MAX_SCORE,
   GET_TAGS,
   GET_PROBLEM_TESTCASE
 }

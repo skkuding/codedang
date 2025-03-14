@@ -22,8 +22,8 @@ export function SubmissionDetailModal({
   problemId,
   gradedAssignment
 }: SubmissionDetailModalProps) {
-  const { data: submissions } = useQuery(
-    assignmentSubmissionQueries.submissionResults({
+  const { data: submission } = useQuery(
+    assignmentSubmissionQueries.lastestSubmissionResult({
       assignmentId: gradedAssignment.id,
       problemId
     })
@@ -33,7 +33,7 @@ export function SubmissionDetailModal({
     assignmentSubmissionQueries.testResult({
       assignmentId: gradedAssignment.id,
       problemId,
-      submissionId: submissions?.data?.[0]?.id ?? 0
+      submissionId: submission?.id ?? 0
     })
   )
   const getResultStyle = (result: string) => {
@@ -46,21 +46,38 @@ export function SubmissionDetailModal({
     return 'rounded-full border border-gray-400 px-2 py-1 text-xs font-light text-gray-400'
   }
 
-  const result = submissions?.data[0]?.result
+  const result = submission?.result
   return (
-    submissions && (
+    submission && (
       <DialogContent
         className="max-h-[80vh] overflow-auto p-14 sm:max-w-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <DialogHeader>
           <DialogTitle>
-            <div className="flex items-center gap-2 text-lg font-medium">
-              <span>Week {gradedAssignment.week}</span>
+            <div className="flex items-center gap-2 overflow-hidden truncate whitespace-nowrap text-lg font-medium">
+              <span
+                title={`Week ${gradedAssignment.week}`}
+                className="max-w-[80px] truncate"
+              >
+                Week {gradedAssignment.week}
+              </span>
               <MdArrowForwardIos />
-              <span className="text-primary">{gradedAssignment.title}</span>
+              <span
+                title={gradedAssignment.title}
+                className="text-primary max-w-[200px] overflow-hidden truncate"
+              >
+                {gradedAssignment.title}
+              </span>
               <MdArrowForwardIos />
-              <span className="max-w-[200px] overflow-hidden truncate whitespace-nowrap">
+              <span
+                title={
+                  gradedAssignment.problems.find(
+                    (problem) => problem.id === problemId
+                  )?.title || 'Not found'
+                }
+                className="max-w-[200px] overflow-hidden truncate"
+              >
                 {gradedAssignment.problems.find(
                   (problem) => problem.id === problemId
                 )?.title || 'Not found'}
@@ -72,11 +89,12 @@ export function SubmissionDetailModal({
           <div className="flex flex-col gap-2">
             <span className="flex h-[30px] w-[140px] items-center justify-center rounded-full border border-blue-500 font-bold text-blue-500">
               <span className="text-lg">
-                {
+                {gradedAssignment.problems.find(
+                  (problem) => problem.id === problemId
+                )?.problemRecord?.finalScore ??
                   gradedAssignment.problems.find(
                     (problem) => problem.id === problemId
-                  )?.problemRecord?.finalScore
-                }
+                  )?.problemRecord?.score}
               </span>
               {'  /  '}
               <span className="text-lg">
@@ -89,53 +107,59 @@ export function SubmissionDetailModal({
             </span>
           </div>
 
-          <span className="text-sm font-medium">Last Submission</span>
-          <ScrollArea className="rounded-md">
-            <div className="flex items-center justify-around gap-5 rounded-lg border border-[#E6E6E6] bg-gray-50 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-3 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
-              <div>
-                <h2>User ID</h2>
-                <p>{submissions?.data[0]?.user.username}</p>
-              </div>
-              <Separator
-                orientation="vertical"
-                className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
-              />
-              <div>
-                <h2>Language</h2>
-                <p>{submissions?.data[0]?.language}</p>
-              </div>
-              <Separator
-                orientation="vertical"
-                className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
-              />
-              <div>
-                <h2>Code Size</h2>
-                <p>{submissions?.data[0]?.codeSize} B</p>
-              </div>
-              <Separator
-                orientation="vertical"
-                className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
-              />
-              <div>
-                <h2>Submission Time</h2>
-                <p>
-                  {dateFormatter(
-                    submissions?.data[0]?.createTime ?? '',
-                    'YYYY-MM-DD HH:mm:ss'
-                  )}
-                </p>
-              </div>
-              <Separator
-                orientation="vertical"
-                className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
-              />
-              <div>
-                <h2>Result</h2>
-                <span className={getResultStyle(result ?? '')}>{result}</span>
-              </div>
+          {submission && (
+            <div>
+              <span className="text-sm font-medium">Last Submission</span>
+              <ScrollArea className="rounded-md">
+                <div className="flex items-center justify-around gap-5 rounded-lg border border-[#E6E6E6] bg-gray-50 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-3 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
+                  <div>
+                    <h2>User ID</h2>
+                    <p>{submission?.user.username}</p>
+                  </div>
+                  <Separator
+                    orientation="vertical"
+                    className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
+                  />
+                  <div>
+                    <h2>Language</h2>
+                    <p>{submission?.language}</p>
+                  </div>
+                  <Separator
+                    orientation="vertical"
+                    className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
+                  />
+                  <div>
+                    <h2>Code Size</h2>
+                    <p>{submission?.codeSize} B</p>
+                  </div>
+                  <Separator
+                    orientation="vertical"
+                    className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
+                  />
+                  <div>
+                    <h2>Submission Time</h2>
+                    <p>
+                      {dateFormatter(
+                        submission?.createTime ?? '',
+                        'YYYY-MM-DD HH:mm:ss'
+                      )}
+                    </p>
+                  </div>
+                  <Separator
+                    orientation="vertical"
+                    className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
+                  />
+                  <div>
+                    <h2>Result</h2>
+                    <span className={getResultStyle(result ?? '')}>
+                      {result}
+                    </span>
+                  </div>
+                </div>
+                <ScrollBar orientation="horizontal" />
+              </ScrollArea>
             </div>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
+          )}
           {testResults && (
             <div>
               <span className="text-sm font-medium">Testcase</span>
