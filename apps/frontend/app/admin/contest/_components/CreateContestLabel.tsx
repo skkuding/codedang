@@ -1,4 +1,3 @@
-import { Button } from '@/components/shadcn/button'
 import {
   Tooltip,
   TooltipContent,
@@ -8,11 +7,26 @@ import {
 import { MdHelpOutline } from 'react-icons/md'
 import { Label } from '../../_components/Label'
 
-// Edit 페이지 작업이 안들어가서 이 컴포넌트 우선 놔둠. 추후 삭제하고 CreateContestLabel로 대체 예정
-export function ContestProblemListLabel() {
+interface CreateContestLabelProps {
+  title: string
+  content: string
+}
+
+export function CreateContestLabel({
+  title,
+  content
+}: CreateContestLabelProps) {
+  const sentences = content
+    .split(/(?:\n|<br\s*\/?>)/)
+    .map((sentence, index) => (
+      <p key={index} className="text-xs font-normal text-black">
+        {sentence.trim()}
+      </p>
+    ))
+
   return (
     <div className="flex items-center gap-2">
-      <Label required={false}>Contest Problem List</Label>
+      <Label required={false}>{title}</Label>
       <TooltipProvider>
         <Tooltip>
           {/* 현재 shadcn 컴포넌트 자체에 문제가 있는 것 같음 */}
@@ -25,14 +39,7 @@ export function ContestProblemListLabel() {
             side="top"
             className="mb-2 w-[640px] bg-white px-4 py-2 shadow-md"
           >
-            <p className="text-xs font-normal text-black">
-              If a problem is included in at least one ongoing, or upcoming
-              contest, it will automatically become invisible state in the ‘All
-              Problem List’. You cannot change its visibility until all the
-              ongoing or upcoming contests it is part of have ended. After the
-              contests are all over, you can manually make the problem visible
-              again.
-            </p>
+            {sentences}
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

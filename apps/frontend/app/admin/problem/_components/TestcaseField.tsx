@@ -1,5 +1,6 @@
 'use client'
 
+import { CautionDialog } from '@/app/admin/_components/CautionDialog'
 import { Button } from '@/components/shadcn/button'
 import {
   Tooltip,
@@ -15,7 +16,6 @@ import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { Label } from '../../_components/Label'
 import { isInvalid } from '../_libs/utils'
 import { AddBadge } from './AddBadge'
-import { CautionDialog } from './CautionDialog'
 import { TestcaseItem } from './TestcaseItem'
 
 export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
