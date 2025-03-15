@@ -1,6 +1,5 @@
 'use client'
 
-import type { AssignmentGrade } from '@/app/(client)/_libs/apis/assignmentSubmission'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import {
   ChartContainer,
@@ -13,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/shadcn/dialog'
+import type { AssignmentGrade } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { MdArrowForwardIos } from 'react-icons/md'

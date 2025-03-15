@@ -1,6 +1,5 @@
 'use client'
 
-import type { AssignmentGrade } from '@/app/(client)/_libs/apis/assignmentSubmission'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import {
   Accordion,
@@ -10,11 +9,12 @@ import {
 } from '@/components/shadcn/accordion'
 import { Dialog } from '@/components/shadcn/dialog'
 import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
+import type { AssignmentGrade } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { GradeDetailModal } from '../grade/_components/GradeDetailModal'
-import { SubmissionDetailModal } from '../grade/_components/SubmissionDetailModal'
 import { DetailButton } from './DetailButton'
+import { SubmissionDetailModal } from './SubmissionDetailModal'
 
 interface GradeAccordionProps {
   courseId: string
@@ -142,6 +142,7 @@ function GradeAccordionItem({ assignment, courseId }: GradeAccordionItemProps) {
                       <SubmissionDetailModal
                         problemId={problem.id}
                         gradedAssignment={assignment}
+                        showEvaluation={true}
                       />
                     )}
                   </Dialog>
