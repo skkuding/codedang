@@ -103,6 +103,7 @@ const mockContest: Contest = {
   evaluateWithSampleTestcase: false,
   createTime: new Date(),
   updateTime: new Date(),
+  unfreeze: false,
   freezeTime: null,
   posterUrl: 'posterUrl',
   summary: {

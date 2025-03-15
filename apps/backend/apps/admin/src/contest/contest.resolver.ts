@@ -1,4 +1,3 @@
-import { ParseBoolPipe } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { Contest, ContestProblem } from '@generated'
 import { ContestRole } from '@prisma/client'
@@ -19,10 +18,7 @@ import { ContestWithParticipants } from './model/contest-with-participants.model
 import { CreateContestInput } from './model/contest.input'
 import { UpdateContestInput } from './model/contest.input'
 import { ContestsGroupedByStatus } from './model/contests-grouped-by-status.output'
-import { DuplicatedContestResponse } from './model/duplicated-contest-response.output'
 import { ProblemScoreInput } from './model/problem-score.input'
-import { PublicizingRequest } from './model/publicizing-request.model'
-import { PublicizingResponse } from './model/publicizing-response.output'
 import { UserContestScoreSummaryWithUserInfo } from './model/score-summary'
 
 @Resolver(() => Contest)
@@ -73,44 +69,6 @@ export class ContestResolver {
     @Args('contestId', { type: () => Int }) contestId: number
   ) {
     return await this.contestService.deleteContest(contestId)
-  }
-
-  /**
-   * Contest를 공개(Open Space)로 이동시키기 위한 요청(Publicizing Requests)들을 불러옵니다.
-   * @returns Publicizing Request 배열
-   */
-  @Query(() => [PublicizingRequest])
-  async getPublicizingRequests() {
-    return await this.contestService.getPublicizingRequests()
-  }
-
-  /**
-   * Contest를 공개(Open Space)로 이동시키기 위한 요청(Publicizing Request)을 생성합니다.
-   * @param contestId Contest의 ID
-   * @returns 생성된 Publicizing Request
-   */
-  @Mutation(() => PublicizingRequest)
-  async createPublicizingRequest(
-    @Args('contestId', { type: () => Int }) contestId: number
-  ) {
-    return await this.contestService.createPublicizingRequest(contestId)
-  }
-
-  /**
-   * Contest를 공개(Open Space)로 이동시키기 위한 요청(Publicizing Request)을 처리합니다.
-   * @param contestId Publicizing Request를 생성한 contest의 Id
-   * @param isAccepted 요청 수락 여부
-   * @returns
-   */
-  @Mutation(() => PublicizingResponse)
-  async handlePublicizingRequest(
-    @Args('contestId', { type: () => Int }) contestId: number,
-    @Args('isAccepted', ParseBoolPipe) isAccepted: boolean
-  ) {
-    return await this.contestService.handlePublicizingRequest(
-      contestId,
-      isAccepted
-    )
   }
 
   @Mutation(() => [ContestProblem])
@@ -165,15 +123,6 @@ export class ContestResolver {
       problemId,
       cursor
     })
-  }
-
-  @Mutation(() => DuplicatedContestResponse)
-  async duplicateContest(
-    @Args('contestId', { type: () => Int })
-    contestId: number,
-    @Context('req') req: AuthenticatedRequest
-  ) {
-    return await this.contestService.duplicateContest(contestId, req.user.id)
   }
 
   /**

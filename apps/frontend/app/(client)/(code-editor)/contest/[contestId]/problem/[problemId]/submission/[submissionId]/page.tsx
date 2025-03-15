@@ -24,8 +24,8 @@ export default function Page({
   const { cellProblemId } = searchParams
 
   return (
-    <div className="flex flex-col gap-5 overflow-auto p-6">
-      <div className="z-20 flex items-center gap-3">
+    <div className="flex flex-col gap-5 overflow-auto py-6">
+      <div className="z-20 flex items-center gap-3 px-6">
         <Link href={`/contest/${contestId}/problem/${problemId}/submission`}>
           <ArrowLeft className="size-5" />
         </Link>
