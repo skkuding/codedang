@@ -13,8 +13,8 @@ import type { AssignmentGrade } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { GradeDetailModal } from '../grade/_components/GradeDetailModal'
-import { SubmissionDetailModal } from '../grade/_components/SubmissionDetailModal'
 import { DetailButton } from './DetailButton'
+import { SubmissionDetailModal } from './SubmissionDetailModal'
 
 interface GradeAccordionProps {
   courseId: string
