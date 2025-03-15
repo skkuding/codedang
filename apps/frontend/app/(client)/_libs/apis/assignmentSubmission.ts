@@ -1,6 +1,7 @@
 import { safeFetcherWithAuth } from '@/libs/utils'
 import type {
   AssignmentGrade,
+  Language,
   SubmissionDetail,
   SubmissionItem
 } from '@/types/type'
@@ -147,7 +148,7 @@ export interface SubmissionResponse {
   problemId: number
   username: string
   code: string
-  language: string
+  language: Language
   createTime: string
   result: string
   testcaseResult: TestcaseResult[]

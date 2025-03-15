@@ -1,13 +1,16 @@
 'use client'
 
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Dialog } from '@/components/shadcn/dialog'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import { convertToLetter, dateFormatter } from '@/libs/utils'
 import type { AssignmentGrade, ProblemGrade } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
 import type { ColumnDef } from '@tanstack/react-table'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { DetailButton } from '../../../../../_components/DetailButton'
 import { SubmissionDetailModal } from '../../../../../grade/_components/SubmissionDetailModal'
+import { MySubmissionFallback } from './MySubmission'
 
 export const columns = (
   assignment: AssignmentGrade
@@ -68,28 +71,28 @@ function SubmissionCell({ problem, assignment }: SubmissionCellProps) {
 
   return problem.submissionTime ? (
     <div className="flex items-center justify-center">
-      <ErrorBoundary fallback={null}>
-        {/* <Suspense fallback={<MySubmissionFallback />}> */}
-        <div className="flex w-[11%] justify-center">
-          <Dialog
-            open={openProblemId === problem.id}
-            onOpenChange={(isOpen) =>
-              handleOpenChange(isOpen ? problem.id : null)
-            }
-          >
-            <DetailButton
-              isActivated={new Date() > new Date(assignment.endTime)}
-            />
-            {openProblemId === problem.id && (
-              <SubmissionDetailModal
-                problemId={problem.id}
-                gradedAssignment={assignment}
-                showEvaluation={false}
+      <ErrorBoundary fallback={FetchErrorFallback}>
+        <Suspense fallback={<Skeleton className="size-[25px]" />}>
+          <div className="flex w-[11%] justify-center">
+            <Dialog
+              open={openProblemId === problem.id}
+              onOpenChange={(isOpen) =>
+                handleOpenChange(isOpen ? problem.id : null)
+              }
+            >
+              <DetailButton
+                isActivated={new Date() > new Date(assignment.endTime)}
               />
-            )}
-          </Dialog>
-        </div>
-        {/* </Suspense> */}
+              {openProblemId === problem.id && (
+                <SubmissionDetailModal
+                  problemId={problem.id}
+                  gradedAssignment={assignment}
+                  showEvaluation={false}
+                />
+              )}
+            </Dialog>
+          </div>
+        </Suspense>
       </ErrorBoundary>
     </div>
   ) : null

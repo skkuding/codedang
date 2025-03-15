@@ -237,7 +237,7 @@ export function SubmissionDetailModal({
             <h2 className="mb-3 text-base font-medium">Source Code</h2>
             <CodeEditor
               value={testResults?.code || ''}
-              language="C"
+              language={testResults?.language ?? 'C'}
               readOnly
               className="max-h-96 min-h-16 w-full"
             />
