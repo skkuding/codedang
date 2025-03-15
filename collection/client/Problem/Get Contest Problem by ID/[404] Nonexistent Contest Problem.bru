@@ -10,10 +10,6 @@ get {
   auth: none
 }
 
-query {
-  ~groupId: 1
-}
-
 assert {
   res.status: eq 200
   res.body.order: isNumber
@@ -26,12 +22,6 @@ script:pre-request {
 
 docs {
   # Get Contest Problem by ID
-  
+
   하나의 문제 정보를 가져옵니다.
-  
-  ## Query
-  
-  | 이름 | 타입 | 설명 |
-  |-----|-----|-----|
-  |groupId   |Integer|문제가 속한 Group ID|
 }

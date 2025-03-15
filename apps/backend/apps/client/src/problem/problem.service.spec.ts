@@ -14,7 +14,10 @@ import { GroupService } from '@client/group/group.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { _ProblemsResponseDto } from './dto/problems.response.dto'
-import { _RelatedProblemResponseDto } from './dto/related-problem.response.dto'
+import {
+  _RelatedProblemResponseDto,
+  RelatedProblemResponseDto
+} from './dto/related-problem.response.dto'
 import { _RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import {
   assignmentProblems,
@@ -122,7 +125,10 @@ const mockContestProblem = {
 }
 
 const mockContestProblems = contestProblems.map((contestProblem) => {
-  return { ...contestProblem, problem: Object.assign({}, mockProblems[0]) }
+  return {
+    ...contestProblem,
+    problem: Object.assign({}, mockProblems[0])
+  }
 })
 
 const mockContestProblemsWithScore = contestProblemsWithScore.map(
@@ -444,7 +450,7 @@ describe('ContestProblemService', () => {
   })
 
   describe('getContestProblem', () => {
-    it('should return the public contest problem', async () => {
+    it('should return the contest problem', async () => {
       // given
       const getContestSpy = stub(contestService, 'getContest')
       getContestSpy.resolves({
@@ -457,6 +463,7 @@ describe('ContestProblemService', () => {
         next: null
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
+      db.updateHistory.findMany.resolves(mockUpdateHistory)
 
       // when
       const result = await service.getContestProblem({
@@ -466,38 +473,8 @@ describe('ContestProblemService', () => {
       })
 
       // then
-      expect(result).to.be.deep.equal(
-        // Deprecated
-        plainToInstance(_RelatedProblemResponseDto, mockContestProblem)
-      )
-    })
-
-    it('should return the group contest problem', async () => {
-      // given
-      const getContestSpy = stub(contestService, 'getContest')
-      getContestSpy.resolves({
-        startTime: faker.date.past(),
-        endTime: faker.date.future(),
-        isRegistered: true,
-        isJudgeResultVisible: true,
-        invitationCodeExists: true,
-        prev: null,
-        next: null
-      })
-      db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
-
-      // when
-      const result = await service.getContestProblem({
-        contestId,
-        problemId,
-        userId
-      })
-
-      // then
-      expect(result).to.be.deep.equal(
-        // Deprecated
-        plainToInstance(_RelatedProblemResponseDto, mockContestProblem)
-      )
+      expect(result).to.have.property('order', mockContestProblem.order)
+      expect(result).to.have.property('updateHistory', mockUpdateHistory)
     })
 
     it('should throw PrismaClientKnownRequestError when the contest is not visible', async () => {

@@ -1,0 +1,38 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetContestUpdateHistories($contestId: Int!){
+    getContestUpdateHistories(contestId: $contestId) {
+      updateHistories {
+        id
+        order
+        problemId
+        updatedAt
+        updatedFields
+        updatedInfo
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+      "contestId": 1
+  }
+}
+
+docs {
+  # Get Contest Update Histories
+  ---
+  - Contest에 포함되는 Problem의 모든 Update History들을 반환합니다.
+}

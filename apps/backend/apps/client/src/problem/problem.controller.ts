@@ -131,6 +131,19 @@ export class ContestProblemController {
       userId: req.user.id
     })
   }
+
+  @Get(':problemId/update-history')
+  async getProblemUpdateHistory(
+    @Req() req: AuthenticatedRequest,
+    @Param('contestId', IDValidationPipe) contestId: number,
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
+  ) {
+    return await this.contestProblemService.getContestProblemUpdateHistory({
+      contestId,
+      problemId,
+      userId: req.user.id
+    })
+  }
 }
 
 @Controller('assignment/:assignmentId/problem')

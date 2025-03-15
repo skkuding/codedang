@@ -19,6 +19,7 @@ import {
   type ContestProblemRecord,
   type UserContest,
   ContestRole,
+  type UpdateHistory,
   type Prisma
 } from '@prisma/client'
 import { hash } from 'argon2'
@@ -43,6 +44,7 @@ let privateGroup1: Group
 let privateGroup2: Group
 const users: User[] = []
 const problems: Problem[] = []
+const updateHistories: UpdateHistory[] = []
 let problemTestcases: ProblemTestcase[] = []
 const assignments: Assignment[] = []
 const endedAssignments: Assignment[] = []
@@ -993,6 +995,70 @@ const createProblems = async () => {
       }
     })
   }
+}
+
+const createUpdateHistories = async () => {
+  updateHistories.push(
+    await prisma.updateHistory.create({
+      data: {
+        problemId: problems[0].id,
+        updatedByid: superAdminUser.id,
+        updatedFields: ['title'],
+        updatedInfo: [
+          {
+            current: '정수 더하기',
+            previous: '정수 더하기 previous',
+            updatedField: 'title'
+          }
+        ]
+      }
+    })
+  )
+
+  updateHistories.push(
+    await prisma.updateHistory.create({
+      data: {
+        problemId: problems[0].id,
+        updatedByid: superAdminUser.id,
+        updatedFields: ['description'],
+        updatedInfo: [
+          {
+            current: '문제 설명',
+            previous: '문제 설명 previous',
+            updatedField: 'description'
+          }
+        ]
+      }
+    })
+  )
+
+  updateHistories.push(
+    await prisma.updateHistory.create({
+      data: {
+        problemId: problems[0].id,
+        updatedByid: superAdminUser.id,
+        updatedFields: ['hint'],
+        updatedInfo: [
+          {
+            current: '정수 더하기 힌트',
+            previous: '정수 더하기 힌트 previous',
+            updatedField: 'hint'
+          }
+        ]
+      }
+    })
+  )
+
+  await prisma.problem.update({
+    where: { id: problems[0].id },
+    data: {
+      updateHistory: {
+        connect: updateHistories.map((updateHistory) => ({
+          id: updateHistory.id
+        }))
+      }
+    }
+  })
 }
 
 const createContests = async () => {
@@ -2546,6 +2612,7 @@ const main = async () => {
   await createGroups()
   await createNotices()
   await createProblems()
+  await createUpdateHistories()
   await createAssignments()
   await createContests()
   await createContestRecords()
