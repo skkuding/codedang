@@ -16,8 +16,8 @@ interface CourseCardProps {
 
 export function CourseCard({ course, color }: CourseCardProps) {
   return (
-    <div className="flex h-[300px] w-[310px] flex-col justify-between rounded-lg border border-gray-200 shadow-none">
-      <div className={cn('h-[108px] rounded-t-lg', color)} />
+    <div className="flex h-[300px] w-[310px] flex-col justify-between overflow-hidden rounded-lg border border-gray-200 shadow-none">
+      <div className={cn('h-[108px]', color)} />
       <div className="flex h-[192px] w-full flex-col justify-between gap-3 px-6 pb-8 pt-[26px]">
         <StatusBadge variant={'ongoing'} />
         <div className="text-ellipsis whitespace-pre-wrap text-lg font-semibold leading-tight tracking-[-0.54px] text-black">

@@ -70,7 +70,7 @@ export function AssignmentLink({ assignment, courseId }: AssignmentLinkProps) {
       onClick={handleClick}
     >
       <div className="flex items-center justify-between border-b bg-[#F8F8F8] px-12 py-6">
-        <div className="flex gap-6">
+        <div className="-ml-4 flex gap-6">
           <span
             className={cn(
               'mt-[7px] h-[10px] w-[10px] rounded-full',
@@ -96,8 +96,8 @@ export function AssignmentLink({ assignment, courseId }: AssignmentLinkProps) {
                   : 'text-slate-500'
               )}
             >
-              {dateFormatter(assignment.startTime, 'YYYY-MM-DD HH:mm:ss')} -{' '}
-              {dateFormatter(assignment.endTime, 'YYYY-MM-DD HH:mm:ss')}
+              {dateFormatter(assignment.startTime, 'MMM D, YYYY HH:mm:ss')} -{' '}
+              {dateFormatter(assignment.endTime, 'MMM D, YYYY HH:mm:ss')}
             </p>
           </div>
         </div>

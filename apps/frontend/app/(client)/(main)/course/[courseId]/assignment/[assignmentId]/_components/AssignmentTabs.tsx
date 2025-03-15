@@ -31,11 +31,13 @@ export function AssignmentTabs({
         href={basePathname}
         activeCondition={isCurrentTab('')}
         text="Info"
+        isLeft={true}
       />
       <ActiveLink
         href={`${basePathname}/problem`}
         activeCondition={isCurrentTab('problem')}
         text="Problem"
+        isLeft={false}
       />
     </div>
   )
@@ -45,19 +47,23 @@ interface ActiveLinkProps<T extends string> {
   href: Route<T>
   activeCondition: boolean
   text: string
+  isLeft?: boolean
 }
 
 function ActiveLink<T extends string>({
   href,
   activeCondition,
-  text
+  text,
+  isLeft
 }: ActiveLinkProps<T>) {
   return (
     <Link
       href={href}
       className={cn(
         'flex h-[50px] w-[420px] items-center justify-center rounded-full text-lg font-semibold',
-        activeCondition && 'text-primary border-primary border'
+        activeCondition && 'text-primary border-primary border',
+        '-translate-y-[1px] transform',
+        isLeft ? '-translate-x-[1px]' : 'translate-x-[1px]'
       )}
     >
       {text}
