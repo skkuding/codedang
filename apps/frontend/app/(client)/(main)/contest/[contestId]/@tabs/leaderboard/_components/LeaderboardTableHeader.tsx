@@ -26,12 +26,12 @@ export function LeaderboardTableHeader({
         className="absolute left-[354px] flex h-[38px] flex-row items-center space-x-[14px] overflow-hidden rounded-full bg-[#80808014] pl-[30px]"
         style={{ width: `${colHeaderSize}px`, transformOrigin: 'left' }}
         animate={{ width: `${colHeaderSize}px` }}
-        transition={{ type: 'spring', stiffness: 100, damping: 10 }}
+        transition={{ type: 'tween', duration: 0.5, ease: 'easeOut' }}
       >
         <motion.div
           className="flex flex-row space-x-[14px]"
           animate={{ x: dx }}
-          transition={{ type: 'spring', stiffness: 100, damping: 10 }}
+          transition={{ type: 'tween', duration: 0.5, ease: 'easeOut' }}
         >
           {orders.map((order, index) => {
             return (

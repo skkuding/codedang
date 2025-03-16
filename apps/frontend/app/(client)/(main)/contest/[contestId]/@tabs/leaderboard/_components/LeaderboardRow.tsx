@@ -55,14 +55,14 @@ export function LeaderboardRow({
         className="absolute h-[90px] overflow-hidden rounded-full border-2 border-[#E5E5E5] bg-[#FFFFFF] pl-[295px]"
         style={{ width: `${resizableRowSize}px` }}
         animate={{ width: `${resizableRowSize}px` }}
-        transition={{ type: 'spring', stiffness: 100, damping: 10 }}
+        transition={{ type: 'tween', duration: 0.5, ease: 'easeOut' }}
       >
         <table className="text-center">
           <thead>
             <motion.tr
               className="flex h-[90px] flex-row items-center"
               animate={{ x: dx }}
-              transition={{ type: 'spring', stiffness: 100, damping: 10 }}
+              transition={{ type: 'tween', duration: 0.5, ease: 'easeOut' }}
             >
               {problemPenalties.map((penalty, index) => {
                 return index === 0 ? (
