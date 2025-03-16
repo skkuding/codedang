@@ -10,10 +10,6 @@ get {
   auth: none
 }
 
-query {
-  ~groupId: 1
-}
-
 assert {
   res.status: eq 404
   res.body.message: isDefined
