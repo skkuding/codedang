@@ -6,14 +6,14 @@ import { motion } from 'framer-motion'
 interface LeaderboardTableHeaderProps {
   colHeaderSize: number
   dx: number
+  orders: number[]
 }
 
 export function LeaderboardTableHeader({
   colHeaderSize,
-  dx
+  dx,
+  orders
 }: LeaderboardTableHeaderProps) {
-  const orders = [0, 1, 2, 3, 4, 5, 6, 7]
-
   return (
     <div className="relative flex flex-row space-x-1 pb-[22px]">
       <div className="flex h-[38px] w-[86px] items-center justify-center rounded-full bg-[#80808014] text-[#B0B0B0]">

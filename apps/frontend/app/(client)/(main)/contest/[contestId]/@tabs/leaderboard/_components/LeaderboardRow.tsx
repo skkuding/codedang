@@ -10,15 +10,15 @@ interface LeaderboardRowProps {
   rank: number
   dx: number
   resizableRowSize: number
+  problemPenalties: number[]
 }
 
 export function LeaderboardRow({
   rank,
   dx,
-  resizableRowSize
+  resizableRowSize,
+  problemPenalties
 }: LeaderboardRowProps) {
-  const problemPenalties = [123, 1, 32]
-
   let isTopRanked = false
 
   let medalImage = null
