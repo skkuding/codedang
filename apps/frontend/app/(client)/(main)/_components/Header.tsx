@@ -18,6 +18,7 @@ export async function Header() {
               alt="코드당"
               width={135.252}
               height={28}
+              className="cursor-pointer"
             />
           </Link>
 

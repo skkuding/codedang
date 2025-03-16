@@ -20,8 +20,8 @@ export default function Page({
   const { courseId, assignmentId, problemId, submissionId } = params
 
   return (
-    <div className="flex flex-col gap-5 overflow-auto p-6">
-      <div className="z-20 flex items-center gap-3">
+    <div className="flex flex-col gap-5 overflow-auto py-6">
+      <div className="z-20 flex items-center gap-3 px-6">
         <Link
           href={
             `/course/${courseId}/assignment/${assignmentId}/problem/${problemId}/submission` as const
