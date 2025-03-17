@@ -17,10 +17,12 @@ import {
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import excelIcon from '@/public/icons/excel.svg'
 import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
+import dayjs from 'dayjs'
 import type { Route } from 'next'
 import Image from 'next/image'
 import { useState } from 'react'
 import { CSVLink } from 'react-csv'
+import { toast } from 'sonner'
 import { createColumns } from './Columns'
 
 export function ParticipantTable({
@@ -70,6 +72,10 @@ export function ParticipantTable({
   }
 
   const assignmentTitle = assignmentData?.title
+
+  const now = dayjs()
+
+  const isAssignmentFinished = now.isAfter(dayjs(assignmentData?.endTime))
 
   const fileName = assignmentTitle
     ? `${assignmentTitle.replace(/\s+/g, '_')}.csv`
@@ -139,7 +145,12 @@ export function ParticipantTable({
       </p>
       <DataTableRoot
         data={summariesData}
-        columns={createColumns(problemData, groupId, assignmentId)}
+        columns={createColumns(
+          problemData,
+          groupId,
+          assignmentId,
+          isAssignmentFinished
+        )}
       >
         <div className="flex items-center gap-4">
           <DataTableSearchBar columndId="realName" placeholder="Search Name" />
@@ -198,11 +209,22 @@ export function ParticipantTable({
             />
           </CSVLink>
         </div>
-        <DataTable
-          getHref={(data) =>
-            `/admin/course/${groupId}/grade/assignment/${assignmentId}/user/${data.id}/problem/${problemData[0].problemId}` as Route
-          }
-        />
+        {isAssignmentFinished ? (
+          <DataTable
+            getHref={(data) =>
+              `/admin/course/${groupId}/grade/assignment/${assignmentId}/user/${data.id}/problem/${problemData[0].problemId}` as Route
+            }
+          />
+        ) : (
+          <div
+            onClick={(e) => {
+              e.preventDefault()
+              toast.error('Only completed assignments can be graded')
+            }}
+          >
+            <DataTable />
+          </div>
+        )}
         <DataTablePagination />
       </DataTableRoot>
     </div>
@@ -213,7 +235,7 @@ export function ParticipantTableFallback() {
   return (
     <div>
       <Skeleton className="mb-3 h-[24px] w-2/12" />
-      <DataTableFallback columns={createColumns([], 0, 0)} />
+      <DataTableFallback columns={createColumns([], 0, 0, true)} />
     </div>
   )
 }

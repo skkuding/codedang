@@ -1,13 +1,9 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable } from '@nestjs/common'
-import {
-  Assignment,
-  ResultStatus,
-  Submission,
-  AssignmentProblem
-} from '@generated'
-import { GroupType } from '@prisma/client'
+import { Inject, Injectable, NotFoundException } from '@nestjs/common'
+import { SchedulerRegistry } from '@nestjs/schedule'
+import { Assignment, AssignmentProblem } from '@generated'
 import { Cache } from 'cache-manager'
+import { CronJob } from 'cron'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -26,6 +22,7 @@ import type { AssignmentProblemScoreInput } from './model/problem-score.input'
 export class AssignmentService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly schedulerRegistry: SchedulerRegistry,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -103,13 +100,30 @@ export class AssignmentService {
     }
 
     try {
-      return await this.prisma.assignment.create({
+      const createdAssignment = await this.prisma.assignment.create({
         data: {
           createdById: userId,
           groupId,
           ...assignment
         }
       })
+
+      const endTime = new Date(assignment.endTime)
+
+      if (endTime.getTime() >= Date.now()) {
+        const cronExpression = `${endTime.getSeconds()} ${endTime.getMinutes()} ${endTime.getHours()} ${endTime.getDate()} ${endTime.getMonth() + 1} *`
+
+        const job = new CronJob(cronExpression, () => {
+          this.endTimeReached(createdAssignment.id, groupId)
+          this.schedulerRegistry.deleteCronJob(String(createdAssignment.id))
+        })
+
+        this.schedulerRegistry.addCronJob(String(createdAssignment.id), job)
+        job.start()
+      } else {
+        this.endTimeReached(createdAssignment.id, groupId)
+      }
+      return createdAssignment
     } catch (error) {
       throw new UnprocessableDataException(error.message)
     }
@@ -151,6 +165,29 @@ export class AssignmentService {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
       )
+    }
+
+    if (isEndTimeChanged) {
+      try {
+        this.schedulerRegistry.deleteCronJob(String(assignment.id))
+        // eslint-disable-next-line no-empty
+      } catch {}
+
+      const endTime = new Date(assignment.endTime)
+
+      if (endTime.getTime() >= Date.now()) {
+        const cronExpression = `${endTime.getSeconds()} ${endTime.getMinutes()} ${endTime.getHours()} ${endTime.getDate()} ${endTime.getMonth() + 1} *`
+
+        const job = new CronJob(cronExpression, () => {
+          this.endTimeReached(assignment.id, groupId)
+          this.schedulerRegistry.deleteCronJob(String(assignment.id))
+        })
+
+        this.schedulerRegistry.addCronJob(String(assignment.id), job)
+        job.start()
+      } else {
+        this.endTimeReached(assignment.id, groupId)
+      }
     }
 
     const problemIds = assignmentFound.assignmentProblem.map(
@@ -252,6 +289,11 @@ export class AssignmentService {
     if (problemIds.length) {
       await this.removeProblemsFromAssignment(groupId, assignmentId, problemIds)
     }
+
+    try {
+      this.schedulerRegistry.deleteCronJob(String(assignmentId))
+      // eslint-disable-next-line no-empty
+    } catch {}
 
     try {
       return await this.prisma.assignment.delete({
@@ -359,6 +401,24 @@ export class AssignmentService {
       } catch (error) {
         throw new UnprocessableDataException(error.message)
       }
+
+      const assignmentParticipants =
+        await this.prisma.assignmentRecord.findMany({
+          where: {
+            assignmentId
+          },
+          select: {
+            userId: true
+          }
+        })
+
+      const assignmentProblemRecordsData = assignmentParticipants.map(
+        ({ userId }) => ({ assignmentId, userId: userId!, problemId })
+      )
+
+      await this.prisma.assignmentProblemRecord.createMany({
+        data: assignmentProblemRecordsData
+      })
     }
 
     return assignmentProblems
@@ -684,7 +744,9 @@ export class AssignmentService {
     }))
 
     const scoreSummary = {
-      submittedProblemCount: assignmentProblemRecords.length, // Assignment에 존재하는 문제 중 제출된 문제의 개수
+      submittedProblemCount: assignmentProblemRecords.filter(
+        (record) => record.isSubmitted
+      ).length, // Assignment에 존재하는 문제 중 제출된 문제의 개수
       totalProblemCount: assignmentProblems.length, // Assignment에 존재하는 Problem의 총 개수
       userAssignmentScore: problemScores.reduce(
         (total, { score }) => total + score,
@@ -706,48 +768,6 @@ export class AssignmentService {
     }
 
     return scoreSummary
-  }
-
-  async getlatestSubmissions(submissions: Submission[]) {
-    const latestSubmissions: {
-      [problemId: string]: {
-        result: ResultStatus
-        score: number // Problem에서 획득한 점수
-        maxScore: number // Assignment에서 Problem이 갖는 배점
-      }
-    } = {}
-
-    for (const submission of submissions) {
-      const problemId = submission.problemId
-      if (problemId in latestSubmissions) continue
-
-      const assignmentProblem = await this.prisma.assignmentProblem.findUnique({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          assignmentId_problemId: {
-            assignmentId: submission.assignmentId!,
-            problemId: submission.problemId
-          }
-        },
-        select: {
-          score: true
-        }
-      })
-
-      if (!assignmentProblem) {
-        throw new EntityNotExistException('assignmentProblem')
-      }
-
-      const maxScore = assignmentProblem.score
-
-      latestSubmissions[problemId] = {
-        result: submission.result as ResultStatus,
-        score: (submission.score / 100) * maxScore, // assignment에 할당된 Problem의 총점에 맞게 계산
-        maxScore
-      }
-    }
-
-    return latestSubmissions
   }
 
   async getAssignmentScoreSummaries(
@@ -1001,25 +1021,23 @@ export class AssignmentService {
           }
         })
 
-        if (!problemRecords.some(({ finalScore }) => finalScore === null)) {
-          const totalFinalScore = problemRecords.reduce(
-            (total, { finalScore }) => total + finalScore!,
-            0
-          )
+        const totalFinalScore = problemRecords.reduce(
+          (total, { finalScore }) => total + (finalScore ?? 0),
+          0
+        )
 
-          await prisma.assignmentRecord.update({
-            where: {
-              // eslint-disable-next-line @typescript-eslint/naming-convention
-              assignmentId_userId: {
-                assignmentId: input.assignmentId,
-                userId: input.userId
-              }
-            },
-            data: {
-              finalScore: totalFinalScore
+        await prisma.assignmentRecord.update({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            assignmentId_userId: {
+              assignmentId: input.assignmentId,
+              userId: input.userId
             }
-          })
-        }
+          },
+          data: {
+            finalScore: totalFinalScore
+          }
+        })
 
         return updatedRecord
       }
@@ -1070,5 +1088,51 @@ export class AssignmentService {
     }
 
     return assignmentProblemRecord
+  }
+
+  async endTimeReached(assignmentId: number, groupId: number) {
+    const courseMembers = await this.prisma.userGroup.findMany({
+      where: { groupId, isGroupLeader: false },
+      select: { userId: true }
+    })
+
+    if (courseMembers.length === 0) {
+      throw new NotFoundException('Course Member')
+    }
+
+    const assignmentParticipants = await this.prisma.assignmentRecord.findMany({
+      where: { assignmentId },
+      select: { userId: true }
+    })
+
+    const nonParticipants = courseMembers.filter(
+      ({ userId }) =>
+        !assignmentParticipants
+          .map((participant) => participant.userId)
+          .includes(userId)
+    )
+
+    const assignmentProblems = await this.prisma.assignmentProblem.findMany({
+      where: { assignmentId },
+      select: { problemId: true }
+    })
+
+    const assignmentProblemData = nonParticipants.flatMap(({ userId }) =>
+      assignmentProblems.map(({ problemId }) => ({
+        assignmentId,
+        userId,
+        problemId
+      }))
+    )
+
+    await this.prisma.$transaction(async (prisma) => {
+      await prisma.assignmentRecord.createMany({
+        data: nonParticipants.map(({ userId }) => ({ userId, assignmentId }))
+      })
+
+      await prisma.assignmentProblemRecord.createMany({
+        data: assignmentProblemData
+      })
+    })
   }
 }

@@ -4,8 +4,7 @@ import { HeaderAuthPanel } from '@/components/auth/HeaderAuthPanel'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
-import type { Language } from '@/types/type'
-import { useSuspenseQuery } from '@apollo/client'
+import { useQuery, useSuspenseQuery } from '@apollo/client'
 import type { Session } from 'next-auth'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -36,14 +35,16 @@ export function EditorLayout({
     }
   }).data.getAssignment
 
-  const submissionData = useSuspenseQuery(GET_ASSIGNMENT_LATEST_SUBMISSION, {
+  const { data } = useQuery(GET_ASSIGNMENT_LATEST_SUBMISSION, {
     variables: {
       groupId: courseId,
       assignmentId,
       userId,
       problemId
     }
-  }).data?.getAssignmentLatestSubmission
+  })
+
+  const submissionData = data ? data?.getAssignmentLatestSubmission : null
 
   return (
     // Admin Layout의 Sidebar를 무시하기 위한 fixed
@@ -68,7 +69,7 @@ export function EditorLayout({
         <HeaderAuthPanel session={session} group="editor" />
       </header>
       <EditorMainResizablePanel
-        language={submissionData?.language as Language}
+        language={submissionData?.language ?? 'C'}
         code={submissionData?.code ?? ''}
         courseId={courseId}
         userId={userId}

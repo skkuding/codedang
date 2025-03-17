@@ -4,12 +4,14 @@ import {
   getAssignmentGrades,
   getAssignmentSubmissionDetail,
   getAssignmentSubmissionList,
+  getLatestProblemSubmissionResult,
   getProblemSubmissionResults,
   getTestResult,
   type GetAnonymizedScoresRequest,
   type GetAssignmentGradesRequest,
   type GetAssignmentSubmissionDetailRequest,
   type GetAssignmentSubmissionListRequest,
+  type GetLatestProblemSubmissionResultRequest,
   type GetProblemSubmissionResultsRequest,
   type GetTestResultRequest
 } from '../apis/assignmentSubmission'
@@ -72,6 +74,19 @@ export const assignmentSubmissionQueries = {
     queryOptions({
       queryKey: ['assignment', assignmentId, courseId],
       queryFn: () => getAnonymizedScores({ assignmentId, courseId })
+    }),
+
+  lastestSubmissionResult: ({
+    assignmentId,
+    problemId
+  }: GetLatestProblemSubmissionResultRequest) =>
+    queryOptions({
+      queryKey: ['assignment', assignmentId, problemId],
+      queryFn: () =>
+        getLatestProblemSubmissionResult({
+          assignmentId,
+          problemId
+        })
     }),
 
   submissionResults: ({

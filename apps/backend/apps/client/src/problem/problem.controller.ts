@@ -91,6 +91,11 @@ export class ProblemController {
       groupId
     )
   }
+
+  @Get(':problemId/update-history')
+  async getProblemUpdateHistory(@Param('problemId') problemId: number) {
+    return await this.problemService.getProblemUpdateHistory(problemId)
+  }
 }
 
 @Controller('contest/:contestId/problem')
@@ -121,6 +126,19 @@ export class ContestProblemController {
     @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
     return await this.contestProblemService.getContestProblem({
+      contestId,
+      problemId,
+      userId: req.user.id
+    })
+  }
+
+  @Get(':problemId/update-history')
+  async getProblemUpdateHistory(
+    @Req() req: AuthenticatedRequest,
+    @Param('contestId', IDValidationPipe) contestId: number,
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
+  ) {
+    return await this.contestProblemService.getContestProblemUpdateHistory({
       contestId,
       problemId,
       userId: req.user.id

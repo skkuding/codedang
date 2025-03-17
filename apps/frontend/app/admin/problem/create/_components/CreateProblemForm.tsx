@@ -3,6 +3,7 @@
 import { useConfirmNavigationContext } from '@/app/admin/_components/ConfirmNavigation'
 import { createSchema } from '@/app/admin/problem/_libs/schemas'
 import { CREATE_PROBLEM } from '@/graphql/problem/mutations'
+import { useSession } from '@/libs/hooks/useSession'
 import { useMutation } from '@apollo/client'
 import { Level, type CreateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
@@ -18,6 +19,9 @@ interface CreateProblemFormProps {
 }
 
 export function CreateProblemForm({ children }: CreateProblemFormProps) {
+  const session = useSession()
+  const isAdmin = session?.user?.role !== 'User'
+
   const methods = useForm<CreateProblemInput>({
     resolver: valibotResolver(createSchema),
     defaultValues: {
@@ -32,7 +36,7 @@ export function CreateProblemForm({ children }: CreateProblemFormProps) {
       hint: '',
       source: '',
       template: [],
-      isVisible: true
+      isVisible: isAdmin
     }
   })
 
