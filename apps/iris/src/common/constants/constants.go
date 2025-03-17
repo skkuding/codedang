@@ -24,7 +24,7 @@ const PUBLISH_RESULT = "Publish"
 
 const SANDBOX_BASE = "./lib/judger" // for local
 const RESULT_PATH = SANDBOX_BASE + "/results"
-const LIBJUDGER_PATH = SANDBOX_BASE + "/libjudger.so"
+const LIBJUDGER_PATH = SANDBOX_BASE + "/libjudger.a"
 const JAVA_POLICY_PATH = SANDBOX_BASE + "/policy/java_policy"
 
 // const BASE_DIR = "/go/src/workspace/results"
