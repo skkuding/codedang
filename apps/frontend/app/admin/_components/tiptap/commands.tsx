@@ -1,8 +1,8 @@
-import type { Editor } from '@tiptap/core'
+import type { Editor, Range } from '@tiptap/core'
 import { Extension } from '@tiptap/core'
 import Suggestion from '@tiptap/suggestion'
 
-interface CommandProps {
+export interface CommandProps {
   editor: Editor
   range: { from: number; to: number }
   props: {
@@ -12,13 +12,28 @@ interface CommandProps {
 }
 
 const Commands = Extension.create({
-  name: 'mention',
+  name: 'slashcommands',
   defaultOptions: {
     suggestion: {
       char: '/',
       startOfLine: false,
       command: ({ editor, range, props }: CommandProps) => {
         props.command({ editor, range, props })
+      },
+      render: () => ({}),
+      items: ({
+        query,
+        editor
+      }: {
+        query?: string
+        editor?: Editor
+      }): {
+        title: string
+        command: ({ editor, range }: { editor: Editor; range: Range }) => void
+      }[] => {
+        void query
+        void editor
+        return []
       }
     }
   },
