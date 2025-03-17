@@ -22,8 +22,8 @@ export function SubmissionDetailModal({
   problemId,
   gradedAssignment
 }: SubmissionDetailModalProps) {
-  const { data: submissions } = useQuery(
-    assignmentSubmissionQueries.submissionResults({
+  const { data: submission } = useQuery(
+    assignmentSubmissionQueries.lastestSubmissionResult({
       assignmentId: gradedAssignment.id,
       problemId
     })
@@ -33,7 +33,7 @@ export function SubmissionDetailModal({
     assignmentSubmissionQueries.testResult({
       assignmentId: gradedAssignment.id,
       problemId,
-      submissionId: submissions?.data?.[0]?.id ?? 0
+      submissionId: submission?.id ?? 0
     })
   )
   const getResultStyle = (result: string) => {
@@ -46,9 +46,9 @@ export function SubmissionDetailModal({
     return 'rounded-full border border-gray-400 px-2 py-1 text-xs font-light text-gray-400'
   }
 
-  const result = submissions?.data[0]?.result
+  const result = submission?.result
   return (
-    submissions && (
+    submission && (
       <DialogContent
         className="max-h-[80vh] overflow-auto p-14 sm:max-w-2xl"
         onClick={(e) => e.stopPropagation()}
@@ -107,14 +107,14 @@ export function SubmissionDetailModal({
             </span>
           </div>
 
-          {submissions?.data[0] && (
+          {submission && (
             <div>
               <span className="text-sm font-medium">Last Submission</span>
               <ScrollArea className="rounded-md">
                 <div className="flex items-center justify-around gap-5 rounded-lg border border-[#E6E6E6] bg-gray-50 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-3 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
                   <div>
                     <h2>User ID</h2>
-                    <p>{submissions?.data[0]?.user.username}</p>
+                    <p>{submission?.user.username}</p>
                   </div>
                   <Separator
                     orientation="vertical"
@@ -122,7 +122,7 @@ export function SubmissionDetailModal({
                   />
                   <div>
                     <h2>Language</h2>
-                    <p>{submissions?.data[0]?.language}</p>
+                    <p>{submission?.language}</p>
                   </div>
                   <Separator
                     orientation="vertical"
@@ -130,7 +130,7 @@ export function SubmissionDetailModal({
                   />
                   <div>
                     <h2>Code Size</h2>
-                    <p>{submissions?.data[0]?.codeSize} B</p>
+                    <p>{submission?.codeSize} B</p>
                   </div>
                   <Separator
                     orientation="vertical"
@@ -140,7 +140,7 @@ export function SubmissionDetailModal({
                     <h2>Submission Time</h2>
                     <p>
                       {dateFormatter(
-                        submissions?.data[0]?.createTime ?? '',
+                        submission?.createTime ?? '',
                         'YYYY-MM-DD HH:mm:ss'
                       )}
                     </p>

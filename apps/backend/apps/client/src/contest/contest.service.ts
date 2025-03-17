@@ -336,11 +336,14 @@ export class ContestService {
         id: contestId
       },
       select: {
+        unfreeze: true,
         freezeTime: true
       }
     })
     const isFrozen =
-      contest?.freezeTime != null && new Date() >= contest.freezeTime
+      contest?.freezeTime != null &&
+      new Date() >= contest.freezeTime &&
+      !contest.unfreeze
 
     const sum = await this.prisma.contestProblem.aggregate({
       where: {

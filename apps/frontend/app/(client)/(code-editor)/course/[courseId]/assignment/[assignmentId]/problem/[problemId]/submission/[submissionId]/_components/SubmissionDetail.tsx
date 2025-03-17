@@ -52,7 +52,7 @@ export async function SubmissionDetail({
 
   return (
     <>
-      <ScrollArea className="shrink-0 rounded-lg">
+      <ScrollArea className="shrink-0 rounded-lg px-6">
         <div className="flex items-center justify-around gap-3 bg-[#384151] p-5 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
           <div>
             <h2>Result</h2>
@@ -79,8 +79,8 @@ export async function SubmissionDetail({
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
       <div className="-ml-16 mt-[10px] h-2 min-w-[100%] bg-[#121728]" />
-      <div className="mb-3 mt-3">
-        <h2 className="mb-[18px] text-lg font-bold">Source Code</h2>
+      <div className="my-3 px-6">
+        <h2 className="mb-[18px] text-base font-bold">Source Code</h2>
         <CodeEditor
           value={submission.code}
           language={submission.language}
@@ -88,10 +88,10 @@ export async function SubmissionDetail({
           className="max-h-96 min-h-16 w-full rounded-lg"
         />
       </div>
+      <div className="-ml-16 h-2 min-w-[100%] bg-[#121728]" />
       {submission.testcaseResult.length !== 0 && (
-        <div>
-          <div className="-ml-16 h-2 min-w-[100%] bg-[#121728]" />
-          <h2 className="mt-[30px] text-base font-bold">Test case</h2>
+        <div className="my-3 px-6">
+          <h2 className="mb-[18px] text-base font-bold">Test case</h2>
           <Table className="[&_*]:text-center [&_*]:text-sm [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:border-slate-600">
             <TableHeader className="[&_*]:text-slate-100">
               <TableRow>

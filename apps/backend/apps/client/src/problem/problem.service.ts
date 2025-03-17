@@ -460,13 +460,50 @@ export class ContestProblemService {
       delete problem[key]
     })
 
+    const updateHistory = await this.getContestProblemUpdateHistory({
+      contestId,
+      problemId,
+      userId
+    })
+
     return {
       order: data.order,
       problem: {
         ...problem,
         tags
-      }
+      },
+      updateHistory
     }
+  }
+
+  async getContestProblemUpdateHistory({
+    contestId,
+    problemId,
+    userId
+  }: {
+    contestId: number
+    problemId: number
+    userId: number
+  }) {
+    const contest = await this.contestService.getContest(contestId, userId)
+
+    // 업데이트 히스토리 조회
+    const updateHistory = await this.prisma.updateHistory.findMany({
+      where: {
+        problemId,
+        updatedAt: {
+          gte: contest.startTime,
+          lte: contest.endTime
+        }
+      },
+      orderBy: { updatedAt: 'desc' } // 최신순 정렬
+    })
+
+    // if (!updateHistory.length) {
+    //   throw new NotFoundException('No update history found for this problem.')
+    // }
+
+    return updateHistory
   }
 }
 

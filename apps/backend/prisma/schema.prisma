@@ -426,7 +426,7 @@ model Contest {
   title       String
   description String
   // 대회의 페널티 (0 ≤ penalty ≤ 100),
-  penalty     Int     @default(0)
+  penalty     Int     @default(20)
   lastPenalty Boolean @default(false) @map("last_penalty")
   posterUrl   String?
 
@@ -442,6 +442,7 @@ model Contest {
   invitationCode             String?   @map("invitation_code")
   startTime                  DateTime  @map("start_time")
   endTime                    DateTime  @map("end_time")
+  unfreeze                   Boolean   @default(false)
   freezeTime                 DateTime? @map("freeze_time")
   isVisible                  Boolean   @default(true) @map("is_visible")
   isRankVisible              Boolean   @default(true) @map("is_rank_visible")
