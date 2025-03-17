@@ -9,31 +9,14 @@ import type { NodeViewProps } from '@tiptap/core'
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react'
 import React from 'react'
 
-interface CodeBlockAttributes {
-  language: string
-}
+export function CodeBlockComponent(props: NodeViewProps) {
+  const defaultLanguage = props.node.attrs.language as string
+  const updateAttributes = props.updateAttributes as (attrs: {
+    language: string
+  }) => void
 
-type CodeBlockComponentProps = NodeViewProps & {
-  node: {
-    attrs: CodeBlockAttributes
-  }
-  updateAttributes: (attrs: Partial<CodeBlockAttributes>) => void
-  extension: {
-    options: {
-      lowlight: {
-        listLanguages: () => string[]
-      }
-    }
-  }
-}
-
-export function CodeBlockComponent({
-  node: {
-    attrs: { language: defaultLanguage }
-  },
-  updateAttributes
-}: CodeBlockComponentProps) {
   const languages = ['c', 'cpp', 'java', 'python']
+
   return (
     <NodeViewWrapper className="relative">
       <div className="absolute right-2 top-2 bg-white text-sm">

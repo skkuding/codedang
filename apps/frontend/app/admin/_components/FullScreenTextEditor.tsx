@@ -67,6 +67,7 @@ import {
 } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { CautionDialog } from '../problem/_components/CautionDialog'
+import { CodeBlockComponent } from './tiptap/CodeBlockComponent'
 import { TextStyleBar } from './tiptap/TextStyleBar'
 import { Commands, type CommandProps } from './tiptap/commands'
 import { getSuggestionItems } from './tiptap/items'
@@ -87,7 +88,11 @@ export function FullScreenTextEditor({
   const editor = useEditor({
     extensions: [
       StarterKit,
-      CodeBlockLowlight.configure({
+      CodeBlockLowlight.extend({
+        addNodeView() {
+          return ReactNodeViewRenderer(CodeBlockComponent)
+        }
+      }).configure({
         lowlight
       }),
       Placeholder.configure({
