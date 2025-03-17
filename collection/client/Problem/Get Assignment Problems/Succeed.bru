@@ -5,15 +5,15 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/assignment/1/problem?take=5
+  url: {{baseUrl}}/assignment/14/problem?take=5&groupId=2
   body: none
   auth: none
 }
 
-query {
+params:query {
   take: 5
+  groupId: 2
   ~cursor: 4
-  ~groupId: 2
 }
 
 assert {

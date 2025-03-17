@@ -6,6 +6,8 @@ const GET_ASSIGNMENT = gql(`
       id
       enableCopyPaste
       isJudgeResultVisible
+      isFinalScoreVisible
+      autoFinalizeScore
       description
       endTime
       startTime
@@ -32,8 +34,8 @@ const GET_ASSIGNMENTS = gql(`
 `)
 
 const GET_BELONGED_ASSIGNMENTS = gql(`
-  query GetAssignmentsByProblemId($groupId: Int!, $problemId: Int!) {
-    getAssignmentsByProblemId(groupId: $groupId, problemId: $problemId) {
+  query GetAssignmentsByProblemId($problemId: Int!) {
+    getAssignmentsByProblemId(problemId: $problemId) {
       upcoming {
         id
         title
@@ -67,10 +69,12 @@ const GET_ASSIGNMENT_SCORE_SUMMARIES = gql(`
       totalProblemCount
       userAssignmentScore
       assignmentPerfectScore
+      userAssignmentFinalScore
       problemScores {
         problemId
         score
         maxScore
+        finalScore
       }
       userId
       username
@@ -89,10 +93,13 @@ const GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER = gql(`
         problemScores {
           problemId
           score
+          maxScore
+          finalScore
         }
         submittedProblemCount
         totalProblemCount
         userAssignmentScore
+        userAssignmentFinalScore
       }
       submissions {
         assignmentId
@@ -112,10 +119,20 @@ const GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER = gql(`
   }
 `)
 
+const GET_ASSIGNMENT_PROBLEM_RECORD = gql(`
+  query GetAssignmentProblemRecord($groupId: Int!, $assignmentId: Int!, $problemId: Int!, $userId: Int!, ) {
+    getAssignmentProblemRecord(groupId: $groupId, assignmentId: $assignmentId, problemId: $problemId, userId: $userId) {
+      finalScore
+      comment
+    }
+  }
+`)
+
 export {
   GET_ASSIGNMENT,
   GET_ASSIGNMENTS,
   GET_BELONGED_ASSIGNMENTS,
   GET_ASSIGNMENT_SCORE_SUMMARIES,
-  GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER
+  GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER,
+  GET_ASSIGNMENT_PROBLEM_RECORD
 }

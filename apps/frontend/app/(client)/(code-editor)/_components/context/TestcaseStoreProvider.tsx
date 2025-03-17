@@ -11,14 +11,42 @@ interface TestcaseState {
   getUserTestcases: () => TestcaseItem[]
 }
 
+/**
+ * Creates a store for managing test cases related to a specific problem.
+ *
+ * @param problemId - The ID of the problem.
+ * @param sampleTestcases - An array of sample test cases.
+ * @param contestId - (Optional) The ID of the contest.
+ * @param assignmentId - (Optional) The ID of the assignment.
+ * @param courseId - (Optional) The ID of the course.
+ * @returns A store for managing test cases.
+ *
+ * The storage key is generated based on the provided IDs:
+ * - If `contestId` is provided: `user_testcase_{problemId}_{contestId}`
+ * - If `assignmentId` is provided: `user_testcase_{problemId}_{courseId}_{assignmentId}`
+ * - Otherwise: `user_testcase_{problemId}`
+ *
+ * Example keys:
+ * - Contest: `user_testcase_1_2`
+ * - Assignment: `user_testcase_1_2_3`
+ * - Problem only: `user_testcase_1`
+ */
 const createTestcaseStore = (
   problemId: number,
   sampleTestcases: TestcaseItem[],
-  contestId?: number
+  contestId?: number,
+  assignmentId?: number,
+  courseId?: number
 ) => {
-  const storageKey = contestId
-    ? `user_testcase_${problemId}_${contestId}`
-    : `user_testcase_${problemId}`
+  const baseKey = `user_testcase_${problemId}`
+  let storageKey = ''
+  if (contestId) {
+    storageKey = `${baseKey}_${contestId}`
+  } else if (assignmentId) {
+    storageKey = `${baseKey}_${courseId}_${assignmentId}`
+  } else {
+    storageKey = baseKey
+  }
 
   return createStore<TestcaseState>()(
     persist(
@@ -58,11 +86,15 @@ const TestcaseStoreContext = createContext<TestcaseStore | null>(null)
 export function TestcaseStoreProvider({
   problemId,
   contestId,
+  courseId,
+  assignmentId,
   problemTestcase,
   children
 }: {
   problemId: number
   contestId?: number
+  courseId?: number
+  assignmentId?: number
   problemTestcase: TestcaseItem[]
   children: ReactNode
 }) {
@@ -71,7 +103,9 @@ export function TestcaseStoreProvider({
     storeRef.current = createTestcaseStore(
       problemId,
       problemTestcase,
-      contestId
+      contestId,
+      assignmentId,
+      courseId
     )
   }
 

@@ -48,6 +48,8 @@ export function ContestMainTable({ search, session }: ContestMainTableProps) {
     itemsPerPage: ITEMS_PER_PAGE
   })
 
+  const resetPageIndex = () => gotoPage(1)
+
   return (
     <>
       <ContestDataTable
@@ -63,6 +65,8 @@ export function ContestMainTable({ search, session }: ContestMainTableProps) {
         itemsPerPage={ITEMS_PER_PAGE}
         currentPage={currentPage}
         setFilteredData={setFilteredData}
+        resetPageIndex={resetPageIndex}
+        search={search}
       />
       <Paginator>
         <SlotNavigation

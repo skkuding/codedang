@@ -13,18 +13,20 @@ post {
 body:graphql {
   mutation {
     updateAssignment(
-      groupId: 3
+      groupId: 2
       input: {
-        id: 20
-        title: "Updated Assignment Group 2"
-        description: "thisisupdatedassignment"
+        id: 24
+        title: "25학년도 성민규 auto채점 과제"
+        description: "헤헤헤"
         startTime: "2024-01-01"
-        endTime: "2030-01-01"
-        week: 7
+        endTime: "2025-03-05"
+        week: 1
         isVisible: true
         isRankVisible: true
         enableCopyPaste: true
         isJudgeResultVisible: true
+        autoFinalizeScore: true
+        isFinalScoreVisible: true
       }
     ) {
       id

@@ -7,16 +7,18 @@ import {
   Req
 } from '@nestjs/common'
 import {
-  AuthNotNeededIfOpenSpace,
-  UserNullWhenAuthFailedIfOpenSpace,
-  AuthenticatedRequest
+  AuthNotNeededIfPublic,
+  AuthenticatedRequest,
+  UserNullWhenAuthFailedIfPublic
 } from '@libs/auth'
+import { UnprocessableDataException } from '@libs/exception'
 import {
   CursorValidationPipe,
   GroupIDPipe,
   IDValidationPipe,
   RequiredIntPipe,
-  ProblemOrderPipe
+  ProblemOrderPipe,
+  NullableGroupIDPipe
 } from '@libs/pipe'
 import { ProblemOrder } from './enum/problem-order.enum'
 import {
@@ -34,11 +36,10 @@ export class ProblemController {
   ) {}
 
   @Get()
-  @UserNullWhenAuthFailedIfOpenSpace()
+  @AuthNotNeededIfPublic()
   async getProblems(
     @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe)
-    groupId: number,
+    @Query('groupId', NullableGroupIDPipe) groupId: number | null,
     @Query('workbookId', IDValidationPipe) workbookId: number | null,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
@@ -52,10 +53,14 @@ export class ProblemController {
         userId: req.user?.id ?? null,
         cursor,
         take,
-        groupId,
         order,
         search
       })
+    }
+    if (!groupId) {
+      throw new UnprocessableDataException(
+        'groupId is required in the request when getting workbook problems'
+      )
     }
     return await this.workbookProblemService.getWorkbookProblems({
       workbookId,
@@ -66,20 +71,30 @@ export class ProblemController {
   }
 
   @Get(':problemId')
-  @AuthNotNeededIfOpenSpace()
+  @AuthNotNeededIfPublic()
   async getProblem(
-    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query('groupId', NullableGroupIDPipe) groupId: number | null,
     @Query('workbookId', IDValidationPipe) workbookId: number | null,
     @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
     if (!workbookId) {
-      return await this.problemService.getProblem(problemId, groupId)
+      return await this.problemService.getProblem(problemId)
+    }
+    if (!groupId) {
+      throw new UnprocessableDataException(
+        'groupId is required in the request when getting a workbook problem'
+      )
     }
     return await this.workbookProblemService.getWorkbookProblem(
       workbookId!,
       problemId,
       groupId
     )
+  }
+
+  @Get(':problemId/update-history')
+  async getProblemUpdateHistory(@Param('problemId') problemId: number) {
+    return await this.problemService.getProblemUpdateHistory(problemId)
   }
 }
 
@@ -88,17 +103,17 @@ export class ContestProblemController {
   constructor(private readonly contestProblemService: ContestProblemService) {}
 
   @Get()
+  @UserNullWhenAuthFailedIfPublic()
   async getContestProblems(
     @Req() req: AuthenticatedRequest,
     @Param('contestId', IDValidationPipe) contestId: number,
-    @Query('groupId', GroupIDPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number
   ) {
     return await this.contestProblemService.getContestProblems({
       contestId,
-      userId: req.user.id,
+      userId: req.user?.id,
       cursor,
       take
     })
@@ -108,14 +123,25 @@ export class ContestProblemController {
   async getContestProblem(
     @Req() req: AuthenticatedRequest,
     @Param('contestId', IDValidationPipe) contestId: number,
-    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('groupId', GroupIDPipe) groupId: number
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
     return await this.contestProblemService.getContestProblem({
       contestId,
       problemId,
-      userId: req.user.id,
-      groupId
+      userId: req.user.id
+    })
+  }
+
+  @Get(':problemId/update-history')
+  async getProblemUpdateHistory(
+    @Req() req: AuthenticatedRequest,
+    @Param('contestId', IDValidationPipe) contestId: number,
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
+  ) {
+    return await this.contestProblemService.getContestProblemUpdateHistory({
+      contestId,
+      problemId,
+      userId: req.user.id
     })
   }
 }
@@ -139,8 +165,7 @@ export class AssignmentProblemController {
       assignmentId,
       userId: req.user.id,
       cursor,
-      take,
-      groupId
+      take
     })
   }
 
@@ -148,14 +173,12 @@ export class AssignmentProblemController {
   async getAssignmentProblem(
     @Req() req: AuthenticatedRequest,
     @Param('assignmentId', IDValidationPipe) assignmentId: number,
-    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('groupId', GroupIDPipe) groupId: number
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
     return await this.assignmentProblemService.getAssignmentProblem({
       assignmentId,
       problemId,
-      userId: req.user.id,
-      groupId
+      userId: req.user.id
     })
   }
 }

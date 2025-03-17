@@ -4,6 +4,7 @@ import type { FieldErrors, UseFormRegister } from 'react-hook-form'
 
 export interface Profile {
   username: string // ID
+  email: string
   userProfile: {
     realName: string
   }

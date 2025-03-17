@@ -3,6 +3,7 @@
 import { ConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import { useSession } from '@/libs/hooks/useSession'
 import type { UpdateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
@@ -24,6 +25,9 @@ import { EditProblemForm } from './_components/EditProblemForm'
 
 export default function Page({ params }: { params: { problemId: string } }) {
   const { problemId } = params
+
+  const session = useSession()
+  const isAdmin = session?.user?.role !== 'User'
 
   const methods = useForm<UpdateProblemInput>({
     resolver: valibotResolver(editSchema),
@@ -50,7 +54,9 @@ export default function Page({ params }: { params: { problemId: string } }) {
               <FormSection title="Visible">
                 <PopoverVisibleInfo />
                 <VisibleForm
-                  blockEdit={methods.getValues('isVisible') === null}
+                  blockEdit={
+                    methods.getValues('isVisible') === null || !isAdmin
+                  }
                 />
               </FormSection>
             </div>

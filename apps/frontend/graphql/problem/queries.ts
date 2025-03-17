@@ -1,8 +1,8 @@
 import { gql } from '@generated'
 
 const GET_PROBLEM = gql(`
-  query GetProblem($groupId: Int!, $id: Int!) {
-    getProblem(groupId: $groupId, id: $id) {
+  query GetProblem($id: Int!) {
+    getProblem(id: $id) {
       title
       isVisible
       difficulty
@@ -34,18 +34,8 @@ const GET_PROBLEM = gql(`
 `)
 
 const GET_PROBLEMS = gql(`
-  query GetProblems(
-    $groupId: Int!
-    $cursor: Int
-    $take: Int!
-    $input: FilterProblemsInput!
-  ) {
-    getProblems(
-      groupId: $groupId
-      cursor: $cursor
-      take: $take
-      input: $input
-    ) {
+  query GetProblems($cursor: Int, $take: Int!, $input: FilterProblemsInput!, $my: Boolean, $shared: Boolean) {
+    getProblems(cursor: $cursor, take: $take, input: $input, my: $my, shared: $shared) {
       id
       title
       updateTime
@@ -66,24 +56,53 @@ const GET_PROBLEMS = gql(`
 `)
 
 const GET_PROBLEM_DETAIL = gql(`
-  query GetProblemDetail($groupId: Int!, $id: Int!) {
-    getProblem(groupId: $groupId, id: $id) {
+  query GetProblemDetail($id: Int!) {
+    getProblem(id: $id) {
       title
       description
     }
   }
 `)
 
+const GET_ASSIGNMENT_PROBLEMS = gql(`
+  query GetAssignmentProblems($groupId: Int!, $assignmentId: Int!) {
+    getAssignmentProblems(groupId: $groupId, assignmentId: $assignmentId) {
+      order
+      assignmentId
+      problemId
+      score
+      createTime
+      updateTime
+      problem {
+        id
+        title
+        description
+        isVisible
+        difficulty
+      }
+    }
+  }
+`)
+
+const GET_ASSIGNMENT_PROBLEM_MAX_SCORE = gql(`
+  query GetAssignmentProblemMaxScore($groupId: Int!, $assignmentId: Int!) {
+    getAssignmentProblems(groupId: $groupId, assignmentId: $assignmentId) {
+      problemId
+      score
+    }
+  }
+`)
+
 const GET_CONTEST_PROBLEMS = gql(`
-  query GetContestProblems($groupId: Int!, $contestId: Int!) {
-    getContestProblems(groupId: $groupId, contestId: $contestId) {
+  query GetContestProblems($contestId: Int!) {
+    getContestProblems(contestId: $contestId) {
       order
       score
       problemId
       problem {
         title
         difficulty
-		  }
+      }
     }
   }
 `)
@@ -98,8 +117,8 @@ const GET_TAGS = gql(`
 `)
 
 const GET_PROBLEM_TESTCASE = gql(`
-  query GetProblemTestcase($groupId: Int!, $id: Int!) {
-    getProblem(groupId: $groupId, id: $id) {
+  query GetProblemTestcase($id: Int!) {
+    getProblem(id: $id) {
       testcase {
         id
         input
@@ -116,6 +135,8 @@ export {
   GET_PROBLEMS,
   GET_PROBLEM_DETAIL,
   GET_CONTEST_PROBLEMS,
+  GET_ASSIGNMENT_PROBLEMS,
+  GET_ASSIGNMENT_PROBLEM_MAX_SCORE,
   GET_TAGS,
   GET_PROBLEM_TESTCASE
 }

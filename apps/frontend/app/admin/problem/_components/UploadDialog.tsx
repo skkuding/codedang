@@ -56,7 +56,6 @@ export function UploadDialog() {
     try {
       await uploadProblems({
         variables: {
-          groupId: 1,
           input: {
             file
           }

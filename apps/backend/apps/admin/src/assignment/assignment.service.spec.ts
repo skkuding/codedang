@@ -1,4 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { SchedulerRegistry } from '@nestjs/schedule'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { AssignmentProblem, Group, AssignmentRecord } from '@generated'
 import { Problem } from '@generated'
@@ -46,7 +47,9 @@ const assignment: Assignment = {
   createTime,
   updateTime,
   assignmentProblem: [],
-  week: 1
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: false
 }
 
 const assignmentWithCount = {
@@ -67,7 +70,9 @@ const assignmentWithCount = {
   _count: {
     assignmentRecord: 10
   },
-  week: 1
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: false
 }
 
 const assignmentWithParticipants: AssignmentWithParticipants = {
@@ -85,7 +90,9 @@ const assignmentWithParticipants: AssignmentWithParticipants = {
   createTime,
   updateTime,
   participants: 10,
-  week: 1
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: false
 }
 
 const group: Group = {
@@ -106,7 +113,6 @@ const group: Group = {
 const problem: Problem = {
   id: problemId,
   createdById: 2,
-  groupId: 2,
   title: 'test problem',
   description: 'thisistestproblem',
   inputDescription: 'inputdescription',
@@ -184,7 +190,8 @@ const input = {
   isVisible: false,
   isRankVisible: false,
   enableCopyPaste: true,
-  isJudgeResultVisible: true
+  isJudgeResultVisible: true,
+  autoFinalizeScore: false
 } satisfies CreateAssignmentInput
 
 const updateInput = {
@@ -218,6 +225,9 @@ const db = {
     findMany: stub().resolves([AssignmentRecord]),
     create: stub().resolves(AssignmentRecord)
   },
+  assignmentProblemRecord: {
+    createMany: stub().resolves([])
+  },
   problem: {
     update: stub().resolves(Problem),
     updateMany: stub().resolves([Problem]),
@@ -243,6 +253,7 @@ const db = {
 describe('AssignmentService', () => {
   let service: AssignmentService
   let cache: Cache
+  let schedulerRegistry: SchedulerRegistry
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -259,13 +270,25 @@ describe('AssignmentService', () => {
               keys: () => []
             }
           })
+        },
+        {
+          provide: SchedulerRegistry,
+          useValue: new SchedulerRegistry()
         }
       ]
     }).compile()
 
     service = module.get<AssignmentService>(AssignmentService)
     cache = module.get<Cache>(CACHE_MANAGER)
+    schedulerRegistry = module.get<SchedulerRegistry>(SchedulerRegistry)
     stub(cache.store, 'keys').resolves(['assignment:1:publicize'])
+  })
+
+  afterEach(() => {
+    schedulerRegistry.getCronJobs().forEach((job, key) => {
+      job.stop()
+      schedulerRegistry.deleteCronJob(key)
+    })
   })
 
   it('should be defined', () => {

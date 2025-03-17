@@ -5,15 +5,14 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/assignment/1/submission?problemId=1
+  url: {{baseUrl}}/assignment/19/submission?problemId=7
   body: none
   auth: none
 }
 
 params:query {
-  problemId: 1
-  ~groupId: 1
-  ~take: 10
+  problemId: 7
+  ~take: 1
   ~cursor: 5
 }
 
@@ -27,21 +26,60 @@ script:pre-request {
 }
 
 docs {
-  # Get Contest Submissions
-  
+  # Get Assignment Submissions
+
   > 로그인이 필요한 API입니다.
-  
-  대회 문제의 제출 내역을 가져옵니다.
-  
+
+  Assignment 문제의 제출 내역을 가져옵니다.
+  AssignmentProblem 정보를 포함합니다.
+
   ## Query
-  
+
   > 필수 query는 * 표시하였습니다.
-  
+
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |problemId *|Integer|문제 ID|
-  |groupId|Integer|문제가 속한 Group ID (default: 1)|
   |take|Integer|가져올 제출 내역 개수 (default: 10)|
   |cursor|Integer|cursor 값 다음의 ID를 가진 제출 내역들을 반환|
-  
+
+  ```
+  {
+    "data": [
+      {
+        "id": 14,
+        "user": {
+          "username": "user01"
+        },
+        "createTime": "2025-03-07T16:39:14.492Z",
+        "language": "Cpp",
+        "result": "WrongAnswer",
+        "codeSize": 88
+      },
+      {
+        "id": 13,
+        "user": {
+          "username": "user01"
+        },
+        "createTime": "2025-03-07T16:39:11.714Z",
+        "language": "Cpp",
+        "result": "WrongAnswer",
+        "codeSize": 88
+      }
+    ],
+    "total": 2,
+    "assignmentProblem": {
+      "order": 0,
+      "problem": {
+        "id": 7,
+        "title": "천재 디자이너"
+      },
+      "assignment": {
+        "id": 19,
+        "isJudgeResultVisible": true,
+        "title": "24학년도 성민규 과제"
+      }
+    }
+  }
+  ```
 }

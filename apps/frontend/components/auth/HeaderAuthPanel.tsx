@@ -40,6 +40,10 @@ export function HeaderAuthPanel({
     (state) => state
   )
   const isUser = session?.user.role === 'User'
+  const [
+    hasCanCreateCourseOrContestPermission,
+    setHasCanCreateCourseOrContestPermission
+  ] = useState(false)
   const [hasAnyGroupLeaderRole, setHasAnyGroupLeaderRole] = useState(false)
   const isEditor = group === 'editor'
   const [needsUpdate, setNeedsUpdate] = useState(false)
@@ -49,12 +53,20 @@ export function HeaderAuthPanel({
   useEffect(() => {
     const checkIfNeedsUpdate = async () => {
       const userResponse = await fetcherWithAuth.get('user')
-      const user: { role: string; studentId: string; major: string } =
-        await userResponse.json()
+      const user: {
+        role: string
+        studentId: string
+        major: string
+        canCreateCourse: boolean
+        canCreateContest: boolean
+      } = await userResponse.json()
       const updateNeeded =
         user.role === 'User' &&
         (user.studentId === '0000000000' || user.major === 'none')
 
+      if (user.canCreateCourse || user.canCreateContest) {
+        setHasCanCreateCourseOrContestPermission(true)
+      }
       setNeedsUpdate(updateNeeded)
     }
     if (session) {
@@ -108,11 +120,14 @@ export function HeaderAuthPanel({
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className={cn(
+                'hidden md:block',
                 isEditor &&
                   'mr-5 rounded-sm border-none bg-[#4C5565] px-0 font-normal text-white'
               )}
             >
-              {(hasAnyGroupLeaderRole || !isUser) && (
+              {(hasAnyGroupLeaderRole ||
+                hasCanCreateCourseOrContestPermission ||
+                !isUser) && (
                 <Link href="/admin">
                   <DropdownMenuItem
                     className={cn(
@@ -169,10 +184,9 @@ export function HeaderAuthPanel({
               onClick={() => showSignIn()}
               variant={'outline'}
               className={cn(
-                'mr-3 hidden rounded-lg px-4 py-1 text-sm font-semibold md:block',
-                isEditor
-                  ? 'h-8 rounded-[4px] border-none bg-[#EAF3FF] text-[11px]'
-                  : ''
+                'border-primary text-primary mr-3 hidden bg-transparent px-5 py-1 text-sm font-semibold hover:bg-[#EAF3FF] active:bg-[#D7E5FE] md:block',
+                isEditor &&
+                  'h-8 border-none bg-[#EAF3FF] text-[11px] hover:bg-[#D7E5FE]'
               )}
             >
               Log In
@@ -184,10 +198,8 @@ export function HeaderAuthPanel({
                 showSignUp()
               }}
               className={cn(
-                'hidden rounded-lg px-4 py-1 text-sm md:block',
-                isEditor
-                  ? 'h-8 rounded-[4px] text-[11px] font-semibold'
-                  : 'font-bold'
+                'hidden px-5 py-1 text-sm font-semibold md:block',
+                isEditor && 'h-8 text-[11px]'
               )}
             >
               Sign Up
@@ -211,7 +223,7 @@ export function HeaderAuthPanel({
           <DropdownMenuTrigger className="flex gap-2 px-4 py-1 md:hidden">
             <RxHamburgerMenu size="30" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          <DropdownMenuContent className="md:hidden">
             <DropdownMenuItem
               className="text-primary flex cursor-pointer items-center gap-1 font-semibold"
               onClick={() => {
@@ -237,8 +249,15 @@ export function HeaderAuthPanel({
                 Problem
               </DropdownMenuItem>
             </Link>
+            <Link href="/course">
+              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
+                Course
+              </DropdownMenuItem>
+            </Link>
             <DropdownMenuSeparator className="bg-gray-300" />
-            {session?.user.role !== 'User' && (
+            {(hasAnyGroupLeaderRole ||
+              hasCanCreateCourseOrContestPermission ||
+              !isUser) && (
               <Link href="/admin">
                 <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
                   <UserRoundCog className="size-4" /> Management
@@ -272,7 +291,7 @@ export function HeaderAuthPanel({
           <DropdownMenuTrigger className="flex gap-2 px-4 py-1 md:hidden">
             <RxHamburgerMenu size="30" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          <DropdownMenuContent className="md:hidden">
             <Link href="/notice">
               <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
                 Notice
@@ -286,6 +305,11 @@ export function HeaderAuthPanel({
             <Link href="/problem">
               <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
                 Problem
+              </DropdownMenuItem>
+            </Link>
+            <Link href="/course">
+              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
+                Course
               </DropdownMenuItem>
             </Link>
             <DropdownMenuSeparator className="bg-gray-300" />

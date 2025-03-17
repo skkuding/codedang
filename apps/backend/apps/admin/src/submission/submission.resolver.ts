@@ -1,8 +1,9 @@
 import { Args, Int, Query, Resolver } from '@nestjs/graphql'
+import { ContestRole } from '@prisma/client'
+import { UseContestRolesGuard, UseGroupLeaderGuard } from '@libs/auth'
 import {
   SubmissionOrderPipe,
   CursorValidationPipe,
-  GroupIDPipe,
   RequiredIntPipe
 } from '@libs/pipe'
 import { Submission } from '@admin/@generated'
@@ -34,19 +35,12 @@ export class SubmissionResolver {
   async getSubmissions(
     @Args('problemId', { type: () => Int }, new RequiredIntPipe('problemId'))
     problemId: number,
-    @Args('groupId', { type: () => Int, nullable: true }, GroupIDPipe)
-    groupId: number,
     @Args('cursor', { type: () => Int, nullable: true }, CursorValidationPipe)
     cursor: number | null,
     @Args('take', { nullable: true, defaultValue: 10, type: () => Int })
     take: number
   ): Promise<SubmissionsWithTotal> {
-    return this.submissionService.getSubmissions(
-      problemId,
-      groupId,
-      cursor,
-      take
-    )
+    return this.submissionService.getSubmissions(problemId, cursor, take)
   }
 
   /**
@@ -56,6 +50,7 @@ export class SubmissionResolver {
    * @see {@link https://github.com/skkuding/codedang/pull/1924}
    */
   @Query(() => [ContestSubmission])
+  @UseContestRolesGuard(ContestRole.Manager)
   async getContestSubmissions(
     @Args('input', {
       nullable: false,
@@ -84,7 +79,9 @@ export class SubmissionResolver {
    * https://github.com/skkuding/codedang/pull/1924
    */
   @Query(() => [AssignmentSubmission])
+  @UseGroupLeaderGuard()
   async getAssignmentSubmissions(
+    @Args('groupId', { type: () => Int }) _groupId: number,
     @Args('input', {
       nullable: false,
       type: () => GetAssignmentSubmissionsInput
@@ -102,6 +99,21 @@ export class SubmissionResolver {
       take,
       cursor,
       order
+    )
+  }
+
+  @Query(() => SubmissionDetail)
+  @UseGroupLeaderGuard()
+  async getAssignmentLatestSubmission(
+    @Args('groupId', { type: () => Int }) _groupId: number,
+    @Args('assignmentId', { type: () => Int }) assignmentId: number,
+    @Args('userId', { type: () => Int }) userId: number,
+    @Args('problemId', { type: () => Int }) problemId: number
+  ): Promise<SubmissionDetail> {
+    return await this.submissionService.getAssignmentLatestSubmission(
+      assignmentId,
+      userId,
+      problemId
     )
   }
 

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import type { Workbook, Problem } from '@prisma/client'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 
@@ -11,7 +10,7 @@ export class WorkbookService {
   async getWorkbooksByGroupId(
     cursor: number | null,
     take: number,
-    groupId = OPEN_SPACE_ID
+    groupId: number
   ) {
     const paginator = this.prisma.getPaginator(cursor)
 
@@ -42,7 +41,7 @@ export class WorkbookService {
 
   async getWorkbook(
     workbookId: number,
-    groupId = OPEN_SPACE_ID
+    groupId: number
   ): Promise<Partial<Workbook> & { problems: Partial<Problem>[] }> {
     const workbook = await this.prisma.workbook.findUnique({
       where: { id: workbookId, groupId, isVisible: true },

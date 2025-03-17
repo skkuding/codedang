@@ -1,11 +1,10 @@
 import { gql } from '@generated'
 
 const CREATE_PROBLEM = gql(`
-  mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
-    createProblem(groupId: $groupId, input: $input) {
+  mutation CreateProblem($input: CreateProblemInput!) {
+    createProblem(input: $input) {
       id
       createdById
-      groupId
       title
       isVisible
       difficulty
@@ -30,11 +29,10 @@ const CREATE_PROBLEM = gql(`
 `)
 
 const UPDATE_PROBLEM = gql(`
-  mutation UpdateProblem($groupId: Int!, $input: UpdateProblemInput!) {
-    updateProblem(groupId: $groupId, input: $input) {
+  mutation UpdateProblem($input: UpdateProblemInput!) {
+    updateProblem(input: $input) {
       id
       createdById
-      groupId
       title
       isVisible
       difficulty
@@ -62,8 +60,8 @@ const UPDATE_PROBLEM = gql(`
 `)
 
 const UPDATE_PROBLEM_VISIBLE = gql(`
-  mutation UpdateProblemVisible($groupId: Int!, $input: UpdateProblemInput!) {
-    updateProblem(groupId: $groupId, input: $input) {
+  mutation UpdateProblemVisible($input: UpdateProblemInput!) {
+    updateProblem(input: $input) {
       id
       isVisible
     }
@@ -71,8 +69,8 @@ const UPDATE_PROBLEM_VISIBLE = gql(`
 `)
 
 const UPDATE_CONTEST_PROBLEMS_ORDER = gql(`
-  mutation UpdateContestProblemsOrder($groupId: Int!, $contestId: Int!, $orders: [Int!]!) {
-    updateContestProblemsOrder(groupId: $groupId, contestId: $contestId, orders: $orders) {
+  mutation UpdateContestProblemsOrder($contestId: Int!, $orders: [Int!]!) {
+    updateContestProblemsOrder(contestId: $contestId, orders: $orders) {
       order
       contestId
       problemId
@@ -81,8 +79,8 @@ const UPDATE_CONTEST_PROBLEMS_ORDER = gql(`
 `)
 
 const UPDATE_CONTEST_PROBLEMS_SCORES = gql(`
-  mutation UpdateContestProblemsScore($groupId: Int!, $contestId: Int!, $problemIdsWithScore: [ProblemScoreInput!]!) {
-    updateContestProblemsScore(groupId: $groupId, contestId: $contestId, problemIdsWithScore: $problemIdsWithScore) {
+  mutation UpdateContestProblemsScore($contestId: Int!, $problemIdsWithScore: [ProblemScoreInput!]!) {
+    updateContestProblemsScore(contestId: $contestId, problemIdsWithScore: $problemIdsWithScore) {
       contestId
       problemId
       score
@@ -91,25 +89,49 @@ const UPDATE_CONTEST_PROBLEMS_SCORES = gql(`
   }
 `)
 
+const UPDATE_ASSIGNMENT_PROBLEMS_ORDER = gql(`
+  mutation UpdateAssignmentProblemsOrder($groupId: Int!, $assignmentId: Int!, $orders: [Int!]!) {
+    updateAssignmentProblemsOrder(groupId: $groupId, assignmentId: $assignmentId, orders: $orders) {
+      order
+      assignmentId
+      problemId
+      score
+      createTime
+      updateTime
+    }
+  }
+`)
+
+const UPDATE_ASSIGNMENT_PROBLEMS_SCORES = gql(`
+  mutation UpdateAssignmentProblemsScore($groupId: Int!, $assignmentId: Int!, $problemIdsWithScore: [ProblemScoreInput!]!) {
+    updateAssignmentProblemsScore(groupId: $groupId, assignmentId: $assignmentId, problemIdsWithScore: $problemIdsWithScore) {
+      assignmentId
+      problemId
+      score
+      order
+    }
+  }
+`)
+
 const DELETE_PROBLEM = gql(`
-  mutation DeleteProblem($groupId: Int!, $id: Int!) {
-    deleteProblem(groupId: $groupId, id: $id) {
+  mutation DeleteProblem($id: Int!) {
+    deleteProblem(id: $id) {
       id
     }
   }
 `)
 
 const UPLOAD_PROBLEMS = gql(`
-  mutation UploadProblems ($groupId: Int!, $input: UploadFileInput!) {
-    uploadProblems(groupId: $groupId, input: $input) {
+  mutation UploadProblems($input: UploadFileInput!) {
+    uploadProblems(input: $input) {
       id
     }
   }
 `)
 
 const UPLOAD_IMAGE = gql(`
-  mutation uploadImage ($input: UploadFileInput!){
-    uploadImage(input: $input){
+  mutation uploadImage($input: UploadFileInput!) {
+    uploadImage(input: $input) {
       src
     }
   }
@@ -121,6 +143,8 @@ export {
   UPDATE_PROBLEM_VISIBLE,
   UPDATE_CONTEST_PROBLEMS_ORDER,
   UPDATE_CONTEST_PROBLEMS_SCORES,
+  UPDATE_ASSIGNMENT_PROBLEMS_ORDER,
+  UPDATE_ASSIGNMENT_PROBLEMS_SCORES,
   DELETE_PROBLEM,
   UPLOAD_PROBLEMS,
   UPLOAD_IMAGE

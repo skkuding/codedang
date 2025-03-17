@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma, type Assignment } from '@prisma/client'
-import { OPEN_SPACE_ID } from '@libs/constants'
+import { Prisma } from '@prisma/client'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -34,6 +33,13 @@ export type AssignmentResult = Omit<AssignmentSelectResult, '_count'> & {
   participants: number
 }
 
+export interface ProblemScore {
+  problemId: number
+  score: number
+  maxScore: number
+  finalScore: number | null
+}
+
 @Injectable()
 export class AssignmentService {
   constructor(private readonly prisma: PrismaService) {}
@@ -51,7 +57,7 @@ export class AssignmentService {
             userId
           },
           select: {
-            AssignmentProblemRecord: {
+            assignmentProblemRecord: {
               where: {
                 isSubmitted: true
               },
@@ -65,36 +71,55 @@ export class AssignmentService {
       orderBy: [{ week: 'asc' }, { startTime: 'asc' }]
     })
 
+    const now = new Date()
+
     return assignments.map(({ _count, assignmentRecord, ...assignment }) => ({
       ...assignment,
-      problemNumber: _count.assignmentProblem,
-      submittedNumber: assignmentRecord[0]?.AssignmentProblemRecord?.length ?? 0
+      problemNumber: now < assignment.startTime ? 0 : _count.assignmentProblem,
+      submittedNumber: assignmentRecord[0]?.assignmentProblemRecord?.length ?? 0
     }))
   }
 
-  async getAssignment(id: number, groupId = OPEN_SPACE_ID, userId?: number) {
+  async getAssignment(id: number, userId: number) {
     // check if the user has already registered this assignment
     // initial value is false
-    let isRegistered = false
-    let assignment: Partial<Assignment>
-    if (userId) {
-      const hasRegistered = await this.prisma.assignmentRecord.findFirst({
-        where: { userId, assignmentId: id }
-      })
-      if (hasRegistered) {
-        isRegistered = true
-      }
+
+    let assignment
+
+    const isRegistered = await this.prisma.assignmentRecord.findUnique({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      where: { assignmentId_userId: { assignmentId: id, userId } }
+    })
+
+    if (!isRegistered) {
+      throw new ForbiddenAccessException(
+        'User not participated in the assignment'
+      )
     }
     try {
       assignment = await this.prisma.assignment.findUniqueOrThrow({
         where: {
           id,
-          groupId,
           isVisible: true
         },
         select: {
           ...assignmentSelectOption,
-          description: true
+          description: true,
+          assignmentRecord: {
+            where: {
+              userId
+            },
+            select: {
+              assignmentProblemRecord: {
+                where: {
+                  isSubmitted: true
+                },
+                select: {
+                  problemId: true
+                }
+              }
+            }
+          }
         }
       })
     } catch (error) {
@@ -142,25 +167,29 @@ export class AssignmentService {
     */
     // combine assignment and sortedAssignmentRecordsWithUserDetail
 
-    const assignmentDetails = assignment
+    const { _count, assignmentRecord, ...assignmentDetails } = assignment
+
     return {
       ...assignmentDetails,
-      isRegistered
+      problemNumber: _count.assignmentProblem,
+      submittedNumber: assignmentRecord[0].assignmentProblemRecord.length
     }
   }
 
   async createAssignmentRecord(
     assignmentId: number,
     userId: number,
-    invitationCode?: string,
-    groupId = OPEN_SPACE_ID
+    groupId: number
   ) {
     const assignment = await this.prisma.assignment.findUniqueOrThrow({
       where: { id: assignmentId, groupId },
       select: {
         startTime: true,
-        endTime: true,
-        groupId: true
+        assignmentProblem: {
+          select: {
+            problemId: true
+          }
+        }
       }
     })
 
@@ -170,20 +199,33 @@ export class AssignmentService {
     if (hasRegistered) {
       throw new ConflictFoundException('Already participated this assignment')
     }
+
     const now = new Date()
-    if (now >= assignment.endTime) {
-      throw new ConflictFoundException('Cannot participate ended assignment')
+    if (now < assignment.startTime) {
+      throw new ConflictFoundException('Cannot participate upcoming assignment')
     }
 
-    return await this.prisma.assignmentRecord.create({
-      data: { assignmentId, userId }
+    const problemRecordData = assignment.assignmentProblem.map(
+      ({ problemId }) => ({ assignmentId, userId, problemId })
+    )
+
+    return await this.prisma.$transaction(async (prisma) => {
+      const createdAssignmentRecord = await prisma.assignmentRecord.create({
+        data: { assignmentId, userId }
+      })
+
+      await prisma.assignmentProblemRecord.createMany({
+        data: problemRecordData
+      })
+
+      return createdAssignmentRecord
     })
   }
 
   async deleteAssignmentRecord(
     assignmentId: number,
     userId: number,
-    groupId = OPEN_SPACE_ID
+    groupId: number
   ) {
     const [assignment, assignmentRecord] = await Promise.all([
       this.prisma.assignment.findUnique({
@@ -213,5 +255,230 @@ export class AssignmentService {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       where: { assignmentId_userId: { assignmentId, userId } }
     })
+  }
+
+  async getAnonymizedScores(assignmentId: number, groupId: number) {
+    const assignment = await this.prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      select: {
+        id: true,
+        groupId: true,
+        title: true,
+        endTime: true,
+        isFinalScoreVisible: true,
+        isJudgeResultVisible: true,
+        autoFinalizeScore: true
+      }
+    })
+
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+
+    if (assignment.groupId !== groupId) {
+      throw new ForbiddenAccessException(
+        'Not allowed to access this assignment'
+      )
+    }
+
+    const now = new Date()
+    if (now < assignment.endTime) {
+      throw new ForbiddenAccessException(
+        'Cannot view scores before assignment ends'
+      )
+    }
+
+    const assignmentRecords = await this.prisma.assignmentRecord.findMany({
+      where: { assignmentId },
+      select: {
+        userId: true,
+        score: true,
+        finalScore: true
+      }
+    })
+
+    const validRecords = assignmentRecords.filter(
+      (record) => record.userId !== null
+    )
+
+    const result: {
+      assignmentId: number
+      title: string
+      totalParticipants: number
+      scores?: number[]
+      finalScores?: number[]
+      autoFinalizeScore: boolean
+      isFinalScoreVisible: boolean
+    } = {
+      assignmentId: assignment.id,
+      title: assignment.title,
+      totalParticipants: validRecords.length,
+      autoFinalizeScore: assignment.autoFinalizeScore,
+      isFinalScoreVisible: assignment.isFinalScoreVisible
+    }
+
+    if (assignment.isJudgeResultVisible) {
+      result.scores = validRecords.map((record) => record.score)
+    }
+
+    if (assignment.isFinalScoreVisible) {
+      if (assignment.autoFinalizeScore) {
+        result.finalScores = result.scores
+      } else {
+        result.finalScores = validRecords
+          .map((record) => record.finalScore)
+          .filter((score) => score !== null)
+      }
+    }
+
+    return result
+  }
+
+  async getMyAssignmentProblemRecord(assignmentId: number, userId: number) {
+    const assignment = await this.prisma.assignment.findUnique({
+      where: {
+        id: assignmentId
+      },
+      select: {
+        id: true,
+        title: true,
+        endTime: true,
+        isFinalScoreVisible: true,
+        isJudgeResultVisible: true,
+        autoFinalizeScore: true,
+        week: true,
+        assignmentProblem: {
+          select: {
+            problemId: true,
+            order: true,
+            score: true,
+            problem: {
+              select: {
+                id: true,
+                title: true
+              }
+            }
+          },
+          orderBy: { order: 'asc' }
+        }
+      }
+    })
+
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+
+    const assignmentRecord = await this.prisma.assignmentRecord.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        assignmentId_userId: { assignmentId, userId }
+      },
+      select: {
+        score: true,
+        finalScore: true,
+        comment: true
+      }
+    })
+
+    if (!assignmentRecord) {
+      throw new ForbiddenAccessException(
+        'User not participated in the assignment'
+      )
+    }
+
+    const assignmentProblemRecords =
+      await this.prisma.assignmentProblemRecord.findMany({
+        where: {
+          assignmentId,
+          userId
+        },
+        select: {
+          problemId: true,
+          isSubmitted: true,
+          score: true,
+          finalScore: true,
+          comment: true
+        }
+      })
+
+    const problemRecordMap = assignmentProblemRecords.reduce(
+      (map, record) => {
+        if (assignment.autoFinalizeScore) {
+          record.finalScore = record.score
+        }
+        map[record.problemId] = {
+          finalScore: assignment.isFinalScoreVisible ? record.finalScore : null,
+          score: assignment.isJudgeResultVisible ? record.score : null,
+          isSubmitted: record.isSubmitted,
+          comment: record.comment
+        }
+        return map
+      },
+      {} as Record<
+        number,
+        {
+          finalScore: number | null
+          score: number | null
+          isSubmitted: boolean
+          comment: string
+        }
+      >
+    )
+
+    const submissions = await this.prisma.submission.findMany({
+      where: { userId, assignmentId },
+      select: {
+        problemId: true,
+        createTime: true
+      },
+      orderBy: {
+        createTime: 'desc'
+      }
+    })
+
+    const submissionMap = new Map<number, Date>()
+
+    for (const submission of submissions) {
+      if (!submissionMap.has(submission.problemId)) {
+        submissionMap.set(submission.problemId, submission.createTime)
+      }
+    }
+
+    if (assignment.autoFinalizeScore) {
+      assignmentRecord.finalScore = assignmentRecord.score
+    }
+
+    const problems = assignment.assignmentProblem.map((ap) => ({
+      id: ap.problem.id,
+      title: ap.problem.title,
+      order: ap.order,
+      maxScore: ap.score,
+      problemRecord: problemRecordMap[ap.problemId] || null,
+      submissionTime: submissionMap.get(ap.problemId)
+    }))
+
+    const assignmentPerfectScore = assignment.assignmentProblem.reduce(
+      (total, { score }) => total + score,
+      0
+    )
+
+    return {
+      id: assignment.id,
+      title: assignment.title,
+      endTime: assignment.endTime,
+      autoFinalizeScore: assignment.autoFinalizeScore,
+      isFinalScoreVisible: assignment.isFinalScoreVisible,
+      isJudgeResultVisible: assignment.isJudgeResultVisible,
+      week: assignment.week,
+      userAssignmentFinalScore: assignment.isFinalScoreVisible
+        ? assignmentRecord.finalScore
+        : null,
+      userAssignmentJudgeScore: assignment.isJudgeResultVisible
+        ? assignmentRecord.score
+        : null,
+      assignmentPerfectScore,
+      comment: assignmentRecord.comment,
+      problems
+    }
   }
 }

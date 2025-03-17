@@ -83,15 +83,17 @@ export function CourseCardList({ title }: CourseCardListProps) {
 
   if (courses.length === 0) {
     return (
-      <div className="flex w-full flex-col gap-6">
-        <div className="flex w-full items-center justify-between">
-          <div className="text-2xl font-semibold text-black">
-            {title} <RegisterCourseButton />
-          </div>
+      <div className="flex w-full flex-col gap-10">
+        <div className="flex gap-4 text-2xl font-semibold text-black">
+          {title}
+          <RegisterCourseButton />
         </div>
-        <p className="text-lg font-light text-gray-500">
-          Please Register Course First!
-        </p>
+        <div className="flex h-72 w-full flex-col items-center justify-center rounded-[20px] border border-[#DFDFDF] text-xl font-normal text-[#737373]">
+          <p>There are no courses registered!</p>
+          <p>
+            Please click the register button at the top to enroll in a course.
+          </p>
+        </div>
       </div>
     )
   }
@@ -99,8 +101,9 @@ export function CourseCardList({ title }: CourseCardListProps) {
   return (
     <Carousel className="flex w-full flex-col gap-6">
       <div className="flex w-full items-center justify-between">
-        <div className="text-2xl font-semibold text-black">
-          {title} <RegisterCourseButton />
+        <div className="flex gap-4 text-2xl font-semibold text-black">
+          {title}
+          <RegisterCourseButton />
         </div>
         <div className="flex items-center justify-end gap-2">
           <CarouselPrevious />

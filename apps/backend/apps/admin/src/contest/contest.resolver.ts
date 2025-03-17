@@ -1,29 +1,34 @@
-import { ParseBoolPipe } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { Contest, ContestProblem } from '@generated'
-import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
+import { ContestRole } from '@prisma/client'
+import {
+  AuthenticatedRequest,
+  UseContestRolesGuard,
+  UseDisableContestRolesGuard
+} from '@libs/auth'
 import {
   CursorValidationPipe,
   IDValidationPipe,
   RequiredIntPipe
 } from '@libs/pipe'
 import { ContestService } from './contest.service'
+import { ContestLeaderboard } from './model/contest-leaderboard.model'
 import { ContestSubmissionSummaryForUser } from './model/contest-submission-summary-for-user.model'
+import { ContestUpdateHistories } from './model/contest-update-histories.model'
 import { ContestWithParticipants } from './model/contest-with-participants.model'
 import { CreateContestInput } from './model/contest.input'
 import { UpdateContestInput } from './model/contest.input'
 import { ContestsGroupedByStatus } from './model/contests-grouped-by-status.output'
-import { DuplicatedContestResponse } from './model/duplicated-contest-response.output'
 import { ProblemScoreInput } from './model/problem-score.input'
-import { PublicizingRequest } from './model/publicizing-request.model'
-import { PublicizingResponse } from './model/publicizing-response.output'
 import { UserContestScoreSummaryWithUserInfo } from './model/score-summary'
 
 @Resolver(() => Contest)
+@UseContestRolesGuard(ContestRole.Manager)
 export class ContestResolver {
   constructor(private readonly contestService: ContestService) {}
 
   @Query(() => [ContestWithParticipants])
+  @UseDisableContestRolesGuard()
   async getContests(
     @Args(
       'take',
@@ -32,9 +37,10 @@ export class ContestResolver {
     )
     take: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
-    cursor: number | null
+    cursor: number | null,
+    @Context('req') req: AuthenticatedRequest
   ) {
-    return await this.contestService.getContests(take, cursor)
+    return await this.contestService.getContests(req.user.id, take, cursor)
   }
 
   @Query(() => ContestWithParticipants)
@@ -46,6 +52,7 @@ export class ContestResolver {
   }
 
   @Mutation(() => Contest)
+  @UseDisableContestRolesGuard()
   async createContest(
     @Args('input') input: CreateContestInput,
     @Context('req') req: AuthenticatedRequest
@@ -63,46 +70,6 @@ export class ContestResolver {
     @Args('contestId', { type: () => Int }) contestId: number
   ) {
     return await this.contestService.deleteContest(contestId)
-  }
-
-  /**
-   * Contest를 공개(Open Space)로 이동시키기 위한 요청(Publicizing Requests)들을 불러옵니다.
-   * @returns Publicizing Request 배열
-   */
-  @Query(() => [PublicizingRequest])
-  @UseRolesGuard()
-  async getPublicizingRequests() {
-    return await this.contestService.getPublicizingRequests()
-  }
-
-  /**
-   * Contest를 공개(Open Space)로 이동시키기 위한 요청(Publicizing Request)을 생성합니다.
-   * @param contestId Contest의 ID
-   * @returns 생성된 Publicizing Request
-   */
-  @Mutation(() => PublicizingRequest)
-  async createPublicizingRequest(
-    @Args('contestId', { type: () => Int }) contestId: number
-  ) {
-    return await this.contestService.createPublicizingRequest(contestId)
-  }
-
-  /**
-   * Contest를 공개(Open Space)로 이동시키기 위한 요청(Publicizing Request)을 처리합니다.
-   * @param contestId Publicizing Request를 생성한 contest의 Id
-   * @param isAccepted 요청 수락 여부
-   * @returns
-   */
-  @Mutation(() => PublicizingResponse)
-  @UseRolesGuard()
-  async handlePublicizingRequest(
-    @Args('contestId', { type: () => Int }) contestId: number,
-    @Args('isAccepted', ParseBoolPipe) isAccepted: boolean
-  ) {
-    return await this.contestService.handlePublicizingRequest(
-      contestId,
-      isAccepted
-    )
   }
 
   @Mutation(() => [ContestProblem])
@@ -159,15 +126,6 @@ export class ContestResolver {
     })
   }
 
-  @Mutation(() => DuplicatedContestResponse)
-  async duplicateContest(
-    @Args('contestId', { type: () => Int })
-    contestId: number,
-    @Context('req') req: AuthenticatedRequest
-  ) {
-    return await this.contestService.duplicateContest(contestId, req.user.id)
-  }
-
   /**
    * Contest에 참여한 User와, 점수 요약을 함께 불러옵니다.
    *
@@ -198,5 +156,19 @@ export class ContestResolver {
     @Args('problemId', { type: () => Int }) problemId: number
   ) {
     return await this.contestService.getContestsByProblemId(problemId)
+  }
+
+  @Query(() => ContestLeaderboard)
+  async getContestLeaderboard(
+    @Args('contestId', { type: () => Int }) contestId: number
+  ) {
+    return this.contestService.getContestLeaderboard(contestId)
+  }
+
+  @Query(() => ContestUpdateHistories)
+  async getContestUpdateHistories(
+    @Args('contestId', { type: () => Int }) contestId: number
+  ) {
+    return await this.contestService.getContestUpdateHistories(contestId)
   }
 }

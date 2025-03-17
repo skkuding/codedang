@@ -4,13 +4,14 @@ import { Module, type OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD, APP_FILTER, HttpAdapterHost } from '@nestjs/core'
 import { GraphQLModule } from '@nestjs/graphql'
+import { ScheduleModule } from '@nestjs/schedule'
 import type { Server } from 'http'
 import { LoggerModule } from 'nestjs-pino'
 import {
   JwtAuthModule,
   JwtAuthGuard,
   RolesModule,
-  GroupLeaderGuard
+  AdminGuard
 } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
 import { AdminExceptionFilter } from '@libs/exception'
@@ -59,13 +60,14 @@ import { UserModule } from './user/user.module'
     AnnouncementModule,
     NoticeModule,
     SubmissionModule,
-    LoggerModule.forRoot(pinoLoggerModuleOption)
+    LoggerModule.forRoot(pinoLoggerModuleOption),
+    ScheduleModule.forRoot()
   ],
   controllers: [AdminController],
   providers: [
     AdminService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_GUARD, useClass: GroupLeaderGuard },
+    { provide: APP_GUARD, useClass: AdminGuard },
     { provide: APP_FILTER, useClass: AdminExceptionFilter },
     LoggingPlugin
   ]

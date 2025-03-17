@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { GroupType, Role, type UserGroup } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { invitationCodeKey, joinGroupCacheKey } from '@libs/cache'
-import { JOIN_GROUP_REQUEST_EXPIRE_TIME, OPEN_SPACE_ID } from '@libs/constants'
+import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -365,11 +365,7 @@ export class GroupService {
       }
     })
 
-    if (
-      user &&
-      (user.role === Role.SuperAdmin || user.role === Role.Admin) &&
-      userGroupData.groupId != OPEN_SPACE_ID
-    ) {
+    if (user && (user.role === Role.SuperAdmin || user.role === Role.Admin)) {
       userGroupData.isGroupLeader = true
     }
 
@@ -384,5 +380,149 @@ export class GroupService {
         isGroupLeader: userGroupData.isGroupLeader
       }
     })
+  }
+
+  async getAssignmentGradeSummary(userId: number, groupId: number) {
+    const assignmentRecords = await this.prisma.assignmentRecord.findMany({
+      where: { userId, assignment: { groupId } },
+      select: { assignmentId: true }
+    })
+
+    const assignmentIds = assignmentRecords.map((record) => record.assignmentId)
+
+    const assignments = await this.prisma.assignment.findMany({
+      where: {
+        id: { in: assignmentIds }
+      },
+      select: {
+        id: true,
+        title: true,
+        endTime: true,
+        isFinalScoreVisible: true,
+        isJudgeResultVisible: true,
+        autoFinalizeScore: true,
+        week: true,
+        assignmentProblem: {
+          select: {
+            problemId: true,
+            order: true,
+            score: true,
+            problem: {
+              select: {
+                id: true,
+                title: true
+              }
+            }
+          },
+          orderBy: { order: 'asc' }
+        }
+      },
+      orderBy: [{ week: 'asc' }, { endTime: 'asc' }]
+    })
+
+    const allAssignmentProblemRecords =
+      await this.prisma.assignmentProblemRecord.findMany({
+        where: {
+          userId,
+          assignmentId: { in: assignmentIds }
+        },
+        select: {
+          assignmentId: true,
+          problemId: true,
+          isSubmitted: true,
+          score: true,
+          finalScore: true,
+          comment: true
+        }
+      })
+
+    const problemRecordsByAssignment = allAssignmentProblemRecords.reduce(
+      (grouped, record) => {
+        if (!grouped[record.assignmentId]) {
+          grouped[record.assignmentId] = []
+        }
+        grouped[record.assignmentId].push(record)
+        return grouped
+      },
+      {} as Record<number, typeof allAssignmentProblemRecords>
+    )
+
+    const formattedAssignments = assignments.map((assignment) => {
+      const assignmentProblemRecords =
+        problemRecordsByAssignment[assignment.id] || []
+
+      const problemRecordMap = assignmentProblemRecords.reduce(
+        (map, record) => {
+          if (assignment.autoFinalizeScore) {
+            record.finalScore = record.score
+          }
+          map[record.problemId] = {
+            finalScore: assignment.isFinalScoreVisible
+              ? record.finalScore
+              : null,
+            score: assignment.isJudgeResultVisible ? record.score : null,
+            isSubmitted: record.isSubmitted,
+            comment: record.comment
+          }
+          return map
+        },
+        {} as Record<
+          number,
+          {
+            finalScore: number | null
+            score: number | null
+            isSubmitted: boolean
+            comment: string
+          }
+        >
+      )
+
+      const problems = assignment.assignmentProblem.map((ap) => ({
+        id: ap.problem.id,
+        title: ap.problem.title,
+        order: ap.order,
+        maxScore: ap.score,
+        problemRecord: problemRecordMap[ap.problemId] || null
+      }))
+
+      const userAssignmentFinalScore = assignmentProblemRecords.some(
+        (record) => record.finalScore === null
+      )
+        ? null
+        : assignmentProblemRecords.reduce(
+            (total, { finalScore }) => total + (finalScore as number),
+            0
+          )
+
+      const assignmentPerfectScore = assignment.assignmentProblem.reduce(
+        (total, { score }) => total + score,
+        0
+      )
+
+      const userAssignmentJudgeScore = assignmentProblemRecords.reduce(
+        (total, { score }) => total + score,
+        0
+      )
+
+      return {
+        id: assignment.id,
+        title: assignment.title,
+        endTime: assignment.endTime,
+        autoFinalizeScore: assignment.autoFinalizeScore,
+        isFinalScoreVisible: assignment.isFinalScoreVisible,
+        isJudgeResultVisible: assignment.isJudgeResultVisible,
+        week: assignment.week,
+        userAssignmentFinalScore: assignment.isFinalScoreVisible
+          ? userAssignmentFinalScore
+          : null,
+        userAssignmentJudgeScore: assignment.isJudgeResultVisible
+          ? userAssignmentJudgeScore
+          : null,
+        assignmentPerfectScore,
+        problems
+      }
+    })
+
+    return formattedAssignments
   }
 }

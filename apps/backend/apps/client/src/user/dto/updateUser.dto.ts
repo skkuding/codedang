@@ -10,7 +10,7 @@ export class UpdateUserDto {
   readonly newPassword?: string
 
   @IsOptional()
-  @Matches(/^[a-zA-Z\s]+$/)
+  @Matches(/^[가-힣a-zA-Z \s]+$/)
   @IsString()
   readonly realName?: string
 

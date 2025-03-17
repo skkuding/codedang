@@ -15,16 +15,15 @@ body:graphql {
     createAssignment(
       groupId: 3
       input: {
-        title: "New Assignment Group 2"
-        description: "thisisnewassignment"
+        title: "25학년도 성민규 auto-graded, final-score-visible"
+        description: "bruno수정"
         startTime: "2024-01-01"
-        endTime: "2030-01-01"
+        endTime: "2025-03-08"
         week:3
         isVisible: true
         isRankVisible: true
         enableCopyPaste: true
         isJudgeResultVisible: true
-        invitationCode: "123456"
       }
     ) {
       id
@@ -32,7 +31,6 @@ body:graphql {
       description
       week
       enableCopyPaste
-      invitationCode
       isJudgeResultVisible
     }
   }

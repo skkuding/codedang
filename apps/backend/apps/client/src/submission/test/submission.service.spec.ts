@@ -10,7 +10,6 @@ import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
 import { spy, stub } from 'sinon'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -61,6 +60,9 @@ const db = {
     findUnique: stub(),
     findFirst: stub()
   },
+  workbook: {
+    findFirst: stub()
+  },
   workbookProblem: {
     findUnique: stub()
   },
@@ -70,8 +72,7 @@ const db = {
   },
   assignmentRecord: {
     findUnique: stub(),
-    update: stub(),
-    upsert: stub()
+    update: stub()
   },
   assignmentProblemRecord: {
     upsert: stub()
@@ -99,15 +100,19 @@ const mockContest: Contest = {
   isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
+  evaluateWithSampleTestcase: false,
   createTime: new Date(),
   updateTime: new Date(),
+  unfreeze: false,
   freezeTime: null,
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 const mockAssignment: Assignment = {
   id: ASSIGNMENT_ID,
@@ -123,7 +128,9 @@ const mockAssignment: Assignment = {
   enableCopyPaste: true,
   createTime: new Date(Date.now() - 10000),
   updateTime: new Date(Date.now() - 10000),
-  week: 1
+  week: 1,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: true
 }
 const USERIP = '127.0.0.1'
 
@@ -208,8 +215,7 @@ describe('SubmissionService', () => {
         submissionDto,
         userIp: USERIP,
         userId: submissions[0].userId,
-        problemId: problems[0].id,
-        groupId: problems[0].groupId
+        problemId: problems[0].id
       })
       expect(createSpy.calledOnce).to.be.true
     })
@@ -223,8 +229,7 @@ describe('SubmissionService', () => {
           submissionDto,
           userIp: USERIP,
           userId: submissions[0].userId,
-          problemId: problems[0].id,
-          groupId: problems[0].groupId
+          problemId: problems[0].id
         })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
@@ -275,7 +280,7 @@ describe('SubmissionService', () => {
     it('should call createSubmission', async () => {
       const createSpy = stub(service, 'createSubmission')
       db.assignment.findFirst.resolves(mockAssignment)
-      db.assignmentRecord.upsert.resolves({
+      db.assignmentRecord.findUnique.resolves({
         id: 1,
         assignment: {
           groupId: 1,
@@ -290,8 +295,7 @@ describe('SubmissionService', () => {
         userIp: USERIP,
         userId: submissions[0].userId,
         problemId: problems[0].id,
-        assignmentId: ASSIGNMENT_ID,
-        groupId: problems[0].groupId
+        assignmentId: ASSIGNMENT_ID
       })
       expect(createSpy.calledOnce).to.be.true
     })
@@ -306,8 +310,7 @@ describe('SubmissionService', () => {
           userIp: USERIP,
           userId: submissions[0].userId,
           problemId: problems[0].id,
-          assignmentId: ASSIGNMENT_ID,
-          groupId: problems[0].groupId
+          assignmentId: ASSIGNMENT_ID
         })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
@@ -324,8 +327,7 @@ describe('SubmissionService', () => {
         userIp: USERIP,
         userId: submissions[0].userId,
         problemId: problems[0].id,
-        workbookId: WORKBOOK_ID,
-        groupId: problems[0].groupId
+        workbookId: WORKBOOK_ID
       })
       expect(createSpy.calledOnce).to.be.true
     })
@@ -340,8 +342,7 @@ describe('SubmissionService', () => {
           userIp: USERIP,
           userId: submissions[0].userId,
           problemId: problems[0].id,
-          workbookId: WORKBOOK_ID,
-          groupId: problems[0].groupId
+          workbookId: WORKBOOK_ID
         })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
@@ -512,7 +513,6 @@ describe('SubmissionService', () => {
           problemId: problems[0].id,
           userId: submissions[0].userId,
           userRole: Role.User,
-          groupId: OPEN_SPACE_ID,
           contestId: null,
           assignmentId: null
         })
@@ -536,7 +536,6 @@ describe('SubmissionService', () => {
           problemId: problems[0].id,
           userId: submissions[0].userId,
           userRole: Role.User,
-          groupId: OPEN_SPACE_ID,
           contestId: null,
           assignmentId: null
         })
@@ -553,7 +552,6 @@ describe('SubmissionService', () => {
           problemId: problems[0].id,
           userId: submissions[0].userId,
           userRole: Role.User,
-          groupId: OPEN_SPACE_ID,
           contestId: null,
           assignmentId: null
         })
@@ -571,7 +569,6 @@ describe('SubmissionService', () => {
           problemId: problems[0].id,
           userId: submissions[0].userId,
           userRole: Role.User,
-          groupId: OPEN_SPACE_ID,
           contestId: null,
           assignmentId: null
         })
@@ -656,11 +653,22 @@ describe('SubmissionService', () => {
         canCreateContest: false
       }
       db.user.findFirst.resolves(adminUser)
-      db.assignmentRecord.findUnique.resolves({})
-      db.assignmentProblem.findFirst.resolves({})
+      db.assignmentRecord.findUnique.resolves()
+      const assignmentProblem = {
+        order: 0,
+        problem: {
+          id: 7,
+          title: '천재 디자이너'
+        },
+        assignment: {
+          id: 19,
+          isJudgeResultVisible: true,
+          title: '24학년도 성민규 과제'
+        }
+      }
+      db.assignmentProblem.findFirst.resolves(assignmentProblem)
       db.submission.findMany.resolves(submissions)
       db.submission.count.resolves(1)
-      db.assignment.findFirst.resolves({ isJudgeResultVisible: true })
 
       expect(
         await service.getAssignmentSubmissions({
@@ -668,7 +676,7 @@ describe('SubmissionService', () => {
           assignmentId: ASSIGNMENT_ID,
           userId: submissions[0].userId
         })
-      ).to.deep.equal({ data: submissions, total: 1 })
+      ).to.deep.equal({ data: submissions, total: 1, assignmentProblem })
     })
 
     it('should throw exception if user is not registered to assignment', async () => {

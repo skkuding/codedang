@@ -1,9 +1,7 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Cache } from '@nestjs/cache-manager'
-import { Inject, Injectable } from '@nestjs/common'
+import { ForbiddenException, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Language } from '@generated'
-import type {
+import {
   AssignmentProblem,
   ContestProblem,
   Problem,
@@ -11,7 +9,8 @@ import type {
   WorkbookProblem
 } from '@generated'
 import { Level } from '@generated'
-import type { ProblemWhereInput } from '@generated'
+import type { ProblemWhereInput, UpdateHistory } from '@generated'
+import { ProblemField, Role } from '@prisma/client'
 import { Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
@@ -37,6 +36,7 @@ import type {
 } from './model/problem.input'
 import type { ProblemWithIsVisible } from './model/problem.output'
 import type { Template } from './model/template.input'
+import { ImportedTestcaseHeader } from './model/testcase.constants'
 import type { Testcase } from './model/testcase.input'
 
 @Injectable()
@@ -44,16 +44,22 @@ export class ProblemService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly storageService: StorageService,
-    private readonly config: ConfigService,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+    private readonly config: ConfigService
   ) {}
 
   async createProblem(
     input: CreateProblemInput,
     userId: number,
-    groupId: number
+    userRole: Role
   ) {
     const { languages, template, tagIds, testcases, isVisible, ...data } = input
+
+    if (userRole == Role.User && isVisible == true) {
+      throw new UnprocessableDataException(
+        'User cannot set a problem to public'
+      )
+    }
+
     if (!languages.length) {
       throw new UnprocessableDataException(
         'A problem should support at least one language'
@@ -73,7 +79,6 @@ export class ProblemService {
       data: {
         ...data,
         visibleLockTime: isVisible ? MIN_DATE : MAX_DATE,
-        groupId,
         createdById: userId,
         languages,
         template: [JSON.stringify(template)],
@@ -105,11 +110,30 @@ export class ProblemService {
     )
   }
 
-  async uploadProblems(
-    input: UploadFileInput,
-    userId: number,
-    groupId: number
-  ) {
+  async createTestcase(problemId: number, testcase: Testcase) {
+    try {
+      const problemTestcase = await this.prisma.problemTestcase.create({
+        data: {
+          problem: { connect: { id: problemId } },
+          input: testcase.input,
+          output: testcase.output,
+          scoreWeight: testcase.scoreWeight,
+          isHidden: testcase.isHidden
+        }
+      })
+      return problemTestcase
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      )
+        throw new EntityNotExistException('problem')
+
+      throw error
+    }
+  }
+
+  async uploadProblems(input: UploadFileInput, userId: number, userRole: Role) {
     const { filename, mimetype, createReadStream } = await input.file
     if (
       [
@@ -230,10 +254,101 @@ export class ProblemService {
     })
     return await Promise.all(
       problems.map(async (data) => {
-        const problem = await this.createProblem(data, userId, groupId)
+        const problem = await this.createProblem(data, userId, userRole)
         return problem
       })
     )
+  }
+
+  async uploadTestcase(
+    fileInput: UploadFileInput,
+    problemId: number,
+    userRole: Role,
+    userId: number
+  ) {
+    const problem = await this.prisma.problem.findFirstOrThrow({
+      where: { id: problemId },
+      include: {
+        sharedGroups: {
+          select: {
+            id: true
+          }
+        }
+      }
+    })
+
+    if (userRole == Role.User && problem.createdById != userId) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared) {
+        throw new ForbiddenException(
+          'User can only edit problems they created or were shared with'
+        )
+      }
+    }
+
+    const { filename, mimetype, createReadStream } = await fileInput.file
+    if (
+      [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-excel'
+      ].includes(mimetype) === false
+    ) {
+      throw new UnprocessableDataException(
+        'Extensions except Excel(.xlsx, .xls) are not supported.'
+      )
+    }
+    const header = {}
+    const workbook = new Workbook()
+    const worksheet = (await workbook.xlsx.read(createReadStream()))
+      .worksheets[0]
+    worksheet.getRow(1).eachCell((cell, idx) => {
+      if (!ImportedTestcaseHeader.includes(cell.text))
+        throw new UnprocessableFileDataException(
+          `Field ${cell.text} is not supported: ${1}`,
+          filename
+        )
+      header[cell.text] = idx
+    })
+    worksheet.spliceRows(1, 1)
+    const row = worksheet.getRow(1)
+
+    if (!header['Input'] || !header['Output']) {
+      throw new UnprocessableFileDataException(
+        'Input and Output fields are required',
+        filename
+      )
+    }
+    const input = row.getCell(header['Input']).text
+    const output = row.getCell(header['Output']).text
+    const scoreWeight =
+      header['scoreWeight'] === undefined ||
+      row.getCell(header['scoreWeight']).text.trim() === ''
+        ? 1
+        : parseInt(row.getCell(header['scoreWeight']).text.trim(), 10) || 1
+    const isHidden =
+      header['isHidden'] === undefined ||
+      row.getCell(header['isHidden']).text.trim() === ''
+        ? false
+        : row.getCell(header['isHidden']).text.trim() === 'O'
+    const testcase: Testcase = {
+      input,
+      output,
+      scoreWeight,
+      isHidden
+    }
+
+    return await this.createTestcase(problemId, testcase)
   }
 
   async uploadImage(input: UploadFileInput, userId: number) {
@@ -329,19 +444,45 @@ export class ProblemService {
   }
 
   async getProblems({
+    userId,
     input,
-    groupId,
     cursor,
-    take
+    take,
+    my,
+    shared
   }: {
+    userId: number
     input: FilterProblemsInput
-    groupId: number
     cursor: number | null
     take: number
+    my: boolean
+    shared: boolean
   }) {
     const paginator = this.prisma.getPaginator(cursor)
 
     const whereOptions: ProblemWhereInput = {}
+
+    if (my) {
+      whereOptions.createdById = {
+        equals: userId
+      }
+    }
+    if (shared) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      whereOptions.sharedGroups = {
+        some: {
+          id: { in: leaderGroupIds }
+        }
+      }
+    }
+
     if (input.difficulty) {
       whereOptions.difficulty = {
         in: input.difficulty
@@ -354,21 +495,41 @@ export class ProblemService {
     const problems: Problem[] = await this.prisma.problem.findMany({
       ...paginator,
       where: {
-        ...whereOptions,
-        groupId
+        ...whereOptions
       },
       take
     })
     return this.changeVisibleLockTimeToIsVisible(problems)
   }
 
-  async getProblem(id: number, groupId: number) {
+  async getProblem(id: number, userRole: Role, userId: number) {
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
-        id,
-        groupId
+        id
+      },
+      include: {
+        sharedGroups: true
       }
     })
+    if (userRole != Role.Admin) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared && problem.createdById != userId) {
+        throw new ForbiddenException(
+          'User can only retrieve problems they created or were shared with'
+        )
+      }
+    }
     return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
@@ -381,15 +542,116 @@ export class ProblemService {
     return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
-  async updateProblem(input: UpdateProblemInput, groupId: number) {
+  async updateProblem(
+    input: UpdateProblemInput,
+    userRole: Role,
+    userId: number
+  ) {
     const { id, languages, template, tags, testcases, isVisible, ...data } =
       input
+
+    if (userRole == Role.User && isVisible == true) {
+      throw new UnprocessableDataException(
+        'User cannot set a problem to public'
+      )
+    }
+
     const problem = await this.prisma.problem.findFirstOrThrow({
-      where: {
-        id,
-        groupId
+      where: { id },
+      include: {
+        sharedGroups: {
+          select: {
+            id: true
+          }
+        }
       }
     })
+    if (userRole == Role.User && problem.createdById != userId) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared) {
+        throw new ForbiddenException(
+          'User can only edit problems they created or were shared with'
+        )
+      }
+    }
+
+    const updatedByid = userId
+
+    const updatedFields: ProblemField[] = []
+
+    const fields = [
+      'title',
+      'languages',
+      'description',
+      'timeLimit',
+      'memoryLimit',
+      'hint'
+    ]
+
+    const updatedInfos = fields.map((field) => ({
+      updatedField: field,
+      current: problem[field],
+      previous: problem[field]
+    }))
+
+    updatedInfos.forEach((info) => {
+      if (
+        input[info.updatedField] &&
+        input[info.updatedField] !== info.previous
+      ) {
+        updatedFields.push(ProblemField[info.updatedField])
+        info.current = input[info.updatedField]
+      }
+    })
+
+    if (testcases?.length) {
+      const existingTestcases = await this.prisma.problemTestcase.findMany({
+        where: { problemId: id }
+      })
+      if (
+        JSON.stringify(testcases) !==
+        JSON.stringify(
+          existingTestcases.map((tc) => ({
+            input: tc.input,
+            output: tc.output,
+            scoreWeight: tc.scoreWeight,
+            isHidden: tc.isHidden
+          }))
+        )
+      ) {
+        updatedFields.push(ProblemField.testcase)
+      }
+    }
+    if (userRole == Role.User && problem.createdById != userId) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared) {
+        throw new ForbiddenException(
+          'User can only edit problems they created or were shared with'
+        )
+      }
+    }
 
     if (languages && !languages.length) {
       throw new UnprocessableDataException(
@@ -433,6 +695,14 @@ export class ProblemService {
       await this.updateTestcases(id, testcases)
     }
 
+    const updatedInfo = updatedInfos
+      .filter((info) => info.current !== info.previous)
+      .map(({ updatedField, current, previous }) => ({
+        updatedField,
+        current,
+        previous
+      }))
+
     const updatedProblem = await this.prisma.problem.update({
       where: { id },
       data: {
@@ -442,10 +712,37 @@ export class ProblemService {
         }),
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
-        problemTag
+        problemTag,
+        ...(updatedFields.length > 0 && {
+          updateHistory: {
+            create: [
+              {
+                updatedFields,
+                updatedAt: new Date(),
+                updatedBy: { connect: { id: updatedByid } },
+                updatedInfo
+              }
+            ]
+          }
+        })
+      },
+      include: {
+        updateHistory: true // 항상 updateHistory 포함
       }
     })
+
     return this.changeVisibleLockTimeToIsVisible(updatedProblem)
+  }
+
+  async getProblemUpdateHistory(problemId: number): Promise<UpdateHistory[]> {
+    return await this.prisma.updateHistory.findMany({
+      where: {
+        problemId
+      },
+      include: {
+        updatedBy: true
+      }
+    })
   }
 
   async updateProblemTag(
@@ -476,7 +773,7 @@ export class ProblemService {
       return { id: check.id }
     })
 
-    return await {
+    return {
       create: await Promise.all(createIds),
       delete: await Promise.all(deleteIds)
     }
@@ -504,13 +801,14 @@ export class ProblemService {
     }
   }
 
-  async deleteProblem(id: number, groupId: number) {
+  async deleteProblem(id: number, userRole: Role, userId: number) {
     const problem = await this.prisma.problem.findFirstOrThrow({
-      where: {
-        id,
-        groupId
-      }
+      where: { id }
     })
+
+    if (userRole == Role.User && problem.createdById !== userId) {
+      throw new ForbiddenException('User can only delete problems they created')
+    }
 
     // Problem description에 이미지가 포함되어 있다면 삭제
     const uuidImageFileNames = this.extractUUIDs(problem.description)
@@ -601,7 +899,6 @@ export class ProblemService {
   }
 
   async getContestProblems(
-    groupId: number,
     contestId: number
   ): Promise<Partial<ContestProblem>[]> {
     await this.prisma.contest.findFirstOrThrow({
@@ -614,7 +911,6 @@ export class ProblemService {
   }
 
   async updateContestProblemsScore(
-    groupId: number,
     contestId: number,
     problemIdsWithScore: ProblemScoreInput[]
   ): Promise<Partial<ContestProblem>[]> {
@@ -639,7 +935,6 @@ export class ProblemService {
   }
 
   async updateContestProblemsOrder(
-    groupId: number,
     contestId: number,
     orders: number[]
   ): Promise<Partial<ContestProblem>[]> {
@@ -804,6 +1099,16 @@ export class ProblemService {
     return tag
   }
 
+  async getSharedGroups(problemId: number) {
+    return await this.prisma.problem
+      .findUnique({
+        where: {
+          id: problemId
+        }
+      })
+      .sharedGroups()
+  }
+
   async getProblemTags(problemId: number) {
     return await this.prisma.problemTag.findMany({
       where: {
@@ -821,12 +1126,24 @@ export class ProblemService {
   }
 
   changeVisibleLockTimeToIsVisible(
-    problems: Problem[] | Problem
-  ): ProblemWithIsVisible[] | ProblemWithIsVisible {
-    const problemsWithIsVisible = (
-      Array.isArray(problems) ? problems : [problems]
-    ).map((problem: Problem) => {
-      const { visibleLockTime, ...data } = problem
+    problems: Problem | Problem[]
+  ): ProblemWithIsVisible | ProblemWithIsVisible[] {
+    if (Array.isArray(problems)) {
+      return problems.map((problem) => {
+        const { visibleLockTime, ...data } = problem
+        return {
+          isVisible:
+            visibleLockTime.getTime() === MIN_DATE.getTime()
+              ? true
+              : visibleLockTime < new Date() ||
+                  visibleLockTime.getTime() === MAX_DATE.getTime()
+                ? false
+                : null,
+          ...data
+        }
+      })
+    } else {
+      const { visibleLockTime, ...data } = problems
       return {
         isVisible:
           visibleLockTime.getTime() === MIN_DATE.getTime()
@@ -837,9 +1154,6 @@ export class ProblemService {
               : null,
         ...data
       }
-    })
-    return problemsWithIsVisible.length == 1
-      ? problemsWithIsVisible[0]
-      : problemsWithIsVisible
+    }
   }
 }

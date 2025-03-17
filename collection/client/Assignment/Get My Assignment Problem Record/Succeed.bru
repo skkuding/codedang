@@ -1,0 +1,64 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/assignment/:id/score/me
+  body: none
+  auth: none
+}
+
+params:path {
+  id: 24
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+  // TODO: remove participation
+}
+
+docs {
+  # Get My Assignment Problem Record
+
+  ## 내 과제 문제 기록 조회
+
+  특정 과제에 대한 사용자의 문제별 점수 및 전체 성적 정보를 제공합니다.
+
+  ### 파라미터
+  | 이름 | 타입 | 위치 | 필수 여부 | 설명 |
+  |------|------|------|-----------|------|
+  | assignmentId | number | path | 필수 | 조회할 과제의 ID |
+  | groupId | number | query | 필수 | 과제가 속한 그룹(코스) ID |
+
+
+  ### 특이사항
+  - 과제가 종료된 경우, 이미 저장된 점수 기록이 있다면 그 데이터를 사용합니다.
+  - 과제가 종료된 경우, 제출하지 않은 문제의 score는 0점으로 처리됩니다.
+  - finalScore는 교수자에 의한 수동 채점 결과이며, 아직 채점되지 않은 경우 null입니다.
+  - userAssignmentFinalScore는 모든 문제의 finalScore 값이 설정된 경우에만 계산되며, 하나의 문제라도 채점되지 않았다면 null입니다.
+
+  ### 설명
+
+  1. 과제 정보 검증
+      * 입력받은 assignmentId와 groupId로 과제의 존재 여부 및 접근 권한 확인
+        - 과제가 없으면 404, 자신의 group이 아닌 Assignment이면 403
+      * 과제 종료 여부 확인
+  2. 과제 종료 후 로직
+      * 과제가 종료된 경우, 기존에 저장된 점수 기록 확인
+      * 저장된 기록이 있으면 저장된 데이터를 기반으로 응답 생성
+      * 과제가 종료된 후에는 제출하지 않은 문제도 0점으로 처리하여 반환
+  3. 과제 진행 중 로직
+      * 관련 데이터(과제 문제, 제출 기록, 문제 기록) 병렬 조회
+      * 최신 제출 기록을 기반으로 점수 계산
+      * 과제가 종료된 경우, 계산된 점수를 데이터베이스에 저장
+  4. 점수 계산 로직
+      * 각 문제별 최신 제출의 점수 계산: (submission.score / 100) * 문제배점
+      * 최종 점수(finalScore): 교수자 채점 결과, 없을 경우 null
+      * 과제 총점: 모든 문제 점수의 합
+}

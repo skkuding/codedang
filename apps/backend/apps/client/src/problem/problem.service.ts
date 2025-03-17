@@ -1,22 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma, ResultStatus } from '@prisma/client'
-import { MIN_DATE, OPEN_SPACE_ID } from '@libs/constants'
-import {
-  ConflictFoundException,
-  EntityNotExistException,
-  ForbiddenAccessException,
-  UnprocessableDataException
-} from '@libs/exception'
+import { MIN_DATE } from '@libs/constants'
+import { ForbiddenAccessException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type {
-  CodeDraftCreateInput,
-  CodeDraftUpdateInput
-} from '@admin/@generated'
 import { AssignmentService } from '@client/assignment/assignment.service'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
-import { CodeDraftResponseDto } from './dto/code-draft.response.dto'
-import { CreateTemplateDto } from './dto/create-code-draft.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
@@ -59,13 +48,6 @@ const problemSelectOption: Prisma.ProblemSelect = {
   }
 }
 
-const codeDraftSelectOption = {
-  userId: true,
-  problemId: true,
-  template: true,
-  createTime: true,
-  updateTime: true
-}
 @Injectable()
 export class ProblemService {
   constructor(private readonly prisma: PrismaService) {}
@@ -79,11 +61,10 @@ export class ProblemService {
     userId: number | null
     cursor: number | null
     take: number
-    groupId: number
     order?: ProblemOrder
     search?: string
   }): Promise<ProblemsResponseDto> {
-    const { cursor, take, order, groupId, search } = options
+    const { cursor, take, order, search } = options
     const paginator = this.prisma.getPaginator(cursor)
 
     /* eslint-disable @typescript-eslint/naming-convention */
@@ -111,7 +92,6 @@ export class ProblemService {
       take,
       orderBy,
       where: {
-        groupId,
         title: {
           // TODO/FIXME: postgreSQL의 full text search를 사용하여 검색하려 했으나
           // 그럴 경우 띄어쓰기를 기준으로 나눠진 단어 단위로만 검색이 가능하다
@@ -200,7 +180,6 @@ export class ProblemService {
 
     const total = await this.prisma.problem.count({
       where: {
-        groupId,
         title: {
           // TODO: 검색 방식 변경 시 함께 변경 요함
           contains: search
@@ -215,15 +194,11 @@ export class ProblemService {
     }
   }
 
-  async getProblem(
-    problemId: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<ProblemResponseDto> {
+  async getProblem(problemId: number): Promise<ProblemResponseDto> {
     // const data = await this.problemRepository.getProblem(problemId, groupId)
     const data = await this.prisma.problem.findUniqueOrThrow({
       where: {
         id: problemId,
-        groupId,
         visibleLockTime: MIN_DATE
       },
       select: problemSelectOption
@@ -245,10 +220,27 @@ export class ProblemService {
       })
     ).map((tag) => tag.tag)
 
+    const updateHistory = await this.getProblemUpdateHistory(problemId)
+
     return {
       ...data,
-      tags
+      tags,
+      updateHistory
     }
+  }
+
+  async getProblemUpdateHistory(problemId: number) {
+    // 업데이트 히스토리 조회
+    const updateHistory = await this.prisma.updateHistory.findMany({
+      where: { problemId },
+      orderBy: { updatedAt: 'desc' } // 최신순 정렬
+    })
+
+    // if (!updateHistory.length) {
+    //   throw new NotFoundException('No update history found for this problem.')
+    // }
+
+    return updateHistory
   }
 }
 
@@ -278,7 +270,7 @@ export class ContestProblemService {
     take
   }: {
     contestId: number
-    userId: number
+    userId: number | null
     cursor: number | null
     take: number
   }) {
@@ -400,13 +392,11 @@ export class ContestProblemService {
   async getContestProblem({
     contestId,
     problemId,
-    userId,
-    groupId = OPEN_SPACE_ID
+    userId
   }: {
     contestId: number
     problemId: number
     userId: number
-    groupId: number
   }) {
     const contest = await this.contestService.getContest(contestId, userId)
     const now = new Date()
@@ -459,7 +449,6 @@ export class ContestProblemService {
     const excludedFields = [
       'createTime',
       'createdById',
-      'groupId',
       'problemTag',
       'submission',
       'updateTime',
@@ -471,13 +460,50 @@ export class ContestProblemService {
       delete problem[key]
     })
 
+    const updateHistory = await this.getContestProblemUpdateHistory({
+      contestId,
+      problemId,
+      userId
+    })
+
     return {
       order: data.order,
       problem: {
         ...problem,
         tags
-      }
+      },
+      updateHistory
     }
+  }
+
+  async getContestProblemUpdateHistory({
+    contestId,
+    problemId,
+    userId
+  }: {
+    contestId: number
+    problemId: number
+    userId: number
+  }) {
+    const contest = await this.contestService.getContest(contestId, userId)
+
+    // 업데이트 히스토리 조회
+    const updateHistory = await this.prisma.updateHistory.findMany({
+      where: {
+        problemId,
+        updatedAt: {
+          gte: contest.startTime,
+          lte: contest.endTime
+        }
+      },
+      orderBy: { updatedAt: 'desc' } // 최신순 정렬
+    })
+
+    // if (!updateHistory.length) {
+    //   throw new NotFoundException('No update history found for this problem.')
+    // }
+
+    return updateHistory
   }
 }
 
@@ -504,30 +530,17 @@ export class AssignmentProblemService {
     assignmentId,
     userId,
     cursor,
-    take,
-    groupId = OPEN_SPACE_ID
+    take
   }: {
     assignmentId: number
     userId: number
     cursor: number | null
     take: number
-    groupId: number
   }) {
     const assignment = await this.assignmentService.getAssignment(
       assignmentId,
-      groupId,
       userId
     )
-    const now = new Date()
-    if (assignment.isRegistered && assignment.startTime! > now) {
-      throw new ForbiddenAccessException(
-        'Cannot access problems before the assignment starts.'
-      )
-    } else if (!assignment.isRegistered && assignment.endTime! > now) {
-      throw new ForbiddenAccessException(
-        'Register to access the problems of this assignment.'
-      )
-    }
 
     const paginator = this.prisma.getPaginator(cursor, (value) => ({
       // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -537,7 +550,7 @@ export class AssignmentProblemService {
       }
     }))
 
-    const [assignmentProblems, submissions] = await Promise.all([
+    const [assignmentProblems, assignmentProblemRecords] = await Promise.all([
       this.prisma.assignmentProblem.findMany({
         ...paginator,
         take,
@@ -554,7 +567,7 @@ export class AssignmentProblemService {
           score: true
         }
       }),
-      this.prisma.submission.findMany({
+      this.prisma.assignmentProblemRecord.findMany({
         where: {
           userId,
           assignmentId
@@ -562,64 +575,40 @@ export class AssignmentProblemService {
         select: {
           problemId: true,
           score: true,
-          createTime: true
-        },
-        orderBy: {
-          createTime: 'desc'
+          isSubmitted: true
         }
       })
     ])
 
-    const submissionMap = new Map<number, { score: number; createTime: Date }>()
-    for (const submission of submissions) {
-      if (!submissionMap.has(submission.problemId)) {
-        submissionMap.set(submission.problemId, submission)
-      }
+    const problemRecordMap = new Map<
+      number,
+      { score: number; isSubmitted: boolean }
+    >()
+    for (const record of assignmentProblemRecords) {
+      problemRecordMap.set(record.problemId, record)
     }
 
     const assignmentProblemsWithScore = assignmentProblems.map(
       (assignmentProblem) => {
-        const { problemId, problem, order } = assignmentProblem
-        const submission = submissionMap.get(problemId)
-        if (!submission) {
-          return {
-            order,
-            id: problem.id,
-            title: problem.title,
-            difficulty: problem.difficulty,
-            submissionCount: problem.submissionCount,
-            acceptedRate: problem.acceptedRate,
-            maxScore: assignment.isJudgeResultVisible
-              ? assignmentProblem.score
-              : null,
-            score: null,
-            submissionTime: null
-          }
-        }
+        const { problem, order } = assignmentProblem
+        const assignmentProblemRecord = problemRecordMap.get(problem.id)
         return {
-          // ...assignmentProblem,
           order,
-          id: assignmentProblem.problem.id,
-          title: assignmentProblem.problem.title,
-          difficulty: assignmentProblem.problem.difficulty,
-          submissionCount: assignmentProblem.problem.submissionCount,
-          acceptedRate: assignmentProblem.problem.acceptedRate,
-          maxScore: assignment.isJudgeResultVisible
-            ? assignmentProblem.score
-            : null,
+          id: problem.id,
+          title: problem.title,
+          difficulty: problem.difficulty,
+          submissionCount: problem.submissionCount,
+          acceptedRate: problem.acceptedRate,
+          maxScore: assignmentProblem.score,
           score: assignment.isJudgeResultVisible
-            ? ((submission.score * assignmentProblem.score) / 100).toFixed(0)
+            ? assignmentProblemRecord?.score
             : null,
-          submissionTime: submission.createTime ?? null
+          submissionTime: null
         }
       }
     )
 
-    const total = await this.prisma.assignmentProblem.count({
-      where: {
-        assignmentId
-      }
-    })
+    const total = assignmentProblems.length
 
     return {
       data: assignmentProblemsWithScore,
@@ -641,32 +630,22 @@ export class AssignmentProblemService {
   async getAssignmentProblem({
     assignmentId,
     problemId,
-    userId,
-    groupId = OPEN_SPACE_ID
+    userId
   }: {
     assignmentId: number
     problemId: number
     userId: number
-    groupId: number
   }) {
     const assignment = await this.assignmentService.getAssignment(
       assignmentId,
-      groupId,
       userId
     )
     const now = new Date()
-    if (assignment.isRegistered) {
-      if (now < assignment.startTime!) {
-        throw new ForbiddenAccessException(
-          'Cannot access to Assignment problem before the assignment starts.'
-        )
-      } else if (now > assignment.endTime!) {
-        throw new ForbiddenAccessException(
-          'Cannot access to Assignment problem after the assignment ends.'
-        )
-      }
-    } else {
-      throw new ForbiddenAccessException('Register to access this problem.')
+
+    if (now > assignment.endTime!) {
+      throw new ForbiddenAccessException(
+        'Cannot access to Assignment problem after the assignment ends.'
+      )
     }
 
     const data = await this.prisma.assignmentProblem.findUniqueOrThrow({
@@ -737,7 +716,7 @@ export class WorkbookProblemService {
     workbookId,
     cursor,
     take,
-    groupId = OPEN_SPACE_ID
+    groupId
   }: {
     workbookId: number
     cursor: number | null
@@ -833,7 +812,7 @@ export class WorkbookProblemService {
   async getWorkbookProblem(
     workbookId: number,
     problemId: number,
-    groupId = OPEN_SPACE_ID
+    groupId: number
   ): Promise<RelatedProblemResponseDto> {
     const isVisible = await this.workbookService.isVisible(workbookId, groupId)
     if (!isVisible) {
@@ -898,67 +877,5 @@ export class WorkbookProblemService {
         tags
       }
     }
-  }
-}
-
-@Injectable()
-export class CodeDraftService {
-  constructor(private readonly prisma: PrismaService) {}
-
-  async getCodeDraft(
-    userId: number,
-    problemId: number
-  ): Promise<CodeDraftResponseDto> {
-    const data = await this.prisma.codeDraft.findUniqueOrThrow({
-      where: {
-        codeDraftId: {
-          userId,
-          problemId
-        }
-      },
-      select: codeDraftSelectOption
-    })
-    return data
-  }
-
-  async upsertCodeDraft(
-    userId: number,
-    problemId: number,
-    createTemplateDto: CreateTemplateDto
-  ): Promise<CodeDraftResponseDto> {
-    let data
-    try {
-      data = await this.prisma.codeDraft.upsert({
-        where: {
-          codeDraftId: {
-            userId,
-            problemId
-          }
-        },
-        update: {
-          template:
-            createTemplateDto.template as CodeDraftUpdateInput['template']
-        },
-        create: {
-          userId,
-          problemId,
-          template:
-            createTemplateDto.template as CodeDraftCreateInput['template']
-        },
-        select: codeDraftSelectOption
-      })
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ConflictFoundException('CodeDraft already exists.')
-        } else if (error.code === 'P2003') {
-          throw new EntityNotExistException('User or Problem')
-        } else {
-          throw new UnprocessableDataException('Invalid data provided.')
-        }
-      }
-      throw error
-    }
-    return data
   }
 }

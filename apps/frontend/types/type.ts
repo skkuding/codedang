@@ -24,6 +24,9 @@ export type SemesterSeason = 'Spring' | 'Summer' | 'Fall' | 'Winter'
 export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
 // Problem type definition
 
+export type MemberRole = 'Instructor' | 'Student'
+
+export type SubmissionResult = 'CompileError' | 'WrongAnswer' | 'Accepted'
 export interface Tag {
   id: number
   name: string
@@ -138,9 +141,12 @@ export interface Contest {
   title: string
   startTime: Date
   endTime: Date
-  group: {
-    id: number
-    groupName: string
+  summary: {
+    문제형태?: string
+    순위산정?: string
+    진행방식?: string
+    참여대상?: string
+    참여혜택?: string
   }
   isJudgeResultVisible: boolean
   enableCopyPaste: boolean
@@ -150,12 +156,15 @@ export interface Contest {
   contestProblem: ProblemInContestInterface[]
 }
 
+export interface ContestOrder {
+  id: number
+  title: string
+}
 export interface ContestAnnouncement {
   id: number
   content: string
-  assignmentId: null | string
   constestId: number
-  problemId: null | number
+  problemOrder: null | number
   createTime: string
   updateTime: string
 }
@@ -203,6 +212,7 @@ export interface Submission {
 
 export interface SubmissionItem {
   id: number
+  order: string
   user: {
     username: string
   }
@@ -210,12 +220,17 @@ export interface SubmissionItem {
   language: string
   result: string
   codeSize: number
+  problemId: number
+  problem: {
+    title: string
+  }
 }
 
 export interface SubmissionDetail {
   problemId: number
   username: string
   code: string
+  codeSize?: string
   language: Language
   createTime: Date
   result: string
@@ -228,7 +243,14 @@ export interface SubmissionDetail {
     memoryUsage: number
     createTime: Date
     updateTime: Date
+    problemTestcase?: {
+      isHidden: boolean
+    }
   }[]
+}
+export interface ContestSubmission {
+  data: SubmissionItem[]
+  total: number
 }
 
 interface LeaderboardProblemRecord {
@@ -239,7 +261,7 @@ interface LeaderboardProblemRecord {
   submissionCount: number
 }
 interface UserOnLeaderboard {
-  user: { username: string }
+  username: string
   score: number
   finalScore: number
   totalPenalty: number
@@ -279,6 +301,7 @@ export interface SettingsFormat {
   confirmPassword: string
   realName: string
   studentId: string
+  email: string
 }
 
 export interface CourseInfo {
@@ -335,8 +358,9 @@ export interface Assignment {
   week: number
   status: AssignmentStatus
   description: string
-  invitationCodeExists: boolean
   isRegistered: boolean
+  problemNumber: number
+  submittedNumber: number
 }
 
 export interface AssignmentProblem {

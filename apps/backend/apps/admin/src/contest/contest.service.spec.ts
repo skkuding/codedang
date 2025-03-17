@@ -4,7 +4,7 @@ import { ContestProblem, ContestRecord } from '@generated'
 import { Problem } from '@generated'
 import { Contest } from '@generated'
 import { faker } from '@faker-js/faker'
-import { ResultStatus } from '@prisma/client'
+import { ContestRole, ResultStatus, Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
@@ -16,7 +16,6 @@ import type {
   CreateContestInput,
   UpdateContestInput
 } from './model/contest.input'
-import type { PublicizingRequest } from './model/publicizing-request.model'
 
 const contestId = 1
 const userId = 1
@@ -41,21 +40,25 @@ const contest: Contest = {
   lastPenalty: false,
   startTime,
   endTime,
+  unfreeze: false,
   freezeTime: null,
   isVisible: true,
   isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
+  evaluateWithSampleTestcase: false,
   createTime,
   updateTime,
   invitationCode,
   contestProblem: [],
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 
 const contestWithCount = {
@@ -67,11 +70,13 @@ const contestWithCount = {
   lastPenalty: false,
   startTime,
   endTime,
+  unfreeze: false,
   freezeTime: null,
   isVisible: true,
   isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
+  evaluateWithSampleTestcase: false,
   createTime,
   updateTime,
   invitationCode,
@@ -80,11 +85,13 @@ const contestWithCount = {
     contestRecord: 10
   },
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 
 const contestWithParticipants: ContestWithParticipants = {
@@ -96,28 +103,30 @@ const contestWithParticipants: ContestWithParticipants = {
   lastPenalty: false,
   startTime,
   endTime,
-
+  unfreeze: false,
   freezeTime: null,
   isVisible: true,
   isRankVisible: true,
   enableCopyPaste: true,
   isJudgeResultVisible: true,
+  evaluateWithSampleTestcase: false,
   createTime,
   updateTime,
   participants: 10,
   invitationCode,
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 
 const problem: Problem = {
   id: problemId,
   createdById: 2,
-  groupId: 2,
   title: 'test problem',
   description: 'thisistestproblem',
   inputDescription: 'inputdescription',
@@ -187,12 +196,6 @@ const submissionsWithProblemTitleAndUsername = {
 //   }
 // ]
 
-const publicizingRequest: PublicizingRequest = {
-  contestId,
-  userId,
-  expireTime: new Date('2050-08-19T07:32:07.533Z')
-}
-
 const input = {
   title: 'test title10',
   description: 'test description',
@@ -216,8 +219,20 @@ const updateInput = {
 } satisfies UpdateContestInput
 
 const db = {
+  user: {
+    findUnique: stub().resolves({ role: Role.Admin, canCreateContest: true })
+  },
+  userContest: {
+    create: stub().resolves(),
+    findMany: stub().resolves([
+      {
+        role: ContestRole.Admin
+      }
+    ])
+  },
   contest: {
     findFirst: stub().resolves(Contest),
+    findUniqueOrThrow: stub().resolves(Contest),
     findUnique: stub().resolves(Contest),
     findMany: stub().resolves([Contest]),
     create: stub().resolves(Contest),
@@ -289,18 +304,8 @@ describe('ContestService', () => {
     it('should return an array of contests', async () => {
       db.contest.findMany.resolves([contestWithCount])
 
-      const res = await service.getContests(5, 0)
+      const res = await service.getContests(userId, 5, 0)
       expect(res).to.deep.equal([contestWithParticipants])
-    })
-  })
-
-  describe('getPublicizingRequests', () => {
-    it('should return an array of PublicizingRequest', async () => {
-      const cacheSpyGet = stub(cache, 'get').resolves([publicizingRequest])
-      const res = await service.getPublicizingRequests()
-
-      expect(cacheSpyGet.called).to.be.true
-      expect(res).to.deep.equal([publicizingRequest])
     })
   })
 
@@ -315,7 +320,7 @@ describe('ContestService', () => {
 
   describe('updateContest', () => {
     it('should return updated contest', async () => {
-      db.contest.findFirst.resolves(contest)
+      db.contest.findUniqueOrThrow.resolves(contest)
       db.contest.update.resolves(contest)
 
       const res = await service.updateContest(updateInput)
@@ -334,33 +339,6 @@ describe('ContestService', () => {
 
     it('should throw error when contestId not exist', async () => {
       expect(service.deleteContest(1000)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-  })
-
-  describe('handlePublicizingRequest', () => {
-    it('should return accepted state', async () => {
-      db.contest.update.resolves(contest)
-
-      const cacheSpyGet = stub(cache, 'get').resolves([publicizingRequest])
-      const res = await service.handlePublicizingRequest(contestId, true)
-
-      expect(cacheSpyGet.called).to.be.true
-      expect(res).to.deep.equal({
-        contestId,
-        isAccepted: true
-      })
-    })
-
-    it('should throw error when contestId not exist', async () => {
-      expect(service.handlePublicizingRequest(1000, true)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-
-    it('should throw error when the contest is not requested to public', async () => {
-      expect(service.handlePublicizingRequest(3, true)).to.be.rejectedWith(
         EntityNotExistException
       )
     })

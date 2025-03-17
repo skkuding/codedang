@@ -1,20 +1,37 @@
 import { SetMetadata, UseGuards, applyDecorators } from '@nestjs/common'
-import { Role } from '@prisma/client'
-import { ROLES_KEY } from './roles/roles.decorator'
-import { RolesGuard } from './roles/roles.guard'
+import type { ContestRole } from '@prisma/client'
+import { CONTEST_ROLES_KEY } from './roles/contest-roles.decorator'
+import { ContestRolesGuard } from './roles/contest-roles.guard'
+import { GroupLeaderGuard } from './roles/group-leader.guard'
 
 export const AUTH_NOT_NEEDED_KEY = 'auth-not-needed'
-export const AuthNotNeededIfOpenSpace = () =>
-  SetMetadata('auth-not-needed', true)
+export const AuthNotNeededIfPublic = () =>
+  SetMetadata(AUTH_NOT_NEEDED_KEY, true)
 
 export const USER_NULL_WHEN_AUTH_FAILED = 'user-null-when-auth-failed'
-export const UserNullWhenAuthFailedIfOpenSpace = () =>
+export const UserNullWhenAuthFailedIfPublic = () =>
   SetMetadata(USER_NULL_WHEN_AUTH_FAILED, true)
-export const LEADER_NOT_NEEDED_KEY = 'leader-not-needed'
-export const UseRolesGuard = (role: Role = Role.Admin) => {
+
+export const ADMIN_NOT_NEEDED_KEY = 'admin-not-needed'
+export const UseDisableAdminGuard = () => {
+  return applyDecorators(SetMetadata(ADMIN_NOT_NEEDED_KEY, true))
+}
+
+export const UseGroupLeaderGuard = () => {
   return applyDecorators(
-    SetMetadata(LEADER_NOT_NEEDED_KEY, true),
-    SetMetadata(ROLES_KEY, role),
-    UseGuards(RolesGuard)
+    SetMetadata(ADMIN_NOT_NEEDED_KEY, true),
+    UseGuards(GroupLeaderGuard)
   )
+}
+
+export const CONTEST_ROLES_DISABLE_KEY = 'contest-roles-not-needed'
+export const UseContestRolesGuard = (role: ContestRole) => {
+  return applyDecorators(
+    SetMetadata(CONTEST_ROLES_KEY, role),
+    SetMetadata(ADMIN_NOT_NEEDED_KEY, true),
+    UseGuards(ContestRolesGuard)
+  )
+}
+export const UseDisableContestRolesGuard = () => {
+  return applyDecorators(SetMetadata(CONTEST_ROLES_DISABLE_KEY, true))
 }

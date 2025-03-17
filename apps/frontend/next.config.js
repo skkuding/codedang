@@ -1,4 +1,4 @@
-const { withSentryConfig } = require('@sentry/nextjs')
+// const { withSentryConfig } = require('@sentry/nextjs')
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true'
 })
@@ -27,8 +27,8 @@ const remotePatterns = [
 
 const nextConfig = {
   experimental: {
-    typedRoutes: process.env.NODE_ENV !== 'development',
-    instrumentationHook: process.env.NODE_ENV !== 'development'
+    typedRoutes: process.env.NODE_ENV !== 'development'
+    // instrumentationHook: process.env.NODE_ENV !== 'development'
   },
   images: {
     remotePatterns
@@ -36,7 +36,8 @@ const nextConfig = {
   output: 'standalone',
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL
-  },
+  }
+  /**
   // Custom Webpack Config
   webpack: (config, { webpack }) => {
     // NOTE: https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/tree-shaking/
@@ -53,8 +54,9 @@ const nextConfig = {
     // return the modified config
     return config
   }
+  */
 }
-
+/**
 const sentryConfig = {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
@@ -88,8 +90,9 @@ const sentryConfig = {
   // https://vercel.com/docs/cron-jobs
   automaticVercelMonitors: true
 }
-
 module.exports =
-  process.env.NODE_ENV === 'development'
-    ? withBundleAnalyzer(nextConfig)
-    : withSentryConfig(withBundleAnalyzer(nextConfig), sentryConfig)
+process.env.NODE_ENV === 'development'
+? withBundleAnalyzer(nextConfig)
+: withSentryConfig(withBundleAnalyzer(nextConfig), sentryConfig)
+*/
+module.exports = withBundleAnalyzer(nextConfig)
