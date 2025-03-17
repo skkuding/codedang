@@ -26,7 +26,7 @@ fi
 
 # CONTAINER_ID를 환경 변수로 설정하고 ~/.bashrc에 추가
 echo "export CONTAINER_ID=$CONTAINER_ID" >> ~/.bashrc
-export CONTAINER_ID
+export CONTAINER_ID=$CONTAINER_ID
 source ~/.bashrc
 
 if [[ -n "$APP_ENV" && $APP_ENV = "production" ]]
