@@ -68,7 +68,7 @@ import {
 import { useCallback, useState } from 'react'
 import { CautionDialog } from '../problem/_components/CautionDialog'
 import { TextStyleBar } from './tiptap/TextStyleBar'
-import { Commands } from './tiptap/commands'
+import { Commands, type CommandProps } from './tiptap/commands'
 import { getSuggestionItems } from './tiptap/items'
 import { renderItems } from './tiptap/renderItems'
 import './tiptap/styles.css'
@@ -164,12 +164,20 @@ export function FullScreenTextEditor({
           class: 'border bg-white'
         }
       }),
+
       Commands.configure({
         suggestion: {
+          char: '/',
+          startOfLine: false,
+          command: ({ editor, range, props }: CommandProps) => {
+            props.command({ editor, range, props })
+          },
           render: renderItems,
-          items: (
-            query: string
-          ): {
+          items: ({
+            query
+          }: {
+            query?: string
+          }): {
             title: string
             command: ({
               editor,

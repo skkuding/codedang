@@ -22,17 +22,14 @@ const Commands = Extension.create({
       },
       render: () => ({}),
       items: ({
-        query,
-        editor
+        query
       }: {
         query?: string
-        editor?: Editor
       }): {
         title: string
         command: ({ editor, range }: { editor: Editor; range: Range }) => void
       }[] => {
         void query
-        void editor
         return []
       }
     }
