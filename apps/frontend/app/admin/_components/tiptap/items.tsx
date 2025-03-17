@@ -68,7 +68,7 @@ const getSuggestionItems = (
       }
     },
     {
-      title: 'image',
+      title: 'Image',
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).run()
         openImageDialoge()

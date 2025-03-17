@@ -10,8 +10,8 @@ interface DescriptionFormProps {
 }
 
 export function DescriptionForm({
-  name,
-  isDarkmode = false
+  name
+  // isDarkmode = false
 }: DescriptionFormProps) {
   const {
     control,
@@ -29,7 +29,7 @@ export function DescriptionForm({
         placeholder="Enter a description..."
         onChange={field.onChange}
         defaultValue={field.value as string}
-        isDarkMode={isDarkmode}
+        // isDarkMode={isDarkmode}
       />
       {errors[name] && <ErrorMessage />}
     </div>

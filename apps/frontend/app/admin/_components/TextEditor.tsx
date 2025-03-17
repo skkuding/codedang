@@ -42,7 +42,8 @@ import {
   NodeViewWrapper,
   Node
 } from '@tiptap/react'
-import type { Editor, Extension, NodeViewWrapperProps } from '@tiptap/react'
+import type { Editor, NodeViewWrapperProps } from '@tiptap/react'
+import { Extension } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import 'highlight.js/styles/github-dark.css'
 import katex from 'katex'
@@ -69,6 +70,7 @@ import { useCallback, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CautionDialog } from '../problem/_components/CautionDialog'
 import { FullScreenTextEditor } from './FullScreenTextEditor'
+import { CodeBlockComponent } from './tiptap/CodeBlockComponent'
 import { TextStyleBar } from './tiptap/TextStyleBar'
 import { Commands } from './tiptap/commands'
 import { getSuggestionItems } from './tiptap/items'
@@ -89,9 +91,14 @@ export function TextEditor({
   const editor = useEditor({
     extensions: [
       StarterKit,
-      CodeBlockLowlight.configure({
+      CodeBlockLowlight.extend({
+        addNodeView() {
+          return ReactNodeViewRenderer(CodeBlockComponent)
+        }
+      }).configure({
         lowlight
       }),
+      Indentation,
       Placeholder.configure({
         placeholder: ({ editor }) =>
           editor.getHTML() === '<p></p>' ? placeholder : '',
@@ -573,6 +580,25 @@ export function TextEditor({
     </div>
   )
 }
+
+export const Indentation = Extension.create({
+  name: 'indentation',
+  addKeyboardShortcuts() {
+    return {
+      Tab: ({ editor }) => {
+        const { state, dispatch } = editor.view
+        const { selection } = state
+        const transaction = state.tr.insertText(
+          '    ',
+          selection.from,
+          selection.to
+        )
+        dispatch(transaction)
+        return true
+      }
+    }
+  }
+})
 
 export const MathExtension = Node.create({
   name: 'mathComponent',
