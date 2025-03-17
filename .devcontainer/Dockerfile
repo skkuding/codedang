@@ -6,15 +6,17 @@ RUN mkdir -p /app/sandbox/policy /app/sandbox/results \
 RUN chmod -R 777 /app/sandbox
 
 RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" ]; then \
-  curl -L "https://github.com/skkuding/codedang/releases/download/alpha/libjudger-arm.so" -o "/app/sandbox/libjudger.so"; \
+  curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha/libjudger-arm64.a" -o "/app/sandbox/libjudger.a"; \
   else \
-  curl -L "https://github.com/skkuding/codedang/releases/download/alpha/libjudger-x64.so" -o "/app/sandbox/libjudger.so"; \
+  curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha/libjudger-amd64.a" -o "/app/sandbox/libjudger.a"; \
   fi
-RUN chmod 750 /app/sandbox/libjudger.so
+RUN chmod 750 /app/sandbox/libjudger.a
 
 # Install dependencies
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-  && apt-get -y install --no-install-recommends netcat direnv
+  && apt-get -y install --no-install-recommends netcat direnv gcc g++ openjdk-17-jdk \
+  && rm -rf /var/lib/apt/lists/*
+
 
 # Add go binaries to secure path
 RUN echo 'Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/go/bin"' > /etc/sudoers.d/secure_path
@@ -26,16 +28,16 @@ RUN chmod 755 /usr/local/bin/rabbitmqadmin
 
 # Install AWS CLI
 RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" ]; then \
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscli.zip"; \
-    else \
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscli.zip"; \
-    fi \
-    && unzip awscli.zip \
-    && ./aws/install \
-    && rm -rf aws awscli.zip
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscli.zip"; \
+  else \
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscli.zip"; \
+  fi \
+  && unzip awscli.zip \
+  && ./aws/install \
+  && rm -rf aws awscli.zip
 
 # Install Java
 RUN apt-get -y update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends openjdk-17-jdk \
-    && apt-get -y clean \
-    && rm -rf /var/lib/apt/lists/*
+  && apt-get -y install --no-install-recommends openjdk-17-jdk \
+  && apt-get -y clean \
+  && rm -rf /var/lib/apt/lists/*

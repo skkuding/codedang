@@ -16,7 +16,7 @@ type judgerSandboxImpl struct {
 func NewJudgerSandboxImpl(fileManager file.FileManager, logProvider logger.Logger) sandbox.Sandbox[JudgerConfig, ExecArgs] {
 	// load env
 	javaPolicyPath := string(utils.Getenv("JAVA_POLICY_PATH", "/app/sandbox/policy/java_policy"))
-	libjudgerPath := string(utils.Getenv("LIBJUDGER_PATH", "/app/sandbox/libjudger.so"))
+	libjudgerPath := string(utils.Getenv("LIBJUDGER_PATH", "/app/sandbox/libjudger.a"))
 
 	langConfig := NewJudgerLangConfig(fileManager, javaPolicyPath)
 	sb := NewJudgerExec(libjudgerPath, logProvider)

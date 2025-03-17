@@ -27,11 +27,11 @@ RUN mkdir -p /app/sandbox/policy /app/sandbox/results \
 RUN chmod -R 770 /app/sandbox
 
 RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" ]; then \
-  curl -L "https://github.com/skkuding/codedang/releases/download/alpha/libjudger-arm.so" -o "/app/sandbox/libjudger.so"; \
+  curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha/libjudger-arm64.a" -o "/app/sandbox/libjudger.a"; \
   else \
-  curl -L "https://github.com/skkuding/codedang/releases/download/alpha/libjudger-x64.so" -o "/app/sandbox/libjudger.so"; \
+  curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha/libjudger-amd64.a" -o "/app/sandbox/libjudger.a"; \
   fi
-RUN chmod 750 /app/sandbox/libjudger.so
+RUN chmod 750 /app/sandbox/libjudger.a
 
 COPY ./entrypoint.sh .
 
