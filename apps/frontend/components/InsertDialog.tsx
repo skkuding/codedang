@@ -21,8 +21,8 @@ interface InsertDialogProps {
   triggerIcon: React.ReactNode
   title: string
   description: React.ReactNode
-  open: boolean
-  onOpenChange: Dispatch<SetStateAction<boolean>>
+  open?: boolean
+  onOpenChange?: Dispatch<SetStateAction<boolean>>
   onInsert?: () => void
   onToggleClick?: () => void
 }
