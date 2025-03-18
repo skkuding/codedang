@@ -46,18 +46,21 @@ export function LeaderboardTable() {
   const [resizableRowSize, setResizableRowSize] = useState(
     DEFAULT_ROW_SIZE + problemSize * 114
   )
-
   const scrollLimit = DEFAULT_COL_HEADER_SIZE + problemSize * 114 - 300
   const [resizableScrollLimit, setResizableScrollLimit] = useState(
     DEFAULT_COL_HEADER_SIZE + problemSize * 114 - windowSize.width + 500
   )
+
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+
   useEffect(() => {
     setResizableScrollLimit(
       DEFAULT_COL_HEADER_SIZE + problemSize * 114 - windowSize.width + 500
     )
   }, [windowSize])
 
-  const move = useCallback(
+  const horizontalScroll = useCallback(
     (amount: number) => {
       // 가로 스크롤 중 처음 위치에서 오른쪽으로의 이동을 막는 코드
       if (dx > 20) {
@@ -102,7 +105,7 @@ export function LeaderboardTable() {
       if (e.deltaX !== 0) {
         e.preventDefault()
         if (Math.abs(e.deltaX) > 2) {
-          move(-e.deltaX)
+          horizontalScroll(-e.deltaX)
         }
       }
     }
@@ -111,11 +114,30 @@ export function LeaderboardTable() {
     return () => {
       container.removeEventListener('wheel', handleWheel)
     }
-  }, [move])
+  }, [horizontalScroll])
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollContainerRef.current) {
+      return
+    }
+    setStartX(e.pageX)
+    setIsDragging(true)
+  }
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollContainerRef.current) {
+      return
+    }
+    const deltaX = e.pageX - startX
+    horizontalScroll(deltaX)
+    setStartX(e.pageX)
+  }
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
 
   return (
     <div className="flex flex-col">
-      <div className="inline-block" ref={scrollContainerRef}>
+      <div className="inline-block">
         <LeaderboardTableHeader
           dx={dx}
           colHeaderSize={colHeaderSize}
@@ -127,7 +149,14 @@ export function LeaderboardTable() {
           solvedList={countSolvedList}
           problemSize={problemSize}
         />
-        <div className="space-y-3" ref={scrollContainerRef}>
+        <div
+          className="space-y-3"
+          ref={scrollContainerRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseUp}
+          onMouseUp={handleMouseUp}
+        >
           {ranks.map((rank, index) => {
             return (
               <LeaderboardRow
