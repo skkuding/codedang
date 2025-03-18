@@ -11,7 +11,7 @@ import { UpdateAnnouncementInput } from './model/update-announcement.input'
 export class AnnouncementResolver {
   constructor(private readonly announcementService: AnnouncementService) {}
 
-  @Mutation(() => Announcement)
+  @Mutation(() => AnnouncementWithProblemOrder)
   async createAnnouncement(
     @Args('input')
     input: CreateAnnouncementInput

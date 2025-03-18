@@ -24,13 +24,24 @@ export class AnnouncementService {
       })
     }
 
-    return await this.prisma.announcement.create({
-      data: {
-        problemId,
-        contestId,
-        content
-      }
+    const contestProblems = await this.prisma.contestProblem.findMany({
+      where: { contestId }
     })
+    const problemOrderMap: Record<number, number> = {}
+    contestProblems.forEach((problem, index) => {
+      problemOrderMap[problem.problemId] = index
+    })
+
+    const newAnnouncement = await this.prisma.announcement.create({
+      data: { problemId, contestId, content }
+    })
+
+    return {
+      ...newAnnouncement,
+      problemOrder: newAnnouncement.problemId
+        ? problemOrderMap[newAnnouncement.problemId]
+        : null
+    }
   }
 
   async getAnnouncementsByContestId(contestId: number) {
