@@ -27,7 +27,7 @@ import type { CourseInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
-import { FiPlusCircle } from 'react-icons/fi'
+import { FaCirclePlus } from 'react-icons/fa6'
 import { toast } from 'sonner'
 import { ErrorMessage } from '../../_components/ErrorMessage'
 import { courseSchema } from '../_libs/schema'
@@ -123,7 +123,7 @@ export function CreateCourseButton() {
         onClick={() => setIsAlertDialogOpen(true)}
         className="flex gap-2"
       >
-        <FiPlusCircle />
+        <FaCirclePlus />
         Create
       </Button>
       <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
