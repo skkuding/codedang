@@ -4,10 +4,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/shadcn/select'
 import { Switch } from '@/components/shadcn/switch'
 import { cn } from '@/libs/utils'
-import rightArrow from '@/public/icons/arrow-right.svg'
-import Image from 'next/image'
 import React, { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 
@@ -17,16 +23,22 @@ interface FreezeFormProps {
 
 export function FreezeForm({ name }: FreezeFormProps) {
   const [isEnabled, setIsEnabled] = useState<boolean>(false)
-  const [selectedOption, setSelectedOption] = useState<number>(30)
+  const [selectedOption, setSelectedOption] = useState<string>('30')
   const {
     register,
     setValue,
     trigger,
     getValues,
+    control,
     formState: { errors }
   } = useFormContext()
 
-  const options = [90, 75, 60, 45, 30, 15]
+  // const { field } = useController({
+  //   name,
+  //   control
+  // })
+
+  const options = ['90', '75', '60', '45', '30', '15']
 
   // TODO: 백엔드 leaderboard freeze api 없음
   return (
@@ -44,37 +56,59 @@ export function FreezeForm({ name }: FreezeFormProps) {
       </div>
       <div className="flex items-center gap-[77px] text-sm">
         <h1 className="text-base font-semibold">Freeze start time</h1>
-        <DropdownMenu>
-          <DropdownMenuTrigger className="flex h-9 w-[307px] items-center rounded-[20px] border border-[#80808040] bg-white px-4">
-            <span className={cn(!isEnabled && 'text-[#8A8A8A]')}>
-              {selectedOption} min&nbsp;
-            </span>
-            <span className="mr-2 text-[#8A8A8A]">Before the End</span>
-            <Image
-              src={rightArrow}
-              alt="right arrow"
-              style={{
-                filter: 'invert(100%)',
-                transform: 'rotate(90deg)'
-              }}
-              width={6}
-            />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            {options.map((option) => (
-              <DropdownMenuItem
-                key={option}
-                onClick={() => {
-                  setSelectedOption(option)
-                  setValue(name, option)
-                }}
-              >
-                {option} min&nbsp;
-                <span className="text-[#8A8A8A]">Before the End</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Select
+          value={selectedOption}
+          onValueChange={(value) => {
+            setSelectedOption(value)
+            setValue(name, value)
+          }}
+          disabled={!isEnabled}
+        >
+          <SelectTrigger className="flex h-9 w-[307px] items-center rounded-[20px] border border-[#80808040] bg-white px-5">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent
+            className="w-[307px] bg-white py-3"
+            showScrollButtons={false}
+          >
+            <SelectGroup className="max-h-[210px]">
+              {options.map((option) => (
+                <div
+                  key={option}
+                  className="flex cursor-pointer items-center rounded-xl pl-5 hover:bg-gray-100/80"
+                  onClick={() => {
+                    setSelectedOption(option)
+                    setValue(name, option)
+                  }}
+                >
+                  <span
+                    className={cn(
+                      'relative z-0 flex h-3 w-3 items-center justify-center rounded-full border',
+                      selectedOption === option
+                        ? 'border-primary'
+                        : 'border-[#C4C4C4]'
+                    )}
+                  >
+                    {selectedOption === option && (
+                      <span className="bg-primary absolute z-10 h-[7px] w-[7px] rounded-full" />
+                    )}
+                  </span>
+                  <SelectItem
+                    key={option}
+                    value={option}
+                    className="cursor-pointer gap-2"
+                    showCheckIcon={false}
+                  >
+                    <span className={isEnabled ? '' : 'text-[#8A8A8A]'}>
+                      {option} min&nbsp;
+                    </span>
+                    <span className="text-[#8A8A8A]">Before the End</span>
+                  </SelectItem>
+                </div>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   )
