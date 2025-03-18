@@ -37,7 +37,7 @@ enum Provider {
 
 enum ProblemField {
   title
-  language
+  languages
   description
   testcase
   memoryLimit
