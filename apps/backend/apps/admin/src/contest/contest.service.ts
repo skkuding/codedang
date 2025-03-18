@@ -445,7 +445,8 @@ export class ContestService {
 
     const contestProblems: ContestProblem[] = []
 
-    for (const { problemId, score } of problemIdsWithScore) {
+    for (let order = 0; order < problemIdsWithScore.length; order++) {
+      const { problemId, score } = problemIdsWithScore[order]
       const isProblemAlreadyImported =
         await this.prisma.contestProblem.findFirst({
           where: {
@@ -461,9 +462,7 @@ export class ContestService {
         const [contestProblem] = await this.prisma.$transaction([
           this.prisma.contestProblem.create({
             data: {
-              // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
-              // 임시 방편으로 order: 0으로 설정합니다.
-              order: 0,
+              order,
               contestId,
               problemId,
               score
