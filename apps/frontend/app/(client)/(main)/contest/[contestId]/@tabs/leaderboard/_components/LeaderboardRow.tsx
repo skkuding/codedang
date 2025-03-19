@@ -1,8 +1,8 @@
 'use client'
 
-import BronzeMedal from '@/public/icons/medal-bronze.svg'
-import GoldMedal from '@/public/icons/medal-gold.svg'
-import SilverMedal from '@/public/icons/medal-silver.svg'
+import bronzeMedalIcon from '@/public/icons/medal-bronze.svg'
+import goldMedalIcon from '@/public/icons/medal-gold.svg'
+import silverMedalIcon from '@/public/icons/medal-silver.svg'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
@@ -23,7 +23,8 @@ export function LeaderboardRow({
   let isTopRanked = false
 
   let medalImage = null
-  const medals = [GoldMedal, SilverMedal, BronzeMedal]
+  const medals = [goldMedalIcon, silverMedalIcon, bronzeMedalIcon]
+
   if (rank <= 3) {
     isTopRanked = true
     medalImage = medals[rank - 1]
@@ -36,7 +37,7 @@ export function LeaderboardRow({
       {/* 아래 div가 row header입니다. */}
       <div
         className="z-10 flex h-[90px] w-[272px] flex-row items-center rounded-full bg-[#FFFFFF] px-[28px]"
-        style={{ boxShadow: '2px 2px 10px rgba(73, 68, 68, 0.15)' }}
+        style={{ boxShadow: '2px 2px 10px rgba(0,0,0,0.15)' }}
       >
         {isTopRanked ? (
           <Image src={medalImage} alt="gold medal" className="px-[2px]" />

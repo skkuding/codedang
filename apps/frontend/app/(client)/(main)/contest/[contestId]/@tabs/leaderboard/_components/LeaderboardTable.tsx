@@ -47,6 +47,7 @@ export function LeaderboardTable() {
   const [resizableRowSize, setResizableRowSize] = useState(
     DEFAULT_ROW_SIZE + problemSize * 114
   )
+
   const scrollLimit = DEFAULT_COL_HEADER_SIZE + problemSize * 114 - 300
   const [resizableScrollLimit, setResizableScrollLimit] = useState(
     DEFAULT_COL_HEADER_SIZE + problemSize * 114 - windowSize.width + 500
@@ -70,6 +71,7 @@ export function LeaderboardTable() {
         setResizableRowSize(DEFAULT_ROW_SIZE + problemSize * 114)
         return
       }
+
       // 가로 스크롤 중 마지막 위치에서 왼쪽으로의 이동을 막는 코드
       if (resizableScrollLimit < scrollLimit && -dx > resizableScrollLimit) {
         setDx(-resizableScrollLimit)
