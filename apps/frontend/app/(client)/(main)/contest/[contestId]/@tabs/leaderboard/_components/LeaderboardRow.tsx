@@ -1,8 +1,8 @@
 'use client'
 
-import BronzeMedal from '@/public/icons/medal-bronze.svg'
-import GoldMedal from '@/public/icons/medal-gold.svg'
-import SilverMedal from '@/public/icons/medal-silver.svg'
+import bronzeMedalIcon from '@/public/icons/medal-bronze.svg'
+import goldMedalIcon from '@/public/icons/medal-gold.svg'
+import silverMedalIcon from '@/public/icons/medal-silver.svg'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 
@@ -22,7 +22,7 @@ export function LeaderboardRow({
   let isTopRanked = false
 
   let medalImage = null
-  const medals = [GoldMedal, SilverMedal, BronzeMedal]
+  const medals = [goldMedalIcon, silverMedalIcon, bronzeMedalIcon]
   if (rank <= 3) {
     isTopRanked = true
     medalImage = medals[rank - 1]
