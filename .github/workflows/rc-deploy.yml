@@ -77,6 +77,36 @@ jobs:
         working-directory: ./apps/infra/rc/storage
         run: terraform destroy -auto-approve
 
+      - name: Check Existing AWS Codedang Resources
+        working-directory: ./apps/infra/rc/codedang
+        run: |
+          if terraform state list | grep -q .; then
+            echo "Resources found. Proceeding with destroy."
+            echo "CODEDANG_DESTROY_REQUIRED=true" >> $GITHUB_ENV
+          else
+            echo "No resources found. Skipping destroy."
+            echo "CODEDANG_DESTROY_REQUIRED=false" >> $GITHUB_ENV
+          fi
+      - name: Terraform Destroy If There's Existing Codedang Resources
+        if: env.CODEDANG_DESTROY_REQUIRED == 'true'
+        working-directory: ./apps/infra/rc/codedang
+        run: terraform destroy -auto-approve
+
+      - name: Check Existing AWS Storage Resources
+        working-directory: ./apps/infra/rc/storage
+        run: |
+          if terraform state list | grep -q .; then
+            echo "Resources found. Proceeding with destroy."
+            echo "STORAGE_DESTROY_REQUIRED=true" >> $GITHUB_ENV
+          else
+            echo "No resources found. Skipping destroy."
+            echo "STORAGE_DESTROY_REQUIRED=false" >> $GITHUB_ENV
+          fi
+      - name: Terraform Destroy If There's Existing Storage Resources
+        if: env.STORAGE_DESTROY_REQUIRED == 'true'
+        working-directory: ./apps/infra/rc/storage
+        run: terraform destroy -auto-approve
+
       - name: Terraform Plan
         working-directory: ./apps/infra/rc/network
         run: terraform plan -input=false -out=plan.out
@@ -132,6 +162,9 @@ jobs:
         shell: bash
 
     steps:
+      - name: Trigger RC - CD - Build Images Workflow
+        uses: ./.github/workflows/rc-build-image.yml
+
       - uses: actions/checkout@v4
 
       - name: Trigger RC - CD - Build Images Workflow
