@@ -80,13 +80,17 @@ export function LeaderboardRow({
                       </th>
                     </Tooltip.Trigger>
                     <Tooltip.Portal>
-                      <Tooltip.Content
-                        side="top"
-                        className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
-                        sideOffset={10}
-                      >
-                        <div>{`${submission} sub`}</div>
-                        <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-t-[10px] border-x-transparent border-t-[#3581FA]" />
+                      <Tooltip.Content side="top" sideOffset={10} asChild>
+                        <motion.div
+                          initial={{ opacity: 0, y: 4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 4 }}
+                          transition={{ duration: 0.4, ease: 'easeOut' }}
+                          className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
+                        >
+                          <div>{`${submission} sub`}</div>
+                          <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-t-[10px] border-x-transparent border-t-[#3581FA]" />
+                        </motion.div>
                       </Tooltip.Content>
                     </Tooltip.Portal>
                   </Tooltip.Root>
@@ -101,13 +105,17 @@ export function LeaderboardRow({
                       </th>
                     </Tooltip.Trigger>
                     <Tooltip.Portal>
-                      <Tooltip.Content
-                        side="top"
-                        className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
-                        sideOffset={10}
-                      >
-                        <div>{`${submission} sub`}</div>
-                        <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-t-[10px] border-x-transparent border-t-[#3581FA]" />
+                      <Tooltip.Content side="top" sideOffset={10} asChild>
+                        <motion.div
+                          initial={{ opacity: 0, y: 4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 4 }}
+                          transition={{ duration: 0.2, ease: 'easeOut' }}
+                          className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
+                        >
+                          <div>{`${submission} sub`}</div>
+                          <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-t-[10px] border-x-transparent border-t-[#3581FA]" />
+                        </motion.div>
                       </Tooltip.Content>
                     </Tooltip.Portal>
                   </Tooltip.Root>
