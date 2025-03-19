@@ -16,7 +16,7 @@ export class AnnouncementService {
 
     let problemId: number | null = null
 
-    if (problemOrder) {
+    if (problemOrder != null) {
       const contestProblem = await this.prisma.contestProblem.findFirstOrThrow({
         where: {
           contestId,
