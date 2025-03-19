@@ -12,7 +12,7 @@ import type { CreateAssignmentInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { createSchema } from '../../_libs/schemas'
@@ -38,7 +38,8 @@ export function CreateAssignmentForm({
       isVisible: true,
       enableCopyPaste: false,
       isJudgeResultVisible: false,
-      autoFinalizeScore: false
+      autoFinalizeScore: false,
+      endTime: new Date(2099, 12, 31, 23, 59, 59)
     }
   })
 

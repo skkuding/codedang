@@ -50,7 +50,10 @@ export default function Page({ params }: { params: { courseId: string } }) {
                 <TimeForm name="startTime" />
               </FormSection>
               <FormSection title="End Time">
-                <TimeForm name="endTime" />
+                <TimeForm
+                  name="endTime"
+                  defaultTimeOnSelect={{ hours: 23, minutes: 59, seconds: 59 }}
+                />
               </FormSection>
               <FormSection title="Week">
                 <WeekComboBox name="week" />
