@@ -48,6 +48,7 @@ export function DeleteUserButton<TData extends { id: number }, TPromise>({
 
   const handleDeleteButtonClick = () => {
     if (table.getSelectedRowModel().rows.length === 0) {
+      toast.error('Please select at least one member')
       return
     }
     setIsDialogOpen(true)
