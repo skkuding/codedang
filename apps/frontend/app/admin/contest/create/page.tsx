@@ -51,7 +51,7 @@ export default function Page() {
                   <TimeForm name="endTime" />
                 </FormSection>
 
-                <FreezeForm name="leaderboardFreeze" />
+                <FreezeForm name="freezeTime" />
               </div>
             </div>
 

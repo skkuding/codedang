@@ -12,7 +12,6 @@ interface PosterUploadFormProps {
   name: string
 }
 
-// TODO: imageUrl api 없음
 export function PosterUploadForm({ name }: PosterUploadFormProps) {
   const {
     control,
@@ -30,9 +29,9 @@ export function PosterUploadForm({ name }: PosterUploadFormProps) {
     useState<string>('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const addImage = useCallback((imageUrl: string | undefined) => {
-    if (imageUrl) {
-      field.onChange(imageUrl)
+  const addImage = useCallback((posterUrl: string | undefined) => {
+    if (posterUrl) {
+      field.onChange(posterUrl)
       setIsLoading(false)
     }
   }, [])
@@ -51,9 +50,9 @@ export function PosterUploadForm({ name }: PosterUploadFormProps) {
           input: { file }
         }
       })
-      const newImageUrl = data?.uploadImage.src ?? ''
-      addImage(newImageUrl)
-      return newImageUrl
+      const newposterUrl = data?.uploadImage.src ?? ''
+      addImage(newposterUrl)
+      return newposterUrl
     } catch (error) {
       setIsLoading(false)
       if (error instanceof Error) {
@@ -86,7 +85,7 @@ export function PosterUploadForm({ name }: PosterUploadFormProps) {
         ) : (
           <Image
             src={field.value || imageUpload}
-            alt="Contest Image"
+            alt="Contest Poster"
             width={field.value ? 234 : undefined}
             height={field.value ? 312 : undefined}
           />

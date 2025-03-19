@@ -210,7 +210,7 @@ export function TextEditor({
       if (!editor) {
         return null
       }
-      // cancelled
+      // canceled
       if (linkUrl === null) {
         return
       }

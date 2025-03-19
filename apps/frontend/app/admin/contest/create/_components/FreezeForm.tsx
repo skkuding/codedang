@@ -1,10 +1,4 @@
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/shadcn/dropdown-menu'
-import {
   Select,
   SelectContent,
   SelectGroup,
@@ -15,11 +9,14 @@ import {
 import { Switch } from '@/components/shadcn/switch'
 import { cn } from '@/libs/utils'
 import React, { useState } from 'react'
+import { useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 
 interface FreezeFormProps {
   name: string
 }
+
+const options = ['90', '75', '60', '45', '30', '15']
 
 export function FreezeForm({ name }: FreezeFormProps) {
   const [isEnabled, setIsEnabled] = useState<boolean>(false)
@@ -30,17 +27,29 @@ export function FreezeForm({ name }: FreezeFormProps) {
     trigger,
     getValues,
     control,
+    watch,
     formState: { errors }
   } = useFormContext()
 
-  // const { field } = useController({
-  //   name,
-  //   control
-  // })
+  useEffect(() => {
+    const updateFreezeTime = () => {
+      if (isEnabled) {
+        const endTime = watch('endTime')
+        if (endTime) {
+          const freezeTime = new Date(endTime)
+          freezeTime.setMinutes(
+            freezeTime.getMinutes() - Number(selectedOption)
+          )
+          setValue(name, freezeTime)
+        }
+      } else {
+        setValue(name, null)
+      }
+    }
 
-  const options = ['90', '75', '60', '45', '30', '15']
+    updateFreezeTime()
+  }, [isEnabled, selectedOption, setValue, getValues, name, control, watch])
 
-  // TODO: 백엔드 leaderboard freeze api 없음
   return (
     <div className="flex h-[114px] w-[641px] flex-col justify-evenly rounded-xl border border-[#80808040] bg-[#80808014] px-7">
       <div className="flex items-center gap-[54px]">
@@ -60,7 +69,7 @@ export function FreezeForm({ name }: FreezeFormProps) {
           value={selectedOption}
           onValueChange={(value) => {
             setSelectedOption(value)
-            setValue(name, value)
+            setValue(name, Number(value))
           }}
           disabled={!isEnabled}
         >
@@ -78,7 +87,7 @@ export function FreezeForm({ name }: FreezeFormProps) {
                   className="flex cursor-pointer items-center rounded-xl pl-5 hover:bg-gray-100/80"
                   onClick={() => {
                     setSelectedOption(option)
-                    setValue(name, option)
+                    setValue(name, Number(option))
                   }}
                 >
                   <span
