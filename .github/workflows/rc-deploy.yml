@@ -132,9 +132,6 @@ jobs:
         shell: bash
 
     steps:
-      - name: Trigger RC - CD - Build Images Workflow
-        uses: ./.github/workflows/rc-build-image.yml
-
       - uses: actions/checkout@v4
 
       - name: Trigger RC - CD - Build Images Workflow
