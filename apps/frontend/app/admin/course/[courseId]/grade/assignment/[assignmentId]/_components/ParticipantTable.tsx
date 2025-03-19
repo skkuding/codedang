@@ -15,7 +15,7 @@ import {
   GET_ASSIGNMENT_SCORE_SUMMARIES
 } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
-import excelIcon from '@/public/icons/excel.svg'
+import excelIcon from '@/public/logos/excel.png'
 import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
 import dayjs from 'dayjs'
 import type { Route } from 'next'
@@ -205,7 +205,7 @@ export function ParticipantTable({
               alt="Excel Icon"
               width={20}
               height={20}
-              className="ml-1"
+              className="overflow-hidden"
             />
           </CSVLink>
         </div>

@@ -39,7 +39,7 @@ export function CreateAssignmentForm({
       enableCopyPaste: false,
       isJudgeResultVisible: false,
       autoFinalizeScore: false,
-      endTime: new Date(2099, 12, 31, 23, 59, 59)
+      endTime: new Date(2999, 11, 31, 23, 59, 59)
     }
   })
 
