@@ -56,8 +56,7 @@ export default function Page() {
             </div>
 
             <FormSection title="Summary" isLabeled={false} isFlexColumn={true}>
-              {/* <DescriptionForm name="description" /> */}
-              <SummaryForm name="Summary" />
+              <SummaryForm name="summary" />
             </FormSection>
 
             <FormSection
