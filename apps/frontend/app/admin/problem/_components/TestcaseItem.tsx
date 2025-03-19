@@ -105,7 +105,9 @@ export function TestcaseItem({
         outputName={`testcases.${index}.output`}
         register={register}
       />
-      {itemError && itemError[index] && <ErrorMessage />}
+      {itemError && itemError[index] && (
+        <ErrorMessage message="The scoring ratio must be specified." />
+      )}
     </div>
   )
 }
