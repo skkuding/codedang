@@ -9,8 +9,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger
+  DialogTitle
 } from '@/components/shadcn/dialog'
 import { Input } from '@/components/shadcn/input'
 import {
@@ -21,7 +20,6 @@ import {
 import { Toggle } from '@/components/shadcn/toggle'
 import { UPLOAD_IMAGE } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
-import Tex from '@matejmazur/react-katex'
 import type { Range } from '@tiptap/core'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import Heading from '@tiptap/extension-heading'
@@ -33,6 +31,7 @@ import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
 import Underline from '@tiptap/extension-underline'
+import { TextSelection, NodeSelection } from '@tiptap/pm/state'
 import {
   useEditor,
   EditorContent,
@@ -42,7 +41,8 @@ import {
   NodeViewWrapper,
   Node
 } from '@tiptap/react'
-import type { Editor, Extension, NodeViewWrapperProps } from '@tiptap/react'
+import type { Editor, NodeViewWrapperProps } from '@tiptap/react'
+import { Extension } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import 'highlight.js/styles/github-dark.css'
 import katex from 'katex'
@@ -65,7 +65,7 @@ import {
   ArrowLeftFromLine,
   Shrink
 } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CautionDialog } from '../problem/_components/CautionDialog'
 import { CodeBlockComponent } from './tiptap/CodeBlockComponent'
 import { TextStyleBar } from './tiptap/TextStyleBar'
@@ -95,6 +95,7 @@ export function FullScreenTextEditor({
       }).configure({
         lowlight
       }),
+      Indentation,
       Placeholder.configure({
         placeholder: ({ editor }) =>
           editor.getHTML() === '<p></p>' ? placeholder : '',
@@ -169,7 +170,6 @@ export function FullScreenTextEditor({
           class: 'border bg-white'
         }
       }),
-
       Commands.configure({
         suggestion: {
           char: '/',
@@ -195,7 +195,6 @@ export function FullScreenTextEditor({
             return getSuggestionItems(
               query,
               () => setIsImageDialogOpen(true),
-              () => setIsKatexDialogOpen(true),
               () => setIsTableDialogOpen(true)
             )
           }
@@ -214,8 +213,6 @@ export function FullScreenTextEditor({
   const [uploadImage] = useMutation(UPLOAD_IMAGE)
 
   const [imageUrl, setImageUrl] = useState<string | undefined>('')
-  const [equation, setEquation] = useState('')
-  const [isKatexDialogOpen, setIsKatexDialogOpen] = useState(false)
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false)
   const [tableSize, setTableSize] = useState({ rowCount: 0, columnCount: 0 })
   const [isTableDialogOpen, setIsTableDialogOpen] = useState(false)
@@ -264,13 +261,6 @@ export function FullScreenTextEditor({
     }
   }
 
-  const handleEquation = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setEquation(event.target.value)
-    },
-    [setEquation]
-  )
-
   return (
     <div className="flex w-full flex-col gap-1">
       {editor && (
@@ -282,7 +272,7 @@ export function FullScreenTextEditor({
           >
             <TextStyleBar editor={editor} />
           </BubbleMenu>
-          <div className="flex items-center border bg-white p-1">
+          <div className="flex flex-wrap items-center border bg-white p-1">
             <TextStyleBar editor={editor} />
             <div className="mx-1 h-full flex-shrink-0 bg-black" />
             <Toggle
@@ -293,7 +283,7 @@ export function FullScreenTextEditor({
               }}
               className="h-7 w-7 p-1"
             >
-              <Heading1 />
+              <Heading1 className="text-neutral-600" />
             </Toggle>
             <Toggle
               pressed={editor.isActive('heading', { level: 2 })}
@@ -303,7 +293,7 @@ export function FullScreenTextEditor({
               }}
               className="h-7 w-7 p-1"
             >
-              <Heading2 />
+              <Heading2 className="text-neutral-600" />
             </Toggle>
             <Toggle
               pressed={editor.isActive('heading', { level: 3 })}
@@ -313,44 +303,23 @@ export function FullScreenTextEditor({
               }}
               className="h-7 w-7 p-1"
             >
-              <Heading3 />
+              <Heading3 className="text-neutral-600" />
             </Toggle>
-            <InsertDialog
-              open={isKatexDialogOpen}
-              editor={editor}
-              activeType="katex"
-              title="Insert Equation"
-              description={
-                <>
-                  <Input
-                    placeholder="Enter Equation"
-                    onChange={handleEquation}
-                  />
-                  <Tex block className="text-black">
-                    {equation}
-                  </Tex>
-                </>
-              }
-              triggerIcon={<SquareRadical />}
-              onOpenChange={(open) => {
-                setIsKatexDialogOpen(open)
-                if (!open) {
-                  setTimeout(() => {
-                    editor.commands.focus()
-                  }, 200)
-                }
-              }}
-              onInsert={() => {
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => {
                 editor
                   .chain()
                   .focus()
-                  .insertContent(
-                    `<math-component content="${equation}"></math-component>`
-                  )
+                  .insertContent(`<math-component content=""></math-component>`)
+                  .blur()
                   .run()
-                setEquation('')
               }}
-            />
+              className="h-7 w-7 p-1 text-black"
+            >
+              <SquareRadical className="text-neutral-600" />
+            </Button>
             <Button
               type="button"
               variant="ghost"
@@ -360,7 +329,7 @@ export function FullScreenTextEditor({
               }}
               className="h-7 w-7 p-1 text-black"
             >
-              <FileCode2 />
+              <FileCode2 className="text-neutral-600" />
             </Button>
             <InsertDialog
               open={isImageDialogOpen}
@@ -379,7 +348,7 @@ export function FullScreenTextEditor({
                   <p className="text-sm"> * Image must be under 5MB</p>
                 </>
               }
-              triggerIcon={<ImagePlus />}
+              triggerIcon={<ImagePlus className="text-neutral-600" />}
               onOpenChange={(open) => {
                 setIsImageDialogOpen(open)
                 if (!open) {
@@ -399,7 +368,7 @@ export function FullScreenTextEditor({
               }}
               className="h-7 w-7 p-1"
             >
-              <List />
+              <List className="text-neutral-600" />
             </Toggle>
             <Toggle
               pressed={editor.isActive('orderedList')}
@@ -409,7 +378,7 @@ export function FullScreenTextEditor({
               }}
               className="h-7 w-7 p-1"
             >
-              <ListOrdered />
+              <ListOrdered className="text-neutral-600" />
             </Toggle>
             <Dialog
               open={isTableDialogOpen}
@@ -490,7 +459,7 @@ export function FullScreenTextEditor({
                     }
                   }}
                 >
-                  <Grid3X3 />
+                  <Grid3X3 className="text-neutral-600" />
                 </Toggle>
               </PopoverTrigger>
               <PopoverContent className="flex gap-2 rounded-lg border bg-white p-2">
@@ -502,14 +471,14 @@ export function FullScreenTextEditor({
                   }}
                   className="h-7 w-7 p-1"
                 >
-                  <ArrowDownToLine />
+                  <ArrowDownToLine className="text-neutral-600" />
                 </Button>
                 <Button
                   variant="ghost"
                   onClick={() => editor.commands.deleteRow()}
                   className="h-7 w-7 p-1"
                 >
-                  <ArrowUpFromLine />
+                  <ArrowUpFromLine className="text-neutral-600" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -519,14 +488,14 @@ export function FullScreenTextEditor({
                   }}
                   className="h-7 w-7 p-1"
                 >
-                  <ArrowRightToLine />
+                  <ArrowRightToLine className="text-neutral-600" />
                 </Button>
                 <Button
                   variant="ghost"
                   onClick={() => editor.commands.deleteColumn()}
                   className="h-7 w-7 p-1"
                 >
-                  <ArrowLeftFromLine />
+                  <ArrowLeftFromLine className="text-neutral-600" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -563,14 +532,36 @@ export function FullScreenTextEditor({
   )
 }
 
+export const Indentation = Extension.create({
+  name: 'indentation',
+  addKeyboardShortcuts() {
+    return {
+      Tab: ({ editor }) => {
+        const { state, dispatch } = editor.view
+        const { selection } = state
+        const transaction = state.tr.insertText(
+          '    ',
+          selection.from,
+          selection.to
+        )
+        dispatch(transaction)
+        return true
+      }
+    }
+  }
+})
+
 export const MathExtension = Node.create({
   name: 'mathComponent',
-  group: 'inline math',
+  group: 'inline',
   content: 'text*',
   inline: true,
+  atom: true,
   defining: true,
-  draggable: true,
+  isolating: true,
+  draggable: false,
   selectable: true,
+
   addAttributes() {
     return {
       content: {
@@ -583,6 +574,7 @@ export const MathExtension = Node.create({
       }
     }
   },
+
   parseHTML() {
     return [
       {
@@ -590,64 +582,177 @@ export const MathExtension = Node.create({
       }
     ]
   },
+
   renderHTML({ HTMLAttributes }) {
     return ['math-component', mergeAttributes(HTMLAttributes, { math: '' }), 0]
   },
+
   addNodeView() {
-    return ReactNodeViewRenderer(MathPreview) // Update the type to NodeViewRenderer
+    return ReactNodeViewRenderer(MathPreview)
   },
+
   addKeyboardShortcuts() {
-    return {}
+    return {
+      Enter: ({ editor }) => {
+        if (editor.isActive(this.name)) {
+          return true // 수식 내부에서 Enter 키 차단
+        }
+        return false
+      }
+    }
   }
 })
 
 function MathPreview(props: NodeViewWrapperProps) {
   const [content, setContent] = useState(props.node.attrs.content)
-  const [isOpen, setIsOpen] = useState(true)
-  const handleContentChange = (event: { target: { value: unknown } }) => {
+  const [isEditing, setIsEditing] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    setContent(props.node.attrs.content)
+  }, [props.node.attrs.content])
+
+  useEffect(() => {
+    const { editor } = props
+
+    if (props.selected) {
+      const { state } = editor?.view || {}
+      const { selection } = state || {}
+
+      const isRangeSelection =
+        selection &&
+        selection instanceof TextSelection &&
+        selection.from !== selection.to
+
+      const isNodeSelection = selection && selection instanceof NodeSelection
+
+      if (isRangeSelection) {
+        console.log('range')
+        setIsEditing(false)
+      } else if ((isNodeSelection || props.selected) && !isEditing) {
+        console.log('node')
+        setIsEditing(true)
+        setTimeout(() => {
+          inputRef.current?.focus()
+          inputRef.current?.select()
+        }, 10)
+      }
+    } else if (content === '') {
+      console.log('focused')
+      setTimeout(() => {
+        inputRef.current?.focus()
+        setIsEditing(true)
+      }, 10)
+    } else {
+      setIsEditing(false)
+    }
+  }, [props.selected, props.editor?.state, isEditing, props])
+
+  const handleContentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setContent(event.target.value)
   }
-  const preview = katex.renderToString(content, {
-    throwOnError: false,
-    strict: false,
-    globalGroup: true
-  })
+
+  const handleApply = () => {
+    props.updateAttributes({
+      content
+    })
+    setIsEditing(false)
+    const { editor, getPos } = props
+    const pos = getPos() + props.node.nodeSize
+
+    editor.commands.setTextSelection(pos)
+    editor.commands.blur()
+
+    setTimeout(() => {
+      editor.commands.focus()
+    }, 10)
+  }
+
+  // Enter 키 누르면 적용
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' && isEditing) {
+      event.preventDefault()
+      handleApply()
+    } else if (event.key === 'Escape') {
+      setContent(props.node.attrs.content)
+      setIsEditing(false)
+
+      const { editor, getPos } = props
+      const pos = getPos() + props.node.nodeSize
+
+      editor.commands.setTextSelection(pos)
+      editor.commands.blur()
+
+      setTimeout(() => {
+        editor.commands.focus()
+      }, 10)
+      event.preventDefault()
+    } else if (
+      event.key === 'ArrowLeft' &&
+      event.currentTarget instanceof HTMLInputElement &&
+      event.currentTarget.selectionStart === 0 &&
+      event.currentTarget.selectionEnd === 0
+    ) {
+      const { editor } = props
+      const pos = editor.state.selection.from
+      editor.commands.setTextSelection(pos)
+      setTimeout(() => {
+        editor.commands.focus()
+      }, 10)
+    } else if (
+      event.key === 'ArrowRight' &&
+      event.currentTarget instanceof HTMLInputElement &&
+      event.currentTarget.selectionStart === event.currentTarget.value.length &&
+      event.currentTarget.selectionEnd === event.currentTarget.value.length
+    ) {
+      handleApply()
+    }
+  }
+
+  const preview = useMemo(() => {
+    try {
+      return katex.renderToString(content || ' ', {
+        throwOnError: false,
+        strict: false,
+        globalGroup: true
+      })
+    } catch (error) {
+      return `Error: ${(error as Error).message}`
+    }
+  }, [content])
 
   return (
-    <NodeViewWrapper className="math-block-preview cursor-pointer" as="span">
-      {isOpen && (
-        <Dialog aria-label="Edit Math Equation">
-          <DialogTrigger asChild>
-            <span
-              dangerouslySetInnerHTML={{ __html: preview }}
-              contentEditable={false}
-              onClick={() => {
-                setIsOpen(true)
-              }}
+    <NodeViewWrapper className="math-component-wrapper" as="span">
+      <div className="relative inline-block">
+        <span
+          dangerouslySetInnerHTML={{ __html: preview }}
+          contentEditable={false}
+          className={`inline-block rounded-sm border px-1 ${
+            props.selected
+              ? 'border-blue-600 bg-blue-100'
+              : 'border-transparent bg-transparent'
+          }`}
+        />
+        {isEditing && (
+          <div className="absolute left-0 top-full z-10 mt-1 flex items-center rounded-md border border-gray-300 bg-white p-1 shadow-lg">
+            <input
+              ref={inputRef}
+              type="text"
+              value={content}
+              onChange={handleContentChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Please Insert LaTeX"
+              className="w-60 rounded-md border border-gray-300 px-2 py-1 text-sm"
             />
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit Equation</DialogTitle>
-            </DialogHeader>
-            <DialogDescription>
-              <Input
-                value={content}
-                placeholder="Enter Equation"
-                onChange={handleContentChange}
-              />
-              <Tex block className="text-black">
-                {content}
-              </Tex>
-            </DialogDescription>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button>Insert</Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
+            <button
+              onClick={handleApply}
+              className="ml-2 cursor-pointer rounded-md border-none bg-blue-600 px-2 py-1 text-sm text-white"
+            >
+              Apply
+            </button>
+          </div>
+        )}
+      </div>
     </NodeViewWrapper>
   )
 }

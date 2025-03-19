@@ -4,7 +4,6 @@ import type { Editor } from '@tiptap/react'
 const getSuggestionItems = (
   query: unknown,
   openImageDialoge: () => void,
-  openKatexDialoge: () => void,
   openTableDialoge: () => void
 ) => {
   let queryStr = ''
@@ -55,23 +54,15 @@ const getSuggestionItems = (
       }
     },
     {
-      title: 'Equation(Latex)',
+      title: 'Equation',
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).run()
         editor
           .chain()
           .focus()
-          .insertContent(`<math-component content="a"></math-component>`)
+          .insertContent(`<math-component content=""></math-component>`)
+          .blur()
           .run()
-
-        setTimeout(() => {
-          const { state, commands } = editor
-          const from = state.selection.from // 삽입된 노드의 위치
-
-          commands.setTextSelection(from) // 수식 내부로 커서 이동
-          commands.focus()
-        }, 100)
-        // openKatexDialoge()
       }
     },
     {

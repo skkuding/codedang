@@ -20,7 +20,6 @@ import {
 import { Toggle } from '@/components/shadcn/toggle'
 import { UPLOAD_IMAGE } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
-import Tex from '@matejmazur/react-katex'
 import type { Range } from '@tiptap/core'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import Heading from '@tiptap/extension-heading'
@@ -198,7 +197,6 @@ export function TextEditor({
             return getSuggestionItems(
               query,
               () => setIsImageDialogOpen(true),
-              () => setIsKatexDialogOpen(true),
               () => setIsTableDialogOpen(true)
             )
           }
@@ -220,8 +218,6 @@ export function TextEditor({
   const [uploadImage] = useMutation(UPLOAD_IMAGE)
 
   const [imageUrl, setImageUrl] = useState<string | undefined>('')
-  const [equation, setEquation] = useState('')
-  const [isKatexDialogOpen, setIsKatexDialogOpen] = useState(false)
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false)
   const [tableSize, setTableSize] = useState({ rowCount: 0, columnCount: 0 })
   const [isTableDialogOpen, setIsTableDialogOpen] = useState(false)
@@ -269,13 +265,6 @@ export function TextEditor({
       }
     }
   }
-
-  const handleEquation = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setEquation(event.target.value)
-    },
-    [setEquation]
-  )
 
   const [isFullScreenOpen, setIsFullScreenOpen] = useState(false)
   const FullScreenEditor = () =>
@@ -337,42 +326,21 @@ export function TextEditor({
             >
               <Heading3 className="text-neutral-600" />
             </Toggle>
-            <InsertDialog
-              open={isKatexDialogOpen}
-              editor={editor}
-              activeType="katex"
-              title="Insert Equation"
-              description={
-                <>
-                  <Input
-                    placeholder="Enter Equation"
-                    onChange={handleEquation}
-                  />
-                  <Tex block className="text-black">
-                    {equation}
-                  </Tex>
-                </>
-              }
-              triggerIcon={<SquareRadical className="text-neutral-600" />}
-              onOpenChange={(open) => {
-                setIsKatexDialogOpen(open)
-                if (!open) {
-                  setTimeout(() => {
-                    editor.commands.focus()
-                  }, 200)
-                }
-              }}
-              onInsert={() => {
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => {
                 editor
                   .chain()
                   .focus()
-                  .insertContent(
-                    `<math-component content="${equation}"></math-component>`
-                  )
+                  .insertContent(`<math-component content=""></math-component>`)
+                  .blur()
                   .run()
-                setEquation('')
               }}
-            />
+              className="h-7 w-7 p-1 text-black"
+            >
+              <SquareRadical className="text-neutral-600" />
+            </Button>
             <Button
               type="button"
               variant="ghost"
@@ -661,34 +629,27 @@ export const MathExtension = Node.create({
 
 function MathPreview(props: NodeViewWrapperProps) {
   const [content, setContent] = useState(props.node.attrs.content)
-  const [isEditing, setIsEditing] = useState(true)
+  const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    // 노드 속성이 변경될 때 내용 업데이트
     setContent(props.node.attrs.content)
   }, [props.node.attrs.content])
 
-  // 선택 상태가 변경될 때 이벤트
   useEffect(() => {
-    // TipTap의 현재 선택 상태 확인
     const { editor } = props
 
     if (props.selected) {
-      // 현재 선택 상태 확인
       const { state } = editor?.view || {}
       const { selection } = state || {}
 
-      // TextSelection인 경우, 범위 선택 중일 가능성이 있음
       const isRangeSelection =
         selection &&
         selection instanceof TextSelection &&
         selection.from !== selection.to
 
-      // NodeSelection인 경우 해당 노드만 직접 선택된 것
       const isNodeSelection = selection && selection instanceof NodeSelection
 
-      // 범위 선택 중이면 편집 모드 비활성화, 노드 선택이면 편집 모드 활성화
       if (isRangeSelection) {
         console.log('range')
         setIsEditing(false)
@@ -700,6 +661,12 @@ function MathPreview(props: NodeViewWrapperProps) {
           inputRef.current?.select()
         }, 10)
       }
+    } else if (content === '') {
+      console.log('focused')
+      setTimeout(() => {
+        inputRef.current?.focus()
+        setIsEditing(true)
+      }, 10)
     } else {
       setIsEditing(false)
     }
@@ -710,40 +677,38 @@ function MathPreview(props: NodeViewWrapperProps) {
   }
 
   const handleApply = () => {
-    // 노드의 content 속성 업데이트
     props.updateAttributes({
       content
     })
     setIsEditing(false)
     const { editor, getPos } = props
-    const pos = getPos() + props.node.nodeSize // 현재 노드의 끝 위치로 설정
+    const pos = getPos() + props.node.nodeSize
 
-    editor.commands.setTextSelection(pos) // 수식 노드 다음으로 커서 이동
-    editor.commands.blur() // 현재 입력 필드에서 포커스 제거
+    editor.commands.setTextSelection(pos)
+    editor.commands.blur()
 
     setTimeout(() => {
-      editor.commands.focus() // 에디터 자체를 다시 활성화
+      editor.commands.focus()
     }, 10)
   }
 
   // Enter 키 누르면 적용
   const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && isEditing) {
       event.preventDefault()
       handleApply()
     } else if (event.key === 'Escape') {
-      // ESC 키는 변경 취소
       setContent(props.node.attrs.content)
       setIsEditing(false)
 
       const { editor, getPos } = props
-      const pos = getPos() + props.node.nodeSize // 현재 노드의 끝 위치로 설정
+      const pos = getPos() + props.node.nodeSize
 
-      editor.commands.setTextSelection(pos) // 수식 노드 다음으로 커서 이동
-      editor.commands.blur() // 현재 입력 필드에서 포커스 제거
+      editor.commands.setTextSelection(pos)
+      editor.commands.blur()
 
       setTimeout(() => {
-        editor.commands.focus() // 에디터 자체를 다시 활성화
+        editor.commands.focus()
       }, 10)
       event.preventDefault()
     } else if (
@@ -753,7 +718,7 @@ function MathPreview(props: NodeViewWrapperProps) {
       event.currentTarget.selectionEnd === 0
     ) {
       const { editor } = props
-      const pos = editor.state.selection.from - 1
+      const pos = editor.state.selection.from
       editor.commands.setTextSelection(pos)
       setTimeout(() => {
         editor.commands.focus()
@@ -768,7 +733,6 @@ function MathPreview(props: NodeViewWrapperProps) {
     }
   }
 
-  // 수식 렌더링
   const preview = useMemo(() => {
     try {
       return katex.renderToString(content || ' ', {
@@ -783,70 +747,30 @@ function MathPreview(props: NodeViewWrapperProps) {
 
   return (
     <NodeViewWrapper className="math-component-wrapper" as="span">
-      <div style={{ position: 'relative', display: 'inline-block' }}>
-        {/* 수식 표시 영역 */}
+      <div className="relative inline-block">
         <span
           dangerouslySetInnerHTML={{ __html: preview }}
           contentEditable={false}
-          style={{
-            display: 'inline-block',
-            padding: '0 2px',
-            borderRadius: '2px',
-            border: props.selected
-              ? '1px solid #4f46e5'
-              : '1px solid transparent',
-            backgroundColor: props.selected
-              ? 'rgba(79, 70, 229, 0.1)'
-              : 'transparent'
-          }}
+          className={`inline-block rounded-sm border px-1 ${
+            props.selected
+              ? 'border-blue-600 bg-blue-100'
+              : 'border-transparent bg-transparent'
+          }`}
         />
-
-        {/* 편집용 버블 메뉴 */}
         {isEditing && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '100%',
-              left: '0',
-              zIndex: 100,
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              padding: '4px',
-              marginTop: '4px',
-              backgroundColor: 'white',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
-            }}
-          >
+          <div className="absolute left-0 top-full z-10 mt-1 flex items-center rounded-md border border-gray-300 bg-white p-1 shadow-lg">
             <input
               ref={inputRef}
               type="text"
               value={content}
               onChange={handleContentChange}
               onKeyDown={handleKeyDown}
-              placeholder="Please Insert LaTeX "
-              style={{
-                padding: '4px 8px',
-                fontSize: '14px',
-                border: '1px solid #ddd',
-                borderRadius: '3px',
-                width: '240px'
-              }}
+              placeholder="Please Insert LaTeX"
+              className="w-60 rounded-md border border-gray-300 px-2 py-1 text-sm"
             />
             <button
               onClick={handleApply}
-              style={{
-                marginLeft: '8px',
-                padding: '4px 8px',
-                backgroundColor: '#4f46e5',
-                color: 'white',
-                border: 'none',
-                borderRadius: '3px',
-                fontSize: '14px',
-                cursor: 'pointer'
-              }}
+              className="ml-2 cursor-pointer rounded-md border-none bg-blue-600 px-2 py-1 text-sm text-white"
             >
               Apply
             </button>
