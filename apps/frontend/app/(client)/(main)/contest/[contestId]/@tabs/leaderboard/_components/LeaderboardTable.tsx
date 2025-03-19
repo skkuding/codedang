@@ -1,6 +1,7 @@
 'use client'
 
 import { useWindowSize } from '@/libs/hooks/useWindowSize'
+import * as Tooltip from '@radix-ui/react-tooltip'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { LeaderboardRow } from './LeaderboardRow'
 import { LeaderboardSolvedList } from './LeaderboardSolvedList'
@@ -157,17 +158,19 @@ export function LeaderboardTable() {
           onMouseLeave={handleMouseUp}
           onMouseUp={handleMouseUp}
         >
-          {ranks.map((rank, index) => {
-            return (
-              <LeaderboardRow
-                rank={rank}
-                dx={dx}
-                resizableRowSize={resizableRowSize}
-                problemPenalties={problemPenalties}
-                key={index}
-              />
-            )
-          })}
+          <Tooltip.Provider>
+            {ranks.map((rank, index) => {
+              return (
+                <LeaderboardRow
+                  rank={rank}
+                  dx={dx}
+                  resizableRowSize={resizableRowSize}
+                  problemPenalties={problemPenalties}
+                  key={index}
+                />
+              )
+            })}
+          </Tooltip.Provider>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import BronzeMedal from '@/public/icons/medal-bronze.svg'
 import GoldMedal from '@/public/icons/medal-gold.svg'
 import SilverMedal from '@/public/icons/medal-silver.svg'
+import * as Tooltip from '@radix-ui/react-tooltip'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 
@@ -28,12 +29,14 @@ export function LeaderboardRow({
     medalImage = medals[rank - 1]
   }
 
+  const submission = 1000
+
   return (
     <div className="relative flex flex-row">
       {/* 아래 div가 row header입니다. */}
       <div
         className="z-10 flex h-[90px] w-[272px] flex-row items-center rounded-full bg-[#FFFFFF] px-[28px]"
-        style={{ boxShadow: '2px 2px 10px rgba(0,0,0,0.15)' }}
+        style={{ boxShadow: '2px 2px 10px rgba(73, 68, 68, 0.15)' }}
       >
         {isTopRanked ? (
           <Image src={medalImage} alt="gold medal" className="px-[2px]" />
@@ -66,19 +69,45 @@ export function LeaderboardRow({
             >
               {problemPenalties.map((penalty, index) => {
                 return index === 0 ? (
-                  <th
-                    className="flex h-11 w-[114px] flex-row items-center justify-center text-xl font-semibold"
-                    key={index}
-                  >
-                    {penalty}
-                  </th>
+                  <Tooltip.Root key={index}>
+                    <Tooltip.Trigger asChild>
+                      <th
+                        className="flex h-11 w-[114px] flex-row items-center justify-center text-xl font-semibold"
+                        key={index}
+                      >
+                        {penalty}
+                      </th>
+                    </Tooltip.Trigger>
+                    <Tooltip.Portal>
+                      <Tooltip.Content
+                        side="top"
+                        className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
+                        sideOffset={10}
+                      >
+                        <div>{`${submission} sub`}</div>
+                        <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-t-[10px] border-x-transparent border-t-[#3581FA]" />
+                      </Tooltip.Content>
+                    </Tooltip.Portal>
+                  </Tooltip.Root>
                 ) : (
-                  <th
-                    className="flex h-11 w-[114px] flex-row items-center justify-center border-l-2 border-[#E5E5E5] text-xl font-semibold"
-                    key={index}
-                  >
-                    {penalty}
-                  </th>
+                  <Tooltip.Root key={index}>
+                    <Tooltip.Trigger asChild>
+                      <th
+                        className="flex h-11 w-[114px] flex-row items-center justify-center border-l-2 border-[#E5E5E5] text-xl font-semibold"
+                        key={index}
+                      >
+                        {penalty}
+                      </th>
+                    </Tooltip.Trigger>
+                    <Tooltip.Content
+                      side="top"
+                      className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
+                      sideOffset={10}
+                    >
+                      <div>{`${submission} sub`}</div>
+                      <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-t-[10px] border-x-transparent border-t-[#3581FA]" />
+                    </Tooltip.Content>
+                  </Tooltip.Root>
                 )
               })}
             </motion.tr>
