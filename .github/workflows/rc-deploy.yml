@@ -37,8 +37,14 @@ jobs:
         run: |
           echo 'env = "rc"' >> terraform.tfvars
 
-      - name: Terraform Init
+      - name: Terraform Init Network
         working-directory: ./apps/infra/rc/network
+        run: terraform init -backend-config="bucket=codedang-tf-state-rc"
+      - name: Terraform Init Storage
+        working-directory: ./apps/infra/rc/storage
+        run: terraform init -backend-config="bucket=codedang-tf-state-rc"
+      - name: Terraform Init Codedang
+        working-directory: ./apps/infra/rc/codedang
         run: terraform init -backend-config="bucket=codedang-tf-state-rc"
 
       - name: Check Existing AWS Codedang Resources
@@ -105,7 +111,7 @@ jobs:
         run: |
           echo 'env = "rc"' >> terraform.tfvars
 
-      - name: Terraform Init
+      - name: Terraform Init Storage
         working-directory: ./apps/infra/rc/storage
         run: terraform init -backend-config="bucket=codedang-tf-state-rc"
 
@@ -131,6 +137,9 @@ jobs:
 
       - uses: actions/checkout@v4
 
+      - name: Trigger RC - CD - Build Images Workflow
+        uses: ./.github/workflows/rc-build-image.yml
+
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY_RC }}
@@ -152,7 +161,7 @@ jobs:
           OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
           OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
 
-      - name: Terraform Init
+      - name: Terraform Init Codedang
         working-directory: ./apps/infra/rc/codedang
         run: terraform init -backend-config="bucket=codedang-tf-state-rc"
 

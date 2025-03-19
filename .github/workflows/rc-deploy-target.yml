@@ -76,10 +76,10 @@ jobs:
         shell: bash
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Trigger RC - CD - Build Images Workflow
         uses: ./.github/workflows/rc-build-image.yml
-
-      - uses: actions/checkout@v4
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
