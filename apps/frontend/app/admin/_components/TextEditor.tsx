@@ -9,8 +9,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger
+  DialogTitle
 } from '@/components/shadcn/dialog'
 import { Input } from '@/components/shadcn/input'
 import {
@@ -33,6 +32,7 @@ import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
 import Underline from '@tiptap/extension-underline'
+import { TextSelection, NodeSelection } from '@tiptap/pm/state'
 import {
   useEditor,
   EditorContent,
@@ -66,7 +66,7 @@ import {
   ArrowLeftFromLine,
   Expand
 } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CautionDialog } from '../problem/_components/CautionDialog'
 import { FullScreenTextEditor } from './FullScreenTextEditor'
@@ -609,12 +609,15 @@ export const Indentation = Extension.create({
 
 export const MathExtension = Node.create({
   name: 'mathComponent',
-  group: 'inline math',
+  group: 'inline',
   content: 'text*',
   inline: true,
+  atom: true,
   defining: true,
-  draggable: true,
+  isolating: true,
+  draggable: false,
   selectable: true,
+
   addAttributes() {
     return {
       content: {
@@ -627,6 +630,7 @@ export const MathExtension = Node.create({
       }
     }
   },
+
   parseHTML() {
     return [
       {
@@ -634,64 +638,221 @@ export const MathExtension = Node.create({
       }
     ]
   },
+
   renderHTML({ HTMLAttributes }) {
     return ['math-component', mergeAttributes(HTMLAttributes, { math: '' }), 0]
   },
+
   addNodeView() {
-    return ReactNodeViewRenderer(MathPreview) // Update the type to NodeViewRenderer
+    return ReactNodeViewRenderer(MathPreview)
   },
+
   addKeyboardShortcuts() {
-    return {}
+    return {
+      Enter: ({ editor }) => {
+        if (editor.isActive(this.name)) {
+          return true // 수식 내부에서 Enter 키 차단
+        }
+        return false
+      }
+    }
   }
 })
 
 function MathPreview(props: NodeViewWrapperProps) {
   const [content, setContent] = useState(props.node.attrs.content)
-  const [isOpen, setIsOpen] = useState(true)
-  const handleContentChange = (event: { target: { value: unknown } }) => {
+  const [isEditing, setIsEditing] = useState(true)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    // 노드 속성이 변경될 때 내용 업데이트
+    setContent(props.node.attrs.content)
+  }, [props.node.attrs.content])
+
+  // 선택 상태가 변경될 때 이벤트
+  useEffect(() => {
+    // TipTap의 현재 선택 상태 확인
+    const { editor } = props
+
+    if (props.selected) {
+      // 현재 선택 상태 확인
+      const { state } = editor?.view || {}
+      const { selection } = state || {}
+
+      // TextSelection인 경우, 범위 선택 중일 가능성이 있음
+      const isRangeSelection =
+        selection &&
+        selection instanceof TextSelection &&
+        selection.from !== selection.to
+
+      // NodeSelection인 경우 해당 노드만 직접 선택된 것
+      const isNodeSelection = selection && selection instanceof NodeSelection
+
+      // 범위 선택 중이면 편집 모드 비활성화, 노드 선택이면 편집 모드 활성화
+      if (isRangeSelection) {
+        console.log('range')
+        setIsEditing(false)
+      } else if ((isNodeSelection || props.selected) && !isEditing) {
+        console.log('node')
+        setIsEditing(true)
+        setTimeout(() => {
+          inputRef.current?.focus()
+          inputRef.current?.select()
+        }, 10)
+      }
+    } else {
+      setIsEditing(false)
+    }
+  }, [props.selected, props.editor?.state, isEditing, props])
+
+  const handleContentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setContent(event.target.value)
   }
-  const preview = katex.renderToString(content, {
-    throwOnError: false,
-    strict: false,
-    globalGroup: true
-  })
+
+  const handleApply = () => {
+    // 노드의 content 속성 업데이트
+    props.updateAttributes({
+      content
+    })
+    setIsEditing(false)
+    const { editor, getPos } = props
+    const pos = getPos() + props.node.nodeSize // 현재 노드의 끝 위치로 설정
+
+    editor.commands.setTextSelection(pos) // 수식 노드 다음으로 커서 이동
+    editor.commands.blur() // 현재 입력 필드에서 포커스 제거
+
+    setTimeout(() => {
+      editor.commands.focus() // 에디터 자체를 다시 활성화
+    }, 10)
+  }
+
+  // Enter 키 누르면 적용
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      handleApply()
+    } else if (event.key === 'Escape') {
+      // ESC 키는 변경 취소
+      setContent(props.node.attrs.content)
+      setIsEditing(false)
+
+      const { editor, getPos } = props
+      const pos = getPos() + props.node.nodeSize // 현재 노드의 끝 위치로 설정
+
+      editor.commands.setTextSelection(pos) // 수식 노드 다음으로 커서 이동
+      editor.commands.blur() // 현재 입력 필드에서 포커스 제거
+
+      setTimeout(() => {
+        editor.commands.focus() // 에디터 자체를 다시 활성화
+      }, 10)
+      event.preventDefault()
+    } else if (
+      event.key === 'ArrowLeft' &&
+      event.currentTarget instanceof HTMLInputElement &&
+      event.currentTarget.selectionStart === 0 &&
+      event.currentTarget.selectionEnd === 0
+    ) {
+      const { editor } = props
+      const pos = editor.state.selection.from - 1
+      editor.commands.setTextSelection(pos)
+      setTimeout(() => {
+        editor.commands.focus()
+      }, 10)
+    } else if (
+      event.key === 'ArrowRight' &&
+      event.currentTarget instanceof HTMLInputElement &&
+      event.currentTarget.selectionStart === event.currentTarget.value.length &&
+      event.currentTarget.selectionEnd === event.currentTarget.value.length
+    ) {
+      handleApply()
+    }
+  }
+
+  // 수식 렌더링
+  const preview = useMemo(() => {
+    try {
+      return katex.renderToString(content || ' ', {
+        throwOnError: false,
+        strict: false,
+        globalGroup: true
+      })
+    } catch (error) {
+      return `Error: ${(error as Error).message}`
+    }
+  }, [content])
 
   return (
-    <NodeViewWrapper className="math-block-preview cursor-pointer" as="span">
-      {isOpen && (
-        <Dialog aria-label="Edit Math Equation">
-          <DialogTrigger asChild>
-            <span
-              dangerouslySetInnerHTML={{ __html: preview }}
-              contentEditable={false}
-              onClick={() => {
-                setIsOpen(true)
+    <NodeViewWrapper className="math-component-wrapper" as="span">
+      <div style={{ position: 'relative', display: 'inline-block' }}>
+        {/* 수식 표시 영역 */}
+        <span
+          dangerouslySetInnerHTML={{ __html: preview }}
+          contentEditable={false}
+          style={{
+            display: 'inline-block',
+            padding: '0 2px',
+            borderRadius: '2px',
+            border: props.selected
+              ? '1px solid #4f46e5'
+              : '1px solid transparent',
+            backgroundColor: props.selected
+              ? 'rgba(79, 70, 229, 0.1)'
+              : 'transparent'
+          }}
+        />
+
+        {/* 편집용 버블 메뉴 */}
+        {isEditing && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '100%',
+              left: '0',
+              zIndex: 100,
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              padding: '4px',
+              marginTop: '4px',
+              backgroundColor: 'white',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+            }}
+          >
+            <input
+              ref={inputRef}
+              type="text"
+              value={content}
+              onChange={handleContentChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Please Insert LaTeX "
+              style={{
+                padding: '4px 8px',
+                fontSize: '14px',
+                border: '1px solid #ddd',
+                borderRadius: '3px',
+                width: '240px'
               }}
             />
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit Equation</DialogTitle>
-            </DialogHeader>
-            <DialogDescription>
-              <Input
-                value={content}
-                placeholder="Enter Equation"
-                onChange={handleContentChange}
-              />
-              <Tex block className="text-black">
-                {content}
-              </Tex>
-            </DialogDescription>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button>Insert</Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
+            <button
+              onClick={handleApply}
+              style={{
+                marginLeft: '8px',
+                padding: '4px 8px',
+                backgroundColor: '#4f46e5',
+                color: 'white',
+                border: 'none',
+                borderRadius: '3px',
+                fontSize: '14px',
+                cursor: 'pointer'
+              }}
+            >
+              Apply
+            </button>
+          </div>
+        )}
+      </div>
     </NodeViewWrapper>
   )
 }

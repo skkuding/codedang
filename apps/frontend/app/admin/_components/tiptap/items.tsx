@@ -58,7 +58,20 @@ const getSuggestionItems = (
       title: 'Equation(Latex)',
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).run()
-        openKatexDialoge()
+        editor
+          .chain()
+          .focus()
+          .insertContent(`<math-component content="a"></math-component>`)
+          .run()
+
+        setTimeout(() => {
+          const { state, commands } = editor
+          const from = state.selection.from // 삽입된 노드의 위치
+
+          commands.setTextSelection(from) // 수식 내부로 커서 이동
+          commands.focus()
+        }, 100)
+        // openKatexDialoge()
       }
     },
     {
