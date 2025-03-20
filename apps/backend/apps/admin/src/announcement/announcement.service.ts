@@ -8,20 +8,24 @@ export class AnnouncementService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createAnnouncement(input: CreateAnnouncementInput) {
-    const { problemId, contestId, content } = input
+    const { problemOrder, contestId, content } = input
 
     await this.prisma.contest.findUniqueOrThrow({
       where: { id: contestId }
     })
 
-    if (problemId) {
-      await this.prisma.problem.findUniqueOrThrow({
-        where: { id: problemId }
+    let problemId: number | null = null
+
+    if (problemOrder != null) {
+      const contestProblem = await this.prisma.contestProblem.findFirstOrThrow({
+        where: {
+          contestId,
+          order: problemOrder
+        },
+        select: { problemId: true }
       })
-      await this.prisma.contestProblem.findUniqueOrThrow({
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        where: { contestId_problemId: { contestId, problemId } }
-      })
+
+      problemId = contestProblem.problemId
     }
 
     return await this.prisma.announcement.create({
