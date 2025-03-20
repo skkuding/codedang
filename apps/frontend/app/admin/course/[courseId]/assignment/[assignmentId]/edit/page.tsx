@@ -93,7 +93,7 @@ export default function Page({
 
             <SwitchField
               name="isJudgeResultVisible"
-              title="Reveal scores to participants"
+              title="Reveal raw scores to participants"
               hasValue={methods.getValues('isJudgeResultVisible') || false}
             />
 
