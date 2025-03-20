@@ -28,6 +28,7 @@ import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { FaCirclePlus } from 'react-icons/fa6'
+import { FiX } from 'react-icons/fi'
 import { toast } from 'sonner'
 import { ErrorMessage } from '../../_components/ErrorMessage'
 import { courseSchema } from '../_libs/schema'
@@ -131,19 +132,26 @@ export function CreateCourseButton() {
           <ScrollArea className="max-h-[700px] px-6 pt-8">
             <AlertDialogHeader className="pb-6">
               <AlertDialogTitle>Create Course</AlertDialogTitle>
+              <AlertDialogCancel className="absolute right-4 top-4 border-none">
+                <FiX className="h-5 w-5" />
+              </AlertDialogCancel>
             </AlertDialogHeader>
 
             <form
               onSubmit={handleSubmit(onSubmit)}
               aria-label="Create course"
-              className="flex flex-col gap-3"
+              className="flex flex-col gap-3 [&>*]:px-1"
             >
               <div className="flex flex-col gap-2">
                 <div className="flex gap-2">
                   <span className="font-bold">Professor</span>
                   <span className="text-red-500">*</span>
                 </div>
-                <Input id="professor" {...register('professor')} />
+                <Input
+                  id="professor"
+                  className="w-full rounded border p-2"
+                  {...register('professor')}
+                />
                 {errors.professor && <ErrorMessage />}
               </div>
 
@@ -153,7 +161,11 @@ export function CreateCourseButton() {
                   <span className="text-red-500">*</span>
                 </div>
 
-                <Input id="courseTitle" {...register('courseTitle')} />
+                <Input
+                  id="courseTitle"
+                  className="w-full rounded border p-2"
+                  {...register('courseTitle')}
+                />
                 {errors.courseTitle && <ErrorMessage />}
               </div>
 
