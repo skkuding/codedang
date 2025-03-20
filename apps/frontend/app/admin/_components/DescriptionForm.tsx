@@ -9,6 +9,8 @@ interface DescriptionFormProps {
   isDarkmode?: boolean
 }
 
+// NOTE: 이미지 안넣기??
+// TODO: 앞으로가기, 뒤로가기, 링크해제기능 -> 다른 부원이 작업중
 export function DescriptionForm({
   name,
   isDarkmode = false
