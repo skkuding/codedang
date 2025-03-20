@@ -6,7 +6,6 @@ import {
   DataTable,
   DataTableFallback,
   DataTableLangFilter,
-  DataTableLevelFilter,
   DataTablePagination,
   DataTableRoot,
   DataTableSearchBar
@@ -57,8 +56,11 @@ export function ImportProblemTable({
     })),
     score: checkedProblems.find((item) => item.id === Number(problem.id))
       ?.score,
-    order: checkedProblems.find((item) => item.id === Number(problem.id))?.order
+    order: checkedProblems.find((item) => item.id === Number(problem.id))
+      ?.order,
+    createdBy: problem.createdBy?.username ? problem.createdBy.username : ''
   }))
+  console.log('problems:', problems)
 
   const selectedProblemIds = checkedProblems.map((problem) => problem.id)
 
@@ -73,7 +75,7 @@ export function ImportProblemTable({
       <div className="flex gap-4">
         <DataTableSearchBar columndId="title" />
         <DataTableLangFilter />
-        <DataTableLevelFilter />
+        {/* <DataTableLevelFilter /> */}
         <ImportProblemButton onSelectedExport={onSelectedExport} />
       </div>
       <DataTable

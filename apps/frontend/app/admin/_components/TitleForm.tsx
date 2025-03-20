@@ -19,21 +19,23 @@ export function TitleForm({ placeholder }: { placeholder: string }) {
   }
 
   return (
-    <div className="flex items-center rounded-full border bg-white pr-4">
-      <Input
-        id="title"
-        type="text"
-        placeholder={placeholder}
-        className={cn(
-          inputStyle,
-          'w-[492px] border-none px-4 placeholder:text-sm'
-        )}
-        {...register('title', {
-          required: true
-        })}
-        onChange={onInputHandler}
-      />
-      <span className="text-sm text-[#8A8A8A]">{inputCount}/120</span>
+    <div className="flex flex-col">
+      <div className="flex items-center rounded-full border bg-white pr-4">
+        <Input
+          id="title"
+          type="text"
+          placeholder={placeholder}
+          className={cn(
+            inputStyle,
+            'w-[438px] border-none px-4 placeholder:text-sm focus-visible:ring-0'
+          )}
+          {...register('title', {
+            required: true
+          })}
+          onChange={onInputHandler}
+        />
+        <span className="text-sm text-[#8A8A8A]">{inputCount}/120</span>
+      </div>
       {errors.title &&
         (errors.title?.type === 'required' ? (
           <ErrorMessage />
