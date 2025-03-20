@@ -690,6 +690,10 @@ function MathPreview(props: NodeViewWrapperProps) {
     setTimeout(() => {
       editor.commands.focus()
     }, 10)
+    if (content.trim() === '') {
+      props.deleteNode()
+      return
+    }
   }
 
   // Enter 키 누르면 적용
@@ -723,6 +727,10 @@ function MathPreview(props: NodeViewWrapperProps) {
       setTimeout(() => {
         editor.commands.focus()
       }, 10)
+      if (content.trim() === '') {
+        props.deleteNode()
+        return
+      }
     } else if (
       event.key === 'ArrowRight' &&
       event.currentTarget instanceof HTMLInputElement &&
