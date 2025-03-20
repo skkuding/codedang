@@ -243,7 +243,9 @@ const db = {
     create: stub().resolves(ContestProblem),
     findMany: stub().resolves([ContestProblem]),
     findFirstOrThrow: stub().resolves(ContestProblem),
-    findFirst: stub().resolves(ContestProblem)
+    findFirst: stub().resolves(ContestProblem),
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    aggregate: stub().resolves({ _max: { order: 5 } })
   },
   contestRecord: {
     findMany: stub().resolves([ContestRecord]),
@@ -355,6 +357,8 @@ describe('ContestService', () => {
       db.problem.update.resolves(problem)
       db.contestProblem.create.resolves(contestProblem)
       db.contestProblem.findFirst.resolves(null)
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      db.contestProblem.aggregate.resolves({ _max: { order: 3 } })
 
       const res = await Promise.all(
         await service.importProblemsToContest(contestId, [problemIdsWithScore])
