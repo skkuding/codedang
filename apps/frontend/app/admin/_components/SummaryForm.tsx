@@ -10,6 +10,11 @@ interface SummaryFormProps {
   name: string
 }
 
+interface SummarySectionProps {
+  buttonName: string
+  maxChar: string
+}
+
 export function SummaryForm({ name }: SummaryFormProps) {
   const {
     formState: { errors }
@@ -27,13 +32,7 @@ export function SummaryForm({ name }: SummaryFormProps) {
   )
 }
 
-function SummarySection({
-  buttonName,
-  maxChar
-}: {
-  buttonName: string
-  maxChar: string
-}) {
+function SummarySection({ buttonName, maxChar }: SummarySectionProps) {
   const { register } = useFormContext()
 
   const [inputCount, setInputCount] = useState(0)
