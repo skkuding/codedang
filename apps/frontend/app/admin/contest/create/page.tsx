@@ -20,6 +20,7 @@ import type { ContestProblem } from '../_libs/schemas'
 import { CreateContestForm } from './_components/CreateContestForm'
 import { FreezeForm } from './_components/FreezeForm'
 import { PosterUploadForm } from './_components/PosterUploadForm'
+import { SampleTestcaseForm } from './_components/SampleTestcaseForm'
 
 export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
@@ -67,12 +68,10 @@ export default function Page() {
               <DescriptionForm name="description" />
             </FormSection>
 
-            <div className="flex h-[114px] w-full flex-col justify-center gap-3 rounded-xl border bg-[#8080800D] px-10">
-              <SwitchField
+            <div className="flex h-full min-h-[114px] w-full flex-col justify-center gap-3 rounded-xl border bg-[#8080800D] px-10 py-[27px]">
+              <SampleTestcaseForm
                 name="evaluateWithSampleTestcase"
                 title="Evaluate with sample testcases included"
-                formElement="input"
-                placeholder="Enter a invitation code"
               />
               <SwitchField
                 name="invitationCode"
