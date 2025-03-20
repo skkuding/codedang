@@ -84,9 +84,9 @@ func NewJudgerLangConfig(file file.FileManager, javaPolicyPath string) *langConf
 		MaxCompileCpuTime:  5000,
 		MaxCompileRealTime: 10000,
 		MaxCompileMemory:   -1,
-		CompilerPath:       "/usr/bin/javac",
+		CompilerPath:       "/usr/local/sdkman/candidates/java/current/bin/javac",
 		CompileArgs:        "{srcPath} -d {exeDir} -encoding UTF8",
-		RunCommand:         "/usr/bin/java",
+		RunCommand:         "/usr/local/sdkman/candidates/java/current/bin/java",
 		RunArgs: "-cp {exeDir} " +
 			"-XX:MaxRAM={maxMemory} " +
 			"-Djava.security.manager " +
