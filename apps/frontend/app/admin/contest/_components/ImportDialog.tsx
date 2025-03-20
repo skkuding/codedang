@@ -20,8 +20,8 @@ import {
   DialogTitle
 } from '@/components/shadcn/dialog'
 import { ErrorBoundary } from '@suspensive/react'
-import { PlusCircleIcon } from 'lucide-react'
 import { Suspense, useState } from 'react'
+import { HiMiniPlusCircle } from 'react-icons/hi2'
 import {
   ImportProblemTable,
   ImportProblemTableFallback
@@ -41,10 +41,10 @@ export function ImportDialog({ problems, setProblems }: ImportDialogProps) {
         <AlertDialogTrigger asChild>
           <Button
             type="button"
-            className="flex h-[36px] w-48 items-center gap-2 px-0"
+            className="flex h-[36px] w-40 items-center gap-1 px-0"
           >
-            <PlusCircleIcon className="h-4 w-4" />
-            <div className="mb-[2px] text-sm">Import · Edit problem</div>
+            <HiMiniPlusCircle className="h-5 w-5" />
+            <div className="text-sm font-bold">Import problem</div>
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent className="p-8">
