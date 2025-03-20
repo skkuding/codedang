@@ -32,6 +32,8 @@ export function LeaderboardTable() {
   const orders = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
   const ranks = [1, 2, 3, 4, 4, 6, 7, 8]
 
+  // 위쪽이 하드코딩된 부분입니다.
+
   const windowSize = useWindowSize()
 
   const countSolvedList = countSolved({
@@ -175,6 +177,10 @@ export function LeaderboardTable() {
           </Tooltip.Provider>
         </div>
       </div>
+      {/* 밑에 있는 내용은 스크롤 바입니다. */}
+      {/* <div className="ml-[358px] flex h-[10px] flex-row">
+        <div className="h-[10px] w-[226px] rounded-full bg-[#D9D9D9]" />
+      </div> */}
     </div>
   )
 }

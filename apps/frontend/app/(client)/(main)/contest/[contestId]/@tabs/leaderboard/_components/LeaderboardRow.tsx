@@ -30,7 +30,7 @@ export function LeaderboardRow({
     medalImage = medals[rank - 1]
   }
 
-  const submission = 1000
+  const submission = 1000 // 이건 하드코딩입니다.
 
   return (
     <div className="relative flex flex-row">
@@ -40,7 +40,7 @@ export function LeaderboardRow({
         style={{ boxShadow: '2px 2px 10px rgba(0,0,0,0.15)' }}
       >
         {isTopRanked ? (
-          <Image src={medalImage} alt="gold medal" className="px-[2px]" />
+          <Image src={medalImage} alt="medal" className="px-[2px]" />
         ) : (
           <div className="flex h-[34px] w-[34px] flex-col items-center justify-center rounded-full bg-[#C4C4C4] font-[18px] font-bold text-white">
             {rank}
@@ -85,7 +85,7 @@ export function LeaderboardRow({
                           initial={{ opacity: 0, y: 4 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 4 }}
-                          transition={{ duration: 0.4, ease: 'easeOut' }}
+                          transition={{ duration: 0.2, ease: 'easeOut' }}
                           className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
                         >
                           <div>{`${submission} sub`}</div>
