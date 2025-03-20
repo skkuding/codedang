@@ -13,7 +13,6 @@ post {
 body:graphql {
   mutation {
     removeProblemsFromContest(
-      groupId: 1
       contestId: 6
       problemIds: [2]
     ) {
@@ -33,7 +32,7 @@ assert {
 
 docs {
   # remove Problems
-  
+
   - Contest에 포함된 문제들을 remove합니다..
   - 입력된 problemId, contestId, groupId의 조합과 일치하는 문제가 없을 경우 무시됩니다.
 }
