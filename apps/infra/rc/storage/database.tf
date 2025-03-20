@@ -19,7 +19,7 @@ resource "aws_db_instance" "postgres" {
   engine_version      = "14"
   allocated_storage   = 5
   instance_class      = "db.t4g.small"
-  snapshot_identifier = "arn:aws:rds:ap-northeast-2:219857217698:snapshot:rc-snapshot2"
+  snapshot_identifier = "arn:aws:rds:ap-northeast-2:337909762486:snapshot:rc-masked"
 
 
   username = var.postgres_username
