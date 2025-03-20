@@ -63,7 +63,9 @@ import {
   ArrowUpFromLine,
   ArrowRightToLine,
   ArrowLeftFromLine,
-  Expand
+  Expand,
+  Redo,
+  Undo
 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -295,7 +297,7 @@ export function TextEditor({
           </BubbleMenu>
           <div className="flex flex-wrap items-center border bg-white p-1">
             <TextStyleBar editor={editor} />
-            <div className="mx-1 h-full flex-shrink-0 bg-black" />
+            <div className="mx-1 h-6 flex-shrink-0 border-r" />
             <Toggle
               pressed={editor.isActive('heading', { level: 1 })}
               onPressedChange={() => {
@@ -526,10 +528,33 @@ export function TextEditor({
                   }}
                   className="h-7 w-7 p-1"
                 >
-                  <Trash />
+                  <Trash className="text-neutral-600" />
                 </Button>
               </PopoverContent>
             </Popover>
+            <div className="mx-1 h-6 flex-shrink-0 border-r" />
+            <Button
+              variant="ghost"
+              type="button"
+              className="h-7 w-7 p-1"
+              disabled={!editor.can().undo()}
+              onClick={() => {
+                editor.commands.undo()
+              }}
+            >
+              <Undo className="text-neutral-600" />
+            </Button>
+            <Button
+              variant="ghost"
+              type="button"
+              className="h-7 w-7 p-1"
+              disabled={!editor.can().redo()}
+              onClick={() => {
+                editor.commands.redo()
+              }}
+            >
+              <Redo className="text-neutral-600" />
+            </Button>
             <div className="ml-auto flex space-x-2">
               <Button
                 variant="ghost"
@@ -539,7 +564,7 @@ export function TextEditor({
                   setIsFullScreenOpen(!isFullScreenOpen)
                 }}
               >
-                <Expand />
+                <Expand className="text-neutral-600" />
               </Button>
             </div>
             {isFullScreenOpen && <FullScreenEditor />}
@@ -714,6 +739,10 @@ function MathPreview(props: NodeViewWrapperProps) {
       setTimeout(() => {
         editor.commands.focus()
       }, 10)
+      if (content.trim() === '') {
+        props.deleteNode()
+        return
+      }
       event.preventDefault()
     } else if (
       event.key === 'ArrowLeft' &&

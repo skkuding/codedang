@@ -6,7 +6,6 @@ import {
   PopoverTrigger
 } from '@/components/shadcn/popover'
 import { Toggle } from '@/components/shadcn/toggle'
-import { cn } from '@/libs/utils'
 import type { Editor } from '@tiptap/core'
 import {
   Bold as BoldIcon,
