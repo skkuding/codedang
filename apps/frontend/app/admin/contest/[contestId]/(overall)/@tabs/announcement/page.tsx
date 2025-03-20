@@ -1,14 +1,6 @@
 'use client'
 
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogCancel,
-  AlertDialogAction
-} from '@/components/shadcn/alert-dialog'
+import { announcementSchema } from '@/app/admin/contest/_libs/schemas'
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
@@ -19,11 +11,14 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
+import { Textarea } from '@/components/shadcn/textarea'
 import { CREATE_CONTEST_ANNOUNCEMENT } from '@/graphql/contest/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useApolloClient, useMutation, useQuery } from '@apollo/client'
 import type { CreateAnnouncementInput } from '@generated/graphql'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { toast } from 'sonner'
 import { ConfirmNavigation } from '../../../../../_components/ConfirmNavigation'
@@ -34,6 +29,7 @@ export default function Page() {
   const pathArr = pathname.split('/')
   const contestId = Number(pathArr[pathArr.length - 2])
   const client = useApolloClient()
+  const [announcetext, setAnnouncetext] = useState<string>('')
   const { data: problemData } = useQuery(GET_CONTEST_PROBLEMS, {
     variables: { contestId: contestId }
   })
@@ -44,8 +40,11 @@ export default function Page() {
     register,
     setValue,
     trigger,
+    resetField,
     formState: { errors, isValid }
-  } = useForm<CreateAnnouncementInput>()
+  } = useForm<CreateAnnouncementInput>({
+    resolver: valibotResolver(announcementSchema)
+  })
 
   const onSubmitAnnouncement: SubmitHandler<CreateAnnouncementInput> = async (
     data
@@ -55,16 +54,16 @@ export default function Page() {
         variables: {
           input: {
             contestId: contestId,
-            problemId: data.problemId,
+            problemOrder: data.problemOrder,
             content: data.content
           }
         }
       })
-
-      toast.success('Announcement created successfully!')
+      resetField('content')
+      toast.success('Create Announcement successfully!')
     } catch (error) {
       //TODO: error handling
-      console.error('Error creating Announcement:', error)
+      console.error('Error with creating Announcement:', error)
       toast.error('An unexpected error occurred')
     }
   }
@@ -79,29 +78,42 @@ export default function Page() {
             <div className="flex flex-col gap-2">
               <Select
                 onValueChange={(value) => {
-                  setValue('problemId', Number(value))
+                  trigger()
+                  setValue(
+                    'problemOrder',
+                    value === 'none' ? null : Number(value),
+                    { shouldValidate: true }
+                  )
                 }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Choose" />
                 </SelectTrigger>
-                <SelectContent className="rounded-md border border-gray-200 bg-white shadow-md">
+                <SelectContent
+                  className="rounded-md border border-gray-200 bg-white shadow-md"
+                  aria-required
+                >
+                  <SelectItem value="none">General</SelectItem>
                   {problemData?.getContestProblems.map((problem) => (
                     <SelectItem
                       key={problem.problemId}
-                      value={problem.problemId.toString()}
+                      value={problem.order.toString()}
                     >
-                      {problem.problem.title}
+                      {problem.order}. {problem.problem.title}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {errors.problemId && (
-                <ErrorMessage message={errors.problemId.message} />
+              {errors.problemOrder && (
+                <ErrorMessage message={errors.problemOrder.message} />
               )}
             </div>
             <div>
-              <Input id="announcement" {...register('content')} />
+              <Textarea
+                {...register('content')}
+                placeholder="Enter your announcement"
+                className="resize-none border-0 px-4 py-0 text-black placeholder:text-[#3333334D] focus-visible:ring-0"
+              />
               {errors.content && <ErrorMessage />}
             </div>
             <Button type="submit">Submit</Button>
