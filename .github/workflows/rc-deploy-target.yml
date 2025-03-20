@@ -66,6 +66,10 @@ jobs:
         working-directory: ./apps/infra/rc/${{ github.event.inputs.terraform_project }}
         run: terraform apply -input=false plan.out
 
+  rc-build-image:
+    if: github.event.inputs.terraform_project == 'codedang'
+    uses: ./.github/workflows/rc-build-image.yml
+
   rc-deploy-codedang:
     if: github.event.inputs.terraform_project == 'codedang'
     name: RC - Build & Upload Docker Image and Deploy Terraform Codedang Project
@@ -77,9 +81,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Trigger RC - CD - Build Images Workflow
-        uses: ./.github/workflows/rc-build-image.yml
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -106,7 +107,18 @@ jobs:
         working-directory: ./apps/infra/rc/codedang
         run: terraform init -backend-config="bucket=codedang-tf-state-rc"
 
-      - name: Terraform Destroy
+      - name: Check Existing AWS Codedang Resources
+        working-directory: ./apps/infra/rc/codedang
+        run: |
+          if terraform state list | grep -q .; then
+            echo "Resources found. Proceeding with destroy."
+            echo "CODEDANG_DESTROY_REQUIRED=true" >> $GITHUB_ENV
+          else
+            echo "No resources found. Skipping destroy."
+            echo "CODEDANG_DESTROY_REQUIRED=false" >> $GITHUB_ENV
+          fi
+      - name: Terraform Destroy If There's Existing Codedang Resources
+        if: env.CODEDANG_DESTROY_REQUIRED == 'true'
         working-directory: ./apps/infra/rc/codedang
         run: terraform destroy -auto-approve
 

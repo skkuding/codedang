@@ -123,6 +123,9 @@ jobs:
         working-directory: ./apps/infra/rc/storage
         run: terraform apply -input=false plan.out
 
+  rc-build-image:
+    uses: ./.github/workflows/rc-build-image.yml
+
   rc-deploy-codedang:
     name: RC - Build & Upload Docker Image and Deploy Terraform Codedang Project
     runs-on: ubuntu-latest
@@ -133,9 +136,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Trigger RC - CD - Build Images Workflow
-        uses: ./.github/workflows/rc-build-image.yml
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
