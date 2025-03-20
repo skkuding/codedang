@@ -1,4 +1,4 @@
-import { EditorLayout } from '@/app/admin/course/[courseId]/grade/assignment/[assignmentId]/user/[userId]/problem/[problemId]/_components/EditorLayout'
+import { EditorLayout } from '@/app/admin/_components/code-editor/EditorLayout'
 import { auth } from '@/libs/auth'
 
 export default async function layout({

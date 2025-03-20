@@ -125,7 +125,7 @@ jobs:
 
   rc-build-image:
     uses: ./.github/workflows/rc-build-image.yml
-    secrets: inherit # Passes all secrets from the caller context
+    secrets: inherit # Passes all aws credential secrets from the caller context
 
   rc-deploy-codedang:
     name: RC - Build & Upload Docker Image and Deploy Terraform Codedang Project

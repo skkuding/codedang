@@ -13,7 +13,6 @@ post {
 body:graphql {
   mutation {
     removeProblemsFromContest(
-      groupId: 1
       contestId: 99999
       problemIds: [7, 8]
     ) {
@@ -28,5 +27,5 @@ body:graphql {
 }
 
 assert {
-  res.body.errors: isDefined 
+  res.body.errors: isDefined
 }

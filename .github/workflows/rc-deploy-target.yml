@@ -69,7 +69,6 @@ jobs:
   rc-build-image:
     if: github.event.inputs.terraform_project == 'codedang'
     uses: ./.github/workflows/rc-build-image.yml
-    secrets: inherit # Passes all secrets from the caller context
 
   rc-deploy-codedang:
     if: github.event.inputs.terraform_project == 'codedang'
