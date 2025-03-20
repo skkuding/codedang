@@ -111,7 +111,7 @@ export function SubmissionDetailModal({
             <div>
               <span className="text-sm font-medium">Last Submission</span>
               <ScrollArea className="rounded-md">
-                <div className="flex items-center justify-around gap-5 rounded-lg border border-[#E6E6E6] bg-gray-50 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-3 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
+                <div className="flex items-center justify-around gap-5 rounded-lg border border-[#E6E6E6] bg-gray-50 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-[14px] [&_*]:whitespace-nowrap [&_p]:text-slate-400">
                   <div>
                     <h2>User ID</h2>
                     <p>{submission?.user.username}</p>

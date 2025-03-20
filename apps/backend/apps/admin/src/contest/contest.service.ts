@@ -3,14 +3,8 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common'
 import { Contest, ResultStatus, Submission } from '@generated'
 import { ContestRole, Role, type ContestProblem, Prisma } from '@prisma/client'
 import { Cache } from 'cache-manager'
+import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import {
-  PUBLICIZING_REQUEST_EXPIRE_TIME,
-  PUBLICIZING_REQUEST_KEY,
-  MIN_DATE,
-  MAX_DATE
-} from '@libs/constants'
-import {
-  ConflictFoundException,
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
@@ -19,8 +13,6 @@ import type { ContestWithScores } from './model/contest-with-scores.model'
 import type { CreateContestInput } from './model/contest.input'
 import type { UpdateContestInput } from './model/contest.input'
 import type { ProblemScoreInput } from './model/problem-score.input'
-import type { PublicizingRequest } from './model/publicizing-request.model'
-import type { PublicizingResponse } from './model/publicizing-response.output'
 
 @Injectable()
 export class ContestService {
@@ -431,106 +423,6 @@ export class ContestService {
     }
   }
 
-  async getPublicizingRequests() {
-    const requests = await this.cacheManager.get<PublicizingRequest[]>(
-      PUBLICIZING_REQUEST_KEY
-    )
-
-    if (!requests) {
-      return []
-    }
-
-    const filteredRequests = requests.filter(
-      (req) => new Date(req.expireTime) > new Date()
-    )
-
-    if (requests.length != filteredRequests.length) {
-      await this.cacheManager.set(
-        PUBLICIZING_REQUEST_KEY,
-        filteredRequests,
-        PUBLICIZING_REQUEST_EXPIRE_TIME
-      )
-    }
-
-    return filteredRequests
-  }
-
-  async handlePublicizingRequest(contestId: number, isAccepted: boolean) {
-    const requests = (await this.cacheManager.get(
-      PUBLICIZING_REQUEST_KEY
-    )) as Array<PublicizingRequest>
-    if (!requests) {
-      throw new EntityNotExistException('ContestPublicizingRequest')
-    }
-
-    const request = requests.find((req) => req.contestId === contestId)
-    if (!request || new Date(request.expireTime) < new Date()) {
-      throw new EntityNotExistException('ContestPublicizingRequest')
-    }
-
-    await this.cacheManager.set(
-      PUBLICIZING_REQUEST_KEY,
-      requests.filter((req) => req.contestId != contestId),
-      PUBLICIZING_REQUEST_EXPIRE_TIME
-    )
-
-    if (isAccepted) {
-      try {
-        await this.prisma.contest.update({
-          where: {
-            id: contestId
-          },
-          data: {}
-        })
-      } catch (error) {
-        throw new UnprocessableDataException(error.message)
-      }
-    }
-
-    return {
-      contestId,
-      isAccepted
-    } as PublicizingResponse
-  }
-
-  async createPublicizingRequest(contestId: number) {
-    const contest = await this.prisma.contest.findFirst({
-      where: {
-        id: contestId
-      }
-    })
-    if (!contest) {
-      throw new EntityNotExistException('contest')
-    }
-
-    let requests = (await this.cacheManager.get(
-      PUBLICIZING_REQUEST_KEY
-    )) as Array<PublicizingRequest>
-    if (!requests) {
-      requests = []
-    }
-
-    const duplicatedRequest = requests.find((req) => req.contestId == contestId)
-    if (duplicatedRequest) {
-      throw new ConflictFoundException('duplicated publicizing request')
-    }
-
-    const newRequest: PublicizingRequest = {
-      contestId,
-      userId: contest.createdById!, // TODO: createdById가 null일 경우 예외처리
-      expireTime: new Date(Date.now() + PUBLICIZING_REQUEST_EXPIRE_TIME)
-    }
-    requests.push(newRequest)
-
-    await this.cacheManager.set(
-      PUBLICIZING_REQUEST_KEY,
-      requests,
-      PUBLICIZING_REQUEST_EXPIRE_TIME
-    )
-
-    return newRequest
-  }
-
   async importProblemsToContest(
     contestId: number,
     problemIdsWithScore: ProblemScoreInput[]
@@ -551,6 +443,15 @@ export class ContestService {
       throw new EntityNotExistException('contest')
     }
 
+    let maxOrder =
+      (
+        await this.prisma.contestProblem.aggregate({
+          where: { contestId },
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _max: { order: true }
+        })
+      )._max?.order ?? -1
+
     const contestProblems: ContestProblem[] = []
 
     for (const { problemId, score } of problemIdsWithScore) {
@@ -569,9 +470,7 @@ export class ContestService {
         const [contestProblem] = await this.prisma.$transaction([
           this.prisma.contestProblem.create({
             data: {
-              // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
-              // 임시 방편으로 order: 0으로 설정합니다.
-              order: 0,
+              order: ++maxOrder,
               contestId,
               problemId,
               score
@@ -667,6 +566,19 @@ export class ContestService {
         visibleLockTime = latestContest.endTime
       }
 
+      const removeContestProblem = await this.prisma.contestProblem.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_problemId: {
+            contestId,
+            problemId
+          }
+        }
+      })
+      if (!removeContestProblem) {
+        throw new EntityNotExistException('contestProblem')
+      }
+
       try {
         const [, contestProblem] = await this.prisma.$transaction([
           this.prisma.problem.updateMany({
@@ -686,6 +598,19 @@ export class ContestService {
               contestId_problemId: {
                 contestId,
                 problemId
+              }
+            }
+          }),
+          this.prisma.contestProblem.updateMany({
+            where: {
+              contestId,
+              order: {
+                gt: removeContestProblem.order
+              }
+            },
+            data: {
+              order: {
+                decrement: 1
               }
             }
           })
@@ -767,101 +692,6 @@ export class ContestService {
     return {
       scoreSummary,
       submissions: mappedSubmission
-    }
-  }
-
-  /**
-   * Duplicate contest with contest problems and users who participated in the contest
-   * Not copied: submission
-   * @param contestId contest to duplicate
-   * @param userId user who tries to duplicates the contest
-   * @returns
-   */
-  async duplicateContest(contestId: number, userId: number) {
-    const [contestFound, contestProblemsFound, userContestRecords] =
-      await Promise.all([
-        this.prisma.contest.findFirst({
-          where: {
-            id: contestId
-          }
-        }),
-        this.prisma.contestProblem.findMany({
-          where: {
-            contestId
-          }
-        }),
-        this.prisma.contestRecord.findMany({
-          where: {
-            contestId
-          }
-        })
-      ])
-
-    if (!contestFound) {
-      throw new EntityNotExistException('contest')
-    }
-
-    // if contest status is ongoing, visible would be true. else, false
-    const now = new Date()
-    let newVisible = false
-    if (contestFound.startTime <= now && now <= contestFound.endTime) {
-      newVisible = true
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, createTime, updateTime, title, summary, ...contestDataToCopy } =
-      contestFound
-
-    try {
-      const [newContest, newContestProblems, newContestRecords] =
-        await this.prisma.$transaction(async (tx) => {
-          // 1. copy contest
-          const newContest = await tx.contest.create({
-            data: {
-              ...contestDataToCopy,
-              title: 'Copy of ' + title,
-              summary: summary ?? {},
-              createdById: userId,
-              isVisible: newVisible
-            }
-          })
-
-          // 2. copy contest problems
-          const newContestProblems = await Promise.all(
-            contestProblemsFound.map((contestProblem) =>
-              tx.contestProblem.create({
-                data: {
-                  order: contestProblem.order,
-                  contestId: newContest.id,
-                  problemId: contestProblem.problemId,
-                  score: contestProblem.score
-                }
-              })
-            )
-          )
-
-          // 3. copy contest records (users who participated in the contest)
-          const newContestRecords = await Promise.all(
-            userContestRecords.map((userContestRecord) =>
-              tx.contestRecord.create({
-                data: {
-                  contestId: newContest.id,
-                  userId: userContestRecord.userId
-                }
-              })
-            )
-          )
-
-          return [newContest, newContestProblems, newContestRecords]
-        })
-
-      return {
-        contest: newContest,
-        problems: newContestProblems,
-        records: newContestRecords
-      }
-    } catch (error) {
-      throw new UnprocessableDataException(error.message)
     }
   }
 
@@ -1256,6 +1086,45 @@ export class ContestService {
       registeredNum,
       leaderboard: filteredLeaderboard,
       isFrozen
+    }
+  }
+
+  async getContestUpdateHistories(contestId: number) {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contestId },
+      select: { id: true, startTime: true, endTime: true }
+    })
+
+    const contestProblems = await this.prisma.contestProblem.findMany({
+      where: { contestId },
+      select: { problemId: true, order: true }
+    })
+
+    // 대회 진행 중 수정된 문제들의 update history 가져오기
+    const contestUpdateHistories = await this.prisma.updateHistory.findMany({
+      where: {
+        problemId: {
+          in: contestProblems.map((problem) => problem.problemId)
+        },
+        updatedAt: {
+          gte: contest?.startTime,
+          lte: contest?.endTime
+        }
+      },
+      orderBy: {
+        updatedAt: 'desc'
+      }
+    })
+
+    // order: ContestProblem의 order를 매핑
+    return {
+      updateHistories: contestUpdateHistories.map((history) => ({
+        ...history,
+        order:
+          contestProblems.find(
+            (problem) => problem.problemId === history.problemId
+          )?.order ?? null
+      }))
     }
   }
 }

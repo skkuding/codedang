@@ -16,7 +16,6 @@ import type {
   CreateContestInput,
   UpdateContestInput
 } from './model/contest.input'
-import type { PublicizingRequest } from './model/publicizing-request.model'
 
 const contestId = 1
 const userId = 1
@@ -197,12 +196,6 @@ const submissionsWithProblemTitleAndUsername = {
 //   }
 // ]
 
-const publicizingRequest: PublicizingRequest = {
-  contestId,
-  userId,
-  expireTime: new Date('2050-08-19T07:32:07.533Z')
-}
-
 const input = {
   title: 'test title10',
   description: 'test description',
@@ -250,7 +243,9 @@ const db = {
     create: stub().resolves(ContestProblem),
     findMany: stub().resolves([ContestProblem]),
     findFirstOrThrow: stub().resolves(ContestProblem),
-    findFirst: stub().resolves(ContestProblem)
+    findFirst: stub().resolves(ContestProblem),
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    aggregate: stub().resolves({ _max: { order: 5 } })
   },
   contestRecord: {
     findMany: stub().resolves([ContestRecord]),
@@ -316,16 +311,6 @@ describe('ContestService', () => {
     })
   })
 
-  describe('getPublicizingRequests', () => {
-    it('should return an array of PublicizingRequest', async () => {
-      const cacheSpyGet = stub(cache, 'get').resolves([publicizingRequest])
-      const res = await service.getPublicizingRequests()
-
-      expect(cacheSpyGet.called).to.be.true
-      expect(res).to.deep.equal([publicizingRequest])
-    })
-  })
-
   describe('createContest', () => {
     it('should return created contest', async () => {
       db.contest.create.resolves(contest)
@@ -361,33 +346,6 @@ describe('ContestService', () => {
     })
   })
 
-  describe('handlePublicizingRequest', () => {
-    it('should return accepted state', async () => {
-      db.contest.update.resolves(contest)
-
-      const cacheSpyGet = stub(cache, 'get').resolves([publicizingRequest])
-      const res = await service.handlePublicizingRequest(contestId, true)
-
-      expect(cacheSpyGet.called).to.be.true
-      expect(res).to.deep.equal({
-        contestId,
-        isAccepted: true
-      })
-    })
-
-    it('should throw error when contestId not exist', async () => {
-      expect(service.handlePublicizingRequest(1000, true)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-
-    it('should throw error when the contest is not requested to public', async () => {
-      expect(service.handlePublicizingRequest(3, true)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-  })
-
   describe('importProblemsToContest', () => {
     const contestWithEmptySubmissions = {
       ...contest,
@@ -399,6 +357,8 @@ describe('ContestService', () => {
       db.problem.update.resolves(problem)
       db.contestProblem.create.resolves(contestProblem)
       db.contestProblem.findFirst.resolves(null)
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      db.contestProblem.aggregate.resolves({ _max: { order: 3 } })
 
       const res = await Promise.all(
         await service.importProblemsToContest(contestId, [problemIdsWithScore])
