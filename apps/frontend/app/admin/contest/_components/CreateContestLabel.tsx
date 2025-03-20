@@ -4,7 +4,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
-import { MdHelpOutline } from 'react-icons/md'
+import { AiFillQuestionCircle } from 'react-icons/ai'
 import { Label } from '../../_components/Label'
 
 interface CreateContestLabelProps {
@@ -32,7 +32,7 @@ export function CreateContestLabel({
           {/* 현재 shadcn 컴포넌트 자체에 문제가 있는 것 같음 */}
           <TooltipTrigger asChild>
             <button type="button">
-              <MdHelpOutline className="text-gray-400 hover:text-gray-700" />
+              <AiFillQuestionCircle className="h-4 w-4 text-[#B0B0B0]" />
             </button>
           </TooltipTrigger>
           <TooltipContent
