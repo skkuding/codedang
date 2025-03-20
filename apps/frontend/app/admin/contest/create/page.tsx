@@ -68,11 +68,9 @@ export default function Page() {
             </FormSection>
 
             <div className="flex h-[114px] w-full flex-col justify-center gap-3 rounded-xl border bg-[#8080800D] px-10">
-              {/* Temporary Switch Field for Evaluate with sample Testcases included */}
               <SwitchField
-                name="invitationCode"
-                title="Invitation Code"
-                type="number"
+                name="evaluateWithSampleTestcase"
+                title="Evaluate with sample testcases included"
                 formElement="input"
                 placeholder="Enter a invitation code"
               />

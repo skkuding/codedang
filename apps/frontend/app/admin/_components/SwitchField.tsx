@@ -53,7 +53,7 @@ export function SwitchField({
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <Label required={false}>{title}</Label>
         {tooltip && (
           <TooltipProvider>
