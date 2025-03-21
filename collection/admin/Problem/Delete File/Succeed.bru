@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  mutation DeleteImage ($filename: String!) {
-    deleteImage(filename: $filename) {
+  mutation DeleteFile ($filename: String!) {
+    deleteFile(filename: $filename) {
       filename
       createdById
       createTime
@@ -22,10 +22,10 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "filename": "fill this field with filename after executing upload-image api"
+    "filename": "fill this field with filename after executing upload-file api"
   }
 }
 
 assert {
-  res.body.data.deleteImage: isDefined 
+  res.body.data.deleteImage: isDefined
 }
