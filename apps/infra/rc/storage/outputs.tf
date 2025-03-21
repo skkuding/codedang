@@ -3,6 +3,21 @@ output "db_url" {
   sensitive = true
 }
 
+output "db_pw" {
+  value     = random_password.postgres_password.result
+  sensitive = true
+}
+
+output "db_user" {
+  value     = aws_db_instance.postgres.username
+  sensitive = true
+}
+
+output "db_name" {
+  value     = aws_db_instance.postgres.db_name
+  sensitive = true
+}
+
 output "redis_host" {
   value     = aws_elasticache_cluster.db_cache.cache_nodes[0].address
   sensitive = true
