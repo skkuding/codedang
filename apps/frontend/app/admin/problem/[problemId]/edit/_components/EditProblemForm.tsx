@@ -63,8 +63,8 @@ export function EditProblemForm({
           delete: data.tag.map(({ tag }) => Number(tag.id))
         },
         description: data.description,
-        inputDescription: data.inputDescription || '<p>Change this</p>',
-        outputDescription: data.outputDescription || '<p>Change this</p>',
+        inputDescription: data.inputDescription ?? '',
+        outputDescription: data.outputDescription ?? '',
         testcases: data.testcase,
         timeLimit: data.timeLimit,
         memoryLimit: data.memoryLimit,
