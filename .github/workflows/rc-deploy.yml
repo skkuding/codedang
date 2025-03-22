@@ -129,7 +129,7 @@ jobs:
     needs: [rc-deploy-storage]
 
   rc-deploy-codedang:
-    name: RC - Build & Upload Docker Image and Deploy Terraform Codedang Project
+    name: RC - Deploy Terraform Codedang Project
     runs-on: ubuntu-latest
     needs: [rc-build-image]
     environment: production
