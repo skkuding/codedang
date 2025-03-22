@@ -27,6 +27,11 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY_RC }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.2
+
       - name: Fetch dynamic connection details
         working-directory: ./apps/infra/rc/storage
         id: fetch-details
@@ -37,7 +42,7 @@ jobs:
             --filters "Name=tag:Name,Values=Codedang-Bastion-Host" "Name=instance-state-name,Values=running" \
             --query 'Reservations[].Instances[].PublicIpAddress' \
             --output text)
-          echo "Bastion Host IP: $BASTION_IP"
+
           echo "bastion_ip=$BASTION_IP" >> $GITHUB_OUTPUT
 
           echo "Fetching RDS Endpoint..."
@@ -53,7 +58,6 @@ jobs:
 
           RDS_ENDPOINT=$(aws rds describe-db-instances --db-instance-identifier "$RDS_INSTANCE_ID" --query "DBInstances[0].Endpoint.Address" --output text)
 
-          echo "RDS Endpoint: $RDS_ENDPOINT"
           echo "rds_endpoint=$RDS_ENDPOINT" >> $GITHUB_OUTPUT
 
           echo "Fetching DB credentials from Terraform..."
