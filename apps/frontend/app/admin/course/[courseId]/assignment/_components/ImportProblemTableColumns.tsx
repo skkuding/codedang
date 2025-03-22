@@ -4,7 +4,6 @@ import { Checkbox } from '@/components/shadcn/checkbox'
 import type { Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import { SquareArrowOutUpRight } from 'lucide-react'
-import type { Route } from 'next'
 import Link from 'next/link'
 import { toast } from 'sonner'
 
@@ -157,7 +156,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     cell: ({ row }) => {
       return (
         <Link
-          href={`/admin/problem/${row.original.id}/preview` as Route}
+          href={`/admin/problem/${row.original.id}/preview`}
           target="_blank"
           className="flex justify-center"
           onClick={(e) => e.stopPropagation()}
