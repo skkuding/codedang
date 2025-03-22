@@ -1,4 +1,4 @@
-name: RC - CD - MASK DB
+name: RC - CD - Mask DB
 
 on:
   workflow_dispatch:
@@ -44,6 +44,11 @@ jobs:
           RDS_INSTANCE_ID=$(aws rds describe-db-instances \
           --query "DBInstances | sort_by(@, &InstanceCreateTime) | [-1].DBInstanceIdentifier" --output text)
 
+          if [ -z "$RDS_INSTANCE_ID" ]; then
+            echo "No RDS instance found. Skipping further steps."
+            exit 0
+          fi
+
           echo "RDS Instance Identifier: $RDS_INSTANCE_ID"
 
           RDS_ENDPOINT=$(aws rds describe-db-instances --db-instance-identifier "$RDS_INSTANCE_ID" --query "DBInstances[0].Endpoint.Address" --output text)
@@ -52,9 +57,9 @@ jobs:
           echo "rds_endpoint=$RDS_ENDPOINT" >> $GITHUB_OUTPUT
 
           echo "Fetching DB credentials from Terraform..."
-          DB_PW=$(terraform output -raw db_pw)
-          DB_USER=$(terraform output -raw db_user)
-          DB_NAME=$(terraform output -raw db_name)
+          DB_PW=$(terraform output db_pw)
+          DB_USER=$(terraform output db_user)
+          DB_NAME=$(terraform output db_name)
 
           echo "db_pw=$DB_PW" >> $GITHUB_OUTPUT
           echo "db_user=$DB_USER" >> $GITHUB_OUTPUT
