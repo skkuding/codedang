@@ -47,6 +47,7 @@ jobs:
             --query 'Reservations[].Instances[].PublicIpAddress' \
             --output text)
 
+
           echo "bastion_ip=$BASTION_IP" >> $GITHUB_OUTPUT
 
           echo "Fetching RDS Endpoint..."
