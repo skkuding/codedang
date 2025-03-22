@@ -6,6 +6,7 @@ import type { TestResultDetail } from '@/types/type'
 import { DiffMatchPatch } from 'diff-match-patch-typescript'
 import { useState, type ReactNode } from 'react'
 import { IoMdClose } from 'react-icons/io'
+import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
 import { AddUserTestcaseDialog } from './AddUserTestcaseDialog'
 import { TestcaseTable } from './TestcaseTable'
 import { useTestResults } from './useTestResults'
@@ -271,7 +272,7 @@ function TestResultDetail({ data }: { data: TestResultDetail | undefined }) {
         Result
         <span className={getResultColor(data.result)}>{data.result}</span>
       </div>
-      <div className="flex gap-4">
+      <div className="flex flex-wrap gap-4">
         <LabeledField label="Input" text={data.input} />
         <LabeledField
           label="Expected Output"
@@ -309,12 +310,12 @@ function LabeledField({ label, text, compareText }: LabeledFieldProps) {
 
       if (num1 !== num2) {
         return isExpectedOutput ? (
-          <span className="text-green-500">{compareText}</span>
+          <WhitespaceVisualizer text={compareText} className="text-green-500" />
         ) : (
-          <span className="text-red-500">{text}</span>
+          <WhitespaceVisualizer text={text} className="text-red-500" />
         )
       } else {
-        return <span className="text-white">{text}</span>
+        return <WhitespaceVisualizer text={text} className="text-white" />
       }
     }
     const dmp = new DiffMatchPatch()
@@ -322,36 +323,78 @@ function LabeledField({ label, text, compareText }: LabeledFieldProps) {
     dmp.diff_cleanupSemantic(diffs)
 
     return diffs.map(([op, data], idx) => {
-      if (op === 0) {
-        // 동일한 텍스트는 흰색으로 표시
-        return (
-          <span key={idx} className="text-white">
-            {data}
-          </span>
-        )
-      } else if (op === -1 && isExpectedOutput) {
-        // Expected Output에만 있는 텍스트는 초록색으로 표시
-        return (
-          <span key={idx} className="text-green-500">
-            {data}
-          </span>
-        )
-      } else if (op === 1 && !isExpectedOutput) {
-        // Output에만 있는 텍스트는 빨간색으로 표시
-        return (
-          <span key={idx} className="text-red-500">
-            {data}
-          </span>
-        )
+      if (isExpectedOutput && op === 1) {
+        return null
       }
-      return null
+
+      if (!isExpectedOutput && op === -1) {
+        return null
+      }
+      let color = 'text-white'
+      if (op === -1 && isExpectedOutput) {
+        color = 'text-green-500'
+      } else if (op === 1 && !isExpectedOutput) {
+        color = 'text-red-500'
+      }
+
+      return (
+        <span key={idx} className={color}>
+          {highlightWhitespace(data)}
+        </span>
+      )
+    })
+  }
+  const highlightWhitespace = (text: string): (string | JSX.Element)[] => {
+    return [...text].map((char, i) => {
+      if (char === ' ') {
+        return (
+          <span
+            key={i}
+            style={{
+              color: 'rgb(53, 129, 250)',
+              minWidth: '0.5em',
+              display: 'inline-block'
+            }}
+          >
+            ␣
+          </span>
+        )
+      } else if (char === '\n') {
+        return (
+          <span
+            key={i}
+            style={{
+              color: 'rgb(53, 129, 250)',
+              minWidth: '0.5em',
+              display: 'inline-block'
+            }}
+          >
+            ↵
+          </span>
+        )
+      } else if (char === '\t') {
+        return (
+          <span
+            key={i}
+            style={{
+              color: 'rgb(53, 129, 250)',
+              minWidth: '0.5em',
+              display: 'inline-block'
+            }}
+          >
+            ↹
+          </span>
+        )
+      } else {
+        return char
+      }
     })
   }
 
   const renderText = (label: string, text: string, compareText?: string) => {
-    // Input 값은 항상 흰색으로 출력
+    // Input은 diff 없이 흰색으로만 출력
     if (label === 'Input') {
-      return <span className="text-white">{text}</span>
+      return <WhitespaceVisualizer text={text} className="text-white" />
     }
 
     // Expected Output 처리
@@ -368,7 +411,7 @@ function LabeledField({ label, text, compareText }: LabeledFieldProps) {
       <div className="flex flex-col gap-4 p-4">
         <p className="text-slate-400">{label}</p>
         <hr className="border-[#303333]/50" />
-        <div className="h-fit text-slate-300">
+        <div className="h-fit whitespace-pre-wrap font-mono text-slate-300">
           {renderText(label, text, compareText)}
         </div>
       </div>
