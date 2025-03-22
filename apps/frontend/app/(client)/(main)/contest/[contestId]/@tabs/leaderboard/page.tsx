@@ -5,28 +5,20 @@ import InfoIcon from '@/public/icons/file-info-gray.svg'
 import SearchIcon from '@/public/icons/search.svg'
 import Image from 'next/image'
 import { useState } from 'react'
+import { LeaderboardModalDialog } from './_components/LeaderboardModalDialog'
 import { LeaderboardTable } from './_components/LeaderboardTable'
-import { handleSearch, showScoringCriteria } from './_libs/utils'
+import { handleSearch } from './_libs/utils'
 
 export default function ContestLeaderBoard() {
   const [searchText, setSearchText] = useState('')
 
   return (
-    <div className="ml-[116px] w-screen pb-[120px]">
+    <div className="relative ml-[116px] w-screen pb-[120px]">
       <div className="mt-[96px] flex flex-row">
         <div className="h-[34px] text-[24px] font-bold">
           CHECK YOUR RANKING!
         </div>
-        <Image
-          src={InfoIcon}
-          alt="info-icon"
-          width={32}
-          height={32}
-          className="ml-1 cursor-pointer"
-          onClick={() => {
-            showScoringCriteria()
-          }}
-        />
+        <LeaderboardModalDialog />
       </div>
       <div className="relative mb-[62px] mt-[30px]">
         <Image
@@ -48,7 +40,7 @@ export default function ContestLeaderBoard() {
           }}
         />
       </div>
-      <div className="">
+      <div>
         <LeaderboardTable />
       </div>
     </div>
