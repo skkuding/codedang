@@ -2,42 +2,11 @@
 
 import { Button } from '@/components/shadcn/button'
 import type { Language } from '@generated/graphql'
-import type * as clangFormat from '@wasm-fmt/clang-format'
-import type * as pythonFormat from '@wasm-fmt/ruff_fmt'
 import { useCallback } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
 import { ErrorMessage } from '../../_components/ErrorMessage'
 import { Label } from '../../_components/Label'
-import { CodeEditor } from './editor'
-
-let clangFormatter: typeof clangFormat.format
-let pythonFormatter: typeof pythonFormat.format
-
-let clangInitialized = false
-let pythonInitialized = false
-
-const clangConfig = JSON.stringify({
-  BasedOnStyle: 'Chromium',
-  IndentWidth: 2
-})
-
-const pythonConfig = {
-  indent_width: 2
-}
-
-async function initFormatter(language: Language) {
-  if ((language === 'C' || language === 'Cpp') && !clangInitialized) {
-    const clang = await import('@wasm-fmt/clang-format')
-    await clang.default()
-    clangFormatter = clang.format
-    clangInitialized = true
-  } else if (language === 'Python3' && !pythonInitialized) {
-    const python = await import('@wasm-fmt/ruff_fmt')
-    await python.default()
-    pythonFormatter = python.format
-    pythonInitialized = true
-  }
-}
+import { CodeEditor, extensionMap, initAndFormat } from './editor'
 
 interface CodeFormProps {
   name: string
@@ -57,35 +26,13 @@ export function CodeForm({ name, language }: CodeFormProps) {
 
   const handleFormat = useCallback(async () => {
     try {
-      await initFormatter(language)
-
-      const extensionMap: Record<
-        Exclude<Language, 'Golang' | 'Python2'>,
-        string
-      > = {
-        C: 'main.c',
-        Cpp: 'main.cpp',
-        Java: 'Main.java',
-        Python3: 'main.py'
-      }
-
       const filename = extensionMap[language] ?? 'main.c'
-
-      if (language === 'C' || language === 'Cpp') {
-        const formatted = clangFormatter(
-          field.value || '',
-          filename,
-          clangConfig
-        )
-        field.onChange(formatted)
-      } else if (language === 'Python3') {
-        const formatted = pythonFormatter(
-          field.value || '',
-          filename,
-          pythonConfig
-        )
-        field.onChange(formatted)
-      }
+      const formatted = await initAndFormat(
+        field.value || '',
+        language,
+        filename
+      )
+      field.onChange(formatted)
     } catch (error) {
       console.error('Code formatting failed:', error)
     }
