@@ -58,6 +58,22 @@ jobs:
         working-directory: ./apps/infra/rc/${{ github.event.inputs.terraform_project }}
         run: terraform init -backend-config="bucket=codedang-tf-state-rc"
 
+      - name: Check Existing AWS Storage Resources
+        if: github.event.inputs.terraform_project == 'storage'
+        working-directory: ./apps/infra/rc/storage
+        run: |
+          if terraform state list | grep -q .; then
+            echo "Resources found. Proceeding with destroy."
+            echo "STORAGE_DESTROY_REQUIRED=true" >> $GITHUB_ENV
+          else
+            echo "No resources found. Skipping destroy."
+            echo "STORAGE_DESTROY_REQUIRED=false" >> $GITHUB_ENV
+          fi
+      - name: Terraform Destroy If There's Existing Storage Resources
+        if: ${{(github.event.inputs.terraform_project == 'storage') && (env.STORAGE_DESTROY_REQUIRED == 'true')}}
+        working-directory: ./apps/infra/rc/storage
+        run: terraform destroy -auto-approve
+
       - name: Terraform Plan
         working-directory: ./apps/infra/rc/${{ github.event.inputs.terraform_project }}
         run: terraform plan -input=false -out=plan.out
