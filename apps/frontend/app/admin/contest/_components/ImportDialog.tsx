@@ -20,8 +20,8 @@ import {
   DialogTitle
 } from '@/components/shadcn/dialog'
 import { ErrorBoundary } from '@suspensive/react'
-import { PlusCircleIcon } from 'lucide-react'
 import { Suspense, useState } from 'react'
+import { HiMiniPlusCircle } from 'react-icons/hi2'
 import {
   ImportProblemTable,
   ImportProblemTableFallback
@@ -41,27 +41,33 @@ export function ImportDialog({ problems, setProblems }: ImportDialogProps) {
         <AlertDialogTrigger asChild>
           <Button
             type="button"
-            className="flex h-[36px] w-48 items-center gap-2 px-0"
+            className="flex h-[36px] w-40 items-center gap-1 px-0"
           >
-            <PlusCircleIcon className="h-4 w-4" />
-            <div className="mb-[2px] text-sm">Import · Edit problem</div>
+            <HiMiniPlusCircle className="h-5 w-5" />
+            <div className="text-sm font-bold">Import problem</div>
           </Button>
         </AlertDialogTrigger>
-        <AlertDialogContent className="p-8">
-          <AlertDialogHeader className="gap-2">
-            <AlertDialogTitle>Importing from Problem List</AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent className="h-[248px] w-[424px] gap-6 p-10 pt-11 sm:rounded-2xl">
+          <AlertDialogHeader className="items-center justify-center">
+            <AlertDialogTitle className="text-2xl font-semibold">
+              Importing from Problem List
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-neutral-500">
               If contest problems are imported from the ‘All Problem List’, the
               problems will automatically become invisible state.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-md px-4 py-2">
+          <AlertDialogFooter className="w-full gap-0">
+            <AlertDialogCancel className="w-1/2 rounded-full border-[#C4C4C4] px-4 py-2 text-[#8A8A8A]">
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button type="button" onClick={() => setShowImportDialog(true)}>
-                Ok
+            <AlertDialogAction className="w-1/2" asChild>
+              <Button
+                type="button"
+                className="ml-0 rounded-full"
+                onClick={() => setShowImportDialog(true)}
+              >
+                OK
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>

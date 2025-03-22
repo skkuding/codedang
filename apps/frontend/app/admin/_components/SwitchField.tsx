@@ -53,7 +53,7 @@ export function SwitchField({
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <Label required={false}>{title}</Label>
         {tooltip && (
           <TooltipProvider>
@@ -98,7 +98,10 @@ export function SwitchField({
                 placeholder={placeholder}
                 className={cn(
                   inputStyle,
-                  'hide-spin-button h-[36px] w-[380px]'
+                  'hide-spin-button h-[36px]',
+                  name === 'invitationCode'
+                    ? 'mt-3 w-full placeholder:text-center placeholder:text-sm'
+                    : 'w-[380px]'
                 )}
                 {...register(name, {
                   onChange: () => trigger(name)
@@ -120,6 +123,13 @@ export function SwitchField({
 
           return null
         })()}
+
+      {isEnabled && name === 'invitationCode' && (
+        <span className="text-xs text-gray-400">
+          The invitation code must be a 6-digit number
+        </span>
+      )}
+
       {isEnabled && name === 'invitationCode' && errors[name] && (
         <ErrorMessage message={errors[name]?.message?.toString()} />
       )}

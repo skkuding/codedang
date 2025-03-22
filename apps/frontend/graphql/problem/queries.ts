@@ -44,6 +44,9 @@ const GET_PROBLEMS = gql(`
       acceptedRate
       isVisible
       languages
+      createdBy {
+        username
+      }
       tag {
         id
         tag {

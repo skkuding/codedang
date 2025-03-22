@@ -1,5 +1,6 @@
 'use client'
 
+import { CautionDialog } from '@/app/admin/_components/CautionDialog'
 import { useConfirmNavigationContext } from '@/app/admin/_components/ConfirmNavigation'
 import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
@@ -9,7 +10,6 @@ import { useRouter } from 'next/navigation'
 import { useRef, useState, type ReactNode } from 'react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
-import { CautionDialog } from '../../../_components/CautionDialog'
 import { validateScoreWeight } from '../../../_libs/utils'
 import { ScoreCautionDialog } from './ScoreCautionDialog'
 

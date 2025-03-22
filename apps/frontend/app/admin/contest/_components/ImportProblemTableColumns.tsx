@@ -13,6 +13,7 @@ export interface DataTableProblem {
   submissionCount: number
   acceptedRate: number
   languages: string[]
+  createdBy: string
   score?: number
   order?: number
 }
@@ -78,10 +79,17 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     },
     enableHiding: false
   },
+  // TODO: languages column 만 table에 추가가 안됨... 왜지?
   {
     accessorKey: 'languages',
-    header: () => {},
-    cell: () => {},
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Language" />
+    ),
+    cell: ({ row }) => {
+      const languages: string[] = row.getValue('languages') || []
+      return <div>{languages.join(', ')}</div>
+    },
+
     filterFn: (row, id, value) => {
       const languages = row.original.languages
       if (!languages?.length) {
@@ -97,12 +105,22 @@ export const columns: ColumnDef<DataTableProblem>[] = [
   {
     accessorKey: 'updateTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Update" />
+      <DataTableColumnHeader column={column} title="Date" />
     ),
     cell: ({ row }) => {
       return <div>{row.original.updateTime.substring(2, 10)}</div>
     }
   },
+  {
+    accessorKey: 'createdBy',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Creator" />
+    ),
+    cell: ({ row }) => {
+      return <div>{row.getValue('createdBy')}</div>
+    }
+  },
+
   {
     accessorKey: 'difficulty',
     header: ({ column }) => (
@@ -125,25 +143,25 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
     }
-  },
-  {
-    accessorKey: 'submissionCount',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Submission" />
-    ),
-    cell: ({ row }) => {
-      return <div>{row.getValue('submissionCount')}</div>
-    }
-  },
-  {
-    accessorKey: 'acceptedRate',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Success Rate" />
-    ),
-    cell: ({ row }) => {
-      const acceptedRate: number = row.getValue('acceptedRate')
-      const acceptedRateFloat = (acceptedRate * 100).toFixed(2)
-      return <div>{acceptedRateFloat}%</div>
-    }
   }
+  // {
+  //   accessorKey: 'submissionCount',
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Submission" />
+  //   ),
+  //   cell: ({ row }) => {
+  //     return <div>{row.getValue('submissionCount')}</div>
+  //   }
+  // },
+  // {
+  //   accessorKey: 'acceptedRate',
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Success Rate" />
+  //   ),
+  //   cell: ({ row }) => {
+  //     const acceptedRate: number = row.getValue('acceptedRate')
+  //     const acceptedRateFloat = (acceptedRate * 100).toFixed(2)
+  //     return <div>{acceptedRateFloat}%</div>
+  //   }
+  // }
 ]
