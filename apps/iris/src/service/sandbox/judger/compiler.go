@@ -1,6 +1,7 @@
 package judger
 
 import (
+	"bytes"
 	"fmt"
 
 	"context"
@@ -81,6 +82,9 @@ func (c *compiler) compileExec(args ExecArgs) (sandbox.ExecResult, error) {
 	cmd := exec.CommandContext(ctx, args.ExePath, args.Args...)
 	cmd.Env = append(cmd.Env, env)
 
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
 	startTime := time.Now()
 	err = cmd.Run()
 
@@ -93,7 +97,7 @@ func (c *compiler) compileExec(args ExecArgs) (sandbox.ExecResult, error) {
 	if err != nil {
 		return sandbox.ExecResult{
 			StatusCode: sandbox.StatusCode(SYSTEM_ERROR),
-		}, nil
+		}, fmt.Errorf("%s", stderr.String())
 	}
 
 	realTimeSpentMS := int(time.Since(startTime).Milliseconds())
