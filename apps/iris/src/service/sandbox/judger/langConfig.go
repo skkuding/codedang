@@ -83,11 +83,11 @@ func NewJudgerLangConfig(file file.FileManager, javaPolicyPath string) *langConf
 		MaxCompileCpuTime:  5000,
 		MaxCompileRealTime: 10000,
 		MaxCompileMemory:   -1,
-		CompilerPath:       "/usr/bin/javac",
+		CompilerPath:       "/usr/local/sdkman/candidates/java/current/bin/javac",
 		CompileArgs:        "{srcPath} -d {exeDir} -encoding UTF8",
-		RunCommand:         "/usr/bin/java",
+		RunCommand:         "/usr/local/sdkman/candidates/java/current/bin/java",
 		RunArgs: "-cp {exeDir} " +
-			"-XX:MaxRAM={maxMemory}k " +
+			"-XX:MaxRAM={maxMemory} " +
 			"-Djava.security.manager " +
 			"-Dfile.encoding=UTF-8 " +
 			"-Djava.security.policy==" +
@@ -223,9 +223,9 @@ func (l *langConfig) ToRunExecArgs(dir string, language sandbox.Language, order 
 	}
 
 	maxMemory := limit.Memory
-	if c.Language == sandbox.JAVA {
-		maxMemory = -1
-	}
+	// if c.Language == sandbox.JAVA {
+	// 	maxMemory = -1
+	// }
 
 	return ExecArgs{
 		ExePath:      strings.Replace(c.RunCommand, "{exePath}", exePath, 1),
@@ -237,10 +237,11 @@ func (l *langConfig) ToRunExecArgs(dir string, language sandbox.Language, order 
 		MaxOutputSize: 10 * 1024 * 1024,
 		// file에 쓰는거랑 stdout이랑 크게 차이 안남
 		// https://stackoverflow.com/questions/29700478/redirecting-of-stdout-in-bash-vs-writing-to-file-in-c-with-fprintf-speed
-		OutputPath:      outputPath,
-		ErrorPath:       errorPath, // byte buffer로
-		LogPath:         constants.RUN_LOG_PATH,
-		SeccompRuleName: c.SeccompRule,
-		Args:            argSlice,
+		OutputPath:           outputPath,
+		ErrorPath:            errorPath, // byte buffer로
+		LogPath:              constants.RUN_LOG_PATH,
+		SeccompRuleName:      c.SeccompRule,
+		MemoryLimitCheckOnly: c.MemoeryLimitCheckOnly,
+		Args:                 argSlice,
 	}, nil
 }
