@@ -1,10 +1,11 @@
 'use client'
 
+import { PreviewEditorLayout } from '@/app/admin/_components/code-editor/PreviewEditorLayout'
 import { createSchema } from '@/app/admin/problem/_libs/schemas'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { useSession } from '@/libs/hooks/useSession'
-import type { ProblemDetail } from '@/types/type'
+import type { ProblemDetail, Template } from '@/types/type'
 import { Level, type CreateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
@@ -23,7 +24,6 @@ import { EditorDescription } from '../../_components/code-editor/EditorDescripti
 import { InfoForm } from '../_components/InfoForm'
 import { LimitForm } from '../_components/LimitForm'
 import { PopoverVisibleInfo } from '../_components/PopoverVisibleInfo'
-import { PreviewEditorLayout } from '../_components/PreviewEditorLayout'
 import { TemplateField } from '../_components/TemplateField'
 import { TestcaseField } from '../_components/TestcaseField'
 import { CreateProblemForm } from './_components/CreateProblemForm'
@@ -83,8 +83,8 @@ export default function Page() {
       <div className="fixed inset-0 z-50 flex bg-white">
         <PreviewEditorLayout
           problemTitle={problem.title}
-          language={problem.languages[0]}
-          code={problem.template[0]}
+          languages={problem.languages}
+          template={methods.getValues('template') as Template[]}
           exitPreview={() => setIsPreviewing(false)}
         >
           <EditorDescription problem={problem} />

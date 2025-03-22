@@ -1,21 +1,22 @@
 import { Button } from '@/components/shadcn/button'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
+import type { Language, Template } from '@/types/type'
 import Image from 'next/image'
 import Link from 'next/link'
 import { PreviewEditorResizablePanel } from './PreviewEditorResizablePanel'
 
 interface EditorLayoutProps {
   problemTitle: string
-  language: string
-  code: string
+  languages: string[]
+  template: Template[]
   exitPreview: () => void
   children: React.ReactNode
 }
 
 export function PreviewEditorLayout({
   problemTitle,
-  language,
-  code,
+  languages,
+  template,
   exitPreview,
   children
 }: EditorLayoutProps) {
@@ -39,7 +40,10 @@ export function PreviewEditorLayout({
           Exit Preview
         </Button>
       </header>
-      <PreviewEditorResizablePanel language={language ?? 'C'} code={code ?? ''}>
+      <PreviewEditorResizablePanel
+        languages={languages ?? ['C']}
+        template={template ?? []}
+      >
         {children}
       </PreviewEditorResizablePanel>
     </div>

@@ -2,10 +2,11 @@
 
 import { ConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
 import { EditorDescription } from '@/app/admin/_components/code-editor/EditorDescription'
+import { PreviewEditorLayout } from '@/app/admin/_components/code-editor/PreviewEditorLayout'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { useSession } from '@/libs/hooks/useSession'
-import type { ProblemDetail } from '@/types/type'
+import type { ProblemDetail, Template } from '@/types/type'
 import type { UpdateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
@@ -22,7 +23,6 @@ import { VisibleForm } from '../../../_components/VisibleForm'
 import { InfoForm } from '../../_components/InfoForm'
 import { LimitForm } from '../../_components/LimitForm'
 import { PopoverVisibleInfo } from '../../_components/PopoverVisibleInfo'
-import { PreviewEditorLayout } from '../../_components/PreviewEditorLayout'
 import { TemplateField } from '../../_components/TemplateField'
 import { TestcaseField } from '../../_components/TestcaseField'
 import { editSchema } from '../../_libs/schemas'
@@ -72,8 +72,8 @@ export default function Page({ params }: { params: { problemId: string } }) {
       <div className="fixed inset-0 z-50 flex bg-white">
         <PreviewEditorLayout
           problemTitle={problem.title}
-          language={problem.languages[0]}
-          code={problem.template[0]}
+          languages={problem.languages}
+          template={methods.getValues('template') as Template[]}
           exitPreview={() => setIsPreviewing(false)}
         >
           <EditorDescription problem={problem} />
