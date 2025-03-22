@@ -41,7 +41,7 @@ export const columns: ColumnDef<SubmissionItem>[] = [
     header: () => 'Submission Time',
     accessorKey: 'createTime',
     cell: ({ row }) =>
-      dateFormatter(row.original.createTime, 'YYYY-MM-DD HH:mm:ss')
+      dateFormatter(row.original.createTime, 'MMM DD, YYYY HH:mm')
   },
   {
     header: () => 'Code Size',

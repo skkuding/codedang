@@ -12,7 +12,7 @@ import {
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
 import { useState } from 'react'
-import { PiTrashLight } from 'react-icons/pi'
+import { FaTrash } from 'react-icons/fa6'
 import { toast } from 'sonner'
 import { useDataTable } from '../../_components/table/context'
 
@@ -93,7 +93,7 @@ export function DeleteCourseButton<TData extends { id: number }, TPromise>({
         onClick={handleDeleteButtonClick}
         className={className}
       >
-        <PiTrashLight fontSize={18} />
+        <FaTrash fontSize={13} color={'#8A8A8A'} />
       </Button>
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <AlertDialogContent>

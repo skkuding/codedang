@@ -41,7 +41,7 @@ export function SubmissionSummary({ submission }: SubmissionSummaryProps) {
         </div>
         <div>
           <h2>Submission Time</h2>
-          <p>{dateFormatter(submission.updateTime, 'YYYY-MM-DD HH:mm:ss')}</p>
+          <p>{dateFormatter(submission.updateTime, 'MMM DD, YYYY HH:mm')}</p>
         </div>
         <div>
           <h2>Code Size</h2>

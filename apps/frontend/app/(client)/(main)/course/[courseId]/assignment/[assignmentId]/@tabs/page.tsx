@@ -23,11 +23,11 @@ export default async function AssignmentInfo({ params }: AssignmentInfoProps) {
 
   const formattedStartTime = dateFormatter(
     assignment.startTime,
-    'YYYY-MM-DD HH:mm:ss'
+    'MMM DD, YYYY HH:mm'
   )
   const formattedEndTime = dateFormatter(
     assignment.endTime,
-    'YYYY-MM-DD HH:mm:ss'
+    'MMM DD, YYYY HH:mm'
   )
 
   const description = assignment.description

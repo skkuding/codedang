@@ -13,13 +13,17 @@ import { format } from 'date-fns'
 import { Calendar as CalendarIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-export const DateTimePickerDemo = ({
-  onChange,
-  defaultValue
-}: {
+interface DateTimePickerDemoProps {
   onChange: (date: Date) => void
   defaultValue?: Date
-}) => {
+  defaultTimeOnSelect?: { hours: number; minutes: number; seconds: number }
+}
+
+export const DateTimePickerDemo = ({
+  onChange,
+  defaultValue,
+  defaultTimeOnSelect
+}: DateTimePickerDemoProps) => {
   const [date, setDate] = useState<Date>()
 
   useEffect(() => {
@@ -52,7 +56,17 @@ export const DateTimePickerDemo = ({
         <Calendar
           mode="single"
           selected={date}
-          onSelect={setDate}
+          onSelect={(date) =>
+            setDate(
+              new Date(
+                date?.setHours(
+                  defaultTimeOnSelect?.hours ?? 0,
+                  defaultTimeOnSelect?.minutes ?? 0,
+                  defaultTimeOnSelect?.seconds ?? 0
+                ) ?? new Date(new Date().setHours(0, 0, 0))
+              )
+            )
+          }
           initialFocus
         />
         <div className="border-border border-t p-3">

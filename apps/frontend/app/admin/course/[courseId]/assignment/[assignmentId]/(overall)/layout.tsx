@@ -47,8 +47,8 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
         <div className="flex items-center gap-2">
           <Image src={calendarIcon} alt="calendar" width={22} />
           <p className="font-semibold">
-            {dateFormatter(assignmentData?.startTime, 'YY-MM-DD HH:mm')} ~{' '}
-            {dateFormatter(assignmentData?.endTime, 'YY-MM-DD HH:mm')}
+            {dateFormatter(assignmentData?.startTime, 'MMM DD, YYYY HH:mm')} ~{' '}
+            {dateFormatter(assignmentData?.endTime, 'MMM DD, YYYY HH:mm')}
           </p>
         </div>
       </div>

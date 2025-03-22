@@ -105,6 +105,7 @@ export function GroupTable() {
               duplicateTarget={duplicateTarget}
               onSuccess={onSuccess}
             />
+
             <DeleteCourseButton
               target="course"
               deleteTarget={deleteTarget}

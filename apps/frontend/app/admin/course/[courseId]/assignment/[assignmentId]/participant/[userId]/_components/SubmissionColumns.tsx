@@ -45,7 +45,7 @@ export const submissionColumns: ColumnDef<UserSubmission>[] = [
     cell: ({ row }) => (
       <div className="whitespace-nowrap text-center text-xs">
         {dayjs(new Date(parseInt(row.getValue('submissionTime'), 10))).format(
-          'YYYY-MM-DD HH:mm:ss'
+          'MMM DD, YYYY HH:mm'
         )}
       </div>
     )

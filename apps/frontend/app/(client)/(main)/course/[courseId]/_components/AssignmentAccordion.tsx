@@ -107,7 +107,7 @@ function AssignmentAccordionItem({
             ) : (
               <div className="bg-[#F8F8F8] px-12 py-4">
                 <p className="ml-[18px] text-base text-slate-500">
-                  Jhere&apos;s no published assignment
+                  There&apos;s no published assignment
                 </p>
               </div>
             )}

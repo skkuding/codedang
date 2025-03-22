@@ -19,24 +19,21 @@ export default function Page() {
     })
   } // 변수 넣어야하나??
   return (
-    <div className="container mx-auto space-y-5 py-10">
-      <div className="flex justify-between">
-        <h1 className="text-4xl font-bold">Member List</h1>
-        <InviteButton
-          onSuccess={onSuccess}
-          params={{
-            courseId: groupId
-          }}
-        />
-      </div>
-      <h1 className="text-lg font-normal text-gray-500">
-        Here are all the instructors and members of the course.
-      </h1>
-      <ErrorBoundary fallback={FetchErrorFallback}>
-        <Suspense fallback={<GroupTableFallback />}>
+    <ErrorBoundary fallback={FetchErrorFallback}>
+      <Suspense fallback={<GroupTableFallback />}>
+        <div className="container mx-auto space-y-2 py-10">
+          <div className="flex justify-between">
+            <h1 className="text-4xl font-bold">Member List</h1>
+            <InviteButton
+              onSuccess={onSuccess}
+              params={{
+                courseId: groupId
+              }}
+            />
+          </div>
           <GroupTable />
-        </Suspense>
-      </ErrorBoundary>
-    </div>
+        </div>
+      </Suspense>
+    </ErrorBoundary>
   )
 }

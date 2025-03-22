@@ -97,7 +97,7 @@ function GradeAccordionItem({ assignment, courseId }: GradeAccordionItemProps) {
             </Dialog>
           </div>
           <p className="w-[20%] text-center font-normal text-[#8A8A8A]">
-            {dateFormatter(assignment.endTime, 'YYYY-MM-DD HH:mm:ss')}
+            {dateFormatter(assignment.endTime, 'MMM DD, YYYY HH:mm')}
           </p>
           <p className="w-[12%] text-center font-medium">
             {`${assignment.userAssignmentFinalScore ?? '-'} / ${assignment.assignmentPerfectScore}`}
