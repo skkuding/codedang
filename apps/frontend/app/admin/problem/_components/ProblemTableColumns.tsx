@@ -7,7 +7,6 @@ import { dateFormatter } from '@/libs/utils'
 import type { Level } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
-import { FaFileCircleExclamation } from 'react-icons/fa6'
 import { ContainedContests } from './ContainedContests'
 import { UseInfoModal } from './UseInfoModal'
 

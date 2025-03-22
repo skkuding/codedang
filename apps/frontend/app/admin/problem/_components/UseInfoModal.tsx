@@ -26,23 +26,34 @@ export function UseInfoModal({ problemId }: UseInfoModalProps) {
           e.preventDefault()
           setIsDialogOpen(true)
         }}
-        className="bg-transparent p-0 hover:bg-transparent"
+        className="h-auto w-auto rounded-none bg-transparent hover:bg-transparent"
       >
         <FaFileCircleExclamation size={24} color="#B0B0B0" />
       </Button>
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent
-          className="p-14 sm:max-w-2xl"
-          onClick={(e) => e.stopPropagation()}
+      <Dialog
+        open={isDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsDialogOpen(false)
+          }
+        }}
+      >
+        <div
+          onClick={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+          }}
         >
-          <DialogHeader>
-            <DialogTitle>
-              <div className="flex items-center gap-2 text-lg font-medium">
-                <span>Problem Use Information</span>
-              </div>
-            </DialogTitle>
-          </DialogHeader>
-        </DialogContent>
+          <DialogContent className="p-14 sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>
+                <div className="flex items-center gap-2 text-lg font-medium">
+                  <span>Problem Use Information</span>
+                </div>
+              </DialogTitle>
+            </DialogHeader>
+          </DialogContent>
+        </div>
       </Dialog>
     </>
   )
