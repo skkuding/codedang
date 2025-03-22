@@ -84,7 +84,7 @@ jobs:
           echo "Running masking script on the RDS database via Bastion host..."
           ssh -o StrictHostKeyChecking=no ec2-user@${{ steps.fetch-details.outputs.bastion_ip }} <<EOF
 
-          sudo dnf install -y postgresql
+          sudo dnf install postgresql15
 
           export PGPASSWORD="${{ steps.fetch-details.outputs.db_pw }}"
           psql -h "${{ steps.fetch-details.outputs.rds_endpoint }}" -U "${{ steps.fetch-details.outputs.db_user }}" -d "${{ steps.fetch-details.outputs.db_name }}" <<SQL
