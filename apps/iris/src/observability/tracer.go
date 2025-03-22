@@ -9,6 +9,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
@@ -44,6 +45,8 @@ func newTraceProvider(res *resource.Resource, bsp sdktrace.SpanProcessor) *sdktr
 		sdktrace.WithResource(res),
 		sdktrace.WithSpanProcessor(bsp),
 	)
+	propagator := otel.GetTextMapPropagator()
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagator))
 	return tracerProvider
 }
 
