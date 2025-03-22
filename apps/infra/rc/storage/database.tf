@@ -30,4 +30,11 @@ resource "aws_db_instance" "postgres" {
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
 
   skip_final_snapshot = true
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore attributes that don’t require replacement
+      username
+    ]
+  }
 }
