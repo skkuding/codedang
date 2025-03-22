@@ -1,26 +1,11 @@
-/*
-  Warnings:
+-- 테이블 이름 변경
+ALTER TABLE "image" RENAME TO "file";
 
-  - You are about to drop the `image` table. If the table is not empty, all the data it contains will be lost.
+-- 기본키 이름 변경
+ALTER TABLE "file" RENAME CONSTRAINT "image_pkey" TO "file_pkey";
 
-*/
--- DropForeignKey
-ALTER TABLE "image" DROP CONSTRAINT "image_createdById_fkey";
+-- 외래키 이름 변경
+ALTER TABLE "file" RENAME CONSTRAINT "image_createdById_fkey" TO "file_createdById_fkey";
 
--- DropTable
-DROP TABLE "image";
-
--- CreateTable
-CREATE TABLE "file" (
-    "filename" TEXT NOT NULL,
-    "createdById" INTEGER,
-    "create_time" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "file_pkey" PRIMARY KEY ("filename")
-);
-
--- CreateIndex
-CREATE UNIQUE INDEX "file_filename_key" ON "file"("filename");
-
--- AddForeignKey
-ALTER TABLE "file" ADD CONSTRAINT "file_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+-- filename에 대한 인덱스 이름 변경
+ALTER INDEX "image_filename_key" RENAME TO "file_filename_key";
