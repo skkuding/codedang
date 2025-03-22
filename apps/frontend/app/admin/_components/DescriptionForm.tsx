@@ -1,8 +1,8 @@
 'use client'
 
-import { TextEditor } from '@/components/TextEditor'
 import { useController, useFormContext } from 'react-hook-form'
 import { ErrorMessage } from './ErrorMessage'
+import { TextEditor } from './TextEditor'
 
 interface DescriptionFormProps {
   name: string
@@ -10,8 +10,8 @@ interface DescriptionFormProps {
 }
 
 export function DescriptionForm({
-  name,
-  isDarkmode = false
+  name
+  // isDarkmode = false
 }: DescriptionFormProps) {
   const {
     control,
@@ -29,7 +29,7 @@ export function DescriptionForm({
         placeholder="Enter a description..."
         onChange={field.onChange}
         defaultValue={field.value as string}
-        isDarkMode={isDarkmode}
+        // isDarkMode={isDarkmode}
       />
       {errors[name] && <ErrorMessage />}
     </div>
