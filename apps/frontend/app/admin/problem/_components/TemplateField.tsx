@@ -3,7 +3,6 @@
 import type { Template, Language } from '@generated/graphql'
 import { useEffect, useRef } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Label } from '../../_components/Label'
 import { CodeForm } from './CodeForm'
 
 export function TemplateField() {
@@ -41,17 +40,12 @@ export function TemplateField() {
       {watchedLanguages &&
         watchedLanguages.map((language, index) => (
           <div key={index} className="flex gap-4">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <Label required={false}>{language} Template</Label>
-              </div>
-              {language && (
-                <CodeForm
-                  name={`template.${index}.code.0.text`}
-                  language={language as Exclude<Language, 'Golang' | 'Python2'>}
-                />
-              )}
-            </div>
+            {language && (
+              <CodeForm
+                name={`template.${index}.code.0.text`}
+                language={language as Exclude<Language, 'Golang' | 'Python2'>}
+              />
+            )}
           </div>
         ))}
     </div>
