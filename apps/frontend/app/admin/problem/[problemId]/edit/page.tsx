@@ -14,7 +14,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
-import { IoIosCheckmarkCircle } from 'react-icons/io'
+import { IoIosCheckmarkCircle, IoIosEye } from 'react-icons/io'
 import { DescriptionForm } from '../../../_components/DescriptionForm'
 import { FormSection } from '../../../_components/FormSection'
 import { SwitchField } from '../../../_components/SwitchField'
@@ -172,11 +172,11 @@ export default function Page({ params }: { params: { problemId: string } }) {
               </Button>
               <Button
                 type="button"
-                variant={'slate'}
+                variant="slate"
                 className="flex h-[36px] w-[120px] items-center gap-2 bg-slate-200 px-0"
                 onClick={() => setIsPreviewing(true)}
               >
-                <IoIosCheckmarkCircle fontSize={20} />
+                <IoIosEye fontSize={20} />
                 <div className="text-base">Preview</div>
               </Button>
             </div>

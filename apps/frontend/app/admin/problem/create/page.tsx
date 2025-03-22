@@ -13,7 +13,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
-import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
+import { IoMdCheckmarkCircleOutline, IoMdEye } from 'react-icons/io'
 import { ConfirmNavigation } from '../../_components/ConfirmNavigation'
 import { DescriptionForm } from '../../_components/DescriptionForm'
 import { FormSection } from '../../_components/FormSection'
@@ -174,7 +174,7 @@ export default function Page() {
                 className="flex h-[36px] w-[120px] items-center gap-2 bg-slate-200 px-0"
                 onClick={() => setIsPreviewing(true)}
               >
-                <IoMdCheckmarkCircleOutline fontSize={20} />
+                <IoMdEye fontSize={20} />
                 <div className="text-base">Preview</div>
               </Button>
             </div>
