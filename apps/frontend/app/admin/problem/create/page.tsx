@@ -38,6 +38,8 @@ export default function Page() {
     defaultValues: {
       difficulty: Level.Level1,
       tagIds: [],
+      inputDescription: '',
+      outputDescription: '',
       testcases: [
         { input: '', output: '', isHidden: false, scoreWeight: null },
         { input: '', output: '', isHidden: true, scoreWeight: null }
