@@ -43,7 +43,7 @@ jobs:
           echo "Fetching Bastion Host IP..."
 
           BASTION_IP=$(aws ec2 describe-instances \
-            --filters "Name=tag:Name,Values=Codedang-Bastion-Host" "Name=instance-state-name,Values=running" \
+            --filters "Name=tag:Name,Values=Bastion-Host" "Name=instance-state-name,Values=running" \
             --query 'Reservations[].Instances[].PublicIpAddress' \
             --output text)
 
