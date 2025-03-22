@@ -86,7 +86,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className="w-[400px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+        <div className="w-[276px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
           {row.getValue('title')}
         </div>
       )
@@ -97,13 +97,17 @@ export const columns: ColumnDef<DataTableProblem>[] = [
   {
     accessorKey: 'difficulty',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Level" />
+      <DataTableColumnHeader
+        column={column}
+        title="Level"
+        className="flex justify-start"
+      />
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
       const formattedLevel = `Level ${level.slice(-1)}`
       return (
-        <div>
+        <div className="flex justify-center">
           <Badge
             variant={level as Level}
             className="flex h-[24px] w-[70px] items-center justify-center whitespace-nowrap rounded-full text-xs font-normal"
@@ -123,7 +127,11 @@ export const columns: ColumnDef<DataTableProblem>[] = [
       <DataTableColumnHeader column={column} title="Submission" />
     ),
     cell: ({ row }) => {
-      return <div>{row.getValue('submissionCount')}</div>
+      return (
+        <div className="w-[115px] text-right text-[#737373]">
+          {row.getValue('submissionCount')}
+        </div>
+      )
     }
   },
   /**
@@ -155,7 +163,11 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     cell: ({ row }) => {
       const acceptedRate: number = row.getValue('acceptedRate')
       const acceptedRateFloat = (acceptedRate * 100).toFixed(2)
-      return <div>{acceptedRateFloat}%</div>
+      return (
+        <div className="w-[129px] text-right text-[#737373]">
+          {acceptedRateFloat}%
+        </div>
+      )
     }
   },
   {
@@ -165,7 +177,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div>
+        <div className="text-[#737373]">
           {dateFormatter(row.original.updateTime, 'YYYY-MM-DD HH:mm:ss')}
         </div>
       )

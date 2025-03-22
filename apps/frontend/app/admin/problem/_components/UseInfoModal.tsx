@@ -26,9 +26,13 @@ export function UseInfoModal({ problemId }: UseInfoModalProps) {
           e.preventDefault()
           setIsDialogOpen(true)
         }}
-        className="h-auto w-auto rounded-none bg-transparent hover:bg-transparent"
+        className="inline-flex items-center justify-center rounded-none bg-transparent p-0 hover:bg-transparent"
       >
-        <FaFileCircleExclamation size={24} color="#B0B0B0" />
+        <FaFileCircleExclamation
+          size={24}
+          color="#B0B0B0"
+          className="h-auto w-auto"
+        />
       </Button>
       <Dialog
         open={isDialogOpen}
