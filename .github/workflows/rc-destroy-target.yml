@@ -46,7 +46,7 @@ jobs:
         run: |
           echo "$TFVARS_RC" >> terraform.tfvars
           echo "$OAUTH_GITHUB" >> terraform.tfvars
-          echo "$OAUTH_KAKAO" >> terraform.tfvars        
+          echo "$OAUTH_KAKAO" >> terraform.tfvars
           echo 'env = "rc"' >> terraform.tfvars
         env:
           TFVARS_RC: ${{ secrets.TFVARS_RC }}
@@ -58,3 +58,9 @@ jobs:
         run: |
           terraform init -backend-config="bucket=codedang-tf-state-rc"
           terraform destroy -auto-approve
+
+  rc-mask-db:
+    if: github.event.inputs.terraform_project == 'storage'
+    uses: ./.github/workflows/rc-mask-db.yml
+    secrets: inherit
+    needs: [rc-destroy-terraform-target-project]
