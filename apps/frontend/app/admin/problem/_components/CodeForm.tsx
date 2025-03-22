@@ -10,7 +10,7 @@ import { CodeEditor, extensionMap, initAndFormat } from './editor'
 
 interface CodeFormProps {
   name: string
-  language: Exclude<Language, 'Golang' | 'Python2'>
+  language: Language
 }
 
 export function CodeForm({ name, language }: CodeFormProps) {

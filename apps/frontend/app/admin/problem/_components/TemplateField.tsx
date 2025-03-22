@@ -43,7 +43,7 @@ export function TemplateField() {
             {language && (
               <CodeForm
                 name={`template.${index}.code.0.text`}
-                language={language as Exclude<Language, 'Golang' | 'Python2'>}
+                language={language}
               />
             )}
           </div>
