@@ -42,7 +42,7 @@ jobs:
             --filters "Name=tag:Name,Values=Codedang-Bastion-Host" "Name=instance-state-name,Values=running" \
             --query 'Reservations[].Instances[].PublicIpAddress' \
             --output text)
-          echo "Bastion Host IP: $BASTION_IP"
+
           echo "bastion_ip=$BASTION_IP" >> $GITHUB_OUTPUT
 
           echo "Fetching RDS Endpoint..."
@@ -57,7 +57,6 @@ jobs:
           echo "RDS Instance Identifier: $RDS_INSTANCE_ID"
 
           RDS_ENDPOINT=$(aws rds describe-db-instances --db-instance-identifier "$RDS_INSTANCE_ID" --query "DBInstances[0].Endpoint.Address" --output text)
-
 
           echo "rds_endpoint=$RDS_ENDPOINT" >> $GITHUB_OUTPUT
 
