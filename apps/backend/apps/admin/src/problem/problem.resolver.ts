@@ -12,8 +12,8 @@ import {
 import {
   AssignmentProblem,
   ContestProblem,
+  File,
   Group,
-  Image,
   ProblemTag,
   ProblemTestcase,
   UpdateHistory,
@@ -34,7 +34,7 @@ import {
   RequiredIntPipe
 } from '@libs/pipe'
 import { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
-import { ImageSource } from './model/image.output'
+import { FileSource } from './model/file.output'
 import {
   CreateProblemInput,
   UploadFileInput,
@@ -90,20 +90,28 @@ export class ProblemResolver {
     )
   }
 
-  @Mutation(() => ImageSource)
+  @Mutation(() => FileSource)
   async uploadImage(
     @Args('input') input: UploadFileInput,
     @Context('req') req: AuthenticatedRequest
   ) {
-    return await this.problemService.uploadImage(input, req.user.id)
+    return await this.problemService.uploadFile(input, req.user.id, true)
   }
 
-  @Mutation(() => Image)
-  async deleteImage(
+  @Mutation(() => FileSource)
+  async uploadFile(
+    @Args('input') input: UploadFileInput,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    return await this.problemService.uploadFile(input, req.user.id, false)
+  }
+
+  @Mutation(() => File)
+  async deleteFile(
     @Args('filename') filename: string,
     @Context('req') req: AuthenticatedRequest
   ) {
-    return await this.problemService.deleteImage(filename, req.user.id)
+    return await this.problemService.deleteFile(filename, req.user.id)
   }
 
   @Query(() => [ProblemWithIsVisible])
