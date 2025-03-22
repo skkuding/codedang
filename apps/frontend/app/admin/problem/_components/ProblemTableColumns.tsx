@@ -52,7 +52,9 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
   )
 }
 
-export const columns: ColumnDef<DataTableProblem>[] = [
+export const createColumns = (
+  isUser: boolean
+): ColumnDef<DataTableProblem>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -165,13 +167,13 @@ export const columns: ColumnDef<DataTableProblem>[] = [
       return <div>{acceptedRateFloat}%</div>
     }
   },
+
   {
     accessorKey: 'isVisible',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Visible" />
-    ),
+    header: ({ column }) =>
+      !isUser && <DataTableColumnHeader column={column} title="Visible" />,
     cell: ({ row }) => {
-      return <VisibleCell row={row} />
+      return !isUser && <VisibleCell row={row} />
     }
   }
 ]
