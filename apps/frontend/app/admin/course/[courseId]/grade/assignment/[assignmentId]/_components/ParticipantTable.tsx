@@ -197,7 +197,7 @@ export function ParticipantTable({
             data={csvData}
             headers={headers}
             filename={fileName}
-            className="ml-auto flex items-center gap-2 rounded-lg bg-blue-400 px-3 py-1.5 text-lg font-semibold text-white transition-opacity hover:opacity-85"
+            className="ml-auto flex flex-shrink-0 items-center gap-2 rounded-lg bg-blue-400 px-3 py-1.5 text-lg font-semibold text-white transition-opacity hover:opacity-85"
           >
             Export
             <Image
