@@ -38,12 +38,12 @@ export class StorageService {
 
   /**
    * 이미지를 S3 Bucket에 업로드합니다.
-   * @param filename 이미지 파일 이름
-   * @param fileSize 이미지 파일 크기 (Byte)
-   * @param content 이미지 파일 내용 (ReadStream type)
-   * @param type 업로드할 이미지 파일의 MIME type
+   * @param filename 파일 이름
+   * @param fileSize 파일 크기 (Byte)
+   * @param content 파일 내용 (ReadStream type)
+   * @param type 업로드할 파일의 MIME type
    */
-  async uploadImage({
+  async uploadFile({
     filename,
     fileSize,
     content,
@@ -100,10 +100,10 @@ export class StorageService {
   }
 
   /**
-   * S3에 저장된 이미지를 삭제합니다.
-   * @param filename 이미지 파일 이름
+   * S3에 저장된 파일을 삭제합니다.
+   * @param filename 파일 이름
    */
-  async deleteImage(filename: string) {
+  async deleteFile(filename: string) {
     await this.mediaClient.send(
       new DeleteObjectCommand({
         Bucket: this.config.get('MEDIA_BUCKET_NAME'),
