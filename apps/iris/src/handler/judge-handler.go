@@ -222,9 +222,10 @@ func (j *JudgeHandler[C, E]) Handle(id string, data []byte, hidden bool, out cha
 	// 컴파일러 실행 과정이나 이후 처리 과정에서 오류가 생긴 경우
 	if compileOut.Err != nil {
 		out <- JudgeResultMessage{nil, &HandlerError{
-			caller: "handle",
-			err:    fmt.Errorf("%w: %s", ErrCompile, compileOut.Err),
-			level:  logger.ERROR,
+			caller:  "handle",
+			err:     fmt.Errorf("%w: %s", ErrCompile, compileOut.Err),
+			level:   logger.ERROR,
+			Message: compileOut.Err.Error(),
 		}}
 		return
 	}
