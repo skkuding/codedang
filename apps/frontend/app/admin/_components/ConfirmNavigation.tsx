@@ -98,8 +98,6 @@ export function ConfirmNavigation({ children }: ConfirmNavigationProps) {
 
         if (shouldLeave) {
           shouldSkipWarning.current = true
-          console.log('yeses')
-          router.back()
           router.back()
         } else {
           window.history.pushState(
