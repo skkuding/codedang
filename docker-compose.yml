@@ -167,7 +167,7 @@ services:
       - iris
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - $PWD/apps/grafana-logs/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
+      - ./apps/grafana-logs/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
     command:
       - -config.file=/etc/promtail/promtail-config.yml
       - -config.expand-env=true
@@ -193,8 +193,8 @@ services:
       - database
       - deploy-storage
     volumes:
-      - $PWD/scripts:/etc/scripts
-      # - $PWD/dist:/etc/dist:z
+      - ./scripts:/etc/scripts
+      # - ./dist:/etc/dist:z
     network_mode: host
     command: ['/bin/bash', '/etc/scripts/deploy.sh']
 
