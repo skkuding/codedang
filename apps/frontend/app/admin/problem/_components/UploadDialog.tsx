@@ -69,7 +69,7 @@ export function UploadDialog() {
       client.refetchQueries({
         include: [GET_PROBLEMS]
       })
-    } catch (error) {
+    } catch {
       toast.error('Failed to upload file')
     }
   }
