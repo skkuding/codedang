@@ -32,6 +32,10 @@ jobs:
         with:
           terraform_version: 1.5.2
 
+      - name: Terraform Init Storage
+        working-directory: ./apps/infra/rc/storage
+        run: terraform init -backend-config="bucket=codedang-tf-state-rc"
+
       - name: Fetch dynamic connection details
         working-directory: ./apps/infra/rc/storage
         id: fetch-details
