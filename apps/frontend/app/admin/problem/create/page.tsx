@@ -38,6 +38,8 @@ export default function Page() {
     defaultValues: {
       difficulty: Level.Level1,
       tagIds: [],
+      inputDescription: '',
+      outputDescription: '',
       testcases: [
         { input: '', output: '', isHidden: false, scoreWeight: null },
         { input: '', output: '', isHidden: true, scoreWeight: null }
@@ -127,12 +129,12 @@ export default function Page() {
 
             <div className="flex justify-between">
               <div className="w-[360px]">
-                <FormSection title="Input Description">
+                <FormSection title="Input Description" isLabeled={false}>
                   <DescriptionForm name="inputDescription" />
                 </FormSection>
               </div>
               <div className="w-[360px]">
-                <FormSection title="Output Description">
+                <FormSection title="Output Description" isLabeled={false}>
                   <DescriptionForm name="outputDescription" />
                 </FormSection>
               </div>

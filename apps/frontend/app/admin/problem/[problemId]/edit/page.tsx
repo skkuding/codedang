@@ -122,14 +122,14 @@ export default function Page({ params }: { params: { problemId: string } }) {
 
             <div className="flex justify-between">
               <div className="w-[360px]">
-                <FormSection title="Input Description">
+                <FormSection title="Input Description" isLabeled={false}>
                   {methods.getValues('inputDescription') && (
                     <DescriptionForm name="inputDescription" />
                   )}
                 </FormSection>
               </div>
               <div className="w-[360px]">
-                <FormSection title="Output Description">
+                <FormSection title="Output Description" isLabeled={false}>
                   {methods.getValues('outputDescription') && (
                     <DescriptionForm name="outputDescription" />
                   )}
