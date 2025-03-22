@@ -18,7 +18,7 @@ import {
   PopoverTrigger
 } from '@/components/shadcn/popover'
 import { Toggle } from '@/components/shadcn/toggle'
-import { UPLOAD_IMAGE } from '@/graphql/problem/mutations'
+import { UPLOAD_IMAGE, UPLOAD_FILE } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import type { Range } from '@tiptap/core'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
@@ -65,13 +65,15 @@ import {
   ArrowLeftFromLine,
   Expand,
   Redo,
-  Undo
+  Undo,
+  Paperclip
 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CautionDialog } from '../problem/_components/CautionDialog'
 import { FullScreenTextEditor } from './FullScreenTextEditor'
 import { CodeBlockComponent } from './tiptap/CodeBlockComponent'
+import { FileDownloadNode } from './tiptap/FileDownloadNode'
 import { TextStyleBar } from './tiptap/TextStyleBar'
 import { Commands, type CommandProps } from './tiptap/commands'
 import { getSuggestionItems } from './tiptap/items'
@@ -108,6 +110,7 @@ export function TextEditor({
       }),
       Underline,
       Image,
+      FileDownloadNode,
       MathExtension as Extension,
       Heading.configure({ levels: [1, 2, 3] }),
       Link.configure({
@@ -199,6 +202,7 @@ export function TextEditor({
             return getSuggestionItems(
               query,
               () => setIsImageDialogOpen(true),
+              () => setIsFileDialogOpen(true),
               () => setIsTableDialogOpen(true)
             )
           }
@@ -218,9 +222,13 @@ export function TextEditor({
   })
 
   const [uploadImage] = useMutation(UPLOAD_IMAGE)
+  const [uploadFile] = useMutation(UPLOAD_FILE)
 
   const [imageUrl, setImageUrl] = useState<string | undefined>('')
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false)
+  const [fileUrl, setFileUrl] = useState<string | undefined>('')
+  const [fileName, setFileName] = useState<string | undefined>('')
+  const [isFileDialogOpen, setIsFileDialogOpen] = useState(false)
   const [tableSize, setTableSize] = useState({ rowCount: 0, columnCount: 0 })
   const [isTableDialogOpen, setIsTableDialogOpen] = useState(false)
   const [isTablePopoverOpen, setIsTablePopoverOpen] = useState(false)
@@ -228,19 +236,11 @@ export function TextEditor({
   const [dialogDescription, setDialogDescription] = useState<string>('')
 
   const addImage = useCallback(
-    (imageUrl: string | undefined) => {
-      if (!editor) {
-        return null
-      }
-      if (imageUrl === null) {
+    (imageUrl?: string) => {
+      if (!editor || !imageUrl) {
         return
       }
-      if (imageUrl === '') {
-        return
-      }
-      if (imageUrl) {
-        editor?.chain().focus().setImage({ src: imageUrl }).run()
-      }
+      editor.chain().focus().setImage({ src: imageUrl }).run()
     },
     [editor]
   )
@@ -262,6 +262,47 @@ export function TextEditor({
         const errorMessage = error.message
         if (errorMessage === 'File size exceeds maximum limit') {
           setDialogDescription('Images larger than 5MB cannot be uploaded.')
+          setIsCautionDialogOpen(true)
+        }
+      }
+    }
+  }
+
+  const addFile = useCallback(
+    (fileUrl?: string, fileName?: string) => {
+      if (!editor || !fileUrl) {
+        return
+      }
+      editor
+        .chain()
+        .focus()
+        .insertContent({
+          type: 'fileDownload',
+          attrs: { href: fileUrl, fileName: fileName ?? 'File' }
+        })
+        .run()
+    },
+    [editor]
+  )
+
+  const handleUploadFile = async (files: FileList | null) => {
+    if (files === null) {
+      return
+    }
+    const file = files[0]
+    try {
+      const { data } = await uploadFile({
+        variables: {
+          input: { file }
+        }
+      })
+      console.log(data?.uploadFile.src)
+      setFileUrl(data?.uploadFile.src ?? '')
+    } catch (error) {
+      if (error instanceof Error) {
+        const errorMessage = error.message
+        if (errorMessage === 'File size exceeds maximum limit') {
+          setDialogDescription('Files larger than 30MB cannot be uploaded.')
           setIsCautionDialogOpen(true)
         }
       }
@@ -382,6 +423,36 @@ export function TextEditor({
               }}
               onInsert={() => addImage(imageUrl)}
               onToggleClick={() => setIsImageDialogOpen(true)}
+            />
+            <InsertDialog
+              open={isFileDialogOpen}
+              editor={editor}
+              activeType="file"
+              title="Upload File"
+              description={
+                <>
+                  <Input
+                    type="file"
+                    accept="application/pdf"
+                    onChange={(e) => {
+                      handleUploadFile(e.target.files)
+                      setFileName(e.target.files?.[0].name ?? '')
+                    }}
+                  />
+                  <p className="text-sm"> * File must be under 30MB</p>
+                </>
+              }
+              triggerIcon={<Paperclip className="text-neutral-600" />}
+              onOpenChange={(open) => {
+                setIsFileDialogOpen(open)
+                if (!open) {
+                  setTimeout(() => {
+                    editor.commands.focus()
+                  }, 200)
+                }
+              }}
+              onInsert={() => addFile(fileUrl, fileName)}
+              onToggleClick={() => setIsFileDialogOpen(true)}
             />
             <Toggle
               pressed={editor.isActive('bulletList')}

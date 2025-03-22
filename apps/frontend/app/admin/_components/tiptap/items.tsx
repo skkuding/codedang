@@ -3,8 +3,9 @@ import type { Editor } from '@tiptap/react'
 
 const getSuggestionItems = (
   query: unknown,
-  openImageDialoge: () => void,
-  openTableDialoge: () => void
+  openImageDialog: () => void,
+  openFileDialog: () => void,
+  openTableDialog: () => void
 ) => {
   let queryStr = ''
 
@@ -75,7 +76,14 @@ const getSuggestionItems = (
       title: 'Image',
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).run()
-        openImageDialoge()
+        openImageDialog()
+      }
+    },
+    {
+      title: 'File',
+      command: ({ editor, range }: { editor: Editor; range: Range }) => {
+        editor.chain().focus().deleteRange(range).run()
+        openFileDialog()
       }
     },
     {
@@ -94,7 +102,7 @@ const getSuggestionItems = (
       title: 'Table',
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).run()
-        openTableDialoge()
+        openTableDialog()
       }
     }
   ]
