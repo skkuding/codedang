@@ -23,8 +23,10 @@ function countSolved({ solvedList, numProblems }: CountSolvedProps) {
 }
 
 // 주의! 본 페이지는 상당부분 하드코딩 되어있습니다! %%%%%
-export function LeaderboardTable() {
-  const problemSize = 15
+interface LeaderboardTableProps {
+  problemSize: number
+}
+export function LeaderboardTable({ problemSize }: LeaderboardTableProps) {
   const solvedList = [9, 9, 8, 8, 8, 7, 5, 2]
   const problemPenalties = [
     123, 1, 32, 424, 412321, 3213, 342, 34342, 423, -1, 4343, 5, 105, 5, 77
@@ -58,14 +60,21 @@ export function LeaderboardTable() {
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
 
+  const prevWindowWidth = useRef(windowSize.width)
   useEffect(() => {
+    setDx(0)
+    setColHeaderSize(DEFAULT_COL_HEADER_SIZE + problemSize * 114)
+    setResizableRowSize(DEFAULT_ROW_SIZE + problemSize * 114)
     setResizableScrollLimit(
       DEFAULT_COL_HEADER_SIZE + problemSize * 114 - windowSize.width + 500
     )
-  }, [windowSize])
+  }, [problemSize, windowSize.width])
 
   const horizontalScroll = useCallback(
     (amount: number) => {
+      if (resizableScrollLimit < 0) {
+        return
+      }
       // 가로 스크롤 중 처음 위치에서 오른쪽으로의 이동을 막는 코드
       if (dx > 20) {
         setDx(0)
@@ -94,7 +103,7 @@ export function LeaderboardTable() {
       setColHeaderSize((prev) => prev + amount)
       setResizableRowSize((prev) => prev + amount)
     },
-    [dx]
+    [dx, problemSize, resizableScrollLimit, windowSize.width]
   )
 
   // 스크롤 이벤트를 감지할 div에 사용할 ref
@@ -133,7 +142,7 @@ export function LeaderboardTable() {
       return
     }
     const deltaX = e.pageX - startX
-    horizontalScroll(deltaX)
+    horizontalScroll(1.5 * deltaX)
     setStartX(e.pageX)
   }
   const handleMouseUp = () => {
@@ -177,7 +186,7 @@ export function LeaderboardTable() {
           </Tooltip.Provider>
         </div>
       </div>
-      {/* 밑에 있는 내용은 스크롤 바입니다. */}
+      {/* 밑에 있는 내용은 스크롤 바입니다. 언젠가 만들거임*/}
       {/* <div className="ml-[358px] flex h-[10px] flex-row">
         <div className="h-[10px] w-[226px] rounded-full bg-[#D9D9D9]" />
       </div> */}

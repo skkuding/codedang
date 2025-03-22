@@ -1,16 +1,44 @@
 'use client'
 
 import { Input } from '@/components/shadcn/input'
-import InfoIcon from '@/public/icons/file-info-gray.svg'
 import SearchIcon from '@/public/icons/search.svg'
+import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
-import { useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { LeaderboardModalDialog } from './_components/LeaderboardModalDialog'
 import { LeaderboardTable } from './_components/LeaderboardTable'
+import { getContestLeaderboard } from './_libs/apis/getContesLeaderboard'
 import { handleSearch } from './_libs/utils'
+
+const baseContestLeaderboardData = {
+  maxScore: 0,
+  leaderboard: [
+    {
+      username: 'user',
+      totalScore: 0,
+      totalPenalty: 0,
+      problemRecords: [],
+      rank: 1
+    }
+  ]
+}
 
 export default function ContestLeaderBoard() {
   const [searchText, setSearchText] = useState('')
+  const pathname = usePathname()
+  const contestId = Number(pathname.split('/')[2])
+
+  let { data } = useQuery({
+    queryKey: ['contest leaderboard'],
+    queryFn: () => getContestLeaderboard({ contestId })
+  })
+  data = data ? data : baseContestLeaderboardData
+  const [problemSize, setProblemSize] = useState(0)
+
+  useEffect(() => {
+    setProblemSize(data ? data.leaderboard[0].problemRecords.length : 0)
+  }, [data])
 
   return (
     <div className="relative ml-[116px] w-screen pb-[120px]">
@@ -41,7 +69,7 @@ export default function ContestLeaderBoard() {
         />
       </div>
       <div>
-        <LeaderboardTable />
+        <LeaderboardTable problemSize={problemSize} />
       </div>
     </div>
   )
