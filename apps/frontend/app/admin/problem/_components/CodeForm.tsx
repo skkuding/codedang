@@ -50,7 +50,9 @@ export function CodeForm({ name, language }: CodeFormProps) {
           Format
         </Button>
       </div>
-      <div className="flex flex-col content-end gap-1">
+      <div className="relative flex min-h-36 flex-col gap-1 rounded-lg bg-[#121728]">
+        {/* NOTE: 코드 없을 때 Gutter Background를 채우기 위한 div */}
+        <div className="absolute h-full w-[30px] rounded-l-lg bg-[#272E48]" />
         <CodeEditor
           onChange={field.onChange}
           value={field.value as string}
