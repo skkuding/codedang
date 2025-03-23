@@ -66,6 +66,7 @@
     "@uiw/codemirror-extensions-langs": "^4.23.7",
     "@uiw/codemirror-themes": "^4.23.7",
     "@uiw/react-codemirror": "^4.23.7",
+    "@xterm/xterm": "^5.5.0",
     "apollo-upload-client": "^18.0.1",
     "cmdk": "^1.0.4",
     "date-fns": "^4.1.0",

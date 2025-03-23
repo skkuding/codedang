@@ -7,6 +7,7 @@ import { DiffMatchPatch } from 'diff-match-patch-typescript'
 import { useState, type ReactNode } from 'react'
 import { IoMdClose } from 'react-icons/io'
 import { AddUserTestcaseDialog } from './AddUserTestcaseDialog'
+import { RunnerTab } from './RunnerTab'
 import { TestcaseTable } from './TestcaseTable'
 import { useTestResults } from './useTestResults'
 
@@ -20,9 +21,14 @@ function getWidthClass(length: number) {
   }
 }
 
+enum Tab {
+  RUN = -1, // 나중에 따로 분리
+  TCResult = 0
+}
+
 export function TestcasePanel() {
   const [testcaseTabList, setTestcaseTabList] = useState<TestResultDetail[]>([])
-  const [currentTab, setCurrentTab] = useState<number>(0)
+  const [currentTab, setCurrentTab] = useState<number>(Tab.RUN)
 
   const moveToDetailTab = (result: TestResultDetail) => {
     setTestcaseTabList((state) =>
@@ -65,8 +71,26 @@ export function TestcasePanel() {
       <div className="flex h-12 w-full items-center overflow-x-auto">
         <TestcaseTab
           currentTab={currentTab}
-          onClickTab={() => setCurrentTab(0)}
+          onClickTab={() => setCurrentTab(Tab.RUN)}
+          nextTab={Tab.TCResult}
+          testcaseId={Tab.RUN}
+          className={cn(
+            'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
+            getWidthClass(testcaseTabList.length)
+          )}
+        >
+          <div className="flex h-full w-full items-center justify-center">
+            <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
+              Run Code
+            </span>
+          </div>
+        </TestcaseTab>
+
+        <TestcaseTab
+          currentTab={currentTab}
+          onClickTab={() => setCurrentTab(Tab.TCResult)}
           nextTab={testcaseTabList[0]?.originalId}
+          testcaseId={Tab.TCResult}
           className={cn(
             'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
             getWidthClass(testcaseTabList.length)
@@ -135,21 +159,27 @@ export function TestcasePanel() {
         </div>
       </div>
 
-      <ScrollArea className="h-full">
-        {currentTab === 0 ? (
-          <div className="flex flex-col gap-6 p-5 pb-14">
-            <TestSummary data={summaryData} />
-            <TestcaseTable
-              data={processedData}
-              moveToDetailTab={moveToDetailTab}
+      {currentTab === Tab.RUN ? (
+        <RunnerTab />
+      ) : (
+        <ScrollArea className="h-full">
+          {currentTab === Tab.TCResult ? (
+            <div className="flex flex-col gap-6 p-5 pb-14">
+              <TestSummary data={summaryData} />
+              <TestcaseTable
+                data={processedData}
+                moveToDetailTab={moveToDetailTab}
+              />
+            </div>
+          ) : (
+            <TestResultDetail
+              data={processedData.find(
+                (item) => item.originalId === currentTab
+              )}
             />
-          </div>
-        ) : (
-          <TestResultDetail
-            data={processedData.find((item) => item.originalId === currentTab)}
-          />
-        )}
-      </ScrollArea>
+          )}
+        </ScrollArea>
+      )}
     </>
   )
 }
