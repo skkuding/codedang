@@ -33,6 +33,11 @@ body:graphql {
         id
         submissionId
         problemTestcaseId
+        problemTestcase {
+          input
+          output
+        }
+        output
         result
         memoryUsage
         createTime
@@ -52,11 +57,11 @@ body:graphql {
       problem {
         id
         title
-        
+
       }
     }
   }
-  
+
 }
 
 body:graphql:vars {
@@ -67,9 +72,9 @@ body:graphql:vars {
 
 docs {
   ## Get Submission by id
-  
+
   - Admin에서 submission id(id)를 이용하여 Submission detail을 가져옵니다.
-  
+
   #### 필요 인자
   |`id`|
   |----------|
