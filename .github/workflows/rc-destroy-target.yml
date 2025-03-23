@@ -58,3 +58,9 @@ jobs:
         run: |
           terraform init -backend-config="bucket=codedang-tf-state-rc"
           terraform destroy -auto-approve
+
+  rc-mask-db:
+    if: github.event.inputs.terraform_project == 'storage'
+    uses: ./.github/workflows/rc-mask-db.yml
+    secrets: inherit
+    needs: [rc-destroy-terraform-target-project]
