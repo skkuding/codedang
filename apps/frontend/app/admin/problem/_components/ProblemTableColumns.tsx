@@ -3,10 +3,12 @@ import { Badge } from '@/components/shadcn/badge'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import { Switch } from '@/components/shadcn/switch'
 import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
+import { dateFormatter } from '@/libs/utils'
 import type { Level } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { ContainedContests } from './ContainedContests'
+import { UseInfoModal } from './UseInfoModal'
 
 interface Tag {
   id: number
@@ -84,13 +86,53 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className="w-[400px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+        <div className="w-[276px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
           {row.getValue('title')}
         </div>
       )
     },
     enableSorting: false,
     enableHiding: false
+  },
+  {
+    accessorKey: 'difficulty',
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        column={column}
+        title="Level"
+        className="flex justify-start"
+      />
+    ),
+    cell: ({ row }) => {
+      const level: string = row.getValue('difficulty')
+      const formattedLevel = `Level ${level.slice(-1)}`
+      return (
+        <div className="flex justify-center">
+          <Badge
+            variant={level as Level}
+            className="flex h-[24px] w-[70px] items-center justify-center whitespace-nowrap rounded-full text-xs font-normal"
+          >
+            {formattedLevel}
+          </Badge>
+        </div>
+      )
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    }
+  },
+  {
+    accessorKey: 'submissionCount',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Submission" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="w-[115px] text-right text-[#737373]">
+          {row.getValue('submissionCount')}
+        </div>
+      )
+    }
   },
   /**
    * @description
@@ -114,47 +156,6 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     }
   },
   {
-    accessorKey: 'updateTime',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Update" />
-    ),
-    cell: ({ row }) => {
-      return <div>{row.original.updateTime.substring(2, 10)}</div>
-    }
-  },
-  {
-    accessorKey: 'difficulty',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Level" />
-    ),
-    cell: ({ row }) => {
-      const level: string = row.getValue('difficulty')
-      const formattedLevel = `Level ${level.slice(-1)}`
-      return (
-        <div>
-          <Badge
-            variant={level as Level}
-            className="mr-1 whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
-          >
-            {formattedLevel}
-          </Badge>
-        </div>
-      )
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    }
-  },
-  {
-    accessorKey: 'submissionCount',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Submission" />
-    ),
-    cell: ({ row }) => {
-      return <div>{row.getValue('submissionCount')}</div>
-    }
-  },
-  {
     accessorKey: 'acceptedRate',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Success Rate" />
@@ -162,13 +163,40 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     cell: ({ row }) => {
       const acceptedRate: number = row.getValue('acceptedRate')
       const acceptedRateFloat = (acceptedRate * 100).toFixed(2)
-      return <div>{acceptedRateFloat}%</div>
+      return (
+        <div className="w-[129px] text-right text-[#737373]">
+          {acceptedRateFloat}%
+        </div>
+      )
+    }
+  },
+  {
+    accessorKey: 'updateTime',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Update Time" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="text-[#737373]">
+          {dateFormatter(row.original.updateTime, 'YYYY-MM-DD HH:mm:ss')}
+        </div>
+      )
     }
   },
   {
     accessorKey: 'isVisible',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Visible" />
+      <DataTableColumnHeader column={column} title="Use Info" />
+    ),
+    cell: ({ row }) => {
+      const problemId = row.original.id
+      return <UseInfoModal problemId={problemId} />
+    }
+  },
+  {
+    accessorKey: 'isVisible',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Public" />
     ),
     cell: ({ row }) => {
       return <VisibleCell row={row} />
