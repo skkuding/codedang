@@ -49,7 +49,7 @@ export function CodeForm({ name, language, hasValue = false }: CodeFormProps) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between">
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <Label required={false}>{language} Template</Label>
           <Switch
             onCheckedChange={() => {
