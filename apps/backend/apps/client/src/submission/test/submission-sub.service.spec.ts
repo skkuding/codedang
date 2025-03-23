@@ -236,7 +236,24 @@ describe('SubmissionSubscriptionService', () => {
           problemTestcaseId: msg.judgeResult.testcaseId,
           result: Status(msg.resultCode),
           cpuTime: BigInt(msg.judgeResult.cpuTime),
-          memoryUsage: msg.judgeResult.memory
+          memoryUsage: msg.judgeResult.memory,
+          output: undefined
+        })
+      ).to.be.true
+    })
+
+    it('should resolve', async () => {
+      const spy = sandbox.stub(service, 'updateTestcaseJudgeResult').resolves()
+
+      await expect(service.handleJudgerMessage(msg)).not.to.be.rejected
+      expect(
+        spy.calledOnceWithExactly({
+          submissionId: msg.submissionId,
+          problemTestcaseId: msg.judgeResult.testcaseId,
+          result: Status(msg.resultCode),
+          cpuTime: BigInt(msg.judgeResult.cpuTime),
+          memoryUsage: msg.judgeResult.memory,
+          output: undefined
         })
       ).to.be.true
     })
@@ -877,7 +894,8 @@ describe('SubmissionSubscriptionService', () => {
           data: {
             result: submissionResults[0].result,
             cpuTime: submissionResults[0].cpuTime,
-            memoryUsage: submissionResults[0].memoryUsage
+            memoryUsage: submissionResults[0].memoryUsage,
+            output: undefined
           }
         })
       ).to.be.true
