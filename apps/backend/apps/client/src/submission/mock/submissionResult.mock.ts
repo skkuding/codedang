@@ -11,7 +11,7 @@ export const submissionResults: SubmissionResult[] = [
     updateTime: new Date('2023-01-01'),
     cpuTime: BigInt(12345),
     memoryUsage: 12345,
-    output: null
+    output: '2\n'
   },
   {
     id: 2,
@@ -22,7 +22,7 @@ export const submissionResults: SubmissionResult[] = [
     updateTime: new Date('2023-01-01'),
     cpuTime: BigInt(12345),
     memoryUsage: 12345,
-    output: null
+    output: '3\n'
   },
   {
     id: 3,
