@@ -6,6 +6,8 @@ import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
 import type { Level } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
+import { SquareArrowOutUpRight } from 'lucide-react'
+import Link from 'next/link'
 import { ContainedContests } from './ContainedContests'
 
 interface Tag {
@@ -175,5 +177,24 @@ export const createColumns = (
     cell: ({ row }) => {
       return !isUser && <VisibleCell row={row} />
     }
+  },
+  {
+    accessorKey: 'preview',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Preview" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <Link
+          href={`/admin/problem/${row.original.id}/preview`}
+          target="_blank"
+          className="flex justify-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <SquareArrowOutUpRight />
+        </Link>
+      )
+    },
+    enableSorting: false
   }
 ]
