@@ -3,6 +3,15 @@ import type { $Enums } from '@prisma/client'
 import { ResultStatus, Submission } from '@admin/@generated'
 
 @ObjectType()
+class ProblemTestcase {
+  @Field(() => String)
+  input: string
+
+  @Field(() => String)
+  output: string
+}
+
+@ObjectType()
 class TestCaseResult {
   @Field(() => String, { nullable: true })
   cpuTime: string | null
@@ -18,6 +27,12 @@ class TestCaseResult {
 
   @Field(() => ResultStatus)
   result: $Enums.ResultStatus
+
+  @Field(() => ProblemTestcase)
+  problemTestcase: ProblemTestcase
+
+  @Field(() => String, { nullable: true })
+  output: string | null
 
   @Field(() => Int, { nullable: true })
   memoryUsage: number | null
