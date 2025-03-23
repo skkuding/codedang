@@ -48,7 +48,7 @@ export function ImportDialog({ problems, setProblems }: ImportDialogProps) {
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent className="h-[248px] w-[424px] gap-6 p-10 pt-11 sm:rounded-2xl">
-          <AlertDialogHeader className="items-center justify-center">
+          <AlertDialogHeader className="items-center justify-center gap-3">
             <AlertDialogTitle className="text-2xl font-semibold">
               Importing from Problem List
             </AlertDialogTitle>
@@ -74,9 +74,9 @@ export function ImportDialog({ problems, setProblems }: ImportDialogProps) {
         </AlertDialogContent>
       </AlertDialog>
       <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
-        <DialogContent className="w-[1280px] max-w-[1280px]">
-          <DialogHeader>
-            <DialogTitle>Import Problem</DialogTitle>
+        <DialogContent className="max-h-[766px] max-w-[824px] px-[42px] py-[70px]">
+          <DialogHeader className="justify-center">
+            <DialogTitle className="text-2xl">Import Problem</DialogTitle>
           </DialogHeader>
           <ErrorBoundary fallback={FetchErrorFallback}>
             <Suspense fallback={<ImportProblemTableFallback />}>

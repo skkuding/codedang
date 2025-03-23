@@ -68,26 +68,35 @@ export const columns: ColumnDef<DataTableProblem>[] = [
   {
     accessorKey: 'title',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Title" />
+      <DataTableColumnHeader
+        className="text-center"
+        column={column}
+        title="Title"
+      />
     ),
     cell: ({ row }) => {
       return (
-        <div className="w-[500px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+        <div className="w-[150px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
           {row.getValue('title')}
         </div>
       )
     },
+    enableSorting: false,
     enableHiding: false
   },
   // TODO: languages column 만 table에 추가가 안됨... 왜지?
   {
     accessorKey: 'languages',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Language" />
+      <DataTableColumnHeader
+        column={column}
+        title="Language"
+        className="justify-center"
+      />
     ),
     cell: ({ row }) => {
       const languages: string[] = row.getValue('languages') || []
-      return <div>{languages.join(', ')}</div>
+      return <div className="text-primary">{languages.join(', ')}</div>
     },
 
     filterFn: (row, id, value) => {
@@ -105,26 +114,42 @@ export const columns: ColumnDef<DataTableProblem>[] = [
   {
     accessorKey: 'updateTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Date" />
+      <DataTableColumnHeader
+        column={column}
+        title="Date"
+        className="justify-center"
+      />
     ),
     cell: ({ row }) => {
-      return <div>{row.original.updateTime.substring(2, 10)}</div>
+      return (
+        <div className="text-neutral-500">
+          {row.original.updateTime.substring(0, 10)}
+        </div>
+      )
     }
   },
   {
     accessorKey: 'createdBy',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Creator" />
+      <DataTableColumnHeader
+        column={column}
+        title="Creator"
+        className="justify-center"
+      />
     ),
     cell: ({ row }) => {
-      return <div>{row.getValue('createdBy')}</div>
+      return <div className="text-neutral-500">{row.getValue('createdBy')}</div>
     }
   },
 
   {
     accessorKey: 'difficulty',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Level" />
+      <DataTableColumnHeader
+        column={column}
+        title="Level"
+        className="justify-center"
+      />
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')

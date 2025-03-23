@@ -12,6 +12,7 @@ import {
 } from '../../_components/table'
 import type { ContestProblem } from '../_libs/schemas'
 import { ImportProblemButton } from './ImportProblemButton'
+import { ImportProblemDescription } from './ImportProblemDescription'
 import {
   columns,
   DEFAULT_PAGE_SIZE,
@@ -60,7 +61,6 @@ export function ImportProblemTable({
       ?.order,
     createdBy: problem.createdBy?.username ? problem.createdBy.username : ''
   }))
-  console.log('problems:', problems)
 
   const selectedProblemIds = checkedProblems.map((problem) => problem.id)
 
@@ -72,13 +72,17 @@ export function ImportProblemTable({
       defaultPageSize={DEFAULT_PAGE_SIZE}
       defaultSortState={[{ id: 'select', desc: true }]}
     >
-      <div className="flex gap-4">
-        <DataTableSearchBar columndId="title" />
+      <ImportProblemDescription />
+      <div className="flex gap-[6px] pb-1">
+        <DataTableSearchBar columndId="title" className="lg:w-[308px]" />
         <DataTableLangFilter />
-        {/* <DataTableLevelFilter /> */}
-        <ImportProblemButton onSelectedExport={onSelectedExport} />
       </div>
       <DataTable
+        isModalDataTable={true}
+        headerStyle={{
+          select: 'rounded-l-full',
+          difficulty: 'rounded-r-full'
+        }}
         onRowClick={(table, row) => {
           const selectedRowCount = table.getSelectedRowModel().rows.length
           if (
@@ -92,7 +96,11 @@ export function ImportProblemTable({
           }
         }}
       />
-      <DataTablePagination showSelection showRowsPerPage={false} />
+      {/* 흠.. */}
+      <div className="h-5" />
+      <DataTablePagination showRowsPerPage={false} />
+      <div className="h-7" />
+      <ImportProblemButton onSelectedExport={onSelectedExport} />
     </DataTableRoot>
   )
 }
