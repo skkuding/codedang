@@ -46,11 +46,14 @@ export default function Page({ params }: { params: { courseId: string } }) {
             </FormSection>
 
             <div className="flex gap-6">
-              <FormSection title="Start Time">
+              <FormSection title="Start Time" isLabeled={false}>
                 <TimeForm name="startTime" />
               </FormSection>
-              <FormSection title="End Time">
-                <TimeForm name="endTime" />
+              <FormSection title="End Time" isLabeled={false}>
+                <TimeForm
+                  name="endTime"
+                  defaultTimeOnSelect={{ hours: 23, minutes: 59, seconds: 59 }}
+                />
               </FormSection>
               <FormSection title="Week">
                 <WeekComboBox name="week" courseId={Number(courseId)} />

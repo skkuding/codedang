@@ -44,7 +44,7 @@ export const columns = (
     accessorKey: 'submissionTime',
     cell: ({ row }) =>
       row.original.submissionTime &&
-      dateFormatter(row.original.submissionTime, 'YYYY-MM-DD HH:mm:ss')
+      dateFormatter(row.original.submissionTime, 'MMM DD, YYYY HH:mm')
   },
   {
     header: () => 'Score',
