@@ -3,6 +3,8 @@
 import { useWindowSize } from '@/libs/hooks/useWindowSize'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { useState, useEffect, useRef, useCallback } from 'react'
+import type { LeaderboardUser } from '../_libs/apis/getContesLeaderboard'
+import { countSolved } from '../_libs/utils'
 import { LeaderboardRow } from './LeaderboardRow'
 import { LeaderboardSolvedList } from './LeaderboardSolvedList'
 import { LeaderboardTableHeader } from './LeaderboardTableHeader'
@@ -10,23 +12,16 @@ import { LeaderboardTableHeader } from './LeaderboardTableHeader'
 const DEFAULT_COL_HEADER_SIZE = 41
 const DEFAULT_ROW_SIZE = 313
 
-interface CountSolvedProps {
-  solvedList: number[]
-  numProblems: number
-}
-function countSolved({ solvedList, numProblems }: CountSolvedProps) {
-  const solvedCount = [...Array(numProblems + 1).fill(0)]
-  solvedList.forEach((solved) => {
-    solvedCount[solved]++
-  })
-  return solvedCount
-}
-
 // 주의! 본 페이지는 상당부분 하드코딩 되어있습니다! %%%%%
 interface LeaderboardTableProps {
   problemSize: number
+  leaderboardUsers: LeaderboardUser[]
 }
-export function LeaderboardTable({ problemSize }: LeaderboardTableProps) {
+
+export function LeaderboardTable({
+  problemSize,
+  leaderboardUsers
+}: LeaderboardTableProps) {
   const solvedList = [9, 9, 8, 8, 8, 7, 5, 2]
   const problemPenalties = [
     123, 1, 32, 424, 412321, 3213, 342, 34342, 423, -1, 4343, 5, 105, 5, 77
@@ -35,6 +30,7 @@ export function LeaderboardTable({ problemSize }: LeaderboardTableProps) {
   const ranks = [1, 2, 3, 4, 4, 6, 7, 8]
 
   // 위쪽이 하드코딩된 부분입니다.
+  console.log('leaderboard users: ', leaderboardUsers)
 
   const windowSize = useWindowSize()
 
@@ -60,7 +56,6 @@ export function LeaderboardTable({ problemSize }: LeaderboardTableProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
 
-  const prevWindowWidth = useRef(windowSize.width)
   useEffect(() => {
     setDx(0)
     setColHeaderSize(DEFAULT_COL_HEADER_SIZE + problemSize * 114)

@@ -14,7 +14,7 @@ interface ProblemRecordInContestLeaderboard {
   isFirstSolver: boolean
 }
 
-interface LeaderboardUser {
+export interface LeaderboardUser {
   username: string
   totalScore: number
   totalPenalty: number

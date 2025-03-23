@@ -11,7 +11,7 @@ import { LeaderboardTable } from './_components/LeaderboardTable'
 import { getContestLeaderboard } from './_libs/apis/getContesLeaderboard'
 import { handleSearch } from './_libs/utils'
 
-const baseContestLeaderboardData = {
+const BaseContestLeaderboardData = {
   maxScore: 0,
   leaderboard: [
     {
@@ -23,6 +23,23 @@ const baseContestLeaderboardData = {
     }
   ]
 }
+const BaseLeaderboardUser = {
+  username: 'user',
+  totalScore: 0,
+  totalPenalty: 0,
+  problemRecords: [
+    {
+      order: 0,
+      problemId: 1,
+      penalty: 0,
+      submissionCount: 0,
+      score: 0,
+      isFrozen: false,
+      isFirstSolver: false
+    }
+  ],
+  rank: 1
+}
 
 export default function ContestLeaderBoard() {
   const [searchText, setSearchText] = useState('')
@@ -33,11 +50,15 @@ export default function ContestLeaderBoard() {
     queryKey: ['contest leaderboard'],
     queryFn: () => getContestLeaderboard({ contestId })
   })
-  data = data ? data : baseContestLeaderboardData
+  data = data ? data : BaseContestLeaderboardData
   const [problemSize, setProblemSize] = useState(0)
+  const [leaderboardUsers, setLeaderboardUsers] = useState([
+    BaseLeaderboardUser
+  ])
 
   useEffect(() => {
     setProblemSize(data ? data.leaderboard[0].problemRecords.length : 0)
+    setLeaderboardUsers(data ? data.leaderboard : [BaseLeaderboardUser])
   }, [data])
 
   return (
@@ -69,7 +90,10 @@ export default function ContestLeaderBoard() {
         />
       </div>
       <div>
-        <LeaderboardTable problemSize={problemSize} />
+        <LeaderboardTable
+          problemSize={problemSize}
+          leaderboardUsers={leaderboardUsers}
+        />
       </div>
     </div>
   )
