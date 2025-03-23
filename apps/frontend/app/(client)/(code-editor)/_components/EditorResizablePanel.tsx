@@ -160,6 +160,7 @@ export function EditorMainResizablePanel({
       <ResizablePanel defaultSize={65} className="relative bg-[#222939]">
         <Button
           className={cn(
+            'group',
             'absolute left-0 top-1/2 z-10 h-[24px] w-[29px] rounded rounded-l-none border border-l-0 p-0',
             'border-[#3E4250] bg-[#292E3D]',
             'hover:border-[#1F3D74] hover:bg-[#192C52]',
@@ -171,12 +172,12 @@ export function EditorMainResizablePanel({
         >
           {isPanelHidden ? (
             <FaArrowRight
-              className="text-[#AAB1B2] hover:text-[#619CFB]"
+              className="text-[#AAB1B2] group-hover:text-[#619CFB] group-active:text-[#619CFB]"
               size={15}
             />
           ) : (
             <FaArrowLeft
-              className="text-[#AAB1B2] hover:text-[#619CFB]"
+              className="text-[#AAB1B2] group-hover:text-[#619CFB] group-active:text-[#619CFB]"
               size={15}
             />
           )}
