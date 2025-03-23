@@ -2,7 +2,6 @@
 
 import { announcementSchema } from '@/app/admin/contest/_libs/schemas'
 import { Button } from '@/components/shadcn/button'
-import { Input } from '@/components/shadcn/input'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import {
   Select,
@@ -15,15 +14,15 @@ import { Textarea } from '@/components/shadcn/textarea'
 import { CREATE_CONTEST_ANNOUNCEMENT } from '@/graphql/contest/mutations'
 import { GET_CONTEST_UPDATE_HISTORIES } from '@/graphql/contest/queries'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
-import { convertToLetter, dateFormatter } from '@/libs/utils'
-import { useApolloClient, useMutation, useQuery } from '@apollo/client'
+import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
+import { useMutation, useQuery } from '@apollo/client'
 import type { CreateAnnouncementInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { ChevronDown } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { toast } from 'sonner'
-import { number } from 'valibot'
 import { ConfirmNavigation } from '../../../../../_components/ConfirmNavigation'
 import { ErrorMessage } from '../../../../../_components/ErrorMessage'
 
@@ -31,26 +30,40 @@ export default function Page() {
   const pathname = usePathname()
   const pathArr = pathname.split('/')
   const contestId = Number(pathArr[pathArr.length - 2])
-  const client = useApolloClient()
-  const [announcetext, setAnnouncetext] = useState<string>('')
+
+  const [openHistory, setOpenHistory] = useState<boolean>(false)
+  const [seemore, setSeemore] = useState<string>('see more')
+  const [seemoreHeight, setSeemoreHeight] = useState<string>('149px')
   const { data: problemData } = useQuery(GET_CONTEST_PROBLEMS, {
-    variables: { contestId: contestId }
+    variables: { contestId }
   })
   const { data: updateHistory } = useQuery(GET_CONTEST_UPDATE_HISTORIES, {
-    variables: { contestId: contestId }
+    variables: { contestId }
   })
-  console.log('problemData:', problemData)
   const [createAnnouncement] = useMutation(CREATE_CONTEST_ANNOUNCEMENT)
+
   const {
     handleSubmit,
     register,
     setValue,
     trigger,
     resetField,
-    formState: { errors, isValid }
+    formState: { errors }
   } = useForm<CreateAnnouncementInput>({
     resolver: valibotResolver(announcementSchema)
   })
+
+  const onclickSeemore = () => {
+    setOpenHistory(!openHistory)
+    setSeemore(openHistory ? 'see more' : 'close')
+    setSeemoreHeight(
+      openHistory &&
+        (updateHistory?.getContestUpdateHistories.updateHistories?.length ??
+          0) > 3
+        ? 'auto'
+        : '149px'
+    )
+  }
 
   const onSubmitAnnouncement: SubmitHandler<CreateAnnouncementInput> = async (
     data
@@ -59,7 +72,7 @@ export default function Page() {
       await createAnnouncement({
         variables: {
           input: {
-            contestId: contestId,
+            contestId,
             problemOrder: data.problemOrder,
             content: data.content
           }
@@ -77,40 +90,70 @@ export default function Page() {
   return (
     <ConfirmNavigation>
       <ScrollArea className="w-full">
-        <main className="flex flex-col gap-6 px-20 py-16">
-          <div>Update History</div>
-          <div className="w-full border">
+        <main className="flex flex-col py-6">
+          <div className="mb-6 text-2xl font-semibold">Update History</div>
+          <div
+            id="historyBox"
+            className="w-100% mb-[14px] h-[149px] overflow-auto rounded-xl border bg-white px-10 pb-[20px] pt-[18px]"
+            style={{ height: seemoreHeight }}
+          >
             {!updateHistory?.getContestUpdateHistories ||
               (updateHistory.getContestUpdateHistories.updateHistories
                 .length === 0 && <p>no result.</p>)}
             {updateHistory?.getContestUpdateHistories.updateHistories.map(
-              (history) => (
-                <div key={history.updatedAt}>
+              (history, index) => (
+                <div
+                  key={history.updatedAt}
+                  className={
+                    index === 0
+                      ? 'text-primary flex w-full flex-wrap py-[6px] text-lg'
+                      : 'flex w-full flex-wrap py-[6px] text-lg'
+                  }
+                >
+                  <p>{`[`}</p>
+                  <p>
+                    {dateFormatter(history.updatedAt, 'YYYY-MM-DD HH:mm:ss')}
+                  </p>
+                  <p>{`] `}</p>
+                  &nbsp;
+                  <p>
+                    Problem{' '}
+                    {history.order !== null
+                      ? convertToLetter(Number(history.order))
+                      : ''}
+                    &nbsp;
+                    {':'}
+                  </p>
+                  &nbsp;
                   <div className="flex">
-                    <p>
-                      Problem{' '}
-                      {history.order !== null
-                        ? convertToLetter(Number(history.order))
-                        : ''}
-                      {' : '}
-                    </p>
-                    <p> </p>
-                    <div className="flex">
-                      {history.updatedInfo.map((current, index) => (
-                        <p key={current.updatedField}>
-                          {current.current}
-                          {index < history.updatedInfo.length - 1 && ' & '}
-                        </p>
-                      ))}
-                    </div>
+                    {history.updatedInfo.map((current, index) => (
+                      <p key={current.updatedField}>
+                        {current.current}
+                        &nbsp;
+                        {index < history.updatedInfo.length - 1 && '&'}
+                        &nbsp;
+                      </p>
+                    ))}
                   </div>
                 </div>
               )
             )}
           </div>
+          <Button
+            className="mb-16 bg-[#80808014] text-lg hover:bg-[#80808039]"
+            onClick={() => {
+              onclickSeemore()
+            }}
+          >
+            <p className="text-[#8A8A8A]">{seemore}</p>
+            &nbsp;
+            <ChevronDown
+              className={cn('w-4 text-[#8A8A8A]', openHistory && 'rotate-180')}
+            />
+          </Button>
           <form onSubmit={handleSubmit(onSubmitAnnouncement)}>
-            <p>Post New Announcement</p>
-            <div className="flex flex-col gap-2">
+            <p className="mb-6 text-2xl font-semibold">Post New Announcement</p>
+            <div className="mb-[10px]">
               <Select
                 onValueChange={(value) => {
                   trigger()
@@ -122,17 +165,23 @@ export default function Page() {
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose" />
+                  <SelectValue
+                    placeholder="Choose"
+                    className="text-xl font-medium"
+                  />
                 </SelectTrigger>
                 <SelectContent
                   className="rounded-md border border-gray-200 bg-white shadow-md"
                   aria-required
                 >
-                  <SelectItem value="none">General</SelectItem>
+                  <SelectItem value="none" className="text-lg font-normal">
+                    General
+                  </SelectItem>
                   {problemData?.getContestProblems.map((problem) => (
                     <SelectItem
                       key={problem.problemId}
                       value={problem.order.toString()}
+                      className="text-lg font-normal"
                     >
                       {problem.order}. {problem.problem.title}
                     </SelectItem>
@@ -147,7 +196,7 @@ export default function Page() {
               <Textarea
                 {...register('content')}
                 placeholder="Enter your announcement"
-                className="resize-none border-0 px-4 py-0 text-black placeholder:text-[#3333334D] focus-visible:ring-0"
+                className="resize-none border-0 px-[30px] py-6 text-black placeholder:text-[#3333334D] focus-visible:ring-0"
               />
               {errors.content && <ErrorMessage />}
             </div>
