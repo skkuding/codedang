@@ -6,7 +6,7 @@ import { useFormContext } from 'react-hook-form'
 import { CodeForm } from './CodeForm'
 
 export function TemplateField() {
-  const { unregister, watch, setValue } = useFormContext()
+  const { unregister, watch, setValue, getValues } = useFormContext()
   const watchedLanguages: Language[] = watch('languages') ?? []
   const watchedTemplates: Template[] = watch('template') ?? []
   const previousLanguagesRef = useRef<Language[]>([])
@@ -44,6 +44,7 @@ export function TemplateField() {
               <CodeForm
                 name={`template.${index}.code.0.text`}
                 language={language}
+                hasValue={getValues(`template.${index}.code.0.text`) || false}
               />
             )}
           </div>

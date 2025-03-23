@@ -1,8 +1,9 @@
 'use client'
 
 import { Button } from '@/components/shadcn/button'
+import { Switch } from '@/components/shadcn/switch'
 import type { Language } from '@generated/graphql'
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
 import { ErrorMessage } from '../../_components/ErrorMessage'
 import { Label } from '../../_components/Label'
@@ -11,11 +12,14 @@ import { CodeEditor, extensionMap, initAndFormat } from './editor'
 interface CodeFormProps {
   name: string
   language: Language
+  hasValue?: boolean
 }
 
-export function CodeForm({ name, language }: CodeFormProps) {
+export function CodeForm({ name, language, hasValue = false }: CodeFormProps) {
+  const [isEnabled, setIsEnabled] = useState(false)
   const {
     control,
+    setValue,
     formState: { errors }
   } = useFormContext()
 
@@ -23,6 +27,10 @@ export function CodeForm({ name, language }: CodeFormProps) {
     name,
     control
   })
+
+  useEffect(() => {
+    setIsEnabled(hasValue)
+  }, [hasValue])
 
   const handleFormat = useCallback(async () => {
     try {
@@ -41,26 +49,40 @@ export function CodeForm({ name, language }: CodeFormProps) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between">
-        <Label required={false}>{language} Template</Label>
-        <Button
-          onClick={handleFormat}
-          type="button"
-          className="h-6 w-16 text-xs"
-        >
-          Format
-        </Button>
+        <div className="flex gap-2">
+          <Label required={false}>{language} Template</Label>
+          <Switch
+            onCheckedChange={() => {
+              setValue(name, '')
+              setIsEnabled(!isEnabled)
+            }}
+            checked={isEnabled}
+            className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
+          />
+        </div>
+        {isEnabled && (
+          <Button
+            onClick={handleFormat}
+            type="button"
+            className="h-6 w-16 text-xs"
+          >
+            Format
+          </Button>
+        )}
       </div>
-      <div className="relative flex min-h-36 flex-col gap-1 rounded-lg bg-[#121728]">
-        {/* NOTE: 코드 없을 때 Gutter Background를 채우기 위한 div */}
-        <div className="absolute h-full w-[30px] rounded-l-lg bg-[#272E48]" />
-        <CodeEditor
-          onChange={field.onChange}
-          value={field.value as string}
-          language={language}
-          className="max-h-96 min-h-16 w-[760px] rounded-lg"
-        />
-        {errors[name] && <ErrorMessage />}
-      </div>
+      {isEnabled && (
+        <div className="relative flex min-h-36 flex-col gap-1 rounded-lg bg-[#121728]">
+          {/* NOTE: 코드 없을 때 Gutter Background를 채우기 위한 div */}
+          <div className="absolute h-full w-[30px] rounded-l-lg bg-[#272E48]" />
+          <CodeEditor
+            onChange={field.onChange}
+            value={field.value as string}
+            language={language}
+            className="max-h-96 min-h-16 w-[760px] rounded-lg"
+          />
+          {errors[name] && <ErrorMessage />}
+        </div>
+      )}
     </div>
   )
 }
