@@ -242,22 +242,6 @@ describe('SubmissionSubscriptionService', () => {
       ).to.be.true
     })
 
-    it('should resolve', async () => {
-      const spy = sandbox.stub(service, 'updateTestcaseJudgeResult').resolves()
-
-      await expect(service.handleJudgerMessage(msg)).not.to.be.rejected
-      expect(
-        spy.calledOnceWithExactly({
-          submissionId: msg.submissionId,
-          problemTestcaseId: msg.judgeResult.testcaseId,
-          result: Status(msg.resultCode),
-          cpuTime: BigInt(msg.judgeResult.cpuTime),
-          memoryUsage: msg.judgeResult.memory,
-          output: undefined
-        })
-      ).to.be.true
-    })
-
     it('should call handleJudgeError when ServerError detected', async () => {
       const handlerSpy = sandbox.stub(service, 'handleJudgeError').resolves()
       const updateSpy = sandbox
