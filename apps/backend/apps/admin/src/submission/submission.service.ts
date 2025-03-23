@@ -203,7 +203,7 @@ export class SubmissionService {
     return results
   }
 
-  async getAssignmentSubmission(
+  async getAssignmentLatestSubmission(
     assignmentId: number,
     userId: number,
     problemId: number
@@ -214,7 +214,7 @@ export class SubmissionService {
         userId,
         problemId
       },
-      orderBy: { updateTime: 'desc' },
+      orderBy: { createTime: 'desc' },
       select: {
         id: true
       }

@@ -63,12 +63,12 @@ export default function Page({ params }: { params: { courseId: string } }) {
 
             <SwitchField
               name="enableCopyPaste"
-              title="Enable participants Copy/Pasting"
+              title="Enable Participants Copy/Pasting"
             />
 
             <SwitchField
               name="isJudgeResultVisible"
-              title="Reveal scores to participants"
+              title="Reveal Raw Scores to Participants"
             />
 
             <SwitchField
@@ -99,7 +99,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
               disabled={isCreating}
             >
               <IoMdCheckmarkCircleOutline fontSize={20} />
-              <div className="mb-[2px] text-base">Create</div>
+              <div className="text-base">Create</div>
             </Button>
           </CreateAssignmentForm>
         </main>

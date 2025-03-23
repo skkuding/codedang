@@ -26,7 +26,7 @@ export function ContestSubBanner() {
             {/* TODO: contest 개최 방법 공지사항으로 링크하기(아직 공지사항 존재하지 않음) */}
             <Button
               variant="outline"
-              className="text-primary-strong mt-2 w-[150px] rounded-full text-base font-medium"
+              className="text-primary-strong mt-2 w-[150px] rounded-full text-base font-medium shadow-lg"
             >
               Read more
             </Button>

@@ -1,0 +1,41 @@
+meta {
+  name: NOT_FOUND
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation DeleteFile ($filename: String!) {
+    deleteFile(filename: $filename) {
+      filename
+      createdById
+      createTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "filename": "not found"
+  }
+}
+
+assert {
+  res.body.errors: isDefined
+  res.body.errors[0].extensions.code: eq NOT_FOUND
+}
+
+docs {
+  ## Delete File
+  S3 Bucket에 업로드된 파일을 삭제합니다.
+
+  ### Error Cases
+  #### NOT_FOUND
+  존재하는 filename을 사용해야 합니다.
+}

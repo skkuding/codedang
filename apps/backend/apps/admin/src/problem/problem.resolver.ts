@@ -1,9 +1,4 @@
-import {
-  ForbiddenException,
-  ParseArrayPipe,
-  UsePipes,
-  ValidationPipe
-} from '@nestjs/common'
+import { ParseArrayPipe, UsePipes, ValidationPipe } from '@nestjs/common'
 import {
   Args,
   Context,
@@ -17,9 +12,11 @@ import {
 import {
   AssignmentProblem,
   ContestProblem,
-  Image,
+  File,
+  Group,
   ProblemTag,
   ProblemTestcase,
+  UpdateHistory,
   WorkbookProblem
 } from '@generated'
 import { ContestRole, Role } from '@prisma/client'
@@ -29,6 +26,7 @@ import {
   UseDisableAdminGuard,
   UseGroupLeaderGuard
 } from '@libs/auth'
+import { ForbiddenAccessException } from '@libs/exception'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -36,7 +34,7 @@ import {
   RequiredIntPipe
 } from '@libs/pipe'
 import { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
-import { ImageSource } from './model/image.output'
+import { FileSource } from './model/file.output'
 import {
   CreateProblemInput,
   UploadFileInput,
@@ -92,20 +90,28 @@ export class ProblemResolver {
     )
   }
 
-  @Mutation(() => ImageSource)
+  @Mutation(() => FileSource)
   async uploadImage(
     @Args('input') input: UploadFileInput,
     @Context('req') req: AuthenticatedRequest
   ) {
-    return await this.problemService.uploadImage(input, req.user.id)
+    return await this.problemService.uploadFile(input, req.user.id, true)
   }
 
-  @Mutation(() => Image)
-  async deleteImage(
+  @Mutation(() => FileSource)
+  async uploadFile(
+    @Args('input') input: UploadFileInput,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    return await this.problemService.uploadFile(input, req.user.id, false)
+  }
+
+  @Mutation(() => File)
+  async deleteFile(
     @Args('filename') filename: string,
     @Context('req') req: AuthenticatedRequest
   ) {
-    return await this.problemService.deleteImage(filename, req.user.id)
+    return await this.problemService.deleteFile(filename, req.user.id)
   }
 
   @Query(() => [ProblemWithIsVisible])
@@ -120,7 +126,7 @@ export class ProblemResolver {
     shared: boolean
   ) {
     if (!my && !shared && req.user.role == Role.User) {
-      throw new ForbiddenException(
+      throw new ForbiddenAccessException(
         'User does not have permission for all problems'
       )
     }
@@ -140,6 +146,16 @@ export class ProblemResolver {
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
     return await this.problemService.getProblem(id, req.user.role, req.user.id)
+  }
+
+  @ResolveField('updateHistory', () => [UpdateHistory])
+  async getProblemUpdateHistory(@Parent() problem: ProblemWithIsVisible) {
+    return await this.problemService.getProblemUpdateHistory(problem.id)
+  }
+
+  @ResolveField('sharedGroups', () => [Group])
+  async getSharedGroups(@Parent() problem: ProblemWithIsVisible) {
+    return await this.problemService.getSharedGroups(problem.id)
   }
 
   @ResolveField('tag', () => [ProblemTag])

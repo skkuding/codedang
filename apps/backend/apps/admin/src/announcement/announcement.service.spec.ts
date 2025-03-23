@@ -9,7 +9,7 @@ import {
 import { AnnouncementService } from './announcement.service'
 
 const contestId = 1
-const problemId = 1
+const problemOrder = 1
 const content = 'test'
 const updatedContent = 'updated'
 describe('AnnouncementService', () => {
@@ -55,7 +55,7 @@ describe('AnnouncementService', () => {
     it('should return created announcement', async () => {
       const result = await service.createAnnouncement({
         contestId,
-        problemId,
+        problemOrder,
         content
       })
       expect(result).has.property('id')
@@ -88,12 +88,12 @@ describe('AnnouncementService', () => {
       ).to.be.rejectedWith(PrismaClientKnownRequestError)
     })
 
-    it('should rejected if problemId is not exist', async () => {
+    it('should rejected if problemOrder is not exist', async () => {
       await expect(
         service.createAnnouncement({
           content,
           contestId,
-          problemId: 999
+          problemOrder: 999
         })
       ).to.be.rejectedWith(PrismaClientKnownRequestError)
     })
@@ -103,7 +103,7 @@ describe('AnnouncementService', () => {
         service.createAnnouncement({
           content,
           contestId,
-          problemId: 4
+          problemOrder: 4
         })
       ).to.be.rejectedWith(PrismaClientKnownRequestError)
     })

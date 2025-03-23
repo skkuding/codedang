@@ -14,7 +14,7 @@ resource "aws_cloudfront_distribution" "codedang" {
   origin {
     #TODO : RC서버 Amplify 문제 해결
 
-    domain_name = var.env == "production" ? "amplify.codedang.com" : "remove-sentry.d6pfxg2cc9yvf.amplifyapp.com"
+    domain_name = var.env == "production" ? "amplify.codedang.com" : "main.d6pfxg2cc9yvf.amplifyapp.com"
 
     origin_id = "frontend" # TODO: Add unique ID of Amplify
 

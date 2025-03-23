@@ -5,13 +5,14 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/assignment/14/problem/2?groupId=2
+  url: {{baseUrl}}/assignment/:assignmentId/problem/:problemId
   body: none
   auth: none
 }
 
-params:query {
-  groupId: 2
+params:path {
+  problemId: 1
+  assignmentId: 14
 }
 
 assert {
@@ -26,17 +27,17 @@ script:pre-request {
 
 docs {
   # Get Assignment Problem by ID
-  
+
   하나의 문제 정보를 가져옵니다.
-  
+
   ## Query
-  
+
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |groupId   |Integer|문제가 속한 Group ID|
-  
+
   ## Constraints
-  
+
   - 과제에 등록한 사용자는 과제 시작 전까지 문제를 열람할 수 없습니다.
   - 과제에 등록하지 않은 사용자는 과제가 끝나기 전까지 문제를 열람할 수 없습니다.
 }

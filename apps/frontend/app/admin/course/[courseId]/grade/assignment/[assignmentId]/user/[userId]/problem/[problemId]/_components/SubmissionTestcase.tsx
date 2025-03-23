@@ -9,10 +9,14 @@ import {
 import type { SubmissionDetail } from '@generated/graphql'
 
 interface SubmissionTestcaseProps {
-  submission: SubmissionDetail
+  submission: SubmissionDetail | null
 }
 
 export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
+  if (!submission) {
+    return <div className="h-72" />
+  }
+
   return (
     <div>
       {submission.testcaseResult.length !== 0 && (

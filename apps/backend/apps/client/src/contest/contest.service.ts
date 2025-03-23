@@ -17,11 +17,7 @@ const contestSelectOption = {
   enableCopyPaste: true,
   isJudgeResultVisible: true,
   posterUrl: true,
-  participationTarget: true,
-  competitionMethod: true,
-  rankingMethod: true,
-  problemFormat: true,
-  benefits: true,
+  summary: true,
   contestRecord: {
     select: {
       userId: true
@@ -340,11 +336,14 @@ export class ContestService {
         id: contestId
       },
       select: {
+        unfreeze: true,
         freezeTime: true
       }
     })
     const isFrozen =
-      contest?.freezeTime != null && new Date() >= contest.freezeTime
+      contest?.freezeTime != null &&
+      new Date() >= contest.freezeTime &&
+      !contest.unfreeze
 
     const sum = await this.prisma.contestProblem.aggregate({
       where: {
