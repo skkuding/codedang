@@ -84,21 +84,30 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     enableSorting: false,
     enableHiding: false
   },
-  // TODO: languages column 만 table에 추가가 안됨... 왜지?
+  // NOTE: accessorKey를 'languages'로 하면 languages column이 table에 추가가 안됨
+  // 그래서 accessorKey를 'lang'로 변경(임의)
   {
-    accessorKey: 'languages',
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Language"
-        className="justify-center"
-      />
-    ),
+    accessorKey: 'lang',
+    header: ({ column }) => {
+      return (
+        <DataTableColumnHeader
+          column={column}
+          title="Language"
+          className="text-center"
+        />
+      )
+    },
     cell: ({ row }) => {
       const languages: string[] = row.getValue('languages') || []
       return <div className="text-primary">{languages.join(', ')}</div>
     },
-
+    enableSorting: false
+  },
+  // NOTE: filter 기능을 위해서 추가
+  {
+    accessorKey: 'languages',
+    header: () => {},
+    cell: () => {},
     filterFn: (row, id, value) => {
       const languages = row.original.languages
       if (!languages?.length) {

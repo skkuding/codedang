@@ -13,6 +13,8 @@ import { SummaryForm } from '../../_components/SummaryForm'
 import { SwitchField } from '../../_components/SwitchField'
 import { TimeForm } from '../../_components/TimeForm'
 import { TitleForm } from '../../_components/TitleForm'
+import { AddManagerReviewerDialog } from '../_components/AddManagerReviewerDialog'
+import { ContestManagerReviewerTable } from '../_components/ContestManagerReviewerTable'
 import { ContestProblemTable } from '../_components/ContestProblemTable'
 import { CreateContestLabel } from '../_components/CreateContestLabel'
 import { ImportDialog } from '../_components/ImportDialog'
@@ -98,14 +100,9 @@ export default function Page() {
                   title="Add manager / reviewer"
                   content={`Contest managers have all permissions except for creating and editing the contest.\nYou can also import problems created by the contest manager into this contest.\nContest reviewers can view the problem list before the contest starts.`}
                 />
-                <ImportDialog problems={problems} setProblems={setProblems} />
+                <AddManagerReviewerDialog />
               </div>
-              {/* 임시로 ContestProblemTabnle 넣어놓음 */}
-              <ContestProblemTable
-                problems={problems}
-                setProblems={setProblems}
-                disableInput={false}
-              />
+              <ContestManagerReviewerTable />
             </div>
 
             <div className="flex flex-col gap-1">
