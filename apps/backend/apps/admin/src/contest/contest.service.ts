@@ -443,6 +443,15 @@ export class ContestService {
       throw new EntityNotExistException('contest')
     }
 
+    let maxOrder =
+      (
+        await this.prisma.contestProblem.aggregate({
+          where: { contestId },
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _max: { order: true }
+        })
+      )._max?.order ?? -1
+
     const contestProblems: ContestProblem[] = []
 
     for (const { problemId, score } of problemIdsWithScore) {
@@ -461,9 +470,7 @@ export class ContestService {
         const [contestProblem] = await this.prisma.$transaction([
           this.prisma.contestProblem.create({
             data: {
-              // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
-              // 임시 방편으로 order: 0으로 설정합니다.
-              order: 0,
+              order: ++maxOrder,
               contestId,
               problemId,
               score
@@ -559,6 +566,19 @@ export class ContestService {
         visibleLockTime = latestContest.endTime
       }
 
+      const removeContestProblem = await this.prisma.contestProblem.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_problemId: {
+            contestId,
+            problemId
+          }
+        }
+      })
+      if (!removeContestProblem) {
+        throw new EntityNotExistException('contestProblem')
+      }
+
       try {
         const [, contestProblem] = await this.prisma.$transaction([
           this.prisma.problem.updateMany({
@@ -578,6 +598,19 @@ export class ContestService {
               contestId_problemId: {
                 contestId,
                 problemId
+              }
+            }
+          }),
+          this.prisma.contestProblem.updateMany({
+            where: {
+              contestId,
+              order: {
+                gt: removeContestProblem.order
+              }
+            },
+            data: {
+              order: {
+                decrement: 1
               }
             }
           })

@@ -68,7 +68,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
 
             <SwitchField
               name="isJudgeResultVisible"
-              title="Reveal Scores to Participants"
+              title="Reveal Raw Scores to Participants"
             />
 
             <SwitchField

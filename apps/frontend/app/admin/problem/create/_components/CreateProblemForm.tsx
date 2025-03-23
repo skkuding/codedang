@@ -2,44 +2,24 @@
 
 import { CautionDialog } from '@/app/admin/_components/CautionDialog'
 import { useConfirmNavigationContext } from '@/app/admin/_components/ConfirmNavigation'
-import { createSchema } from '@/app/admin/problem/_libs/schemas'
 import { CREATE_PROBLEM } from '@/graphql/problem/mutations'
-import { useSession } from '@/libs/hooks/useSession'
 import { useMutation } from '@apollo/client'
-import { Level, type CreateProblemInput } from '@generated/graphql'
-import { valibotResolver } from '@hookform/resolvers/valibot'
+import type { CreateProblemInput } from '@generated/graphql'
 import { useRouter } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, type UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 import { validateScoreWeight } from '../../_libs/utils'
 
 interface CreateProblemFormProps {
+  methods: UseFormReturn<CreateProblemInput>
   children: ReactNode
 }
 
-export function CreateProblemForm({ children }: CreateProblemFormProps) {
-  const session = useSession()
-  const isAdmin = session?.user?.role !== 'User'
-
-  const methods = useForm<CreateProblemInput>({
-    resolver: valibotResolver(createSchema),
-    defaultValues: {
-      difficulty: Level.Level1,
-      tagIds: [],
-      testcases: [
-        { input: '', output: '', isHidden: false, scoreWeight: null },
-        { input: '', output: '', isHidden: true, scoreWeight: null }
-      ],
-      timeLimit: 2000,
-      memoryLimit: 512,
-      hint: '',
-      source: '',
-      template: [],
-      isVisible: isAdmin
-    }
-  })
-
+export function CreateProblemForm({
+  methods,
+  children
+}: CreateProblemFormProps) {
   const [message, setMessage] = useState('')
   const [showCautionModal, setShowCautionModal] = useState(false)
 
