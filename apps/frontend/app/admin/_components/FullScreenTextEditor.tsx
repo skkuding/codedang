@@ -69,7 +69,7 @@ import {
   Paperclip
 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { CautionDialog } from '../problem/_components/CautionDialog'
+import { CautionDialog } from './CautionDialog'
 import { CodeBlockComponent } from './tiptap/CodeBlockComponent'
 import { FileDownloadNode } from './tiptap/FileDownloadNode'
 import { TextStyleBar } from './tiptap/TextStyleBar'
