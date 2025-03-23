@@ -39,6 +39,14 @@ export interface ContestProblem {
   score: number
 }
 
+export interface ContestManagerReviewer {
+  id: number
+  email: string
+  username: string
+  realName: string
+  type: string // Role(Manager, Reviewer) column
+}
+
 export interface ScoreSummary {
   studentId: string
   realName?: string | null

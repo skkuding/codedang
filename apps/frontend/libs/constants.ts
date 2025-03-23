@@ -187,3 +187,5 @@ export const courseOvalIconColors: {
     rightdown: '#4A32FF'
   }
 }
+
+export const managerReviewerTypes = ['Manager', 'Reviewer'] as const

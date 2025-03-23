@@ -18,7 +18,7 @@ import { ContestManagerReviewerTable } from '../_components/ContestManagerReview
 import { ContestProblemTable } from '../_components/ContestProblemTable'
 import { CreateContestLabel } from '../_components/CreateContestLabel'
 import { ImportDialog } from '../_components/ImportDialog'
-import type { ContestProblem } from '../_libs/schemas'
+import type { ContestManagerReviewer, ContestProblem } from '../_libs/schemas'
 import { CreateContestForm } from './_components/CreateContestForm'
 import { FreezeForm } from './_components/FreezeForm'
 import { PosterUploadForm } from './_components/PosterUploadForm'
@@ -26,6 +26,7 @@ import { SampleTestcaseForm } from './_components/SampleTestcaseForm'
 
 export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
+  const [managers, setManagers] = useState<ContestManagerReviewer[]>([])
   const [isCreating, setIsCreating] = useState(false)
 
   return (
@@ -100,9 +101,12 @@ export default function Page() {
                   title="Add manager / reviewer"
                   content={`Contest managers have all permissions except for creating and editing the contest.\nYou can also import problems created by the contest manager into this contest.\nContest reviewers can view the problem list before the contest starts.`}
                 />
-                <AddManagerReviewerDialog />
+                <AddManagerReviewerDialog setManagers={setManagers} />
               </div>
-              <ContestManagerReviewerTable />
+              <ContestManagerReviewerTable
+                managers={managers}
+                setManagers={setManagers}
+              />
             </div>
 
             <div className="flex flex-col gap-1">

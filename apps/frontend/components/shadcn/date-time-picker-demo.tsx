@@ -11,7 +11,6 @@ import { TimePickerDemo } from '@/components/shadcn/time-picker-demo'
 import { cn } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import { format } from 'date-fns'
-import { Calendar as CalendarIcon } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
