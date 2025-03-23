@@ -3,6 +3,7 @@ import { safeFetcherWithAuth } from '@/libs/utils'
 import type { Course } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
 import { AssignmentAccordion } from '../_components/AssignmentAccordion'
+import { GradeAccordion } from '../_components/GradeAccordion'
 
 interface AssignmentProps {
   params: { courseId: string }
@@ -17,8 +18,12 @@ export default async function Assignment({ params }: AssignmentProps) {
   return (
     <div className="mb-12 mt-20 flex w-full flex-col px-6">
       <p className="text-2xl font-semibold">Assignment</p>
+      <p className="text-base font-normal text-[#3333334D]">
+        A Collection of Programming Assignments
+      </p>
       <ErrorBoundary fallback={FetchErrorFallback}>
-        <AssignmentAccordion week={week} courseId={courseId} />
+        {/* <AssignmentAccordion week={week} courseId={courseId} /> */}
+        <GradeAccordion courseId={courseId} />
       </ErrorBoundary>
     </div>
   )

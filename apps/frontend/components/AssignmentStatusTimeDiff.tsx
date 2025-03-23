@@ -15,15 +15,17 @@ import { toast } from 'sonner'
 
 dayjs.extend(duration)
 
+interface AssignmentStatusTimeDiffProps {
+  assignment: Assignment
+  textStyle: string
+  inAssignmentEditor: boolean
+}
+
 export function AssignmentStatusTimeDiff({
   assignment,
   textStyle,
   inAssignmentEditor
-}: {
-  assignment: Assignment
-  textStyle: string
-  inAssignmentEditor: boolean
-}) {
+}: AssignmentStatusTimeDiffProps) {
   const router = useRouter()
   const { problemId, courseId } = useParams()
 
