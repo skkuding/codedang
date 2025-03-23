@@ -75,7 +75,9 @@ export default function Page({
               </FormSection>
 
               <FormSection title="Week">
-                {methods.getValues('week') && <WeekComboBox name="week" />}
+                {methods.getValues('week') && (
+                  <WeekComboBox name="week" courseId={Number(courseId)} />
+                )}
               </FormSection>
             </div>
 

@@ -53,7 +53,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
                 <TimeForm name="endTime" />
               </FormSection>
               <FormSection title="Week">
-                <WeekComboBox name="week" />
+                <WeekComboBox name="week" courseId={Number(courseId)} />
               </FormSection>
             </div>
 
