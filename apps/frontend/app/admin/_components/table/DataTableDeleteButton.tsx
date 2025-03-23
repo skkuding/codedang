@@ -11,6 +11,7 @@ import {
   AlertDialogTitle
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
+import { capitalizeFirstLetter } from '@/libs/utils'
 import { useState } from 'react'
 import { FaTrash } from 'react-icons/fa'
 import { FaCircleExclamation } from 'react-icons/fa6'
@@ -85,8 +86,6 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
       toast.error(`Failed to delete ${target}`)
     }
   }
-  const capitalizeFirstLetter = (str: string) =>
-    str.charAt(0).toUpperCase() + str.slice(1)
 
   return (
     <>
