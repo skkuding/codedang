@@ -163,7 +163,7 @@ export function EditorMainResizablePanel({
             'absolute left-0 top-1/2 z-10 h-[24px] w-[29px] rounded rounded-l-none border border-l-0 p-0',
             'border-[#3E4250] bg-[#292E3D]',
             'hover:border-[#1F3D74] hover:bg-[#192C52]',
-            'hover:border-[#25519C] hover:bg-[#234B91]'
+            'active:border-[#25519C] active:bg-[#234B91]'
           )}
           onClick={() => {
             setIsPanelHidden(!isPanelHidden)
