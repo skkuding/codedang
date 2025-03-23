@@ -53,6 +53,7 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
 
   const handleDeleteButtonClick = async () => {
     if (table.getSelectedRowModel().rows.length === 0) {
+      toast.error(`Please select at least one ${target}`)
       return
     }
 

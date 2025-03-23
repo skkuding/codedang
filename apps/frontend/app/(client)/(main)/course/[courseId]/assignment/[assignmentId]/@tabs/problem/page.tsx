@@ -39,11 +39,11 @@ export default function AssignmentProblem({ params }: AssignmentProblemProps) {
       const assignmentData: Assignment = await res.json()
       const formattedStartTime = dateFormatter(
         assignmentData.startTime,
-        'YYYY-MM-DD HH:mm:ss'
+        'MMM DD, YYYY HH:mm'
       )
       const formattedEndTime = dateFormatter(
         assignmentData.endTime,
-        'YYYY-MM-DD HH:mm:ss'
+        'MMM DD, YYYY HH:mm'
       )
       setAssignmentStatus(
         getStatusWithStartEnd(formattedStartTime, formattedEndTime)

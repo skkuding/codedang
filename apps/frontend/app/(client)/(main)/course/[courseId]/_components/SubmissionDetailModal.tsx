@@ -145,7 +145,7 @@ export function SubmissionDetailModal({
                     <p>
                       {dateFormatter(
                         submission?.createTime ?? '',
-                        'YYYY-MM-DD HH:mm:ss'
+                        'MMM DD, YYYY HH:mm'
                       )}
                     </p>
                   </div>
