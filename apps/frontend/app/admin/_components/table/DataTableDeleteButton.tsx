@@ -11,8 +11,10 @@ import {
   AlertDialogTitle
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
+import { capitalizeFirstLetter } from '@/libs/utils'
 import { useState } from 'react'
 import { FaTrash } from 'react-icons/fa'
+import { FaCircleExclamation } from 'react-icons/fa6'
 import { toast } from 'sonner'
 import { useDataTable } from './context'
 
@@ -96,22 +98,27 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
         <FaTrash fontSize={13} color={'#8A8A8A'} />
       </Button>
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <AlertDialogContent className="gap-6 shadow-lg sm:rounded-lg md:h-[159px] md:w-[408px]">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete?</AlertDialogTitle>
+        <AlertDialogContent className="flex h-[304px] w-[432px] flex-col justify-between gap-6 p-10 shadow-lg sm:rounded-lg">
+          <AlertDialogHeader className="flex flex-col gap-[14px]">
+            <AlertDialogTitle>
+              <div className="flex flex-col items-center justify-center gap-[24px]">
+                <FaCircleExclamation color="#FF3B2F" size={50} />
+                <p className="text-2xl font-medium">{`Delete ${capitalizeFirstLetter(target)}?`}</p>
+              </div>
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-xs">
               Are you sure you want to permanently delete{' '}
               {table.getSelectedRowModel().rows.length} {target}(s)?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-[#80808040] text-sm font-bold text-[#3333334D]">
+            <AlertDialogCancel className="w-full border-[#80808040] text-sm font-bold text-[#3333334D]">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button
                 onClick={handleDeleteRows}
-                className="bg-[#FF3B2F] text-sm font-bold hover:bg-red-500/90"
+                className="w-full bg-[#FF3B2F] text-sm font-bold hover:bg-red-500/90"
               >
                 Delete
               </Button>
