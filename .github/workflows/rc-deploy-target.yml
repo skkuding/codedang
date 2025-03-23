@@ -147,3 +147,9 @@ jobs:
       - name: Terraform Apply
         working-directory: ./apps/infra/rc/codedang
         run: terraform apply -input=false plan.out
+
+  rc-mask-db:
+    if: github.event.inputs.terraform_project == 'storage'
+    uses: ./.github/workflows/rc-mask-db.yml
+    secrets: inherit
+    needs: [rc-deploy-target-project]
