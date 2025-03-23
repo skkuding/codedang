@@ -879,7 +879,7 @@ describe('SubmissionSubscriptionService', () => {
             result: submissionResults[0].result,
             cpuTime: submissionResults[0].cpuTime,
             memoryUsage: submissionResults[0].memoryUsage,
-            output: undefined
+            output: null
           }
         })
       ).to.be.true
