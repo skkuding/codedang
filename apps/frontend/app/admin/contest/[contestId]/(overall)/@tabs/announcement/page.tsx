@@ -22,6 +22,7 @@ import { ChevronDown } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
+import { BiSolidPencil } from 'react-icons/bi'
 import { toast } from 'sonner'
 import { ConfirmNavigation } from '../../../../../_components/ConfirmNavigation'
 import { ErrorMessage } from '../../../../../_components/ErrorMessage'
@@ -164,24 +165,24 @@ export default function Page() {
                   )
                 }}
               >
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder="Choose"
-                    className="text-xl font-medium"
-                  />
+                <SelectTrigger className="h-12 rounded-full bg-white pl-[30px] text-xl font-medium text-[#474747]">
+                  <SelectValue placeholder="Choose" />
                 </SelectTrigger>
                 <SelectContent
                   className="rounded-md border border-gray-200 bg-white shadow-md"
                   aria-required
                 >
-                  <SelectItem value="none" className="text-lg font-normal">
+                  <SelectItem
+                    value="none"
+                    className="hover:text-primary text-lg font-normal"
+                  >
                     General
                   </SelectItem>
                   {problemData?.getContestProblems.map((problem) => (
                     <SelectItem
                       key={problem.problemId}
                       value={problem.order.toString()}
-                      className="text-lg font-normal"
+                      className="hover:text-primary text-lg font-normal"
                     >
                       {problem.order}. {problem.problem.title}
                     </SelectItem>
@@ -196,12 +197,17 @@ export default function Page() {
               <Textarea
                 {...register('content')}
                 placeholder="Enter your announcement"
-                className="resize-none border-0 px-[30px] py-6 text-black placeholder:text-[#3333334D] focus-visible:ring-0"
+                className="min-h-[260px] rounded-xl bg-white px-[30px] py-6 text-lg font-normal text-black placeholder:text-[#3333334D] focus-visible:ring-0"
               />
               {errors.content && <ErrorMessage />}
             </div>
-            <Button type="submit">Submit</Button>
-            <p>Posted announcement cannot be edited.</p>
+            <p className="mb-20 mt-2 text-base font-normal text-[#9B9B9B]">
+              Posted announcement cannot be edited.
+            </p>
+            <Button type="submit" className="w-full text-lg font-bold">
+              <BiSolidPencil className="white" />
+              &nbsp; Post
+            </Button>
           </form>
         </main>
       </ScrollArea>
