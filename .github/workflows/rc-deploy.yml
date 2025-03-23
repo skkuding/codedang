@@ -123,6 +123,11 @@ jobs:
         working-directory: ./apps/infra/rc/storage
         run: terraform apply -input=false plan.out
 
+  rc-mask-db:
+    uses: ./.github/workflows/rc-mask-db.yml
+    secrets: inherit
+    needs: [rc-deploy-storage]
+
   rc-build-image:
     uses: ./.github/workflows/rc-build-image.yml
     secrets: inherit # Passes all aws credential secrets from the caller context
