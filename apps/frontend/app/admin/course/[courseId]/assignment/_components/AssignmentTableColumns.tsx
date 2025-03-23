@@ -172,7 +172,7 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
     ),
     cell: ({ row }) => (
       <p className="overflow-hidden whitespace-nowrap text-center font-normal">
-        {`${dateFormatter(row.original.startTime, 'YY-MM-DD HH:mm')} ~ ${dateFormatter(row.original.endTime, 'YY-MM-DD HH:mm')}`}
+        {`${dateFormatter(row.original.startTime, 'MMM DD, YYYY HH:mm')} ~ ${dateFormatter(row.original.endTime, 'MMM DD, YYYY HH:mm')}`}
       </p>
     ),
     size: 250

@@ -1,13 +1,12 @@
 'use client'
 
-import { Textarea } from '@/components/shadcn/textarea'
 import type { Template, Language } from '@generated/graphql'
 import { useEffect, useRef } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Label } from '../../_components/Label'
+import { CodeForm } from './CodeForm'
 
 export function TemplateField() {
-  const { register, unregister, watch, setValue } = useFormContext()
+  const { unregister, watch, setValue, getValues } = useFormContext()
   const watchedLanguages: Language[] = watch('languages') ?? []
   const watchedTemplates: Template[] = watch('template') ?? []
   const previousLanguagesRef = useRef<Language[]>([])
@@ -41,18 +40,13 @@ export function TemplateField() {
       {watchedLanguages &&
         watchedLanguages.map((language, index) => (
           <div key={index} className="flex gap-4">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <Label required={false}>{language} Template</Label>
-              </div>
-              {language && (
-                <Textarea
-                  placeholder={`Enter a ${language} template...`}
-                  className="h-[180px] w-[480px] bg-white"
-                  {...register(`template.${index}.code.0.text`)}
-                />
-              )}
-            </div>
+            {language && (
+              <CodeForm
+                name={`template.${index}.code.0.text`}
+                language={language}
+                hasValue={getValues(`template.${index}.code.0.text`) || false}
+              />
+            )}
           </div>
         ))}
     </div>

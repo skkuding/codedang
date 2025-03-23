@@ -55,10 +55,10 @@ export function DataTableMultiSelectFilter<TData, TValue>({
         <Button
           variant="outline"
           size={'sm'}
-          className="h-10 rounded-full border px-4 hover:bg-gray-50"
+          className="h-10 rounded-full border p-5 hover:bg-gray-50"
         >
           <IoFilter className="mr-2 h-4 w-4" />
-          <p className="font-bold">{title}</p>
+          <p className="font-normal">{title}</p>
           {selectedValues.size > 0 && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />

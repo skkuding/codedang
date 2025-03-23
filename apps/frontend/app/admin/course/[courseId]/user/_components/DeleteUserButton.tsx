@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/shadcn/button'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
-import { PiTrashLight } from 'react-icons/pi'
+import { FaTrash } from 'react-icons/fa6'
 import { toast } from 'sonner'
 
 interface DeleteUserButtonProps<TPromise> {
@@ -48,6 +48,7 @@ export function DeleteUserButton<TData extends { id: number }, TPromise>({
 
   const handleDeleteButtonClick = () => {
     if (table.getSelectedRowModel().rows.length === 0) {
+      toast.error('Please select at least one member')
       return
     }
     setIsDialogOpen(true)
@@ -72,7 +73,7 @@ export function DeleteUserButton<TData extends { id: number }, TPromise>({
   return (
     <>
       <Button variant="outline" type="button" onClick={handleDeleteButtonClick}>
-        <PiTrashLight fontSize={18} />
+        <FaTrash fontSize={13} color={'#8A8A8A'} />
       </Button>
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <AlertDialogContent className="w-[416px] p-[40px]">

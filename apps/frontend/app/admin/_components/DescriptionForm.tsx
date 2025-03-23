@@ -1,8 +1,8 @@
 'use client'
 
-import { TextEditor } from '@/components/TextEditor'
 import { useController, useFormContext } from 'react-hook-form'
 import { ErrorMessage } from './ErrorMessage'
+import { TextEditor } from './TextEditor'
 
 interface DescriptionFormProps {
   name: string
@@ -12,8 +12,8 @@ interface DescriptionFormProps {
 // NOTE: 이미지 안넣기??
 // TODO: 앞으로가기, 뒤로가기, 링크해제기능 -> 다른 부원이 작업중
 export function DescriptionForm({
-  name,
-  isDarkmode = false
+  name
+  // isDarkmode = false
 }: DescriptionFormProps) {
   const {
     control,
@@ -31,7 +31,7 @@ export function DescriptionForm({
         placeholder="Enter a description..."
         onChange={field.onChange}
         defaultValue={field.value as string}
-        isDarkMode={isDarkmode}
+        // isDarkMode={isDarkmode}
       />
       {errors[name] && <ErrorMessage />}
     </div>
