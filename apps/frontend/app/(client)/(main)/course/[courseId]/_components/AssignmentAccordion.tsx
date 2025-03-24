@@ -62,8 +62,8 @@ function AssignmentAccordionItem({
       ? false
       : filteredAssignments.every((assignment) => {
           return (
-            assignment.submittedNumber === assignment.problemNumber &&
-            assignment.problemNumber !== 0
+            assignment.submittedCount === assignment.problemCount &&
+            assignment.problemCount !== 0
           )
         })
 

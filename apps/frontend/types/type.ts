@@ -359,8 +359,8 @@ export interface Assignment {
   status: AssignmentStatus
   description: string
   isRegistered: boolean
-  problemNumber: number
-  submittedNumber: number
+  problemCount: number
+  submittedCount: number
 }
 
 export interface AssignmentProblem {

@@ -103,8 +103,8 @@ export function AssignmentLink({ assignment, courseId }: AssignmentLinkProps) {
         </div>
 
         <CountBadge
-          solvedProblemCount={assignment.submittedNumber}
-          problemCount={assignment.problemNumber}
+          solvedProblemCount={assignment.submittedCount}
+          problemCount={assignment.problemCount}
         />
       </div>
     </Link>
