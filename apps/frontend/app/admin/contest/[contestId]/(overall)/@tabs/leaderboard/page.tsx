@@ -33,12 +33,10 @@ export default function ContestLeaderBoard() {
   const [searchText, setSearchText] = useState('')
   const pathname = usePathname()
   const contestId = Number(pathname.split('/')[3])
-  console.log('contest id: ', contestId)
 
   const { data } = useSuspenseQuery(GET_CONTEST_LEADERBOARD, {
     variables: { contestId }
   })
-  console.log('data: ', data)
 
   const [problemSize, setProblemSize] = useState(0)
   const [leaderboardUsers, setLeaderboardUsers] = useState([
@@ -52,6 +50,7 @@ export default function ContestLeaderBoard() {
     setLeaderboardUsers(
       data ? data.getContestLeaderboard.leaderboard : [BaseLeaderboardUser]
     )
+    console.log('users: ', data.getContestLeaderboard.leaderboard)
   }, [data])
 
   return (
@@ -66,13 +65,16 @@ export default function ContestLeaderBoard() {
             thumbClassName="w-[18px] h-[18px] data-[state=checked]:translate-x-[22px] data-[state=unchecked]:translate-x-[2px]"
           />
         </div>
-        <div className="font-[14px] font-normal text-[#9B9B9B]">
+        <div className="mt-1 font-[14px] font-normal text-[#9B9B9B]">
           The leaderboard can only be unfrozen after the contest has finished.
         </div>
       </div>
       <div className="mb-[62px] mt-[60px] flex flex-row">
-        <div className="mr-[167px] text-2xl font-semibold text-black">
-          83/89 Participants
+        <div className="mr-[167px] flex flex-row text-2xl font-semibold text-black">
+          <div className="text-[#3581FA]">
+            {data.getContestLeaderboard.participatedNum}
+          </div>
+          /{data.getContestLeaderboard.registeredNum} Participants
         </div>
         <div className="relative">
           <Image
