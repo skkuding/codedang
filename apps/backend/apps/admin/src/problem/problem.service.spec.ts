@@ -678,7 +678,17 @@ describe('ProblemService', () => {
       expect(result).to.deep.equals(exampleOrderUpdatedContestProblems)
     })
 
-    it("should Error when orders's element is not unique", async () => {
+    it('should Error when orders length is not same with problems length', async () => {
+      //given
+      db.contest.findFirstOrThrow.resolves(exampleContest)
+      db.contestProblem.findMany.resolves(exampleContestProblems)
+      //when & then
+      await expect(
+        service.updateContestProblemsOrder(1, [2, 3, 4, 5, 6, 7, 8, 9, 10])
+      ).to.be.rejectedWith(UnprocessableDataException)
+    })
+
+    it('should Error when orders dont have full imported problems', async () => {
       //given
       db.contest.findFirstOrThrow.resolves(exampleContest)
       db.contestProblem.findMany.resolves(exampleContestProblems)

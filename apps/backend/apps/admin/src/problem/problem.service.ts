@@ -961,12 +961,13 @@ export class ProblemService {
       )
     }
 
-    if (new Set(orders).size !== orders.length) {
-      throw new UnprocessableDataException("orders's elements are duplicated.")
-    }
-
     const queries = contestProblems.map((record) => {
       const newOrder = orders.indexOf(record.problemId)
+      if (newOrder === -1) {
+        throw new UnprocessableDataException(
+          'There is a problemId in the contest that is missing from the provided orders.'
+        )
+      }
       return this.prisma.contestProblem.update({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
