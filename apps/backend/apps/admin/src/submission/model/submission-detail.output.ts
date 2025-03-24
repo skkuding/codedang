@@ -3,7 +3,7 @@ import type { $Enums } from '@prisma/client'
 import { ResultStatus, Submission } from '@admin/@generated'
 
 @ObjectType()
-class ProblemTestcase {
+class ProblemTestcaseResult {
   @Field(() => String)
   input: string
 
@@ -28,8 +28,8 @@ class TestCaseResult {
   @Field(() => ResultStatus)
   result: $Enums.ResultStatus
 
-  @Field(() => ProblemTestcase)
-  problemTestcase: ProblemTestcase
+  @Field(() => ProblemTestcaseResult)
+  problemTestcase: ProblemTestcaseResult
 
   @Field(() => String, { nullable: true })
   output: string | null
