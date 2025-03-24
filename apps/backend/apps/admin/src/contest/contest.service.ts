@@ -93,9 +93,17 @@ export class ContestService {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         _count: {
           select: { contestRecord: true }
+        },
+        userContest: {
+          where: {
+            role: {
+              in: ['Manager', 'Reviewer']
+            }
+          }
         }
       }
     })
+    console.log(contest?.userContest)
 
     if (!contest) {
       throw new EntityNotExistException('contest')
@@ -140,10 +148,37 @@ export class ContestService {
       }
     }
 
-    try {
-      const { summary, userContestRoles, ...contestData } = contest
+    const { summary, userContestRoles, ...contestData } = contest
 
-      const createdContest = await this.prisma.contest.create({
+    if (userContestRoles) {
+      const validRoles = new Set(['Manager', 'Reviewer'])
+      const seenUserIds = new Set<number>()
+
+      for (const role of userContestRoles) {
+        if (!validRoles.has(role.contestRole)) {
+          throw new UnprocessableDataException(
+            `Invalid contest role: ${role.contestRole}`
+          )
+        }
+
+        if (role.userId === userId) {
+          throw new UnprocessableDataException(
+            `User ${userId} is already assigned as Admin`
+          )
+        }
+
+        if (seenUserIds.has(role.userId)) {
+          throw new UnprocessableDataException(
+            `User ${role.userId} has multiple roles in this request`
+          )
+        }
+
+        seenUserIds.add(role.userId)
+      }
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const createdContest = await tx.contest.create({
         data: {
           createdById: userId,
           summary: summary
@@ -153,30 +188,16 @@ export class ContestService {
         }
       })
 
-      if (userContestRoles) {
-        const validRoles = ['Manager', 'Reviewer']
-        userContestRoles.forEach((userContestRole) => {
-          if (!validRoles.includes(userContestRole.contestRole)) {
-            throw new UnprocessableDataException(
-              'Invalid contest role: ' + userContestRole.contestRole
-            )
-          }
+      if (userContestRoles && userContestRoles.length > 0) {
+        await tx.userContest.createMany({
+          data: userContestRoles.map((role) => ({
+            userId: role.userId,
+            contestId: createdContest.id,
+            role: role.contestRole as ContestRole
+          }))
         })
-
-        await Promise.all(
-          userContestRoles.map((userContestRole) =>
-            this.prisma.userContest.create({
-              data: {
-                userId: userContestRole.userId,
-                contestId: createdContest.id,
-                role: userContestRole.contestRole as ContestRole
-              }
-            })
-          )
-        )
       }
-
-      await this.prisma.userContest.create({
+      await tx.userContest.create({
         data: {
           userId,
           contestId: createdContest.id,
@@ -185,9 +206,7 @@ export class ContestService {
       })
 
       return createdContest
-    } catch (error) {
-      throw new UnprocessableDataException(error.message)
-    }
+    })
   }
 
   async updateContest(contest: UpdateContestInput): Promise<Contest> {
