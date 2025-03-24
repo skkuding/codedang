@@ -106,9 +106,8 @@ export class AssignmentService {
           ...assignmentSelectOption,
           description: true,
           assignmentRecord: {
-            where: {
-              userId
-            },
+            where: { userId },
+            take: 1,
             select: {
               assignmentProblemRecord: {
                 where: {
@@ -171,8 +170,8 @@ export class AssignmentService {
 
     return {
       ...assignmentDetails,
-      problemNumber: _count.assignmentProblem,
-      submittedNumber: assignmentRecord[0].assignmentProblemRecord.length
+      problemCount: _count.assignmentProblem,
+      submittedCount: assignmentRecord[0].assignmentProblemRecord.length
     }
   }
 
@@ -342,6 +341,7 @@ export class AssignmentService {
       select: {
         id: true,
         title: true,
+        startTime: true,
         endTime: true,
         isFinalScoreVisible: true,
         isJudgeResultVisible: true,
@@ -429,18 +429,25 @@ export class AssignmentService {
       where: { userId, assignmentId },
       select: {
         problemId: true,
-        createTime: true
+        createTime: true,
+        result: true
       },
       orderBy: {
         createTime: 'desc'
       }
     })
 
-    const submissionMap = new Map<number, Date>()
+    const submissionMap = new Map<
+      number,
+      { submissionTime: Date; submissionResult: string }
+    >()
 
     for (const submission of submissions) {
       if (!submissionMap.has(submission.problemId)) {
-        submissionMap.set(submission.problemId, submission.createTime)
+        submissionMap.set(submission.problemId, {
+          submissionTime: submission.createTime,
+          submissionResult: submission.result
+        })
       }
     }
 
@@ -453,8 +460,10 @@ export class AssignmentService {
       title: ap.problem.title,
       order: ap.order,
       maxScore: ap.score,
-      problemRecord: problemRecordMap[ap.problemId] || null,
-      submissionTime: submissionMap.get(ap.problemId)
+      problemRecord: problemRecordMap[ap.problemId] ?? null,
+      submissionTime: submissionMap.get(ap.problemId)?.submissionTime ?? null,
+      submissionResult:
+        submissionMap.get(ap.problemId)?.submissionResult ?? null
     }))
 
     const assignmentPerfectScore = assignment.assignmentProblem.reduce(
@@ -465,6 +474,7 @@ export class AssignmentService {
     return {
       id: assignment.id,
       title: assignment.title,
+      startTime: assignment.startTime,
       endTime: assignment.endTime,
       autoFinalizeScore: assignment.autoFinalizeScore,
       isFinalScoreVisible: assignment.isFinalScoreVisible,
