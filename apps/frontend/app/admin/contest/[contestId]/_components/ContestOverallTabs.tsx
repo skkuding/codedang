@@ -151,7 +151,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
     <div className="flex items-center justify-between">
       <div className="flex w-max gap-1 rounded-lg bg-slate-200 p-1">
         <Link
-          href={`/admin/contest/${id}`}
+          href={`/admin/contest/${id}/leaderboard`}
           className={cn(
             'rounded-md px-3 py-1.5 text-lg font-semibold',
             isCurrentTab('') && 'text-primary bg-white font-bold'
