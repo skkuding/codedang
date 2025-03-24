@@ -36,6 +36,7 @@ const contest = {
   lastPenalty: false,
   startTime: now.add(-1, 'day').toDate(),
   endTime: now.add(1, 'day').toDate(),
+  unfreeze: false,
   freezeTime: null,
   isJudgeResultVisible: true,
   enableCopyPaste: true,

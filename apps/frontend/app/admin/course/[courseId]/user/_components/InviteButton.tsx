@@ -39,7 +39,8 @@ import { Tooltip, TooltipContent } from '@radix-ui/react-tooltip'
 import { useCallback, useEffect, useState } from 'react'
 import { CSVLink } from 'react-csv'
 import { useForm, type SubmitHandler } from 'react-hook-form'
-import { FiPlusCircle, FiX } from 'react-icons/fi'
+import { FaCirclePlus } from 'react-icons/fa6'
+import { FiX } from 'react-icons/fi'
 import { IoCloudUpload, IoCopyOutline } from 'react-icons/io5'
 import { MdHelpOutline, MdOutlineEmail } from 'react-icons/md'
 import { RxReload } from 'react-icons/rx'
@@ -87,7 +88,7 @@ export function InviteButton({ onSuccess, params }: InviteButtonProps) {
         onClick={() => setIsAlertDialogOpen(true)}
         className="flex gap-2"
       >
-        <FiPlusCircle />
+        <FaCirclePlus />
         Invite
       </Button>
       <AlertDialog open={isAlertDialogOpen} onOpenChange={handleOpenChange}>

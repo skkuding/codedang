@@ -26,7 +26,7 @@ import type { CourseInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useEffect, useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
-import { GoPencil } from 'react-icons/go'
+import { FaPen } from 'react-icons/fa6'
 import { toast } from 'sonner'
 import { ErrorMessage } from '../../_components/ErrorMessage'
 import { useDataTable } from '../../_components/table/context'
@@ -190,7 +190,7 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
   return (
     <>
       <Button variant="outline" type="button" onClick={handleUpdateButtonClick}>
-        <GoPencil />
+        <FaPen fontSize={13} color={'#8A8A8A'} />
       </Button>
       <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
         <AlertDialogContent className="px-2 py-0">

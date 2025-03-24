@@ -37,7 +37,7 @@ enum Provider {
 
 enum ProblemField {
   title
-  language
+  languages
   description
   testcase
   memoryLimit
@@ -72,7 +72,7 @@ model User {
   workbook         Workbook[]
   submission       Submission[]
   useroauth        UserOAuth?
-  Image            Image[]
+  file             File[]
   testSubmission   TestSubmission[]
   UpdateHistory    UpdateHistory[]
 
@@ -268,13 +268,13 @@ model UpdateHistory {
   @@map("updateHistory")
 }
 
-model Image {
+model File {
   filename    String   @id @unique
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?
   createTime  DateTime @default(now()) @map("create_time")
 
-  @@map("image")
+  @@map("file")
 }
 
 enum Level {
@@ -426,7 +426,7 @@ model Contest {
   title       String
   description String
   // 대회의 페널티 (0 ≤ penalty ≤ 100),
-  penalty     Int     @default(0)
+  penalty     Int     @default(20)
   lastPenalty Boolean @default(false) @map("last_penalty")
   posterUrl   String?
 
@@ -442,6 +442,7 @@ model Contest {
   invitationCode             String?   @map("invitation_code")
   startTime                  DateTime  @map("start_time")
   endTime                    DateTime  @map("end_time")
+  unfreeze                   Boolean   @default(false)
   freezeTime                 DateTime? @map("freeze_time")
   isJudgeResultVisible       Boolean   @default(true) @map("is_judge_result_visible") /// 이 Contest에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다.
   evaluateWithSampleTestcase Boolean   @default(false) @map("evaluate_with_sample_testcase") /// 이 Contest에 포함된 문제의 채점을 샘플 테스트케이스를 포함하여 할지 말지 결정합니다.

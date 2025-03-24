@@ -1,5 +1,10 @@
 import { safeFetcherWithAuth } from '@/libs/utils'
-import type { SubmissionDetail, SubmissionItem } from '@/types/type'
+import type {
+  AssignmentGrade,
+  Language,
+  SubmissionDetail,
+  SubmissionItem
+} from '@/types/type'
 import type { PaginationQueryParams } from './types'
 
 export interface GetAssignmentSubmissionListRequest
@@ -75,7 +80,26 @@ export const getAnonymizedScores = async ({
   )
 
   const data = await response.json<AnonymizedScore>()
-  console.log('Fetched data:', data)
+  return data
+}
+
+export interface GetLatestProblemSubmissionResultRequest {
+  assignmentId: number
+  problemId: number
+}
+
+export const getLatestProblemSubmissionResult = async ({
+  assignmentId,
+  problemId
+}: GetLatestProblemSubmissionResultRequest) => {
+  const response = await safeFetcherWithAuth.get(
+    `assignment/${assignmentId}/submission/latest`,
+    {
+      searchParams: { problemId }
+    }
+  )
+
+  const data = await response.json<ProblemSubmissionResult>()
   return data
 }
 
@@ -111,7 +135,6 @@ export const getProblemSubmissionResults = async ({
   )
 
   const data = await response.json<ProblemSubmissionResultsResponse>()
-  console.log('Fetched data:', data)
   return data
 }
 
@@ -125,7 +148,7 @@ export interface SubmissionResponse {
   problemId: number
   username: string
   code: string
-  language: string
+  language: Language
   createTime: string
   result: string
   testcaseResult: TestcaseResult[]
@@ -151,7 +174,6 @@ export const getTestResult = async ({
   })
 
   const data = await response.json<SubmissionResponse>()
-  console.log('Fetched data:', data)
   return data
 }
 
@@ -161,39 +183,10 @@ export interface GetAssignmentGradesRequest {
 
 export type GetAssignmentGradesResponse = AssignmentGrade[]
 
-export interface AssignmentGrade {
-  id: number
-  title: string
-  endTime: string
-  autoFinalizeScore: boolean
-  isFinalScoreVisible: boolean
-  isJudgeResultVisible: boolean
-  week: number
-  userAssignmentFinalScore: number | null
-  userAssignmentJudgeScore: number | null
-  assignmentPerfectScore: number
-  problems: ProblemGrade[]
-}
-export interface ProblemGrade {
-  id: number
-  title: string
-  order: number
-  maxScore: number
-  problemRecord: ProblemRecord | null
-}
-
-export interface ProblemRecord {
-  finalScore: number
-  score: number
-  isSubmitted: boolean
-  comment: string
-}
-
 export const getAssignmentGrades = async ({
   groupId
 }: GetAssignmentGradesRequest) => {
   const response = await safeFetcherWithAuth.get(`course/${groupId}/grade`)
   const data = await response.json<GetAssignmentGradesResponse>()
-  console.log('Fetched data:', data)
   return data
 }

@@ -19,6 +19,15 @@ export class CreateContestInput {
   @Field(() => String, { nullable: false })
   description!: string
 
+  @Field(() => Int, { nullable: true })
+  penalty?: number
+
+  @Field(() => Boolean, { nullable: true })
+  lastPenalty?: boolean
+
+  @Field(() => String, { nullable: true })
+  posterUrl?: string
+
   @IsOptional()
   @IsNumberString()
   @Length(6, 6)
@@ -30,6 +39,9 @@ export class CreateContestInput {
 
   @Field(() => GraphQLISODateTime, { nullable: false })
   endTime!: Date
+
+  @Field(() => GraphQLISODateTime, { nullable: true })
+  freezeTime?: Date
 
   @Field(() => Boolean, { nullable: false })
   isJudgeResultVisible!: boolean
@@ -61,6 +73,15 @@ export class UpdateContestInput {
   @Field(() => String, { nullable: true })
   description?: string
 
+  @Field(() => Int, { nullable: true })
+  penalty?: number
+
+  @Field(() => Boolean, { nullable: true })
+  lastPenalty?: boolean
+
+  @Field(() => String, { nullable: true })
+  posterUrl?: string
+
   @IsOptional()
   @IsNumberString()
   @Length(6, 6)
@@ -72,6 +93,12 @@ export class UpdateContestInput {
 
   @Field(() => GraphQLISODateTime, { nullable: true })
   endTime?: Date
+
+  @Field(() => Boolean, { nullable: true })
+  unfreeze?: boolean
+
+  @Field(() => GraphQLISODateTime, { nullable: true })
+  freezeTime?: Date
 
   @Field(() => Boolean, { nullable: true })
   enableCopyPaste?: boolean

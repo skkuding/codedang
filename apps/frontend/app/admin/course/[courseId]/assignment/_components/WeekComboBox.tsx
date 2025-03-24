@@ -6,13 +6,18 @@ import {
   PopoverTrigger,
   PopoverContent
 } from '@/components/shadcn/popover'
+import { GET_COURSE } from '@/graphql/course/queries'
+import { useQuery } from '@apollo/client'
 import { useState } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
 import { FaChevronDown } from 'react-icons/fa6'
 
-const weeks = Array.from({ length: 16 }, (_, i) => i + 1)
+interface WeekComboBoxProps {
+  name: string
+  courseId: number
+}
 
-export function WeekComboBox({ name }: { name: string }) {
+export function WeekComboBox({ name, courseId }: WeekComboBoxProps) {
   const {
     control,
     formState: { errors }
@@ -22,6 +27,15 @@ export function WeekComboBox({ name }: { name: string }) {
     name,
     control
   })
+
+  const { data } = useQuery(GET_COURSE, {
+    variables: { groupId: courseId }
+  })
+
+  const weeks = Array.from(
+    { length: data?.getCourse.courseInfo?.week ?? 16 },
+    (_, i) => i + 1
+  )
 
   const [selectedWeek, setSelectedWeek] = useState(field.value)
   const [open, setOpen] = useState(false)

@@ -212,6 +212,7 @@ export interface Submission {
 
 export interface SubmissionItem {
   id: number
+  order: string
   user: {
     username: string
   }
@@ -378,4 +379,33 @@ export interface CalendarAssignment {
   title: string
   start: Date
   end: Date
+}
+
+export interface AssignmentGrade {
+  id: number
+  title: string
+  endTime: string
+  autoFinalizeScore: boolean
+  isFinalScoreVisible: boolean
+  isJudgeResultVisible: boolean
+  week: number
+  userAssignmentFinalScore: number | null
+  userAssignmentJudgeScore: number | null
+  assignmentPerfectScore: number
+  problems: ProblemGrade[]
+}
+export interface ProblemGrade {
+  id: number
+  title: string
+  order: number
+  maxScore: number
+  problemRecord: ProblemRecord | null
+  submissionTime: string
+}
+
+export interface ProblemRecord {
+  finalScore: number
+  score: number
+  isSubmitted: boolean
+  comment: string
 }

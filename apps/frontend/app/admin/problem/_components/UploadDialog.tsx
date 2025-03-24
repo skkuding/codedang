@@ -1,3 +1,5 @@
+'use client'
+
 import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
@@ -67,7 +69,7 @@ export function UploadDialog() {
       client.refetchQueries({
         include: [GET_PROBLEMS]
       })
-    } catch (error) {
+    } catch {
       toast.error('Failed to upload file')
     }
   }
