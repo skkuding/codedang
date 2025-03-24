@@ -14,23 +14,17 @@ const commonSchema = v.object({
     v.minLength(1),
     v.check((value) => value !== '<p></p>')
   ),
-  inputDescription: v.pipe(
-    v.string(),
-    v.minLength(1),
-    v.check((value) => value !== '<p></p>')
-  ),
-  outputDescription: v.pipe(
-    v.string(),
-    v.minLength(1),
-    v.check((value) => value !== '<p></p>')
-  ),
+  inputDescription: v.string(),
+
+  outputDescription: v.string(),
+
   testcases: v.pipe(
     v.array(
       v.object({
-        input: v.pipe(v.string(), v.minLength(1)),
-        output: v.pipe(v.string(), v.minLength(1)),
+        input: v.string(),
+        output: v.string(),
         isHidden: v.boolean(),
-        scoreWeight: v.number()
+        scoreWeight: v.number('The scoring ratio must be specified.')
       })
     ),
     v.minLength(1)

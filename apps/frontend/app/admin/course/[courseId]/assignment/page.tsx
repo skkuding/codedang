@@ -1,10 +1,10 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Button } from '@/components/shadcn/button'
 import { ErrorBoundary } from '@suspensive/react'
-import { PlusCircleIcon } from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { Suspense } from 'react'
+import { FaCirclePlus } from 'react-icons/fa6'
 import {
   AssignmentTable,
   AssignmentTableFallback
@@ -19,13 +19,18 @@ export default function Page({ params }: { params: { courseId: string } }) {
       <div className="flex justify-between">
         <p className="text-4xl font-bold">Assignment List</p>
         <Button variant="default" asChild>
-          <Link href={`/admin/course/${courseId}/assignment/create` as Route}>
-            <PlusCircleIcon className="mr-2 h-4 w-4" />
+          <Link
+            href={`/admin/course/${courseId}/assignment/create` as Route}
+            className="flex gap-1"
+          >
+            <FaCirclePlus />
             Create
           </Link>
         </Button>
       </div>
-      <p className="text-lg text-slate-500">Here&apos;s a list you made</p>
+      <p className="text-lg text-slate-500">
+        Here&apos;s the assignments you made
+      </p>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<AssignmentTableFallback />}>
           <AssignmentTable groupId={courseId} />

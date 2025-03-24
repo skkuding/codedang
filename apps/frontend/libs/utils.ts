@@ -139,3 +139,11 @@ export const getStatusColor = (status: string): string => {
     return 'text-[#8A8A8A] border-[#C4C4C4]'
   }
 }
+
+/**
+ *
+ * @param text text to capitalize
+ * @returns text with first letter capitalized
+ */
+export const capitalizeFirstLetter = (text: string) =>
+  text.charAt(0).toUpperCase() + text.slice(1)

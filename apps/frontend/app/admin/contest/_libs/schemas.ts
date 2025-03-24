@@ -6,9 +6,6 @@ export const createSchema = v.object({
     v.minLength(1, 'The title must contain at least 1 character(s)'),
     v.maxLength(200, 'The title can only be up to 200 characters long')
   ),
-
-  isRankVisible: v.boolean(),
-  isVisible: v.boolean(),
   description: v.pipe(
     v.string(),
     v.minLength(1),

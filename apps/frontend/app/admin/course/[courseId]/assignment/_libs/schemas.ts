@@ -14,8 +14,8 @@ export const createSchema = v.object({
     v.minLength(1),
     v.check((value) => value !== '<p></p>')
   ),
-  startTime: v.date(),
-  endTime: v.date(),
+  startTime: v.optional(v.date()),
+  endTime: v.optional(v.date()),
   week: v.number(),
   enableCopyPaste: v.boolean(),
   isJudgeResultVisible: v.boolean(),

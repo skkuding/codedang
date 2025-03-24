@@ -117,7 +117,7 @@ export function SubmissionDetailAdmin({
               <div>
                 <h2>Submission Time</h2>
                 <p>
-                  {dateFormatter(submission?.createTime, 'YYYY-MM-DD HH:mm:ss')}
+                  {dateFormatter(submission?.createTime, 'MMM DD, YYYY HH:mm')}
                 </p>
               </div>
               <div>
