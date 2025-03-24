@@ -103,7 +103,6 @@ export class ContestService {
         }
       }
     })
-    console.log(contest?.userContest)
 
     if (!contest) {
       throw new EntityNotExistException('contest')
@@ -188,7 +187,7 @@ export class ContestService {
         }
       })
 
-      if (userContestRoles && userContestRoles.length > 0) {
+      if (userContestRoles?.length) {
         await tx.userContest.createMany({
           data: userContestRoles.map((role) => ({
             userId: role.userId,
