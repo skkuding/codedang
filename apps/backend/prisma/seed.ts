@@ -1419,8 +1419,7 @@ const createContests = async () => {
     {
       data: {
         title: '2024 스꾸딩 프로그래밍 대회',
-        description:
-          '<p>이 대회는 언젠가 열리겠죠...? isVisible이 false인 assignment입니다</p>',
+        description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
         posterUrl: `https://skkuding.dev/open-graph.png`,
         summary: {
