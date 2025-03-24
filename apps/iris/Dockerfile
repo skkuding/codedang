@@ -34,5 +34,5 @@ RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" 
 RUN chmod 750 /app/sandbox/libjudger.so
 
 COPY ./entrypoint.sh .
-
+ENV JAVA_PATH /usr/bin/
 ENTRYPOINT ["./entrypoint.sh"]

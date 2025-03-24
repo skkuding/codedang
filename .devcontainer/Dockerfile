@@ -40,3 +40,5 @@ RUN apt-get -y update && export DEBIAN_FRONTEND=noninteractive \
   && apt-get -y install --no-install-recommends \
   && apt-get -y clean \
   && rm -rf /var/lib/apt/lists/*
+
+ENV JAVA_PATH /usr/local/sdkman/candidates/java/current/bin/
