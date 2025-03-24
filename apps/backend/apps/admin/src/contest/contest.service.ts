@@ -357,7 +357,7 @@ export class ContestService {
       })
 
       await Promise.all([
-        rolesToDelete.map((role) =>
+        ...rolesToDelete.map((role) =>
           this.prisma.userContest.delete({
             where: {
               // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -368,7 +368,7 @@ export class ContestService {
             }
           })
         ),
-        rolesToAdd.map((role) =>
+        ...rolesToAdd.map((role) =>
           this.prisma.userContest.create({
             data: {
               userId: role.userId,
@@ -377,7 +377,7 @@ export class ContestService {
             }
           })
         ),
-        rolesToUpdate.map((role) =>
+        ...rolesToUpdate.map((role) =>
           this.prisma.userContest.update({
             where: {
               // eslint-disable-next-line @typescript-eslint/naming-convention
