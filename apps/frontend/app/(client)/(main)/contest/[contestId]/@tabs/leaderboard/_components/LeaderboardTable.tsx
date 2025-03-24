@@ -12,7 +12,6 @@ import { LeaderboardTableHeader } from './LeaderboardTableHeader'
 const DEFAULT_COL_HEADER_SIZE = 41
 const DEFAULT_ROW_SIZE = 313
 
-// 주의! 본 페이지는 상당부분 하드코딩 되어있습니다! %%%%%
 interface LeaderboardTableProps {
   problemSize: number
   leaderboardUsers: LeaderboardUser[]
@@ -33,12 +32,12 @@ export function LeaderboardTable({
   })
 
   const [orders, setOrders] = useState([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-  const problemRecords = leaderboardUsers[0].problemRecords
+  const problemRecord = leaderboardUsers[0].problemRecords
   useEffect(() => {
-    const newOrders = problemRecords.map((problem) => problem.order)
+    const newOrders = problemRecord.map((problem) => problem.order)
     const sortedOrders = [...newOrders].sort((a, b) => a - b)
     setOrders(sortedOrders)
-  }, [problemRecords])
+  }, [problemRecord])
 
   const windowSize = useWindowSize()
 
@@ -176,7 +175,7 @@ export function LeaderboardTable({
         >
           <Tooltip.Provider>
             {leaderboardUsers.map((user, index) => {
-              const problemRecords = user.problemRecords
+              const problemRecords = user?.problemRecords
               return (
                 <LeaderboardRow
                   username={user.username}

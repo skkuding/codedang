@@ -1,10 +1,10 @@
-import { safeFetcherWithAuth } from '@/libs/utils'
+import { safeFetcher } from '@/libs/utils'
 
 interface GetContestLeaderboard {
   contestId: number
 }
 
-interface ProblemRecordInContestLeaderboard {
+export interface ProblemRecordInContestLeaderboard {
   order: number
   problemId: number
   penalty: number
@@ -30,9 +30,7 @@ export interface ContestLeaderboard {
 export const getContestLeaderboard = async ({
   contestId
 }: GetContestLeaderboard) => {
-  const response = await safeFetcherWithAuth.get(
-    `contest/${contestId}/leaderboard`
-  )
+  const response = await safeFetcher.get(`contest/${contestId}/leaderboard`)
 
   const data = await response.json<ContestLeaderboard>()
   return data
