@@ -249,13 +249,27 @@ const db = {
   submission: {
     findMany: stub().resolves([submissionsWithProblemTitleAndUsername])
   },
-  // submissionResult: {
-  //   findMany: stub().resolves([submissionResults])
-  // },
-  $transaction: stub().callsFake(async () => {
-    const updatedProblem = await db.problem.update()
-    const newContestProblem = await db.contestProblem.create()
-    return [newContestProblem, updatedProblem]
+  $transaction: stub().callsFake(async (arg) => {
+    if (typeof arg === 'function') {
+      // 콜백 기반 트랜잭션 (e.g. createContest)
+      const tx = {
+        contest: {
+          create: stub().resolves(contest)
+        },
+        userContest: {
+          createMany: stub().resolves({ count: 2 }),
+          create: stub().resolves()
+        }
+      }
+      return await arg(tx)
+    } else if (Array.isArray(arg)) {
+      // 배열 기반 트랜잭션 (e.g. importProblemsToContest)
+      const updatedProblem = await db.problem.update()
+      const newContestProblem = await db.contestProblem.create()
+      return [newContestProblem, updatedProblem]
+    } else {
+      throw new Error('Invalid transaction mock usage')
+    }
   }),
   getPaginator: PrismaService.prototype.getPaginator
 }
