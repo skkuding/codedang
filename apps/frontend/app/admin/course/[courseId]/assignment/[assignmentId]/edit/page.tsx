@@ -75,7 +75,9 @@ export default function Page({
               </FormSection>
 
               <FormSection title="Week">
-                {methods.getValues('week') && <WeekComboBox name="week" />}
+                {methods.getValues('week') && (
+                  <WeekComboBox name="week" courseId={Number(courseId)} />
+                )}
               </FormSection>
             </div>
 
@@ -93,7 +95,7 @@ export default function Page({
 
             <SwitchField
               name="isJudgeResultVisible"
-              title="Reveal scores to participants"
+              title="Reveal raw scores to participants"
               hasValue={methods.getValues('isJudgeResultVisible') || false}
             />
 

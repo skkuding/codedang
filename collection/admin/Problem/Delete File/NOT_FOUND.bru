@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  mutation DeleteImage ($filename: String!) {
-    deleteImage(filename: $filename) {
+  mutation DeleteFile ($filename: String!) {
+    deleteFile(filename: $filename) {
       filename
       createdById
       createTime
@@ -32,9 +32,9 @@ assert {
 }
 
 docs {
-  ## Delete Image
-  S3 Bucket에 업로드된 이미지를 삭제합니다.
-  
+  ## Delete File
+  S3 Bucket에 업로드된 파일을 삭제합니다.
+
   ### Error Cases
   #### NOT_FOUND
   존재하는 filename을 사용해야 합니다.

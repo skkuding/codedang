@@ -67,8 +67,7 @@ func NewJudgerLangConfig(file file.FileManager, javaPolicyPath string) *langConf
 		MaxCompileMemory:   1024 * 1024 * 1024,
 		CompilerPath:       "/usr/bin/g++",
 		CompileArgs: "-DONLINE_JUDGE " +
-			"-O2 -Wall -Werror=implicit-function-declaration " +
-			"-std=c++14 {srcPath} -lm -o {exePath}",
+			"-O2 -Wall -std=c++14 {srcPath} -lm -o {exePath}",
 		RunCommand:            "{exePath}",
 		RunArgs:               "",
 		SeccompRule:           "c_cpp",
