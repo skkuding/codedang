@@ -33,7 +33,9 @@ export function DataTableProblemFilter({
   const column = table.getColumn(PROBLEM_COLUMN_ID)
   const selectedValues = (column?.getFilterValue() as string[]) || []
 
-  const [options, setOptions] = useState<{ value: string; label: string }[]>([])
+  const [options, setOptions] = useState<
+    { value: string; label: string; order: number }[]
+  >([])
 
   const contestProblems = useQuery(GET_CONTEST_PROBLEMS, {
     variables: { contestId },
@@ -52,8 +54,9 @@ export function DataTableProblemFilter({
     const sortedProblems = data?.slice().sort((a, b) => a.order - b.order) ?? []
     setOptions(
       sortedProblems.map((problem) => ({
-        value: `${String.fromCharCode(65 + problem.order)}`,
-        label: `${String.fromCharCode(65 + problem.order)}. ${problem.problem.title}`
+        value: problem.problem.title,
+        label: `${String.fromCharCode(65 + problem.order)}. ${problem.problem.title}`,
+        order: problem.order
       }))
     )
   }, [contestId, contestProblems, assignmentProblems])
@@ -73,6 +76,31 @@ export function DataTableProblemFilter({
     }
   }
 
+  const getProblemOrder = (value: string) => {
+    const option = options.find((opt) => opt.value === value)
+    return option ? option.order : -1
+  }
+
+  const getSelectedLabels = () => {
+    if (
+      selectedValues.length === 0 ||
+      selectedValues.length === options.length
+    ) {
+      return 'ALL'
+    }
+
+    const alphabeticalOrders = selectedValues
+      .map((value) => {
+        const order = getProblemOrder(value)
+        return order >= 0 ? String.fromCharCode(65 + order) : null
+      })
+      .filter(Boolean)
+      .sort()
+      .join(', ')
+
+    return alphabeticalOrders
+  }
+
   return (
     <Accordion type="single" collapsible>
       <AccordionItem value="problem-filter">
@@ -81,10 +109,7 @@ export function DataTableProblemFilter({
             <IoFilter className="mr-2 h-4 w-4" />
             Problem
             <p className="overflow-hidden text-ellipsis whitespace-nowrap font-bold">
-              {selectedValues.length === 0 ||
-              selectedValues.length === options.length
-                ? 'ALL'
-                : selectedValues.sort().join(', ')}
+              {getSelectedLabels()}
             </p>
           </div>
         </AccordionTrigger>
@@ -95,7 +120,14 @@ export function DataTableProblemFilter({
                 checked={selectedValues.length === options.length}
                 onCheckedChange={toggleAll}
               />
-              <p>{ALL_OPTION_LABEL}</p>
+              <p
+                className={cn(
+                  selectedValues.length === options.length &&
+                    'text-primary font-semibold'
+                )}
+              >
+                {ALL_OPTION_LABEL}
+              </p>
             </div>
             {options.map(({ value, label }) => (
               <div key={value} className="flex items-center gap-4">
