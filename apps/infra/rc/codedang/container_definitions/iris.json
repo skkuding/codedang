@@ -2,6 +2,10 @@
   "name": "Codedang-Iris",
   "image": "${ecr_uri}",
   "essential": true,
+  "privileged": true,
+  "linuxParameters": {
+    "cgroupnsMode": "host"
+  },
   "environment": [
     {
       "name": "APP_ENV",
