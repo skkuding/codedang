@@ -10,6 +10,7 @@ import {
   TableRow,
   Table
 } from '@/components/shadcn/table'
+import { cn } from '@/libs/utils'
 import {
   flexRender,
   type Row,
@@ -17,11 +18,13 @@ import {
 } from '@tanstack/react-table'
 import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
+import { FaSlideshare } from 'react-icons/fa6'
 import { useDataTable } from './context'
 
 interface DataTableProps<TData extends { id: number }, TRoute extends string> {
   headerStyle?: Record<string, string>
   showFooter?: boolean
+  isCardView?: boolean
   /**
    * 각 행의 데이터에 따라 href를 반환하는 함수
    * @param data
@@ -53,6 +56,7 @@ interface DataTableProps<TData extends { id: number }, TRoute extends string> {
 export function DataTable<TData extends { id: number }, TRoute extends string>({
   headerStyle = {},
   showFooter = false,
+  isCardView = false,
   getHref,
   onRowClick
 }: DataTableProps<TData, TRoute>) {
@@ -62,30 +66,42 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
   return (
     <ScrollArea className="max-w-full rounded">
       <Table>
-        <TableHeader className="[&_td]:border-[#80808040]">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className={headerStyle[header.id]}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-
-        <TableBody className="[&_td]:border-[#80808040]">
+        {!isCardView && (
+          <TableHeader className="[&_td]:border-[#80808040]">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} className={headerStyle[header.id]}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+        )}
+        <TableBody
+          className={cn(
+            isCardView
+              ? '[&_td]:border-transparent'
+              : '[&_td]:border-[#80808040]'
+          )}
+        >
           {table.getRowModel().rows.length > 0 ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
-                className="cursor-pointer hover:bg-neutral-200/30"
+                className={cn(
+                  'cursor-pointer',
+                  isCardView
+                    ? 'hover:bg-transparent'
+                    : 'hover:bg-neutral-200/30'
+                )}
                 onClick={() => {
                   onRowClick?.(table, row)
 
@@ -104,7 +120,10 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                   return (
                     <TableCell
                       key={cell.id}
-                      className="text-center md:p-4"
+                      className={cn(
+                        'text-center',
+                        isCardView ? 'md:px-0 md:py-2' : 'md:p-4'
+                      )}
                       onClick={(e) => {
                         if (href) {
                           e.stopPropagation()
@@ -132,7 +151,6 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
             </TableRow>
           )}
         </TableBody>
-
         {showFooter && (
           <TableFooter>
             {table.getFooterGroups().map((footerGroup) => (

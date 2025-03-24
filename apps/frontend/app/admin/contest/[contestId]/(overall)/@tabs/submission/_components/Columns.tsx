@@ -7,95 +7,78 @@ import dayjs from 'dayjs'
 
 export const columns: ColumnDef<OverallSubmission>[] = [
   {
-    accessorKey: 'title',
-    id: 'problemTitle',
-    header: () => (
-      <div className="border-r py-1 font-mono text-sm">Problem Title</div>
-    ),
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap border-r py-1 text-center text-xs">
-        {String.fromCharCode(65 + (row.original.order ?? 0))}.{' '}
-        {row.getValue('problemTitle')}
-      </div>
-    )
-  },
-  {
-    accessorKey: 'studentId',
-    header: () => <p className="font-mono text-sm">Student ID</p>,
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs font-medium">
-        {row.getValue('studentId')}
-      </div>
-    )
-  },
-  {
-    accessorKey: 'realname',
-    header: () => <p className="font-mono text-sm">Name</p>,
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs font-medium">
-        {row.getValue('realname')}
-      </div>
-    )
-  },
-  {
     accessorKey: 'username',
-    header: () => <p className="border-r py-1 font-mono text-sm">User ID</p>,
+    header: () => null, // 헤더 제거
     cell: ({ row }) => (
-      <div className="whitespace-nowrap border-r py-1 text-center text-xs font-medium">
-        {row.getValue('username')}
+      <div className="flex flex-col gap-4 rounded-lg border bg-white px-10 py-6 shadow-sm">
+        <div className="text-primary flex items-center gap-2">
+          <div className="rounded-full bg-[#e1ecfe] px-4 py-1">User ID</div>
+          <div>{row.original.username}</div>
+        </div>
+        <div className="flex items-center justify-between px-[10px] text-[26px] font-semibold">
+          {String.fromCharCode(65 + (row.original.order ?? 0))}.{' '}
+          {row.original.title}
+          <span
+            className={cn(
+              'flex h-[42px] w-40 items-center justify-center rounded-full text-base font-semibold',
+              row.original.result === 'Accepted'
+                ? 'border-primary text-primary border'
+                : 'border border-red-600 text-red-600'
+            )}
+          >
+            {row.original.result}
+          </span>
+        </div>
+
+        {/* 상세 정보 (그리드) */}
+        <div className="flex items-center justify-between gap-2 text-neutral-500">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center rounded-full bg-neutral-100 px-3 py-1 text-black">
+              Language
+            </div>
+            <div className="w-20 text-left">{row.original.language}</div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center rounded-full bg-neutral-100 px-3 py-1 text-black">
+              Code Size
+            </div>
+            <div className="w-24 text-left">{row.original.codeSize} Bytes</div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center rounded-full bg-neutral-100 px-3 py-1 text-black">
+              IP
+            </div>
+            <div className="w-32 text-left">{row.original.ip}</div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center rounded-full bg-neutral-100 px-3 py-1 text-black">
+              Submission Time
+            </div>
+            <div className="w-40 text-left">
+              {dayjs(
+                new Date(parseInt(row.original.submissionTime, 10))
+              ).format('YYYY-MM-DD HH:mm:ss')}
+            </div>
+          </div>
+
+          {/* <div>Submission Time</div>
+          <div className="text-right">
+            {dayjs(new Date(parseInt(row.original.submissionTime, 10))).format(
+              'YYYY-MM-DD HH:mm:ss'
+            )}
+          </div> */}
+        </div>
       </div>
     )
   },
   {
-    accessorKey: 'result',
-    header: () => <p className="font-mono text-sm">Result</p>,
-    cell: ({ row }) => (
-      <div
-        className={cn(
-          'whitespace-nowrap text-center text-xs',
-          getResultColor(row.getValue('result'))
-        )}
-      >
-        {row.getValue('result')}
-      </div>
-    )
+    accessorKey: 'title',
+    id: 'problemTitle'
   },
   {
-    accessorKey: 'language',
-    header: () => <p className="font-mono text-sm">Language</p>,
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs">
-        {row.getValue('language')}
-      </div>
-    )
-  },
-  {
-    accessorKey: 'submissionTime',
-    header: () => <p className="font-mono text-sm">Submission Time</p>,
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs">
-        {dayjs(new Date(parseInt(row.getValue('submissionTime'), 10))).format(
-          'YYYY-MM-DD HH:mm:ss'
-        )}
-      </div>
-    )
-  },
-  {
-    accessorKey: 'codeSize',
-    header: () => <p className="font-mono text-sm">Code Size</p>,
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs">
-        {row.getValue('codeSize') ? `${row.getValue('codeSize')} B` : 'N/A'}
-      </div>
-    )
-  },
-  {
-    accessorKey: 'ip',
-    header: () => <p className="font-mono text-sm">IP</p>,
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs">
-        {row.getValue('ip')}
-      </div>
-    )
+    accessorKey: 'submissionTime'
   }
 ]
