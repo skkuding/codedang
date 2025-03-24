@@ -5,8 +5,6 @@ const CREATE_CONTEST = gql(`
     createContest(input: $input) {
       id
       invitationCode
-      isVisible
-      isRankVisible
       enableCopyPaste
       isJudgeResultVisible
       description
@@ -22,8 +20,6 @@ const UPDATE_CONTEST = gql(`
     updateContest(input: $input) {
       id
       invitationCode
-      isRankVisible
-      isVisible
       enableCopyPaste
       isJudgeResultVisible
       description
@@ -38,8 +34,6 @@ const UPDATE_CONTEST_VISIBLE = gql(`
   mutation UpdateContestVisible($input: UpdateContestInput!) {
     updateContest(input: $input) {
       id
-      isVisible
-      isRankVisible
     }
   }
 `)

@@ -51,9 +51,7 @@ export function EditContestForm({
         endTime: new Date(data.endTime),
         enableCopyPaste: data.enableCopyPaste,
         isJudgeResultVisible: data.isJudgeResultVisible,
-        invitationCode: data.invitationCode,
-        isRankVisible: true,
-        isVisible: true
+        invitationCode: data.invitationCode
       })
       setIsLoading(false)
     }
