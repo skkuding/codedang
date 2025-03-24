@@ -41,56 +41,56 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
   }
 
   return (
-    <div className="flex w-full rounded-full border border-solid border-[#80808040] bg-white">
+    <div className="flex h-[60px] w-full rounded-full border border-solid border-[#80808040] bg-white">
       <Link
         href={`/admin/contest/${id}`}
         className={cn(
-          'w-1/5 rounded-full px-3 py-1.5 text-lg font-medium',
+          'flex h-full w-1/5 items-center justify-center rounded-full text-lg font-medium',
           isCurrentTab('') &&
-            'text-primary border-primary w-1/5 border-2 border-solid bg-white font-semibold'
+            'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
-        <p className="justify-self-center">LEADERBOARD</p>
+        <p>LEADERBOARD</p>
       </Link>
       <Link
         href={`/admin/contest/${id}/submission`}
         className={cn(
-          'w-1/5 rounded-full px-3 py-1.5 text-lg font-medium',
+          'flex h-full w-1/5 items-center justify-center rounded-full text-lg font-medium',
           isCurrentTab('submission') &&
-            'text-primary border-primary w-1/5 border-2 border-solid bg-white font-semibold'
+            'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
-        <p className="justify-self-center">ALL SUBMISSION</p>
+        <p>ALL SUBMISSION</p>
       </Link>
       <Link
         href={`/admin/contest/${id}/announcement`}
         className={cn(
-          'w-1/5 rounded-full px-3 py-1.5 text-lg font-medium',
+          'flex h-full w-1/5 items-center justify-center rounded-full text-lg font-medium',
           isCurrentTab('announcement') &&
-            'text-primary border-primary w-1/5 border-2 border-solid bg-white font-semibold'
+            'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
-        <p className="justify-self-center">ANNOUNCEMENT</p>
+        <p>ANNOUNCEMENT</p>
       </Link>
       <Link
         href={`/admin/contest/${id}/statistics`}
         className={cn(
-          'w-1/5 rounded-full px-3 py-1.5 text-lg font-medium',
+          'flex h-full w-1/5 items-center justify-center rounded-full text-lg font-medium',
           isCurrentTab('statistics') &&
-            'text-primary border-primary w-1/5 border-2 border-solid bg-white font-semibold'
+            'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
-        <p className="justify-self-center">STATISTICS</p>
+        <p>STATISTICS</p>
       </Link>
       <Link
         href={`/admin/contest/${id}/qna`}
         className={cn(
-          'w-1/5 rounded-full px-3 py-1.5 text-lg font-medium',
+          'flex h-full w-1/5 items-center justify-center rounded-full text-lg font-medium',
           isCurrentTab('qna') &&
-            'ext-primary border-primary w-1/5 border-2 border-solid bg-white font-semibold'
+            'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
-        <p className="justify-self-center">Q&A</p>
+        <p>Q&A</p>
       </Link>
     </div>
   )

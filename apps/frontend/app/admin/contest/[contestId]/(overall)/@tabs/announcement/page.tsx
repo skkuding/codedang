@@ -91,7 +91,7 @@ export default function AdminAnnouncementPage() {
   return (
     <ConfirmNavigation>
       <ScrollArea className="w-full">
-        <main className="flex flex-col py-6">
+        <main className="flex flex-col py-16">
           <div className="mb-6 text-2xl font-semibold">Update History</div>
           <div
             id="historyBox"

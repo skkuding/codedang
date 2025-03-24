@@ -51,15 +51,16 @@ export default function Layout({
     summary: {},
     isJudgeResultVisible: Boolean(contestData?.isJudgeResultVisible),
     enableCopyPaste: Boolean(contestData?.enableCopyPaste),
-    status: contestStatus,
+    //실제 status와 관련이 없습니다
+    status: 'finished',
     participants: 0,
     isRegistered: false,
     contestProblem: []
   }
 
   return (
-    <main className="flex flex-col gap-6 px-20 py-16">
-      <div className="flex items-center justify-between">
+    <main className="flex flex-col px-20 py-16">
+      <div className="mb-10 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/admin/contest">
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
@@ -73,7 +74,7 @@ export default function Layout({
           </Button>
         </Link>
       </div>
-      <div className="flex flex-col">
+      <div className="mb-[120px] flex flex-col gap-[10px]">
         <div className="flex font-normal text-[#333333E5]">
           <IoKey className="black self-center" color="#3581FA" />
           &nbsp; Invitation code: {contestData?.invitationCode}
