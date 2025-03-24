@@ -630,6 +630,7 @@ model SubmissionResult {
   result            ResultStatus
   cpuTime           BigInt?         @map("cpu_time")
   memoryUsage       Int?            @map("memory_usage")
+  output            String?
   createTime        DateTime        @default(now()) @map("create_time")
   updateTime        DateTime        @updatedAt @map("update_time")
 
