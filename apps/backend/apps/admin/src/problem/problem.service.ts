@@ -961,6 +961,10 @@ export class ProblemService {
       )
     }
 
+    if (new Set(orders).size !== orders.length) {
+      throw new UnprocessableDataException("orders's elements are duplicated.")
+    }
+
     const queries = contestProblems.map((record) => {
       const newOrder = orders.indexOf(record.problemId)
       return this.prisma.contestProblem.update({

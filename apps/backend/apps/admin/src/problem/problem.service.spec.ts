@@ -678,6 +678,16 @@ describe('ProblemService', () => {
       expect(result).to.deep.equals(exampleOrderUpdatedContestProblems)
     })
 
+    it("should Error when orders's element is not unique", async () => {
+      //given
+      db.contest.findFirstOrThrow.resolves(exampleContest)
+      db.contestProblem.findMany.resolves(exampleContestProblems)
+      //when & then
+      await expect(
+        service.updateContestProblemsOrder(1, [2, 2, 4, 5, 6, 7, 8, 9, 10, 1])
+      ).to.be.rejectedWith(UnprocessableDataException)
+    })
+
     it('should handle NotFound error', async () => {
       //given
       db.contest.findFirstOrThrow.rejects(
