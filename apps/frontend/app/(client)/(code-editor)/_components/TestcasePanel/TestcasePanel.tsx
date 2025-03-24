@@ -298,7 +298,8 @@ function LabeledField({ label, text, compareText }: LabeledFieldProps) {
   const getColoredText = (
     text: string,
     compareText: string,
-    isExpectedOutput: boolean
+    isExpectedOutput: boolean,
+    isCompileError: boolean
   ) => {
     const isNumeric = (str: string) => /^[+-]?\d+(\.\d+)?$/.test(str.trim())
 
@@ -308,90 +309,104 @@ function LabeledField({ label, text, compareText }: LabeledFieldProps) {
       const num1 = parseFloat(text)
       const num2 = parseFloat(compareText)
 
+      let colorClass = 'text-white'
+
       if (num1 !== num2) {
-        return isExpectedOutput ? (
-          <WhitespaceVisualizer text={compareText} className="text-green-500" />
-        ) : (
-          <WhitespaceVisualizer text={text} className="text-red-500" />
-        )
-      } else {
-        return <WhitespaceVisualizer text={text} className="text-white" />
+        if (isExpectedOutput) {
+          colorClass = 'text-green-500'
+        } else {
+          colorClass = 'text-red-500'
+        }
       }
+
+      return (
+        <WhitespaceVisualizer
+          text={isExpectedOutput ? compareText : text}
+          className={colorClass}
+        />
+      )
     }
     const dmp = new DiffMatchPatch()
     const diffs = dmp.diff_main(compareText, text)
     dmp.diff_cleanupSemantic(diffs)
 
-    return diffs.map(([op, data], idx) => {
+    return diffs.flatMap(([op, data], idx) => {
+      // -1: 삭제됨 (compareText에만 있음)
+      //  1: 추가됨 (text에만 있음)
+      //  0: 공통된 부분
       if (isExpectedOutput && op === 1) {
-        return null
+        return []
+      }
+      if (!isExpectedOutput && op === -1) {
+        return []
       }
 
-      if (!isExpectedOutput && op === -1) {
-        return null
-      }
-      let color = 'text-white'
+      let colorClass = 'text-white'
       if (op === -1 && isExpectedOutput) {
-        color = 'text-green-500'
+        colorClass = 'text-green-500'
       } else if (op === 1 && !isExpectedOutput) {
-        color = 'text-red-500'
+        colorClass = 'text-red-500'
+      }
+
+      if (isCompileError) {
+        // 컴파일 에러일 경우 ␣ ↵ ↹ 시각화하지 않고 색상만 적용
+        return (
+          <span key={idx} className={colorClass}>
+            {data}
+          </span>
+        )
+      }
+
+      return highlightWhitespace(data, colorClass).map((el, i) => (
+        <span key={`${idx}-${i}`}>{el}</span>
+      ))
+    })
+  }
+  const highlightWhitespace = (
+    text: string,
+    colorClass: string
+  ): JSX.Element[] => {
+    return [...text].map((char, i) => {
+      const whitespaceStyle = {
+        color: '#3581FA', // 고정된 파란색
+        minWidth: '0.5em',
+        display: 'inline-block'
+      }
+
+      if (char === ' ') {
+        return (
+          <span key={i} style={whitespaceStyle}>
+            ␣
+          </span>
+        )
+      }
+      if (char === '\t') {
+        return (
+          <span key={i} style={whitespaceStyle}>
+            ↹
+          </span>
+        )
+      }
+      if (char === '\n') {
+        return (
+          <span key={i} style={whitespaceStyle}>
+            ↵
+          </span>
+        )
       }
 
       return (
-        <span key={idx} className={color}>
-          {highlightWhitespace(data)}
+        <span key={i} className={colorClass}>
+          {char}
         </span>
       )
     })
   }
-  const highlightWhitespace = (text: string): (string | JSX.Element)[] => {
-    return [...text].map((char, i) => {
-      if (char === ' ') {
-        return (
-          <span
-            key={i}
-            style={{
-              color: 'rgb(53, 129, 250)',
-              minWidth: '0.5em',
-              display: 'inline-block'
-            }}
-          >
-            ␣
-          </span>
-        )
-      } else if (char === '\n') {
-        return (
-          <span
-            key={i}
-            style={{
-              color: 'rgb(53, 129, 250)',
-              minWidth: '0.5em',
-              display: 'inline-block'
-            }}
-          >
-            ↵
-          </span>
-        )
-      } else if (char === '\t') {
-        return (
-          <span
-            key={i}
-            style={{
-              color: 'rgb(53, 129, 250)',
-              minWidth: '0.5em',
-              display: 'inline-block'
-            }}
-          >
-            ↹
-          </span>
-        )
-      } else {
-        return char
-      }
-    })
-  }
 
   const renderText = (label: string, text: string, compareText?: string) => {
+    const isCompileError =
+      compareText?.includes('error:') || text?.includes('error:')
+
     // Input은 diff 없이 흰색으로만 출력
     if (label === 'Input') {
       return <WhitespaceVisualizer text={text} className="text-white" />
@@ -399,11 +414,11 @@ function LabeledField({ label, text, compareText }: LabeledFieldProps) {
 
     // Expected Output 처리
     if (label === 'Expected Output') {
-      return getColoredText(compareText || '', text, true)
+      return getColoredText(compareText || '', text, true, isCompileError)
     }
 
     // "Output" 처리
-    return getColoredText(text, compareText || '', false)
+    return getColoredText(text, compareText || '', false, isCompileError)
   }
 
   return (
