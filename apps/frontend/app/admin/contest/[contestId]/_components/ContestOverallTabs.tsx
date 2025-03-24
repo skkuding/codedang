@@ -157,7 +157,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
             isCurrentTab('') && 'text-primary bg-white font-bold'
           )}
         >
-          Participant
+          LEADERBOARD
         </Link>
         <Link
           href={`/admin/contest/${id}/submission`}
@@ -166,7 +166,16 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
             isCurrentTab('submission') && 'text-primary bg-white font-bold'
           )}
         >
-          All Submission
+          ALL SUBMISSION
+        </Link>
+        <Link
+          href={`/admin/contest/${id}/announcement`}
+          className={cn(
+            'rounded-md px-3 py-1.5 text-lg font-semibold',
+            isCurrentTab('announcement') && 'text-primary bg-white font-bold'
+          )}
+        >
+          ANNOUNCEMENT
         </Link>
       </div>
       <CSVLink
