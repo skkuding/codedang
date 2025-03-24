@@ -11,20 +11,8 @@ import { LeaderboardTable } from './_components/LeaderboardTable'
 import { getContestLeaderboard } from './_libs/apis/getContesLeaderboard'
 import { handleSearch } from './_libs/utils'
 
-const BaseContestLeaderboardData = {
-  maxScore: 0,
-  leaderboard: [
-    {
-      username: 'user',
-      totalScore: 0,
-      totalPenalty: 0,
-      problemRecords: [],
-      rank: 1
-    }
-  ]
-}
 const BaseLeaderboardUser = {
-  username: 'user',
+  username: '',
   totalScore: 0,
   totalPenalty: 0,
   problemRecords: [
@@ -39,6 +27,10 @@ const BaseLeaderboardUser = {
     }
   ],
   rank: 1
+}
+const BaseContestLeaderboardData = {
+  maxScore: 0,
+  leaderboard: [BaseLeaderboardUser]
 }
 
 export default function ContestLeaderBoard() {

@@ -22,15 +22,23 @@ export function LeaderboardTable({
   problemSize,
   leaderboardUsers
 }: LeaderboardTableProps) {
-  const solvedList = [9, 9, 8, 8, 8, 7, 5, 2]
-  const problemPenalties = [
-    123, 1, 32, 424, 412321, 3213, 342, 34342, 423, -1, 4343, 5, 105, 5, 77
-  ]
-  const orders = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
-  const ranks = [1, 2, 3, 4, 4, 6, 7, 8]
+  const solvedList = leaderboardUsers.map((user) => {
+    let solved = 0
+    user.problemRecords.forEach((problem) => {
+      if (problem.score !== 0) {
+        solved++
+      }
+    })
+    return solved
+  })
 
-  // 위쪽이 하드코딩된 부분입니다.
-  console.log('leaderboard users: ', leaderboardUsers)
+  const [orders, setOrders] = useState([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+  const problemRecords = leaderboardUsers[0].problemRecords
+  useEffect(() => {
+    const newOrders = problemRecords.map((problem) => problem.order)
+    const sortedOrders = [...newOrders].sort((a, b) => a - b)
+    setOrders(sortedOrders)
+  }, [problemRecords])
 
   const windowSize = useWindowSize()
 
@@ -167,13 +175,16 @@ export function LeaderboardTable({
           onMouseUp={handleMouseUp}
         >
           <Tooltip.Provider>
-            {ranks.map((rank, index) => {
+            {leaderboardUsers.map((user, index) => {
+              const problemRecords = user.problemRecords
               return (
                 <LeaderboardRow
-                  rank={rank}
+                  username={user.username}
+                  totalPenalty={user.totalPenalty}
+                  rank={user.rank}
                   dx={dx}
                   resizableRowSize={resizableRowSize}
-                  problemPenalties={problemPenalties}
+                  problemRecords={problemRecords}
                   key={index}
                 />
               )
