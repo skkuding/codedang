@@ -27,7 +27,7 @@ import { toast } from 'sonner'
 import { ConfirmNavigation } from '../../../../../_components/ConfirmNavigation'
 import { ErrorMessage } from '../../../../../_components/ErrorMessage'
 
-export default function Page() {
+export default function AdminAnnouncementPage() {
   const pathname = usePathname()
   const pathArr = pathname.split('/')
   const contestId = Number(pathArr[pathArr.length - 2])
