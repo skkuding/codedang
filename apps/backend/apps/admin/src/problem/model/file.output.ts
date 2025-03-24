@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql'
 
-@ObjectType({ description: 'image' })
-export class ImageSource {
+@ObjectType({ description: 'file' })
+export class FileSource {
   @Field(() => String)
   src: string
 }

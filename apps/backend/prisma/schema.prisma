@@ -72,7 +72,7 @@ model User {
   workbook         Workbook[]
   submission       Submission[]
   useroauth        UserOAuth?
-  Image            Image[]
+  file             File[]
   testSubmission   TestSubmission[]
   UpdateHistory    UpdateHistory[]
 
@@ -268,13 +268,13 @@ model UpdateHistory {
   @@map("updateHistory")
 }
 
-model Image {
+model File {
   filename    String   @id @unique
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?
   createTime  DateTime @default(now()) @map("create_time")
 
-  @@map("image")
+  @@map("file")
 }
 
 enum Level {

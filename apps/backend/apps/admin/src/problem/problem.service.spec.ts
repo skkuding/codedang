@@ -97,7 +97,7 @@ const db = {
     update: stub()
   },
   $transaction: stub(),
-  image: {
+  file: {
     deleteMany: stub()
   },
   submission: {

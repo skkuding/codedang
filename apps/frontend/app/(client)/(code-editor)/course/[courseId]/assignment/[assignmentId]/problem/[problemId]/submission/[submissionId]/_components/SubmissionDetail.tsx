@@ -68,7 +68,7 @@ export async function SubmissionDetail({
           <div className="h-10 w-[1px] bg-[#616060]" />
           <div>
             <h2>Submission Time</h2>
-            <p>{dateFormatter(submission.createTime, 'YYYY-MM-DD HH:mm:ss')}</p>
+            <p>{dateFormatter(submission.createTime, 'MMM DD, YYYY HH:mm')}</p>
           </div>
           <div className="h-10 w-[1px] bg-[#616060]" />
           <div>
