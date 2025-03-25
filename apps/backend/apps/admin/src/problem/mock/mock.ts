@@ -465,8 +465,6 @@ export const exampleContest: Contest = {
   penalty: 20,
   lastPenalty: false,
   createdById: user[0].id!,
-  isVisible: true,
-  isRankVisible: true,
   enableCopyPaste: true,
   evaluateWithSampleTestcase: false,
   isJudgeResultVisible: true,

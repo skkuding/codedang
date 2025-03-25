@@ -42,8 +42,6 @@ const contest: Contest = {
   endTime,
   unfreeze: false,
   freezeTime: null,
-  isVisible: true,
-  isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
   evaluateWithSampleTestcase: false,
@@ -72,8 +70,6 @@ const contestWithCount = {
   endTime,
   unfreeze: false,
   freezeTime: null,
-  isVisible: true,
-  isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
   evaluateWithSampleTestcase: false,
@@ -105,8 +101,6 @@ const contestWithParticipants: ContestWithParticipants = {
   endTime,
   unfreeze: false,
   freezeTime: null,
-  isVisible: true,
-  isRankVisible: true,
   enableCopyPaste: true,
   isJudgeResultVisible: true,
   evaluateWithSampleTestcase: false,
@@ -201,8 +195,6 @@ const input = {
   description: 'test description',
   startTime: faker.date.past(),
   endTime: faker.date.future(),
-  isVisible: false,
-  isRankVisible: false,
   enableCopyPaste: true,
   isJudgeResultVisible: true
 } satisfies CreateContestInput
@@ -213,8 +205,6 @@ const updateInput = {
   description: 'test description',
   startTime: faker.date.past(),
   endTime: faker.date.future(),
-  isVisible: false,
-  isRankVisible: false,
   enableCopyPaste: false
 } satisfies UpdateContestInput
 
@@ -259,13 +249,27 @@ const db = {
   submission: {
     findMany: stub().resolves([submissionsWithProblemTitleAndUsername])
   },
-  // submissionResult: {
-  //   findMany: stub().resolves([submissionResults])
-  // },
-  $transaction: stub().callsFake(async () => {
-    const updatedProblem = await db.problem.update()
-    const newContestProblem = await db.contestProblem.create()
-    return [newContestProblem, updatedProblem]
+  $transaction: stub().callsFake(async (arg) => {
+    if (typeof arg === 'function') {
+      // 콜백 기반 트랜잭션 (e.g. createContest)
+      const tx = {
+        contest: {
+          create: stub().resolves(contest)
+        },
+        userContest: {
+          createMany: stub().resolves({ count: 2 }),
+          create: stub().resolves()
+        }
+      }
+      return await arg(tx)
+    } else if (Array.isArray(arg)) {
+      // 배열 기반 트랜잭션 (e.g. importProblemsToContest)
+      const updatedProblem = await db.problem.update()
+      const newContestProblem = await db.contestProblem.create()
+      return [newContestProblem, updatedProblem]
+    } else {
+      throw new Error('Invalid transaction mock usage')
+    }
   }),
   getPaginator: PrismaService.prototype.getPaginator
 }
