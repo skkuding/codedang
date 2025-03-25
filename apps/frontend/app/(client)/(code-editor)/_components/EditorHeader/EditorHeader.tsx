@@ -185,6 +185,19 @@ export function EditorHeader({
       toast.error('Failed to save the code')
     }
   }
+
+  const run = () => {
+    const code = getCode()
+
+    if (code === '') {
+      toast.error('Please write code before run')
+      return
+    }
+
+    storeCodeToLocalStorage(code)
+    startRunner(code, language)
+  }
+
   const submit = async () => {
     const code = getCode()
 
@@ -415,7 +428,7 @@ export function EditorHeader({
         />
         <Button
           className="h-8 shrink-0 gap-1 rounded-[4px] bg-green-500 px-2 font-normal"
-          onClick={() => startRunner(getCode(), language)}
+          onClick={run}
         >
           RUN
         </Button>
