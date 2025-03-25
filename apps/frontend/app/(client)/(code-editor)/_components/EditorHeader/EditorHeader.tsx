@@ -51,6 +51,7 @@ import { useEffect, useRef, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
+import { useRunner } from '../TestcasePanel/useRunner'
 import { useTestPollingStore } from '../context/TestPollingStoreProvider'
 import { BackCautionDialog } from './BackCautionDialog'
 import { RunTestButton } from './RunTestButton'
@@ -99,6 +100,7 @@ export function EditorHeader({
   const isModalConfrimed = useRef(false)
 
   const queryClient = useQueryClient()
+  const { startRunner } = useRunner()
 
   useInterval(
     async () => {
@@ -411,6 +413,12 @@ export function EditorHeader({
           disabled={loading}
           saveCode={storeCodeToLocalStorage}
         />
+        <Button
+          className="h-8 shrink-0 gap-1 rounded-[4px] bg-green-500 px-2 font-normal"
+          onClick={() => startRunner(getCode(), language)}
+        >
+          RUN
+        </Button>
         <Button
           className="h-8 shrink-0 gap-1 rounded-[4px] px-2 font-normal"
           disabled={loading}

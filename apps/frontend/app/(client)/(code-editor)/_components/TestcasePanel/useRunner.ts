@@ -1,5 +1,6 @@
 'use client'
 
+import { runnerBaseUrl } from '@/libs/constants'
 import type { Language } from '@/types/type'
 import { Terminal } from '@xterm/xterm'
 import { useState } from 'react'
@@ -70,18 +71,22 @@ const compileMessageGenerator = (
   }
 }
 
-const useWebsocket = (terminal: Terminal) => {
-  const ws = new WebSocket('ws://codedang-runner.my/run')
+const useWebsocket = (
+  terminal: Terminal,
+  source: string,
+  language: Language
+) => {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const ws = new WebSocket(runnerBaseUrl!)
 
-  terminal.writeln('[시스템] 실행 서버 연결중...')
-
+  terminal.writeln('[SYS] 실행 서버 연결중...')
   terminal.onData((data) => {
     if (data === '\r' || data === '\n') {
       terminal.write('\r\n')
     }
     if (ws && ws.readyState === WebSocket.OPEN) {
       const inputMsg = {
-        type: 'input',
+        type: RunnerMessageType.INPUT,
         data
       }
       ws.send(JSON.stringify(inputMsg))
@@ -89,22 +94,19 @@ const useWebsocket = (terminal: Terminal) => {
   })
 
   ws.onopen = () => {
-    terminal.writeln('[시스템] 실행 서버 연결 성공\n')
+    terminal.writeln('[SYS] 실행 서버 연결 성공\n')
     terminal.focus()
 
-    const testCode =
-      '#include <stdio.h>\n\nint main() {\n    int a, b;\n    scanf("%d%d", &a, &b);\n    printf("%d\\n", a + b);\n    return 0;\n}\n'
-
-    const compileMsg = compileMessageGenerator(testCode, 'C')
+    const compileMsg = compileMessageGenerator(source, language)
     ws.send(JSON.stringify(compileMsg))
   }
 
   ws.onclose = () => {
-    terminal.writeln('\n[시스템] 실행 서버 연결 종료....')
+    terminal.writeln('\n[SYS] 실행 서버 연결 종료....')
   }
 
   ws.onerror = () => {
-    terminal.writeln('[시스템] 에러 발생으로 연결 끊김')
+    terminal.writeln('[SYS] 에러 발생으로 연결 끊김')
   }
 
   ws.onmessage = (event) => {
@@ -114,6 +116,10 @@ const useWebsocket = (terminal: Terminal) => {
 
       if (msgType === RunnerMessageType.COMPILE_SUCCESS) {
         return
+      }
+
+      if (msgType === RunnerMessageType.COMPILE_ERR) {
+        terminal.writeln(data.stderr)
       }
 
       if (msgType === RunnerMessageType.STDERR) {
@@ -133,12 +139,10 @@ const useWebsocket = (terminal: Terminal) => {
       }
 
       if (msgType === RunnerMessageType.EXIT) {
-        terminal.writeln(
-          `\n[시스템] 프로그램 종료 exit code: ${data.return_code}`
-        )
+        terminal.writeln(`\n[SYS] 프로그램 종료 exit code: ${data.return_code}`)
       }
     } catch (e) {
-      terminal.writeln(`[에러] ${e}`)
+      terminal.writeln(`[Error] ${e}`)
     }
   }
 
@@ -146,46 +150,61 @@ const useWebsocket = (terminal: Terminal) => {
 }
 
 export const useRunner = () => {
-  const [terminal, setTerminal] = useState<Terminal | null>(null)
+  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
   const [ws, setWs] = useState<WebSocket | null>(null)
-  const [remainingTime, setRemainingTime] = useState<number>(
-    CONNECTION_TIME_LIMIT
+  const [terminalInstance, setTerminalInstance] = useState<Terminal | null>(
+    null
   )
 
-  const startRunner = () => {
+  const startRunner = (code: string, language: Language) => {
     if (ws) {
       ws.close()
+      setWs(null)
     }
 
-    const newTerminal = new Terminal({
-      convertEol: true,
-      disableStdin: false,
-      cursorBlink: true
-    })
+    if (timer) {
+      clearInterval(timer)
+      setTimer(null)
+    }
 
-    setTerminal(newTerminal)
+    if (terminalInstance) {
+      terminalInstance.dispose()
+      setTerminalInstance(null)
+    }
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { ws: newWs } = useWebsocket(newTerminal)
-    setWs(newWs)
+    const element = document.getElementById('runner-container')
 
-    let timeLeft = CONNECTION_TIME_LIMIT
-    setRemainingTime(timeLeft)
+    if (element) {
+      element.innerHTML = ''
 
-    const timerId = setInterval(() => {
-      timeLeft -= 1
-      setRemainingTime(timeLeft)
-      if (timeLeft <= 0) {
-        clearInterval(timerId)
+      const terminal = new Terminal({
+        convertEol: true,
+        disableStdin: false,
+        cursorBlink: true
+      })
 
-        if (ws) {
-          ws.close()
+      terminal.open(element)
+      terminal.focus()
+
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { ws: newWs } = useWebsocket(terminal, code, language)
+      setWs(newWs)
+
+      let timeLeft = CONNECTION_TIME_LIMIT
+      const timerId = setInterval(() => {
+        timeLeft -= 1
+        if (timeLeft <= 0) {
           clearInterval(timerId)
-          setRemainingTime(CONNECTION_TIME_LIMIT)
+          if (ws) {
+            ws.close()
+            setWs(null)
+          }
         }
-      }
-    }, 1000)
+      }, 1000)
+      setTimer(timerId)
+      setTerminalInstance(terminal)
+    }
   }
 
-  return { terminal, startRunner, remainingTime }
+  return { startRunner }
 }

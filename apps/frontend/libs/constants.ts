@@ -11,6 +11,12 @@ export const baseUrl = process.env.NEXT_PUBLIC_BASEURL
 export const adminBaseUrl = process.env.NEXT_PUBLIC_GQL_BASEURL
 
 /**
+ * The base URL for the runner websocket connection.
+ * @constant
+ */
+export const runnerBaseUrl = process.env.NEXT_PUBLIC_RUNNER_BASEURL
+
+/**
  * The milliseconds per minute.
  * @constant
  */
