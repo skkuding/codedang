@@ -270,7 +270,12 @@ export class SubmissionService {
         assignment: true,
         submissionResult: {
           include: {
-            problemTestcase: true
+            problemTestcase: {
+              select: {
+                input: true,
+                output: true
+              }
+            }
           }
         }
       }
