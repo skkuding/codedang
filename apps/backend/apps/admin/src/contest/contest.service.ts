@@ -99,6 +99,10 @@ export class ContestService {
             role: {
               in: ['Manager', 'Reviewer']
             }
+          },
+          select: {
+            userId: true,
+            role: true
           }
         }
       }
@@ -108,10 +112,11 @@ export class ContestService {
       throw new EntityNotExistException('contest')
     }
 
-    const { _count, ...data } = contest
+    const { _count, userContest, ...data } = contest
 
     return {
       ...data,
+      userContestRoles: userContest,
       participants: _count.contestRecord
     }
   }
