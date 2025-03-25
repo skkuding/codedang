@@ -109,18 +109,18 @@ const GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER =
 `)
 
 const GET_CONTEST_UPDATE_HISTORIES =
-  gql(`query GetContestUpdateHistories($contestId: Int!){
-  getContestUpdateHistories(contestId: $contestId) {
-    updateHistories {
-      id
-      order
-      problemId
-      updatedAt
-      updatedFields
-      updatedInfo
+  gql(`query GetContestUpdateHistories($contestId: Int!) {
+    getContestUpdateHistories(contestId: $contestId) {
+      updateHistories {
+        id
+        order
+        problemId
+        updatedAt
+        updatedFields
+        updatedInfo
+      }
     }
   }
-}
 `)
 
 export {
