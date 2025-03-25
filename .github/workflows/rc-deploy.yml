@@ -33,16 +33,9 @@ jobs:
           terraform_version: 1.5.2
 
       - name: Create Terraform variable file
-        working-directory: ./apps/infra/rc/${{ github.event.inputs.terraform_project }}
+        working-directory: ./apps/infra/rc/network
         run: |
-          echo "$TFVARS_RC" >> terraform.tfvars
-          echo "$OAUTH_GITHUB" >> terraform.tfvars
-          echo "$OAUTH_KAKAO" >> terraform.tfvars
           echo 'env = "rc"' >> terraform.tfvars
-        env:
-          TFVARS_RC: ${{ secrets.TFVARS_RC }}
-          OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
-          OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
 
       - name: Terraform Init Network
         working-directory: ./apps/infra/rc/network
@@ -57,13 +50,22 @@ jobs:
       - name: Check Existing AWS Codedang Resources
         working-directory: ./apps/infra/rc/codedang
         run: |
-          if [ -n "$(terraform state list)" ]; then
+          if terraform state list | grep -q .; then
             echo "Resources found. Proceeding with destroy."
+            echo "$TFVARS_RC" >> terraform.tfvars
+            echo "$OAUTH_GITHUB" >> terraform.tfvars
+            echo "$OAUTH_KAKAO" >> terraform.tfvars
+            echo 'env = "rc"' >> terraform.tfvars
             echo "CODEDANG_DESTROY_REQUIRED=true" >> $GITHUB_ENV
           else
             echo "No resources found. Skipping destroy."
             echo "CODEDANG_DESTROY_REQUIRED=false" >> $GITHUB_ENV
           fi
+        env:
+          TFVARS_RC: ${{ secrets.TFVARS_RC }}
+          OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
+          OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
+
       - name: Terraform Destroy If There's Existing Codedang Resources
         if: env.CODEDANG_DESTROY_REQUIRED == 'true'
         working-directory: ./apps/infra/rc/codedang
@@ -72,8 +74,9 @@ jobs:
       - name: Check Existing AWS Storage Resources
         working-directory: ./apps/infra/rc/storage
         run: |
-          if [ -n "$(terraform state list)" ]; then
+          if terraform state list | grep -q .; then
             echo "Resources found. Proceeding with destroy."
+            echo 'env = "rc"' >> terraform.tfvars
             echo "STORAGE_DESTROY_REQUIRED=true" >> $GITHUB_ENV
           else
             echo "No resources found. Skipping destroy."
