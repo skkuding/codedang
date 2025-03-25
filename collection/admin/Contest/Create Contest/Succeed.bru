@@ -18,8 +18,6 @@ body:graphql {
       description
       startTime
       endTime
-      isVisible
-      isRankVisible
       enableCopyPaste
       isJudgeResultVisible
       invitationCode
@@ -35,8 +33,6 @@ body:graphql:vars {
       "description": "thisisnewcontest",
       "startTime": "2024-01-01",
       "endTime": "2030-01-01",
-      "isVisible": true,
-      "isRankVisible": true,
       "enableCopyPaste": true,
       "isJudgeResultVisible": true,
       "invitationCode": "123456",
@@ -66,10 +62,10 @@ assert {
 
 docs {
   # Create Contest
-
+  
   ## Description
   사용자가 새로운 콘테스트를 생성할 수 있도록 합니다. 콘테스트 생성 권한이 있는 사용자만 사용할 수 있으며, 시작 및 종료 시간이 유효해야 합니다.
-
+  
   ## 요청 필드
   | 필드명 | 타입 | 필수 여부 | 설명 |
   |--------|------|----------|------|
@@ -82,14 +78,12 @@ docs {
   | startTime | GraphQLISODateTime | ✅ | 시작 시간 |
   | endTime | GraphQLISODateTime | ✅ | 종료 시간 |
   | freezeTime | GraphQLISODateTime | ❌ | 순위 공개 정지 시간 |
-  | isVisible | Boolean | ✅ | 콘테스트 공개 여부 |
-  | isRankVisible | Boolean | ✅ | 순위 공개 여부 |
   | isJudgeResultVisible | Boolean | ✅ | 채점 결과 공개 여부 |
   | enableCopyPaste | Boolean | ❌ | 복사/붙여넣기 허용 여부 |
   | evaluateWithSampleTestcase | Boolean | ❌ | 샘플 테스트케이스로 평가 여부 |
   | userContestRoles | [UserContestRoleInput] | ❌ | Manager, Reviewer 역할 부여용 |
   | summary | GraphQLJSON | ❌ | 다국어 요약 정보 |
-
+  
   ## 응답 필드
   | 필드명 | 타입 | 설명 |
   |--------|------|------|
@@ -98,14 +92,12 @@ docs {
   | description | String | 콘테스트 설명 |
   | startTime | GraphQLISODateTime | 시작 시간 |
   | endTime | GraphQLISODateTime | 종료 시간 |
-  | isVisible | Boolean | 공개 여부 |
-  | isRankVisible | Boolean | 순위 공개 여부 |
   | isJudgeResultVisible | Boolean | 채점 결과 공개 여부 |
   | createdById | Int | 콘테스트 생성자 ID |
-
+  
   ## 권한
   - `canCreateContest` 권한이 있는 사용자만 사용할 수 있습니다.
   - 권한이 없는 경우 `UnauthorizedException` 오류가 반환됩니다.
-
-
+  
+  
 }

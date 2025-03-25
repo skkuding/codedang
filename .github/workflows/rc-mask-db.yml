@@ -86,7 +86,7 @@ jobs:
           sudo dnf install -y postgresql15
 
           export PGPASSWORD="${{ steps.fetch-details.outputs.db_pw }}"
-          psql -h "${{ steps.fetch-details.outputs.rds_endpoint }}" -U "${{ steps.fetch-details.outputs.db_user }}" -d "skkuding" <<SQL
+          psql -h "${{ steps.fetch-details.outputs.rds_endpoint }}" -U "${{ steps.fetch-details.outputs.db_user }}" -d "${{ steps.fetch-details.outputs.db_name }}" <<SQL
 
           UPDATE "user"
           SET
@@ -95,7 +95,7 @@ jobs:
               email = 'masked' || id || '@example.com',
               student_id = 'xxxxxxxxxx',
               major = 'masked'
-          WHERE username NOT IN ('test123', 'admin');
+          WHERE username NOT IN ('test123', 'super');
 
           UPDATE "submission"
           SET
@@ -104,7 +104,7 @@ jobs:
               code_size = '-1',
               user_ip = 'masked',
               score = '-1'
-          WHERE user_id NOT IN (71755, 1);
+          WHERE user_id NOT IN (71755, 2);
 
           UPDATE public.contest_record
           SET
@@ -112,6 +112,6 @@ jobs:
               total_penalty = -1,
               score = -1,
               finish_time = '1970-01-01 00:00:00.000'
-          WHERE user_id NOT IN (71755, 1);
+          WHERE user_id NOT IN (71755, 2);
           SQL
           EOF
