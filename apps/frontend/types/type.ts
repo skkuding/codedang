@@ -409,3 +409,23 @@ export interface ProblemRecord {
   isSubmitted: boolean
   comment: string
 }
+
+export interface RunnerMessage {
+  type: RunnerMessageType
+  language: Language
+  filename: string
+  source: string
+  compile_cmd: string | undefined
+  command: string
+}
+
+export enum RunnerMessageType {
+  INPUT = 'input',
+  CODE = 'code',
+  COMPILE_SUCCESS = 'compile_success',
+  COMPILE_ERR = 'compile_error',
+  ECHO = 'echo',
+  STDOUT = 'stdout',
+  STDERR = 'stderr',
+  EXIT = 'exit'
+}

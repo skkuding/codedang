@@ -1,29 +1,13 @@
 'use client'
 
 import { runnerBaseUrl, runnerConnectionTimeLimit } from '@/libs/constants'
-import type { Language } from '@/types/type'
+import {
+  RunnerMessageType,
+  type Language,
+  type RunnerMessage
+} from '@/types/type'
 import { Terminal } from '@xterm/xterm'
 import { useState } from 'react'
-
-export enum RunnerMessageType {
-  INPUT = 'input',
-  CODE = 'code',
-  COMPILE_SUCCESS = 'compile_success',
-  COMPILE_ERR = 'compile_error',
-  ECHO = 'echo',
-  STDOUT = 'stdout',
-  STDERR = 'stderr',
-  EXIT = 'exit'
-}
-
-interface RunnerMessage {
-  type: RunnerMessageType
-  language: Language
-  filename: string
-  source: string
-  compile_cmd: string | undefined
-  command: string
-}
 
 const getCodeConfig = (language: Language) => {
   let filename, compileCmd, command
