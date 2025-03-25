@@ -76,12 +76,16 @@ jobs:
         run: |
           if [ -n "$(terraform state list)" ]; then
             echo "Resources found. Proceeding with destroy."
+            echo "$TFVARS_RC" >> terraform.tfvars
             echo 'env = "rc"' >> terraform.tfvars
             echo "STORAGE_DESTROY_REQUIRED=true" >> $GITHUB_ENV
           else
             echo "No resources found. Skipping destroy."
             echo "STORAGE_DESTROY_REQUIRED=false" >> $GITHUB_ENV
           fi
+        env:
+          TFVARS_RC: ${{ secrets.TFVARS_RC }}
+
       - name: Terraform Destroy If There's Existing Storage Resources
         if: env.STORAGE_DESTROY_REQUIRED == 'true'
         working-directory: ./apps/infra/rc/storage
@@ -119,7 +123,10 @@ jobs:
       - name: Create Terraform variable file
         working-directory: ./apps/infra/rc/storage
         run: |
+          echo "$TFVARS_RC" >> terraform.tfvars
           echo 'env = "rc"' >> terraform.tfvars
+        env:
+          TFVARS_RC: ${{ secrets.TFVARS_RC }}
 
       - name: Terraform Init Storage
         working-directory: ./apps/infra/rc/storage
