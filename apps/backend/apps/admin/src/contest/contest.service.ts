@@ -1082,7 +1082,9 @@ export class ContestService {
     let rank = 1
     const leaderboard = contestRecords.map((contestRecord) => {
       const { contestProblemRecord, user, userId, ...rest } = contestRecord
-      const uid = userId ?? 0 // userId가 null이면 0으로 처리
+
+      const getSubmissionCount = (problemId: number) =>
+        submissionCountMap[userId!]?.[problemId] ?? 0
 
       // 모든 문제에 대해 problemRecords 생성
       const problemRecords = allProblems.map(({ id, order, problemId }) => {
@@ -1097,7 +1099,7 @@ export class ContestService {
             score: 0,
             penalty: 0,
             isFirstSolver: false,
-            submissionCount: submissionCountMap[uid]?.[problemId] ?? 0
+            submissionCount: getSubmissionCount(problemId)
           }
         }
 
@@ -1107,12 +1109,12 @@ export class ContestService {
           score: record.finalScore,
           penalty: record.finalSubmitCountPenalty + record.finalTimePenalty,
           isFirstSolver: record.isFirstSolver,
-          submissionCount: submissionCountMap[uid]?.[problemId] ?? 0
+          submissionCount: getSubmissionCount(problemId)
         }
       })
 
       return {
-        userId: uid,
+        userId,
         username: user!.username,
         ...rest,
         problemRecords,
