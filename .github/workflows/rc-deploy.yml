@@ -33,9 +33,16 @@ jobs:
           terraform_version: 1.5.2
 
       - name: Create Terraform variable file
-        working-directory: ./apps/infra/rc/network
+        working-directory: ./apps/infra/rc/${{ github.event.inputs.terraform_project }}
         run: |
+          echo "$TFVARS_RC" >> terraform.tfvars
+          echo "$OAUTH_GITHUB" >> terraform.tfvars
+          echo "$OAUTH_KAKAO" >> terraform.tfvars
           echo 'env = "rc"' >> terraform.tfvars
+        env:
+          TFVARS_RC: ${{ secrets.TFVARS_RC }}
+          OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
+          OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
 
       - name: Terraform Init Network
         working-directory: ./apps/infra/rc/network
