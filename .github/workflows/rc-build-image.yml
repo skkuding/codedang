@@ -16,7 +16,6 @@ jobs:
   build-client-api:
     name: Build client-api image
     runs-on: ubuntu-latest
-    environment: production
     defaults:
       run:
         shell: bash
