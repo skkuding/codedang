@@ -1,10 +1,10 @@
-name: Reset Seed (Stage)
+name: Deploy - SKKU Proxy for Reaching Stage API outside
 
 on: workflow_dispatch
 
 jobs:
   reset-seed:
-    name: Reset Seed
+    name: Reset Seed (Stage)
     runs-on: self-hosted
     steps:
       - name: Load DATABASE_URL From Existing .env.development
