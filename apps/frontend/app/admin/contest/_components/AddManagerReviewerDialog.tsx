@@ -28,7 +28,6 @@ import { cn } from '@/libs/utils'
 import { useSuspenseQuery } from '@apollo/client/react/hooks/useSuspenseQuery'
 import { ChevronDown, Plus } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import { useController, useFormContext } from 'react-hook-form'
 import { FaTrash } from 'react-icons/fa6'
 import { HiCheckCircle } from 'react-icons/hi'
 import { HiMiniPlusCircle } from 'react-icons/hi2'
@@ -36,28 +35,28 @@ import { PiWarningFill } from 'react-icons/pi'
 import type { ContestManagerReviewer } from '../_libs/schemas'
 
 interface AddManagerReviewerDialogProps {
+  managers: ContestManagerReviewer[]
   setManagers: (managers: ContestManagerReviewer[]) => void
 }
 
 export function AddManagerReviewerDialog({
+  managers,
   setManagers
 }: AddManagerReviewerDialogProps) {
-  const {
-    control
-    // formState: { errors }
-  } = useFormContext()
-
-  const { field } = useController({
-    name: 'userContestRoles',
-    control
-  })
-
   const [inputCount, setInputCount] = useState(1) // State to manage the number of CommandInput components
   const [values, setValues] = useState<string[]>(['']) // State to manage the values of each CommandInput
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null) // State to manage the focused input index
   const [dropdownValues, setDropdownValues] = useState<string[]>(['Manager']) // State to manage the selected dropdown values for each CommandInput
   const [selectedNum, setSelectedNum] = useState<number>(0)
   const [open, setOpen] = useState(false) // State to manage the open state of the dialog
+
+  useEffect(() => {
+    if (open) {
+      setValues([''])
+      setDropdownValues(['Manager'])
+      setInputCount(1)
+    }
+  }, [open])
 
   const { data } = useSuspenseQuery(GET_USERS, {
     variables: {
@@ -101,7 +100,7 @@ export function AddManagerReviewerDialog({
   }
 
   const handleSave = () => {
-    const newManagers = values.map((email, index) => {
+    const newManagers: ContestManagerReviewer[] = values.map((email, index) => {
       const user = users.find((user) => user.email === email)
       return {
         id: user?.id || 0,
@@ -111,12 +110,7 @@ export function AddManagerReviewerDialog({
         type: dropdownValues[index]
       }
     })
-    setManagers(newManagers)
-    const formattedManagers = newManagers.map((manager) => ({
-      userId: manager.id,
-      contestRole: manager.type
-    }))
-    field.onChange(formattedManagers) // Update the form value
+    setManagers([...managers, ...newManagers])
     setOpen(false) // Close the dialog
   }
 
@@ -136,6 +130,11 @@ export function AddManagerReviewerDialog({
         <Button
           type="button"
           className="flex h-[36px] w-[100px] items-center gap-1 px-0"
+          onClick={() => {
+            console.log('values:', values)
+            console.log('dropdownValues:', dropdownValues)
+            console.log('managers:', managers)
+          }}
         >
           <HiMiniPlusCircle className="h-5 w-5" />
           <div className="text-sm font-bold">Add</div>

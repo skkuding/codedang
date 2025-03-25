@@ -40,7 +40,11 @@ export default function Page() {
             <span className="text-[32px] font-bold">CREATE CONTEST</span>
           </div>
 
-          <CreateContestForm problems={problems} setIsCreating={setIsCreating}>
+          <CreateContestForm
+            managers={managers}
+            problems={problems}
+            setIsCreating={setIsCreating}
+          >
             <div className="flex justify-between gap-[26px]">
               <PosterUploadForm name="posterUrl" />
 
@@ -101,7 +105,10 @@ export default function Page() {
                   title="Add manager / reviewer"
                   content={`Contest managers have all permissions except for creating and editing the contest.\nYou can also import problems created by the contest manager into this contest.\nContest reviewers can view the problem list before the contest starts.`}
                 />
-                <AddManagerReviewerDialog setManagers={setManagers} />
+                <AddManagerReviewerDialog
+                  managers={managers}
+                  setManagers={setManagers}
+                />
               </div>
               <ContestManagerReviewerTable
                 managers={managers}

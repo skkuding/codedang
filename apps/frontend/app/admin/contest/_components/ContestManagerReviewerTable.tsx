@@ -1,4 +1,6 @@
-import { useMemo, type Dispatch, type SetStateAction } from 'react'
+'use client'
+
+import { useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import { DataTable, DataTableRoot } from '../../_components/table'
 import type { ContestManagerReviewer } from '../_libs/schemas'
 import { createColumns } from './ContestManagerReviewerColumns'
@@ -12,7 +14,11 @@ export function ContestManagerReviewerTable({
   managers,
   setManagers
 }: ContestManagerReviewerTableProps) {
-  const columns = useMemo(() => createColumns(setManagers), [setManagers])
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const columns = useMemo(
+    () => createColumns(showDeleteDialog, setShowDeleteDialog, setManagers),
+    [setManagers, showDeleteDialog]
+  )
 
   return (
     <DataTableRoot columns={columns} data={managers}>

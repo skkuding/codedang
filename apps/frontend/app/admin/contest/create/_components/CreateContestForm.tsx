@@ -14,17 +14,22 @@ import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import type { ContestProblem } from '../../_libs/schemas'
+import type {
+  ContestManagerReviewer,
+  ContestProblem
+} from '../../_libs/schemas'
 
 interface CreateContestFormProps {
   children: ReactNode
   problems: ContestProblem[]
+  managers: ContestManagerReviewer[]
   setIsCreating: (isCreating: boolean) => void
 }
 
 export function CreateContestForm({
   children,
   problems,
+  managers,
   setIsCreating
 }: CreateContestFormProps) {
   const methods = useForm<CreateContestInput>({
@@ -34,6 +39,15 @@ export function CreateContestForm({
       enableCopyPaste: false,
       isJudgeResultVisible: false
     }
+  })
+
+  const formattedManagers = managers.map((manager) => ({
+    userId: manager.id,
+    contestRole: manager.type
+  }))
+
+  methods.register('userContestRoles', {
+    value: formattedManagers
   })
 
   const { setShouldSkipWarning } = useConfirmNavigationContext()
