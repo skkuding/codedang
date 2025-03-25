@@ -17,6 +17,7 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { GroupJoinRequest } from '@libs/types'
+import type { UpdateCreationPermissionsInput } from './model/creationPermission.model'
 
 @Injectable()
 export class UserService {
@@ -60,18 +61,18 @@ export class UserService {
     })
   }
 
-  async updateCanCreateCourse(userId: number, canCreateCourse: boolean) {
+  async updateCreationPermissions(input: UpdateCreationPermissionsInput) {
+    const { userId, ...data } = input
     return await this.prisma.user.update({
       where: {
         id: userId
       },
-      data: {
-        canCreateCourse
-      },
+      data,
       select: {
         id: true,
         role: true,
-        canCreateCourse: true
+        canCreateCourse: true,
+        canCreateContest: true
       }
     })
   }
