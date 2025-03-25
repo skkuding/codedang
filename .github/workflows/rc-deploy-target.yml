@@ -62,7 +62,7 @@ jobs:
         if: github.event.inputs.terraform_project == 'storage'
         working-directory: ./apps/infra/rc/storage
         run: |
-          if terraform state list | grep -q .; then
+          if [ -n "$(terraform state list)" ]; then
             echo "Resources found. Proceeding with destroy."
             echo "STORAGE_DESTROY_REQUIRED=true" >> $GITHUB_ENV
           else
@@ -128,7 +128,7 @@ jobs:
       - name: Check Existing AWS Codedang Resources
         working-directory: ./apps/infra/rc/codedang
         run: |
-          if terraform state list | grep -q .; then
+          if [ -n "$(terraform state list)" ]; then
             echo "Resources found. Proceeding with destroy."
             echo "CODEDANG_DESTROY_REQUIRED=true" >> $GITHUB_ENV
           else
