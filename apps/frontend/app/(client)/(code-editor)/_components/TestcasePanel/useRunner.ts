@@ -1,11 +1,9 @@
 'use client'
 
-import { runnerBaseUrl } from '@/libs/constants'
+import { runnerBaseUrl, runnerConnectionTimeLimit } from '@/libs/constants'
 import type { Language } from '@/types/type'
 import { Terminal } from '@xterm/xterm'
 import { useState } from 'react'
-
-const CONNECTION_TIME_LIMIT = 130
 
 export enum RunnerMessageType {
   INPUT = 'input',
@@ -180,7 +178,7 @@ export const useRunner = () => {
       const { ws: newWs } = useWebsocket(terminal, code, language)
       setWs(newWs)
 
-      let timeLeft = CONNECTION_TIME_LIMIT
+      let timeLeft = runnerConnectionTimeLimit
       const timerId = setInterval(() => {
         timeLeft -= 1
         if (timeLeft <= 0) {

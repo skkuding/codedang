@@ -193,3 +193,5 @@ export const courseOvalIconColors: {
     rightdown: '#4A32FF'
   }
 }
+
+export const runnerConnectionTimeLimit = 130 // 130 seconds
