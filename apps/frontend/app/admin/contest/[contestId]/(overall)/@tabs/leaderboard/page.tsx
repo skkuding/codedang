@@ -3,7 +3,7 @@
 import { Input } from '@/components/shadcn/input'
 import { Switch } from '@/components/shadcn/switch'
 import { GET_CONTEST_LEADERBOARD } from '@/graphql/leaderboard/queries'
-import SearchIcon from '@/public/icons/search.svg'
+import searchIcon from '@/public/icons/search.svg'
 import { useSuspenseQuery } from '@apollo/client'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -78,7 +78,7 @@ export default function ContestLeaderBoard() {
         </div>
         <div className="relative">
           <Image
-            src={SearchIcon}
+            src={searchIcon}
             alt="search"
             className="absolute left-5 top-1/2 -translate-y-1/2 cursor-pointer"
             onClick={() => {
