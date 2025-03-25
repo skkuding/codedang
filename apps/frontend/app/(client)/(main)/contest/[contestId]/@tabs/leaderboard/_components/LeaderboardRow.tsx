@@ -25,15 +25,10 @@ export function LeaderboardRow({
   resizableRowSize,
   problemRecords
 }: LeaderboardRowProps) {
-  let isTopRanked = false
-
-  let medalImage = null
   const medals = [goldMedalIcon, silverMedalIcon, bronzeMedalIcon]
 
-  if (rank <= 3) {
-    isTopRanked = true
-    medalImage = medals[rank - 1]
-  }
+  const isTopRanked = rank <= 3
+  const medalImage = isTopRanked ? medals[rank - 1] : null
 
   return (
     <div className="relative flex flex-row">

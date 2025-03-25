@@ -5,7 +5,7 @@ import {
   DialogTrigger,
   DialogTitle
 } from '@/components/shadcn/dialog'
-import InfoIcon from '@/public/icons/file-info-gray.svg'
+import infoIcon from '@/public/icons/file-info-gray.svg'
 import { X } from 'lucide-react'
 import Image from 'next/image'
 
@@ -15,7 +15,7 @@ export function LeaderboardModalDialog() {
       <Dialog>
         <DialogTrigger asChild>
           <Image
-            src={InfoIcon}
+            src={infoIcon}
             alt="info-icon"
             width={32}
             height={32}
@@ -32,64 +32,64 @@ export function LeaderboardModalDialog() {
           <DialogClose className="absolute left-[644px] top-6">
             <X className="h-6 w-6" />
           </DialogClose>
-          <p className="flex flex-col overflow-x-auto">
-            <p className="mb-8 h-[34px] w-[500px] text-[24px] font-bold text-black">
+          <div className="flex flex-col overflow-x-auto">
+            <div className="mb-8 h-[34px] w-[500px] text-[24px] font-bold text-black">
               Ranking System of Contest
-            </p>
-            <p className="mb-7 flex text-[#5C5C5C]">
+            </div>
+            <div className="mb-7 flex text-[#5C5C5C]">
               <div className="flex h-[22px] w-[22px] flex-col items-center justify-center rounded-full bg-[#3581FA] text-[11px] text-white">
                 1
               </div>
               <div className="ml-3 flex flex-col">
-                <p className="text-base">
+                <div className="text-base">
                   The ranking of each participants is determined
-                </p>
-                <p className="text-base">
+                </div>
+                <div className="text-base">
                   based on the number of problems solved.
-                </p>
+                </div>
               </div>
-            </p>
-            <p className="flex text-[#5C5C5C]">
+            </div>
+            <div className="flex text-[#5C5C5C]">
               <div className="flex h-[22px] w-[22px] flex-col items-center justify-center rounded-full bg-[#3581FA] text-[11px] text-white">
                 2
               </div>
               <div className="ml-4 flex flex-col space-y-4">
-                <p>
-                  <p className="text-base">
+                <div>
+                  <div className="text-base">
                     If the number of problems solved is the same,
-                  </p>
-                  <p className="text-base">
+                  </div>
+                  <div className="text-base">
                     the ranking is determined in ascending order of penalty.
-                  </p>
-                </p>
-                <p className="flex h-[104px] w-[562px] flex-col gap-3 rounded-[10px] bg-[#80808014] py-[18px] pl-6 pr-[69px] text-[#737373]">
-                  <p className="h-4 text-[14px] text-black">
+                  </div>
+                </div>
+                <div className="flex h-[104px] w-[562px] flex-col gap-3 rounded-[10px] bg-[#80808014] py-[18px] pl-6 pr-[69px] text-[#737373]">
+                  <div className="h-4 text-[14px] text-black">
                     <b>Penalty Calculation</b>
-                  </p>
-                  <p className="h-12">
-                    <p className="mb-1 text-[14px]">
+                  </div>
+                  <div className="h-12">
+                    <div className="mb-1 text-[14px]">
                       Time from the start of the contest to Accepted (min.)
-                    </p>
-                    <p className="text-[14px]">
+                    </div>
+                    <div className="text-[14px]">
                       + (Number of submissions - 1) * 20
-                    </p>
-                  </p>
-                </p>
-                <p className="border-1 mt-7 flex h-[72px] w-[560px] flex-col justify-center rounded-[10px] border border-[#3581FA] pl-6 text-[#3581FA]">
-                  <p>
+                    </div>
+                  </div>
+                </div>
+                <div className="border-1 mt-7 flex h-[72px] w-[560px] flex-col justify-center rounded-[10px] border border-[#3581FA] pl-6 text-[#3581FA]">
+                  <div>
                     If the number of problems solved and the penalty are the
                     same,
-                  </p>
-                  <p>they are considered to have the same rank.</p>
-                </p>
+                  </div>
+                  <div>they are considered to have the same rank.</div>
+                </div>
               </div>
-            </p>
-            <p className="pt-[76px]">
+            </div>
+            <div className="pt-[76px]">
               <div className="text-2xl font-bold">
                 Introduction to Leaderboard
               </div>
-            </p>
-            <p className="space-y-4 pl-[11px] pt-[29px]">
+            </div>
+            <div className="space-y-4 pl-[11px] pt-[29px]">
               <div className="flex flex-row space-x-6">
                 <div className="mt-[9px] flex h-[50px] w-[70px] flex-row items-center justify-center rounded-[10px] bg-[#FAFAFA] text-xl font-semibold">
                   NNN
@@ -157,8 +157,8 @@ export function LeaderboardModalDialog() {
                   </div>
                 </div>
               </div>
-            </p>
-          </p>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
