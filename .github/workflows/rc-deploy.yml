@@ -50,13 +50,22 @@ jobs:
       - name: Check Existing AWS Codedang Resources
         working-directory: ./apps/infra/rc/codedang
         run: |
-          if terraform state list | grep -q .; then
+          if [ -n "$(terraform state list)" ]; then
             echo "Resources found. Proceeding with destroy."
+            echo "$TFVARS_RC" >> terraform.tfvars
+            echo "$OAUTH_GITHUB" >> terraform.tfvars
+            echo "$OAUTH_KAKAO" >> terraform.tfvars
+            echo 'env = "rc"' >> terraform.tfvars
             echo "CODEDANG_DESTROY_REQUIRED=true" >> $GITHUB_ENV
           else
             echo "No resources found. Skipping destroy."
             echo "CODEDANG_DESTROY_REQUIRED=false" >> $GITHUB_ENV
           fi
+        env:
+          TFVARS_RC: ${{ secrets.TFVARS_RC }}
+          OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
+          OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
+
       - name: Terraform Destroy If There's Existing Codedang Resources
         if: env.CODEDANG_DESTROY_REQUIRED == 'true'
         working-directory: ./apps/infra/rc/codedang
@@ -65,13 +74,18 @@ jobs:
       - name: Check Existing AWS Storage Resources
         working-directory: ./apps/infra/rc/storage
         run: |
-          if terraform state list | grep -q .; then
+          if [ -n "$(terraform state list)" ]; then
             echo "Resources found. Proceeding with destroy."
+            echo "$TFVARS_RC" >> terraform.tfvars
+            echo 'env = "rc"' >> terraform.tfvars
             echo "STORAGE_DESTROY_REQUIRED=true" >> $GITHUB_ENV
           else
             echo "No resources found. Skipping destroy."
             echo "STORAGE_DESTROY_REQUIRED=false" >> $GITHUB_ENV
           fi
+        env:
+          TFVARS_RC: ${{ secrets.TFVARS_RC }}
+
       - name: Terraform Destroy If There's Existing Storage Resources
         if: env.STORAGE_DESTROY_REQUIRED == 'true'
         working-directory: ./apps/infra/rc/storage
@@ -109,7 +123,10 @@ jobs:
       - name: Create Terraform variable file
         working-directory: ./apps/infra/rc/storage
         run: |
+          echo "$TFVARS_RC" >> terraform.tfvars
           echo 'env = "rc"' >> terraform.tfvars
+        env:
+          TFVARS_RC: ${{ secrets.TFVARS_RC }}
 
       - name: Terraform Init Storage
         working-directory: ./apps/infra/rc/storage
@@ -169,10 +186,6 @@ jobs:
       - name: Terraform Init Codedang
         working-directory: ./apps/infra/rc/codedang
         run: terraform init -backend-config="bucket=codedang-tf-state-rc"
-
-      - name: Terraform Destroy
-        working-directory: ./apps/infra/rc/codedang
-        run: terraform destroy -auto-approve
 
       - name: Terraform Plan
         working-directory: ./apps/infra/rc/codedang

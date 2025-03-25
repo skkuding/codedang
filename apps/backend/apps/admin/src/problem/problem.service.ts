@@ -963,6 +963,11 @@ export class ProblemService {
 
     const queries = contestProblems.map((record) => {
       const newOrder = orders.indexOf(record.problemId)
+      if (newOrder === -1) {
+        throw new UnprocessableDataException(
+          'There is a problemId in the contest that is missing from the provided orders.'
+        )
+      }
       return this.prisma.contestProblem.update({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention

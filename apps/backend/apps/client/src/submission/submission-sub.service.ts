@@ -206,7 +206,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       problemTestcaseId: msg.judgeResult.testcaseId,
       result: status,
       cpuTime: BigInt(msg.judgeResult.cpuTime),
-      memoryUsage: msg.judgeResult.memory
+      memoryUsage: msg.judgeResult.memory,
+      output: msg.judgeResult.output
     }
 
     await this.updateTestcaseJudgeResult(submissionResult)
@@ -270,7 +271,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       data: {
         result: submissionResult.result,
         cpuTime: submissionResult.cpuTime,
-        memoryUsage: submissionResult.memoryUsage
+        memoryUsage: submissionResult.memoryUsage,
+        output: submissionResult.output
       }
     })
 
