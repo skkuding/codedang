@@ -180,10 +180,6 @@ jobs:
         working-directory: ./apps/infra/rc/codedang
         run: terraform init -backend-config="bucket=codedang-tf-state-rc"
 
-      - name: Terraform Destroy
-        working-directory: ./apps/infra/rc/codedang
-        run: terraform destroy -auto-approve
-
       - name: Terraform Plan
         working-directory: ./apps/infra/rc/codedang
         run: terraform plan -input=false -out=plan.out

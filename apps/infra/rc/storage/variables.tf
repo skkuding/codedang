@@ -1,7 +1,7 @@
 variable "postgres_username" {
   description = "Username for Postgres DB"
   type        = string
-  default     = "skkuding"
+  default     = "skkudingpostgres"
   sensitive   = true
 }
 
