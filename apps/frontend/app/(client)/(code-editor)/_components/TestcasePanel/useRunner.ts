@@ -114,32 +114,22 @@ const useWebsocket = (
       const data = JSON.parse(event.data)
       const msgType = data.type
 
-      if (msgType === RunnerMessageType.COMPILE_SUCCESS) {
-        return
-      }
-
-      if (msgType === RunnerMessageType.COMPILE_ERR) {
-        terminal.writeln(data.stderr)
-      }
-
-      if (msgType === RunnerMessageType.STDERR) {
-        terminal.writeln(data.stderr)
-      }
-
-      if (msgType === RunnerMessageType.ECHO) {
-        terminal.write(data.data || '')
-      }
-
-      if (msgType === RunnerMessageType.STDOUT) {
-        terminal.write(data.data || '')
-      }
-
-      if (msgType === RunnerMessageType.STDERR) {
-        terminal.write(data.data || '')
-      }
-
-      if (msgType === RunnerMessageType.EXIT) {
-        terminal.writeln(`\n[SYS] 프로그램 종료 exit code: ${data.return_code}`)
+      switch (msgType) {
+        case RunnerMessageType.COMPILE_ERR:
+          terminal.writeln(data.stderr)
+          break
+        case RunnerMessageType.ECHO:
+        case RunnerMessageType.STDOUT:
+        case RunnerMessageType.STDERR:
+          terminal.write(data.data || '')
+          break
+        case RunnerMessageType.EXIT:
+          terminal.writeln(
+            `\n\n[SYS] Process ended with exit code: ${data.return_code}`
+          )
+          break
+        default:
+          return
       }
     } catch (e) {
       terminal.writeln(`[Error] ${e}`)
