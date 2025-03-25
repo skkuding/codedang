@@ -14,7 +14,7 @@ output "db_user" {
 }
 
 output "db_name" {
-  value     = aws_db_instance.postgres.db_name
+  value     = "skkuding"
   sensitive = true
 }
 
