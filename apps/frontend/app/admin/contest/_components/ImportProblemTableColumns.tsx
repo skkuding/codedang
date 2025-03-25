@@ -167,7 +167,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
         <div>
           <Badge
             variant={level as Level}
-            className="mr-1 whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
+            className="w-[60px] whitespace-nowrap rounded-full py-1 font-normal"
           >
             {formattedLevel}
           </Badge>

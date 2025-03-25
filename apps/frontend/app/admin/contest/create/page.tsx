@@ -89,16 +89,6 @@ export default function Page() {
               />
             </div>
 
-            {/* <SwitchField
-              name="enableCopyPaste"
-              title="Enable participants Copy/Pasting"
-            />
-
-            <SwitchField
-              name="isJudgeResultVisible"
-              title="Reveal scores to participants"
-            /> */}
-
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <CreateContestLabel
