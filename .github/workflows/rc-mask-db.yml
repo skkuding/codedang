@@ -86,7 +86,7 @@ jobs:
           sudo dnf install -y postgresql15
 
           export PGPASSWORD="${{ steps.fetch-details.outputs.db_pw }}"
-          psql -h "${{ steps.fetch-details.outputs.rds_endpoint }}" -U "${{ steps.fetch-details.outputs.db_user }}" -d "skkuding" <<SQL
+          psql -h "${{ steps.fetch-details.outputs.rds_endpoint }}" -U "${{ steps.fetch-details.outputs.db_user }}" -d "${{ steps.fetch-details.outputs.db_name }}" <<SQL
 
           UPDATE "user"
           SET
