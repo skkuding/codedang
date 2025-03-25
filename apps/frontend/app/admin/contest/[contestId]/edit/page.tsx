@@ -27,11 +27,7 @@ export default function Page({ params }: { params: { contestId: string } }) {
   const { contestId } = params
 
   const methods = useForm<UpdateContestInput>({
-    resolver: valibotResolver(editSchema),
-    defaultValues: {
-      isRankVisible: true,
-      isVisible: true
-    }
+    resolver: valibotResolver(editSchema)
   })
 
   return (
