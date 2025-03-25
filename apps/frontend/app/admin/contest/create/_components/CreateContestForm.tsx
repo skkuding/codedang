@@ -46,9 +46,8 @@ export function CreateContestForm({
     contestRole: manager.type
   }))
 
-  methods.register('userContestRoles', {
-    value: formattedManagers
-  })
+  methods.register('userContestRoles')
+  methods.setValue('userContestRoles', formattedManagers)
 
   const { setShouldSkipWarning } = useConfirmNavigationContext()
   const router = useRouter()

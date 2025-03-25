@@ -4,6 +4,7 @@ import { useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import { DataTable, DataTableRoot } from '../../_components/table'
 import type { ContestManagerReviewer } from '../_libs/schemas'
 import { createColumns } from './ContestManagerReviewerColumns'
+import { DeleteManagerReviewerButton } from './DeleteManagerReviewerButton'
 
 interface ContestManagerReviewerTableProps {
   managers: ContestManagerReviewer[]
@@ -15,14 +16,25 @@ export function ContestManagerReviewerTable({
   setManagers
 }: ContestManagerReviewerTableProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [deleteRowId, setDeleteRowId] = useState<number | null>(null)
   const columns = useMemo(
-    () => createColumns(showDeleteDialog, setShowDeleteDialog, setManagers),
-    [setManagers, showDeleteDialog]
+    () => createColumns(setShowDeleteDialog, setManagers, setDeleteRowId),
+    [setManagers, setDeleteRowId]
   )
 
   return (
-    <DataTableRoot columns={columns} data={managers}>
-      <DataTable />
-    </DataTableRoot>
+    <>
+      <DataTableRoot columns={columns} data={managers}>
+        <DataTable />
+      </DataTableRoot>
+      {showDeleteDialog && (
+        <DeleteManagerReviewerButton
+          showDeleteDialog={showDeleteDialog}
+          setShowDeleteDialog={setShowDeleteDialog}
+          setManagers={setManagers}
+          deleteRowId={deleteRowId}
+        />
+      )}
+    </>
   )
 }
