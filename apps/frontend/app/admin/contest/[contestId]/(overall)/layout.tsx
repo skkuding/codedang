@@ -1,17 +1,13 @@
 'use client'
 
-import { ContestStatusTimeDiff } from '@/components/ContestStatusTimeDiff'
+import { AdminContestStatusTimeDiff } from '@/app/admin/_components/AdminContestStatusTimeDiff'
 import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
-import type { Contest } from '@/types/type'
-import type { ContestStatus } from '@/types/type'
 import { useQuery } from '@apollo/client'
-import dayjs from 'dayjs'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
 import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
 import { IoKey } from 'react-icons/io5'
 import { ContestOverallTabs } from '../_components/ContestOverallTabs'
@@ -30,33 +26,6 @@ export default function Layout({
       contestId: Number(contestId)
     }
   }).data?.getContest
-
-  const [contestStatus, setContestStatus] = useState<ContestStatus>('finished')
-  useEffect(() => {
-    const now = dayjs()
-    if (now.isAfter(contestData?.endTime)) {
-      setContestStatus('finished')
-    } else if (now.isAfter(contestData?.startTime)) {
-      setContestStatus('ongoing')
-    } else {
-      setContestStatus('upcoming')
-    }
-  }, [contestData])
-
-  const contestForTimeDiff: Contest = {
-    id: Number(contestData?.id),
-    title: String(contestData?.title),
-    startTime: new Date(contestData?.startTime),
-    endTime: new Date(contestData?.endTime),
-    summary: {},
-    isJudgeResultVisible: Boolean(contestData?.isJudgeResultVisible),
-    enableCopyPaste: Boolean(contestData?.enableCopyPaste),
-    //실제 status와 관련이 없습니다
-    status: 'finished',
-    participants: 0,
-    isRegistered: false,
-    contestProblem: []
-  }
 
   return (
     <main className="flex flex-col px-20 py-16">
@@ -86,8 +55,8 @@ export default function Layout({
             {dateFormatter(contestData?.endTime, 'YY-MM-DD HH:mm')}
           </p>
         </div>
-        <ContestStatusTimeDiff
-          contest={contestForTimeDiff}
+        <AdminContestStatusTimeDiff
+          contest={contestData}
           textStyle="font-normal text-[#333333E5] opacity-100"
           inContestEditor={false}
         />
