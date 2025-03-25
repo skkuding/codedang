@@ -46,7 +46,7 @@ jobs:
         run: |
           echo "$TFVARS_RC" >> terraform.tfvars
           echo "$OAUTH_GITHUB" >> terraform.tfvars
-          echo "$OAUTH_KAKAO" >> terraform.tfvars        
+          echo "$OAUTH_KAKAO" >> terraform.tfvars
           echo 'env = "rc"' >> terraform.tfvars
         env:
           TFVARS_RC: ${{ secrets.TFVARS_RC }}

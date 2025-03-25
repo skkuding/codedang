@@ -19,6 +19,7 @@ import {
   type ContestProblemRecord,
   type UserContest,
   ContestRole,
+  type UpdateHistory,
   type Prisma
 } from '@prisma/client'
 import { hash } from 'argon2'
@@ -43,6 +44,7 @@ let privateGroup1: Group
 let privateGroup2: Group
 const users: User[] = []
 const problems: Problem[] = []
+const updateHistories: UpdateHistory[] = []
 let problemTestcases: ProblemTestcase[] = []
 const assignments: Assignment[] = []
 const endedAssignments: Assignment[] = []
@@ -995,6 +997,70 @@ const createProblems = async () => {
   }
 }
 
+const createUpdateHistories = async () => {
+  updateHistories.push(
+    await prisma.updateHistory.create({
+      data: {
+        problemId: problems[0].id,
+        updatedByid: superAdminUser.id,
+        updatedFields: ['title'],
+        updatedInfo: [
+          {
+            current: '정수 더하기',
+            previous: '정수 더하기 previous',
+            updatedField: 'title'
+          }
+        ]
+      }
+    })
+  )
+
+  updateHistories.push(
+    await prisma.updateHistory.create({
+      data: {
+        problemId: problems[0].id,
+        updatedByid: superAdminUser.id,
+        updatedFields: ['description'],
+        updatedInfo: [
+          {
+            current: '문제 설명',
+            previous: '문제 설명 previous',
+            updatedField: 'description'
+          }
+        ]
+      }
+    })
+  )
+
+  updateHistories.push(
+    await prisma.updateHistory.create({
+      data: {
+        problemId: problems[0].id,
+        updatedByid: superAdminUser.id,
+        updatedFields: ['hint'],
+        updatedInfo: [
+          {
+            current: '정수 더하기 힌트',
+            previous: '정수 더하기 힌트 previous',
+            updatedField: 'hint'
+          }
+        ]
+      }
+    })
+  )
+
+  await prisma.problem.update({
+    where: { id: problems[0].id },
+    data: {
+      updateHistory: {
+        connect: updateHistories.map((updateHistory) => ({
+          id: updateHistory.id
+        }))
+      }
+    }
+  })
+}
+
 const createContests = async () => {
   const contestData: {
     data: {
@@ -1005,8 +1071,6 @@ const createContests = async () => {
       summary: Prisma.InputJsonValue
       startTime: Date
       endTime: Date
-      isVisible: boolean
-      isRankVisible: boolean
       invitationCode: string | null
       evaluateWithSampleTestcase: boolean
       enableCopyPaste: boolean
@@ -1057,8 +1121,6 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1078,8 +1140,6 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1099,8 +1159,6 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1120,8 +1178,6 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1142,8 +1198,6 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1163,8 +1217,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1185,8 +1237,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1207,8 +1257,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1228,8 +1276,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1249,8 +1295,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1270,8 +1314,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1291,8 +1333,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1313,8 +1353,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: false,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1334,8 +1372,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1356,8 +1392,6 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1377,8 +1411,6 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1387,8 +1419,7 @@ const createContests = async () => {
     {
       data: {
         title: '2024 스꾸딩 프로그래밍 대회',
-        description:
-          '<p>이 대회는 언젠가 열리겠죠...? isVisible이 false인 assignment입니다</p>',
+        description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
         posterUrl: `https://skkuding.dev/open-graph.png`,
         summary: {
@@ -1399,8 +1430,6 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
-        isVisible: false,
-        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1420,8 +1449,6 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1441,8 +1468,6 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1462,8 +1487,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: true,
         invitationCode: null
@@ -1487,10 +1510,10 @@ const createContests = async () => {
   }
 
   // add problems to ongoing contest
-  for (const problem of problems.slice(0, 3)) {
+  for (const [index, problem] of problems.slice(0, 3).entries()) {
     await prisma.contestProblem.create({
       data: {
-        order: problem.id - 1,
+        order: index,
         contestId: ongoingContests[0].id,
         problemId: problem.id,
         score: problem.id * 10
@@ -1499,10 +1522,10 @@ const createContests = async () => {
   }
 
   // add problems to finished contest
-  for (const problem of problems.slice(3, 5)) {
+  for (const [index, problem] of problems.slice(3, 5).entries()) {
     await prisma.contestProblem.create({
       data: {
-        order: problem.id - 1,
+        order: index,
         contestId: endedContests[0].id,
         problemId: problem.id
       }
@@ -2546,6 +2569,7 @@ const main = async () => {
   await createGroups()
   await createNotices()
   await createProblems()
+  await createUpdateHistories()
   await createAssignments()
   await createContests()
   await createContestRecords()

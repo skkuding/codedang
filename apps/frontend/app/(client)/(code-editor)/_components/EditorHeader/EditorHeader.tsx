@@ -119,7 +119,7 @@ export function EditorHeader({
           if (contestId) {
             href = `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}?cellProblemId=${problem.id}`
           } else if (assignmentId) {
-            href = `/course/${courseId}/assignment/${assignmentId}/problem/${problem.id}/submission`
+            href = `/course/${courseId}/assignment/${assignmentId}/problem/${problem.id}/submission/${submissionId}`
           } else {
             href = `/problem/${problem.id}/submission/${submissionId}`
           }

@@ -9,10 +9,10 @@ export class CreateAnnouncementInput {
   contestId: number
 
   @Field(() => Int, {
-    description: 'related problemId of announcement',
+    description: 'related problemOrder of announcement',
     nullable: true
   })
-  problemId?: number
+  problemOrder?: number
 
   @Field(() => String, {
     description: 'content of announcement',

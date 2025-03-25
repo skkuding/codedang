@@ -1,0 +1,117 @@
+name: RC - CD - Mask DB
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECS_CLUSTER: Codedang-Api
+
+permissions: # permissions to the job (for the OpenID Connection)
+  id-token: write
+  contents: read
+
+jobs:
+  rc-deploy-mask:
+    name: RC - Deploy RDS and Mask Data
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY_RC }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.2
+
+      - name: Terraform Init Storage
+        working-directory: ./apps/infra/rc/storage
+        run: terraform init -backend-config="bucket=codedang-tf-state-rc"
+
+      - name: Fetch dynamic connection details
+        working-directory: ./apps/infra/rc/storage
+        id: fetch-details
+        run: |
+          echo "Fetching Bastion Host IP..."
+
+          BASTION_IP=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=Bastion-Host" "Name=instance-state-name,Values=running" \
+            --query 'Reservations[].Instances[].PublicIpAddress' \
+            --output text)
+
+
+          echo "bastion_ip=$BASTION_IP" >> $GITHUB_OUTPUT
+
+          echo "Fetching RDS Endpoint..."
+          RDS_INSTANCE_ID=$(aws rds describe-db-instances \
+          --query "DBInstances | sort_by(@, &InstanceCreateTime) | [-1].DBInstanceIdentifier" --output text)
+
+          if [ -z "$RDS_INSTANCE_ID" ]; then
+            echo "No RDS instance found. Skipping further steps."
+            exit 0
+          fi
+
+          echo "RDS Instance Identifier: $RDS_INSTANCE_ID"
+
+          RDS_ENDPOINT=$(aws rds describe-db-instances --db-instance-identifier "$RDS_INSTANCE_ID" --query "DBInstances[0].Endpoint.Address" --output text)
+
+          echo "rds_endpoint=$RDS_ENDPOINT" >> $GITHUB_OUTPUT
+
+          echo "Fetching DB credentials from Terraform..."
+          DB_PW=$(terraform output db_pw)
+          DB_USER=$(terraform output db_user)
+          DB_NAME=$(terraform output db_name)
+
+          echo "db_pw=$DB_PW" >> $GITHUB_OUTPUT
+          echo "db_user=$DB_USER" >> $GITHUB_OUTPUT
+          echo "db_name=$DB_NAME" >> $GITHUB_OUTPUT
+
+      - name: Setup SSH agent for Bastion host access
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.BASTION_SSH_KEY_RC }}
+
+      - name: Mask sensitive data on RDS via Bastion host
+        run: |
+          echo "Running masking script on the RDS database via Bastion host..."
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ steps.fetch-details.outputs.bastion_ip }} <<EOF
+          sudo dnf install -y postgresql15
+
+          export PGPASSWORD="${{ steps.fetch-details.outputs.db_pw }}"
+          psql -h "${{ steps.fetch-details.outputs.rds_endpoint }}" -U "${{ steps.fetch-details.outputs.db_user }}" -d "skkuding" <<SQL
+
+          UPDATE "user"
+          SET
+              username = 'user' || id,
+              password = 'masked',
+              email = 'masked' || id || '@example.com',
+              student_id = 'xxxxxxxxxx',
+              major = 'masked'
+          WHERE username NOT IN ('test123', 'super');
+
+          UPDATE "submission"
+          SET
+              code = ARRAY(SELECT jsonb_build_object('id', 1, 'text', 'masked')
+                           FROM generate_series(1, array_length(code, 1))),
+              code_size = '-1',
+              user_ip = 'masked',
+              score = '-1'
+          WHERE user_id NOT IN (71755, 2);
+
+          UPDATE public.contest_record
+          SET
+              accepted_problem_num = -1,
+              total_penalty = -1,
+              score = -1,
+              finish_time = '1970-01-01 00:00:00.000'
+          WHERE user_id NOT IN (71755, 2);
+          SQL
+          EOF

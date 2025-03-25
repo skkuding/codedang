@@ -52,7 +52,7 @@ export async function SubmissionDetail({ problemId, submissionId }: Props) {
           </div>
           <div>
             <h2>Submission Time</h2>
-            <p>{dateFormatter(submission.createTime, 'YYYY-MM-DD HH:mm:ss')}</p>
+            <p>{dateFormatter(submission.createTime, 'MMM DD, YYYY HH:mm')}</p>
           </div>
         </div>
         <ScrollBar orientation="horizontal" />
