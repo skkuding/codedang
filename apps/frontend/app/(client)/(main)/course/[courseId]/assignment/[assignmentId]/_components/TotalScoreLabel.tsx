@@ -1,6 +1,7 @@
 'use client'
 
 import { fetcherWithAuth } from '@/libs/utils'
+import type { AssignmentGrade } from '@/types/type'
 import { useEffect, useState } from 'react'
 
 interface TotalScoreLabelProps {
@@ -8,23 +9,16 @@ interface TotalScoreLabelProps {
   courseId: string
 }
 
-interface ScoreSummary {
-  submittedProblemCount: number
-  totalProblemCount: number
-  userAssignmentJudgeScore: number
-  assignmentPerfectScore: number
-  userAssignmentFinalScore: number
-}
 export function TotalScoreLabel({
   assignmentId,
   courseId
 }: TotalScoreLabelProps) {
-  const [myScoreSummary, setMyScoreSummary] = useState<ScoreSummary | null>(
+  const [myScoreSummary, setMyScoreSummary] = useState<AssignmentGrade | null>(
     null
   )
   useEffect(() => {
     async function getMyScoreSummary() {
-      const myScoreSummary = await fetcherWithAuth<ScoreSummary>(
+      const myScoreSummary = await fetcherWithAuth<AssignmentGrade>(
         `assignment/${assignmentId}/score/me`
       ).json()
       setMyScoreSummary(myScoreSummary)
