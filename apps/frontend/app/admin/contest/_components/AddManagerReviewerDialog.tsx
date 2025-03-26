@@ -131,11 +131,6 @@ export function AddManagerReviewerDialog({
         <Button
           type="button"
           className="flex h-[36px] w-[100px] items-center gap-1 px-0"
-          onClick={() => {
-            console.log('values:', values)
-            console.log('dropdownValues:', dropdownValues)
-            console.log('managers:', managers)
-          }}
         >
           <HiMiniPlusCircle className="h-5 w-5" />
           <div className="text-sm font-bold">Add</div>
