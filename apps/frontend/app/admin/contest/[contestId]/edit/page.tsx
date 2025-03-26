@@ -66,6 +66,7 @@ export default function Page({ params }: { params: { contestId: string } }) {
           <EditContestForm
             contestId={Number(contestId)}
             problems={problems}
+            managers={managers}
             setProblems={setProblems}
             setManagers={setManagers}
             setIsLoading={setIsLoading}

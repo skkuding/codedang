@@ -4,7 +4,7 @@ import { useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import { DataTable, DataTableRoot } from '../../_components/table'
 import type { ContestManagerReviewer } from '../_libs/schemas'
 import { createColumns } from './ContestManagerReviewerColumns'
-import { DeleteManagerReviewerButton } from './DeleteManagerReviewerButton'
+import { DeleteManagerReviewerAlert } from './DeleteManagerReviewerAlert'
 
 interface ContestManagerReviewerTableProps {
   managers: ContestManagerReviewer[]
@@ -28,7 +28,7 @@ export function ContestManagerReviewerTable({
         <DataTable />
       </DataTableRoot>
       {showDeleteDialog && (
-        <DeleteManagerReviewerButton
+        <DeleteManagerReviewerAlert
           showDeleteDialog={showDeleteDialog}
           setShowDeleteDialog={setShowDeleteDialog}
           setManagers={setManagers}

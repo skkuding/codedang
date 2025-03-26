@@ -13,7 +13,7 @@ export const createSchema = v.object({
   ),
   startTime: v.date(),
   endTime: v.date(),
-  enableCopyPaste: v.boolean(),
+  // enableCopyPaste: v.boolean(),
   isJudgeResultVisible: v.boolean(),
   invitationCode: v.nullable(
     v.pipe(

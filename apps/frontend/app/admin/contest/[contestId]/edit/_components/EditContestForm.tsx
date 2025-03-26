@@ -25,16 +25,22 @@ interface EditContestFormProps {
   contestId: number
   children: ReactNode
   problems: ContestProblem[]
+  managers: ContestManagerReviewer[]
   setProblems: (problems: ContestProblem[]) => void
   setManagers: (managers: ContestManagerReviewer[]) => void
   setIsLoading: (isLoading: boolean) => void
   methods: UseFormReturn<UpdateContestInput>
 }
 
+/*
+  - userContest로 바뀔 예정 -> backend 작업 기다리기
+*/
+
 export function EditContestForm({
   contestId,
   children,
   problems,
+  managers,
   setProblems,
   setManagers,
   setIsLoading,
@@ -50,6 +56,14 @@ export function EditContestForm({
       take: 5000
     }
   })
+
+  const formattedManagers = managers.map((manager) => ({
+    userId: manager.id,
+    contestRole: manager.type
+  }))
+
+  methods.register('userContestRoles')
+  methods.setValue('userContestRoles', formattedManagers)
 
   const users = userData.getUsers.map((user) => ({
     id: Number(user.id),
@@ -74,7 +88,7 @@ export function EditContestForm({
         invitationCode: data.invitationCode,
         summary: data.summary,
         posterUrl: data.posterUrl,
-        freezeTime: new Date(data.freezeTime),
+        freezeTime: data.freezeTime === null ? null : new Date(data.freezeTime),
         evaluateWithSampleTestcase: data.evaluateWithSampleTestcase,
         userContestRoles: data.userContestRoles
       })
@@ -127,7 +141,6 @@ export function EditContestForm({
       toast.error('Start time must be less than end time')
       return
     }
-
     if (
       new Set(problems.map((problem) => problem.order)).size !== problems.length
     ) {
@@ -140,7 +153,6 @@ export function EditContestForm({
   const onSubmit = async () => {
     const input = methods.getValues()
     setIsLoading(true)
-
     await updateContest({
       variables: {
         input

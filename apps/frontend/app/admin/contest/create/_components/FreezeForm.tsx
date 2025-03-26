@@ -64,10 +64,6 @@ export function FreezeForm({
     setIsEnabled(hasValue)
   }, [hasValue, diffTime])
 
-  useEffect(() => {
-    setIsEnabled(hasValue)
-  }, [hasValue])
-
   return (
     <div className="flex h-[114px] w-[641px] flex-col justify-evenly rounded-xl border border-[#80808040] bg-[#80808014] px-7">
       <div className="flex items-center gap-[54px]">

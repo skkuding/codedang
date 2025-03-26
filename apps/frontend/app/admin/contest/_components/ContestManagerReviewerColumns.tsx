@@ -59,6 +59,7 @@ export const createColumns = (
       return (
         <div className="flex justify-center">
           <button
+            type="button"
             onClick={() => {
               setShowDeleteDialog(true)
               setDeleteRowId(row.original.id)
