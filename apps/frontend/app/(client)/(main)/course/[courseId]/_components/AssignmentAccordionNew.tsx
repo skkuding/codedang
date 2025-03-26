@@ -9,12 +9,10 @@ import type { Assignment } from '@/types/type'
 import { AssignmentLink } from './AssignmentLink'
 
 interface AssignmentAccordionNewProps {
-  week: number
   courseId: string
 }
 
 export async function AssignmentAccordionNew({
-  week,
   courseId
 }: AssignmentAccordionNewProps) {
   const assignments = await getAssignmentList(courseId)
