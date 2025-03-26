@@ -383,15 +383,13 @@ export interface CalendarAssignment {
 
 export interface AssignmentGrade {
   id: number
-  title: string
-  endTime: string
   autoFinalizeScore: boolean
   isFinalScoreVisible: boolean
   isJudgeResultVisible: boolean
-  week: number
   userAssignmentFinalScore: number | null
   userAssignmentJudgeScore: number | null
   assignmentPerfectScore: number
+  comment: string | null
   problems: ProblemGrade[]
 }
 export interface ProblemGrade {
