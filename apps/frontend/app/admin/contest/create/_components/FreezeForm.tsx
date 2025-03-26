@@ -14,22 +14,34 @@ import { useFormContext } from 'react-hook-form'
 
 interface FreezeFormProps {
   name: string
+  endTime?: Date
+  freezeTime?: Date
+  hasValue?: boolean
 }
 
 const options = ['90', '75', '60', '45', '30', '15']
 
-export function FreezeForm({ name }: FreezeFormProps) {
-  const [isEnabled, setIsEnabled] = useState<boolean>(false)
+export function FreezeForm({
+  name,
+  endTime,
+  freezeTime,
+  hasValue = false
+}: FreezeFormProps) {
+  const [isEnabled, setIsEnabled] = useState<boolean>(hasValue)
   const [selectedOption, setSelectedOption] = useState<string>('30')
-  const {
-    register,
-    setValue,
-    trigger,
-    getValues,
-    control,
-    watch,
-    formState: { errors }
-  } = useFormContext()
+  const { setValue, control, watch } = useFormContext()
+
+  useEffect(() => {
+    setIsEnabled(hasValue)
+    if (endTime && freezeTime && hasValue) {
+      const diffTime =
+        new Date(endTime).getTime() - new Date(freezeTime).getTime()
+      const diffMinutes = Math.round(diffTime / (1000 * 60))
+      if (options.includes(diffMinutes.toString())) {
+        setSelectedOption(diffMinutes.toString())
+      }
+    }
+  }, [hasValue, endTime, freezeTime])
 
   useEffect(() => {
     const updateFreezeTime = () => {
@@ -48,7 +60,7 @@ export function FreezeForm({ name }: FreezeFormProps) {
     }
 
     updateFreezeTime()
-  }, [isEnabled, selectedOption, setValue, getValues, name, control, watch])
+  }, [isEnabled, selectedOption, setValue, name, control, watch])
 
   return (
     <div className="flex h-[114px] w-[641px] flex-col justify-evenly rounded-xl border border-[#80808040] bg-[#80808014] px-7">

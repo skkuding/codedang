@@ -63,6 +63,7 @@ export function AddManagerReviewerDialog({
       take: 5000
     }
   })
+
   const users = data.getUsers.map((user) => ({
     id: Number(user.id),
     email: user.email,

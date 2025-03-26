@@ -1,7 +1,10 @@
 'use client'
 
 import { useConfirmNavigationContext } from '@/app/admin/_components/ConfirmNavigation'
-import type { ContestProblem } from '@/app/admin/contest/_libs/schemas'
+import type {
+  ContestManagerReviewer,
+  ContestProblem
+} from '@/app/admin/contest/_libs/schemas'
 import {
   IMPORT_PROBLEMS_TO_CONTEST,
   REMOVE_PROBLEMS_FROM_CONTEST,
@@ -10,7 +13,8 @@ import {
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
-import { useMutation, useQuery } from '@apollo/client'
+import { GET_USERS } from '@/graphql/user/queries'
+import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { useRouter } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
@@ -22,6 +26,7 @@ interface EditContestFormProps {
   children: ReactNode
   problems: ContestProblem[]
   setProblems: (problems: ContestProblem[]) => void
+  setManagers: (managers: ContestManagerReviewer[]) => void
   setIsLoading: (isLoading: boolean) => void
   methods: UseFormReturn<UpdateContestInput>
 }
@@ -31,6 +36,7 @@ export function EditContestForm({
   children,
   problems,
   setProblems,
+  setManagers,
   setIsLoading,
   methods
 }: EditContestFormProps) {
@@ -38,6 +44,20 @@ export function EditContestForm({
 
   const { setShouldSkipWarning } = useConfirmNavigationContext()
   const router = useRouter()
+
+  const { data: userData } = useSuspenseQuery(GET_USERS, {
+    variables: {
+      take: 5000
+    }
+  })
+
+  const users = userData.getUsers.map((user) => ({
+    id: Number(user.id),
+    email: user.email,
+    username: user.username,
+    realName: user.userProfile ? user.userProfile.realName : '',
+    role: user.role
+  }))
 
   useQuery(GET_CONTEST, {
     variables: { contestId },
@@ -49,11 +69,28 @@ export function EditContestForm({
         description: data.description,
         startTime: new Date(data.startTime),
         endTime: new Date(data.endTime),
-        enableCopyPaste: data.enableCopyPaste,
         isJudgeResultVisible: data.isJudgeResultVisible,
-        invitationCode: data.invitationCode
+        invitationCode: data.invitationCode,
+        summary: data.summary,
+        posterUrl: data.posterUrl,
+        freezeTime: data.freezeTime,
+        evaluateWithSampleTestcase: data.evaluateWithSampleTestcase,
+        userContestRoles: data.userContestRoles
       })
       setIsLoading(false)
+      setManagers(
+        data.userContestRoles.map((role) => {
+          const user = users.find((u) => u.id === role.userId)
+          return {
+            id: role.userId,
+            email: user?.email || '',
+            username: user?.username || '',
+            realName: user?.realName || '',
+            type: role.role,
+            user
+          }
+        })
+      )
     }
   })
 
@@ -152,7 +189,7 @@ export function EditContestForm({
 
   return (
     <form
-      className="flex w-[760px] flex-col gap-6"
+      className="flex w-[901px] flex-col gap-[60px]"
       onSubmit={methods.handleSubmit(isSubmittable)}
     >
       <FormProvider {...methods}>{children}</FormProvider>

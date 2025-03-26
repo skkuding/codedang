@@ -7,15 +7,15 @@ import {
 import { AiFillQuestionCircle } from 'react-icons/ai'
 import { Label } from '../../_components/Label'
 
-interface CreateContestLabelProps {
+interface CreateEditContestLabelProps {
   title: string
   content: string
 }
 
-export function CreateContestLabel({
+export function CreateEditContestLabel({
   title,
   content
-}: CreateContestLabelProps) {
+}: CreateEditContestLabelProps) {
   const sentences = content
     .split(/(?:\n|<br\s*\/?>)/)
     .map((sentence, index) => (

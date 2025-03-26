@@ -16,7 +16,7 @@ import { TitleForm } from '../../_components/TitleForm'
 import { AddManagerReviewerDialog } from '../_components/AddManagerReviewerDialog'
 import { ContestManagerReviewerTable } from '../_components/ContestManagerReviewerTable'
 import { ContestProblemTable } from '../_components/ContestProblemTable'
-import { CreateContestLabel } from '../_components/CreateContestLabel'
+import { CreateEditContestLabel } from '../_components/CreateEditContestLabel'
 import { ImportDialog } from '../_components/ImportDialog'
 import type { ContestManagerReviewer, ContestProblem } from '../_libs/schemas'
 import { CreateContestForm } from './_components/CreateContestForm'
@@ -91,7 +91,7 @@ export default function Page() {
 
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <CreateContestLabel
+                <CreateEditContestLabel
                   title="Add manager / reviewer"
                   content={`Contest managers have all permissions except for creating and editing the contest.\nYou can also import problems created by the contest manager into this contest.\nContest reviewers can view the problem list before the contest starts.`}
                 />
@@ -108,7 +108,7 @@ export default function Page() {
 
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <CreateContestLabel
+                <CreateEditContestLabel
                   title="Contest Problem List"
                   content={`If contest problems are imported from the ‘All Problem List’,<br>the problems will automatically become invisible state.<br>After the contests are all over, you can manually make the problem visible again.`}
                 />
