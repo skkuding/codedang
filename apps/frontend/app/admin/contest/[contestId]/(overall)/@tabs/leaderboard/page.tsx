@@ -2,9 +2,10 @@
 
 import { Input } from '@/components/shadcn/input'
 import { Switch } from '@/components/shadcn/switch'
+import { UPDATE_CONTEST } from '@/graphql/contest/mutations'
 import { GET_CONTEST_LEADERBOARD } from '@/graphql/leaderboard/queries'
 import searchIcon from '@/public/icons/search.svg'
-import { useSuspenseQuery } from '@apollo/client'
+import { useSuspenseQuery, useMutation } from '@apollo/client'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -38,6 +39,28 @@ export default function ContestLeaderBoard() {
     variables: { contestId }
   })
 
+  const [isUnfrozen, setIsUnfrozen] = useState(
+    !data.getContestLeaderboard.isFrozen
+  )
+  const [updateContest] = useMutation(UPDATE_CONTEST)
+
+  const toggleUnfreeze = async () => {
+    try {
+      console.log('contestId: ', contestId, ' unfreeze?: ', isUnfrozen)
+      const res = await updateContest({
+        variables: {
+          input: {
+            id: contestId,
+            unfreeze: !isUnfrozen
+          }
+        }
+      })
+      console.log('res: ', res)
+    } catch (err) {
+      console.error('Error updating contest:', err)
+    }
+  }
+
   const [problemSize, setProblemSize] = useState(0)
   const [leaderboardUsers, setLeaderboardUsers] = useState([
     BaseLeaderboardUser
@@ -60,6 +83,12 @@ export default function ContestLeaderBoard() {
             Unfreeze Leaderboard
           </div>
           <Switch
+            checked={!isUnfrozen}
+            onCheckedChange={(checked) => {
+              // 여기서 API 요청 보내기
+              toggleUnfreeze()
+              setIsUnfrozen(!checked)
+            }}
             className="h-[24px] w-[46px]"
             thumbClassName="w-[18px] h-[18px] data-[state=checked]:translate-x-[22px] data-[state=unchecked]:translate-x-[2px]"
           />
