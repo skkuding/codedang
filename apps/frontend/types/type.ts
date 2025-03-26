@@ -356,9 +356,9 @@ export interface Assignment {
   enableCopyPaste: boolean
   isJudgeResultVisible: boolean
   week: number
-  status: AssignmentStatus
-  description: string
-  isRegistered: boolean
+  status: AssignmentStatus | null
+  description: string | null
+  isRegistered: boolean | null
   problemNumber: number
   submittedNumber: number
 }

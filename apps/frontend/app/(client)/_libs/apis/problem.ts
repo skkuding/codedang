@@ -1,5 +1,9 @@
-import { safeFetcher } from '@/libs/utils'
-import type { Problem } from '@/types/type'
+import { safeFetcher, safeFetcherWithAuth } from '@/libs/utils'
+import type {
+  AssignmentProblem,
+  Problem,
+  StudentAssignmentProblem
+} from '@/types/type'
 import type { PaginationQueryParams } from './types'
 
 export interface GetProblemListRequest extends PaginationQueryParams {
@@ -20,5 +24,21 @@ export const getProblemList = async ({
   })
   const data = await response.json<GetProblemListResponse>()
 
+  return data
+}
+
+export interface GetAssignmentProblemsRequest {
+  assignmentId: string
+}
+
+export type GetAssignmentProblemsResponse = StudentAssignmentProblem
+
+export const getAssignments = async ({
+  assignmentId
+}: GetAssignmentProblemsRequest) => {
+  const response = await safeFetcherWithAuth.get(
+    `/assignment/${assignmentId}/score/me`
+  )
+  const data = await response.json<GetAssignmentProblemsResponse>()
   return data
 }

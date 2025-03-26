@@ -12,7 +12,7 @@ export default function Grade({ params }: GradeProps) {
   return (
     <div className="mt-20 w-full px-6 pb-4">
       <p className="text-2xl font-semibold">Grade</p>
-      <GradeAccordion courseId={courseId} />
+      {/* <GradeAccordion courseId={courseId} /> */}
     </div>
   )
 }

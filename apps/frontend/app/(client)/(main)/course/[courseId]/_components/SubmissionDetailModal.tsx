@@ -15,7 +15,7 @@ import { useQuery } from '@tanstack/react-query'
 import { MdArrowForwardIos } from 'react-icons/md'
 
 interface SubmissionDetailModalProps {
-  problemId: number
+  problemId: string
   gradedAssignment: AssignmentGrade
   showEvaluation: boolean
 }
@@ -26,16 +26,16 @@ export function SubmissionDetailModal({
 }: SubmissionDetailModalProps) {
   const { data: submission } = useQuery(
     assignmentSubmissionQueries.lastestSubmissionResult({
-      assignmentId: gradedAssignment.id,
+      assignmentId: gradedAssignment.id.toString(),
       problemId
     })
   )
 
   const { data: testResults } = useQuery(
     assignmentSubmissionQueries.testResult({
-      assignmentId: gradedAssignment.id,
+      assignmentId: gradedAssignment.id.toString(),
       problemId,
-      submissionId: submission?.id ?? 0
+      submissionId: submission?.id.toString() ?? '0'
     })
   )
   const getResultStyle = (result: string) => {
@@ -75,13 +75,13 @@ export function SubmissionDetailModal({
               <span
                 title={
                   gradedAssignment.problems.find(
-                    (problem) => problem.id === problemId
+                    (problem) => problem.id.toString() === problemId
                   )?.title || 'Not found'
                 }
                 className="max-w-[200px] overflow-hidden truncate"
               >
                 {gradedAssignment.problems.find(
-                  (problem) => problem.id === problemId
+                  (problem) => problem.id.toString() === problemId
                 )?.title || 'Not found'}
               </span>
             </div>
@@ -93,17 +93,17 @@ export function SubmissionDetailModal({
               <span className="flex h-[30px] w-[140px] items-center justify-center rounded-full border border-blue-500 font-bold text-blue-500">
                 <span className="text-lg">
                   {gradedAssignment.problems.find(
-                    (problem) => problem.id === problemId
+                    (problem) => problem.id.toString() === problemId
                   )?.problemRecord?.finalScore ??
                     gradedAssignment.problems.find(
-                      (problem) => problem.id === problemId
+                      (problem) => problem.id.toString() === problemId
                     )?.problemRecord?.score}
                 </span>
                 {'  /  '}
                 <span className="text-lg">
                   {
                     gradedAssignment.problems.find(
-                      (problem) => problem.id === problemId
+                      (problem) => problem.id.toString() === problemId
                     )?.maxScore
                   }
                 </span>
@@ -227,7 +227,7 @@ export function SubmissionDetailModal({
               <div className="flex-col rounded border p-4">
                 <span className="text-xs">
                   {gradedAssignment.problems.find(
-                    (problem) => problem.id === problemId
+                    (problem) => problem.id.toString() === problemId
                   )?.problemRecord?.comment || ''}
                 </span>
               </div>

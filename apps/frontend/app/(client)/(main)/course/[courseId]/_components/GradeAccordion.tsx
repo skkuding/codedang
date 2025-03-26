@@ -2,6 +2,7 @@
 
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
+import { problemQueries } from '@/app/(client)/_libs/queries/problem'
 import {
   Accordion,
   AccordionContent,
@@ -9,6 +10,7 @@ import {
   AccordionTrigger
 } from '@/components/shadcn/accordion'
 import { Dialog } from '@/components/shadcn/dialog'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
 import type {
   Assignment,
@@ -18,7 +20,7 @@ import type {
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { FaFilePen } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { useInterval } from 'react-use'
@@ -31,17 +33,24 @@ interface GradeAccordionProps {
 }
 
 export function GradeAccordion({ courseId }: GradeAccordionProps) {
-  const { data } = useQuery(
-    assignmentSubmissionQueries.grades({ groupId: Number(courseId) })
+  const { data: assignments } = useQuery(
+    assignmentQueries.muliple({ courseId })
   )
+
+  console.log(assignments)
+
+  // const { data: assignmentRecords } = useQuery(
+  //   assignmentQueries.records({ courseId })
+  // )
 
   return (
     <div className="mt-8">
-      {data?.map((assignmentGrade) => (
+      {assignments?.map((assignment, index) => (
         <GradeAccordionItem
-          key={assignmentGrade.id}
-          assignmentGrade={assignmentGrade}
-          courseId={Number(courseId)}
+          key={assignment.id}
+          assignment={assignment}
+          // record={assignmentRecords?.[index]} // 인덱스로 대응
+          courseId={courseId}
         />
       ))}
     </div>
@@ -49,30 +58,41 @@ export function GradeAccordion({ courseId }: GradeAccordionProps) {
 }
 
 interface GradeAccordionItemProps {
-  assignmentGrade: AssignmentGrade
-  courseId: number
+  assignment: Assignment
+  courseId: string
+  // record: AssignmentRecord
 }
 
 function GradeAccordionItem({
-  assignmentGrade,
+  assignment,
   courseId
+  // record
 }: GradeAccordionItemProps) {
+  const [isOpen, setIsOpen] = useState(false)
   const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false)
   const [openProblemId, setOpenProblemId] = useState<number | null>(null)
-
-  const { data: assignment } = useQuery(
-    assignmentQueries.single({ assignmentId: assignmentGrade.id })
-  )
+  const [isDataLoaded, setIsDataLoaded] = useState(false)
 
   const handleOpenChange = (problemId: number | null) => {
     setOpenProblemId(problemId)
   }
+
+  const { data: records } = useQuery({
+    ...assignmentQueries.record({ assignmentId: assignment.id.toString() }),
+    enabled: isOpen
+  })
+
+  const handleAccordionOpenChange = (value: string) => {
+    setIsOpen(value === assignment.id.toString())
+  }
   return (
-    <Accordion type="single" collapsible className="w-full">
-      <AccordionItem
-        value={assignmentGrade.week.toString()}
-        className="border-b-0"
-      >
+    <Accordion
+      type="single"
+      collapsible
+      className="w-full"
+      onValueChange={handleAccordionOpenChange}
+    >
+      <AccordionItem value={assignment.id.toString()} className="border-b-0">
         <AccordionTrigger
           className={cn(
             'mt-4 w-full items-center rounded-2xl bg-white px-8 py-5 text-left text-sm shadow-md',
@@ -83,47 +103,40 @@ function GradeAccordionItem({
           iconStyle="w-5 h-5 absolute right-[3%]"
         >
           <p className="text-primary w-[7%] text-center font-normal">
-            [Week {assignmentGrade.week}]
+            [Week {assignment.week}]
           </p>
           <div className="flex w-[30%] flex-col">
-            <p className="line-clamp-1 font-normal">{assignmentGrade.title}</p>
+            <p className="line-clamp-1 font-normal">{assignment.title}</p>
             {assignment && <AssignmentStatusTimeDiff assignment={assignment} />}
           </div>
-
           {assignment && (
             <p className="w-[25%] font-normal text-[#8A8A8A]">
               {dateFormatter(assignment.startTime, 'MMM D, HH:mm:ss')} {'-'}{' '}
               {dateFormatter(assignment.endTime, 'MMM D, HH:mm:ss')}
             </p>
           )}
-
           <div className="flex w-[13%] justify-center">
-            {assignmentGrade.problems.every(
-              (problem) => !problem.problemRecord?.isSubmitted
-            ) ? null : (
-              <GradedBadge isGraded={assignmentGrade.isFinalScoreVisible} />
-            )}
+            {assignment.startTime < new Date() ? (
+              <SubmissionBadge assignment={assignment} />
+            ) : null}
           </div>
-
-          <div className="flex w-[10%] justify-center gap-1 font-medium">
-            {assignmentGrade.userAssignmentFinalScore ?? (
-              <FaFilePen size={16} />
-            )}
-            {` / ${assignmentGrade.assignmentPerfectScore}`}
-          </div>
-
+          {/* TODO: record api 완성되면 수정 */}
+          {/* <div className="flex w-[10%] justify-center gap-1 font-medium">
+            {record.score ?? <FaFilePen size={16} />}
+            {` / ${record.perfectScore}`}
+          </div> */}
           <div className="flex w-[5%] justify-center">
             <Dialog
               open={isAssignmentDialogOpen}
               onOpenChange={setIsAssignmentDialogOpen}
             >
               <DetailButton
-                isActivated={new Date() > new Date(assignmentGrade.endTime)}
+                isActivated={new Date() > new Date(assignment.endTime)}
               />
               {isAssignmentDialogOpen && (
                 <GradeDetailModal
                   courseId={courseId}
-                  gradedAssignment={assignmentGrade}
+                  assignmentId={assignment.id.toString()}
                 />
               )}
             </Dialog>
@@ -131,67 +144,83 @@ function GradeAccordionItem({
           <div className="w-[1%]" />
         </AccordionTrigger>
         <AccordionContent className="-mb-4 w-full">
-          <div className="overflow-hidden rounded-2xl border">
-            <div className="h-6 bg-[#F3F3F3]" />
-            {assignmentGrade.problems.map((problem) => (
-              <div
-                key={problem.id}
-                className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
-              >
-                <p className="text-primary w-[7%] text-center font-normal">
-                  {convertToLetter(problem.order)}
-                </p>
-                <div className="flex w-[30%]">
-                  <span className="line-clamp-1 font-medium text-[#171717]">
-                    {problem.title}
-                  </span>
+          {isOpen && (
+            <Suspense
+              fallback={
+                <div className="overflow-hidden rounded-2xl border">
+                  <div className="h-6 bg-[#F3F3F3]" />
+                  {[...Array(3)].map((_, i) => (
+                    <ProblemSkeletonRow key={i} />
+                  ))}
                 </div>
-                <div className="w-[25%]">
-                  {problem.submissionTime && (
-                    <p className="font-normal text-[#8A8A8A]">
-                      {dateFormatter(problem.submissionTime, 'MMM D, HH:mm:ss')}
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex w-[13%] justify-center">
-                  {assignmentGrade.problems.every(
-                    (problem) => !problem.problemRecord?.isSubmitted
-                  ) ? null : (
-                    <AcceptedBadge
-                      isAccepted={problem.problemRecord?.isSubmitted ?? false}
-                    />
-                  )}
-                </div>
-                <div className="flex w-[10%] justify-center font-medium">
-                  {problem.problemRecord?.finalScore ?? '-'} /{' '}
-                  {problem.maxScore}
-                </div>
-                <div className="flex w-[5%] justify-center">
-                  <Dialog
-                    open={openProblemId === problem.id}
-                    onOpenChange={(isOpen) =>
-                      handleOpenChange(isOpen ? problem.id : null)
-                    }
+              }
+            >
+              <div className="overflow-hidden rounded-2xl border">
+                <div className="h-6 bg-[#F3F3F3]" />
+                {records?.problems.map((problem, index) => (
+                  <div
+                    key={problem.id}
+                    className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
                   >
-                    <DetailButton
-                      isActivated={
-                        new Date() > new Date(assignmentGrade.endTime)
-                      }
-                    />
-                    {openProblemId === problem.id && (
-                      <SubmissionDetailModal
-                        problemId={problem.id}
-                        gradedAssignment={assignmentGrade}
-                        showEvaluation={true}
+                    <p className="text-primary w-[7%] text-center font-normal">
+                      {convertToLetter(problem.order)}
+                    </p>
+                    <div className="flex w-[30%]">
+                      <span className="line-clamp-1 font-medium text-[#171717]">
+                        {problem.title}
+                      </span>
+                    </div>
+                    <div className="w-[25%]">
+                      {problem.submissionTime && (
+                        <p className="font-normal text-[#8A8A8A]">
+                          {dateFormatter(
+                            problem.submissionTime,
+                            'MMM D, HH:mm:ss'
+                          )}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* <div className="flex w-[13%] justify-center">
+                    {assignmentGrade.problems.every(
+                      (problem) => !problem.problemRecord?.isSubmitted
+                    ) ? null : (
+                      <AcceptedBadge
+                        isAccepted={problem.problemRecord?.isSubmitted ?? false}
                       />
                     )}
-                  </Dialog>
-                </div>
-                <div className="w-[1%]" />
+                  </div> */}
+                    <div className="flex w-[10%] justify-center font-medium">
+                      {problem.problemRecord?.finalScore ?? '-'} /{' '}
+                      {problem.maxScore}
+                    </div>
+                    <div className="flex w-[5%] justify-center">
+                      <Dialog
+                        open={openProblemId === problem.id}
+                        onOpenChange={(isOpen) =>
+                          handleOpenChange(isOpen ? problem.id : null)
+                        }
+                      >
+                        <DetailButton
+                          isActivated={
+                            new Date() > new Date(assignment.endTime)
+                          }
+                        />
+                        {openProblemId === problem.id && (
+                          <SubmissionDetailModal
+                            problemId={problem.id.toString()}
+                            gradedAssignment={records}
+                            showEvaluation={true}
+                          />
+                        )}
+                      </Dialog>
+                    </div>
+                    <div className="w-[1%]" />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </Suspense>
+          )}
         </AccordionContent>
       </AccordionItem>
     </Accordion>
@@ -285,16 +314,15 @@ export function AssignmentStatusTimeDiff({
   )
 }
 
-interface GradedBadgeProps {
+interface SubmissionBadgeProps {
   className?: string
-  isGraded: boolean
+  assignment: Assignment
 }
 
-function GradedBadge({ className, isGraded }: GradedBadgeProps) {
-  const badgeStyle = isGraded
+function SubmissionBadge({ className, assignment }: SubmissionBadgeProps) {
+  const badgeStyle = assignment.isJudgeResultVisible
     ? 'border-transparent bg-primary text-white'
     : 'border-primary text-primary'
-  const text = isGraded ? 'Graded' : 'Submitted'
   return (
     <div
       className={cn(
@@ -303,7 +331,10 @@ function GradedBadge({ className, isGraded }: GradedBadgeProps) {
         className
       )}
     >
-      <p className="text-sm font-medium">{text}</p>
+      <p className="text-sm font-medium">
+        {assignment.submittedNumber} {'/'}
+        {assignment.problemNumber}
+      </p>
     </div>
   )
 }
@@ -325,5 +356,17 @@ function AcceptedBadge({ className, isAccepted }: AcceptedBadgeProps) {
         <p className="text-sm font-medium">Accepted</p>
       </div>
     )
+  )
+}
+
+function ProblemSkeletonRow() {
+  return (
+    <div className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-8 py-6">
+      <Skeleton className="h-4 w-[7%]" />
+      <Skeleton className="h-4 w-[30%]" />
+      <Skeleton className="h-4 w-[25%]" />
+      <Skeleton className="h-4 w-[10%]" />
+      <Skeleton className="h-4 w-[5%]" />
+    </div>
   )
 }
