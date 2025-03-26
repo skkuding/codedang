@@ -77,7 +77,6 @@ export function EditContestForm({
     variables: { contestId },
     onCompleted: (contestData) => {
       const data = contestData.getContest
-      console.log('data:', data)
       methods.reset({
         id: contestId,
         title: data.title,
