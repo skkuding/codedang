@@ -41,6 +41,12 @@ export default function Page({ params }: { params: { contestId: string } }) {
     resolver: valibotResolver(editSchema)
   })
 
+  /*
+    - posturl
+    - freezetime
+    - edit button
+  */
+
   return (
     <ConfirmNavigation>
       <ScrollArea className="w-full">
@@ -100,10 +106,16 @@ export default function Page({ params }: { params: { contestId: string } }) {
             </FormSection>
 
             <div className="flex h-full min-h-[114px] w-full flex-col justify-center gap-3 rounded-xl border bg-[#8080800D] px-10 py-[27px]">
-              <SampleTestcaseForm
-                name="evaluateWithSampleTestcase"
-                title="Evaluate with sample testcases included"
-              />
+              {methods.getValues('evaluateWithSampleTestcase') !==
+                undefined && (
+                <SampleTestcaseForm
+                  name="evaluateWithSampleTestcase"
+                  title="Evaluate with sample testcases included"
+                  hasValue={
+                    methods.getValues('evaluateWithSampleTestcase') !== false
+                  }
+                />
+              )}
               <SwitchField
                 name="invitationCode"
                 title="Invitation Code"

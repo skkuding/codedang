@@ -5,40 +5,42 @@ import { Label } from '@/app/admin/_components/Label'
 import { Switch } from '@/components/shadcn/switch'
 import React from 'react'
 import { useEffect } from 'react'
-import { useFormContext } from 'react-hook-form'
+import { useController, useFormContext } from 'react-hook-form'
 
 interface SampleTestcaseFormProps {
   name: string
   title: string
+  hasValue?: boolean
 }
 
-export function SampleTestcaseForm({ name, title }: SampleTestcaseFormProps) {
+export function SampleTestcaseForm({
+  name,
+  title,
+  hasValue = false
+}: SampleTestcaseFormProps) {
   const {
-    register,
-    setValue,
-    watch,
+    control,
     formState: { errors }
   } = useFormContext()
 
-  const isEnabled = watch(name) ?? false
+  const { field } = useController({
+    name,
+    control
+  })
 
   useEffect(() => {
-    setValue(name, false)
-  }, [])
+    field.onChange(hasValue)
+  }, [hasValue])
 
   return (
     <div className="flex items-center gap-3">
       <Label required={false}>{title}</Label>
-
       <Switch
-        {...register(name)}
-        onCheckedChange={(checked) => {
-          setValue(name, checked)
-        }}
-        checked={isEnabled}
+        onCheckedChange={field.onChange}
+        checked={field.value}
         className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
       />
-      {isEnabled && errors[name] && (
+      {field.value && errors[name] && (
         <ErrorMessage message={errors[name]?.message?.toString()} />
       )}
     </div>
