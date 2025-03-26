@@ -8,45 +8,44 @@ import {
 } from '@/components/shadcn/select'
 import { Switch } from '@/components/shadcn/switch'
 import { cn } from '@/libs/utils'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 
 interface FreezeFormProps {
   name: string
-  endTime?: Date
-  freezeTime?: Date
   hasValue?: boolean
+  isEdit?: boolean
+  diffTime?: number | null
 }
 
 const options = ['90', '75', '60', '45', '30', '15']
 
 export function FreezeForm({
   name,
-  endTime,
-  freezeTime,
-  hasValue = false
+  hasValue = false,
+  isEdit = false,
+  diffTime
 }: FreezeFormProps) {
   const [isEnabled, setIsEnabled] = useState<boolean>(hasValue)
-  const [selectedOption, setSelectedOption] = useState<string>('30')
-  const { setValue, control, watch } = useFormContext()
+  const { setValue, watch } = useFormContext()
+  const [selectedOption, setSelectedOption] = useState<string>(
+    diffTime?.toString() || '30'
+  )
+  const isInitialized = useRef(!isEdit)
+  const endTime = watch('endTime')
 
   useEffect(() => {
-    setIsEnabled(hasValue)
-    if (endTime && freezeTime && hasValue) {
-      const diffTime =
-        new Date(endTime).getTime() - new Date(freezeTime).getTime()
-      const diffMinutes = Math.round(diffTime / (1000 * 60))
-      if (options.includes(diffMinutes.toString())) {
-        setSelectedOption(diffMinutes.toString())
+    if (!isInitialized.current) {
+      if (diffTime && options.includes(diffTime.toString())) {
+        setSelectedOption(diffTime.toString())
       }
+      isInitialized.current = true
+      return
     }
-  }, [hasValue, endTime, freezeTime])
 
-  useEffect(() => {
     const updateFreezeTime = () => {
       if (isEnabled) {
-        const endTime = watch('endTime')
         if (endTime) {
           const freezeTime = new Date(endTime)
           freezeTime.setMinutes(
@@ -58,9 +57,16 @@ export function FreezeForm({
         setValue(name, null)
       }
     }
-
     updateFreezeTime()
-  }, [isEnabled, selectedOption, setValue, name, control, watch])
+  }, [isEnabled, selectedOption, setValue, name, watch])
+
+  useEffect(() => {
+    setIsEnabled(hasValue)
+  }, [hasValue, diffTime])
+
+  useEffect(() => {
+    setIsEnabled(hasValue)
+  }, [hasValue])
 
   return (
     <div className="flex h-[114px] w-[641px] flex-col justify-evenly rounded-xl border border-[#80808040] bg-[#80808014] px-7">
@@ -81,7 +87,6 @@ export function FreezeForm({
           value={selectedOption}
           onValueChange={(value) => {
             setSelectedOption(value)
-            setValue(name, Number(value))
           }}
           disabled={!isEnabled}
         >
@@ -99,7 +104,6 @@ export function FreezeForm({
                   className="flex cursor-pointer items-center rounded-xl pl-5 hover:bg-gray-100/80"
                   onClick={() => {
                     setSelectedOption(option)
-                    setValue(name, Number(option))
                   }}
                 >
                   <span

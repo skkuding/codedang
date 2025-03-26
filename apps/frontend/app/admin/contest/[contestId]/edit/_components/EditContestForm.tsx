@@ -74,7 +74,7 @@ export function EditContestForm({
         invitationCode: data.invitationCode,
         summary: data.summary,
         posterUrl: data.posterUrl,
-        freezeTime: data.freezeTime,
+        freezeTime: new Date(data.freezeTime),
         evaluateWithSampleTestcase: data.evaluateWithSampleTestcase,
         userContestRoles: data.userContestRoles
       })

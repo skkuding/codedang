@@ -41,11 +41,16 @@ export default function Page({ params }: { params: { contestId: string } }) {
     resolver: valibotResolver(editSchema)
   })
 
-  /*
-    - posturl
-    - freezetime
-    - edit button
-  */
+  const endTime = methods.getValues('endTime')
+  const freezeTime = methods.getValues('freezeTime')
+
+  const diffTime =
+    endTime && freezeTime
+      ? Math.round(
+          (new Date(endTime).getTime() - new Date(freezeTime).getTime()) /
+            (1000 * 60)
+        )
+      : null
 
   return (
     <ConfirmNavigation>
@@ -82,12 +87,14 @@ export default function Page({ params }: { params: { contestId: string } }) {
                   {methods.getValues('endTime') && <TimeForm name="endTime" />}
                 </FormSection>
 
-                <FreezeForm
-                  name="freezeTime"
-                  endTime={methods.getValues('endTime')}
-                  freezeTime={methods.getValues('freezeTime')}
-                  hasValue={methods.getValues('freezeTime')}
-                />
+                {methods.getValues('freezeTime') !== undefined && (
+                  <FreezeForm
+                    name="freezeTime"
+                    hasValue={methods.getValues('freezeTime') !== null}
+                    isEdit={true}
+                    diffTime={diffTime}
+                  />
+                )}
               </div>
             </div>
 
