@@ -15,8 +15,8 @@ import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import { useEffect, useState } from 'react'
 import { useInterval } from 'react-use'
-import { GradeDetailModal } from '../grade/_components/GradeDetailModal'
 import { DetailButton } from './DetailButton'
+import { GradeDetailModal } from './GradeDetailModal'
 import { SubmissionDetailModal } from './SubmissionDetailModal'
 
 interface GAssignmentAccordianNewProps {
@@ -117,7 +117,7 @@ function AssignmentAccordionItem({
               <DetailButton
                 isActivated={
                   assignment.isJudgeResultVisible &&
-                  dayjs(assignment.startTime).isBefore(dayjs())
+                  dayjs(assignment.endTime).isAfter(dayjs())
                 }
               />
               {isAssignmentDialogOpen && assignmentGrade && (
