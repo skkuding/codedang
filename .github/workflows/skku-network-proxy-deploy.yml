@@ -1,0 +1,114 @@
+name: SKKU Network Proxy - Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'apps/infra/stage/skku-network-proxy/**'
+    branches:
+      - main
+
+env:
+  S3_BUCKET_KEY_PAIR: codedang-key-pair-skku-network-proxy
+  KEY_NAME: skku-network-proxy
+  AWS_REGION: ap-northeast-2
+  TERRAFORM_DIR: ./apps/infra/stage/skku-network-proxy
+  CADDYFILE_PATH: ./apps/infra/stage/skku-network-proxy/Caddyfile
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: SKKU Network Proxy - Deploy
+    runs-on: ubuntu-latest
+    environment: stage
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY_SKKU_NETWORK_PROXY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.2
+
+      - name: Create Terraform Variable File
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: |
+          echo 'env = "stage"' >> terraform.tfvars
+
+      - name: Terraform Init
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform init -backend-config="bucket=skku-network-proxy-tf-state"
+
+      - name: Check If Instance Exists
+        id: check_instance
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: |
+          INSTANCE_COUNT=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=reverse-proxy-server" "Name=instance-state-name,Values=running" \
+            --query "length(Reservations[].Instances[])" \
+            --output text)
+
+          if [ "$INSTANCE_COUNT" -gt "0" ]; then
+            echo "Instance already exists"
+            echo "instance_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Instance doesn't exist"
+            echo "instance_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create New Instance (If Needed)
+        if: steps.check_instance.outputs.instance_exists == 'false'
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: |
+          terraform plan -input=false -out=plan.out
+          terraform apply -input=false plan.out
+
+          sleep 30
+
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=reverse-proxy-server" "Name=instance-state-name,Values=running" \
+            --query "Reservations[].Instances[].InstanceId" \
+            --output text | head -n 1)
+          echo "instance_id=$INSTANCE_ID" >> $GITHUB_OUTPUT
+
+          INSTANCE_IP=$(aws ec2 describe-instances \
+            --instance-ids $INSTANCE_ID \
+            --query "Reservations[].Instances[].PublicIpAddress" \
+            --output text)
+          echo "instance_ip=$INSTANCE_IP" >> $GITHUB_OUTPUT
+
+          echo "Waiting for instance to complete initialization..."
+          sleep 120
+
+      - name: Download SSH Key from S3
+        if: steps.check_instance.outputs.instance_exists == 'true'
+        run: |
+          mkdir -p ~/.ssh
+          aws s3 cp s3://${{ env.S3_BUCKET_KEY_PAIR }}/${{ env.KEY_NAME }}.pem ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
+
+      - name: Update Caddyfile on Existing Instance
+        if: steps.check_instance.outputs.instance_exists == 'true'
+        run: |
+          # Add host key to known hosts to avoid prompt
+          ssh-keyscan -H ${{ steps.check_instance.outputs.instance_ip }} >> ~/.ssh/known_hosts
+
+          # Copy Caddyfile to the server
+          scp -o StrictHostKeyChecking=accept-new ${{ env.CADDYFILE_PATH }} ubuntu@${{ steps.check_instance.outputs.instance_ip }}:/tmp/Caddyfile
+
+          # Move Caddyfile to proper location and reload Caddy
+          ssh ubuntu@${{ steps.check_instance.outputs.instance_ip }} "sudo mv /tmp/Caddyfile /etc/caddy/Caddyfile && sudo chmod 644 /etc/caddy/Caddyfile && sudo caddy reload --config /etc/caddy/Caddyfile"
