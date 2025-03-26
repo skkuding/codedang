@@ -1,8 +1,6 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
-import { safeFetcherWithAuth } from '@/libs/utils'
-import type { Course } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
-import { AssignmentAccordionNew } from '../_components/AssignmentAccordionNew'
+import { AssignmentAccordionNew } from '../_components/AssignmentAccordianNew'
 
 interface AssignmentProps {
   params: { courseId: string }

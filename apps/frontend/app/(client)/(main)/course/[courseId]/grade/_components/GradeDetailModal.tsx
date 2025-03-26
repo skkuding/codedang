@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/shadcn/dialog'
-import type { AssignmentGrade } from '@/types/type'
+import type { Assignment, AssignmentGrade } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { MdArrowForwardIos } from 'react-icons/md'
@@ -25,24 +25,26 @@ const chartConfig = {
 } satisfies ChartConfig
 
 interface GradeDetailModalProps {
-  courseId: number
-  gradedAssignment: AssignmentGrade
+  assignment: Assignment
+  courseId: string
+  assignmentGrade: AssignmentGrade
 }
 
 export function GradeDetailModal({
+  assignment,
   courseId,
-  gradedAssignment
+  assignmentGrade
 }: GradeDetailModalProps) {
   const { data } = useSuspenseQuery(
     assignmentSubmissionQueries.anonymizedScores({
-      assignmentId: gradedAssignment.id,
+      assignmentId: assignmentGrade.id.toString(),
       courseId
     })
   )
 
-  const maxScore = gradedAssignment.assignmentPerfectScore
-  const mySubmittedScore = gradedAssignment.userAssignmentJudgeScore
-  const myGradedScore = gradedAssignment.userAssignmentFinalScore
+  const maxScore = assignmentGrade.assignmentPerfectScore
+  const mySubmittedScore = assignmentGrade.userAssignmentJudgeScore
+  const myGradedScore = assignmentGrade.userAssignmentFinalScore
 
   // 점수 데이터를 기반으로 히스토그램 데이터 생성
   const generateChartData = useCallback(
@@ -106,10 +108,10 @@ export function GradeDetailModal({
 
   const scoresStats = useMemo(() => calculateStatistics(scores), [scores])
   const finalScoresStats = useMemo(() => {
-    return gradedAssignment.autoFinalizeScore
+    return assignmentGrade.autoFinalizeScore
       ? calculateStatistics(scores)
       : calculateStatistics(finalScores)
-  }, [finalScores, gradedAssignment.autoFinalizeScore, scores])
+  }, [finalScores, assignmentGrade.autoFinalizeScore, scores])
 
   return (
     <DialogContent
@@ -119,9 +121,9 @@ export function GradeDetailModal({
       <DialogHeader>
         <DialogTitle>
           <div className="flex items-center gap-2 text-lg font-medium">
-            <span>Week {gradedAssignment.week}</span>
+            <span>Week {assignment.week}</span>
             <MdArrowForwardIos />
-            <span className="text-primary">{gradedAssignment.title}</span>
+            <span className="text-primary">{assignment.title}</span>
           </div>
         </DialogTitle>
       </DialogHeader>
@@ -153,7 +155,7 @@ export function GradeDetailModal({
               </tr>
             </thead>
             <tbody>
-              {!gradedAssignment.isFinalScoreVisible && (
+              {!assignmentGrade.isFinalScoreVisible && (
                 <tr className="text-gray-500">
                   <td className="bg-primary-light w-[80px] px-2 py-2 text-xs text-white">
                     Submitted
@@ -175,11 +177,11 @@ export function GradeDetailModal({
                   </td>
                 </tr>
               )}
-              {gradedAssignment.isFinalScoreVisible && (
+              {assignmentGrade.isFinalScoreVisible && (
                 <tr className="text-gray-500">
                   <td className="bg-primary-light flex w-[80px] flex-col items-center rounded-bl-md px-2 py-2 text-xs text-white">
                     Graded
-                    {gradedAssignment.autoFinalizeScore && (
+                    {assignmentGrade.autoFinalizeScore && (
                       <span className="text-primary mt-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium shadow-sm">
                         Auto
                       </span>

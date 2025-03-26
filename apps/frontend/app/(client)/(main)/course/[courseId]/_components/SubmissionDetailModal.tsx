@@ -16,24 +16,24 @@ import { MdArrowForwardIos } from 'react-icons/md'
 
 interface SubmissionDetailModalProps {
   problemId: number
-  gradedAssignment: AssignmentGrade
+  assignmentGrade: AssignmentGrade
   showEvaluation: boolean
 }
 export function SubmissionDetailModal({
   problemId,
-  gradedAssignment,
+  assignmentGrade,
   showEvaluation
 }: SubmissionDetailModalProps) {
   const { data: submission } = useQuery(
     assignmentSubmissionQueries.lastestSubmissionResult({
-      assignmentId: gradedAssignment.id,
+      assignmentId: assignmentGrade.id,
       problemId
     })
   )
 
   const { data: testResults } = useQuery(
     assignmentSubmissionQueries.testResult({
-      assignmentId: gradedAssignment.id,
+      assignmentId: assignmentGrade.id,
       problemId,
       submissionId: submission?.id ?? 0
     })
@@ -59,28 +59,28 @@ export function SubmissionDetailModal({
           <DialogTitle>
             <div className="flex items-center gap-2 overflow-hidden truncate whitespace-nowrap text-lg font-medium">
               <span
-                title={`Week ${gradedAssignment.week}`}
+                title={`Week ${assignmentGrade.week}`}
                 className="max-w-[80px] truncate"
               >
-                Week {gradedAssignment.week}
+                Week {assignmentGrade.week}
               </span>
               <MdArrowForwardIos />
               <span
-                title={gradedAssignment.title}
+                title={assignmentGrade.title}
                 className="text-primary max-w-[200px] overflow-hidden truncate"
               >
-                {gradedAssignment.title}
+                {assignmentGrade.title}
               </span>
               <MdArrowForwardIos />
               <span
                 title={
-                  gradedAssignment.problems.find(
+                  assignmentGrade.problems.find(
                     (problem) => problem.id === problemId
                   )?.title || 'Not found'
                 }
                 className="max-w-[200px] overflow-hidden truncate"
               >
-                {gradedAssignment.problems.find(
+                {assignmentGrade.problems.find(
                   (problem) => problem.id === problemId
                 )?.title || 'Not found'}
               </span>
@@ -92,17 +92,17 @@ export function SubmissionDetailModal({
             <div className="flex flex-col gap-2">
               <span className="flex h-[30px] w-[140px] items-center justify-center rounded-full border border-blue-500 font-bold text-blue-500">
                 <span className="text-lg">
-                  {gradedAssignment.problems.find(
+                  {assignmentGrade.problems.find(
                     (problem) => problem.id === problemId
                   )?.problemRecord?.finalScore ??
-                    gradedAssignment.problems.find(
+                    assignmentGrade.problems.find(
                       (problem) => problem.id === problemId
                     )?.problemRecord?.score}
                 </span>
                 {'  /  '}
                 <span className="text-lg">
                   {
-                    gradedAssignment.problems.find(
+                    assignmentGrade.problems.find(
                       (problem) => problem.id === problemId
                     )?.maxScore
                   }
@@ -226,7 +226,7 @@ export function SubmissionDetailModal({
               <span className="text-sm font-medium">Comment</span>
               <div className="flex-col rounded border p-4">
                 <span className="text-xs">
-                  {gradedAssignment.problems.find(
+                  {assignmentGrade.problems.find(
                     (problem) => problem.id === problemId
                   )?.problemRecord?.comment || ''}
                 </span>
@@ -236,7 +236,7 @@ export function SubmissionDetailModal({
           <div>
             <h2 className="mb-3 text-base font-medium">Source Code</h2>
             <CodeEditor
-              value={testResults?.code || ''}
+              value={testResults?.code ?? ''}
               language={testResults?.language ?? 'C'}
               readOnly
               className="max-h-96 min-h-16 w-full"
