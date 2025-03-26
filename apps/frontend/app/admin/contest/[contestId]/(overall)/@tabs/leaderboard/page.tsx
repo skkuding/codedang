@@ -50,7 +50,6 @@ export default function ContestLeaderBoard() {
     setLeaderboardUsers(
       data ? data.getContestLeaderboard.leaderboard : [BaseLeaderboardUser]
     )
-    console.log('users: ', data.getContestLeaderboard.leaderboard)
   }, [data])
 
   return (

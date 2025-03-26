@@ -25,15 +25,10 @@ export function LeaderboardRow({
   resizableRowSize,
   problemRecords
 }: LeaderboardRowProps) {
-  let isTopRanked = false
-
-  let medalImage = null
   const medals = [goldMedalIcon, silverMedalIcon, bronzeMedalIcon]
 
-  if (rank <= 3) {
-    isTopRanked = true
-    medalImage = medals[rank - 1]
-  }
+  const isTopRanked = rank <= 3
+  const medalImage = isTopRanked ? medals[rank - 1] : null
 
   return (
     <div className="relative flex flex-row">
@@ -79,7 +74,7 @@ export function LeaderboardRow({
                         className="flex h-11 w-[114px] flex-row items-center justify-center text-xl font-semibold"
                         key={index}
                       >
-                        {problem.penalty}
+                        <LeaderboardPenalty problem={problem} />
                       </th>
                     </Tooltip.Trigger>
                     <Tooltip.Portal>
@@ -104,7 +99,7 @@ export function LeaderboardRow({
                         className="flex h-11 w-[114px] flex-row items-center justify-center border-l-2 border-[#E5E5E5] text-xl font-semibold"
                         key={index}
                       >
-                        {problem.penalty}
+                        <LeaderboardPenalty problem={problem} />
                       </th>
                     </Tooltip.Trigger>
                     <Tooltip.Portal>
@@ -130,4 +125,21 @@ export function LeaderboardRow({
       </motion.div>
     </div>
   )
+}
+
+interface LeaderboardPenaltyProps {
+  problem: ProblemRecordInContestLeaderboard
+}
+function LeaderboardPenalty({ problem }: LeaderboardPenaltyProps) {
+  const penalty = problem.penalty
+  const score = problem.score
+  const isFirstSolver = problem.isFirstSolver
+
+  if (score === 0) {
+    return <div>-</div>
+  } else if (isFirstSolver) {
+    return <div className="text-[#3581FA]">{penalty}</div>
+  } else {
+    return <div>{penalty}</div>
+  }
 }
