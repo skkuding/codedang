@@ -9,7 +9,7 @@ import { usePagination } from '@/libs/hooks/usePagination'
 import type { SubmissionItem } from '@/types/type'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
-import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
+import { FaAngleLeft, FaPencil, FaEye } from 'react-icons/fa6'
 import { columns } from './_components/Columns'
 import { DataTable } from './_components/DataTable'
 
@@ -37,12 +37,20 @@ export default function Page({ params }: { params: { problemId: string } }) {
             </Link>
             <span className="text-4xl font-bold">{problemData?.title}</span>
           </div>
-          <Link href={`/admin/problem/${problemId}/edit`}>
-            <Button variant="default">
-              <FaPencil className="mr-2 h-4 w-4" />
-              Edit
-            </Button>
-          </Link>
+          <div className="flex gap-2">
+            <Link href={`/admin/problem/${problemId}/preview`}>
+              <Button variant="slate" className="bg-slate-200">
+                <FaEye className="mr-2 h-4 w-4" />
+                Preview
+              </Button>
+            </Link>
+            <Link href={`/admin/problem/${problemId}/edit`}>
+              <Button variant="default">
+                <FaPencil className="mr-2 h-4 w-4" />
+                Edit
+              </Button>
+            </Link>
+          </div>
         </div>
         <KatexContent
           content={problemData?.description}

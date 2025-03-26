@@ -1,4 +1,5 @@
 import { cn } from '@/libs/utils'
+import type { Testcase } from '@generated/graphql'
 import {
   type FieldErrorsImpl,
   useController,
@@ -27,6 +28,10 @@ export function TestcaseItem({
     name: `testcases.${index}.isHidden`,
     control
   })
+
+  const scoreWeightError = (itemError?.[index] as FieldErrorsImpl<Testcase>)
+    ?.scoreWeight
+  const message = scoreWeightError?.message
 
   return (
     <div className="flex flex-col gap-3">
@@ -105,7 +110,7 @@ export function TestcaseItem({
         outputName={`testcases.${index}.output`}
         register={register}
       />
-      {itemError && itemError[index] && <ErrorMessage />}
+      {typeof message === 'string' && <ErrorMessage message={message} />}
     </div>
   )
 }

@@ -12,8 +12,6 @@ export interface DataTableContest {
   endTime: string
   description: string
   participants: number
-  isVisible: boolean
-  isRankVisible: boolean
   status: string
 }
 

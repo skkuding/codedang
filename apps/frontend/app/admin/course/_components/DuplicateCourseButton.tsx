@@ -12,7 +12,7 @@ import {
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
 import { useState } from 'react'
-import { IoDuplicateOutline } from 'react-icons/io5'
+import { IoCopy } from 'react-icons/io5'
 import { toast } from 'sonner'
 import { useDataTable } from '../../_components/table/context'
 
@@ -73,7 +73,7 @@ export function DuplicateCourseButton<TData extends { id: number }, TPromise>({
         type="button"
         onClick={handleDuplicateButtonClick}
       >
-        <IoDuplicateOutline />
+        <IoCopy fontSize={13} color={'#8A8A8A'} />
       </Button>
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <AlertDialogContent>

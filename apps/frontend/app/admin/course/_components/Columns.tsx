@@ -31,7 +31,7 @@ export const columns: ColumnDef<DataTableCourse>[] = [
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
         aria-label="Select row"
-        className="translate-y-[2px] bg-white"
+        className="translate-y-[2px] bg-transparent"
       />
     ),
     enableSorting: false,
@@ -55,7 +55,7 @@ export const columns: ColumnDef<DataTableCourse>[] = [
     accessorKey: 'code',
     header: ({ column }) => (
       <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Num" />
+        <DataTableColumnHeader column={column} title="Code" />
       </div>
     ),
     cell: ({ row }) => (

@@ -2,7 +2,12 @@ import { DateTimePickerDemo } from '@/components/shadcn/date-time-picker-demo'
 import { useController, useFormContext } from 'react-hook-form'
 import { ErrorMessage } from './ErrorMessage'
 
-export function TimeForm({ name }: { name: string }) {
+interface TimeFormProps {
+  name: string
+  defaultTimeOnSelect?: { hours: number; minutes: number; seconds: number }
+}
+
+export function TimeForm({ name, defaultTimeOnSelect }: TimeFormProps) {
   const {
     control,
     formState: { errors }
@@ -18,6 +23,7 @@ export function TimeForm({ name }: { name: string }) {
       <DateTimePickerDemo
         onChange={field.onChange}
         defaultValue={field.value}
+        defaultTimeOnSelect={defaultTimeOnSelect}
       />
       {errors[name] && <ErrorMessage />}
     </div>

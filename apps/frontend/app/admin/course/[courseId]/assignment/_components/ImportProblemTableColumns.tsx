@@ -3,6 +3,8 @@ import { Badge } from '@/components/shadcn/badge'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import type { Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
+import { SquareArrowOutUpRight } from 'lucide-react'
+import Link from 'next/link'
 import { toast } from 'sonner'
 
 export interface DataTableProblem {
@@ -145,5 +147,24 @@ export const columns: ColumnDef<DataTableProblem>[] = [
       const acceptedRateFloat = (acceptedRate * 100).toFixed(2)
       return <div>{acceptedRateFloat}%</div>
     }
+  },
+  {
+    accessorKey: 'preview',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Preview" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <Link
+          href={`/admin/problem/${row.original.id}/preview`}
+          target="_blank"
+          className="flex justify-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <SquareArrowOutUpRight />
+        </Link>
+      )
+    },
+    enableSorting: false
   }
 ]
