@@ -340,13 +340,9 @@ export class AssignmentService {
       },
       select: {
         id: true,
-        title: true,
-        startTime: true,
-        endTime: true,
         isFinalScoreVisible: true,
         isJudgeResultVisible: true,
         autoFinalizeScore: true,
-        week: true,
         assignmentProblem: {
           select: {
             problemId: true,
@@ -473,13 +469,9 @@ export class AssignmentService {
 
     return {
       id: assignment.id,
-      title: assignment.title,
-      startTime: assignment.startTime,
-      endTime: assignment.endTime,
       autoFinalizeScore: assignment.autoFinalizeScore,
       isFinalScoreVisible: assignment.isFinalScoreVisible,
       isJudgeResultVisible: assignment.isJudgeResultVisible,
-      week: assignment.week,
       userAssignmentFinalScore: assignment.isFinalScoreVisible
         ? assignmentRecord.finalScore
         : null,
