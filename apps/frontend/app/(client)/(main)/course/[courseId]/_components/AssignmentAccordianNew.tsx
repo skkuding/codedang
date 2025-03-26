@@ -58,8 +58,7 @@ function AssignmentAccordionItem({
   const [openProblemId, setOpenProblemId] = useState<number | null>(null)
 
   const { data: assignmentGrade } = useQuery({
-    ...assignmentQueries.record({ assignmentId: assignment.id.toString() }),
-    enabled: isAccordionOpen
+    ...assignmentQueries.record({ assignmentId: assignment.id.toString() })
   })
 
   const handleOpenChange = (problemId: number | null) => {
@@ -138,19 +137,42 @@ function AssignmentAccordionItem({
               {assignmentGrade.problems.map((problem) => (
                 <div
                   key={problem.id}
-                  className="flex w-full items-center border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
+                  className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
                 >
-                  <div className="w-[9%]" />
-                  <div className="flex w-[30%] gap-3">
-                    <span className="text-primary font-semibold">
-                      {convertToLetter(problem.order)}
-                    </span>{' '}
+                  <p className="text-primary w-[7%] text-center font-normal">
+                    {convertToLetter(problem.order)}
+                  </p>
+                  <div className="flex w-[30%]">
                     <span className="line-clamp-1 font-medium text-[#171717]">
                       {problem.title}
                     </span>
                   </div>
-                  <div className="w-[4%]" />
-                  <div className="flex w-[11%] justify-center">
+                  <div className="w-[25%]">
+                    {problem.submissionTime && (
+                      <p className="font-normal text-[#8A8A8A]">
+                        Last submission:{' '}
+                        {dateFormatter(
+                          problem.submissionTime,
+                          'MMM D, HH:mm:ss'
+                        )}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* <div className="flex w-[13%] justify-center">
+                    {assignmentGrade.problems.every(
+                      (problem) => !problem.problemRecord?.isSubmitted
+                    ) ? null : (
+                      <AcceptedBadge
+                        isAccepted={problem.problemRecord?.isSubmitted ?? false}
+                      />
+                    )}
+                  </div> */}
+                  <div className="flex w-[10%] justify-center font-medium">
+                    {problem.problemRecord?.finalScore ?? '-'} /{' '}
+                    {problem.maxScore}
+                  </div>
+                  <div className="flex w-[5%] justify-center">
                     <Dialog
                       open={openProblemId === problem.id}
                       onOpenChange={(isOpen) =>
@@ -169,10 +191,7 @@ function AssignmentAccordionItem({
                       )}
                     </Dialog>
                   </div>
-                  <p className="w-[20%] text-center font-normal text-[#8A8A8A]">
-                    -
-                  </p>
-                  <p className="w-[12%] text-center font-medium">{`${problem.problemRecord?.finalScore ?? '-'} / ${problem.maxScore}`}</p>
+                  <div className="w-[1%]" />
                 </div>
               ))}
             </div>
