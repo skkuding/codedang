@@ -12,10 +12,14 @@ if [ ! -d "$SANDBOX_CG" ]; then
     if [ "$(id -u)" -eq 0 ]; then
         # 현재 사용자가 root인 경우 sudo 없이 생성
         mkdir -p "$SANDBOX_CG" || { echo "Failed to create cgroup directory $SANDBOX_CG" >&2; exit 1; }
+        # 해당 cgroup의 하위 그룹들이 메모리 컨트롤러를 사용할 수 있도록 추가하도록 설정
+        echo "+memory" > "$SANDBOX_CG/cgroup.subtree_control"
     else
         # root가 아닌 경우, sudo가 있으면 sudo 사용
         if command -v sudo >/dev/null 2>&1; then
             sudo mkdir -p "$SANDBOX_CG" || { echo "Failed to create cgroup directory $SANDBOX_CG" >&2; exit 1; }
+            # 해당 cgroup의 하위 그룹들이 메모리 컨트롤러를 사용할 수 있도록 추가하도록 설정
+            sudo echo "+memory" | sudo tee "$SANDBOX_CG/cgroup.subtree_control"
         else
             echo "Error: not running as root and sudo is not available to create $SANDBOX_CG" >&2
             exit 1
