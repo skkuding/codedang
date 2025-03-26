@@ -62,10 +62,10 @@ jobs:
             --output text)
 
           if [ "$INSTANCE_COUNT" -gt "0" ]; then
-            echo "Instance already exists"
+            echo "Instance already exists. Skipping instance creation and graceful reload caddy..."
             echo "instance_exists=true" >> $GITHUB_OUTPUT
           else
-            echo "Instance doesn't exist"
+            echo "Instance doesn't exist. Creating new instance..."
             echo "instance_exists=false" >> $GITHUB_OUTPUT
           fi
 
@@ -76,8 +76,10 @@ jobs:
           terraform plan -input=false -out=plan.out
           terraform apply -input=false plan.out
 
-          sleep 30
-
+      - name: Get SKKU Network Proxy Instance IP (If Instance Exists)
+        if: steps.check_instance.outputs.instance_exists == 'true'
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: |
           INSTANCE_ID=$(aws ec2 describe-instances \
             --filters "Name=tag:Name,Values=reverse-proxy-server" "Name=instance-state-name,Values=running" \
             --query "Reservations[].Instances[].InstanceId" \
@@ -90,10 +92,7 @@ jobs:
             --output text)
           echo "instance_ip=$INSTANCE_IP" >> $GITHUB_OUTPUT
 
-          echo "Waiting for instance to complete initialization..."
-          sleep 120
-
-      - name: Download SSH Key from S3
+      - name: Download SSH Key from S3 (If Instance Exists)
         if: steps.check_instance.outputs.instance_exists == 'true'
         run: |
           mkdir -p ~/.ssh
@@ -101,7 +100,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
 
-      - name: Update Caddyfile on Existing Instance
+      - name: Update Caddyfile on Existing Instance (If Instance Exists)
         if: steps.check_instance.outputs.instance_exists == 'true'
         run: |
           # Add host key to known hosts to avoid prompt
