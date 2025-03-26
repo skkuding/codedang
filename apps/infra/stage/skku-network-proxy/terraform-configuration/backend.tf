@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "tfstate" {
-  bucket = "skku-network-proxy-tf-state-rc"
+  bucket = "skku-network-proxy-tf-state"
 }
 
 resource "aws_s3_bucket_versioning" "tfstate" {

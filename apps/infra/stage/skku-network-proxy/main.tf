@@ -7,7 +7,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "skku-network-proxy-tf-state-rc"
+    bucket         = "skku-network-proxy-tf-state"
     key            = "terraform/skku-network-proxy.tfstate"
     region         = "ap-northeast-2"
     encrypt        = true
@@ -28,13 +28,12 @@ resource "aws_eip" "reverse_proxy_eip" {
   }
 }
 
-# 출력 정의
 output "public_ip" {
   value       = aws_eip.reverse_proxy_eip.public_ip
-  description = "리버스 프록시 서버의 퍼블릭 IP 주소"
+  description = "Elastic IP Address of the reverse proxy server"
 }
 
 output "public_dns" {
   value       = aws_eip.reverse_proxy_eip.public_dns
-  description = "리버스 프록시 서버의 퍼블릭 DNS"
+  description = "Public DNS of the reverse proxy server"
 }
