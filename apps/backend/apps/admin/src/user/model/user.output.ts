@@ -12,4 +12,7 @@ export class CanCreateCourseResult {
 
   @Field()
   canCreateCourse: boolean
+
+  @Field()
+  canCreateContest: boolean
 }

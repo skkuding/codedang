@@ -44,12 +44,6 @@ export class CreateContestInput {
   freezeTime?: Date
 
   @Field(() => Boolean, { nullable: false })
-  isVisible!: boolean
-
-  @Field(() => Boolean, { nullable: false })
-  isRankVisible!: boolean
-
-  @Field(() => Boolean, { nullable: false })
   isJudgeResultVisible!: boolean
 
   @Field(() => Boolean, { nullable: true })
@@ -105,12 +99,6 @@ export class UpdateContestInput {
 
   @Field(() => GraphQLISODateTime, { nullable: true })
   freezeTime?: Date
-
-  @Field(() => Boolean, { nullable: true })
-  isVisible?: boolean
-
-  @Field(() => Boolean, { nullable: true })
-  isRankVisible?: boolean
 
   @Field(() => Boolean, { nullable: true })
   enableCopyPaste?: boolean
