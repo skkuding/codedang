@@ -117,7 +117,7 @@ function AssignmentAccordionItem({
               <DetailButton
                 isActivated={
                   assignment.isJudgeResultVisible &&
-                  dayjs(assignment.endTime).isAfter(dayjs())
+                  dayjs().isAfter(dayjs(assignment.endTime))
                 }
               />
               {isAssignmentDialogOpen && assignmentGrade && (
