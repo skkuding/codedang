@@ -1,5 +1,6 @@
 'use client'
 
+import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import {
   ChartContainer,
@@ -27,20 +28,22 @@ const chartConfig = {
 interface GradeDetailModalProps {
   assignment: Assignment
   courseId: string
-  assignmentGrade: AssignmentGrade
 }
 
 export function GradeDetailModal({
   assignment,
-  courseId,
-  assignmentGrade
+  courseId
 }: GradeDetailModalProps) {
   const { data } = useSuspenseQuery(
     assignmentSubmissionQueries.anonymizedScores({
-      assignmentId: assignmentGrade.id.toString(),
+      assignmentId: assignment.id.toString(),
       courseId
     })
   )
+
+  const { data: assignmentGrade } = useSuspenseQuery({
+    ...assignmentQueries.record({ assignmentId: assignment.id.toString() })
+  })
 
   const maxScore = assignmentGrade.assignmentPerfectScore
   const mySubmittedScore = assignmentGrade.userAssignmentJudgeScore

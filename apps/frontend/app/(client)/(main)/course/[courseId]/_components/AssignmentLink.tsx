@@ -69,7 +69,8 @@ export function AssignmentLink({ assignment, courseId }: AssignmentLinkProps) {
       href={`/course/${courseId}/assignment/${assignment.id}`}
       onClick={handleClick}
     >
-      <div className="flex items-center justify-between border-b bg-[#F8F8F8] px-12 py-6">
+      <p className="line-clamp-1 font-normal">{assignment.title}</p>
+      {/* <div className="flex items-center justify-between border-b bg-[#F8F8F8] px-12 py-6">
         <div className="-ml-4 flex gap-6">
           <span
             className={cn(
@@ -106,7 +107,7 @@ export function AssignmentLink({ assignment, courseId }: AssignmentLinkProps) {
           solvedProblemCount={assignment.submittedCount}
           problemCount={assignment.problemCount}
         />
-      </div>
+      </div> */}
     </Link>
   )
 }

@@ -1,5 +1,6 @@
 'use client'
 
+import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { CodeEditor } from '@/components/CodeEditor'
 import {
@@ -10,20 +11,24 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Separator } from '@/components/shadcn/separator'
 import { dateFormatter } from '@/libs/utils'
-import type { AssignmentGrade } from '@/types/type'
-import { useQuery } from '@tanstack/react-query'
+import type { Assignment, AssignmentGrade } from '@/types/type'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { MdArrowForwardIos } from 'react-icons/md'
 
 interface SubmissionDetailModalProps {
   problemId: number
-  assignmentGrade: AssignmentGrade
+  assignment: Assignment
   showEvaluation: boolean
 }
 export function SubmissionDetailModal({
   problemId,
-  assignmentGrade,
+  assignment,
   showEvaluation
 }: SubmissionDetailModalProps) {
+  const { data: assignmentGrade } = useSuspenseQuery({
+    ...assignmentQueries.record({ assignmentId: assignment.id.toString() })
+  })
+
   const { data: submission } = useQuery(
     assignmentSubmissionQueries.lastestSubmissionResult({
       assignmentId: assignmentGrade.id,
@@ -59,17 +64,17 @@ export function SubmissionDetailModal({
           <DialogTitle>
             <div className="flex items-center gap-2 overflow-hidden truncate whitespace-nowrap text-lg font-medium">
               <span
-                title={`Week ${assignmentGrade.week}`}
+                title={`Week ${assignment.week}`}
                 className="max-w-[80px] truncate"
               >
-                Week {assignmentGrade.week}
+                Week {assignment.week}
               </span>
               <MdArrowForwardIos />
               <span
-                title={assignmentGrade.title}
+                title={assignment.title}
                 className="text-primary max-w-[200px] overflow-hidden truncate"
               >
-                {assignmentGrade.title}
+                {assignment.title}
               </span>
               <MdArrowForwardIos />
               <span

@@ -13,8 +13,10 @@ import type { Assignment, AssignmentStatus } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useInterval } from 'react-use'
+import { AssignmentLink } from './AssignmentLink'
 import { DetailButton } from './DetailButton'
 import { GradeDetailModal } from './GradeDetailModal'
 import { SubmissionDetailModal } from './SubmissionDetailModal'
@@ -58,7 +60,8 @@ function AssignmentAccordionItem({
   const [openProblemId, setOpenProblemId] = useState<number | null>(null)
 
   const { data: assignmentGrade } = useQuery({
-    ...assignmentQueries.record({ assignmentId: assignment.id.toString() })
+    ...assignmentQueries.record({ assignmentId: assignment.id.toString() }),
+    enabled: isAccordionOpen
   })
 
   const handleOpenChange = (problemId: number | null) => {
@@ -89,7 +92,11 @@ function AssignmentAccordionItem({
             [Week {assignment.week}]
           </p>
           <div className="flex w-[30%] flex-col">
-            <p className="line-clamp-1 font-normal">{assignment.title}</p>
+            <AssignmentLink
+              key={assignment.id}
+              assignment={assignment}
+              courseId={courseId}
+            />
             {assignment && <AssignmentStatusTimeDiff assignment={assignment} />}
           </div>
           {assignment && (
@@ -119,12 +126,8 @@ function AssignmentAccordionItem({
                   dayjs().isAfter(dayjs(assignment.endTime))
                 }
               />
-              {isAssignmentDialogOpen && assignmentGrade && (
-                <GradeDetailModal
-                  courseId={courseId}
-                  assignmentGrade={assignmentGrade}
-                  assignment={assignment}
-                />
+              {isAssignmentDialogOpen && (
+                <GradeDetailModal courseId={courseId} assignment={assignment} />
               )}
             </Dialog>
           </div>
@@ -185,7 +188,7 @@ function AssignmentAccordionItem({
                       {openProblemId === problem.id && (
                         <SubmissionDetailModal
                           problemId={problem.id}
-                          assignmentGrade={assignmentGrade}
+                          assignment={assignment}
                           showEvaluation={true}
                         />
                       )}
