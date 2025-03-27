@@ -192,6 +192,8 @@ export class ContestService {
       })
 
       if (userContest?.length) {
+        // created contest into newUserContests array
+
         await tx.userContest.createMany({
           data: userContest.map((role) => ({
             userId: role.userId,
@@ -200,6 +202,7 @@ export class ContestService {
           }))
         })
       }
+
       await tx.userContest.create({
         data: {
           userId,
@@ -208,7 +211,16 @@ export class ContestService {
         }
       })
 
-      return createdContest
+      const newUserContests = await tx.userContest.findMany({
+        where: {
+          contestId: createdContest.id
+        }
+      })
+
+      return {
+        ...createdContest,
+        userContest: newUserContests
+      }
     })
   }
 
@@ -406,6 +418,15 @@ export class ContestService {
           ? (contest.summary as Prisma.InputJsonValue)
           : Prisma.JsonNull,
         ...contestData
+      },
+      include: {
+        userContest: {
+          where: {
+            role: {
+              in: ['Manager', 'Reviewer']
+            }
+          }
+        }
       }
     })
   }
