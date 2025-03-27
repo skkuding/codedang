@@ -305,7 +305,7 @@ function LabeledField({ label, text, compareText, result }: LabeledFieldProps) {
     text: string,
     compareText: string,
     isExpectedOutput: boolean,
-    isCompileError: boolean
+    isError: boolean
   ) => {
     const isNumeric = (str: string) => /^[+-]?\d+(\.\d+)?$/.test(str.trim())
 
@@ -354,7 +354,7 @@ function LabeledField({ label, text, compareText, result }: LabeledFieldProps) {
         colorClass = 'text-red-500'
       }
 
-      if (isCompileError) {
+      if (isError) {
         // 컴파일 에러일 경우 ␣ ↵ ↹ 시각화하지 않고 색상만 적용
         return (
           <span key={idx} className={colorClass}>
@@ -415,7 +415,7 @@ function LabeledField({ label, text, compareText, result }: LabeledFieldProps) {
     result: string,
     compareText?: string | undefined
   ) => {
-    const isCompileError = label === 'Output' && isErrorResult(result)
+    const isError = label === 'Output' && isErrorResult(result)
 
     // Input은 diff 없이 흰색으로만 출력
     if (label === 'Input') {
@@ -424,11 +424,11 @@ function LabeledField({ label, text, compareText, result }: LabeledFieldProps) {
 
     // Expected Output 처리
     if (label === 'Expected Output') {
-      return getColoredText(compareText || '', text, true, isCompileError)
+      return getColoredText(compareText || '', text, true, isError)
     }
 
     // "Output" 처리
-    return getColoredText(text, compareText || '', false, isCompileError)
+    return getColoredText(text, compareText || '', false, isError)
   }
 
   return (
