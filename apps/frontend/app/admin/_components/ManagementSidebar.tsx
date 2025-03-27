@@ -121,8 +121,8 @@ export function ManagementSidebar() {
         const user: User = await safeFetcherWithAuth.get('user').json()
         setUserPermissions({
           canCreateCourse: user.canCreateCourse ?? false,
-          // canCreateContest: user.canCreateContest ?? false
-          canCreateContest: true
+          canCreateContest: user.canCreateContest ?? false
+          // canCreateContest: true
         })
       } catch (error) {
         console.error('Error fetching user permissions:', error)
