@@ -273,28 +273,34 @@ function TestResultDetail({ data }: { data: TestResultDetail | undefined }) {
         <span className={getResultColor(data.result)}>{data.result}</span>
       </div>
       <div className="flex flex-wrap gap-4">
-        <LabeledField label="Input" text={data.input} />
+        <LabeledField label="Input" text={data.input} result={data.result} />
         <LabeledField
           label="Expected Output"
           text={data.expectedOutput}
           compareText={data.output}
+          result={data.result}
         />
         <LabeledField
           label="Output"
           text={data.output}
           compareText={data.expectedOutput}
+          result={data.result}
         />
       </div>
     </div>
   )
 }
 
+function isErrorResult(result: string): boolean {
+  return result !== 'Accepted' && result !== 'WrongAnswer'
+}
 interface LabeledFieldProps {
   label: string
   text: string
   compareText?: string
+  result: string
 }
-function LabeledField({ label, text, compareText }: LabeledFieldProps) {
+function LabeledField({ label, text, compareText, result }: LabeledFieldProps) {
   const getColoredText = (
     text: string,
     compareText: string,
@@ -403,9 +409,13 @@ function LabeledField({ label, text, compareText }: LabeledFieldProps) {
     })
   }
 
-  const renderText = (label: string, text: string, compareText?: string) => {
-    const isCompileError =
-      compareText?.includes('error:') || text?.includes('error:')
+  const renderText = (
+    label: string,
+    text: string,
+    result: string,
+    compareText?: string | undefined
+  ) => {
+    const isCompileError = label === 'Output' && isErrorResult(result)
 
     // Input은 diff 없이 흰색으로만 출력
     if (label === 'Input') {
@@ -427,7 +437,7 @@ function LabeledField({ label, text, compareText }: LabeledFieldProps) {
         <p className="text-slate-400">{label}</p>
         <hr className="border-[#303333]/50" />
         <div className="h-fit whitespace-pre-wrap font-mono text-slate-300">
-          {renderText(label, text, compareText)}
+          {renderText(label, text, result, compareText)}
         </div>
       </div>
     </div>
