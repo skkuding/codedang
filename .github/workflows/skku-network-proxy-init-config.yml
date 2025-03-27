@@ -1,0 +1,49 @@
+name: SKKU Network Proxy - Init Config
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-northeast-2
+
+permissions: # permissions to the job (for the OpenID Connection)
+  id-token: write
+  contents: read
+
+jobs:
+  skku-network-proxy-init-config:
+    name: RC - Init Config
+    runs-on: ubuntu-latest
+    environment: stage
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY_SKKU_NETWORK_PROXY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.2
+
+      - name: Create Terraform variable file
+        working-directory: ./apps/infra/stage/skku-network-proxy/terraform-configuration
+        run: |
+          echo 'env = "stage"' >> terraform.tfvars
+
+      - name: Terraform Init
+        working-directory: ./apps/infra/stage/skku-network-proxy/terraform-configuration
+        run: terraform init -backend-config="bucket=skku-network-proxy-tf-state"
+
+      - name: Terraform Plan
+        working-directory: ./apps/infra/stage/skku-network-proxy/terraform-configuration
+        run: terraform plan -input=false -out=plan.out
+
+      - name: Terraform Apply
+        working-directory: ./apps/infra/stage/skku-network-proxy/terraform-configuration
+        run: terraform apply -input=false plan.out
