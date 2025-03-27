@@ -100,7 +100,7 @@ export default function ContestLeaderBoard() {
         <UnfreezeLeaderboardToggle
           contestId={contestId}
           isUnFrozen={!isFrozen}
-          activated={!false} // 수정ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ함
+          activated={false}
         />
       ) : (
         <UnfreezeLeaderboardToggle
