@@ -436,7 +436,7 @@ function LabeledField({ label, text, compareText, result }: LabeledFieldProps) {
       <div className="flex flex-col gap-4 p-4">
         <p className="text-slate-400">{label}</p>
         <hr className="border-[#303333]/50" />
-        <div className="h-fit whitespace-pre-wrap font-mono text-slate-300">
+        <div className="h-fit whitespace-pre-wrap break-words font-mono text-slate-300">
           {renderText(label, text, result, compareText)}
         </div>
       </div>
