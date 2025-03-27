@@ -1,6 +1,6 @@
 import { safeFetcherWithAuth } from '@/libs/utils'
 import type {
-  AssignmentGrade,
+  AssignmentProblemRecord,
   Language,
   SubmissionDetail,
   SubmissionItem
@@ -181,7 +181,7 @@ export interface GetAssignmentGradesRequest {
   groupId: number
 }
 
-export type GetAssignmentGradesResponse = AssignmentGrade[]
+export type GetAssignmentGradesResponse = AssignmentProblemRecord[]
 
 export const getAssignmentGrades = async ({
   groupId
