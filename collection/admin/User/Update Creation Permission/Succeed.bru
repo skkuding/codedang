@@ -11,17 +11,14 @@ post {
 }
 
 body:graphql {
-  mutation {
-    updateCreationPermissions(
-      input: $input
-    ) {
+  mutation UpdatePermissions($input: UpdateCreationPermissionsInput!) {
+    updateCreationPermissions(input: $input) {
       id
       role
       canCreateCourse
       canCreateContest
     }
   }
-  
 }
 
 body:graphql:vars {

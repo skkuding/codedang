@@ -3,7 +3,7 @@ import { ObjectType } from '@nestjs/graphql'
 import { Role } from '@generated'
 
 @ObjectType()
-export class CanCreateCourseResult {
+export class UpdateCreationPermissionResult {
   @Field(() => Int)
   id: number
 
