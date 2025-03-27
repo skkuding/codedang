@@ -5,18 +5,17 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/assignment/:id/score?anonymized=true&groupId=2
+  url: {{baseUrl}}/assignment/:id/anonymized-scores?groupId=1
   body: none
   auth: none
 }
 
 params:query {
-  anonymized: true
-  groupId: 2
+  groupId: 1
 }
 
 params:path {
-  id: 32
+  id: 9
 }
 
 assert {
