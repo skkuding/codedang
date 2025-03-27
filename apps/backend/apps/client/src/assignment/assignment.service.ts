@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import {
   ConflictFoundException,
@@ -80,6 +80,7 @@ export class AssignmentService {
         'User not participated in the assignment'
       )
     }
+
     try {
       assignment = await this.prisma.assignment.findUniqueOrThrow({
         where: {
@@ -153,6 +154,44 @@ export class AssignmentService {
 
       return createdAssignmentRecord
     })
+  }
+
+  async participateAllOngoingAssignments(groupId: number, userId: number) {
+    const assignments = await this.prisma.assignment.findMany({
+      where: {
+        groupId,
+        startTime: {
+          lte: new Date()
+        }
+      },
+      select: {
+        id: true,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: {
+            assignmentRecord: {
+              where: { userId }
+            }
+          }
+        }
+      }
+    })
+
+    if (!assignments.length) {
+      throw new NotFoundException('Assignment')
+    }
+
+    const notParticipatedAssignmentIds = assignments
+      .filter((assignment) => !assignment._count.assignmentRecord)
+      .map((assignment) => assignment.id)
+
+    await Promise.all(
+      notParticipatedAssignmentIds.map((assignmentId) =>
+        this.createAssignmentRecord(assignmentId, userId, groupId)
+      )
+    )
+
+    return notParticipatedAssignmentIds
   }
 
   async deleteAssignmentRecord(
@@ -416,5 +455,74 @@ export class AssignmentService {
       comment: assignmentRecord.comment,
       problems
     }
+  }
+
+  async getMyAssignmentsSummary(groupId: number, userId: number) {
+    const assignments = await this.prisma.assignment.findMany({
+      where: {
+        groupId,
+        isVisible: true,
+        startTime: {
+          lte: new Date()
+        }
+      },
+      select: {
+        id: true,
+        assignmentProblem: {
+          select: {
+            score: true
+          }
+        },
+        assignmentRecord: {
+          where: { userId },
+          select: {
+            score: true,
+            finalScore: true,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            _count: {
+              select: {
+                assignmentProblemRecord: {
+                  where: {
+                    isSubmitted: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      orderBy: [{ week: 'asc' }, { startTime: 'asc' }]
+    })
+
+    if (!assignments.length) {
+      return []
+    }
+
+    const assignmentPerfectScoresMap = assignments.reduce(
+      (map, { id, assignmentProblem, assignmentRecord }) => {
+        if (!assignmentRecord.length) {
+          throw new ForbiddenAccessException(
+            'User not participated in the assignment'
+          )
+        }
+        const total = assignmentProblem.reduce(
+          (sum, { score }) => sum + score,
+          0
+        )
+        map[id] = total
+        return map
+      },
+      {}
+    )
+
+    return assignments.map((assignment) => ({
+      id: assignment.id,
+      problemCount: assignment.assignmentProblem.length,
+      submittedCount:
+        assignment.assignmentRecord[0]._count.assignmentProblemRecord,
+      assignmentPerfectScore: assignmentPerfectScoresMap[assignment.id],
+      userAssignmentFinalScore: assignment.assignmentRecord[0].finalScore,
+      userAssignmentJudgeScore: assignment.assignmentRecord[0].score
+    }))
   }
 }
