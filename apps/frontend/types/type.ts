@@ -381,7 +381,7 @@ export interface CalendarAssignment {
   end: Date
 }
 
-export interface AssignmentGrade {
+export interface AssignmentProblemRecord {
   id: number
   autoFinalizeScore: boolean
   isFinalScoreVisible: boolean
@@ -406,4 +406,13 @@ export interface ProblemRecord {
   score: number
   isSubmitted: boolean
   comment: string
+}
+
+export interface AssignmentSummary {
+  id: number
+  problemCount: number
+  submittedCount: number
+  assignmentPerfectScore: number
+  userAssignmentFinalScore: number | null
+  userAssignmentJudgeScore: number
 }

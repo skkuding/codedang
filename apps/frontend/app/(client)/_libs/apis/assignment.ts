@@ -1,5 +1,9 @@
 import { safeFetcherWithAuth } from '@/libs/utils'
-import type { Assignment, AssignmentGrade } from '@/types/type'
+import type {
+  Assignment,
+  AssignmentProblemRecord,
+  AssignmentSummary
+} from '@/types/type'
 
 export interface GetAssignmentRequest {
   assignmentId: number
@@ -27,18 +31,54 @@ export const getAssignments = async ({ courseId }: GetAssignmentsRequest) => {
   return data
 }
 
-export interface GetAssignmentRecordRequest {
+export interface GetAssignmentProblemRecordRequest {
   assignmentId: string
 }
 
-export type GetAssignmentRecordResponse = AssignmentGrade
+export type GetAssignmentProblemRecordResponse = AssignmentProblemRecord
 
-export const getAssignmentRecord = async ({
+export const getAssignmentProblemRecord = async ({
   assignmentId
-}: GetAssignmentRecordRequest) => {
+}: GetAssignmentProblemRecordRequest) => {
   const response = await safeFetcherWithAuth.get(
     `assignment/${assignmentId}/me`
   )
-  const data = await response.json<GetAssignmentRecordResponse>()
+  const data = await response.json<GetAssignmentProblemRecordResponse>()
   return data
+}
+
+export interface GetAssignmentsSummaryRequest {
+  courseId: string
+}
+
+export type GetAssignmentsSummaryResponse = AssignmentSummary[]
+
+export const getAssignmentsSummary = async ({
+  courseId
+}: GetAssignmentsSummaryRequest) => {
+  const response = await safeFetcherWithAuth.get('assignment/me/summary', {
+    searchParams: { groupId: courseId }
+  })
+  // 403오류 시, 참여하지 않은 모든 과제 강제 참여시키기
+  if (response.status === 403) {
+    participateAllOngoingAssignments({ courseId })
+  }
+  const data = await response.json<GetAssignmentsSummaryResponse>()
+  return data
+}
+
+export interface ParticipateAllOngoingAssignmentsRequest {
+  courseId: string
+}
+
+export const participateAllOngoingAssignments = async ({
+  courseId
+}: ParticipateAllOngoingAssignmentsRequest) => {
+  const response = await safeFetcherWithAuth.get('assignment/participation', {
+    searchParams: { groupId: courseId }
+  })
+  // 정상 응답 시, 과제 요약 정보 다시 가져오기
+  if (response.ok) {
+    getAssignmentsSummary({ courseId })
+  }
 }

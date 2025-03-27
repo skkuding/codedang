@@ -1,5 +1,9 @@
 'use client'
 
+import {
+  getAssignments,
+  getAssignmentsSummary
+} from '@/app/(client)/_libs/apis/assignment'
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import {
   Accordion,
@@ -9,36 +13,52 @@ import {
 } from '@/components/shadcn/accordion'
 import { Dialog } from '@/components/shadcn/dialog'
 import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
-import type { Assignment, AssignmentStatus } from '@/types/type'
-import { useQuery } from '@tanstack/react-query'
+import type {
+  Assignment,
+  AssignmentStatus,
+  AssignmentSummary
+} from '@/types/type'
+import { useQueries, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useInterval } from 'react-use'
 import { AssignmentLink } from './AssignmentLink'
 import { DetailButton } from './DetailButton'
 import { GradeDetailModal } from './GradeDetailModal'
 import { SubmissionDetailModal } from './SubmissionDetailModal'
 
-interface GAssignmentAccordianNewProps {
+interface AssignmentAccordianNewProps {
   courseId: string
 }
 
 export function AssignmentAccordionNew({
   courseId
-}: GAssignmentAccordianNewProps) {
+}: AssignmentAccordianNewProps) {
   const { data: assignments } = useQuery(
     assignmentQueries.muliple({ courseId })
   )
+  const { data: grades } = useQuery(assignmentQueries.grades({ courseId }))
+
+  const gradeMap = new Map(grades?.map((grade) => [grade.id, grade]) ?? [])
 
   return (
     <div className="mt-8">
-      {assignments?.map((assignment, index) => (
+      {assignments?.map((assignment) => (
         <AssignmentAccordionItem
           key={assignment.id}
           assignment={assignment}
-          // record={assignmentRecords?.[index]} // 인덱스로 대응
+          grade={
+            gradeMap.get(assignment.id) ?? {
+              id: 0,
+              submittedCount: 0,
+              problemCount: 0,
+              userAssignmentFinalScore: 0,
+              userAssignmentJudgeScore: 0,
+              assignmentPerfectScore: 0
+            }
+          } // 인덱스로 대응
           courseId={courseId}
         />
       ))}
@@ -49,17 +69,19 @@ export function AssignmentAccordionNew({
 interface AssignmentAccordionItemProps {
   assignment: Assignment
   courseId: string
+  grade: AssignmentSummary
 }
 
 function AssignmentAccordionItem({
   assignment,
-  courseId
+  courseId,
+  grade
 }: AssignmentAccordionItemProps) {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false)
   const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false)
   const [openProblemId, setOpenProblemId] = useState<number | null>(null)
 
-  const { data: assignmentGrade } = useQuery({
+  const { data: record } = useQuery({
     ...assignmentQueries.record({ assignmentId: assignment.id.toString() }),
     enabled: isAccordionOpen
   })
@@ -71,6 +93,7 @@ function AssignmentAccordionItem({
   const handleAccordionOpenChange = (value: string) => {
     setIsAccordionOpen(value === assignment.id.toString())
   }
+
   return (
     <Accordion
       type="single"
@@ -107,14 +130,14 @@ function AssignmentAccordionItem({
           )}
           <div className="flex w-[13%] justify-center">
             {assignment.startTime < new Date() ? (
-              <SubmissionBadge assignment={assignment} />
+              <SubmissionBadge grade={grade} />
             ) : null}
           </div>
-          {/* TODO: record api 완성되면 수정 */}
-          {/* <div className="flex w-[10%] justify-center gap-1 font-medium">
-            {record.score ?? <FaFilePen size={16} />}
-            {` / ${record.perfectScore}`}
-          </div> */}
+
+          <div className="flex w-[10%] justify-center gap-1 font-medium">
+            {grade.userAssignmentFinalScore ?? grade.userAssignmentJudgeScore}
+            {` / ${grade.assignmentPerfectScore}`}
+          </div>
           <div className="flex w-[5%] justify-center">
             <Dialog
               open={isAssignmentDialogOpen}
@@ -134,10 +157,10 @@ function AssignmentAccordionItem({
           <div className="w-[1%]" />
         </AccordionTrigger>
         <AccordionContent className="-mb-4 w-full">
-          {isAccordionOpen && assignmentGrade && (
+          {isAccordionOpen && record && (
             <div className="overflow-hidden rounded-2xl border">
               <div className="h-6 bg-[#F3F3F3]" />
-              {assignmentGrade.problems.map((problem) => (
+              {record.problems.map((problem) => (
                 <div
                   key={problem.id}
                   className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
@@ -163,7 +186,7 @@ function AssignmentAccordionItem({
                   </div>
 
                   {/* <div className="flex w-[13%] justify-center">
-                    {assignmentGrade.problems.every(
+                    {record.problems.every(
                       (problem) => !problem.problemRecord?.isSubmitted
                     ) ? null : (
                       <AcceptedBadge
@@ -294,11 +317,11 @@ export function AssignmentStatusTimeDiff({
 
 interface SubmissionBadgeProps {
   className?: string
-  assignment: Assignment
+  grade: AssignmentSummary
 }
 
-function SubmissionBadge({ className, assignment }: SubmissionBadgeProps) {
-  const badgeStyle = assignment.isJudgeResultVisible
+function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
+  const badgeStyle = grade.userAssignmentFinalScore
     ? 'border-transparent bg-primary text-white'
     : 'border-primary text-primary'
   return (
@@ -310,8 +333,8 @@ function SubmissionBadge({ className, assignment }: SubmissionBadgeProps) {
       )}
     >
       <p className="text-sm font-medium">
-        {assignment.submittedCount} {'/'}
-        {assignment.problemCount}
+        {grade.userAssignmentFinalScore ?? grade.userAssignmentJudgeScore} {'/'}
+        {grade.assignmentPerfectScore}
       </p>
     </div>
   )

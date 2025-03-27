@@ -1,7 +1,7 @@
 'use client'
 
 import { fetcherWithAuth } from '@/libs/utils'
-import type { AssignmentGrade } from '@/types/type'
+import type { AssignmentProblemRecord } from '@/types/type'
 import { useEffect, useState } from 'react'
 
 interface TotalScoreLabelProps {
@@ -13,12 +13,11 @@ export function TotalScoreLabel({
   assignmentId,
   courseId
 }: TotalScoreLabelProps) {
-  const [myScoreSummary, setMyScoreSummary] = useState<AssignmentGrade | null>(
-    null
-  )
+  const [myScoreSummary, setMyScoreSummary] =
+    useState<AssignmentProblemRecord | null>(null)
   useEffect(() => {
     async function getMyScoreSummary() {
-      const myScoreSummary = await fetcherWithAuth<AssignmentGrade>(
+      const myScoreSummary = await fetcherWithAuth<AssignmentProblemRecord>(
         `assignment/${assignmentId}/score/me`
       ).json()
       setMyScoreSummary(myScoreSummary)

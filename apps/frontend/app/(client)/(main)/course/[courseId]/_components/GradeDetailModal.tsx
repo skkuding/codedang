@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/shadcn/dialog'
-import type { Assignment, AssignmentGrade } from '@/types/type'
+import type { Assignment, AssignmentProblemRecord } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { MdArrowForwardIos } from 'react-icons/md'
@@ -41,13 +41,13 @@ export function GradeDetailModal({
     })
   )
 
-  const { data: assignmentGrade } = useSuspenseQuery({
+  const { data: AssignmentProblemRecord } = useSuspenseQuery({
     ...assignmentQueries.record({ assignmentId: assignment.id.toString() })
   })
 
-  const maxScore = assignmentGrade.assignmentPerfectScore
-  const mySubmittedScore = assignmentGrade.userAssignmentJudgeScore
-  const myGradedScore = assignmentGrade.userAssignmentFinalScore
+  const maxScore = AssignmentProblemRecord.assignmentPerfectScore
+  const mySubmittedScore = AssignmentProblemRecord.userAssignmentJudgeScore
+  const myGradedScore = AssignmentProblemRecord.userAssignmentFinalScore
 
   // 점수 데이터를 기반으로 히스토그램 데이터 생성
   const generateChartData = useCallback(
@@ -111,10 +111,10 @@ export function GradeDetailModal({
 
   const scoresStats = useMemo(() => calculateStatistics(scores), [scores])
   const finalScoresStats = useMemo(() => {
-    return assignmentGrade.autoFinalizeScore
+    return AssignmentProblemRecord.autoFinalizeScore
       ? calculateStatistics(scores)
       : calculateStatistics(finalScores)
-  }, [finalScores, assignmentGrade.autoFinalizeScore, scores])
+  }, [finalScores, AssignmentProblemRecord.autoFinalizeScore, scores])
 
   return (
     <DialogContent
@@ -158,7 +158,7 @@ export function GradeDetailModal({
               </tr>
             </thead>
             <tbody>
-              {!assignmentGrade.isFinalScoreVisible && (
+              {!AssignmentProblemRecord.isFinalScoreVisible && (
                 <tr className="text-gray-500">
                   <td className="bg-primary-light w-[80px] px-2 py-2 text-xs text-white">
                     Submitted
@@ -180,11 +180,11 @@ export function GradeDetailModal({
                   </td>
                 </tr>
               )}
-              {assignmentGrade.isFinalScoreVisible && (
+              {AssignmentProblemRecord.isFinalScoreVisible && (
                 <tr className="text-gray-500">
                   <td className="bg-primary-light flex w-[80px] flex-col items-center rounded-bl-md px-2 py-2 text-xs text-white">
                     Graded
-                    {assignmentGrade.autoFinalizeScore && (
+                    {AssignmentProblemRecord.autoFinalizeScore && (
                       <span className="text-primary mt-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium shadow-sm">
                         Auto
                       </span>

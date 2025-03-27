@@ -1,11 +1,13 @@
 import { queryOptions } from '@tanstack/react-query'
 import {
   getAssignment,
-  getAssignmentRecord,
+  getAssignmentProblemRecord,
   getAssignments,
-  type GetAssignmentRecordRequest,
+  getAssignmentsSummary,
+  type GetAssignmentProblemRecordRequest,
   type GetAssignmentRequest,
-  type GetAssignmentsRequest
+  type GetAssignmentsRequest,
+  type GetAssignmentsSummaryRequest
 } from '../apis/assignment'
 
 export const assignmentQueries = {
@@ -16,12 +18,17 @@ export const assignmentQueries = {
     }),
   muliple: ({ courseId }: GetAssignmentsRequest) =>
     queryOptions({
-      queryKey: ['course', courseId],
+      queryKey: ['assignments', courseId],
       queryFn: () => getAssignments({ courseId })
     }),
-  record: ({ assignmentId }: GetAssignmentRecordRequest) =>
+  record: ({ assignmentId }: GetAssignmentProblemRecordRequest) =>
     queryOptions({
-      queryKey: ['assignment', assignmentId],
-      queryFn: () => getAssignmentRecord({ assignmentId })
+      queryKey: ['record', assignmentId],
+      queryFn: () => getAssignmentProblemRecord({ assignmentId })
+    }),
+  grades: ({ courseId }: GetAssignmentsSummaryRequest) =>
+    queryOptions({
+      queryKey: ['grades', courseId],
+      queryFn: () => getAssignmentsSummary({ courseId })
     })
 }

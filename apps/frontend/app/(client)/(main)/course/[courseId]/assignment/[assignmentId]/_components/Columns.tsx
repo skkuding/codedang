@@ -4,15 +4,15 @@ import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Dialog } from '@/components/shadcn/dialog'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { convertToLetter, dateFormatter } from '@/libs/utils'
-import type { AssignmentGrade, ProblemGrade } from '@/types/type'
+import type { AssignmentProblemRecord, ProblemGrade } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Suspense, useState } from 'react'
-import { DetailButton } from '../../../../../_components/DetailButton'
-import { SubmissionDetailModal } from '../../../../../_components/SubmissionDetailModal'
+import { DetailButton } from '../../../_components/DetailButton'
+import { SubmissionDetailModal } from '../../../_components/SubmissionDetailModal'
 
 export const columns = (
-  assignment: AssignmentGrade
+  assignment: AssignmentProblemRecord
 ): ColumnDef<ProblemGrade>[] => [
   {
     header: '#',
@@ -58,7 +58,7 @@ export const columns = (
 
 interface SubmissionCellProps {
   problem: ProblemGrade
-  assignment: AssignmentGrade
+  assignment: AssignmentProblemRecord
 }
 
 function SubmissionCell({ problem, assignment }: SubmissionCellProps) {
@@ -79,16 +79,16 @@ function SubmissionCell({ problem, assignment }: SubmissionCellProps) {
                 handleOpenChange(isOpen ? problem.id : null)
               }
             >
-              <DetailButton
+              {/* <DetailButton
                 isActivated={new Date() > new Date(assignment.endTime)}
-              />
-              {openProblemId === problem.id && (
+              /> */}
+              {/* {openProblemId === problem.id && (
                 <SubmissionDetailModal
                   problemId={problem.id}
                   gradedAssignment={assignment}
                   showEvaluation={false}
                 />
-              )}
+              )} */}
             </Dialog>
           </div>
         </Suspense>

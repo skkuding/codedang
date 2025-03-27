@@ -11,7 +11,7 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Separator } from '@/components/shadcn/separator'
 import { dateFormatter } from '@/libs/utils'
-import type { Assignment, AssignmentGrade } from '@/types/type'
+import type { Assignment, AssignmentProblemRecord } from '@/types/type'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { MdArrowForwardIos } from 'react-icons/md'
 
@@ -25,20 +25,20 @@ export function SubmissionDetailModal({
   assignment,
   showEvaluation
 }: SubmissionDetailModalProps) {
-  const { data: assignmentGrade } = useSuspenseQuery({
+  const { data: AssignmentProblemRecord } = useSuspenseQuery({
     ...assignmentQueries.record({ assignmentId: assignment.id.toString() })
   })
 
   const { data: submission } = useQuery(
     assignmentSubmissionQueries.lastestSubmissionResult({
-      assignmentId: assignmentGrade.id,
+      assignmentId: AssignmentProblemRecord.id,
       problemId
     })
   )
 
   const { data: testResults } = useQuery(
     assignmentSubmissionQueries.testResult({
-      assignmentId: assignmentGrade.id,
+      assignmentId: AssignmentProblemRecord.id,
       problemId,
       submissionId: submission?.id ?? 0
     })
@@ -79,13 +79,13 @@ export function SubmissionDetailModal({
               <MdArrowForwardIos />
               <span
                 title={
-                  assignmentGrade.problems.find(
+                  AssignmentProblemRecord.problems.find(
                     (problem) => problem.id === problemId
                   )?.title || 'Not found'
                 }
                 className="max-w-[200px] overflow-hidden truncate"
               >
-                {assignmentGrade.problems.find(
+                {AssignmentProblemRecord.problems.find(
                   (problem) => problem.id === problemId
                 )?.title || 'Not found'}
               </span>
@@ -97,17 +97,17 @@ export function SubmissionDetailModal({
             <div className="flex flex-col gap-2">
               <span className="flex h-[30px] w-[140px] items-center justify-center rounded-full border border-blue-500 font-bold text-blue-500">
                 <span className="text-lg">
-                  {assignmentGrade.problems.find(
+                  {AssignmentProblemRecord.problems.find(
                     (problem) => problem.id === problemId
                   )?.problemRecord?.finalScore ??
-                    assignmentGrade.problems.find(
+                    AssignmentProblemRecord.problems.find(
                       (problem) => problem.id === problemId
                     )?.problemRecord?.score}
                 </span>
                 {'  /  '}
                 <span className="text-lg">
                   {
-                    assignmentGrade.problems.find(
+                    AssignmentProblemRecord.problems.find(
                       (problem) => problem.id === problemId
                     )?.maxScore
                   }
@@ -231,7 +231,7 @@ export function SubmissionDetailModal({
               <span className="text-sm font-medium">Comment</span>
               <div className="flex-col rounded border p-4">
                 <span className="text-xs">
-                  {assignmentGrade.problems.find(
+                  {AssignmentProblemRecord.problems.find(
                     (problem) => problem.id === problemId
                   )?.problemRecord?.comment || ''}
                 </span>
