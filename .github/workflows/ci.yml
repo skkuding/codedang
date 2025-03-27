@@ -77,9 +77,9 @@ jobs:
       - name: Load Next.js environment
         if: steps.filter.outputs.frontend == 'true'
         run: |
-          echo "NEXT_PUBLIC_BASEURL=https://stage.codedang.com/api" >> apps/frontend/.env
-          echo "NEXT_PUBLIC_GQL_BASEURL=https://stage.codedang.com/graphql" >> apps/frontend/.env
-          echo "NEXT_URL=https://stage.codedang.com" >> apps/frontend/.env
+          echo "NEXT_PUBLIC_BASEURL=https://stage-proxy.codedang.com/api" >> apps/frontend/.env
+          echo "NEXT_PUBLIC_GQL_BASEURL=https://stage-proxy.codedang.com/graphql" >> apps/frontend/.env
+          echo "NEXT_URL=https://stage-proxy.codedang.com" >> apps/frontend/.env
 
       - name: Build
         if: steps.filter.outputs.frontend == 'true'
