@@ -213,7 +213,7 @@ export class AssignmentService {
     }
 
     if (!assignmentRecord) {
-      throw new EntityNotExistException('Assignment')
+      throw new EntityNotExistException('Assignment Record')
     }
 
     const now = new Date()
