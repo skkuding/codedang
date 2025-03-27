@@ -15,6 +15,7 @@ interface LeaderboardRowProps {
   dx: number
   resizableRowSize: number
   problemRecords: ProblemRecordInContestLeaderboard[]
+  search: boolean
 }
 
 export function LeaderboardRow({
@@ -23,108 +24,209 @@ export function LeaderboardRow({
   rank,
   dx,
   resizableRowSize,
-  problemRecords
+  problemRecords,
+  search
 }: LeaderboardRowProps) {
   const medals = [goldMedalIcon, silverMedalIcon, bronzeMedalIcon]
 
   const isTopRanked = rank <= 3
   const medalImage = isTopRanked ? medals[rank - 1] : null
 
-  return (
-    <div className="relative flex flex-row">
-      {/* 아래 div가 row header입니다. */}
-      <div
-        className="z-10 flex h-[90px] w-[272px] flex-row items-center rounded-full bg-[#FFFFFF] px-[28px]"
-        style={{ boxShadow: '2px 2px 10px rgba(0,0,0,0.15)' }}
-      >
-        {isTopRanked ? (
-          <Image src={medalImage} alt="medal" className="px-[2px]" />
-        ) : (
-          <div className="flex h-[34px] w-[34px] flex-col items-center justify-center rounded-full bg-[#C4C4C4] font-[18px] font-bold text-white">
-            {rank}
-          </div>
-        )}
-        <div className="flex flex-col justify-center pl-[18px]">
-          <div className="text-[22px] font-semibold">{username}</div>
-          <div className="flex flex-row text-[14px] text-[#737373]">
-            Total Penalty /{' '}
-            <div className="font-medium text-[#3581FA]">{totalPenalty}</div>
+  if (!search) {
+    return (
+      <div className="relative flex flex-row">
+        {/* 아래 div가 row header입니다. */}
+        <div
+          className="z-10 flex h-[90px] w-[272px] flex-row items-center rounded-full bg-[#FFFFFF] px-[28px]"
+          style={{ boxShadow: '2px 2px 10px rgba(0,0,0,0.15)' }}
+        >
+          {isTopRanked ? (
+            <Image src={medalImage} alt="medal" className="px-[2px]" />
+          ) : (
+            <div className="flex h-[34px] w-[34px] flex-col items-center justify-center rounded-full bg-[#C4C4C4] font-[18px] font-bold text-white">
+              {rank}
+            </div>
+          )}
+          <div className="flex flex-col justify-center pl-[18px]">
+            <div className="text-[22px] font-semibold">{username}</div>
+            <div className="flex flex-row text-[14px] text-[#737373]">
+              Total Penalty /{' '}
+              <div className="font-medium text-[#3581FA]">{totalPenalty}</div>
+            </div>
           </div>
         </div>
+        {/* 아래 div는 가로 스크롤이 되는 row body입니다. */}
+        <motion.div
+          className="absolute h-[90px] overflow-hidden rounded-full border-2 border-[#E5E5E5] bg-[#FFFFFF] pl-[295px]"
+          style={{ width: `${resizableRowSize}px` }}
+          animate={{ width: `${resizableRowSize}px` }}
+          transition={{ type: 'tween', duration: 0.5, ease: 'easeOut' }}
+        >
+          <table className="text-center">
+            <thead>
+              <motion.tr
+                className="flex h-[90px] flex-row items-center"
+                animate={{ x: dx }}
+                transition={{ type: 'tween', duration: 0.5, ease: 'easeOut' }}
+              >
+                {problemRecords.map((problem, index) => {
+                  return index === 0 ? (
+                    <Tooltip.Root key={index}>
+                      <Tooltip.Trigger asChild>
+                        <th
+                          className="flex h-11 w-[114px] flex-row items-center justify-center text-xl font-semibold"
+                          key={index}
+                        >
+                          <LeaderboardPenalty problem={problem} />
+                        </th>
+                      </Tooltip.Trigger>
+                      <Tooltip.Portal>
+                        <Tooltip.Content side="top" sideOffset={10} asChild>
+                          <motion.div
+                            initial={{ opacity: 0, y: 4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 4 }}
+                            transition={{ duration: 0.2, ease: 'easeOut' }}
+                            className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
+                          >
+                            <div>{`${problem.submissionCount} sub`}</div>
+                            <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-t-[10px] border-x-transparent border-t-[#3581FA]" />
+                          </motion.div>
+                        </Tooltip.Content>
+                      </Tooltip.Portal>
+                    </Tooltip.Root>
+                  ) : (
+                    <Tooltip.Root key={index}>
+                      <Tooltip.Trigger asChild>
+                        <th
+                          className="flex h-11 w-[114px] flex-row items-center justify-center border-l-2 border-[#E5E5E5] text-xl font-semibold"
+                          key={index}
+                        >
+                          <LeaderboardPenalty problem={problem} />
+                        </th>
+                      </Tooltip.Trigger>
+                      <Tooltip.Portal>
+                        <Tooltip.Content side="top" sideOffset={10} asChild>
+                          <motion.div
+                            initial={{ opacity: 0, y: 4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 4 }}
+                            transition={{ duration: 0.2, ease: 'easeOut' }}
+                            className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
+                          >
+                            <div>{`${problem.submissionCount} sub`}</div>
+                            <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-t-[10px] border-x-transparent border-t-[#3581FA]" />
+                          </motion.div>
+                        </Tooltip.Content>
+                      </Tooltip.Portal>
+                    </Tooltip.Root>
+                  )
+                })}
+              </motion.tr>
+            </thead>
+          </table>
+        </motion.div>
       </div>
-      {/* 아래 div는 가로 스크롤이 되는 row body입니다. */}
-      <motion.div
-        className="absolute h-[90px] overflow-hidden rounded-full border-2 border-[#E5E5E5] bg-[#FFFFFF] pl-[295px]"
-        style={{ width: `${resizableRowSize}px` }}
-        animate={{ width: `${resizableRowSize}px` }}
-        transition={{ type: 'tween', duration: 0.5, ease: 'easeOut' }}
-      >
-        <table className="text-center">
-          <thead>
-            <motion.tr
-              className="flex h-[90px] flex-row items-center"
-              animate={{ x: dx }}
-              transition={{ type: 'tween', duration: 0.5, ease: 'easeOut' }}
-            >
-              {problemRecords.map((problem, index) => {
-                return index === 0 ? (
-                  <Tooltip.Root key={index}>
-                    <Tooltip.Trigger asChild>
-                      <th
-                        className="flex h-11 w-[114px] flex-row items-center justify-center text-xl font-semibold"
-                        key={index}
-                      >
-                        <LeaderboardPenalty problem={problem} />
-                      </th>
-                    </Tooltip.Trigger>
-                    <Tooltip.Portal>
-                      <Tooltip.Content side="top" sideOffset={10} asChild>
-                        <motion.div
-                          initial={{ opacity: 0, y: 4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 4 }}
-                          transition={{ duration: 0.2, ease: 'easeOut' }}
-                          className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
+    )
+  } else {
+    return (
+      <div className="relative flex flex-row">
+        {/* 아래 div가 row header입니다. */}
+        <div
+          className="z-10 flex h-[90px] w-[272px] flex-row items-center rounded-full bg-[#3581FA] px-[28px]"
+          style={{ boxShadow: '2px 2px 10px rgba(0,0,0,0.15)' }}
+        >
+          {isTopRanked ? (
+            <Image src={medalImage} alt="medal" className="px-[2px]" />
+          ) : (
+            <div className="flex h-[34px] w-[34px] flex-col items-center justify-center rounded-full bg-white font-[18px] font-bold text-[#3581FA]">
+              {rank}
+            </div>
+          )}
+          <div className="flex flex-col justify-center pl-[18px]">
+            <div className="text-[22px] font-semibold text-white">
+              {username}
+            </div>
+            <div className="flex flex-row text-[14px] text-white">
+              Total Penalty /{' '}
+              <div className="font-medium text-white">{totalPenalty}</div>
+            </div>
+          </div>
+        </div>
+        {/* 아래 div는 가로 스크롤이 되는 row body입니다. */}
+        <motion.div
+          className="absolute h-[90px] overflow-hidden rounded-full border-2 border-[#3581FA] bg-[#F2F6F7] pl-[295px]"
+          style={{ width: `${resizableRowSize}px` }}
+          animate={{ width: `${resizableRowSize}px` }}
+          transition={{ type: 'tween', duration: 0.5, ease: 'easeOut' }}
+        >
+          <table className="text-center">
+            <thead>
+              <motion.tr
+                className="flex h-[90px] flex-row items-center"
+                animate={{ x: dx }}
+                transition={{ type: 'tween', duration: 0.5, ease: 'easeOut' }}
+              >
+                {problemRecords.map((problem, index) => {
+                  return index === 0 ? (
+                    <Tooltip.Root key={index}>
+                      <Tooltip.Trigger asChild>
+                        <th
+                          className="flex h-11 w-[114px] flex-row items-center justify-center text-xl font-semibold"
+                          key={index}
                         >
-                          <div>{`${problem.submissionCount} sub`}</div>
-                          <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-t-[10px] border-x-transparent border-t-[#3581FA]" />
-                        </motion.div>
-                      </Tooltip.Content>
-                    </Tooltip.Portal>
-                  </Tooltip.Root>
-                ) : (
-                  <Tooltip.Root key={index}>
-                    <Tooltip.Trigger asChild>
-                      <th
-                        className="flex h-11 w-[114px] flex-row items-center justify-center border-l-2 border-[#E5E5E5] text-xl font-semibold"
-                        key={index}
-                      >
-                        <LeaderboardPenalty problem={problem} />
-                      </th>
-                    </Tooltip.Trigger>
-                    <Tooltip.Portal>
-                      <Tooltip.Content side="top" sideOffset={10} asChild>
-                        <motion.div
-                          initial={{ opacity: 0, y: 4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 4 }}
-                          transition={{ duration: 0.2, ease: 'easeOut' }}
-                          className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
+                          <LeaderboardPenalty problem={problem} />
+                        </th>
+                      </Tooltip.Trigger>
+                      <Tooltip.Portal>
+                        <Tooltip.Content side="top" sideOffset={10} asChild>
+                          <motion.div
+                            initial={{ opacity: 0, y: 4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 4 }}
+                            transition={{ duration: 0.2, ease: 'easeOut' }}
+                            className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
+                          >
+                            <div>{`${problem.submissionCount} sub`}</div>
+                            <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-t-[10px] border-x-transparent border-t-[#3581FA]" />
+                          </motion.div>
+                        </Tooltip.Content>
+                      </Tooltip.Portal>
+                    </Tooltip.Root>
+                  ) : (
+                    <Tooltip.Root key={index}>
+                      <Tooltip.Trigger asChild>
+                        <th
+                          className="flex h-11 w-[114px] flex-row items-center justify-center border-l-2 border-[#DCE3E5] text-xl font-semibold"
+                          key={index}
                         >
-                          <div>{`${problem.submissionCount} sub`}</div>
-                          <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-t-[10px] border-x-transparent border-t-[#3581FA]" />
-                        </motion.div>
-                      </Tooltip.Content>
-                    </Tooltip.Portal>
-                  </Tooltip.Root>
-                )
-              })}
-            </motion.tr>
-          </thead>
-        </table>
-      </motion.div>
-    </div>
-  )
+                          <LeaderboardPenalty problem={problem} />
+                        </th>
+                      </Tooltip.Trigger>
+                      <Tooltip.Portal>
+                        <Tooltip.Content side="top" sideOffset={10} asChild>
+                          <motion.div
+                            initial={{ opacity: 0, y: 4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 4 }}
+                            transition={{ duration: 0.2, ease: 'easeOut' }}
+                            className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
+                          >
+                            <div>{`${problem.submissionCount} sub`}</div>
+                            <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-t-[10px] border-x-transparent border-t-[#3581FA]" />
+                          </motion.div>
+                        </Tooltip.Content>
+                      </Tooltip.Portal>
+                    </Tooltip.Root>
+                  )
+                })}
+              </motion.tr>
+            </thead>
+          </table>
+        </motion.div>
+      </div>
+    )
+  }
 }
 
 interface LeaderboardPenaltyProps {

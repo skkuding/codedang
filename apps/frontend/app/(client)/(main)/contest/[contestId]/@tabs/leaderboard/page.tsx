@@ -9,7 +9,10 @@ import { useState, useEffect } from 'react'
 import { LeaderboardModalDialog } from './_components/LeaderboardModalDialog'
 import { LeaderboardTable } from './_components/LeaderboardTable'
 import { getContestLeaderboard } from './_libs/apis/getContesLeaderboard'
-import { handleSearch } from './_libs/utils'
+
+export const handleSearch = (text: string) => {
+  alert(`검색할래요 ${text}를.`)
+}
 
 const BaseLeaderboardUser = {
   username: '',

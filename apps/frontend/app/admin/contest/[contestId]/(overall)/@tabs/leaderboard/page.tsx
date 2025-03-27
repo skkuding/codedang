@@ -10,7 +10,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { LeaderboardTable } from './_components/LeaderboardTable'
-import { handleSearch } from './_libs/utils'
+import type { LeaderboardUser } from './_libs/types'
 
 const BaseLeaderboardUser = {
   rank: 1,
@@ -76,6 +76,20 @@ export default function ContestLeaderBoard() {
     )
   }, [data])
 
+  const [matchedIndices, setMatchedIndices] = useState<number[]>([])
+  interface HandleSearchProps {
+    text: string
+    leaderboardUsers: LeaderboardUser[]
+  }
+
+  const handleSearch = ({ text, leaderboardUsers }: HandleSearchProps) => {
+    const regex = new RegExp(text, 'i')
+    const matchedIndices = leaderboardUsers
+      .map((user, index) => (regex.test(user.username) ? index : -1))
+      .filter((index) => index !== -1)
+    setMatchedIndices(matchedIndices)
+  }
+
   return (
     <div className="relative mt-9 w-screen pb-[120px]">
       <div className="h-[93px] w-[1002px] rounded-xl border border-[#619CFB] pl-[30px] pt-[21px]">
@@ -111,7 +125,7 @@ export default function ContestLeaderBoard() {
             alt="search"
             className="absolute left-5 top-1/2 -translate-y-1/2 cursor-pointer"
             onClick={() => {
-              handleSearch(searchText)
+              handleSearch({ text: searchText, leaderboardUsers })
             }}
           />
           <Input
@@ -120,7 +134,7 @@ export default function ContestLeaderBoard() {
             onChange={(e) => setSearchText(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
-                handleSearch(searchText)
+                handleSearch({ text: searchText, leaderboardUsers })
               }
             }}
           />
@@ -131,6 +145,7 @@ export default function ContestLeaderBoard() {
         <LeaderboardTable
           problemSize={problemSize}
           leaderboardUsers={leaderboardUsers}
+          matchedIndices={matchedIndices}
         />
       </div>
     </div>
