@@ -258,7 +258,13 @@ const db = {
         },
         userContest: {
           createMany: stub().resolves({ count: 2 }),
-          create: stub().resolves()
+          create: stub().resolves(),
+          findMany: stub().resolves([
+            {
+              role: ContestRole.Admin,
+              userId
+            }
+          ])
         }
       }
       return await arg(tx)
@@ -320,7 +326,15 @@ describe('ContestService', () => {
       db.contest.create.resolves(contest)
 
       const res = await service.createContest(userId, input)
-      expect(res).to.deep.equal(contest)
+      expect(res).to.deep.equal({
+        ...contest,
+        userContest: [
+          {
+            userId,
+            role: ContestRole.Admin
+          }
+        ]
+      })
     })
   })
 

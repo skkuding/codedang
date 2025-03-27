@@ -13,5 +13,5 @@ type ExecResult struct {
 	Signal     int        `json:"signal"`
 	ExitCode   int        `json:"exit_code"`
 	ErrorCode  int        `json:"error"`
-	StatusCode StatusCode `json:"status"`
+	StatusCode StatusCode `json:"result"`
 }

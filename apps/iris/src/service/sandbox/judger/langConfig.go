@@ -90,15 +90,15 @@ func NewJudgerLangConfig(file file.FileManager, javaPolicyPath string) *langConf
 		CompileArgs:        "{srcPath} -d {exeDir} -encoding UTF8",
 		RunCommand:         fmt.Sprintf("%s/java", javaPath),
 		RunArgs: "-cp {exeDir} " +
-			"-XX:MaxRAM={maxMemory} " +
 			"-Djava.security.manager " +
 			"-Dfile.encoding=UTF-8 " +
 			"-Djava.security.policy==" +
 			javaPolicyPath + " " +
 			"-Djava.awt.headless=true " +
+			"-XX:+UseSerialGC " +
 			"Main",
 		SeccompRule:           "",
-		MemoeryLimitCheckOnly: true,
+		MemoeryLimitCheckOnly: false,
 		env:                   defaultEnv,
 	}
 
