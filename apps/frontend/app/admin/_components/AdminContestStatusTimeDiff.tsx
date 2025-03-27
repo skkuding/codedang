@@ -14,15 +14,17 @@ import { toast } from 'sonner'
 
 dayjs.extend(duration)
 
+interface AdminTimeDiffProps {
+  contest: GetContestQuery['getContest'] | undefined
+  textStyle: string
+  inContestEditor: boolean
+}
+
 export function AdminContestStatusTimeDiff({
   contest,
   textStyle,
   inContestEditor
-}: {
-  contest: GetContestQuery['getContest'] | undefined
-  textStyle: string
-  inContestEditor: boolean
-}) {
+}: AdminTimeDiffProps) {
   const router = useRouter()
   const { problemId } = useParams()
 
