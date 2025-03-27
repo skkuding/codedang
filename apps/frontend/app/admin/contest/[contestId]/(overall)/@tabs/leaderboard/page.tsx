@@ -3,6 +3,7 @@
 import { Input } from '@/components/shadcn/input'
 import { Switch } from '@/components/shadcn/switch'
 import { UPDATE_CONTEST } from '@/graphql/contest/mutations'
+import { GET_CONTEST } from '@/graphql/contest/queries'
 import { GET_CONTEST_LEADERBOARD } from '@/graphql/leaderboard/queries'
 import searchIcon from '@/public/icons/search.svg'
 import { useSuspenseQuery, useMutation } from '@apollo/client'
@@ -35,32 +36,23 @@ export default function ContestLeaderBoard() {
   const pathname = usePathname()
   const contestId = Number(pathname.split('/')[3])
 
-  const { data } = useSuspenseQuery(GET_CONTEST_LEADERBOARD, {
+  const { data: contestLeaderboard } = useSuspenseQuery(
+    GET_CONTEST_LEADERBOARD,
+    {
+      variables: { contestId }
+    }
+  )
+
+  const [disableLeaderboard, setDisableLeaderboard] = useState<boolean>(true)
+  const { data: fetchedContest } = useSuspenseQuery(GET_CONTEST, {
     variables: { contestId }
   })
-
-  const [isUnfrozen, setIsUnfrozen] = useState(
-    !data.getContestLeaderboard.isFrozen
-  )
-  const [updateContest] = useMutation(UPDATE_CONTEST)
-
-  const toggleUnfreeze = async () => {
-    try {
-      // 콘테스트가 끝난다음 기능하는 부분임 -> 콘테스트 끝난다음 동작하는지 확인해야함
-      console.log('contestId: ', contestId, ' unfreeze?: ', isUnfrozen)
-      const res = await updateContest({
-        variables: {
-          input: {
-            id: contestId,
-            unfreeze: !isUnfrozen
-          }
-        }
-      })
-      console.log('res: ', res)
-    } catch (err) {
-      console.error('Error updating contest:', err)
-    }
+  const now = new Date()
+  if (fetchedContest.getContest.endTime > now) {
+    setDisableLeaderboard(true)
   }
+
+  const isFrozen = contestLeaderboard.getContestLeaderboard.isFrozen
 
   const [problemSize, setProblemSize] = useState(0)
   const [leaderboardUsers, setLeaderboardUsers] = useState([
@@ -69,12 +61,17 @@ export default function ContestLeaderBoard() {
 
   useEffect(() => {
     setProblemSize(
-      data ? data.getContestLeaderboard.leaderboard[0].problemRecords.length : 0
+      contestLeaderboard
+        ? contestLeaderboard.getContestLeaderboard.leaderboard[0].problemRecords
+            .length
+        : 0
     )
     setLeaderboardUsers(
-      data ? data.getContestLeaderboard.leaderboard : [BaseLeaderboardUser]
+      contestLeaderboard
+        ? contestLeaderboard.getContestLeaderboard.leaderboard
+        : [BaseLeaderboardUser]
     )
-  }, [data])
+  }, [contestLeaderboard])
 
   const [matchedIndices, setMatchedIndices] = useState<number[]>([])
   interface HandleSearchProps {
@@ -84,7 +81,7 @@ export default function ContestLeaderBoard() {
 
   const handleSearch = ({ text, leaderboardUsers }: HandleSearchProps) => {
     if (text === '') {
-      alert('나는 입력을 원한다.')
+      alert('나는 입력값을 원한다.')
       return
     }
     const regex = new RegExp(text, 'i')
@@ -96,32 +93,25 @@ export default function ContestLeaderBoard() {
 
   return (
     <div className="relative mt-9 w-screen pb-[120px]">
-      <div className="h-[93px] w-[1002px] rounded-xl border border-[#619CFB] pl-[30px] pt-[21px]">
-        <div className="flex flex-row">
-          <div className="mr-3 text-xl font-semibold text-[#3581FA]">
-            Unfreeze Leaderboard
-          </div>
-          <Switch
-            checked={!isUnfrozen}
-            onCheckedChange={(checked) => {
-              // 여기서 API 요청 보내기
-              toggleUnfreeze()
-              setIsUnfrozen(!checked)
-            }}
-            className="h-[24px] w-[46px]"
-            thumbClassName="w-[18px] h-[18px] data-[state=checked]:translate-x-[22px] data-[state=unchecked]:translate-x-[2px]"
-          />
-        </div>
-        <div className="mt-1 font-[14px] font-normal text-[#9B9B9B]">
-          The leaderboard can only be unfrozen after the contest has finished.
-        </div>
-      </div>
+      {disableLeaderboard ? (
+        <UnfreezeLeaderboardToggle
+          contestId={contestId}
+          isUnFrozen={!isFrozen}
+          activated={false}
+        />
+      ) : (
+        <UnfreezeLeaderboardToggle
+          contestId={contestId}
+          isUnFrozen={!isFrozen}
+          activated={true}
+        />
+      )}
       <div className="mb-[62px] mt-[60px] flex flex-row">
         <div className="mr-[167px] flex flex-row text-2xl font-semibold text-black">
           <div className="text-[#3581FA]">
-            {data.getContestLeaderboard.participatedNum}
+            {contestLeaderboard.getContestLeaderboard.participatedNum}
           </div>
-          /{data.getContestLeaderboard.registeredNum} Participants
+          /{contestLeaderboard.getContestLeaderboard.registeredNum} Participants
         </div>
         <div className="relative">
           <Image
@@ -151,6 +141,68 @@ export default function ContestLeaderBoard() {
           leaderboardUsers={leaderboardUsers}
           matchedIndices={matchedIndices}
         />
+      </div>
+    </div>
+  )
+}
+
+interface UnfreezeLeaderboardToggleProps {
+  contestId: number
+  isUnFrozen: boolean
+  activated: boolean
+}
+function UnfreezeLeaderboardToggle({
+  contestId,
+  isUnFrozen,
+  activated
+}: UnfreezeLeaderboardToggleProps) {
+  const [isUnfrozen, setIsUnfrozen] = useState<boolean>(isUnFrozen)
+  const [updateContest] = useMutation(UPDATE_CONTEST)
+
+  const toggleUnfreeze = async () => {
+    try {
+      // 콘테스트가 끝난다음 기능하는 부분임 -> 콘테스트 끝난다음 동작하는지 확인해야함
+      console.log('contestId: ', contestId, ' unfreeze?: ', isUnfrozen)
+      const res = await updateContest({
+        variables: {
+          input: {
+            id: contestId,
+            unfreeze: !isUnfrozen
+          }
+        }
+      })
+      console.log('res: ', res)
+    } catch (err) {
+      console.error('Error updating contest:', err)
+    }
+  }
+  return (
+    <div
+      className={`h-[93px] w-[1002px] rounded-xl border border-[#619CFB] pl-[30px] pt-[21px] ${
+        !activated
+          ? 'pointer-events-none border-[#E5E5E5] bg-[#80808014] text-[#9B9B9B]'
+          : ''
+      }`}
+    >
+      <div className="flex flex-row">
+        <div
+          className={`mr-3 text-xl font-semibold ${!activated ? 'text-[#9B9B9B]' : 'text-[#3581FA]'}`}
+        >
+          Unfreeze Leaderboard
+        </div>
+        <Switch
+          checked={!isUnfrozen}
+          onCheckedChange={(checked) => {
+            // 여기서 API 요청 보내기
+            toggleUnfreeze()
+            setIsUnfrozen(!checked)
+          }}
+          className={`h-[24px] w-[46px] ${!activated ? 'data-[state=unchecked]:bg-[#C4C4C4]' : ''}`}
+          thumbClassName="w-[18px] h-[18px] data-[state=checked]:translate-x-[22px] data-[state=unchecked]:translate-x-[2px]"
+        />
+      </div>
+      <div className="mt-1 font-[14px] font-normal text-[#9B9B9B]">
+        The leaderboard can only be unfrozen after the contest has finished.
       </div>
     </div>
   )
