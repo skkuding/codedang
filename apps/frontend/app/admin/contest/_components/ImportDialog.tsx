@@ -16,6 +16,7 @@ import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle
 } from '@/components/shadcn/dialog'
@@ -78,6 +79,8 @@ export function ImportDialog({ problems, setProblems }: ImportDialogProps) {
           <DialogHeader className="justify-center">
             <DialogTitle className="text-2xl">Import Problem</DialogTitle>
           </DialogHeader>
+          {/* Description없으면 warning 뜸 + ImportProblemTable을 Description안에 넣을수는없음(warning) */}
+          <DialogDescription />
           <ErrorBoundary fallback={FetchErrorFallback}>
             <Suspense fallback={<ImportProblemTableFallback />}>
               <ImportProblemTable
