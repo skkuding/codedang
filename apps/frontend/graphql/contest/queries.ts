@@ -4,13 +4,21 @@ const GET_CONTEST = gql(`
   query GetContest($contestId: Int!) {
     getContest(contestId: $contestId) {
       id
-      enableCopyPaste
       isJudgeResultVisible
       invitationCode
       description
       endTime
       startTime
       title
+      invitationCode
+      posterUrl
+      summary
+      freezeTime
+      evaluateWithSampleTestcase
+      userContest {
+        userId
+        role
+      }
     }
   }
 `)
