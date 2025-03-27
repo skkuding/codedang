@@ -28,7 +28,6 @@ export function LeaderboardRow({
   search
 }: LeaderboardRowProps) {
   const medals = [goldMedalIcon, silverMedalIcon, bronzeMedalIcon]
-  console.log('search: ', search)
   const isTopRanked = rank <= 3
   const medalImage = isTopRanked ? medals[rank - 1] : null
   if (!search) {
@@ -76,7 +75,7 @@ export function LeaderboardRow({
                           className="flex h-11 w-[114px] flex-row items-center justify-center text-xl font-semibold"
                           key={index}
                         >
-                          {problem.penalty}
+                          <LeaderboardPenalty problem={problem} />
                         </th>
                       </Tooltip.Trigger>
                       <Tooltip.Portal>
@@ -101,7 +100,7 @@ export function LeaderboardRow({
                           className="flex h-11 w-[114px] flex-row items-center justify-center border-l-2 border-[#E5E5E5] text-xl font-semibold"
                           key={index}
                         >
-                          {problem.penalty}
+                          <LeaderboardPenalty problem={problem} />
                         </th>
                       </Tooltip.Trigger>
                       <Tooltip.Portal>
@@ -172,7 +171,7 @@ export function LeaderboardRow({
                           className="flex h-11 w-[114px] flex-row items-center justify-center text-xl font-semibold"
                           key={index}
                         >
-                          {problem.penalty}
+                          <LeaderboardPenalty problem={problem} />
                         </th>
                       </Tooltip.Trigger>
                       <Tooltip.Portal>
@@ -197,7 +196,7 @@ export function LeaderboardRow({
                           className="flex h-11 w-[114px] flex-row items-center justify-center border-l-2 border-[#DCE3E5] text-xl font-semibold"
                           key={index}
                         >
-                          {problem.penalty}
+                          <LeaderboardPenalty problem={problem} />
                         </th>
                       </Tooltip.Trigger>
                       <Tooltip.Portal>
@@ -223,5 +222,24 @@ export function LeaderboardRow({
         </motion.div>
       </div>
     )
+  }
+}
+
+interface LeaderboardPenaltyProps {
+  problem: ProblemRecordInContestLeaderboard
+}
+function LeaderboardPenalty({ problem }: LeaderboardPenaltyProps) {
+  const penalty = problem.penalty
+  const score = problem.score
+  const isFrozen = problem.isFrozen
+  const isFirstSolver = problem.isFirstSolver
+  if (isFrozen) {
+    return <div className="text-xl font-semibold text-[#C4C4C4]">Frozen</div>
+  } else if (score === 0) {
+    return <div>-</div>
+  } else if (isFirstSolver) {
+    return <div className="text-[#3581FA]">{penalty}</div>
+  } else {
+    return <div>{penalty}</div>
   }
 }
