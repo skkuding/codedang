@@ -6,7 +6,7 @@ import { UnprocessableDataException } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { UpdateCreationPermissionsInput } from './model/creationPermission.model'
 import { GroupMember } from './model/groupMember.model'
-import { CanCreateCourseResult } from './model/user.output'
+import { UpdateCreationPermissionResult } from './model/user.output'
 import { UserService, GroupMemberService } from './user.service'
 
 @Resolver(() => User)
@@ -39,7 +39,7 @@ export class UserResolver {
     return await this.userService.getUserByEmailOrStudentId(email, studentId)
   }
 
-  @Mutation(() => CanCreateCourseResult)
+  @Mutation(() => UpdateCreationPermissionResult)
   async updateCreationPermissions(
     @Args('input') input: UpdateCreationPermissionsInput
   ) {

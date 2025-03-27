@@ -1,36 +1,69 @@
 'use client'
 
 import { Input } from '@/components/shadcn/input'
-import InfoIcon from '@/public/icons/file-info-gray.svg'
-import SearchIcon from '@/public/icons/search.svg'
+import searchIcon from '@/public/icons/search.svg'
+import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
-import { useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { LeaderboardModalDialog } from './_components/LeaderboardModalDialog'
 import { LeaderboardTable } from './_components/LeaderboardTable'
-import { handleSearch, showScoringCriteria } from './_libs/utils'
+import { getContestLeaderboard } from './_libs/apis/getContesLeaderboard'
+import { handleSearch } from './_libs/utils'
+
+const BaseLeaderboardUser = {
+  username: '',
+  totalScore: 0,
+  totalPenalty: 0,
+  problemRecords: [
+    {
+      order: 0,
+      problemId: 1,
+      penalty: 0,
+      submissionCount: 0,
+      score: 0,
+      isFrozen: false,
+      isFirstSolver: false
+    }
+  ],
+  rank: 1
+}
+const BaseContestLeaderboardData = {
+  maxScore: 0,
+  leaderboard: [BaseLeaderboardUser]
+}
 
 export default function ContestLeaderBoard() {
   const [searchText, setSearchText] = useState('')
+  const pathname = usePathname()
+  const contestId = Number(pathname.split('/')[2])
+
+  let { data } = useQuery({
+    queryKey: ['contest leaderboard'],
+    queryFn: () => getContestLeaderboard({ contestId })
+  })
+  data = data ? data : BaseContestLeaderboardData
+  const [problemSize, setProblemSize] = useState(0)
+  const [leaderboardUsers, setLeaderboardUsers] = useState([
+    BaseLeaderboardUser
+  ])
+
+  useEffect(() => {
+    setProblemSize(data ? data.leaderboard[0].problemRecords.length : 0)
+    setLeaderboardUsers(data ? data.leaderboard : [BaseLeaderboardUser])
+  }, [data])
 
   return (
-    <div className="ml-[116px] w-screen pb-[120px]">
+    <div className="relative ml-[116px] w-screen pb-[120px]">
       <div className="mt-[96px] flex flex-row">
         <div className="h-[34px] text-[24px] font-bold">
           CHECK YOUR RANKING!
         </div>
-        <Image
-          src={InfoIcon}
-          alt="info-icon"
-          width={32}
-          height={32}
-          className="ml-1 cursor-pointer"
-          onClick={() => {
-            showScoringCriteria()
-          }}
-        />
+        <LeaderboardModalDialog />
       </div>
       <div className="relative mb-[62px] mt-[30px]">
         <Image
-          src={SearchIcon}
+          src={searchIcon}
           alt="search"
           className="absolute left-5 top-1/2 -translate-y-1/2 cursor-pointer"
           onClick={() => {
@@ -48,8 +81,11 @@ export default function ContestLeaderBoard() {
           }}
         />
       </div>
-      <div className="">
-        <LeaderboardTable />
+      <div>
+        <LeaderboardTable
+          problemSize={problemSize}
+          leaderboardUsers={leaderboardUsers}
+        />
       </div>
     </div>
   )
