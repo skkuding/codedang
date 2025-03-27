@@ -1,16 +1,15 @@
 'use client'
 
 import { Input } from '@/components/shadcn/input'
-import { Switch } from '@/components/shadcn/switch'
-import { UPDATE_CONTEST } from '@/graphql/contest/mutations'
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { GET_CONTEST_LEADERBOARD } from '@/graphql/leaderboard/queries'
 import searchIcon from '@/public/icons/search.svg'
-import { useSuspenseQuery, useMutation } from '@apollo/client'
+import { useSuspenseQuery } from '@apollo/client'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { LeaderboardTable } from './_components/LeaderboardTable'
+import { LeaderboardUnfreezeSwitchDialog } from './_components/LeaderboardUnfreezeSwitchDialog'
 import type { LeaderboardUser } from './_libs/types'
 
 const BaseLeaderboardUser = {
@@ -89,6 +88,10 @@ export default function ContestLeaderBoard() {
       .map((user, index) => (regex.test(user.username) ? index : -1))
       .filter((index) => index !== -1)
     setMatchedIndices(matchedIndices)
+    if (matchedIndices.length === 0) {
+      alert('일치하는 거 없음 ㅋ')
+      return
+    }
   }
 
   return (
@@ -97,7 +100,7 @@ export default function ContestLeaderBoard() {
         <UnfreezeLeaderboardToggle
           contestId={contestId}
           isUnFrozen={!isFrozen}
-          activated={false}
+          activated={!false} // 수정ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ함
         />
       ) : (
         <UnfreezeLeaderboardToggle
@@ -156,26 +159,6 @@ function UnfreezeLeaderboardToggle({
   isUnFrozen,
   activated
 }: UnfreezeLeaderboardToggleProps) {
-  const [isUnfrozen, setIsUnfrozen] = useState<boolean>(isUnFrozen)
-  const [updateContest] = useMutation(UPDATE_CONTEST)
-
-  const toggleUnfreeze = async () => {
-    try {
-      // 콘테스트가 끝난다음 기능하는 부분임 -> 콘테스트 끝난다음 동작하는지 확인해야함
-      console.log('contestId: ', contestId, ' unfreeze?: ', isUnfrozen)
-      const res = await updateContest({
-        variables: {
-          input: {
-            id: contestId,
-            unfreeze: !isUnfrozen
-          }
-        }
-      })
-      console.log('res: ', res)
-    } catch (err) {
-      console.error('Error updating contest:', err)
-    }
-  }
   return (
     <div
       className={`h-[93px] w-[1002px] rounded-xl border border-[#619CFB] pl-[30px] pt-[21px] ${
@@ -190,15 +173,10 @@ function UnfreezeLeaderboardToggle({
         >
           Unfreeze Leaderboard
         </div>
-        <Switch
-          checked={!isUnfrozen}
-          onCheckedChange={(checked) => {
-            // 여기서 API 요청 보내기
-            toggleUnfreeze()
-            setIsUnfrozen(!checked)
-          }}
-          className={`h-[24px] w-[46px] ${!activated ? 'data-[state=unchecked]:bg-[#C4C4C4]' : ''}`}
-          thumbClassName="w-[18px] h-[18px] data-[state=checked]:translate-x-[22px] data-[state=unchecked]:translate-x-[2px]"
+        <LeaderboardUnfreezeSwitchDialog
+          contestId={contestId}
+          isUnFrozen={isUnFrozen}
+          activated={activated}
         />
       </div>
       <div className="mt-1 font-[14px] font-normal text-[#9B9B9B]">
