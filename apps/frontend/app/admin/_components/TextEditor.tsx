@@ -70,7 +70,7 @@ import {
 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { CautionDialog } from '../problem/_components/CautionDialog'
+import { CautionDialog } from './CautionDialog'
 import { FullScreenTextEditor } from './FullScreenTextEditor'
 import { CodeBlockComponent } from './tiptap/CodeBlockComponent'
 import { FileDownloadNode } from './tiptap/FileDownloadNode'

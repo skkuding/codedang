@@ -6,6 +6,7 @@ import type { DialogProps } from '@radix-ui/react-dialog'
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { Command as CommandPrimitive } from 'cmdk'
 import * as React from 'react'
+import { FaAt } from 'react-icons/fa6'
 
 const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,
@@ -38,10 +39,22 @@ const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
 
 const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
->(({ className, ...props }, ref) => (
-  <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
-    <MagnifyingGlassIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & {
+    emailType?: boolean
+  }
+>(({ className, emailType = false, ...props }, ref) => (
+  <div
+    className={cn(
+      'flex items-center border-b px-3',
+      emailType && 'rounded-full border'
+    )}
+    cmdk-input-wrapper=""
+  >
+    {emailType ? (
+      <FaAt color="#C4C4C4" />
+    ) : (
+      <MagnifyingGlassIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+    )}
     <CommandPrimitive.Input
       ref={ref}
       className={cn(

@@ -13,7 +13,7 @@ export const createSchema = v.object({
   ),
   startTime: v.date(),
   endTime: v.date(),
-  enableCopyPaste: v.boolean(),
+  // enableCopyPaste: v.boolean(),
   isJudgeResultVisible: v.boolean(),
   invitationCode: v.nullable(
     v.pipe(
@@ -34,6 +34,14 @@ export interface ContestProblem {
   order: number
   difficulty: string
   score: number
+}
+
+export interface ContestManagerReviewer {
+  id: number
+  email: string
+  username: string
+  realName: string
+  type: string // Role(Manager, Reviewer) column
 }
 
 export interface ScoreSummary {
