@@ -2,6 +2,7 @@ interface LeaderboardSolvedProps {
   solvedList: number[]
   problemSize: number
 }
+
 export function LeaderboardSolvedList({
   solvedList,
   problemSize
