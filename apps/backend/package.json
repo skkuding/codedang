@@ -104,7 +104,7 @@
     "@types/sinon": "^17.0.3",
     "chai": "^4.5.0",
     "chai-as-promised": "^7.1.2",
-    "mocha": "^10.8.2",
+    "mocha": "^11.1.0",
     "nyc": "^17.1.0",
     "prisma": "^6.1.0",
     "prisma-nestjs-graphql": "^20.0.3",
