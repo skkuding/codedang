@@ -85,7 +85,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     enableHiding: false
   },
   // NOTE: accessorKey를 'languages'로 하면 languages column이 table에 추가가 안됨
-  // 그래서 accessorKey를 'lang'로 변경(임의)
+  // accessorKey를 'lang'로 변경해서 column 추가(임의)
   {
     accessorKey: 'lang',
     header: ({ column }) => {

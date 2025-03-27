@@ -15,7 +15,7 @@ const GET_CONTEST = gql(`
       summary
       freezeTime
       evaluateWithSampleTestcase
-      userContestRoles {
+      userContest {
         userId
         role
       }

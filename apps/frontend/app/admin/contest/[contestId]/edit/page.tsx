@@ -44,6 +44,7 @@ export default function Page({ params }: { params: { contestId: string } }) {
   const endTime = methods.getValues('endTime')
   const freezeTime = methods.getValues('freezeTime')
 
+  // Calculate the difference between the end time and the freeze time
   const diffTime =
     endTime && freezeTime
       ? Math.round(

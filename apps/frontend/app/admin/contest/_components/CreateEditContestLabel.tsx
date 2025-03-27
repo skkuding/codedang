@@ -29,7 +29,6 @@ export function CreateEditContestLabel({
       <Label required={false}>{title}</Label>
       <TooltipProvider>
         <Tooltip>
-          {/* 현재 shadcn 컴포넌트 자체에 문제가 있는 것 같음 */}
           <TooltipTrigger asChild>
             <button type="button">
               <AiFillQuestionCircle className="h-4 w-4 text-[#B0B0B0]" />

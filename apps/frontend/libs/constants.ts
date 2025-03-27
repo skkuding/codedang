@@ -189,3 +189,9 @@ export const courseOvalIconColors: {
 }
 
 export const managerReviewerTypes = ['Manager', 'Reviewer'] as const
+
+/**
+ * Options for the freeze time in minutes.
+ * @constant
+ */
+// export const freezeMinuteOptions = ['90', '75', '60', '45', '30', '15']

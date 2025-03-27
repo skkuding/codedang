@@ -34,6 +34,8 @@ interface EditContestFormProps {
 
 /*
   - userContest로 바뀔 예정 -> backend 작업 기다리기
+  - included modal 디자인
+  - manager, contest problem table 디자인
 */
 
 export function EditContestForm({
@@ -57,13 +59,13 @@ export function EditContestForm({
     }
   })
 
+  // 수정된 manager, reviewer 목록(managers) 으로 수정
   const formattedManagers = managers.map((manager) => ({
     userId: manager.id,
     contestRole: manager.type
   }))
-
-  methods.register('userContestRoles')
-  methods.setValue('userContestRoles', formattedManagers)
+  methods.register('userContest')
+  methods.setValue('userContest', formattedManagers)
 
   const users = userData.getUsers.map((user) => ({
     id: Number(user.id),
@@ -89,11 +91,11 @@ export function EditContestForm({
         posterUrl: data.posterUrl,
         freezeTime: data.freezeTime === null ? null : new Date(data.freezeTime),
         evaluateWithSampleTestcase: data.evaluateWithSampleTestcase,
-        userContestRoles: data.userContestRoles
+        userContest: data.userContest
       })
       setIsLoading(false)
       setManagers(
-        data.userContestRoles.map((role) => {
+        (data.userContest ?? []).map((role) => {
           const user = users.find((u) => u.id === role.userId)
           return {
             id: role.userId,

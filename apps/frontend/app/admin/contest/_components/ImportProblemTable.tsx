@@ -96,7 +96,6 @@ export function ImportProblemTable({
           }
         }}
       />
-      {/* 흠.. */}
       <div className="h-5" />
       <DataTablePagination showRowsPerPage={false} />
       <div className="h-7" />

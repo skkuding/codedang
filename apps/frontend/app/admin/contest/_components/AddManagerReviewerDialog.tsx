@@ -47,7 +47,7 @@ export function AddManagerReviewerDialog({
   const [values, setValues] = useState<string[]>(['']) // State to manage the values of each CommandInput
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null) // State to manage the focused input index
   const [dropdownValues, setDropdownValues] = useState<string[]>(['Manager']) // State to manage the selected dropdown values for each CommandInput
-  const [selectedNum, setSelectedNum] = useState<number>(0)
+  const [selectedUserNum, setSelectedUserNum] = useState<number>(0)
   const [open, setOpen] = useState(false) // State to manage the open state of the dialog
 
   useEffect(() => {
@@ -112,11 +112,11 @@ export function AddManagerReviewerDialog({
       }
     })
     setManagers([...managers, ...newManagers])
-    setOpen(false) // Close the dialog
+    setOpen(false)
   }
 
   useEffect(() => {
-    setSelectedNum(
+    setSelectedUserNum(
       values.filter((value) => users.some((user) => user.email === value))
         .length
     )
@@ -142,9 +142,11 @@ export function AddManagerReviewerDialog({
             Add Contest Manager / Reviewer
           </DialogTitle>
           <DialogDescription
-            className={cn(selectedNum > 0 ? 'text-primary' : 'text-[#9B9B9B]')}
+            className={cn(
+              selectedUserNum > 0 ? 'text-primary' : 'text-[#9B9B9B]'
+            )}
           >
-            {`${selectedNum} user(s) selected`}
+            {`${selectedUserNum} user(s) selected`}
           </DialogDescription>
         </DialogHeader>
 
@@ -162,7 +164,7 @@ export function AddManagerReviewerDialog({
                       className="ml-1 h-10 w-[300px] text-sm placeholder:text-neutral-300"
                       onFocus={() => {
                         setFocusedIndex(index)
-                      }} // Set focused index on focus
+                      }}
                     />
                     {focusedIndex === index && values[index] && (
                       <CommandList>
@@ -179,7 +181,7 @@ export function AddManagerReviewerDialog({
                                 value={user.email}
                                 onSelect={() => {
                                   handleValueChange(index, user.email)
-                                  setFocusedIndex(null) // Reset focused index on selection
+                                  setFocusedIndex(null)
                                 }}
                               >
                                 <span className="ml-5">{user.email}</span>
