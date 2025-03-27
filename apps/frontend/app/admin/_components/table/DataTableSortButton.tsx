@@ -7,7 +7,7 @@ import {
   PopoverTrigger
 } from '@/components/shadcn/popover'
 import { useEffect, useState } from 'react'
-import { TbSortAscending, TbSortDescending } from 'react-icons/tb'
+import { FaSort } from 'react-icons/fa'
 import { useDataTable } from './context'
 
 export function DataTableSortButton({
@@ -77,14 +77,13 @@ export function DataTableSortButton({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="h-12 rounded-full px-6">
+        <Button
+          variant="outline"
+          className="h-12 rounded-full bg-transparent px-6 text-neutral-500"
+        >
           <div className="flex items-center gap-2">
-            {sortOrder === 'asc' ? (
-              <TbSortAscending className="mr-2 h-4 w-4" />
-            ) : (
-              <TbSortDescending className="mr-2 h-4 w-4" />
-            )}
-            Sort
+            <FaSort className="h-4 w-4" />
+            Order by
             {selectedColumn && (
               <p className="overflow-hidden text-ellipsis whitespace-nowrap font-bold">
                 {columns.find((c) => c.id === selectedColumn)?.label ||
@@ -133,7 +132,7 @@ export function DataTableSortButton({
                   className="form-radio h-4 w-4 text-blue-600"
                 />
                 <label htmlFor="sort-asc" className="flex items-center text-sm">
-                  <TbSortAscending className="mr-2 h-4 w-4" /> Ascending
+                  Ascending
                 </label>
               </div>
               <div className="flex items-center space-x-2">
@@ -150,7 +149,7 @@ export function DataTableSortButton({
                   htmlFor="sort-desc"
                   className="flex items-center text-sm"
                 >
-                  <TbSortDescending className="mr-2 h-4 w-4" /> Descending
+                  Descending
                 </label>
               </div>
             </div>
