@@ -8,6 +8,8 @@ import {
 import infoIcon from '@/public/icons/file-info-gray.svg'
 import { X } from 'lucide-react'
 import Image from 'next/image'
+import { LeaderboardScoreExplanationRow } from './LeaderboardScoreExplanationRow'
+import { ModalNumberComponent } from './ModalNumberComponent'
 
 export function LeaderboardModalDialog() {
   return (
@@ -37,9 +39,7 @@ export function LeaderboardModalDialog() {
               Ranking System of Contest
             </div>
             <div className="mb-7 flex text-[#5C5C5C]">
-              <div className="flex h-[22px] w-[22px] flex-col items-center justify-center rounded-full bg-[#3581FA] text-[11px] text-white">
-                1
-              </div>
+              <ModalNumberComponent index={1} />
               <div className="ml-3 flex flex-col">
                 <div className="text-base">
                   The ranking of each participants is determined
@@ -50,9 +50,7 @@ export function LeaderboardModalDialog() {
               </div>
             </div>
             <div className="flex text-[#5C5C5C]">
-              <div className="flex h-[22px] w-[22px] flex-col items-center justify-center rounded-full bg-[#3581FA] text-[11px] text-white">
-                2
-              </div>
+              <ModalNumberComponent index={2} />
               <div className="ml-4 flex flex-col space-y-4">
                 <div>
                   <div className="text-base">
@@ -90,73 +88,41 @@ export function LeaderboardModalDialog() {
               </div>
             </div>
             <div className="space-y-4 pl-[11px] pt-[29px]">
-              <div className="flex flex-row space-x-6">
-                <div className="mt-[9px] flex h-[50px] w-[70px] flex-row items-center justify-center rounded-[10px] bg-[#FAFAFA] text-xl font-semibold">
-                  NNN
-                </div>
-                <div className="flex h-[68px] w-[491px] flex-col justify-center rounded-[10px] bg-[#FAFAFA] pl-6">
-                  <div className="h-[22px] w-[69px] font-semibold text-[#474747]">
-                    Accepted
-                  </div>
-                  <div className="text-sm text-[#737373]">
-                    Penalty for accepted problems.
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-row space-x-6">
-                <div className="mt-[9px] flex h-[50px] w-[70px] flex-row items-center justify-center rounded-[10px] bg-[#FAFAFA] text-xl font-semibold text-[#C4C4C4]">
-                  Frozen
-                </div>
-                <div className="flex h-[68px] w-[491px] flex-col justify-center rounded-[10px] bg-[#FAFAFA] pl-6">
-                  <div className="h-[22px] w-[69px] font-semibold text-[#474747]">
-                    Unrevealed
-                  </div>
-                  <div className="text-sm text-[#737373]">
-                    Penalty and submission counts are revealed after freezing
-                    time.
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-row space-x-6">
-                <div className="mt-[9px] flex h-[50px] w-[70px] flex-row items-center justify-center rounded-[10px] bg-[#FAFAFA] text-xl font-semibold">
-                  -
-                </div>
-                <div className="flex h-[68px] w-[491px] flex-col justify-center rounded-[10px] bg-[#FAFAFA] pl-6">
-                  <div className="h-[22px] w-[69px] font-semibold text-[#474747]">
-                    Unsolved
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-row space-x-6">
-                <div className="mt-[9px] flex h-[50px] w-[70px] flex-row items-center justify-center rounded-[10px] bg-[#FAFAFA] text-xl font-semibold text-[#3581FA]">
-                  NNN
-                </div>
-                <div className="flex h-[68px] w-[491px] flex-col justify-center rounded-[10px] bg-[#FAFAFA] pl-6">
-                  <div className="h-[22px] w-[90px] font-semibold text-[#474747]">
-                    First Solver
-                  </div>
-                  <div className="text-sm text-[#737373]">
-                    The first person to solve the problem
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-row space-x-6">
-                <div className="flex flex-col items-center justify-center">
-                  <div className="relative mt-[9px] flex h-[33px] w-[70px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-base font-semibold text-white">
-                    3 sub
-                    <div className="absolute -bottom-[8px] left-1/2 h-0 w-0 -translate-x-1/2 border-l-[7px] border-r-[6px] border-t-[9px] border-l-transparent border-r-transparent border-t-[#3581FA]" />
-                  </div>
-                </div>
-                <div className="flex h-[68px] w-[491px] flex-col justify-center rounded-[10px] bg-[#FAFAFA] pl-6">
-                  <div className="h-[22px] w-[90px] font-semibold text-[#474747]">
-                    Submission
-                  </div>
-                  <div className="text-sm text-[#737373]">
-                    The number of submissions displayed when hovering over
-                    ‘Accepted’
-                  </div>
-                </div>
-              </div>
+              <LeaderboardScoreExplanationRow
+                isTalkBalloon={false}
+                title={'NNN'}
+                explanationTitle={'Accepted'}
+                explanationDetail={'Penalty for accepted problems.'}
+              />
+              <LeaderboardScoreExplanationRow
+                isTalkBalloon={false}
+                title={'Frozen'}
+                textColor={'#C4C4C4'}
+                explanationTitle={'Unrevealed'}
+                explanationDetail={
+                  'Penalty and submission counts are revealed after freezing time.'
+                }
+              />
+              <LeaderboardScoreExplanationRow
+                isTalkBalloon={false}
+                title={'-'}
+                explanationTitle={'Unsolved'}
+              />
+              <LeaderboardScoreExplanationRow
+                isTalkBalloon={false}
+                title={'NNN'}
+                textColor={'#3581FA'}
+                explanationTitle={'First Solver'}
+                explanationDetail={'The first person to solve the problem'}
+              />
+              <LeaderboardScoreExplanationRow
+                isTalkBalloon={true}
+                title={'3 sub'}
+                explanationTitle={'Submission'}
+                explanationDetail={
+                  'The number of submissions displayed when hovering over ‘Accepted’'
+                }
+              />
             </div>
           </div>
         </DialogContent>
