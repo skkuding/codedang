@@ -62,7 +62,7 @@ jobs:
             --output text)
 
           if [ "$INSTANCE_COUNT" -gt "0" ]; then
-            echo "Instance already exists. Skipping instance creation and graceful reload caddy..."
+            echo "Instance already exists. Skipping instance creation and gracefully reload caddy..."
             echo "instance_exists=true" >> $GITHUB_OUTPUT
           else
             echo "Instance doesn't exist. Creating new instance..."
