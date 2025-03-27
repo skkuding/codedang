@@ -316,7 +316,3 @@ function SubmissionBadge({ className, assignment }: SubmissionBadgeProps) {
     </div>
   )
 }
-interface AcceptedBadgeProps {
-  className?: string
-  isAccepted: boolean
-}

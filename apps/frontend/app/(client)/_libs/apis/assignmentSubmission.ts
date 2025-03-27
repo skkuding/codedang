@@ -73,9 +73,9 @@ export const getAnonymizedScores = async ({
   courseId
 }: GetAnonymizedScoresRequest) => {
   const response = await safeFetcherWithAuth.get(
-    `assignment/${assignmentId}/score`,
+    `assignment/${assignmentId}/anonymized-scores`,
     {
-      searchParams: { anonymized: true, groupId: courseId }
+      searchParams: { groupId: courseId }
     }
   )
 

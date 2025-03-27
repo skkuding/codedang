@@ -37,7 +37,7 @@ export const getAssignmentRecord = async ({
   assignmentId
 }: GetAssignmentRecordRequest) => {
   const response = await safeFetcherWithAuth.get(
-    `assignment/${assignmentId}/score/me`
+    `assignment/${assignmentId}/me`
   )
   const data = await response.json<GetAssignmentRecordResponse>()
   return data
