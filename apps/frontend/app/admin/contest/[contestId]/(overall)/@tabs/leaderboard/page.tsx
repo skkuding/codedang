@@ -46,6 +46,7 @@ export default function ContestLeaderBoard() {
 
   const toggleUnfreeze = async () => {
     try {
+      // 콘테스트가 끝난다음 기능하는 부분임 -> 콘테스트 끝난다음 동작하는지 확인해야함
       console.log('contestId: ', contestId, ' unfreeze?: ', isUnfrozen)
       const res = await updateContest({
         variables: {
