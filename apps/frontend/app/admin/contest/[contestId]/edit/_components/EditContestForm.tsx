@@ -32,12 +32,6 @@ interface EditContestFormProps {
   methods: UseFormReturn<UpdateContestInput>
 }
 
-/*
-  - userContest로 바뀔 예정 -> backend 작업 기다리기
-  - included modal 디자인
-  - manager, contest problem table 디자인
-*/
-
 export function EditContestForm({
   contestId,
   children,
@@ -59,7 +53,7 @@ export function EditContestForm({
     }
   })
 
-  // 수정된 manager, reviewer 목록(managers) 으로 수정
+  // 수정된 manager, reviewer 목록(managers) 으로 등록
   const formattedManagers = managers.map((manager) => ({
     userId: manager.id,
     contestRole: manager.type
