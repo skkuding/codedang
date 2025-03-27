@@ -44,39 +44,23 @@ export interface ProblemScore {
 export class AssignmentService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAssignments(groupId: number, userId: number) {
+  async getAssignments(groupId: number) {
     const assignments = await this.prisma.assignment.findMany({
       where: {
         groupId,
         isVisible: true
       },
       select: {
-        ...assignmentSelectOption,
-        assignmentRecord: {
-          where: {
-            userId
-          },
-          select: {
-            assignmentProblemRecord: {
-              where: {
-                isSubmitted: true
-              },
-              select: {
-                problemId: true
-              }
-            }
-          }
-        }
+        ...assignmentSelectOption
       },
       orderBy: [{ week: 'asc' }, { startTime: 'asc' }]
     })
 
     const now = new Date()
 
-    return assignments.map(({ _count, assignmentRecord, ...assignment }) => ({
+    return assignments.map(({ _count, ...assignment }) => ({
       ...assignment,
-      problemNumber: now < assignment.startTime ? 0 : _count.assignmentProblem,
-      submittedNumber: assignmentRecord[0]?.assignmentProblemRecord?.length ?? 0
+      problemCount: now < assignment.startTime ? 0 : _count.assignmentProblem
     }))
   }
 
@@ -104,21 +88,7 @@ export class AssignmentService {
         },
         select: {
           ...assignmentSelectOption,
-          description: true,
-          assignmentRecord: {
-            where: { userId },
-            take: 1,
-            select: {
-              assignmentProblemRecord: {
-                where: {
-                  isSubmitted: true
-                },
-                select: {
-                  problemId: true
-                }
-              }
-            }
-          }
+          description: true
         }
       })
     } catch (error) {
@@ -130,48 +100,12 @@ export class AssignmentService {
       }
       throw error
     }
-    /* HACK: standings 업데이트 로직 수정 후 삭제
-    // get assignment participants ranking using AssignmentRecord
-    const sortedAssignmentRecordsWithUserDetail =
-      await this.prisma.assignmentRecord.findMany({
-        where: {
-          assignmentId: id
-        },
-        select: {
-          user: {
-            select: {
-              id: true,
-              username: true
-            }
-          },
-          score: true,
-          totalPenalty: true
-        },
-        orderBy: [
-          {
-            score: 'desc'
-          },
-          {
-            totalPenalty: 'asc'
-          }
-        ]
-      })
 
-    const UsersWithStandingDetail = sortedAssignmentRecordsWithUserDetail.map(
-      (assignmentRecord, index) => ({
-        ...assignmentRecord,
-        standing: index + 1
-      })
-    )
-    */
-    // combine assignment and sortedAssignmentRecordsWithUserDetail
-
-    const { _count, assignmentRecord, ...assignmentDetails } = assignment
+    const { _count, ...assignmentDetails } = assignment
 
     return {
       ...assignmentDetails,
-      problemCount: _count.assignmentProblem,
-      submittedCount: assignmentRecord[0].assignmentProblemRecord.length
+      problemCount: _count.assignmentProblem
     }
   }
 

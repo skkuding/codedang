@@ -17,11 +17,8 @@ export class AssignmentController {
   constructor(private readonly assignmentService: AssignmentService) {}
 
   @Get('')
-  async getAssignments(
-    @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number
-  ) {
-    return await this.assignmentService.getAssignments(groupId, req.user.id)
+  async getAssignments(@Query('groupId', GroupIDPipe) groupId: number) {
+    return await this.assignmentService.getAssignments(groupId)
   }
 
   @Get(':id')
