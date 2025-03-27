@@ -35,10 +35,10 @@ export function LeaderboardModalDialog() {
             <X className="h-6 w-6" />
           </DialogClose>
           <div className="flex flex-col overflow-x-auto">
-            <div className="mb-8 h-[34px] w-[500px] text-[24px] font-bold text-black">
+            <p className="mb-8 h-[34px] w-[500px] text-[24px] font-bold text-black">
               Ranking System of Contest
-            </div>
-            <div className="mb-7 flex text-[#5C5C5C]">
+            </p>
+            <p className="mb-7 flex text-[#5C5C5C]">
               <ModalNumberComponent index={1} />
               <div className="ml-3 flex flex-col">
                 <div className="text-base">
@@ -48,8 +48,8 @@ export function LeaderboardModalDialog() {
                   based on the number of problems solved.
                 </div>
               </div>
-            </div>
-            <div className="flex text-[#5C5C5C]">
+            </p>
+            <p className="flex text-[#5C5C5C]">
               <ModalNumberComponent index={2} />
               <div className="ml-4 flex flex-col space-y-4">
                 <div>
@@ -81,13 +81,13 @@ export function LeaderboardModalDialog() {
                   <div>they are considered to have the same rank.</div>
                 </div>
               </div>
-            </div>
-            <div className="pt-[76px]">
+            </p>
+            <p className="pt-[76px]">
               <div className="text-2xl font-bold">
                 Introduction to Leaderboard
               </div>
-            </div>
-            <div className="space-y-4 pl-[11px] pt-[29px]">
+            </p>
+            <p className="space-y-4 pl-[11px] pt-[29px]">
               <LeaderboardScoreExplanationRow
                 isTalkBalloon={false}
                 title={'NNN'}
@@ -123,7 +123,7 @@ export function LeaderboardModalDialog() {
                   'The number of submissions displayed when hovering over ‘Accepted’'
                 }
               />
-            </div>
+            </p>
           </div>
         </DialogContent>
       </Dialog>

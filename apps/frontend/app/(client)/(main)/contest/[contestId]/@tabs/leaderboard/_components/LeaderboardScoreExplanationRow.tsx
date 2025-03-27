@@ -30,7 +30,7 @@ export function LeaderboardScoreExplanationRow({
         </div>
       )}
       <div className="flex h-[68px] w-[491px] flex-col justify-center rounded-[10px] bg-[#FAFAFA] pl-6">
-        <div className="h-[22px] w-[69px] font-semibold text-[#474747]">
+        <div className="h-[22px] w-[100px] font-semibold text-[#474747]">
           {explanationTitle}
         </div>
         {explanationDetail && (
