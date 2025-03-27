@@ -24,7 +24,7 @@ export function LeaderboardModalDialog() {
         </DialogTrigger>
         <DialogContent
           showDarkOverlay={true}
-          className="h-[545px] w-[700px] max-w-none gap-0 space-y-0 rounded-[16px] border-none bg-[#FFFFFF] pb-12 pl-10 pt-10 [&>button:last-child]:hidden"
+          className="h-[730px] w-[700px] max-w-none gap-0 space-y-0 rounded-[16px] border-none bg-[#FFFFFF] pb-12 pl-10 pt-10 [&>button:last-child]:hidden"
         >
           <DialogTitle className="sr-only">
             Ranking System of Contest
