@@ -54,9 +54,9 @@ export class CreateContestInput {
 
   @IsArray()
   @ValidateNested({ each: true }) // 배열 요소를 개별적으로 검사
-  @Type(() => UserContestRoleInput) // class-validator에서 객체 변환 적용
-  @Field(() => [UserContestRoleInput], { nullable: true })
-  userContestRoles?: UserContestRoleInput[]
+  @Type(() => UserContestInput) // class-validator에서 객체 변환 적용
+  @Field(() => [UserContestInput], { nullable: true })
+  userContest?: UserContestInput[]
 
   @Field(() => GraphQLJSON, { nullable: true })
   summary?: Record<string, string>
@@ -111,16 +111,16 @@ export class UpdateContestInput {
 
   @IsArray()
   @ValidateNested({ each: true }) // 배열 요소를 개별적으로 검사
-  @Type(() => UserContestRoleInput) // class-validator에서 객체 변환 적용
-  @Field(() => [UserContestRoleInput], { nullable: true })
-  userContestRoles?: UserContestRoleInput[]
+  @Type(() => UserContestInput) // class-validator에서 객체 변환 적용
+  @Field(() => [UserContestInput], { nullable: true })
+  userContest?: UserContestInput[]
 
   @Field(() => GraphQLJSON, { nullable: true })
   summary?: Record<string, string>
 }
 
 @InputType()
-export class UserContestRoleInput {
+export class UserContestInput {
   @Field(() => Int, { nullable: false })
   @IsNumber()
   userId!: number

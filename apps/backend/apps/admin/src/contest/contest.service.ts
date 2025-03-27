@@ -112,11 +112,10 @@ export class ContestService {
       throw new EntityNotExistException('contest')
     }
 
-    const { _count, userContest, ...data } = contest
+    const { _count, ...data } = contest
 
     return {
       ...data,
-      userContestRoles: userContest,
       participants: _count.contestRecord
     }
   }
@@ -152,13 +151,13 @@ export class ContestService {
       }
     }
 
-    const { summary, userContestRoles, ...contestData } = contest
+    const { summary, userContest, ...contestData } = contest
 
-    if (userContestRoles) {
+    if (userContest) {
       const validRoles = new Set(['Manager', 'Reviewer'])
       const seenUserIds = new Set<number>()
 
-      for (const role of userContestRoles) {
+      for (const role of userContest) {
         if (!validRoles.has(role.contestRole)) {
           throw new UnprocessableDataException(
             `Invalid contest role: ${role.contestRole}`
@@ -192,9 +191,9 @@ export class ContestService {
         }
       })
 
-      if (userContestRoles?.length) {
+      if (userContest?.length) {
         await tx.userContest.createMany({
-          data: userContestRoles.map((role) => ({
+          data: userContest.map((role) => ({
             userId: role.userId,
             contestId: createdContest.id,
             role: role.contestRole as ContestRole
@@ -341,7 +340,7 @@ export class ContestService {
       }
     }
 
-    const { id, summary, userContestRoles: newRoles, ...contestData } = contest
+    const { id, summary, userContest: newRoles, ...contestData } = contest
 
     // userContest 중 삭제된 userContestRole 삭제, 추가된 userContestRole 추가, 변경된 userContestRole 변경
     if (newRoles) {
