@@ -44,7 +44,7 @@ body:graphql:vars {
         "문제형태": "updatedproblemFormat",
         "참여혜택": "updatedbenefits"
       },
-      "userContestRoles": [
+      "userContest": [
         { "userId": 5, "contestRole": "Manager" },
         { "userId": 6, "contestRole": "Reviewer" }
       ],
@@ -85,7 +85,7 @@ docs {
   | isJudgeResultVisible | Boolean | ❌ | 채점 결과 공개 여부 |
   | enableCopyPaste | Boolean | ❌ | 복사/붙여넣기 허용 여부 |
   | evaluateWithSampleTestcase | Boolean | ❌ | 샘플 테스트케이스로 평가 여부 |
-  | userContestRoles | [UserContestRoleInput] | ❌ | Manager, Reviewer 역할 부여 및 수정 |
+  | userContest | [UserContestRoleInput] | ❌ | Manager, Reviewer 역할 부여 및 수정 |
   | summary | GraphQLJSON | ❌ | 다국어 요약 정보 |
 
   ## 응답 필드
