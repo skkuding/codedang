@@ -144,9 +144,7 @@ export function LeaderboardRow({
             </div>
           )}
           <div className="flex flex-col justify-center pl-[18px]">
-            <div className="text-[22px] font-semibold text-white">
-              {username}
-            </div>
+            <div className="text-[22px] font-bold text-white">{username}</div>
             <div className="flex flex-row text-[14px] text-white">
               Total Penalty /{' '}
               <div className="font-medium text-white">{totalPenalty}</div>

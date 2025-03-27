@@ -83,6 +83,10 @@ export default function ContestLeaderBoard() {
   }
 
   const handleSearch = ({ text, leaderboardUsers }: HandleSearchProps) => {
+    if (text === '') {
+      alert('나는 입력을 원한다.')
+      return
+    }
     const regex = new RegExp(text, 'i')
     const matchedIndices = leaderboardUsers
       .map((user, index) => (regex.test(user.username) ? index : -1))
