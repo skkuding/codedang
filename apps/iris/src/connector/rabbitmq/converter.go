@@ -13,7 +13,11 @@ func convertHeaderCarrierToTable(carrier propagation.HeaderCarrier) amqp.Table {
 	httpHeaders := http.Header(carrier)
 	for key, values := range httpHeaders {
 		if len(values) > 0 {
-			headers[key] = values[0]
+			if len(values) == 1 {
+				headers[key] = values[0]
+			} else {
+				headers[key] = values
+			}
 		}
 	}
 	return headers
