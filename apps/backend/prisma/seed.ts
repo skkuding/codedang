@@ -1071,8 +1071,6 @@ const createContests = async () => {
       summary: Prisma.InputJsonValue
       startTime: Date
       endTime: Date
-      isVisible: boolean
-      isRankVisible: boolean
       invitationCode: string | null
       evaluateWithSampleTestcase: boolean
       enableCopyPaste: boolean
@@ -1123,8 +1121,6 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1144,8 +1140,6 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1165,8 +1159,6 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1186,8 +1178,6 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1208,8 +1198,6 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1229,8 +1217,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1251,8 +1237,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1273,8 +1257,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1294,8 +1276,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1315,8 +1295,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1336,8 +1314,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1357,8 +1333,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: false,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1379,8 +1353,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: false,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1400,8 +1372,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1422,8 +1392,6 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1443,8 +1411,6 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1453,8 +1419,7 @@ const createContests = async () => {
     {
       data: {
         title: '2024 스꾸딩 프로그래밍 대회',
-        description:
-          '<p>이 대회는 언젠가 열리겠죠...? isVisible이 false인 assignment입니다</p>',
+        description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
         posterUrl: `https://skkuding.dev/open-graph.png`,
         summary: {
@@ -1465,8 +1430,6 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
-        isVisible: false,
-        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1486,8 +1449,6 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1507,8 +1468,6 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1528,8 +1487,6 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
-        isVisible: true,
-        isRankVisible: true,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: true,
         invitationCode: null
@@ -1993,6 +1950,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[0].id,
       result: ResultStatus.Accepted,
+      output: '2\n',
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -2031,6 +1989,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[1].id,
       result: ResultStatus.WrongAnswer,
+      output: '99999\n',
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -2101,6 +2060,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[3].id,
       result: ResultStatus.RuntimeError,
+      output: null,
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -2139,6 +2099,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[4].id,
       result: ResultStatus.TimeLimitExceeded,
+      output: null,
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -2178,6 +2139,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[0].id,
       result: ResultStatus.Accepted,
+      output: '2\n',
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -2216,6 +2178,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[1].id,
       result: ResultStatus.WrongAnswer,
+      output: '99999\n',
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -2286,6 +2249,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[3].id,
       result: ResultStatus.RuntimeError,
+      output: null,
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -2324,6 +2288,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[4].id,
       result: ResultStatus.TimeLimitExceeded,
+      output: null,
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -2362,6 +2327,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[5].id,
       result: ResultStatus.MemoryLimitExceeded,
+      output: null,
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -2396,6 +2362,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[6].id,
       result: ResultStatus.OutputLimitExceeded,
+      output: null,
       cpuTime: 12345,
       memoryUsage: 12345
     }

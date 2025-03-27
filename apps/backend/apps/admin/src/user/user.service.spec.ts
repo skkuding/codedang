@@ -199,13 +199,20 @@ describe('UserService', () => {
       db.user.update.resolves({
         id: user1.id,
         role: user1.role,
-        canCreateCourse: true
+        canCreateCourse: true,
+        canCreateContest: true
       })
-      const result = await service.updateCanCreateCourse(user1.id, true)
+
+      const result = await service.updateCreationPermissions({
+        userId: user1.id,
+        canCreateCourse: true,
+        canCreateContest: true
+      })
       expect(result).to.deep.equal({
         id: user1.id,
         role: user1.role,
-        canCreateCourse: true
+        canCreateCourse: true,
+        canCreateContest: true
       })
     })
   })

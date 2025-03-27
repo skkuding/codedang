@@ -11,6 +11,7 @@ import {
   DialogTrigger
 } from '@/components/shadcn/dialog'
 import type { Editor } from '@tiptap/core'
+import type { Dispatch, SetStateAction } from 'react'
 import { Button } from './shadcn/button'
 import { Toggle } from './shadcn/toggle'
 
@@ -20,6 +21,8 @@ interface InsertDialogProps {
   triggerIcon: React.ReactNode
   title: string
   description: React.ReactNode
+  open?: boolean
+  onOpenChange?: Dispatch<SetStateAction<boolean>>
   onInsert?: () => void
   onToggleClick?: () => void
 }
@@ -30,13 +33,18 @@ export function InsertDialog({
   title,
   description,
   triggerIcon,
+  open,
+  onOpenChange,
   onInsert,
   onToggleClick
 }: InsertDialogProps) {
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild onClick={onToggleClick}>
-        <Toggle size="sm" pressed={editor?.isActive({ activeType })}>
+        <Toggle
+          className="h-7 w-7 p-1"
+          pressed={editor?.isActive({ activeType })}
+        >
           {triggerIcon}
         </Toggle>
       </DialogTrigger>
