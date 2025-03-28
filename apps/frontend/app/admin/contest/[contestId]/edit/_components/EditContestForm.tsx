@@ -117,7 +117,7 @@ export function EditContestForm({
           title: problem.problem.title,
           order: problem.order,
           difficulty: problem.problem.difficulty,
-          score: problem.score ?? 0 // Score 기능 완료되면 수정해주세요!!
+          score: problem.score ?? 1 // Score 기능 완료되면 수정해주세요!!
         }
       })
       setProblems(contestProblems)
