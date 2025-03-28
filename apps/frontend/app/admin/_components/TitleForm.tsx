@@ -24,7 +24,7 @@ export function TitleForm({ placeholder }: TitleFormProps) {
 
   return (
     <div className="flex flex-col">
-      <div className="flex w-[491px] items-center rounded-full border bg-white pr-4">
+      <div className="flex w-[492px] items-center rounded-full border bg-white pr-4">
         <Input
           id="title"
           type="text"
