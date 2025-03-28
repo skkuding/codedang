@@ -3,14 +3,13 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
-import type { Contest, User, Assignment, Problem } from '@prisma/client'
+import type { Contest, User, Assignment } from '@prisma/client'
 import { Language, Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
 import { spy, stub } from 'sinon'
-import * as sinon from 'sinon'
 import {
   ConflictFoundException,
   EntityNotExistException,
