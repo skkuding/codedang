@@ -382,6 +382,8 @@ export class GroupService {
     })
   }
 
+  /* Grade와 Assignment 메뉴의 통합으로 필요없어졌으나..
+  추후 여러 Assignment의 grade를 한번에 확인할 API가 필요해질 경우에 대비하여 남겨둠
   async getAssignmentGradeSummary(userId: number, groupId: number) {
     const assignmentRecords = await this.prisma.assignmentRecord.findMany({
       where: { userId, assignment: { groupId } },
@@ -525,4 +527,5 @@ export class GroupService {
 
     return formattedAssignments
   }
+    */
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import {
   ConflictFoundException,
@@ -44,39 +44,23 @@ export interface ProblemScore {
 export class AssignmentService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAssignments(groupId: number, userId: number) {
+  async getAssignments(groupId: number) {
     const assignments = await this.prisma.assignment.findMany({
       where: {
         groupId,
         isVisible: true
       },
       select: {
-        ...assignmentSelectOption,
-        assignmentRecord: {
-          where: {
-            userId
-          },
-          select: {
-            assignmentProblemRecord: {
-              where: {
-                isSubmitted: true
-              },
-              select: {
-                problemId: true
-              }
-            }
-          }
-        }
+        ...assignmentSelectOption
       },
       orderBy: [{ week: 'asc' }, { startTime: 'asc' }]
     })
 
     const now = new Date()
 
-    return assignments.map(({ _count, assignmentRecord, ...assignment }) => ({
+    return assignments.map(({ _count, ...assignment }) => ({
       ...assignment,
-      problemNumber: now < assignment.startTime ? 0 : _count.assignmentProblem,
-      submittedNumber: assignmentRecord[0]?.assignmentProblemRecord?.length ?? 0
+      problemCount: now < assignment.startTime ? 0 : _count.assignmentProblem
     }))
   }
 
@@ -96,6 +80,7 @@ export class AssignmentService {
         'User not participated in the assignment'
       )
     }
+
     try {
       assignment = await this.prisma.assignment.findUniqueOrThrow({
         where: {
@@ -104,22 +89,7 @@ export class AssignmentService {
         },
         select: {
           ...assignmentSelectOption,
-          description: true,
-          assignmentRecord: {
-            where: {
-              userId
-            },
-            select: {
-              assignmentProblemRecord: {
-                where: {
-                  isSubmitted: true
-                },
-                select: {
-                  problemId: true
-                }
-              }
-            }
-          }
+          description: true
         }
       })
     } catch (error) {
@@ -131,48 +101,12 @@ export class AssignmentService {
       }
       throw error
     }
-    /* HACK: standings 업데이트 로직 수정 후 삭제
-    // get assignment participants ranking using AssignmentRecord
-    const sortedAssignmentRecordsWithUserDetail =
-      await this.prisma.assignmentRecord.findMany({
-        where: {
-          assignmentId: id
-        },
-        select: {
-          user: {
-            select: {
-              id: true,
-              username: true
-            }
-          },
-          score: true,
-          totalPenalty: true
-        },
-        orderBy: [
-          {
-            score: 'desc'
-          },
-          {
-            totalPenalty: 'asc'
-          }
-        ]
-      })
 
-    const UsersWithStandingDetail = sortedAssignmentRecordsWithUserDetail.map(
-      (assignmentRecord, index) => ({
-        ...assignmentRecord,
-        standing: index + 1
-      })
-    )
-    */
-    // combine assignment and sortedAssignmentRecordsWithUserDetail
-
-    const { _count, assignmentRecord, ...assignmentDetails } = assignment
+    const { _count, ...assignmentDetails } = assignment
 
     return {
       ...assignmentDetails,
-      problemNumber: _count.assignmentProblem,
-      submittedNumber: assignmentRecord[0].assignmentProblemRecord.length
+      problemCount: _count.assignmentProblem
     }
   }
 
@@ -222,6 +156,44 @@ export class AssignmentService {
     })
   }
 
+  async participateAllOngoingAssignments(groupId: number, userId: number) {
+    const assignments = await this.prisma.assignment.findMany({
+      where: {
+        groupId,
+        startTime: {
+          lte: new Date()
+        }
+      },
+      select: {
+        id: true,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: {
+            assignmentRecord: {
+              where: { userId }
+            }
+          }
+        }
+      }
+    })
+
+    if (!assignments.length) {
+      throw new NotFoundException('Assignment')
+    }
+
+    const notParticipatedAssignmentIds = assignments
+      .filter((assignment) => !assignment._count.assignmentRecord)
+      .map((assignment) => assignment.id)
+
+    await Promise.all(
+      notParticipatedAssignmentIds.map((assignmentId) =>
+        this.createAssignmentRecord(assignmentId, userId, groupId)
+      )
+    )
+
+    return notParticipatedAssignmentIds
+  }
+
   async deleteAssignmentRecord(
     assignmentId: number,
     userId: number,
@@ -241,7 +213,7 @@ export class AssignmentService {
     }
 
     if (!assignmentRecord) {
-      throw new EntityNotExistException('Assignment')
+      throw new EntityNotExistException('Assignment Record')
     }
 
     const now = new Date()
@@ -341,12 +313,9 @@ export class AssignmentService {
       },
       select: {
         id: true,
-        title: true,
-        endTime: true,
         isFinalScoreVisible: true,
         isJudgeResultVisible: true,
         autoFinalizeScore: true,
-        week: true,
         assignmentProblem: {
           select: {
             problemId: true,
@@ -429,18 +398,25 @@ export class AssignmentService {
       where: { userId, assignmentId },
       select: {
         problemId: true,
-        createTime: true
+        createTime: true,
+        result: true
       },
       orderBy: {
         createTime: 'desc'
       }
     })
 
-    const submissionMap = new Map<number, Date>()
+    const submissionMap = new Map<
+      number,
+      { submissionTime: Date; submissionResult: string }
+    >()
 
     for (const submission of submissions) {
       if (!submissionMap.has(submission.problemId)) {
-        submissionMap.set(submission.problemId, submission.createTime)
+        submissionMap.set(submission.problemId, {
+          submissionTime: submission.createTime,
+          submissionResult: submission.result
+        })
       }
     }
 
@@ -453,8 +429,10 @@ export class AssignmentService {
       title: ap.problem.title,
       order: ap.order,
       maxScore: ap.score,
-      problemRecord: problemRecordMap[ap.problemId] || null,
-      submissionTime: submissionMap.get(ap.problemId)
+      problemRecord: problemRecordMap[ap.problemId] ?? null,
+      submissionTime: submissionMap.get(ap.problemId)?.submissionTime ?? null,
+      submissionResult:
+        submissionMap.get(ap.problemId)?.submissionResult ?? null
     }))
 
     const assignmentPerfectScore = assignment.assignmentProblem.reduce(
@@ -464,12 +442,9 @@ export class AssignmentService {
 
     return {
       id: assignment.id,
-      title: assignment.title,
-      endTime: assignment.endTime,
       autoFinalizeScore: assignment.autoFinalizeScore,
       isFinalScoreVisible: assignment.isFinalScoreVisible,
       isJudgeResultVisible: assignment.isJudgeResultVisible,
-      week: assignment.week,
       userAssignmentFinalScore: assignment.isFinalScoreVisible
         ? assignmentRecord.finalScore
         : null,
@@ -480,5 +455,74 @@ export class AssignmentService {
       comment: assignmentRecord.comment,
       problems
     }
+  }
+
+  async getMyAssignmentsSummary(groupId: number, userId: number) {
+    const assignments = await this.prisma.assignment.findMany({
+      where: {
+        groupId,
+        isVisible: true,
+        startTime: {
+          lte: new Date()
+        }
+      },
+      select: {
+        id: true,
+        assignmentProblem: {
+          select: {
+            score: true
+          }
+        },
+        assignmentRecord: {
+          where: { userId },
+          select: {
+            score: true,
+            finalScore: true,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            _count: {
+              select: {
+                assignmentProblemRecord: {
+                  where: {
+                    isSubmitted: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      orderBy: [{ week: 'asc' }, { startTime: 'asc' }]
+    })
+
+    if (!assignments.length) {
+      return []
+    }
+
+    const assignmentPerfectScoresMap = assignments.reduce(
+      (map, { id, assignmentProblem, assignmentRecord }) => {
+        if (!assignmentRecord.length) {
+          throw new ForbiddenAccessException(
+            'User not participated in the assignment'
+          )
+        }
+        const total = assignmentProblem.reduce(
+          (sum, { score }) => sum + score,
+          0
+        )
+        map[id] = total
+        return map
+      },
+      {}
+    )
+
+    return assignments.map((assignment) => ({
+      id: assignment.id,
+      problemCount: assignment.assignmentProblem.length,
+      submittedCount:
+        assignment.assignmentRecord[0]._count.assignmentProblemRecord,
+      assignmentPerfectScore: assignmentPerfectScoresMap[assignment.id],
+      userAssignmentFinalScore: assignment.assignmentRecord[0].finalScore,
+      userAssignmentJudgeScore: assignment.assignmentRecord[0].score
+    }))
   }
 }

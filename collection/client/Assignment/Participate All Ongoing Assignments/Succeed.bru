@@ -1,0 +1,39 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/assignment/participation?groupId=2
+  body: none
+  auth: none
+}
+
+params:query {
+  groupId: 2
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+  // TODO: remove participation
+}
+
+docs {
+  # Participate All Ongoing Assignments
+
+  ## 특정 강의에서 유저가 참여하고있지 않지만 진행중인 과제들에 대해 참여합니다
+
+  ### 파라미터
+  | 이름 | 타입 | 위치 | 필수 여부 | 설명 |
+  |------|------|------|-----------|------|
+  | groupId | number | query | 필수 | 과제가 속한 그룹(코스) ID |
+
+
+  ### 특이사항
+  - 모든 강의에 가입되어있는 경우 빈 배열을 반환합니다.
+}
