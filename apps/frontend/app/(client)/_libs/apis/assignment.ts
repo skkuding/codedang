@@ -1,4 +1,4 @@
-import { safeFetcherWithAuth } from '@/libs/utils'
+import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
 import type {
   Assignment,
   AssignmentProblemRecord,
@@ -56,15 +56,17 @@ export type GetAssignmentsSummaryResponse = AssignmentSummary[]
 export const getAssignmentsSummary = async ({
   courseId
 }: GetAssignmentsSummaryRequest) => {
-  const response = await safeFetcherWithAuth.get('assignment/me/summary', {
-    searchParams: { groupId: courseId }
-  })
-  // 403오류 시, 참여하지 않은 모든 과제 강제 참여시키기
-  if (response.status === 403) {
-    participateAllOngoingAssignments({ courseId })
+  try {
+    const response = await safeFetcherWithAuth.get('assignment/me/summary', {
+      searchParams: { groupId: courseId }
+    })
+    const data = await response.json<GetAssignmentsSummaryResponse>()
+    return data
+  } catch (error) {
+    if (isHttpError(error) && error.response.status === 403) {
+      participateAllOngoingAssignments({ courseId })
+    }
   }
-  const data = await response.json<GetAssignmentsSummaryResponse>()
-  return data
 }
 
 export interface ParticipateAllOngoingAssignmentsRequest {
@@ -74,7 +76,7 @@ export interface ParticipateAllOngoingAssignmentsRequest {
 export const participateAllOngoingAssignments = async ({
   courseId
 }: ParticipateAllOngoingAssignmentsRequest) => {
-  const response = await safeFetcherWithAuth.get('assignment/participation', {
+  const response = await safeFetcherWithAuth.post('assignment/participation', {
     searchParams: { groupId: courseId }
   })
   // 정상 응답 시, 과제 요약 정보 다시 가져오기
