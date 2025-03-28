@@ -5,8 +5,7 @@ import {
   Req,
   Get,
   Query,
-  Delete,
-  BadRequestException
+  Delete
 } from '@nestjs/common'
 import { AuthenticatedRequest } from '@libs/auth'
 import { GroupIDPipe, IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
@@ -17,11 +16,8 @@ export class AssignmentController {
   constructor(private readonly assignmentService: AssignmentService) {}
 
   @Get('')
-  async getAssignments(
-    @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number
-  ) {
-    return await this.assignmentService.getAssignments(groupId, req.user.id)
+  async getAssignments(@Query('groupId', GroupIDPipe) groupId: number) {
+    return await this.assignmentService.getAssignments(groupId)
   }
 
   @Get(':id')
@@ -33,7 +29,7 @@ export class AssignmentController {
   }
 
   @Post(':id/participation')
-  async createAssignmentRecord(
+  async participateAssignment(
     @Req() req: AuthenticatedRequest,
     @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', IDValidationPipe) assignmentId: number
@@ -42,6 +38,17 @@ export class AssignmentController {
       assignmentId,
       req.user.id,
       groupId
+    )
+  }
+
+  @Post('/participation')
+  async participateAllOngoingAssignments(
+    @Req() req: AuthenticatedRequest,
+    @Query('groupId', GroupIDPipe) groupId: number
+  ) {
+    return await this.assignmentService.participateAllOngoingAssignments(
+      groupId,
+      req.user.id
     )
   }
 
@@ -59,31 +66,35 @@ export class AssignmentController {
     )
   }
 
-  @Get(':id/score')
+  @Get(':id/anonymized-scores')
   async getAnonymizedScores(
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Param('id', IDValidationPipe) assignmentId: number,
-    @Query('anonymized') anonymized: boolean
+    @Param('id', IDValidationPipe) assignmentId: number
   ) {
-    if (!anonymized) {
-      throw new BadRequestException(
-        'This API is only available with anonymized=true'
-      )
-    }
-
     return await this.assignmentService.getAnonymizedScores(
       assignmentId,
       groupId
     )
   }
 
-  @Get(':id/score/me')
+  @Get(':id/me')
   async getMyAssignmentProblemRecord(
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) assignmentId: number
   ) {
     return await this.assignmentService.getMyAssignmentProblemRecord(
       assignmentId,
+      req.user.id
+    )
+  }
+
+  @Get('/me/summary')
+  async getMyAssignmentsSummary(
+    @Req() req: AuthenticatedRequest,
+    @Query('groupId', GroupIDPipe) groupId: number
+  ) {
+    return await this.assignmentService.getMyAssignmentsSummary(
+      groupId,
       req.user.id
     )
   }
