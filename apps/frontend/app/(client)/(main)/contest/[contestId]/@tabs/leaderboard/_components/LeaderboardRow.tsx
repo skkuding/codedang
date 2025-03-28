@@ -233,6 +233,7 @@ function LeaderboardPenalty({ problem }: LeaderboardPenaltyProps) {
   const score = problem.score
   const isFrozen = problem.isFrozen
   const isFirstSolver = problem.isFirstSolver
+
   if (isFrozen) {
     return <div className="text-xl font-semibold text-[#C4C4C4]">Frozen</div>
   } else if (score === 0) {
