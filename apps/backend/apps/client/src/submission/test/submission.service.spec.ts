@@ -3,13 +3,14 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
-import type { Contest, User, Assignment } from '@prisma/client'
+import type { Contest, User, Assignment, Problem } from '@prisma/client'
 import { Language, Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
 import { spy, stub } from 'sinon'
+import * as sinon from 'sinon'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -80,7 +81,28 @@ const db = {
   user: {
     findFirst: stub()
   },
-  getPaginator: PrismaService.prototype.getPaginator
+  getPaginator: PrismaService.prototype.getPaginator,
+  $transaction: stub().callsFake(
+    async <T>(operations: (() => Promise<T>)[]): Promise<T[]> => {
+      if (!Array.isArray(operations)) {
+        throw new Error('$transaction expects an array of operations')
+      }
+
+      try {
+        const results: T[] = [] // ✅ 제네릭 T 적용하여 타입 명확화
+        for (const op of operations) {
+          if (typeof op === 'function') {
+            results.push(await op())
+          } else {
+            results.push(op)
+          }
+        }
+        return results
+      } catch (error) {
+        throw new Error(`Transaction failed: ${error.message}`)
+      }
+    }
+  )
 }
 
 const CONTEST_ID = 1
@@ -344,6 +366,63 @@ describe('SubmissionService', () => {
         })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
+    })
+  })
+
+  describe('rejudgeSubmissionsByProblem', () => {
+    it('should return sucessful rejudge value', async () => {
+      const ResultValue = {
+        successCount: 2,
+        failedSubmissions: []
+      }
+
+      const createSubmissionResultsSpy = stub(
+        service,
+        'createSubmissionResults'
+      )
+      const publishJudgeRequestMessageSpy = stub(
+        publish,
+        'publishJudgeRequestMessage'
+      )
+
+      db.submission.findMany.resolves(submissions)
+      db.submission.update.resolves(submissions)
+      db.submission.create.resolves(submissions)
+
+      const result = await service.rejudgeSubmissionsByProblem(1)
+
+      expect(result).to.deep.equal(ResultValue)
+    })
+
+    it('should throw an exception when no submissions are found for the problem', async () => {
+      db.submission.findMany.resolves([])
+
+      await expect(service.rejudgeSubmissionsByProblem(1)).to.be.rejectedWith(
+        EntityNotExistException
+      )
+    })
+  })
+
+  describe('rejudgeSubmissionById', () => {
+    it('should return sucessful rejudge value', async () => {
+      db.submission.findUnique.resolves(submissions[1])
+      db.submission.update.resolves(submissions[1])
+      db.submission.create.resolves(submissions[1])
+
+      const result = await service.rejudgeSubmissionById(1)
+
+      await expect(result).to.deep.equal({
+        error: "Cannot read properties of undefined (reading 'map')",
+        success: false
+      })
+    })
+
+    it('should throw an exception when no submissions are found for the submissionID', async () => {
+      db.submission.findUnique.resolves(null)
+
+      await expect(service.rejudgeSubmissionById(1)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
   })
 
