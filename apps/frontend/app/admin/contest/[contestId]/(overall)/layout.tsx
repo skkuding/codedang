@@ -1,6 +1,6 @@
 'use client'
 
-import { KatexContent } from '@/components/KatexContent'
+import { AdminContestStatusTimeDiff } from '@/app/admin/_components/AdminContestStatusTimeDiff'
 import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { dateFormatter } from '@/libs/utils'
@@ -9,6 +9,7 @@ import { useQuery } from '@apollo/client'
 import Image from 'next/image'
 import Link from 'next/link'
 import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
+import { IoKey } from 'react-icons/io5'
 import { ContestOverallTabs } from '../_components/ContestOverallTabs'
 
 export default function Layout({
@@ -27,8 +28,8 @@ export default function Layout({
   }).data?.getContest
 
   return (
-    <main className="flex flex-col gap-6 px-20 py-16">
-      <div className="flex items-center justify-between">
+    <main className="flex flex-col px-20 py-16">
+      <div className="mb-10 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/admin/contest">
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
@@ -42,22 +43,24 @@ export default function Layout({
           </Button>
         </Link>
       </div>
-      <div className="flex justify-between">
-        <p className="text-primary font-bold">
-          Invitation code: {contestData?.invitationCode}
-        </p>
+      <div className="mb-[120px] flex flex-col gap-[10px]">
+        <div className="flex font-normal text-[#333333E5]">
+          <IoKey className="black self-center" color="#3581FA" />
+          &nbsp; Invitation code: {contestData?.invitationCode}
+        </div>
         <div className="flex items-center gap-2">
-          <Image src={calendarIcon} alt="calendar" width={22} />
-          <p className="font-semibold">
+          <Image src={calendarIcon} alt="calendar" width={16} />
+          <p className="font-normal text-[#333333E5]">
             {dateFormatter(contestData?.startTime, 'YY-MM-DD HH:mm')} ~{' '}
             {dateFormatter(contestData?.endTime, 'YY-MM-DD HH:mm')}
           </p>
         </div>
+        <AdminContestStatusTimeDiff
+          contest={contestData}
+          textStyle="font-normal text-[#333333E5] opacity-100"
+          inContestEditor={false}
+        />
       </div>
-      <KatexContent
-        content={contestData?.description}
-        classname="prose mb-4 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12"
-      />
       <ContestOverallTabs contestId={contestId} />
       {tabs}
     </main>
