@@ -15,11 +15,13 @@ const DEFAULT_ROW_SIZE = 313
 interface LeaderboardTableProps {
   problemSize: number
   leaderboardUsers: LeaderboardUser[]
+  matchedIndices: number[]
 }
 
 export function LeaderboardTable({
   problemSize,
-  leaderboardUsers
+  leaderboardUsers,
+  matchedIndices
 }: LeaderboardTableProps) {
   const solvedList = leaderboardUsers.map((user) => {
     let solved = 0
@@ -176,6 +178,7 @@ export function LeaderboardTable({
           <Tooltip.Provider>
             {leaderboardUsers.map((user, index) => {
               const problemRecords = user?.problemRecords
+              const search = matchedIndices.includes(index)
               return (
                 <LeaderboardRow
                   username={user.username}
@@ -185,6 +188,7 @@ export function LeaderboardTable({
                   resizableRowSize={resizableRowSize}
                   problemRecords={problemRecords}
                   key={index}
+                  search={search}
                 />
               )
             })}
