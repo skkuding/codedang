@@ -20,6 +20,7 @@ interface DataTableRootProps<TData extends { id: number }, TValue> {
   defaultSortState?: { id: string; desc: boolean }[]
   defaultPageSize?: number
   selectedRowIds?: number[]
+  hiddenColumns?: string[]
   children: ReactNode
 }
 
@@ -43,6 +44,7 @@ export function DataTableRoot<TData extends { id: number }, TValue>({
   defaultPageSize = 10,
   defaultSortState = [],
   selectedRowIds = [],
+  hiddenColumns = [],
   children
 }: DataTableRootProps<TData, TValue>) {
   const defaultRowSelection = Object.fromEntries(
@@ -63,7 +65,9 @@ export function DataTableRoot<TData extends { id: number }, TValue>({
         pageSize: defaultPageSize
       },
       rowSelection: defaultRowSelection,
-      columnVisibility: DEFAULT_COLUMN_VISIBILITY
+      columnVisibility: hiddenColumns.length
+        ? Object.fromEntries(hiddenColumns.map((col) => [col, false]))
+        : DEFAULT_COLUMN_VISIBILITY
     },
     autoResetPageIndex: false,
     enableRowSelection: true,
