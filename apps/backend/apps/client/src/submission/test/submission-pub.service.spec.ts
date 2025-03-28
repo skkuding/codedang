@@ -14,10 +14,10 @@ import {
 } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { SubmissionPublicationService } from '@libs/rabbitmq'
 import { JudgeRequest } from '../class/judge-request'
 import { problems } from '../mock/problem.mock'
 import { submissions } from '../mock/submission.mock'
-import { SubmissionPublicationService } from '../submission-pub.service'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const mockFunc = (...args: object[]) => []
@@ -32,7 +32,9 @@ const submission: Submission & { submissionResult: SubmissionResult[] } = {
   ...submissions[0],
   codeSize: 1000,
   submissionResult: [],
-  score: 100
+  score: 100,
+  rejudgedFromId: null, // 원본 제출 ID (필수로 추가)
+  isRejudged: false // 재채점 여부 (필수로 추가)
 }
 
 describe('SubmissionPublicationService', () => {

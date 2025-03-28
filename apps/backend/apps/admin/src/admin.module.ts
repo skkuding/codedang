@@ -18,6 +18,7 @@ import { AdminExceptionFilter } from '@libs/exception'
 import { apolloErrorFormatter } from '@libs/exception'
 import { LoggingPlugin, pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
+import { LibsRabbitMQModule } from '@libs/rabbitmq'
 import { NoticeModule } from '@admin/notice/notice.module'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
@@ -60,6 +61,7 @@ import { UserModule } from './user/user.module'
     AnnouncementModule,
     NoticeModule,
     SubmissionModule,
+    LibsRabbitMQModule,
     LoggerModule.forRoot(pinoLoggerModuleOption),
     ScheduleModule.forRoot()
   ],
