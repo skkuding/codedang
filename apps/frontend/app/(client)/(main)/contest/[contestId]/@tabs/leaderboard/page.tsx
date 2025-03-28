@@ -10,7 +10,7 @@ import { LeaderboardModalDialog } from './_components/LeaderboardModalDialog'
 import { LeaderboardTable } from './_components/LeaderboardTable'
 import { getContestLeaderboard } from './_libs/apis/getContesLeaderboard'
 
-export const handleSearch = (text: string) => {
+const handleSearch = (text: string) => {
   alert(`검색할래요 ${text}를.`)
 }
 
