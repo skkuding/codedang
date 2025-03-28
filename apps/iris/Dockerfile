@@ -27,9 +27,9 @@ RUN mkdir -p /app/sandbox/policy /app/sandbox/results \
 RUN chmod -R 770 /app/sandbox
 
 RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" ]; then \
-  curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha.1/libjudger-arm64.so" -o "/app/sandbox/libjudger.so"; \
+  curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha.3/libjudger-arm64.so" -o "/app/sandbox/libjudger.so"; \
   else \
-  curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha.1/libjudger-amd64.so" -o "/app/sandbox/libjudger.so"; \
+  curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha.3/libjudger-amd64.so" -o "/app/sandbox/libjudger.so"; \
   fi
 RUN chmod 750 /app/sandbox/libjudger.so
 

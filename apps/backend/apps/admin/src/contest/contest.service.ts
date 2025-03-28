@@ -99,6 +99,10 @@ export class ContestService {
             role: {
               in: ['Manager', 'Reviewer']
             }
+          },
+          select: {
+            userId: true,
+            role: true
           }
         }
       }
@@ -147,13 +151,13 @@ export class ContestService {
       }
     }
 
-    const { summary, userContestRoles, ...contestData } = contest
+    const { summary, userContest, ...contestData } = contest
 
-    if (userContestRoles) {
+    if (userContest) {
       const validRoles = new Set(['Manager', 'Reviewer'])
       const seenUserIds = new Set<number>()
 
-      for (const role of userContestRoles) {
+      for (const role of userContest) {
         if (!validRoles.has(role.contestRole)) {
           throw new UnprocessableDataException(
             `Invalid contest role: ${role.contestRole}`
@@ -187,15 +191,18 @@ export class ContestService {
         }
       })
 
-      if (userContestRoles?.length) {
+      if (userContest?.length) {
+        // created contest into newUserContests array
+
         await tx.userContest.createMany({
-          data: userContestRoles.map((role) => ({
+          data: userContest.map((role) => ({
             userId: role.userId,
             contestId: createdContest.id,
             role: role.contestRole as ContestRole
           }))
         })
       }
+
       await tx.userContest.create({
         data: {
           userId,
@@ -204,7 +211,16 @@ export class ContestService {
         }
       })
 
-      return createdContest
+      const newUserContests = await tx.userContest.findMany({
+        where: {
+          contestId: createdContest.id
+        }
+      })
+
+      return {
+        ...createdContest,
+        userContest: newUserContests
+      }
     })
   }
 
@@ -336,7 +352,7 @@ export class ContestService {
       }
     }
 
-    const { id, summary, userContestRoles: newRoles, ...contestData } = contest
+    const { id, summary, userContest: newRoles, ...contestData } = contest
 
     // userContest 중 삭제된 userContestRole 삭제, 추가된 userContestRole 추가, 변경된 userContestRole 변경
     if (newRoles) {
@@ -402,6 +418,15 @@ export class ContestService {
           ? (contest.summary as Prisma.InputJsonValue)
           : Prisma.JsonNull,
         ...contestData
+      },
+      include: {
+        userContest: {
+          where: {
+            role: {
+              in: ['Manager', 'Reviewer']
+            }
+          }
+        }
       }
     })
   }
@@ -1030,12 +1055,20 @@ export class ContestService {
             finalTimePenalty: true,
             isFirstSolver: true,
             contestProblem: {
-              select: { order: true, problem: { select: { id: true } } }
+              select: {
+                id: true,
+                order: true,
+                problemId: true
+              }
             }
           }
         }
       },
-      orderBy: [{ finalScore: 'desc' }, { finalTotalPenalty: 'asc' }]
+      orderBy: [
+        { finalScore: 'desc' },
+        { finalTotalPenalty: 'asc' },
+        { lastAcceptedTime: 'asc' }
+      ]
     })
 
     // 문제별 제출 횟수 가져오기
@@ -1048,43 +1081,60 @@ export class ContestService {
 
     // 제출 횟수 매핑
     const submissionCountMap: Record<number, Record<number, number>> = {}
-    submissionCounts.forEach((submission) => {
-      const { userId, problemId, _count } = submission
-      if (!userId || !problemId || !_count) return
+    for (const { userId, problemId, _count } of submissionCounts) {
+      if (userId == null || problemId == null || _count?.id == null) continue
       if (!submissionCountMap[userId]) {
         submissionCountMap[userId] = {}
       }
-      submissionCountMap[userId][problemId] = _count.id // 문제별 제출 횟수 저장
+      submissionCountMap[userId][problemId] = _count.id
+    }
+
+    // 모든 문제 목록 가져오기
+    const allProblems = await this.prisma.contestProblem.findMany({
+      where: { contestId },
+      select: {
+        id: true,
+        order: true,
+        problemId: true
+      }
     })
 
     let rank = 1
     const leaderboard = contestRecords.map((contestRecord) => {
       const { contestProblemRecord, user, userId, ...rest } = contestRecord
-      const uid = userId ?? 0 // userId가 null이면 0으로 처리
 
-      const problemRecords = contestProblemRecord.map((record) => {
-        const {
-          contestProblem,
-          isFirstSolver,
-          finalScore,
-          finalSubmitCountPenalty,
-          finalTimePenalty,
-          ...rest
-        } = record
+      const getSubmissionCount = (problemId: number) =>
+        submissionCountMap[userId!]?.[problemId] ?? 0
+
+      // 모든 문제에 대해 problemRecords 생성
+      const problemRecords = allProblems.map(({ id, order, problemId }) => {
+        const record = contestProblemRecord.find(
+          (r) => r.contestProblem.id === id
+        )
+
+        if (!record) {
+          return {
+            order,
+            problemId,
+            score: 0,
+            penalty: 0,
+            isFirstSolver: false,
+            submissionCount: getSubmissionCount(problemId)
+          }
+        }
 
         return {
-          ...rest,
-          order: contestProblem.order,
-          problemId: contestProblem.problem.id,
-          score: finalScore,
-          penalty: finalSubmitCountPenalty + finalTimePenalty,
-          isFirstSolver,
-          submissionCount:
-            submissionCountMap[uid!]?.[contestProblem.problem.id] ?? 0 // 기본값 0 설정
+          order,
+          problemId,
+          score: record.finalScore,
+          penalty: record.finalSubmitCountPenalty + record.finalTimePenalty,
+          isFirstSolver: record.isFirstSolver,
+          submissionCount: getSubmissionCount(problemId)
         }
       })
+
       return {
-        userId: uid,
+        userId,
         username: user!.username,
         ...rest,
         problemRecords,

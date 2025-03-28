@@ -268,7 +268,16 @@ export class SubmissionService {
         problem: true,
         contest: true,
         assignment: true,
-        submissionResult: true
+        submissionResult: {
+          include: {
+            problemTestcase: {
+              select: {
+                input: true,
+                output: true
+              }
+            }
+          }
+        }
       }
     })
     if (!submission) {
