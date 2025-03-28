@@ -1,13 +1,16 @@
 import { Button } from '@/components/shadcn/button'
+import { HiCheckCircle } from 'react-icons/hi'
 import { useDataTable } from '../../_components/table/context'
 import type { ContestProblem } from '../_libs/schemas'
 import type { DataTableProblem } from './ImportProblemTableColumns'
 
 interface ImportProblemButtonProps {
+  buttonType?: 'import' | 'edit'
   onSelectedExport: (data: ContestProblem[]) => void
 }
 
 export function ImportProblemButton({
+  buttonType = 'import',
   onSelectedExport
 }: ImportProblemButtonProps) {
   const { table } = useDataTable<DataTableProblem>()
@@ -44,8 +47,11 @@ export function ImportProblemButton({
   }
 
   return (
-    <Button onClick={handleImportProblems} className="ml-auto">
-      Import / Edit
+    <Button onClick={handleImportProblems} className="ml-auto w-full">
+      <HiCheckCircle className="text-lg" />
+      <span className="ml-[6px] font-bold">
+        {buttonType === 'import' ? 'Import' : 'Edit'}
+      </span>
     </Button>
   )
 }

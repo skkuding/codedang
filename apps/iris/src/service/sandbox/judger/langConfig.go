@@ -3,6 +3,7 @@ package judger
 import (
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -76,6 +77,8 @@ func NewJudgerLangConfig(file file.FileManager, javaPolicyPath string) *langConf
 		env:                   defaultEnv,
 	}
 
+	javaPath := os.Getenv("JAVA_PATH")
+
 	var javaConfig = JudgerConfig{
 		Language:           sandbox.JAVA,
 		SrcName:            "Main.java",
@@ -83,19 +86,19 @@ func NewJudgerLangConfig(file file.FileManager, javaPolicyPath string) *langConf
 		MaxCompileCpuTime:  5000,
 		MaxCompileRealTime: 10000,
 		MaxCompileMemory:   -1,
-		CompilerPath:       "/usr/local/sdkman/candidates/java/current/bin/javac",
+		CompilerPath:       fmt.Sprintf("%s/javac", javaPath),
 		CompileArgs:        "{srcPath} -d {exeDir} -encoding UTF8",
-		RunCommand:         "/usr/local/sdkman/candidates/java/current/bin/java",
+		RunCommand:         fmt.Sprintf("%s/java", javaPath),
 		RunArgs: "-cp {exeDir} " +
-			"-XX:MaxRAM={maxMemory} " +
 			"-Djava.security.manager " +
 			"-Dfile.encoding=UTF-8 " +
 			"-Djava.security.policy==" +
 			javaPolicyPath + " " +
 			"-Djava.awt.headless=true " +
+			"-XX:+UseSerialGC " +
 			"Main",
 		SeccompRule:           "",
-		MemoeryLimitCheckOnly: true,
+		MemoeryLimitCheckOnly: false,
 		env:                   defaultEnv,
 	}
 

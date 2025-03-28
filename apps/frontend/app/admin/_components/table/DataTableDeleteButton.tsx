@@ -99,7 +99,7 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
         <FaTrash fontSize={13} color={'#8A8A8A'} />
       </Button>
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <AlertDialogContent className="flex h-[304px] w-[432px] flex-col justify-between gap-6 p-10 shadow-lg sm:rounded-lg">
+        <AlertDialogContent className="flex min-h-[304px] w-[432px] flex-col justify-between gap-6 rounded-2xl p-10 shadow-lg sm:rounded-2xl">
           <AlertDialogHeader className="flex flex-col gap-[14px]">
             <AlertDialogTitle>
               <div className="flex flex-col items-center justify-center gap-[24px]">
@@ -113,13 +113,13 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="w-full border-[#80808040] text-sm font-bold text-[#3333334D]">
+            <AlertDialogCancel className="w-full border-[#C4C4C4] text-sm font-semibold text-[#8A8A8A]">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button
                 onClick={handleDeleteRows}
-                className="w-full bg-[#FF3B2F] text-sm font-bold hover:bg-red-500/90"
+                className="bg-error w-full text-sm font-semibold hover:bg-red-500/90"
               >
                 Delete
               </Button>

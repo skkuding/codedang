@@ -1950,6 +1950,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[0].id,
       result: ResultStatus.Accepted,
+      output: '2\n',
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -1988,6 +1989,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[1].id,
       result: ResultStatus.WrongAnswer,
+      output: '99999\n',
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -2058,6 +2060,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[3].id,
       result: ResultStatus.RuntimeError,
+      output: null,
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -2096,6 +2099,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[4].id,
       result: ResultStatus.TimeLimitExceeded,
+      output: null,
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -2135,6 +2139,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[0].id,
       result: ResultStatus.Accepted,
+      output: '2\n',
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -2173,6 +2178,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[1].id,
       result: ResultStatus.WrongAnswer,
+      output: '99999\n',
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -2243,6 +2249,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[3].id,
       result: ResultStatus.RuntimeError,
+      output: null,
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -2281,6 +2288,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[4].id,
       result: ResultStatus.TimeLimitExceeded,
+      output: null,
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -2319,6 +2327,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[5].id,
       result: ResultStatus.MemoryLimitExceeded,
+      output: null,
       cpuTime: 12345,
       memoryUsage: 12345
     }
@@ -2353,6 +2362,7 @@ int main(void) {
       submissionId: submissions[submissions.length - 1].id,
       problemTestcaseId: problemTestcases[6].id,
       result: ResultStatus.OutputLimitExceeded,
+      output: null,
       cpuTime: 12345,
       memoryUsage: 12345
     }

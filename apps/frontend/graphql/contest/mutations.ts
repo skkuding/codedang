@@ -11,6 +11,13 @@ const CREATE_CONTEST = gql(`
       endTime
       startTime
       title
+      summary
+      posterUrl
+      freezeTime
+      userContest{
+        userId
+        role
+      }
     }
   }
 `)
@@ -26,6 +33,13 @@ const UPDATE_CONTEST = gql(`
       endTime
       startTime
       title
+      summary
+      posterUrl
+      freezeTime
+      userContest{
+        userId
+        role
+      }
     }
   }
 `)
