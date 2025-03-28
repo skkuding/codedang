@@ -31,6 +31,7 @@ export default function AdminAnnouncementPage() {
   const pathname = usePathname()
   const pathArr = pathname.split('/')
   const contestId = Number(pathArr[pathArr.length - 2])
+  const txtMaxLength = 400
 
   const [openHistory, setOpenHistory] = useState<boolean>(false)
   const [seemore, setSeemore] = useState<string>('see more')
@@ -199,6 +200,7 @@ export default function AdminAnnouncementPage() {
                 {...register('content')}
                 placeholder="Enter your announcement"
                 onChange={onTxtlengthCheck}
+                maxLength={txtMaxLength}
                 className="min-h-[260px] rounded-xl bg-white px-[30px] py-6 text-lg font-normal text-black placeholder:text-[#3333334D] focus-visible:ring-0"
               />
               {errors.content && <ErrorMessage />}

@@ -38,11 +38,7 @@ export interface ContestProblem {
 
 export const announcementSchema = v.object({
   problemOrder: v.nullable(v.number('Required')),
-  content: v.pipe(
-    v.string(),
-    v.minLength(1, 'Required'),
-    v.maxLength(400, 'The announcement can only be up to 400 characters long')
-  )
+  content: v.pipe(v.string(), v.minLength(1, 'Required'))
 })
 
 export interface ScoreSummary {
