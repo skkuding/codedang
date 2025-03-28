@@ -11,6 +11,13 @@ const CREATE_CONTEST = gql(`
       endTime
       startTime
       title
+      summary
+      posterUrl
+      freezeTime
+      userContest{
+        userId
+        role
+      }
     }
   }
 `)
@@ -26,6 +33,13 @@ const UPDATE_CONTEST = gql(`
       endTime
       startTime
       title
+      summary
+      posterUrl
+      freezeTime
+      userContest{
+        userId
+        role
+      }
     }
   }
 `)
@@ -77,11 +91,25 @@ const REMOVE_PROBLEMS_FROM_CONTEST = gql(`
   }
 `)
 
+const CREATE_CONTEST_ANNOUNCEMENT = gql(`
+  mutation createAnnouncement($input: CreateAnnouncementInput!) {
+    createAnnouncement(input: $input) {
+      id
+      contestId
+      problemId
+      content
+      createTime
+      updateTime
+    }
+  }
+`)
+
 export {
   CREATE_CONTEST,
   UPDATE_CONTEST,
   UPDATE_CONTEST_VISIBLE,
   DELETE_CONTEST,
   IMPORT_PROBLEMS_TO_CONTEST,
-  REMOVE_PROBLEMS_FROM_CONTEST
+  REMOVE_PROBLEMS_FROM_CONTEST,
+  CREATE_CONTEST_ANNOUNCEMENT
 }

@@ -26,7 +26,7 @@ export function ContestProblemTable({
       defaultPageSize={20}
       defaultSortState={[{ id: 'order', desc: false }]}
     >
-      <DataTable showFooter={true} />
+      <DataTable />
     </DataTableRoot>
   )
 }
