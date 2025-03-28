@@ -3,9 +3,12 @@ package rabbitmq
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 type Producer interface {
@@ -105,6 +108,11 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 	p.logger.Log(logger.INFO, fmt.Sprintf("publishing %dB body", len(result)))
 	p.logger.Log(logger.INFO, string(result))
 
+	carrier := propagation.HeaderCarrier(http.Header{})
+	otel.GetTextMapPropagator().Inject(ctx, carrier)
+
+	headers := convertHeaderCarrierToTable(carrier)
+
 	// https://www.rabbitmq.com/publishers.html
 	if err := p.channel.PublishWithContext(ctx,
 		p.exchangeName, // publish to an exchange
@@ -112,7 +120,7 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 		false,          // mandatory
 		false,          // immediate
 		amqp.Publishing{
-			Headers:         amqp.Table{},
+			Headers:         headers,
 			ContentType:     "application/json",
 			ContentEncoding: "",
 			Body:            result,
