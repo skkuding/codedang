@@ -31,7 +31,7 @@ export function DataTableSearchBar({
 
   return (
     <div className="relative">
-      <IoSearch className="text-muted-foreground absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-[#C4C4C4]" />
+      <IoSearch className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#C4C4C4]" />
       <Input
         placeholder={placeholder ?? 'Search'}
         value={typeof filterValue === 'string' ? filterValue : ''}

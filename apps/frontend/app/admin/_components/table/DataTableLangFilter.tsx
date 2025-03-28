@@ -15,7 +15,7 @@ export function DataTableLangFilter() {
   return (
     <DataTableMultiSelectFilter
       column={table.getColumn(LANG_COLUMN_ID)}
-      title="Languages"
+      title="Language"
       options={languages.map((item) => ({ value: item, label: item }))}
     />
   )

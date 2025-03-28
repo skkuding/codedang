@@ -1,5 +1,7 @@
 'use client'
 
+import { ConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
+import { ErrorMessage } from '@/app/admin/_components/ErrorMessage'
 import { announcementSchema } from '@/app/admin/contest/_libs/schemas'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
@@ -20,21 +22,20 @@ import type { CreateAnnouncementInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { ChevronDown } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useCallback, useState, type ChangeEvent } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { BiSolidPencil } from 'react-icons/bi'
 import { toast } from 'sonner'
-import { ConfirmNavigation } from '../../../../../_components/ConfirmNavigation'
-import { ErrorMessage } from '../../../../../_components/ErrorMessage'
 
-export default function Page() {
+export default function AdminAnnouncementPage() {
   const pathname = usePathname()
   const pathArr = pathname.split('/')
   const contestId = Number(pathArr[pathArr.length - 2])
+  const txtMaxLength = 400
 
   const [openHistory, setOpenHistory] = useState<boolean>(false)
   const [seemore, setSeemore] = useState<string>('see more')
-  const [seemoreHeight, setSeemoreHeight] = useState<string>('149px')
+  const [txtlength, setTxtlength] = useState<number>(0)
   const { data: problemData } = useQuery(GET_CONTEST_PROBLEMS, {
     variables: { contestId }
   })
@@ -54,16 +55,9 @@ export default function Page() {
     resolver: valibotResolver(announcementSchema)
   })
 
-  const onclickSeemore = () => {
+  const onClickSeemore = () => {
     setOpenHistory(!openHistory)
     setSeemore(openHistory ? 'see more' : 'close')
-    setSeemoreHeight(
-      openHistory &&
-        (updateHistory?.getContestUpdateHistories.updateHistories?.length ??
-          0) > 3
-        ? 'auto'
-        : '149px'
-    )
   }
 
   const onSubmitAnnouncement: SubmitHandler<CreateAnnouncementInput> = async (
@@ -88,19 +82,31 @@ export default function Page() {
     }
   }
 
+  const onTxtlengthCheck = useCallback(
+    (e: ChangeEvent<HTMLTextAreaElement>) => {
+      setTxtlength(e.target.value.length)
+    },
+    []
+  )
+
   return (
     <ConfirmNavigation>
       <ScrollArea className="w-full">
-        <main className="flex flex-col py-6">
+        <main className="flex flex-col py-16">
           <div className="mb-6 text-2xl font-semibold">Update History</div>
           <div
             id="historyBox"
-            className="w-100% mb-[14px] h-[149px] overflow-auto rounded-xl border bg-white px-10 pb-[20px] pt-[18px]"
-            style={{ height: seemoreHeight }}
+            className={cn(
+              'w-100% mb-[14px] overflow-hidden rounded-xl border bg-white px-10 pb-[20px] pt-[18px]',
+              openHistory &&
+                (updateHistory?.getContestUpdateHistories.updateHistories
+                  ?.length ?? 0) > 3
+                ? 'h-auto'
+                : 'h-[149px]'
+            )}
           >
-            {!updateHistory?.getContestUpdateHistories ||
-              (updateHistory.getContestUpdateHistories.updateHistories
-                .length === 0 && <p>no result.</p>)}
+            {updateHistory?.getContestUpdateHistories?.updateHistories
+              ?.length === 0 && <p>no result.</p>}
             {updateHistory?.getContestUpdateHistories.updateHistories.map(
               (history, index) => (
                 <div
@@ -111,11 +117,11 @@ export default function Page() {
                       : 'flex w-full flex-wrap py-[6px] text-lg'
                   }
                 >
-                  <p>{`[`}</p>
                   <p>
+                    {`[`}
                     {dateFormatter(history.updatedAt, 'YYYY-MM-DD HH:mm:ss')}
+                    {`] `}
                   </p>
-                  <p>{`] `}</p>
                   &nbsp;
                   <p>
                     Problem{' '}
@@ -127,14 +133,9 @@ export default function Page() {
                   </p>
                   &nbsp;
                   <div className="flex">
-                    {history.updatedInfo.map((current, index) => (
-                      <p key={current.updatedField}>
-                        {current.current}
-                        &nbsp;
-                        {index < history.updatedInfo.length - 1 && '&'}
-                        &nbsp;
-                      </p>
-                    ))}
+                    {history.updatedInfo
+                      .map((current) => current.current)
+                      .join(' & ')}
                   </div>
                 </div>
               )
@@ -143,7 +144,7 @@ export default function Page() {
           <Button
             className="mb-16 bg-[#80808014] text-lg hover:bg-[#80808039]"
             onClick={() => {
-              onclickSeemore()
+              onClickSeemore()
             }}
           >
             <p className="text-[#8A8A8A]">{seemore}</p>
@@ -165,7 +166,7 @@ export default function Page() {
                   )
                 }}
               >
-                <SelectTrigger className="h-12 rounded-full bg-white pl-[30px] text-xl font-medium text-[#474747]">
+                <SelectTrigger className="h-12 rounded-full bg-white pl-[30px] text-xl font-medium text-[#474747] focus:ring-0">
                   <SelectValue placeholder="Choose" />
                 </SelectTrigger>
                 <SelectContent
@@ -184,7 +185,7 @@ export default function Page() {
                       value={problem.order.toString()}
                       className="hover:text-primary text-lg font-normal"
                     >
-                      {problem.order}. {problem.problem.title}
+                      {convertToLetter(problem.order)}. {problem.problem.title}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -193,13 +194,18 @@ export default function Page() {
                 <ErrorMessage message={errors.problemOrder.message} />
               )}
             </div>
-            <div>
+            <div className="relative">
               <Textarea
                 {...register('content')}
                 placeholder="Enter your announcement"
+                onChange={onTxtlengthCheck}
+                maxLength={txtMaxLength}
                 className="min-h-[260px] rounded-xl bg-white px-[30px] py-6 text-lg font-normal text-black placeholder:text-[#3333334D] focus-visible:ring-0"
               />
               {errors.content && <ErrorMessage />}
+              <p className="absolute bottom-6 right-[28px] text-base font-medium text-[#8A8A8A]">
+                {txtlength}/400
+              </p>
             </div>
             <p className="mb-20 mt-2 text-base font-normal text-[#9B9B9B]">
               Posted announcement cannot be edited.
