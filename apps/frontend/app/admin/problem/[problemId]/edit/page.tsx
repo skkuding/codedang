@@ -96,11 +96,11 @@ export default function Page({ params }: { params: { problemId: string } }) {
 
           <EditProblemForm problemId={Number(problemId)} methods={methods}>
             <div className="flex gap-32">
-              <FormSection title="Title">
+              <FormSection isFlexColumn title="Title">
                 <TitleForm placeholder="Enter a problem name" />
               </FormSection>
 
-              <FormSection title="Visible">
+              <FormSection isFlexColumn title="Visible">
                 <PopoverVisibleInfo />
                 <VisibleForm
                   blockEdit={
@@ -110,11 +110,11 @@ export default function Page({ params }: { params: { problemId: string } }) {
               </FormSection>
             </div>
 
-            <FormSection title="Info">
+            <FormSection isFlexColumn title="Info">
               <InfoForm />
             </FormSection>
 
-            <FormSection title="Description">
+            <FormSection isFlexColumn title="Description">
               {methods.getValues('description') && (
                 <DescriptionForm name="description" />
               )}
@@ -122,14 +122,22 @@ export default function Page({ params }: { params: { problemId: string } }) {
 
             <div className="flex justify-between">
               <div className="w-[360px]">
-                <FormSection title="Input Description" isLabeled={false}>
+                <FormSection
+                  isFlexColumn
+                  title="Input Description"
+                  isLabeled={false}
+                >
                   {methods.getValues('inputDescription') && (
                     <DescriptionForm name="inputDescription" />
                   )}
                 </FormSection>
               </div>
               <div className="w-[360px]">
-                <FormSection title="Output Description" isLabeled={false}>
+                <FormSection
+                  isFlexColumn
+                  title="Output Description"
+                  isLabeled={false}
+                >
                   {methods.getValues('outputDescription') && (
                     <DescriptionForm name="outputDescription" />
                   )}
@@ -141,7 +149,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
               <TestcaseField blockEdit={false} />
             )}
 
-            <FormSection title="Limit">
+            <FormSection isFlexColumn title="Limit">
               <LimitForm blockEdit={false} />
             </FormSection>
 

@@ -7,7 +7,11 @@ import { useFormContext } from 'react-hook-form'
 import { inputStyle } from '../_libs/utils'
 import { ErrorMessage } from './ErrorMessage'
 
-export function TitleForm({ placeholder }: { placeholder: string }) {
+interface TitleFormProps {
+  placeholder: string
+}
+
+export function TitleForm({ placeholder }: TitleFormProps) {
   const {
     register,
     formState: { errors }
