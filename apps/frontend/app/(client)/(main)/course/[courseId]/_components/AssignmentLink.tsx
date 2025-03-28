@@ -1,7 +1,6 @@
 'use client'
 
-import { fetcherWithAuth, dateFormatter } from '@/libs/utils'
-import { cn } from '@/libs/utils'
+import { fetcherWithAuth } from '@/libs/utils'
 import type { Assignment, AssignmentStatus } from '@/types/type'
 import dayjs from 'dayjs'
 import Link from 'next/link'
@@ -9,7 +8,6 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
-import { CountBadge } from './AssignmentAccordion'
 
 interface AssignmentLinkProps {
   assignment: Assignment
