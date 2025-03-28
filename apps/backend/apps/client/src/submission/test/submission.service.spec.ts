@@ -391,6 +391,8 @@ describe('SubmissionService', () => {
       const result = await service.rejudgeSubmissionsByProblem(1)
 
       expect(result).to.deep.equal(ResultValue)
+      expect(createSubmissionResultsSpy.callCount).to.equal(2)
+      expect(publishJudgeRequestMessageSpy.callCount).to.equal(2)
     })
 
     it('should throw an exception when no submissions are found for the problem', async () => {
