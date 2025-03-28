@@ -18,7 +18,10 @@ export function FormSection({
 
   return (
     <div
-      className={cn('flex w-full justify-between', isFlexColumn && 'flex-col')}
+      className={cn(
+        'flex w-full justify-between',
+        isFlexColumn && 'flex-col gap-[18px]'
+      )}
     >
       <div className="flex items-center gap-3 text-lg">
         <span className="font-semibold">{title}</span>
