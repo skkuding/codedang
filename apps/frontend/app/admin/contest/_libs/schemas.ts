@@ -36,6 +36,10 @@ export interface ContestProblem {
   score: number
 }
 
+export const announcementSchema = v.object({
+  problemOrder: v.nullable(v.number('Required')),
+  content: v.pipe(v.string(), v.minLength(1, 'Required'))
+})
 export interface ContestManagerReviewer {
   id: number
   email: string
