@@ -399,6 +399,7 @@ export interface ProblemGrade {
   maxScore: number
   problemRecord: ProblemRecord | null
   submissionTime: string
+  submissionResult: string
 }
 
 export interface ProblemRecord {
