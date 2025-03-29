@@ -468,14 +468,15 @@ enum ContestRole {
 }
 
 model UserContest {
-  userId    Int
+  id        Int         @id @default(autoincrement())
+  userId    Int?
   contestId Int
   role      ContestRole
 
-  user    User    @relation(fields: [userId], references: [id])
-  contest Contest @relation(fields: [contestId], references: [id])
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  contest Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
 
-  @@id([userId, contestId])
+  @@unique([userId, contestId])
   @@map("user_contest")
 }
 
