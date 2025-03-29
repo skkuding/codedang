@@ -32,11 +32,9 @@ export default async function AssignmentInfo({ params }: AssignmentInfoProps) {
     'MMM DD, YYYY HH:mm'
   )
 
-  const description = assignment.description
-
   return (
     <div className="flex flex-col gap-10 px-[100px] py-[80px]">
-      <div className="flex flex-col gap-10">
+      <div className="flex justify-between">
         <div className="flex flex-col gap-3">
           <p className="text-2xl font-semibold">
             <span className="text-primary">[Week {assignment.week}] </span>
@@ -61,7 +59,7 @@ export default async function AssignmentInfo({ params }: AssignmentInfoProps) {
       <Separator className="my-3" />
       <div className="text-2xl font-semibold">Assignment Description</div>
       <KatexContent
-        content={description}
+        content={assignment.description}
         classname="text-[#7F7F7F] font-normal text-base"
       />
     </div>
