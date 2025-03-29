@@ -11,8 +11,11 @@ post {
 }
 
 body:graphql {
-  query GetAnnouncementById($id: Int!) {
-    announcement(id: $id) {
+  query GetAnnouncementById($contestId: Int!, $id: Int!) {
+    announcement(
+      contestId: $contestId
+      id: $id
+    ) {
       id
       content
       createTime
