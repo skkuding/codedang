@@ -1,5 +1,5 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
-import { ErrorBoundary, Suspense } from '@suspensive/react'
+import { ErrorBoundary } from '@suspensive/react'
 import { AssignmentAccordion } from '../_components/AssignmentAccordion'
 
 interface AssignmentProps {

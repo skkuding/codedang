@@ -10,9 +10,8 @@ import { useState } from 'react'
 import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6'
 import { CourseInfoBox } from './CourseInfoBox'
 import {
-  AssignmentIcon,
+  AssignmentIcon
   // ExamIcon,
-  GradeIcon
   // HomeIcon,
   // MemberIcon,
   // NoticeIcon,

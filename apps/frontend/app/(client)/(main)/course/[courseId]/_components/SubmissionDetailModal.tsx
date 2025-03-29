@@ -11,7 +11,7 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Separator } from '@/components/shadcn/separator'
 import { dateFormatter } from '@/libs/utils'
-import type { Assignment, AssignmentProblemRecord } from '@/types/type'
+import type { Assignment } from '@/types/type'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { MdArrowForwardIos } from 'react-icons/md'
 
