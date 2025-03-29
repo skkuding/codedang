@@ -469,8 +469,8 @@ enum ContestRole {
 
 model UserContest {
   id        Int         @id @default(autoincrement())
-  userId    Int?
-  contestId Int
+  userId    Int?        @map("user_id")
+  contestId Int         @map("contest_id")
   role      ContestRole
 
   user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
