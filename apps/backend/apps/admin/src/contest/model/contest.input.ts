@@ -64,9 +64,6 @@ export class CreateContestInput {
 
 @InputType()
 export class UpdateContestInput {
-  @Field(() => Int, { nullable: false })
-  id!: number
-
   @Field(() => String, { nullable: true })
   title?: string
 

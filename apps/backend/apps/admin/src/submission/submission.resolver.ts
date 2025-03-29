@@ -52,6 +52,8 @@ export class SubmissionResolver {
   @Query(() => [ContestSubmission])
   @UseContestRolesGuard(ContestRole.Manager)
   async getContestSubmissions(
+    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    contestId: number,
     @Args('input', {
       nullable: false,
       type: () => GetContestSubmissionsInput
@@ -65,6 +67,7 @@ export class SubmissionResolver {
     order: SubmissionOrder | null
   ): Promise<ContestSubmission[]> {
     return await this.submissionService.getContestSubmissions(
+      contestId,
       input,
       take,
       cursor,
