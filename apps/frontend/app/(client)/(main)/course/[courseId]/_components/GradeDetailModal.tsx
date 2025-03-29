@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/shadcn/dialog'
-import type { Assignment, AssignmentProblemRecord } from '@/types/type'
+import type { Assignment } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { MdArrowForwardIos } from 'react-icons/md'

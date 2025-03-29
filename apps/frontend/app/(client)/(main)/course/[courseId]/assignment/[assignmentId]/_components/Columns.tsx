@@ -8,8 +8,6 @@ import type { AssignmentProblemRecord, ProblemGrade } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Suspense, useState } from 'react'
-import { DetailButton } from '../../../_components/DetailButton'
-import { SubmissionDetailModal } from '../../../_components/SubmissionDetailModal'
 
 export const columns = (
   assignment: AssignmentProblemRecord
