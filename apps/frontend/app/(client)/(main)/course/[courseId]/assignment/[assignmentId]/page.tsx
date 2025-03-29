@@ -1,25 +1,27 @@
+import {
+  getAssignment,
+  getAssignmentProblemRecord
+} from '@/app/(client)/_libs/apis/assignment'
 import { AssignmentStatusTimeDiff } from '@/components/AssignmentStatusTimeDiff'
 import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
-import { dateFormatter, safeFetcherWithAuth } from '@/libs/utils'
+import { dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
-import type { Assignment } from '@/types/type'
 import Image from 'next/image'
 import { TotalScoreLabel } from './_components/TotalScoreLabel'
 
 interface AssignmentInfoProps {
   params: {
-    courseId: string
     assignmentId: string
   }
 }
 
 export default async function AssignmentInfo({ params }: AssignmentInfoProps) {
-  const { assignmentId, courseId } = params
+  const { assignmentId } = params
 
-  const res = await safeFetcherWithAuth.get(`assignment/${assignmentId}`)
+  const assignment = await getAssignment({ assignmentId })
 
-  const assignment: Assignment = await res.json()
+  const record = await getAssignmentProblemRecord({ assignmentId })
 
   const formattedStartTime = dateFormatter(
     assignment.startTime,
@@ -33,14 +35,14 @@ export default async function AssignmentInfo({ params }: AssignmentInfoProps) {
   const description = assignment.description
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-10 px-[100px] py-[80px]">
       <div className="flex flex-col gap-10">
         <div className="flex flex-col gap-3">
           <p className="text-2xl font-semibold">
             <span className="text-primary">[Week {assignment.week}] </span>
             {assignment.title}
           </p>
-          <TotalScoreLabel assignmentId={assignmentId} courseId={courseId} />
+          <TotalScoreLabel record={record} />
         </div>
         <div className="flex flex-col gap-3">
           <div className="flex gap-2">

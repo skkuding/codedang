@@ -6,7 +6,7 @@ import type {
 } from '@/types/type'
 
 export interface GetAssignmentRequest {
-  assignmentId: number
+  assignmentId: string
 }
 
 export type GetAssignmentResponse = Assignment
