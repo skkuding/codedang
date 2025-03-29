@@ -424,7 +424,7 @@ model Contest {
   createdBy   User?   @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?    @map("created_by_id")
   title       String
-  description String
+  description String?
   // 대회의 페널티 (0 ≤ penalty ≤ 100),
   penalty     Int     @default(20)
   lastPenalty Boolean @default(false) @map("last_penalty")
