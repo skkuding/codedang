@@ -109,32 +109,32 @@ export default function Page() {
 
           <CreateProblemForm methods={methods}>
             <div className="flex gap-32">
-              <FormSection title="Title">
+              <FormSection isFlexColumn title="Title">
                 <TitleForm placeholder="Enter a problem name" />
               </FormSection>
 
-              <FormSection title="Visible">
+              <FormSection isFlexColumn title="Visible">
                 <PopoverVisibleInfo />
                 <VisibleForm blockEdit={!isAdmin} />
               </FormSection>
             </div>
 
-            <FormSection title="Info">
+            <FormSection isFlexColumn title="Info">
               <InfoForm />
             </FormSection>
 
-            <FormSection title="Description">
+            <FormSection isFlexColumn title="Description">
               <DescriptionForm name="description" />
             </FormSection>
 
             <div className="flex justify-between">
               <div className="w-[360px]">
-                <FormSection title="Input Description" isLabeled={false}>
+                <FormSection isFlexColumn title="Input Description">
                   <DescriptionForm name="inputDescription" />
                 </FormSection>
               </div>
               <div className="w-[360px]">
-                <FormSection title="Output Description" isLabeled={false}>
+                <FormSection isFlexColumn title="Output Description">
                   <DescriptionForm name="outputDescription" />
                 </FormSection>
               </div>
@@ -142,7 +142,7 @@ export default function Page() {
 
             <TestcaseField />
 
-            <FormSection title="Limit">
+            <FormSection isFlexColumn title="Limit">
               <LimitForm />
             </FormSection>
 

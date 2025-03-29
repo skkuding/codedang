@@ -53,21 +53,27 @@ export default function Page() {
                   <TitleForm placeholder="Name your contest" />
                 </FormSection>
                 <FormSection title="Start Time">
-                  <TimeForm name="startTime" />
+                  <TimeForm isContest name="startTime" />
                 </FormSection>
                 <FormSection title="End Time">
-                  <TimeForm name="endTime" />
+                  <TimeForm isContest name="endTime" />
                 </FormSection>
 
                 <FreezeForm name="freezeTime" />
               </div>
             </div>
 
-            <FormSection title="Summary" isLabeled={false} isFlexColumn={true}>
+            <FormSection
+              isContest
+              title="Summary"
+              isLabeled={false}
+              isFlexColumn
+            >
               <SummaryForm name="summary" />
             </FormSection>
 
             <FormSection
+              isContest
               title="More Description"
               isLabeled={false}
               isFlexColumn={true}
