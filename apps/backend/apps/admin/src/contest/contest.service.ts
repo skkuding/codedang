@@ -245,6 +245,7 @@ export class ContestService {
             }
           },
           select: {
+            id: true,
             userId: true,
             role: true
           }
@@ -375,11 +376,7 @@ export class ContestService {
         ...rolesToDelete.map((role) =>
           this.prisma.userContest.delete({
             where: {
-              // eslint-disable-next-line @typescript-eslint/naming-convention
-              userId_contestId: {
-                userId: role.userId,
-                contestId: contest.id
-              }
+              id: role.id
             }
           })
         ),
