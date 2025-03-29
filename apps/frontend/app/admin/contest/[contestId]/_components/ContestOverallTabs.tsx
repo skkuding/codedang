@@ -43,10 +43,10 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
   return (
     <div className="flex h-[60px] w-full rounded-full border border-solid border-[#80808040] bg-white">
       <Link
-        href={`/admin/contest/${id}`}
+        href={`/admin/contest/${id}/leaderboard`}
         className={cn(
           'flex h-full w-1/5 items-center justify-center rounded-full text-lg font-medium',
-          isCurrentTab('') &&
+          isCurrentTab('leaderboard') &&
             'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
