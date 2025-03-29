@@ -385,7 +385,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
    * **주요 동작 흐름:**
    * 1. `contestId`와 `userId`가 없으면 예외를 발생시킵니다.
    * 2. 제출된 문제에 대한 기존 `Accepted` 제출을 조회하여 **새로운 Accepted 제출인지 확인**합니다.
-   * 3. 참가자가 **이 문제의 첫 번째 해결자인지 확인**합니다.
+   * 3. 참가자가 **이 문제의 첫 번째 해결자인지 확인**하고, 맞다면 `contestProblemFirstSolver`에 기록합니다.
    * 4. 대회 및 문제 정보를 조회하여 점수 및 패널티 계산에 필요한 데이터를 가져옵니다.
    * 5. **패널티 계산:**
    *    - `submitCountPenalty`: 제출 횟수에 따른 패널티
@@ -394,7 +394,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
    * 7. `contestProblemRecord`를 `upsert()`하여 참가자의 문제 해결 기록을 갱신합니다.
    * 8. 참가자의 전체 점수를 다시 계산하고, `contestRecord`에 반영합니다.
    */
-
   @Span()
   async updateContestRecord(
     submission: Pick<
@@ -403,7 +402,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     >,
     isAccepted: boolean
   ): Promise<void> {
-    const { contestId, problemId, userId, createTime, updateTime } = submission
+    const { contestId, problemId, userId, updateTime } = submission
 
     if (!contestId || !userId)
       throw new UnprocessableDataException(
@@ -442,10 +441,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       submissions.filter((sub) => sub.userId === userId).length === 1
     if (!isNewAccept || !isAccepted) return
 
-    const isFirstSolver = !submissions.some(
-      (sub) => sub.createTime < createTime
-    )
-
     const { startTime, penalty, lastPenalty, freezeTime } = contest
     const { id: contestProblemId, score } = contestProblem
     const contestRecordId = contestRecord.id
@@ -462,11 +457,23 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       finalScore: score,
       finalTimePenalty: timePenalty,
       finalSubmitCountPenalty: submitCountPenalty,
-      isFirstSolver,
       ...(!isFreezed ? { score, submitCountPenalty, timePenalty } : {})
     }
 
     await this.prisma.$transaction(async (prisma) => {
+      let isFirstSolver = false
+      try {
+        await prisma.contestProblemFirstSolver.create({
+          data: {
+            contestProblemId,
+            contestRecordId
+          }
+        })
+        isFirstSolver = true
+      } catch {
+        // 이미 해당 문제를 푼 참가자가 존재하는 경우
+        // 아무것도 하지 않음
+      }
       await prisma.contestProblemRecord.upsert({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -479,6 +486,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         create: {
           contestProblemId,
           contestRecordId,
+          isFirstSolver,
           ...contestProblemRecordData
         }
       })

@@ -113,7 +113,6 @@ describe('SubmissionPublicationService', () => {
           headers: {}
         }
       )
-      console.log(result)
       expect(result).to.be.true
     })
 
