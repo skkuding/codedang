@@ -8,7 +8,6 @@ import { cn } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect } from 'react'
 
 interface SubmissionSummary {
   problemId: number
