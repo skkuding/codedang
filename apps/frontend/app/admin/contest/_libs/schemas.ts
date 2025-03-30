@@ -10,9 +10,17 @@ export const createSchema = v.object({
     v.pipe(
       v.string(),
       v.minLength(1),
-      v.check((value) => value !== '<p></p>')
+      v.check((value) => value !== '<p></p>'),
+      v.transform((value) => (value === '' ? null : value))
     )
   ),
+  // description: v.nullable(
+  //   v.pipe(
+  //     v.string(),
+  //     v.minLength(1),
+  //     v.check((value) => value !== '<p></p>')
+  //   )
+  // ),
   startTime: v.date(),
   endTime: v.date(),
   // enableCopyPaste: v.boolean(),
