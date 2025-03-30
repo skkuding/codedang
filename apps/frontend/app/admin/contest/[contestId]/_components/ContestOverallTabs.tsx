@@ -42,7 +42,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
   }
 
   return (
-    <div className="flex h-[60px] w-full rounded-full border border-solid border-[#80808040] bg-white">
+    <div className="mb-16 flex h-[60px] w-full rounded-full border border-solid border-[#80808040] bg-white">
       <Link
         href={`/admin/contest/${id}/leaderboard`}
         className={cn(
