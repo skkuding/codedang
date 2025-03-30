@@ -97,7 +97,7 @@ export function EditContestForm({
         (data.userContest ?? []).map((role) => {
           const user = users.find((u) => u.id === role.userId)
           return {
-            id: role.userId ?? null, // Ensure id is always a valid number
+            id: role.userId ?? null,
             email: user?.email || '',
             username: user?.username || '',
             realName: user?.realName || '',
