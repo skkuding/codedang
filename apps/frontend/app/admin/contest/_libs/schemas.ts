@@ -34,7 +34,6 @@ export const createSchema = v.object({
 })
 
 export const editSchema = v.object({
-  id: v.number(),
   ...createSchema.entries
 })
 
