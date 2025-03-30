@@ -2,13 +2,7 @@ import { Injectable } from '@nestjs/common'
 import type { Prisma } from '@prisma/client'
 import * as archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
-import {
-  mkdirSync,
-  writeFile,
-  createWriteStream,
-  createReadStream,
-  type ReadStream
-} from 'fs'
+import { mkdirSync, writeFile, createWriteStream, ReadStream } from 'fs'
 import path from 'path'
 import {
   EntityNotExistException,
@@ -17,7 +11,6 @@ import {
 import { PrismaService } from '@libs/prisma'
 import type { Language, ResultStatus } from '@admin/@generated'
 import { Snippet } from '@admin/problem/model/template.input'
-import { StorageService } from '@admin/storage/storage.service'
 import { LanguageExtension } from './enum/language-extensions.enum'
 import { SubmissionOrder } from './enum/submission-order.enum'
 import type {
@@ -28,10 +21,7 @@ import type { SubmissionsWithTotal } from './model/submissions-with-total.output
 
 @Injectable()
 export class SubmissionService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly storageService: StorageService
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async getSubmissions(
     problemId: number,
@@ -409,7 +399,7 @@ export class SubmissionService {
           userId: true
         }
       })
-    if (!assignmentProblemRecords) {
+    if (assignmentProblemRecords.length === 0) {
       throw new EntityNotExistException('AssignmentProblem')
     }
 
@@ -423,9 +413,11 @@ export class SubmissionService {
         return submissionInfo
       })
     )
+
     const assignmentTitle = await this.getAssignmentTitle(assignmentId)
     const dirPath = path.join(__dirname, assignmentTitle!)
     mkdirSync(dirPath, { recursive: true })
+
     submissionInfos.forEach((info) => {
       const code = plainToInstance(Snippet, info.code)
       const formattedCode = code.map((snippet) => snippet.text).join('\n')
@@ -437,7 +429,8 @@ export class SubmissionService {
         }
       })
     })
-    const zipPath = path.join(dirPath, `${assignmentTitle}_${problemId}.zip`)
+    const zipFilename = `${assignmentTitle}_${problemId}.zip`
+    const zipPath = path.join(__dirname, zipFilename)
     const output = createWriteStream(zipPath)
     const archive = archiver.create('zip', { zlib: { level: 9 } })
 
@@ -445,11 +438,7 @@ export class SubmissionService {
       throw err
     })
     archive.pipe(output)
-    archive.directory(dirPath, zipPath)
+    archive.directory(dirPath, assignmentTitle!)
     await archive.finalize()
-
-    const fileStream = createReadStream(zipPath)
-    const fileSize = await this.getZipFileSize(fileStream)
-    await this.storageService.uploadFile
   }
 }
