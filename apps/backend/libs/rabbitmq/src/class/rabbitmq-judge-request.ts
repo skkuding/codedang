@@ -1,6 +1,6 @@
 import type { Language } from '@prisma/client'
 import { calculateMemoryLimit, calculateTimeLimit } from '@libs/constants'
-import type { Snippet } from './create-submission.dto'
+import type { Snippet } from './rabbitmq-create-submission.dto'
 
 export class JudgeRequest {
   code: string

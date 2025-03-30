@@ -15,8 +15,11 @@ import {
 } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { Snippet } from './class/create-submission.dto'
-import { JudgeRequest, UserTestcaseJudgeRequest } from './class/judge-request'
+import { Snippet } from './class/rabbitmq-create-submission.dto'
+import {
+  JudgeRequest,
+  UserTestcaseJudgeRequest
+} from './class/rabbitmq-judge-request'
 
 @Injectable()
 export class SubmissionPublicationService {
