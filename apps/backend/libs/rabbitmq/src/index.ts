@@ -1,3 +1,3 @@
-export * from './submission-sub.service'
-export * from './submission-pub.service'
+export * from './rabbitmq-sub.service'
+export * from './rabbitmq-pub.service'
 export * from './rabbitmq.module'

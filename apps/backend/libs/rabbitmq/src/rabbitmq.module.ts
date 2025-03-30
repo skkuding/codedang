@@ -2,8 +2,8 @@ import { Global, Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
 import { PUBLISH_CHANNEL, CONSUME_CHANNEL } from '@libs/constants'
-import { SubmissionPublicationService } from './submission-pub.service'
-import { SubmissionSubscriptionService } from './submission-sub.service'
+import { SubmissionPublicationService } from './rabbitmq-pub.service'
+import { SubmissionSubscriptionService } from './rabbitmq-sub.service'
 
 @Global()
 @Module({
