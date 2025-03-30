@@ -512,13 +512,18 @@ export class SubmissionService {
     }
   }
 
-  async rejudgeSubmissionsByProblem(problemId: number): Promise<{
+  async rejudgeSubmissionsByProblem(
+    problemId: number,
+    userRole: Role
+  ): Promise<{
     successCount: number
     failedSubmissions: { submissionId: number; error: string }[]
   }> {
+    if (userRole === Role.User) {
+      throw new ForbiddenAccessException('Invalid Auth')
+    }
     const failedSubmissions: { submissionId: number; error: string }[] = [] // 실패한 제출을 추적할 배열
     let successCount = 0 // 성공한 제출 수
-
     try {
       // 문제 ID에 해당하는 제출 기록 조회
       const submissions = await this.prisma.submission.findMany({
@@ -618,8 +623,12 @@ export class SubmissionService {
   }
 
   async rejudgeSubmissionById(
-    submissionId: number
+    submissionId: number,
+    userRole: Role
   ): Promise<{ success: boolean; error?: string }> {
+    if (userRole === Role.User) {
+      throw new ForbiddenAccessException('Invalid Auth')
+    }
     // 제출 기록 조회
     const submission = await this.prisma.submission.findUnique({
       where: { id: submissionId },

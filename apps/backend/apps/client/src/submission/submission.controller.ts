@@ -87,20 +87,30 @@ export class SubmissionController {
   }
 
   @Patch('rejudgeByProblem')
-  async rejudgeByProblem(@Query('problemId') problemId: string): Promise<{
+  async rejudgeByProblem(
+    @Req() req: AuthenticatedRequest,
+    @Query('problemId') problemId: string
+  ): Promise<{
     successCount: number
     failedSubmissions: { submissionId: number; error: string }[]
   }> {
     const problemIdNumber = parseInt(problemId, 10)
-    return this.submissionService.rejudgeSubmissionsByProblem(problemIdNumber)
+    return this.submissionService.rejudgeSubmissionsByProblem(
+      problemIdNumber,
+      req.user.role
+    )
   }
 
   @Patch('rejudgeBySubmission')
   async rejudgeBySubmission(
+    @Req() req: AuthenticatedRequest,
     @Query('submissionId') submissionId: string
   ): Promise<{ success: boolean; error?: string }> {
     const submissionIdNumber = parseInt(submissionId, 10)
-    return this.submissionService.rejudgeSubmissionById(submissionIdNumber)
+    return this.submissionService.rejudgeSubmissionById(
+      submissionIdNumber,
+      req.user.role
+    )
   }
 
   /**
