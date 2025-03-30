@@ -43,7 +43,7 @@ export const announcementSchema = v.object({
   content: v.pipe(v.string(), v.minLength(1, 'Required'))
 })
 export interface ContestManagerReviewer {
-  id: number
+  id: number | null // Allow id to be null
   email: string
   username: string
   realName: string
