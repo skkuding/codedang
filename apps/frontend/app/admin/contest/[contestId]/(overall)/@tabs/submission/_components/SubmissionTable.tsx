@@ -19,7 +19,6 @@ export function SubmissionTable({ contestId }: { contestId: number }) {
   const { data } = useSuspenseQuery(GET_CONTEST_SUBMISSIONS, {
     variables: {
       contestId,
-      // 미확실
       input: {},
       take: 5000
     }
