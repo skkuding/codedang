@@ -57,7 +57,7 @@ export function EditContestForm({
   const formattedManagers = managers
     .filter((manager) => manager.id !== null) // Exclude managers with null id
     .map((manager) => ({
-      userId: manager.id as number, // Ensure userId is a number
+      userId: manager.id, // Remove unnecessary type assertion
       contestRole: manager.type
     }))
   methods.register('userContest')
@@ -94,17 +94,19 @@ export function EditContestForm({
       })
       setIsLoading(false)
       setManagers(
-        (data.userContest ?? []).map((role) => {
-          const user = users.find((u) => u.id === role.userId)
-          return {
-            id: role.userId ?? null,
-            email: user?.email || '',
-            username: user?.username || '',
-            realName: user?.realName || '',
-            type: role.role,
-            user
-          }
-        })
+        (data.userContest ?? [])
+          .filter((role) => role.userId !== null && role.userId !== undefined) // Ensure userId is not null or undefined
+          .map((role) => {
+            const user = users.find((u) => u.id === role.userId)
+            return {
+              id: role.userId as number,
+              email: user?.email || '',
+              username: user?.username || '',
+              realName: user?.realName || '',
+              type: role.role,
+              user
+            }
+          })
       )
     }
   })
