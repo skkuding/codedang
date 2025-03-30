@@ -89,14 +89,13 @@ export class SubmissionController {
   @Patch('rejudgeByProblem')
   async rejudgeByProblem(
     @Req() req: AuthenticatedRequest,
-    @Query('problemId') problemId: string
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number
   ): Promise<{
     successCount: number
     failedSubmissions: { submissionId: number; error: string }[]
   }> {
-    const problemIdNumber = parseInt(problemId, 10)
     return this.submissionService.rejudgeSubmissionsByProblem(
-      problemIdNumber,
+      problemId,
       req.user.role
     )
   }
@@ -104,11 +103,11 @@ export class SubmissionController {
   @Patch('rejudgeBySubmission')
   async rejudgeBySubmission(
     @Req() req: AuthenticatedRequest,
-    @Query('submissionId') submissionId: string
+    @Query('submissionId', new RequiredIntPipe('submissionId'))
+    submissionId: number
   ): Promise<{ success: boolean; error?: string }> {
-    const submissionIdNumber = parseInt(submissionId, 10)
     return this.submissionService.rejudgeSubmissionById(
-      submissionIdNumber,
+      submissionId,
       req.user.role
     )
   }
