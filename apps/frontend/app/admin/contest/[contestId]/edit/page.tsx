@@ -117,8 +117,8 @@ export default function Page({ params }: { params: { contestId: string } }) {
               isLabeled={false}
               isFlexColumn={true}
             >
-              {methods.getValues('description') && (
-                <DescriptionForm name="description" />
+              {methods.getValues('description') !== undefined && (
+                <DescriptionForm name="description" isContest />
               )}
             </FormSection>
 

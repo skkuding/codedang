@@ -54,10 +54,12 @@ export function EditContestForm({
   })
 
   // 수정된 manager, reviewer 목록(managers) 으로 등록
-  const formattedManagers = managers.map((manager) => ({
-    userId: manager.id,
-    contestRole: manager.type
-  }))
+  const formattedManagers = managers
+    .filter((manager) => manager.id !== null) // Exclude managers with null id
+    .map((manager) => ({
+      userId: manager.id,
+      contestRole: manager.type
+    }))
   methods.register('userContest')
   methods.setValue('userContest', formattedManagers)
 
@@ -85,21 +87,26 @@ export function EditContestForm({
         posterUrl: data.posterUrl,
         freezeTime: data.freezeTime === null ? null : new Date(data.freezeTime),
         evaluateWithSampleTestcase: data.evaluateWithSampleTestcase,
-        userContest: data.userContest
+        userContest: data.userContest?.map((role) => ({
+          contestRole: role.role,
+          userId: role.userId ?? undefined
+        }))
       })
       setIsLoading(false)
       setManagers(
-        (data.userContest ?? []).map((role) => {
-          const user = users.find((u) => u.id === role.userId)
-          return {
-            id: role.userId,
-            email: user?.email || '',
-            username: user?.username || '',
-            realName: user?.realName || '',
-            type: role.role,
-            user
-          }
-        })
+        (data.userContest ?? [])
+          .filter((role) => role.userId !== null && role.userId !== undefined) // Ensure userId is not null or undefined
+          .map((role) => {
+            const user = users.find((u) => u.id === role.userId)
+            return {
+              id: role.userId as number,
+              email: user?.email || '',
+              username: user?.username || '',
+              realName: user?.realName || '',
+              type: role.role,
+              user
+            }
+          })
       )
     }
   })

@@ -37,7 +37,8 @@ export function CreateContestForm({
     defaultValues: {
       invitationCode: null,
       enableCopyPaste: false,
-      isJudgeResultVisible: false
+      isJudgeResultVisible: false,
+      description: null
     }
   })
 
