@@ -8,6 +8,7 @@ import { cn } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useEffect } from 'react'
 
 interface SubmissionSummary {
   problemId: number
@@ -40,6 +41,15 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
     return pathname.startsWith(`/admin/contest/${id}/${tab}`)
   }
 
+  useEffect(() => {
+    const handleResize = () => {
+      console.log('tabs 창 너비:', window.innerWidth)
+    }
+
+    window.addEventListener('resize', handleResize)
+    handleResize()
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
   return (
     <div className="flex h-[60px] w-full rounded-full border border-solid border-[#80808040] bg-white">
       <Link

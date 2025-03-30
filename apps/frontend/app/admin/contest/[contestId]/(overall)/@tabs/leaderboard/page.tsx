@@ -95,22 +95,14 @@ export default function ContestLeaderBoard() {
   }
 
   return (
-    <div className="relative mt-9 w-screen pb-[120px]">
-      {disableLeaderboard ? (
-        <UnfreezeLeaderboardToggle
-          contestId={contestId}
-          isUnFrozen={!isFrozen}
-          activated={false}
-        />
-      ) : (
-        <UnfreezeLeaderboardToggle
-          contestId={contestId}
-          isUnFrozen={!isFrozen}
-          activated={true}
-        />
-      )}
-      <div className="mb-[62px] mt-[60px] flex flex-row">
-        <div className="mr-[167px] flex flex-row text-2xl font-semibold text-black">
+    <div className="relative mt-9 w-full pb-[120px]">
+      <UnfreezeLeaderboardToggle
+        contestId={contestId}
+        isUnFrozen={!isFrozen}
+        activated={!disableLeaderboard}
+      />
+      <div className="mb-[62px] mt-[60px] flex w-full flex-row justify-between pl-[14px] pr-[9px]">
+        <div className="flex flex-row text-2xl font-semibold text-black">
           <div className="text-[#3581FA]">
             {contestLeaderboard.getContestLeaderboard.participatedNum}
           </div>
@@ -161,7 +153,7 @@ function UnfreezeLeaderboardToggle({
 }: UnfreezeLeaderboardToggleProps) {
   return (
     <div
-      className={`h-[93px] w-[1002px] rounded-xl border border-[#619CFB] pl-[30px] pt-[21px] ${
+      className={`mr-20 h-[93px] w-full rounded-xl border border-[#619CFB] pl-[30px] pt-[21px] ${
         !activated
           ? 'pointer-events-none border-[#E5E5E5] bg-[#80808014] text-[#9B9B9B]'
           : ''
