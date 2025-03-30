@@ -38,8 +38,9 @@ export default function ContestLeaderBoard() {
   const pathname = usePathname()
   const contestId = Number(pathname.split('/')[2])
 
-  let { data } = useQuery({
-    queryKey: ['contest leaderboard'],
+  // eslint-disable-next-line prefer-const
+  let { data, isLoading, isError } = useQuery({
+    queryKey: ['contest leaderboard', contestId],
     queryFn: () => getContestLeaderboard({ contestId })
   })
   data = data ? data : BaseContestLeaderboardData
@@ -49,12 +50,19 @@ export default function ContestLeaderBoard() {
   ])
 
   useEffect(() => {
-    if (data.leaderboard[0] === undefined) {
-      throw new Error('Error: No leaderboard data')
+    if (isLoading || data === BaseContestLeaderboardData) {
+      return
     }
-    setProblemSize(data ? data.leaderboard[0].problemRecords.length : 0)
-    setLeaderboardUsers(data ? data.leaderboard : [BaseLeaderboardUser])
-  }, [data])
+
+    if (!isLoading && !isError) {
+      if (data.leaderboard.length === 0) {
+        throw new Error('Error: No leaderboard data')
+      }
+
+      setProblemSize(data.leaderboard[0].problemRecords.length)
+      setLeaderboardUsers(data.leaderboard)
+    }
+  }, [data, isLoading, isError])
 
   const [matchedIndices, setMatchedIndices] = useState<number[]>([])
   interface HandleSearchProps {
