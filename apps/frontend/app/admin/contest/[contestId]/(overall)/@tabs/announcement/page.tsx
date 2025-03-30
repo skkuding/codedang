@@ -66,8 +66,8 @@ export default function AdminAnnouncementPage() {
     try {
       await createAnnouncement({
         variables: {
+          contestId,
           input: {
-            contestId,
             problemOrder: data.problemOrder,
             content: data.content
           }

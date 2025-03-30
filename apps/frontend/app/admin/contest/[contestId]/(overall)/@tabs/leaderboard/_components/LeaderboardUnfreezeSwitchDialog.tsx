@@ -34,8 +34,8 @@ export function LeaderboardUnfreezeSwitchDialog({
       console.log('contestId: ', contestId, ' unfreeze?: ', isUnfrozen)
       const res = await updateContest({
         variables: {
+          contestId,
           input: {
-            id: contestId,
             unfreeze: !isUnfrozen
           }
         }
