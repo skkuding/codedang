@@ -1,6 +1,6 @@
 import { safeFetcherWithAuth } from '@/libs/utils'
 import type {
-  AssignmentGrade,
+  AssignmentProblemRecord,
   Language,
   SubmissionDetail,
   SubmissionItem
@@ -64,8 +64,8 @@ interface AnonymizedScore {
 }
 
 export interface GetAnonymizedScoresRequest {
-  assignmentId: number
-  courseId: number
+  assignmentId: string
+  courseId: string
 }
 
 export const getAnonymizedScores = async ({
@@ -73,9 +73,9 @@ export const getAnonymizedScores = async ({
   courseId
 }: GetAnonymizedScoresRequest) => {
   const response = await safeFetcherWithAuth.get(
-    `assignment/${assignmentId}/score`,
+    `assignment/${assignmentId}/anonymized-scores`,
     {
-      searchParams: { anonymized: true, groupId: courseId }
+      searchParams: { groupId: courseId }
     }
   )
 
@@ -181,7 +181,7 @@ export interface GetAssignmentGradesRequest {
   groupId: number
 }
 
-export type GetAssignmentGradesResponse = AssignmentGrade[]
+export type GetAssignmentGradesResponse = AssignmentProblemRecord[]
 
 export const getAssignmentGrades = async ({
   groupId

@@ -42,7 +42,6 @@ export default function AdminAnnouncementPage() {
   const { data: updateHistory } = useQuery(GET_CONTEST_UPDATE_HISTORIES, {
     variables: { contestId }
   })
-
   const [createAnnouncement] = useMutation(CREATE_CONTEST_ANNOUNCEMENT)
 
   const {

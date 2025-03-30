@@ -150,12 +150,12 @@ describe('AssignmentService', () => {
 
   describe('getAssignmentsByGroupId', () => {
     it('should return ongoing, upcoming, registered ongoing, registered upcoming assignments when userId is provided', async () => {
-      const assignments = await service.getAssignments(groupId, user01Id)
+      const assignments = await service.getAssignments(groupId)
       expect(assignments).to.have.lengthOf(14)
     })
 
     it('a assignment should contain following fields when userId is provided', async () => {
-      const assignments = await service.getAssignments(groupId, user01Id)
+      const assignments = await service.getAssignments(groupId)
       expect(assignments[0]).to.have.property('title')
       expect(assignments[0]).to.have.property('startTime')
       expect(assignments[0]).to.have.property('endTime')

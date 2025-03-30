@@ -5,7 +5,7 @@ import { dateFormatter, safeFetcherWithAuth } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import type { Assignment } from '@/types/type'
 import Image from 'next/image'
-import { TotalScoreLabel } from '../_components/TotalScoreLabel'
+import { TotalScoreLabel } from './_components/TotalScoreLabel'
 
 interface AssignmentInfoProps {
   params: {
