@@ -27,6 +27,7 @@ export function DescriptionForm({
     control
   })
 
+  // NOTE: Contest는 description이 필수 항목이 아니므로 description 값이 아닐때는 null로 초기화
   useEffect(() => {
     if (isContest && field.value === '<p></p>') {
       field.onChange(null)
