@@ -506,7 +506,10 @@ export class ProblemService {
       where: {
         ...whereOptions
       },
-      take
+      take,
+      include: {
+        createdBy: true
+      }
     })
     return this.changeVisibleLockTimeToIsVisible(problems)
   }
