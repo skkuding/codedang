@@ -57,7 +57,7 @@ export function EditContestForm({
   const formattedManagers = managers
     .filter((manager) => manager.id !== null) // Exclude managers with null id
     .map((manager) => ({
-      userId: manager.id, // Remove unnecessary type assertion
+      userId: manager.id,
       contestRole: manager.type
     }))
   methods.register('userContest')
