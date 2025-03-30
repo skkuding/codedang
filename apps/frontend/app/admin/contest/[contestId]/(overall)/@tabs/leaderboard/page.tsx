@@ -59,6 +59,9 @@ export default function ContestLeaderBoard() {
   ])
 
   useEffect(() => {
+    if (contestLeaderboard.getContestLeaderboard.leaderboard[0] === undefined) {
+      throw new Error('There is no data in leaderboard yet.')
+    }
     setProblemSize(
       contestLeaderboard
         ? contestLeaderboard.getContestLeaderboard.leaderboard[0].problemRecords
