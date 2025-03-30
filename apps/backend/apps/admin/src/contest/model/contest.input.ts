@@ -16,8 +16,8 @@ export class CreateContestInput {
   @Field(() => String, { nullable: false })
   title!: string
 
-  @Field(() => String, { nullable: false })
-  description!: string
+  @Field(() => String, { nullable: true })
+  description?: string
 
   @Field(() => Int, { nullable: true })
   penalty?: number
