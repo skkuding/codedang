@@ -1,10 +1,24 @@
 import { Injectable } from '@nestjs/common'
 import type { Prisma } from '@prisma/client'
+import * as archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
-import { EntityNotExistException } from '@libs/exception'
+import {
+  mkdirSync,
+  writeFile,
+  createWriteStream,
+  createReadStream,
+  type ReadStream
+} from 'fs'
+import path from 'path'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { Language, ResultStatus } from '@admin/@generated'
 import { Snippet } from '@admin/problem/model/template.input'
+import { StorageService } from '@admin/storage/storage.service'
+import { LanguageExtension } from './enum/language-extensions.enum'
 import { SubmissionOrder } from './enum/submission-order.enum'
 import type {
   GetAssignmentSubmissionsInput,
@@ -14,7 +28,10 @@ import type { SubmissionsWithTotal } from './model/submissions-with-total.output
 
 @Injectable()
 export class SubmissionService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storageService: StorageService
+  ) {}
 
   async getSubmissions(
     problemId: number,
@@ -227,6 +244,40 @@ export class SubmissionService {
     return this.getSubmission(submissionId.id)
   }
 
+  async getAssignmentLatestSubmissionInfo(
+    assignmentId: number,
+    userId: number,
+    problemId: number
+  ) {
+    const submissionInfo = await this.prisma.submission.findFirst({
+      where: {
+        assignmentId,
+        userId,
+        problemId
+      },
+      orderBy: { createTime: 'desc' },
+      select: {
+        id: true,
+        code: true,
+        updateTime: true,
+        language: true,
+        user: {
+          select: {
+            id: true,
+            username: true,
+            studentId: true
+          }
+        }
+      }
+    })
+
+    if (!submissionInfo) {
+      throw new EntityNotExistException('Submission')
+    }
+
+    return submissionInfo
+  }
+
   getOrderBy(
     order: SubmissionOrder
   ): Prisma.SubmissionOrderByWithRelationInput {
@@ -302,5 +353,103 @@ export class SubmissionService {
       code: code.map((snippet) => snippet.text).join('\n'),
       testcaseResult: results
     }
+  }
+
+  async getAssignmentTitle(assignmentId: number): Promise<string | null> {
+    const assignment = await this.prisma.assignment.findUnique({
+      where: {
+        id: assignmentId
+      },
+      select: {
+        title: true
+      }
+    })
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+    return encodeURIComponent(assignment.title)
+  }
+
+  async getZipFileSize(readStream: ReadStream): Promise<number> {
+    return new Promise((resolve, reject) => {
+      const chunks: Buffer[] = []
+
+      readStream.on('data', (chunk: Buffer) => {
+        chunks.push(chunk)
+      })
+
+      readStream.on('end', () => {
+        const fileSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
+        resolve(fileSize)
+      })
+
+      readStream.on('error', () => {
+        reject(
+          new UnprocessableDataException(
+            'Error occurred during calculating file size.'
+          )
+        )
+      })
+    })
+  }
+
+  async downloadCodes(
+    groupId: number,
+    assignmentId: number,
+    problemId: number
+  ) {
+    const assignmentProblemRecords =
+      await this.prisma.assignmentProblemRecord.findMany({
+        where: {
+          assignmentId,
+          problemId,
+          isSubmitted: true
+        },
+        select: {
+          userId: true
+        }
+      })
+    if (!assignmentProblemRecords) {
+      throw new EntityNotExistException('AssignmentProblem')
+    }
+
+    const submissionInfos = await Promise.all(
+      assignmentProblemRecords.map(async (record) => {
+        const submissionInfo = await this.getAssignmentLatestSubmissionInfo(
+          assignmentId,
+          record.userId,
+          problemId
+        )
+        return submissionInfo
+      })
+    )
+    const assignmentTitle = await this.getAssignmentTitle(assignmentId)
+    const dirPath = path.join(__dirname, assignmentTitle!)
+    mkdirSync(dirPath, { recursive: true })
+    submissionInfos.forEach((info) => {
+      const code = plainToInstance(Snippet, info.code)
+      const formattedCode = code.map((snippet) => snippet.text).join('\n')
+      const filename = `${info.user?.studentId}${LanguageExtension[info.language]}`
+      const filePath = path.join(dirPath, filename)
+      writeFile(filePath, formattedCode, (err) => {
+        if (err) {
+          console.error(err)
+        }
+      })
+    })
+    const zipPath = path.join(dirPath, `${assignmentTitle}_${problemId}.zip`)
+    const output = createWriteStream(zipPath)
+    const archive = archiver.create('zip', { zlib: { level: 9 } })
+
+    archive.on('error', (err) => {
+      throw err
+    })
+    archive.pipe(output)
+    archive.directory(dirPath, zipPath)
+    await archive.finalize()
+
+    const fileStream = createReadStream(zipPath)
+    const fileSize = await this.getZipFileSize(fileStream)
+    await this.storageService.uploadFile
   }
 }

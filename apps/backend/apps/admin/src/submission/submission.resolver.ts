@@ -4,7 +4,8 @@ import { UseContestRolesGuard, UseGroupLeaderGuard } from '@libs/auth'
 import {
   SubmissionOrderPipe,
   CursorValidationPipe,
-  RequiredIntPipe
+  RequiredIntPipe,
+  GroupIDPipe
 } from '@libs/pipe'
 import { Submission } from '@admin/@generated'
 import { SubmissionOrder } from './enum/submission-order.enum'
@@ -125,5 +126,16 @@ export class SubmissionResolver {
     @Args('id', { type: () => Int }) id: number
   ): Promise<SubmissionDetail> {
     return await this.submissionService.getSubmission(id)
+  }
+
+  @Query(() => Boolean, { nullable: true })
+  async downloadCodes(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('assignmentId', { type: () => Int })
+    assignmentId: number,
+    @Args('problemId', { type: () => Int }, new RequiredIntPipe('problemId'))
+    problemId: number
+  ): Promise<void> {
+    await this.submissionService.downloadCodes(groupId, assignmentId, problemId)
   }
 }
