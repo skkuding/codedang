@@ -1,5 +1,6 @@
 'use client'
 
+import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import {
   ChartContainer,
@@ -12,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/shadcn/dialog'
-import type { AssignmentGrade } from '@/types/type'
+import type { Assignment, AssignmentProblemRecord } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { MdArrowForwardIos } from 'react-icons/md'
@@ -25,24 +26,28 @@ const chartConfig = {
 } satisfies ChartConfig
 
 interface GradeDetailModalProps {
-  courseId: number
-  gradedAssignment: AssignmentGrade
+  assignment: Assignment
+  courseId: string
 }
 
 export function GradeDetailModal({
-  courseId,
-  gradedAssignment
+  assignment,
+  courseId
 }: GradeDetailModalProps) {
   const { data } = useSuspenseQuery(
     assignmentSubmissionQueries.anonymizedScores({
-      assignmentId: gradedAssignment.id,
+      assignmentId: assignment.id.toString(),
       courseId
     })
   )
 
-  const maxScore = gradedAssignment.assignmentPerfectScore
-  const mySubmittedScore = gradedAssignment.userAssignmentJudgeScore
-  const myGradedScore = gradedAssignment.userAssignmentFinalScore
+  const { data: AssignmentProblemRecord } = useSuspenseQuery({
+    ...assignmentQueries.record({ assignmentId: assignment.id.toString() })
+  })
+
+  const maxScore = AssignmentProblemRecord.assignmentPerfectScore
+  const mySubmittedScore = AssignmentProblemRecord.userAssignmentJudgeScore
+  const myGradedScore = AssignmentProblemRecord.userAssignmentFinalScore
 
   // 점수 데이터를 기반으로 히스토그램 데이터 생성
   const generateChartData = useCallback(
@@ -106,10 +111,10 @@ export function GradeDetailModal({
 
   const scoresStats = useMemo(() => calculateStatistics(scores), [scores])
   const finalScoresStats = useMemo(() => {
-    return gradedAssignment.autoFinalizeScore
+    return AssignmentProblemRecord.autoFinalizeScore
       ? calculateStatistics(scores)
       : calculateStatistics(finalScores)
-  }, [finalScores, gradedAssignment.autoFinalizeScore, scores])
+  }, [finalScores, AssignmentProblemRecord.autoFinalizeScore, scores])
 
   return (
     <DialogContent
@@ -119,9 +124,9 @@ export function GradeDetailModal({
       <DialogHeader>
         <DialogTitle>
           <div className="flex items-center gap-2 text-lg font-medium">
-            <span>Week {gradedAssignment.week}</span>
+            <span>Week {assignment.week}</span>
             <MdArrowForwardIos />
-            <span className="text-primary">{gradedAssignment.title}</span>
+            <span className="text-primary">{assignment.title}</span>
           </div>
         </DialogTitle>
       </DialogHeader>
@@ -153,7 +158,7 @@ export function GradeDetailModal({
               </tr>
             </thead>
             <tbody>
-              {!gradedAssignment.isFinalScoreVisible && (
+              {!AssignmentProblemRecord.isFinalScoreVisible && (
                 <tr className="text-gray-500">
                   <td className="bg-primary-light w-[80px] px-2 py-2 text-xs text-white">
                     Submitted
@@ -175,11 +180,11 @@ export function GradeDetailModal({
                   </td>
                 </tr>
               )}
-              {gradedAssignment.isFinalScoreVisible && (
+              {AssignmentProblemRecord.isFinalScoreVisible && (
                 <tr className="text-gray-500">
                   <td className="bg-primary-light flex w-[80px] flex-col items-center rounded-bl-md px-2 py-2 text-xs text-white">
                     Graded
-                    {gradedAssignment.autoFinalizeScore && (
+                    {AssignmentProblemRecord.autoFinalizeScore && (
                       <span className="text-primary mt-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium shadow-sm">
                         Auto
                       </span>
