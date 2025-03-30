@@ -53,8 +53,7 @@ describe('AnnouncementService', () => {
 
   describe('createAnnouncement', () => {
     it('should return created announcement', async () => {
-      const result = await service.createAnnouncement({
-        contestId,
+      const result = await service.createAnnouncement(contestId, {
         problemOrder,
         content
       })
@@ -67,8 +66,7 @@ describe('AnnouncementService', () => {
     })
 
     it('should return created announcement without problemId', async () => {
-      const result = await service.createAnnouncement({
-        contestId,
+      const result = await service.createAnnouncement(contestId, {
         content
       })
       expect(result).has.property('id')
@@ -81,18 +79,16 @@ describe('AnnouncementService', () => {
 
     it('should rejected if contestId is not exist', async () => {
       await expect(
-        service.createAnnouncement({
-          content,
-          contestId: 999
+        service.createAnnouncement(999, {
+          content
         })
       ).to.be.rejectedWith(PrismaClientKnownRequestError)
     })
 
     it('should rejected if problemOrder is not exist', async () => {
       await expect(
-        service.createAnnouncement({
+        service.createAnnouncement(contestId, {
           content,
-          contestId,
           problemOrder: 999
         })
       ).to.be.rejectedWith(PrismaClientKnownRequestError)
@@ -100,9 +96,8 @@ describe('AnnouncementService', () => {
 
     it('should rejected if problem is not in contest', async () => {
       await expect(
-        service.createAnnouncement({
+        service.createAnnouncement(contestId, {
           content,
-          contestId,
           problemOrder: 4
         })
       ).to.be.rejectedWith(PrismaClientKnownRequestError)
@@ -129,7 +124,7 @@ describe('AnnouncementService', () => {
 
   describe('getAnnouncementById', () => {
     it('should return announcement by id', async () => {
-      const result = await service.getAnnouncementById(1)
+      const result = await service.getAnnouncementById(contestId, 1)
       expect(result).to.be.an('object')
       expect(result).has.property('id')
       expect(result).has.property('contestId')
@@ -140,15 +135,15 @@ describe('AnnouncementService', () => {
     })
 
     it('should rejected if announcement not exist', async () => {
-      await expect(service.getAnnouncementById(999)).to.be.rejectedWith(
-        PrismaClientKnownRequestError
-      )
+      await expect(
+        service.getAnnouncementById(contestId, 999)
+      ).to.be.rejectedWith(PrismaClientKnownRequestError)
     })
   })
 
   describe('updateAnnouncement', () => {
     it('should return updated announcement', async () => {
-      const result = await service.updateAnnouncement({
+      const result = await service.updateAnnouncement(contestId, {
         id: 1,
         content: updatedContent
       })
@@ -163,7 +158,7 @@ describe('AnnouncementService', () => {
 
     it('should rejected if announcement not exist', async () => {
       await expect(
-        service.updateAnnouncement({
+        service.updateAnnouncement(contestId, {
           id: 999,
           content: updatedContent
         })
@@ -173,7 +168,7 @@ describe('AnnouncementService', () => {
 
   describe('removeAnnouncement', () => {
     it('should return removed announcement', async () => {
-      const result = await service.removeAnnouncement(1)
+      const result = await service.removeAnnouncement(contestId, 1)
       expect(result).to.be.an('object')
       expect(result).has.property('id')
       expect(result).has.property('contestId')
@@ -184,9 +179,9 @@ describe('AnnouncementService', () => {
     })
 
     it('should rejected if announcement not exist', async () => {
-      await expect(service.removeAnnouncement(999)).to.be.rejectedWith(
-        PrismaClientKnownRequestError
-      )
+      await expect(
+        service.removeAnnouncement(contestId, 999)
+      ).to.be.rejectedWith(PrismaClientKnownRequestError)
     })
   })
 })
