@@ -49,6 +49,9 @@ export default function ContestLeaderBoard() {
   ])
 
   useEffect(() => {
+    if (data.leaderboard[0] === undefined) {
+      throw new Error('Error: No leaderboard data')
+    }
     setProblemSize(data ? data.leaderboard[0].problemRecords.length : 0)
     setLeaderboardUsers(data ? data.leaderboard : [BaseLeaderboardUser])
   }, [data])
