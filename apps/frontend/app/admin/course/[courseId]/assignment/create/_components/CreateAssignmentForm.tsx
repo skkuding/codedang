@@ -5,6 +5,7 @@ import {
   CREATE_ASSIGNMENT,
   IMPORT_PROBLEMS_TO_ASSIGNMENT
 } from '@/graphql/assignment/mutations'
+import { UPDATE_ASSIGNMENT_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 // import { UPDATE_ASSIGNMENT_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import type { CreateAssignmentInput } from '@generated/graphql'
@@ -36,7 +37,8 @@ export function CreateAssignmentForm({
       isRankVisible: true,
       isVisible: true,
       enableCopyPaste: false,
-      isJudgeResultVisible: false
+      isJudgeResultVisible: false,
+      autoFinalizeScore: false
     }
   })
 
@@ -47,9 +49,9 @@ export function CreateAssignmentForm({
   const [importProblemsToAssignment] = useMutation(
     IMPORT_PROBLEMS_TO_ASSIGNMENT
   )
-  // const [updateAssignmentProblemsOrder] = useMutation(
-  //   UPDATE_ASSIGNMENT_PROBLEMS_ORDER
-  // )
+  const [updateAssignmentProblemsOrder] = useMutation(
+    UPDATE_ASSIGNMENT_PROBLEMS_ORDER
+  )
 
   const isSubmittable = (input: CreateAssignmentInput) => {
     if (input.startTime >= input.endTime) {
@@ -70,10 +72,16 @@ export function CreateAssignmentForm({
     const input = methods.getValues()
     setIsCreating(true)
 
+    const finalInput = {
+      ...input,
+      startTime: input.startTime ?? new Date(0),
+      endTime: input.endTime ?? new Date('2999-12-31T23:59:59')
+    }
+
     const { data } = await createAssignment({
       variables: {
         groupId: Number(groupId),
-        input
+        input: finalInput
       }
     })
 
@@ -98,22 +106,21 @@ export function CreateAssignmentForm({
       }
     })
 
-    // TODO: 백엔드 작업 완료되면 Assignment problem order 변경 기능 추가
-    // const orderArray = problems
-    //   .sort((a, b) => a.order - b.order)
-    //   .map((problem) => problem.id)
+    const orderArray = problems
+      .sort((a, b) => a.order - b.order)
+      .map((problem) => problem.id)
 
-    // await updateAssignmentProblemsOrder({
-    //   variables: {
-    //     groupId: 1,
-    //     assignmentId,
-    //     orders: orderArray
-    //   }
-    // })
+    await updateAssignmentProblemsOrder({
+      variables: {
+        groupId: Number(groupId),
+        assignmentId,
+        orders: orderArray
+      }
+    })
 
     setShouldSkipWarning(true)
     toast.success('Assignment created successfully')
-    router.push(`/admin/course/${groupId}/assignment` as const)
+    router.push(`/admin/course/${groupId}/assignment` as Route)
     router.refresh()
   }
 

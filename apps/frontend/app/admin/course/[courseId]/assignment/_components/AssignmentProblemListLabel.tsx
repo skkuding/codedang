@@ -25,11 +25,11 @@ export function AssignmentProblemListLabel() {
             {/* assignment visible 정책 결정 후 문구 확정 */}
             <p className="text-xs font-normal text-black">
               If a problem is included in at least one ongoing, or upcoming
-              contest, it will automatically become invisible state in the ‘All
-              Problem List’. You cannot change its visibility until all the
-              ongoing or upcoming contests it is part of have ended. After the
-              contests are all over, you can manually make the problem visible
-              again.
+              assignment, it will automatically become invisible state in the
+              ‘All Problem List’. You cannot change its visibility until all the
+              ongoing or upcoming assignments it is part of have ended. After
+              the assignments are all over, you can manually make the problem
+              visible again.
             </p>
           </TooltipContent>
         </Tooltip>

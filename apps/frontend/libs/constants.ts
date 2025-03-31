@@ -55,6 +55,7 @@ export const majors = [
   'Social Sciences / 사회과학계열',
   'Natural Sciences / 자연과학계열',
   'Engineering / 공학계열',
+  'Interdisciplinary Studies / 자유전공계열',
   'School of Convergence / 글로벌융합학부',
   'Confucian and Oriental Studies / 유학·동양학과',
   'Korean Language and Literature / 국어국문학과',
@@ -122,7 +123,8 @@ export const majors = [
   'School of Medicine(Clinical Phase) / 의학과',
   'Global Biomedical Engineering / 글로벌바이오메디컬공학과',
   'Applied AI Convergence / 응용AI융합학부',
-  'Energy / 에너지학과'
+  'Energy / 에너지학과',
+  'Quantum Information Engineering / 양자정보공학과'
 ] as const
 
 /**
@@ -185,3 +187,11 @@ export const courseOvalIconColors: {
     rightdown: '#4A32FF'
   }
 }
+
+export const managerReviewerTypes = ['Manager', 'Reviewer'] as const
+
+/**
+ * Options for the freeze time in minutes.
+ * @constant
+ */
+// export const freezeMinuteOptions = ['90', '75', '60', '45', '30', '15']

@@ -30,7 +30,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
       <ScrollArea className="w-full">
         <main className="flex flex-col gap-6 px-20 py-16">
           <div className="flex items-center gap-4">
-            <Link href={`/admin/course/${courseId}/assignment` as const}>
+            <Link href={`/admin/course/${courseId}/assignment` as Route}>
               <FaAngleLeft className="h-12" />
             </Link>
             <span className="text-4xl font-bold">Create Assignment</span>
@@ -41,43 +41,46 @@ export default function Page({ params }: { params: { courseId: string } }) {
             problems={problems}
             setIsCreating={setIsCreating}
           >
-            <FormSection title="Title">
+            <FormSection isFlexColumn title="Title">
               <TitleForm placeholder="Name your Assignment" />
             </FormSection>
 
             <div className="flex gap-6">
-              <FormSection title="Start Time">
+              <FormSection isFlexColumn title="Start Time">
                 <TimeForm name="startTime" />
               </FormSection>
-              <FormSection title="End Time">
-                <TimeForm name="endTime" />
+              <FormSection isFlexColumn title="End Time">
+                <TimeForm
+                  name="endTime"
+                  defaultTimeOnSelect={{ hours: 23, minutes: 59, seconds: 59 }}
+                />
               </FormSection>
-              <FormSection title="Week">
-                <WeekComboBox name="week" />
+              <FormSection isFlexColumn title="Week">
+                <WeekComboBox name="week" courseId={Number(courseId)} />
               </FormSection>
             </div>
 
-            <FormSection title="Description">
+            <FormSection isFlexColumn title="Description">
               <DescriptionForm name="description" />
             </FormSection>
 
             <SwitchField
               name="enableCopyPaste"
-              title="Enable participants Copy/Pasting"
+              title="Enable Participants Copy/Pasting"
             />
 
             <SwitchField
               name="isJudgeResultVisible"
-              title="Reveal scores to participants"
+              title="Reveal Raw Scores to Participants"
             />
 
             <SwitchField
               name="autoFinalizeScore"
-              title="Automatic Grading"
+              title="Automatically Finalize Score"
               tooltip={true}
             >
               <p className="text-xs font-normal text-black">
-                Automatic Grading is Awesome!
+                Automatically Finalize Score without manual grading
               </p>
             </SwitchField>
 
@@ -99,7 +102,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
               disabled={isCreating}
             >
               <IoMdCheckmarkCircleOutline fontSize={20} />
-              <div className="mb-[2px] text-base">Create</div>
+              <div className="text-base">Create</div>
             </Button>
           </CreateAssignmentForm>
         </main>

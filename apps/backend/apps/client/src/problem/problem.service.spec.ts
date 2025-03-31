@@ -6,19 +6,18 @@ import { Prisma, ResultStatus } from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { stub } from 'sinon'
-import {
-  EntityNotExistException,
-  ForbiddenAccessException
-} from '@libs/exception'
+import { ForbiddenAccessException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { AssignmentService } from '@client/assignment/assignment.service'
 import { ContestService } from '@client/contest/contest.service'
 import { GroupService } from '@client/group/group.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
-import { CodeDraftResponseDto } from './dto/code-draft.response.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { _ProblemsResponseDto } from './dto/problems.response.dto'
-import { _RelatedProblemResponseDto } from './dto/related-problem.response.dto'
+import {
+  _RelatedProblemResponseDto,
+  RelatedProblemResponseDto
+} from './dto/related-problem.response.dto'
 import { _RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import {
   assignmentProblems,
@@ -26,18 +25,15 @@ import {
   problemTag,
   problems,
   workbookProblems,
-  mockUser,
-  mockTemplate,
   tag,
-  mockCodeDraft,
   contestProblemsWithScore,
-  assignmentProblemsWithScore
+  assignmentProblemsWithScore,
+  mockUpdateHistory
 } from './mock/problem.mock'
 import {
   ContestProblemService,
   AssignmentProblemService,
   ProblemService,
-  CodeDraftService,
   WorkbookProblemService
 } from './problem.service'
 
@@ -60,6 +56,9 @@ const db = {
   },
   assignmentRecord: {
     findUnique: stub()
+  },
+  assignmentProblemRecord: {
+    findMany: stub()
   },
   workbookProblem: {
     findMany: stub(),
@@ -84,10 +83,8 @@ const db = {
   submission: {
     findMany: stub()
   },
-  codeDraft: {
-    findMany: stub(),
-    findUniqueOrThrow: stub(),
-    upsert: stub()
+  updateHistory: {
+    findMany: stub()
   },
   getPaginator: PrismaService.prototype.getPaginator
 }
@@ -96,14 +93,6 @@ const prismaNotFoundError = new Prisma.PrismaClientKnownRequestError(
   "Can't perform the action because the target record doesn't exist",
   {
     code: 'P2025',
-    clientVersion: '5.1.1'
-  }
-)
-
-const prismaForignKeyConstraintError = new Prisma.PrismaClientKnownRequestError(
-  'Foreign key constraint failed on the field',
-  {
-    code: 'P2003',
     clientVersion: '5.1.1'
   }
 )
@@ -136,7 +125,10 @@ const mockContestProblem = {
 }
 
 const mockContestProblems = contestProblems.map((contestProblem) => {
-  return { ...contestProblem, problem: Object.assign({}, mockProblems[0]) }
+  return {
+    ...contestProblem,
+    problem: Object.assign({}, mockProblems[0])
+  }
 })
 
 const mockContestProblemsWithScore = contestProblemsWithScore.map(
@@ -170,8 +162,7 @@ const mockAssignmentProblemsWithScore = assignmentProblemsWithScore.map(
       assignment: {
         startTime: new Date()
       },
-      maxScore: 0,
-      submissionTime: null
+      maxScore: 0
     }
   }
 )
@@ -274,6 +265,17 @@ describe('ProblemService', () => {
       await expect(service.getProblem(problemId)).to.be.rejectedWith(
         prismaNotFoundError
       )
+    })
+  })
+
+  describe('getProblemUpdateHistory', () => {
+    it('should return the update history of problem', async () => {
+      db.problem.findUniqueOrThrow.resolves(mockProblem)
+      db.updateHistory.findMany.resolves(mockUpdateHistory)
+
+      const result = await service.getProblemUpdateHistory(problemId)
+
+      expect(result).to.deep.equal(mockUpdateHistory)
     })
   })
 })
@@ -448,7 +450,7 @@ describe('ContestProblemService', () => {
   })
 
   describe('getContestProblem', () => {
-    it('should return the public contest problem', async () => {
+    it('should return the contest problem', async () => {
       // given
       const getContestSpy = stub(contestService, 'getContest')
       getContestSpy.resolves({
@@ -461,6 +463,7 @@ describe('ContestProblemService', () => {
         next: null
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
+      db.updateHistory.findMany.resolves(mockUpdateHistory)
 
       // when
       const result = await service.getContestProblem({
@@ -470,38 +473,8 @@ describe('ContestProblemService', () => {
       })
 
       // then
-      expect(result).to.be.deep.equal(
-        // Deprecated
-        plainToInstance(_RelatedProblemResponseDto, mockContestProblem)
-      )
-    })
-
-    it('should return the group contest problem', async () => {
-      // given
-      const getContestSpy = stub(contestService, 'getContest')
-      getContestSpy.resolves({
-        startTime: faker.date.past(),
-        endTime: faker.date.future(),
-        isRegistered: true,
-        isJudgeResultVisible: true,
-        invitationCodeExists: true,
-        prev: null,
-        next: null
-      })
-      db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
-
-      // when
-      const result = await service.getContestProblem({
-        contestId,
-        problemId,
-        userId
-      })
-
-      // then
-      expect(result).to.be.deep.equal(
-        // Deprecated
-        plainToInstance(_RelatedProblemResponseDto, mockContestProblem)
-      )
+      expect(result).to.have.property('order', mockContestProblem.order)
+      expect(result).to.have.property('updateHistory', mockUpdateHistory)
     })
 
     it('should throw PrismaClientKnownRequestError when the contest is not visible', async () => {
@@ -614,6 +587,9 @@ describe('AssignmentProblemService', () => {
       })
       db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
       db.submission.findMany.resolves([])
+      db.assignmentProblemRecord.findMany.resolves([
+        { problemId: 1, score: null }
+      ])
 
       // when
       const result = await service.getAssignmentProblems({
@@ -644,6 +620,9 @@ describe('AssignmentProblemService', () => {
       })
       db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
       db.submission.findMany.resolves([])
+      db.assignmentProblemRecord.findMany.resolves([
+        { problemId: 1, score: null }
+      ])
 
       // when
       const result = await service.getAssignmentProblems({
@@ -918,88 +897,6 @@ describe('WorkbookProblemService', () => {
       await expect(
         service.getWorkbookProblem(workbookId, problemId, groupId)
       ).to.be.rejectedWith(ForbiddenAccessException)
-    })
-  })
-})
-
-describe('CodeDraftService', () => {
-  let service: CodeDraftService
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CodeDraftService,
-        { provide: PrismaService, useValue: db },
-        {
-          provide: CACHE_MANAGER,
-          useFactory: () => ({
-            set: () => [],
-            get: () => [],
-            del: () => [],
-            store: {
-              keys: () => []
-            }
-          })
-        }
-      ]
-    }).compile()
-
-    service = module.get<CodeDraftService>(CodeDraftService)
-  })
-
-  it('should be defined', () => {
-    expect(service).to.be.ok
-  })
-
-  describe('getCodeDraft', () => {
-    it('should return Code Draft', async () => {
-      // given
-      db.codeDraft.findUniqueOrThrow.resolves(mockCodeDraft)
-      // when
-      const result = await service.getCodeDraft(mockUser.id, mockProblem.id)
-
-      // then
-      expect(result).to.deep.equal(
-        // Deprecated
-        plainToInstance(CodeDraftResponseDto, mockCodeDraft)
-      )
-    })
-
-    it('should throw PrismaClientKnownRequestError when the code draft does not exist', async () => {
-      // given
-      db.codeDraft.findUniqueOrThrow.rejects(prismaNotFoundError)
-      // then
-      await expect(
-        service.getCodeDraft(mockUser.id, mockProblem.id)
-      ).to.be.rejectedWith(prismaNotFoundError)
-    })
-  })
-
-  describe('upsertCodeDraft', () => {
-    it('should upsert code draft', async () => {
-      // given
-      db.codeDraft.upsert.resolves(mockCodeDraft)
-      // when
-      const result = await service.upsertCodeDraft(
-        mockUser.id,
-        mockProblem.id,
-        mockTemplate
-      )
-
-      // then
-      expect(result).to.deep.equal(
-        // Deprecated
-        plainToInstance(CodeDraftResponseDto, mockCodeDraft)
-      )
-    })
-
-    it('should throw PrismaClientKnownRequestError when the user or problem does not exist', async () => {
-      // given
-      db.codeDraft.upsert.rejects(prismaForignKeyConstraintError)
-      // then
-      await expect(
-        service.upsertCodeDraft(mockUser.id, mockProblem.id, mockTemplate)
-      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 })

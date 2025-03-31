@@ -1,0 +1,40 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdatePermissions($input: UpdateCreationPermissionsInput!) {
+    updateCreationPermissions(input: $input) {
+      id
+      role
+      canCreateCourse
+      canCreateContest
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "userId": 2, 
+      "canCreateCourse": true,
+      "canCreateContest": true
+    }
+  }
+}
+
+docs {
+  # Update canCreateCourse
+  
+  ## Description
+  사용자가 Course를 생성하는 권한을 변경합니다.
+  
+}

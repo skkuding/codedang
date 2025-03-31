@@ -1,9 +1,4 @@
-import {
-  ForbiddenException,
-  ParseArrayPipe,
-  UsePipes,
-  ValidationPipe
-} from '@nestjs/common'
+import { ParseArrayPipe, UsePipes, ValidationPipe } from '@nestjs/common'
 import {
   Args,
   Context,
@@ -17,13 +12,21 @@ import {
 import {
   AssignmentProblem,
   ContestProblem,
-  Image,
+  File,
+  Group,
   ProblemTag,
   ProblemTestcase,
+  UpdateHistory,
   WorkbookProblem
 } from '@generated'
-import { Role } from '@prisma/client'
-import { AuthenticatedRequest } from '@libs/auth'
+import { ContestRole, Role } from '@prisma/client'
+import {
+  AuthenticatedRequest,
+  UseContestRolesGuard,
+  UseDisableAdminGuard,
+  UseGroupLeaderGuard
+} from '@libs/auth'
+import { ForbiddenAccessException } from '@libs/exception'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -31,7 +34,7 @@ import {
   RequiredIntPipe
 } from '@libs/pipe'
 import { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
-import { ImageSource } from './model/image.output'
+import { FileSource } from './model/file.output'
 import {
   CreateProblemInput,
   UploadFileInput,
@@ -42,6 +45,7 @@ import { ProblemWithIsVisible } from './model/problem.output'
 import { ProblemService } from './problem.service'
 
 @Resolver(() => ProblemWithIsVisible)
+@UseDisableAdminGuard()
 export class ProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 
@@ -78,23 +82,36 @@ export class ProblemResolver {
     problemId: number,
     @Args('input') input: UploadFileInput
   ) {
-    return await this.problemService.uploadTestcase(input, problemId)
+    return await this.problemService.uploadTestcase(
+      input,
+      problemId,
+      req.user.role,
+      req.user.id
+    )
   }
 
-  @Mutation(() => ImageSource)
+  @Mutation(() => FileSource)
   async uploadImage(
     @Args('input') input: UploadFileInput,
     @Context('req') req: AuthenticatedRequest
   ) {
-    return await this.problemService.uploadImage(input, req.user.id)
+    return await this.problemService.uploadFile(input, req.user.id, true)
   }
 
-  @Mutation(() => Image)
-  async deleteImage(
+  @Mutation(() => FileSource)
+  async uploadFile(
+    @Args('input') input: UploadFileInput,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    return await this.problemService.uploadFile(input, req.user.id, false)
+  }
+
+  @Mutation(() => File)
+  async deleteFile(
     @Args('filename') filename: string,
     @Context('req') req: AuthenticatedRequest
   ) {
-    return await this.problemService.deleteImage(filename, req.user.id)
+    return await this.problemService.deleteFile(filename, req.user.id)
   }
 
   @Query(() => [ProblemWithIsVisible])
@@ -109,7 +126,7 @@ export class ProblemResolver {
     shared: boolean
   ) {
     if (!my && !shared && req.user.role == Role.User) {
-      throw new ForbiddenException(
+      throw new ForbiddenAccessException(
         'User does not have permission for all problems'
       )
     }
@@ -125,9 +142,20 @@ export class ProblemResolver {
 
   @Query(() => ProblemWithIsVisible)
   async getProblem(
+    @Context('req') req: AuthenticatedRequest,
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
-    return await this.problemService.getProblem(id)
+    return await this.problemService.getProblem(id, req.user.role, req.user.id)
+  }
+
+  @ResolveField('updateHistory', () => [UpdateHistory])
+  async getProblemUpdateHistory(@Parent() problem: ProblemWithIsVisible) {
+    return await this.problemService.getProblemUpdateHistory(problem.id)
+  }
+
+  @ResolveField('sharedGroups', () => [Group])
+  async getSharedGroups(@Parent() problem: ProblemWithIsVisible) {
+    return await this.problemService.getSharedGroups(problem.id)
   }
 
   @ResolveField('tag', () => [ProblemTag])
@@ -166,6 +194,7 @@ export class ProblemResolver {
 }
 
 @Resolver(() => ContestProblem)
+@UseContestRolesGuard(ContestRole.Reviewer)
 export class ContestProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 
@@ -178,6 +207,7 @@ export class ContestProblemResolver {
   }
 
   @Mutation(() => [ContestProblem])
+  @UseContestRolesGuard(ContestRole.Manager)
   async updateContestProblemsScore(
     @Args('contestId', { type: () => Int }) contestId: number,
     @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
@@ -190,6 +220,7 @@ export class ContestProblemResolver {
   }
 
   @Mutation(() => [ContestProblem])
+  @UseContestRolesGuard(ContestRole.Manager)
   async updateContestProblemsOrder(
     @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
     contestId: number,
@@ -208,6 +239,7 @@ export class ContestProblemResolver {
 }
 
 @Resolver(() => AssignmentProblem)
+@UseGroupLeaderGuard()
 export class AssignmentProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 
@@ -268,6 +300,7 @@ export class AssignmentProblemResolver {
 }
 
 @Resolver(() => WorkbookProblem)
+@UseGroupLeaderGuard()
 export class WorkbookProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 

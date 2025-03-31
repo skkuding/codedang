@@ -37,9 +37,59 @@ jobs:
         run: |
           echo 'env = "rc"' >> terraform.tfvars
 
-      - name: Terraform Init
+      - name: Terraform Init Network
         working-directory: ./apps/infra/rc/network
         run: terraform init -backend-config="bucket=codedang-tf-state-rc"
+      - name: Terraform Init Storage
+        working-directory: ./apps/infra/rc/storage
+        run: terraform init -backend-config="bucket=codedang-tf-state-rc"
+      - name: Terraform Init Codedang
+        working-directory: ./apps/infra/rc/codedang
+        run: terraform init -backend-config="bucket=codedang-tf-state-rc"
+
+      - name: Check Existing AWS Codedang Resources
+        working-directory: ./apps/infra/rc/codedang
+        run: |
+          if [ -n "$(terraform state list)" ]; then
+            echo "Resources found. Proceeding with destroy."
+            echo "$TFVARS_RC" >> terraform.tfvars
+            echo "$OAUTH_GITHUB" >> terraform.tfvars
+            echo "$OAUTH_KAKAO" >> terraform.tfvars
+            echo 'env = "rc"' >> terraform.tfvars
+            echo "CODEDANG_DESTROY_REQUIRED=true" >> $GITHUB_ENV
+          else
+            echo "No resources found. Skipping destroy."
+            echo "CODEDANG_DESTROY_REQUIRED=false" >> $GITHUB_ENV
+          fi
+        env:
+          TFVARS_RC: ${{ secrets.TFVARS_RC }}
+          OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
+          OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
+
+      - name: Terraform Destroy If There's Existing Codedang Resources
+        if: env.CODEDANG_DESTROY_REQUIRED == 'true'
+        working-directory: ./apps/infra/rc/codedang
+        run: terraform destroy -auto-approve
+
+      - name: Check Existing AWS Storage Resources
+        working-directory: ./apps/infra/rc/storage
+        run: |
+          if [ -n "$(terraform state list)" ]; then
+            echo "Resources found. Proceeding with destroy."
+            echo "$TFVARS_RC" >> terraform.tfvars
+            echo 'env = "rc"' >> terraform.tfvars
+            echo "STORAGE_DESTROY_REQUIRED=true" >> $GITHUB_ENV
+          else
+            echo "No resources found. Skipping destroy."
+            echo "STORAGE_DESTROY_REQUIRED=false" >> $GITHUB_ENV
+          fi
+        env:
+          TFVARS_RC: ${{ secrets.TFVARS_RC }}
+
+      - name: Terraform Destroy If There's Existing Storage Resources
+        if: env.STORAGE_DESTROY_REQUIRED == 'true'
+        working-directory: ./apps/infra/rc/storage
+        run: terraform destroy -auto-approve
 
       - name: Terraform Plan
         working-directory: ./apps/infra/rc/network
@@ -73,9 +123,12 @@ jobs:
       - name: Create Terraform variable file
         working-directory: ./apps/infra/rc/storage
         run: |
+          echo "$TFVARS_RC" >> terraform.tfvars
           echo 'env = "rc"' >> terraform.tfvars
+        env:
+          TFVARS_RC: ${{ secrets.TFVARS_RC }}
 
-      - name: Terraform Init
+      - name: Terraform Init Storage
         working-directory: ./apps/infra/rc/storage
         run: terraform init -backend-config="bucket=codedang-tf-state-rc"
 
@@ -87,10 +140,20 @@ jobs:
         working-directory: ./apps/infra/rc/storage
         run: terraform apply -input=false plan.out
 
+  rc-mask-db:
+    uses: ./.github/workflows/rc-mask-db.yml
+    secrets: inherit
+    needs: [rc-deploy-storage]
+
+  rc-build-image:
+    uses: ./.github/workflows/rc-build-image.yml
+    secrets: inherit # Passes all aws credential secrets from the caller context
+    needs: [rc-deploy-storage]
+
   rc-deploy-codedang:
-    name: RC - Deploy Codedang
+    name: RC - Deploy Terraform Codedang Project
     runs-on: ubuntu-latest
-    needs: [rc-deploy-network, rc-deploy-storage]
+    needs: [rc-build-image]
     environment: production
     defaults:
       run:
@@ -120,7 +183,7 @@ jobs:
           OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
           OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
 
-      - name: Terraform Init
+      - name: Terraform Init Codedang
         working-directory: ./apps/infra/rc/codedang
         run: terraform init -backend-config="bucket=codedang-tf-state-rc"
 

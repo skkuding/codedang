@@ -96,19 +96,21 @@ const mockContest: Contest = {
   invitationCode: 'test',
   startTime: new Date(),
   endTime: new Date(),
-  isVisible: true,
-  isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
+  evaluateWithSampleTestcase: false,
   createTime: new Date(),
   updateTime: new Date(),
+  unfreeze: false,
   freezeTime: null,
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 const mockAssignment: Assignment = {
   id: ASSIGNMENT_ID,
@@ -649,11 +651,22 @@ describe('SubmissionService', () => {
         canCreateContest: false
       }
       db.user.findFirst.resolves(adminUser)
-      db.assignmentRecord.findUnique.resolves({})
-      db.assignmentProblem.findFirst.resolves({})
+      db.assignmentRecord.findUnique.resolves()
+      const assignmentProblem = {
+        order: 0,
+        problem: {
+          id: 7,
+          title: '천재 디자이너'
+        },
+        assignment: {
+          id: 19,
+          isJudgeResultVisible: true,
+          title: '24학년도 성민규 과제'
+        }
+      }
+      db.assignmentProblem.findFirst.resolves(assignmentProblem)
       db.submission.findMany.resolves(submissions)
       db.submission.count.resolves(1)
-      db.assignment.findFirst.resolves({ isJudgeResultVisible: true })
 
       expect(
         await service.getAssignmentSubmissions({
@@ -661,7 +674,7 @@ describe('SubmissionService', () => {
           assignmentId: ASSIGNMENT_ID,
           userId: submissions[0].userId
         })
-      ).to.deep.equal({ data: submissions, total: 1 })
+      ).to.deep.equal({ data: submissions, total: 1, assignmentProblem })
     })
 
     it('should throw exception if user is not registered to assignment', async () => {

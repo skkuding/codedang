@@ -4,7 +4,11 @@ import {
   AssignmentProblem,
   AssignmentProblemRecord
 } from '@generated'
-import { AuthenticatedRequest } from '@libs/auth'
+import {
+  AuthenticatedRequest,
+  UseDisableAdminGuard,
+  UseGroupLeaderGuard
+} from '@libs/auth'
 import {
   CursorValidationPipe,
   GroupIDPipe,
@@ -23,6 +27,7 @@ import { AssignmentProblemScoreInput } from './model/problem-score.input'
 import { UserAssignmentScoreSummaryWithUserInfo } from './model/score-summary'
 
 @Resolver(() => Assignment)
+@UseGroupLeaderGuard()
 export class AssignmentResolver {
   constructor(private readonly assignmentService: AssignmentService) {}
 
@@ -140,7 +145,6 @@ export class AssignmentResolver {
       take,
       assignmentId,
       userId,
-      groupId,
       problemId,
       cursor
     )
@@ -192,11 +196,15 @@ export class AssignmentResolver {
   }
 
   @Query(() => AssignmentsGroupedByStatus)
+  @UseDisableAdminGuard()
   async getAssignmentsByProblemId(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('problemId', { type: () => Int }) problemId: number
+    @Args('problemId', { type: () => Int }) problemId: number,
+    @Context('req') req: AuthenticatedRequest
   ) {
-    return await this.assignmentService.getAssignmentsByProblemId(problemId)
+    return await this.assignmentService.getAssignmentsByProblemId(
+      problemId,
+      req.user.id
+    )
   }
 
   @Mutation(() => AssignmentProblemRecord)
@@ -208,5 +216,20 @@ export class AssignmentResolver {
       groupId,
       input
     )
+  }
+
+  @Query(() => AssignmentProblemRecord)
+  async getAssignmentProblemRecord(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('assignmentId', { type: () => Int }) assignmentId: number,
+    @Args('userId', { type: () => Int }) userId: number,
+    @Args('problemId', { type: () => Int }) problemId: number
+  ) {
+    return await this.assignmentService.getAssignmentProblemRecord({
+      groupId,
+      assignmentId,
+      problemId,
+      userId
+    })
   }
 }

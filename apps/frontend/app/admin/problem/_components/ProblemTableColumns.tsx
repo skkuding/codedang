@@ -6,6 +6,8 @@ import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
 import type { Level } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
+import { SquareArrowOutUpRight } from 'lucide-react'
+import Link from 'next/link'
 import { ContainedContests } from './ContainedContests'
 
 interface Tag {
@@ -52,7 +54,9 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
   )
 }
 
-export const columns: ColumnDef<DataTableProblem>[] = [
+export const createColumns = (
+  isUser: boolean
+): ColumnDef<DataTableProblem>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -165,13 +169,32 @@ export const columns: ColumnDef<DataTableProblem>[] = [
       return <div>{acceptedRateFloat}%</div>
     }
   },
+
   {
     accessorKey: 'isVisible',
+    header: ({ column }) =>
+      !isUser && <DataTableColumnHeader column={column} title="Visible" />,
+    cell: ({ row }) => {
+      return !isUser && <VisibleCell row={row} />
+    }
+  },
+  {
+    accessorKey: 'preview',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Visible" />
+      <DataTableColumnHeader column={column} title="Preview" />
     ),
     cell: ({ row }) => {
-      return <VisibleCell row={row} />
-    }
+      return (
+        <Link
+          href={`/admin/problem/${row.original.id}/preview`}
+          target="_blank"
+          className="flex justify-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <SquareArrowOutUpRight />
+        </Link>
+      )
+    },
+    enableSorting: false
   }
 ]

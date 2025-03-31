@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma, type Contest } from '@prisma/client'
+import { ContestRole, Prisma, type Contest } from '@prisma/client'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -12,15 +12,12 @@ const contestSelectOption = {
   title: true,
   startTime: true,
   endTime: true,
+  freezeTime: true,
   invitationCode: true,
   enableCopyPaste: true,
   isJudgeResultVisible: true,
   posterUrl: true,
-  participationTarget: true,
-  competitionMethod: true,
-  rankingMethod: true,
-  problemFormat: true,
-  benefits: true,
+  summary: true,
   contestRecord: {
     select: {
       userId: true
@@ -168,7 +165,7 @@ export class ContestService {
     }
   }
 
-  async getContest(id: number, userId?: number) {
+  async getContest(id: number, userId?: number | null) {
     // check if the user has already registered this contest
     // initial value is false
     let isRegistered = false
@@ -184,8 +181,7 @@ export class ContestService {
     try {
       contest = await this.prisma.contest.findUniqueOrThrow({
         where: {
-          id,
-          isVisible: true
+          id
         },
         select: {
           ...contestSelectOption,
@@ -213,8 +209,7 @@ export class ContestService {
           : { compare: { gt: id }, order: 'asc' as Order }
       return {
         where: {
-          id: options.compare,
-          isVisible: true
+          id: options.compare
         },
         orderBy: {
           id: options.order
@@ -235,7 +230,7 @@ export class ContestService {
     }
   }
 
-  async createContestRecord({
+  async registerContest({
     contestId,
     userId,
     invitationCode
@@ -269,19 +264,17 @@ export class ContestService {
     if (now >= contest.endTime) {
       throw new ConflictFoundException('Cannot participate ended contest')
     }
+    return await this.prisma.$transaction(async (prisma) => {
+      const contestRecord = await prisma.contestRecord.create({
+        data: { contestId, userId }
+      })
 
-    return await this.prisma.contestRecord.create({
-      data: { contestId, userId }
+      await prisma.userContest.create({
+        data: { contestId, userId, role: ContestRole.Participant }
+      })
+
+      return contestRecord
     })
-  }
-
-  async isVisible(contestId: number): Promise<boolean> {
-    return !!(await this.prisma.contest.count({
-      where: {
-        id: contestId,
-        isVisible: true
-      }
-    }))
   }
 
   async unregisterContest(contestId: number, userId: number) {
@@ -314,23 +307,33 @@ export class ContestService {
       )
     }
 
-    return await this.prisma.contestRecord.delete({
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      where: { contestId_userId: { contestId, userId } }
+    return await this.prisma.$transaction(async (prisma) => {
+      await prisma.userContest.delete({
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        where: { userId_contestId: { userId, contestId } }
+      })
+
+      return prisma.contestRecord.delete({
+        where: { id: contestRecord.id }
+      })
     })
   }
 
   async getContestLeaderboard(contestId: number, search?: string) {
-    const contest = await this.prisma.contest.findUnique({
+    const contest = await this.prisma.contest.findUniqueOrThrow({
       where: {
         id: contestId
       },
       select: {
-        freezeTime: true
+        freezeTime: true,
+        unfreeze: true
       }
     })
-    const isFrozen =
-      contest?.freezeTime != null && new Date() >= contest.freezeTime
+
+    const now = new Date()
+    const isFrozen = Boolean(
+      contest.freezeTime && now >= contest.freezeTime && !contest.unfreeze
+    )
 
     const sum = await this.prisma.contestProblem.aggregate({
       where: {
@@ -372,7 +375,8 @@ export class ContestService {
             contestProblem: {
               select: {
                 id: true,
-                order: true
+                order: true,
+                problemId: true
               }
             }
           }
@@ -417,31 +421,37 @@ export class ContestService {
     }
 
     // 유저별 문제별 제출 횟수를 매핑
-    const submissionCountMap: {
-      [userId: number]: { [problemId: number]: number }
-    } = {}
-    submissionCounts.forEach((submission) => {
-      const { userId, problemId, _count } = submission
-      if (!userId || !problemId || !_count) return
+    const submissionCountMap: Record<number, Record<number, number>> = {}
+
+    for (const { userId, problemId, _count } of submissionCounts) {
+      if (userId == null || problemId == null || _count?.id == null) continue
+
       if (!submissionCountMap[userId]) {
         submissionCountMap[userId] = {}
       }
-      submissionCountMap[userId][problemId] = _count.id // 문제별 제출 횟수 저장
-    })
 
-    const submissionCountMapBeforeFreeze: {
-      [userId: number]: { [problemId: number]: number }
-    } = {}
-    if (contest?.freezeTime) {
-      beforeFreezeSubmissionCounts.forEach((submission) => {
-        const { userId, problemId, _count } = submission
-        if (!userId || !problemId || !_count) return
+      submissionCountMap[userId][problemId] = _count.id
+    }
+
+    // freeze 이전 제출 횟수 데이터 가져오기 (freeze 이후 제출 횟수와 비교하기 위함)
+    const submissionCountMapBeforeFreeze: Record<
+      number,
+      Record<number, number>
+    > = {}
+    if (contest?.freezeTime && beforeFreezeSubmissionCounts) {
+      for (const {
+        userId,
+        problemId,
+        _count
+      } of beforeFreezeSubmissionCounts) {
+        if (userId == null || problemId == null || _count?.id == null) continue
+
         if (!submissionCountMapBeforeFreeze[userId]) {
           submissionCountMapBeforeFreeze[userId] = {}
         }
 
         submissionCountMapBeforeFreeze[userId][problemId] = _count.id
-      })
+      }
     }
 
     const allProblems = await this.prisma.contestProblem.findMany({
@@ -450,13 +460,14 @@ export class ContestService {
       },
       select: {
         id: true,
-        order: true
+        order: true,
+        problemId: true
       }
     }) // 모든 문제 목록이 포함된 배열
 
     let rank = 1
-    const leaderboard = contestRecords.map((contestRecord) => {
-      const {
+    const leaderboard = contestRecords.map(
+      ({
         contestProblemRecord,
         userId,
         score,
@@ -464,65 +475,70 @@ export class ContestService {
         totalPenalty,
         finalTotalPenalty,
         user
-      } = contestRecord
+      }) => {
+        const getSubmissionCount = (problemId: number) =>
+          submissionCountMap[userId!]?.[problemId] ?? 0
 
-      const problemRecords = allProblems.map((contestProblem) => {
-        const record = contestProblemRecord.find(
-          (r) => r.contestProblem.id === contestProblem.id
-        )
+        const getIsFrozen = (
+          problemId: number,
+          freezeScore: number,
+          finalScore: number
+        ) =>
+          freezeScore !== finalScore ||
+          submissionCountMapBeforeFreeze[userId!]?.[problemId] !==
+            submissionCountMap[userId!]?.[problemId]
 
-        if (record) {
+        const problemRecords = allProblems.map(({ id, order, problemId }) => {
+          const record = contestProblemRecord.find(
+            (r) => r.contestProblem.id === id
+          )
+
+          if (!record) {
+            return {
+              order,
+              problemId,
+              penalty: 0,
+              submissionCount: getSubmissionCount(problemId),
+              score: 0,
+              isFrozen: false,
+              isFirstSolver: false
+            }
+          }
+
           const {
-            contestProblem,
-            score,
+            score: freezeScore,
+            finalScore,
             submitCountPenalty,
             timePenalty,
-            finalScore,
             finalSubmitCountPenalty,
             finalTimePenalty,
             isFirstSolver
           } = record
 
+          const penalty = isFrozen
+            ? submitCountPenalty + timePenalty
+            : finalSubmitCountPenalty + finalTimePenalty
+
           return {
-            order: contestProblem.order,
-            problemId: contestProblem.id,
-            penalty: isFrozen
-              ? submitCountPenalty + timePenalty
-              : finalSubmitCountPenalty + finalTimePenalty,
-            submissionCount:
-              submissionCountMap[userId!]?.[contestProblem.id] ?? 0,
-            score: isFrozen ? score : finalScore,
-            isFrozen:
-              score !== finalScore ||
-              submissionCountMapBeforeFreeze[userId!]?.[contestProblem.id] !==
-                submissionCountMap[userId!]?.[contestProblem.id]
-                ? true
-                : false,
+            order,
+            problemId,
+            penalty,
+            submissionCount: getSubmissionCount(problemId),
+            score: isFrozen ? freezeScore : finalScore,
+            isFrozen: getIsFrozen(problemId, freezeScore, finalScore),
             isFirstSolver
           }
-        } else {
-          // contestProblemRecord가 없을 경우 기본값을 설정하여 반환
-          return {
-            order: contestProblem.order,
-            problemId: contestProblem.id,
-            penalty: 0, // 기본 패널티 값
-            submissionCount:
-              submissionCountMap[userId!]?.[contestProblem.id] ?? 0, // 기본 제출 횟수
-            score: 0, // 기본 점수
-            isFrozen: false,
-            isFirstSolver: false
-          }
-        }
-      })
+        })
 
-      return {
-        username: user!.username,
-        totalScore: isFrozen ? score : finalScore,
-        totalPenalty: isFrozen ? totalPenalty : finalTotalPenalty,
-        problemRecords,
-        rank: rank++
+        return {
+          username: user!.username,
+          totalScore: isFrozen ? score : finalScore,
+          totalPenalty: isFrozen ? totalPenalty : finalTotalPenalty,
+          problemRecords,
+          rank: rank++
+        }
       }
-    })
+    )
 
     const filteredLeaderboard = search
       ? leaderboard.filter(({ username }) =>
@@ -533,6 +549,38 @@ export class ContestService {
     return {
       maxScore,
       leaderboard: filteredLeaderboard
+    }
+  }
+
+  async getContestRoles(userId: number) {
+    if (!userId) {
+      return {
+        canCreateContest: false,
+        userContests: []
+      }
+    }
+
+    const userContests = await this.prisma.userContest.findMany({
+      where: {
+        userId
+      },
+      select: {
+        contestId: true,
+        role: true
+      }
+    })
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId
+      },
+      select: {
+        canCreateContest: true
+      }
+    })
+
+    return {
+      canCreateContest: user?.canCreateContest ?? false,
+      userContests
     }
   }
 }

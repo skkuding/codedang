@@ -1,6 +1,6 @@
 'use client'
 
-import { CautionDialog } from '@/app/admin/problem/_components/CautionDialog'
+import { CautionDialog } from '@/app/admin/_components/CautionDialog'
 import {
   Dialog,
   DialogContent,
@@ -13,6 +13,7 @@ import {
 import { Input } from '@/components/shadcn/input'
 import { Toggle } from '@/components/shadcn/toggle'
 import { UPLOAD_IMAGE } from '@/graphql/problem/mutations'
+import { cn } from '@/libs/utils'
 import { useMutation } from '@apollo/client'
 import Tex from '@matejmazur/react-katex'
 import { DialogClose } from '@radix-ui/react-dialog'
@@ -152,11 +153,13 @@ export const MathExtension = Node.create({
 export function TextEditor({
   placeholder,
   onChange,
-  defaultValue
+  defaultValue,
+  isDarkMode = false
 }: {
   placeholder: string
   onChange: (richText: string) => void
   defaultValue?: string
+  isDarkMode?: boolean
 }) {
   const [url, setUrl] = useState('')
   const [imageUrl, setImageUrl] = useState<string | undefined>('')
@@ -178,8 +181,10 @@ export function TextEditor({
       Placeholder.configure({
         placeholder: ({ editor }) =>
           editor.getHTML() === '<p></p>' ? placeholder : '',
-        emptyEditorClass:
-          'before:absolute before:text-gray-300 before:float-left before:content-[attr(data-placeholder)] before:pointer-events-none'
+        emptyEditorClass: cn(
+          'before:absolute before:float-left before:content-[attr(data-placeholder)] before:pointer-events-none',
+          isDarkMode ? 'before:text-gray-400' : 'before:text-gray-300'
+        )
       }),
       Link,
       Indentation,
@@ -187,8 +192,10 @@ export function TextEditor({
     ],
     editorProps: {
       attributes: {
-        class:
-          'rounded-b-md border overflow-y-auto w-full h-[200px] border-input bg-backround px-3 ring-offset-2 disabled:cursur-not-allowed disabled:opacity-50 resize-y'
+        class: cn(
+          'rounded-b-md border overflow-y-auto w-full h-[200px] bg-backround px-3 ring-offset-2 disabled:cursur-not-allowed disabled:opacity-50 resize-y',
+          isDarkMode ? 'border-[#3F444F] text-white' : 'border-input'
+        )
       }
     },
     onUpdate({ editor }) {
@@ -203,7 +210,7 @@ export function TextEditor({
       if (!editor) {
         return null
       }
-      // cancelled
+      // canceled
       if (linkUrl === null) {
         return
       }
@@ -269,8 +276,18 @@ export function TextEditor({
   }
 
   return (
-    <div className="flex flex-col justify-stretch bg-white">
-      <div className="flex gap-1 rounded-t-md border border-b-0 p-1">
+    <div
+      className={cn(
+        'flex flex-col justify-stretch',
+        isDarkMode ? 'bg-[#29303F]' : 'bg-white'
+      )}
+    >
+      <div
+        className={cn(
+          'flex gap-1 rounded-t-md border border-b-0 p-1',
+          isDarkMode ? 'border-[#3F444F]' : 'border-input'
+        )}
+      >
         <Toggle
           size="sm"
           pressed={editor?.isActive('bold')}

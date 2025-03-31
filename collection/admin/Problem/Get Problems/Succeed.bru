@@ -12,15 +12,25 @@ post {
 
 body:graphql {
   query GetProblems($input: FilterProblemsInput!, $cursor: Int, $take: Int!, $my: Boolean, $shared: Boolean) {
-    getProblems(input: $input, cursor: $cursor, take: $take, input: $input, my: $my, shared: $shared) {
+    getProblems(input: $input, cursor: $cursor, take: $take, my: $my, shared: $shared) {
       id
-      createdById
+      createdBy {
+        id
+        username
+      }
       title
+      updateTime
+      difficulty
       description
       inputDescription
       outputDescription
       hint
       isVisible
+      languages
+      sharedGroups {
+        id
+        groupName
+      }
       problemTag {
         id
         tag {

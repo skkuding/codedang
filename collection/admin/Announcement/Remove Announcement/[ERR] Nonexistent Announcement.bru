@@ -1,0 +1,25 @@
+meta {
+  name: [ERR] Nonexistent Announcement
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    removeAnnouncement(
+      contestId: 1
+      id: 999
+    ) {
+      id
+      content
+      createTime
+      updateTime
+    }
+  }
+}

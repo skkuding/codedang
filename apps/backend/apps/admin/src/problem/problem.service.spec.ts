@@ -36,6 +36,7 @@ import {
   problemsWithIsVisible,
   template,
   testcaseInput,
+  updateHistories,
   testcaseData
 } from './mock/mock'
 import { ProblemService } from './problem.service'
@@ -96,11 +97,15 @@ const db = {
     update: stub()
   },
   $transaction: stub(),
-  image: {
+  file: {
     deleteMany: stub()
   },
   submission: {
     findFirst: stub()
+  },
+  updateHistory: {
+    findMany: stub(),
+    create: stub()
   },
   getPaginator: PrismaService.prototype.getPaginator
 }
@@ -217,7 +222,9 @@ describe('ProblemService', () => {
 
       const result = await service.uploadTestcase(
         testcaseUploadInput,
-        problemId
+        problemId,
+        user[0].role!,
+        user[0].id!
       )
 
       expect(createTestcaseSpy.calledOnce).to.be.true
@@ -243,7 +250,11 @@ describe('ProblemService', () => {
   describe('getProblem', () => {
     it('should return a group problem', async () => {
       db.problem.findFirstOrThrow.resolves(problems[0])
-      const result = await service.getProblem(problemId)
+      const result = await service.getProblem(
+        problemId,
+        user[0].role!,
+        user[0].id!
+      )
       expect(result).to.deep.equal(problemsWithIsVisible[0])
     })
   })
@@ -319,6 +330,28 @@ describe('ProblemService', () => {
         )
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(uploadSpy.called).to.be.false
+    })
+  })
+
+  describe('getProblemUpdateHistory', () => {
+    it('should return update history for a given problemId', async () => {
+      db.updateHistory.findMany.resolves(
+        updateHistories.filter((h) => h.problemId === 1)
+      )
+
+      const result = await service.getProblemUpdateHistory(1)
+
+      expect(result).to.deep.equal(
+        updateHistories.filter((h) => h.problemId === 1)
+      )
+    })
+
+    it('should return an empty array when there is no update history', async () => {
+      db.updateHistory.findMany.resolves([])
+
+      const result = await service.getProblemUpdateHistory(99)
+
+      expect(result).to.deep.equal([])
     })
   })
 
@@ -645,6 +678,26 @@ describe('ProblemService', () => {
       expect(result).to.deep.equals(exampleOrderUpdatedContestProblems)
     })
 
+    it('should Error when orders length is not same with problems length', async () => {
+      //given
+      db.contest.findFirstOrThrow.resolves(exampleContest)
+      db.contestProblem.findMany.resolves(exampleContestProblems)
+      //when & then
+      await expect(
+        service.updateContestProblemsOrder(1, [2, 3, 4, 5, 6, 7, 8, 9, 10])
+      ).to.be.rejectedWith(UnprocessableDataException)
+    })
+
+    it('should Error when orders dont have full imported problems', async () => {
+      //given
+      db.contest.findFirstOrThrow.resolves(exampleContest)
+      db.contestProblem.findMany.resolves(exampleContestProblems)
+      //when & then
+      await expect(
+        service.updateContestProblemsOrder(1, [2, 2, 4, 5, 6, 7, 8, 9, 10, 1])
+      ).to.be.rejectedWith(UnprocessableDataException)
+    })
+
     it('should handle NotFound error', async () => {
       //given
       db.contest.findFirstOrThrow.rejects(
@@ -652,7 +705,7 @@ describe('ProblemService', () => {
       )
       //when & then
       await expect(
-        service.updateContestProblemsOrder(1, [2, 3, 4, 5, 6, 7, 8, 9, 10, 1])
+        service.updateContestProblemsOrder(-1, [2, 3, 4, 5, 6, 7, 8, 9, 10, 1])
       ).to.be.rejectedWith(EntityNotExistException)
     })
 

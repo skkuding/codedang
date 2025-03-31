@@ -1,0 +1,45 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/assignment/:assignmentId/submission/latest?problemId=1
+  body: none
+  auth: none
+}
+
+params:query {
+  problemId: 1
+}
+
+params:path {
+  assignmentId: 1
+}
+
+assert {
+  res.status: eq 200
+  res.body[0]: isJson
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Get Latest Assignment Problem Submission
+  
+  > 로그인이 필요한 API입니다.
+  
+  Assignment 문제의 가장 최근 제출 내역을 가져옵니다.
+  
+  ## Query
+  
+  > 필수 query는 * 표시하였습니다.
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |problemId *|Integer|문제 ID|
+  
+}

@@ -9,14 +9,19 @@ import {
   WorkbookProblem
 } from '@generated'
 import { Level } from '@generated'
-import type { ProblemWhereInput } from '@generated'
-import { Role } from '@prisma/client'
+import type { ProblemWhereInput, UpdateHistory } from '@generated'
+import { ProblemField, Role } from '@prisma/client'
 import { Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
 import { Workbook } from 'exceljs'
 import type { ReadStream } from 'fs'
-import { MAX_DATE, MAX_IMAGE_SIZE, MIN_DATE } from '@libs/constants'
+import {
+  MAX_DATE,
+  MAX_FILE_SIZE,
+  MAX_IMAGE_SIZE,
+  MIN_DATE
+} from '@libs/constants'
 import {
   DuplicateFoundException,
   EntityNotExistException,
@@ -260,7 +265,43 @@ export class ProblemService {
     )
   }
 
-  async uploadTestcase(fileInput: UploadFileInput, problemId: number) {
+  async uploadTestcase(
+    fileInput: UploadFileInput,
+    problemId: number,
+    userRole: Role,
+    userId: number
+  ) {
+    const problem = await this.prisma.problem.findFirstOrThrow({
+      where: { id: problemId },
+      include: {
+        sharedGroups: {
+          select: {
+            id: true
+          }
+        }
+      }
+    })
+
+    if (userRole == Role.User && problem.createdById != userId) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared) {
+        throw new ForbiddenException(
+          'User can only edit problems they created or were shared with'
+        )
+      }
+    }
+
     const { filename, mimetype, createReadStream } = await fileInput.file
     if (
       [
@@ -315,23 +356,27 @@ export class ProblemService {
     return await this.createTestcase(problemId, testcase)
   }
 
-  async uploadImage(input: UploadFileInput, userId: number) {
+  async uploadFile(input: UploadFileInput, userId: number, isImage: boolean) {
     const { mimetype, createReadStream } = await input.file
     const newFilename = randomUUID()
 
-    if (!mimetype.includes('image/')) {
+    if (isImage && !mimetype.includes('image/')) {
       throw new UnprocessableDataException('Only image files can be accepted')
     }
 
-    const fileSize = await this.getFileSize(createReadStream())
+    if (!isImage && mimetype !== 'application/pdf') {
+      throw new UnprocessableDataException('Only pdf files can be accepted')
+    }
+
+    const fileSize = await this.getFileSize(createReadStream(), isImage)
     try {
-      await this.storageService.uploadImage({
+      await this.storageService.uploadFile({
         filename: newFilename,
         fileSize,
         content: createReadStream(),
         type: mimetype
       })
-      await this.prisma.image.create({
+      await this.prisma.file.create({
         data: {
           filename: newFilename,
           createdById: userId
@@ -339,10 +384,10 @@ export class ProblemService {
       })
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
-        await this.storageService.deleteImage(newFilename) // 이미지가 S3에 업로드되었지만, DB에 이미지 정보 등록을 실패한 경우 rollback
+        await this.storageService.deleteFile(newFilename) // 파일이 S3에 업로드되었지만, DB에 파일 정보 등록을 실패한 경우 rollback
       }
       throw new UnprocessableFileDataException(
-        'Error occurred during image upload.',
+        'Error occurred during file upload.',
         newFilename
       )
     }
@@ -363,20 +408,20 @@ export class ProblemService {
     }
   }
 
-  async deleteImage(filename: string, userId: number) {
-    const image = this.prisma.image.delete({
+  async deleteFile(filename: string, userId: number) {
+    const file = this.prisma.file.delete({
       where: {
         filename,
         createdById: userId
       }
     })
-    const s3ImageDeleteResult = this.storageService.deleteImage(filename)
+    const s3FileDeleteResult = this.storageService.deleteFile(filename)
 
-    const [resolvedImage] = await Promise.all([image, s3ImageDeleteResult])
-    return resolvedImage
+    const [resolvedFile] = await Promise.all([file, s3FileDeleteResult])
+    return resolvedFile
   }
 
-  async getFileSize(readStream: ReadStream): Promise<number> {
+  async getFileSize(readStream: ReadStream, isImage: boolean): Promise<number> {
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = []
 
@@ -384,7 +429,7 @@ export class ProblemService {
         chunks.push(chunk)
 
         const totalSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
-        if (totalSize > MAX_IMAGE_SIZE) {
+        if (totalSize > (isImage ? MAX_IMAGE_SIZE : MAX_FILE_SIZE)) {
           readStream.destroy()
           reject(
             new UnprocessableDataException('File size exceeds maximum limit')
@@ -400,7 +445,7 @@ export class ProblemService {
       readStream.on('error', () => {
         reject(
           new UnprocessableDataException(
-            'Error occurred during calculating image size.'
+            'Error occurred during calculating file size.'
           )
         )
       })
@@ -461,17 +506,42 @@ export class ProblemService {
       where: {
         ...whereOptions
       },
-      take
+      take,
+      include: {
+        createdBy: true
+      }
     })
     return this.changeVisibleLockTimeToIsVisible(problems)
   }
 
-  async getProblem(id: number) {
+  async getProblem(id: number, userRole: Role, userId: number) {
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
         id
+      },
+      include: {
+        sharedGroups: true
       }
     })
+    if (userRole != Role.Admin) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared && problem.createdById != userId) {
+        throw new ForbiddenException(
+          'User can only retrieve problems they created or were shared with'
+        )
+      }
+    }
     return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
@@ -491,6 +561,13 @@ export class ProblemService {
   ) {
     const { id, languages, template, tags, testcases, isVisible, ...data } =
       input
+
+    if (userRole == Role.User && isVisible == true) {
+      throw new UnprocessableDataException(
+        'User cannot set a problem to public'
+      )
+    }
+
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: { id },
       include: {
@@ -501,7 +578,73 @@ export class ProblemService {
         }
       }
     })
+    if (userRole == Role.User && problem.createdById != userId) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared) {
+        throw new ForbiddenException(
+          'User can only edit problems they created or were shared with'
+        )
+      }
+    }
 
+    const updatedByid = userId
+
+    const updatedFields: ProblemField[] = []
+
+    const fields = [
+      'title',
+      'languages',
+      'description',
+      'timeLimit',
+      'memoryLimit',
+      'hint'
+    ]
+
+    const updatedInfos = fields.map((field) => ({
+      updatedField: field,
+      current: problem[field],
+      previous: problem[field]
+    }))
+
+    updatedInfos.forEach((info) => {
+      if (
+        input[info.updatedField] &&
+        input[info.updatedField] !== info.previous
+      ) {
+        updatedFields.push(ProblemField[info.updatedField])
+        info.current = input[info.updatedField]
+      }
+    })
+
+    if (testcases?.length) {
+      const existingTestcases = await this.prisma.problemTestcase.findMany({
+        where: { problemId: id }
+      })
+      if (
+        JSON.stringify(testcases) !==
+        JSON.stringify(
+          existingTestcases.map((tc) => ({
+            input: tc.input,
+            output: tc.output,
+            scoreWeight: tc.scoreWeight,
+            isHidden: tc.isHidden
+          }))
+        )
+      ) {
+        updatedFields.push(ProblemField.testcase)
+      }
+    }
     if (userRole == Role.User && problem.createdById != userId) {
       const leaderGroupIds = (
         await this.prisma.userGroup.findMany({
@@ -564,6 +707,14 @@ export class ProblemService {
       await this.updateTestcases(id, testcases)
     }
 
+    const updatedInfo = updatedInfos
+      .filter((info) => info.current !== info.previous)
+      .map(({ updatedField, current, previous }) => ({
+        updatedField,
+        current,
+        previous
+      }))
+
     const updatedProblem = await this.prisma.problem.update({
       where: { id },
       data: {
@@ -573,10 +724,37 @@ export class ProblemService {
         }),
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
-        problemTag
+        problemTag,
+        ...(updatedFields.length > 0 && {
+          updateHistory: {
+            create: [
+              {
+                updatedFields,
+                updatedAt: new Date(),
+                updatedBy: { connect: { id: updatedByid } },
+                updatedInfo
+              }
+            ]
+          }
+        })
+      },
+      include: {
+        updateHistory: true // 항상 updateHistory 포함
       }
     })
+
     return this.changeVisibleLockTimeToIsVisible(updatedProblem)
+  }
+
+  async getProblemUpdateHistory(problemId: number): Promise<UpdateHistory[]> {
+    return await this.prisma.updateHistory.findMany({
+      where: {
+        problemId
+      },
+      include: {
+        updatedBy: true
+      }
+    })
   }
 
   async updateProblemTag(
@@ -647,7 +825,7 @@ export class ProblemService {
     // Problem description에 이미지가 포함되어 있다면 삭제
     const uuidImageFileNames = this.extractUUIDs(problem.description)
     if (uuidImageFileNames) {
-      await this.prisma.image.deleteMany({
+      await this.prisma.file.deleteMany({
         where: {
           filename: {
             in: uuidImageFileNames
@@ -656,7 +834,7 @@ export class ProblemService {
       })
 
       const deleteFromS3Results = uuidImageFileNames.map((filename: string) => {
-        return this.storageService.deleteImage(filename)
+        return this.storageService.deleteFile(filename)
       })
 
       await Promise.all(deleteFromS3Results)
@@ -788,6 +966,11 @@ export class ProblemService {
 
     const queries = contestProblems.map((record) => {
       const newOrder = orders.indexOf(record.problemId)
+      if (newOrder === -1) {
+        throw new UnprocessableDataException(
+          'There is a problemId in the contest that is missing from the provided orders.'
+        )
+      }
       return this.prisma.contestProblem.update({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -933,6 +1116,16 @@ export class ProblemService {
     return tag
   }
 
+  async getSharedGroups(problemId: number) {
+    return await this.prisma.problem
+      .findUnique({
+        where: {
+          id: problemId
+        }
+      })
+      .sharedGroups()
+  }
+
   async getProblemTags(problemId: number) {
     return await this.prisma.problemTag.findMany({
       where: {
@@ -950,12 +1143,24 @@ export class ProblemService {
   }
 
   changeVisibleLockTimeToIsVisible(
-    problems: Problem[] | Problem
-  ): ProblemWithIsVisible[] | ProblemWithIsVisible {
-    const problemsWithIsVisible = (
-      Array.isArray(problems) ? problems : [problems]
-    ).map((problem: Problem) => {
-      const { visibleLockTime, ...data } = problem
+    problems: Problem | Problem[]
+  ): ProblemWithIsVisible | ProblemWithIsVisible[] {
+    if (Array.isArray(problems)) {
+      return problems.map((problem) => {
+        const { visibleLockTime, ...data } = problem
+        return {
+          isVisible:
+            visibleLockTime.getTime() === MIN_DATE.getTime()
+              ? true
+              : visibleLockTime < new Date() ||
+                  visibleLockTime.getTime() === MAX_DATE.getTime()
+                ? false
+                : null,
+          ...data
+        }
+      })
+    } else {
+      const { visibleLockTime, ...data } = problems
       return {
         isVisible:
           visibleLockTime.getTime() === MIN_DATE.getTime()
@@ -966,9 +1171,6 @@ export class ProblemService {
               : null,
         ...data
       }
-    })
-    return problemsWithIsVisible.length == 1
-      ? problemsWithIsVisible[0]
-      : problemsWithIsVisible
+    }
   }
 }

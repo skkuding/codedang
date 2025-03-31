@@ -4,7 +4,7 @@ import { ContestProblem, ContestRecord } from '@generated'
 import { Problem } from '@generated'
 import { Contest } from '@generated'
 import { faker } from '@faker-js/faker'
-import { ResultStatus } from '@prisma/client'
+import { ContestRole, ResultStatus, Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
@@ -16,7 +16,6 @@ import type {
   CreateContestInput,
   UpdateContestInput
 } from './model/contest.input'
-import type { PublicizingRequest } from './model/publicizing-request.model'
 
 const contestId = 1
 const userId = 1
@@ -41,21 +40,23 @@ const contest: Contest = {
   lastPenalty: false,
   startTime,
   endTime,
+  unfreeze: false,
   freezeTime: null,
-  isVisible: true,
-  isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
+  evaluateWithSampleTestcase: false,
   createTime,
   updateTime,
   invitationCode,
   contestProblem: [],
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 
 const contestWithCount = {
@@ -67,11 +68,11 @@ const contestWithCount = {
   lastPenalty: false,
   startTime,
   endTime,
+  unfreeze: false,
   freezeTime: null,
-  isVisible: true,
-  isRankVisible: true,
   isJudgeResultVisible: true,
   enableCopyPaste: true,
+  evaluateWithSampleTestcase: false,
   createTime,
   updateTime,
   invitationCode,
@@ -80,11 +81,13 @@ const contestWithCount = {
     contestRecord: 10
   },
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 
 const contestWithParticipants: ContestWithParticipants = {
@@ -96,22 +99,23 @@ const contestWithParticipants: ContestWithParticipants = {
   lastPenalty: false,
   startTime,
   endTime,
-
+  unfreeze: false,
   freezeTime: null,
-  isVisible: true,
-  isRankVisible: true,
   enableCopyPaste: true,
   isJudgeResultVisible: true,
+  evaluateWithSampleTestcase: false,
   createTime,
   updateTime,
   participants: 10,
   invitationCode,
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 
 const problem: Problem = {
@@ -186,37 +190,38 @@ const submissionsWithProblemTitleAndUsername = {
 //   }
 // ]
 
-const publicizingRequest: PublicizingRequest = {
-  contestId,
-  userId,
-  expireTime: new Date('2050-08-19T07:32:07.533Z')
-}
-
 const input = {
   title: 'test title10',
   description: 'test description',
   startTime: faker.date.past(),
   endTime: faker.date.future(),
-  isVisible: false,
-  isRankVisible: false,
   enableCopyPaste: true,
   isJudgeResultVisible: true
 } satisfies CreateContestInput
 
 const updateInput = {
-  id: 1,
   title: 'test title10',
   description: 'test description',
   startTime: faker.date.past(),
   endTime: faker.date.future(),
-  isVisible: false,
-  isRankVisible: false,
   enableCopyPaste: false
 } satisfies UpdateContestInput
 
 const db = {
+  user: {
+    findUnique: stub().resolves({ role: Role.Admin, canCreateContest: true })
+  },
+  userContest: {
+    create: stub().resolves(),
+    findMany: stub().resolves([
+      {
+        role: ContestRole.Admin
+      }
+    ])
+  },
   contest: {
     findFirst: stub().resolves(Contest),
+    findUniqueOrThrow: stub().resolves(Contest),
     findUnique: stub().resolves(Contest),
     findMany: stub().resolves([Contest]),
     create: stub().resolves(Contest),
@@ -227,7 +232,9 @@ const db = {
     create: stub().resolves(ContestProblem),
     findMany: stub().resolves([ContestProblem]),
     findFirstOrThrow: stub().resolves(ContestProblem),
-    findFirst: stub().resolves(ContestProblem)
+    findFirst: stub().resolves(ContestProblem),
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    aggregate: stub().resolves({ _max: { order: 5 } })
   },
   contestRecord: {
     findMany: stub().resolves([ContestRecord]),
@@ -241,13 +248,33 @@ const db = {
   submission: {
     findMany: stub().resolves([submissionsWithProblemTitleAndUsername])
   },
-  // submissionResult: {
-  //   findMany: stub().resolves([submissionResults])
-  // },
-  $transaction: stub().callsFake(async () => {
-    const updatedProblem = await db.problem.update()
-    const newContestProblem = await db.contestProblem.create()
-    return [newContestProblem, updatedProblem]
+  $transaction: stub().callsFake(async (arg) => {
+    if (typeof arg === 'function') {
+      // 콜백 기반 트랜잭션 (e.g. createContest)
+      const tx = {
+        contest: {
+          create: stub().resolves(contest)
+        },
+        userContest: {
+          createMany: stub().resolves({ count: 2 }),
+          create: stub().resolves(),
+          findMany: stub().resolves([
+            {
+              role: ContestRole.Admin,
+              userId
+            }
+          ])
+        }
+      }
+      return await arg(tx)
+    } else if (Array.isArray(arg)) {
+      // 배열 기반 트랜잭션 (e.g. importProblemsToContest)
+      const updatedProblem = await db.problem.update()
+      const newContestProblem = await db.contestProblem.create()
+      return [newContestProblem, updatedProblem]
+    } else {
+      throw new Error('Invalid transaction mock usage')
+    }
   }),
   getPaginator: PrismaService.prototype.getPaginator
 }
@@ -288,18 +315,8 @@ describe('ContestService', () => {
     it('should return an array of contests', async () => {
       db.contest.findMany.resolves([contestWithCount])
 
-      const res = await service.getContests(5, 0)
+      const res = await service.getContests(userId, 5, 0)
       expect(res).to.deep.equal([contestWithParticipants])
-    })
-  })
-
-  describe('getPublicizingRequests', () => {
-    it('should return an array of PublicizingRequest', async () => {
-      const cacheSpyGet = stub(cache, 'get').resolves([publicizingRequest])
-      const res = await service.getPublicizingRequests()
-
-      expect(cacheSpyGet.called).to.be.true
-      expect(res).to.deep.equal([publicizingRequest])
     })
   })
 
@@ -308,16 +325,24 @@ describe('ContestService', () => {
       db.contest.create.resolves(contest)
 
       const res = await service.createContest(userId, input)
-      expect(res).to.deep.equal(contest)
+      expect(res).to.deep.equal({
+        ...contest,
+        userContest: [
+          {
+            userId,
+            role: ContestRole.Admin
+          }
+        ]
+      })
     })
   })
 
   describe('updateContest', () => {
     it('should return updated contest', async () => {
-      db.contest.findFirst.resolves(contest)
+      db.contest.findUniqueOrThrow.resolves(contest)
       db.contest.update.resolves(contest)
 
-      const res = await service.updateContest(updateInput)
+      const res = await service.updateContest(1, updateInput)
       expect(res).to.deep.equal(contest)
     })
   })
@@ -338,33 +363,6 @@ describe('ContestService', () => {
     })
   })
 
-  describe('handlePublicizingRequest', () => {
-    it('should return accepted state', async () => {
-      db.contest.update.resolves(contest)
-
-      const cacheSpyGet = stub(cache, 'get').resolves([publicizingRequest])
-      const res = await service.handlePublicizingRequest(contestId, true)
-
-      expect(cacheSpyGet.called).to.be.true
-      expect(res).to.deep.equal({
-        contestId,
-        isAccepted: true
-      })
-    })
-
-    it('should throw error when contestId not exist', async () => {
-      expect(service.handlePublicizingRequest(1000, true)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-
-    it('should throw error when the contest is not requested to public', async () => {
-      expect(service.handlePublicizingRequest(3, true)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-  })
-
   describe('importProblemsToContest', () => {
     const contestWithEmptySubmissions = {
       ...contest,
@@ -376,6 +374,8 @@ describe('ContestService', () => {
       db.problem.update.resolves(problem)
       db.contestProblem.create.resolves(contestProblem)
       db.contestProblem.findFirst.resolves(null)
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      db.contestProblem.aggregate.resolves({ _max: { order: 3 } })
 
       const res = await Promise.all(
         await service.importProblemsToContest(contestId, [problemIdsWithScore])

@@ -29,6 +29,7 @@ export const PUBLICIZING_REQUEST_KEY = 'publicize'
 const KILOBYTE = 1024
 const MEGABYTE = 1024 * KILOBYTE
 export const MAX_IMAGE_SIZE = 5 * MEGABYTE
+export const MAX_FILE_SIZE = 30 * MEGABYTE
 
 /* Problem isVisible setting Lock Time */
 export const MIN_DATE: Date = new Date('2000-01-01T00:00:00.000Z')

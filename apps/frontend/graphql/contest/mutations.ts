@@ -5,41 +5,49 @@ const CREATE_CONTEST = gql(`
     createContest(input: $input) {
       id
       invitationCode
-      isVisible
-      isRankVisible
       enableCopyPaste
       isJudgeResultVisible
       description
       endTime
       startTime
       title
+      summary
+      posterUrl
+      freezeTime
+      userContest{
+        userId
+        role
+      }
     }
   }
 `)
 
 const UPDATE_CONTEST = gql(`
-  mutation UpdateContest($input: UpdateContestInput!) {
-    updateContest(input: $input) {
+  mutation UpdateContest($contestId: Int!, $input: UpdateContestInput!) {
+    updateContest(contestId: $contestId, input: $input) {
       id
       invitationCode
-      isRankVisible
-      isVisible
       enableCopyPaste
       isJudgeResultVisible
       description
       endTime
       startTime
       title
+      summary
+      posterUrl
+      freezeTime
+      userContest{
+        userId
+        role
+      }
     }
   }
 `)
 
 const UPDATE_CONTEST_VISIBLE = gql(`
-  mutation UpdateContestVisible($input: UpdateContestInput!) {
-    updateContest(input: $input) {
+  mutation UpdateContestVisible($contestId: Int!, $input: UpdateContestInput!) {
+    updateContest(contestId: $contestId, input: $input) {
       id
-      isVisible
-      isRankVisible
     }
   }
 `)
@@ -83,29 +91,14 @@ const REMOVE_PROBLEMS_FROM_CONTEST = gql(`
   }
 `)
 
-const DUPLICATE_CONTEST = gql(`
-  mutation DuplicateContest($contestId: Int!) {
-    duplicateContest(contestId: $contestId) {
-      contest {
-        id
-        invitationCode
-        isRankVisible
-        isVisible
-        description
-        endTime
-        startTime
-        title
-      }
-      problems {
-        problemId
-        contestId
-        order
-      }
-      records {
-        id
-        userId
-        score
-      }
+const CREATE_CONTEST_ANNOUNCEMENT = gql(`
+  mutation createAnnouncement($contestId: Int!, $input: CreateAnnouncementInput!) {
+    createAnnouncement(contestId: $contestId, input: $input) {
+      id
+      problemId
+      content
+      createTime
+      updateTime
     }
   }
 `)
@@ -117,5 +110,5 @@ export {
   DELETE_CONTEST,
   IMPORT_PROBLEMS_TO_CONTEST,
   REMOVE_PROBLEMS_FROM_CONTEST,
-  DUPLICATE_CONTEST
+  CREATE_CONTEST_ANNOUNCEMENT
 }

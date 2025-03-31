@@ -86,7 +86,8 @@ export const problems: Problem[] = [
     engDescription: null,
     engHint: null,
     engInputDescription: null,
-    engOutputDescription: null
+    engOutputDescription: null,
+    updateHistory: []
   },
   {
     id: 2,
@@ -112,7 +113,65 @@ export const problems: Problem[] = [
     engDescription: null,
     engHint: null,
     engInputDescription: null,
-    engOutputDescription: null
+    engOutputDescription: null,
+    updateHistory: []
+  }
+]
+
+export const updateHistories = [
+  {
+    id: 1,
+    problemId: 1,
+    updatedAt: new Date(),
+    updatedFields: ['title', 'description'],
+    updatedInfo: [
+      {
+        current: 'New Title',
+        previous: 'Old Title',
+        updatedField: 'Title'
+      },
+      {
+        current: 'New Description',
+        previous: 'Old Description',
+        updatedField: 'Description'
+      }
+    ]
+  },
+  {
+    id: 2,
+    problemId: 1,
+    updatedAt: new Date('2024-01-15T15:30:00Z'),
+    updatedFields: ['TimeLimit', 'Testcase*'],
+    updatedInfo: [
+      {
+        current: 'New Title',
+        previous: 'Old Title',
+        updatedField: 'Title'
+      },
+      {
+        current: 'New Description',
+        previous: 'Old Description',
+        updatedField: 'Description'
+      }
+    ]
+  },
+  {
+    id: 3,
+    problemId: 2,
+    updatedAt: new Date('2024-01-20T08:45:00Z'),
+    updatedFields: ['Language'],
+    updatedInfo: [
+      {
+        current: 'New Title',
+        previous: 'Old Title',
+        updatedField: 'Title'
+      },
+      {
+        current: 'New Description',
+        previous: 'Old Description',
+        updatedField: 'Description'
+      }
+    ]
   }
 ]
 
@@ -406,22 +465,24 @@ export const exampleContest: Contest = {
   penalty: 20,
   lastPenalty: false,
   createdById: user[0].id!,
-  isVisible: true,
-  isRankVisible: true,
   enableCopyPaste: true,
+  evaluateWithSampleTestcase: false,
   isJudgeResultVisible: true,
   startTime: new Date(),
   endTime: new Date(),
+  unfreeze: false,
   freezeTime: null,
   createTime: new Date(),
   updateTime: new Date(),
   invitationCode: '123456',
   posterUrl: 'posterUrl',
-  participationTarget: 'participationTarget',
-  competitionMethod: 'competitionMethod',
-  rankingMethod: 'rankingMethod',
-  problemFormat: 'problemFormat',
-  benefits: 'benefits'
+  summary: {
+    참여대상: 'participationTarget',
+    진행방식: 'competitionMethod',
+    순위산정: 'rankingMethod',
+    문제형태: 'problemFormat',
+    참여혜택: 'benefits'
+  }
 }
 export const exampleContestProblems: ContestProblem[] = [
   {
@@ -609,7 +670,7 @@ export const exampleOrderUpdatedContestProblems: ContestProblem[] = [
   }
 ]
 
-export const exampleAssignment: Assignment = {
+export const exampleAssignment = {
   id: 1,
   title: 'example',
   description: 'example',

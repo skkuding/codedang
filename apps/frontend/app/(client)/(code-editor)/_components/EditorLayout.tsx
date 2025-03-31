@@ -40,7 +40,7 @@ export async function EditorLayout({
     const res = await fetcherWithAuth(
       `contest/${contestId}/problem/${problemId}`
     )
-    if (!res.ok && res.status === 403) {
+    if (!res.ok && (res.status === 403 || res.status === 401)) {
       redirect(`/contest/${contestId}/finished/problem/${problemId}`)
     }
 
@@ -49,10 +49,13 @@ export async function EditorLayout({
 
     contest = await fetcher(`contest/${contestId}`).json()
     contest && (contest.status = 'ongoing') // TODO: refactor this after change status interactively
-  } else if (assignmentId) {
+  } else if (courseId && assignmentId) {
     // for getting assignment info and problems list
     const res = await fetcherWithAuth(
-      `assignment/${assignmentId}/problem/${problemId}`
+      `assignment/${assignmentId}/problem/${problemId}`,
+      {
+        searchParams: { groupId: courseId }
+      }
     )
     if (!res.ok && res.status === 403) {
       redirect(
@@ -64,7 +67,7 @@ export async function EditorLayout({
       await res.json<GetAssignmentProblemDetailResponse>()
     problem = { ...assignmentProblem.problem, order: assignmentProblem.order }
 
-    assignment = await fetcher(`assignment/${assignmentId}`).json()
+    assignment = await fetcherWithAuth(`assignment/${assignmentId}`).json()
     assignment && (assignment.status = 'ongoing')
   } else {
     problem = await fetcher(`problem/${problemId}`).json()
@@ -126,9 +129,9 @@ const renderHeaderContent = ({
   } else if (assignment) {
     return (
       <>
-        assignment <p className="mx-2"> / </p>
+        Assignment <p className="mx-2"> / </p>
         <Link href={`/course/${courseId}/assignment/${assignment.id}` as Route}>
-          {assignment.title}
+          {omitString({ targetString: assignment.title, maxlength: 20 })}
         </Link>
         <p className="mx-2"> / </p>
         {courseId !== undefined && (

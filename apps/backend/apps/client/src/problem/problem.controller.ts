@@ -6,7 +6,11 @@ import {
   Query,
   Req
 } from '@nestjs/common'
-import { AuthNotNeededIfPublic, AuthenticatedRequest } from '@libs/auth'
+import {
+  AuthNotNeededIfPublic,
+  AuthenticatedRequest,
+  UserNullWhenAuthFailedIfPublic
+} from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import {
   CursorValidationPipe,
@@ -87,6 +91,11 @@ export class ProblemController {
       groupId
     )
   }
+
+  @Get(':problemId/update-history')
+  async getProblemUpdateHistory(@Param('problemId') problemId: number) {
+    return await this.problemService.getProblemUpdateHistory(problemId)
+  }
 }
 
 @Controller('contest/:contestId/problem')
@@ -94,6 +103,7 @@ export class ContestProblemController {
   constructor(private readonly contestProblemService: ContestProblemService) {}
 
   @Get()
+  @UserNullWhenAuthFailedIfPublic()
   async getContestProblems(
     @Req() req: AuthenticatedRequest,
     @Param('contestId', IDValidationPipe) contestId: number,
@@ -103,7 +113,7 @@ export class ContestProblemController {
   ) {
     return await this.contestProblemService.getContestProblems({
       contestId,
-      userId: req.user.id,
+      userId: req.user?.id,
       cursor,
       take
     })
@@ -116,6 +126,19 @@ export class ContestProblemController {
     @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
     return await this.contestProblemService.getContestProblem({
+      contestId,
+      problemId,
+      userId: req.user.id
+    })
+  }
+
+  @Get(':problemId/update-history')
+  async getProblemUpdateHistory(
+    @Req() req: AuthenticatedRequest,
+    @Param('contestId', IDValidationPipe) contestId: number,
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
+  ) {
+    return await this.contestProblemService.getContestProblemUpdateHistory({
       contestId,
       problemId,
       userId: req.user.id

@@ -17,6 +17,7 @@ import { useMutation } from '@apollo/client'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import Image from 'next/image'
+import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
 
 export interface DataTableAssignment {
@@ -33,6 +34,8 @@ export interface DataTableAssignment {
 
 function VisibleCell({ row }: { row: Row<DataTableAssignment> }) {
   const [updateVisible] = useMutation(UPDATE_ASSIGNMENT_VISIBLE)
+  const params = useParams()
+  const groupId = Number(params.courseId)
 
   return (
     <div className="ml-4 flex items-center space-x-2">
@@ -58,7 +61,7 @@ function VisibleCell({ row }: { row: Row<DataTableAssignment> }) {
           // TODO: assignment update API 수정되면 고치기
           updateVisible({
             variables: {
-              groupId: 1,
+              groupId,
               input: {
                 id: row.original.id,
                 title: row.original.title,
@@ -169,10 +172,27 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
     ),
     cell: ({ row }) => (
       <p className="overflow-hidden whitespace-nowrap text-center font-normal">
-        {`${dateFormatter(row.original.startTime, 'YY-MM-DD HH:mm')} ~ ${dateFormatter(row.original.endTime, 'YY-MM-DD HH:mm')}`}
+        {`${dateFormatter(row.original.startTime, 'MMM DD, YYYY HH:mm')} ~ ${dateFormatter(row.original.endTime, 'MMM DD, YYYY HH:mm')}`}
       </p>
     ),
     size: 250
+  },
+  {
+    accessorKey: 'week',
+    header: ({ column }) => (
+      <div className="flex justify-center">
+        <DataTableColumnHeader
+          column={column}
+          title="Week"
+          className="text-center"
+        />
+      </div>
+    ),
+    cell: ({ row }) => (
+      <p className="overflow-hidden whitespace-nowrap text-center font-normal">
+        {`Week ${row.original.week}`}
+      </p>
+    )
   },
   {
     accessorKey: 'isVisible',

@@ -20,13 +20,6 @@ const bgImg: { [key: string]: string } = {
   course: '/banners/courseInnerBanner.png'
 }
 
-const icons: { [key: string]: string } = {
-  problem: '/banners/codedang.png',
-  notice: '/banners/notice.png',
-  contest: '/banners/contest.png',
-  course: '/banners/contest.png'
-}
-
 /**
  * @param title - title text
  * @param description - description text
@@ -46,6 +39,7 @@ export function Cover({ title, description }: CoverProps) {
           alt={title}
           className="absolute"
           fill
+          priority
         />
         <div className="absolute z-10 justify-self-center pb-[91px] pt-[157px] text-center md:w-[1440px] md:flex-col md:items-center md:pl-[240.12px] md:pr-[838px] md:text-left">
           <Image
@@ -63,7 +57,6 @@ export function Cover({ title, description }: CoverProps) {
           </div>
         </div>
       </div>
-      <div className="h-16 w-full bg-white" />
     </div>
   )
 }

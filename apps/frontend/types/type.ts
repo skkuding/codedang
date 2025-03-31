@@ -25,6 +25,8 @@ export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
 // Problem type definition
 
 export type MemberRole = 'Instructor' | 'Student'
+
+export type SubmissionResult = 'CompileError' | 'WrongAnswer' | 'Accepted'
 export interface Tag {
   id: number
   name: string
@@ -139,9 +141,12 @@ export interface Contest {
   title: string
   startTime: Date
   endTime: Date
-  group: {
-    id: number
-    groupName: string
+  summary: {
+    문제형태?: string
+    순위산정?: string
+    진행방식?: string
+    참여대상?: string
+    참여혜택?: string
   }
   isJudgeResultVisible: boolean
   enableCopyPaste: boolean
@@ -152,12 +157,15 @@ export interface Contest {
   contestProblem: ProblemInContestInterface[]
 }
 
+export interface ContestOrder {
+  id: number
+  title: string
+}
 export interface ContestAnnouncement {
   id: number
   content: string
-  assignmentId: null | string
   constestId: number
-  problemId: null | number
+  problemOrder: null | number
   createTime: string
   updateTime: string
 }
@@ -205,6 +213,7 @@ export interface Submission {
 
 export interface SubmissionItem {
   id: number
+  order: string
   user: {
     username: string
   }
@@ -235,6 +244,9 @@ export interface SubmissionDetail {
     memoryUsage: number
     createTime: Date
     updateTime: Date
+    problemTestcase?: {
+      isHidden: boolean
+    }
   }[]
 }
 export interface ContestSubmission {
@@ -290,6 +302,7 @@ export interface SettingsFormat {
   confirmPassword: string
   realName: string
   studentId: string
+  email: string
 }
 
 export interface CourseInfo {
@@ -347,8 +360,8 @@ export interface Assignment {
   status: AssignmentStatus
   description: string
   isRegistered: boolean
-  problemNumber: number
-  submittedNumber: number
+  problemCount: number
+  submittedCount: number
 }
 
 export interface AssignmentProblem {
@@ -367,4 +380,40 @@ export interface CalendarAssignment {
   title: string
   start: Date
   end: Date
+}
+
+export interface AssignmentProblemRecord {
+  id: number
+  autoFinalizeScore: boolean
+  isFinalScoreVisible: boolean
+  isJudgeResultVisible: boolean
+  userAssignmentFinalScore: number | null
+  userAssignmentJudgeScore: number | null
+  assignmentPerfectScore: number
+  comment: string | null
+  problems: ProblemGrade[]
+}
+export interface ProblemGrade {
+  id: number
+  title: string
+  order: number
+  maxScore: number
+  problemRecord: ProblemRecord | null
+  submissionTime: string
+}
+
+export interface ProblemRecord {
+  finalScore: number
+  score: number
+  isSubmitted: boolean
+  comment: string
+}
+
+export interface AssignmentSummary {
+  id: number
+  problemCount: number
+  submittedCount: number
+  assignmentPerfectScore: number
+  userAssignmentFinalScore: number | null
+  userAssignmentJudgeScore: number
 }

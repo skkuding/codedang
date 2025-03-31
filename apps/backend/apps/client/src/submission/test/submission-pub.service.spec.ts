@@ -101,14 +101,19 @@ describe('SubmissionPublicationService', () => {
           }
         })
       ).to.be.true
-      expect(
-        amqpSpy.calledOnceWith(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
+      const result = amqpSpy.calledOnceWith(
+        EXCHANGE,
+        SUBMISSION_KEY,
+        judgeRequest,
+        {
           messageId: String(submission.id),
           persistent: true,
           type: JUDGE_MESSAGE_TYPE,
-          priority: MESSAGE_PRIORITY_HIGH
-        })
-      ).to.be.true
+          priority: MESSAGE_PRIORITY_HIGH,
+          headers: {}
+        }
+      )
+      expect(result).to.be.true
     })
 
     it('should publish run mssage to RabbitMQ', async () => {
@@ -147,7 +152,8 @@ describe('SubmissionPublicationService', () => {
           messageId: String(submission.id),
           persistent: true,
           type: RUN_MESSAGE_TYPE,
-          priority: MESSAGE_PRIORITY_MIDDLE
+          priority: MESSAGE_PRIORITY_MIDDLE,
+          headers: {}
         })
       ).to.be.true
     })

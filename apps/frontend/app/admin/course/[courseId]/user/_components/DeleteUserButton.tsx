@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/shadcn/button'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
-import { PiTrashLight } from 'react-icons/pi'
+import { FaTrash } from 'react-icons/fa6'
 import { toast } from 'sonner'
 
 interface DeleteUserButtonProps<TPromise> {
@@ -48,6 +48,7 @@ export function DeleteUserButton<TData extends { id: number }, TPromise>({
 
   const handleDeleteButtonClick = () => {
     if (table.getSelectedRowModel().rows.length === 0) {
+      toast.error('Please select at least one member')
       return
     }
     setIsDialogOpen(true)
@@ -72,30 +73,42 @@ export function DeleteUserButton<TData extends { id: number }, TPromise>({
   return (
     <>
       <Button variant="outline" type="button" onClick={handleDeleteButtonClick}>
-        <PiTrashLight fontSize={18} />
+        <FaTrash fontSize={13} color={'#8A8A8A'} />
       </Button>
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="w-[416px] p-[40px]">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete?</AlertDialogTitle>
-            <AlertDialogDescription className="flex flex-col gap-3">
-              <div>
-                Are you sure you want to permanently delete{' '}
-                {table.getSelectedRowModel().rows.length} users?
+            <AlertDialogTitle className="text-center text-xl">
+              Delete?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="flex flex-col gap-[15px]">
+              <div className="flex h-auto w-[336px] flex-col gap-1 bg-[#FAFAFA] px-[18px] py-[24px]">
+                <ul className="flex list-disc flex-col gap-2.5 pl-4">
+                  {table.getSelectedRowModel().rows.map((row) => (
+                    <li key={row.id}>
+                      {row.getValue('name')} [{row.getValue('studentId')}]
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <div className="flex flex-col">
-                {table.getSelectedRowModel().rows.map((row) => (
-                  <span key={row.id}>- {row.getValue('name')}</span>
-                ))}
+              <div className="text-sm">
+                Are you sure you want to permanently delete{' '}
+                {table.getSelectedRowModel().rows.length}{' '}
+                {table.getSelectedRowModel().rows.length > 1
+                  ? 'Members'
+                  : 'Member'}
+                ?
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="w-full text-[#8A8A8A]">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button
                 onClick={handleDeleteRows}
-                className="bg-red-500 hover:bg-red-500/90"
+                className="w-full bg-[#FF3B2F] hover:bg-red-500/90"
               >
                 Delete
               </Button>

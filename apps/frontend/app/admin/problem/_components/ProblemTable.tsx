@@ -1,3 +1,5 @@
+'use client'
+
 import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
@@ -10,10 +12,13 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '../../_components/table'
-import { columns } from './ProblemTableColumns'
+import { createColumns } from './ProblemTableColumns'
 import { ProblemsDeleteButton } from './ProblemsDeleteButton'
 
-export function ProblemTable() {
+interface ProblemTableProps {
+  isUser: boolean
+}
+export function ProblemTable({ isUser }: ProblemTableProps) {
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       take: 500,
@@ -26,7 +31,9 @@ export function ProblemTable() {
           Level.Level5
         ],
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3]
-      }
+      },
+      my: true,
+      shared: false
     }
   })
 
@@ -47,7 +54,7 @@ export function ProblemTable() {
   return (
     <DataTableRoot
       data={problems}
-      columns={columns}
+      columns={createColumns(isUser)}
       defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
       <div className="flex gap-4">
@@ -62,6 +69,9 @@ export function ProblemTable() {
   )
 }
 
-export function ProblemTableFallback() {
-  return <DataTableFallback columns={columns} />
+interface ProblemTableFallbackProps {
+  isUser: boolean
+}
+export function ProblemTableFallback({ isUser }: ProblemTableFallbackProps) {
+  return <DataTableFallback columns={createColumns(isUser)} />
 }

@@ -34,8 +34,8 @@ const GET_PROBLEM = gql(`
 `)
 
 const GET_PROBLEMS = gql(`
-  query GetProblems($cursor: Int, $take: Int!, $input: FilterProblemsInput!) {
-    getProblems(cursor: $cursor, take: $take, input: $input) {
+  query GetProblems($cursor: Int, $take: Int!, $input: FilterProblemsInput!, $my: Boolean, $shared: Boolean) {
+    getProblems(cursor: $cursor, take: $take, input: $input, my: $my, shared: $shared) {
       id
       title
       updateTime
@@ -44,6 +44,9 @@ const GET_PROBLEMS = gql(`
       acceptedRate
       isVisible
       languages
+      createdBy {
+        username
+      }
       tag {
         id
         tag {
@@ -80,6 +83,15 @@ const GET_ASSIGNMENT_PROBLEMS = gql(`
         isVisible
         difficulty
       }
+    }
+  }
+`)
+
+const GET_ASSIGNMENT_PROBLEM_MAX_SCORE = gql(`
+  query GetAssignmentProblemMaxScore($groupId: Int!, $assignmentId: Int!) {
+    getAssignmentProblems(groupId: $groupId, assignmentId: $assignmentId) {
+      problemId
+      score
     }
   }
 `)
@@ -125,8 +137,9 @@ export {
   GET_PROBLEM,
   GET_PROBLEMS,
   GET_PROBLEM_DETAIL,
-  GET_ASSIGNMENT_PROBLEMS,
   GET_CONTEST_PROBLEMS,
+  GET_ASSIGNMENT_PROBLEMS,
+  GET_ASSIGNMENT_PROBLEM_MAX_SCORE,
   GET_TAGS,
   GET_PROBLEM_TESTCASE
 }

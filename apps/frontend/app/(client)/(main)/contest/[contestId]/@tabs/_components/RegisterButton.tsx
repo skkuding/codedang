@@ -41,10 +41,9 @@ export function RegisterButton({
       await safeFetcherWithAuth.post(`contest/${contestId}/participation`, {
         searchParams: invitationCodeExists
           ? {
-              groupId: 1,
               invitationCode: getValues('invitationCode')
             }
-          : { groupId: 1 }
+          : {}
       })
       toast.success(`Registered ${state} test successfully`)
       router.refresh() // to update register state
@@ -71,8 +70,7 @@ export function RegisterButton({
   return !invitationCodeExists ? (
     // User not registered and no invitation code required
     <Button
-      className="bg-primary border-primary h-[46px] w-[940px] rounded-full px-12 py-6 text-[16px] font-bold text-white disabled:bg-gray-300 disabled:text-gray-600"
-      disabled={state === 'Upcoming'}
+      className="bg-primary border-primary h-[46px] w-[940px] rounded-full px-12 py-6 text-[16px] font-bold text-white"
       onClick={onSubmit}
     >
       Register Now!
@@ -81,10 +79,7 @@ export function RegisterButton({
     // User not registered and invitation code required
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          className="bg-primary border-primary h-[46px] w-[940px] rounded-full px-12 py-6 text-[16px] font-bold text-white disabled:bg-gray-300 disabled:text-gray-600"
-          disabled={state === 'Upcoming'}
-        >
+        <Button className="bg-primary border-primary h-[46px] w-[940px] rounded-full px-12 py-6 text-[16px] font-bold text-white">
           Register Now!
         </Button>
       </DialogTrigger>

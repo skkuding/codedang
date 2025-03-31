@@ -1,7 +1,10 @@
 'use client'
 
 import { useConfirmNavigationContext } from '@/app/admin/_components/ConfirmNavigation'
-import type { ContestProblem } from '@/app/admin/contest/_libs/schemas'
+import type {
+  ContestManagerReviewer,
+  ContestProblem
+} from '@/app/admin/contest/_libs/schemas'
 import {
   IMPORT_PROBLEMS_TO_CONTEST,
   REMOVE_PROBLEMS_FROM_CONTEST,
@@ -10,7 +13,8 @@ import {
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
-import { useMutation, useQuery } from '@apollo/client'
+import { GET_USERS } from '@/graphql/user/queries'
+import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { useRouter } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
@@ -21,7 +25,9 @@ interface EditContestFormProps {
   contestId: number
   children: ReactNode
   problems: ContestProblem[]
+  managers: ContestManagerReviewer[]
   setProblems: (problems: ContestProblem[]) => void
+  setManagers: (managers: ContestManagerReviewer[]) => void
   setIsLoading: (isLoading: boolean) => void
   methods: UseFormReturn<UpdateContestInput>
 }
@@ -30,7 +36,9 @@ export function EditContestForm({
   contestId,
   children,
   problems,
+  managers,
   setProblems,
+  setManagers,
   setIsLoading,
   methods
 }: EditContestFormProps) {
@@ -39,23 +47,66 @@ export function EditContestForm({
   const { setShouldSkipWarning } = useConfirmNavigationContext()
   const router = useRouter()
 
+  const { data: userData } = useSuspenseQuery(GET_USERS, {
+    variables: {
+      take: 5000
+    }
+  })
+
+  // 수정된 manager, reviewer 목록(managers) 으로 등록
+  const formattedManagers = managers
+    .filter((manager) => manager.id !== null) // Exclude managers with null id
+    .map((manager) => ({
+      userId: manager.id,
+      contestRole: manager.type
+    }))
+  methods.register('userContest')
+  methods.setValue('userContest', formattedManagers)
+
+  const users = userData.getUsers.map((user) => ({
+    id: Number(user.id),
+    email: user.email,
+    username: user.username,
+    realName: user.userProfile ? user.userProfile.realName : '',
+    role: user.role
+  }))
+
   useQuery(GET_CONTEST, {
     variables: { contestId },
     onCompleted: (contestData) => {
       const data = contestData.getContest
       methods.reset({
-        id: contestId,
         title: data.title,
         description: data.description,
         startTime: new Date(data.startTime),
         endTime: new Date(data.endTime),
-        enableCopyPaste: data.enableCopyPaste,
         isJudgeResultVisible: data.isJudgeResultVisible,
         invitationCode: data.invitationCode,
-        isRankVisible: true,
-        isVisible: true
+        summary: data.summary,
+        posterUrl: data.posterUrl,
+        freezeTime: data.freezeTime === null ? null : new Date(data.freezeTime),
+        evaluateWithSampleTestcase: data.evaluateWithSampleTestcase,
+        userContest: data.userContest?.map((role) => ({
+          contestRole: role.role,
+          userId: role.userId ?? undefined
+        }))
       })
       setIsLoading(false)
+      setManagers(
+        (data.userContest ?? [])
+          .filter((role) => role.userId !== null && role.userId !== undefined) // Ensure userId is not null or undefined
+          .map((role) => {
+            const user = users.find((u) => u.id === role.userId)
+            return {
+              id: role.userId as number,
+              email: user?.email || '',
+              username: user?.username || '',
+              realName: user?.realName || '',
+              type: role.role,
+              user
+            }
+          })
+      )
     }
   })
 
@@ -72,7 +123,7 @@ export function EditContestForm({
           title: problem.problem.title,
           order: problem.order,
           difficulty: problem.problem.difficulty,
-          score: problem.score ?? 0 // Score 기능 완료되면 수정해주세요!!
+          score: problem.score ?? 1 // Score 기능 완료되면 수정해주세요!!
         }
       })
       setProblems(contestProblems)
@@ -91,7 +142,6 @@ export function EditContestForm({
       toast.error('Start time must be less than end time')
       return
     }
-
     if (
       new Set(problems.map((problem) => problem.order)).size !== problems.length
     ) {
@@ -104,9 +154,9 @@ export function EditContestForm({
   const onSubmit = async () => {
     const input = methods.getValues()
     setIsLoading(true)
-
     await updateContest({
       variables: {
+        contestId,
         input
       }
     })
@@ -154,7 +204,7 @@ export function EditContestForm({
 
   return (
     <form
-      className="flex w-[760px] flex-col gap-6"
+      className="flex w-[901px] flex-col gap-[60px]"
       onSubmit={methods.handleSubmit(isSubmittable)}
     >
       <FormProvider {...methods}>{children}</FormProvider>

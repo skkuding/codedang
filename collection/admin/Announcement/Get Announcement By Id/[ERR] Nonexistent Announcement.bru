@@ -1,0 +1,31 @@
+meta {
+  name: [ERR] Nonexistent Announcement
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetAnnouncementById($contestId: Int!, $id: Int!) {
+    announcement(
+      contestId: $contestId
+      id: $id
+    ) {
+      id
+      content
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "id": 999
+  }
+}

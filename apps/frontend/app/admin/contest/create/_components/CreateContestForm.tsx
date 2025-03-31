@@ -14,29 +14,41 @@ import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import type { ContestProblem } from '../../_libs/schemas'
+import type {
+  ContestManagerReviewer,
+  ContestProblem
+} from '../../_libs/schemas'
 
 interface CreateContestFormProps {
   children: ReactNode
   problems: ContestProblem[]
+  managers: ContestManagerReviewer[]
   setIsCreating: (isCreating: boolean) => void
 }
 
 export function CreateContestForm({
   children,
   problems,
+  managers,
   setIsCreating
 }: CreateContestFormProps) {
   const methods = useForm<CreateContestInput>({
     resolver: valibotResolver(createSchema),
     defaultValues: {
       invitationCode: null,
-      isRankVisible: true,
-      isVisible: true,
       enableCopyPaste: false,
-      isJudgeResultVisible: false
+      isJudgeResultVisible: false,
+      description: null
     }
   })
+
+  const formattedManagers = managers.map((manager) => ({
+    userId: manager.id,
+    contestRole: manager.type
+  }))
+
+  methods.register('userContest')
+  methods.setValue('userContest', formattedManagers)
 
   const { setShouldSkipWarning } = useConfirmNavigationContext()
   const router = useRouter()
@@ -111,7 +123,7 @@ export function CreateContestForm({
 
   return (
     <form
-      className="flex w-[760px] flex-col gap-6"
+      className="flex w-[901px] flex-col gap-[60px]"
       onSubmit={methods.handleSubmit(isSubmittable)}
     >
       <FormProvider {...methods}>{children}</FormProvider>

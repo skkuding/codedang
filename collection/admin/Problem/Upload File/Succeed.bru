@@ -1,0 +1,54 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  Apollo-Require-Preflight: true
+}
+
+body:multipart-form {
+  operations: '''
+    {
+      "query": "mutation($input: UploadFileInput!){uploadFile(input: $input){ src }}",
+      "variables": {
+        "input": {
+          "file": null
+        }
+      }
+    }
+  '''
+  map: '''
+    {
+      "nfile": [
+        "variables.input.file"
+      ]
+    }
+  '''
+  nfile: @file(Problem/Upload File/sample.pdf)
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.uploadImage: isDefined
+  res.body.data.uploadImage.src: isString
+}
+
+docs {
+  ## Upload File
+  파일을 업로드하고, 업로드된 파일의 URL 주소를 반환합니다.
+
+  ### Error Cases
+  #### UNPROCESSABLE (1)
+  PDF 파일만 업로드가 가능합니다. (mimetype이 application/pdf)
+
+  #### UNPROCESSABLE (2)
+  30MB 이하의 PDF 파일만 업로드가 가능합니다.
+}

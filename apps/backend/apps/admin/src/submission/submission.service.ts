@@ -52,6 +52,7 @@ export class SubmissionService {
   }
 
   async getContestSubmissions(
+    contestId: number,
     input: GetContestSubmissionsInput,
     take: number,
     cursor: number | null,
@@ -59,7 +60,7 @@ export class SubmissionService {
   ) {
     const paginator = this.prisma.getPaginator(cursor)
 
-    const { contestId, problemId, searchingName } = input
+    const { problemId, searchingName } = input
     const contestSubmissions = await this.prisma.submission.findMany({
       ...paginator,
       take,
@@ -203,6 +204,30 @@ export class SubmissionService {
     return results
   }
 
+  async getAssignmentLatestSubmission(
+    assignmentId: number,
+    userId: number,
+    problemId: number
+  ) {
+    const submissionId = await this.prisma.submission.findFirst({
+      where: {
+        assignmentId,
+        userId,
+        problemId
+      },
+      orderBy: { createTime: 'desc' },
+      select: {
+        id: true
+      }
+    })
+
+    if (!submissionId) {
+      throw new EntityNotExistException('Submission')
+    }
+
+    return this.getSubmission(submissionId.id)
+  }
+
   getOrderBy(
     order: SubmissionOrder
   ): Prisma.SubmissionOrderByWithRelationInput {
@@ -243,7 +268,17 @@ export class SubmissionService {
         },
         problem: true,
         contest: true,
-        submissionResult: true
+        assignment: true,
+        submissionResult: {
+          include: {
+            problemTestcase: {
+              select: {
+                input: true,
+                output: true
+              }
+            }
+          }
+        }
       }
     })
     if (!submission) {

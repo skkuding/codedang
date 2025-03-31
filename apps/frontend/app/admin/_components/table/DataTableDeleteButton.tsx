@@ -11,8 +11,10 @@ import {
   AlertDialogTitle
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
+import { capitalizeFirstLetter } from '@/libs/utils'
 import { useState } from 'react'
-import { PiTrashLight } from 'react-icons/pi'
+import { FaTrash } from 'react-icons/fa'
+import { FaCircleExclamation } from 'react-icons/fa6'
 import { toast } from 'sonner'
 import { useDataTable } from './context'
 
@@ -51,6 +53,7 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
 
   const handleDeleteButtonClick = async () => {
     if (table.getSelectedRowModel().rows.length === 0) {
+      toast.error(`Please select at least one ${target}`)
       return
     }
 
@@ -93,23 +96,30 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
         onClick={handleDeleteButtonClick}
         className={className}
       >
-        <PiTrashLight fontSize={18} />
+        <FaTrash fontSize={13} color={'#8A8A8A'} />
       </Button>
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete</AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent className="flex min-h-[304px] w-[432px] flex-col justify-between gap-6 rounded-2xl p-10 shadow-lg sm:rounded-2xl">
+          <AlertDialogHeader className="flex flex-col gap-[14px]">
+            <AlertDialogTitle>
+              <div className="flex flex-col items-center justify-center gap-[24px]">
+                <FaCircleExclamation color="#FF3B2F" size={50} />
+                <p className="text-2xl font-medium">{`Delete ${capitalizeFirstLetter(target)}?`}</p>
+              </div>
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-xs">
               Are you sure you want to permanently delete{' '}
               {table.getSelectedRowModel().rows.length} {target}(s)?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="w-full border-[#C4C4C4] text-sm font-semibold text-[#8A8A8A]">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button
                 onClick={handleDeleteRows}
-                className="bg-red-500 hover:bg-red-500/90"
+                className="bg-error w-full text-sm font-semibold hover:bg-red-500/90"
               >
                 Delete
               </Button>

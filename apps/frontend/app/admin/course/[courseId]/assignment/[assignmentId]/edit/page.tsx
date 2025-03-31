@@ -10,6 +10,7 @@ import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { UpdateAssignmentInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import type { Route } from 'next'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -45,7 +46,7 @@ export default function Page({
       <ScrollArea className="w-full">
         <main className="flex flex-col gap-6 px-20 py-16">
           <div className="flex items-center gap-4">
-            <Link href={`/admin/course/${courseId}/assignment`}>
+            <Link href={`/admin/course/${courseId}/assignment` as Route}>
               <FaAngleLeft className="h-12" />
             </Link>
             <span className="text-4xl font-bold">Edit Assignment</span>
@@ -59,26 +60,28 @@ export default function Page({
             setIsLoading={setIsLoading}
             methods={methods}
           >
-            <FormSection title="Title">
+            <FormSection isFlexColumn title="Title">
               <TitleForm placeholder="Name your assignment" />
             </FormSection>
 
             <div className="flex gap-6">
-              <FormSection title="Start Time">
+              <FormSection isFlexColumn title="Start Time">
                 {methods.getValues('startTime') && (
                   <TimeForm name="startTime" />
                 )}
               </FormSection>
-              <FormSection title="End Time">
+              <FormSection isFlexColumn title="End Time">
                 {methods.getValues('endTime') && <TimeForm name="endTime" />}
               </FormSection>
 
-              <FormSection title="Week">
-                {methods.getValues('week') && <WeekComboBox name="week" />}
+              <FormSection isFlexColumn title="Week">
+                {methods.getValues('week') && (
+                  <WeekComboBox name="week" courseId={Number(courseId)} />
+                )}
               </FormSection>
             </div>
 
-            <FormSection title="Description">
+            <FormSection isFlexColumn title="Description">
               {methods.getValues('description') && (
                 <DescriptionForm name="description" />
               )}
@@ -92,18 +95,18 @@ export default function Page({
 
             <SwitchField
               name="isJudgeResultVisible"
-              title="Reveal scores to participants"
+              title="Reveal raw scores to participants"
               hasValue={methods.getValues('isJudgeResultVisible') || false}
             />
 
             <SwitchField
               name="autoFinalizeScore"
-              title="Automatic Grading"
+              title="Automatically Finalize Score"
               hasValue={methods.getValues('autoFinalizeScore') || false}
               tooltip={true}
             >
               <p className="text-xs font-normal text-black">
-                Automatic Grading is Awesome!
+                Automatically Finalize Score (No Manual Review)
               </p>
             </SwitchField>
 

@@ -1,10 +1,12 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { UserGroup } from '@generated'
 import { User } from '@generated'
+import { UseGroupLeaderGuard } from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
+import { UpdateCreationPermissionsInput } from './model/creationPermission.model'
 import { GroupMember } from './model/groupMember.model'
-import { CanCreateCourseResult } from './model/user.output'
+import { UpdateCreationPermissionResult } from './model/user.output'
 import { UserService, GroupMemberService } from './user.service'
 
 @Resolver(() => User)
@@ -20,6 +22,7 @@ export class UserResolver {
    * @returns {Promise<User[]>} - 조회된 사용자 목록을 반환합니다.
    */
   @Query(() => [User])
+  @UseGroupLeaderGuard()
   async getUserByEmailOrStudentId(
     @Args('groupId', { type: () => Int }, GroupIDPipe) _groupId: number,
     @Args('email', { type: () => String, nullable: true })
@@ -36,13 +39,11 @@ export class UserResolver {
     return await this.userService.getUserByEmailOrStudentId(email, studentId)
   }
 
-  @Mutation(() => CanCreateCourseResult)
-  async updateCanCreateCourse(
-    @Args('userId', { type: () => Int }, new RequiredIntPipe('userId'))
-    userId: number,
-    @Args('canCreateCourse', { type: () => Boolean }) canCreateCourse: boolean
+  @Mutation(() => UpdateCreationPermissionResult)
+  async updateCreationPermissions(
+    @Args('input') input: UpdateCreationPermissionsInput
   ) {
-    return await this.userService.updateCanCreateCourse(userId, canCreateCourse)
+    return await this.userService.updateCreationPermissions(input)
   }
 
   @Query(() => [User])
@@ -64,6 +65,7 @@ export class UserResolver {
 }
 
 @Resolver(() => GroupMember)
+@UseGroupLeaderGuard()
 export class GroupMemberResolver {
   constructor(private readonly groupMemberService: GroupMemberService) {}
 

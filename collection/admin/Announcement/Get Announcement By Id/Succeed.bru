@@ -1,0 +1,32 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetAnnouncementById($contestId: Int!, $id: Int!) {
+    announcement(
+      contestId: $contestId
+      id: $id
+    ) {
+      id
+      content
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 1,
+    "id": 1
+  }
+}

@@ -28,7 +28,11 @@ export function AssignmentProblemDropdown({
   courseId
 }: AssignmentProblemDropdownProps) {
   const { data: assignmentProblem, error } = useQuery({
-    ...assignmentProblemQueries.list({ assignmentId, take: 20 }),
+    ...assignmentProblemQueries.list({
+      assignmentId,
+      take: 20,
+      groupId: courseId
+    }),
     throwOnError: false
   })
 

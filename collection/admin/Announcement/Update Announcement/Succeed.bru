@@ -1,0 +1,27 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    updateAnnouncement(
+      contestId: 1,
+      input: {
+        id: 1
+        content: "Updated announcement content"
+      }) {
+      id
+      content
+      createTime
+      updateTime
+    }
+  }
+}

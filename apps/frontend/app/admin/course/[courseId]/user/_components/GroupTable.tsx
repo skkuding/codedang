@@ -11,7 +11,7 @@ import { DELETE_GROUP_MEMBER } from '@/graphql/user/mutation'
 import { GET_GROUP_MEMBERS } from '@/graphql/user/queries'
 import { useApolloClient, useMutation, useSuspenseQuery } from '@apollo/client'
 import { useParams } from 'next/navigation'
-import { columns } from './Columns'
+import { createColumns } from './Columns'
 import { DeleteUserButton } from './DeleteUserButton'
 
 const headerStyle = {
@@ -39,15 +39,8 @@ export function GroupTable() {
     email: member.email,
     major: member.major,
     studentId: member.studentId,
-    role: member.isGroupLeader ? getRole(member.role) : member.role
+    role: member.isGroupLeader ? 'Instructor' : 'Student'
   }))
-  function getRole(role: string) {
-    if (role === 'User') {
-      return 'Instructor'
-    } else {
-      return role
-    }
-  }
 
   const deleteTarget = (userId: number, groupId: number) => {
     return deleteGroupMember({
@@ -66,7 +59,14 @@ export function GroupTable() {
 
   return (
     <div>
-      <DataTableRoot data={members} columns={columns}>
+      <div className="flex gap-2 text-base font-bold">
+        <span className="text-primary">{members.length}</span>
+        <span>Members</span>
+      </div>
+      <h1 className="mb-5 text-lg font-normal text-gray-500">
+        Here’s a list of the instructors and members of the course
+      </h1>
+      <DataTableRoot data={members} columns={createColumns(groupId)}>
         <div className="flex justify-between">
           <DataTableSearchBar columndId="name" className="rounded-full" />
           <DeleteUserButton deleteTarget={deleteTarget} onSuccess={onSuccess} />
@@ -79,5 +79,5 @@ export function GroupTable() {
 }
 
 export function GroupTableFallback() {
-  return <DataTableFallback withSearchBar={false} columns={columns} />
+  return <DataTableFallback withSearchBar={false} columns={createColumns(1)} />
 }

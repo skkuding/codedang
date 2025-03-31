@@ -1,3 +1,4 @@
+import { dataIfError } from '@/app/(client)/(code-editor)/_libs/dataIfError'
 import { CodeEditor } from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import {
@@ -11,7 +12,6 @@ import {
 import { dateFormatter, fetcherWithAuth, getResultColor } from '@/libs/utils'
 import type { SubmissionDetail } from '@/types/type'
 import { revalidateTag } from 'next/cache'
-import { dataIfError } from '../_libs/dataIfError'
 
 interface Props {
   problemId: number
@@ -52,7 +52,7 @@ export async function SubmissionDetail({ problemId, submissionId }: Props) {
           </div>
           <div>
             <h2>Submission Time</h2>
-            <p>{dateFormatter(submission.createTime, 'YYYY-MM-DD HH:mm:ss')}</p>
+            <p>{dateFormatter(submission.createTime, 'MMM DD, YYYY HH:mm')}</p>
           </div>
         </div>
         <ScrollBar orientation="horizontal" />

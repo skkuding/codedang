@@ -1,4 +1,5 @@
 import { ContestStatusTimeDiff } from '@/components/ContestStatusTimeDiff'
+import { KatexContent } from '@/components/KatexContent'
 import {
   Accordion,
   AccordionContent,
@@ -10,8 +11,14 @@ import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
-import type { Contest, ContestStatus, ProblemDataTop } from '@/types/type'
+import type {
+  Contest,
+  ContestStatus,
+  ProblemDataTop,
+  ContestOrder
+} from '@/types/type'
 import Image from 'next/image'
+import { getOngoingUpcomingContests } from '../_libs/apis'
 import { BiggerImageButton } from './_components/BiggerImageButton'
 import { GotoContestListButton } from './_components/GotoContestListButton'
 import { PrevNextProblemButton } from './_components/PrevNextProblemButton'
@@ -24,17 +31,15 @@ export interface ContestTop {
   description: string
   startTime: string
   endTime: string
-  group: {
-    id: number
-    groupName: string
-  }
   isJudgeResultVisible: boolean
   posterUrl?: string
-  participationTarget?: string
-  competitionMethod?: string
-  rankingMethod?: string
-  problemFormat?: string
-  benefits?: string
+  summary: {
+    문제형태?: string
+    순위산정?: string
+    진행방식?: string
+    참여대상?: string
+    참여혜택?: string
+  }
   contestProblem: {
     order: number
     problem: {
@@ -60,10 +65,17 @@ interface ContestTopProps {
   params: {
     contestId: string
   }
+  searchParams: {
+    search: string
+  }
 }
 
-export default async function ContestTop({ params }: ContestTopProps) {
+export default async function ContestTop({
+  params,
+  searchParams
+}: ContestTopProps) {
   const session = await auth()
+  const search = searchParams.search ?? ''
   const { contestId } = params
   const data: ContestTop = await fetcherWithAuth
     .get(`contest/${contestId}`)
@@ -71,6 +83,10 @@ export default async function ContestTop({ params }: ContestTopProps) {
   const problemData: ProblemDataTop = await fetcherWithAuth
     .get(`contest/${contestId}/problem`)
     .json()
+  const orderedContests: ContestOrder[] = await getOngoingUpcomingContests(
+    search,
+    session
+  )
 
   const contest: Contest = {
     ...data,
@@ -98,22 +114,16 @@ export default async function ContestTop({ params }: ContestTopProps) {
   )
   const formattedEndTime = dateFormatter(data.endTime, 'YYYY-MM-DD HH:mm:ss')
 
-  const posterUrl = data.posterUrl
-  const imageUrl = posterUrl ? posterUrl : '/logos/welcome.png'
-  const participationTarget = data.participationTarget
-  const competitionMethod = data.competitionMethod
-  const rankingMethod = data.rankingMethod
-  const problemFormat = data.problemFormat
-  const benefits = data.benefits
-  const description = data.description
-  const prev = true
+  const { posterUrl, summary, description, id: currentContestId } = data
 
+  const imageUrl = posterUrl || '/logos/welcome.png'
+  const prev = true
   return (
     <div>
-      <h1 className="mt-24 w-[1202px] text-2xl font-bold">{data?.title}</h1>
+      <h1 className="mt-24 w-[1208px] text-2xl font-bold">{data?.title}</h1>
       <div className="mt-[30px] flex flex-col gap-[10px]">
         <div className="flex gap-2">
-          <Image src={calendarIcon} alt="calendar" width={20} height={20} />
+          <Image src={calendarIcon} alt="calendar" width={16} height={16} />
           <p className="font-medium text-[#333333e6]">
             {formattedStartTime} ~ {formattedEndTime}
           </p>
@@ -141,27 +151,27 @@ export default async function ContestTop({ params }: ContestTopProps) {
           <div className="flex flex-col gap-[14px]">
             <ContestSummary
               buttonName="참여 대상"
-              summary={participationTarget ? participationTarget : '없음'}
+              summary={summary.참여대상 ? summary.참여대상 : '없음'}
             />
             <ContestSummary
               buttonName="진행 방식"
-              summary={competitionMethod ? competitionMethod : '없음'}
+              summary={summary.진행방식 ? summary.진행방식 : '없음'}
             />
             <ContestSummary
               buttonName="순위 산정"
-              summary={rankingMethod ? rankingMethod : '없음'}
+              summary={summary.순위산정 ? summary.순위산정 : '없음'}
             />
             <ContestSummary
               buttonName="문제 형태"
-              summary={problemFormat ? problemFormat : '없음'}
+              summary={summary.문제형태 ? summary.문제형태 : '없음'}
             />
             <ContestSummary
               buttonName="참여 혜택"
-              summary={benefits ? benefits : '없음'}
+              summary={summary.참여혜택 ? summary.참여혜택 : '없음'}
             />
           </div>
 
-          {session && state !== 'Finished' && state !== 'Upcoming' && (
+          {session && state !== 'Finished' && (
             <div className="h-[48px] w-[940px]">
               {data.isRegistered ? (
                 <Button className="text pointer-events-none h-[48px] w-[940px] rounded-[1000px] bg-[#80808014] font-medium text-[#3333334d]">
@@ -185,7 +195,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
             More Description
           </AccordionTrigger>
           <AccordionContent className="pb-8 text-base text-[#00000080]">
-            {description}
+            <KatexContent content={description} />
           </AccordionContent>
         </AccordionItem>
       </Accordion>
@@ -203,8 +213,18 @@ export default async function ContestTop({ params }: ContestTopProps) {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-      <PrevNextProblemButton contestData={data} previous={prev} />
-      <PrevNextProblemButton contestData={data} previous={!prev} />
+      <PrevNextProblemButton
+        contestData={orderedContests}
+        currentContestId={currentContestId}
+        previous={prev}
+        search={search}
+      />
+      <PrevNextProblemButton
+        contestData={orderedContests}
+        currentContestId={currentContestId}
+        previous={!prev}
+        search={search}
+      />
       <GotoContestListButton />
     </div>
   )

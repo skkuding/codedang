@@ -1,16 +1,10 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common'
 import { Contest, ResultStatus, Submission } from '@generated'
-import type { ContestProblem } from '@prisma/client'
+import { ContestRole, Role, type ContestProblem, Prisma } from '@prisma/client'
 import { Cache } from 'cache-manager'
+import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import {
-  PUBLICIZING_REQUEST_EXPIRE_TIME,
-  PUBLICIZING_REQUEST_KEY,
-  MIN_DATE,
-  MAX_DATE
-} from '@libs/constants'
-import {
-  ConflictFoundException,
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
@@ -19,8 +13,6 @@ import type { ContestWithScores } from './model/contest-with-scores.model'
 import type { CreateContestInput } from './model/contest.input'
 import type { UpdateContestInput } from './model/contest.input'
 import type { ProblemScoreInput } from './model/problem-score.input'
-import type { PublicizingRequest } from './model/publicizing-request.model'
-import type { PublicizingResponse } from './model/publicizing-response.output'
 
 @Injectable()
 export class ContestService {
@@ -29,12 +21,52 @@ export class ContestService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getContests(take: number, cursor: number | null) {
+  async getContests(userId: number, take: number, cursor: number | null) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId
+      },
+      select: {
+        role: true,
+        canCreateContest: true
+      }
+    })
+    const userContests = await this.prisma.userContest.findMany({
+      where: {
+        userId,
+        role: {
+          in: ['Admin', 'Manager', 'Reviewer']
+        }
+      }
+    })
+
+    if (
+      user?.canCreateContest === false &&
+      user.role === Role.User &&
+      !userContests.length
+    ) {
+      throw new UnauthorizedException('You are not allowed to view contests')
+    }
+
     const paginator = this.prisma.getPaginator(cursor)
 
     const contests = await this.prisma.contest.findMany({
       ...paginator,
       take,
+      where: {
+        ...(user?.role === Role.User
+          ? {
+              userContest: {
+                some: {
+                  userId,
+                  role: {
+                    in: ['Admin', 'Manager', 'Reviewer']
+                  }
+                }
+              }
+            }
+          : {})
+      },
       include: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         _count: {
@@ -61,6 +93,17 @@ export class ContestService {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         _count: {
           select: { contestRecord: true }
+        },
+        userContest: {
+          where: {
+            role: {
+              in: ['Manager', 'Reviewer']
+            }
+          },
+          select: {
+            userId: true,
+            role: true
+          }
         }
       }
     })
@@ -81,42 +124,138 @@ export class ContestService {
     userId: number,
     contest: CreateContestInput
   ): Promise<Contest> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId
+      },
+      select: {
+        role: true,
+        canCreateContest: true
+      }
+    })
+    if (user?.canCreateContest === false && user.role === Role.User) {
+      throw new UnauthorizedException('You are not allowed to create a contest')
+    }
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
       )
     }
+    if (contest.summary) {
+      for (const [, val] of Object.entries(contest.summary)) {
+        if (typeof val !== 'string') {
+          throw new UnprocessableDataException(
+            'Summary must contain only strings'
+          )
+        }
+      }
+    }
 
-    try {
-      return await this.prisma.contest.create({
+    const { summary, userContest, ...contestData } = contest
+
+    if (userContest) {
+      const validRoles = new Set(['Manager', 'Reviewer'])
+      const seenUserIds = new Set<number>()
+
+      for (const role of userContest) {
+        if (!validRoles.has(role.contestRole)) {
+          throw new UnprocessableDataException(
+            `Invalid contest role: ${role.contestRole}`
+          )
+        }
+
+        if (role.userId === userId) {
+          throw new UnprocessableDataException(
+            `User ${userId} is already assigned as Admin`
+          )
+        }
+
+        if (seenUserIds.has(role.userId)) {
+          throw new UnprocessableDataException(
+            `User ${role.userId} has multiple roles in this request`
+          )
+        }
+
+        seenUserIds.add(role.userId)
+      }
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const createdContest = await tx.contest.create({
         data: {
           createdById: userId,
-          ...contest
+          summary: summary
+            ? (summary as Prisma.InputJsonValue)
+            : Prisma.JsonNull,
+          ...contestData
         }
       })
-    } catch (error) {
-      throw new UnprocessableDataException(error.message)
-    }
+
+      if (userContest?.length) {
+        // created contest into newUserContests array
+
+        await tx.userContest.createMany({
+          data: userContest.map((role) => ({
+            userId: role.userId,
+            contestId: createdContest.id,
+            role: role.contestRole as ContestRole
+          }))
+        })
+      }
+
+      await tx.userContest.create({
+        data: {
+          userId,
+          contestId: createdContest.id,
+          role: ContestRole.Admin
+        }
+      })
+
+      const newUserContests = await tx.userContest.findMany({
+        where: {
+          contestId: createdContest.id
+        }
+      })
+
+      return {
+        ...createdContest,
+        userContest: newUserContests
+      }
+    })
   }
 
-  async updateContest(contest: UpdateContestInput): Promise<Contest> {
-    const contestFound = await this.prisma.contest.findFirst({
+  async updateContest(
+    contestId: number,
+    contest: UpdateContestInput
+  ): Promise<Contest> {
+    const contestFound = await this.prisma.contest.findUniqueOrThrow({
       where: {
-        id: contest.id
+        id: contestId
       },
       select: {
         startTime: true,
         endTime: true,
+        freezeTime: true,
         contestProblem: {
           select: {
             problemId: true
           }
+        },
+        userContest: {
+          where: {
+            role: {
+              in: ['Manager', 'Reviewer']
+            }
+          },
+          select: {
+            id: true,
+            userId: true,
+            role: true
+          }
         }
       }
     })
-    if (!contestFound) {
-      throw new EntityNotExistException('contest')
-    }
+
     const isEndTimeChanged =
       contest.endTime && contest.endTime !== contestFound.endTime
     contest.startTime = contest.startTime || contestFound.startTime
@@ -126,71 +265,170 @@ export class ContestService {
         'The start time must be earlier than the end time'
       )
     }
+    if (contest.summary) {
+      for (const [, val] of Object.entries(contest.summary)) {
+        if (typeof val !== 'string') {
+          throw new UnprocessableDataException(
+            'Summary must contain only strings'
+          )
+        }
+      }
+    }
+
+    const isFreezeTimeChanged =
+      contest.freezeTime && contest.freezeTime !== contestFound.freezeTime
+    if (isFreezeTimeChanged) {
+      const now = new Date()
+      if (contest.freezeTime && contest.freezeTime < now) {
+        throw new UnprocessableDataException(
+          'The freeze time must be later than the current time'
+        )
+      }
+      if (contestFound.freezeTime && contestFound.freezeTime < now) {
+        throw new UnprocessableDataException(
+          'Cannot change freeze time after the freeze time has passed already'
+        )
+      }
+    }
+
+    if (contest.unfreeze) {
+      if (!contestFound.freezeTime) {
+        throw new UnprocessableDataException(
+          'Cannot unfreeze a contest that has not been frozen'
+        )
+      }
+      if (contestFound.freezeTime < new Date()) {
+        throw new UnprocessableDataException(
+          'Cannot unfreeze a contest that has already been unfrozen'
+        )
+      }
+      if (contest.unfreeze && contest.endTime > new Date()) {
+        throw new UnprocessableDataException(
+          'Cannot unfreeze a contest that has not ended yet'
+        )
+      }
+    }
 
     const problemIds = contestFound.contestProblem.map(
       (problem) => problem.problemId
     )
     if (problemIds.length && isEndTimeChanged) {
       for (const problemId of problemIds) {
-        try {
-          // 문제가 포함된 대회 중 가장 늦게 끝나는 대회의 종료시각으로 visibleLockTime 설정
-          let visibleLockTime = contest.endTime
+        // 문제가 포함된 대회 중 가장 늦게 끝나는 대회의 종료시각으로 visibleLockTime 설정
+        let visibleLockTime = contest.endTime
 
-          const contestIds = (
-            await this.prisma.contestProblem.findMany({
-              where: {
-                problemId
-              }
-            })
-          )
-            .filter((contestProblem) => contestProblem.contestId !== contest.id)
-            .map((contestProblem) => contestProblem.contestId)
-
-          if (contestIds.length) {
-            const latestContest = await this.prisma.contest.findFirstOrThrow({
-              where: {
-                id: {
-                  in: contestIds
-                }
-              },
-              orderBy: {
-                endTime: 'desc'
-              },
-              select: {
-                endTime: true
-              }
-            })
-            if (contest.endTime < latestContest.endTime)
-              visibleLockTime = latestContest.endTime
-          }
-
-          await this.prisma.problem.update({
+        const contestIds = (
+          await this.prisma.contestProblem.findMany({
             where: {
-              id: problemId
-            },
-            data: {
-              visibleLockTime
+              problemId
             }
           })
-        } catch {
-          continue
+        )
+          .filter((contestProblem) => contestProblem.contestId !== contestId)
+          .map((contestProblem) => contestProblem.contestId)
+
+        if (contestIds.length) {
+          const latestContest = await this.prisma.contest.findFirstOrThrow({
+            where: {
+              id: {
+                in: contestIds
+              }
+            },
+            orderBy: {
+              endTime: 'desc'
+            },
+            select: {
+              endTime: true
+            }
+          })
+          if (contest.endTime < latestContest.endTime)
+            visibleLockTime = latestContest.endTime
         }
+
+        await this.prisma.problem.update({
+          where: {
+            id: problemId
+          },
+          data: {
+            visibleLockTime
+          }
+        })
       }
     }
 
-    try {
-      return await this.prisma.contest.update({
-        where: {
-          id: contest.id
-        },
-        data: {
-          title: contest.title,
-          ...contest
-        }
+    const { summary, userContest: newRoles, ...contestData } = contest
+
+    // userContest 중 삭제된 userContestRole 삭제, 추가된 userContestRole 추가, 변경된 userContestRole 변경
+    if (newRoles) {
+      const userContestRoles = contestFound.userContest
+      const rolesToDelete = userContestRoles.filter(
+        (role) => !newRoles.find((newRole) => newRole.userId === role.userId)
+      )
+      const rolesToAdd = newRoles.filter(
+        (newRole) =>
+          !userContestRoles.find((role) => role.userId === newRole.userId)
+      )
+      const rolesToUpdate = newRoles.filter((newRole) => {
+        const role = userContestRoles.find(
+          (role) => role.userId === newRole.userId
+        )
+        return role && role.role !== (newRole.contestRole as ContestRole)
       })
-    } catch (error) {
-      throw new UnprocessableDataException(error.message)
+
+      await Promise.all([
+        ...rolesToDelete.map((role) =>
+          this.prisma.userContest.delete({
+            where: {
+              id: role.id
+            }
+          })
+        ),
+        ...rolesToAdd.map((role) =>
+          this.prisma.userContest.create({
+            data: {
+              userId: role.userId,
+              contestId,
+              role: role.contestRole as ContestRole
+            }
+          })
+        ),
+        ...rolesToUpdate.map((role) =>
+          this.prisma.userContest.update({
+            where: {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              userId_contestId: {
+                userId: role.userId,
+                contestId
+              }
+            },
+            data: {
+              role: role.contestRole as ContestRole
+            }
+          })
+        )
+      ])
     }
+
+    return await this.prisma.contest.update({
+      where: {
+        id: contestId
+      },
+      data: {
+        summary: summary
+          ? (contest.summary as Prisma.InputJsonValue)
+          : Prisma.JsonNull,
+        ...contestData
+      },
+      include: {
+        userContest: {
+          where: {
+            role: {
+              in: ['Manager', 'Reviewer']
+            }
+          }
+        }
+      }
+    })
   }
 
   async deleteContest(contestId: number) {
@@ -228,106 +466,6 @@ export class ContestService {
     }
   }
 
-  async getPublicizingRequests() {
-    const requests = await this.cacheManager.get<PublicizingRequest[]>(
-      PUBLICIZING_REQUEST_KEY
-    )
-
-    if (!requests) {
-      return []
-    }
-
-    const filteredRequests = requests.filter(
-      (req) => new Date(req.expireTime) > new Date()
-    )
-
-    if (requests.length != filteredRequests.length) {
-      await this.cacheManager.set(
-        PUBLICIZING_REQUEST_KEY,
-        filteredRequests,
-        PUBLICIZING_REQUEST_EXPIRE_TIME
-      )
-    }
-
-    return filteredRequests
-  }
-
-  async handlePublicizingRequest(contestId: number, isAccepted: boolean) {
-    const requests = (await this.cacheManager.get(
-      PUBLICIZING_REQUEST_KEY
-    )) as Array<PublicizingRequest>
-    if (!requests) {
-      throw new EntityNotExistException('ContestPublicizingRequest')
-    }
-
-    const request = requests.find((req) => req.contestId === contestId)
-    if (!request || new Date(request.expireTime) < new Date()) {
-      throw new EntityNotExistException('ContestPublicizingRequest')
-    }
-
-    await this.cacheManager.set(
-      PUBLICIZING_REQUEST_KEY,
-      requests.filter((req) => req.contestId != contestId),
-      PUBLICIZING_REQUEST_EXPIRE_TIME
-    )
-
-    if (isAccepted) {
-      try {
-        await this.prisma.contest.update({
-          where: {
-            id: contestId
-          },
-          data: {}
-        })
-      } catch (error) {
-        throw new UnprocessableDataException(error.message)
-      }
-    }
-
-    return {
-      contestId,
-      isAccepted
-    } as PublicizingResponse
-  }
-
-  async createPublicizingRequest(contestId: number) {
-    const contest = await this.prisma.contest.findFirst({
-      where: {
-        id: contestId
-      }
-    })
-    if (!contest) {
-      throw new EntityNotExistException('contest')
-    }
-
-    let requests = (await this.cacheManager.get(
-      PUBLICIZING_REQUEST_KEY
-    )) as Array<PublicizingRequest>
-    if (!requests) {
-      requests = []
-    }
-
-    const duplicatedRequest = requests.find((req) => req.contestId == contestId)
-    if (duplicatedRequest) {
-      throw new ConflictFoundException('duplicated publicizing request')
-    }
-
-    const newRequest: PublicizingRequest = {
-      contestId,
-      userId: contest.createdById!, // TODO: createdById가 null일 경우 예외처리
-      expireTime: new Date(Date.now() + PUBLICIZING_REQUEST_EXPIRE_TIME)
-    }
-    requests.push(newRequest)
-
-    await this.cacheManager.set(
-      PUBLICIZING_REQUEST_KEY,
-      requests,
-      PUBLICIZING_REQUEST_EXPIRE_TIME
-    )
-
-    return newRequest
-  }
-
   async importProblemsToContest(
     contestId: number,
     problemIdsWithScore: ProblemScoreInput[]
@@ -348,6 +486,15 @@ export class ContestService {
       throw new EntityNotExistException('contest')
     }
 
+    let maxOrder =
+      (
+        await this.prisma.contestProblem.aggregate({
+          where: { contestId },
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _max: { order: true }
+        })
+      )._max?.order ?? -1
+
     const contestProblems: ContestProblem[] = []
 
     for (const { problemId, score } of problemIdsWithScore) {
@@ -366,9 +513,7 @@ export class ContestService {
         const [contestProblem] = await this.prisma.$transaction([
           this.prisma.contestProblem.create({
             data: {
-              // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
-              // 임시 방편으로 order: 0으로 설정합니다.
-              order: 0,
+              order: ++maxOrder,
               contestId,
               problemId,
               score
@@ -464,6 +609,19 @@ export class ContestService {
         visibleLockTime = latestContest.endTime
       }
 
+      const removeContestProblem = await this.prisma.contestProblem.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_problemId: {
+            contestId,
+            problemId
+          }
+        }
+      })
+      if (!removeContestProblem) {
+        throw new EntityNotExistException('contestProblem')
+      }
+
       try {
         const [, contestProblem] = await this.prisma.$transaction([
           this.prisma.problem.updateMany({
@@ -483,6 +641,19 @@ export class ContestService {
               contestId_problemId: {
                 contestId,
                 problemId
+              }
+            }
+          }),
+          this.prisma.contestProblem.updateMany({
+            where: {
+              contestId,
+              order: {
+                gt: removeContestProblem.order
+              }
+            },
+            data: {
+              order: {
+                decrement: 1
               }
             }
           })
@@ -564,100 +735,6 @@ export class ContestService {
     return {
       scoreSummary,
       submissions: mappedSubmission
-    }
-  }
-
-  /**
-   * Duplicate contest with contest problems and users who participated in the contest
-   * Not copied: submission
-   * @param contestId contest to duplicate
-   * @param userId user who tries to duplicates the contest
-   * @returns
-   */
-  async duplicateContest(contestId: number, userId: number) {
-    const [contestFound, contestProblemsFound, userContestRecords] =
-      await Promise.all([
-        this.prisma.contest.findFirst({
-          where: {
-            id: contestId
-          }
-        }),
-        this.prisma.contestProblem.findMany({
-          where: {
-            contestId
-          }
-        }),
-        this.prisma.contestRecord.findMany({
-          where: {
-            contestId
-          }
-        })
-      ])
-
-    if (!contestFound) {
-      throw new EntityNotExistException('contest')
-    }
-
-    // if contest status is ongoing, visible would be true. else, false
-    const now = new Date()
-    let newVisible = false
-    if (contestFound.startTime <= now && now <= contestFound.endTime) {
-      newVisible = true
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, createTime, updateTime, title, ...contestDataToCopy } =
-      contestFound
-
-    try {
-      const [newContest, newContestProblems, newContestRecords] =
-        await this.prisma.$transaction(async (tx) => {
-          // 1. copy contest
-          const newContest = await tx.contest.create({
-            data: {
-              ...contestDataToCopy,
-              title: 'Copy of ' + title,
-              createdById: userId,
-              isVisible: newVisible
-            }
-          })
-
-          // 2. copy contest problems
-          const newContestProblems = await Promise.all(
-            contestProblemsFound.map((contestProblem) =>
-              tx.contestProblem.create({
-                data: {
-                  order: contestProblem.order,
-                  contestId: newContest.id,
-                  problemId: contestProblem.problemId,
-                  score: contestProblem.score
-                }
-              })
-            )
-          )
-
-          // 3. copy contest records (users who participated in the contest)
-          const newContestRecords = await Promise.all(
-            userContestRecords.map((userContestRecord) =>
-              tx.contestRecord.create({
-                data: {
-                  contestId: newContest.id,
-                  userId: userContestRecord.userId
-                }
-              })
-            )
-          )
-
-          return [newContest, newContestProblems, newContestRecords]
-        })
-
-      return {
-        contest: newContest,
-        problems: newContestProblems,
-        records: newContestRecords
-      }
-    } catch (error) {
-      throw new UnprocessableDataException(error.message)
     }
   }
 
@@ -924,7 +1001,7 @@ export class ContestService {
   async getContestLeaderboard(contestId: number, search?: string) {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
-      select: { id: true, freezeTime: true }
+      select: { id: true, freezeTime: true, unfreeze: true }
     })
 
     if (!contest) {
@@ -947,7 +1024,9 @@ export class ContestService {
 
     // freeze 상태 확인
     const isFrozen =
-      contest?.freezeTime != null && new Date() >= contest.freezeTime
+      contest?.freezeTime != null &&
+      new Date() >= contest.freezeTime &&
+      !contest.unfreeze
 
     // Contest의 최고 점수 계산
     const sum = await this.prisma.contestProblem.aggregate({
@@ -976,12 +1055,20 @@ export class ContestService {
             finalTimePenalty: true,
             isFirstSolver: true,
             contestProblem: {
-              select: { order: true, problem: { select: { id: true } } }
+              select: {
+                id: true,
+                order: true,
+                problemId: true
+              }
             }
           }
         }
       },
-      orderBy: [{ finalScore: 'desc' }, { finalTotalPenalty: 'asc' }]
+      orderBy: [
+        { finalScore: 'desc' },
+        { finalTotalPenalty: 'asc' },
+        { lastAcceptedTime: 'asc' }
+      ]
     })
 
     // 문제별 제출 횟수 가져오기
@@ -994,43 +1081,60 @@ export class ContestService {
 
     // 제출 횟수 매핑
     const submissionCountMap: Record<number, Record<number, number>> = {}
-    submissionCounts.forEach((submission) => {
-      const { userId, problemId, _count } = submission
-      if (!userId || !problemId || !_count) return
+    for (const { userId, problemId, _count } of submissionCounts) {
+      if (userId == null || problemId == null || _count?.id == null) continue
       if (!submissionCountMap[userId]) {
         submissionCountMap[userId] = {}
       }
-      submissionCountMap[userId][problemId] = _count.id // 문제별 제출 횟수 저장
+      submissionCountMap[userId][problemId] = _count.id
+    }
+
+    // 모든 문제 목록 가져오기
+    const allProblems = await this.prisma.contestProblem.findMany({
+      where: { contestId },
+      select: {
+        id: true,
+        order: true,
+        problemId: true
+      }
     })
 
     let rank = 1
     const leaderboard = contestRecords.map((contestRecord) => {
       const { contestProblemRecord, user, userId, ...rest } = contestRecord
-      const uid = userId ?? 0 // userId가 null이면 0으로 처리
 
-      const problemRecords = contestProblemRecord.map((record) => {
-        const {
-          contestProblem,
-          isFirstSolver,
-          finalScore,
-          finalSubmitCountPenalty,
-          finalTimePenalty,
-          ...rest
-        } = record
+      const getSubmissionCount = (problemId: number) =>
+        submissionCountMap[userId!]?.[problemId] ?? 0
+
+      // 모든 문제에 대해 problemRecords 생성
+      const problemRecords = allProblems.map(({ id, order, problemId }) => {
+        const record = contestProblemRecord.find(
+          (r) => r.contestProblem.id === id
+        )
+
+        if (!record) {
+          return {
+            order,
+            problemId,
+            score: 0,
+            penalty: 0,
+            isFirstSolver: false,
+            submissionCount: getSubmissionCount(problemId)
+          }
+        }
 
         return {
-          ...rest,
-          order: contestProblem.order,
-          problemId: contestProblem.problem.id,
-          score: finalScore,
-          penalty: finalSubmitCountPenalty + finalTimePenalty,
-          isFirstSolver,
-          submissionCount:
-            submissionCountMap[uid!]?.[contestProblem.problem.id] ?? 0 // 기본값 0 설정
+          order,
+          problemId,
+          score: record.finalScore,
+          penalty: record.finalSubmitCountPenalty + record.finalTimePenalty,
+          isFirstSolver: record.isFirstSolver,
+          submissionCount: getSubmissionCount(problemId)
         }
       })
+
       return {
-        userId: uid,
+        userId,
         username: user!.username,
         ...rest,
         problemRecords,
@@ -1050,6 +1154,45 @@ export class ContestService {
       registeredNum,
       leaderboard: filteredLeaderboard,
       isFrozen
+    }
+  }
+
+  async getContestUpdateHistories(contestId: number) {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contestId },
+      select: { id: true, startTime: true, endTime: true }
+    })
+
+    const contestProblems = await this.prisma.contestProblem.findMany({
+      where: { contestId },
+      select: { problemId: true, order: true }
+    })
+
+    // 대회 진행 중 수정된 문제들의 update history 가져오기
+    const contestUpdateHistories = await this.prisma.updateHistory.findMany({
+      where: {
+        problemId: {
+          in: contestProblems.map((problem) => problem.problemId)
+        },
+        updatedAt: {
+          gte: contest?.startTime,
+          lte: contest?.endTime
+        }
+      },
+      orderBy: {
+        updatedAt: 'desc'
+      }
+    })
+
+    // order: ContestProblem의 order를 매핑
+    return {
+      updateHistories: contestUpdateHistories.map((history) => ({
+        ...history,
+        order:
+          contestProblems.find(
+            (problem) => problem.problemId === history.problemId
+          )?.order ?? null
+      }))
     }
   }
 }

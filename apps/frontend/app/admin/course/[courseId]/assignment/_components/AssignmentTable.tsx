@@ -20,8 +20,9 @@ interface AssignmentTableProps {
 
 const headerStyle = {
   select: '',
-  title: 'w-3/5',
+  title: 'w-1/2',
   startTime: 'px-0 w-2/5',
+  week: 'px-0 w-1/5',
   isVisible: 'px-0 w-1/12'
 }
 
@@ -46,25 +47,31 @@ export function AssignmentTable({ groupId }: AssignmentTableProps) {
     >
       <div className="flex justify-between gap-2">
         <DataTableSearchBar columndId="title" />
-        <AssignmentsDeleteButton />
+        <AssignmentsDeleteButton groupId={groupId} />
       </div>
       <DataTable
         headerStyle={headerStyle}
-        getHref={(data) => `/admin/course/${groupId}/assignment/${data.id}`}
+        getHref={(data) =>
+          `/admin/course/${groupId}/assignment/${data.id}` as Route
+        }
       />
       <DataTablePagination showSelection />
     </DataTableRoot>
   )
 }
 
-function AssignmentsDeleteButton() {
+interface AssignmentsDeleteButtonProp {
+  groupId: string
+}
+
+function AssignmentsDeleteButton({ groupId }: AssignmentsDeleteButtonProp) {
   const client = useApolloClient()
   const [deleteAssignment] = useMutation(DELETE_ASSIGNMENT)
 
   const deleteTarget = (id: number) => {
     return deleteAssignment({
       variables: {
-        groupId: 1,
+        groupId: Number(groupId),
         assignmentId: id
       }
     })

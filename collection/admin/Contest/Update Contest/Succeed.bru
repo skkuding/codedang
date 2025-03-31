@@ -11,24 +11,56 @@ post {
 }
 
 body:graphql {
-  mutation {
+  mutation UpdateContest($contestId: Int!, $input: UpdateContestInput!) {
     updateContest(
-      groupId: 1
-      input: {
-        id: 3
-        title: "Updated Contest Group 2"
-        description: "thisisupdatedcontest"
-        startTime: "2024-01-01"
-        endTime: "2030-01-01"
-        isVisible: true
-        isRankVisible: true
-        enableCopyPaste: true
-        isJudgeResultVisible: true
-      }
+      contestId: $contestId
+      input: $input
     ) {
       id
       title
       description
+      startTime
+      endTime
+      enableCopyPaste
+      isJudgeResultVisible
+      invitationCode
+      summary
+      userContest {
+        userId
+        role
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 20,
+    "input": {
+      "title": "Updated Contest 2",
+      "description": "thisisupdatedcontest",
+      "startTime": "2024-01-01",
+      "endTime": "2030-01-01",
+      "enableCopyPaste": true,
+      "isJudgeResultVisible": true,
+      "invitationCode": "123456",
+      "summary": {
+        "참여대상": "updatedparticipationTarget",
+        "진행방식": "updatedcompetitionMethod",
+        "순위산정": "updatedrankingMethod",
+        "문제형태": "updatedproblemFormat",
+        "참여혜택": "updatedbenefits"
+      },
+      "userContest": [
+        { "userId": 5, "contestRole": "Manager" },
+        { "userId": 6, "contestRole": "Reviewer" }
+      ],
+      "penalty": 20,
+      "lastPenalty": false,
+      "posterUrl": null,
+      "freezeTime": "2030-01-01T00:00:00.000Z",
+      "unfreeze": false,
+      "evaluateWithSampleTestcase": false
     }
   }
 }
@@ -39,6 +71,42 @@ assert {
 
 docs {
   # Update Contest
-  ---
-  - Contest를 update합니다.
+
+  ## Description
+  기존 콘테스트 정보를 업데이트합니다. 콘테스트 관리 권한이 있는 사용자만 사용할 수 있으며, 유효한 입력값이 필요합니다.
+
+  ## 요청 필드
+  | 필드명 | 타입 | 필수 여부 | 설명 |
+  |--------|------|----------|------|
+  | id | Int | ✅ | 업데이트할 콘테스트의 ID |
+  | title | String | ❌ | 콘테스트 제목 |
+  | description | String | ❌ | 콘테스트 설명 |
+  | penalty | Int | ❌ | 패널티 점수 |
+  | lastPenalty | Boolean | ❌ | 마지막 패널티 적용 여부(default false) |
+  | posterUrl | Boolean | ❌ | 포스터 이미지 URL |
+  | invitationCode | String (6자리) | ❌ | 초대 코드 |
+  | startTime | GraphQLISODateTime | ❌ | 시작 시간 |
+  | endTime | GraphQLISODateTime | ❌ | 종료 시간 |
+  | freezeTime | GraphQLISODateTime | ❌ | 순위 공개 정지 시간 |
+  | unfreeze | Boolean | ❌ | 콘테스트 순위 공개 해제 여부 |
+  | isJudgeResultVisible | Boolean | ❌ | 채점 결과 공개 여부 |
+  | enableCopyPaste | Boolean | ❌ | 복사/붙여넣기 허용 여부 |
+  | evaluateWithSampleTestcase | Boolean | ❌ | 샘플 테스트케이스로 평가 여부 |
+  | userContest | [UserContestRoleInput] | ❌ | Manager, Reviewer 역할 부여 및 수정 |
+  | summary | GraphQLJSON | ❌ | 다국어 요약 정보 |
+
+  ## 응답 필드
+  | 필드명 | 타입 | 설명 |
+  |--------|------|------|
+  | id | Int | 업데이트된 콘테스트의 ID |
+  | title | String | 콘테스트 제목 |
+  | description | String | 콘테스트 설명 |
+  | startTime | GraphQLISODateTime | 시작 시간 |
+  | endTime | GraphQLISODateTime | 종료 시간 |
+  | isJudgeResultVisible | Boolean | 채점 결과 공개 여부 |
+  | createdById | Int | 콘테스트 생성자 ID |
+
+  ## 권한
+  - `Contest Manager`, `Contest Admin` 권한이 있는 사용자만 사용할 수 있습니다.
+  - 권한이 없는 경우 `UnauthorizedException` 오류가 반환됩니다.
 }

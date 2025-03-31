@@ -23,7 +23,7 @@ import {
 import { AssignmentService, type AssignmentResult } from './assignment.service'
 
 const assignmentId = 1
-const user01Id = 4
+const user01Id = 7
 const groupId = 1
 
 const now = dayjs()
@@ -150,12 +150,12 @@ describe('AssignmentService', () => {
 
   describe('getAssignmentsByGroupId', () => {
     it('should return ongoing, upcoming, registered ongoing, registered upcoming assignments when userId is provided', async () => {
-      const assignments = await service.getAssignments(groupId, user01Id)
+      const assignments = await service.getAssignments(groupId)
       expect(assignments).to.have.lengthOf(14)
     })
 
     it('a assignment should contain following fields when userId is provided', async () => {
-      const assignments = await service.getAssignments(groupId, user01Id)
+      const assignments = await service.getAssignments(groupId)
       expect(assignments[0]).to.have.property('title')
       expect(assignments[0]).to.have.property('startTime')
       expect(assignments[0]).to.have.property('endTime')
@@ -192,14 +192,27 @@ describe('AssignmentService', () => {
         service.createAssignmentRecord(assignmentId, user01Id, groupId)
       ).to.be.rejectedWith(ConflictFoundException)
     })
+    it('should register to a assignment successfully on finished assignment', async () => {
+      const assignmentRecord = await service.createAssignmentRecord(
+        8,
+        user01Id,
+        groupId
+      )
+      assignmentRecordId = assignmentRecord.id
+      expect(
+        await transaction.assignmentRecord.findUnique({
+          where: { id: assignmentRecordId }
+        })
+      ).to.deep.equals(assignmentRecord)
+    })
 
-    it('should throw error when assignment is not ongoing', async () => {
+    it('should throw error when assignment is upcoming', async () => {
       await expect(
-        service.createAssignmentRecord(8, user01Id, groupId)
+        service.createAssignmentRecord(15, user01Id, groupId)
       ).to.be.rejectedWith(ConflictFoundException)
     })
 
-    it('should register to a assignment successfully', async () => {
+    it('should register to a assignment successfully on ', async () => {
       const assignmentRecord = await service.createAssignmentRecord(
         2,
         user01Id,
