@@ -134,7 +134,10 @@ function AssignmentAccordionItem({
           </div>
 
           <div className="flex w-[10%] justify-center gap-1 font-medium">
-            {grade.userAssignmentFinalScore ?? grade.userAssignmentJudgeScore}
+            {grade.submittedCount > 0
+              ? (grade.userAssignmentFinalScore ??
+                grade.userAssignmentJudgeScore)
+              : '-'}
             {` / ${grade.assignmentPerfectScore}`}
           </div>
           <div className="flex w-[5%] justify-center">
@@ -193,9 +196,11 @@ function AssignmentAccordionItem({
                     <AcceptedBadge problem={problem} />
                   </div>
                   <div className="flex w-[10%] justify-center font-medium">
-                    {problem.problemRecord?.finalScore ??
-                      problem.problemRecord?.score ??
-                      '-'}{' '}
+                    {problem.problemRecord?.isSubmitted
+                      ? (problem.problemRecord?.finalScore ??
+                        problem.problemRecord?.score ??
+                        '-')
+                      : '-'}{' '}
                     / {problem.maxScore}
                   </div>
                   <div className="flex w-[5%] justify-center">
