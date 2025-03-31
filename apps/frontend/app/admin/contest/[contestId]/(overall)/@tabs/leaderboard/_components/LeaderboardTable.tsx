@@ -36,6 +36,9 @@ export function LeaderboardTable({
   const [orders, setOrders] = useState([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
   const problemRecord = leaderboardUsers[0].problemRecords
   useEffect(() => {
+    if (problemRecord === undefined) {
+      return
+    }
     const newOrders = problemRecord.map((problem) => problem.order)
     const sortedOrders = [...newOrders].sort((a, b) => a - b)
     setOrders(sortedOrders)
