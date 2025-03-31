@@ -61,20 +61,29 @@ export function EditorMainResizablePanel({
 
     return freezeTime
   }
+
+  const freezeQueryKey = contestId
+    ? ['leaderboard freeze date', contestId]
+    : ['leaderboard freeze date', 'no-contest']
+
   const { data: freezeTime } = useSuspenseQuery({
-    queryKey: ['leaderboard freeze date', contestId],
-    queryFn: () => fetchFreezeTime(contestId)
+    queryKey: freezeQueryKey,
+    queryFn: () => {
+      if (!contestId) {
+        return Promise.resolve(null)
+      }
+      return fetchFreezeTime(contestId)
+    }
   })
   const [isFrozen, setIsFrozen] = useState<boolean>(true)
   useEffect(() => {
-    const now = new Date()
-    const freezeTimeDate = freezeTime ? new Date(freezeTime) : new Date('')
-    if (now > freezeTimeDate) {
-      setIsFrozen(true)
-    } else {
-      setIsFrozen(false)
+    if (!contestId) {
+      return
     }
-  }, [freezeTime])
+    const now = new Date()
+    const freezeTimeDate = freezeTime ? new Date(freezeTime) : new Date(0)
+    setIsFrozen(now > freezeTimeDate)
+  }, [freezeTime, contestId])
 
   const [isPanelHidden, setIsPanelHidden] = useState(false)
   const triggerRefresh = useLeaderboardSync((state) => state.triggerRefresh)
