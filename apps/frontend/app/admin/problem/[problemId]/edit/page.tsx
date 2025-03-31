@@ -49,6 +49,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
       outputDescription: methods.getValues('outputDescription'),
       problemTestcase: methods
         .getValues('testcases')
+        ?.filter(({ isHidden }) => !isHidden)
         ?.map((testcase, index) => ({
           id: index + 1,
           input: testcase.input,
