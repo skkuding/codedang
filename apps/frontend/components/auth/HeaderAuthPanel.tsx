@@ -53,59 +53,59 @@ export function HeaderAuthPanel({
   const pathname = usePathname()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
-  useEffect(() => {
-    const checkIfNeedsUpdate = async () => {
-      const userResponse = await fetcherWithAuth.get('user')
-      const user: {
-        role: string
-        studentId: string
-        major: string
-        canCreateCourse: boolean
-        canCreateContest: boolean
-      } = await userResponse.json()
-      const updateNeeded =
-        user.role === 'User' &&
-        (user.studentId === '0000000000' || user.major === 'none')
+  // useEffect(() => {
+  //   const checkIfNeedsUpdate = async () => {
+  //     const userResponse = await fetcherWithAuth.get('user')
+  //     const user: {
+  //       role: string
+  //       studentId: string
+  //       major: string
+  //       canCreateCourse: boolean
+  //       canCreateContest: boolean
+  //     } = await userResponse.json()
+  //     const updateNeeded =
+  //       user.role === 'User' &&
+  //       (user.studentId === '0000000000' || user.major === 'none')
 
-      if (user.canCreateCourse || user.canCreateContest) {
-        setHasCanCreateCourseOrContestPermission(true)
-      }
-      setNeedsUpdate(updateNeeded)
-    }
-    if (session) {
-      checkIfNeedsUpdate()
-    }
+  //     if (user.canCreateCourse || user.canCreateContest) {
+  //       setHasCanCreateCourseOrContestPermission(true)
+  //     }
+  //     setNeedsUpdate(updateNeeded)
+  //   }
+  //   if (session) {
+  //     checkIfNeedsUpdate()
+  //   }
 
-    async function fetchGroupLeaderRole() {
-      try {
-        const response: Course[] = await safeFetcherWithAuth
-          .get('course/joined')
-          .json()
+  //   async function fetchGroupLeaderRole() {
+  //     try {
+  //       const response: Course[] = await safeFetcherWithAuth
+  //         .get('course/joined')
+  //         .json()
 
-        const hasRole = response.some((course) => course.isGroupLeader)
-        setHasAnyGroupLeaderRole(hasRole)
-      } catch (error) {
-        //TODO: error handling
-        console.error('Error fetching group leader role:', error)
-      }
-    }
-    async function fetchContestRoles() {
-      try {
-        const response: UserContest[] = await safeFetcherWithAuth
-          .get('contest/role')
-          .json()
+  //       const hasRole = response.some((course) => course.isGroupLeader)
+  //       setHasAnyGroupLeaderRole(hasRole)
+  //     } catch (error) {
+  //       //TODO: error handling
+  //       console.error('Error fetching group leader role:', error)
+  //     }
+  //   }
+  //   async function fetchContestRoles() {
+  //     try {
+  //       const response: UserContest[] = await safeFetcherWithAuth
+  //         .get('contest/role')
+  //         .json()
 
-        const hasPermission = response.some((userContest) => {
-          return userContest.role !== ContestRole.Participant
-        })
-        setHasAnyPermissionOnContest(hasPermission)
-      } catch (error) {
-        console.error('Error fetching contest roles:', error)
-      }
-    }
-    fetchGroupLeaderRole()
-    fetchContestRoles()
-  }, [session, pathname])
+  //       const hasPermission = response.some((userContest) => {
+  //         return userContest.role !== ContestRole.Participant
+  //       })
+  //       setHasAnyPermissionOnContest(hasPermission)
+  //     } catch (error) {
+  //       console.error('Error fetching contest roles:', error)
+  //     }
+  //   }
+  //   fetchGroupLeaderRole()
+  //   fetchContestRoles()
+  // }, [session, pathname])
 
   const shouldShowDialog =
     needsUpdate && pathname.split('/').pop() !== 'settings'
