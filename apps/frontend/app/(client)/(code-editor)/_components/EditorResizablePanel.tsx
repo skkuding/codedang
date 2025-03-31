@@ -61,22 +61,13 @@ export function EditorMainResizablePanel({
 
     return freezeTime
   }
-  const { data } = useSuspenseQuery({
+  const { data: freezeTime } = useSuspenseQuery({
     queryKey: ['leaderboard freeze date', contestId],
     queryFn: () => fetchFreezeTime(contestId)
   })
 
   const [isPanelHidden, setIsPanelHidden] = useState(false)
   const triggerRefresh = useLeaderboardSync((state) => state.triggerRefresh)
-  const a = () => {
-    contestId = contestId ? contestId : -1
-    if (contestId === -1) {
-      alert('Wrong contestId detected!')
-      return
-    }
-    console.log('data: ', data)
-    triggerRefresh()
-  }
 
   const pathname = usePathname()
   let base: string
@@ -174,7 +165,7 @@ export function EditorMainResizablePanel({
                         src={syncIcon}
                         alt="Sync"
                         className="cursor-pointer"
-                        onClick={a}
+                        onClick={() => triggerRefresh()}
                       />
                     </TooltipTrigger>
                     <TooltipContent
