@@ -34,7 +34,6 @@ export const createSchema = v.object({
 })
 
 export const editSchema = v.object({
-  id: v.number(),
   ...createSchema.entries
 })
 
@@ -47,7 +46,6 @@ export interface ContestProblem {
 }
 
 export const announcementSchema = v.object({
-  problemOrder: v.nullable(v.number('Required')),
   content: v.pipe(v.string(), v.minLength(1, 'Required'))
 })
 export interface ContestManagerReviewer {

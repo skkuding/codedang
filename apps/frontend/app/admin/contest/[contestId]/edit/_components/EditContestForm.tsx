@@ -76,7 +76,6 @@ export function EditContestForm({
     onCompleted: (contestData) => {
       const data = contestData.getContest
       methods.reset({
-        id: contestId,
         title: data.title,
         description: data.description,
         startTime: new Date(data.startTime),
@@ -157,6 +156,7 @@ export function EditContestForm({
     setIsLoading(true)
     await updateContest({
       variables: {
+        contestId,
         input
       }
     })

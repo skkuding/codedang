@@ -8,8 +8,9 @@ import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { LeaderboardModalDialog } from './_components/LeaderboardModalDialog'
 import { LeaderboardTable } from './_components/LeaderboardTable'
-import { getContestLeaderboard } from './_libs/apis/getContesLeaderboard'
-import type { LeaderboardUser } from './_libs/apis/getContesLeaderboard'
+import { getContest } from './_libs/apis/getContest'
+import { getContestLeaderboard } from './_libs/apis/getContestLeaderboard'
+import type { LeaderboardUser } from './_libs/apis/getContestLeaderboard'
 
 const BaseLeaderboardUser = {
   username: '',
@@ -33,25 +34,60 @@ const BaseContestLeaderboardData = {
   leaderboard: [BaseLeaderboardUser]
 }
 
+const BaseFetchedContest = {
+  id: 1,
+  title: 'base contest',
+  startTime: new Date(),
+  endTime: new Date(),
+  freezeTime: new Date()
+}
+
 export default function ContestLeaderBoard() {
   const [searchText, setSearchText] = useState('')
   const pathname = usePathname()
   const contestId = Number(pathname.split('/')[2])
 
-  let { data } = useQuery({
-    queryKey: ['contest leaderboard'],
+  // eslint-disable-next-line prefer-const
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['contest leaderboard', contestId],
     queryFn: () => getContestLeaderboard({ contestId })
   })
-  data = data ? data : BaseContestLeaderboardData
+  const contestLeaderboard = data ? data : BaseContestLeaderboardData
   const [problemSize, setProblemSize] = useState(0)
   const [leaderboardUsers, setLeaderboardUsers] = useState([
     BaseLeaderboardUser
   ])
+  let { data: fetchedContest } = useQuery({
+    queryKey: ['fetched contest', contestId],
+    queryFn: () => getContest({ contestId })
+  })
+  fetchedContest = fetchedContest ? fetchedContest : BaseFetchedContest
 
   useEffect(() => {
-    setProblemSize(data ? data.leaderboard[0].problemRecords.length : 0)
-    setLeaderboardUsers(data ? data.leaderboard : [BaseLeaderboardUser])
-  }, [data])
+    if (isLoading || contestLeaderboard === BaseContestLeaderboardData) {
+      return
+    }
+
+    const now = new Date()
+    if (!isLoading && !isError) {
+      console.log('leaderboard: ', contestLeaderboard.leaderboard)
+      if (contestLeaderboard.leaderboard.length === 0) {
+        const contestStartTime = new Date(fetchedContest?.startTime)
+        if (contestStartTime > now) {
+          throw new Error(
+            'Error(before start): There is no data in leaderboard yet.'
+          )
+        } else {
+          throw new Error(
+            'Error(no data): There is no data in leaderboard yet.'
+          )
+        }
+      }
+
+      setProblemSize(contestLeaderboard.leaderboard[0].problemRecords.length)
+      setLeaderboardUsers(contestLeaderboard.leaderboard)
+    }
+  }, [data, isLoading, isError])
 
   const [matchedIndices, setMatchedIndices] = useState<number[]>([])
   interface HandleSearchProps {
