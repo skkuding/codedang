@@ -1,5 +1,5 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
-import { ErrorBoundary, Suspense } from '@suspensive/react'
+import { ErrorBoundary } from '@suspensive/react'
 import { AssignmentAccordion } from '../_components/AssignmentAccordion'
 
 interface AssignmentProps {
@@ -14,7 +14,7 @@ export default function Assignment({ params }: AssignmentProps) {
       <p className="text-2xl font-semibold">Assignment</p>
 
       <ErrorBoundary fallback={FetchErrorFallback}>
-        <AssignmentAccordion courseId={courseId} />
+        <AssignmentAccordion courseId={Number(courseId)} />
       </ErrorBoundary>
     </div>
   )

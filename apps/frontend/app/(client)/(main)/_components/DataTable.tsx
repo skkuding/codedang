@@ -32,6 +32,7 @@ interface DataTableProps<TData, TValue> {
   tableRowStyle?: string
   linked?: boolean
   emptyMessage?: string
+  pathSegment?: string | null
 }
 
 /**
@@ -77,7 +78,8 @@ export function DataTable<TData extends Item, TValue>({
   headerStyle,
   tableRowStyle,
   linked = false,
-  emptyMessage = 'No results.'
+  emptyMessage = 'No results.',
+  pathSegment
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -116,10 +118,12 @@ export function DataTable<TData extends Item, TValue>({
       <TableBody>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
-            const href = `${currentPath}/${row.original.id}` as Route
+            const href = pathSegment
+              ? `${currentPath}/${pathSegment}/${row.original.id}`
+              : `${currentPath}/${row.original.id}`
             const handleClick = linked
               ? () => {
-                  router.push(href)
+                  router.push(href as Route)
                 }
               : (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
                   e.currentTarget.classList.toggle('expanded')
@@ -143,7 +147,7 @@ export function DataTable<TData extends Item, TValue>({
                       )}
                     </div>
                     {/* for prefetch */}
-                    <Link href={href} />
+                    <Link href={href as Route} />
                   </TableCell>
                 ))}
               </TableRow>
