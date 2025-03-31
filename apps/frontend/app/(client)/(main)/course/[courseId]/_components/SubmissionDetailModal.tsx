@@ -53,7 +53,7 @@ export function SubmissionDetailModal({
       return 'rounded-full border border-blue-500 px-2 py-1 text-xs font-light text-blue-500'
     }
     if (result === 'Blind') {
-      return 'rounded-full border border-purple-500 px-2 py-1 text-xs font-light text-purple-500'
+      return 'rounded-full border border-gray-400 px-2 py-1 text-xs font-light text-gray-400'
     }
     return 'rounded-full border border-gray-400 px-2 py-1 text-xs font-light text-gray-400'
   }
@@ -100,14 +100,15 @@ export function SubmissionDetailModal({
         <div className="flex flex-col gap-6">
           {showEvaluation && (
             <div className="flex flex-col gap-2">
-              <span className="flex h-[30px] w-[140px] items-center justify-center rounded-full border border-blue-500 font-bold text-blue-500">
+              <span className="flex h-[30px] w-[140px] items-center justify-center gap-1 rounded-full border border-blue-500 font-bold text-blue-500">
                 <span className="text-lg">
                   {assignmentProblemRecord?.problems.find(
                     (problem) => problem.id === problemId
                   )?.problemRecord?.finalScore ??
                     assignmentProblemRecord?.problems.find(
                       (problem) => problem.id === problemId
-                    )?.problemRecord?.score}
+                    )?.problemRecord?.score ??
+                    '-'}
                 </span>
                 {'  /  '}
                 <span className="text-lg">

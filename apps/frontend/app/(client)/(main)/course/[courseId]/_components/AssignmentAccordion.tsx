@@ -129,7 +129,7 @@ function AssignmentAccordionItem({
           )}
           <div className="flex w-[13%] justify-center">
             {dayjs().isAfter(dayjs(assignment.startTime)) ? (
-              <SubmissionBadge grade={grade} />
+              <SubmissionBadge grade={grade} assignment={assignment} />
             ) : null}
           </div>
 
@@ -319,12 +319,18 @@ export function AssignmentStatusTimeDiff({
 interface SubmissionBadgeProps {
   className?: string
   grade: AssignmentSummary
+  assignment: Assignment
 }
 
-function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
-  const badgeStyle = grade.userAssignmentFinalScore
-    ? 'border-transparent bg-primary text-white'
-    : 'border-primary text-primary'
+function SubmissionBadge({
+  className,
+  grade,
+  assignment
+}: SubmissionBadgeProps) {
+  const badgeStyle =
+    grade.userAssignmentFinalScore && assignment.isJudgeResultVisible
+      ? 'border-transparent bg-primary text-white'
+      : 'border-primary text-primary'
   return (
     <div
       className={cn(
@@ -335,7 +341,7 @@ function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
     >
       <p className="text-sm font-medium">
         {grade.submittedCount}
-        {'/'}
+        {' / '}
         {grade.problemCount}
       </p>
     </div>

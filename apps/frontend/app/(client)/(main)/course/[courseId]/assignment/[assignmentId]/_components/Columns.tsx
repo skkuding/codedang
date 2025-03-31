@@ -65,9 +65,8 @@ export const columns = (
     header: () => 'Score',
     accessorKey: 'score',
     cell: ({ row }) =>
-      row.original.maxScore !== null
-        ? `${row.original.problemRecord?.isSubmitted ? row.original.problemRecord?.score : '-'} / ${row.original.maxScore}`
-        : null
+      row.original.maxScore &&
+      `${row.original.problemRecord?.isSubmitted ? (row.original.problemRecord?.score ?? '-') : '-'} / ${row.original.maxScore}`
   },
   {
     header: 'Detail',
