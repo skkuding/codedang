@@ -51,8 +51,16 @@ export default async function NoticeDetail({
 
   // Ensure noticeIdRes has the expected structure
   if (!noticeIdRes || !noticeIdRes.current) {
-    console.error('Error: Unauthorized or invalid data format')
-    return <div>Error: Unable to fetch notice details</div>
+    console.error(
+      'You need to login first for now! (This will be updated to allow access without login in the few days.)'
+    )
+    return (
+      <div>
+        You need to login first for now!
+        <br />
+        (This will be updated to allow access without login in the few days.)
+      </div>
+    )
   }
 
   const {
