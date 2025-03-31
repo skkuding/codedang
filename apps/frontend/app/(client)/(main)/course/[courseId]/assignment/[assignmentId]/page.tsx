@@ -9,14 +9,13 @@ import { dateFormatter, getStatusWithStartEnd } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
 import { columns } from './_components/Columns'
 import { TotalScoreLabel } from './_components/TotalScoreLabel'
 
 interface AssignmentInfoProps {
   params: {
-    assignmentId: string
-    courseId: string
+    assignmentId: number
+    courseId: number
   }
 }
 

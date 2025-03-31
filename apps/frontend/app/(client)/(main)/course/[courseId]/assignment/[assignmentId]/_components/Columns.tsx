@@ -19,7 +19,7 @@ import { SubmissionDetailModal } from '../../../_components/SubmissionDetailModa
 export const columns = (
   record: AssignmentProblemRecord,
   assignment: Assignment,
-  courseId: string
+  courseId: number
 ): ColumnDef<ProblemGrade>[] => [
   {
     header: '#',
@@ -107,7 +107,7 @@ function ResultCell({ row, record }: ResultCellProps) {
 interface SubmissionCellProps {
   problem: ProblemGrade
   assignment: Assignment
-  courseId: string
+  courseId: number
 }
 
 function DetailCell({ problem, assignment, courseId }: SubmissionCellProps) {
@@ -130,7 +130,7 @@ function DetailCell({ problem, assignment, courseId }: SubmissionCellProps) {
             </button>
             {isOpen && (
               <SubmissionDetailModal
-                problemId={problem.id.toString()}
+                problemId={problem.id}
                 assignment={assignment}
                 showEvaluation={false}
                 courseId={courseId}

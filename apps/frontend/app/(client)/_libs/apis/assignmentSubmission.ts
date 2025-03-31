@@ -64,8 +64,8 @@ interface AnonymizedScore {
 }
 
 export interface GetAnonymizedScoresRequest {
-  assignmentId: string
-  courseId: string
+  assignmentId: number
+  courseId: number
 }
 
 export const getAnonymizedScores = async ({
@@ -84,8 +84,8 @@ export const getAnonymizedScores = async ({
 }
 
 export interface GetLatestProblemSubmissionResultRequest {
-  assignmentId: string
-  problemId: string
+  assignmentId: number
+  problemId: number
 }
 
 export const getLatestProblemSubmissionResult = async ({
@@ -139,9 +139,9 @@ export const getProblemSubmissionResults = async ({
 }
 
 export interface GetTestResultRequest {
-  assignmentId: string
-  problemId: string
-  submissionId: string
+  assignmentId: number
+  problemId: number
+  submissionId: number
 }
 
 export interface SubmissionResponse {

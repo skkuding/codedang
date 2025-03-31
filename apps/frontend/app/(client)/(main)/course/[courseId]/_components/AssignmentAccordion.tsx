@@ -25,7 +25,7 @@ import { GradeDetailModal } from './GradeDetailModal'
 import { SubmissionDetailModal } from './SubmissionDetailModal'
 
 interface AssignmentAccordianProps {
-  courseId: string
+  courseId: number
 }
 
 export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
@@ -61,7 +61,7 @@ export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
 
 interface AssignmentAccordionItemProps {
   assignment: Assignment
-  courseId: string
+  courseId: number
   grade: AssignmentSummary
 }
 
@@ -76,7 +76,7 @@ function AssignmentAccordionItem({
 
   const { data: record } = useQuery({
     ...assignmentQueries.record({
-      assignmentId: assignment.id.toString(),
+      assignmentId: assignment.id,
       courseId
     }),
     enabled: isAccordionOpen
@@ -206,7 +206,7 @@ function AssignmentAccordionItem({
                       />
                       {openProblemId === problem.id && (
                         <SubmissionDetailModal
-                          problemId={problem.id.toString()}
+                          problemId={problem.id}
                           assignment={assignment}
                           showEvaluation={true}
                           courseId={courseId}

@@ -6,7 +6,7 @@ import type {
 } from '@/types/type'
 
 export interface GetAssignmentRequest {
-  assignmentId: string
+  assignmentId: number
 }
 
 export type GetAssignmentResponse = Assignment
@@ -18,7 +18,7 @@ export const getAssignment = async ({ assignmentId }: GetAssignmentRequest) => {
 }
 
 export interface GetAssignmentsRequest {
-  courseId: string
+  courseId: number
 }
 
 export type GetAssignmentsResponse = Assignment[]
@@ -32,8 +32,8 @@ export const getAssignments = async ({ courseId }: GetAssignmentsRequest) => {
 }
 
 export interface GetAssignmentProblemRecordRequest {
-  assignmentId: string
-  courseId: string
+  assignmentId: number
+  courseId: number
 }
 
 export type GetAssignmentProblemRecordResponse = AssignmentProblemRecord
@@ -73,7 +73,7 @@ export const getAssignmentProblemRecord = async ({
 }
 
 export interface GetAssignmentsSummaryRequest {
-  courseId: string
+  courseId: number
 }
 
 export type GetAssignmentsSummaryResponse = AssignmentSummary[]
@@ -117,7 +117,7 @@ export const getAssignmentsSummary = async ({
 }
 
 export interface ParticipateAllOngoingAssignmentsRequest {
-  courseId: string
+  courseId: number
 }
 
 export const participateAllOngoingAssignments = async ({

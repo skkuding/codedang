@@ -28,7 +28,7 @@ const chartConfig = {
 
 interface GradeDetailModalProps {
   assignment: Assignment
-  courseId: string
+  courseId: number
 }
 
 export function GradeDetailModal({
@@ -37,14 +37,14 @@ export function GradeDetailModal({
 }: GradeDetailModalProps) {
   const { data } = useSuspenseQuery(
     assignmentSubmissionQueries.anonymizedScores({
-      assignmentId: assignment.id.toString(),
+      assignmentId: assignment.id,
       courseId
     })
   )
 
   const { data: assignmentProblemRecord } = useSuspenseQuery({
     ...assignmentQueries.record({
-      assignmentId: assignment.id.toString(),
+      assignmentId: assignment.id,
       courseId
     })
   })
