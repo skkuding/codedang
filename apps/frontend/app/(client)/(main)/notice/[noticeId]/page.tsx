@@ -1,5 +1,5 @@
 import { KatexContent } from '@/components/KatexContent'
-import { baseUrl } from '@/libs/constants'
+import { fetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import Link from 'next/link'
 import { RxHamburgerMenu } from 'react-icons/rx'
@@ -13,17 +13,53 @@ interface NoticeDetailProps {
   }
 }
 
+interface NoticeIdProps {
+  current: {
+    title: string
+    content: string
+    createTime: string
+    updateTime: string
+    createdBy: string
+  }
+  prev?: {
+    id: string
+    title: string
+  }
+  next?: {
+    id: string
+    title: string
+  }
+}
+
 export default async function NoticeDetail({
   params,
   searchParams
 }: NoticeDetailProps) {
   const { noticeId } = params
   const { page } = searchParams
+
+  // * 임시 -> 추후 백엔드 Notice 로직 변경되면 다시 수정 예정 (현재는 fetcherWithAuth 이용중 but 로그인 안하고 fetcher로도 가능하게끔 논의 예정)
+  const noticeIdRes: NoticeIdProps = await fetcherWithAuth
+    .get(`notice/${noticeId}`, {
+      searchParams: {
+        groupId: '1'
+      }
+    })
+    .json()
+
+  console.log('noticeIdRes: ', noticeIdRes)
+
+  // Ensure noticeIdRes has the expected structure
+  if (!noticeIdRes || !noticeIdRes.current) {
+    console.error('Error: Unauthorized or invalid data format')
+    return <div>Error: Unable to fetch notice details</div>
+  }
+
   const {
     current: { title, content, createTime, createdBy },
     prev,
     next
-  } = await fetch(`${baseUrl}/notice/${noticeId}`).then((res) => res.json())
+  } = noticeIdRes
 
   return (
     <article>

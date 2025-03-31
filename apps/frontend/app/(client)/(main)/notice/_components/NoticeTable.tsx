@@ -1,5 +1,5 @@
 import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
-import { fetcher } from '@/libs/utils'
+import { fetcherWithAuth } from '@/libs/utils'
 import type { Notice } from '@/types/type'
 import { columns } from './Columns'
 
@@ -13,7 +13,7 @@ interface NoticeProps {
 }
 
 const getFixedNotices = async () => {
-  const fixedNoticesRes: NoticeProps = await fetcher
+  const fixedNoticesRes: NoticeProps = await fetcherWithAuth
     .get('notice', {
       searchParams: {
         groupId: '1',
@@ -22,12 +22,12 @@ const getFixedNotices = async () => {
       }
     })
     .json()
-  // console.log('fixedNoticesRes: ', fixedNoticesRes)
+
   return fixedNoticesRes.data ?? fixedNoticesRes
 }
 
 const getNotices = async (search: string) => {
-  const noticesRes: NoticeProps = await fetcher
+  const noticesRes: NoticeProps = await fetcherWithAuth
     .get('notice', {
       searchParams: {
         groupId: '1',
@@ -36,7 +36,7 @@ const getNotices = async (search: string) => {
       }
     })
     .json()
-  // console.log('noticesRes: ', noticesRes)
+
   return noticesRes.data ?? noticesRes
 }
 
@@ -46,14 +46,11 @@ export async function NoticeTable({ search }: Props) {
 
   const noticesFetcher: Promise<Notice[]> = getNotices(search)
 
+  // * 임시 -> 추후 백엔드 Notice 로직 변경되면 다시 수정 예정 (현재는 fetcherWithAuth 이용중 but 로그인 안하고 fetcher로도 가능하게끔 논의 예정)
   const [fixedNotices, notices] = await Promise.all([
     fixedNoticesFetcher,
     noticesFetcher
   ])
-
-  // * 임시 디버깅 구간
-  console.log('fixedNotices: ', fixedNotices)
-  console.log('notices: ', notices)
 
   // Ensure both fixedNotices and notices are arrays
   const currentPageData =
