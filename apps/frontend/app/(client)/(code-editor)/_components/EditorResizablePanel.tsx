@@ -65,6 +65,16 @@ export function EditorMainResizablePanel({
     queryKey: ['leaderboard freeze date', contestId],
     queryFn: () => fetchFreezeTime(contestId)
   })
+  const [isFrozen, setIsFrozen] = useState<boolean>(true)
+  useEffect(() => {
+    const now = new Date()
+    const freezeTimeDate = freezeTime ? new Date(freezeTime) : new Date('')
+    if (now > freezeTimeDate) {
+      setIsFrozen(true)
+    } else {
+      setIsFrozen(false)
+    }
+  }, [freezeTime])
 
   const [isPanelHidden, setIsPanelHidden] = useState(false)
   const triggerRefresh = useLeaderboardSync((state) => state.triggerRefresh)
@@ -164,21 +174,27 @@ export function EditorMainResizablePanel({
                       <Image
                         src={syncIcon}
                         alt="Sync"
-                        className="cursor-pointer"
-                        onClick={() => triggerRefresh()}
+                        className={isFrozen ? '' : 'cursor-pointer'}
+                        onClick={() => {
+                          if (!isFrozen) {
+                            triggerRefresh()
+                          }
+                        }}
                       />
                     </TooltipTrigger>
-                    <TooltipContent
-                      side="bottom"
-                      className="mt-1 flex h-[29px] w-[145px] items-center justify-center"
-                    >
-                      <Image
-                        src={bottomCenterIcon}
-                        alt="Tooltip arrow"
-                        className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform"
-                      />
-                      <p className="text-xs">Leaderboard is frozen</p>
-                    </TooltipContent>
+                    {isFrozen && (
+                      <TooltipContent
+                        side="bottom"
+                        className="mt-1 flex h-[29px] w-[145px] items-center justify-center"
+                      >
+                        <Image
+                          src={bottomCenterIcon}
+                          alt="Tooltip arrow"
+                          className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform"
+                        />
+                        <p className="text-xs">Leaderboard is frozen</p>
+                      </TooltipContent>
+                    )}
                   </Tooltip>
                 </TooltipProvider>
               </div>
