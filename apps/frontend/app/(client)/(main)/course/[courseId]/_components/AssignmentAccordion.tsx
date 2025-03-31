@@ -18,6 +18,7 @@ import type {
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { FaCircleCheck } from 'react-icons/fa6'
 import { useInterval } from 'react-use'
@@ -167,9 +168,14 @@ function AssignmentAccordionItem({
                     {convertToLetter(problem.order)}
                   </p>
                   <div className="flex w-[30%]">
-                    <span className="line-clamp-1 font-medium text-[#171717]">
-                      {problem.title}
-                    </span>
+                    <Link
+                      href={`/course/${courseId}/assignment/${assignment.id}/problem/${problem.id}`}
+                      // onClick={handleClick}
+                    >
+                      <span className="line-clamp-1 font-medium text-[#171717]">
+                        {problem.title}
+                      </span>
+                    </Link>
                   </div>
                   <div className="w-[30%]">
                     {problem.submissionTime && (
@@ -187,8 +193,10 @@ function AssignmentAccordionItem({
                     <AcceptedBadge problem={problem} />
                   </div>
                   <div className="flex w-[10%] justify-center font-medium">
-                    {problem.problemRecord?.finalScore ?? '-'} /{' '}
-                    {problem.maxScore}
+                    {problem.problemRecord?.finalScore ??
+                      problem.problemRecord?.score ??
+                      '-'}{' '}
+                    / {problem.maxScore}
                   </div>
                   <div className="flex w-[5%] justify-center">
                     <Dialog
@@ -315,8 +323,8 @@ interface SubmissionBadgeProps {
 
 function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
   const badgeStyle = grade.userAssignmentFinalScore
-    ? 'border-primary text-primary'
-    : 'border-transparent bg-primary text-white'
+    ? 'border-transparent bg-primary text-white'
+    : 'border-primary text-primary'
   return (
     <div
       className={cn(
