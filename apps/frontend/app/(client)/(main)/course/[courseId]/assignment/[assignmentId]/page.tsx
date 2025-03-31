@@ -9,6 +9,7 @@ import { dateFormatter, getStatusWithStartEnd } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import { columns } from './_components/Columns'
 import { TotalScoreLabel } from './_components/TotalScoreLabel'
 
@@ -111,15 +112,17 @@ export default function AssignmentInfo({ params }: AssignmentInfoProps) {
         {record && (
           <DataTable
             data={record.problems}
-            columns={columns(record)}
+            columns={columns(record, assignment, courseId)}
             headerStyle={{
-              order: 'w-[6%]',
-              title: 'text-left w-[36%]',
-              submit: 'w-[18%]',
-              submissionTime: 'w-[21%]',
-              score: 'w-[10%]'
+              order: 'w-[5%]',
+              title: 'text-left w-[30%]',
+              submit: 'w-[10%]',
+              result: 'w-[10%]',
+              score: 'w-[10%]',
+              detail: 'w-[5%]'
             }}
             linked
+            pathSegment={'problem'}
           />
         )}
       </div>

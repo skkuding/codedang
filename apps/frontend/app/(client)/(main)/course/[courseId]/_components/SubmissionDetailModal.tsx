@@ -91,7 +91,7 @@ export function SubmissionDetailModal({
                 className="max-w-[200px] overflow-hidden truncate"
               >
                 {assignmentProblemRecord?.problems.find(
-                  (problem) => problem.toString() === problemId
+                  (problem) => problem.id.toString() === problemId
                 )?.title || 'Not found'}
               </span>
             </div>
@@ -103,17 +103,17 @@ export function SubmissionDetailModal({
               <span className="flex h-[30px] w-[140px] items-center justify-center rounded-full border border-blue-500 font-bold text-blue-500">
                 <span className="text-lg">
                   {assignmentProblemRecord?.problems.find(
-                    (problem) => problem.toString() === problemId
+                    (problem) => problem.id.toString() === problemId
                   )?.problemRecord?.finalScore ??
                     assignmentProblemRecord?.problems.find(
-                      (problem) => problem.toString() === problemId
+                      (problem) => problem.id.toString() === problemId
                     )?.problemRecord?.score}
                 </span>
                 {'  /  '}
                 <span className="text-lg">
                   {
                     assignmentProblemRecord?.problems.find(
-                      (problem) => problem.toString() === problemId
+                      (problem) => problem.id.toString() === problemId
                     )?.maxScore
                   }
                 </span>
@@ -237,7 +237,7 @@ export function SubmissionDetailModal({
               <div className="flex-col rounded border p-4">
                 <span className="text-xs">
                   {assignmentProblemRecord?.problems.find(
-                    (problem) => problem.toString() === problemId
+                    (problem) => problem.id.toString() === problemId
                   )?.problemRecord?.comment || ''}
                 </span>
               </div>
