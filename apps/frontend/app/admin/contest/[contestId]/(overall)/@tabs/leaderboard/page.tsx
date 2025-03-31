@@ -57,7 +57,8 @@ export default function ContestLeaderBoard() {
     }
   }, [fetchedContest])
 
-  const isFrozen = contestLeaderboard.getContestLeaderboard.isFrozen
+  const isUnfrozen = !contestLeaderboard.getContestLeaderboard.isFrozen
+  console.log('is unfrozen: ', isUnfrozen)
 
   const [problemSize, setProblemSize] = useState(0)
   const [leaderboardUsers, setLeaderboardUsers] = useState([
@@ -114,7 +115,7 @@ export default function ContestLeaderBoard() {
     <div className="relative mt-9 w-full pb-[120px]">
       <UnfreezeLeaderboardToggle
         contestId={contestId}
-        isUnFrozen={!isFrozen}
+        isUnFrozen={isUnfrozen}
         activated={!disableLeaderboard}
       />
       <div className="mb-[62px] mt-[60px] flex w-full flex-row justify-between pl-[14px] pr-[9px]">
