@@ -11,36 +11,41 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Separator } from '@/components/shadcn/separator'
 import { dateFormatter } from '@/libs/utils'
-import type { Assignment, AssignmentProblemRecord } from '@/types/type'
+import type { Assignment } from '@/types/type'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { MdArrowForwardIos } from 'react-icons/md'
 
 interface SubmissionDetailModalProps {
-  problemId: number
+  problemId: string
   assignment: Assignment
   showEvaluation: boolean
+  courseId: string
 }
 export function SubmissionDetailModal({
   problemId,
   assignment,
-  showEvaluation
+  showEvaluation,
+  courseId
 }: SubmissionDetailModalProps) {
-  const { data: AssignmentProblemRecord } = useSuspenseQuery({
-    ...assignmentQueries.record({ assignmentId: assignment.id.toString() })
+  const { data: assignmentProblemRecord } = useSuspenseQuery({
+    ...assignmentQueries.record({
+      assignmentId: assignment.id.toString(),
+      courseId
+    })
   })
 
   const { data: submission } = useQuery(
     assignmentSubmissionQueries.lastestSubmissionResult({
-      assignmentId: AssignmentProblemRecord.id,
+      assignmentId: assignment.id.toString(),
       problemId
     })
   )
 
   const { data: testResults } = useQuery(
     assignmentSubmissionQueries.testResult({
-      assignmentId: AssignmentProblemRecord.id,
+      assignmentId: assignment.id.toString(),
       problemId,
-      submissionId: submission?.id ?? 0
+      submissionId: submission?.id.toString() ?? '0'
     })
   )
   const getResultStyle = (result: string) => {
@@ -79,14 +84,14 @@ export function SubmissionDetailModal({
               <MdArrowForwardIos />
               <span
                 title={
-                  AssignmentProblemRecord.problems.find(
-                    (problem) => problem.id === problemId
+                  assignmentProblemRecord?.problems.find(
+                    (problem) => problem.id.toString() === problemId
                   )?.title || 'Not found'
                 }
                 className="max-w-[200px] overflow-hidden truncate"
               >
-                {AssignmentProblemRecord.problems.find(
-                  (problem) => problem.id === problemId
+                {assignmentProblemRecord?.problems.find(
+                  (problem) => problem.toString() === problemId
                 )?.title || 'Not found'}
               </span>
             </div>
@@ -97,18 +102,18 @@ export function SubmissionDetailModal({
             <div className="flex flex-col gap-2">
               <span className="flex h-[30px] w-[140px] items-center justify-center rounded-full border border-blue-500 font-bold text-blue-500">
                 <span className="text-lg">
-                  {AssignmentProblemRecord.problems.find(
-                    (problem) => problem.id === problemId
+                  {assignmentProblemRecord?.problems.find(
+                    (problem) => problem.toString() === problemId
                   )?.problemRecord?.finalScore ??
-                    AssignmentProblemRecord.problems.find(
-                      (problem) => problem.id === problemId
+                    assignmentProblemRecord?.problems.find(
+                      (problem) => problem.toString() === problemId
                     )?.problemRecord?.score}
                 </span>
                 {'  /  '}
                 <span className="text-lg">
                   {
-                    AssignmentProblemRecord.problems.find(
-                      (problem) => problem.id === problemId
+                    assignmentProblemRecord?.problems.find(
+                      (problem) => problem.toString() === problemId
                     )?.maxScore
                   }
                 </span>
@@ -231,8 +236,8 @@ export function SubmissionDetailModal({
               <span className="text-sm font-medium">Comment</span>
               <div className="flex-col rounded border p-4">
                 <span className="text-xs">
-                  {AssignmentProblemRecord.problems.find(
-                    (problem) => problem.id === problemId
+                  {assignmentProblemRecord?.problems.find(
+                    (problem) => problem.toString() === problemId
                   )?.problemRecord?.comment || ''}
                 </span>
               </div>

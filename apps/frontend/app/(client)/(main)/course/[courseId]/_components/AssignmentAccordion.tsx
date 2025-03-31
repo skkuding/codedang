@@ -75,7 +75,10 @@ function AssignmentAccordionItem({
   const [openProblemId, setOpenProblemId] = useState<number | null>(null)
 
   const { data: record } = useQuery({
-    ...assignmentQueries.record({ assignmentId: assignment.id.toString() }),
+    ...assignmentQueries.record({
+      assignmentId: assignment.id.toString(),
+      courseId
+    }),
     enabled: isAccordionOpen
   })
 
@@ -203,9 +206,10 @@ function AssignmentAccordionItem({
                       />
                       {openProblemId === problem.id && (
                         <SubmissionDetailModal
-                          problemId={problem.id}
+                          problemId={problem.id.toString()}
                           assignment={assignment}
                           showEvaluation={true}
+                          courseId={courseId}
                         />
                       )}
                     </Dialog>

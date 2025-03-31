@@ -84,8 +84,8 @@ export const getAnonymizedScores = async ({
 }
 
 export interface GetLatestProblemSubmissionResultRequest {
-  assignmentId: number
-  problemId: number
+  assignmentId: string
+  problemId: string
 }
 
 export const getLatestProblemSubmissionResult = async ({
@@ -139,9 +139,9 @@ export const getProblemSubmissionResults = async ({
 }
 
 export interface GetTestResultRequest {
-  assignmentId: number
-  problemId: number
-  submissionId: number
+  assignmentId: string
+  problemId: string
+  submissionId: string
 }
 
 export interface SubmissionResponse {
