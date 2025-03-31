@@ -71,8 +71,14 @@ export default function ContestLeaderBoard() {
     const now = new Date()
     if (!isLoading && !isError) {
       console.log('leaderboard: ', contestLeaderboard.leaderboard)
+      const contestEndTime = new Date(fetchedContest?.endTime)
+      const contestStartTime = new Date(fetchedContest?.startTime)
+      if (contestEndTime > now && contestStartTime < now) {
+        throw new Error('Error(ongoing): The contest has not ended yet.')
+      }
       if (contestLeaderboard.leaderboard.length === 0) {
         const contestStartTime = new Date(fetchedContest?.startTime)
+
         if (contestStartTime > now) {
           throw new Error(
             'Error(before start): There is no data in leaderboard yet.'
