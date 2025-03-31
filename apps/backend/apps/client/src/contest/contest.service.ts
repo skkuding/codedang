@@ -569,18 +569,7 @@ export class ContestService {
         role: true
       }
     })
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id: userId
-      },
-      select: {
-        canCreateContest: true
-      }
-    })
 
-    return {
-      canCreateContest: user?.canCreateContest ?? false,
-      userContests
-    }
+    return userContests
   }
 }

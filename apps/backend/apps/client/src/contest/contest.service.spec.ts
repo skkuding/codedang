@@ -376,12 +376,9 @@ describe('ContestService', () => {
   describe('getContestRoles', () => {
     it('should return contest roles', async () => {
       const roles = await service.getContestRoles(contestAdminId)
-      expect(roles).to.be.an('object')
-      expect(roles).to.have.property('canCreateContest')
-      expect(roles).to.have.property('userContests')
-      expect(roles.userContests).to.be.an('array')
-      expect(roles.userContests[0]).to.have.property('contestId')
-      expect(roles.userContests[0]).to.have.property('role')
+      expect(roles).to.be.an('array')
+      expect(roles).to.have.property('contestId')
+      expect(roles).to.have.property('role')
     })
   })
 })
