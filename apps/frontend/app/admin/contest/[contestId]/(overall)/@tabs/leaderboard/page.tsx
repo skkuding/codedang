@@ -46,10 +46,16 @@ export default function ContestLeaderBoard() {
   const { data: fetchedContest } = useSuspenseQuery(GET_CONTEST, {
     variables: { contestId }
   })
+
   const now = new Date()
-  if (fetchedContest.getContest.endTime > now) {
-    setDisableLeaderboard(true)
-  }
+  useEffect(() => {
+    const endTime = new Date(fetchedContest.getContest.endTime)
+    if (endTime > now) {
+      setDisableLeaderboard(true)
+    } else {
+      setDisableLeaderboard(false)
+    }
+  }, [fetchedContest])
 
   const isFrozen = contestLeaderboard.getContestLeaderboard.isFrozen
 
@@ -60,7 +66,14 @@ export default function ContestLeaderBoard() {
 
   useEffect(() => {
     if (contestLeaderboard.getContestLeaderboard.leaderboard[0] === undefined) {
-      throw new Error('There is no data in leaderboard yet.')
+      const contestStartTime = new Date(fetchedContest.getContest.startTime)
+      if (contestStartTime > now) {
+        throw new Error(
+          'Error(before start): There is no data in leaderboard yet.'
+        )
+      } else {
+        throw new Error('Error(no data): There is no data in leaderboard yet.')
+      }
     }
     setProblemSize(
       contestLeaderboard
@@ -174,7 +187,7 @@ function UnfreezeLeaderboardToggle({
           activated={activated}
         />
       </div>
-      <div className="mt-1 font-[14px] font-normal text-[#9B9B9B]">
+      <div className="mt-1 text-[14px] font-normal text-[#9B9B9B]">
         The leaderboard can only be unfrozen after the contest has finished.
       </div>
     </div>

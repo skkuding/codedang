@@ -6,7 +6,7 @@ import silverMedalIcon from '@/public/icons/medal-silver.svg'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-import type { ProblemRecordInContestLeaderboard } from '../_libs/apis/getContesLeaderboard'
+import type { ProblemRecordInContestLeaderboard } from '../_libs/apis/getContestLeaderboard'
 
 interface LeaderboardRowProps {
   username: string
