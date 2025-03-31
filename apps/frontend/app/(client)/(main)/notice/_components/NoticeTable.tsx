@@ -46,7 +46,7 @@ export async function NoticeTable({ search }: Props) {
 
   const noticesFetcher: Promise<Notice[]> = getNotices(search)
 
-  // * 임시 -> 추후 백엔드 Notice 로직 변경되면 다시 수정 예정 (현재는 fetcherWithAuth 이용중 but 로그인 안하고 fetcher로도 가능하게끔 논의 예정)
+  // NOTE: 추후 백엔드 Notice 로직 변경되면 다시 수정 예정 (현재는 fetcherWithAuth 이용중 but 로그인 안하고 fetcher로도 가능하게끔 논의 예정)
   const [fixedNotices, notices] = await Promise.all([
     fixedNoticesFetcher,
     noticesFetcher

@@ -38,7 +38,7 @@ export default async function NoticeDetail({
   const { noticeId } = params
   const { page } = searchParams
 
-  // * 임시 -> 추후 백엔드 Notice 로직 변경되면 다시 수정 예정 (현재는 fetcherWithAuth 이용중 but 로그인 안하고 fetcher로도 가능하게끔 논의 예정)
+  // NOTE: 추후 백엔드 Notice 로직 변경되면 다시 수정 예정 (현재는 fetcherWithAuth 이용중 but 로그인 안하고 fetcher로도 가능하게끔 논의 예정)
   const noticeIdRes: NoticeIdProps = await fetcherWithAuth
     .get(`notice/${noticeId}`, {
       searchParams: {
