@@ -9,10 +9,19 @@ import {
 } from '@/components/shadcn/resizable'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/shadcn/tooltip'
+import { fetcherWithAuth } from '@/libs/utils'
 import { cn } from '@/libs/utils'
+import bottomCenterIcon from '@/public/icons/bottom-center.svg'
 import syncIcon from '@/public/icons/sync.svg'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
-import type { ProblemDetail } from '@/types/type'
+import type { ProblemDetail, Contest } from '@/types/type'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -44,8 +53,32 @@ export function EditorMainResizablePanel({
   enableCopyPaste = true,
   children
 }: ProblemEditorProps) {
+  const fetchFreezeTime = async (contestId: number | undefined) => {
+    const res: Contest = await fetcherWithAuth
+      .get(`contest/${contestId}`)
+      .json()
+    const freezeTime = res.freezeTime
+
+    return freezeTime
+  }
+  const { data: freezeTime } = useSuspenseQuery({
+    queryKey: ['leaderboard freeze date', contestId],
+    queryFn: () => fetchFreezeTime(contestId)
+  })
+  const [isFrozen, setIsFrozen] = useState<boolean>(true)
+  useEffect(() => {
+    const now = new Date()
+    const freezeTimeDate = freezeTime ? new Date(freezeTime) : new Date('')
+    if (now > freezeTimeDate) {
+      setIsFrozen(true)
+    } else {
+      setIsFrozen(false)
+    }
+  }, [freezeTime])
+
   const [isPanelHidden, setIsPanelHidden] = useState(false)
   const triggerRefresh = useLeaderboardSync((state) => state.triggerRefresh)
+
   const pathname = usePathname()
   let base: string
   if (contestId) {
@@ -135,12 +168,35 @@ export function EditorMainResizablePanel({
             {tabValue === 'Leaderboard' ? (
               <div className="flex gap-x-4">
                 <LeaderboardModalDialog />
-                <Image
-                  src={syncIcon}
-                  alt="Sync"
-                  className="cursor-pointer"
-                  onClick={triggerRefresh}
-                />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Image
+                        src={syncIcon}
+                        alt="Sync"
+                        className={isFrozen ? '' : 'cursor-pointer'}
+                        onClick={() => {
+                          if (!isFrozen) {
+                            triggerRefresh()
+                          }
+                        }}
+                      />
+                    </TooltipTrigger>
+                    {isFrozen && (
+                      <TooltipContent
+                        side="bottom"
+                        className="mt-1 flex h-[29px] w-[145px] items-center justify-center"
+                      >
+                        <Image
+                          src={bottomCenterIcon}
+                          alt="Tooltip arrow"
+                          className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform"
+                        />
+                        <p className="text-xs">Leaderboard is frozen</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             ) : null}
           </div>
