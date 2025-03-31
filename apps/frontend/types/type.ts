@@ -152,6 +152,7 @@ export interface Contest {
   enableCopyPaste: boolean
   status: ContestStatus
   participants: number
+  freezeTime?: Date
   isRegistered: boolean
   contestProblem: ProblemInContestInterface[]
 }
