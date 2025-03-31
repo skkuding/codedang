@@ -377,8 +377,8 @@ describe('ContestService', () => {
     it('should return contest roles', async () => {
       const roles = await service.getContestRoles(contestAdminId)
       expect(roles).to.be.an('array')
-      expect(roles).to.have.property('contestId')
-      expect(roles).to.have.property('role')
+      expect(roles[0]).to.have.property('contestId')
+      expect(roles[0]).to.have.property('role')
     })
   })
 })
