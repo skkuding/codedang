@@ -291,18 +291,14 @@ export class ContestService {
       }
     }
 
+    // unfreeze 상태 변경 시 예외 처리
     if (contest.unfreeze) {
       if (!contestFound.freezeTime) {
         throw new UnprocessableDataException(
           'Cannot unfreeze a contest that has not been frozen'
         )
       }
-      if (contestFound.freezeTime < new Date()) {
-        throw new UnprocessableDataException(
-          'Cannot unfreeze a contest that has already been unfrozen'
-        )
-      }
-      if (contest.unfreeze && contest.endTime > new Date()) {
+      if (contest.endTime > new Date()) {
         throw new UnprocessableDataException(
           'Cannot unfreeze a contest that has not ended yet'
         )
