@@ -11,7 +11,7 @@ import { toast } from 'sonner'
 
 interface AssignmentLinkProps {
   assignment: Assignment
-  courseId: string
+  courseId: number
 }
 
 export function AssignmentLink({ assignment, courseId }: AssignmentLinkProps) {

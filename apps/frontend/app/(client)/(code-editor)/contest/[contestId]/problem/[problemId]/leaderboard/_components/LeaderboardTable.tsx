@@ -85,6 +85,7 @@ export function LeaderboardTable<TData extends Item, TValue>({
                       paddingLeft: 2,
                       paddingRight: 2
                     }}
+                    className="border-b-2 border-slate-700"
                   >
                     <div className="text-center text-xs">
                       {flexRender(
@@ -156,7 +157,7 @@ export function LeaderboardTableFallback<TData extends Item, TValue>({
             >
               <TableCell
                 colSpan={Number(table.getAllColumns().length)}
-                className="h-12"
+                className="h-12 border-b-2 border-slate-700"
                 style={{
                   paddingTop: 10,
                   paddingBottom: 10,

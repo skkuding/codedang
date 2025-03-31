@@ -18,7 +18,7 @@ export function VisibleForm({ blockEdit = false }: { blockEdit?: boolean }) {
 
   return (
     <>
-      <div className="mt-3 flex items-center gap-2">
+      <div className="mb-3 flex items-center">
         <div className="flex gap-14">
           <label className="flex gap-2">
             <input

@@ -14,7 +14,7 @@ export default function Assignment({ params }: AssignmentProps) {
       <p className="text-2xl font-semibold">Assignment</p>
 
       <ErrorBoundary fallback={FetchErrorFallback}>
-        <AssignmentAccordion courseId={courseId} />
+        <AssignmentAccordion courseId={Number(courseId)} />
       </ErrorBoundary>
     </div>
   )

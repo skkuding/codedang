@@ -224,10 +224,13 @@ export class ContestService {
     })
   }
 
-  async updateContest(contest: UpdateContestInput): Promise<Contest> {
+  async updateContest(
+    contestId: number,
+    contest: UpdateContestInput
+  ): Promise<Contest> {
     const contestFound = await this.prisma.contest.findUniqueOrThrow({
       where: {
-        id: contest.id
+        id: contestId
       },
       select: {
         startTime: true,
@@ -245,6 +248,7 @@ export class ContestService {
             }
           },
           select: {
+            id: true,
             userId: true,
             role: true
           }
@@ -320,7 +324,7 @@ export class ContestService {
             }
           })
         )
-          .filter((contestProblem) => contestProblem.contestId !== contest.id)
+          .filter((contestProblem) => contestProblem.contestId !== contestId)
           .map((contestProblem) => contestProblem.contestId)
 
         if (contestIds.length) {
@@ -352,7 +356,7 @@ export class ContestService {
       }
     }
 
-    const { id, summary, userContest: newRoles, ...contestData } = contest
+    const { summary, userContest: newRoles, ...contestData } = contest
 
     // userContest 중 삭제된 userContestRole 삭제, 추가된 userContestRole 추가, 변경된 userContestRole 변경
     if (newRoles) {
@@ -375,11 +379,7 @@ export class ContestService {
         ...rolesToDelete.map((role) =>
           this.prisma.userContest.delete({
             where: {
-              // eslint-disable-next-line @typescript-eslint/naming-convention
-              userId_contestId: {
-                userId: role.userId,
-                contestId: contest.id
-              }
+              id: role.id
             }
           })
         ),
@@ -387,7 +387,7 @@ export class ContestService {
           this.prisma.userContest.create({
             data: {
               userId: role.userId,
-              contestId: contest.id,
+              contestId,
               role: role.contestRole as ContestRole
             }
           })
@@ -398,7 +398,7 @@ export class ContestService {
               // eslint-disable-next-line @typescript-eslint/naming-convention
               userId_contestId: {
                 userId: role.userId,
-                contestId: contest.id
+                contestId
               }
             },
             data: {
@@ -411,7 +411,7 @@ export class ContestService {
 
     return await this.prisma.contest.update({
       where: {
-        id
+        id: contestId
       },
       data: {
         summary: summary

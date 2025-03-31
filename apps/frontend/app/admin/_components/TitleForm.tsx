@@ -7,7 +7,11 @@ import { useFormContext } from 'react-hook-form'
 import { inputStyle } from '../_libs/utils'
 import { ErrorMessage } from './ErrorMessage'
 
-export function TitleForm({ placeholder }: { placeholder: string }) {
+interface TitleFormProps {
+  placeholder: string
+}
+
+export function TitleForm({ placeholder }: TitleFormProps) {
   const {
     register,
     formState: { errors }
@@ -20,7 +24,7 @@ export function TitleForm({ placeholder }: { placeholder: string }) {
 
   return (
     <div className="flex flex-col">
-      <div className="flex w-[491px] items-center rounded-full border bg-white pr-4">
+      <div className="flex w-[492px] items-center rounded-full border bg-white pr-4">
         <Input
           id="title"
           type="text"
