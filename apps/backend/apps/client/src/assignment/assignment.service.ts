@@ -431,8 +431,9 @@ export class AssignmentService {
       maxScore: ap.score,
       problemRecord: problemRecordMap[ap.problemId] ?? null,
       submissionTime: submissionMap.get(ap.problemId)?.submissionTime ?? null,
-      submissionResult:
-        submissionMap.get(ap.problemId)?.submissionResult ?? null
+      submissionResult: assignment.isJudgeResultVisible
+        ? (submissionMap.get(ap.problemId)?.submissionResult ?? null)
+        : null
     }))
 
     const assignmentPerfectScore = assignment.assignmentProblem.reduce(
@@ -468,6 +469,9 @@ export class AssignmentService {
       },
       select: {
         id: true,
+        autoFinalizeScore: true,
+        isFinalScoreVisible: true,
+        isJudgeResultVisible: true,
         assignmentProblem: {
           select: {
             score: true
@@ -515,14 +519,25 @@ export class AssignmentService {
       {}
     )
 
-    return assignments.map((assignment) => ({
-      id: assignment.id,
-      problemCount: assignment.assignmentProblem.length,
-      submittedCount:
-        assignment.assignmentRecord[0]._count.assignmentProblemRecord,
-      assignmentPerfectScore: assignmentPerfectScoresMap[assignment.id],
-      userAssignmentFinalScore: assignment.assignmentRecord[0].finalScore,
-      userAssignmentJudgeScore: assignment.assignmentRecord[0].score
-    }))
+    return assignments.map((assignment) => {
+      if (assignment.autoFinalizeScore) {
+        assignment.assignmentRecord[0].finalScore =
+          assignment.assignmentRecord[0].score
+      }
+
+      return {
+        id: assignment.id,
+        problemCount: assignment.assignmentProblem.length,
+        submittedCount:
+          assignment.assignmentRecord[0]._count.assignmentProblemRecord,
+        assignmentPerfectScore: assignmentPerfectScoresMap[assignment.id],
+        userAssignmentFinalScore: assignment.isFinalScoreVisible
+          ? assignment.assignmentRecord[0].finalScore
+          : null,
+        userAssignmentJudgeScore: assignment.isJudgeResultVisible
+          ? assignment.assignmentRecord[0].score
+          : null
+      }
+    })
   }
 }
