@@ -52,6 +52,7 @@ export class SubmissionService {
   }
 
   async getContestSubmissions(
+    contestId: number,
     input: GetContestSubmissionsInput,
     take: number,
     cursor: number | null,
@@ -59,7 +60,7 @@ export class SubmissionService {
   ) {
     const paginator = this.prisma.getPaginator(cursor)
 
-    const { contestId, problemId, searchingName } = input
+    const { problemId, searchingName } = input
     const contestSubmissions = await this.prisma.submission.findMany({
       ...paginator,
       take,

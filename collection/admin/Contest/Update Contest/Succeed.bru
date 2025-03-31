@@ -11,8 +11,11 @@ post {
 }
 
 body:graphql {
-  mutation UpdateContest($input: UpdateContestInput!) {
-    updateContest(input: $input) {
+  mutation UpdateContest($contestId: Int!, $input: UpdateContestInput!) {
+    updateContest(
+      contestId: $contestId
+      input: $input
+    ) {
       id
       title
       description
@@ -32,8 +35,8 @@ body:graphql {
 
 body:graphql:vars {
   {
+    "contestId": 20,
     "input": {
-      "id": 20,
       "title": "Updated Contest 2",
       "description": "thisisupdatedcontest",
       "startTime": "2024-01-01",
@@ -68,10 +71,10 @@ assert {
 
 docs {
   # Update Contest
-  
+
   ## Description
   기존 콘테스트 정보를 업데이트합니다. 콘테스트 관리 권한이 있는 사용자만 사용할 수 있으며, 유효한 입력값이 필요합니다.
-  
+
   ## 요청 필드
   | 필드명 | 타입 | 필수 여부 | 설명 |
   |--------|------|----------|------|
@@ -91,7 +94,7 @@ docs {
   | evaluateWithSampleTestcase | Boolean | ❌ | 샘플 테스트케이스로 평가 여부 |
   | userContest | [UserContestRoleInput] | ❌ | Manager, Reviewer 역할 부여 및 수정 |
   | summary | GraphQLJSON | ❌ | 다국어 요약 정보 |
-  
+
   ## 응답 필드
   | 필드명 | 타입 | 설명 |
   |--------|------|------|
@@ -102,7 +105,7 @@ docs {
   | endTime | GraphQLISODateTime | 종료 시간 |
   | isJudgeResultVisible | Boolean | 채점 결과 공개 여부 |
   | createdById | Int | 콘테스트 생성자 ID |
-  
+
   ## 권한
   - `Contest Manager`, `Contest Admin` 권한이 있는 사용자만 사용할 수 있습니다.
   - 권한이 없는 경우 `UnauthorizedException` 오류가 반환됩니다.

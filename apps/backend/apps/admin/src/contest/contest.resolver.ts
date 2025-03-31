@@ -61,8 +61,11 @@ export class ContestResolver {
   }
 
   @Mutation(() => Contest)
-  async updateContest(@Args('input') input: UpdateContestInput) {
-    return await this.contestService.updateContest(input)
+  async updateContest(
+    @Args('contestId', { type: () => Int }) contestId: number,
+    @Args('input') input: UpdateContestInput
+  ) {
+    return await this.contestService.updateContest(contestId, input)
   }
 
   @Mutation(() => Contest)

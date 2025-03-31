@@ -66,8 +66,8 @@ export default function AdminAnnouncementPage() {
     try {
       await createAnnouncement({
         variables: {
+          contestId,
           input: {
-            contestId,
             problemOrder: data.problemOrder,
             content: data.content
           }
@@ -92,7 +92,7 @@ export default function AdminAnnouncementPage() {
   return (
     <ConfirmNavigation>
       <ScrollArea className="w-full">
-        <main className="flex flex-col py-16">
+        <main className="flex flex-col">
           <div className="mb-6 text-2xl font-semibold">Update History</div>
           <div
             id="historyBox"
@@ -142,7 +142,7 @@ export default function AdminAnnouncementPage() {
             )}
           </div>
           <Button
-            className="mb-16 bg-[#80808014] text-lg hover:bg-[#80808039]"
+            className="mb-16 h-[42px] bg-[#80808014] text-lg hover:bg-[#80808039]"
             onClick={() => {
               onClickSeemore()
             }}
@@ -166,8 +166,11 @@ export default function AdminAnnouncementPage() {
                   )
                 }}
               >
-                <SelectTrigger className="h-12 rounded-full bg-white pl-[30px] text-xl font-medium text-[#474747] focus:ring-0">
-                  <SelectValue placeholder="Choose" />
+                <SelectTrigger
+                  value="none"
+                  className="h-12 rounded-full bg-white pl-[30px] text-xl font-medium text-[#474747] focus:ring-0"
+                >
+                  <SelectValue placeholder="General" />
                 </SelectTrigger>
                 <SelectContent
                   className="rounded-md border border-gray-200 bg-white shadow-md"
@@ -210,7 +213,7 @@ export default function AdminAnnouncementPage() {
             <p className="mb-20 mt-2 text-base font-normal text-[#9B9B9B]">
               Posted announcement cannot be edited.
             </p>
-            <Button type="submit" className="w-full text-lg font-bold">
+            <Button type="submit" className="h-12 w-full text-lg font-bold">
               <BiSolidPencil className="white" />
               &nbsp; Post
             </Button>
