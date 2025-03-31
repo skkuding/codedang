@@ -1,0 +1,27 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  query GetContestRoles {
+    getContestRoles {
+      contestId
+      role
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "userId": 1
+  }
+}
