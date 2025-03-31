@@ -1,6 +1,8 @@
 import { Button } from '@/components/shadcn/button'
+import { contestNoticeId } from '@/libs/constants'
 import { cn } from '@/libs/utils'
 import Image from 'next/image'
+import Link from 'next/link'
 import React from 'react'
 
 export function ContestSubBanner() {
@@ -23,13 +25,14 @@ export function ContestSubBanner() {
             <p className="-mt-3 text-neutral-50">
               You&apos;re just one admin approval away from create contest
             </p>
-            {/* TODO: contest 개최 방법 공지사항으로 링크하기(아직 공지사항 존재하지 않음) */}
-            <Button
-              variant="outline"
-              className="text-primary-strong mt-2 w-[150px] rounded-full text-base font-medium shadow-lg"
-            >
-              Read more
-            </Button>
+            <Link href={`/notice/${contestNoticeId}`}>
+              <Button
+                variant="outline"
+                className="text-primary-strong mt-2 w-[150px] rounded-full text-base font-medium shadow-lg"
+              >
+                Read more
+              </Button>
+            </Link>
           </div>
           <div className="z-10">
             <Image

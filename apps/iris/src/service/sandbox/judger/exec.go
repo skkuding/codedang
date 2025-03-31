@@ -55,7 +55,26 @@ func (j *judgerExec) Exec(args ExecArgs, input []byte) (sandbox.ExecResult, erro
 		return sandbox.ExecResult{}, fmt.Errorf("failed to unmarshal sandbox result: %w", err)
 	}
 
+	res.StatusCode = judgerResultCodeToSandboxStatusCode(ResultCode(res.StatusCode))
+
 	return res, nil
+}
+
+func judgerResultCodeToSandboxStatusCode(resultCode ResultCode) sandbox.StatusCode {
+	switch resultCode {
+	case CPU_TIME_LIMIT_EXCEEDED:
+		return sandbox.CPU_TIME_LIMIT_EXCEEDED
+	case REAL_TIME_LIMIT_EXCEEDED:
+		return sandbox.REAL_TIME_LIMIT_EXCEEDED
+	case MEMORY_LIMIT_EXCEEDED:
+		return sandbox.MEMORY_LIMIT_EXCEEDED
+	case RUNTIME_ERROR:
+		return sandbox.RUNTIME_ERROR
+	case SYSTEM_ERROR:
+		return sandbox.SERVER_ERROR
+	}
+
+	return sandbox.RUN_SUCCESS
 }
 
 type ExecArgs struct {

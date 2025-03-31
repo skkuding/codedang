@@ -152,6 +152,7 @@ export interface Contest {
   enableCopyPaste: boolean
   status: ContestStatus
   participants: number
+  freezeTime?: Date
   isRegistered: boolean
   contestProblem: ProblemInContestInterface[]
 }
@@ -400,6 +401,7 @@ export interface ProblemGrade {
   maxScore: number
   problemRecord: ProblemRecord | null
   submissionTime: string
+  submissionResult: string | null
 }
 
 export interface ProblemRecord {

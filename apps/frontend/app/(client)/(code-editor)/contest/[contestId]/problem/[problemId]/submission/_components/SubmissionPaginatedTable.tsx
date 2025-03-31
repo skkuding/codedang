@@ -65,7 +65,6 @@ export function SubmissionPaginatedTable({
     (a, b) =>
       new Date(b.createTime).getTime() - new Date(a.createTime).getTime()
   )
-  console.log('submissions: ', allSubmissions)
 
   const {
     paginatedItems,

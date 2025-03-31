@@ -18,7 +18,7 @@ export default function LeaderboardErrorPage({ error }: { error: Error }) {
         </p>
       </div>
     )
-  } else {
+  } else if (errorContent === 'ongoing') {
     return (
       <div className="flex flex-col items-center pb-[245px] pt-[245px]">
         <Image src={welcomeImage} alt="welcome_image" />
@@ -28,6 +28,14 @@ export default function LeaderboardErrorPage({ error }: { error: Error }) {
         <p className="mt-2 text-[#00000080]">
           The leaderboard will be released after the end of the contest
         </p>
+      </div>
+    )
+  } else {
+    return (
+      <div className="flex flex-col items-center pb-[245px] pt-[245px]">
+        <Image src={welcomeImage} alt="welcome_image" />
+        <p className="mt-[50px] text-2xl font-semibold">No Data Here </p>
+        <p className="mt-2 text-[#00000080]">This leaderboard has no Data</p>
       </div>
     )
   }
