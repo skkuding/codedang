@@ -227,7 +227,8 @@ const db = {
   },
   assignmentRecord: {
     findMany: stub().resolves([AssignmentRecord]),
-    create: stub().resolves(AssignmentRecord)
+    create: stub().resolves(AssignmentRecord),
+    count: stub().resolves(Number)
   },
   assignmentProblemRecord: {
     createMany: stub().resolves([]),
@@ -240,6 +241,9 @@ const db = {
   },
   group: {
     findUnique: stub().resolves(Group)
+  },
+  userGroup: {
+    count: stub().resolves(Number)
   },
   submission: {
     findMany: stub().resolves([submissionsWithProblemTitleAndUsername])
@@ -503,6 +507,9 @@ describe('AssignmentService', () => {
   describe('getAssignmentScoreSummaries', () => {
     it('should return list of users with their score summaries', async () => {
       db.assignment.findUnique.resolves(assignment)
+      db.userGroup.count.resolves(10)
+      db.assignmentRecord.count.resolves(10)
+
       db.assignmentRecord.findMany.resolves([
         {
           userId,
