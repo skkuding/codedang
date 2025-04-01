@@ -744,6 +744,24 @@ export class AssignmentService {
       throw new ForbiddenAccessException('Forbidden Resource')
     }
 
+    const courseMemberCount = await this.prisma.userGroup.count({
+      where: {
+        groupId
+      }
+    })
+
+    const assignmentParticipantCount = await this.prisma.assignmentRecord.count(
+      {
+        where: {
+          assignmentId
+        }
+      }
+    )
+
+    if (courseMemberCount > assignmentParticipantCount) {
+      await this.inviteAllCourseMembersToAssignment(assignmentId, groupId)
+    }
+
     const assignmentRecords = await this.prisma.assignmentRecord.findMany({
       ...paginator,
       where: {
@@ -1083,11 +1101,13 @@ export class AssignmentService {
 
     await this.prisma.$transaction(async (prisma) => {
       await prisma.assignmentRecord.createMany({
-        data: nonParticipants.map(({ userId }) => ({ userId, assignmentId }))
+        data: nonParticipants.map(({ userId }) => ({ userId, assignmentId })),
+        skipDuplicates: true
       })
 
       await prisma.assignmentProblemRecord.createMany({
-        data: assignmentProblemData
+        data: assignmentProblemData,
+        skipDuplicates: true
       })
     })
   }
