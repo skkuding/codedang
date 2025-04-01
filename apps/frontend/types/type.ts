@@ -161,6 +161,7 @@ export interface ContestOrder {
   id: number
   title: string
 }
+
 export interface ContestAnnouncement {
   id: number
   content: string
