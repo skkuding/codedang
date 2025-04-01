@@ -276,14 +276,16 @@ export class ContestProblemService {
   }) {
     const contest = await this.contestService.getContest(contestId, userId)
     const now = new Date()
-    if (contest.isRegistered && contest.startTime! > now) {
-      throw new ForbiddenAccessException(
-        'Cannot access problems before the contest starts.'
-      )
-    } else if (!contest.isRegistered && contest.endTime! > now) {
-      throw new ForbiddenAccessException(
-        'Register to access the problems of this contest.'
-      )
+    if (!contest.isPrivilegedRole) {
+      if (contest.isRegistered && contest.startTime! > now) {
+        throw new ForbiddenAccessException(
+          'Cannot access problems before the contest starts.'
+        )
+      } else if (!contest.isRegistered && contest.endTime! > now) {
+        throw new ForbiddenAccessException(
+          'Register to access the problems of this contest.'
+        )
+      }
     }
 
     const paginator = this.prisma.getPaginator(cursor, (value) => ({
@@ -400,18 +402,20 @@ export class ContestProblemService {
   }) {
     const contest = await this.contestService.getContest(contestId, userId)
     const now = new Date()
-    if (contest.isRegistered) {
-      if (now < contest.startTime!) {
-        throw new ForbiddenAccessException(
-          'Cannot access to Contest problem before the contest starts.'
-        )
-      } else if (now > contest.endTime!) {
-        throw new ForbiddenAccessException(
-          'Cannot access to Contest problem after the contest ends.'
-        )
+    if (!contest.isPrivilegedRole) {
+      if (contest.isRegistered) {
+        if (now < contest.startTime!) {
+          throw new ForbiddenAccessException(
+            'Cannot access to Contest problem before the contest starts.'
+          )
+        } else if (now > contest.endTime!) {
+          throw new ForbiddenAccessException(
+            'Cannot access to Contest problem after the contest ends.'
+          )
+        }
+      } else {
+        throw new ForbiddenAccessException('Register to access this problem.')
       }
-    } else {
-      throw new ForbiddenAccessException('Register to access this problem.')
     }
 
     const data = await this.prisma.contestProblem.findUniqueOrThrow({
