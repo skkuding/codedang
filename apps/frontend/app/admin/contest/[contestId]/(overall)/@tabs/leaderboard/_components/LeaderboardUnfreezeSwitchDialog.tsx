@@ -26,11 +26,10 @@ export function LeaderboardUnfreezeSwitchDialog({
   activated
 }: LeaderboardUnfreezeDialogProps) {
   const [isUnfrozen, setIsUnFrozen] = useState<boolean>(isUnFrozen)
-  const [updateContest] = useMutation(UPDATE_CONTEST)
+  const [updateContest, { error }] = useMutation(UPDATE_CONTEST)
 
   const toggleUnfreeze = async () => {
     try {
-      // 콘테스트가 끝난다음 기능하는 부분임 -> 콘테스트 끝난다음 동작하는지 확인해야함
       console.log('contestId: ', contestId, ' unfreeze?: ', isUnfrozen)
       const res = await updateContest({
         variables: {
@@ -42,6 +41,7 @@ export function LeaderboardUnfreezeSwitchDialog({
       })
       console.log('res: ', res)
     } catch (err) {
+      console.log('error: ', error)
       console.error('Error updating contest:', err)
     }
   }
