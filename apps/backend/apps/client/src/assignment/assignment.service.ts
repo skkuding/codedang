@@ -15,6 +15,8 @@ const assignmentSelectOption = {
   group: { select: { id: true, groupName: true } },
   enableCopyPaste: true,
   isJudgeResultVisible: true,
+  isFinalScoreVisible: true,
+  autoFinalizeScore: true,
   week: true,
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {

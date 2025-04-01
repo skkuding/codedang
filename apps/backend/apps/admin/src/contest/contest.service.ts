@@ -1195,4 +1195,24 @@ export class ContestService {
       }))
     }
   }
+
+  async getContestRoles(userId: number) {
+    if (!userId) {
+      return []
+    }
+
+    const userContests = await this.prisma.userContest.findMany({
+      where: {
+        userId
+      },
+      select: {
+        contestId: true,
+        role: true
+      }
+    })
+
+    console.log('userContests', userContests)
+
+    return userContests
+  }
 }
