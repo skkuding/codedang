@@ -297,7 +297,7 @@ export class ContestService {
       const now = new Date()
       if (!contestFound.freezeTime) {
         throw new UnprocessableDataException(
-          'Cannot unfreeze a contest that has not been frozen'
+          'Cannot unfreeze a contest with no freezetime set'
         )
       }
       if (contestFound.unfreeze) {
