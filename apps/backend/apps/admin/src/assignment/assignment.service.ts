@@ -1,9 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
-import { SchedulerRegistry } from '@nestjs/schedule'
 import { Assignment, AssignmentProblem } from '@generated'
 import { Cache } from 'cache-manager'
-import { CronJob } from 'cron'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -22,7 +20,6 @@ import type { AssignmentProblemScoreInput } from './model/problem-score.input'
 export class AssignmentService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly schedulerRegistry: SchedulerRegistry,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -108,21 +105,8 @@ export class AssignmentService {
         }
       })
 
-      const endTime = new Date(assignment.endTime)
+      this.inviteAllCourseMembersToAssignment(createdAssignment.id, groupId)
 
-      if (endTime.getTime() >= Date.now()) {
-        const cronExpression = `${endTime.getSeconds()} ${endTime.getMinutes()} ${endTime.getHours()} ${endTime.getDate()} ${endTime.getMonth() + 1} *`
-
-        const job = new CronJob(cronExpression, () => {
-          this.endTimeReached(createdAssignment.id, groupId)
-          this.schedulerRegistry.deleteCronJob(String(createdAssignment.id))
-        })
-
-        this.schedulerRegistry.addCronJob(String(createdAssignment.id), job)
-        job.start()
-      } else {
-        this.endTimeReached(createdAssignment.id, groupId)
-      }
       return createdAssignment
     } catch (error) {
       throw new UnprocessableDataException(error.message)
@@ -165,29 +149,6 @@ export class AssignmentService {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
       )
-    }
-
-    if (isEndTimeChanged) {
-      try {
-        this.schedulerRegistry.deleteCronJob(String(assignment.id))
-        // eslint-disable-next-line no-empty
-      } catch {}
-
-      const endTime = new Date(assignment.endTime)
-
-      if (endTime.getTime() >= Date.now()) {
-        const cronExpression = `${endTime.getSeconds()} ${endTime.getMinutes()} ${endTime.getHours()} ${endTime.getDate()} ${endTime.getMonth() + 1} *`
-
-        const job = new CronJob(cronExpression, () => {
-          this.endTimeReached(assignment.id, groupId)
-          this.schedulerRegistry.deleteCronJob(String(assignment.id))
-        })
-
-        this.schedulerRegistry.addCronJob(String(assignment.id), job)
-        job.start()
-      } else {
-        this.endTimeReached(assignment.id, groupId)
-      }
     }
 
     const problemIds = assignmentFound.assignmentProblem.map(
@@ -289,11 +250,6 @@ export class AssignmentService {
     if (problemIds.length) {
       await this.removeProblemsFromAssignment(groupId, assignmentId, problemIds)
     }
-
-    try {
-      this.schedulerRegistry.deleteCronJob(String(assignmentId))
-      // eslint-disable-next-line no-empty
-    } catch {}
 
     try {
       return await this.prisma.assignment.delete({
@@ -1086,7 +1042,10 @@ export class AssignmentService {
     return assignmentProblemRecord
   }
 
-  async endTimeReached(assignmentId: number, groupId: number) {
+  async inviteAllCourseMembersToAssignment(
+    assignmentId: number,
+    groupId: number
+  ) {
     const courseMembers = await this.prisma.userGroup.findMany({
       where: { groupId, isGroupLeader: false },
       select: { userId: true }
@@ -1101,11 +1060,12 @@ export class AssignmentService {
       select: { userId: true }
     })
 
+    const participantIds = new Set(
+      assignmentParticipants.map((participant) => participant.userId)
+    )
+
     const nonParticipants = courseMembers.filter(
-      ({ userId }) =>
-        !assignmentParticipants
-          .map((participant) => participant.userId)
-          .includes(userId)
+      ({ userId }) => !participantIds.has(userId)
     )
 
     const assignmentProblems = await this.prisma.assignmentProblem.findMany({

@@ -1,5 +1,4 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { SchedulerRegistry } from '@nestjs/schedule'
 import { Test, type TestingModule } from '@nestjs/testing'
 import {
   AssignmentProblem,
@@ -259,7 +258,6 @@ const db = {
 describe('AssignmentService', () => {
   let service: AssignmentService
   let cache: Cache
-  let schedulerRegistry: SchedulerRegistry
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -276,25 +274,13 @@ describe('AssignmentService', () => {
               keys: () => []
             }
           })
-        },
-        {
-          provide: SchedulerRegistry,
-          useValue: new SchedulerRegistry()
         }
       ]
     }).compile()
 
     service = module.get<AssignmentService>(AssignmentService)
     cache = module.get<Cache>(CACHE_MANAGER)
-    schedulerRegistry = module.get<SchedulerRegistry>(SchedulerRegistry)
     stub(cache.store, 'keys').resolves(['assignment:1:publicize'])
-  })
-
-  afterEach(() => {
-    schedulerRegistry.getCronJobs().forEach((job, key) => {
-      job.stop()
-      schedulerRegistry.deleteCronJob(key)
-    })
   })
 
   it('should be defined', () => {
