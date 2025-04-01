@@ -213,7 +213,7 @@ function AssignmentAccordionItem({
                       }
                     >
                       <DetailButton
-                        isActivated={new Date() > new Date(assignment.endTime)}
+                        isActivated={problem.submissionTime !== null}
                       />
                       {openProblemId === problem.id && (
                         <SubmissionDetailModal
