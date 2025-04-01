@@ -744,19 +744,10 @@ export class AssignmentService {
       throw new ForbiddenAccessException('Forbidden Resource')
     }
 
-    const courseMemberCount = await this.prisma.userGroup.count({
-      where: {
-        groupId
-      }
-    })
-
-    const assignmentParticipantCount = await this.prisma.assignmentRecord.count(
-      {
-        where: {
-          assignmentId
-        }
-      }
-    )
+    const [courseMemberCount, assignmentParticipantCount] = await Promise.all([
+      this.prisma.userGroup.count({ where: { groupId } }),
+      this.prisma.assignmentRecord.count({ where: { assignmentId } })
+    ])
 
     if (courseMemberCount > assignmentParticipantCount) {
       await this.inviteAllCourseMembersToAssignment(assignmentId, groupId)
