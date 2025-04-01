@@ -155,7 +155,7 @@ export function ParticipantTable({
         <div className="flex items-center gap-4">
           <DataTableSearchBar columndId="realName" placeholder="Search Name" />
           <div className="flex items-center gap-2">
-            Reveal Raw Score
+            Reveal T/C Result
             <Switch
               onCheckedChange={async (checked) => {
                 setRevealRawScore(checked)
