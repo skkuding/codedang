@@ -2,6 +2,7 @@
 
 import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
+import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { AssignmentStatusTimeDiff } from '@/components/AssignmentStatusTimeDiff'
 import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
@@ -29,6 +30,14 @@ export default function AssignmentInfo({ params }: AssignmentInfoProps) {
   const { data: record } = useQuery(
     assignmentQueries.record({ assignmentId, courseId })
   )
+
+  // const { data: testResults } = useQuery(
+  //   assignmentSubmissionQueries.testResult({
+  //     assignmentId: assignment?.id ?? 0,
+  //     problemId,
+  //     submissionId: submission?.id ?? 0
+  //   })
+  // )
 
   const formattedStartTime = assignment
     ? dateFormatter(assignment.startTime, 'MMM DD, YYYY HH:mm')
@@ -115,9 +124,8 @@ export default function AssignmentInfo({ params }: AssignmentInfoProps) {
             headerStyle={{
               order: 'w-[5%]',
               title: 'text-left w-[30%]',
-              submit: 'w-[10%]',
-              result: 'w-[10%]',
-              score: 'w-[10%]',
+              submission: 'w-[15%]',
+              tc_result: 'w-[10%]',
               detail: 'w-[5%]'
             }}
             linked
