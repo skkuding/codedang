@@ -373,7 +373,8 @@ export class AssignmentService {
       )
 
       await this.prisma.assignmentProblemRecord.createMany({
-        data: assignmentProblemRecordsData
+        data: assignmentProblemRecordsData,
+        skipDuplicates: true
       })
     }
 
