@@ -104,11 +104,7 @@ export function SubmissionDetailModal({
                 <span className="text-lg">
                   {assignmentProblemRecord?.problems.find(
                     (problem) => problem.id === problemId
-                  )?.problemRecord?.finalScore ??
-                    assignmentProblemRecord?.problems.find(
-                      (problem) => problem.id === problemId
-                    )?.problemRecord?.score ??
-                    '-'}
+                  )?.problemRecord?.finalScore ?? '-'}
                 </span>
                 {'  /  '}
                 <span className="text-lg">

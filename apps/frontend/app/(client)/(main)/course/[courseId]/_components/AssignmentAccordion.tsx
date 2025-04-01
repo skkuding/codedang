@@ -110,7 +110,7 @@ function AssignmentAccordionItem({
           )}
           iconStyle="w-5 h-5 absolute right-[3%]"
         >
-          <p className="text-primary w-[7%] text-center font-normal">
+          <p className="text-primary mr-3 w-[7%] text-left font-normal">
             [Week {assignment.week}]
           </p>
           <div className="flex w-[30%] flex-col">
@@ -134,10 +134,9 @@ function AssignmentAccordionItem({
           </div>
 
           <div className="flex w-[10%] justify-center gap-1 font-medium">
-            {grade.submittedCount > 0
-              ? (grade.userAssignmentFinalScore ??
-                grade.userAssignmentJudgeScore ??
-                '-')
+            {grade.submittedCount > 0 &&
+            dayjs().isAfter(dayjs(assignment.endTime))
+              ? (grade.userAssignmentFinalScore ?? '-')
               : '-'}
             {` / ${grade.assignmentPerfectScore}`}
           </div>
@@ -169,9 +168,9 @@ function AssignmentAccordionItem({
                   key={problem.id}
                   className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
                 >
-                  <p className="text-primary w-[7%] text-center font-normal">
-                    {convertToLetter(problem.order)}
-                  </p>
+                  <div className="text-primary mr-3 flex w-[7%] justify-center font-normal">
+                    <p> {convertToLetter(problem.order)}</p>
+                  </div>
                   <div className="flex w-[30%]">
                     <Link
                       href={`/course/${courseId}/assignment/${assignment.id}/problem/${problem.id}`}
@@ -198,10 +197,8 @@ function AssignmentAccordionItem({
                     <AcceptedBadge problem={problem} />
                   </div>
                   <div className="flex w-[10%] justify-center font-medium">
-                    {problem.problemRecord?.isSubmitted
-                      ? (problem.problemRecord?.finalScore ??
-                        problem.problemRecord?.score ??
-                        '-')
+                    {dayjs().isAfter(dayjs(assignment.endTime))
+                      ? (problem.problemRecord?.finalScore ?? '-')
                       : '-'}{' '}
                     / {problem.maxScore}
                   </div>
@@ -213,7 +210,7 @@ function AssignmentAccordionItem({
                       }
                     >
                       <DetailButton
-                        isActivated={problem.submissionTime !== null}
+                        isActivated={dayjs().isAfter(dayjs(assignment.endTime))}
                       />
                       {openProblemId === problem.id && (
                         <SubmissionDetailModal
@@ -329,9 +326,10 @@ interface SubmissionBadgeProps {
 }
 
 function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
-  const badgeStyle = grade.userAssignmentFinalScore
-    ? 'border-transparent bg-primary text-white'
-    : 'border-primary text-primary'
+  const badgeStyle =
+    grade.submittedCount === grade.problemCount
+      ? 'border-transparent bg-primary text-white'
+      : 'border-primary text-primary'
   return (
     <div
       className={cn(
@@ -340,11 +338,11 @@ function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
         className
       )}
     >
-      <p className="text-sm font-medium">
-        {grade.submittedCount}
-        {' / '}
-        {grade.problemCount}
-      </p>
+      <div className="flex gap-2 text-sm font-medium">
+        <p> {grade.submittedCount}</p>
+        <p> /</p>
+        <p> {grade.problemCount}</p>
+      </div>
     </div>
   )
 }

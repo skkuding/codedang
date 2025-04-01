@@ -3,7 +3,7 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Dialog } from '@/components/shadcn/dialog'
 import { Skeleton } from '@/components/shadcn/skeleton'
-import { convertToLetter } from '@/libs/utils'
+import { convertToLetter, dateFormatter } from '@/libs/utils'
 import type {
   Assignment,
   AssignmentProblemRecord,
@@ -40,19 +40,19 @@ export const columns = (
     }
   },
   {
-    header: 'Submit',
-    accessorKey: 'submit',
+    header: 'Last Submission',
+    accessorKey: 'submission',
     cell: ({ row }) => {
-      return row.original.problemRecord?.isSubmitted ? (
-        <div className="flex w-full justify-center">
-          <FaCircleCheck color="#9B9B9B" />
+      return row.original.submissionTime ? (
+        <div className="flex w-full justify-center font-normal text-[#8A8A8A]">
+          {dateFormatter(row.original.submissionTime, 'MMM D, HH:mm:ss')}
         </div>
       ) : null
     }
   },
   {
-    header: 'Result',
-    accessorKey: 'result',
+    header: 'T/C Result',
+    accessorKey: 'tc_result',
     cell: ({ row }) => {
       return (
         <div className="flex w-full justify-center">
@@ -61,12 +61,12 @@ export const columns = (
       )
     }
   },
-  {
-    header: () => 'Score',
-    accessorKey: 'score',
-    cell: ({ row }) =>
-      `${row.original.problemRecord?.isSubmitted ? (row.original.problemRecord?.score ?? '-') : '-'} / ${row.original.maxScore}`
-  },
+  // {
+  //   header: () => 'Score',
+  //   accessorKey: 'score',
+  //   cell: ({ row }) =>
+  //     `${row.original.problemRecord?.isSubmitted ? (row.original.problemRecord?.score ?? '-') : '-'} / ${row.original.maxScore}`
+  // },
   {
     header: 'Detail',
     accessorKey: 'detail',
