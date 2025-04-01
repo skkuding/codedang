@@ -235,6 +235,7 @@ export class ContestService {
       select: {
         startTime: true,
         endTime: true,
+        unfreeze: true,
         freezeTime: true,
         contestProblem: {
           select: {
@@ -293,12 +294,23 @@ export class ContestService {
 
     // unfreeze 상태 변경 시 예외 처리
     if (contest.unfreeze) {
+      const now = new Date()
       if (!contestFound.freezeTime) {
         throw new UnprocessableDataException(
           'Cannot unfreeze a contest that has not been frozen'
         )
       }
-      if (contest.endTime > new Date()) {
+      if (contestFound.unfreeze) {
+        throw new UnprocessableDataException(
+          'Cannot unfreeze a contest that has already been unfrozen'
+        )
+      }
+      if (contestFound.freezeTime > now) {
+        throw new UnprocessableDataException(
+          'Cannot unfreeze a contest that has not been frozen yet'
+        )
+      }
+      if (contestFound.endTime > now) {
         throw new UnprocessableDataException(
           'Cannot unfreeze a contest that has not ended yet'
         )
