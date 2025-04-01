@@ -340,13 +340,41 @@ export class GroupService {
       where: {
         isGroupLeader: true,
         groupId
+      },
+      select: {
+        userId: true,
+        group: {
+          select: {
+            groupType: true
+          }
+        }
       }
     })
-    if (groupLeaders.length == 1 && groupLeaders[0].userId == userId) {
-      throw new ConflictFoundException('One or more managers are required')
+    if (groupLeaders.length <= 1 && groupLeaders[0].userId == userId) {
+      throw new ConflictFoundException('One or more leaders are required')
     }
 
-    const deletedUserGroup = await this.prisma.userGroup.delete({
+    if (groupLeaders[0].group.groupType === GroupType.Course) {
+      const assignmentIds = await this.prisma.assignment.findMany({
+        where: {
+          groupId
+        },
+        select: {
+          id: true
+        }
+      })
+
+      const deleteData = assignmentIds.map(({ id }) => ({
+        assignmentId: id,
+        userId
+      }))
+
+      await this.prisma.assignmentRecord.deleteMany({
+        where: { OR: deleteData }
+      })
+    }
+
+    return await this.prisma.userGroup.delete({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         userId_groupId: {
@@ -355,7 +383,6 @@ export class GroupService {
         }
       }
     })
-    return deletedUserGroup
   }
 
   async createUserGroup(userGroupData: UserGroupData): Promise<UserGroup> {

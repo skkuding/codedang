@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common'
-import { UserGroup, type User } from '@generated'
+import { GroupType, UserGroup, type User } from '@generated'
 import { Role } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { joinGroupCacheKey } from '@libs/cache'
@@ -242,39 +242,59 @@ export class GroupMemberService {
     })
   }
 
-  async deleteGroupMember(groupId: number, userId: number) {
-    try {
-      const { isGroupLeader } = await this.prisma.userGroup.findUniqueOrThrow({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          userId_groupId: {
-            userId,
-            groupId
+  async deleteGroupMember(groupId: number, userId: number): Promise<UserGroup> {
+    const userGroup = await this.prisma.userGroup.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId,
+          groupId
+        }
+      },
+      select: {
+        isGroupLeader: true,
+        group: {
+          select: {
+            groupType: true
           }
-        },
-        select: {
+        }
+      }
+    })
+
+    if (!userGroup) {
+      throw new UnprocessableDataException('Not a member')
+    }
+
+    if (userGroup.isGroupLeader) {
+      const groupLeaderNum = await this.prisma.userGroup.count({
+        where: {
+          groupId,
           isGroupLeader: true
         }
       })
+      if (groupLeaderNum <= 1) {
+        throw new BadRequestException('One or more leaders are required')
+      }
+    }
 
-      if (isGroupLeader) {
-        const groupLeaderNum = await this.prisma.userGroup.count({
-          where: {
-            groupId,
-            isGroupLeader: true
-          }
-        })
-
-        if (groupLeaderNum <= 1) {
-          throw new BadRequestException('One or more leaders are required')
+    if (userGroup.group.groupType === GroupType.Course) {
+      const assignmentIds = await this.prisma.assignment.findMany({
+        where: {
+          groupId
+        },
+        select: {
+          id: true
         }
-      }
-    } catch (error) {
-      if (error.code === 'P2025') {
-        throw new UnprocessableDataException('Not a member')
-      }
+      })
 
-      throw error
+      const deleteData = assignmentIds.map(({ id }) => ({
+        assignmentId: id,
+        userId
+      }))
+
+      await this.prisma.assignmentRecord.deleteMany({
+        where: { OR: deleteData }
+      })
     }
 
     return await this.prisma.userGroup.delete({
