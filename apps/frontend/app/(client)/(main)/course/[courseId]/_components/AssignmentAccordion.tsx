@@ -197,7 +197,7 @@ function AssignmentAccordionItem({
                       </span>
                     </Link>
                   </div>
-                  <div className="w-[30%]">
+                  <div className="flex w-[30%] justify-center">
                     {problem.submissionTime && (
                       <p className="font-normal text-[#8A8A8A]">
                         Last submission:{' '}
