@@ -87,7 +87,7 @@ export function SubmissionTable<
                 className={
                   'table-row cursor-pointer border-t border-slate-600 text-slate-300 hover:bg-slate-600/50 hover:font-semibold'
                 }
-                href={href as Route}
+                href={href}
                 replace={true}
               >
                 {row.getVisibleCells().map((cell) => (
