@@ -26,12 +26,11 @@ export function LeaderboardUnfreezeSwitchDialog({
   activated
 }: LeaderboardUnfreezeDialogProps) {
   const [isUnfrozen, setIsUnFrozen] = useState<boolean>(isUnFrozen)
-  const [updateContest, { error }] = useMutation(UPDATE_CONTEST)
+  const [updateContest] = useMutation(UPDATE_CONTEST)
 
   const toggleUnfreeze = async () => {
     try {
-      console.log('contestId: ', contestId, ' unfreeze?: ', isUnfrozen)
-      const res = await updateContest({
+      await updateContest({
         variables: {
           contestId,
           input: {
@@ -39,9 +38,7 @@ export function LeaderboardUnfreezeSwitchDialog({
           }
         }
       })
-      console.log('res: ', res)
     } catch (err) {
-      console.log('error: ', error)
       console.error('Error updating contest:', err)
     }
   }
