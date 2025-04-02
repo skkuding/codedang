@@ -81,24 +81,27 @@ export function EditorDescription({
       </div>
 
       <hr className="border-4 border-[#121728]" />
+      {problem.hint?.trim() && (
+        <>
+          <Accordion type="multiple">
+            <AccordionItem value="item-1" className="border-none px-6">
+              <AccordionTrigger className="hover:no-underline">
+                <div className="flex items-center text-base">Hint</div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <pre
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(problem.hint)
+                  }}
+                  className="prose prose-invert max-w-full whitespace-pre-wrap break-keep text-sm leading-relaxed text-slate-300"
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
-      <Accordion type="multiple">
-        <AccordionItem value="item-1" className="border-none px-6">
-          <AccordionTrigger className="hover:no-underline">
-            <div className="flex items-center text-base">Hint</div>
-          </AccordionTrigger>
-          <AccordionContent>
-            <pre
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(problem.hint)
-              }}
-              className="prose prose-invert max-w-full whitespace-pre-wrap break-keep text-sm leading-relaxed text-slate-300"
-            />
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-
-      <hr className="border-4 border-[#121728]" />
+          <hr className="border-4 border-[#121728]" />
+        </>
+      )}
 
       <ReferenceDialog />
     </div>

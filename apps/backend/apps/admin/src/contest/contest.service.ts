@@ -224,14 +224,18 @@ export class ContestService {
     })
   }
 
-  async updateContest(contest: UpdateContestInput): Promise<Contest> {
+  async updateContest(
+    contestId: number,
+    contest: UpdateContestInput
+  ): Promise<Contest> {
     const contestFound = await this.prisma.contest.findUniqueOrThrow({
       where: {
-        id: contest.id
+        id: contestId
       },
       select: {
         startTime: true,
         endTime: true,
+        unfreeze: true,
         freezeTime: true,
         contestProblem: {
           select: {
@@ -245,6 +249,7 @@ export class ContestService {
             }
           },
           select: {
+            id: true,
             userId: true,
             role: true
           }
@@ -287,18 +292,25 @@ export class ContestService {
       }
     }
 
+    // unfreeze 상태 변경 시 예외 처리
     if (contest.unfreeze) {
+      const now = new Date()
       if (!contestFound.freezeTime) {
         throw new UnprocessableDataException(
-          'Cannot unfreeze a contest that has not been frozen'
+          'Cannot unfreeze a contest with no freezetime set'
         )
       }
-      if (contestFound.freezeTime < new Date()) {
+      if (contestFound.unfreeze) {
         throw new UnprocessableDataException(
           'Cannot unfreeze a contest that has already been unfrozen'
         )
       }
-      if (contest.unfreeze && contest.endTime > new Date()) {
+      if (contestFound.freezeTime > now) {
+        throw new UnprocessableDataException(
+          'Cannot unfreeze a contest that has not been frozen yet'
+        )
+      }
+      if (contestFound.endTime > now) {
         throw new UnprocessableDataException(
           'Cannot unfreeze a contest that has not ended yet'
         )
@@ -320,7 +332,7 @@ export class ContestService {
             }
           })
         )
-          .filter((contestProblem) => contestProblem.contestId !== contest.id)
+          .filter((contestProblem) => contestProblem.contestId !== contestId)
           .map((contestProblem) => contestProblem.contestId)
 
         if (contestIds.length) {
@@ -352,7 +364,7 @@ export class ContestService {
       }
     }
 
-    const { id, summary, userContest: newRoles, ...contestData } = contest
+    const { summary, userContest: newRoles, ...contestData } = contest
 
     // userContest 중 삭제된 userContestRole 삭제, 추가된 userContestRole 추가, 변경된 userContestRole 변경
     if (newRoles) {
@@ -375,11 +387,7 @@ export class ContestService {
         ...rolesToDelete.map((role) =>
           this.prisma.userContest.delete({
             where: {
-              // eslint-disable-next-line @typescript-eslint/naming-convention
-              userId_contestId: {
-                userId: role.userId,
-                contestId: contest.id
-              }
+              id: role.id
             }
           })
         ),
@@ -387,7 +395,7 @@ export class ContestService {
           this.prisma.userContest.create({
             data: {
               userId: role.userId,
-              contestId: contest.id,
+              contestId,
               role: role.contestRole as ContestRole
             }
           })
@@ -398,7 +406,7 @@ export class ContestService {
               // eslint-disable-next-line @typescript-eslint/naming-convention
               userId_contestId: {
                 userId: role.userId,
-                contestId: contest.id
+                contestId
               }
             },
             data: {
@@ -411,7 +419,7 @@ export class ContestService {
 
     return await this.prisma.contest.update({
       where: {
-        id
+        id: contestId
       },
       data: {
         summary: summary
@@ -1194,5 +1202,25 @@ export class ContestService {
           )?.order ?? null
       }))
     }
+  }
+
+  async getContestRoles(userId: number) {
+    if (!userId) {
+      return []
+    }
+
+    const userContests = await this.prisma.userContest.findMany({
+      where: {
+        userId
+      },
+      select: {
+        contestId: true,
+        role: true
+      }
+    })
+
+    console.log('userContests', userContests)
+
+    return userContests
   }
 }

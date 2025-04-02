@@ -44,7 +44,7 @@ export class ContestRolesGuard implements CanActivate {
       )
     } else {
       request = context.switchToHttp().getRequest()
-      constestId = parseInt(request.query.groupId as string)
+      constestId = parseInt(request.query.constestId as string)
     }
 
     const role =

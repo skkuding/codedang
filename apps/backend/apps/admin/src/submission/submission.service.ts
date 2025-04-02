@@ -59,6 +59,7 @@ export class SubmissionService {
   }
 
   async getContestSubmissions(
+    contestId: number,
     input: GetContestSubmissionsInput,
     take: number,
     cursor: number | null,
@@ -66,7 +67,7 @@ export class SubmissionService {
   ) {
     const paginator = this.prisma.getPaginator(cursor)
 
-    const { contestId, problemId, searchingName } = input
+    const { problemId, searchingName } = input
     const contestSubmissions = await this.prisma.submission.findMany({
       ...paginator,
       take,
@@ -309,6 +310,8 @@ export class SubmissionService {
         problem: true,
         contest: true,
         assignment: true,
+        // TODO: Let's not include this here.
+        // Instead, we should use @ResolveField to get this value.
         submissionResult: {
           include: {
             problemTestcase: {
@@ -328,6 +331,12 @@ export class SubmissionService {
     const results = submission.submissionResult.map((result) => {
       return {
         ...result,
+        // TODO: Handle this separately.
+        // If input/output is null, the values should be read from S3.
+        problemTestcase: {
+          input: result.problemTestcase.input ?? '',
+          output: result.problemTestcase.output ?? ''
+        },
         cpuTime:
           result.cpuTime || result.cpuTime === BigInt(0)
             ? result.cpuTime.toString()

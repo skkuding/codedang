@@ -8,6 +8,8 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/skkuding/codedang/apps/iris/src/router"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type connector struct {
@@ -70,6 +72,17 @@ func (c *connector) Connect(ctx context.Context) {
 func (c *connector) Disconnect() {}
 
 func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
+	carrier := convertTableToHeaderCarrier(message.Headers)
+
+	extractedCtx := otel.GetTextMapPropagator().Extract(ctx, carrier)
+	span := trace.SpanFromContext(extractedCtx)
+	tracer := otel.Tracer("Connector")
+	_, childSpan := tracer.Start(
+		extractedCtx,
+		"go:handle-message",
+		trace.WithLinks(trace.Link{SpanContext: span.SpanContext()}), // Client-API로부터 전달받은 SpanContext를 연결
+	)
+	defer childSpan.End()
 
 	resultChan := make(chan []byte)
 	if message.Type == "" {

@@ -756,14 +756,10 @@ export class AssignmentService {
         (total, { score }) => total + score,
         0
       ), // Assignment의 만점
-      userAssignmentFinalScore: assignmentProblemRecords.some(
-        (record) => record.finalScore === null
-      )
-        ? null
-        : assignmentProblemRecords.reduce(
-            (total, { finalScore }) => total + finalScore!,
-            0
-          ),
+      userAssignmentFinalScore: assignmentProblemRecords.reduce(
+        (total, { finalScore }) => total + (finalScore ?? 0),
+        0
+      ),
       problemScores // 개별 Problem의 점수 리스트 (각 문제에서 몇 점을 획득했는지)
     }
 

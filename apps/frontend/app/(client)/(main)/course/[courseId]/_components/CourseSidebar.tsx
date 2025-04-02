@@ -10,9 +10,8 @@ import { useState } from 'react'
 import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6'
 import { CourseInfoBox } from './CourseInfoBox'
 import {
-  AssignmentIcon,
+  AssignmentIcon
   // ExamIcon,
-  GradeIcon
   // HomeIcon,
   // MemberIcon,
   // NoticeIcon,
@@ -60,7 +59,7 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
           fill={getActiveColor(pathname, `/course/${courseId}/assignment`)}
         />
       )
-    },
+    }
     // {
     //   name: 'Exam',
     //   path: `/course/${courseId}/exam` as const,
@@ -68,15 +67,15 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
     //     <ExamIcon fill={getActiveColor(pathname, `/course/${courseId}/exam`)} />
     //   )
     // },
-    {
-      name: 'Grade',
-      path: `/course/${courseId}/grade` as const,
-      icon: (
-        <GradeIcon
-          fill={getActiveColor(pathname, `/course/${courseId}/grade`)}
-        />
-      )
-    }
+    // {
+    //   name: 'Grade',
+    //   path: `/course/${courseId}/grade` as const,
+    //   icon: (
+    //     <GradeIcon
+    //       fill={getActiveColor(pathname, `/course/${courseId}/grade`)}
+    //     />
+    //   )
+    // }
     // {
     //   name: 'Q&A',
     //   path: `/course/${courseId}/qna` as const,

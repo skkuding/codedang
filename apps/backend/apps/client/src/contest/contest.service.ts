@@ -554,10 +554,7 @@ export class ContestService {
 
   async getContestRoles(userId: number) {
     if (!userId) {
-      return {
-        canCreateContest: false,
-        userContests: []
-      }
+      return []
     }
 
     const userContests = await this.prisma.userContest.findMany({
@@ -569,18 +566,7 @@ export class ContestService {
         role: true
       }
     })
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id: userId
-      },
-      select: {
-        canCreateContest: true
-      }
-    })
 
-    return {
-      canCreateContest: user?.canCreateContest ?? false,
-      userContests
-    }
+    return userContests
   }
 }

@@ -13,10 +13,11 @@ export class AnnouncementResolver {
 
   @Mutation(() => Announcement)
   async createAnnouncement(
+    @Args('contestId', { type: () => Int }) contestId: number,
     @Args('input')
     input: CreateAnnouncementInput
   ) {
-    return await this.announcementService.createAnnouncement(input)
+    return await this.announcementService.createAnnouncement(contestId, input)
   }
 
   @Query(() => [AnnouncementWithProblemOrder], {
@@ -29,20 +30,27 @@ export class AnnouncementResolver {
   }
 
   @Query(() => Announcement, { name: 'announcement' })
-  async getAnnouncementById(@Args('id', { type: () => Int }) id: number) {
-    return await this.announcementService.getAnnouncementById(id)
+  async getAnnouncementById(
+    @Args('contestId', { type: () => Int }) contestId: number,
+    @Args('id', { type: () => Int }) id: number
+  ) {
+    return await this.announcementService.getAnnouncementById(contestId, id)
   }
 
   @Mutation(() => Announcement)
   async updateAnnouncement(
+    @Args('contestId', { type: () => Int }) contestId: number,
     @Args('input')
     input: UpdateAnnouncementInput
   ) {
-    return await this.announcementService.updateAnnouncement(input)
+    return await this.announcementService.updateAnnouncement(contestId, input)
   }
 
   @Mutation(() => Announcement)
-  async removeAnnouncement(@Args('id', { type: () => Int }) id: number) {
-    return await this.announcementService.removeAnnouncement(id)
+  async removeAnnouncement(
+    @Args('contestId', { type: () => Int }) contestId: number,
+    @Args('id', { type: () => Int }) id: number
+  ) {
+    return await this.announcementService.removeAnnouncement(contestId, id)
   }
 }
