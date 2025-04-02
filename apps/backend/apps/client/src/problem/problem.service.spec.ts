@@ -345,6 +345,7 @@ describe('ContestProblemService', () => {
         startTime: faker.date.past(),
         endTime: faker.date.future(),
         isRegistered: true,
+        isPrivilegedRole: false,
         invitationCodeExists: true,
         isJudgeResultVisible: true,
         prev: null,
@@ -378,6 +379,7 @@ describe('ContestProblemService', () => {
         startTime: faker.date.past(),
         endTime: faker.date.future(),
         isRegistered: true,
+        isPrivilegedRole: false,
         invitationCodeExists: true,
         isJudgeResultVisible: true,
         prev: null,
@@ -404,6 +406,31 @@ describe('ContestProblemService', () => {
       )
     })
 
+    it('should return contest problems when user is a Reviewer before contest start', async () => {
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
+        startTime: faker.date.future(),
+        endTime: faker.date.future(),
+        isRegistered: false,
+        isPrivilegedRole: true,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true,
+        prev: null,
+        next: null
+      })
+      db.contestProblem.findMany.resolves(mockContestProblems)
+      db.submission.findMany.resolves([])
+
+      const result = await service.getContestProblems({
+        contestId,
+        userId,
+        cursor: 1,
+        take: 1
+      })
+
+      expect(result.data).to.be.an('array')
+    })
+
     it('should throw PrismaClientKnownRequestError when the contest is not visible', async () => {
       // given
       const getContestSpy = stub(contestService, 'getContest')
@@ -426,6 +453,7 @@ describe('ContestProblemService', () => {
         startTime: faker.date.future(),
         endTime: faker.date.future(),
         isRegistered: true,
+        isPrivilegedRole: false,
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
@@ -449,6 +477,7 @@ describe('ContestProblemService', () => {
         startTime: faker.date.past(),
         endTime: faker.date.future(),
         isRegistered: false,
+        isPrivilegedRole: false,
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
@@ -475,6 +504,35 @@ describe('ContestProblemService', () => {
         startTime: faker.date.past(),
         endTime: faker.date.future(),
         isRegistered: true,
+        isPrivilegedRole: false,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true,
+        prev: null,
+        next: null
+      })
+      db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
+      db.updateHistory.findMany.resolves(mockUpdateHistory)
+
+      // when
+      const result = await service.getContestProblem({
+        contestId,
+        problemId,
+        userId
+      })
+
+      // then
+      expect(result).to.have.property('order', mockContestProblem.order)
+      expect(result).to.have.property('updateHistory', mockUpdateHistory)
+    })
+
+    it('should return the contest problem when user is a Reviewer before contest start', async () => {
+      // given
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
+        startTime: faker.date.future(),
+        endTime: faker.date.future(),
+        isRegistered: false,
+        isPrivilegedRole: true,
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
@@ -516,6 +574,7 @@ describe('ContestProblemService', () => {
         startTime: faker.date.future(),
         endTime: faker.date.future(),
         isRegistered: true,
+        isPrivilegedRole: false,
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
@@ -537,6 +596,7 @@ describe('ContestProblemService', () => {
         startTime: faker.date.past(),
         endTime: faker.date.future(),
         isRegistered: false,
+        isPrivilegedRole: false,
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
