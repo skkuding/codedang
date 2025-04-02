@@ -8,6 +8,7 @@ import {
   AccordionTrigger
 } from '@/components/shadcn/accordion'
 import { Dialog } from '@/components/shadcn/dialog'
+import { UNLIMITED_DATE } from '@/libs/constants'
 import {
   cn,
   convertToLetter,
@@ -305,6 +306,10 @@ export function AssignmentStatusTimeDiff({
   useInterval(() => {
     updateAssignmentStatus()
   }, 1000)
+
+  if (dayjs(assignment.endTime).isSame(dayjs(UNLIMITED_DATE))) {
+    return null
+  }
 
   return (
     <div className="inline-flex items-center gap-1 whitespace-nowrap text-xs font-normal text-[#8A8A8A] opacity-80">

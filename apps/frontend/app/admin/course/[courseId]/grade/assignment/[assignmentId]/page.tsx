@@ -4,7 +4,7 @@ import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Button } from '@/components/shadcn/button'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
-import { dateFormatter } from '@/libs/utils'
+import { dateFormatter, formatDateRange } from '@/libs/utils'
 import { useQuery, useSuspenseQuery } from '@apollo/client'
 import { ErrorBoundary } from '@suspensive/react'
 import type { Route } from 'next'
@@ -58,30 +58,32 @@ export default function Layout({
         </Link>
       </div>
       <div className="flex justify-between border-y border-gray-300 py-6">
-        <div className="grid gap-2">
-          {[
-            {
-              label: 'Start',
-              value: dateFormatter(assignmentData?.startTime, 'YY-MM-DD HH:mm')
-            },
-            {
-              label: 'Finish',
-              value: dateFormatter(assignmentData?.endTime, 'YY-MM-DD HH:mm')
-            },
-            { label: 'Score', value: totalScore },
-            {
-              label: 'Grade Method',
-              value: assignmentData?.autoFinalizeScore
-                ? 'Automatically Finalize Score (No Manual Review)'
-                : 'Manual Review'
-            }
-          ].map((item) => (
-            <div key={item.label} className="grid grid-cols-[8rem_auto]">
-              <span className="font-bold">{item.label}</span>
-              <span>{item.value}</span>
-            </div>
-          ))}
-        </div>
+        {assignmentData && (
+          <div className="grid gap-2">
+            {[
+              {
+                label: 'Period',
+                value: formatDateRange(
+                  assignmentData?.startTime,
+                  assignmentData?.endTime
+                )
+              },
+
+              { label: 'Score', value: totalScore },
+              {
+                label: 'Grade Method',
+                value: assignmentData?.autoFinalizeScore
+                  ? 'Automatically Finalize Score (No Manual Review)'
+                  : 'Manual Review'
+              }
+            ].map((item) => (
+              <div key={item.label} className="grid grid-cols-[8rem_auto]">
+                <span className="font-bold">{item.label}</span>
+                <span>{item.value}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<ParticipantTableFallback />}>
