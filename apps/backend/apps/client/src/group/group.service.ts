@@ -369,9 +369,14 @@ export class GroupService {
         userId
       }))
 
-      await this.prisma.assignmentRecord.deleteMany({
-        where: { OR: deleteData }
-      })
+    await this.prisma.assignmentRecord.deleteMany({
+        where: {
+            userId,
+            assignmentId: {
+                in: assignmentIds.map(({ id }) => id)
+            }
+        }
+    })
     }
 
     return await this.prisma.userGroup.delete({
