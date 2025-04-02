@@ -462,31 +462,85 @@ export class InvitationService {
   }
 
   async inviteUser(groupId: number, userId: number, isGroupLeader: boolean) {
-    try {
-      return await this.prisma.userGroup.create({
-        data: {
-          user: {
-            connect: { id: userId }
-          },
-          group: {
-            connect: { id: groupId }
-          },
-          isGroupLeader
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId },
+      select: { groupType: true }
+    })
+
+    if (!group) {
+      throw new NotFoundException('Group')
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId }
+    })
+
+    if (!user) {
+      throw new NotFoundException('User')
+    }
+
+    const isAlreadyMember = await this.prisma.userGroup.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId,
+          groupId
+        }
+      }
+    })
+
+    if (isAlreadyMember) {
+      throw new UnprocessableDataException('Already a member')
+    }
+
+    const userGroup = await this.prisma.userGroup.create({
+      data: {
+        user: {
+          connect: { id: userId }
+        },
+        group: {
+          connect: { id: groupId }
+        },
+        isGroupLeader
+      },
+      select: {
+        userId: true,
+        groupId: true,
+        isGroupLeader: true,
+        user: true
+      }
+    })
+
+    if (group.groupType === GroupType.Course) {
+      const assignmentIds = await this.prisma.assignment.findMany({
+        where: {
+          groupId
         },
         select: {
-          userId: true,
-          groupId: true,
-          isGroupLeader: true,
-          user: true
+          id: true,
+          assignmentProblem: {
+            select: { problemId: true }
+          }
         }
       })
-    } catch (error) {
-      if (error.code === 'P2025') {
-        throw new NotFoundException('User or Group not found')
-      } else if (error.code === 'P2002') {
-        throw new UnprocessableDataException('Already a member')
-      }
+      await this.prisma.assignmentRecord.createMany({
+        data: assignmentIds.map(({ id }) => ({
+          userId,
+          assignmentId: id
+        }))
+      })
+      await this.prisma.assignmentProblemRecord.createMany({
+        data: assignmentIds.flatMap(({ id, assignmentProblem }) =>
+          assignmentProblem.map(({ problemId }) => ({
+            userId,
+            assignmentId: id,
+            problemId
+          }))
+        )
+      })
     }
+
+    return userGroup
   }
 }
 

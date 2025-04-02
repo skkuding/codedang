@@ -248,6 +248,7 @@ export class GroupService {
       },
       select: {
         config: true,
+        groupType: true,
         userGroup: {
           select: {
             userId: true
@@ -328,6 +329,36 @@ export class GroupService {
         groupId,
         isGroupLeader: false
       }
+
+      if (group.groupType === GroupType.Course) {
+        const assignmentIds = await this.prisma.assignment.findMany({
+          where: {
+            groupId
+          },
+          select: {
+            id: true,
+            assignmentProblem: {
+              select: { problemId: true }
+            }
+          }
+        })
+        await this.prisma.assignmentRecord.createMany({
+          data: assignmentIds.map(({ id }) => ({
+            userId,
+            assignmentId: id
+          }))
+        })
+        await this.prisma.assignmentProblemRecord.createMany({
+          data: assignmentIds.flatMap(({ id, assignmentProblem }) =>
+            assignmentProblem.map(({ problemId }) => ({
+              userId,
+              assignmentId: id,
+              problemId
+            }))
+          )
+        })
+      }
+
       return {
         userGroupData: await this.createUserGroup(userGroupData),
         isJoined: true
@@ -364,19 +395,14 @@ export class GroupService {
         }
       })
 
-      const deleteData = assignmentIds.map(({ id }) => ({
-        assignmentId: id,
-        userId
-      }))
-
-    await this.prisma.assignmentRecord.deleteMany({
+      await this.prisma.assignmentRecord.deleteMany({
         where: {
-            userId,
-            assignmentId: {
-                in: assignmentIds.map(({ id }) => id)
-            }
+          userId,
+          assignmentId: {
+            in: assignmentIds.map(({ id }) => id)
+          }
         }
-    })
+      })
     }
 
     return await this.prisma.userGroup.delete({

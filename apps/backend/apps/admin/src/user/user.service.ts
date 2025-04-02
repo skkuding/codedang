@@ -287,13 +287,13 @@ export class GroupMemberService {
         }
       })
 
-      const deleteData = assignmentIds.map(({ id }) => ({
-        assignmentId: id,
-        userId
-      }))
-
       await this.prisma.assignmentRecord.deleteMany({
-        where: { OR: deleteData }
+        where: {
+          userId,
+          assignmentId: {
+            in: assignmentIds.map(({ id }) => id)
+          }
+        }
       })
     }
 
