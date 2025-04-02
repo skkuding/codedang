@@ -171,9 +171,17 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <p className="overflow-hidden whitespace-nowrap text-center font-normal">
-        {`${dateFormatter(row.original.startTime, 'MMM DD, YYYY HH:mm')} ~ ${dateFormatter(row.original.endTime, 'MMM DD, YYYY HH:mm')}`}
-      </p>
+      <div className="flex justify-center">
+        <div className="max-w-[270px] flex-1 text-left">
+          <p className="overflow-hidden whitespace-nowrap">
+            {`${dateFormatter(row.original.startTime, 'MMM DD, YYYY HH:mm')}${
+              row.original.endTime === '2999-12-31T14:59:59.000Z'
+                ? ' ~ '
+                : ` ~ ${dateFormatter(row.original.endTime, 'MMM DD, YYYY HH:mm')}`
+            }`}
+          </p>
+        </div>
+      </div>
     ),
     size: 250
   },
