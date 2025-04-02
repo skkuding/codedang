@@ -10,7 +10,7 @@ import {
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
 import { UPDATE_ASSIGNMENT_VISIBLE } from '@/graphql/assignment/mutations'
-import { cn, dateFormatter } from '@/libs/utils'
+import { cn, dateFormatter, formatDateRange } from '@/libs/utils'
 import invisibleIcon from '@/public/icons/invisible.svg'
 import visibleIcon from '@/public/icons/visible.svg'
 import { useMutation } from '@apollo/client'
@@ -174,11 +174,7 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
       <div className="flex justify-center">
         <div className="max-w-[270px] flex-1 text-left">
           <p className="overflow-hidden whitespace-nowrap">
-            {`${dateFormatter(row.original.startTime, 'MMM DD, YYYY HH:mm')}${
-              row.original.endTime === '2999-12-31T14:59:59.000Z'
-                ? ' ~ '
-                : ` ~ ${dateFormatter(row.original.endTime, 'MMM DD, YYYY HH:mm')}`
-            }`}
+            {formatDateRange(row.original.startTime, row.original.endTime)}
           </p>
         </div>
       </div>

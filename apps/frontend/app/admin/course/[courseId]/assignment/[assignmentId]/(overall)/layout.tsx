@@ -3,7 +3,7 @@
 import { KatexContent } from '@/components/KatexContent'
 import { Button } from '@/components/shadcn/button'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
-import { dateFormatter } from '@/libs/utils'
+import { dateFormatter, formatDateRange } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import { useQuery } from '@apollo/client'
 import type { Route } from 'next'
@@ -46,10 +46,14 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
       <div className="flex justify-between">
         <div className="flex items-center gap-2">
           <Image src={calendarIcon} alt="calendar" width={22} />
-          <p className="font-semibold">
-            {dateFormatter(assignmentData?.startTime, 'MMM DD, YYYY HH:mm')} ~{' '}
-            {dateFormatter(assignmentData?.endTime, 'MMM DD, YYYY HH:mm')}
-          </p>
+          {assignmentData && (
+            <p className="font-semibold">
+              {formatDateRange(
+                assignmentData?.startTime,
+                assignmentData?.endTime
+              )}
+            </p>
+          )}
         </div>
       </div>
       <KatexContent

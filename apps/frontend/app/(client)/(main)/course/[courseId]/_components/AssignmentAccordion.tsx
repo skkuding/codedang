@@ -8,7 +8,12 @@ import {
   AccordionTrigger
 } from '@/components/shadcn/accordion'
 import { Dialog } from '@/components/shadcn/dialog'
-import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
+import {
+  cn,
+  convertToLetter,
+  dateFormatter,
+  formatDateRange
+} from '@/libs/utils'
 import type {
   Assignment,
   AssignmentStatus,
@@ -125,10 +130,17 @@ function AssignmentAccordionItem({
             {assignment && <AssignmentStatusTimeDiff assignment={assignment} />}
           </div>
           {assignment && (
-            <p className="w-[30%] font-normal text-[#8A8A8A]">
-              {dateFormatter(assignment.startTime, 'MMM D, HH:mm:ss')} {'-'}{' '}
-              {dateFormatter(assignment.endTime, 'MMM D, HH:mm:ss')}
-            </p>
+            <div className="flex w-[30%] justify-center">
+              <div className="max-w-[200px] flex-1 text-left">
+                <p className="overflow-hidden whitespace-nowrap font-normal text-[#8A8A8A]">
+                  {formatDateRange(
+                    assignment.startTime,
+                    assignment.endTime,
+                    false
+                  )}
+                </p>
+              </div>
+            </div>
           )}
           <div className="flex w-[13%] justify-center">
             {dayjs().isAfter(dayjs(assignment.startTime)) ? (
