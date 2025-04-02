@@ -1057,7 +1057,7 @@ export class AssignmentService {
     groupId: number
   ) {
     const courseMembers = await this.prisma.userGroup.findMany({
-      where: { groupId, isGroupLeader: false },
+      where: { groupId },
       select: { userId: true }
     })
 
