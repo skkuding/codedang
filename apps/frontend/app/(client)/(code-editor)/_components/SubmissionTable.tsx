@@ -19,7 +19,6 @@ import {
 } from '@tanstack/react-table'
 import type { Route } from 'next'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 
 interface Item {
   id: number
@@ -51,7 +50,6 @@ export function SubmissionTable<
     columns,
     getCoreRowModel: getCoreRowModel()
   })
-  const router = useRouter()
 
   return (
     <Table className="table-fixed">
@@ -82,16 +80,15 @@ export function SubmissionTable<
           table.getRowModel().rows.map((row) => {
             const href = getHref?.(row)
 
-            return (
-              <TableRow
+            return href ? (
+              <Link
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
-                className="cursor-pointer border-t border-slate-600 text-slate-300 hover:bg-slate-600/50 hover:font-semibold"
-                onClick={() => {
-                  if (href) {
-                    router.replace(href)
-                  }
-                }}
+                className={
+                  'table-row cursor-pointer border-t border-slate-600 text-slate-300 hover:bg-slate-600/50 hover:font-semibold'
+                }
+                href={href as Route}
+                replace={true}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
@@ -110,8 +107,32 @@ export function SubmissionTable<
                         cell.getContext()
                       )}
                     </div>
-                    {/* for prefetch */}
-                    {href && <Link replace href={href} />}
+                  </TableCell>
+                ))}
+              </Link>
+            ) : (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && 'selected'}
+                className="cursor-pointer border-t border-slate-600 text-slate-300 hover:bg-slate-600/50 hover:font-semibold"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    style={{
+                      paddingTop: 10,
+                      paddingBottom: 10,
+                      paddingLeft: 2,
+                      paddingRight: 2
+                    }}
+                    className="border-b-2 border-slate-700"
+                  >
+                    <div className="text-center text-xs">
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </div>
                   </TableCell>
                 ))}
               </TableRow>
