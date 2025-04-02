@@ -1052,7 +1052,7 @@ export class AssignmentService {
     return assignmentProblemRecord
   }
 
-  async inviteAllCourseMembersToAssignment(
+  private async inviteAllCourseMembersToAssignment(
     assignmentId: number,
     groupId: number
   ) {

@@ -481,9 +481,7 @@ describe('InvitationService', () => {
         groupId,
         isGroupLeader: false
       })
-
       db.userGroup.findUnique.resolves(null)
-
       db.assignment.findMany.resolves([{ assignmentProblem: [] }])
 
       const res = await service.inviteUser(groupId, userId, false)
