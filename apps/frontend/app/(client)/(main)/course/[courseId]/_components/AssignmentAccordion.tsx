@@ -100,11 +100,14 @@ function AssignmentAccordionItem({
       className="w-full"
       onValueChange={handleAccordionOpenChange}
     >
-      <AccordionItem value={assignment.id.toString()} className="border-b-0">
+      <AccordionItem
+        value={assignment.id.toString()}
+        className="group border-b-0"
+      >
         <AccordionTrigger
           className={cn(
-            'mt-4 flex w-full items-center rounded-2xl bg-white px-8 py-5 text-left text-sm shadow-md',
-            'data-[state=open]:-mb-6',
+            'mt-[14px] flex w-full items-center rounded-2xl bg-white px-8 py-5 text-left text-sm shadow-md',
+            'data-[state=open]:-mb-6 data-[state=open]:mt-[24px]',
             'relative',
             'hover:no-underline'
           )}
@@ -159,7 +162,7 @@ function AssignmentAccordionItem({
           </div>
           <div className="w-[1%]" />
         </AccordionTrigger>
-        <AccordionContent className="-mb-4 w-full">
+        <AccordionContent className="mb-[-16px] w-full group-data-[state=open]:mb-[10px]">
           {isAccordionOpen && record && (
             <div className="overflow-hidden rounded-2xl border">
               <div className="h-6 bg-[#F3F3F3]" />
