@@ -3,7 +3,7 @@
 import { KatexContent } from '@/components/KatexContent'
 import { Button } from '@/components/shadcn/button'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
-import { dateFormatter, formatDateRange } from '@/libs/utils'
+import { formatDateRange } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import { useQuery } from '@apollo/client'
 import type { Route } from 'next'
