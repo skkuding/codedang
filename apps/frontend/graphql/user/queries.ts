@@ -1,14 +1,10 @@
 import { gql } from '@generated'
 
 const GET_USERS = gql(`
-  query GetUsers($cursor: Int, $take: Int!) {
-    getUsers(cursor: $cursor, take: $take) {
-      id
-      userProfile {
-        realName
-        createTime
-      }
+  query GetUsers{
+    getUsers {
       username
+      id
       email
       studentId
       major
@@ -16,6 +12,7 @@ const GET_USERS = gql(`
       canCreateCourse
       canCreateContest
       lastLogin
+      createTime
     }
   }
 `)

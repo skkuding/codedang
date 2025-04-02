@@ -7,22 +7,18 @@ import {
   DataTable,
   DataTableFallback,
   DataTablePagination,
-  DataTableRoot
+  DataTableRoot,
+  DataTableSearchBar
 } from '../../_components/table'
 import { columns } from './Columns'
 
 export function UserTable() {
-  const { data } = useSuspenseQuery(GET_USERS, {
-    variables: {
-      take: 5000
-    }
-  })
+  const { data } = useSuspenseQuery(GET_USERS)
   const users = data.getUsers
 
   const mappedUsers = users.map((user) => ({
     id: Number(user.id),
     username: user.username,
-    realName: user.userProfile ? user.userProfile.realName : '-',
     email: user.email,
     studentId: user.studentId,
     major: user.major ?? '-',
@@ -30,13 +26,12 @@ export function UserTable() {
     canCreateCourse: user.canCreateCourse,
     canCreateContest: user.canCreateContest,
     lastLogin: dateFormatter(user.lastLogin, 'YYYY-MM-DD HH:mm:ss'),
-    createTime: user.userProfile
-      ? dateFormatter(user.userProfile.createTime, 'YYYY-MM-DD HH:mm:ss')
-      : '-'
+    createTime: dateFormatter(user.createTime, 'YYYY-MM-DD HH:mm:ss')
   }))
 
   return (
     <DataTableRoot data={mappedUsers} columns={columns}>
+      <DataTableSearchBar columndId="username" />
       <DataTable />
       <DataTablePagination />
     </DataTableRoot>
