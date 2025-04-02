@@ -21,7 +21,7 @@ import bottomCenterIcon from '@/public/icons/bottom-center.svg'
 import syncIcon from '@/public/icons/sync.svg'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
 import type { ProblemDetail, Contest } from '@/types/type'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -66,7 +66,7 @@ export function EditorMainResizablePanel({
     ? ['leaderboard freeze date', contestId]
     : ['leaderboard freeze date', 'no-contest']
 
-  const { data: freezeTime } = useSuspenseQuery({
+  const { data: freezeTime } = useQuery({
     queryKey: freezeQueryKey,
     queryFn: () => {
       if (!contestId) {
