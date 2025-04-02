@@ -1,7 +1,7 @@
 'use client'
 
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
-import { dateFormatter, formatDateRange } from '@/libs/utils'
+import { formatDateRange } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 
 export interface DataTableGrade {
