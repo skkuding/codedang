@@ -145,6 +145,24 @@ const mockContestProblemsWithScore = contestProblemsWithScore.map(
   }
 )
 
+const mockAssignment = {
+  problemCount: 10,
+  id: 1,
+  week: 1,
+  title: 'Sample Assignment',
+  description: 'This is a sample assignment.',
+  startTime: faker.date.past(),
+  endTime: faker.date.future(),
+  isJudgeResultVisible: true,
+  enableCopyPaste: false,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: true,
+  group: {
+    id: 1,
+    groupName: 'Sample Group'
+  }
+}
+
 const mockAssignmentProblem = {
   ...Object.assign({}, assignmentProblems[0]),
   problem: Object.assign({ tags: [tag] }, mockProblems[0])
@@ -579,12 +597,7 @@ describe('AssignmentProblemService', () => {
     it('should return public assignment problems', async () => {
       // given
       const getAssignmentSpy = stub(assignmentService, 'getAssignment')
-      getAssignmentSpy.resolves({
-        startTime: faker.date.past(),
-        endTime: faker.date.future(),
-        isRegistered: true,
-        isJudgeResultVisible: true
-      })
+      getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
       db.submission.findMany.resolves([])
       db.assignmentProblemRecord.findMany.resolves([
@@ -612,12 +625,7 @@ describe('AssignmentProblemService', () => {
     it('should return group assignment problems', async () => {
       // given
       const getAssignmentSpy = stub(assignmentService, 'getAssignment')
-      getAssignmentSpy.resolves({
-        startTime: faker.date.past(),
-        endTime: faker.date.future(),
-        isRegistered: true,
-        isJudgeResultVisible: true
-      })
+      getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
       db.submission.findMany.resolves([])
       db.assignmentProblemRecord.findMany.resolves([
@@ -676,12 +684,7 @@ describe('AssignmentProblemService', () => {
     it('should return the public assignment problem', async () => {
       // given
       const getAssignmentSpy = stub(assignmentService, 'getAssignment')
-      getAssignmentSpy.resolves({
-        startTime: faker.date.past(),
-        endTime: faker.date.future(),
-        isRegistered: true,
-        isJudgeResultVisible: true
-      })
+      getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
 
       // when
@@ -701,12 +704,7 @@ describe('AssignmentProblemService', () => {
     it('should return the group assignment problem', async () => {
       // given
       const getAssignmentSpy = stub(assignmentService, 'getAssignment')
-      getAssignmentSpy.resolves({
-        startTime: faker.date.past(),
-        endTime: faker.date.future(),
-        isRegistered: true,
-        isJudgeResultVisible: true
-      })
+      getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
 
       // when
