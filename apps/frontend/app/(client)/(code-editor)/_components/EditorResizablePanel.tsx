@@ -27,7 +27,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
-import { FaArrowRight, FaArrowLeft } from 'react-icons/fa6'
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import Loading from '../problem/[problemId]/loading'
 import { EditorHeader } from './EditorHeader/EditorHeader'
 import { LeaderboardModalDialog } from './LeaderboardModalDialog'
@@ -85,7 +85,8 @@ export function EditorMainResizablePanel({
     setIsFrozen(now > freezeTimeDate)
   }, [freezeTime, contestId])
 
-  const [isPanelHidden, setIsPanelHidden] = useState(false)
+  const [isSidePanelHidden, setIsSidePanelHidden] = useState(false)
+  const [isBottomPanelHidden, setIsBottomPanelHidden] = useState(false)
   const triggerRefresh = useLeaderboardSync((state) => state.triggerRefresh)
 
   const pathname = usePathname()
@@ -131,7 +132,7 @@ export function EditorMainResizablePanel({
       <ResizablePanel
         defaultSize={35}
         style={{ minWidth: '500px' }}
-        className={cn(isPanelHidden && 'hidden')}
+        className={cn(isSidePanelHidden && 'hidden')}
         minSize={20}
       >
         <div className="grid-rows-editor grid h-full grid-cols-1">
@@ -218,35 +219,16 @@ export function EditorMainResizablePanel({
       <ResizableHandle
         className={cn(
           'border-[0.5px] border-slate-700',
-          isPanelHidden && 'hidden'
+          isSidePanelHidden && 'hidden'
         )}
       />
 
       <ResizablePanel defaultSize={65} className="relative bg-[#222939]">
-        <Button
-          className={cn(
-            'group',
-            'absolute left-0 top-1/2 z-10 h-[24px] w-[29px] rounded rounded-l-none border border-l-0 p-0',
-            'border-[#3E4250] bg-[#292E3D]',
-            'hover:border-[#1F3D74] hover:bg-[#192C52]',
-            'active:border-[#25519C] active:bg-[#234B91]'
-          )}
-          onClick={() => {
-            setIsPanelHidden(!isPanelHidden)
-          }}
-        >
-          {isPanelHidden ? (
-            <FaArrowRight
-              className="text-[#AAB1B2] group-hover:text-[#619CFB] group-active:text-[#619CFB]"
-              size={15}
-            />
-          ) : (
-            <FaArrowLeft
-              className="text-[#AAB1B2] group-hover:text-[#619CFB] group-active:text-[#619CFB]"
-              size={15}
-            />
-          )}
-        </Button>
+        <HidePanelButton
+          isPanelHidden={isSidePanelHidden}
+          setIsPanelHidden={setIsSidePanelHidden}
+          direction="horizontal"
+        />
         <div className="grid-rows-editor grid h-full">
           <TestcaseStoreProvider
             problemId={problem.id}
@@ -266,8 +248,13 @@ export function EditorMainResizablePanel({
               <ResizablePanelGroup direction="vertical" className="h-32">
                 <ResizablePanel
                   defaultSize={60}
-                  className="!overflow-x-auto !overflow-y-auto"
+                  className="relative !overflow-x-auto !overflow-y-auto"
                 >
+                  <HidePanelButton
+                    isPanelHidden={isBottomPanelHidden}
+                    setIsPanelHidden={setIsBottomPanelHidden}
+                    direction="vertical"
+                  />
                   <ScrollArea className="h-full bg-[#121728]">
                     <CodeEditorInEditorResizablePanel
                       problemId={problem.id}
@@ -280,7 +267,10 @@ export function EditorMainResizablePanel({
                   </ScrollArea>
                 </ResizablePanel>
                 <ResizableHandle className="border-[0.5px] border-slate-700" />
-                <ResizablePanel defaultSize={40}>
+                <ResizablePanel
+                  defaultSize={40}
+                  className={cn(isBottomPanelHidden && 'hidden')}
+                >
                   <TestcasePanel />
                 </ResizablePanel>
               </ResizablePanelGroup>
@@ -317,5 +307,69 @@ function CodeEditorInEditorResizablePanel({
       height="100%"
       className="h-full"
     />
+  )
+}
+
+interface HidePanelButtonProps {
+  isPanelHidden: boolean
+  setIsPanelHidden: (isPanelHidden: boolean) => void
+  direction: 'horizontal' | 'vertical'
+}
+
+function HidePanelButton({
+  isPanelHidden,
+  setIsPanelHidden,
+  direction
+}: HidePanelButtonProps) {
+  return (
+    <div
+      className={cn(
+        direction === 'horizontal'
+          ? '-left-2 top-[40%] h-[89px] w-[29px] px-[1px] py-[2px]'
+          : '-bottom-2 left-1/2 h-[29px] w-[121px] px-[2px] py-[1px]',
+        'absolute z-20 inline-block bg-[#4C5565]',
+        direction === 'horizontal'
+          ? '[clip-path:polygon(0%_0%,100%_17%,100%_83%,0%_100%)]'
+          : '[clip-path:polygon(17%_0%,83%_0%,100%_100%,0%_100%)]'
+      )}
+    >
+      <Button
+        className={cn(
+          'group',
+          direction === 'horizontal'
+            ? 'h-[85px] w-[27px]'
+            : 'h-[27px] w-[117px]',
+          'bg-[#292E3D] p-0',
+          'hover:border-[#1F3D74] hover:bg-[#192C52]',
+          'active:border-[#25519C] active:bg-[#234B91]',
+          direction === 'horizontal'
+            ? '[clip-path:polygon(0%_0%,100%_16%,100%_84%,0%_100%)]'
+            : '[clip-path:polygon(16%_0%,84%_0%,100%_100%,0%_100%)]'
+        )}
+        onClick={() => {
+          setIsPanelHidden(!isPanelHidden)
+        }}
+      >
+        {isPanelHidden ? (
+          <FiChevronRight
+            className={cn(
+              'text-[#AAB1B2] group-hover:text-[#619CFB] group-active:text-[#619CFB]',
+              direction === 'vertical' && '-rotate-90',
+              direction === 'vertical' ? 'mb-1' : 'ml-1'
+            )}
+            size={20}
+          />
+        ) : (
+          <FiChevronLeft
+            className={cn(
+              'text-[#AAB1B2] group-hover:text-[#619CFB] group-active:text-[#619CFB]',
+              direction === 'vertical' && '-rotate-90',
+              direction === 'vertical' ? 'mb-1' : 'ml-1'
+            )}
+            size={20}
+          />
+        )}
+      </Button>
+    </div>
   )
 }
