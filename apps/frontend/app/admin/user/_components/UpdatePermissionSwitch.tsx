@@ -1,3 +1,5 @@
+'use client'
+
 import { Switch } from '@/components/shadcn/switch'
 import { UPDATE_PERMISSIONS } from '@/graphql/user/mutation'
 import { useMutation } from '@apollo/client'
@@ -5,14 +7,16 @@ import type { Row } from '@tanstack/react-table'
 import { useState } from 'react'
 import type { DataTableUser } from './Columns'
 
+interface UpdatePermissionSwitchProps {
+  row: Row<DataTableUser>
+  accessorkey: string
+}
+
 export function UpdatePermissionSwitch({
   row,
   accessorkey
-}: {
-  row: Row<DataTableUser>
-  accessorkey: string
-}) {
-  const [UpdatePermission] = useMutation(UPDATE_PERMISSIONS)
+}: UpdatePermissionSwitchProps) {
+  const [updatePermission] = useMutation(UPDATE_PERMISSIONS)
   const [canCreateCourse, setCanCreateCourse] = useState(
     row.original.canCreateCourse
   )
@@ -27,7 +31,7 @@ export function UpdatePermissionSwitch({
           onCheckedChange={async (checked) => {
             setCanCreateCourse(checked)
             try {
-              await UpdatePermission({
+              await updatePermission({
                 variables: {
                   input: {
                     userId: row.original.id,
@@ -48,7 +52,7 @@ export function UpdatePermissionSwitch({
           onCheckedChange={async (checked) => {
             setCanCreateContest(checked)
             try {
-              await UpdatePermission({
+              await updatePermission({
                 variables: {
                   input: {
                     userId: row.original.id,
