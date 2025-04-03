@@ -78,12 +78,6 @@ export default function ContestLeaderBoard() {
     if (!isLoading && !isError) {
       const contestEndTime = new Date(fetchedContest?.endTime)
       const contestStartTime = new Date(fetchedContest?.startTime)
-      console.log(
-        'contest end time: ',
-        contestEndTime,
-        ', contest start time: ',
-        contestStartTime
-      )
       if (contestEndTime > now && contestStartTime < now) {
         throw new Error('Error(ongoing): The contest has not ended yet.')
       }
