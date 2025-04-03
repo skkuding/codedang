@@ -128,17 +128,19 @@ function AssignmentAccordionItem({
             </p>
           )}
           <div className="flex w-[13%] justify-center">
-            {dayjs().isAfter(dayjs(assignment.startTime)) ? (
+            {dayjs().isAfter(dayjs(assignment.startTime)) && (
               <SubmissionBadge grade={grade} />
-            ) : null}
+            )}
           </div>
 
           <div className="flex w-[10%] justify-center gap-1 font-medium">
-            {grade.submittedCount > 0 &&
-            dayjs().isAfter(dayjs(assignment.endTime))
-              ? (grade.userAssignmentFinalScore ?? '-')
-              : '-'}
-            {` / ${grade.assignmentPerfectScore}`}
+            {dayjs().isAfter(assignment.startTime) && (
+              <p>
+                {grade.submittedCount > 0
+                  ? `${grade.userAssignmentFinalScore ?? '-'} / ${grade.assignmentPerfectScore}`
+                  : `- / ${grade.assignmentPerfectScore}`}
+              </p>
+            )}
           </div>
           <div className="flex w-[5%] justify-center">
             <Dialog
