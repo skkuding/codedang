@@ -13,7 +13,11 @@ import {
 import { columns } from './Columns'
 
 export function UserTable() {
-  const { data } = useSuspenseQuery(GET_USERS)
+  const { data } = useSuspenseQuery(GET_USERS, {
+    variables: {
+      take: 5000
+    }
+  })
   const users = data.getUsers
 
   const mappedUsers = users.map((user) => ({
@@ -26,7 +30,10 @@ export function UserTable() {
     canCreateCourse: user.canCreateCourse,
     canCreateContest: user.canCreateContest,
     lastLogin: dateFormatter(user.lastLogin, 'YYYY-MM-DD HH:mm:ss'),
-    createTime: dateFormatter(user.createTime, 'YYYY-MM-DD HH:mm:ss')
+    createTime: dateFormatter(
+      user.userProfile?.createTime,
+      'YYYY-MM-DD HH:mm:ss'
+    )
   }))
 
   return (
