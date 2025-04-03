@@ -13,7 +13,7 @@ import {
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
-import { GET_USERS } from '@/graphql/user/queries'
+import { GET_USERS_SET_MANAGER } from '@/graphql/user/queries'
 import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { useRouter } from 'next/navigation'
@@ -47,11 +47,7 @@ export function EditContestForm({
   const { setShouldSkipWarning } = useConfirmNavigationContext()
   const router = useRouter()
 
-  const { data: userData } = useSuspenseQuery(GET_USERS, {
-    variables: {
-      take: 5000
-    }
-  })
+  const { data: userData } = useSuspenseQuery(GET_USERS_SET_MANAGER)
 
   // 수정된 manager, reviewer 목록(managers) 으로 등록
   const formattedManagers = managers
