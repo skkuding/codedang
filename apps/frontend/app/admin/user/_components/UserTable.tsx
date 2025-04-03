@@ -12,11 +12,7 @@ import {
 import { columns } from './Columns'
 
 export function UserTable() {
-  const { data } = useSuspenseQuery(GET_USERS, {
-    variables: {
-      take: 5000
-    }
-  })
+  const { data } = useSuspenseQuery(GET_USERS)
   const users = data.getUsers
 
   const mappedUsers = users.map((user) => ({

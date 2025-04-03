@@ -58,11 +58,7 @@ export function AddManagerReviewerDialog({
     }
   }, [open])
 
-  const { data } = useSuspenseQuery(GET_USERS, {
-    variables: {
-      take: 5000
-    }
-  })
+  const { data } = useSuspenseQuery(GET_USERS)
 
   const users = data.getUsers.map((user) => ({
     id: Number(user.id),
