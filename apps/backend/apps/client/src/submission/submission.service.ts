@@ -528,9 +528,9 @@ export class SubmissionService {
       const submissions = await this.prisma.submission.findMany({
         where: {
           problemId,
-          ...(assignmentId !== null && { assignmentId }),
-          ...(contestId !== null && { contestId }),
-          ...(workbookId !== null && { workbookId })
+          contestId,
+          assignmentId,
+          workbookId
         },
         include: { problem: true, rejudgedSubmissions: true }
       })
