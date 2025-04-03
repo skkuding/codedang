@@ -422,7 +422,7 @@ export class ContestService {
         id: contestId
       },
       data: {
-        ...(summary !== undefined ? { summary } : {}),
+        ...{ summary },
         ...contestData
       },
       include: {
