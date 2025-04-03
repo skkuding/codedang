@@ -2,6 +2,7 @@
 
 import { CautionDialog } from '@/app/admin/_components/CautionDialog'
 import { UPLOAD_IMAGE } from '@/graphql/problem/mutations'
+import { cn } from '@/libs/utils'
 import imageUpload from '@/public/icons/image-upload.svg'
 import { useMutation } from '@apollo/client'
 import Image from 'next/image'
@@ -14,8 +15,8 @@ interface PosterUploadFormProps {
 
 export function PosterUploadForm({ name }: PosterUploadFormProps) {
   const {
-    control,
-    formState: { errors }
+    control
+    // formState: { errors }
   } = useFormContext()
 
   const { field } = useController({
@@ -78,17 +79,26 @@ export function PosterUploadForm({ name }: PosterUploadFormProps) {
     <>
       <div
         onClick={handleClick}
-        className="relative z-10 flex h-[312px] w-[234px] cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-[#80808029] bg-[#80808014] text-[#3333334D]"
+        className={cn(
+          'relative z-10 flex h-[312px] w-[234px] cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-[#80808029] bg-[#80808014] text-[#3333334D]',
+          field.value ? 'bg-white' : 'bg-[#80808014]'
+        )}
       >
         {isLoading ? (
           <div className="text-center text-[11px] font-normal">Loading...</div>
         ) : (
-          <Image
-            src={field.value || imageUpload}
-            alt="Contest Poster"
-            width={field.value ? 234 : undefined}
-            height={field.value ? 312 : undefined}
-          />
+          <div className="flex flex-shrink-0 rounded-xl">
+            <Image
+              src={field.value || imageUpload}
+              alt="Contest Poster"
+              width={234}
+              height={312}
+              className={cn(
+                'object-contain',
+                field.value ? 'h-[312px] w-[234px]' : 'h-full w-full'
+              )}
+            />
+          </div>
         )}
         {!field.value && !isLoading && (
           <>

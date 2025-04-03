@@ -55,8 +55,9 @@ export function ImportProblemTable({
         id: Number(tag.id)
       }
     })),
-    score: checkedProblems.find((item) => item.id === Number(problem.id))
-      ?.score,
+    score:
+      checkedProblems.find((item) => item.id === Number(problem.id))?.score ??
+      1,
     order: checkedProblems.find((item) => item.id === Number(problem.id))
       ?.order,
     createdBy: problem.createdBy?.username ? problem.createdBy.username : ''
