@@ -20,7 +20,7 @@ const GET_USERS = gql(`
   }
 `)
 
-const GET_USER_SET_MANAGER = gql(`
+const GET_USERS_SET_MANAGER = gql(`
   query GetUserSetManager{
     getUsers {
       id
@@ -63,4 +63,4 @@ const GET_GROUP_MEMBERS = gql(`
   }
 `)
 
-export { GET_USERS, GET_GROUP_MEMBER, GET_GROUP_MEMBERS, GET_USER_SET_MANAGER }
+export { GET_USERS, GET_GROUP_MEMBER, GET_GROUP_MEMBERS, GET_USERS_SET_MANAGER }
