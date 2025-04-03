@@ -1524,7 +1524,7 @@ export class SubmissionService {
       {
         submissionTime: Date
         submissionResult: string
-        testcaseCount: number
+        testcaseCount: number | null
         acceptedTestcaseCount: number | null
       }
     >()
@@ -1536,7 +1536,9 @@ export class SubmissionService {
           submissionResult: assignment.isJudgeResultVisible
             ? submission.result
             : ResultStatus.Blind,
-          testcaseCount: submission.submissionResult.length,
+          testcaseCount: assignment.isJudgeResultVisible
+            ? submission.submissionResult.length
+            : null,
           acceptedTestcaseCount: assignment.isJudgeResultVisible
             ? submission.submissionResult.reduce((acc, { result }) => {
                 if (result === ResultStatus.Accepted) return acc + 1
