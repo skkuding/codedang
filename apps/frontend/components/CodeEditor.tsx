@@ -76,7 +76,7 @@ const languageParser: Record<Language, () => LanguageSupport> = {
   Python3: python
 }
 
-interface Props extends ReactCodeMirrorProps {
+interface CodeEditorProps extends ReactCodeMirrorProps {
   language: Language
   enableCopyPaste?: boolean
   showZoom?: boolean
@@ -134,7 +134,7 @@ export function CodeEditor({
   readOnly = false,
   showZoom = false,
   ...props
-}: Props) {
+}: CodeEditorProps) {
   const [fontSize, setFontSize] = useState(16)
   const theme = EditorView.theme({
     '&': {
