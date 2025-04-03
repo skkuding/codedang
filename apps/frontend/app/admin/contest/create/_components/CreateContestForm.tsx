@@ -98,7 +98,7 @@ export function CreateContestForm({
         problemIdsWithScore: problems.map((problem) => {
           return {
             problemId: problem.id,
-            score: problem.score
+            score: problem.score ?? 1
           }
         })
       }

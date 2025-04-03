@@ -56,9 +56,7 @@ export default async function AssignmentFinishedPage({
             </Link>
           )}
           <Link
-            href={
-              `/course/${courseId}/assignment/${assignmentId}/problem` as Route
-            }
+            href={`/course/${courseId}/assignment/${assignmentId}` as Route}
           >
             <Button
               size="icon"

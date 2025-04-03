@@ -118,40 +118,42 @@ export function ManagementSidebar() {
   const { data: coursesData } = useQuery(GET_COURSES_USER_LEAD)
   const hasLeadCourses = (coursesData?.getCoursesUserLead?.length ?? 0) > 0
 
-  // useEffect(() => {
-  //   const fetchUserPermissions = async () => {
-  //     try {
-  //       const user: User = await safeFetcherWithAuth.get('user').json()
-  //       setUserPermissions({
-  //         canCreateCourse: user.canCreateCourse ?? false,
-  //         // canCreateContest: user.canCreateContest ?? false
-  //         canCreateContest: true
-  //       })
-  //     } catch (error) {
-  //       console.error('Error fetching user permissions:', error)
-  //     }
-  //   }
+  useEffect(() => {
+    const fetchUserPermissions = async () => {
+      try {
+        const user: User = await safeFetcherWithAuth.get('user').json()
+        setUserPermissions({
+          canCreateCourse: user.canCreateCourse ?? false,
+          canCreateContest: user.canCreateContest ?? false
+        })
+      } catch (error) {
+        console.error('Error fetching user permissions:', error)
+      }
+    }
 
-  //   async function fetchContestRoles() {
-  //     try {
-  //       const response: UserContest[] = await safeFetcherWithAuth
-  //         .get('contest/role')
-  //         .json()
+    async function fetchContestRoles() {
+      try {
+        const response: UserContest[] = await safeFetcherWithAuth
+          .get('contest/role')
+          .json()
 
-  //       const hasPermission = response.some((userContest) => {
-  //         return userContest.role !== ContestRole.Participant
-  //       })
-  //       setHasAnyPermissionOnContest(hasPermission)
-  //     } catch (error) {
-  //       console.error('Error fetching contest roles:', error)
-  //     }
-  //   }
+        const hasPermission = response.some((userContest) => {
+          return (
+            userContest.role !== ContestRole.Participant &&
+            userContest.role !== ContestRole.Reviewer
+          )
+        })
+        setHasAnyPermissionOnContest(hasPermission)
+      } catch (error) {
+        console.error('Error fetching contest roles:', error)
+      }
+    }
 
-  //   if (session) {
-  //     fetchUserPermissions()
-  //     fetchContestRoles()
-  //   }
-  // }, [session])
+    if (session) {
+      fetchUserPermissions()
+      fetchContestRoles()
+    }
+  }, [session])
 
   const getFilteredMainNavItems = () => {
     const items: NavItem[] = []
