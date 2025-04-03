@@ -566,7 +566,7 @@ export class SubmissionService {
                   result: ResultStatus.Judging,
                   score: 0,
                   rejudgedFromId: submission.id, //원본 제출(A)과의 관계 설정
-                  isRejudged: true
+                  isRejudged: false
                 }
               })
             ])
@@ -665,7 +665,7 @@ export class SubmissionService {
               result: ResultStatus.Judging,
               score: 0,
               rejudgedFromId: submission.id, //원본 제출(A)과의 관계 설정
-              isRejudged: true
+              isRejudged: false
             }
           })
         ])
