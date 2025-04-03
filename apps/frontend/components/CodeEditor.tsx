@@ -10,7 +10,7 @@ import { createTheme } from '@uiw/codemirror-themes'
 import type { ReactCodeMirrorProps } from '@uiw/react-codemirror'
 import ReactCodeMirror, { EditorView } from '@uiw/react-codemirror'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { FaPlus, FaMinus, FaArrowRotateLeft } from 'react-icons/fa6'
 import { toast } from 'sonner'
 import { Button } from './shadcn/button'
@@ -145,14 +145,17 @@ export function CodeEditor({
     }
   })
 
+  const increaseFontSize = useCallback(() => {
+    setFontSize((prev) => Math.min(prev + 2, 120))
+  }, [])
+  const decreaseFontSize = useCallback(() => {
+    setFontSize((prev) => Math.max(prev - 2, 6))
+  }, [])
+
   const { onPointerDown: startLongPlus, onPointerUp: stopLongPlus } =
-    useLongPress(() => {
-      setFontSize((prev) => Math.min(prev + 2, 120))
-    })
+    useLongPress(increaseFontSize)
   const { onPointerDown: startLongMinus, onPointerUp: stopLongMinus } =
-    useLongPress(() => {
-      setFontSize((prev) => Math.max(prev - 2, 6))
-    })
+    useLongPress(decreaseFontSize)
 
   return (
     <div className="flex h-full flex-col">
@@ -199,7 +202,7 @@ export function CodeEditor({
                     </TooltipContent>
                   </Tooltip>
                   <motion.div
-                    className="px-1 text-sm text-slate-100/60"
+                    className="w-12 px-1 text-center text-sm text-slate-100/60"
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0 }}
