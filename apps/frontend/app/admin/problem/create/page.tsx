@@ -130,12 +130,20 @@ export default function Page() {
 
             <div className="flex justify-between">
               <div className="w-[360px]">
-                <FormSection isFlexColumn title="Input Description">
+                <FormSection
+                  isLabeled={false}
+                  isFlexColumn
+                  title="Input Description"
+                >
                   <DescriptionForm name="inputDescription" />
                 </FormSection>
               </div>
               <div className="w-[360px]">
-                <FormSection isFlexColumn title="Output Description">
+                <FormSection
+                  isLabeled={false}
+                  isFlexColumn
+                  title="Output Description"
+                >
                   <DescriptionForm name="outputDescription" />
                 </FormSection>
               </div>
