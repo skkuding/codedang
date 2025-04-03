@@ -7,7 +7,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup
 } from '@/components/shadcn/resizable'
-import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
 import {
   Tooltip,
@@ -21,7 +21,7 @@ import bottomCenterIcon from '@/public/icons/bottom-center.svg'
 import syncIcon from '@/public/icons/sync.svg'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
 import type { ProblemDetail, Contest } from '@/types/type'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -66,7 +66,7 @@ export function EditorMainResizablePanel({
     ? ['leaderboard freeze date', contestId]
     : ['leaderboard freeze date', 'no-contest']
 
-  const { data: freezeTime } = useSuspenseQuery({
+  const { data: freezeTime } = useQuery({
     queryKey: freezeQueryKey,
     queryFn: () => {
       if (!contestId) {
@@ -255,16 +255,12 @@ export function EditorMainResizablePanel({
                     setIsPanelHidden={setIsBottomPanelHidden}
                     direction="vertical"
                   />
-                  <ScrollArea className="h-full bg-[#121728]">
-                    <CodeEditorInEditorResizablePanel
-                      problemId={problem.id}
-                      contestId={contestId}
-                      assignmentId={assignmentId}
-                      enableCopyPaste={enableCopyPaste}
-                    />
-                    <ScrollBar orientation="horizontal" />
-                    <ScrollBar orientation="vertical" />
-                  </ScrollArea>
+                  <CodeEditorInEditorResizablePanel
+                    problemId={problem.id}
+                    contestId={contestId}
+                    assignmentId={assignmentId}
+                    enableCopyPaste={enableCopyPaste}
+                  />
                 </ResizablePanel>
                 <ResizableHandle className="border-[0.5px] border-slate-700" />
                 <ResizablePanel
@@ -304,8 +300,7 @@ function CodeEditorInEditorResizablePanel({
       language={language}
       onChange={setCode}
       enableCopyPaste={enableCopyPaste}
-      height="100%"
-      className="h-full"
+      showZoom
     />
   )
 }
