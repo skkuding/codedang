@@ -139,7 +139,7 @@ export function CodeEditor({
   ...props
 }: CodeEditorProps) {
   const [fontSize, setFontSize] = useState(16)
-  const theme = EditorView.theme({
+  const fontSizeTheme = EditorView.theme({
     '&': {
       fontSize: `${fontSize}px`
     }
@@ -160,11 +160,11 @@ export function CodeEditor({
         <ReactCodeMirror
           theme={editorTheme}
           extensions={[
-            theme,
             languageParser[language](),
             enableCopyPaste ? [] : copyPasteHandler(),
             editorPadding,
-            gutterStyle
+            gutterStyle,
+            fontSizeTheme
           ]}
           className="h-full"
           value={value}
