@@ -82,13 +82,11 @@ export default function Page({ params }: { params: { contestId: string } }) {
                 </FormSection>
                 <FormSection title="Start Time">
                   {methods.getValues('startTime') && (
-                    <TimeForm isContest name="startTime" />
+                    <TimeForm name="startTime" />
                   )}
                 </FormSection>
                 <FormSection title="End Time">
-                  {methods.getValues('endTime') && (
-                    <TimeForm isContest name="endTime" />
-                  )}
+                  {methods.getValues('endTime') && <TimeForm name="endTime" />}
                 </FormSection>
 
                 {methods.getValues('freezeTime') !== undefined && (
@@ -102,23 +100,17 @@ export default function Page({ params }: { params: { contestId: string } }) {
               </div>
             </div>
 
-            <FormSection
-              title="Summary"
-              isContest
-              isLabeled={false}
-              isFlexColumn
-            >
+            <FormSection title="Summary" isLabeled={false} isFlexColumn>
               <SummaryForm name="summary" />
             </FormSection>
 
             <FormSection
               title="More Description"
-              isContest
               isLabeled={false}
               isFlexColumn={true}
             >
               {methods.getValues('description') !== undefined && (
-                <DescriptionForm name="description" isContest />
+                <DescriptionForm name="description" />
               )}
             </FormSection>
 
