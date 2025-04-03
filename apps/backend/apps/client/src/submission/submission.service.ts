@@ -1099,23 +1099,16 @@ export class SubmissionService {
       }))
     ) {
       const code = plainToInstance(Snippet, submission.code)
-      const results = submission.submissionResult
-        .filter(
-          (result) =>
-            !assignmentId ||
-            isHiddenTestcaseVisible ||
-            !result.problemTestcase.isHidden
-        )
-        .map((result) => {
-          return {
-            ...result,
-            // TODO: 채점 속도가 너무 빠른경우에 대한 수정 필요 (0ms 미만)
-            cpuTime:
-              result.cpuTime || result.cpuTime === BigInt(0)
-                ? result.cpuTime.toString()
-                : null
-          }
-        })
+      const results = submission.submissionResult.map((result) => {
+        return {
+          ...result,
+          // TODO: 채점 속도가 너무 빠른경우에 대한 수정 필요 (0ms 미만)
+          cpuTime:
+            result.cpuTime || result.cpuTime === BigInt(0)
+              ? result.cpuTime.toString()
+              : null
+        }
+      })
 
       results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
 
@@ -1128,16 +1121,9 @@ export class SubmissionService {
       }
 
       if (assignmentId && !isHiddenTestcaseVisible) {
-        const allAccepted = results.every(
-          (testcaseResult) => testcaseResult.result === ResultStatus.Accepted
+        submission.result = this.getHiddenTestcaseExcludedSubmissionResult(
+          submission.submissionResult
         )
-
-        submission.result = allAccepted
-          ? ResultStatus.Accepted
-          : (submission.submissionResult.find(
-              (submissionResult) =>
-                submissionResult.result !== ResultStatus.Accepted
-            )?.result ?? ResultStatus.ServerError)
       }
 
       return {
@@ -1380,7 +1366,7 @@ export class SubmissionService {
 
     const { assignment } = assignmentProblem
 
-    const isJudgeResultVisible = assignment.isJudgeResultVisible
+    const isHiddenTestcaseVisible = assignment.isJudgeResultVisible
 
     const submissions = await this.prisma.submission.findMany({
       ...paginator,
@@ -1400,13 +1386,27 @@ export class SubmissionService {
         createTime: true,
         language: true,
         result: true,
-        codeSize: true
+        codeSize: true,
+        submissionResult: {
+          select: {
+            result: true,
+            problemTestcase: {
+              select: {
+                isHidden: true
+              }
+            }
+          }
+        }
       },
       orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
     })
 
-    if (!isJudgeResultVisible) {
-      submissions.map((submission) => (submission.result = 'Blind'))
+    if (!isHiddenTestcaseVisible) {
+      submissions.forEach((submission) => {
+        submission.result = this.getHiddenTestcaseExcludedSubmissionResult(
+          submission.submissionResult
+        )
+      })
     }
 
     const total = await this.prisma.submission.count({
@@ -1432,7 +1432,7 @@ export class SubmissionService {
       )
     }
 
-    const isJudgeResultVisible = (
+    const isHiddenTestcaseVisible = (
       await this.prisma.assignment.findUnique({
         where: { id: assignmentId },
         select: {
@@ -1441,7 +1441,7 @@ export class SubmissionService {
       })
     )?.isJudgeResultVisible
 
-    if (isJudgeResultVisible === undefined) {
+    if (isHiddenTestcaseVisible === undefined) {
       throw new NotFoundException('Assignment')
     }
 
@@ -1461,8 +1461,16 @@ export class SubmissionService {
         language: true,
         code: true,
         createTime: true,
-        result: isJudgeResultVisible ? true : false,
-        submissionResult: isJudgeResultVisible ? true : false,
+        result: true,
+        submissionResult: {
+          include: {
+            problemTestcase: {
+              select: {
+                isHidden: true
+              }
+            }
+          }
+        },
         codeSize: true
       }
     })
@@ -1471,21 +1479,25 @@ export class SubmissionService {
       throw new NotFoundException('Submission')
     }
 
-    if (isJudgeResultVisible) {
-      const filteredSubmissionResult = rawSubmission.submissionResult.map(
-        ({ id, cpuTime, memoryUsage, problemTestcaseId, result }) => ({
-          id,
-          cpuTime: cpuTime?.toString(),
-          memoryUsage,
-          problemTestcaseId,
-          result
-        })
+    const filteredSubmissionResult = rawSubmission.submissionResult
+      .filter(
+        (result) => isHiddenTestcaseVisible || !result.problemTestcase.isHidden
       )
+      .map(({ id, cpuTime, memoryUsage, problemTestcaseId, result }) => ({
+        id,
+        cpuTime: cpuTime?.toString(),
+        memoryUsage,
+        problemTestcaseId,
+        result
+      }))
 
-      return { ...rawSubmission, submissionResult: filteredSubmissionResult }
+    if (!isHiddenTestcaseVisible) {
+      rawSubmission.result = this.getHiddenTestcaseExcludedSubmissionResult(
+        rawSubmission.submissionResult
+      )
     }
 
-    return { ...rawSubmission, result: ResultStatus.Blind }
+    return { ...rawSubmission, submissionResult: filteredSubmissionResult }
   }
 
   async getAssignmentSubmissionSummary(assignmentId: number, userId: number) {
@@ -1516,6 +1528,7 @@ export class SubmissionService {
     }
 
     const { assignment } = isParticipated
+    const isHiddenTestcaseVisible = assignment.isJudgeResultVisible
 
     if (assignmentProblems.length === 0) {
       return []
@@ -1529,7 +1542,12 @@ export class SubmissionService {
         result: true,
         submissionResult: {
           select: {
-            result: true
+            result: true,
+            problemTestcase: {
+              select: {
+                isHidden: true
+              }
+            }
           }
         }
       },
@@ -1550,20 +1568,26 @@ export class SubmissionService {
 
     for (const submission of submissions) {
       if (!submissionMap.has(submission.problemId)) {
+        const filteredSubmissionResult = submission.submissionResult.filter(
+          (result) =>
+            isHiddenTestcaseVisible || !result.problemTestcase.isHidden
+        )
+
         submissionMap.set(submission.problemId, {
           submissionTime: submission.createTime,
-          submissionResult: assignment.isJudgeResultVisible
+          submissionResult: isHiddenTestcaseVisible
             ? submission.result
-            : ResultStatus.Blind,
-          testcaseCount: assignment.isJudgeResultVisible
-            ? submission.submissionResult.length
-            : null,
-          acceptedTestcaseCount: assignment.isJudgeResultVisible
-            ? submission.submissionResult.reduce((acc, { result }) => {
-                if (result === ResultStatus.Accepted) return acc + 1
-                else return acc
-              }, 0)
-            : null
+            : this.getHiddenTestcaseExcludedSubmissionResult(
+                submission.submissionResult
+              ),
+          testcaseCount: filteredSubmissionResult.length,
+          acceptedTestcaseCount: filteredSubmissionResult.reduce(
+            (acc, { result }) => {
+              if (result === ResultStatus.Accepted) return acc + 1
+              else return acc
+            },
+            0
+          )
         })
       }
     }
@@ -1572,5 +1596,29 @@ export class SubmissionService {
       problemId,
       submission: submissionMap.get(problemId) ?? null
     }))
+  }
+
+  private getHiddenTestcaseExcludedSubmissionResult(
+    submissionResults: Array<{
+      result: ResultStatus
+      problemTestcase: {
+        isHidden: boolean
+      }
+    }>
+  ) {
+    const filteredResults = submissionResults.filter(
+      (result) => !result.problemTestcase.isHidden
+    )
+
+    const allAccepted = filteredResults.every(
+      (testcaseResult) => testcaseResult.result === ResultStatus.Accepted
+    )
+
+    return allAccepted
+      ? ResultStatus.Accepted
+      : (filteredResults.find(
+          (submissionResult) =>
+            submissionResult.result !== ResultStatus.Accepted
+        )?.result ?? ResultStatus.ServerError)
   }
 }
