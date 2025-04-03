@@ -13,6 +13,7 @@ import {
   unlink
 } from 'fs'
 import path from 'path'
+import sanitize from 'sanitize-filename'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { Language, ResultStatus } from '@admin/@generated'
@@ -472,10 +473,10 @@ export class SubmissionService {
   }
 
   async downloadCodes(filename: string, res: Response) {
-    const zipPath = path.join(__dirname, filename)
-    const fileStream = createReadStream(zipPath)
+    const sanitizedFilename = sanitize(filename)
+    const zipPath = path.resolve(__dirname, sanitizedFilename)
 
-    if (!existsSync(zipPath)) {
+    if (!zipPath.startsWith(__dirname) || !existsSync(zipPath)) {
       throw new EntityNotExistException('File not found')
     }
 
@@ -485,6 +486,7 @@ export class SubmissionService {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       'Content-Disposition': `attachment; filename=${filename}`
     })
+    const fileStream = createReadStream(zipPath)
     fileStream.pipe(res)
 
     fileStream.on('end', () => {
