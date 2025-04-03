@@ -96,14 +96,18 @@ export class SubmissionController {
   @Patch('rejudgeByProblem')
   async rejudgeByProblem(
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('resultStatus') resultStatus: ResultStatus | null = null
+    @Query('contestId', IDValidationPipe) contestId: number | null,
+    @Query('assignmentId', IDValidationPipe) assignmentId: number | null,
+    @Query('workbookId', IDValidationPipe) workbookId: number | null
   ): Promise<{
     successCount: number
     failedSubmissions: { submissionId: number; error: string }[]
   }> {
     return this.submissionService.rejudgeSubmissionsByProblem(
       problemId,
-      resultStatus
+      assignmentId,
+      contestId,
+      workbookId
     )
   }
 

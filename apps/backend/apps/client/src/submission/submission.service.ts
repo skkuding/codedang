@@ -514,7 +514,9 @@ export class SubmissionService {
 
   async rejudgeSubmissionsByProblem(
     problemId: number,
-    resultStatus: ResultStatus | null = null
+    assignmentId: number | null = null,
+    contestId: number | null = null,
+    workbookId: number | null = null
   ): Promise<{
     successCount: number
     failedSubmissions: { submissionId: number; error: string }[]
@@ -526,7 +528,9 @@ export class SubmissionService {
       const submissions = await this.prisma.submission.findMany({
         where: {
           problemId,
-          ...(resultStatus !== null && { result: resultStatus })
+          ...(assignmentId !== null && { assignmentId }),
+          ...(contestId !== null && { contestId }),
+          ...(workbookId !== null && { workbookId })
         },
         include: { problem: true, rejudgedSubmissions: true }
       })
