@@ -379,29 +379,6 @@ export class SubmissionService {
     return encodeURIComponent(assignment.title)
   }
 
-  // async getZipFileSize(readStream: ReadStream): Promise<number> {
-  //   return new Promise((resolve, reject) => {
-  //     const chunks: Buffer[] = []
-
-  //     readStream.on('data', (chunk: Buffer) => {
-  //       chunks.push(chunk)
-  //     })
-
-  //     readStream.on('end', () => {
-  //       const fileSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
-  //       resolve(fileSize)
-  //     })
-
-  //     readStream.on('error', () => {
-  //       reject(
-  //         new UnprocessableDataException(
-  //           'Error occurred during calculating file size.'
-  //         )
-  //       )
-  //     })
-  //   })
-  // }
-
   async compressSourceCodes(
     groupId: number,
     assignmentId: number,

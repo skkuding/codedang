@@ -13,7 +13,6 @@ export class SubmissionController {
     @Req() req: AuthenticatedRequest,
     @Res() res: Response
   ) {
-    console.log('Filename: ', filename)
     await this.submissionService.downloadCodes(filename, res)
   }
 }
