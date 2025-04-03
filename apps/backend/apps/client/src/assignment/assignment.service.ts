@@ -225,7 +225,6 @@ export class AssignmentService {
         title: true,
         endTime: true,
         isFinalScoreVisible: true,
-        isJudgeResultVisible: true,
         autoFinalizeScore: true
       }
     })
@@ -264,7 +263,6 @@ export class AssignmentService {
       assignmentId: number
       title: string
       totalParticipants: number
-      scores?: number[]
       finalScores?: number[]
       autoFinalizeScore: boolean
       isFinalScoreVisible: boolean
@@ -276,13 +274,9 @@ export class AssignmentService {
       isFinalScoreVisible: assignment.isFinalScoreVisible
     }
 
-    if (assignment.isJudgeResultVisible) {
-      result.scores = validRecords.map((record) => record.score)
-    }
-
     if (assignment.isFinalScoreVisible) {
       if (assignment.autoFinalizeScore) {
-        result.finalScores = result.scores
+        result.finalScores = validRecords.map((record) => record.score)
       } else {
         result.finalScores = validRecords
           .map((record) => record.finalScore)
@@ -367,7 +361,6 @@ export class AssignmentService {
         }
         map[record.problemId] = {
           finalScore: assignment.isFinalScoreVisible ? record.finalScore : null,
-          score: assignment.isJudgeResultVisible ? record.score : null,
           isSubmitted: record.isSubmitted,
           comment: record.comment
         }
@@ -377,38 +370,11 @@ export class AssignmentService {
         number,
         {
           finalScore: number | null
-          score: number | null
           isSubmitted: boolean
           comment: string
         }
       >
     )
-
-    const submissions = await this.prisma.submission.findMany({
-      where: { userId, assignmentId },
-      select: {
-        problemId: true,
-        createTime: true,
-        result: true
-      },
-      orderBy: {
-        createTime: 'desc'
-      }
-    })
-
-    const submissionMap = new Map<
-      number,
-      { submissionTime: Date; submissionResult: string }
-    >()
-
-    for (const submission of submissions) {
-      if (!submissionMap.has(submission.problemId)) {
-        submissionMap.set(submission.problemId, {
-          submissionTime: submission.createTime,
-          submissionResult: submission.result
-        })
-      }
-    }
 
     if (assignment.autoFinalizeScore) {
       assignmentRecord.finalScore = assignmentRecord.score
@@ -419,11 +385,7 @@ export class AssignmentService {
       title: ap.problem.title,
       order: ap.order,
       maxScore: ap.score,
-      problemRecord: problemRecordMap[ap.problemId] ?? null,
-      submissionTime: submissionMap.get(ap.problemId)?.submissionTime ?? null,
-      submissionResult: assignment.isJudgeResultVisible
-        ? (submissionMap.get(ap.problemId)?.submissionResult ?? null)
-        : ResultStatus.Blind
+      problemRecord: problemRecordMap[ap.problemId] ?? null
     }))
 
     const assignmentPerfectScore = assignment.assignmentProblem.reduce(
@@ -438,9 +400,6 @@ export class AssignmentService {
       isJudgeResultVisible: assignment.isJudgeResultVisible,
       userAssignmentFinalScore: assignment.isFinalScoreVisible
         ? assignmentRecord.finalScore
-        : null,
-      userAssignmentJudgeScore: assignment.isJudgeResultVisible
-        ? assignmentRecord.score
         : null,
       assignmentPerfectScore,
       comment: assignmentRecord.comment,
@@ -523,9 +482,6 @@ export class AssignmentService {
         assignmentPerfectScore: assignmentPerfectScoresMap[assignment.id],
         userAssignmentFinalScore: assignment.isFinalScoreVisible
           ? assignment.assignmentRecord[0].finalScore
-          : null,
-        userAssignmentJudgeScore: assignment.isJudgeResultVisible
-          ? assignment.assignmentRecord[0].score
           : null
       }
     })

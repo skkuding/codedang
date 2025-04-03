@@ -544,10 +544,7 @@ export class AssignmentProblemService {
     cursor: number | null
     take: number
   }) {
-    const assignment = await this.assignmentService.getAssignment(
-      assignmentId,
-      userId
-    )
+    await this.assignmentService.getAssignment(assignmentId, userId) // course 멤버인지, onGoing인지 확인
 
     const paginator = this.prisma.getPaginator(cursor, (value) => ({
       // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -557,48 +554,26 @@ export class AssignmentProblemService {
       }
     }))
 
-    const [assignmentProblems, assignmentProblemRecords] = await Promise.all([
-      this.prisma.assignmentProblem.findMany({
-        ...paginator,
-        take,
-        orderBy: { order: 'asc' },
-        where: {
-          assignmentId
+    const assignmentProblems = await this.prisma.assignmentProblem.findMany({
+      ...paginator,
+      take,
+      orderBy: { order: 'asc' },
+      where: {
+        assignmentId
+      },
+      select: {
+        order: true,
+        problem: {
+          select: problemsSelectOption
         },
-        select: {
-          order: true,
-          problem: {
-            select: problemsSelectOption
-          },
-          problemId: true,
-          score: true
-        }
-      }),
-      this.prisma.assignmentProblemRecord.findMany({
-        where: {
-          userId,
-          assignmentId
-        },
-        select: {
-          problemId: true,
-          score: true,
-          isSubmitted: true
-        }
-      })
-    ])
-
-    const problemRecordMap = new Map<
-      number,
-      { score: number; isSubmitted: boolean }
-    >()
-    for (const record of assignmentProblemRecords) {
-      problemRecordMap.set(record.problemId, record)
-    }
+        problemId: true,
+        score: true
+      }
+    })
 
     const assignmentProblemsWithScore = assignmentProblems.map(
       (assignmentProblem) => {
         const { problem, order } = assignmentProblem
-        const assignmentProblemRecord = problemRecordMap.get(problem.id)
         return {
           order,
           id: problem.id,
@@ -606,11 +581,7 @@ export class AssignmentProblemService {
           difficulty: problem.difficulty,
           submissionCount: problem.submissionCount,
           acceptedRate: problem.acceptedRate,
-          maxScore: assignmentProblem.score,
-          score: assignment.isJudgeResultVisible
-            ? assignmentProblemRecord?.score
-            : null,
-          submissionTime: null
+          maxScore: assignmentProblem.score
         }
       }
     )
