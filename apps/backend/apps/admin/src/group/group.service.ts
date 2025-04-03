@@ -493,25 +493,25 @@ export class InvitationService {
       throw new UnprocessableDataException('Already a member')
     }
 
-    const userGroup = await this.prisma.userGroup.create({
-      data: {
-        user: {
-          connect: { id: userId }
+    if (group.groupType !== GroupType.Course) {
+      return await this.prisma.userGroup.create({
+        data: {
+          user: {
+            connect: { id: userId }
+          },
+          group: {
+            connect: { id: groupId }
+          },
+          isGroupLeader
         },
-        group: {
-          connect: { id: groupId }
-        },
-        isGroupLeader
-      },
-      select: {
-        userId: true,
-        groupId: true,
-        isGroupLeader: true,
-        user: true
-      }
-    })
-
-    if (group.groupType === GroupType.Course) {
+        select: {
+          userId: true,
+          groupId: true,
+          isGroupLeader: true,
+          user: true
+        }
+      })
+    } else {
       const assignmentIds = await this.prisma.assignment.findMany({
         where: {
           groupId
@@ -523,24 +523,42 @@ export class InvitationService {
           }
         }
       })
-      await this.prisma.assignmentRecord.createMany({
-        data: assignmentIds.map(({ id }) => ({
-          userId,
-          assignmentId: id
-        }))
-      })
-      await this.prisma.assignmentProblemRecord.createMany({
-        data: assignmentIds.flatMap(({ id, assignmentProblem }) =>
-          assignmentProblem.map(({ problemId }) => ({
+      const [userGroup] = await this.prisma.$transaction([
+        this.prisma.userGroup.create({
+          data: {
+            user: {
+              connect: { id: userId }
+            },
+            group: {
+              connect: { id: groupId }
+            },
+            isGroupLeader
+          },
+          select: {
+            userId: true,
+            groupId: true,
+            isGroupLeader: true,
+            user: true
+          }
+        }),
+        this.prisma.assignmentRecord.createMany({
+          data: assignmentIds.map(({ id }) => ({
             userId,
-            assignmentId: id,
-            problemId
+            assignmentId: id
           }))
-        )
-      })
+        }),
+        this.prisma.assignmentProblemRecord.createMany({
+          data: assignmentIds.flatMap(({ id, assignmentProblem }) =>
+            assignmentProblem.map(({ problemId }) => ({
+              userId,
+              assignmentId: id,
+              problemId
+            }))
+          )
+        })
+      ])
+      return userGroup
     }
-
-    return userGroup
   }
 }
 

@@ -161,9 +161,18 @@ const db = {
     createMany: stub()
   },
   getPaginator: PrismaService.prototype.getPaginator,
-  $transaction: stub().callsFake(async (callback) => {
-    // callback으로 스텁 db 객체를 넘겨주거나 원하는 로직을 수행
-    return callback(db)
+  $transaction: stub().callsFake(async (input) => {
+    if (Array.isArray(input)) {
+      return input.map((query) => {
+        if (typeof query === 'function') {
+          return query(db)
+        }
+        return query
+      })
+    } else if (typeof input === 'function') {
+      return input(db)
+    }
+    throw new Error('Invalid transaction input')
   })
 }
 

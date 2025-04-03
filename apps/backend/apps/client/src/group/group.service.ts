@@ -330,35 +330,6 @@ export class GroupService {
         isGroupLeader: false
       }
 
-      if (group.groupType === GroupType.Course) {
-        const assignmentIds = await this.prisma.assignment.findMany({
-          where: {
-            groupId
-          },
-          select: {
-            id: true,
-            assignmentProblem: {
-              select: { problemId: true }
-            }
-          }
-        })
-        await this.prisma.assignmentRecord.createMany({
-          data: assignmentIds.map(({ id }) => ({
-            userId,
-            assignmentId: id
-          }))
-        })
-        await this.prisma.assignmentProblemRecord.createMany({
-          data: assignmentIds.flatMap(({ id, assignmentProblem }) =>
-            assignmentProblem.map(({ problemId }) => ({
-              userId,
-              assignmentId: id,
-              problemId
-            }))
-          )
-        })
-      }
-
       return {
         userGroupData: await this.createUserGroup(userGroupData),
         isJoined: true
@@ -427,17 +398,73 @@ export class GroupService {
       userGroupData.isGroupLeader = true
     }
 
-    return await this.prisma.userGroup.create({
-      data: {
-        user: {
-          connect: { id: userGroupData.userId }
-        },
-        group: {
-          connect: { id: userGroupData.groupId }
-        },
-        isGroupLeader: userGroupData.isGroupLeader
+    const group = await this.prisma.group.findUnique({
+      where: {
+        id: userGroupData.groupId
+      },
+      select: {
+        groupType: true
       }
     })
+
+    if (!group) {
+      throw new EntityNotExistException('Group')
+    }
+
+    if (group.groupType !== GroupType.Course) {
+      return await this.prisma.userGroup.create({
+        data: {
+          user: {
+            connect: { id: userGroupData.userId }
+          },
+          group: {
+            connect: { id: userGroupData.groupId }
+          },
+          isGroupLeader: userGroupData.isGroupLeader
+        }
+      })
+    } else {
+      const assignmentIds = await this.prisma.assignment.findMany({
+        where: {
+          groupId: userGroupData.groupId
+        },
+        select: {
+          id: true,
+          assignmentProblem: {
+            select: { problemId: true }
+          }
+        }
+      })
+      const [userGroup] = await this.prisma.$transaction([
+        this.prisma.userGroup.create({
+          data: {
+            user: {
+              connect: { id: userGroupData.userId }
+            },
+            group: {
+              connect: { id: userGroupData.groupId }
+            },
+            isGroupLeader: userGroupData.isGroupLeader
+          }
+        }),
+        this.prisma.assignmentRecord.createMany({
+          data: assignmentIds.map(({ id }) => ({
+            userId: userGroupData.userId,
+            assignmentId: id
+          }))
+        }),
+        this.prisma.assignmentProblemRecord.createMany({
+          data: assignmentIds.flatMap(({ id, assignmentProblem }) =>
+            assignmentProblem.map(({ problemId }) => ({
+              userId: userGroupData.userId,
+              assignmentId: id,
+              problemId
+            }))
+          )
+        })
+      ])
+      return userGroup
+    }
   }
 
   /* Grade와 Assignment 메뉴의 통합으로 필요없어졌으나..
