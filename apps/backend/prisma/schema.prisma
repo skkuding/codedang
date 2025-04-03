@@ -138,7 +138,6 @@ model Group {
   updateTime  DateTime    @updatedAt @map("update_time")
 
   userGroup      UserGroup[]
-  notice         Notice[]
   assignment     Assignment[]
   workbook       Workbook[]
   GroupWhitelist GroupWhitelist[]
@@ -176,8 +175,6 @@ model Notice {
   id          Int      @id @default(autoincrement())
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?     @map("created_by_id")
-  group       Group?   @relation(fields: [groupId], references: [id])
-  groupId     Int?     @map("group_id")
   title       String
   content     String
   isVisible   Boolean  @default(true) @map("is_visible")

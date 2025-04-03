@@ -21,7 +21,6 @@ export class NoticeController {
 
   @Get()
   async getNotices(
-    @Query('groupId', NullableGroupIDPipe) groupId: number | null,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number,
@@ -32,8 +31,7 @@ export class NoticeController {
       cursor,
       take,
       fixed,
-      search,
-      groupId
+      search
     })
   }
 
