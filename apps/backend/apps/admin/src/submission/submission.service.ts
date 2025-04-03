@@ -479,6 +479,9 @@ export class SubmissionService {
       res.end()
     })
     fileStream.on('error', (err) => {
+      unlink(zipPath, (err) => {
+        if (err) this.logger.error('Error on deleting file: ', err)
+      })
       res.status(500).json({ error: 'File download failed' })
     })
   }
