@@ -67,11 +67,6 @@ export class AssignmentService {
   }
 
   async getAssignment(id: number, userId: number) {
-    // check if the user has already registered this assignment
-    // initial value is false
-
-    let assignment
-
     const isRegistered = await this.prisma.assignmentRecord.findUnique({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       where: { assignmentId_userId: { assignmentId: id, userId } }
@@ -83,25 +78,22 @@ export class AssignmentService {
       )
     }
 
-    try {
-      assignment = await this.prisma.assignment.findUniqueOrThrow({
-        where: {
-          id,
-          isVisible: true
-        },
-        select: {
-          ...assignmentSelectOption,
-          description: true
+    const assignment = await this.prisma.assignment.findUnique({
+      where: {
+        id,
+        isVisible: true,
+        startTime: {
+          lte: new Date()
         }
-      })
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('Assignment')
+      },
+      select: {
+        ...assignmentSelectOption,
+        description: true
       }
-      throw error
+    })
+
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
     }
 
     const { _count, ...assignmentDetails } = assignment
@@ -136,11 +128,6 @@ export class AssignmentService {
       throw new ConflictFoundException('Already participated this assignment')
     }
 
-    const now = new Date()
-    if (now < assignment.startTime) {
-      throw new ConflictFoundException('Cannot participate upcoming assignment')
-    }
-
     const problemRecordData = assignment.assignmentProblem.map(
       ({ problemId }) => ({ assignmentId, userId, problemId })
     )
@@ -151,7 +138,8 @@ export class AssignmentService {
       })
 
       await prisma.assignmentProblemRecord.createMany({
-        data: problemRecordData
+        data: problemRecordData,
+        skipDuplicates: true
       })
 
       return createdAssignmentRecord
@@ -161,10 +149,7 @@ export class AssignmentService {
   async participateAllOngoingAssignments(groupId: number, userId: number) {
     const assignments = await this.prisma.assignment.findMany({
       where: {
-        groupId,
-        startTime: {
-          lte: new Date()
-        }
+        groupId
       },
       select: {
         id: true,
@@ -311,7 +296,10 @@ export class AssignmentService {
   async getMyAssignmentProblemRecord(assignmentId: number, userId: number) {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
-        id: assignmentId
+        id: assignmentId,
+        startTime: {
+          lte: new Date()
+        }
       },
       select: {
         id: true,

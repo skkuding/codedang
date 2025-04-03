@@ -7,14 +7,16 @@ interface RenderProblemListProps {
   state: string
   isRegistered: boolean
   problemData: ProblemDataTop
+  isPrivilegedRole: boolean
 }
 
 export function RenderProblemList({
   state,
   isRegistered,
-  problemData
+  problemData,
+  isPrivilegedRole
 }: RenderProblemListProps) {
-  if (state === 'Upcoming') {
+  if (state === 'Upcoming' && !isPrivilegedRole) {
     return (
       <div className="flex h-[608px] w-[1208px] flex-col items-center justify-center rounded-[20px] bg-[#d9d9d940]">
         <Image
@@ -31,7 +33,7 @@ export function RenderProblemList({
         </p>
       </div>
     )
-  } else if (state === 'Ongoing' && !isRegistered) {
+  } else if (state === 'Ongoing' && !isRegistered && !isPrivilegedRole) {
     return (
       <div className="flex h-[608px] w-[1208px] flex-col items-center justify-center rounded-[20px] bg-[#d9d9d940]">
         <Image
