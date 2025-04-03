@@ -151,23 +151,23 @@ export default async function ContestTop({
           <div className="flex flex-col gap-[14px]">
             <ContestSummary
               buttonName="참여 대상"
-              summary={summary.참여대상 ? summary.참여대상 : '없음'}
+              summary={summary && summary.참여대상 ? summary.참여대상 : '없음'}
             />
             <ContestSummary
               buttonName="진행 방식"
-              summary={summary.진행방식 ? summary.진행방식 : '없음'}
+              summary={summary && summary.진행방식 ? summary.진행방식 : '없음'}
             />
             <ContestSummary
               buttonName="순위 산정"
-              summary={summary.순위산정 ? summary.순위산정 : '없음'}
+              summary={summary && summary.순위산정 ? summary.순위산정 : '없음'}
             />
             <ContestSummary
               buttonName="문제 형태"
-              summary={summary.문제형태 ? summary.문제형태 : '없음'}
+              summary={summary && summary.문제형태 ? summary.문제형태 : '없음'}
             />
             <ContestSummary
               buttonName="참여 혜택"
-              summary={summary.참여혜택 ? summary.참여혜택 : '없음'}
+              summary={summary && summary.참여혜택 ? summary.참여혜택 : '없음'}
             />
           </div>
 
