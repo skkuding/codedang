@@ -50,6 +50,7 @@ export interface ContestTop {
   status: ContestStatus
   participants: number
   isRegistered: boolean
+  isPrivilegedRole: boolean
   invitationCodeExists: boolean
   prev: null | {
     id: number
@@ -183,6 +184,7 @@ export default async function ContestTop({
                   state={state}
                   title={data.title}
                   invitationCodeExists={data.invitationCodeExists}
+                  disabled={data.isPrivilegedRole}
                 />
               )}
             </div>
