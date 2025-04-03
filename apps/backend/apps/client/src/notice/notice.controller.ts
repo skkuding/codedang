@@ -7,11 +7,7 @@ import {
   ParseBoolPipe
 } from '@nestjs/common'
 import { AuthNotNeededIfPublic } from '@libs/auth'
-import {
-  CursorValidationPipe,
-  NullableGroupIDPipe,
-  RequiredIntPipe
-} from '@libs/pipe'
+import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
 import { NoticeService } from './notice.service'
 
 @Controller('notice')
