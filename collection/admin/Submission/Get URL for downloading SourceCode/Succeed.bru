@@ -11,7 +11,7 @@ post {
 }
 
 body:graphql {
-  query DownloadCodes ($groupId: Int!, $assignmentId: Int!, $problemId: Int!) {
+  query CompressSourceCodes ($groupId: Int!, $assignmentId: Int!, $problemId: Int!) {
     compressSourceCodes (groupId: $groupId, assignmentId: $assignmentId, problemId: $problemId)
   }
 }
