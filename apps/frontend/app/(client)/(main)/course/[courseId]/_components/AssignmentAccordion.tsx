@@ -14,7 +14,6 @@ import type {
   Assignment,
   AssignmentStatus,
   AssignmentSummary,
-  ProblemGrade,
   ProblemSubmission
 } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
@@ -156,7 +155,7 @@ function AssignmentAccordionItem({
             >
               <DetailButton
                 isActivated={
-                  (record?.isFinalScoreVisible ?? false) &&
+                  grade.userAssignmentFinalScore !== null &&
                   dayjs().isAfter(dayjs(assignment.endTime))
                 }
               />
