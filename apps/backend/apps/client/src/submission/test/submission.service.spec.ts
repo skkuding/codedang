@@ -388,7 +388,7 @@ describe('SubmissionService', () => {
       db.submission.update.resolves(submissions)
       db.submission.create.resolves(submissions)
 
-      const result = await service.rejudgeSubmissionsByProblem(1, Role.Admin)
+      const result = await service.rejudgeSubmissionsByProblem(1)
 
       expect(result).to.deep.equal(ResultValue)
       expect(createSubmissionResultsSpy.callCount).to.equal(2)
@@ -398,17 +398,9 @@ describe('SubmissionService', () => {
     it('should throw an exception when no submissions are found for the problem', async () => {
       db.submission.findMany.resolves([])
 
-      await expect(
-        service.rejudgeSubmissionsByProblem(1, Role.Admin)
-      ).to.be.rejectedWith(EntityNotExistException)
-    })
-
-    it('should throw an exception when User Role access rejudge', async () => {
-      db.submission.findUnique.resolves([])
-
-      await expect(
-        service.rejudgeSubmissionById(1, Role.User)
-      ).to.be.rejectedWith(ForbiddenAccessException)
+      await expect(service.rejudgeSubmissionsByProblem(1)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
   })
 
@@ -418,7 +410,7 @@ describe('SubmissionService', () => {
       db.submission.update.resolves(submissions[1])
       db.submission.create.resolves(submissions[1])
 
-      const result = await service.rejudgeSubmissionById(1, Role.Admin)
+      const result = await service.rejudgeSubmissionById(1)
 
       await expect(result).to.deep.equal({
         error: "Cannot read properties of undefined (reading 'map')",
@@ -429,17 +421,9 @@ describe('SubmissionService', () => {
     it('should throw an exception when no submissions are found for the submissionID', async () => {
       db.submission.findUnique.resolves(null)
 
-      await expect(
-        service.rejudgeSubmissionById(1, Role.Admin)
-      ).to.be.rejectedWith(EntityNotExistException)
-    })
-
-    it('should throw an exception when User Role access rejudge', async () => {
-      db.submission.findUnique.resolves([])
-
-      await expect(
-        service.rejudgeSubmissionById(1, Role.User)
-      ).to.be.rejectedWith(ForbiddenAccessException)
+      await expect(service.rejudgeSubmissionById(1)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
   })
 

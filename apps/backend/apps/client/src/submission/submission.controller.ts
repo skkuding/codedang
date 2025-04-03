@@ -8,9 +8,14 @@ import {
   Query,
   DefaultValuePipe,
   Headers,
-  Patch
+  Patch,
+  UseGuards
 } from '@nestjs/common'
-import { AuthNotNeededIfPublic, AuthenticatedRequest } from '@libs/auth'
+import {
+  AdminGuard,
+  AuthNotNeededIfPublic,
+  AuthenticatedRequest
+} from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import {
   CursorValidationPipe,
@@ -86,30 +91,24 @@ export class SubmissionController {
     }
   }
 
+  @UseGuards(AdminGuard)
   @Patch('rejudgeByProblem')
   async rejudgeByProblem(
-    @Req() req: AuthenticatedRequest,
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number
   ): Promise<{
     successCount: number
     failedSubmissions: { submissionId: number; error: string }[]
   }> {
-    return this.submissionService.rejudgeSubmissionsByProblem(
-      problemId,
-      req.user.role
-    )
+    return this.submissionService.rejudgeSubmissionsByProblem(problemId)
   }
 
+  @UseGuards(AdminGuard)
   @Patch('rejudgeBySubmission')
   async rejudgeBySubmission(
-    @Req() req: AuthenticatedRequest,
     @Query('submissionId', new RequiredIntPipe('submissionId'))
     submissionId: number
   ): Promise<{ success: boolean; error?: string }> {
-    return this.submissionService.rejudgeSubmissionById(
-      submissionId,
-      req.user.role
-    )
+    return this.submissionService.rejudgeSubmissionById(submissionId)
   }
 
   /**
