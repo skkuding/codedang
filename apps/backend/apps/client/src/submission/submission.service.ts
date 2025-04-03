@@ -1121,7 +1121,7 @@ export class SubmissionService {
       }
 
       if (assignmentId && !isHiddenTestcaseVisible) {
-        submission.result = this.getHiddenTestcaseExcludedSubmissionResult(
+        submission.result = this.getSampleTestcaseSubmissionResult(
           submission.submissionResult
         )
       }
@@ -1403,7 +1403,7 @@ export class SubmissionService {
 
     if (!isHiddenTestcaseVisible) {
       submissions.forEach((submission) => {
-        submission.result = this.getHiddenTestcaseExcludedSubmissionResult(
+        submission.result = this.getSampleTestcaseSubmissionResult(
           submission.submissionResult
         )
       })
@@ -1492,7 +1492,7 @@ export class SubmissionService {
       }))
 
     if (!isHiddenTestcaseVisible) {
-      rawSubmission.result = this.getHiddenTestcaseExcludedSubmissionResult(
+      rawSubmission.result = this.getSampleTestcaseSubmissionResult(
         rawSubmission.submissionResult
       )
     }
@@ -1577,7 +1577,7 @@ export class SubmissionService {
           submissionTime: submission.createTime,
           submissionResult: isHiddenTestcaseVisible
             ? submission.result
-            : this.getHiddenTestcaseExcludedSubmissionResult(
+            : this.getSampleTestcaseSubmissionResult(
                 submission.submissionResult
               ),
           testcaseCount: filteredSubmissionResult.length,
@@ -1598,7 +1598,7 @@ export class SubmissionService {
     }))
   }
 
-  private getHiddenTestcaseExcludedSubmissionResult(
+  private getSampleTestcaseSubmissionResult(
     submissionResults: Array<{
       result: ResultStatus
       problemTestcase: {
