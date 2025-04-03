@@ -7,6 +7,7 @@ import {
   PopoverContent
 } from '@/components/shadcn/popover'
 import { GET_COURSE } from '@/graphql/course/queries'
+import { cn } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
 import { useState } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
@@ -46,9 +47,11 @@ export function WeekComboBox({ name, courseId }: WeekComboBoxProps) {
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="flex h-[36px] w-[220px] justify-between text-[#C4C4C4]"
+            className="flex h-[36px] w-[220px] justify-between"
           >
-            <p>{selectedWeek ? `Week ${selectedWeek}` : 'Select an option'}</p>
+            <p className={cn(!selectedWeek && 'text-[#C4C4C4]')}>
+              {selectedWeek ? `Week ${selectedWeek}` : 'Select an option'}
+            </p>
             <FaChevronDown className="ml-4 h-3 w-3 opacity-50" />
           </Button>
         </PopoverTrigger>

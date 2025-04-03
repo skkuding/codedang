@@ -100,12 +100,12 @@ export default function Page({ params }: { params: { courseId: string } }) {
                 <SwitchField
                   name="enableCopyPaste"
                   title="Enable Participants Copy/Pasting"
-                  description="이걸 끄면 학생들이 Hidden 테케의 결과를 확인할 수 없어요"
                 />
 
                 <SwitchField
                   name="isJudgeResultVisible"
                   title="Reveal Hidden Testcase Result"
+                  description="이걸 끄면 학생들이 Hidden 테케의 결과를 확인할 수 없어요"
                 />
               </div>
 
