@@ -11,6 +11,7 @@ import { joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { GroupType } from '@admin/@generated'
 import { GroupMemberService, UserService } from './user.service'
 
 const groupId = 2
@@ -116,12 +117,18 @@ const db = {
     update: stub(),
     delete: stub(),
     create: stub(),
-    findUniqueOrThrow: stub()
+    findUnique: stub()
   },
   user: {
     findUnique: stub(),
     findMany: stub(),
     update: stub()
+  },
+  assignment: {
+    findMany: stub()
+  },
+  assignmentRecord: {
+    deleteMany: stub()
   },
   getPaginator: PrismaService.prototype.getPaginator
 }
@@ -199,13 +206,20 @@ describe('UserService', () => {
       db.user.update.resolves({
         id: user1.id,
         role: user1.role,
-        canCreateCourse: true
+        canCreateCourse: true,
+        canCreateContest: true
       })
-      const result = await service.updateCanCreateCourse(user1.id, true)
+
+      const result = await service.updateCreationPermissions({
+        userId: user1.id,
+        canCreateCourse: true,
+        canCreateContest: true
+      })
       expect(result).to.deep.equal({
         id: user1.id,
         role: user1.role,
-        canCreateCourse: true
+        canCreateCourse: true,
+        canCreateContest: true
       })
     })
   })
@@ -399,10 +413,15 @@ describe('GroupMemberService', () => {
 
   describe('deleteGroupMember', () => {
     it('should return userGroup', async () => {
-      db.userGroup.findUniqueOrThrow.resolves({
-        isGroupLeader: false
+      db.userGroup.findUnique.resolves({
+        isGroupLeader: false,
+        group: {
+          groupType: GroupType.Course
+        }
       })
       db.userGroup.delete.resolves(userGroup3)
+      db.assignment.findMany.resolves([1, 2])
+      db.assignmentRecord.deleteMany.resolves()
 
       const res = await service.deleteGroupMember(
         userGroup3.groupId,
@@ -412,7 +431,7 @@ describe('GroupMemberService', () => {
     })
 
     it('should throw BadRequestException when the userId is not member', async () => {
-      db.userGroup.findUniqueOrThrow.resolves({
+      db.userGroup.findUnique.resolves({
         isGroupLeader: false
       })
       const res = async () =>
@@ -421,7 +440,7 @@ describe('GroupMemberService', () => {
     })
 
     it('should throw BadRequestException when you try to delete manager but there is only one manager', async () => {
-      db.userGroup.findUniqueOrThrow.resolves({
+      db.userGroup.findUnique.resolves({
         isGroupLeader: true
       })
       db.userGroup.count.resolves(1)

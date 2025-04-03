@@ -1,167 +1,365 @@
+'use client'
+
+import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger
 } from '@/components/shadcn/accordion'
-import { cn, safeFetcherWithAuth } from '@/libs/utils'
-import type { Assignment } from '@/types/type'
+import { Dialog } from '@/components/shadcn/dialog'
+import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
+import type {
+  Assignment,
+  AssignmentStatus,
+  AssignmentSummary,
+  ProblemGrade
+} from '@/types/type'
+import { useQuery } from '@tanstack/react-query'
+import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { FaCircleCheck } from 'react-icons/fa6'
+import { useInterval } from 'react-use'
 import { AssignmentLink } from './AssignmentLink'
+import { DetailButton } from './DetailButton'
+import { GradeDetailModal } from './GradeDetailModal'
+import { SubmissionDetailModal } from './SubmissionDetailModal'
 
-interface AssignmentAccordionProps {
-  week: number
-  courseId: string
+interface AssignmentAccordianProps {
+  courseId: number
 }
 
-export async function AssignmentAccordion({
-  week,
-  courseId
-}: AssignmentAccordionProps) {
-  const assignments = await getAssignmentList(courseId)
+export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
+  const { data: assignments } = useQuery(
+    assignmentQueries.muliple({ courseId })
+  )
+  const { data: grades } = useQuery(assignmentQueries.grades({ courseId }))
+
+  const gradeMap = new Map(grades?.map((grade) => [grade.id, grade]) ?? [])
 
   return (
-    <div className="mt-3">
-      {Array.from({ length: week }, (_, i) => i + 1).map((week: number) => (
+    <div className="mt-8">
+      {assignments?.map((assignment) => (
         <AssignmentAccordionItem
-          key={week}
-          week={week}
+          key={assignment.id}
+          assignment={assignment}
+          grade={
+            gradeMap.get(assignment.id) ?? {
+              id: 0,
+              submittedCount: 0,
+              problemCount: 0,
+              userAssignmentFinalScore: 0,
+              userAssignmentJudgeScore: 0,
+              assignmentPerfectScore: 0
+            }
+          } // 인덱스로 대응
           courseId={courseId}
-          assignments={assignments}
         />
       ))}
     </div>
   )
 }
 
-const getAssignmentList = async (groupId: string) => {
-  const response = await safeFetcherWithAuth.get('assignment', {
-    searchParams: {
-      groupId
-    }
-  })
-  const data = await response.json<Assignment[]>()
-  return data
-}
-
 interface AssignmentAccordionItemProps {
-  week: number
-  courseId: string
-  assignments: Assignment[]
+  assignment: Assignment
+  courseId: number
+  grade: AssignmentSummary
 }
 
 function AssignmentAccordionItem({
-  week,
+  assignment,
   courseId,
-  assignments
+  grade
 }: AssignmentAccordionItemProps) {
-  const filteredAssignments = assignments.filter(
-    (assignment) => assignment.week === week
-  )
-  const isCompleted =
-    filteredAssignments.length === 0
-      ? false
-      : filteredAssignments.every((assignment) => {
-          return (
-            assignment.submittedNumber === assignment.problemNumber &&
-            assignment.problemNumber !== 0
-          )
-        })
+  const [isAccordionOpen, setIsAccordionOpen] = useState(false)
+  const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false)
+  const [openProblemId, setOpenProblemId] = useState<number | null>(null)
+
+  const { data: record } = useQuery({
+    ...assignmentQueries.record({
+      assignmentId: assignment.id,
+      courseId
+    }),
+    enabled: isAccordionOpen
+  })
+
+  const handleOpenChange = (problemId: number | null) => {
+    setOpenProblemId(problemId)
+  }
+
+  const handleAccordionOpenChange = (value: string) => {
+    setIsAccordionOpen(value === assignment.id.toString())
+  }
 
   return (
-    <Accordion type="single" collapsible className="w-full">
-      <AccordionItem value={week.toString()} className="border-b-0">
+    <Accordion
+      type="single"
+      collapsible
+      className="w-full"
+      onValueChange={handleAccordionOpenChange}
+    >
+      <AccordionItem value={assignment.id.toString()} className="border-b-0">
         <AccordionTrigger
           className={cn(
-            'mt-4 flex rounded-2xl bg-white px-8 py-5 text-lg font-semibold shadow-md',
-            'border border-transparent',
-            'data-[state=open]:border-primary data-[state=open]:-mb-6'
+            'mt-4 flex w-full items-center rounded-2xl bg-white px-8 py-5 text-left text-sm shadow-md',
+            'data-[state=open]:-mb-6',
+            'relative',
+            'hover:no-underline'
           )}
-          iconStyle="w-7 h-7"
+          iconStyle="w-5 h-5 absolute right-[3%]"
         >
-          <div className="relative w-full text-left text-base">
-            <p className="text-primary absolute top-0 w-32 -translate-y-1/2">
-              [Week {week}]
+          <p className="text-primary mr-3 w-[7%] text-left font-normal">
+            [Week {assignment.week}]
+          </p>
+          <div className="flex w-[30%] flex-col">
+            <AssignmentLink
+              key={assignment.id}
+              assignment={assignment}
+              courseId={courseId}
+            />
+            {assignment && <AssignmentStatusTimeDiff assignment={assignment} />}
+          </div>
+          {assignment && (
+            <p className="w-[30%] font-normal text-[#8A8A8A]">
+              {dateFormatter(assignment.startTime, 'MMM D, HH:mm:ss')} {'-'}{' '}
+              {dateFormatter(assignment.endTime, 'MMM D, HH:mm:ss')}
             </p>
-            <p className="absolute left-32 top-0 w-32 -translate-y-1/2">
-              {week}주차
-            </p>
-            {filteredAssignments.length !== 0 && (
-              <CompleteBadge
-                className="absolute right-4 top-0 -translate-y-1/2"
-                isCompleted={isCompleted}
+          )}
+          <div className="flex w-[13%] justify-center">
+            {dayjs().isAfter(dayjs(assignment.startTime)) ? (
+              <SubmissionBadge grade={grade} />
+            ) : null}
+          </div>
+
+          <div className="flex w-[10%] justify-center gap-1 font-medium">
+            {grade.submittedCount > 0 &&
+            dayjs().isAfter(dayjs(assignment.endTime))
+              ? (grade.userAssignmentFinalScore ?? '-')
+              : '-'}
+            {` / ${grade.assignmentPerfectScore}`}
+          </div>
+          <div className="flex w-[5%] justify-center">
+            <Dialog
+              open={isAssignmentDialogOpen}
+              onOpenChange={setIsAssignmentDialogOpen}
+            >
+              <DetailButton
+                isActivated={
+                  (assignment.isJudgeResultVisible ||
+                    (record?.isFinalScoreVisible ?? false)) &&
+                  dayjs().isAfter(dayjs(assignment.endTime))
+                }
               />
-            )}
+              {isAssignmentDialogOpen && (
+                <GradeDetailModal courseId={courseId} assignment={assignment} />
+              )}
+            </Dialog>
           </div>
+          <div className="w-[1%]" />
         </AccordionTrigger>
-        <AccordionContent className="-mb-4">
-          <div className="overflow-hidden rounded-2xl border">
-            <div className="h-6 bg-[#F3F3F3]" />
-            {filteredAssignments.length > 0 ? (
-              filteredAssignments.map((assignment) => (
-                <AssignmentLink
-                  key={assignment.id}
-                  assignment={assignment}
-                  courseId={courseId}
-                />
-              ))
-            ) : (
-              <div className="bg-[#F8F8F8] px-12 py-4">
-                <p className="ml-[18px] text-base text-slate-500">
-                  Jhere&apos;s no published assignment
-                </p>
-              </div>
-            )}
-          </div>
+        <AccordionContent className="-mb-4 w-full">
+          {isAccordionOpen && record && (
+            <div className="overflow-hidden rounded-2xl border">
+              <div className="h-6 bg-[#F3F3F3]" />
+              {record.problems.map((problem) => (
+                <div
+                  key={problem.id}
+                  className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
+                >
+                  <div className="text-primary mr-3 flex w-[7%] justify-center font-normal">
+                    <p> {convertToLetter(problem.order)}</p>
+                  </div>
+                  <div className="flex w-[30%]">
+                    <Link
+                      href={`/course/${courseId}/assignment/${assignment.id}/problem/${problem.id}`}
+                      // onClick={handleClick}
+                    >
+                      <span className="line-clamp-1 font-medium text-[#171717]">
+                        {problem.title}
+                      </span>
+                    </Link>
+                  </div>
+                  <div className="w-[30%]">
+                    {problem.submissionTime && (
+                      <p className="font-normal text-[#8A8A8A]">
+                        Last submission:{' '}
+                        {dateFormatter(
+                          problem.submissionTime,
+                          'MMM D, HH:mm:ss'
+                        )}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex w-[13%] justify-center">
+                    <AcceptedBadge problem={problem} />
+                  </div>
+                  <div className="flex w-[10%] justify-center font-medium">
+                    {dayjs().isAfter(dayjs(assignment.endTime))
+                      ? (problem.problemRecord?.finalScore ?? '-')
+                      : '-'}{' '}
+                    / {problem.maxScore}
+                  </div>
+                  <div className="flex w-[5%] justify-center">
+                    <Dialog
+                      open={openProblemId === problem.id}
+                      onOpenChange={(isOpen) =>
+                        handleOpenChange(isOpen ? problem.id : null)
+                      }
+                    >
+                      <DetailButton
+                        isActivated={dayjs().isAfter(dayjs(assignment.endTime))}
+                      />
+                      {openProblemId === problem.id && (
+                        <SubmissionDetailModal
+                          problemId={problem.id}
+                          assignment={assignment}
+                          showEvaluation={true}
+                          courseId={courseId}
+                        />
+                      )}
+                    </Dialog>
+                  </div>
+                  <div className="w-[1%]" />
+                </div>
+              ))}
+            </div>
+          )}
         </AccordionContent>
       </AccordionItem>
     </Accordion>
   )
 }
 
-interface CountBadgeProps {
-  solvedProblemCount: number
-  problemCount: number
+dayjs.extend(duration)
+interface AssignmentStatusTimeDiffProps {
+  assignment: Assignment
 }
 
-export function CountBadge({
-  solvedProblemCount,
-  problemCount
-}: CountBadgeProps) {
-  const bgColor =
-    solvedProblemCount === problemCount && problemCount !== 0
-      ? 'bg-primary'
-      : 'bg-[#C4C4C4]'
+export function AssignmentStatusTimeDiff({
+  assignment
+}: AssignmentStatusTimeDiffProps) {
+  const [assignmentStatus, setAssignmentStatus] = useState<
+    AssignmentStatus | undefined | null
+  >(assignment.status)
+  const [timeDiff, setTimeDiff] = useState({
+    days: 0,
+    hours: '00',
+    minutes: '00',
+    seconds: '00'
+  })
+
+  const updateAssignmentStatus = () => {
+    const now = dayjs()
+    if (now.isAfter(assignment.endTime)) {
+      setAssignmentStatus('finished')
+    } else if (now.isAfter(assignment.startTime)) {
+      setAssignmentStatus('ongoing')
+    } else {
+      setAssignmentStatus('upcoming')
+    }
+
+    const timeRef =
+      assignmentStatus === 'ongoing' || assignmentStatus === 'registeredOngoing'
+        ? assignment.endTime
+        : assignment.startTime
+
+    const diff = dayjs.duration(Math.abs(dayjs(timeRef).diff(now)))
+    const days = Math.floor(diff.asDays())
+    const hours = Math.floor(diff.asHours() % 24)
+    const hourStr = hours.toString().padStart(2, '0')
+    const minutes = Math.floor(diff.asMinutes() % 60)
+    const minuteStr = minutes.toString().padStart(2, '0')
+    const seconds = Math.floor(diff.asSeconds() % 60)
+    const secondStr = seconds.toString().padStart(2, '0')
+
+    setTimeDiff({
+      days,
+      hours: hourStr,
+      minutes: minuteStr,
+      seconds: secondStr
+    })
+  }
+
+  useEffect(() => {
+    updateAssignmentStatus()
+  }, [])
+
+  useInterval(() => {
+    updateAssignmentStatus()
+  }, 1000)
+
   return (
-    <div
-      className={cn(
-        'flex h-7 w-[61px] items-center justify-center rounded-full text-base font-semibold text-white',
-        bgColor
+    <div className="inline-flex items-center gap-1 whitespace-nowrap text-xs font-normal text-[#8A8A8A] opacity-80">
+      {assignmentStatus === 'finished' ? (
+        <>
+          Ended
+          <p className="overflow-hidden text-ellipsis whitespace-nowrap">
+            {timeDiff.days > 0
+              ? `${timeDiff.days} days`
+              : `${timeDiff.hours}:${timeDiff.minutes}:${timeDiff.seconds}`}
+          </p>
+          ago
+        </>
+      ) : (
+        <>
+          {assignmentStatus === 'ongoing' ||
+          assignmentStatus === 'registeredOngoing'
+            ? 'Ends in'
+            : 'Starts in'}
+          <p className="overflow-hidden text-ellipsis whitespace-nowrap">
+            {timeDiff.days > 0
+              ? `${timeDiff.days} days`
+              : `${timeDiff.hours}:${timeDiff.minutes}:${timeDiff.seconds}`}
+          </p>
+        </>
       )}
-    >
-      {solvedProblemCount}/{problemCount}
     </div>
   )
 }
 
-interface CompleteBadgeProps {
-  className: string
-  isCompleted: boolean
+interface SubmissionBadgeProps {
+  className?: string
+  grade: AssignmentSummary
 }
 
-function CompleteBadge({ className, isCompleted }: CompleteBadgeProps) {
-  const badgeStyle = isCompleted
-    ? 'border-primary text-primary'
-    : 'border-[#C4C4C4] text-[#C4C4C4]'
-  const text = isCompleted ? 'Complete' : 'Incomplete'
+function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
+  const badgeStyle =
+    grade.submittedCount === grade.problemCount
+      ? 'border-transparent bg-primary text-white'
+      : 'border-primary text-primary'
   return (
     <div
       className={cn(
-        'flex h-[34px] w-[121px] items-center justify-center rounded-full border',
+        'flex h-[34px] w-[100px] items-center justify-center rounded-full border',
         badgeStyle,
         className
       )}
     >
-      <p className="text-[16px] font-medium">{text}</p>
+      <div className="flex gap-2 text-sm font-medium">
+        <p> {grade.submittedCount}</p>
+        <p> /</p>
+        <p> {grade.problemCount}</p>
+      </div>
+    </div>
+  )
+}
+
+interface AcceptedBadgeProps {
+  problem: ProblemGrade
+}
+// TODO: Accepted를 boolen으로 받아와야할 것 같아요...!
+function AcceptedBadge({ problem }: AcceptedBadgeProps) {
+  if (problem.submissionResult !== 'Accepted') {
+    return null
+  }
+
+  return (
+    <div className="flex h-[25px] w-[100px] items-center justify-between rounded-full bg-green-100 px-[11px] py-[4px] text-green-500">
+      <FaCircleCheck />
+      <p className="text-sm font-medium">Accepted</p>
     </div>
   )
 }

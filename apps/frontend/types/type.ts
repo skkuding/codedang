@@ -152,6 +152,7 @@ export interface Contest {
   enableCopyPaste: boolean
   status: ContestStatus
   participants: number
+  freezeTime?: Date
   isRegistered: boolean
   contestProblem: ProblemInContestInterface[]
 }
@@ -160,6 +161,7 @@ export interface ContestOrder {
   id: number
   title: string
 }
+
 export interface ContestAnnouncement {
   id: number
   content: string
@@ -359,8 +361,8 @@ export interface Assignment {
   status: AssignmentStatus
   description: string
   isRegistered: boolean
-  problemNumber: number
-  submittedNumber: number
+  problemCount: number
+  submittedCount: number
 }
 
 export interface AssignmentProblem {
@@ -381,17 +383,15 @@ export interface CalendarAssignment {
   end: Date
 }
 
-export interface AssignmentGrade {
+export interface AssignmentProblemRecord {
   id: number
-  title: string
-  endTime: string
   autoFinalizeScore: boolean
   isFinalScoreVisible: boolean
   isJudgeResultVisible: boolean
-  week: number
   userAssignmentFinalScore: number | null
   userAssignmentJudgeScore: number | null
   assignmentPerfectScore: number
+  comment: string | null
   problems: ProblemGrade[]
 }
 export interface ProblemGrade {
@@ -401,6 +401,7 @@ export interface ProblemGrade {
   maxScore: number
   problemRecord: ProblemRecord | null
   submissionTime: string
+  submissionResult: string | null
 }
 
 export interface ProblemRecord {
@@ -428,4 +429,12 @@ export enum RunnerMessageType {
   STDOUT = 'stdout',
   STDERR = 'stderr',
   EXIT = 'exit'
+}
+export interface AssignmentSummary {
+  id: number
+  problemCount: number
+  submittedCount: number
+  assignmentPerfectScore: number
+  userAssignmentFinalScore: number | null
+  userAssignmentJudgeScore: number
 }

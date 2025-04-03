@@ -16,13 +16,22 @@ body:graphql {
       id
       title
       participants
+      invitationCode
+      description
+      freezeTime
+      startTime
+      endTime
+      userContest {
+        userId
+        role
+      }
     }
   }
 }
 
 body:graphql:vars {
   {
-    "contestId": 1
+    "contestId": 20
   }
 }
 

@@ -2,10 +2,11 @@
 
 import { ConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
 import { EditorDescription } from '@/app/admin/_components/code-editor/EditorDescription'
+import { PreviewEditorLayout } from '@/app/admin/_components/code-editor/PreviewEditorLayout'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { useSession } from '@/libs/hooks/useSession'
-import type { ProblemDetail } from '@/types/type'
+import type { ProblemDetail, Template } from '@/types/type'
 import type { UpdateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
@@ -13,7 +14,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
-import { IoIosCheckmarkCircle } from 'react-icons/io'
+import { IoIosCheckmarkCircle, IoIosEye } from 'react-icons/io'
 import { DescriptionForm } from '../../../_components/DescriptionForm'
 import { FormSection } from '../../../_components/FormSection'
 import { SwitchField } from '../../../_components/SwitchField'
@@ -22,7 +23,6 @@ import { VisibleForm } from '../../../_components/VisibleForm'
 import { InfoForm } from '../../_components/InfoForm'
 import { LimitForm } from '../../_components/LimitForm'
 import { PopoverVisibleInfo } from '../../_components/PopoverVisibleInfo'
-import { PreviewEditorLayout } from '../../_components/PreviewEditorLayout'
 import { TemplateField } from '../../_components/TemplateField'
 import { TestcaseField } from '../../_components/TestcaseField'
 import { editSchema } from '../../_libs/schemas'
@@ -49,6 +49,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
       outputDescription: methods.getValues('outputDescription'),
       problemTestcase: methods
         .getValues('testcases')
+        ?.filter(({ isHidden }) => !isHidden)
         ?.map((testcase, index) => ({
           id: index + 1,
           input: testcase.input,
@@ -72,8 +73,8 @@ export default function Page({ params }: { params: { problemId: string } }) {
       <div className="fixed inset-0 z-50 flex bg-white">
         <PreviewEditorLayout
           problemTitle={problem.title}
-          language={problem.languages[0]}
-          code={problem.template[0]}
+          languages={problem.languages}
+          template={methods.getValues('template') as Template[]}
           exitPreview={() => setIsPreviewing(false)}
         >
           <EditorDescription problem={problem} />
@@ -96,11 +97,11 @@ export default function Page({ params }: { params: { problemId: string } }) {
 
           <EditProblemForm problemId={Number(problemId)} methods={methods}>
             <div className="flex gap-32">
-              <FormSection title="Title">
+              <FormSection isFlexColumn title="Title">
                 <TitleForm placeholder="Enter a problem name" />
               </FormSection>
 
-              <FormSection title="Visible">
+              <FormSection isFlexColumn title="Visible">
                 <PopoverVisibleInfo />
                 <VisibleForm
                   blockEdit={
@@ -110,11 +111,11 @@ export default function Page({ params }: { params: { problemId: string } }) {
               </FormSection>
             </div>
 
-            <FormSection title="Info">
+            <FormSection isFlexColumn title="Info">
               <InfoForm />
             </FormSection>
 
-            <FormSection title="Description">
+            <FormSection isFlexColumn title="Description">
               {methods.getValues('description') && (
                 <DescriptionForm name="description" />
               )}
@@ -122,14 +123,22 @@ export default function Page({ params }: { params: { problemId: string } }) {
 
             <div className="flex justify-between">
               <div className="w-[360px]">
-                <FormSection title="Input Description" isLabeled={false}>
+                <FormSection
+                  isFlexColumn
+                  title="Input Description"
+                  isLabeled={false}
+                >
                   {methods.getValues('inputDescription') && (
                     <DescriptionForm name="inputDescription" />
                   )}
                 </FormSection>
               </div>
               <div className="w-[360px]">
-                <FormSection title="Output Description" isLabeled={false}>
+                <FormSection
+                  isFlexColumn
+                  title="Output Description"
+                  isLabeled={false}
+                >
                   {methods.getValues('outputDescription') && (
                     <DescriptionForm name="outputDescription" />
                   )}
@@ -141,7 +150,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
               <TestcaseField blockEdit={false} />
             )}
 
-            <FormSection title="Limit">
+            <FormSection isFlexColumn title="Limit">
               <LimitForm blockEdit={false} />
             </FormSection>
 
@@ -172,11 +181,11 @@ export default function Page({ params }: { params: { problemId: string } }) {
               </Button>
               <Button
                 type="button"
-                variant={'slate'}
+                variant="slate"
                 className="flex h-[36px] w-[120px] items-center gap-2 bg-slate-200 px-0"
                 onClick={() => setIsPreviewing(true)}
               >
-                <IoIosCheckmarkCircle fontSize={20} />
+                <IoIosEye fontSize={20} />
                 <div className="text-base">Preview</div>
               </Button>
             </div>

@@ -1,5 +1,6 @@
 'use client'
 
+import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { CodeEditor } from '@/components/CodeEditor'
 import {
@@ -10,30 +11,39 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Separator } from '@/components/shadcn/separator'
 import { dateFormatter } from '@/libs/utils'
-import type { AssignmentGrade } from '@/types/type'
-import { useQuery } from '@tanstack/react-query'
+import type { Assignment } from '@/types/type'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { MdArrowForwardIos } from 'react-icons/md'
 
 interface SubmissionDetailModalProps {
   problemId: number
-  gradedAssignment: AssignmentGrade
+  assignment: Assignment
   showEvaluation: boolean
+  courseId: number
 }
 export function SubmissionDetailModal({
   problemId,
-  gradedAssignment,
-  showEvaluation
+  assignment,
+  showEvaluation,
+  courseId
 }: SubmissionDetailModalProps) {
+  const { data: assignmentProblemRecord } = useSuspenseQuery({
+    ...assignmentQueries.record({
+      assignmentId: assignment.id,
+      courseId
+    })
+  })
+
   const { data: submission } = useQuery(
     assignmentSubmissionQueries.lastestSubmissionResult({
-      assignmentId: gradedAssignment.id,
+      assignmentId: assignment.id,
       problemId
     })
   )
 
   const { data: testResults } = useQuery(
     assignmentSubmissionQueries.testResult({
-      assignmentId: gradedAssignment.id,
+      assignmentId: assignment.id,
       problemId,
       submissionId: submission?.id ?? 0
     })
@@ -43,7 +53,7 @@ export function SubmissionDetailModal({
       return 'rounded-full border border-blue-500 px-2 py-1 text-xs font-light text-blue-500'
     }
     if (result === 'Blind') {
-      return 'rounded-full border border-purple-500 px-2 py-1 text-xs font-light text-purple-500'
+      return 'rounded-full border border-gray-400 px-2 py-1 text-xs font-light text-gray-400'
     }
     return 'rounded-full border border-gray-400 px-2 py-1 text-xs font-light text-gray-400'
   }
@@ -59,28 +69,28 @@ export function SubmissionDetailModal({
           <DialogTitle>
             <div className="flex items-center gap-2 overflow-hidden truncate whitespace-nowrap text-lg font-medium">
               <span
-                title={`Week ${gradedAssignment.week}`}
+                title={`Week ${assignment.week}`}
                 className="max-w-[80px] truncate"
               >
-                Week {gradedAssignment.week}
+                Week {assignment.week}
               </span>
               <MdArrowForwardIos />
               <span
-                title={gradedAssignment.title}
+                title={assignment.title}
                 className="text-primary max-w-[200px] overflow-hidden truncate"
               >
-                {gradedAssignment.title}
+                {assignment.title}
               </span>
               <MdArrowForwardIos />
               <span
                 title={
-                  gradedAssignment.problems.find(
+                  assignmentProblemRecord?.problems.find(
                     (problem) => problem.id === problemId
                   )?.title || 'Not found'
                 }
                 className="max-w-[200px] overflow-hidden truncate"
               >
-                {gradedAssignment.problems.find(
+                {assignmentProblemRecord?.problems.find(
                   (problem) => problem.id === problemId
                 )?.title || 'Not found'}
               </span>
@@ -90,19 +100,16 @@ export function SubmissionDetailModal({
         <div className="flex flex-col gap-6">
           {showEvaluation && (
             <div className="flex flex-col gap-2">
-              <span className="flex h-[30px] w-[140px] items-center justify-center rounded-full border border-blue-500 font-bold text-blue-500">
+              <span className="flex h-[30px] w-[140px] items-center justify-center gap-1 rounded-full border border-blue-500 font-bold text-blue-500">
                 <span className="text-lg">
-                  {gradedAssignment.problems.find(
+                  {assignmentProblemRecord?.problems.find(
                     (problem) => problem.id === problemId
-                  )?.problemRecord?.finalScore ??
-                    gradedAssignment.problems.find(
-                      (problem) => problem.id === problemId
-                    )?.problemRecord?.score}
+                  )?.problemRecord?.finalScore ?? '-'}
                 </span>
                 {'  /  '}
                 <span className="text-lg">
                   {
-                    gradedAssignment.problems.find(
+                    assignmentProblemRecord?.problems.find(
                       (problem) => problem.id === problemId
                     )?.maxScore
                   }
@@ -145,7 +152,7 @@ export function SubmissionDetailModal({
                     <p>
                       {dateFormatter(
                         submission?.createTime ?? '',
-                        'YYYY-MM-DD HH:mm:ss'
+                        'MMM DD, YYYY HH:mm'
                       )}
                     </p>
                   </div>
@@ -226,7 +233,7 @@ export function SubmissionDetailModal({
               <span className="text-sm font-medium">Comment</span>
               <div className="flex-col rounded border p-4">
                 <span className="text-xs">
-                  {gradedAssignment.problems.find(
+                  {assignmentProblemRecord?.problems.find(
                     (problem) => problem.id === problemId
                   )?.problemRecord?.comment || ''}
                 </span>
@@ -236,7 +243,7 @@ export function SubmissionDetailModal({
           <div>
             <h2 className="mb-3 text-base font-medium">Source Code</h2>
             <CodeEditor
-              value={testResults?.code || ''}
+              value={testResults?.code ?? ''}
               language={testResults?.language ?? 'C'}
               readOnly
               className="max-h-96 min-h-16 w-full"

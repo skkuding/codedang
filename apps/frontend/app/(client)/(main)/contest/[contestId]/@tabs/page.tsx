@@ -1,4 +1,5 @@
 import { ContestStatusTimeDiff } from '@/components/ContestStatusTimeDiff'
+import { KatexContent } from '@/components/KatexContent'
 import {
   Accordion,
   AccordionContent,
@@ -194,7 +195,7 @@ export default async function ContestTop({
             More Description
           </AccordionTrigger>
           <AccordionContent className="pb-8 text-base text-[#00000080]">
-            {description}
+            <KatexContent content={description} />
           </AccordionContent>
         </AccordionItem>
       </Accordion>

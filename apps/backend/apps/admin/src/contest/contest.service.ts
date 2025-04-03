@@ -93,6 +93,17 @@ export class ContestService {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         _count: {
           select: { contestRecord: true }
+        },
+        userContest: {
+          where: {
+            role: {
+              in: ['Manager', 'Reviewer']
+            }
+          },
+          select: {
+            userId: true,
+            role: true
+          }
         }
       }
     })
@@ -140,10 +151,37 @@ export class ContestService {
       }
     }
 
-    try {
-      const { summary, userContestRoles, ...contestData } = contest
+    const { summary, userContest, ...contestData } = contest
 
-      const createdContest = await this.prisma.contest.create({
+    if (userContest) {
+      const validRoles = new Set(['Manager', 'Reviewer'])
+      const seenUserIds = new Set<number>()
+
+      for (const role of userContest) {
+        if (!validRoles.has(role.contestRole)) {
+          throw new UnprocessableDataException(
+            `Invalid contest role: ${role.contestRole}`
+          )
+        }
+
+        if (role.userId === userId) {
+          throw new UnprocessableDataException(
+            `User ${userId} is already assigned as Admin`
+          )
+        }
+
+        if (seenUserIds.has(role.userId)) {
+          throw new UnprocessableDataException(
+            `User ${role.userId} has multiple roles in this request`
+          )
+        }
+
+        seenUserIds.add(role.userId)
+      }
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const createdContest = await tx.contest.create({
         data: {
           createdById: userId,
           summary: summary
@@ -153,30 +191,19 @@ export class ContestService {
         }
       })
 
-      if (userContestRoles) {
-        const validRoles = ['Manager', 'Reviewer']
-        userContestRoles.forEach((userContestRole) => {
-          if (!validRoles.includes(userContestRole.contestRole)) {
-            throw new UnprocessableDataException(
-              'Invalid contest role: ' + userContestRole.contestRole
-            )
-          }
-        })
+      if (userContest?.length) {
+        // created contest into newUserContests array
 
-        await Promise.all(
-          userContestRoles.map((userContestRole) =>
-            this.prisma.userContest.create({
-              data: {
-                userId: userContestRole.userId,
-                contestId: createdContest.id,
-                role: userContestRole.contestRole as ContestRole
-              }
-            })
-          )
-        )
+        await tx.userContest.createMany({
+          data: userContest.map((role) => ({
+            userId: role.userId,
+            contestId: createdContest.id,
+            role: role.contestRole as ContestRole
+          }))
+        })
       }
 
-      await this.prisma.userContest.create({
+      await tx.userContest.create({
         data: {
           userId,
           contestId: createdContest.id,
@@ -184,20 +211,31 @@ export class ContestService {
         }
       })
 
-      return createdContest
-    } catch (error) {
-      throw new UnprocessableDataException(error.message)
-    }
+      const newUserContests = await tx.userContest.findMany({
+        where: {
+          contestId: createdContest.id
+        }
+      })
+
+      return {
+        ...createdContest,
+        userContest: newUserContests
+      }
+    })
   }
 
-  async updateContest(contest: UpdateContestInput): Promise<Contest> {
+  async updateContest(
+    contestId: number,
+    contest: UpdateContestInput
+  ): Promise<Contest> {
     const contestFound = await this.prisma.contest.findUniqueOrThrow({
       where: {
-        id: contest.id
+        id: contestId
       },
       select: {
         startTime: true,
         endTime: true,
+        unfreeze: true,
         freezeTime: true,
         contestProblem: {
           select: {
@@ -211,6 +249,7 @@ export class ContestService {
             }
           },
           select: {
+            id: true,
             userId: true,
             role: true
           }
@@ -253,18 +292,25 @@ export class ContestService {
       }
     }
 
+    // unfreeze 상태 변경 시 예외 처리
     if (contest.unfreeze) {
+      const now = new Date()
       if (!contestFound.freezeTime) {
         throw new UnprocessableDataException(
-          'Cannot unfreeze a contest that has not been frozen'
+          'Cannot unfreeze a contest with no freezetime set'
         )
       }
-      if (contestFound.freezeTime < new Date()) {
+      if (contestFound.unfreeze) {
         throw new UnprocessableDataException(
           'Cannot unfreeze a contest that has already been unfrozen'
         )
       }
-      if (contest.unfreeze && contest.endTime > new Date()) {
+      if (contestFound.freezeTime > now) {
+        throw new UnprocessableDataException(
+          'Cannot unfreeze a contest that has not been frozen yet'
+        )
+      }
+      if (contestFound.endTime > now) {
         throw new UnprocessableDataException(
           'Cannot unfreeze a contest that has not ended yet'
         )
@@ -286,7 +332,7 @@ export class ContestService {
             }
           })
         )
-          .filter((contestProblem) => contestProblem.contestId !== contest.id)
+          .filter((contestProblem) => contestProblem.contestId !== contestId)
           .map((contestProblem) => contestProblem.contestId)
 
         if (contestIds.length) {
@@ -318,7 +364,7 @@ export class ContestService {
       }
     }
 
-    const { id, summary, userContestRoles: newRoles, ...contestData } = contest
+    const { summary, userContest: newRoles, ...contestData } = contest
 
     // userContest 중 삭제된 userContestRole 삭제, 추가된 userContestRole 추가, 변경된 userContestRole 변경
     if (newRoles) {
@@ -338,33 +384,29 @@ export class ContestService {
       })
 
       await Promise.all([
-        rolesToDelete.map((role) =>
+        ...rolesToDelete.map((role) =>
           this.prisma.userContest.delete({
             where: {
-              // eslint-disable-next-line @typescript-eslint/naming-convention
-              userId_contestId: {
-                userId: role.userId,
-                contestId: contest.id
-              }
+              id: role.id
             }
           })
         ),
-        rolesToAdd.map((role) =>
+        ...rolesToAdd.map((role) =>
           this.prisma.userContest.create({
             data: {
               userId: role.userId,
-              contestId: contest.id,
+              contestId,
               role: role.contestRole as ContestRole
             }
           })
         ),
-        rolesToUpdate.map((role) =>
+        ...rolesToUpdate.map((role) =>
           this.prisma.userContest.update({
             where: {
               // eslint-disable-next-line @typescript-eslint/naming-convention
               userId_contestId: {
                 userId: role.userId,
-                contestId: contest.id
+                contestId
               }
             },
             data: {
@@ -377,13 +419,22 @@ export class ContestService {
 
     return await this.prisma.contest.update({
       where: {
-        id
+        id: contestId
       },
       data: {
         summary: summary
           ? (contest.summary as Prisma.InputJsonValue)
           : Prisma.JsonNull,
         ...contestData
+      },
+      include: {
+        userContest: {
+          where: {
+            role: {
+              in: ['Manager', 'Reviewer']
+            }
+          }
+        }
       }
     })
   }
@@ -1012,12 +1063,20 @@ export class ContestService {
             finalTimePenalty: true,
             isFirstSolver: true,
             contestProblem: {
-              select: { order: true, problem: { select: { id: true } } }
+              select: {
+                id: true,
+                order: true,
+                problemId: true
+              }
             }
           }
         }
       },
-      orderBy: [{ finalScore: 'desc' }, { finalTotalPenalty: 'asc' }]
+      orderBy: [
+        { finalScore: 'desc' },
+        { finalTotalPenalty: 'asc' },
+        { lastAcceptedTime: 'asc' }
+      ]
     })
 
     // 문제별 제출 횟수 가져오기
@@ -1030,43 +1089,60 @@ export class ContestService {
 
     // 제출 횟수 매핑
     const submissionCountMap: Record<number, Record<number, number>> = {}
-    submissionCounts.forEach((submission) => {
-      const { userId, problemId, _count } = submission
-      if (!userId || !problemId || !_count) return
+    for (const { userId, problemId, _count } of submissionCounts) {
+      if (userId == null || problemId == null || _count?.id == null) continue
       if (!submissionCountMap[userId]) {
         submissionCountMap[userId] = {}
       }
-      submissionCountMap[userId][problemId] = _count.id // 문제별 제출 횟수 저장
+      submissionCountMap[userId][problemId] = _count.id
+    }
+
+    // 모든 문제 목록 가져오기
+    const allProblems = await this.prisma.contestProblem.findMany({
+      where: { contestId },
+      select: {
+        id: true,
+        order: true,
+        problemId: true
+      }
     })
 
     let rank = 1
     const leaderboard = contestRecords.map((contestRecord) => {
       const { contestProblemRecord, user, userId, ...rest } = contestRecord
-      const uid = userId ?? 0 // userId가 null이면 0으로 처리
 
-      const problemRecords = contestProblemRecord.map((record) => {
-        const {
-          contestProblem,
-          isFirstSolver,
-          finalScore,
-          finalSubmitCountPenalty,
-          finalTimePenalty,
-          ...rest
-        } = record
+      const getSubmissionCount = (problemId: number) =>
+        submissionCountMap[userId!]?.[problemId] ?? 0
+
+      // 모든 문제에 대해 problemRecords 생성
+      const problemRecords = allProblems.map(({ id, order, problemId }) => {
+        const record = contestProblemRecord.find(
+          (r) => r.contestProblem.id === id
+        )
+
+        if (!record) {
+          return {
+            order,
+            problemId,
+            score: 0,
+            penalty: 0,
+            isFirstSolver: false,
+            submissionCount: getSubmissionCount(problemId)
+          }
+        }
 
         return {
-          ...rest,
-          order: contestProblem.order,
-          problemId: contestProblem.problem.id,
-          score: finalScore,
-          penalty: finalSubmitCountPenalty + finalTimePenalty,
-          isFirstSolver,
-          submissionCount:
-            submissionCountMap[uid!]?.[contestProblem.problem.id] ?? 0 // 기본값 0 설정
+          order,
+          problemId,
+          score: record.finalScore,
+          penalty: record.finalSubmitCountPenalty + record.finalTimePenalty,
+          isFirstSolver: record.isFirstSolver,
+          submissionCount: getSubmissionCount(problemId)
         }
       })
+
       return {
-        userId: uid,
+        userId,
         username: user!.username,
         ...rest,
         problemRecords,
@@ -1126,5 +1202,25 @@ export class ContestService {
           )?.order ?? null
       }))
     }
+  }
+
+  async getContestRoles(userId: number) {
+    if (!userId) {
+      return []
+    }
+
+    const userContests = await this.prisma.userContest.findMany({
+      where: {
+        userId
+      },
+      select: {
+        contestId: true,
+        role: true
+      }
+    })
+
+    console.log('userContests', userContests)
+
+    return userContests
   }
 }

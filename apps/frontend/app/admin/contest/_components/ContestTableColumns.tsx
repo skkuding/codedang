@@ -10,10 +10,8 @@ export interface DataTableContest {
   title: string
   startTime: string
   endTime: string
-  description: string
+  description?: string | null | undefined
   participants: number
-  isVisible: boolean
-  isRankVisible: boolean
   status: string
 }
 

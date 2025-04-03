@@ -17,8 +17,7 @@ const headerStyle = {
   select: '',
   title: 'w-3/5',
   startTime: 'px-0 w-1/5',
-  participants: 'px-0 w-1/12',
-  isVisible: 'px-0 w-1/12'
+  participants: 'px-0 w-1/12'
 }
 
 export function ContestTable() {
@@ -64,7 +63,7 @@ export function ContestTable() {
       <div className="space-y-[42px]">
         <DataTable
           headerStyle={headerStyle}
-          getHref={(data) => `/admin/contest/${data.id}`}
+          getHref={(data) => `/admin/contest/${data.id}/leaderboard`}
         />
         <DataTablePagination showSelection />
       </div>

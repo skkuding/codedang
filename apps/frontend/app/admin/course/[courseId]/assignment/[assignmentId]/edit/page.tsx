@@ -60,26 +60,28 @@ export default function Page({
             setIsLoading={setIsLoading}
             methods={methods}
           >
-            <FormSection title="Title">
+            <FormSection isFlexColumn title="Title">
               <TitleForm placeholder="Name your assignment" />
             </FormSection>
 
             <div className="flex gap-6">
-              <FormSection title="Start Time">
+              <FormSection isFlexColumn title="Start Time">
                 {methods.getValues('startTime') && (
                   <TimeForm name="startTime" />
                 )}
               </FormSection>
-              <FormSection title="End Time">
+              <FormSection isFlexColumn title="End Time">
                 {methods.getValues('endTime') && <TimeForm name="endTime" />}
               </FormSection>
 
-              <FormSection title="Week">
-                {methods.getValues('week') && <WeekComboBox name="week" />}
+              <FormSection isFlexColumn title="Week">
+                {methods.getValues('week') && (
+                  <WeekComboBox name="week" courseId={Number(courseId)} />
+                )}
               </FormSection>
             </div>
 
-            <FormSection title="Description">
+            <FormSection isFlexColumn title="Description">
               {methods.getValues('description') && (
                 <DescriptionForm name="description" />
               )}
@@ -93,7 +95,7 @@ export default function Page({
 
             <SwitchField
               name="isJudgeResultVisible"
-              title="Reveal raw scores to participants"
+              title="Reveal T/C Result"
               hasValue={methods.getValues('isJudgeResultVisible') || false}
             />
 

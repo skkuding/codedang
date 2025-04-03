@@ -2,7 +2,7 @@ import { Separator } from '@/components/shadcn/separator'
 import { auth } from '@/libs/auth'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import type { Course } from '@/types/type'
-import type { User } from '@generated/graphql'
+import { ContestRole, type User, type UserContest } from '@generated/graphql'
 import { redirect } from 'next/navigation'
 import { ClientApolloProvider } from './_components/ApolloProvider'
 import { ManagementSidebar } from './_components/ManagementSidebar'
@@ -16,6 +16,23 @@ async function fetchGroupLeaderRole() {
     return response.some((course) => course.isGroupLeader)
   } catch (error) {
     console.error('Error fetching group leader role:', error)
+  }
+}
+
+async function fetchContestRoles() {
+  try {
+    const response: UserContest[] = await safeFetcherWithAuth
+      .get('contest/role')
+      .json()
+
+    return response.some((userContest) => {
+      return (
+        userContest.role !== ContestRole.Participant &&
+        userContest.role !== ContestRole.Reviewer
+      )
+    })
+  } catch (error) {
+    console.error('Error fetching contest roles:', error)
   }
 }
 
@@ -33,13 +50,16 @@ export default async function Layout({
 }: {
   children: React.ReactNode
 }) {
-  const [hasAnyGroupLeaderRole, session, user] = await Promise.all([
-    fetchGroupLeaderRole(),
-    auth(),
-    fetchUserPermissions()
-  ])
+  const [hasAnyGroupLeaderRole, hasAnyPermissionOnContest, session, user] =
+    await Promise.all([
+      fetchGroupLeaderRole(),
+      fetchContestRoles(),
+      auth(),
+      fetchUserPermissions()
+    ])
   if (
     !hasAnyGroupLeaderRole &&
+    !hasAnyPermissionOnContest &&
     session?.user.role === 'User' &&
     !user?.canCreateContest &&
     !user?.canCreateCourse

@@ -4,8 +4,9 @@ import { User } from '@generated'
 import { UseGroupLeaderGuard } from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
+import { UpdateCreationPermissionsInput } from './model/creationPermission.model'
 import { GroupMember } from './model/groupMember.model'
-import { CanCreateCourseResult } from './model/user.output'
+import { UpdateCreationPermissionResult } from './model/user.output'
 import { UserService, GroupMemberService } from './user.service'
 
 @Resolver(() => User)
@@ -38,13 +39,11 @@ export class UserResolver {
     return await this.userService.getUserByEmailOrStudentId(email, studentId)
   }
 
-  @Mutation(() => CanCreateCourseResult)
-  async updateCanCreateCourse(
-    @Args('userId', { type: () => Int }, new RequiredIntPipe('userId'))
-    userId: number,
-    @Args('canCreateCourse', { type: () => Boolean }) canCreateCourse: boolean
+  @Mutation(() => UpdateCreationPermissionResult)
+  async updateCreationPermissions(
+    @Args('input') input: UpdateCreationPermissionsInput
   ) {
-    return await this.userService.updateCanCreateCourse(userId, canCreateCourse)
+    return await this.userService.updateCreationPermissions(input)
   }
 
   @Query(() => [User])

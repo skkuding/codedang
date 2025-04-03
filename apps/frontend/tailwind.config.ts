@@ -38,18 +38,18 @@ export default {
         secondary: '#30D7AE',
         level: {
           dark: {
-            1: '#FF5777',
-            2: '#FFAA33',
-            3: '#35C759',
-            4: '#00BDDE',
-            5: '#8266F5'
+            1: '#35C759',
+            2: '#3581FA',
+            3: '#FF9500',
+            4: '#6541F2',
+            5: '#FF2C55'
           },
           light: {
-            1: '#FED7DE',
-            2: '#FFF5CC',
-            3: '#D8F4DE',
-            4: '#C4F6FF',
-            5: '#E0D9FC'
+            1: '#D8F4DE',
+            2: '#D7E5FE',
+            3: '#FEEACC',
+            4: '#E0D9FC',
+            5: '#FED7DE'
           }
         },
         error: '#FF3B2F'

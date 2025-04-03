@@ -1,0 +1,15 @@
+meta {
+  name: [409] Invalid Invitation Code
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/contest/1/participation?invitationCode=112233
+  body: none
+  auth: none
+}
+
+params:query {
+  invitationCode: 112233
+}

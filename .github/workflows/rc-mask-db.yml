@@ -43,7 +43,7 @@ jobs:
           echo "Fetching Bastion Host IP..."
 
           BASTION_IP=$(aws ec2 describe-instances \
-            --filters "Name=tag:Name,Values=Codedang-Bastion-Host" "Name=instance-state-name,Values=running" \
+            --filters "Name=tag:Name,Values=Bastion-Host" "Name=instance-state-name,Values=running" \
             --query 'Reservations[].Instances[].PublicIpAddress' \
             --output text)
 
@@ -82,7 +82,9 @@ jobs:
       - name: Mask sensitive data on RDS via Bastion host
         run: |
           echo "Running masking script on the RDS database via Bastion host..."
-          ssh -o StrictHostKeyChecking=no ec2-user@${{ steps.fetch-details.outputs.bastion_ip }} <<'EOF'
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ steps.fetch-details.outputs.bastion_ip }} <<EOF
+          sudo dnf install -y postgresql15
+
           export PGPASSWORD="${{ steps.fetch-details.outputs.db_pw }}"
           psql -h "${{ steps.fetch-details.outputs.rds_endpoint }}" -U "${{ steps.fetch-details.outputs.db_user }}" -d "${{ steps.fetch-details.outputs.db_name }}" <<SQL
 
@@ -93,7 +95,7 @@ jobs:
               email = 'masked' || id || '@example.com',
               student_id = 'xxxxxxxxxx',
               major = 'masked'
-          WHERE username NOT IN ('test123', 'admin');
+          WHERE username NOT IN ('test123', 'super');
 
           UPDATE "submission"
           SET
@@ -102,7 +104,7 @@ jobs:
               code_size = '-1',
               user_ip = 'masked',
               score = '-1'
-          WHERE user_id NOT IN (71755, 1);
+          WHERE user_id NOT IN (71755, 2);
 
           UPDATE public.contest_record
           SET
@@ -110,6 +112,6 @@ jobs:
               total_penalty = -1,
               score = -1,
               finish_time = '1970-01-01 00:00:00.000'
-          WHERE user_id NOT IN (71755, 1);
+          WHERE user_id NOT IN (71755, 2);
           SQL
           EOF

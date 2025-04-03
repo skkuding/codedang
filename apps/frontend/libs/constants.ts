@@ -35,6 +35,12 @@ export const ACCESS_TOKEN_EXPIRE_TIME = 30 * MILLSECONDS_PER_MINUTE
 export const metaBaseUrl = process.env.NEXT_URL
 
 /**
+ * The notice ID for Contest main page sub banner 'Read More'
+ * @constant
+ */
+export const contestNoticeId = process.env.NODE_ENV === 'development' ? 25 : 4
+
+/**
  * The languages that are supported by the grading system.
  * @constant
  */
@@ -195,3 +201,10 @@ export const courseOvalIconColors: {
 }
 
 export const runnerConnectionTimeLimit = 130 // 130 seconds
+export const managerReviewerTypes = ['Manager', 'Reviewer'] as const
+
+/**
+ * Options for the freeze time in minutes.
+ * @constant
+ */
+// export const freezeMinuteOptions = ['90', '75', '60', '45', '30', '15']

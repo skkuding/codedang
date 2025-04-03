@@ -41,23 +41,26 @@ export default function Page({ params }: { params: { courseId: string } }) {
             problems={problems}
             setIsCreating={setIsCreating}
           >
-            <FormSection title="Title">
+            <FormSection isFlexColumn title="Title">
               <TitleForm placeholder="Name your Assignment" />
             </FormSection>
 
             <div className="flex gap-6">
-              <FormSection title="Start Time">
+              <FormSection isFlexColumn title="Start Time">
                 <TimeForm name="startTime" />
               </FormSection>
-              <FormSection title="End Time">
-                <TimeForm name="endTime" />
+              <FormSection isFlexColumn title="End Time">
+                <TimeForm
+                  name="endTime"
+                  defaultTimeOnSelect={{ hours: 23, minutes: 59, seconds: 59 }}
+                />
               </FormSection>
-              <FormSection title="Week">
-                <WeekComboBox name="week" />
+              <FormSection isFlexColumn title="Week">
+                <WeekComboBox name="week" courseId={Number(courseId)} />
               </FormSection>
             </div>
 
-            <FormSection title="Description">
+            <FormSection isFlexColumn title="Description">
               <DescriptionForm name="description" />
             </FormSection>
 
@@ -68,7 +71,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
 
             <SwitchField
               name="isJudgeResultVisible"
-              title="Reveal Raw Scores to Participants"
+              title="Reveal T/C Result"
             />
 
             <SwitchField

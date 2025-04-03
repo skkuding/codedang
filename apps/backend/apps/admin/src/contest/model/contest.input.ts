@@ -16,8 +16,8 @@ export class CreateContestInput {
   @Field(() => String, { nullable: false })
   title!: string
 
-  @Field(() => String, { nullable: false })
-  description!: string
+  @Field(() => String, { nullable: true })
+  description?: string
 
   @Field(() => Int, { nullable: true })
   penalty?: number
@@ -44,12 +44,6 @@ export class CreateContestInput {
   freezeTime?: Date
 
   @Field(() => Boolean, { nullable: false })
-  isVisible!: boolean
-
-  @Field(() => Boolean, { nullable: false })
-  isRankVisible!: boolean
-
-  @Field(() => Boolean, { nullable: false })
   isJudgeResultVisible!: boolean
 
   @Field(() => Boolean, { nullable: true })
@@ -60,9 +54,9 @@ export class CreateContestInput {
 
   @IsArray()
   @ValidateNested({ each: true }) // 배열 요소를 개별적으로 검사
-  @Type(() => UserContestRoleInput) // class-validator에서 객체 변환 적용
-  @Field(() => [UserContestRoleInput], { nullable: true })
-  userContestRoles?: UserContestRoleInput[]
+  @Type(() => UserContestInput) // class-validator에서 객체 변환 적용
+  @Field(() => [UserContestInput], { nullable: true })
+  userContest?: UserContestInput[]
 
   @Field(() => GraphQLJSON, { nullable: true })
   summary?: Record<string, string>
@@ -70,9 +64,6 @@ export class CreateContestInput {
 
 @InputType()
 export class UpdateContestInput {
-  @Field(() => Int, { nullable: false })
-  id!: number
-
   @Field(() => String, { nullable: true })
   title?: string
 
@@ -107,12 +98,6 @@ export class UpdateContestInput {
   freezeTime?: Date
 
   @Field(() => Boolean, { nullable: true })
-  isVisible?: boolean
-
-  @Field(() => Boolean, { nullable: true })
-  isRankVisible?: boolean
-
-  @Field(() => Boolean, { nullable: true })
   enableCopyPaste?: boolean
 
   @Field(() => Boolean, { nullable: true })
@@ -121,18 +106,19 @@ export class UpdateContestInput {
   @Field(() => Boolean, { nullable: true })
   evaluateWithSampleTestcase?: boolean
 
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true }) // 배열 요소를 개별적으로 검사
-  @Type(() => UserContestRoleInput) // class-validator에서 객체 변환 적용
-  @Field(() => [UserContestRoleInput], { nullable: true })
-  userContestRoles?: UserContestRoleInput[]
+  @Type(() => UserContestInput) // class-validator에서 객체 변환 적용
+  @Field(() => [UserContestInput], { nullable: true })
+  userContest?: UserContestInput[]
 
   @Field(() => GraphQLJSON, { nullable: true })
   summary?: Record<string, string>
 }
 
 @InputType()
-export class UserContestRoleInput {
+export class UserContestInput {
   @Field(() => Int, { nullable: false })
   @IsNumber()
   userId!: number

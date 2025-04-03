@@ -1,10 +1,11 @@
 'use client'
 
+import { PreviewEditorLayout } from '@/app/admin/_components/code-editor/PreviewEditorLayout'
 import { createSchema } from '@/app/admin/problem/_libs/schemas'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { useSession } from '@/libs/hooks/useSession'
-import type { ProblemDetail } from '@/types/type'
+import type { ProblemDetail, Template } from '@/types/type'
 import { Level, type CreateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
@@ -12,7 +13,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
-import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
+import { IoMdCheckmarkCircleOutline, IoMdEye } from 'react-icons/io'
 import { ConfirmNavigation } from '../../_components/ConfirmNavigation'
 import { DescriptionForm } from '../../_components/DescriptionForm'
 import { FormSection } from '../../_components/FormSection'
@@ -23,7 +24,6 @@ import { EditorDescription } from '../../_components/code-editor/EditorDescripti
 import { InfoForm } from '../_components/InfoForm'
 import { LimitForm } from '../_components/LimitForm'
 import { PopoverVisibleInfo } from '../_components/PopoverVisibleInfo'
-import { PreviewEditorLayout } from '../_components/PreviewEditorLayout'
 import { TemplateField } from '../_components/TemplateField'
 import { TestcaseField } from '../_components/TestcaseField'
 import { CreateProblemForm } from './_components/CreateProblemForm'
@@ -62,6 +62,7 @@ export default function Page() {
       outputDescription: methods.getValues('outputDescription'),
       problemTestcase: methods
         .getValues('testcases')
+        ?.filter(({ isHidden }) => !isHidden)
         ?.map((testcase, index) => ({
           id: index + 1,
           input: testcase.input,
@@ -85,8 +86,8 @@ export default function Page() {
       <div className="fixed inset-0 z-50 flex bg-white">
         <PreviewEditorLayout
           problemTitle={problem.title}
-          language={problem.languages[0]}
-          code={problem.template[0]}
+          languages={problem.languages}
+          template={methods.getValues('template') as Template[]}
           exitPreview={() => setIsPreviewing(false)}
         >
           <EditorDescription problem={problem} />
@@ -109,32 +110,40 @@ export default function Page() {
 
           <CreateProblemForm methods={methods}>
             <div className="flex gap-32">
-              <FormSection title="Title">
+              <FormSection isFlexColumn title="Title">
                 <TitleForm placeholder="Enter a problem name" />
               </FormSection>
 
-              <FormSection title="Visible">
+              <FormSection isFlexColumn title="Visible">
                 <PopoverVisibleInfo />
                 <VisibleForm blockEdit={!isAdmin} />
               </FormSection>
             </div>
 
-            <FormSection title="Info">
+            <FormSection isFlexColumn title="Info">
               <InfoForm />
             </FormSection>
 
-            <FormSection title="Description">
+            <FormSection isFlexColumn title="Description">
               <DescriptionForm name="description" />
             </FormSection>
 
             <div className="flex justify-between">
               <div className="w-[360px]">
-                <FormSection title="Input Description" isLabeled={false}>
+                <FormSection
+                  isLabeled={false}
+                  isFlexColumn
+                  title="Input Description"
+                >
                   <DescriptionForm name="inputDescription" />
                 </FormSection>
               </div>
               <div className="w-[360px]">
-                <FormSection title="Output Description" isLabeled={false}>
+                <FormSection
+                  isLabeled={false}
+                  isFlexColumn
+                  title="Output Description"
+                >
                   <DescriptionForm name="outputDescription" />
                 </FormSection>
               </div>
@@ -142,7 +151,7 @@ export default function Page() {
 
             <TestcaseField />
 
-            <FormSection title="Limit">
+            <FormSection isFlexColumn title="Limit">
               <LimitForm />
             </FormSection>
 
@@ -176,7 +185,7 @@ export default function Page() {
                 className="flex h-[36px] w-[120px] items-center gap-2 bg-slate-200 px-0"
                 onClick={() => setIsPreviewing(true)}
               >
-                <IoMdCheckmarkCircleOutline fontSize={20} />
+                <IoMdEye fontSize={20} />
                 <div className="text-base">Preview</div>
               </Button>
             </div>

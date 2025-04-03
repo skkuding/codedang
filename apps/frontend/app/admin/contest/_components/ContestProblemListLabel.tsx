@@ -10,7 +10,7 @@ import { Label } from '../../_components/Label'
 export function ContestProblemListLabel() {
   return (
     <div className="flex items-center gap-2">
-      <Label>Contest Problem List</Label>
+      <Label required={false}>Contest Problem List</Label>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>

@@ -16,7 +16,12 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
 import { Workbook } from 'exceljs'
 import type { ReadStream } from 'fs'
-import { MAX_DATE, MAX_IMAGE_SIZE, MIN_DATE } from '@libs/constants'
+import {
+  MAX_DATE,
+  MAX_FILE_SIZE,
+  MAX_IMAGE_SIZE,
+  MIN_DATE
+} from '@libs/constants'
 import {
   DuplicateFoundException,
   EntityNotExistException,
@@ -351,23 +356,27 @@ export class ProblemService {
     return await this.createTestcase(problemId, testcase)
   }
 
-  async uploadImage(input: UploadFileInput, userId: number) {
+  async uploadFile(input: UploadFileInput, userId: number, isImage: boolean) {
     const { mimetype, createReadStream } = await input.file
     const newFilename = randomUUID()
 
-    if (!mimetype.includes('image/')) {
+    if (isImage && !mimetype.includes('image/')) {
       throw new UnprocessableDataException('Only image files can be accepted')
     }
 
-    const fileSize = await this.getFileSize(createReadStream())
+    if (!isImage && mimetype !== 'application/pdf') {
+      throw new UnprocessableDataException('Only pdf files can be accepted')
+    }
+
+    const fileSize = await this.getFileSize(createReadStream(), isImage)
     try {
-      await this.storageService.uploadImage({
+      await this.storageService.uploadFile({
         filename: newFilename,
         fileSize,
         content: createReadStream(),
         type: mimetype
       })
-      await this.prisma.image.create({
+      await this.prisma.file.create({
         data: {
           filename: newFilename,
           createdById: userId
@@ -375,10 +384,10 @@ export class ProblemService {
       })
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
-        await this.storageService.deleteImage(newFilename) // 이미지가 S3에 업로드되었지만, DB에 이미지 정보 등록을 실패한 경우 rollback
+        await this.storageService.deleteFile(newFilename) // 파일이 S3에 업로드되었지만, DB에 파일 정보 등록을 실패한 경우 rollback
       }
       throw new UnprocessableFileDataException(
-        'Error occurred during image upload.',
+        'Error occurred during file upload.',
         newFilename
       )
     }
@@ -399,20 +408,20 @@ export class ProblemService {
     }
   }
 
-  async deleteImage(filename: string, userId: number) {
-    const image = this.prisma.image.delete({
+  async deleteFile(filename: string, userId: number) {
+    const file = this.prisma.file.delete({
       where: {
         filename,
         createdById: userId
       }
     })
-    const s3ImageDeleteResult = this.storageService.deleteImage(filename)
+    const s3FileDeleteResult = this.storageService.deleteFile(filename)
 
-    const [resolvedImage] = await Promise.all([image, s3ImageDeleteResult])
-    return resolvedImage
+    const [resolvedFile] = await Promise.all([file, s3FileDeleteResult])
+    return resolvedFile
   }
 
-  async getFileSize(readStream: ReadStream): Promise<number> {
+  async getFileSize(readStream: ReadStream, isImage: boolean): Promise<number> {
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = []
 
@@ -420,7 +429,7 @@ export class ProblemService {
         chunks.push(chunk)
 
         const totalSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
-        if (totalSize > MAX_IMAGE_SIZE) {
+        if (totalSize > (isImage ? MAX_IMAGE_SIZE : MAX_FILE_SIZE)) {
           readStream.destroy()
           reject(
             new UnprocessableDataException('File size exceeds maximum limit')
@@ -436,7 +445,7 @@ export class ProblemService {
       readStream.on('error', () => {
         reject(
           new UnprocessableDataException(
-            'Error occurred during calculating image size.'
+            'Error occurred during calculating file size.'
           )
         )
       })
@@ -497,7 +506,10 @@ export class ProblemService {
       where: {
         ...whereOptions
       },
-      take
+      take,
+      include: {
+        createdBy: true
+      }
     })
     return this.changeVisibleLockTimeToIsVisible(problems)
   }
@@ -813,7 +825,7 @@ export class ProblemService {
     // Problem description에 이미지가 포함되어 있다면 삭제
     const uuidImageFileNames = this.extractUUIDs(problem.description)
     if (uuidImageFileNames) {
-      await this.prisma.image.deleteMany({
+      await this.prisma.file.deleteMany({
         where: {
           filename: {
             in: uuidImageFileNames
@@ -822,7 +834,7 @@ export class ProblemService {
       })
 
       const deleteFromS3Results = uuidImageFileNames.map((filename: string) => {
-        return this.storageService.deleteImage(filename)
+        return this.storageService.deleteFile(filename)
       })
 
       await Promise.all(deleteFromS3Results)
@@ -954,6 +966,11 @@ export class ProblemService {
 
     const queries = contestProblems.map((record) => {
       const newOrder = orders.indexOf(record.problemId)
+      if (newOrder === -1) {
+        throw new UnprocessableDataException(
+          'There is a problemId in the contest that is missing from the provided orders.'
+        )
+      }
       return this.prisma.contestProblem.update({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -1028,6 +1045,12 @@ export class ProblemService {
 
     const queries = assignmentProblems.map((record) => {
       const newOrder = orders.indexOf(record.problemId)
+      if (newOrder === -1) {
+        throw new UnprocessableDataException(
+          'There is a problemId in the assignment that is missing from the provided orders.'
+        )
+      }
+
       return this.prisma.assignmentProblem.update({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention

@@ -12,7 +12,10 @@ post {
 
 body:graphql {
   mutation {
-    removeAnnouncement(id: 1) {
+    removeAnnouncement(
+      contestId: 1
+      id: 1
+    ) {
       id
       content
       createTime
