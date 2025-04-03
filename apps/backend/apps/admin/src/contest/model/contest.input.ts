@@ -64,9 +64,6 @@ export class CreateContestInput {
 
 @InputType()
 export class UpdateContestInput {
-  @Field(() => Int, { nullable: false })
-  id!: number
-
   @Field(() => String, { nullable: true })
   title?: string
 
@@ -109,6 +106,7 @@ export class UpdateContestInput {
   @Field(() => Boolean, { nullable: true })
   evaluateWithSampleTestcase?: boolean
 
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true }) // 배열 요소를 개별적으로 검사
   @Type(() => UserContestInput) // class-validator에서 객체 변환 적용

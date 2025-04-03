@@ -17,7 +17,7 @@ import {
 } from '@tanstack/react-table'
 import type { Route } from 'next'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 
 interface Item {
   id: number | string
@@ -32,6 +32,7 @@ interface DataTableProps<TData, TValue> {
   tableRowStyle?: string
   linked?: boolean
   emptyMessage?: string
+  pathSegment?: string | null
 }
 
 /**
@@ -77,14 +78,14 @@ export function DataTable<TData extends Item, TValue>({
   headerStyle,
   tableRowStyle,
   linked = false,
-  emptyMessage = 'No results.'
+  emptyMessage = 'No results.',
+  pathSegment
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel()
   })
-  const router = useRouter()
   const currentPath = usePathname()
 
   return (
@@ -116,15 +117,36 @@ export function DataTable<TData extends Item, TValue>({
       <TableBody>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
-            const href = `${currentPath}/${row.original.id}` as Route
-            const handleClick = linked
-              ? () => {
-                  router.push(href)
-                }
-              : (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-                  e.currentTarget.classList.toggle('expanded')
-                }
-            return (
+            const href = pathSegment
+              ? `${currentPath}/${pathSegment}/${row.original.id}`
+              : `${currentPath}/${row.original.id}`
+            const handleClick = (
+              e: React.MouseEvent<HTMLDivElement, MouseEvent>
+            ) => {
+              e.currentTarget.classList.toggle('expanded')
+            }
+            return linked ? (
+              <Link
+                key={row.id}
+                data-state={row.getIsSelected() && 'selected'}
+                className={cn(
+                  'table-row cursor-pointer border-b-[1.5px] border-[#80808040] hover:bg-[#80808014]',
+                  tableRowStyle
+                )}
+                href={href as Route}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id} className="align-top">
+                    <div className="text-center text-xs md:text-sm">
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </div>
+                  </TableCell>
+                ))}
+              </Link>
+            ) : (
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
@@ -142,8 +164,6 @@ export function DataTable<TData extends Item, TValue>({
                         cell.getContext()
                       )}
                     </div>
-                    {/* for prefetch */}
-                    <Link href={href} />
                   </TableCell>
                 ))}
               </TableRow>

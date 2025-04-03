@@ -74,7 +74,9 @@ export default function Page({ params }: { params: { contestId: string } }) {
             methods={methods}
           >
             <div className="flex justify-between gap-[26px]">
-              <PosterUploadForm name="posterUrl" />
+              {methods.getValues('posterUrl') !== undefined && (
+                <PosterUploadForm name="posterUrl" />
+              )}
 
               <div className="flex flex-col justify-between">
                 <FormSection title="Title">
@@ -117,8 +119,8 @@ export default function Page({ params }: { params: { contestId: string } }) {
               isLabeled={false}
               isFlexColumn={true}
             >
-              {methods.getValues('description') && (
-                <DescriptionForm name="description" />
+              {methods.getValues('description') !== undefined && (
+                <DescriptionForm name="description" isContest />
               )}
             </FormSection>
 

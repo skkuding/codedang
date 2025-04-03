@@ -64,8 +64,8 @@ interface AnonymizedScore {
 }
 
 export interface GetAnonymizedScoresRequest {
-  assignmentId: string
-  courseId: string
+  assignmentId: number
+  courseId: number
 }
 
 export const getAnonymizedScores = async ({

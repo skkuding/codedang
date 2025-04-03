@@ -2450,7 +2450,6 @@ const createAssignmentRecords = async () => {
 }
 
 const createContestRecords = async () => {
-  const contestRecords: ContestRecord[] = []
   // group 1 users
   const group1Users = await prisma.userGroup.findMany({
     where: {
@@ -2505,8 +2504,8 @@ const createContestRecords = async () => {
 
 const createUserContests = async () => {
   const userContests: Promise<UserContest | Prisma.BatchPayload>[] = []
-
   for (const contest of contests) {
+    // Contest Manager & Reviewer
     if (contest.createdById === contestAdminUser.id) {
       userContests.push(
         prisma.userContest.createMany({
@@ -2526,7 +2525,7 @@ const createUserContests = async () => {
         })
       )
     }
-
+    // Contest Admin
     if (contest.createdById) {
       userContests.push(
         prisma.userContest.create({
@@ -2542,18 +2541,26 @@ const createUserContests = async () => {
 
   await Promise.all(userContests)
 
+  // Participant
   const participantPromises: Promise<UserContest>[] = []
-
   for (const contestRecord of contestRecords) {
-    participantPromises.push(
-      prisma.userContest.create({
-        data: {
-          contestId: contestRecord.contestId,
-          userId: contestRecord.userId!,
-          role: ContestRole.Participant
-        }
-      })
-    )
+    const userAlreadyExists = await prisma.userContest.findFirst({
+      where: {
+        userId: contestRecord.userId!,
+        contestId: contestRecord.contestId
+      }
+    })
+    if (!userAlreadyExists) {
+      participantPromises.push(
+        prisma.userContest.create({
+          data: {
+            contestId: contestRecord.contestId,
+            userId: contestRecord.userId!,
+            role: ContestRole.Participant
+          }
+        })
+      )
+    }
   }
 
   await Promise.all(participantPromises)

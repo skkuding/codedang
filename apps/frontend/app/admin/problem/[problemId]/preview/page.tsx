@@ -31,10 +31,12 @@ export default function Page({ params }: PageProps) {
         id: 0,
         ...data?.getProblem,
         problemTestcase:
-          data?.getProblem?.testcase?.map(({ id, ...rest }) => ({
-            id: Number(id),
-            ...rest
-          })) ?? [],
+          data?.getProblem?.testcase
+            ?.filter(({ isHidden }) => !isHidden)
+            ?.map(({ id, ...rest }) => ({
+              id: Number(id),
+              ...rest
+            })) ?? [],
         tags: []
       } as ProblemDetail)
 

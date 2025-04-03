@@ -11,7 +11,7 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Separator } from '@/components/shadcn/separator'
 import { dateFormatter } from '@/libs/utils'
-import type { Assignment, AssignmentProblemRecord } from '@/types/type'
+import type { Assignment } from '@/types/type'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { MdArrowForwardIos } from 'react-icons/md'
 
@@ -19,26 +19,31 @@ interface SubmissionDetailModalProps {
   problemId: number
   assignment: Assignment
   showEvaluation: boolean
+  courseId: number
 }
 export function SubmissionDetailModal({
   problemId,
   assignment,
-  showEvaluation
+  showEvaluation,
+  courseId
 }: SubmissionDetailModalProps) {
-  const { data: AssignmentProblemRecord } = useSuspenseQuery({
-    ...assignmentQueries.record({ assignmentId: assignment.id.toString() })
+  const { data: assignmentProblemRecord } = useSuspenseQuery({
+    ...assignmentQueries.record({
+      assignmentId: assignment.id,
+      courseId
+    })
   })
 
   const { data: submission } = useQuery(
     assignmentSubmissionQueries.lastestSubmissionResult({
-      assignmentId: AssignmentProblemRecord.id,
+      assignmentId: assignment.id,
       problemId
     })
   )
 
   const { data: testResults } = useQuery(
     assignmentSubmissionQueries.testResult({
-      assignmentId: AssignmentProblemRecord.id,
+      assignmentId: assignment.id,
       problemId,
       submissionId: submission?.id ?? 0
     })
@@ -48,7 +53,7 @@ export function SubmissionDetailModal({
       return 'rounded-full border border-blue-500 px-2 py-1 text-xs font-light text-blue-500'
     }
     if (result === 'Blind') {
-      return 'rounded-full border border-purple-500 px-2 py-1 text-xs font-light text-purple-500'
+      return 'rounded-full border border-gray-400 px-2 py-1 text-xs font-light text-gray-400'
     }
     return 'rounded-full border border-gray-400 px-2 py-1 text-xs font-light text-gray-400'
   }
@@ -79,13 +84,13 @@ export function SubmissionDetailModal({
               <MdArrowForwardIos />
               <span
                 title={
-                  AssignmentProblemRecord.problems.find(
+                  assignmentProblemRecord?.problems.find(
                     (problem) => problem.id === problemId
                   )?.title || 'Not found'
                 }
                 className="max-w-[200px] overflow-hidden truncate"
               >
-                {AssignmentProblemRecord.problems.find(
+                {assignmentProblemRecord?.problems.find(
                   (problem) => problem.id === problemId
                 )?.title || 'Not found'}
               </span>
@@ -95,19 +100,16 @@ export function SubmissionDetailModal({
         <div className="flex flex-col gap-6">
           {showEvaluation && (
             <div className="flex flex-col gap-2">
-              <span className="flex h-[30px] w-[140px] items-center justify-center rounded-full border border-blue-500 font-bold text-blue-500">
+              <span className="flex h-[30px] w-[140px] items-center justify-center gap-1 rounded-full border border-blue-500 font-bold text-blue-500">
                 <span className="text-lg">
-                  {AssignmentProblemRecord.problems.find(
+                  {assignmentProblemRecord?.problems.find(
                     (problem) => problem.id === problemId
-                  )?.problemRecord?.finalScore ??
-                    AssignmentProblemRecord.problems.find(
-                      (problem) => problem.id === problemId
-                    )?.problemRecord?.score}
+                  )?.problemRecord?.finalScore ?? '-'}
                 </span>
                 {'  /  '}
                 <span className="text-lg">
                   {
-                    AssignmentProblemRecord.problems.find(
+                    assignmentProblemRecord?.problems.find(
                       (problem) => problem.id === problemId
                     )?.maxScore
                   }
@@ -231,7 +233,7 @@ export function SubmissionDetailModal({
               <span className="text-sm font-medium">Comment</span>
               <div className="flex-col rounded border p-4">
                 <span className="text-xs">
-                  {AssignmentProblemRecord.problems.find(
+                  {assignmentProblemRecord?.problems.find(
                     (problem) => problem.id === problemId
                   )?.problemRecord?.comment || ''}
                 </span>

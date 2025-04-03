@@ -7,8 +7,8 @@ import type { UpdateAnnouncementInput } from './model/update-announcement.input'
 export class AnnouncementService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createAnnouncement(input: CreateAnnouncementInput) {
-    const { problemOrder, contestId, content } = input
+  async createAnnouncement(contestId: number, input: CreateAnnouncementInput) {
+    const { problemOrder, content } = input
 
     await this.prisma.contest.findUniqueOrThrow({
       where: { id: contestId }
@@ -63,23 +63,27 @@ export class AnnouncementService {
     })
   }
 
-  async getAnnouncementById(id: number) {
+  async getAnnouncementById(contestId: number, id: number) {
+    await this.prisma.contest.findUniqueOrThrow({ where: { id: contestId } })
+
     return await this.prisma.announcement.findUniqueOrThrow({
       where: { id }
     })
   }
 
-  async updateAnnouncement(input: UpdateAnnouncementInput) {
-    const { id, ...rest } = input
+  async updateAnnouncement(contestId: number, input: UpdateAnnouncementInput) {
+    await this.prisma.contest.findUniqueOrThrow({ where: { id: contestId } })
+    const { id, ...data } = input
     await this.prisma.announcement.findUniqueOrThrow({ where: { id } })
 
     return await this.prisma.announcement.update({
       where: { id },
-      data: rest
+      data
     })
   }
 
-  async removeAnnouncement(id: number) {
+  async removeAnnouncement(contestId: number, id: number) {
+    await this.prisma.contest.findUniqueOrThrow({ where: { id: contestId } })
     await this.prisma.announcement.findUniqueOrThrow({ where: { id } })
 
     return await this.prisma.announcement.delete({

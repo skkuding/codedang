@@ -16,6 +16,7 @@ import {
 import { cn, fetcherWithAuth, safeFetcherWithAuth } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
 import type { Course } from '@/types/type'
+import { ContestRole, type UserContest } from '@generated/graphql'
 import { LogOut, UserRoundCog, ChevronDown } from 'lucide-react'
 import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
@@ -45,6 +46,8 @@ export function HeaderAuthPanel({
     setHasCanCreateCourseOrContestPermission
   ] = useState(false)
   const [hasAnyGroupLeaderRole, setHasAnyGroupLeaderRole] = useState(false)
+  const [hasAnyPermissionOnContest, setHasAnyPermissionOnContest] =
+    useState(false)
   const isEditor = group === 'editor'
   const [needsUpdate, setNeedsUpdate] = useState(false)
   const pathname = usePathname()
@@ -86,7 +89,25 @@ export function HeaderAuthPanel({
         console.error('Error fetching group leader role:', error)
       }
     }
+    async function fetchContestRoles() {
+      try {
+        const response: UserContest[] = await safeFetcherWithAuth
+          .get('contest/role')
+          .json()
+
+        const hasPermission = response.some((userContest) => {
+          return (
+            userContest.role !== ContestRole.Participant &&
+            userContest.role !== ContestRole.Reviewer
+          )
+        })
+        setHasAnyPermissionOnContest(hasPermission)
+      } catch (error) {
+        console.error('Error fetching contest roles:', error)
+      }
+    }
     fetchGroupLeaderRole()
+    fetchContestRoles()
   }, [session, pathname])
 
   const shouldShowDialog =
@@ -126,6 +147,7 @@ export function HeaderAuthPanel({
               )}
             >
               {(hasAnyGroupLeaderRole ||
+                hasAnyPermissionOnContest ||
                 hasCanCreateCourseOrContestPermission ||
                 !isUser) && (
                 <Link href="/admin">

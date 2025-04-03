@@ -13,7 +13,7 @@ import {
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
-import { GET_USERS } from '@/graphql/user/queries'
+import { GET_USERS_SET_MANAGER } from '@/graphql/user/queries'
 import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { useRouter } from 'next/navigation'
@@ -47,17 +47,15 @@ export function EditContestForm({
   const { setShouldSkipWarning } = useConfirmNavigationContext()
   const router = useRouter()
 
-  const { data: userData } = useSuspenseQuery(GET_USERS, {
-    variables: {
-      take: 5000
-    }
-  })
+  const { data: userData } = useSuspenseQuery(GET_USERS_SET_MANAGER)
 
   // 수정된 manager, reviewer 목록(managers) 으로 등록
-  const formattedManagers = managers.map((manager) => ({
-    userId: manager.id,
-    contestRole: manager.type
-  }))
+  const formattedManagers = managers
+    .filter((manager) => manager.id !== null) // Exclude managers with null id
+    .map((manager) => ({
+      userId: manager.id,
+      contestRole: manager.type
+    }))
   methods.register('userContest')
   methods.setValue('userContest', formattedManagers)
 
@@ -74,7 +72,6 @@ export function EditContestForm({
     onCompleted: (contestData) => {
       const data = contestData.getContest
       methods.reset({
-        id: contestId,
         title: data.title,
         description: data.description,
         startTime: new Date(data.startTime),
@@ -85,21 +82,26 @@ export function EditContestForm({
         posterUrl: data.posterUrl,
         freezeTime: data.freezeTime === null ? null : new Date(data.freezeTime),
         evaluateWithSampleTestcase: data.evaluateWithSampleTestcase,
-        userContest: data.userContest
+        userContest: data.userContest?.map((role) => ({
+          contestRole: role.role,
+          userId: role.userId ?? undefined
+        }))
       })
       setIsLoading(false)
       setManagers(
-        (data.userContest ?? []).map((role) => {
-          const user = users.find((u) => u.id === role.userId)
-          return {
-            id: role.userId,
-            email: user?.email || '',
-            username: user?.username || '',
-            realName: user?.realName || '',
-            type: role.role,
-            user
-          }
-        })
+        (data.userContest ?? [])
+          .filter((role) => role.userId !== null && role.userId !== undefined) // Ensure userId is not null or undefined
+          .map((role) => {
+            const user = users.find((u) => u.id === role.userId)
+            return {
+              id: role.userId as number,
+              email: user?.email || '',
+              username: user?.username || '',
+              realName: user?.realName || '',
+              type: role.role,
+              user
+            }
+          })
       )
     }
   })
@@ -150,6 +152,7 @@ export function EditContestForm({
     setIsLoading(true)
     await updateContest({
       variables: {
+        contestId,
         input
       }
     })

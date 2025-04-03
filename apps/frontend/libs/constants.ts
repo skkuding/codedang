@@ -29,6 +29,12 @@ export const ACCESS_TOKEN_EXPIRE_TIME = 30 * MILLSECONDS_PER_MINUTE
 export const metaBaseUrl = process.env.NEXT_URL
 
 /**
+ * The notice ID for Contest main page sub banner 'Read More'
+ * @constant
+ */
+export const contestNoticeId = process.env.NODE_ENV === 'development' ? 25 : 4
+
+/**
  * The languages that are supported by the grading system.
  * @constant
  */

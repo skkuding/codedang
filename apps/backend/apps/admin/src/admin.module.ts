@@ -4,7 +4,6 @@ import { Module, type OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD, APP_FILTER, HttpAdapterHost } from '@nestjs/core'
 import { GraphQLModule } from '@nestjs/graphql'
-import { ScheduleModule } from '@nestjs/schedule'
 import type { Server } from 'http'
 import { LoggerModule } from 'nestjs-pino'
 import {
@@ -62,8 +61,7 @@ import { UserModule } from './user/user.module'
     NoticeModule,
     SubmissionModule,
     LibsRabbitMQModule,
-    LoggerModule.forRoot(pinoLoggerModuleOption),
-    ScheduleModule.forRoot()
+    LoggerModule.forRoot(pinoLoggerModuleOption)
   ],
   controllers: [AdminController],
   providers: [

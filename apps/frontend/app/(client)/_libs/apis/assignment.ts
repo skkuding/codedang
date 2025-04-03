@@ -18,7 +18,7 @@ export const getAssignment = async ({ assignmentId }: GetAssignmentRequest) => {
 }
 
 export interface GetAssignmentsRequest {
-  courseId: string
+  courseId: number
 }
 
 export type GetAssignmentsResponse = Assignment[]
@@ -32,30 +32,57 @@ export const getAssignments = async ({ courseId }: GetAssignmentsRequest) => {
 }
 
 export interface GetAssignmentProblemRecordRequest {
-  assignmentId: string
+  assignmentId: number
+  courseId: number
 }
 
 export type GetAssignmentProblemRecordResponse = AssignmentProblemRecord
 
 export const getAssignmentProblemRecord = async ({
-  assignmentId
-}: GetAssignmentProblemRecordRequest) => {
-  const response = await safeFetcherWithAuth.get(
-    `assignment/${assignmentId}/me`
-  )
-  const data = await response.json<GetAssignmentProblemRecordResponse>()
-  return data
+  assignmentId,
+  courseId
+}: GetAssignmentProblemRecordRequest): Promise<
+  GetAssignmentProblemRecordResponse | undefined
+> => {
+  try {
+    const response = await safeFetcherWithAuth.get(
+      `assignment/${assignmentId}/me`
+    )
+    const data = await response.json<GetAssignmentProblemRecordResponse>()
+    return data
+  } catch (error) {
+    if (isHttpError(error) && error.response.status === 403) {
+      await participateAllOngoingAssignments({ courseId })
+
+      try {
+        const retryResponse = await safeFetcherWithAuth.get(
+          `assignment/${assignmentId}/me`
+        )
+        const retryData =
+          await retryResponse.json<GetAssignmentProblemRecordResponse>()
+        return retryData
+      } catch (retryError) {
+        console.error('Retry failed:', retryError)
+        return undefined
+      }
+    } else {
+      console.error('getAssignmentProblemRecord failed:', error)
+      return undefined
+    }
+  }
 }
 
 export interface GetAssignmentsSummaryRequest {
-  courseId: string
+  courseId: number
 }
 
 export type GetAssignmentsSummaryResponse = AssignmentSummary[]
 
 export const getAssignmentsSummary = async ({
   courseId
-}: GetAssignmentsSummaryRequest) => {
+}: GetAssignmentsSummaryRequest): Promise<
+  GetAssignmentsSummaryResponse | undefined
+> => {
   try {
     const response = await safeFetcherWithAuth.get('assignment/me/summary', {
       searchParams: { groupId: courseId }
@@ -64,23 +91,39 @@ export const getAssignmentsSummary = async ({
     return data
   } catch (error) {
     if (isHttpError(error) && error.response.status === 403) {
-      participateAllOngoingAssignments({ courseId })
+      // 참여 먼저 시도
+      await participateAllOngoingAssignments({ courseId })
+
+      // 재요청
+      try {
+        const retryResponse = await safeFetcherWithAuth.get(
+          'assignment/me/summary',
+          {
+            searchParams: { groupId: courseId }
+          }
+        )
+        const retryData =
+          await retryResponse.json<GetAssignmentsSummaryResponse>()
+        return retryData
+      } catch (retryError) {
+        console.error('Retry failed:', retryError)
+        return undefined
+      }
+    } else {
+      console.error('getAssignmentsSummary failed:', error)
+      return undefined
     }
   }
 }
 
 export interface ParticipateAllOngoingAssignmentsRequest {
-  courseId: string
+  courseId: number
 }
 
 export const participateAllOngoingAssignments = async ({
   courseId
 }: ParticipateAllOngoingAssignmentsRequest) => {
-  const response = await safeFetcherWithAuth.post('assignment/participation', {
+  await safeFetcherWithAuth.post('assignment/participation', {
     searchParams: { groupId: courseId }
   })
-  // 정상 응답 시, 과제 요약 정보 다시 가져오기
-  if (response.ok) {
-    getAssignmentsSummary({ courseId })
-  }
 }
