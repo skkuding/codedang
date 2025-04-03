@@ -1,13 +1,19 @@
 import { Injectable } from '@nestjs/common'
-import type { Prisma } from '@prisma/client'
+import { ConfigService } from '@nestjs/config'
+import { Prisma } from '@prisma/client'
 import * as archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
-import { mkdirSync, writeFile, createWriteStream, ReadStream } from 'fs'
-import path from 'path'
+import { Response } from 'express'
 import {
-  EntityNotExistException,
-  UnprocessableDataException
-} from '@libs/exception'
+  mkdirSync,
+  writeFile,
+  createWriteStream,
+  createReadStream,
+  existsSync,
+  unlink
+} from 'fs'
+import path from 'path'
+import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { Language, ResultStatus } from '@admin/@generated'
 import { Snippet } from '@admin/problem/model/template.input'
@@ -21,7 +27,10 @@ import type { SubmissionsWithTotal } from './model/submissions-with-total.output
 
 @Injectable()
 export class SubmissionService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService
+  ) {}
 
   async getSubmissions(
     problemId: number,
@@ -369,30 +378,30 @@ export class SubmissionService {
     return encodeURIComponent(assignment.title)
   }
 
-  async getZipFileSize(readStream: ReadStream): Promise<number> {
-    return new Promise((resolve, reject) => {
-      const chunks: Buffer[] = []
+  // async getZipFileSize(readStream: ReadStream): Promise<number> {
+  //   return new Promise((resolve, reject) => {
+  //     const chunks: Buffer[] = []
 
-      readStream.on('data', (chunk: Buffer) => {
-        chunks.push(chunk)
-      })
+  //     readStream.on('data', (chunk: Buffer) => {
+  //       chunks.push(chunk)
+  //     })
 
-      readStream.on('end', () => {
-        const fileSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
-        resolve(fileSize)
-      })
+  //     readStream.on('end', () => {
+  //       const fileSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
+  //       resolve(fileSize)
+  //     })
 
-      readStream.on('error', () => {
-        reject(
-          new UnprocessableDataException(
-            'Error occurred during calculating file size.'
-          )
-        )
-      })
-    })
-  }
+  //     readStream.on('error', () => {
+  //       reject(
+  //         new UnprocessableDataException(
+  //           'Error occurred during calculating file size.'
+  //         )
+  //       )
+  //     })
+  //   })
+  // }
 
-  async downloadCodes(
+  async compressSourceCodes(
     groupId: number,
     assignmentId: number,
     problemId: number
@@ -449,5 +458,43 @@ export class SubmissionService {
     archive.pipe(output)
     archive.directory(dirPath, assignmentTitle!)
     await archive.finalize()
+
+    const APP_ENV = this.config.get('APP_ENV')
+
+    const baseURL =
+      APP_ENV === 'production'
+        ? 'http://codedang.com'
+        : APP_ENV == 'stage'
+          ? 'http://stage.codedang.com'
+          : 'http://localhost:3000'
+    const downloadSrc = `${baseURL}/submission/download/${zipFilename}`
+    return downloadSrc
+  }
+
+  async downloadCodes(filename: string, res: Response) {
+    const zipPath = path.join(__dirname, filename)
+    const fileStream = createReadStream(zipPath)
+
+    if (!existsSync(zipPath)) {
+      throw new EntityNotExistException('File not found')
+    }
+
+    res.set({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      'Content-Type': 'application/zip',
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      'Content-Disposition': `attachment; filename=${filename}`
+    })
+    fileStream.pipe(res)
+
+    fileStream.on('end', () => {
+      unlink(zipPath, (err) => {
+        if (err) console.error('Error on deleting file: ', err)
+      })
+      res.end()
+    })
+    fileStream.on('error', (err) => {
+      res.status(500).json({ error: 'File download failed' })
+    })
   }
 }

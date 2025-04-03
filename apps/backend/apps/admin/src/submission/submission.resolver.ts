@@ -131,14 +131,18 @@ export class SubmissionResolver {
     return await this.submissionService.getSubmission(id)
   }
 
-  @Query(() => Boolean, { nullable: true })
-  async downloadCodes(
+  @Query(() => String, { nullable: true })
+  async compressSourceCodes(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('assignmentId', { type: () => Int })
     assignmentId: number,
     @Args('problemId', { type: () => Int }, new RequiredIntPipe('problemId'))
     problemId: number
-  ): Promise<void> {
-    await this.submissionService.downloadCodes(groupId, assignmentId, problemId)
+  ): Promise<string> {
+    return await this.submissionService.compressSourceCodes(
+      groupId,
+      assignmentId,
+      problemId
+    )
   }
 }
