@@ -1,0 +1,49 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/contest/20/participation?invitationCode=123456
+  body: none
+  auth: none
+}
+
+params:query {
+  invitationCode: 123456
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+  // TODO: remove participation
+}
+
+docs {
+  ## Participate Contest
+  ---
+  - 주어진 contest ID에 해당하는 contest에 참여합니다.
+  - invitationCode가 존재하는 Contest의 경우 6자리의 invitationCode를 URL Query로 전달해야 합니다.
+  
+  ### Error Case
+  
+  #### [404] Nonexistent content
+  
+  존재하지 않는 ContestID에 참여하려고 하면 오류가 납니다.
+  
+  #### [409] Already participated
+  
+  이미 참여한 Contest에 참여하려고 하면 오류가 납니다.
+  
+  #### [409] Ended contest
+  
+  종료된 Contest에 참여하려고 하면 오류가 납니다.
+  
+  #### [409] Invalid Invitation Code
+  
+  잘못된 invitationCode를 입력한 경우 오류가 납니다.
+}

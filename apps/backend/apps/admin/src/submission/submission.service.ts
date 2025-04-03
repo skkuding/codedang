@@ -269,6 +269,8 @@ export class SubmissionService {
         problem: true,
         contest: true,
         assignment: true,
+        // TODO: Let's not include this here.
+        // Instead, we should use @ResolveField to get this value.
         submissionResult: {
           include: {
             problemTestcase: {
@@ -288,6 +290,12 @@ export class SubmissionService {
     const results = submission.submissionResult.map((result) => {
       return {
         ...result,
+        // TODO: Handle this separately.
+        // If input/output is null, the values should be read from S3.
+        problemTestcase: {
+          input: result.problemTestcase.input ?? '',
+          output: result.problemTestcase.output ?? ''
+        },
         cpuTime:
           result.cpuTime || result.cpuTime === BigInt(0)
             ? result.cpuTime.toString()
