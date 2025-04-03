@@ -30,7 +30,7 @@ export function CodeForm({ name, language, hasValue = false }: CodeFormProps) {
 
   useEffect(() => {
     setIsEnabled(hasValue)
-  }, [hasValue])
+  }, [])
 
   const handleFormat = useCallback(async () => {
     try {
