@@ -26,7 +26,10 @@ async function fetchContestRoles() {
       .json()
 
     return response.some((userContest) => {
-      return userContest.role !== ContestRole.Participant
+      return (
+        userContest.role !== ContestRole.Participant &&
+        userContest.role !== ContestRole.Reviewer
+      )
     })
   } catch (error) {
     console.error('Error fetching contest roles:', error)
