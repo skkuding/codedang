@@ -57,11 +57,17 @@ export default function ContestLeaderBoard() {
   const [leaderboardUsers, setLeaderboardUsers] = useState([
     BaseLeaderboardUser
   ])
-  let { data: fetchedContest } = useQuery({
+  const {
+    data: fetchedContestQuery,
+    isLoading: isContestLoading,
+    isError: isContestError
+  } = useQuery({
     queryKey: ['fetched contest', contestId],
     queryFn: () => getContest({ contestId })
   })
-  fetchedContest = fetchedContest ? fetchedContest : BaseFetchedContest
+  const fetchedContest = fetchedContestQuery
+    ? fetchedContestQuery
+    : BaseFetchedContest
 
   useEffect(() => {
     if (isLoading || contestLeaderboard === BaseContestLeaderboardData) {
@@ -70,9 +76,14 @@ export default function ContestLeaderBoard() {
 
     const now = new Date()
     if (!isLoading && !isError) {
-      console.log('leaderboard: ', contestLeaderboard.leaderboard)
       const contestEndTime = new Date(fetchedContest?.endTime)
       const contestStartTime = new Date(fetchedContest?.startTime)
+      console.log(
+        'contest end time: ',
+        contestEndTime,
+        ', contest start time: ',
+        contestStartTime
+      )
       if (contestEndTime > now && contestStartTime < now) {
         throw new Error('Error(ongoing): The contest has not ended yet.')
       }
@@ -93,7 +104,7 @@ export default function ContestLeaderBoard() {
       setProblemSize(contestLeaderboard.leaderboard[0].problemRecords.length)
       setLeaderboardUsers(contestLeaderboard.leaderboard)
     }
-  }, [data, isLoading, isError])
+  }, [data, isLoading, isError, isContestLoading, isContestError])
 
   const [matchedIndices, setMatchedIndices] = useState<number[]>([])
   interface HandleSearchProps {
