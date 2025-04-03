@@ -118,12 +118,19 @@ function DetailCell({ problem, assignment, courseId }: SubmissionCellProps) {
   return problem.submissionTime ? (
     <div
       className="flex items-center justify-center"
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.preventDefault() // <-- 이거 추가!
+        e.stopPropagation()
+      }}
     >
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<Skeleton className="size-[25px]" />}>
           <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-            <button onClick={() => setIsOpen(true)}>
+            <button
+              onClick={(e) => {
+                setIsOpen(true)
+              }}
+            >
               <MdOutlineFileOpen size={20} />
             </button>
             {isOpen && (
