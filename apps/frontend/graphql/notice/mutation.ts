@@ -1,8 +1,8 @@
 import { gql } from '@generated'
 
 const CREATE_NOTICE = gql(`
-  mutation CreateNotice($groupId: Int!, $noticeInput: CreateNoticeInput!) {
-    createNotice(groupId: $groupId, input: $noticeInput) {
+  mutation CreateNotice($noticeInput: CreateNoticeInput!) {
+    createNotice(input: $noticeInput) {
       id
     }
   }

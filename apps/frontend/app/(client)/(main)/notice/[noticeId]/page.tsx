@@ -1,5 +1,5 @@
 import { KatexContent } from '@/components/KatexContent'
-import { fetcherWithAuth } from '@/libs/utils'
+import { fetcher } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import Link from 'next/link'
 import { RxHamburgerMenu } from 'react-icons/rx'
@@ -38,13 +38,8 @@ export default async function NoticeDetail({
   const { noticeId } = params
   const { page } = searchParams
 
-  // NOTE: 추후 백엔드 Notice 로직 변경되면 다시 수정 예정 (현재는 fetcherWithAuth 이용중 but 로그인 안하고 fetcher로도 가능하게끔 논의 예정)
-  const noticeIdRes: NoticeIdProps = await fetcherWithAuth
-    .get(`notice/${noticeId}`, {
-      searchParams: {
-        groupId: '1'
-      }
-    })
+  const noticeIdRes: NoticeIdProps = await fetcher
+    .get(`notice/${noticeId}`)
     .json()
 
   console.log('noticeIdRes: ', noticeIdRes)
