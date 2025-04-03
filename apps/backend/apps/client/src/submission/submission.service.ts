@@ -514,8 +514,8 @@ export class SubmissionService {
 
   async rejudgeSubmissionsByProblem(
     problemId: number,
-    assignmentId: number | null = null,
     contestId: number | null = null,
+    assignmentId: number | null = null,
     workbookId: number | null = null
   ): Promise<{
     successCount: number

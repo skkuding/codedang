@@ -105,8 +105,8 @@ export class SubmissionController {
   }> {
     return this.submissionService.rejudgeSubmissionsByProblem(
       problemId,
-      assignmentId,
       contestId,
+      assignmentId,
       workbookId
     )
   }
