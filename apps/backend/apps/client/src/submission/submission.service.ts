@@ -955,6 +955,7 @@ export class SubmissionService {
       isJudgeResultVisible: boolean
     } | null = null
     let isJudgeResultVisible: boolean | null = null
+    let isHiddenTestcaseVisible: boolean | null = null
 
     if (contestId) {
       const contestRecord = await this.prisma.contestRecord.findUnique({
@@ -1004,7 +1005,7 @@ export class SubmissionService {
         throw new EntityNotExistException('AssignmentRecord')
       }
       assignment = assignmentRecord.assignment
-      isJudgeResultVisible = assignment.isJudgeResultVisible
+      isHiddenTestcaseVisible = assignment.isJudgeResultVisible
     }
 
     let problem
@@ -1098,25 +1099,45 @@ export class SubmissionService {
       }))
     ) {
       const code = plainToInstance(Snippet, submission.code)
-      const results = submission.submissionResult.map((result) => {
-        return {
-          ...result,
-          // TODO: 채점 속도가 너무 빠른경우에 대한 수정 필요 (0ms 미만)
-          cpuTime:
-            result.cpuTime || result.cpuTime === BigInt(0)
-              ? result.cpuTime.toString()
-              : null
-        }
-      })
+      const results = submission.submissionResult
+        .filter(
+          (result) =>
+            !assignmentId ||
+            isHiddenTestcaseVisible ||
+            !result.problemTestcase.isHidden
+        )
+        .map((result) => {
+          return {
+            ...result,
+            // TODO: 채점 속도가 너무 빠른경우에 대한 수정 필요 (0ms 미만)
+            cpuTime:
+              result.cpuTime || result.cpuTime === BigInt(0)
+                ? result.cpuTime.toString()
+                : null
+          }
+        })
 
       results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
 
-      if ((contestId || assignmentId) && !isJudgeResultVisible) {
+      if (contestId && !isJudgeResultVisible) {
         results.map((r) => {
           r.result = 'Blind'
           r.cpuTime = null
           r.memoryUsage = null
         })
+      }
+
+      if (assignmentId && !isHiddenTestcaseVisible) {
+        const allAccepted = results.every(
+          (testcaseResult) => testcaseResult.result === ResultStatus.Accepted
+        )
+
+        submission.result = allAccepted
+          ? ResultStatus.Accepted
+          : (submission.submissionResult.find(
+              (submissionResult) =>
+                submissionResult.result !== ResultStatus.Accepted
+            )?.result ?? ResultStatus.ServerError)
       }
 
       return {
@@ -1126,9 +1147,7 @@ export class SubmissionService {
         language: submission.language,
         createTime: submission.createTime,
         result:
-          isJudgeResultVisible || !(contestId || assignmentId)
-            ? submission.result
-            : 'Blind',
+          !contestId || isJudgeResultVisible ? submission.result : 'Blind',
         testcaseResult: results
       }
     }
