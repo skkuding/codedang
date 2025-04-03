@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { Prisma } from '@prisma/client'
 import * as archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
@@ -28,10 +27,7 @@ import type { SubmissionsWithTotal } from './model/submissions-with-total.output
 
 @Injectable()
 export class SubmissionService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly config: ConfigService
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async getSubmissions(
     problemId: number,
@@ -437,15 +433,7 @@ export class SubmissionService {
     archive.directory(dirPath, assignmentTitle!)
     await archive.finalize()
 
-    const APP_ENV = this.config.get('APP_ENV')
-
-    const baseURL =
-      APP_ENV === 'production'
-        ? 'http://codedang.com'
-        : APP_ENV == 'stage'
-          ? 'http://stage.codedang.com'
-          : 'http://localhost:3000'
-    const downloadSrc = `${baseURL}/submission/download/${zipFilename}`
+    const downloadSrc = `/submission/download/${zipFilename}`
     return downloadSrc
   }
 
