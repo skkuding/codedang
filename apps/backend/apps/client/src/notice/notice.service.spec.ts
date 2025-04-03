@@ -1,5 +1,5 @@
 import { Test, type TestingModule } from '@nestjs/testing'
-import { Prisma, type Group } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { PrismaService } from '@libs/prisma'
@@ -36,21 +36,6 @@ const noticeNext = {
   id: 3
 }
 
-const group: Group = {
-  id: groupId,
-  groupName: 'group_name',
-  description: 'description',
-  config: {
-    showOnList: true,
-    allowJoinFromSearch: true,
-    allowJoinWithURL: false,
-    requireApprovalBeforeJoin: true
-  },
-  createTime: new Date(),
-  updateTime: new Date(),
-  groupType: 'Course'
-}
-
 const db = {
   notice: {
     findMany: stub(),
@@ -59,12 +44,6 @@ const db = {
     findFirst: stub(),
     findFirstOrThrow: stub(),
     count: stub().resolves(24)
-  },
-  group: {
-    findUnique: stub().resolves(group)
-  },
-  userGroup: {
-    findMany: stub().resolves([groupId])
   },
   getPaginator: PrismaService.prototype.getPaginator
 }
@@ -121,8 +100,7 @@ describe('NoticeService', () => {
 
       const getNoticesByGroupId = await service.getNotices({
         cursor: 0,
-        take: 3,
-        groupId: group.id
+        take: 3
       })
       expect(getNoticesByGroupId).to.deep.equal({
         data: userNotices,
@@ -168,8 +146,7 @@ describe('NoticeService', () => {
 
       const getFixedNoticesByGroupId = await service.getNotices({
         cursor: null,
-        take: 3,
-        groupId: group.id
+        take: 3
       })
 
       expect(getFixedNoticesByGroupId).to.deep.equal({
@@ -207,7 +184,7 @@ describe('NoticeService', () => {
       db.notice.findFirst.onFirstCall().resolves(userNotice.prev)
       db.notice.findFirst.onSecondCall().resolves(userNotice.next)
 
-      const getNotice = await service.getNoticeByID(noticeId, group.id)
+      const getNotice = await service.getNoticeByID(noticeId)
       expect(getNotice).to.deep.equal(userNotice)
     })
 
@@ -219,9 +196,9 @@ describe('NoticeService', () => {
         })
       )
 
-      await expect(
-        service.getNoticeByID(noticeId, group.id)
-      ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
+      await expect(service.getNoticeByID(noticeId)).to.be.rejectedWith(
+        Prisma.PrismaClientKnownRequestError
+      )
     })
   })
 })
