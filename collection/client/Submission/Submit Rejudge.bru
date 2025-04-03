@@ -5,14 +5,16 @@ meta {
 }
 
 patch {
-  url: {{baseUrl}}/submission/rejudgeByProblem?problemId=1
+  url: {{baseUrl}}/submission/rejudgeByProblem?problemId=1&assignmentId=1
   body: none
   auth: none
 }
 
 params:query {
   problemId: 1
-  ~resultStatus: 
+  assignmentId: 1
+  ~contestId: 
+  ~workbookId: 
 }
 
 docs {
@@ -20,15 +22,15 @@ docs {
   
   문제 ID를 기반으로 재채점을 수행합니다.
   
-  resultStatus를 작성함으로써 특정 결과의 제출만도 재채점 가능합니다.
-  
   ## Query
   
   > 필수 query는 * 표시하였습니다.
   
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
-  |problemId *|Integer|문제 ID|
-  |resultStatus |String|채점 결과|
+  |problemId *|Integer|problem ID|
+  |contestId |Integer|Contest Id|
+  |assignmentId |Integer|assignmentId Id|
+  |contestId |Integer|workbookId Id|
   
 }
