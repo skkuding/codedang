@@ -44,8 +44,11 @@ export function WeekComboBox({ name, courseId }: WeekComboBoxProps) {
     <div>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline">
-            {selectedWeek ? `Week ${selectedWeek}` : 'Select a week'}
+          <Button
+            variant="outline"
+            className="flex h-[36px] w-[220px] justify-between text-[#C4C4C4]"
+          >
+            <p>{selectedWeek ? `Week ${selectedWeek}` : 'Select an option'}</p>
             <FaChevronDown className="ml-4 h-3 w-3 opacity-50" />
           </Button>
         </PopoverTrigger>
