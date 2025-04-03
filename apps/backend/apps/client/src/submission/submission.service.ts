@@ -512,7 +512,10 @@ export class SubmissionService {
     }
   }
 
-  async rejudgeSubmissionsByProblem(problemId: number): Promise<{
+  async rejudgeSubmissionsByProblem(
+    problemId: number,
+    resultStatus: ResultStatus | null = null
+  ): Promise<{
     successCount: number
     failedSubmissions: { submissionId: number; error: string }[]
   }> {
@@ -521,7 +524,10 @@ export class SubmissionService {
     try {
       // 문제 ID에 해당하는 제출 기록 조회
       const submissions = await this.prisma.submission.findMany({
-        where: { problemId },
+        where: {
+          problemId,
+          ...(resultStatus !== null && { result: resultStatus })
+        },
         include: { problem: true, rejudgedSubmissions: true }
       })
 

@@ -11,6 +11,7 @@ import {
   Patch,
   UseGuards
 } from '@nestjs/common'
+import type { ResultStatus } from '@prisma/client'
 import {
   AdminGuard,
   AuthNotNeededIfPublic,
@@ -94,12 +95,16 @@ export class SubmissionController {
   @UseGuards(AdminGuard)
   @Patch('rejudgeByProblem')
   async rejudgeByProblem(
-    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
+    @Query('resultStatus') resultStatus: ResultStatus | null = null
   ): Promise<{
     successCount: number
     failedSubmissions: { submissionId: number; error: string }[]
   }> {
-    return this.submissionService.rejudgeSubmissionsByProblem(problemId)
+    return this.submissionService.rejudgeSubmissionsByProblem(
+      problemId,
+      resultStatus
+    )
   }
 
   @UseGuards(AdminGuard)
