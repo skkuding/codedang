@@ -36,10 +36,7 @@ export class NoticeController {
   }
 
   @Get(':id')
-  async getNoticeByID(
-    @Query('groupId', NullableGroupIDPipe) groupId: number | null,
-    @Param('id', new RequiredIntPipe('id')) id: number
-  ) {
-    return await this.noticeService.getNoticeByID(id, groupId)
+  async getNoticeByID(@Param('id', new RequiredIntPipe('id')) id: number) {
+    return await this.noticeService.getNoticeByID(id)
   }
 }
