@@ -63,9 +63,12 @@ const editorPadding = EditorView.baseTheme({
   '.cm-editor': {
     padding: '8px',
     height: '100%'
-  },
-  '.cm-gutter.cm-lineNumbers .cm-gutterElement': {
-    'padding-left': '32px'
+  }
+})
+
+const gutterStyle = EditorView.baseTheme({
+  '.cm-lineNumbers .cm-gutterElement': {
+    paddingLeft: '30px'
   }
 })
 
@@ -160,7 +163,8 @@ export function CodeEditor({
             theme,
             languageParser[language](),
             enableCopyPaste ? [] : copyPasteHandler(),
-            editorPadding
+            editorPadding,
+            gutterStyle
           ]}
           className="h-full"
           value={value}
