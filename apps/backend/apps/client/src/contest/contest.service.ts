@@ -169,6 +169,8 @@ export class ContestService {
     // check if the user has already registered this contest
     // initial value is false
     let isRegistered = false
+    // check if the user has contest role in this contest
+    let isPrivilegedRole = false
     let contest: Partial<Contest>
     if (userId) {
       const hasRegistered = await this.prisma.contestRecord.findFirst({
@@ -176,6 +178,18 @@ export class ContestService {
       })
       if (hasRegistered) {
         isRegistered = true
+      }
+      const hasPrivilegedRole = await this.prisma.userContest.findFirst({
+        where: {
+          userId,
+          contestId: id,
+          role: {
+            in: ['Admin', 'Manager', 'Reviewer']
+          }
+        }
+      })
+      if (hasPrivilegedRole) {
+        isPrivilegedRole = true
       }
     }
     try {
@@ -225,6 +239,7 @@ export class ContestService {
       ...contestDetails,
       invitationCodeExists,
       isRegistered,
+      isPrivilegedRole,
       prev: await this.prisma.contest.findFirst(navigate('prev')),
       next: await this.prisma.contest.findFirst(navigate('next'))
     }
