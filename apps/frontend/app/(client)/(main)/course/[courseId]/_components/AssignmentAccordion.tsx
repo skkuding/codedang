@@ -149,8 +149,7 @@ function AssignmentAccordionItem({
             >
               <DetailButton
                 isActivated={
-                  (assignment.isJudgeResultVisible ||
-                    (record?.isFinalScoreVisible ?? false)) &&
+                  (record?.isFinalScoreVisible ?? false) &&
                   dayjs().isAfter(dayjs(assignment.endTime))
                 }
               />
@@ -212,7 +211,10 @@ function AssignmentAccordionItem({
                       }
                     >
                       <DetailButton
-                        isActivated={dayjs().isAfter(dayjs(assignment.endTime))}
+                        isActivated={
+                          (record?.isFinalScoreVisible ?? false) &&
+                          dayjs().isAfter(dayjs(assignment.endTime))
+                        }
                       />
                       {openProblemId === problem.id && (
                         <SubmissionDetailModal
