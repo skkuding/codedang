@@ -213,6 +213,7 @@ function AssignmentAccordionItem({
                       <DetailButton
                         isActivated={
                           (record?.isFinalScoreVisible ?? false) &&
+                          (problem.problemRecord?.isSubmitted ?? false) &&
                           dayjs().isAfter(dayjs(assignment.endTime))
                         }
                       />
