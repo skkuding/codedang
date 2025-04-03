@@ -84,7 +84,7 @@ const useWebsocket = (
   }
 
   ws.onclose = () => {
-    terminal.writeln('\n[SYS] 실행 서버 연결 종료....')
+    terminal.writeln('\n[SYS] 실행 서버 연결 종료.....')
   }
 
   ws.onerror = () => {
