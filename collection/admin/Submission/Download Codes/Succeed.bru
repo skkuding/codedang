@@ -12,18 +12,18 @@ post {
 
 body:graphql {
   query DownloadCodes ($groupId: Int!, $assignmentId: Int!, $problemId: Int!) {
-    downloadCodes (groupId: $groupId, assignmentId: $assignmentId, problemId: $problemId)
+    compressSourceCodes (groupId: $groupId, assignmentId: $assignmentId, problemId: $problemId)
   }
 }
 
 body:graphql:vars {
   {
     "groupId": 1,
-    "assignmentId": 1,
-    "problemId": 1
+    "assignmentId": 5,
+    "problemId": 7
   }
 }
 
 assert {
-  res.body.data.downloadCodes: isDefined
+  res.body.data.compressSourceCodes: isDefined
 }
