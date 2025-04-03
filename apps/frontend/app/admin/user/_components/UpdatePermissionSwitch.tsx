@@ -5,7 +5,7 @@ import type { Row } from '@tanstack/react-table'
 import { useState } from 'react'
 import type { DataTableUser } from './Columns'
 
-export function UpdatePermission({
+export function UpdatePermissionSwitch({
   row,
   accessorkey
 }: {

@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table'
-import { UpdatePermission } from './UpdatePermission'
+import { UpdatePermissionSwitch } from './UpdatePermissionSwitch'
 
 export interface DataTableUser {
   id: number
@@ -54,14 +54,14 @@ export const columns: ColumnDef<DataTableUser>[] = [
     accessorKey: 'canCreateCourse',
     header: () => <p className="text-xs">Can Create Course</p>,
     cell: ({ row, column }) => (
-      <UpdatePermission row={row} accessorkey={column.id} />
+      <UpdatePermissionSwitch row={row} accessorkey={column.id} />
     )
   },
   {
     accessorKey: 'canCreateContest',
     header: () => <p className="text-xs">Can Create Contest</p>,
     cell: ({ row, column }) => (
-      <UpdatePermission row={row} accessorkey={column.id} />
+      <UpdatePermissionSwitch row={row} accessorkey={column.id} />
     )
   },
   {
