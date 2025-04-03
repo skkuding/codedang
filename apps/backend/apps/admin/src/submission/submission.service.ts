@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import * as archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
+import { error } from 'console'
 import { Response } from 'express'
 import {
   mkdirSync,
@@ -13,7 +14,10 @@ import {
 } from 'fs'
 import path from 'path'
 import sanitize from 'sanitize-filename'
-import { EntityNotExistException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  UnprocessableFileDataException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { Language, ResultStatus } from '@admin/@generated'
 import { Snippet } from '@admin/problem/model/template.input'
@@ -27,6 +31,7 @@ import type { SubmissionsWithTotal } from './model/submissions-with-total.output
 
 @Injectable()
 export class SubmissionService {
+  private readonly logger = new Logger(SubmissionService.name)
   constructor(private readonly prisma: PrismaService) {}
 
   async getSubmissions(
@@ -417,7 +422,11 @@ export class SubmissionService {
       const filePath = path.join(dirPath, filename)
       writeFile(filePath, formattedCode, (err) => {
         if (err) {
-          console.error(err)
+          this.logger.error(err)
+          throw new UnprocessableFileDataException(
+            'failed to handle source code file.',
+            filename
+          )
         }
       })
     })
@@ -427,11 +436,20 @@ export class SubmissionService {
     const archive = archiver.create('zip', { zlib: { level: 9 } })
 
     archive.on('error', (err) => {
-      throw err
+      this.logger.error(err)
+      output.end()
     })
     archive.pipe(output)
     archive.directory(dirPath, assignmentTitle!)
-    await archive.finalize()
+
+    await archive.finalize().catch((err) => {
+      this.logger.error(`Finalization failed: ${err}`)
+      output.end()
+      throw new UnprocessableFileDataException(
+        'failed to create zip file',
+        zipFilename
+      )
+    })
 
     const downloadSrc = `/submission/download/${zipFilename}`
     return downloadSrc
@@ -456,7 +474,7 @@ export class SubmissionService {
 
     fileStream.on('end', () => {
       unlink(zipPath, (err) => {
-        if (err) console.error('Error on deleting file: ', err)
+        if (err) this.logger.error('Error on deleting file: ', err)
       })
       res.end()
     })
