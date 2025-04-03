@@ -147,16 +147,32 @@ const db = {
   },
   assignment: {
     create: stub(),
-    findFirst: stub()
+    findFirst: stub(),
+    findMany: stub()
   },
   assignmentProblem: {
     create: stub(),
     findMany: stub()
   },
+  assignmentRecord: {
+    createMany: stub()
+  },
+  assignmentProblemRecord: {
+    createMany: stub()
+  },
   getPaginator: PrismaService.prototype.getPaginator,
-  $transaction: stub().callsFake(async (callback) => {
-    // callback으로 스텁 db 객체를 넘겨주거나 원하는 로직을 수행
-    return callback(db)
+  $transaction: stub().callsFake(async (input) => {
+    if (Array.isArray(input)) {
+      return input.map((query) => {
+        if (typeof query === 'function') {
+          return query(db)
+        }
+        return query
+      })
+    } else if (typeof input === 'function') {
+      return input(db)
+    }
+    throw new Error('Invalid transaction input')
   })
 }
 
@@ -474,6 +490,8 @@ describe('InvitationService', () => {
         groupId,
         isGroupLeader: false
       })
+      db.userGroup.findUnique.resolves(null)
+      db.assignment.findMany.resolves([{ assignmentProblem: [] }])
 
       const res = await service.inviteUser(groupId, userId, false)
 
@@ -486,7 +504,7 @@ describe('InvitationService', () => {
   })
 
   it('should throw error when user or group is not found', async () => {
-    db.userGroup.create.rejects({ code: 'P2025' })
+    db.group.findUnique.resolves(null)
 
     await expect(service.inviteUser(groupId, userId, false)).to.be.rejectedWith(
       NotFoundException
@@ -494,7 +512,8 @@ describe('InvitationService', () => {
   })
 
   it('should throw error when user is already a member', async () => {
-    db.userGroup.create.rejects({ code: 'P2002' })
+    db.group.findUnique.resolves(group)
+    db.userGroup.findUnique.resolves(true)
 
     await expect(service.inviteUser(groupId, userId, false)).to.be.rejectedWith(
       UnprocessableDataException
