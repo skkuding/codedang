@@ -61,6 +61,12 @@ const editorPadding = EditorView.baseTheme({
   }
 })
 
+const gutterStyle = EditorView.baseTheme({
+  '.cm-lineNumbers .cm-gutterElement': {
+    paddingLeft: '30px'
+  }
+})
+
 const languageParser: Record<Language, () => LanguageSupport> = {
   Cpp: cpp,
   C: cpp,
@@ -106,7 +112,8 @@ export function CodeEditor({
           fontSize,
           languageParser[language](),
           enableCopyPaste ? [] : copyPasteHandler(),
-          editorPadding
+          editorPadding,
+          gutterStyle
         ]}
         value={value}
         onChange={onChange}
