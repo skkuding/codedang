@@ -7,7 +7,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup
 } from '@/components/shadcn/resizable'
-import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
 import {
   Tooltip,
@@ -255,16 +255,12 @@ export function EditorMainResizablePanel({
                     setIsPanelHidden={setIsBottomPanelHidden}
                     direction="vertical"
                   />
-                  <ScrollArea className="h-full bg-[#121728]">
-                    <CodeEditorInEditorResizablePanel
-                      problemId={problem.id}
-                      contestId={contestId}
-                      assignmentId={assignmentId}
-                      enableCopyPaste={enableCopyPaste}
-                    />
-                    <ScrollBar orientation="horizontal" />
-                    <ScrollBar orientation="vertical" />
-                  </ScrollArea>
+                  <CodeEditorInEditorResizablePanel
+                    problemId={problem.id}
+                    contestId={contestId}
+                    assignmentId={assignmentId}
+                    enableCopyPaste={enableCopyPaste}
+                  />
                 </ResizablePanel>
                 <ResizableHandle className="border-[0.5px] border-slate-700" />
                 <ResizablePanel
@@ -304,8 +300,7 @@ function CodeEditorInEditorResizablePanel({
       language={language}
       onChange={setCode}
       enableCopyPaste={enableCopyPaste}
-      height="100%"
-      className="h-full"
+      showZoom
     />
   )
 }
