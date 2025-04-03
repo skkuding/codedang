@@ -79,7 +79,10 @@ export function PosterUploadForm({ name }: PosterUploadFormProps) {
     <>
       <div
         onClick={handleClick}
-        className="relative z-10 flex h-[312px] w-[234px] cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-[#80808029] bg-[#80808014] text-[#3333334D]"
+        className={cn(
+          'relative z-10 flex h-[312px] w-[234px] cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-[#80808029] bg-[#80808014] text-[#3333334D]',
+          field.value ? 'bg-white' : 'bg-[#80808014]'
+        )}
       >
         {isLoading ? (
           <div className="text-center text-[11px] font-normal">Loading...</div>
