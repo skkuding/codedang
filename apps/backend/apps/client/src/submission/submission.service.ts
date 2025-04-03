@@ -1468,4 +1468,90 @@ export class SubmissionService {
 
     return { ...rawSubmission, result: ResultStatus.Blind }
   }
+
+  async getAssignmentSubmissionSummary(assignmentId: number, userId: number) {
+    const [isParticipated, assignmentProblems] = await Promise.all([
+      this.prisma.assignmentRecord.findUnique({
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        where: { assignmentId_userId: { assignmentId, userId } },
+        select: {
+          assignment: {
+            select: {
+              isJudgeResultVisible: true
+            }
+          }
+        }
+      }),
+      this.prisma.assignmentProblem.findMany({
+        where: { assignmentId },
+        select: {
+          problemId: true
+        }
+      })
+    ])
+
+    if (!isParticipated) {
+      throw new ForbiddenAccessException(
+        'User not participated in the assignment'
+      )
+    }
+
+    const { assignment } = isParticipated
+
+    if (assignmentProblems.length === 0) {
+      return []
+    }
+
+    const submissions = await this.prisma.submission.findMany({
+      where: { userId, assignmentId },
+      select: {
+        problemId: true,
+        createTime: true,
+        result: true,
+        submissionResult: {
+          select: {
+            result: true
+          }
+        }
+      },
+      orderBy: {
+        createTime: 'desc'
+      }
+    })
+
+    const submissionMap = new Map<
+      number,
+      {
+        submissionTime: Date
+        submissionResult: string
+        testcaseCount: number | null
+        acceptedTestcaseCount: number | null
+      }
+    >()
+
+    for (const submission of submissions) {
+      if (!submissionMap.has(submission.problemId)) {
+        submissionMap.set(submission.problemId, {
+          submissionTime: submission.createTime,
+          submissionResult: assignment.isJudgeResultVisible
+            ? submission.result
+            : ResultStatus.Blind,
+          testcaseCount: assignment.isJudgeResultVisible
+            ? submission.submissionResult.length
+            : null,
+          acceptedTestcaseCount: assignment.isJudgeResultVisible
+            ? submission.submissionResult.reduce((acc, { result }) => {
+                if (result === ResultStatus.Accepted) return acc + 1
+                else return acc
+              }, 0)
+            : null
+        })
+      }
+    }
+
+    return assignmentProblems.map(({ problemId }) => ({
+      problemId,
+      submission: submissionMap.get(problemId) ?? null
+    }))
+  }
 }

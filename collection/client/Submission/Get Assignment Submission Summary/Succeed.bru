@@ -1,0 +1,32 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/assignment/:assignmentId/submission/summary
+  body: none
+  auth: none
+}
+
+params:path {
+  assignmentId: 19
+}
+
+assert {
+  res.status: eq 200
+  res.body[0]: isJson
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Get Assignment Submission Summary
+  
+  > 로그인이 필요한 API입니다.
+  
+  Assignment의 모든 문제에 대한 최근 제출을 요약합니다.
+}

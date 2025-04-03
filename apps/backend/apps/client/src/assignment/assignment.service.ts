@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
+import { Prisma, ResultStatus } from '@prisma/client'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -423,7 +423,7 @@ export class AssignmentService {
       submissionTime: submissionMap.get(ap.problemId)?.submissionTime ?? null,
       submissionResult: assignment.isJudgeResultVisible
         ? (submissionMap.get(ap.problemId)?.submissionResult ?? null)
-        : null
+        : ResultStatus.Blind
     }))
 
     const assignmentPerfectScore = assignment.assignmentProblem.reduce(
