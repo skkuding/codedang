@@ -15,8 +15,8 @@ interface PosterUploadFormProps {
 
 export function PosterUploadForm({ name }: PosterUploadFormProps) {
   const {
-    control,
-    formState: { errors }
+    control
+    // formState: { errors }
   } = useFormContext()
 
   const { field } = useController({
