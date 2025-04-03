@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
-import { Prisma, ResultStatus } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import {
   ConflictFoundException,
   EntityNotExistException,
