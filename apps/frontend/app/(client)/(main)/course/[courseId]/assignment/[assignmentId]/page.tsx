@@ -31,11 +31,15 @@ export default function AssignmentInfo({ params }: AssignmentInfoProps) {
     assignmentQueries.record({ assignmentId, courseId })
   )
 
+  const { data: submissions } = useQuery(
+    assignmentSubmissionQueries.summary({ assignmentId: assignment?.id ?? 0 })
+  )
+
   // const { data: testResults } = useQuery(
   //   assignmentSubmissionQueries.testResult({
   //     assignmentId: assignment?.id ?? 0,
   //     problemId,
-  //     submissionId: submission?.id ?? 0
+  //     submissionId: submissions?.id ?? 0
   //   })
   // )
 
@@ -109,24 +113,24 @@ export default function AssignmentInfo({ params }: AssignmentInfoProps) {
               <span>Submit</span>
               <span className="text-primary">
                 {
-                  record.problems.filter(
-                    (problem) => problem.submissionResult !== null
+                  submissions?.filter(
+                    (submission) => submission.submission !== null
                   ).length
                 }
               </span>
             </div>
           </div>
         )}
-        {record && (
+        {record && submissions && (
           <DataTable
             data={record.problems}
-            columns={columns(record, assignment, courseId)}
+            columns={columns(record, assignment, courseId, submissions)}
             headerStyle={{
               order: 'w-[5%]',
-              title: 'text-left w-[30%]',
-              submission: 'w-[15%]',
-              tc_result: 'w-[10%]',
-              detail: 'w-[5%]'
+              title: 'text-left w-[50%]',
+              submissions: 'w-[15%]',
+              tc_result: 'w-[15%]',
+              detail: 'w-[10%]'
             }}
             linked
             pathSegment={'problem'}

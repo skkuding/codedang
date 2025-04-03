@@ -1,6 +1,7 @@
 'use client'
 
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
+import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import {
   Accordion,
   AccordionContent,
@@ -13,7 +14,8 @@ import type {
   Assignment,
   AssignmentStatus,
   AssignmentSummary,
-  ProblemGrade
+  ProblemGrade,
+  ProblemSubmission
 } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
@@ -82,6 +84,11 @@ function AssignmentAccordionItem({
       assignmentId: assignment.id,
       courseId
     }),
+    enabled: isAccordionOpen
+  })
+
+  const { data: submission } = useQuery({
+    ...assignmentSubmissionQueries.summary({ assignmentId: assignment.id }),
     enabled: isAccordionOpen
   })
 
@@ -161,10 +168,10 @@ function AssignmentAccordionItem({
           <div className="w-[1%]" />
         </AccordionTrigger>
         <AccordionContent className="-mb-4 w-full">
-          {isAccordionOpen && record && (
+          {isAccordionOpen && record && submission && (
             <div className="overflow-hidden rounded-2xl border">
               <div className="h-6 bg-[#F3F3F3]" />
-              {record.problems.map((problem) => (
+              {record.problems.map((problem, index) => (
                 <div
                   key={problem.id}
                   className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
@@ -183,11 +190,11 @@ function AssignmentAccordionItem({
                     </Link>
                   </div>
                   <div className="w-[30%]">
-                    {problem.submissionTime && (
+                    {submission[index].submission?.submissionTime && (
                       <p className="font-normal text-[#8A8A8A]">
                         Last submission:{' '}
                         {dateFormatter(
-                          problem.submissionTime,
+                          submission[index].submission.submissionTime,
                           'MMM D, HH:mm:ss'
                         )}
                       </p>
@@ -195,7 +202,11 @@ function AssignmentAccordionItem({
                   </div>
 
                   <div className="flex w-[13%] justify-center">
-                    <AcceptedBadge problem={problem} />
+                    {submission[index].submission && (
+                      <AcceptedBadge
+                        submission={submission[index].submission}
+                      />
+                    )}
                   </div>
                   <div className="flex w-[10%] justify-center font-medium">
                     {dayjs().isAfter(dayjs(assignment.endTime))
@@ -353,11 +364,11 @@ function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
 }
 
 interface AcceptedBadgeProps {
-  problem: ProblemGrade
+  submission: ProblemSubmission
 }
 // TODO: Accepted를 boolen으로 받아와야할 것 같아요...!
-function AcceptedBadge({ problem }: AcceptedBadgeProps) {
-  if (problem.submissionResult !== 'Accepted') {
+function AcceptedBadge({ submission }: AcceptedBadgeProps) {
+  if (submission.submissionResult !== 'Accepted') {
     return null
   }
 
