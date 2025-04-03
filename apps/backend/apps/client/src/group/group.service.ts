@@ -248,6 +248,7 @@ export class GroupService {
       },
       select: {
         config: true,
+        groupType: true,
         userGroup: {
           select: {
             userId: true
@@ -328,6 +329,7 @@ export class GroupService {
         groupId,
         isGroupLeader: false
       }
+
       return {
         userGroupData: await this.createUserGroup(userGroupData),
         isJoined: true
@@ -340,13 +342,41 @@ export class GroupService {
       where: {
         isGroupLeader: true,
         groupId
+      },
+      select: {
+        userId: true,
+        group: {
+          select: {
+            groupType: true
+          }
+        }
       }
     })
-    if (groupLeaders.length == 1 && groupLeaders[0].userId == userId) {
-      throw new ConflictFoundException('One or more managers are required')
+    if (groupLeaders.length <= 1 && groupLeaders[0].userId == userId) {
+      throw new ConflictFoundException('One or more leaders are required')
     }
 
-    const deletedUserGroup = await this.prisma.userGroup.delete({
+    if (groupLeaders[0].group.groupType === GroupType.Course) {
+      const assignmentIds = await this.prisma.assignment.findMany({
+        where: {
+          groupId
+        },
+        select: {
+          id: true
+        }
+      })
+
+      await this.prisma.assignmentRecord.deleteMany({
+        where: {
+          userId,
+          assignmentId: {
+            in: assignmentIds.map(({ id }) => id)
+          }
+        }
+      })
+    }
+
+    return await this.prisma.userGroup.delete({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         userId_groupId: {
@@ -355,7 +385,6 @@ export class GroupService {
         }
       }
     })
-    return deletedUserGroup
   }
 
   async createUserGroup(userGroupData: UserGroupData): Promise<UserGroup> {
@@ -369,17 +398,73 @@ export class GroupService {
       userGroupData.isGroupLeader = true
     }
 
-    return await this.prisma.userGroup.create({
-      data: {
-        user: {
-          connect: { id: userGroupData.userId }
-        },
-        group: {
-          connect: { id: userGroupData.groupId }
-        },
-        isGroupLeader: userGroupData.isGroupLeader
+    const group = await this.prisma.group.findUnique({
+      where: {
+        id: userGroupData.groupId
+      },
+      select: {
+        groupType: true
       }
     })
+
+    if (!group) {
+      throw new EntityNotExistException('Group')
+    }
+
+    if (group.groupType !== GroupType.Course) {
+      return await this.prisma.userGroup.create({
+        data: {
+          user: {
+            connect: { id: userGroupData.userId }
+          },
+          group: {
+            connect: { id: userGroupData.groupId }
+          },
+          isGroupLeader: userGroupData.isGroupLeader
+        }
+      })
+    } else {
+      const assignmentIds = await this.prisma.assignment.findMany({
+        where: {
+          groupId: userGroupData.groupId
+        },
+        select: {
+          id: true,
+          assignmentProblem: {
+            select: { problemId: true }
+          }
+        }
+      })
+      const [userGroup] = await this.prisma.$transaction([
+        this.prisma.userGroup.create({
+          data: {
+            user: {
+              connect: { id: userGroupData.userId }
+            },
+            group: {
+              connect: { id: userGroupData.groupId }
+            },
+            isGroupLeader: userGroupData.isGroupLeader
+          }
+        }),
+        this.prisma.assignmentRecord.createMany({
+          data: assignmentIds.map(({ id }) => ({
+            userId: userGroupData.userId,
+            assignmentId: id
+          }))
+        }),
+        this.prisma.assignmentProblemRecord.createMany({
+          data: assignmentIds.flatMap(({ id, assignmentProblem }) =>
+            assignmentProblem.map(({ problemId }) => ({
+              userId: userGroupData.userId,
+              assignmentId: id,
+              problemId
+            }))
+          )
+        })
+      ])
+      return userGroup
+    }
   }
 
   /* Grade와 Assignment 메뉴의 통합으로 필요없어졌으나..
