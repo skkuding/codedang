@@ -118,7 +118,10 @@ const renderHeaderContent = ({
   if (contest) {
     return (
       <>
-        Contest <p className="mx-2"> / </p>
+        <Link href={'/contest'}>
+          <p>Contest</p>
+        </Link>
+        <p className="mx-2"> / </p>
         <Link href={`/contest/${contest.id}`}>
           {omitString({ targetString: contest.title, maxlength: 20 })}
         </Link>
@@ -129,7 +132,10 @@ const renderHeaderContent = ({
   } else if (assignment) {
     return (
       <>
-        Assignment <p className="mx-2"> / </p>
+        <Link href={`/course/${courseId}/assignment` as Route}>
+          <p>Assignment</p>
+        </Link>
+        <p className="mx-2"> / </p>
         <Link href={`/course/${courseId}/assignment/${assignment.id}` as Route}>
           {omitString({ targetString: assignment.title, maxlength: 20 })}
         </Link>
