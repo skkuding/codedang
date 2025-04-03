@@ -211,6 +211,7 @@ export default async function ContestTop({
               state={state}
               isRegistered={data.isRegistered}
               problemData={problemData}
+              isPrivilegedRole={data.isPrivilegedRole}
             />
           </AccordionContent>
         </AccordionItem>
