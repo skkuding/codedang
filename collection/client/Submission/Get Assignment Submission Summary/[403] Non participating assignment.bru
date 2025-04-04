@@ -1,0 +1,24 @@
+meta {
+  name: [403] Non participating assignment
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/assignment/:assignmentId/submission/summary
+  body: none
+  auth: none
+}
+
+params:path {
+  assignmentId: 199
+}
+
+assert {
+  res.status: eq 200
+  res.body[0]: isJson
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
