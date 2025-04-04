@@ -208,7 +208,7 @@ export function SubmissionDetailModal({
                                     : 'text-red-500'
                                 }`}
                               >
-                                {result.result === 'Accepted' ? 'T' : 'F'}
+                                {result.result === 'Accepted' ? 'P' : 'F'}
                               </td>
                             ))}
                           </tr>
