@@ -20,6 +20,14 @@ interface InvitationCodeInput {
   invitationCode: string
 }
 
+interface RegisterButtonProps {
+  id: string
+  state: string
+  title: string
+  invitationCodeExists: boolean
+  disabled: boolean
+}
+
 const schema = v.object({
   invitationCode: v.pipe(v.string(), v.length(6))
 })
@@ -28,13 +36,9 @@ export function RegisterButton({
   id,
   state,
   title,
-  invitationCodeExists
-}: {
-  id: string
-  state: string
-  title: string
-  invitationCodeExists: boolean
-}) {
+  invitationCodeExists,
+  disabled
+}: RegisterButtonProps) {
   const router = useRouter()
   const clickRegister = async (contestId: string) => {
     try {
@@ -72,6 +76,7 @@ export function RegisterButton({
     <Button
       className="bg-primary border-primary h-[46px] w-[940px] rounded-full px-12 py-6 text-[16px] font-bold text-white"
       onClick={onSubmit}
+      disabled={disabled}
     >
       Register Now!
     </Button>
@@ -79,7 +84,10 @@ export function RegisterButton({
     // User not registered and invitation code required
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="bg-primary border-primary h-[46px] w-[940px] rounded-full px-12 py-6 text-[16px] font-bold text-white">
+        <Button
+          className="bg-primary border-primary h-[46px] w-[940px] rounded-full px-12 py-6 text-[16px] font-bold text-white"
+          disabled={disabled}
+        >
           Register Now!
         </Button>
       </DialogTrigger>
