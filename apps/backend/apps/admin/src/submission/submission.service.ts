@@ -9,7 +9,8 @@ import {
   createWriteStream,
   createReadStream,
   existsSync,
-  unlink
+  unlink,
+  rm
 } from 'fs'
 import path from 'path'
 import sanitize from 'sanitize-filename'
@@ -376,7 +377,28 @@ export class SubmissionService {
     if (!assignment) {
       throw new EntityNotExistException('Assignment')
     }
+    if (assignment.title === '') {
+      return `Assignment_${assignmentId}`
+    }
     return encodeURIComponent(assignment.title)
+  }
+
+  async getProblemTitle(problemId: number): Promise<string | null> {
+    const problem = await this.prisma.problem.findUnique({
+      where: {
+        id: problemId
+      },
+      select: {
+        title: true
+      }
+    })
+    if (!problem) {
+      throw new EntityNotExistException('Problem')
+    }
+    if (problem.title === '') {
+      return `Problem_${problemId}`
+    }
+    return encodeURIComponent(problem.title)
   }
 
   async compressSourceCodes(
@@ -410,8 +432,14 @@ export class SubmissionService {
       })
     )
 
+    if (submissionInfos.length === 0) {
+      throw new EntityNotExistException('Submssion')
+    }
+
+    const problemTitle = await this.getProblemTitle(problemId)
     const assignmentTitle = await this.getAssignmentTitle(assignmentId)
-    const dirPath = path.join(__dirname, assignmentTitle!)
+
+    const dirPath = path.join(__dirname, `${assignmentTitle!}_${problemId}`)
     mkdirSync(dirPath, { recursive: true })
 
     submissionInfos.forEach((info) => {
@@ -429,8 +457,8 @@ export class SubmissionService {
         }
       })
     })
-    const zipFilename = `${assignmentTitle}_${problemId}.zip`
-    const zipPath = path.join(__dirname, zipFilename)
+    const zipFilename = `${assignmentTitle}_${problemId}`
+    const zipPath = path.join(__dirname, `${zipFilename}.zip`)
     const output = createWriteStream(zipPath)
     const archive = archiver.create('zip', { zlib: { level: 9 } })
 
@@ -439,7 +467,7 @@ export class SubmissionService {
       output.end()
     })
     archive.pipe(output)
-    archive.directory(dirPath, assignmentTitle!)
+    archive.directory(dirPath, problemTitle!)
 
     await archive.finalize().catch((err) => {
       this.logger.error(`Finalization failed: ${err}`)
@@ -456,30 +484,39 @@ export class SubmissionService {
 
   async downloadCodes(filename: string, res: Response) {
     const sanitizedFilename = sanitize(filename)
-    const zipPath = path.resolve(__dirname, sanitizedFilename)
-
-    if (!zipPath.startsWith(__dirname) || !existsSync(zipPath)) {
-      throw new EntityNotExistException('File not found')
+    const encodedFilename = encodeURIComponent(sanitizedFilename)
+    const zipFilename = path.resolve(__dirname, encodedFilename)
+    if (
+      !zipFilename.startsWith(__dirname) ||
+      !existsSync(`${zipFilename}.zip`)
+    ) {
+      res.status(404).json({ error: 'File not found' })
     }
 
     res.set({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       'Content-Type': 'application/zip',
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      'Content-Disposition': `attachment; filename=${filename}`
+      'Content-Disposition': `attachment; filename*=UTF-8''${encodedFilename}.zip`
     })
-    const fileStream = createReadStream(zipPath)
+    const fileStream = createReadStream(`${zipFilename}.zip`)
     fileStream.pipe(res)
 
-    fileStream.on('end', () => {
-      unlink(zipPath, (err) => {
+    fileStream.on('close', () => {
+      unlink(`${zipFilename}.zip`, (err) => {
         if (err) this.logger.error('Error on deleting file: ', err)
+      })
+      rm(zipFilename, { recursive: true, force: true }, (err) => {
+        if (err) this.logger.error('Error on deleting folder: ', err)
       })
       res.end()
     })
     fileStream.on('error', (err) => {
-      unlink(zipPath, (err) => {
+      unlink(`${zipFilename}.zip`, (err) => {
         if (err) this.logger.error('Error on deleting file: ', err)
+      })
+      rm(zipFilename, { recursive: true, force: true }, (err) => {
+        if (err) this.logger.error('Error on deleting folder: ', err)
       })
       res.status(500).json({ error: 'File download failed' })
     })
