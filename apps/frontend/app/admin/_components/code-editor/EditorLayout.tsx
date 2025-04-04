@@ -54,8 +54,12 @@ export function EditorLayout({
           <Link href="/">
             <Image src={codedangLogo} alt="코드당" width={33} />
           </Link>
-          <div className="flex items-center gap-1 font-medium">
+          <Link
+            href={`/admin/course/${courseId}/grade/assignment/${assignmentId}`}
+          >
             {assignment.title}
+          </Link>
+          <div className="flex items-center gap-1 font-medium">
             <p className="mx-2"> / </p>
             <AssignmentProblemDropdown
               problemId={problemId}

@@ -52,14 +52,13 @@ export function GradeDetailModal({
   const isAssignmentProblemRecordValid = Boolean(assignmentProblemRecord)
 
   const maxScore = assignmentProblemRecord?.assignmentPerfectScore
-  const mySubmittedScore = assignmentProblemRecord?.userAssignmentJudgeScore
   const myGradedScore = assignmentProblemRecord?.userAssignmentFinalScore
 
   // 점수 데이터를 기반으로 히스토그램 데이터 생성
   const generateChartData = useCallback(
     (scores: number[], maxScore: number) => {
       const interval = maxScore / 10
-      const userScore = myGradedScore ?? mySubmittedScore ?? 0 // myGradedScore가 null이면 mySubmittedScore 사용
+      const userScore = myGradedScore ?? 0
 
       return Array.from({ length: 10 }, (_, index) => {
         const lowerBound = index * interval
@@ -80,7 +79,7 @@ export function GradeDetailModal({
         }
       })
     },
-    [myGradedScore, mySubmittedScore] // 의존성 배열 추가
+    [myGradedScore] // 의존성 배열 추가
   )
 
   // 통계 계산 함수
@@ -104,23 +103,15 @@ export function GradeDetailModal({
     return { mean, median, max, min }
   }
 
-  // scores와 finalScores의 데이터 가공 (useMemo로 감싸기)
-  const scores = useMemo(() => data.scores ?? [], [data.scores])
   const finalScores = useMemo(() => data.finalScores ?? [], [data.finalScores])
 
   const chartData = useMemo(() => {
-    if (finalScores.length > 0) {
-      return generateChartData(finalScores, maxScore ?? 0)
-    }
-    return generateChartData(scores, maxScore ?? 0)
-  }, [finalScores, scores, maxScore, generateChartData])
+    return generateChartData(finalScores, maxScore ?? 0)
+  }, [finalScores, maxScore, generateChartData])
 
-  const scoresStats = useMemo(() => calculateStatistics(scores), [scores])
   const finalScoresStats = useMemo(() => {
-    return assignmentProblemRecord?.autoFinalizeScore
-      ? calculateStatistics(scores)
-      : calculateStatistics(finalScores)
-  }, [finalScores, assignmentProblemRecord?.autoFinalizeScore, scores])
+    return calculateStatistics(finalScores)
+  }, [finalScores])
 
   if (!isAssignmentProblemRecordValid) {
     toast.error('Cannot Load Assignment Information')
@@ -169,28 +160,6 @@ export function GradeDetailModal({
               </tr>
             </thead>
             <tbody>
-              {!assignmentProblemRecord?.isFinalScoreVisible && (
-                <tr className="text-gray-500">
-                  <td className="bg-primary-light w-[80px] px-2 py-2 text-xs text-white">
-                    Submitted
-                  </td>
-                  <td className="border-[0.5px] px-3 py-2 text-xs">
-                    {mySubmittedScore}
-                  </td>
-                  <td className="border-[0.5px] px-3 py-2 text-xs">
-                    {scoresStats.mean}
-                  </td>
-                  <td className="border-[0.5px] px-3 py-2 text-xs">
-                    {scoresStats.median}
-                  </td>
-                  <td className="border-[0.5px] px-3 py-2 text-xs">
-                    {scoresStats.min}
-                  </td>
-                  <td className="border-[0.5px] px-3 py-2 text-xs">
-                    {scoresStats.max}
-                  </td>
-                </tr>
-              )}
               {assignmentProblemRecord?.isFinalScoreVisible && (
                 <tr className="text-gray-500">
                   <td className="bg-primary-light flex w-[80px] flex-col items-center rounded-bl-md px-2 py-2 text-xs text-white">
