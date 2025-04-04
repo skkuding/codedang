@@ -1,6 +1,6 @@
 import { Controller, Req, Res, Get, Param } from '@nestjs/common'
 import { Response } from 'express'
-import { AuthenticatedRequest, UseGroupLeaderGuard } from '@libs/auth'
+import { AuthenticatedRequest } from '@libs/auth'
 import { SubmissionService } from './submission.service'
 
 @Controller('submission')
