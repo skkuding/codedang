@@ -103,7 +103,7 @@ export function DataTableProblemFilter({
 
   return (
     <Accordion type="single" collapsible>
-      <AccordionItem value="problem-filter">
+      <AccordionItem value="problem-filter" className="border-0">
         <AccordionTrigger className="flex h-12 w-full items-center rounded-full border bg-transparent px-6">
           <div className="flex gap-2">
             <IoFilter className="mr-2 h-4 w-4" />

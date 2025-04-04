@@ -72,7 +72,7 @@ export function SubmissionDetailAdmin({
   const [expandedRow, setExpandedRow] = useState<number | null>(null)
 
   return (
-    <ScrollArea className="mt-5 max-h-[760px] w-[976px]">
+    <ScrollArea className="mt-5 max-h-[545px] w-[976px]">
       {!loading && (
         <div className="mx-[70px] flex flex-col gap-6">
           <h1 className="flex text-lg font-semibold">

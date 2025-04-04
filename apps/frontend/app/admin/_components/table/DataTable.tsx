@@ -18,7 +18,6 @@ import {
 } from '@tanstack/react-table'
 import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
-import { FaSlideshare } from 'react-icons/fa6'
 import { useDataTable } from './context'
 
 interface DataTableProps<TData extends { id: number }, TRoute extends string> {
