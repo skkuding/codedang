@@ -9,6 +9,7 @@ import {
   AccordionTrigger
 } from '@/components/shadcn/accordion'
 import { Dialog } from '@/components/shadcn/dialog'
+import { Progress } from '@/components/shadcn/progress'
 import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
 import type {
   Assignment,
@@ -371,10 +372,11 @@ function AcceptedBadge({ submission }: AcceptedBadgeProps) {
     return null
   }
 
-  return (
-    <div className="flex h-[25px] w-[100px] items-center justify-between rounded-full bg-green-100 px-[11px] py-[4px] text-green-500">
-      <FaCircleCheck />
-      <p className="text-sm font-medium">Accepted</p>
-    </div>
-  )
+  // return (
+  //   <div className="flex h-[25px] w-[100px] items-center justify-between rounded-full bg-green-100 px-[11px] py-[4px] text-green-500">
+  //     <FaCircleCheck />
+  //     <p className="text-sm font-medium">Accepted</p>
+  //   </div>
+  // )
+  return <Progress value={33} />
 }
