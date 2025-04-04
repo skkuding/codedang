@@ -126,10 +126,10 @@ export default function AssignmentInfo({ params }: AssignmentInfoProps) {
             data={record.problems}
             columns={columns(record, assignment, courseId, submissions)}
             headerStyle={{
-              order: 'w-[5%]',
-              title: 'text-left w-[50%]',
-              submissions: 'w-[15%]',
-              tc_result: 'w-[15%]',
+              order: 'w-[10%]',
+              title: 'text-left w-[40%]',
+              submissions: 'w-[20%]',
+              tc_result: 'w-[20%]',
               detail: 'w-[10%]'
             }}
             linked

@@ -15,6 +15,7 @@ import type { ColumnDef, Row } from '@tanstack/react-table'
 import { Suspense, useState } from 'react'
 import { MdOutlineFileOpen } from 'react-icons/md'
 import { SubmissionDetailModal } from '../../../_components/SubmissionDetailModal'
+import { TestCaseResult } from '../../../_components/TestCaseResult'
 
 export const columns = (
   record: AssignmentProblemRecord,
@@ -44,20 +45,14 @@ export const columns = (
     header: 'Last Submission',
     accessorKey: 'submission',
     cell: ({ row }) => {
+      const submission = submissions.find(
+        (submission) => submission.problemId === row.original.id
+      )?.submission
+
       return (
-        submissions.find(
-          (submission) => submission.problemId === row.original.id
-        ) && (
+        submission?.submissionTime && (
           <div className="flex w-full justify-center font-normal text-[#8A8A8A]">
-            {submissions.find(
-              (submission) => submission.problemId === row.original.id
-            )?.submission?.submissionTime &&
-              dateFormatter(
-                submissions.find(
-                  (submission) => submission.problemId === row.original.id
-                )?.submission?.submissionTime ?? '',
-                'MMM D, HH:mm:ss'
-              )}
+            {dateFormatter(submission.submissionTime, 'MMM D, HH:mm:ss')}
           </div>
         )
       )
@@ -67,10 +62,16 @@ export const columns = (
     header: 'T/C Result',
     accessorKey: 'tc_result',
     cell: ({ row }) => {
+      const submission = submissions.find(
+        (submission) => submission.problemId === row.original.id
+      )?.submission
+
       return (
-        <div className="flex w-full justify-center">
-          <ResultCell row={row} submissions={submissions} />
-        </div>
+        submission && (
+          <div className="flex w-full justify-center">
+            <TestCaseResult submission={submission} />
+          </div>
+        )
       )
     }
   },

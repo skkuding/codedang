@@ -9,25 +9,23 @@ import {
   AccordionTrigger
 } from '@/components/shadcn/accordion'
 import { Dialog } from '@/components/shadcn/dialog'
-import { Progress } from '@/components/shadcn/progress'
 import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
 import type {
   Assignment,
   AssignmentStatus,
-  AssignmentSummary,
-  ProblemSubmission
+  AssignmentSummary
 } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { FaCircleCheck } from 'react-icons/fa6'
 import { useInterval } from 'react-use'
 import { AssignmentLink } from './AssignmentLink'
 import { DetailButton } from './DetailButton'
 import { GradeDetailModal } from './GradeDetailModal'
 import { SubmissionDetailModal } from './SubmissionDetailModal'
+import { TestCaseResult } from './TestCaseResult'
 
 interface AssignmentAccordianProps {
   courseId: number
@@ -191,21 +189,22 @@ function AssignmentAccordionItem({
                   </div>
                   <div className="w-[30%]">
                     {submission[index].submission?.submissionTime && (
-                      <p className="font-normal text-[#8A8A8A]">
-                        Last submission:{' '}
+                      <div className="flex w-full justify-center font-normal text-[#8A8A8A]">
                         {dateFormatter(
                           submission[index].submission.submissionTime,
                           'MMM D, HH:mm:ss'
                         )}
-                      </p>
+                      </div>
                     )}
                   </div>
 
                   <div className="flex w-[13%] justify-center">
                     {submission[index].submission && (
-                      <TestCaseResult
-                        submission={submission[index].submission}
-                      />
+                      <div className="flex w-full justify-center">
+                        <TestCaseResult
+                          submission={submission[index].submission}
+                        />
+                      </div>
                     )}
                   </div>
                   <div className="flex w-[10%] justify-center font-medium">
@@ -360,19 +359,5 @@ function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
         <p> {grade.problemCount}</p>
       </div>
     </div>
-  )
-}
-
-interface TestCaseResulProps {
-  submission: ProblemSubmission
-}
-// TODO: Accepted를 boolen으로 받아와야할 것 같아요...!
-function TestCaseResult({ submission }: TestCaseResulProps) {
-  return (
-    submission && (
-      <div className="flex h-[25px] w-[100px]">
-        <Progress value={33} />
-      </div>
-    )
   )
 }
