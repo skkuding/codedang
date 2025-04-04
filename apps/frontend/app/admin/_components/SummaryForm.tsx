@@ -2,7 +2,7 @@
 
 import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { ErrorMessage } from './ErrorMessage'
 
@@ -33,13 +33,21 @@ export function SummaryForm({ name }: SummaryFormProps) {
 }
 
 function SummarySection({ buttonName, maxChar }: SummarySectionProps) {
-  const { register } = useFormContext()
+  const { register, watch, setValue } = useFormContext()
 
   const [inputCount, setInputCount] = useState(0)
 
-  const onInputHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputCount(e.target.value.length)
-  }
+  useEffect(() => {
+    const subscription = watch(
+      (value) => {
+        setInputCount(value?.summary?.[buttonName]?.length || 0)
+      },
+      { name: `summary.${buttonName}` }
+    )
+    return () => {
+      subscription.unsubscribe() // Unsubscribe to avoid memory leaks
+    }
+  }, [watch, buttonName])
 
   return (
     <div
@@ -62,13 +70,20 @@ function SummarySection({ buttonName, maxChar }: SummarySectionProps) {
           buttonName === '순위산정' &&
             'disabled:bg-none disabled:text-black disabled:opacity-100'
         )}
+        maxLength={Number(maxChar)}
         disabled={buttonName === '순위산정'}
         value={
           buttonName === '순위산정' ? 'ICPC 대회 방식을 차용합니다.' : undefined
         }
         placeholder={`Up to ${maxChar} characters including spaces`}
         {...register(`summary.${buttonName}`)}
-        onChange={onInputHandler}
+        onChange={(e) => {
+          if (e.target.value.length > Number(maxChar)) {
+            e.preventDefault()
+            return
+          }
+          setValue(`summary.${buttonName}`, e.target.value)
+        }}
       />
       <span className="text-sm text-[#8A8A8A]">
         {buttonName !== '순위산정' && `${inputCount}/${maxChar}`}
