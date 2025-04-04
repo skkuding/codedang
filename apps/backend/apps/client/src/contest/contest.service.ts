@@ -499,9 +499,10 @@ export class ContestService {
           freezeScore: number,
           finalScore: number
         ) =>
-          freezeScore !== finalScore ||
-          submissionCountMapBeforeFreeze[userId!]?.[problemId] !==
-            submissionCountMap[userId!]?.[problemId]
+          isFrozen &&
+          (freezeScore !== finalScore ||
+            submissionCountMapBeforeFreeze[userId!]?.[problemId] !==
+              submissionCountMap[userId!]?.[problemId])
 
         const problemRecords = allProblems.map(({ id, order, problemId }) => {
           const record = contestProblemRecord.find(
