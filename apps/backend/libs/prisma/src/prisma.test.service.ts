@@ -99,11 +99,21 @@ export class PrismaTestService
           }
         }
         if (prop === '$transaction') {
-          return async (
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            fn: (client: Prisma.TransactionClient) => Promise<any>
-          ) => {
-            return fn(target)
+          return async (input: unknown) => {
+            if (Array.isArray(input)) {
+              const results: unknown[] = []
+              for (const query of input) {
+                if (typeof query === 'function') {
+                  results.push(await query(target))
+                } else {
+                  results.push(query)
+                }
+              }
+              return results
+            } else if (typeof input === 'function') {
+              return input(target)
+            }
+            throw new Error('Invalid transaction input')
           }
         }
         return target[prop as keyof typeof target]
