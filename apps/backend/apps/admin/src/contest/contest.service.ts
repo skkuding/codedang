@@ -422,9 +422,7 @@ export class ContestService {
         id: contestId
       },
       data: {
-        summary: summary
-          ? (contest.summary as Prisma.InputJsonValue)
-          : Prisma.JsonNull,
+        ...{ summary },
         ...contestData
       },
       include: {
