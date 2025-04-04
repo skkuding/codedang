@@ -68,6 +68,18 @@ export function LeaderboardRow({
                 transition={{ type: 'tween', duration: 0.5, ease: 'easeOut' }}
               >
                 {problemRecords.map((problem, index) => {
+                  if (problem.isFrozen) {
+                    return (
+                      <th
+                        key={index}
+                        className={`flex h-11 w-[114px] flex-row items-center justify-center text-xl font-semibold ${
+                          index !== 0 ? 'border-l-2 border-[#DCE3E5]' : ''
+                        }`}
+                      >
+                        <LeaderboardPenalty problem={problem} />
+                      </th>
+                    )
+                  }
                   return index === 0 ? (
                     <Tooltip.Root key={index}>
                       <Tooltip.Trigger asChild>
@@ -164,6 +176,19 @@ export function LeaderboardRow({
                 transition={{ type: 'tween', duration: 0.5, ease: 'easeOut' }}
               >
                 {problemRecords.map((problem, index) => {
+                  if (problem.isFrozen) {
+                    return (
+                      <th
+                        key={index}
+                        className={`flex h-11 w-[114px] flex-row items-center justify-center text-xl font-semibold ${
+                          index !== 0 ? 'border-l-2 border-[#DCE3E5]' : ''
+                        }`}
+                      >
+                        <LeaderboardPenalty problem={problem} />
+                      </th>
+                    )
+                  }
+
                   return index === 0 ? (
                     <Tooltip.Root key={index}>
                       <Tooltip.Trigger asChild>

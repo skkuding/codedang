@@ -24,6 +24,13 @@ body:graphql {
       userContest {
         userId
         role
+        user {
+          username
+          email
+          userProfile {
+            realName
+          }
+        }
       }
     }
   }
@@ -42,7 +49,7 @@ assert {
 docs {
   ## Get Problem
   참가자수 정보를 포함한 Problem 정보를 가져옵니다.
-  
+
   ### Error Cases
   #### NOT_FOUND
   존재하는 contestId를 전달해야 합니다.
