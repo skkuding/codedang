@@ -13,8 +13,7 @@ import {
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
-import { GET_USERS_SET_MANAGER } from '@/graphql/user/queries'
-import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { useRouter } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
@@ -47,12 +46,6 @@ export function EditContestForm({
   const { setShouldSkipWarning } = useConfirmNavigationContext()
   const router = useRouter()
 
-  const { data: userData } = useSuspenseQuery(GET_USERS_SET_MANAGER, {
-    variables: {
-      take: 5000
-    }
-  })
-
   // 수정된 manager, reviewer 목록(managers) 으로 등록
   const formattedManagers = managers
     .filter((manager) => manager.id !== null) // Exclude managers with null id
@@ -62,14 +55,6 @@ export function EditContestForm({
     }))
   methods.register('userContest')
   methods.setValue('userContest', formattedManagers)
-
-  const users = userData.getUsers.map((user) => ({
-    id: Number(user.id),
-    email: user.email,
-    username: user.username,
-    realName: user.userProfile ? user.userProfile.realName : '',
-    role: user.role
-  }))
 
   useQuery(GET_CONTEST, {
     variables: { contestId },
@@ -94,16 +79,14 @@ export function EditContestForm({
       setIsLoading(false)
       setManagers(
         (data.userContest ?? [])
-          .filter((role) => role.userId !== null && role.userId !== undefined) // Ensure userId is not null or undefined
-          .map((role) => {
-            const user = users.find((u) => u.id === role.userId)
+          .filter((user) => user.userId !== null && user.userId !== undefined)
+          .map((user) => {
             return {
-              id: role.userId as number,
-              email: user?.email || '',
-              username: user?.username || '',
-              realName: user?.realName || '',
-              type: role.role,
-              user
+              id: user.userId || 0,
+              email: user.user?.email || '',
+              username: user.user?.username || '',
+              realName: user.user?.userProfile?.realName || '',
+              type: user.role
             }
           })
       )
