@@ -7,9 +7,16 @@ import {
   Req,
   Query,
   DefaultValuePipe,
-  Headers
+  Headers,
+  Patch,
+  UseGuards
 } from '@nestjs/common'
-import { AuthNotNeededIfPublic, AuthenticatedRequest } from '@libs/auth'
+import type { ResultStatus } from '@prisma/client'
+import {
+  AdminGuard,
+  AuthNotNeededIfPublic,
+  AuthenticatedRequest
+} from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import {
   CursorValidationPipe,
@@ -83,6 +90,34 @@ export class SubmissionController {
         workbookId
       })
     }
+  }
+
+  @UseGuards(AdminGuard)
+  @Patch('rejudgeByProblem')
+  async rejudgeByProblem(
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
+    @Query('contestId', IDValidationPipe) contestId: number | null,
+    @Query('assignmentId', IDValidationPipe) assignmentId: number | null,
+    @Query('workbookId', IDValidationPipe) workbookId: number | null
+  ): Promise<{
+    successCount: number
+    failedSubmissions: { submissionId: number; error: string }[]
+  }> {
+    return this.submissionService.rejudgeSubmissionsByProblem(
+      problemId,
+      contestId,
+      assignmentId,
+      workbookId
+    )
+  }
+
+  @UseGuards(AdminGuard)
+  @Patch('rejudgeBySubmission')
+  async rejudgeBySubmission(
+    @Query('submissionId', new RequiredIntPipe('submissionId'))
+    submissionId: number
+  ): Promise<{ success: boolean; error?: string }> {
+    return this.submissionService.rejudgeSubmissionById(submissionId)
   }
 
   /**

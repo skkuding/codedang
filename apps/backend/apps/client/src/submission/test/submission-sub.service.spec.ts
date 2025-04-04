@@ -20,6 +20,7 @@ import {
 } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { SubmissionSubscriptionService } from '@libs/rabbitmq'
 import { problems } from '@admin/problem/mock/mock'
 import { assignmentRecord } from '../mock/assignmentRecord.mock'
 import { normalContest } from '../mock/contest.mock'
@@ -27,7 +28,6 @@ import { contestProblem } from '../mock/contestProblem.mock'
 import { contestRecordsMock } from '../mock/contestRecord.mock'
 import { submissions } from '../mock/submission.mock'
 import { submissionResults } from '../mock/submissionResult.mock'
-import { SubmissionSubscriptionService } from '../submission-sub.service'
 
 const judgeResult = {
   testcaseId: 1,
@@ -52,7 +52,9 @@ const submission: Submission & { submissionResult: SubmissionResult[] } = {
   ...submissions[0],
   codeSize: 1000,
   submissionResult: [submissionResults[0], submissionResults[1]],
-  score: 100
+  score: 100,
+  rejudgedFromId: null, // 원본 제출 ID (필수로 추가)
+  isRejudged: false // 재채점 여부 (필수로 추가)
 }
 
 const contestSubmission = {

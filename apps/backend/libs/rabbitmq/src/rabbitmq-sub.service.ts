@@ -30,7 +30,7 @@ import {
 } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { JudgerResponse } from './class/judger-response.dto'
+import { JudgerResponse } from './class/rabbitmq-judger-response.dto'
 
 @Injectable()
 export class SubmissionSubscriptionService implements OnModuleInit {
