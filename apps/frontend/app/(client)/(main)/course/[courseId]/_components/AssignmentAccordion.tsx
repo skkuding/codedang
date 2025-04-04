@@ -215,15 +215,7 @@ function AssignmentAccordionItem({
                     )}
                   </div>
 
-                  <div className="flex w-[13%] justify-center">
-                    {submission[index].submission && (
-                      <div className="flex w-full justify-center">
-                        <TestCaseResult
-                          submission={submission[index].submission}
-                        />
-                      </div>
-                    )}
-                  </div>
+                  <div className="flex w-[13%] justify-center" />
                   <div className="flex w-[10%] justify-center font-medium">
                     {dayjs().isAfter(dayjs(assignment.endTime))
                       ? (problem.problemRecord?.finalScore ?? '-')

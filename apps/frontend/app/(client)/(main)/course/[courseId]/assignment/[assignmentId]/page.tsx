@@ -39,14 +39,6 @@ export default function AssignmentDetail({ params }: AssignmentDetailProps) {
     assignmentSubmissionQueries.summary({ assignmentId: assignment?.id ?? 0 })
   )
 
-  // const { data: testResults } = useQuery(
-  //   assignmentSubmissionQueries.testResult({
-  //     assignmentId: assignment?.id ?? 0,
-  //     problemId,
-  //     submissionId: submissions?.id ?? 0
-  //   })
-  // )
-
   const formattedStartTime = assignment
     ? dateFormatter(assignment.startTime, 'MMM DD, YYYY HH:mm')
     : ''
