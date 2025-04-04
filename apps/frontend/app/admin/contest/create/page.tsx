@@ -56,10 +56,10 @@ export default function Page() {
                   />
                 </FormSection>
                 <FormSection title="Start Time">
-                  <TimeForm name="startTime" />
+                  <TimeForm isContest name="startTime" />
                 </FormSection>
                 <FormSection title="End Time">
-                  <TimeForm name="endTime" />
+                  <TimeForm isContest name="endTime" />
                 </FormSection>
 
                 <FreezeForm name="freezeTime" />
