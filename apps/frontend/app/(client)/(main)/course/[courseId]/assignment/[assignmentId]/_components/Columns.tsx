@@ -75,12 +75,7 @@ export const columns = (
       )
     }
   },
-  // {
-  //   header: () => 'Score',
-  //   accessorKey: 'score',
-  //   cell: ({ row }) =>
-  //     `${row.original.problemRecord?.isSubmitted ? (row.original.problemRecord?.score ?? '-') : '-'} / ${row.original.maxScore}`
-  // },
+
   {
     header: 'Detail',
     accessorKey: 'detail',

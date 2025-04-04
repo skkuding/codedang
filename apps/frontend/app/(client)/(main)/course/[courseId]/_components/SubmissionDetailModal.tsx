@@ -156,16 +156,6 @@ export function SubmissionDetailModal({
                       )}
                     </p>
                   </div>
-                  <Separator
-                    orientation="vertical"
-                    className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
-                  />
-                  <div>
-                    <h2>Result</h2>
-                    <span className={getResultStyle(result ?? '')}>
-                      {result}
-                    </span>
-                  </div>
                 </div>
                 <ScrollBar orientation="horizontal" />
               </ScrollArea>
