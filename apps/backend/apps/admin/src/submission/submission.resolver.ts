@@ -133,14 +133,12 @@ export class SubmissionResolver {
 
   @Query(() => String, { nullable: true })
   async compressSourceCodes(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('assignmentId', { type: () => Int })
     assignmentId: number,
     @Args('problemId', { type: () => Int }, new RequiredIntPipe('problemId'))
     problemId: number
   ): Promise<string> {
     return await this.submissionService.compressSourceCodes(
-      groupId,
       assignmentId,
       problemId
     )

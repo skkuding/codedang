@@ -401,11 +401,7 @@ export class SubmissionService {
     return encodeURIComponent(problem.title)
   }
 
-  async compressSourceCodes(
-    groupId: number,
-    assignmentId: number,
-    problemId: number
-  ) {
+  async compressSourceCodes(assignmentId: number, problemId: number) {
     const assignmentProblemRecords =
       await this.prisma.assignmentProblemRecord.findMany({
         where: {
