@@ -89,15 +89,20 @@ export default function Page({ params }: { params: { contestId: string } }) {
 
               <div className="flex flex-col justify-between">
                 <FormSection title="Title">
-                  <TitleForm placeholder="Name your contest" />
+                  <TitleForm
+                    placeholder="Name your contest"
+                    className="max-w-[492px]"
+                  />
                 </FormSection>
                 <FormSection title="Start Time">
                   {methods.getValues('startTime') && (
-                    <TimeForm name="startTime" />
+                    <TimeForm isContest name="startTime" />
                   )}
                 </FormSection>
                 <FormSection title="End Time">
-                  {methods.getValues('endTime') && <TimeForm name="endTime" />}
+                  {methods.getValues('endTime') && (
+                    <TimeForm isContest name="endTime" />
+                  )}
                 </FormSection>
 
                 {methods.getValues('freezeTime') !== undefined && (
