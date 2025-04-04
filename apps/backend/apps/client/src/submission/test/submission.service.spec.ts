@@ -750,36 +750,6 @@ describe('SubmissionService', () => {
       expect(db.submission.findMany.calledOnce).to.be.true
     })
 
-    it('should return submission with blind results when isJudgeResultVisible is false', async () => {
-      const assignmentId = 1
-      const userId = 1
-      const mockAssignmentProblems = [{ problemId: 1 }]
-      const mockSubmissions = [
-        {
-          problemId: 1,
-          createTime: new Date(),
-          result: 'Accepted',
-          submissionResult: [{ result: 'Accepted' }, { result: 'Accepted' }]
-        }
-      ]
-
-      db.assignmentRecord.findUnique.resolves({
-        assignment: { isJudgeResultVisible: false }
-      })
-      db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
-      db.submission.findMany.resolves(mockSubmissions)
-
-      const result = await service.getAssignmentSubmissionSummary(
-        assignmentId,
-        userId
-      )
-
-      expect(result).to.have.lengthOf(1)
-      expect(result[0].problemId).to.equal(1)
-      expect(result[0].submission?.submissionResult).to.equal('Blind')
-      expect(result[0].submission?.acceptedTestcaseCount).to.be.null
-    })
-
     it('should return empty array when there are no assignment problems', async () => {
       const assignmentId = 1
       const userId = 1

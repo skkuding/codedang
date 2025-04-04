@@ -161,33 +161,27 @@ export const assignmentProblemsWithScore = [
     order: 1,
     assignmentId: 1,
     problemId: 1,
-    score: null,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     assignment: {
       startTime: new Date()
     },
-    maxScore: 0,
-    submissionTime: null
+    maxScore: 0
   },
   {
     order: 2,
     assignmentId: 1,
     problemId: 2,
-    score: null,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     assignment: {
       startTime: new Date()
     },
-    maxScore: 0,
-    submissionTime: null
+    maxScore: 0
   }
 ] satisfies Array<
   Omit<AssignmentProblem, 'score'> & { assignment: Partial<Assignment> } & {
     maxScore: number
-    submissionTime: Date | null
-    score: number | null
   }
 >
 
