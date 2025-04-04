@@ -4,8 +4,7 @@ import { UseContestRolesGuard, UseGroupLeaderGuard } from '@libs/auth'
 import {
   SubmissionOrderPipe,
   CursorValidationPipe,
-  RequiredIntPipe,
-  GroupIDPipe
+  RequiredIntPipe
 } from '@libs/pipe'
 import { Submission } from '@admin/@generated'
 import { SubmissionOrder } from './enum/submission-order.enum'
