@@ -492,8 +492,7 @@ export class ContestService {
         user
       }) => {
         const getSubmissionCount = (problemId: number) =>
-          submissionCountMap[userId!]?.[problemId] >
-          submissionCountMapBeforeFreeze?.[userId!]?.[problemId]
+          !isFrozen
             ? submissionCountMap[userId!][problemId]
             : (submissionCountMapBeforeFreeze?.[userId!]?.[problemId] ?? 0)
 
