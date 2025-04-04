@@ -16,12 +16,14 @@ import { useEffect, useState } from 'react'
 
 interface DateTimePickerDemoProps {
   onChange: (date: Date) => void
+  isContest?: boolean
   defaultValue?: Date
   defaultTimeOnSelect?: { hours: number; minutes: number; seconds: number }
 }
 
 export const DateTimePickerDemo = ({
   onChange,
+  isContest = false,
   defaultValue,
   defaultTimeOnSelect
 }: DateTimePickerDemoProps) => {
@@ -30,8 +32,9 @@ export const DateTimePickerDemo = ({
   useEffect(() => {
     if (defaultValue) {
       setDate(defaultValue)
+      onChange(defaultValue)
     }
-  }, [defaultValue])
+  }, [])
 
   return (
     <Popover
@@ -46,10 +49,10 @@ export const DateTimePickerDemo = ({
           variant={'outline'}
           className={cn(
             'w-[492px] justify-start text-left font-normal',
+            isContest ? 'w-[492px]' : 'w-[280px]',
             !date && 'text-muted-foreground'
           )}
         >
-          {/* <CalendarIcon className="mr-2 h-4 w-4" /> */}
           <Image
             className="mr-2 h-4 w-4"
             style={{ filter: 'grayscale(100%)' }}

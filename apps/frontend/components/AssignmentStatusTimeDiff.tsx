@@ -1,5 +1,6 @@
 'use client'
 
+import { UNLIMITED_DATE } from '@/libs/constants'
 import { cn } from '@/libs/utils'
 import clockIcon from '@/public/icons/clock.svg'
 import type { Assignment } from '@/types/type'
@@ -14,16 +15,17 @@ import { useInterval } from 'react-use'
 import { toast } from 'sonner'
 
 dayjs.extend(duration)
+interface AssignmentStatusTimeDiffProps {
+  assignment: Assignment
+  textStyle: string
+  inAssignmentEditor: boolean
+}
 
 export function AssignmentStatusTimeDiff({
   assignment,
   textStyle,
   inAssignmentEditor
-}: {
-  assignment: Assignment
-  textStyle: string
-  inAssignmentEditor: boolean
-}) {
+}: AssignmentStatusTimeDiffProps) {
   const router = useRouter()
   const { problemId, courseId } = useParams()
 
@@ -91,6 +93,10 @@ export function AssignmentStatusTimeDiff({
     router.push(
       `/course/${courseId}/assignment/${assignment.id}/finished/problem/${problemId}` as Route
     )
+  }
+
+  if (dayjs(assignment.endTime).isSame(dayjs(UNLIMITED_DATE))) {
+    return null
   }
 
   return (

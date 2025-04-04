@@ -187,7 +187,6 @@ export const createColumns = (
       return (
         <Link
           href={`/admin/problem/${row.original.id}/preview`}
-          target="_blank"
           className="flex justify-center"
           onClick={(e) => e.stopPropagation()}
         >

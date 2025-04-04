@@ -506,7 +506,10 @@ export class ProblemService {
       where: {
         ...whereOptions
       },
-      take
+      take,
+      include: {
+        createdBy: true
+      }
     })
     return this.changeVisibleLockTimeToIsVisible(problems)
   }
@@ -1042,6 +1045,12 @@ export class ProblemService {
 
     const queries = assignmentProblems.map((record) => {
       const newOrder = orders.indexOf(record.problemId)
+      if (newOrder === -1) {
+        throw new UnprocessableDataException(
+          'There is a problemId in the assignment that is missing from the provided orders.'
+        )
+      }
+
       return this.prisma.assignmentProblem.update({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention

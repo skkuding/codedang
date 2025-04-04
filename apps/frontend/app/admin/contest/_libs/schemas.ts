@@ -6,11 +6,21 @@ export const createSchema = v.object({
     v.minLength(1, 'The title must contain at least 1 character(s)'),
     v.maxLength(200, 'The title can only be up to 200 characters long')
   ),
-  description: v.pipe(
-    v.string(),
-    v.minLength(1),
-    v.check((value) => value !== '<p></p>')
+  description: v.nullable(
+    v.pipe(
+      v.string(),
+      v.minLength(1),
+      v.check((value) => value !== '<p></p>'),
+      v.transform((value) => (value === '' ? null : value))
+    )
   ),
+  // description: v.nullable(
+  //   v.pipe(
+  //     v.string(),
+  //     v.minLength(1),
+  //     v.check((value) => value !== '<p></p>')
+  //   )
+  // ),
   startTime: v.date(),
   endTime: v.date(),
   // enableCopyPaste: v.boolean(),
@@ -24,7 +34,6 @@ export const createSchema = v.object({
 })
 
 export const editSchema = v.object({
-  id: v.number(),
   ...createSchema.entries
 })
 
@@ -36,6 +45,9 @@ export interface ContestProblem {
   score: number
 }
 
+export const announcementSchema = v.object({
+  content: v.pipe(v.string(), v.minLength(1, 'Required'))
+})
 export interface ContestManagerReviewer {
   id: number
   email: string

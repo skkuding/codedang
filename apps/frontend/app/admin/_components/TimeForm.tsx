@@ -4,10 +4,17 @@ import { ErrorMessage } from './ErrorMessage'
 
 interface TimeFormProps {
   name: string
+  isContest?: boolean
+  defaultValue?: Date
   defaultTimeOnSelect?: { hours: number; minutes: number; seconds: number }
 }
 
-export function TimeForm({ name, defaultTimeOnSelect }: TimeFormProps) {
+export function TimeForm({
+  name,
+  isContest = false,
+  defaultValue,
+  defaultTimeOnSelect
+}: TimeFormProps) {
   const {
     control,
     formState: { errors }
@@ -22,8 +29,9 @@ export function TimeForm({ name, defaultTimeOnSelect }: TimeFormProps) {
     <div>
       <DateTimePickerDemo
         onChange={field.onChange}
-        defaultValue={field.value}
+        defaultValue={defaultValue ?? field.value}
         defaultTimeOnSelect={defaultTimeOnSelect}
+        isContest={isContest}
       />
       {errors[name] && <ErrorMessage />}
     </div>

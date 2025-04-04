@@ -1,5 +1,5 @@
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
-import { Contest, ContestProblem } from '@generated'
+import { Contest, ContestProblem, UserContest } from '@generated'
 import { ContestRole } from '@prisma/client'
 import {
   AuthenticatedRequest,
@@ -61,8 +61,11 @@ export class ContestResolver {
   }
 
   @Mutation(() => Contest)
-  async updateContest(@Args('input') input: UpdateContestInput) {
-    return await this.contestService.updateContest(input)
+  async updateContest(
+    @Args('contestId', { type: () => Int }) contestId: number,
+    @Args('input') input: UpdateContestInput
+  ) {
+    return await this.contestService.updateContest(contestId, input)
   }
 
   @Mutation(() => Contest)
@@ -170,5 +173,11 @@ export class ContestResolver {
     @Args('contestId', { type: () => Int }) contestId: number
   ) {
     return await this.contestService.getContestUpdateHistories(contestId)
+  }
+
+  @Query(() => [UserContest])
+  @UseDisableContestRolesGuard()
+  async getContestRoles(@Context('req') req: AuthenticatedRequest) {
+    return await this.contestService.getContestRoles(req.user.id)
   }
 }

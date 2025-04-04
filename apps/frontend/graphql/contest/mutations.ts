@@ -23,8 +23,8 @@ const CREATE_CONTEST = gql(`
 `)
 
 const UPDATE_CONTEST = gql(`
-  mutation UpdateContest($input: UpdateContestInput!) {
-    updateContest(input: $input) {
+  mutation UpdateContest($contestId: Int!, $input: UpdateContestInput!) {
+    updateContest(contestId: $contestId, input: $input) {
       id
       invitationCode
       enableCopyPaste
@@ -45,8 +45,8 @@ const UPDATE_CONTEST = gql(`
 `)
 
 const UPDATE_CONTEST_VISIBLE = gql(`
-  mutation UpdateContestVisible($input: UpdateContestInput!) {
-    updateContest(input: $input) {
+  mutation UpdateContestVisible($contestId: Int!, $input: UpdateContestInput!) {
+    updateContest(contestId: $contestId, input: $input) {
       id
     }
   }
@@ -91,11 +91,24 @@ const REMOVE_PROBLEMS_FROM_CONTEST = gql(`
   }
 `)
 
+const CREATE_CONTEST_ANNOUNCEMENT = gql(`
+  mutation createAnnouncement($contestId: Int!, $input: CreateAnnouncementInput!) {
+    createAnnouncement(contestId: $contestId, input: $input) {
+      id
+      problemId
+      content
+      createTime
+      updateTime
+    }
+  }
+`)
+
 export {
   CREATE_CONTEST,
   UPDATE_CONTEST,
   UPDATE_CONTEST_VISIBLE,
   DELETE_CONTEST,
   IMPORT_PROBLEMS_TO_CONTEST,
-  REMOVE_PROBLEMS_FROM_CONTEST
+  REMOVE_PROBLEMS_FROM_CONTEST,
+  CREATE_CONTEST_ANNOUNCEMENT
 }

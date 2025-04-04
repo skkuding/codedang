@@ -8,6 +8,7 @@ import codedangIcon from '@/public/logos/codedang-editor.svg'
 import codedangWithTextIcon from '@/public/logos/codedang-with-text.svg'
 import type { User } from '@/types/type'
 import { useQuery } from '@apollo/client'
+import { ContestRole, type UserContest } from '@generated/graphql'
 import { motion } from 'framer-motion'
 import type { Route } from 'next'
 import Image from 'next/image'
@@ -110,6 +111,8 @@ export function ManagementSidebar() {
     canCreateCourse: false,
     canCreateContest: false
   })
+  const [hasAnyPermissionOnContest, setHasAnyPermissionOnContest] =
+    useState(false)
   const pathname = usePathname()
 
   const { data: coursesData } = useQuery(GET_COURSES_USER_LEAD)
@@ -122,15 +125,33 @@ export function ManagementSidebar() {
         setUserPermissions({
           canCreateCourse: user.canCreateCourse ?? false,
           canCreateContest: user.canCreateContest ?? false
-          // canCreateContest: true
         })
       } catch (error) {
         console.error('Error fetching user permissions:', error)
       }
     }
 
+    async function fetchContestRoles() {
+      try {
+        const response: UserContest[] = await safeFetcherWithAuth
+          .get('contest/role')
+          .json()
+
+        const hasPermission = response.some((userContest) => {
+          return (
+            userContest.role !== ContestRole.Participant &&
+            userContest.role !== ContestRole.Reviewer
+          )
+        })
+        setHasAnyPermissionOnContest(hasPermission)
+      } catch (error) {
+        console.error('Error fetching contest roles:', error)
+      }
+    }
+
     if (session) {
       fetchUserPermissions()
+      fetchContestRoles()
     }
   }, [session])
 
@@ -151,7 +172,7 @@ export function ManagementSidebar() {
       items.push({ name: 'Course', path: '/admin/course', icon: FaBook })
     }
 
-    if (userPermissions.canCreateContest) {
+    if (userPermissions.canCreateContest || hasAnyPermissionOnContest) {
       items.push({ name: 'Contest', path: '/admin/contest', icon: FaTrophy })
     }
 

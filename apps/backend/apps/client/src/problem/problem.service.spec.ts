@@ -145,6 +145,24 @@ const mockContestProblemsWithScore = contestProblemsWithScore.map(
   }
 )
 
+const mockAssignment = {
+  problemCount: 10,
+  id: 1,
+  week: 1,
+  title: 'Sample Assignment',
+  description: 'This is a sample assignment.',
+  startTime: faker.date.past(),
+  endTime: faker.date.future(),
+  isJudgeResultVisible: true,
+  enableCopyPaste: false,
+  autoFinalizeScore: false,
+  isFinalScoreVisible: true,
+  group: {
+    id: 1,
+    groupName: 'Sample Group'
+  }
+}
+
 const mockAssignmentProblem = {
   ...Object.assign({}, assignmentProblems[0]),
   problem: Object.assign({ tags: [tag] }, mockProblems[0])
@@ -327,6 +345,7 @@ describe('ContestProblemService', () => {
         startTime: faker.date.past(),
         endTime: faker.date.future(),
         isRegistered: true,
+        isPrivilegedRole: false,
         invitationCodeExists: true,
         isJudgeResultVisible: true,
         prev: null,
@@ -360,6 +379,7 @@ describe('ContestProblemService', () => {
         startTime: faker.date.past(),
         endTime: faker.date.future(),
         isRegistered: true,
+        isPrivilegedRole: false,
         invitationCodeExists: true,
         isJudgeResultVisible: true,
         prev: null,
@@ -386,6 +406,31 @@ describe('ContestProblemService', () => {
       )
     })
 
+    it('should return contest problems when user is a Reviewer before contest start', async () => {
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
+        startTime: faker.date.future(),
+        endTime: faker.date.future(),
+        isRegistered: false,
+        isPrivilegedRole: true,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true,
+        prev: null,
+        next: null
+      })
+      db.contestProblem.findMany.resolves(mockContestProblems)
+      db.submission.findMany.resolves([])
+
+      const result = await service.getContestProblems({
+        contestId,
+        userId,
+        cursor: 1,
+        take: 1
+      })
+
+      expect(result.data).to.be.an('array')
+    })
+
     it('should throw PrismaClientKnownRequestError when the contest is not visible', async () => {
       // given
       const getContestSpy = stub(contestService, 'getContest')
@@ -408,6 +453,7 @@ describe('ContestProblemService', () => {
         startTime: faker.date.future(),
         endTime: faker.date.future(),
         isRegistered: true,
+        isPrivilegedRole: false,
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
@@ -431,6 +477,7 @@ describe('ContestProblemService', () => {
         startTime: faker.date.past(),
         endTime: faker.date.future(),
         isRegistered: false,
+        isPrivilegedRole: false,
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
@@ -457,6 +504,35 @@ describe('ContestProblemService', () => {
         startTime: faker.date.past(),
         endTime: faker.date.future(),
         isRegistered: true,
+        isPrivilegedRole: false,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true,
+        prev: null,
+        next: null
+      })
+      db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
+      db.updateHistory.findMany.resolves(mockUpdateHistory)
+
+      // when
+      const result = await service.getContestProblem({
+        contestId,
+        problemId,
+        userId
+      })
+
+      // then
+      expect(result).to.have.property('order', mockContestProblem.order)
+      expect(result).to.have.property('updateHistory', mockUpdateHistory)
+    })
+
+    it('should return the contest problem when user is a Reviewer before contest start', async () => {
+      // given
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
+        startTime: faker.date.future(),
+        endTime: faker.date.future(),
+        isRegistered: false,
+        isPrivilegedRole: true,
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
@@ -498,6 +574,7 @@ describe('ContestProblemService', () => {
         startTime: faker.date.future(),
         endTime: faker.date.future(),
         isRegistered: true,
+        isPrivilegedRole: false,
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
@@ -519,6 +596,7 @@ describe('ContestProblemService', () => {
         startTime: faker.date.past(),
         endTime: faker.date.future(),
         isRegistered: false,
+        isPrivilegedRole: false,
         isJudgeResultVisible: true,
         invitationCodeExists: true,
         prev: null,
@@ -579,12 +657,7 @@ describe('AssignmentProblemService', () => {
     it('should return public assignment problems', async () => {
       // given
       const getAssignmentSpy = stub(assignmentService, 'getAssignment')
-      getAssignmentSpy.resolves({
-        startTime: faker.date.past(),
-        endTime: faker.date.future(),
-        isRegistered: true,
-        isJudgeResultVisible: true
-      })
+      getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
       db.submission.findMany.resolves([])
       db.assignmentProblemRecord.findMany.resolves([
@@ -612,12 +685,7 @@ describe('AssignmentProblemService', () => {
     it('should return group assignment problems', async () => {
       // given
       const getAssignmentSpy = stub(assignmentService, 'getAssignment')
-      getAssignmentSpy.resolves({
-        startTime: faker.date.past(),
-        endTime: faker.date.future(),
-        isRegistered: true,
-        isJudgeResultVisible: true
-      })
+      getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
       db.submission.findMany.resolves([])
       db.assignmentProblemRecord.findMany.resolves([
@@ -676,12 +744,7 @@ describe('AssignmentProblemService', () => {
     it('should return the public assignment problem', async () => {
       // given
       const getAssignmentSpy = stub(assignmentService, 'getAssignment')
-      getAssignmentSpy.resolves({
-        startTime: faker.date.past(),
-        endTime: faker.date.future(),
-        isRegistered: true,
-        isJudgeResultVisible: true
-      })
+      getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
 
       // when
@@ -701,12 +764,7 @@ describe('AssignmentProblemService', () => {
     it('should return the group assignment problem', async () => {
       // given
       const getAssignmentSpy = stub(assignmentService, 'getAssignment')
-      getAssignmentSpy.resolves({
-        startTime: faker.date.past(),
-        endTime: faker.date.future(),
-        isRegistered: true,
-        isJudgeResultVisible: true
-      })
+      getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
 
       // when

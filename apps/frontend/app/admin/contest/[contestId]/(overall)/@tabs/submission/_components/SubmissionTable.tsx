@@ -20,9 +20,8 @@ import { columns } from './Columns'
 export function SubmissionTable({ contestId }: { contestId: number }) {
   const { data } = useSuspenseQuery(GET_CONTEST_SUBMISSIONS, {
     variables: {
-      input: {
-        contestId
-      },
+      contestId,
+      input: {},
       take: 5000
     }
   })

@@ -10,7 +10,7 @@ export interface DataTableContest {
   title: string
   startTime: string
   endTime: string
-  description: string
+  description?: string | null | undefined
   participants: number
   status: string
 }
@@ -26,7 +26,7 @@ export const columns: ColumnDef<DataTableContest>[] = [
           table.toggleAllPageRowsSelected(Boolean(value))
         }
         aria-label="Select all"
-        className="translate-y-[2px] bg-white"
+        className="translate-y-[2px]"
       />
     ),
     cell: ({ row }) => (
@@ -35,7 +35,7 @@ export const columns: ColumnDef<DataTableContest>[] = [
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
         aria-label="Select row"
-        className="translate-y-[2px] bg-white"
+        className="translate-y-[2px]"
       />
     ),
     enableSorting: false,

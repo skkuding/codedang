@@ -276,14 +276,20 @@ export class ContestProblemService {
   }) {
     const contest = await this.contestService.getContest(contestId, userId)
     const now = new Date()
-    if (contest.isRegistered && contest.startTime! > now) {
-      throw new ForbiddenAccessException(
-        'Cannot access problems before the contest starts.'
-      )
-    } else if (!contest.isRegistered && contest.endTime! > now) {
-      throw new ForbiddenAccessException(
-        'Register to access the problems of this contest.'
-      )
+    if (!contest.isPrivilegedRole) {
+      if (contest.isRegistered) {
+        if (now < contest.startTime!) {
+          throw new ForbiddenAccessException(
+            'Cannot access to Contest problem before the contest starts.'
+          )
+        }
+      } else {
+        if (now < contest.endTime!) {
+          throw new ForbiddenAccessException(
+            'Register to access the problems of this contest.'
+          )
+        }
+      }
     }
 
     const paginator = this.prisma.getPaginator(cursor, (value) => ({
@@ -400,18 +406,20 @@ export class ContestProblemService {
   }) {
     const contest = await this.contestService.getContest(contestId, userId)
     const now = new Date()
-    if (contest.isRegistered) {
-      if (now < contest.startTime!) {
-        throw new ForbiddenAccessException(
-          'Cannot access to Contest problem before the contest starts.'
-        )
-      } else if (now > contest.endTime!) {
-        throw new ForbiddenAccessException(
-          'Cannot access to Contest problem after the contest ends.'
-        )
+    if (!contest.isPrivilegedRole) {
+      if (contest.isRegistered) {
+        if (now < contest.startTime!) {
+          throw new ForbiddenAccessException(
+            'Cannot access to Contest problem before the contest starts.'
+          )
+        } else if (now > contest.endTime!) {
+          throw new ForbiddenAccessException(
+            'Cannot access to Contest problem after the contest ends.'
+          )
+        }
+      } else {
+        throw new ForbiddenAccessException('Register to access this problem.')
       }
-    } else {
-      throw new ForbiddenAccessException('Register to access this problem.')
     }
 
     const data = await this.prisma.contestProblem.findUniqueOrThrow({
@@ -515,7 +523,7 @@ export class AssignmentProblemService {
   ) {}
 
   /**
-   * 주어진 옵션에 따라 대회 문제를 여러개 가져옵니다.
+   * 주어진 옵션에 따라 과제 문제를 여러개 가져옵니다.
    * 이때, 사용자의 제출기록을 확인하여 각 문제의 점수를 계산합니다.
    *
    * 액세스 정책
@@ -523,8 +531,7 @@ export class AssignmentProblemService {
    * 대회 시작 전: 문제 액세스 불가 (Register 안하면 에러 메시지가 다름) //
    * 대회 진행 중: Register한 경우 문제 액세스 가능 //
    * 대회 종료 후: 누구나 문제 액세스 가능
-   * @see [Assignment Problem 정책](https://www.notion.so/skkuding/Assignment-Problem-list-ad4f2718af1748bdaff607abb958ba0b?pvs=4)
-   * @returns {RelatedProblemsResponseDto} data: 대회 문제 목록, total: 대회 문제 총 개수
+   * @returns {RelatedProblemsResponseDto} data: 과제 문제 목록, total: 과제 문제 총 개수
    */
   async getAssignmentProblems({
     assignmentId,
@@ -617,15 +624,14 @@ export class AssignmentProblemService {
   }
 
   /**
-   * 특정 대회 문제를 가져옵니다.
+   * 특정 과제 문제를 가져옵니다.
    *
    * 액세스 정책
    *
    * 대회 시작 전: 문제 액세스 불가 (Register 안하면 에러 메시지가 다름) //
    * 대회 진행 중: Register한 경우 문제 액세스 가능 //
    * 대회 종료 후: 누구나 문제 액세스 가능
-   * @see [Assignment Problem 정책](https://www.notion.so/skkuding/Assignment-Problem-list-ad4f2718af1748bdaff607abb958ba0b?pvs=4)
-   * @returns {RelatedProblemResponseDto} problem: 대회 문제 정보, order: 대회 문제 순서
+   * @returns {RelatedProblemResponseDto} problem: 과제 문제 정보, order: 과제 문제 순서
    */
   async getAssignmentProblem({
     assignmentId,

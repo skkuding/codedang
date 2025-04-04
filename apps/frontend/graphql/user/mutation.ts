@@ -49,10 +49,22 @@ const REVOKE_INVITATION = gql(`
   }
 `)
 
+const UPDATE_PERMISSIONS = gql(`
+  mutation UpdatePermissions($input: UpdateCreationPermissionsInput!) {
+    updateCreationPermissions(input: $input) {
+      id
+      role
+      canCreateCourse
+      canCreateContest
+    }
+  }
+`)
+
 export {
   INVITE_USER,
   DELETE_GROUP_MEMBER,
   UPDATE_GROUP_MEMBER,
   ISSUE_INVITATION,
-  REVOKE_INVITATION
+  REVOKE_INVITATION,
+  UPDATE_PERMISSIONS
 }

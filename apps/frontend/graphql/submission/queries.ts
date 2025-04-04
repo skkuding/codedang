@@ -2,11 +2,13 @@ import { gql } from '@generated'
 
 const GET_CONTEST_SUBMISSIONS_COUNT = gql(`
   query GetContestSubmissionsCount(
+  $contestId: Int!,
   $input: GetContestSubmissionsInput!,
   $cursor: Int,
   $take: Int
 ) {
   getContestSubmissions(
+    contestId: $contestId,
     input: $input,
     cursor: $cursor,
     take: $take
@@ -18,11 +20,13 @@ const GET_CONTEST_SUBMISSIONS_COUNT = gql(`
 
 const GET_CONTEST_SUBMISSIONS = gql(`
   query GetContestSubmissions(
+  $contestId: Int!,
   $input: GetContestSubmissionsInput!,
   $cursor: Int,
   $take: Int
 ) {
   getContestSubmissions(
+    contestId: $contestId,
     input: $input,
     cursor: $cursor,
     take: $take

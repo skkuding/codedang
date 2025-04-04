@@ -13,9 +13,10 @@ post {
 body:graphql {
   mutation {
     updateAnnouncement(
-      input: { 
-        id: 999, 
-        content: "Updated announcement content" 
+      contestId: 1,
+      input: {
+        id: 999
+        content: "Updated announcement content"
       }) {
       id
       content

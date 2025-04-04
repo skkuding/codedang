@@ -11,8 +11,11 @@ post {
 }
 
 body:graphql {
-  mutation UpdateContest($input: UpdateContestInput!) {
-    updateContest(input: $input) {
+  mutation UpdateContest($contestId: Int!, $input: UpdateContestInput!) {
+    updateContest(
+      contestId: $contestId
+      input: $input
+    ) {
       id
       title
       description
@@ -28,8 +31,8 @@ body:graphql {
 
 body:graphql:vars {
   {
+    "contestId": 99999,
     "input": {
-      "id": 99999,
       "title": "nonexistent Contest",
       "description": "thisisnonexistentcontest",
       "startTime": "2024-01-01",

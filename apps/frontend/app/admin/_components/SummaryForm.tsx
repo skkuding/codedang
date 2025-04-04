@@ -22,7 +22,7 @@ export function SummaryForm({ name }: SummaryFormProps) {
 
   return (
     <div className="h-[285px] rounded-xl border border-[#80808040] bg-white">
-      <SummarySection buttonName="참여조건" maxChar="60" />
+      <SummarySection buttonName="참여대상" maxChar="60" />
       <SummarySection buttonName="진행방식" maxChar="60" />
       <SummarySection buttonName="순위산정" maxChar="60" />
       <SummarySection buttonName="문제형태" maxChar="120" />
