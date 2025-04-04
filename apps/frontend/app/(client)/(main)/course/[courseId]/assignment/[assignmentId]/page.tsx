@@ -2,6 +2,7 @@
 
 import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
+import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { AssignmentStatusTimeDiff } from '@/components/AssignmentStatusTimeDiff'
 import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
