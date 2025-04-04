@@ -130,6 +130,13 @@ export class SubmissionResolver {
     return await this.submissionService.getSubmission(id)
   }
 
+  /**
+   * 특정 Assignment의 특정 Problem에 대한 제출 내역을 Zip file로 압축한 후 download URL을 반환합니다.
+   *
+   * @param assignmentId AssignmentProblemRecode을 조회할 Assignment의 ID
+   * @param problemId AssignmentProblemRecode을 조회할 problemID
+   * @returns {string} 압축 파일을 다운로드 할 수 있는 URL
+   */
   @Query(() => String, { nullable: true })
   async compressSourceCodes(
     @Args('assignmentId', { type: () => Int })
