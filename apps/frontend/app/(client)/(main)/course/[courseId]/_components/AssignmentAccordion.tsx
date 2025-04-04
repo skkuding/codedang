@@ -206,6 +206,7 @@ function AssignmentAccordionItem({
                   <div className="w-[30%]">
                     {submission[index].submission?.submissionTime && (
                       <div className="flex w-full justify-center font-normal text-[#8A8A8A]">
+                        Last Submission :{' '}
                         {dateFormatter(
                           submission[index].submission.submissionTime,
                           'MMM D, HH:mm:ss'
