@@ -104,6 +104,7 @@ export default function Page({
                 )}
               </FormSection>
 
+              {/* NOTE: 최근 기획에서 해당기능을 없애기로 했는데, 혹시 revert할까봐 주석처리해놨어요 */}
               {/* <SwitchField
                 name="autoFinalizeScore"
                 title="Automatically Finalize Score"
