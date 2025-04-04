@@ -2,7 +2,7 @@
 
 import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { inputStyle } from '../_libs/utils'
 import { ErrorMessage } from './ErrorMessage'
@@ -15,13 +15,22 @@ interface TitleFormProps {
 export function TitleForm({ placeholder, className }: TitleFormProps) {
   const {
     register,
-    formState: { errors }
+    formState: { errors },
+    watch,
+    setValue
   } = useFormContext()
+  // NOTE: Contest Title Form은 최대 길이 120 (Assignment 쪽도 피그마상 120으로 확인해서 우선 120으로 설정)
   const [inputCount, setInputCount] = useState(0)
 
-  const onInputHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputCount(e.target.value.length)
-  }
+  useEffect(() => {
+    const subscription = watch(
+      (value) => {
+        setInputCount(value.title?.length || 0)
+      },
+      { name: 'title' }
+    )
+    return () => subscription.unsubscribe()
+  }, [])
 
   return (
     <div className={cn(className, 'flex w-full flex-col')}>
@@ -34,10 +43,17 @@ export function TitleForm({ placeholder, className }: TitleFormProps) {
             inputStyle,
             'h-[36px] border-none px-4 placeholder:text-sm focus-visible:ring-0'
           )}
+          maxLength={120}
           {...register('title', {
             required: true
           })}
-          onChange={onInputHandler}
+          onChange={(e) => {
+            if (e.target.value.length > 120) {
+              e.preventDefault()
+              return
+            }
+            setValue('title', e.target.value)
+          }}
         />
         <span className="text-sm text-[#8A8A8A]">{inputCount}/120</span>
       </div>
