@@ -362,7 +362,7 @@ export class ContestService {
     const maxScore = sum._sum?.score ?? 0
 
     const scoreColumn = isFrozen ? 'score' : 'finalScore'
-    const totalPenaltyColumn = isFrozen ? 'finalTotalPenalty' : 'totalPenalty'
+    const totalPenaltyColumn = isFrozen ? 'totalPenalty' : 'finalTotalPenalty'
     const contestRecords = await this.prisma.contestRecord.findMany({
       where: {
         contestId
