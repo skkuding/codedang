@@ -4,7 +4,7 @@ import { HeaderAuthPanel } from '@/components/auth/HeaderAuthPanel'
 import { auth } from '@/libs/auth'
 import { fetcher, fetcherWithAuth, omitString } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
-import type { Assignment, Contest, ProblemDetail } from '@/types/type'
+import type { Assignment, Contest, ProblemDetail, Course } from '@/types/type'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -33,6 +33,7 @@ export async function EditorLayout({
   let assignment: Assignment | undefined
   let contest: Contest | undefined
   let problem: Required<ProblemDetail>
+  let courseName: string | undefined
 
   if (contestId) {
     // for getting contest info and problems list
@@ -50,21 +51,28 @@ export async function EditorLayout({
     contest = await fetcher(`contest/${contestId}`).json()
     contest && (contest.status = 'ongoing') // TODO: refactor this after change status interactively
   } else if (courseId && assignmentId) {
+    // for getting course info
+    const courseRes = await fetcherWithAuth(`course/${courseId}`)
+    if (courseRes.ok) {
+      const courseData = await courseRes.json<Omit<Course, 'description'>>()
+      courseName = courseData.groupName
+    }
+
     // for getting assignment info and problems list
-    const res = await fetcherWithAuth(
+    const assignmentRes = await fetcherWithAuth(
       `assignment/${assignmentId}/problem/${problemId}`,
       {
         searchParams: { groupId: courseId }
       }
     )
-    if (!res.ok && res.status === 403) {
+    if (!assignmentRes.ok && assignmentRes.status === 403) {
       redirect(
         `/course/${courseId}/assignment/${assignmentId}/finished/problem/${problemId}`
       )
     }
 
     const assignmentProblem =
-      await res.json<GetAssignmentProblemDetailResponse>()
+      await assignmentRes.json<GetAssignmentProblemDetailResponse>()
     problem = { ...assignmentProblem.problem, order: assignmentProblem.order }
 
     assignment = await fetcherWithAuth(`assignment/${assignmentId}`).json()
@@ -83,7 +91,13 @@ export async function EditorLayout({
             <Image src={codedangLogo} alt="코드당" width={33} />
           </Link>
           <div className="flex items-center gap-1 font-medium">
-            {renderHeaderContent({ contest, assignment, problem, courseId })}
+            {renderHeaderContent({
+              contest,
+              assignment,
+              problem,
+              courseId,
+              courseName
+            })}
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -104,17 +118,21 @@ export async function EditorLayout({
   )
 }
 
+interface HeaderContentProps {
+  contest?: Contest | undefined
+  assignment?: Assignment | undefined
+  courseId?: number | undefined
+  courseName?: string | undefined
+  problem: Required<ProblemDetail>
+}
+
 const renderHeaderContent = ({
   contest,
   assignment,
   problem,
-  courseId
-}: {
-  contest?: Contest | undefined
-  assignment?: Assignment | undefined
-  courseId?: number | undefined
-  problem: Required<ProblemDetail>
-}) => {
+  courseId,
+  courseName
+}: HeaderContentProps) => {
   if (contest) {
     return (
       <>
@@ -129,11 +147,11 @@ const renderHeaderContent = ({
         <ContestProblemDropdown problem={problem} contestId={contest.id} />
       </>
     )
-  } else if (assignment) {
+  } else if (assignment && courseName) {
     return (
       <>
         <Link href={`/course/${courseId}/assignment` as Route}>
-          <p>Assignment</p>
+          <p> {omitString({ targetString: courseName, maxlength: 20 })}</p>
         </Link>
         <p className="mx-2"> / </p>
         <Link href={`/course/${courseId}/assignment/${assignment.id}` as Route}>
