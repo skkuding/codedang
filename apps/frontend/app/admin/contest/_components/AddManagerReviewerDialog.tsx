@@ -45,7 +45,7 @@ interface UserResInterface {
   }
 }
 
-// TODO: Refactor 및 ui/ux 개발 안된것들 추후 변경하기
+// TODO: Refactor 및 ui/ux 개발 안된것들 추후 변경하기(배포직전 급하게 버그 발견으로 인한 크리티컬한 버그만 수정)
 export function AddManagerReviewerDialog({
   managers,
   setManagers
