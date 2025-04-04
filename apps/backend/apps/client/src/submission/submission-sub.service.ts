@@ -452,10 +452,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       (new Date(updateTime).getTime() - new Date(startTime).getTime()) / 60000
     )
     const isFreezed = freezeTime && updateTime > freezeTime
-    console.log('=== DEBUG ===')
-    console.log('freezetime: ', freezeTime)
-    console.log('updatetime: ', updateTime)
-    console.log('isFreezed: ', isFreezed)
 
     const contestProblemRecordData = {
       finalScore: score,
