@@ -138,13 +138,16 @@ export class SubmissionResolver {
    * @returns {string} 압축 파일을 다운로드 할 수 있는 URL
    */
   @Query(() => String, { nullable: true })
+  @UseGroupLeaderGuard()
   async compressSourceCodes(
+    @Args('groupId', { type: () => Int }) groupId: number,
     @Args('assignmentId', { type: () => Int })
     assignmentId: number,
     @Args('problemId', { type: () => Int }, new RequiredIntPipe('problemId'))
     problemId: number
   ): Promise<string> {
     return await this.submissionService.compressSourceCodes(
+      groupId,
       assignmentId,
       problemId
     )
