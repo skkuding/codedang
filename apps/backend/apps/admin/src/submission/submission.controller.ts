@@ -11,10 +11,8 @@ export class SubmissionController {
    * compressSourceCodes 메서드를 통해 압축된 zipFile을 스트리밍을 통해 다운로드 합니다.
    * filename은 압축된 zipFile의 이름으로 ${assignmentTitle}_${problemId}의 형식으로 저장됩니다.
    */
-  @Get('/download/:groupId/:filename')
-  @UseGroupLeaderGuard()
+  @Get('/download/:filename')
   async downloadCodes(
-    @Param('groupId') groupId: string,
     @Param('filename') filename: string,
     @Req() req: AuthenticatedRequest,
     @Res() res: Response
