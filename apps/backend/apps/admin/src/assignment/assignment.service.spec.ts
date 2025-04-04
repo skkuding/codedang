@@ -1,7 +1,11 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { SchedulerRegistry } from '@nestjs/schedule'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { AssignmentProblem, Group, AssignmentRecord } from '@generated'
+import {
+  AssignmentProblem,
+  Group,
+  AssignmentRecord,
+  AssignmentProblemRecord
+} from '@generated'
 import { Problem } from '@generated'
 import { Assignment } from '@generated'
 import { faker } from '@faker-js/faker'
@@ -223,10 +227,12 @@ const db = {
   },
   assignmentRecord: {
     findMany: stub().resolves([AssignmentRecord]),
-    create: stub().resolves(AssignmentRecord)
+    create: stub().resolves(AssignmentRecord),
+    count: stub().resolves(Number)
   },
   assignmentProblemRecord: {
-    createMany: stub().resolves([])
+    createMany: stub().resolves([]),
+    findMany: stub().resolves([AssignmentProblemRecord])
   },
   problem: {
     update: stub().resolves(Problem),
@@ -235,6 +241,9 @@ const db = {
   },
   group: {
     findUnique: stub().resolves(Group)
+  },
+  userGroup: {
+    count: stub().resolves(Number)
   },
   submission: {
     findMany: stub().resolves([submissionsWithProblemTitleAndUsername])
@@ -253,7 +262,6 @@ const db = {
 describe('AssignmentService', () => {
   let service: AssignmentService
   let cache: Cache
-  let schedulerRegistry: SchedulerRegistry
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -270,25 +278,13 @@ describe('AssignmentService', () => {
               keys: () => []
             }
           })
-        },
-        {
-          provide: SchedulerRegistry,
-          useValue: new SchedulerRegistry()
         }
       ]
     }).compile()
 
     service = module.get<AssignmentService>(AssignmentService)
     cache = module.get<Cache>(CACHE_MANAGER)
-    schedulerRegistry = module.get<SchedulerRegistry>(SchedulerRegistry)
     stub(cache.store, 'keys').resolves(['assignment:1:publicize'])
-  })
-
-  afterEach(() => {
-    schedulerRegistry.getCronJobs().forEach((job, key) => {
-      job.stop()
-      schedulerRegistry.deleteCronJob(key)
-    })
   })
 
   it('should be defined', () => {
@@ -385,6 +381,188 @@ describe('AssignmentService', () => {
       expect(
         service.importProblemsToAssignment(groupId, 9999, [problemIdsWithScore])
       ).to.be.rejectedWith(EntityNotExistException)
+    })
+  })
+
+  describe('getAssignmentScoreSummary', () => {
+    it('should return score summary', async () => {
+      db.assignmentProblem.findMany.resolves([assignmentProblem])
+      db.assignmentProblemRecord.findMany.resolves([
+        {
+          problemId,
+          score: 30,
+          finalScore: 25,
+          isSubmitted: true
+        }
+      ])
+
+      const summary = await service.getAssignmentScoreSummary(
+        userId,
+        assignmentId
+      )
+
+      expect(summary).to.deep.equal({
+        submittedProblemCount: 1,
+        totalProblemCount: 1,
+        userAssignmentScore: 30,
+        assignmentPerfectScore: 50,
+        userAssignmentFinalScore: 25,
+        problemScores: [
+          {
+            problemId,
+            score: 30,
+            maxScore: 50,
+            finalScore: 25
+          }
+        ]
+      })
+    })
+
+    it('should handle finalScore as null', async () => {
+      db.assignmentProblem.findMany.resolves([assignmentProblem])
+      db.assignmentProblemRecord.findMany.resolves([
+        {
+          problemId,
+          score: 40,
+          finalScore: null,
+          isSubmitted: true
+        }
+      ])
+
+      const summary = await service.getAssignmentScoreSummary(
+        userId,
+        assignmentId
+      )
+
+      expect(summary).to.deep.equal({
+        submittedProblemCount: 1,
+        totalProblemCount: 1,
+        userAssignmentScore: 40,
+        assignmentPerfectScore: 50,
+        userAssignmentFinalScore: 0,
+        problemScores: [
+          {
+            problemId,
+            score: 40,
+            maxScore: 50,
+            finalScore: null
+          }
+        ]
+      })
+    })
+
+    it('should handle no submitted problems', async () => {
+      db.assignmentProblem.findMany.resolves([assignmentProblem])
+      db.assignmentProblemRecord.findMany.resolves([
+        {
+          problemId,
+          score: 0,
+          finalScore: null,
+          isSubmitted: false
+        }
+      ])
+
+      const summary = await service.getAssignmentScoreSummary(
+        userId,
+        assignmentId
+      )
+
+      expect(summary).to.deep.equal({
+        submittedProblemCount: 0,
+        totalProblemCount: 1,
+        userAssignmentScore: 0,
+        assignmentPerfectScore: 50,
+        userAssignmentFinalScore: 0,
+        problemScores: [
+          {
+            problemId,
+            score: 0,
+            maxScore: 50,
+            finalScore: null
+          }
+        ]
+      })
+    })
+
+    it('should handle user with no records', async () => {
+      db.assignmentProblem.findMany.resolves([assignmentProblem])
+      db.assignmentProblemRecord.findMany.resolves([])
+
+      const summary = await service.getAssignmentScoreSummary(
+        userId,
+        assignmentId
+      )
+
+      expect(summary).to.deep.equal({
+        submittedProblemCount: 0,
+        totalProblemCount: 1,
+        userAssignmentScore: 0,
+        assignmentPerfectScore: 50,
+        userAssignmentFinalScore: 0,
+        problemScores: []
+      })
+    })
+  })
+
+  describe('getAssignmentScoreSummaries', () => {
+    it('should return list of users with their score summaries', async () => {
+      db.assignment.findUnique.resolves(assignment)
+      db.userGroup.count.resolves(10)
+      db.assignmentRecord.count.resolves(10)
+
+      db.assignmentRecord.findMany.resolves([
+        {
+          userId,
+          user: {
+            username: 'user01',
+            studentId: '1234567890',
+            userProfile: {
+              realName: '홍길동'
+            },
+            major: 'CS'
+          }
+        }
+      ])
+      db.assignmentProblem.findMany.resolves([assignmentProblem])
+      db.assignmentProblemRecord.findMany.resolves([
+        {
+          userId,
+          problemId,
+          score: 50,
+          finalScore: 45,
+          isSubmitted: true
+        }
+      ])
+
+      const summaries = await service.getAssignmentScoreSummaries(
+        assignmentId,
+        groupId,
+        10,
+        null
+      )
+
+      expect(summaries).to.deep.equal([
+        {
+          userId,
+          username: 'user01',
+          studentId: '1234567890',
+          realName: '홍길동',
+          major: 'CS',
+          submittedProblemCount: 1,
+          totalProblemCount: 1,
+          userAssignmentScore: 50,
+          assignmentPerfectScore: 50,
+          userAssignmentFinalScore: 45,
+          problemScores: [
+            {
+              problemId,
+              score: 50,
+              maxScore: 50,
+              finalScore: 45
+            }
+          ]
+        }
+      ])
     })
   })
 

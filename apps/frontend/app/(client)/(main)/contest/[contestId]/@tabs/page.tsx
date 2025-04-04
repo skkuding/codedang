@@ -1,4 +1,5 @@
 import { ContestStatusTimeDiff } from '@/components/ContestStatusTimeDiff'
+import { KatexContent } from '@/components/KatexContent'
 import {
   Accordion,
   AccordionContent,
@@ -49,6 +50,7 @@ export interface ContestTop {
   status: ContestStatus
   participants: number
   isRegistered: boolean
+  isPrivilegedRole: boolean
   invitationCodeExists: boolean
   prev: null | {
     id: number
@@ -182,6 +184,7 @@ export default async function ContestTop({
                   state={state}
                   title={data.title}
                   invitationCodeExists={data.invitationCodeExists}
+                  disabled={data.isPrivilegedRole}
                 />
               )}
             </div>
@@ -194,7 +197,7 @@ export default async function ContestTop({
             More Description
           </AccordionTrigger>
           <AccordionContent className="pb-8 text-base text-[#00000080]">
-            {description}
+            <KatexContent content={description} />
           </AccordionContent>
         </AccordionItem>
       </Accordion>
@@ -208,6 +211,7 @@ export default async function ContestTop({
               state={state}
               isRegistered={data.isRegistered}
               problemData={problemData}
+              isPrivilegedRole={data.isPrivilegedRole}
             />
           </AccordionContent>
         </AccordionItem>

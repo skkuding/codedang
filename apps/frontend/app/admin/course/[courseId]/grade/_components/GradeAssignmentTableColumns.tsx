@@ -1,7 +1,7 @@
 'use client'
 
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
-import { dateFormatter } from '@/libs/utils'
+import { formatDateRange } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 
 export interface DataTableGrade {
@@ -50,9 +50,13 @@ export const columns: ColumnDef<DataTableGrade>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <p className="overflow-hidden whitespace-nowrap text-center font-normal">
-        {`${dateFormatter(row.original.startTime, 'YY-MM-DD HH:mm')} ~ ${dateFormatter(row.original.endTime, 'YY-MM-DD HH:mm')}`}
-      </p>
+      <div className="flex justify-center">
+        <div className="max-w-[270px] flex-1 text-left">
+          <p className="overflow-hidden whitespace-nowrap">
+            {formatDateRange(row.original.startTime, row.original.endTime)}
+          </p>
+        </div>
+      </div>
     ),
     size: 250
   }

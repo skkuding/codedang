@@ -36,7 +36,7 @@ export const columns: ColumnDef<ContestAnnouncement>[] = [
     header: () => 'Date',
     accessorKey: 'createTime',
     cell: ({ row }) => (
-      <div className="text-[#808080]">
+      <div className="text-base text-[#808080]">
         {dateFormatter(row.original.createTime, 'YYYY-MM-DD HH:mm')}
       </div>
     )

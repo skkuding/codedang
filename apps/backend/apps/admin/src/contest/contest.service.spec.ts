@@ -200,7 +200,6 @@ const input = {
 } satisfies CreateContestInput
 
 const updateInput = {
-  id: 1,
   title: 'test title10',
   description: 'test description',
   startTime: faker.date.past(),
@@ -343,7 +342,7 @@ describe('ContestService', () => {
       db.contest.findUniqueOrThrow.resolves(contest)
       db.contest.update.resolves(contest)
 
-      const res = await service.updateContest(updateInput)
+      const res = await service.updateContest(1, updateInput)
       expect(res).to.deep.equal(contest)
     })
   })

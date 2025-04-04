@@ -13,7 +13,7 @@ import {
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
-import { GET_USERS } from '@/graphql/user/queries'
+import { GET_USERS_SET_MANAGER } from '@/graphql/user/queries'
 import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { useRouter } from 'next/navigation'
@@ -47,7 +47,7 @@ export function EditContestForm({
   const { setShouldSkipWarning } = useConfirmNavigationContext()
   const router = useRouter()
 
-  const { data: userData } = useSuspenseQuery(GET_USERS, {
+  const { data: userData } = useSuspenseQuery(GET_USERS_SET_MANAGER, {
     variables: {
       take: 5000
     }
@@ -76,7 +76,6 @@ export function EditContestForm({
     onCompleted: (contestData) => {
       const data = contestData.getContest
       methods.reset({
-        id: contestId,
         title: data.title,
         description: data.description,
         startTime: new Date(data.startTime),
@@ -157,6 +156,7 @@ export function EditContestForm({
     setIsLoading(true)
     await updateContest({
       variables: {
+        contestId,
         input
       }
     })

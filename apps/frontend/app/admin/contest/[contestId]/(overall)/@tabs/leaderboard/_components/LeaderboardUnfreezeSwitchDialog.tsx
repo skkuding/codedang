@@ -30,26 +30,25 @@ export function LeaderboardUnfreezeSwitchDialog({
 
   const toggleUnfreeze = async () => {
     try {
-      // 콘테스트가 끝난다음 기능하는 부분임 -> 콘테스트 끝난다음 동작하는지 확인해야함
-      console.log('contestId: ', contestId, ' unfreeze?: ', isUnfrozen)
-      const res = await updateContest({
+      await updateContest({
         variables: {
+          contestId,
           input: {
-            id: contestId,
             unfreeze: !isUnfrozen
           }
         }
       })
-      console.log('res: ', res)
     } catch (err) {
       console.error('Error updating contest:', err)
     }
   }
+
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Switch
-          checked={!isUnfrozen}
+          disabled={isUnfrozen}
+          checked={isUnfrozen}
           className={`h-[24px] w-[46px] aria-checked:bg-[#3581FA] ${!activated ? 'aria-[checked=false]:bg-[#C4C4C4]' : 'aria-[checked=false]:bg-[#80808014]'} `}
           thumbClassName="w-[18px] h-[18px] data-[state=checked]:translate-x-[22px] data-[state=unchecked]:translate-x-[2px]"
         />

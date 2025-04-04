@@ -74,7 +74,9 @@ export default function Page({ params }: { params: { contestId: string } }) {
             methods={methods}
           >
             <div className="flex justify-between gap-[26px]">
-              <PosterUploadForm name="posterUrl" />
+              {methods.getValues('posterUrl') !== undefined && (
+                <PosterUploadForm name="posterUrl" />
+              )}
 
               <div className="flex flex-col justify-between">
                 <FormSection title="Title">
@@ -82,13 +84,11 @@ export default function Page({ params }: { params: { contestId: string } }) {
                 </FormSection>
                 <FormSection title="Start Time">
                   {methods.getValues('startTime') && (
-                    <TimeForm isContest name="startTime" />
+                    <TimeForm name="startTime" />
                   )}
                 </FormSection>
                 <FormSection title="End Time">
-                  {methods.getValues('endTime') && (
-                    <TimeForm isContest name="endTime" />
-                  )}
+                  {methods.getValues('endTime') && <TimeForm name="endTime" />}
                 </FormSection>
 
                 {methods.getValues('freezeTime') !== undefined && (
@@ -102,23 +102,17 @@ export default function Page({ params }: { params: { contestId: string } }) {
               </div>
             </div>
 
-            <FormSection
-              title="Summary"
-              isContest
-              isLabeled={false}
-              isFlexColumn
-            >
+            <FormSection title="Summary" isLabeled={false} isFlexColumn>
               <SummaryForm name="summary" />
             </FormSection>
 
             <FormSection
               title="More Description"
-              isContest
               isLabeled={false}
               isFlexColumn={true}
             >
               {methods.getValues('description') !== undefined && (
-                <DescriptionForm name="description" isContest />
+                <DescriptionForm name="description" />
               )}
             </FormSection>
 

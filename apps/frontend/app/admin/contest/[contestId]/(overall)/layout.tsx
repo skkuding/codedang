@@ -37,9 +37,9 @@ export default function Layout({
           <span className="text-4xl font-bold">{contestData?.title}</span>
         </div>
         <Link href={`/admin/contest/${contestId}/edit`}>
-          <Button variant="default">
+          <Button variant="default" className="h-[50px] w-[120px]">
             <FaPencil className="mr-2 h-4 w-4" />
-            Edit
+            <p className="text-lg font-semibold">Edit</p>
           </Button>
         </Link>
       </div>

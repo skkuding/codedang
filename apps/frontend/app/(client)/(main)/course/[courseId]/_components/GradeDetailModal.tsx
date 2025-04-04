@@ -13,11 +13,12 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/shadcn/dialog'
-import type { Assignment, AssignmentProblemRecord } from '@/types/type'
+import type { Assignment } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { MdArrowForwardIos } from 'react-icons/md'
 import { Bar, CartesianGrid, XAxis, BarChart, YAxis } from 'recharts'
+import { toast } from 'sonner'
 
 const chartConfig = {
   count: {
@@ -27,7 +28,7 @@ const chartConfig = {
 
 interface GradeDetailModalProps {
   assignment: Assignment
-  courseId: string
+  courseId: number
 }
 
 export function GradeDetailModal({
@@ -36,18 +37,23 @@ export function GradeDetailModal({
 }: GradeDetailModalProps) {
   const { data } = useSuspenseQuery(
     assignmentSubmissionQueries.anonymizedScores({
-      assignmentId: assignment.id.toString(),
+      assignmentId: assignment.id,
       courseId
     })
   )
 
-  const { data: AssignmentProblemRecord } = useSuspenseQuery({
-    ...assignmentQueries.record({ assignmentId: assignment.id.toString() })
+  const { data: assignmentProblemRecord } = useSuspenseQuery({
+    ...assignmentQueries.record({
+      assignmentId: assignment.id,
+      courseId
+    })
   })
 
-  const maxScore = AssignmentProblemRecord.assignmentPerfectScore
-  const mySubmittedScore = AssignmentProblemRecord.userAssignmentJudgeScore
-  const myGradedScore = AssignmentProblemRecord.userAssignmentFinalScore
+  const isAssignmentProblemRecordValid = Boolean(assignmentProblemRecord)
+
+  const maxScore = assignmentProblemRecord?.assignmentPerfectScore
+  const mySubmittedScore = assignmentProblemRecord?.userAssignmentJudgeScore
+  const myGradedScore = assignmentProblemRecord?.userAssignmentFinalScore
 
   // 점수 데이터를 기반으로 히스토그램 데이터 생성
   const generateChartData = useCallback(
@@ -104,17 +110,22 @@ export function GradeDetailModal({
 
   const chartData = useMemo(() => {
     if (finalScores.length > 0) {
-      return generateChartData(finalScores, maxScore)
+      return generateChartData(finalScores, maxScore ?? 0)
     }
-    return generateChartData(scores, maxScore)
+    return generateChartData(scores, maxScore ?? 0)
   }, [finalScores, scores, maxScore, generateChartData])
 
   const scoresStats = useMemo(() => calculateStatistics(scores), [scores])
   const finalScoresStats = useMemo(() => {
-    return AssignmentProblemRecord.autoFinalizeScore
+    return assignmentProblemRecord?.autoFinalizeScore
       ? calculateStatistics(scores)
       : calculateStatistics(finalScores)
-  }, [finalScores, AssignmentProblemRecord.autoFinalizeScore, scores])
+  }, [finalScores, assignmentProblemRecord?.autoFinalizeScore, scores])
+
+  if (!isAssignmentProblemRecordValid) {
+    toast.error('Cannot Load Assignment Information')
+    return null
+  }
 
   return (
     <DialogContent
@@ -158,7 +169,7 @@ export function GradeDetailModal({
               </tr>
             </thead>
             <tbody>
-              {!AssignmentProblemRecord.isFinalScoreVisible && (
+              {!assignmentProblemRecord?.isFinalScoreVisible && (
                 <tr className="text-gray-500">
                   <td className="bg-primary-light w-[80px] px-2 py-2 text-xs text-white">
                     Submitted
@@ -180,11 +191,11 @@ export function GradeDetailModal({
                   </td>
                 </tr>
               )}
-              {AssignmentProblemRecord.isFinalScoreVisible && (
+              {assignmentProblemRecord?.isFinalScoreVisible && (
                 <tr className="text-gray-500">
                   <td className="bg-primary-light flex w-[80px] flex-col items-center rounded-bl-md px-2 py-2 text-xs text-white">
                     Graded
-                    {AssignmentProblemRecord.autoFinalizeScore && (
+                    {assignmentProblemRecord.autoFinalizeScore && (
                       <span className="text-primary mt-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium shadow-sm">
                         Auto
                       </span>

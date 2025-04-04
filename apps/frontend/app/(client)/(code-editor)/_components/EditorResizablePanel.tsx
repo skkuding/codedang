@@ -7,18 +7,27 @@ import {
   ResizablePanel,
   ResizablePanelGroup
 } from '@/components/shadcn/resizable'
-import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/shadcn/tooltip'
+import { fetcherWithAuth } from '@/libs/utils'
 import { cn } from '@/libs/utils'
+import bottomCenterIcon from '@/public/icons/bottom-center.svg'
 import syncIcon from '@/public/icons/sync.svg'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
-import type { ProblemDetail } from '@/types/type'
+import type { ProblemDetail, Contest } from '@/types/type'
+import { useQuery } from '@tanstack/react-query'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
-import { FaArrowRight, FaArrowLeft } from 'react-icons/fa6'
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import Loading from '../problem/[problemId]/loading'
 import { EditorHeader } from './EditorHeader/EditorHeader'
 import { LeaderboardModalDialog } from './LeaderboardModalDialog'
@@ -44,8 +53,42 @@ export function EditorMainResizablePanel({
   enableCopyPaste = true,
   children
 }: ProblemEditorProps) {
-  const [isPanelHidden, setIsPanelHidden] = useState(false)
+  const fetchFreezeTime = async (contestId: number | undefined) => {
+    const res: Contest = await fetcherWithAuth
+      .get(`contest/${contestId}`)
+      .json()
+    const freezeTime = res.freezeTime
+
+    return freezeTime
+  }
+
+  const freezeQueryKey = contestId
+    ? ['leaderboard freeze date', contestId]
+    : ['leaderboard freeze date', 'no-contest']
+
+  const { data: freezeTime } = useQuery({
+    queryKey: freezeQueryKey,
+    queryFn: () => {
+      if (!contestId) {
+        return Promise.resolve(null)
+      }
+      return fetchFreezeTime(contestId)
+    }
+  })
+  const [isFrozen, setIsFrozen] = useState<boolean>(true)
+  useEffect(() => {
+    if (!contestId) {
+      return
+    }
+    const now = new Date()
+    const freezeTimeDate = freezeTime ? new Date(freezeTime) : new Date(0)
+    setIsFrozen(now > freezeTimeDate)
+  }, [freezeTime, contestId])
+
+  const [isSidePanelHidden, setIsSidePanelHidden] = useState(false)
+  const [isBottomPanelHidden, setIsBottomPanelHidden] = useState(false)
   const triggerRefresh = useLeaderboardSync((state) => state.triggerRefresh)
+
   const pathname = usePathname()
   let base: string
   if (contestId) {
@@ -89,7 +132,7 @@ export function EditorMainResizablePanel({
       <ResizablePanel
         defaultSize={35}
         style={{ minWidth: '500px' }}
-        className={cn(isPanelHidden && 'hidden')}
+        className={cn(isSidePanelHidden && 'hidden')}
         minSize={20}
       >
         <div className="grid-rows-editor grid h-full grid-cols-1">
@@ -135,12 +178,35 @@ export function EditorMainResizablePanel({
             {tabValue === 'Leaderboard' ? (
               <div className="flex gap-x-4">
                 <LeaderboardModalDialog />
-                <Image
-                  src={syncIcon}
-                  alt="Sync"
-                  className="cursor-pointer"
-                  onClick={triggerRefresh}
-                />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Image
+                        src={syncIcon}
+                        alt="Sync"
+                        className={isFrozen ? '' : 'cursor-pointer'}
+                        onClick={() => {
+                          if (!isFrozen) {
+                            triggerRefresh()
+                          }
+                        }}
+                      />
+                    </TooltipTrigger>
+                    {isFrozen && (
+                      <TooltipContent
+                        side="bottom"
+                        className="mt-1 flex h-[29px] w-[145px] items-center justify-center"
+                      >
+                        <Image
+                          src={bottomCenterIcon}
+                          alt="Tooltip arrow"
+                          className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform"
+                        />
+                        <p className="text-xs">Leaderboard is frozen</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             ) : null}
           </div>
@@ -153,35 +219,16 @@ export function EditorMainResizablePanel({
       <ResizableHandle
         className={cn(
           'border-[0.5px] border-slate-700',
-          isPanelHidden && 'hidden'
+          isSidePanelHidden && 'hidden'
         )}
       />
 
       <ResizablePanel defaultSize={65} className="relative bg-[#222939]">
-        <Button
-          className={cn(
-            'group',
-            'absolute left-0 top-1/2 z-10 h-[24px] w-[29px] rounded rounded-l-none border border-l-0 p-0',
-            'border-[#3E4250] bg-[#292E3D]',
-            'hover:border-[#1F3D74] hover:bg-[#192C52]',
-            'active:border-[#25519C] active:bg-[#234B91]'
-          )}
-          onClick={() => {
-            setIsPanelHidden(!isPanelHidden)
-          }}
-        >
-          {isPanelHidden ? (
-            <FaArrowRight
-              className="text-[#AAB1B2] group-hover:text-[#619CFB] group-active:text-[#619CFB]"
-              size={15}
-            />
-          ) : (
-            <FaArrowLeft
-              className="text-[#AAB1B2] group-hover:text-[#619CFB] group-active:text-[#619CFB]"
-              size={15}
-            />
-          )}
-        </Button>
+        <HidePanelButton
+          isPanelHidden={isSidePanelHidden}
+          setIsPanelHidden={setIsSidePanelHidden}
+          direction="horizontal"
+        />
         <div className="grid-rows-editor grid h-full">
           <TestcaseStoreProvider
             problemId={problem.id}
@@ -201,21 +248,25 @@ export function EditorMainResizablePanel({
               <ResizablePanelGroup direction="vertical" className="h-32">
                 <ResizablePanel
                   defaultSize={60}
-                  className="!overflow-x-auto !overflow-y-auto"
+                  className="relative !overflow-x-auto !overflow-y-auto"
                 >
-                  <ScrollArea className="h-full bg-[#121728]">
-                    <CodeEditorInEditorResizablePanel
-                      problemId={problem.id}
-                      contestId={contestId}
-                      assignmentId={assignmentId}
-                      enableCopyPaste={enableCopyPaste}
-                    />
-                    <ScrollBar orientation="horizontal" />
-                    <ScrollBar orientation="vertical" />
-                  </ScrollArea>
+                  <HidePanelButton
+                    isPanelHidden={isBottomPanelHidden}
+                    setIsPanelHidden={setIsBottomPanelHidden}
+                    direction="vertical"
+                  />
+                  <CodeEditorInEditorResizablePanel
+                    problemId={problem.id}
+                    contestId={contestId}
+                    assignmentId={assignmentId}
+                    enableCopyPaste={enableCopyPaste}
+                  />
                 </ResizablePanel>
                 <ResizableHandle className="border-[0.5px] border-slate-700" />
-                <ResizablePanel defaultSize={40}>
+                <ResizablePanel
+                  defaultSize={40}
+                  className={cn(isBottomPanelHidden && 'hidden')}
+                >
                   <TestcasePanel />
                 </ResizablePanel>
               </ResizablePanelGroup>
@@ -249,8 +300,71 @@ function CodeEditorInEditorResizablePanel({
       language={language}
       onChange={setCode}
       enableCopyPaste={enableCopyPaste}
-      height="100%"
-      className="h-full"
+      showZoom
     />
+  )
+}
+
+interface HidePanelButtonProps {
+  isPanelHidden: boolean
+  setIsPanelHidden: (isPanelHidden: boolean) => void
+  direction: 'horizontal' | 'vertical'
+}
+
+function HidePanelButton({
+  isPanelHidden,
+  setIsPanelHidden,
+  direction
+}: HidePanelButtonProps) {
+  return (
+    <div
+      className={cn(
+        direction === 'horizontal'
+          ? '-left-2 top-[40%] h-[89px] w-[29px] px-[1px] py-[2px]'
+          : '-bottom-2 left-1/2 h-[29px] w-[121px] px-[2px] py-[1px]',
+        'absolute z-20 inline-block bg-[#4C5565]',
+        direction === 'horizontal'
+          ? '[clip-path:polygon(0%_0%,100%_17%,100%_83%,0%_100%)]'
+          : '[clip-path:polygon(17%_0%,83%_0%,100%_100%,0%_100%)]'
+      )}
+    >
+      <Button
+        className={cn(
+          'group',
+          direction === 'horizontal'
+            ? 'h-[85px] w-[27px]'
+            : 'h-[27px] w-[117px]',
+          'bg-[#292E3D] p-0',
+          'hover:border-[#1F3D74] hover:bg-[#192C52]',
+          'active:border-[#25519C] active:bg-[#234B91]',
+          direction === 'horizontal'
+            ? '[clip-path:polygon(0%_0%,100%_16%,100%_84%,0%_100%)]'
+            : '[clip-path:polygon(16%_0%,84%_0%,100%_100%,0%_100%)]'
+        )}
+        onClick={() => {
+          setIsPanelHidden(!isPanelHidden)
+        }}
+      >
+        {isPanelHidden ? (
+          <FiChevronRight
+            className={cn(
+              'text-[#AAB1B2] group-hover:text-[#619CFB] group-active:text-[#619CFB]',
+              direction === 'vertical' && '-rotate-90',
+              direction === 'vertical' ? 'mb-1' : 'ml-1'
+            )}
+            size={20}
+          />
+        ) : (
+          <FiChevronLeft
+            className={cn(
+              'text-[#AAB1B2] group-hover:text-[#619CFB] group-active:text-[#619CFB]',
+              direction === 'vertical' && '-rotate-90',
+              direction === 'vertical' ? 'mb-1' : 'ml-1'
+            )}
+            size={20}
+          />
+        )}
+      </Button>
+    </div>
   )
 }

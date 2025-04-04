@@ -3,7 +3,7 @@
 import { useWindowSize } from '@/libs/hooks/useWindowSize'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { useState, useEffect, useRef, useCallback } from 'react'
-import type { LeaderboardUser } from '../_libs/apis/getContesLeaderboard'
+import type { LeaderboardUser } from '../_libs/apis/getContestLeaderboard'
 import { countSolved } from '../_libs/utils'
 import { LeaderboardRow } from './LeaderboardRow'
 import { LeaderboardSolvedList } from './LeaderboardSolvedList'

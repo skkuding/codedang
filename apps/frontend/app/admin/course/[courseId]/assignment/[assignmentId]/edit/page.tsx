@@ -44,7 +44,7 @@ export default function Page({
   return (
     <ConfirmNavigation>
       <ScrollArea className="w-full">
-        <main className="flex flex-col gap-6 px-20 py-16">
+        <main className="flex flex-col gap-6 px-[93px] py-[80px]">
           <div className="flex items-center gap-4">
             <Link href={`/admin/course/${courseId}/assignment` as Route}>
               <FaAngleLeft className="h-12" />
@@ -60,76 +60,98 @@ export default function Page({
             setIsLoading={setIsLoading}
             methods={methods}
           >
-            <FormSection isFlexColumn title="Title">
-              <TitleForm placeholder="Name your assignment" />
-            </FormSection>
-
-            <div className="flex gap-6">
-              <FormSection isFlexColumn title="Start Time">
-                {methods.getValues('startTime') && (
-                  <TimeForm name="startTime" />
-                )}
-              </FormSection>
-              <FormSection isFlexColumn title="End Time">
-                {methods.getValues('endTime') && <TimeForm name="endTime" />}
+            <div className="flex w-[901px] flex-col gap-[28px]">
+              <FormSection title="Title">
+                <TitleForm
+                  placeholder="Name your Assignment"
+                  className="max-w-[767px]"
+                />
               </FormSection>
 
-              <FormSection isFlexColumn title="Week">
+              <FormSection
+                title="Week"
+                isJustifyBetween={false}
+                className="gap-[67px]"
+              >
                 {methods.getValues('week') && (
                   <WeekComboBox name="week" courseId={Number(courseId)} />
                 )}
               </FormSection>
-            </div>
 
-            <FormSection isFlexColumn title="Description">
-              {methods.getValues('description') && (
-                <DescriptionForm name="description" />
-              )}
-            </FormSection>
-
-            <SwitchField
-              name="enableCopyPaste"
-              title="Enable participants Copy/Pasting"
-              hasValue={methods.getValues('enableCopyPaste') || false}
-            />
-
-            <SwitchField
-              name="isJudgeResultVisible"
-              title="Reveal raw scores to participants"
-              hasValue={methods.getValues('isJudgeResultVisible') || false}
-            />
-
-            <SwitchField
-              name="autoFinalizeScore"
-              title="Automatically Finalize Score"
-              hasValue={methods.getValues('autoFinalizeScore') || false}
-              tooltip={true}
-            >
-              <p className="text-xs font-normal text-black">
-                Automatically Finalize Score (No Manual Review)
-              </p>
-            </SwitchField>
-
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center justify-between">
-                <AssignmentProblemListLabel />
-                <ImportDialog problems={problems} setProblems={setProblems} />
+              <div className="flex justify-between">
+                <FormSection
+                  title="Start Time"
+                  isJustifyBetween={false}
+                  className="gap-[27px]"
+                >
+                  {methods.getValues('startTime') && (
+                    <TimeForm name="startTime" />
+                  )}
+                </FormSection>
+                <FormSection
+                  title="End Time"
+                  isJustifyBetween={false}
+                  className="gap-[71px]"
+                  isLabeled={false}
+                >
+                  {methods.getValues('endTime') && <TimeForm name="endTime" />}
+                </FormSection>
               </div>
-              <AssignmentProblemTable
-                problems={problems}
-                setProblems={setProblems}
-                disableInput={false}
-              />
-            </div>
 
-            <Button
-              type="submit"
-              className="flex h-[36px] w-[90px] items-center gap-2 px-0"
-              disabled={isLoading}
-            >
-              <IoIosCheckmarkCircle fontSize={20} />
-              <div className="text-base">Edit</div>
-            </Button>
+              <FormSection isFlexColumn title="Description">
+                {methods.getValues('description') && (
+                  <DescriptionForm name="description" />
+                )}
+              </FormSection>
+
+              {/* NOTE: 최근 기획에서 해당기능을 없애기로 했는데, 혹시 revert할까봐 주석처리해놨어요 */}
+              {/* <SwitchField
+                name="autoFinalizeScore"
+                title="Automatically Finalize Score"
+                hasValue={methods.getValues('autoFinalizeScore') || false}
+                tooltip={true}
+              >
+                <p className="text-xs font-normal text-black">
+                  Automatically Finalize Score (No Manual Review)
+                </p>
+              </SwitchField> */}
+
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <AssignmentProblemListLabel />
+                  <ImportDialog problems={problems} setProblems={setProblems} />
+                </div>
+                <AssignmentProblemTable
+                  problems={problems}
+                  setProblems={setProblems}
+                  disableInput={false}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1 rounded-md border bg-white p-[20px]">
+                <SwitchField
+                  name="enableCopyPaste"
+                  title="Enable Participants Copy/Pasting"
+                  hasValue={methods.getValues('enableCopyPaste') || false}
+                />
+
+                <SwitchField
+                  name="isJudgeResultVisible"
+                  title="Reveal Hidden Testcase Result"
+                  description="이걸 끄면 학생들이 Hidden 테케의 결과를 확인할 수 없어요"
+                  hasValue={methods.getValues('isJudgeResultVisible') || false}
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="flex h-[36px] w-full items-center gap-2 px-0"
+                disabled={isLoading}
+              >
+                <IoIosCheckmarkCircle fontSize={20} />
+                <div className="mb-[2px] text-base">Edit</div>
+              </Button>
+            </div>
           </EditAssignmentForm>
         </main>
       </ScrollArea>

@@ -8,16 +8,25 @@ import {
   AccordionTrigger
 } from '@/components/shadcn/accordion'
 import { Dialog } from '@/components/shadcn/dialog'
-import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
+import { UNLIMITED_DATE } from '@/libs/constants'
+import {
+  cn,
+  convertToLetter,
+  dateFormatter,
+  formatDateRange
+} from '@/libs/utils'
 import type {
   Assignment,
   AssignmentStatus,
-  AssignmentSummary
+  AssignmentSummary,
+  ProblemGrade
 } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { FaCircleCheck } from 'react-icons/fa6'
 import { useInterval } from 'react-use'
 import { AssignmentLink } from './AssignmentLink'
 import { DetailButton } from './DetailButton'
@@ -25,7 +34,7 @@ import { GradeDetailModal } from './GradeDetailModal'
 import { SubmissionDetailModal } from './SubmissionDetailModal'
 
 interface AssignmentAccordianProps {
-  courseId: string
+  courseId: number
 }
 
 export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
@@ -61,7 +70,7 @@ export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
 
 interface AssignmentAccordionItemProps {
   assignment: Assignment
-  courseId: string
+  courseId: number
   grade: AssignmentSummary
 }
 
@@ -75,7 +84,10 @@ function AssignmentAccordionItem({
   const [openProblemId, setOpenProblemId] = useState<number | null>(null)
 
   const { data: record } = useQuery({
-    ...assignmentQueries.record({ assignmentId: assignment.id.toString() }),
+    ...assignmentQueries.record({
+      assignmentId: assignment.id,
+      courseId
+    }),
     enabled: isAccordionOpen
   })
 
@@ -94,17 +106,20 @@ function AssignmentAccordionItem({
       className="w-full"
       onValueChange={handleAccordionOpenChange}
     >
-      <AccordionItem value={assignment.id.toString()} className="border-b-0">
+      <AccordionItem
+        value={assignment.id.toString()}
+        className="group border-b-0"
+      >
         <AccordionTrigger
           className={cn(
-            'mt-4 flex w-full items-center rounded-2xl bg-white px-8 py-5 text-left text-sm shadow-md',
-            'data-[state=open]:-mb-6',
+            'mt-[14px] flex w-full items-center rounded-2xl bg-white px-8 py-5 text-left text-sm shadow-md',
+            'data-[state=open]:-mb-6 data-[state=open]:mt-[24px]',
             'relative',
             'hover:no-underline'
           )}
           iconStyle="w-5 h-5 absolute right-[3%]"
         >
-          <p className="text-primary w-[7%] text-center font-normal">
+          <p className="text-primary mr-3 w-[7%] text-left font-normal">
             [Week {assignment.week}]
           </p>
           <div className="flex w-[30%] flex-col">
@@ -116,19 +131,29 @@ function AssignmentAccordionItem({
             {assignment && <AssignmentStatusTimeDiff assignment={assignment} />}
           </div>
           {assignment && (
-            <p className="w-[30%] font-normal text-[#8A8A8A]">
-              {dateFormatter(assignment.startTime, 'MMM D, HH:mm:ss')} {'-'}{' '}
-              {dateFormatter(assignment.endTime, 'MMM D, HH:mm:ss')}
-            </p>
+            <div className="flex w-[30%] justify-center">
+              <div className="max-w-[200px] flex-1 text-left">
+                <p className="overflow-hidden whitespace-nowrap font-normal text-[#8A8A8A]">
+                  {formatDateRange(
+                    assignment.startTime,
+                    assignment.endTime,
+                    false
+                  )}
+                </p>
+              </div>
+            </div>
           )}
           <div className="flex w-[13%] justify-center">
-            {assignment.startTime < new Date() ? (
+            {dayjs().isAfter(dayjs(assignment.startTime)) ? (
               <SubmissionBadge grade={grade} />
             ) : null}
           </div>
 
           <div className="flex w-[10%] justify-center gap-1 font-medium">
-            {grade.userAssignmentFinalScore ?? grade.userAssignmentJudgeScore}
+            {grade.submittedCount > 0 &&
+            dayjs().isAfter(dayjs(assignment.endTime))
+              ? (grade.userAssignmentFinalScore ?? '-')
+              : '-'}
             {` / ${grade.assignmentPerfectScore}`}
           </div>
           <div className="flex w-[5%] justify-center">
@@ -138,7 +163,8 @@ function AssignmentAccordionItem({
             >
               <DetailButton
                 isActivated={
-                  assignment.isJudgeResultVisible &&
+                  (assignment.isJudgeResultVisible ||
+                    (record?.isFinalScoreVisible ?? false)) &&
                   dayjs().isAfter(dayjs(assignment.endTime))
                 }
               />
@@ -149,7 +175,7 @@ function AssignmentAccordionItem({
           </div>
           <div className="w-[1%]" />
         </AccordionTrigger>
-        <AccordionContent className="-mb-4 w-full">
+        <AccordionContent className="mb-[-16px] w-full group-data-[state=open]:mb-[10px]">
           {isAccordionOpen && record && (
             <div className="overflow-hidden rounded-2xl border">
               <div className="h-6 bg-[#F3F3F3]" />
@@ -158,15 +184,20 @@ function AssignmentAccordionItem({
                   key={problem.id}
                   className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
                 >
-                  <p className="text-primary w-[7%] text-center font-normal">
-                    {convertToLetter(problem.order)}
-                  </p>
-                  <div className="flex w-[30%]">
-                    <span className="line-clamp-1 font-medium text-[#171717]">
-                      {problem.title}
-                    </span>
+                  <div className="text-primary mr-3 flex w-[7%] justify-center font-normal">
+                    <p> {convertToLetter(problem.order)}</p>
                   </div>
-                  <div className="w-[25%]">
+                  <div className="flex w-[30%]">
+                    <Link
+                      href={`/course/${courseId}/assignment/${assignment.id}/problem/${problem.id}`}
+                      // onClick={handleClick}
+                    >
+                      <span className="line-clamp-1 font-medium text-[#171717]">
+                        {problem.title}
+                      </span>
+                    </Link>
+                  </div>
+                  <div className="flex w-[30%] justify-center">
                     {problem.submissionTime && (
                       <p className="font-normal text-[#8A8A8A]">
                         Last submission:{' '}
@@ -178,18 +209,14 @@ function AssignmentAccordionItem({
                     )}
                   </div>
 
-                  {/* <div className="flex w-[13%] justify-center">
-                    {record.problems.every(
-                      (problem) => !problem.problemRecord?.isSubmitted
-                    ) ? null : (
-                      <AcceptedBadge
-                        isAccepted={problem.problemRecord?.isSubmitted ?? false}
-                      />
-                    )}
-                  </div> */}
+                  <div className="flex w-[13%] justify-center">
+                    <AcceptedBadge problem={problem} />
+                  </div>
                   <div className="flex w-[10%] justify-center font-medium">
-                    {problem.problemRecord?.finalScore ?? '-'} /{' '}
-                    {problem.maxScore}
+                    {dayjs().isAfter(dayjs(assignment.endTime))
+                      ? (problem.problemRecord?.finalScore ?? '-')
+                      : '-'}{' '}
+                    / {problem.maxScore}
                   </div>
                   <div className="flex w-[5%] justify-center">
                     <Dialog
@@ -199,13 +226,14 @@ function AssignmentAccordionItem({
                       }
                     >
                       <DetailButton
-                        isActivated={new Date() > new Date(assignment.endTime)}
+                        isActivated={dayjs().isAfter(dayjs(assignment.endTime))}
                       />
                       {openProblemId === problem.id && (
                         <SubmissionDetailModal
                           problemId={problem.id}
                           assignment={assignment}
                           showEvaluation={true}
+                          courseId={courseId}
                         />
                       )}
                     </Dialog>
@@ -279,6 +307,10 @@ export function AssignmentStatusTimeDiff({
     updateAssignmentStatus()
   }, 1000)
 
+  if (dayjs(assignment.endTime).isSame(dayjs(UNLIMITED_DATE))) {
+    return null
+  }
+
   return (
     <div className="inline-flex items-center gap-1 whitespace-nowrap text-xs font-normal text-[#8A8A8A] opacity-80">
       {assignmentStatus === 'finished' ? (
@@ -314,21 +346,40 @@ interface SubmissionBadgeProps {
 }
 
 function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
-  const badgeStyle = grade.userAssignmentFinalScore
-    ? 'border-transparent bg-primary text-white'
-    : 'border-primary text-primary'
+  const badgeStyle =
+    grade.submittedCount === grade.problemCount
+      ? 'border-transparent bg-primary text-white'
+      : 'border-primary text-primary'
   return (
     <div
       className={cn(
-        'flex h-[30px] w-[106px] items-center justify-center rounded-full border',
+        'flex h-[34px] w-[100px] items-center justify-center rounded-full border',
         badgeStyle,
         className
       )}
     >
-      <p className="text-sm font-medium">
-        {grade.userAssignmentFinalScore ?? grade.userAssignmentJudgeScore} {'/'}
-        {grade.assignmentPerfectScore}
-      </p>
+      <div className="flex gap-2 text-sm font-medium">
+        <p> {grade.submittedCount}</p>
+        <p> /</p>
+        <p> {grade.problemCount}</p>
+      </div>
+    </div>
+  )
+}
+
+interface AcceptedBadgeProps {
+  problem: ProblemGrade
+}
+// TODO: Accepted를 boolen으로 받아와야할 것 같아요...!
+function AcceptedBadge({ problem }: AcceptedBadgeProps) {
+  if (problem.submissionResult !== 'Accepted') {
+    return null
+  }
+
+  return (
+    <div className="flex h-[25px] w-[100px] items-center justify-between rounded-full bg-green-100 px-[11px] py-[4px] text-green-500">
+      <FaCircleCheck />
+      <p className="text-sm font-medium">Accepted</p>
     </div>
   )
 }
