@@ -9,7 +9,13 @@ import {
   AccordionTrigger
 } from '@/components/shadcn/accordion'
 import { Dialog } from '@/components/shadcn/dialog'
-import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
+import { UNLIMITED_DATE } from '@/libs/constants'
+import {
+  cn,
+  convertToLetter,
+  dateFormatter,
+  formatDateRange
+} from '@/libs/utils'
 import type {
   Assignment,
   AssignmentStatus,
@@ -105,11 +111,14 @@ function AssignmentAccordionItem({
       className="w-full"
       onValueChange={handleAccordionOpenChange}
     >
-      <AccordionItem value={assignment.id.toString()} className="border-b-0">
+      <AccordionItem
+        value={assignment.id.toString()}
+        className="group border-b-0"
+      >
         <AccordionTrigger
           className={cn(
-            'mt-4 flex w-full items-center rounded-2xl bg-white px-8 py-5 text-left text-sm shadow-md',
-            'data-[state=open]:-mb-6',
+            'mt-[14px] flex w-full items-center rounded-2xl bg-white px-8 py-5 text-left text-sm shadow-md',
+            'data-[state=open]:-mb-6 data-[state=open]:mt-[24px]',
             'relative',
             'hover:no-underline'
           )}
@@ -127,10 +136,17 @@ function AssignmentAccordionItem({
             {assignment && <AssignmentStatusTimeDiff assignment={assignment} />}
           </div>
           {assignment && (
-            <p className="w-[30%] font-normal text-[#8A8A8A]">
-              {dateFormatter(assignment.startTime, 'MMM D, HH:mm:ss')} {'-'}{' '}
-              {dateFormatter(assignment.endTime, 'MMM D, HH:mm:ss')}
-            </p>
+            <div className="flex w-[30%] justify-center">
+              <div className="max-w-[200px] flex-1 text-left">
+                <p className="overflow-hidden whitespace-nowrap font-normal text-[#8A8A8A]">
+                  {formatDateRange(
+                    assignment.startTime,
+                    assignment.endTime,
+                    false
+                  )}
+                </p>
+              </div>
+            </div>
           )}
           <div className="flex w-[13%] justify-center">
             {dayjs().isAfter(dayjs(assignment.startTime)) && (
@@ -305,6 +321,10 @@ export function AssignmentStatusTimeDiff({
   useInterval(() => {
     updateAssignmentStatus()
   }, 1000)
+
+  if (dayjs(assignment.endTime).isSame(dayjs(UNLIMITED_DATE))) {
+    return null
+  }
 
   return (
     <div className="inline-flex items-center gap-1 whitespace-nowrap text-xs font-normal text-[#8A8A8A] opacity-80">

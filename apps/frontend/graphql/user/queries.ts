@@ -21,8 +21,8 @@ const GET_USERS = gql(`
 `)
 
 const GET_USERS_SET_MANAGER = gql(`
-  query GetUserSetManager{
-    getUsers {
+  query GetUserSetManager($cursor: Int, $take: Int!){
+    getUsers(cursor: $cursor, take: $take) {
       id
       username
       email
