@@ -1,5 +1,6 @@
 'use client'
 
+import { UNLIMITED_DATE } from '@/libs/constants'
 import { cn } from '@/libs/utils'
 import clockIcon from '@/public/icons/clock.svg'
 import type { Assignment } from '@/types/type'
@@ -92,6 +93,10 @@ export function AssignmentStatusTimeDiff({
     router.push(
       `/course/${courseId}/assignment/${assignment.id}/finished/problem/${problemId}` as Route
     )
+  }
+
+  if (dayjs(assignment.endTime).isSame(dayjs(UNLIMITED_DATE))) {
+    return null
   }
 
   return (
