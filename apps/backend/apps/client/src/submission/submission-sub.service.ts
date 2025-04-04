@@ -451,7 +451,11 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     const timePenalty = Math.floor(
       (new Date(updateTime).getTime() - new Date(startTime).getTime()) / 60000
     )
-    const isFreezed = freezeTime && updateTime < freezeTime
+    const isFreezed = freezeTime && updateTime > freezeTime
+    console.log('=== DEBUG ===')
+    console.log('freezetime: ', freezeTime)
+    console.log('updatetime: ', updateTime)
+    console.log('isFreezed: ', isFreezed)
 
     const contestProblemRecordData = {
       finalScore: score,
@@ -460,20 +464,21 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       ...(!isFreezed ? { score, submitCountPenalty, timePenalty } : {})
     }
 
+    let isFirstSolver = false
+    try {
+      await this.prisma.contestProblemFirstSolver.create({
+        data: {
+          contestProblemId,
+          contestRecordId
+        }
+      })
+      isFirstSolver = true
+    } catch {
+      // 이미 해당 문제를 푼 참가자가 존재하는 경우
+      // 아무것도 하지 않음
+    }
+
     await this.prisma.$transaction(async (prisma) => {
-      let isFirstSolver = false
-      try {
-        await prisma.contestProblemFirstSolver.create({
-          data: {
-            contestProblemId,
-            contestRecordId
-          }
-        })
-        isFirstSolver = true
-      } catch {
-        // 이미 해당 문제를 푼 참가자가 존재하는 경우
-        // 아무것도 하지 않음
-      }
       await prisma.contestProblemRecord.upsert({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
