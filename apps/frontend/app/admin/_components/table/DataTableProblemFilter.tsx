@@ -1,17 +1,12 @@
 'use client'
 
-import { Button } from '@/components/shadcn/button'
 import {
-  Command,
-  CommandGroup,
-  CommandItem,
-  CommandList
-} from '@/components/shadcn/command'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/shadcn/popover'
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from '@/components/shadcn/accordion'
+import { Checkbox } from '@/components/shadcn/checkbox'
 import {
   GET_ASSIGNMENT_PROBLEMS,
   GET_CONTEST_PROBLEMS
@@ -19,18 +14,12 @@ import {
 import { cn } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
 import { useEffect, useState } from 'react'
-import { FaCheck, FaChevronDown } from 'react-icons/fa'
+import { IoFilter } from 'react-icons/io5'
 import { PROBLEM_COLUMN_ID } from './constants'
 import { useDataTable } from './context'
 
 const ALL_OPTION_LABEL = 'All Problems'
 
-/**
- * 어드민 테이블의 문제 필터
- * @description 컬럼 아이디가 "problemTitle" 여야 합니다.
- * @param contestId
- * 문제를 가져올 대회의 아이디
- */
 export function DataTableProblemFilter({
   contestId = 0,
   groupId = 0,
@@ -42,11 +31,10 @@ export function DataTableProblemFilter({
 }) {
   const { table } = useDataTable()
   const column = table.getColumn(PROBLEM_COLUMN_ID)
-  const selectedValue = getSelectedValue(column?.getFilterValue())
+  const selectedValues = (column?.getFilterValue() as string[]) || []
 
-  const [open, setOpen] = useState(false)
   const [options, setOptions] = useState<
-    { value: string | null; label: string }[]
+    { value: string; label: string; order: number }[]
   >([])
 
   const contestProblems = useQuery(GET_CONTEST_PROBLEMS, {
@@ -64,66 +52,103 @@ export function DataTableProblemFilter({
       ? contestProblems?.data?.getContestProblems
       : assignmentProblems?.data?.getAssignmentProblems
     const sortedProblems = data?.slice().sort((a, b) => a.order - b.order) ?? []
-    setOptions([
-      { value: null, label: ALL_OPTION_LABEL },
-      ...sortedProblems.map((problem) => ({
+    setOptions(
+      sortedProblems.map((problem) => ({
         value: problem.problem.title,
-        label: `${String.fromCharCode(65 + problem.order)}. ${problem.problem.title}`
+        label: `${String.fromCharCode(65 + problem.order)}. ${problem.problem.title}`,
+        order: problem.order
       }))
-    ])
+    )
   }, [contestId, contestProblems, assignmentProblems])
 
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger className="w-[250px] p-0" asChild>
-        <Button
-          variant="outline"
-          size={'sm'}
-          className="flex h-10 justify-between border px-4 hover:bg-gray-50"
-        >
-          <p className="overflow-hidden text-ellipsis whitespace-nowrap font-bold">
-            {selectedValue || 'All Problems'}
-          </p>
-          <FaChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-
-      <PopoverContent className="w-[250px] p-0" align="start">
-        <Command>
-          <CommandList>
-            <CommandGroup>
-              {options.map(({ value, label }) => (
-                <CommandItem
-                  key={value}
-                  className="flex items-center justify-between"
-                  onSelect={() => {
-                    column?.setFilterValue(value)
-                    setOpen(false)
-                    table.resetPageIndex()
-                  }}
-                >
-                  <p className="overflow-hidden text-ellipsis whitespace-nowrap text-xs">
-                    {label}
-                  </p>
-                  <FaCheck
-                    className={cn(
-                      'h-4 w-4 flex-shrink-0',
-                      selectedValue === value ? 'opacity-100' : 'opacity-0'
-                    )}
-                  />
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  )
-}
-
-const getSelectedValue = (data: unknown): string | null => {
-  if (typeof data !== 'string') {
-    return null
+  const toggleSelection = (value: string) => {
+    const newSelection = selectedValues.includes(value)
+      ? selectedValues.filter((v) => v !== value)
+      : [...selectedValues, value]
+    column?.setFilterValue(newSelection)
   }
-  return data
+
+  const toggleAll = () => {
+    if (selectedValues.length === options.length) {
+      column?.setFilterValue([])
+    } else {
+      column?.setFilterValue(options.map(({ value }) => value))
+    }
+  }
+
+  const getProblemOrder = (value: string) => {
+    const option = options.find((opt) => opt.value === value)
+    return option ? option.order : -1
+  }
+
+  const getSelectedLabels = () => {
+    if (
+      selectedValues.length === 0 ||
+      selectedValues.length === options.length
+    ) {
+      return 'ALL'
+    }
+
+    const alphabeticalOrders = selectedValues
+      .map((value) => {
+        const order = getProblemOrder(value)
+        return order >= 0 ? String.fromCharCode(65 + order) : null
+      })
+      .filter(Boolean)
+      .sort()
+      .join(', ')
+
+    return alphabeticalOrders
+  }
+
+  return (
+    <Accordion type="single" collapsible>
+      <AccordionItem value="problem-filter" className="border-0">
+        <AccordionTrigger className="flex h-12 w-full items-center rounded-full border bg-transparent px-6">
+          <div className="flex gap-2">
+            <IoFilter className="mr-2 h-4 w-4" />
+            Problem
+            <p className="overflow-hidden text-ellipsis whitespace-nowrap font-bold">
+              {getSelectedLabels()}
+            </p>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="rounded border bg-white p-8 text-lg">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-4">
+              <Checkbox
+                checked={selectedValues.length === options.length}
+                onCheckedChange={toggleAll}
+              />
+              <p
+                className={cn(
+                  selectedValues.length === options.length &&
+                    'text-primary font-semibold'
+                )}
+              >
+                {ALL_OPTION_LABEL}
+              </p>
+            </div>
+            {options.map(({ value, label }) => (
+              <div key={value} className="flex items-center gap-4">
+                <Checkbox
+                  checked={selectedValues.includes(value)}
+                  onCheckedChange={() => toggleSelection(value)}
+                />
+                <p
+                  className={cn(
+                    'overflow-hidden text-ellipsis whitespace-nowrap',
+                    selectedValues.includes(value) &&
+                      'text-primary font-semibold'
+                  )}
+                >
+                  {label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  )
 }

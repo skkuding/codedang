@@ -8,6 +8,8 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
+import { DataTableSortButton } from '@/app/admin/_components/table/DataTableSortButton'
+import { useDataTable } from '@/app/admin/_components/table/context'
 import { SubmissionDetailAdmin } from '@/app/admin/contest/[contestId]/_components/SubmissionDetailAdmin'
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { GET_CONTEST_SUBMISSIONS } from '@/graphql/submission/queries'
@@ -33,12 +35,12 @@ export function SubmissionTable({ contestId }: { contestId: number }) {
         data={data.getContestSubmissions}
         columns={columns}
         defaultSortState={[{ id: 'submissionTime', desc: true }]}
+        hiddenColumns={['problemTitle', 'submissionTime']}
       >
-        <div className="flex gap-4">
-          <DataTableSearchBar columndId="realname" />
-          <DataTableProblemFilter contestId={contestId} />
-        </div>
+        <SubmissionTableHeader />
+        <DataTableProblemFilter contestId={contestId} />
         <DataTable
+          isCardView={true}
           onRowClick={(_, row) => {
             setSubmissionId(row.original.id)
             setIsSubmissionDialogOpen(true)
@@ -55,6 +57,26 @@ export function SubmissionTable({ contestId }: { contestId: number }) {
         </DialogContent>
       </Dialog>
     </>
+  )
+}
+
+function SubmissionTableHeader() {
+  const { table } = useDataTable()
+  const filteredRowCount = table.getFilteredRowModel().rows.length
+
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <div className="text-2xl font-semibold">
+        <span className="text-primary text-[26px] font-extrabold">
+          {filteredRowCount}
+        </span>{' '}
+        Submissions
+      </div>
+      <div className="flex items-center gap-2">
+        <DataTableSortButton columnIds={['problemTitle', 'submissionTime']} />
+        <DataTableSearchBar placeholder="Search User ID" columndId="username" />
+      </div>
+    </div>
   )
 }
 

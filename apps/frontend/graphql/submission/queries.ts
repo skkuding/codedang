@@ -100,6 +100,11 @@ const GET_SUBMISSION = gql(`query GetSubmission(
       id
       submissionId
       problemTestcaseId
+      problemTestcase {
+        input
+        output
+      }
+      output
       result
       memoryUsage
       createTime

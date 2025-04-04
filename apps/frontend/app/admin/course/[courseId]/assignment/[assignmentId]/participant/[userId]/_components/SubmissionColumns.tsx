@@ -14,7 +14,8 @@ export const submissionColumns: ColumnDef<UserSubmission>[] = [
         {String.fromCharCode(65 + (row.original.order ?? 0))}.{' '}
         {row.getValue('problemTitle')}
       </div>
-    )
+    ),
+    filterFn: 'arrIncludesSome'
   },
   {
     accessorKey: 'submissionResult',

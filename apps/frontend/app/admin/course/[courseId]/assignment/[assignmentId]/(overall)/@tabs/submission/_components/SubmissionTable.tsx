@@ -44,11 +44,8 @@ export function SubmissionTable({
       >
         <div className="flex gap-4">
           <DataTableSearchBar columndId="realname" />
-          <DataTableProblemFilter
-            groupId={groupId}
-            assignmentId={assignmentId}
-          />
         </div>
+        <DataTableProblemFilter groupId={groupId} assignmentId={assignmentId} />
         <DataTable
           onRowClick={(_, row) => {
             setSubmissionId(row.original.id)

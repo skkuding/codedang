@@ -17,7 +17,8 @@ export const columns: ColumnDef<OverallSubmission>[] = [
         {String.fromCharCode(65 + (row.original.order ?? 0))}.{' '}
         {row.getValue('problemTitle')}
       </div>
-    )
+    ),
+    filterFn: 'arrIncludesSome'
   },
   {
     accessorKey: 'studentId',
