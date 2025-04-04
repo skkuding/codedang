@@ -14,10 +14,7 @@ import { GroupService } from '@client/group/group.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { _ProblemsResponseDto } from './dto/problems.response.dto'
-import {
-  _RelatedProblemResponseDto,
-  RelatedProblemResponseDto
-} from './dto/related-problem.response.dto'
+import { _RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { _RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import {
   assignmentProblems,
