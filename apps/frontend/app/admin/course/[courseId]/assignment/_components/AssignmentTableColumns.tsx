@@ -10,7 +10,7 @@ import {
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
 import { UPDATE_ASSIGNMENT_VISIBLE } from '@/graphql/assignment/mutations'
-import { cn, dateFormatter } from '@/libs/utils'
+import { cn, dateFormatter, formatDateRange } from '@/libs/utils'
 import invisibleIcon from '@/public/icons/invisible.svg'
 import visibleIcon from '@/public/icons/visible.svg'
 import { useMutation } from '@apollo/client'
@@ -131,7 +131,7 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
           table.toggleAllPageRowsSelected(Boolean(value))
         }
         aria-label="Select all"
-        className="translate-y-[2px] bg-white"
+        className="translate-y-[2px]"
       />
     ),
     cell: ({ row }) => (
@@ -140,7 +140,7 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
         aria-label="Select row"
-        className="translate-y-[2px] bg-white"
+        className="translate-y-[2px]"
       />
     ),
     enableSorting: false,
@@ -171,9 +171,13 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <p className="overflow-hidden whitespace-nowrap text-center font-normal">
-        {`${dateFormatter(row.original.startTime, 'MMM DD, YYYY HH:mm')} ~ ${dateFormatter(row.original.endTime, 'MMM DD, YYYY HH:mm')}`}
-      </p>
+      <div className="flex justify-center">
+        <div className="max-w-[270px] flex-1 text-left">
+          <p className="overflow-hidden whitespace-nowrap">
+            {formatDateRange(row.original.startTime, row.original.endTime)}
+          </p>
+        </div>
+      </div>
     ),
     size: 250
   },

@@ -32,8 +32,9 @@ export const DateTimePickerDemo = ({
   useEffect(() => {
     if (defaultValue) {
       setDate(defaultValue)
+      onChange(defaultValue)
     }
-  }, [defaultValue])
+  }, [])
 
   return (
     <Popover

@@ -1,5 +1,4 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { SchedulerRegistry } from '@nestjs/schedule'
 import { Test, type TestingModule } from '@nestjs/testing'
 import {
   AssignmentProblem,
@@ -228,7 +227,8 @@ const db = {
   },
   assignmentRecord: {
     findMany: stub().resolves([AssignmentRecord]),
-    create: stub().resolves(AssignmentRecord)
+    create: stub().resolves(AssignmentRecord),
+    count: stub().resolves(Number)
   },
   assignmentProblemRecord: {
     createMany: stub().resolves([]),
@@ -241,6 +241,9 @@ const db = {
   },
   group: {
     findUnique: stub().resolves(Group)
+  },
+  userGroup: {
+    count: stub().resolves(Number)
   },
   submission: {
     findMany: stub().resolves([submissionsWithProblemTitleAndUsername])
@@ -259,7 +262,6 @@ const db = {
 describe('AssignmentService', () => {
   let service: AssignmentService
   let cache: Cache
-  let schedulerRegistry: SchedulerRegistry
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -276,25 +278,13 @@ describe('AssignmentService', () => {
               keys: () => []
             }
           })
-        },
-        {
-          provide: SchedulerRegistry,
-          useValue: new SchedulerRegistry()
         }
       ]
     }).compile()
 
     service = module.get<AssignmentService>(AssignmentService)
     cache = module.get<Cache>(CACHE_MANAGER)
-    schedulerRegistry = module.get<SchedulerRegistry>(SchedulerRegistry)
     stub(cache.store, 'keys').resolves(['assignment:1:publicize'])
-  })
-
-  afterEach(() => {
-    schedulerRegistry.getCronJobs().forEach((job, key) => {
-      job.stop()
-      schedulerRegistry.deleteCronJob(key)
-    })
   })
 
   it('should be defined', () => {
@@ -517,6 +507,9 @@ describe('AssignmentService', () => {
   describe('getAssignmentScoreSummaries', () => {
     it('should return list of users with their score summaries', async () => {
       db.assignment.findUnique.resolves(assignment)
+      db.userGroup.count.resolves(10)
+      db.assignmentRecord.count.resolves(10)
+
       db.assignmentRecord.findMany.resolves([
         {
           userId,

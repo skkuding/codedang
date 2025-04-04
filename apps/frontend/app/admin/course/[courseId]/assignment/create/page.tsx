@@ -41,11 +41,18 @@ export default function Page({ params }: { params: { courseId: string } }) {
             problems={problems}
             setIsCreating={setIsCreating}
           >
-            <div className="flex w-[901px] flex-col gap-[28px]">
-              <FormSection title="Title">
-                <TitleForm
-                  placeholder="Name your Assignment"
-                  className="max-w-[767px]"
+            <FormSection isFlexColumn title="Title">
+              <TitleForm placeholder="Name your Assignment" />
+            </FormSection>
+
+            <div className="flex gap-6">
+              <FormSection isFlexColumn title="Start Time">
+                <TimeForm name="startTime" defaultValue={new Date()} />
+              </FormSection>
+              <FormSection isFlexColumn isLabeled={false} title="End Time">
+                <TimeForm
+                  name="endTime"
+                  defaultTimeOnSelect={{ hours: 23, minutes: 59, seconds: 59 }}
                 />
               </FormSection>
               <FormSection
