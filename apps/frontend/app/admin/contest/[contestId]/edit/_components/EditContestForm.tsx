@@ -78,15 +78,17 @@ export function EditContestForm({
       })
       setIsLoading(false)
       setManagers(
-        (data.userContest ?? []).map((user) => {
-          return {
-            id: user.userId || 0,
-            email: user.user?.email || '',
-            username: user.user?.username || '',
-            realName: user.user?.userProfile?.realName || '',
-            type: user.role
-          }
-        })
+        (data.userContest ?? [])
+          .filter((user) => user.userId !== null && user.userId !== undefined)
+          .map((user) => {
+            return {
+              id: user.userId || 0,
+              email: user.user?.email || '',
+              username: user.user?.username || '',
+              realName: user.user?.userProfile?.realName || '',
+              type: user.role
+            }
+          })
       )
     }
   })
