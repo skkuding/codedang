@@ -2,6 +2,7 @@
 
 import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
+import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { AssignmentStatusTimeDiff } from '@/components/AssignmentStatusTimeDiff'
 import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
@@ -34,13 +35,9 @@ export default function AssignmentDetail({ params }: AssignmentDetailProps) {
     assignmentQueries.record({ assignmentId, courseId })
   )
 
-  // const { data: testResults } = useQuery(
-  //   assignmentSubmissionQueries.testResult({
-  //     assignmentId: assignment?.id ?? 0,
-  //     problemId,
-  //     submissionId: submission?.id ?? 0
-  //   })
-  // )
+  const { data: submissions } = useQuery(
+    assignmentSubmissionQueries.summary({ assignmentId: assignment?.id ?? 0 })
+  )
 
   const formattedStartTime = assignment
     ? dateFormatter(assignment.startTime, 'MMM DD, YYYY HH:mm')
@@ -116,24 +113,24 @@ export default function AssignmentDetail({ params }: AssignmentDetailProps) {
               <span>Submit</span>
               <span className="text-primary">
                 {
-                  record.problems.filter(
-                    (problem) => problem.submissionResult !== null
+                  submissions?.filter(
+                    (submission) => submission.submission !== null
                   ).length
                 }
               </span>
             </div>
           </div>
         )}
-        {record && (
+        {record && submissions && (
           <DataTable
             data={record.problems}
-            columns={columns(record, assignment, courseId)}
+            columns={columns(record, assignment, courseId, submissions)}
             headerStyle={{
-              order: 'w-[5%]',
-              title: 'text-left w-[30%]',
-              submission: 'w-[15%]',
-              tc_result: 'w-[10%]',
-              detail: 'w-[5%]'
+              order: 'w-[10%]',
+              title: 'text-left w-[40%]',
+              submissions: 'w-[20%]',
+              tc_result: 'w-[20%]',
+              detail: 'w-[10%]'
             }}
             linked
             pathSegment={'problem'}

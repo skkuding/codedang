@@ -400,8 +400,6 @@ export interface ProblemGrade {
   order: number
   maxScore: number
   problemRecord: ProblemRecord | null
-  submissionTime: string
-  submissionResult: string | null
 }
 
 export interface ProblemRecord {
@@ -418,4 +416,16 @@ export interface AssignmentSummary {
   assignmentPerfectScore: number
   userAssignmentFinalScore: number | null
   userAssignmentJudgeScore: number
+}
+
+export interface AssignmentSubmission {
+  problemId: number
+  submission: ProblemSubmission | null
+}
+
+export interface ProblemSubmission {
+  submissionTime: string
+  submissionResult: string
+  testcaseCount: number
+  acceptedTestcaseCount: number
 }

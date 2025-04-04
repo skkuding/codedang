@@ -55,13 +55,6 @@ export async function SubmissionDetail({
       <ScrollArea className="shrink-0 rounded-lg px-6">
         <div className="flex items-center justify-around gap-3 bg-[#384151] p-5 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
           <div>
-            <h2>Result</h2>
-            <p className={getResultColor(submission.result)}>
-              {submission.result}
-            </p>
-          </div>
-          <div className="h-10 w-[1px] bg-[#616060]" />
-          <div>
             <h2>Language</h2>
             <p>{submission.language !== 'Cpp' ? submission.language : 'C++'}</p>
           </div>
@@ -102,30 +95,36 @@ export async function SubmissionDetail({
               </TableRow>
             </TableHeader>
             <TableBody className="text-[#B0B0B0]">
-              {submission.testcaseResult.map((item) => {
-                return (
-                  <TableRow key={item.id}>
-                    <TableCell>
-                      {item.problemTestcase?.isHidden
-                        ? `Hidden #${(hiddenCount++).toString().padStart(2, '0')}`
-                        : `Sample #${(sampleCount++).toString().padStart(2, '0')}`}
-                    </TableCell>
-                    <TableCell
-                      className={
-                        submission.result === 'Blind'
-                          ? 'text-neutral-400'
-                          : getResultColor(item.result)
-                      }
-                    >
-                      {item.result}
-                    </TableCell>
-                    <TableCell>{item.cpuTime} ms</TableCell>
-                    <TableCell>
-                      {(item.memoryUsage / (1024 * 1024)).toFixed(2)} MB
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
+              {[...submission.testcaseResult]
+                .sort((a, b) => {
+                  const aHidden = a.problemTestcase?.isHidden ?? true
+                  const bHidden = b.problemTestcase?.isHidden ?? true
+                  return Number(aHidden) - Number(bHidden)
+                })
+                .map((item) => {
+                  return (
+                    <TableRow key={item.id}>
+                      <TableCell>
+                        {item.problemTestcase?.isHidden
+                          ? `Hidden #${(hiddenCount++).toString().padStart(2, '0')}`
+                          : `Sample #${(sampleCount++).toString().padStart(2, '0')}`}
+                      </TableCell>
+                      <TableCell
+                        className={
+                          submission.result === 'Blind'
+                            ? 'text-neutral-400'
+                            : getResultColor(item.result)
+                        }
+                      >
+                        {item.result}
+                      </TableCell>
+                      <TableCell>{item.cpuTime} ms</TableCell>
+                      <TableCell>
+                        {(item.memoryUsage / (1024 * 1024)).toFixed(2)} MB
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
             </TableBody>
           </Table>
         </div>

@@ -1,6 +1,7 @@
 import { safeFetcherWithAuth } from '@/libs/utils'
 import type {
   AssignmentProblemRecord,
+  AssignmentSubmission,
   Language,
   SubmissionDetail,
   SubmissionItem
@@ -160,8 +161,10 @@ export interface TestcaseResult {
   result: string
   cpuTime: number | null
   memoryUsage: number | null
+  output: string | null
   createTime: string
   updateTime: string
+  problemTestcase: { isHidden: boolean }
 }
 
 export const getTestResult = async ({
@@ -188,5 +191,20 @@ export const getAssignmentGrades = async ({
 }: GetAssignmentGradesRequest) => {
   const response = await safeFetcherWithAuth.get(`course/${groupId}/grade`)
   const data = await response.json<GetAssignmentGradesResponse>()
+  return data
+}
+
+export interface GetAssignmentSubmissionSummaryRequest {
+  assignmentId: number
+}
+export type GetAssignmentSummaryResponse = AssignmentSubmission[]
+
+export const getAssignmentSubmission = async ({
+  assignmentId
+}: GetAssignmentSubmissionSummaryRequest) => {
+  const response = await safeFetcherWithAuth.get(
+    `assignment/${assignmentId}/submission/summary`
+  )
+  const data = await response.json<GetAssignmentSummaryResponse>()
   return data
 }
