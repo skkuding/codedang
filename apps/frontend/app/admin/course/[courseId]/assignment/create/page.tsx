@@ -41,20 +41,15 @@ export default function Page({ params }: { params: { courseId: string } }) {
             problems={problems}
             setIsCreating={setIsCreating}
           >
-            <FormSection isFlexColumn title="Title">
+            <FormSection
+              isFlexColumn={false}
+              title="Title"
+              className="gap-[77px]"
+            >
               <TitleForm placeholder="Name your Assignment" />
             </FormSection>
 
-            <div className="flex gap-6">
-              <FormSection isFlexColumn title="Start Time">
-                <TimeForm name="startTime" defaultValue={new Date()} />
-              </FormSection>
-              <FormSection isFlexColumn isLabeled={false} title="End Time">
-                <TimeForm
-                  name="endTime"
-                  defaultTimeOnSelect={{ hours: 23, minutes: 59, seconds: 59 }}
-                />
-              </FormSection>
+            <div className="flex flex-col gap-6">
               <FormSection
                 title="Week"
                 isJustifyBetween={false}
@@ -73,7 +68,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
                 <FormSection
                   title="End Time"
                   isJustifyBetween={false}
-                  className="gap-[71px]"
+                  className="gap-[50px]"
                   isLabeled={false}
                 >
                   <TimeForm
