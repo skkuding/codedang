@@ -119,7 +119,6 @@ export function AddManagerReviewerDialog({
           }
         })
         .json()
-      console.log('res1:', res)
       if (!res.id) {
         return
       }
@@ -133,7 +132,6 @@ export function AddManagerReviewerDialog({
         }
         return [...prevUsers, newUser]
       })
-      console.log('res2:', res)
     }
     fetchData()
   }, [values])
