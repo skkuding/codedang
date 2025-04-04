@@ -203,7 +203,7 @@ function AssignmentAccordionItem({
 
                   <div className="flex w-[13%] justify-center">
                     {submission[index].submission && (
-                      <AcceptedBadge
+                      <TestCaseResult
                         submission={submission[index].submission}
                       />
                     )}
@@ -363,20 +363,16 @@ function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
   )
 }
 
-interface AcceptedBadgeProps {
+interface TestCaseResulProps {
   submission: ProblemSubmission
 }
 // TODO: Accepted를 boolen으로 받아와야할 것 같아요...!
-function AcceptedBadge({ submission }: AcceptedBadgeProps) {
-  if (submission.submissionResult !== 'Accepted') {
-    return null
-  }
-
-  // return (
-  //   <div className="flex h-[25px] w-[100px] items-center justify-between rounded-full bg-green-100 px-[11px] py-[4px] text-green-500">
-  //     <FaCircleCheck />
-  //     <p className="text-sm font-medium">Accepted</p>
-  //   </div>
-  // )
-  return <Progress value={33} />
+function TestCaseResult({ submission }: TestCaseResulProps) {
+  return (
+    submission && (
+      <div className="flex h-[25px] w-[100px]">
+        <Progress value={33} />
+      </div>
+    )
+  )
 }
