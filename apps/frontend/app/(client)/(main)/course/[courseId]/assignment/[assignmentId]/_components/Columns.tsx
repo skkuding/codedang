@@ -7,19 +7,21 @@ import { convertToLetter, dateFormatter } from '@/libs/utils'
 import type {
   Assignment,
   AssignmentProblemRecord,
+  AssignmentSubmission,
   ProblemGrade
 } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { Suspense, useState } from 'react'
-import { FaCircleCheck } from 'react-icons/fa6'
 import { MdOutlineFileOpen } from 'react-icons/md'
-import { SubmissionDetailModal } from '../../../_components/SubmissionDetailModal'
+import { ProblemDetailModal } from '../../../_components/ProblemDetailModal'
+import { TestCaseResult } from '../../../_components/TestCaseResult'
 
 export const columns = (
   record: AssignmentProblemRecord,
   assignment: Assignment,
-  courseId: number
+  courseId: number,
+  submissions: AssignmentSubmission[]
 ): ColumnDef<ProblemGrade>[] => [
   {
     header: '#',
@@ -43,30 +45,37 @@ export const columns = (
     header: 'Last Submission',
     accessorKey: 'submission',
     cell: ({ row }) => {
-      return row.original.submissionTime ? (
-        <div className="flex w-full justify-center font-normal text-[#8A8A8A]">
-          {dateFormatter(row.original.submissionTime, 'MMM D, HH:mm:ss')}
-        </div>
-      ) : null
+      const submission = submissions.find(
+        (submission) => submission.problemId === row.original.id
+      )?.submission
+
+      return (
+        submission?.submissionTime && (
+          <div className="flex w-full justify-center font-normal text-[#8A8A8A]">
+            {dateFormatter(submission.submissionTime, 'MMM D, HH:mm:ss')}
+          </div>
+        )
+      )
     }
   },
   {
     header: 'T/C Result',
     accessorKey: 'tc_result',
     cell: ({ row }) => {
+      const submission = submissions.find(
+        (submission) => submission.problemId === row.original.id
+      )?.submission
+
       return (
-        <div className="flex w-full justify-center">
-          <ResultCell row={row} record={record} />
-        </div>
+        submission && (
+          <div className="flex w-full justify-center">
+            <TestCaseResult submission={submission} />
+          </div>
+        )
       )
     }
   },
-  // {
-  //   header: () => 'Score',
-  //   accessorKey: 'score',
-  //   cell: ({ row }) =>
-  //     `${row.original.problemRecord?.isSubmitted ? (row.original.problemRecord?.score ?? '-') : '-'} / ${row.original.maxScore}`
-  // },
+
   {
     header: 'Detail',
     accessorKey: 'detail',
@@ -75,68 +84,58 @@ export const columns = (
         problem={row.original}
         assignment={assignment}
         courseId={courseId}
+        submissions={submissions}
       />
     )
   }
 ]
 
-interface ResultCellProps {
-  row: Row<ProblemGrade>
-  record: AssignmentProblemRecord
-}
-
-function ResultCell({ row, record }: ResultCellProps) {
-  const submissionResult =
-    record.problems.find((problem) => problem.id === row.original.id)
-      ?.submissionResult ?? ''
-
-  const resultColor = submissionResult === 'Accepted' ? '#35C759' : '#FF3B2F'
-
-  return (
-    <p
-      className="font-medium md:text-base"
-      style={{ color: submissionResult ? resultColor : undefined }}
-    >
-      {submissionResult}
-    </p>
-  )
-}
-
 interface SubmissionCellProps {
   problem: ProblemGrade
   assignment: Assignment
   courseId: number
+  submissions: AssignmentSubmission[]
 }
 
-function DetailCell({ problem, assignment, courseId }: SubmissionCellProps) {
+function DetailCell({
+  problem,
+  assignment,
+  courseId,
+  submissions
+}: SubmissionCellProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open)
   }
 
-  return problem.submissionTime ? (
-    <div
-      className="flex items-center justify-center"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <ErrorBoundary fallback={FetchErrorFallback}>
-        <Suspense fallback={<Skeleton className="size-[25px]" />}>
-          <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-            <button onClick={() => setIsOpen(true)}>
-              <MdOutlineFileOpen size={20} />
-            </button>
-            {isOpen && (
-              <SubmissionDetailModal
-                problemId={problem.id}
-                assignment={assignment}
-                showEvaluation={false}
-                courseId={courseId}
-              />
-            )}
-          </Dialog>
-        </Suspense>
-      </ErrorBoundary>
-    </div>
-  ) : null
+  return (
+    submissions.find((submission) => submission.problemId === problem.id)
+      ?.submission && (
+      <div
+        className="flex items-center justify-center"
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+        }}
+      >
+        <ErrorBoundary fallback={FetchErrorFallback}>
+          <Suspense fallback={<Skeleton className="size-[25px]" />}>
+            <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+              <button onClick={() => setIsOpen(true)}>
+                <MdOutlineFileOpen size={20} />
+              </button>
+              {isOpen && (
+                <ProblemDetailModal
+                  problemId={problem.id}
+                  assignment={assignment}
+                  courseId={courseId}
+                />
+              )}
+            </Dialog>
+          </Suspense>
+        </ErrorBoundary>
+      </div>
+    )
+  )
 }

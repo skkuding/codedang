@@ -14,10 +14,7 @@ import { GroupService } from '@client/group/group.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { _ProblemsResponseDto } from './dto/problems.response.dto'
-import {
-  _RelatedProblemResponseDto,
-  RelatedProblemResponseDto
-} from './dto/related-problem.response.dto'
+import { _RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { _RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import {
   assignmentProblems,
@@ -655,7 +652,6 @@ describe('AssignmentProblemService', () => {
 
   describe('getAssignmentProblems', () => {
     it('should return public assignment problems', async () => {
-      // given
       const getAssignmentSpy = stub(assignmentService, 'getAssignment')
       getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
@@ -664,7 +660,6 @@ describe('AssignmentProblemService', () => {
         { problemId: 1, score: null }
       ])
 
-      // when
       const result = await service.getAssignmentProblems({
         assignmentId,
         userId,
@@ -672,18 +667,32 @@ describe('AssignmentProblemService', () => {
         take: 1
       })
 
-      // then
-      expect(result).to.deep.equal(
-        // Deprecated
-        plainToInstance(_RelatedProblemsResponseDto, {
-          data: mockAssignmentProblemsWithScore,
-          total: mockAssignmentProblemsWithScore.length
-        })
-      )
+      expect(result).to.deep.equal({
+        data: [
+          {
+            acceptedRate: 0.5,
+            difficulty: 'Level1',
+            id: 1,
+            maxScore: 0,
+            order: 1,
+            submissionCount: 10,
+            title: 'public problem'
+          },
+          {
+            acceptedRate: 0.5,
+            difficulty: 'Level1',
+            id: 1,
+            maxScore: 0,
+            order: 2,
+            submissionCount: 10,
+            title: 'public problem'
+          }
+        ],
+        total: mockAssignmentProblemsWithScore.length
+      })
     })
 
     it('should return group assignment problems', async () => {
-      // given
       const getAssignmentSpy = stub(assignmentService, 'getAssignment')
       getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
@@ -692,7 +701,6 @@ describe('AssignmentProblemService', () => {
         { problemId: 1, score: null }
       ])
 
-      // when
       const result = await service.getAssignmentProblems({
         assignmentId,
         userId,
@@ -700,22 +708,35 @@ describe('AssignmentProblemService', () => {
         take: 1
       })
 
-      // then
-      expect(result).to.deep.equal(
-        // Deprecated
-        plainToInstance(_RelatedProblemsResponseDto, {
-          data: mockAssignmentProblemsWithScore,
-          total: mockAssignmentProblemsWithScore.length
-        })
-      )
+      expect(result).to.deep.equal({
+        data: [
+          {
+            acceptedRate: 0.5,
+            difficulty: 'Level1',
+            id: 1,
+            maxScore: 0,
+            order: 1,
+            submissionCount: 10,
+            title: 'public problem'
+          },
+          {
+            acceptedRate: 0.5,
+            difficulty: 'Level1',
+            id: 1,
+            maxScore: 0,
+            order: 2,
+            submissionCount: 10,
+            title: 'public problem'
+          }
+        ],
+        total: mockAssignmentProblemsWithScore.length
+      })
     })
 
     it('should throw PrismaClientKnownRequestError when the assignment is not visible', async () => {
-      // given
       const getAssignmentSpy = stub(assignmentService, 'getAssignment')
       getAssignmentSpy.rejects(prismaNotFoundError)
 
-      // then
       await expect(
         service.getAssignmentProblems({
           assignmentId,
@@ -742,19 +763,16 @@ describe('AssignmentProblemService', () => {
 
   describe('getAssignmentProblem', () => {
     it('should return the public assignment problem', async () => {
-      // given
       const getAssignmentSpy = stub(assignmentService, 'getAssignment')
       getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
 
-      // when
       const result = await service.getAssignmentProblem({
         assignmentId,
         problemId,
         userId
       })
 
-      // then
       expect(result).to.be.deep.equal(
         // Deprecated
         plainToInstance(_RelatedProblemResponseDto, mockAssignmentProblem)
@@ -762,19 +780,16 @@ describe('AssignmentProblemService', () => {
     })
 
     it('should return the group assignment problem', async () => {
-      // given
       const getAssignmentSpy = stub(assignmentService, 'getAssignment')
       getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
 
-      // when
       const result = await service.getAssignmentProblem({
         assignmentId,
         problemId,
         userId
       })
 
-      // then
       expect(result).to.be.deep.equal(
         // Deprecated
         plainToInstance(_RelatedProblemResponseDto, mockAssignmentProblem)

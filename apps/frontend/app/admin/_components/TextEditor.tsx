@@ -647,7 +647,7 @@ export function TextEditor({
         onClose={() => setIsCautionDialogOpen(false)}
         description={dialogDescription}
       />
-      <EditorContent editor={editor} className="prose max-w-5xl" />
+      <EditorContent editor={editor} className="prose prose-invert max-w-5xl" />
     </div>
   )
 }
