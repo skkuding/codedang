@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import ky, { HTTPError } from 'ky'
 import { twMerge } from 'tailwind-merge'
 import { auth } from './auth'
-import { baseUrl } from './constants'
+import { baseUrl, UNLIMITED_DATE } from './constants'
 
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))
@@ -65,6 +65,21 @@ export const dateFormatter = (date: string | Date, format: string) => {
   return dayjs(
     new Date(date).toLocaleString('en-US', { timeZone: 'Asia/Seoul' })
   ).format(format)
+}
+
+export const formatDateRange = (
+  start: string | Date,
+  end: string | Date,
+  showYear?: boolean
+) => {
+  const defaultFormat = 'MMM DD, YYYY HH:mm'
+  const adjustedFormat =
+    showYear === false ? defaultFormat.replace('YYYY ', '') : defaultFormat
+  const formattedStart = dateFormatter(start, adjustedFormat)
+  const isEndDefault = new Date(end).toISOString() === UNLIMITED_DATE
+  const formattedEnd = isEndDefault ? '' : dateFormatter(end, adjustedFormat)
+
+  return `${formattedStart}${isEndDefault ? ' ~ ' : ` ~ ${formattedEnd}`}`
 }
 
 export const getStatusWithStartEnd = (startTime: string, endTime: string) => {

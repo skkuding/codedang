@@ -22,7 +22,7 @@ export const columns: ColumnDef<DataTableCourse>[] = [
           table.toggleAllPageRowsSelected(Boolean(value))
         }
         aria-label="Select all"
-        className="translate-y-[2px] bg-white"
+        className="translate-y-[2px]"
       />
     ),
     cell: ({ row }) => (

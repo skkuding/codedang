@@ -47,7 +47,11 @@ export function EditContestForm({
   const { setShouldSkipWarning } = useConfirmNavigationContext()
   const router = useRouter()
 
-  const { data: userData } = useSuspenseQuery(GET_USERS_SET_MANAGER)
+  const { data: userData } = useSuspenseQuery(GET_USERS_SET_MANAGER, {
+    variables: {
+      take: 5000
+    }
+  })
 
   // 수정된 manager, reviewer 목록(managers) 으로 등록
   const formattedManagers = managers
