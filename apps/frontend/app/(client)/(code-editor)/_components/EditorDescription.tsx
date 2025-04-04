@@ -14,15 +14,17 @@ import DOMPurify from 'isomorphic-dompurify'
 import { EditorSampleField } from './EditorSampleField'
 import { ReferenceDialog } from './ReferenceDialog'
 
+interface EditorDescriptionProps {
+  problem: ProblemDetail
+  isContest?: boolean
+  isAssignment?: boolean
+}
+
 export function EditorDescription({
   problem,
   isContest = false,
   isAssignment = false
-}: {
-  problem: ProblemDetail
-  isContest?: boolean
-  isAssignment?: boolean
-}) {
+}: EditorDescriptionProps) {
   const level = problem.difficulty
   const levelNumber = level.slice(-1)
 

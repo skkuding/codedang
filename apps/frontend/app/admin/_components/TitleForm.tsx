@@ -9,9 +9,10 @@ import { ErrorMessage } from './ErrorMessage'
 
 interface TitleFormProps {
   placeholder: string
+  className?: string
 }
 
-export function TitleForm({ placeholder }: TitleFormProps) {
+export function TitleForm({ placeholder, className }: TitleFormProps) {
   const {
     register,
     formState: { errors },
@@ -32,15 +33,15 @@ export function TitleForm({ placeholder }: TitleFormProps) {
   }, [])
 
   return (
-    <div className="flex flex-col">
-      <div className="flex w-[492px] items-center rounded-full border bg-white pr-4">
+    <div className={cn(className, 'flex w-full flex-col')}>
+      <div className="flex items-center rounded-full border bg-white pr-4">
         <Input
           id="title"
           type="text"
           placeholder={placeholder}
           className={cn(
             inputStyle,
-            'w-[438px] border-none px-4 placeholder:text-sm focus-visible:ring-0'
+            'h-[36px] border-none px-4 placeholder:text-sm focus-visible:ring-0'
           )}
           maxLength={120}
           {...register('title', {
