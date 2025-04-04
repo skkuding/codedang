@@ -31,7 +31,6 @@ import { AssignmentLink } from './AssignmentLink'
 import { DetailButton } from './DetailButton'
 import { GradeDetailModal } from './GradeDetailModal'
 import { SubmissionDetailModal } from './SubmissionDetailModal'
-import { TestCaseResult } from './TestCaseResult'
 
 interface AssignmentAccordianProps {
   courseId: number
@@ -240,7 +239,6 @@ function AssignmentAccordionItem({
                         <SubmissionDetailModal
                           problemId={problem.id}
                           assignment={assignment}
-                          showEvaluation={true}
                           courseId={courseId}
                         />
                       )}

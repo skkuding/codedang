@@ -14,7 +14,7 @@ import { ErrorBoundary } from '@suspensive/react'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { Suspense, useState } from 'react'
 import { MdOutlineFileOpen } from 'react-icons/md'
-import { SubmissionDetailModal } from '../../../_components/SubmissionDetailModal'
+import { ProblemDetailModal } from '../../../_components/ProblemDetailModal'
 import { TestCaseResult } from '../../../_components/TestCaseResult'
 
 export const columns = (
@@ -126,10 +126,9 @@ function DetailCell({
                 <MdOutlineFileOpen size={20} />
               </button>
               {isOpen && (
-                <SubmissionDetailModal
+                <ProblemDetailModal
                   problemId={problem.id}
                   assignment={assignment}
-                  showEvaluation={false}
                   courseId={courseId}
                 />
               )}

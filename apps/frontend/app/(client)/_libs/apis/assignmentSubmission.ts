@@ -161,8 +161,10 @@ export interface TestcaseResult {
   result: string
   cpuTime: number | null
   memoryUsage: number | null
+  output: string | null
   createTime: string
   updateTime: string
+  problemTestcase: { isHidden: boolean }
 }
 
 export const getTestResult = async ({
