@@ -131,7 +131,7 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
           table.toggleAllPageRowsSelected(Boolean(value))
         }
         aria-label="Select all"
-        className="translate-y-[2px] bg-white"
+        className="translate-y-[2px]"
       />
     ),
     cell: ({ row }) => (
@@ -140,7 +140,7 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
         aria-label="Select row"
-        className="translate-y-[2px] bg-white"
+        className="translate-y-[2px]"
       />
     ),
     enableSorting: false,
