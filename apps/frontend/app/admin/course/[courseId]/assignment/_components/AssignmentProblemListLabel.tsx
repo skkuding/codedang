@@ -10,7 +10,7 @@ import { MdHelpOutline } from 'react-icons/md'
 export function AssignmentProblemListLabel() {
   return (
     <div className="flex items-center gap-2">
-      <Label>Assignment Problem List</Label>
+      <Label>Problem List</Label>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
