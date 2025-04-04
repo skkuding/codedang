@@ -102,7 +102,18 @@ export class ContestService {
           },
           select: {
             userId: true,
-            role: true
+            role: true,
+            user: {
+              select: {
+                username: true,
+                email: true,
+                userProfile: {
+                  select: {
+                    realName: true
+                  }
+                }
+              }
+            }
           }
         }
       }

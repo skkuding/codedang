@@ -362,7 +362,7 @@ export class ContestService {
     const maxScore = sum._sum?.score ?? 0
 
     const scoreColumn = isFrozen ? 'score' : 'finalScore'
-    const totalPenaltyColumn = isFrozen ? 'finalTotalPenalty' : 'totalPenalty'
+    const totalPenaltyColumn = isFrozen ? 'totalPenalty' : 'finalTotalPenalty'
     const contestRecords = await this.prisma.contestRecord.findMany({
       where: {
         contestId
@@ -492,16 +492,20 @@ export class ContestService {
         user
       }) => {
         const getSubmissionCount = (problemId: number) =>
-          submissionCountMap[userId!]?.[problemId] ?? 0
+          submissionCountMap[userId!]?.[problemId] >
+          submissionCountMapBeforeFreeze?.[userId!]?.[problemId]
+            ? submissionCountMap[userId!][problemId]
+            : (submissionCountMapBeforeFreeze?.[userId!]?.[problemId] ?? 0)
 
         const getIsFrozen = (
           problemId: number,
           freezeScore: number,
           finalScore: number
         ) =>
-          freezeScore !== finalScore ||
-          submissionCountMapBeforeFreeze[userId!]?.[problemId] !==
-            submissionCountMap[userId!]?.[problemId]
+          isFrozen &&
+          (freezeScore !== finalScore ||
+            submissionCountMapBeforeFreeze[userId!]?.[problemId] !==
+              submissionCountMap[userId!]?.[problemId])
 
         const problemRecords = allProblems.map(({ id, order, problemId }) => {
           const record = contestProblemRecord.find(

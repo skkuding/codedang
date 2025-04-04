@@ -60,7 +60,12 @@ export class UserService {
       },
       select: {
         username: true,
-        id: true
+        id: true,
+        userProfile: {
+          select: {
+            realName: true
+          }
+        }
       }
     })
 
