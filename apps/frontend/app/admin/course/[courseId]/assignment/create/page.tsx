@@ -47,9 +47,9 @@ export default function Page({ params }: { params: { courseId: string } }) {
 
             <div className="flex gap-6">
               <FormSection isFlexColumn title="Start Time">
-                <TimeForm name="startTime" />
+                <TimeForm name="startTime" defaultValue={new Date()} />
               </FormSection>
-              <FormSection isFlexColumn title="End Time">
+              <FormSection isFlexColumn isLabeled={false} title="End Time">
                 <TimeForm
                   name="endTime"
                   defaultTimeOnSelect={{ hours: 23, minutes: 59, seconds: 59 }}

@@ -201,3 +201,5 @@ export const managerReviewerTypes = ['Manager', 'Reviewer'] as const
  * @constant
  */
 // export const freezeMinuteOptions = ['90', '75', '60', '45', '30', '15']
+
+export const UNLIMITED_DATE = '2999-12-31T14:59:59.000Z'
