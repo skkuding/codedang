@@ -18,6 +18,13 @@ const GET_CONTEST = gql(`
       userContest {
         userId
         role
+        user {
+          username
+          email
+          userProfile {
+            realName
+          }
+        }
       }
     }
   }
