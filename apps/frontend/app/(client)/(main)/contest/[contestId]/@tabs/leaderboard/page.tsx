@@ -81,18 +81,14 @@ export default function ContestLeaderBoard() {
       if (contestEndTime > now && contestStartTime < now) {
         throw new Error('Error(ongoing): The contest has not ended yet.')
       }
-      if (contestLeaderboard.leaderboard.length === 0) {
-        const contestStartTime = new Date(fetchedContest?.startTime)
+      if (contestStartTime > now) {
+        throw new Error(
+          'Error(before start): There is no data in leaderboard yet.'
+        )
+      }
 
-        if (contestStartTime > now) {
-          throw new Error(
-            'Error(before start): There is no data in leaderboard yet.'
-          )
-        } else {
-          throw new Error(
-            'Error(no data): There is no data in leaderboard yet.'
-          )
-        }
+      if (contestLeaderboard.leaderboard.length === 0) {
+        throw new Error('Error(no data): There is no data in leaderboard yet.')
       }
 
       setProblemSize(contestLeaderboard.leaderboard[0].problemRecords.length)

@@ -11,7 +11,7 @@ export default function LeaderboardErrorPage({ error }: { error: Error }) {
       <div className="flex flex-col items-center pt-[100px]">
         <Image src={errorImage} alt="error image" />
         <p className="ml-[70px] mt-[50px] text-2xl font-semibold">
-          아직 콘테스트 시작 안했어요 ^~^
+          The contest hasn&apos;t started yet.
         </p>
         <p className="ml-[70px] mt-2 text-[#00000080]">
           After contest, you can see the leaderboard.
