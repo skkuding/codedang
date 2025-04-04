@@ -90,28 +90,6 @@ export const columns = (
   }
 ]
 
-interface ResultCellProps {
-  row: Row<ProblemGrade>
-  submissions: AssignmentSubmission[]
-}
-
-function ResultCell({ row, submissions }: ResultCellProps) {
-  const submissionResult = submissions.find(
-    (submission) => submission.problemId === row.original.id
-  )?.submission?.submissionResult
-
-  const resultColor = submissionResult === 'Accepted' ? '#35C759' : '#FF3B2F'
-
-  return (
-    <p
-      className="font-medium md:text-base"
-      style={{ color: submissionResult ? resultColor : undefined }}
-    >
-      {submissionResult}
-    </p>
-  )
-}
-
 interface SubmissionCellProps {
   problem: ProblemGrade
   assignment: Assignment
@@ -136,7 +114,10 @@ function DetailCell({
       ?.submission && (
       <div
         className="flex items-center justify-center"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+        }}
       >
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<Skeleton className="size-[25px]" />}>
