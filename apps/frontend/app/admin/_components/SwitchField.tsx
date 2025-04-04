@@ -26,6 +26,7 @@ interface SwitchFieldProps {
   hasValue?: boolean
   children?: React.ReactNode | React.ReactNode[]
   tooltip?: boolean
+  description?: string
 }
 
 export function SwitchField({
@@ -36,7 +37,8 @@ export function SwitchField({
   type = 'text',
   hasValue = false,
   children = null,
-  tooltip = false
+  tooltip = false,
+  description
 }: SwitchFieldProps) {
   const [isEnabled, setIsEnabled] = useState<boolean>(false)
   const {
@@ -132,6 +134,9 @@ export function SwitchField({
 
       {isEnabled && name === 'invitationCode' && errors[name] && (
         <ErrorMessage message={errors[name]?.message?.toString()} />
+      )}
+      {description && (
+        <p className="text-[11px] text-[#9B9B9B]">{description}</p>
       )}
     </div>
   )
