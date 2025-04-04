@@ -32,8 +32,9 @@ export const DateTimePickerDemo = ({
   useEffect(() => {
     if (defaultValue) {
       setDate(defaultValue)
+      onChange(defaultValue)
     }
-  }, [defaultValue])
+  }, [])
 
   return (
     <Popover
@@ -47,8 +48,8 @@ export const DateTimePickerDemo = ({
         <Button
           variant={'outline'}
           className={cn(
-            'w-[492px] justify-start text-left font-normal',
-            isContest ? 'w-[492px]' : 'w-[280px]',
+            'h-[36px] justify-start text-left font-normal',
+            isContest ? 'w-[492px]' : 'w-[218px]',
             !date && 'text-muted-foreground'
           )}
         >
