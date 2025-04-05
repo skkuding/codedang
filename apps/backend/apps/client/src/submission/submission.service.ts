@@ -1101,16 +1101,23 @@ export class SubmissionService {
       }))
     ) {
       const code = plainToInstance(Snippet, submission.code)
-      const results = submission.submissionResult.map((result) => {
-        return {
-          ...result,
-          // TODO: 채점 속도가 너무 빠른경우에 대한 수정 필요 (0ms 미만)
-          cpuTime:
-            result.cpuTime || result.cpuTime === BigInt(0)
-              ? result.cpuTime.toString()
-              : null
-        }
-      })
+      const results = submission.submissionResult
+        .filter(
+          (result) =>
+            !assignmentId ||
+            isHiddenTestcaseVisible ||
+            !result.problemTestcase.isHidden
+        )
+        .map((result) => {
+          return {
+            ...result,
+            // TODO: 채점 속도가 너무 빠른경우에 대한 수정 필요 (0ms 미만)
+            cpuTime:
+              result.cpuTime || result.cpuTime === BigInt(0)
+                ? result.cpuTime.toString()
+                : null
+          }
+        })
 
       results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
 
