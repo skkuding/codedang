@@ -90,9 +90,10 @@ const useWebsocket = (
     }
   }
 
+  //
   terminal.onData((data) => {
     if (isWaitingForServerResponse) {
-      // 서버 응답을 기다리는 중이면 입력을 큐에 넣음
+      // When waiting for server response, input is added to the queue
       if (data.includes('\r') || data.includes('\n')) {
         const lines = data.split(/\r\n|\r|\n/)
         inputQueue.push(...lines.filter((line) => line.length > 0))
@@ -100,42 +101,67 @@ const useWebsocket = (
       return
     }
 
-    // 줄바꿈이 있는 텍스트가, 복사 붙여넣기 되었을 경우
+    // When text with line breaks is pasted
     if (data.includes('\r') || data.includes('\n')) {
       const lines = data.split(/\r\n|\r|\n/)
 
-      // 첫 번째 줄은 현재 입력 버퍼에 추가
+      // The first line is added to the current input buffer
       if (lines[0]) {
-        currentInputBuffer += lines[0]
-        terminal.write(lines[0])
+        if (cursorPosition === currentInputBuffer.length) {
+          terminal.write(lines[0])
+          currentInputBuffer += lines[0]
+          cursorPosition += lines[0].length
+        } else {
+          // Insertion mode activation
+          terminal.write('\x1b[4h')
+          terminal.write(lines[0])
+          terminal.write('\x1b[4l')
+          // Insertion mode deactivation
+
+          currentInputBuffer =
+            currentInputBuffer.substring(0, cursorPosition) +
+            lines[0] +
+            currentInputBuffer.substring(cursorPosition)
+          cursorPosition += lines[0].length
+        }
       }
 
       // Enter 키 처리
       terminal.write('\r\n')
       processLine(currentInputBuffer)
 
-      // 나머지 줄들은 큐에 추가
+      // Add remaining lines to queue
       if (lines.length > 1) {
         inputQueue.push(...lines.slice(1).filter((line) => line.length > 0))
       }
       return
     }
 
-    // 백스페이스 처리
+    // Backspace 처리
     if (data === '\b' || data === '\x7f') {
       if (cursorPosition > 0) {
-        currentInputBuffer =
-          currentInputBuffer.substring(0, cursorPosition - 1) +
-          currentInputBuffer.substring(cursorPosition)
-        cursorPosition--
+        if (cursorPosition === currentInputBuffer.length) {
+          terminal.write('\b \b')
+          currentInputBuffer = currentInputBuffer.substring(
+            0,
+            cursorPosition - 1
+          )
+          cursorPosition--
+        } else {
+          terminal.write('\b')
+          terminal.write('\x1b[P')
 
-        // 화면에서 글자 지우기
-        terminal.write('\b \b')
+          // Update Buffer
+          currentInputBuffer =
+            currentInputBuffer.substring(0, cursorPosition - 1) +
+            currentInputBuffer.substring(cursorPosition)
+          cursorPosition--
+        }
       }
       return
     }
 
-    // 왼쪽 화살표 키 처리
+    // Left Arrow Key 처리
     if (data === '\x1b[D') {
       if (cursorPosition > 0) {
         cursorPosition--
@@ -144,7 +170,7 @@ const useWebsocket = (
       return
     }
 
-    // 오른쪽 화살표 키 처리
+    // Right Arrow Key 처리
     if (data === '\x1b[C') {
       if (cursorPosition < currentInputBuffer.length) {
         cursorPosition++
@@ -153,13 +179,26 @@ const useWebsocket = (
       return
     }
 
-    // 일반 텍스트 입력 처리
-    currentInputBuffer =
-      currentInputBuffer.substring(0, cursorPosition) +
-      data +
-      currentInputBuffer.substring(cursorPosition)
-    cursorPosition += data.length
-    terminal.write(data)
+    // Normal Text Input 처리
+    if (cursorPosition === currentInputBuffer.length) {
+      // 커서가 끝에 있을 경우 그냥 추가
+      terminal.write(data)
+      currentInputBuffer += data
+      cursorPosition += data.length
+    } else {
+      // [4h: Insertion mode
+      terminal.write('\x1b[4h')
+      terminal.write(data)
+      // [4l: Turn back to normal mode
+      terminal.write('\x1b[4l')
+
+      // 버퍼 업데이트
+      currentInputBuffer =
+        currentInputBuffer.substring(0, cursorPosition) +
+        data +
+        currentInputBuffer.substring(cursorPosition)
+      cursorPosition += data.length
+    }
   })
 
   ws.onopen = () => {
@@ -190,6 +229,7 @@ const useWebsocket = (
           terminal.writeln(data.stderr)
           break
         case RunnerMessageType.ECHO:
+          return
         case RunnerMessageType.STDOUT:
         case RunnerMessageType.STDERR:
           terminal.write(data.data || '')
