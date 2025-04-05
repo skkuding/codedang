@@ -56,7 +56,6 @@ const compileMessageGenerator = (
 
 const useWebsocket = (
   terminal: Terminal,
-  fitAddon: FitAddon,
   source: string,
   language: Language
 ) => {
@@ -351,15 +350,7 @@ const useWebsocket = (
   }
   terminal.onData(handleDataInput)
 
-  const handleResize = () => {
-    try {
-      fitAddon.fit()
-    } catch (e) {
-      console.error('터미널 리사이즈 오류:', e)
-    }
-  }
-
-  return { ws, handleResize }
+  return { ws }
 }
 
 export const useRunner = () => {
@@ -368,17 +359,17 @@ export const useRunner = () => {
   const [terminalInstance, setTerminalInstance] = useState<Terminal | null>(
     null
   )
-  const [resizeHandler, setResizeHandler] = useState<(() => void) | null>(null)
+  const [resizeObserver, setResizeObserver] = useState<ResizeObserver | null>(
+    null
+  )
 
   useEffect(() => {
-    if (resizeHandler) {
-      window.addEventListener('resize', resizeHandler)
-
-      return () => {
-        window.removeEventListener('resize', resizeHandler)
+    return () => {
+      if (resizeObserver) {
+        resizeObserver.disconnect()
       }
     }
-  }, [resizeHandler])
+  }, [resizeObserver])
 
   const startRunner = (code: string, language: Language) => {
     if (ws) {
@@ -415,14 +406,25 @@ export const useRunner = () => {
       terminal.focus()
 
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { ws: newWs, handleResize } = useWebsocket(
-        terminal,
-        fitAddon,
-        code,
-        language
-      )
+      const { ws: newWs } = useWebsocket(terminal, code, language)
       setWs(newWs)
-      setResizeHandler(() => handleResize)
+
+      if (!resizeObserver) {
+        // 컨테이너 크기 변경 감지를 위한 ResizeObserver 설정
+        const observer = new ResizeObserver(() => {
+          const handleResize = () => {
+            try {
+              fitAddon.fit()
+            } catch (e) {
+              console.error('Error on resizing terminal:', e)
+            }
+          }
+          handleResize()
+        })
+
+        observer.observe(element)
+        setResizeObserver(observer)
+      }
 
       let timeLeft = runnerConnectionTimeLimit
       const timerId = setInterval(() => {
