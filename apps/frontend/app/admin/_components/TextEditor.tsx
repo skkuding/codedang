@@ -19,6 +19,7 @@ import {
 } from '@/components/shadcn/popover'
 import { Toggle } from '@/components/shadcn/toggle'
 import { UPLOAD_IMAGE, UPLOAD_FILE } from '@/graphql/problem/mutations'
+import { cn } from '@/libs/utils'
 import { useMutation } from '@apollo/client'
 import type { Range } from '@tiptap/core'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
@@ -80,15 +81,19 @@ import { getSuggestionItems } from './tiptap/items'
 import { renderItems } from './tiptap/renderItems'
 import './tiptap/styles.css'
 
-export function TextEditor({
-  placeholder,
-  onChange,
-  defaultValue
-}: {
+interface TextEditorProps {
   placeholder: string
   onChange: (richText: string) => void
   defaultValue?: string
-}) {
+  isDarkMode?: boolean
+}
+
+export function TextEditor({
+  placeholder,
+  onChange,
+  defaultValue,
+  isDarkMode = false
+}: TextEditorProps) {
   const lowlight = createLowlight(common)
 
   const editor = useEditor({
@@ -647,7 +652,10 @@ export function TextEditor({
         onClose={() => setIsCautionDialogOpen(false)}
         description={dialogDescription}
       />
-      <EditorContent editor={editor} className="prose prose-invert max-w-5xl" />
+      <EditorContent
+        editor={editor}
+        className={cn('prose max-w-5xl', isDarkMode && 'prose-invert')}
+      />
     </div>
   )
 }
