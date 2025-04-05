@@ -65,10 +65,12 @@ const useWebsocket = (
   let isWaitingForServerResponse = false
   // eslint-disable-next-line prefer-const
   let inputQueue: string[] = []
+  let isComposing = false
+  let lastComposedText = ''
 
   terminal.writeln('[SYS] 실행 서버 연결중...')
 
-  const processLine = (line: string) => {
+  function processLine(line: string) {
     if (ws && ws.readyState === WebSocket.OPEN) {
       isWaitingForServerResponse = true
       const inputMsg = {
@@ -78,22 +80,123 @@ const useWebsocket = (
       ws.send(JSON.stringify(inputMsg))
       currentInputBuffer = ''
       cursorPosition = 0
+      lastComposedText = ''
     }
   }
 
-  const processNextQueuedInput = () => {
-    if (inputQueue.length > 0 && !isWaitingForServerResponse) {
-      const nextLine = inputQueue.shift()
-      if (nextLine !== undefined) {
-        processLine(nextLine)
+  function handleTextAtCursorPosition(text: string) {
+    if (cursorPosition === currentInputBuffer.length) {
+      // 커서가 끝에 있는 경우 단순 추가
+      terminal.write(text)
+      currentInputBuffer += text
+      cursorPosition += text.length
+    } else {
+      // 커서가 중간에 있는 경우 삽입 모드 사용
+      terminal.write('\x1b[4h') // 삽입 모드 활성화
+      terminal.write(text)
+      terminal.write('\x1b[4l') // 삽입 모드 비활성화
+
+      // 버퍼 업데이트
+      currentInputBuffer =
+        currentInputBuffer.substring(0, cursorPosition) +
+        text +
+        currentInputBuffer.substring(cursorPosition)
+      cursorPosition += text.length
+    }
+  }
+
+  const handleBackspace = () => {
+    if (cursorPosition === 0) {
+      return
+    }
+
+    // 지울 문자 확인
+    const charToDelete = currentInputBuffer[cursorPosition - 1]
+
+    const isFullWidthCharacter = (char: string) => {
+      if (!char) {
+        return false
       }
+      const code = char.charCodeAt(0)
+      return (
+        (code >= 0x1100 && code <= 0x11ff) || // 한글 자모
+        (code >= 0x3130 && code <= 0x318f) || // 한글 호환 자모
+        (code >= 0xac00 && code <= 0xd7a3) || // 한글 음절
+        (code >= 0xff01 && code <= 0xff60) || // 전각 구두점
+        (code >= 0xffe0 && code <= 0xffe6) // 전각 기호
+      )
+    }
+    const isFullWidth = isFullWidthCharacter(charToDelete)
+
+    if (cursorPosition === currentInputBuffer.length) {
+      // 커서가 끝에 있는 경우
+      if (isFullWidth) {
+        terminal.write('\b \b\b \b') // 한글/전각은 두 칸 지우기
+      } else {
+        terminal.write('\b \b') // 일반 문자는 한 칸 지우기
+      }
+    } else {
+      // 커서가 중간에 있는 경우 DCH 명령 사용
+      terminal.write('\b') // 한 칸 왼쪽으로 이동
+      const deleteCount = isFullWidth ? 2 : 1
+      terminal.write(`\x1b[${deleteCount}P`) // 해당 문자 삭제
+    }
+
+    // 버퍼 업데이트
+    currentInputBuffer =
+      currentInputBuffer.substring(0, cursorPosition - 1) +
+      currentInputBuffer.substring(cursorPosition)
+    cursorPosition--
+  }
+
+  const handlePasteWithLineBreaks = (data: string) => {
+    const lines = data.split(/\r\n|\r|\n/)
+
+    // 첫 번째 줄 처리
+    if (lines[0]) {
+      handleTextAtCursorPosition(lines[0])
+    }
+
+    // Enter 키 처리
+    terminal.write('\r\n')
+    processLine(currentInputBuffer)
+
+    // 나머지 줄들은 큐에 추가
+    if (lines.length > 1) {
+      inputQueue.push(...lines.slice(1).filter((line) => line.length > 0))
     }
   }
 
-  //
-  terminal.onData((data) => {
+  const setupIMEHandlers = () => {
+    // IME 조합 시작
+    terminal.textarea?.addEventListener('compositionstart', () => {
+      isComposing = true
+    })
+
+    // IME 조합 완료
+    terminal.textarea?.addEventListener(
+      'compositionend',
+      (e: CompositionEvent) => {
+        if (isWaitingForServerResponse) {
+          return
+        }
+
+        const composedText = e.data
+        lastComposedText = composedText
+
+        handleTextAtCursorPosition(composedText)
+
+        // 조합 완료 후 플래그 초기화 (비동기 처리)
+        setTimeout(() => {
+          isComposing = false
+        }, 0)
+      }
+    )
+  }
+
+  const handleDataInput = (data: string) => {
+    // 서버 응답 대기 중이면 줄바꿈만 큐에 추가
     if (isWaitingForServerResponse) {
-      // When waiting for server response, input is added to the queue
       if (data.includes('\r') || data.includes('\n')) {
         const lines = data.split(/\r\n|\r|\n/)
         inputQueue.push(...lines.filter((line) => line.length > 0))
@@ -101,67 +204,25 @@ const useWebsocket = (
       return
     }
 
-    // When text with line breaks is pasted
+    // IME 조합 중이거나 직전 완성된 한글 중복 입력 방지
+    if (isComposing || lastComposedText === data) {
+      lastComposedText = ''
+      return
+    }
+
+    // 줄바꿈이 있는 붙여넣기 처리
     if (data.includes('\r') || data.includes('\n')) {
-      const lines = data.split(/\r\n|\r|\n/)
-
-      // The first line is added to the current input buffer
-      if (lines[0]) {
-        if (cursorPosition === currentInputBuffer.length) {
-          terminal.write(lines[0])
-          currentInputBuffer += lines[0]
-          cursorPosition += lines[0].length
-        } else {
-          // Insertion mode activation
-          terminal.write('\x1b[4h')
-          terminal.write(lines[0])
-          terminal.write('\x1b[4l')
-          // Insertion mode deactivation
-
-          currentInputBuffer =
-            currentInputBuffer.substring(0, cursorPosition) +
-            lines[0] +
-            currentInputBuffer.substring(cursorPosition)
-          cursorPosition += lines[0].length
-        }
-      }
-
-      // Enter 키 처리
-      terminal.write('\r\n')
-      processLine(currentInputBuffer)
-
-      // Add remaining lines to queue
-      if (lines.length > 1) {
-        inputQueue.push(...lines.slice(1).filter((line) => line.length > 0))
-      }
+      handlePasteWithLineBreaks(data)
       return
     }
 
-    // Backspace 처리
+    // 백스페이스 처리
     if (data === '\b' || data === '\x7f') {
-      if (cursorPosition > 0) {
-        if (cursorPosition === currentInputBuffer.length) {
-          terminal.write('\b \b')
-          currentInputBuffer = currentInputBuffer.substring(
-            0,
-            cursorPosition - 1
-          )
-          cursorPosition--
-        } else {
-          terminal.write('\b')
-          terminal.write('\x1b[P')
-
-          // Update Buffer
-          currentInputBuffer =
-            currentInputBuffer.substring(0, cursorPosition - 1) +
-            currentInputBuffer.substring(cursorPosition)
-          cursorPosition--
-        }
-      }
+      handleBackspace()
       return
     }
 
-    // Left Arrow Key 처리
+    // 왼쪽 화살표 키 처리
     if (data === '\x1b[D') {
       if (cursorPosition > 0) {
         cursorPosition--
@@ -170,7 +231,7 @@ const useWebsocket = (
       return
     }
 
-    // Right Arrow Key 처리
+    // 오른쪽 화살표 키 처리
     if (data === '\x1b[C') {
       if (cursorPosition < currentInputBuffer.length) {
         cursorPosition++
@@ -179,84 +240,83 @@ const useWebsocket = (
       return
     }
 
-    // Normal Text Input 처리
-    if (cursorPosition === currentInputBuffer.length) {
-      // 커서가 끝에 있을 경우 그냥 추가
-      terminal.write(data)
-      currentInputBuffer += data
-      cursorPosition += data.length
-    } else {
-      // [4h: Insertion mode
-      terminal.write('\x1b[4h')
-      terminal.write(data)
-      // [4l: Turn back to normal mode
-      terminal.write('\x1b[4l')
-
-      // 버퍼 업데이트
-      currentInputBuffer =
-        currentInputBuffer.substring(0, cursorPosition) +
-        data +
-        currentInputBuffer.substring(cursorPosition)
-      cursorPosition += data.length
+    // 일반 텍스트 입력 처리
+    if (data.length === 1 && !data.startsWith('\x1b')) {
+      handleTextAtCursorPosition(data)
     }
-  })
-
-  ws.onopen = () => {
-    terminal.writeln('[SYS] 실행 서버 연결 성공\n')
-    terminal.focus()
-
-    const compileMsg = compileMessageGenerator(source, language)
-    ws.send(JSON.stringify(compileMsg))
   }
 
-  ws.onclose = () => {
-    terminal.writeln('\n[SYS] 실행 서버 연결 종료.....')
-    isWaitingForServerResponse = false
-  }
+  const setupWebSocketHandlers = () => {
+    ws.onopen = () => {
+      terminal.writeln('[SYS] 실행 서버 연결 성공\n')
+      terminal.focus()
 
-  ws.onerror = () => {
-    terminal.writeln('[SYS] 에러 발생으로 연결 끊김')
-    isWaitingForServerResponse = false
-  }
+      const compileMsg = compileMessageGenerator(source, language)
+      ws.send(JSON.stringify(compileMsg))
+    }
 
-  ws.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data)
-      const msgType = data.type
-
-      switch (msgType) {
-        case RunnerMessageType.COMPILE_ERR:
-          terminal.writeln(data.stderr)
-          break
-        case RunnerMessageType.ECHO:
-          return
-        case RunnerMessageType.STDOUT:
-        case RunnerMessageType.STDERR:
-          terminal.write(data.data || '')
-          break
-        case RunnerMessageType.EXIT:
-          terminal.writeln(
-            `\n\n[SYS] Process ended with exit code: ${data.return_code}`
-          )
-          break
-        default:
-          return
-      }
-
-      // 서버 응답을 받으면 다음 입력 처리
-      if (
-        msgType === RunnerMessageType.STDOUT ||
-        msgType === RunnerMessageType.STDERR ||
-        msgType === RunnerMessageType.ECHO
-      ) {
-        isWaitingForServerResponse = false
-        processNextQueuedInput()
-      }
-    } catch (e) {
-      terminal.writeln(`[Error] ${e}`)
+    ws.onclose = () => {
+      terminal.writeln('\n[SYS] 실행 서버 연결 종료.....')
       isWaitingForServerResponse = false
     }
+
+    ws.onerror = () => {
+      terminal.writeln('[SYS] 에러 발생으로 연결 끊김')
+      isWaitingForServerResponse = false
+    }
+
+    const processNextQueuedInput = () => {
+      if (inputQueue.length > 0 && !isWaitingForServerResponse) {
+        const nextLine = inputQueue.shift()
+        if (nextLine !== undefined) {
+          processLine(nextLine)
+        }
+      }
+    }
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data)
+        const msgType = data.type
+
+        switch (msgType) {
+          case RunnerMessageType.COMPILE_ERR:
+            terminal.writeln(data.stderr)
+            break
+          case RunnerMessageType.ECHO:
+            return
+          case RunnerMessageType.STDOUT:
+          case RunnerMessageType.STDERR:
+            terminal.write(data.data || '')
+            break
+          case RunnerMessageType.EXIT:
+            terminal.writeln(
+              `\n\n[SYS] Process ended with exit code: ${data.return_code}`
+            )
+            break
+          default:
+            return
+        }
+
+        // 서버 응답을 받으면 다음 입력 처리
+        if (
+          msgType === RunnerMessageType.STDOUT ||
+          msgType === RunnerMessageType.STDERR ||
+          msgType === RunnerMessageType.ECHO
+        ) {
+          isWaitingForServerResponse = false
+          processNextQueuedInput()
+        }
+      } catch (e) {
+        terminal.writeln(`[Error] ${e}`)
+        isWaitingForServerResponse = false
+      }
+    }
   }
+
+  setupWebSocketHandlers()
+  terminal.onData(handleDataInput)
+  setupIMEHandlers()
 
   return { ws }
 }
