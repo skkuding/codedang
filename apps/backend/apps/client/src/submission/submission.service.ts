@@ -1092,21 +1092,22 @@ export class SubmissionService {
       submission.userId === userId ||
       userRole === Role.Admin ||
       userRole === Role.SuperAdmin ||
-      (await this.prisma.submission.count({
-        where: {
-          userId,
-          problemId,
-          result: 'Accepted'
-        }
-      }))
+      (contestId &&
+        (await this.prisma.submission.count({
+          where: {
+            userId,
+            problemId,
+            result: 'Accepted'
+          }
+        })))
     ) {
       const code = plainToInstance(Snippet, submission.code)
       const results = submission.submissionResult
         .filter(
           (result) =>
-            assignmentId &&
-            isHiddenTestcaseVisible &&
-            result.problemTestcase.isHidden
+            !assignmentId ||
+            isHiddenTestcaseVisible ||
+            !result.problemTestcase.isHidden
         )
         .map((result) => {
           return {
