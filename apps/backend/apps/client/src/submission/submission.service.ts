@@ -1104,9 +1104,9 @@ export class SubmissionService {
       const results = submission.submissionResult
         .filter(
           (result) =>
-            !assignmentId ||
-            isHiddenTestcaseVisible ||
-            !result.problemTestcase.isHidden
+            assignmentId &&
+            isHiddenTestcaseVisible &&
+            result.problemTestcase.isHidden
         )
         .map((result) => {
           return {
