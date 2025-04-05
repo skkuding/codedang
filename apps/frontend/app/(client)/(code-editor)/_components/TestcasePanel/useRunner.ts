@@ -216,6 +216,7 @@ const useWebsocket = (
       if (inputQueue.length > 0 && !isWaitingForServerResponse) {
         const nextLine = inputQueue.shift()
         if (nextLine !== undefined) {
+          terminal.writeln(nextLine)
           processLine(nextLine)
         }
       }
