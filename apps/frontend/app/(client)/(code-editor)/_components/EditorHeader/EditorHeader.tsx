@@ -51,6 +51,7 @@ import { useEffect, useRef, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
+import { useRunner } from '../TestcasePanel/useRunner'
 import { useTestPollingStore } from '../context/TestPollingStoreProvider'
 import { BackCautionDialog } from './BackCautionDialog'
 import { RunTestButton } from './RunTestButton'
@@ -99,6 +100,7 @@ export function EditorHeader({
   const isModalConfrimed = useRef(false)
 
   const queryClient = useQueryClient()
+  const { startRunner } = useRunner()
 
   useInterval(
     async () => {
@@ -183,6 +185,19 @@ export function EditorHeader({
       toast.error('Failed to save the code')
     }
   }
+
+  const run = () => {
+    const code = getCode()
+
+    if (code === '') {
+      toast.error('Please write code before run')
+      return
+    }
+
+    storeCodeToLocalStorage(code)
+    startRunner(code, language)
+  }
+
   const submit = async () => {
     const code = getCode()
 
@@ -411,6 +426,12 @@ export function EditorHeader({
           disabled={loading}
           saveCode={storeCodeToLocalStorage}
         />
+        <Button
+          className="h-8 shrink-0 gap-1 rounded-[4px] bg-green-500 px-2 font-normal"
+          onClick={run}
+        >
+          RUN
+        </Button>
         <Button
           className="h-8 shrink-0 gap-1 rounded-[4px] px-2 font-normal"
           disabled={loading}
