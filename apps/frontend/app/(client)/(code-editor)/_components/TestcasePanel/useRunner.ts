@@ -6,8 +6,9 @@ import {
   type Language,
   type RunnerMessage
 } from '@/types/type'
+import { FitAddon } from '@xterm/addon-fit'
 import { Terminal } from '@xterm/xterm'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const getCodeConfig = (language: Language) => {
   let filename, compileCmd, command
@@ -55,6 +56,7 @@ const compileMessageGenerator = (
 
 const useWebsocket = (
   terminal: Terminal,
+  fitAddon: FitAddon,
   source: string,
   language: Language
 ) => {
@@ -63,26 +65,13 @@ const useWebsocket = (
   let currentInputBuffer = ''
   let cursorPosition = 0
   let isWaitingForServerResponse = false
+  let isConnected = false
   // eslint-disable-next-line prefer-const
   let inputQueue: string[] = []
   let isComposing = false
   let lastComposedText = ''
 
   terminal.writeln('[SYS] 실행 서버 연결중...')
-
-  function processLine(line: string) {
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      isWaitingForServerResponse = true
-      const inputMsg = {
-        type: RunnerMessageType.INPUT,
-        data: `${line}\n`
-      }
-      ws.send(JSON.stringify(inputMsg))
-      currentInputBuffer = ''
-      cursorPosition = 0
-      lastComposedText = ''
-    }
-  }
 
   const isFullWidthCharacter = (char: string) => {
     if (!char) {
@@ -96,6 +85,20 @@ const useWebsocket = (
       (code >= 0xff01 && code <= 0xff60) || // 전각 구두점
       (code >= 0xffe0 && code <= 0xffe6) // 전각 기호
     )
+  }
+
+  const processLine = (line: string) => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      isWaitingForServerResponse = true
+      const inputMsg = {
+        type: RunnerMessageType.INPUT,
+        data: `${line}\n`
+      }
+      ws.send(JSON.stringify(inputMsg))
+      currentInputBuffer = ''
+      cursorPosition = 0
+      lastComposedText = ''
+    }
   }
 
   const handleTextInput = (text: string) => {
@@ -197,6 +200,7 @@ const useWebsocket = (
     ws.onopen = () => {
       terminal.writeln('[SYS] 실행 서버 연결 성공\n')
       terminal.focus()
+      isConnected = true
 
       const compileMsg = compileMessageGenerator(source, language)
       ws.send(JSON.stringify(compileMsg))
@@ -205,11 +209,13 @@ const useWebsocket = (
     ws.onclose = () => {
       terminal.writeln('\n[SYS] 실행 서버 연결 종료.....')
       isWaitingForServerResponse = false
+      isConnected = false
     }
 
     ws.onerror = () => {
       terminal.writeln('[SYS] 에러 발생으로 연결 끊김')
       isWaitingForServerResponse = false
+      isConnected = false
     }
 
     const processNextQueuedInput = () => {
@@ -264,6 +270,10 @@ const useWebsocket = (
   setupWebSocketHandlers()
 
   const handleDataInput = (data: string) => {
+    if (!isConnected) {
+      return
+    }
+
     // 서버 응답 대기 중이면 input Queue에 추가
     if (isWaitingForServerResponse) {
       if (data.includes('\r') || data.includes('\n')) {
@@ -340,7 +350,16 @@ const useWebsocket = (
     }
   }
   terminal.onData(handleDataInput)
-  return { ws }
+
+  const handleResize = () => {
+    try {
+      fitAddon.fit()
+    } catch (e) {
+      console.error('터미널 리사이즈 오류:', e)
+    }
+  }
+
+  return { ws, handleResize }
 }
 
 export const useRunner = () => {
@@ -349,6 +368,17 @@ export const useRunner = () => {
   const [terminalInstance, setTerminalInstance] = useState<Terminal | null>(
     null
   )
+  const [resizeHandler, setResizeHandler] = useState<(() => void) | null>(null)
+
+  useEffect(() => {
+    if (resizeHandler) {
+      window.addEventListener('resize', resizeHandler)
+
+      return () => {
+        window.removeEventListener('resize', resizeHandler)
+      }
+    }
+  }, [resizeHandler])
 
   const startRunner = (code: string, language: Language) => {
     if (ws) {
@@ -377,12 +407,22 @@ export const useRunner = () => {
         cursorBlink: true
       })
 
+      // fit 애드온 추가
+      const fitAddon = new FitAddon()
+      terminal.loadAddon(fitAddon)
+
       terminal.open(element)
       terminal.focus()
 
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { ws: newWs } = useWebsocket(terminal, code, language)
+      const { ws: newWs, handleResize } = useWebsocket(
+        terminal,
+        fitAddon,
+        code,
+        language
+      )
       setWs(newWs)
+      setResizeHandler(() => handleResize)
 
       let timeLeft = runnerConnectionTimeLimit
       const timerId = setInterval(() => {
