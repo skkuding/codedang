@@ -418,7 +418,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
             penalty: true,
             lastPenalty: true,
             freezeTime: true,
-            submission: { where: { userId }, select: { id: true } }
+            submission: { where: { userId, problemId }, select: { id: true } }
           }
         }),
         this.prisma.contestProblem.findUniqueOrThrow({
