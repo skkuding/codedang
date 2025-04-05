@@ -84,19 +84,19 @@ const useWebsocket = (
     }
   }
 
-  function handleTextAtCursorPosition(text: string) {
+  const handleTextInput = (text: string) => {
     if (cursorPosition === currentInputBuffer.length) {
       // 커서가 끝에 있는 경우 단순 추가
       terminal.write(text)
       currentInputBuffer += text
       cursorPosition += text.length
     } else {
-      // 커서가 중간에 있는 경우 삽입 모드 사용
+      // 커서가 끝에 있지 않은 경우에는 삽입 모드 사용
       terminal.write('\x1b[4h') // 삽입 모드 활성화
       terminal.write(text)
       terminal.write('\x1b[4l') // 삽입 모드 비활성화
 
-      // 버퍼 업데이트
+      // Input 버퍼 업데이트
       currentInputBuffer =
         currentInputBuffer.substring(0, cursorPosition) +
         text +
@@ -105,7 +105,7 @@ const useWebsocket = (
     }
   }
 
-  const handleBackspace = () => {
+  const handleBackspaceInput = () => {
     if (cursorPosition === 0) {
       return
     }
@@ -152,12 +152,10 @@ const useWebsocket = (
   const handlePasteWithLineBreaks = (data: string) => {
     const lines = data.split(/\r\n|\r|\n/)
 
-    // 첫 번째 줄 처리
+    // 첫 번째 줄 작성 후 서버에 요청 전달
     if (lines[0]) {
-      handleTextAtCursorPosition(lines[0])
+      handleTextInput(lines[0])
     }
-
-    // Enter 키 처리
     terminal.write('\r\n')
     processLine(currentInputBuffer)
 
@@ -184,7 +182,7 @@ const useWebsocket = (
         const composedText = e.data
         lastComposedText = composedText
 
-        handleTextAtCursorPosition(composedText)
+        handleTextInput(composedText)
 
         // 조합 완료 후 플래그 초기화 (비동기 처리)
         setTimeout(() => {
@@ -193,58 +191,7 @@ const useWebsocket = (
       }
     )
   }
-
-  const handleDataInput = (data: string) => {
-    // 서버 응답 대기 중이면 줄바꿈만 큐에 추가
-    if (isWaitingForServerResponse) {
-      if (data.includes('\r') || data.includes('\n')) {
-        const lines = data.split(/\r\n|\r|\n/)
-        inputQueue.push(...lines.filter((line) => line.length > 0))
-      }
-      return
-    }
-
-    // IME 조합 중이거나 직전 완성된 한글 중복 입력 방지
-    if (isComposing || lastComposedText === data) {
-      lastComposedText = ''
-      return
-    }
-
-    // 줄바꿈이 있는 붙여넣기 처리
-    if (data.includes('\r') || data.includes('\n')) {
-      handlePasteWithLineBreaks(data)
-      return
-    }
-
-    // 백스페이스 처리
-    if (data === '\b' || data === '\x7f') {
-      handleBackspace()
-      return
-    }
-
-    // 왼쪽 화살표 키 처리
-    if (data === '\x1b[D') {
-      if (cursorPosition > 0) {
-        cursorPosition--
-        terminal.write(data)
-      }
-      return
-    }
-
-    // 오른쪽 화살표 키 처리
-    if (data === '\x1b[C') {
-      if (cursorPosition < currentInputBuffer.length) {
-        cursorPosition++
-        terminal.write(data)
-      }
-      return
-    }
-
-    // 일반 텍스트 입력 처리
-    if (data.length === 1 && !data.startsWith('\x1b')) {
-      handleTextAtCursorPosition(data)
-    }
-  }
+  setupIMEHandlers()
 
   const setupWebSocketHandlers = () => {
     ws.onopen = () => {
@@ -313,11 +260,63 @@ const useWebsocket = (
       }
     }
   }
-
   setupWebSocketHandlers()
-  terminal.onData(handleDataInput)
-  setupIMEHandlers()
 
+  const handleDataInput = (data: string) => {
+    // 서버 응답 대기 중이면 input Queue에 추가
+    if (isWaitingForServerResponse) {
+      if (data.includes('\r') || data.includes('\n')) {
+        // 멀티라인 input(복사붙여넣기 Case)의 경우에는 Queue에 추가
+        const lines = data.split(/\r\n|\r|\n/)
+        inputQueue.push(...lines.filter((line) => line.length > 0))
+      } else {
+        // 멀티라인 input 아니면 Ignore
+      }
+      return
+    }
+
+    // IME 조합 중이거나 직전 완성된 한글 중복 입력 방지
+    if (isComposing || lastComposedText === data) {
+      lastComposedText = ''
+      return
+    }
+
+    // 줄바꿈이 있는 붙여넣기 처리
+    if (data.includes('\r') || data.includes('\n')) {
+      handlePasteWithLineBreaks(data)
+      return
+    }
+
+    // 백스페이스 처리
+    if (data === '\b' || data === '\x7f') {
+      handleBackspaceInput()
+      return
+    }
+
+    // 왼쪽 화살표 키 처리
+    if (data === '\x1b[D') {
+      if (cursorPosition > 0) {
+        cursorPosition--
+        terminal.write(data)
+      }
+      return
+    }
+
+    // 오른쪽 화살표 키 처리
+    if (data === '\x1b[C') {
+      if (cursorPosition < currentInputBuffer.length) {
+        cursorPosition++
+        terminal.write(data)
+      }
+      return
+    }
+
+    // 일반 텍스트 입력 처리
+    if (data.length === 1 && !data.startsWith('\x1b')) {
+      handleTextInput(data)
+    }
+  }
+  terminal.onData(handleDataInput)
   return { ws }
 }
 
