@@ -1,4 +1,4 @@
-import { safeFetcherWithAuth } from '@/libs/utils'
+import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
 import type {
   AssignmentProblemRecord,
   AssignmentSubmission,
@@ -93,15 +93,21 @@ export const getLatestProblemSubmissionResult = async ({
   assignmentId,
   problemId
 }: GetLatestProblemSubmissionResultRequest) => {
-  const response = await safeFetcherWithAuth.get(
-    `assignment/${assignmentId}/submission/latest`,
-    {
-      searchParams: { problemId }
-    }
-  )
+  try {
+    const response = await safeFetcherWithAuth.get(
+      `assignment/${assignmentId}/submission/latest`,
+      {
+        searchParams: { problemId }
+      }
+    )
 
-  const data = await response.json<ProblemSubmissionResult>()
-  return data
+    const data = await response.json<ProblemSubmissionResult>()
+    return data
+  } catch (error) {
+    if (isHttpError(error) && error.response.status === 403) {
+      return null
+    }
+  }
 }
 
 export interface GetProblemSubmissionResultsRequest {

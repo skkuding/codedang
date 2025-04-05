@@ -177,8 +177,8 @@ export function CodeEditor({
         />
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
-      <div className="flex w-full flex-none items-center justify-end gap-1 border-t border-slate-700 bg-[#121728] px-4 py-1.5">
-        {showZoom && (
+      {showZoom && (
+        <div className="flex w-full flex-none items-center justify-end gap-1 border-t border-slate-700 bg-[#121728] px-4 py-1.5">
           <TooltipProvider>
             <AnimatePresence>
               {fontSize !== 16 && (
@@ -247,8 +247,8 @@ export function CodeEditor({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

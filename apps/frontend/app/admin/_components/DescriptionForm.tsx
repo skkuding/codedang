@@ -14,8 +14,8 @@ interface DescriptionFormProps {
 // NOTE: Contest는 description이 null일 수 있음(필수 항목이 아님)
 export function DescriptionForm({
   name,
-  isContest = false
-  // isDarkmode = false
+  isContest = false,
+  isDarkmode = false
 }: DescriptionFormProps) {
   const {
     control,
@@ -44,7 +44,7 @@ export function DescriptionForm({
         placeholder="Enter a description..."
         onChange={field.onChange}
         defaultValue={field.value as string}
-        // isDarkMode={isDarkmode}
+        isDarkMode={isDarkmode}
       />
       {errors[name] && (
         <ErrorMessage
