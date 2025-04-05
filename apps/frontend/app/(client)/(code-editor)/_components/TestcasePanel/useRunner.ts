@@ -84,6 +84,20 @@ const useWebsocket = (
     }
   }
 
+  const isFullWidthCharacter = (char: string) => {
+    if (!char) {
+      return false
+    }
+    const code = char.charCodeAt(0)
+    return (
+      (code >= 0x1100 && code <= 0x11ff) || // 한글 자모
+      (code >= 0x3130 && code <= 0x318f) || // 한글 호환 자모
+      (code >= 0xac00 && code <= 0xd7a3) || // 한글 음절
+      (code >= 0xff01 && code <= 0xff60) || // 전각 구두점
+      (code >= 0xffe0 && code <= 0xffe6) // 전각 기호
+    )
+  }
+
   const handleTextInput = (text: string) => {
     if (cursorPosition === currentInputBuffer.length) {
       // 커서가 끝에 있는 경우 단순 추가
@@ -113,19 +127,6 @@ const useWebsocket = (
     // 지울 문자 확인
     const charToDelete = currentInputBuffer[cursorPosition - 1]
 
-    const isFullWidthCharacter = (char: string) => {
-      if (!char) {
-        return false
-      }
-      const code = char.charCodeAt(0)
-      return (
-        (code >= 0x1100 && code <= 0x11ff) || // 한글 자모
-        (code >= 0x3130 && code <= 0x318f) || // 한글 호환 자모
-        (code >= 0xac00 && code <= 0xd7a3) || // 한글 음절
-        (code >= 0xff01 && code <= 0xff60) || // 전각 구두점
-        (code >= 0xffe0 && code <= 0xffe6) // 전각 기호
-      )
-    }
     const isFullWidth = isFullWidthCharacter(charToDelete)
 
     if (cursorPosition === currentInputBuffer.length) {
@@ -136,7 +137,6 @@ const useWebsocket = (
         terminal.write('\b \b') // 일반 문자는 한 칸 지우기
       }
     } else {
-      // 커서가 중간에 있는 경우 DCH 명령 사용
       terminal.write('\b') // 한 칸 왼쪽으로 이동
       const deleteCount = isFullWidth ? 2 : 1
       terminal.write(`\x1b[${deleteCount}P`) // 해당 문자 삭제
@@ -296,8 +296,19 @@ const useWebsocket = (
     // 왼쪽 화살표 키 처리
     if (data === '\x1b[D') {
       if (cursorPosition > 0) {
+        // 현재 커서 위치 직전의 문자 확인
+        const prevChar = currentInputBuffer[cursorPosition - 1]
+
+        const isFullWidth = isFullWidthCharacter(prevChar)
         cursorPosition--
+
+        // 표준 왼쪽 이동 적용
         terminal.write(data)
+
+        // 한글/전각 문자인 경우 한 번 더 이동 (CUB - Cursor Back)
+        if (isFullWidth) {
+          terminal.write(data)
+        }
       }
       return
     }
@@ -305,8 +316,19 @@ const useWebsocket = (
     // 오른쪽 화살표 키 처리
     if (data === '\x1b[C') {
       if (cursorPosition < currentInputBuffer.length) {
+        // 현재 커서 위치의 문자 확인
+        const currChar = currentInputBuffer[cursorPosition]
+
+        const isFullWidth = isFullWidthCharacter(currChar)
         cursorPosition++
+
+        // 표준 오른쪽 이동 적용
         terminal.write(data)
+
+        // 한글/전각 문자인 경우 한 번 더 이동 (CUF - Cursor Forward)
+        if (isFullWidth) {
+          terminal.write(data)
+        }
       }
       return
     }
