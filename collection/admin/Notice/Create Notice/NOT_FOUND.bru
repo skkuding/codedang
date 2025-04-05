@@ -11,13 +11,12 @@ post {
 }
 
 body:graphql {
-  mutation ($groupId: Int, $noticeInput: CreateNoticeInput!) {
-    createNotice(groupId: $groupId, input: $noticeInput) {
+  mutation ($noticeInput: CreateNoticeInput!) {
+    createNotice(input: $noticeInput) {
       id
       title
       content
       isFixed
-      groupId
       createdBy {
         username
       }

@@ -42,7 +42,6 @@ export function CreateNoticeForm({ children }: CreateNoticeFormProps) {
     const noticeInput = methods.getValues()
     await createNotice({
       variables: {
-        groupId: 1,
         noticeInput
       }
     })

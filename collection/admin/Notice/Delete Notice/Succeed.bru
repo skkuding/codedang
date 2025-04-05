@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  mutation( $groupId: Int, $noticeId: Int! ) {
-    deleteNotice( groupId: $groupId, noticeId: $noticeId) {
+  mutation($noticeId: Int! ) {
+    deleteNotice(noticeId: $noticeId) {
       id
       title
     }
@@ -37,11 +37,10 @@ docs {
   
   | 이름 | 타입 | 설명 |
   |--|--|--|
-  |groupId|int?|포함하지 않으면 전체 공개되는 notice에 해당된다.|
   |noticeId|int|삭제할 공지사항의 id|
   
   ### Error Case
   
   #### NOT_FOUND
-  전달한 groupId와 noticeId에 맞는 공지사항이 없는 경우에 해당한다.
+  전달한 noticeId에 맞는 공지사항이 없는 경우에 해당한다.
 }

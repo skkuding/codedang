@@ -5,14 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/notice?take=5&groupId=1
+  url: {{baseUrl}}/notice?take=5
   body: none
   auth: none
 }
 
 params:query {
   take: 5
-  groupId: 1
   ~cursor: 1
   ~fixed: true
   ~search: 더
@@ -40,5 +39,5 @@ docs {
   |cursor|Integer|cursor 값 다음의 ID를 가진 공지사항들을 반환|
   |fixed |Boolean|고정된 공지사항 (default: false)|
   |search|String |검색 키워드|
-  |groupId|Integer?|그룹 ID|
+  
 }
