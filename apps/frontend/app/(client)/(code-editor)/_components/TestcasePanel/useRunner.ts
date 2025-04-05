@@ -75,7 +75,7 @@ const useWebsocket = (
       isWaitingForServerResponse = true
       const inputMsg = {
         type: RunnerMessageType.INPUT,
-        data: `${line}\r\n`
+        data: `${line}\n`
       }
       ws.send(JSON.stringify(inputMsg))
       currentInputBuffer = ''
@@ -156,7 +156,7 @@ const useWebsocket = (
     if (lines[0]) {
       handleTextInput(lines[0])
     }
-    terminal.write('\r\n')
+    terminal.writeln('')
     processLine(currentInputBuffer)
 
     // 나머지 줄들은 큐에 추가
