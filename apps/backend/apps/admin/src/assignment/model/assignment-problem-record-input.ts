@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
-import { IsOptional, IsPositive, IsString, Min } from 'class-validator'
+import { IsOptional, IsString, Min } from 'class-validator'
 
 @InputType()
 export class UpdateAssignmentProblemRecordInput {
