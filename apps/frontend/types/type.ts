@@ -414,10 +414,7 @@ export interface ProblemRecord {
 export interface RunnerMessage {
   type: RunnerMessageType
   language: Language
-  filename: string
   source: string
-  compile_cmd: string | undefined
-  command: string
 }
 
 export enum RunnerMessageType {
