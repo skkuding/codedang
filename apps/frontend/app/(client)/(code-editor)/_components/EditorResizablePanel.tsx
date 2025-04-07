@@ -20,6 +20,7 @@ import { cn } from '@/libs/utils'
 import bottomCenterIcon from '@/public/icons/bottom-center.svg'
 import syncIcon from '@/public/icons/sync.svg'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
+import { useLeftPanelTabStore } from '@/stores/editorTabs'
 import type { ProblemDetail, Contest } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import type { Route } from 'next'
@@ -85,9 +86,13 @@ export function EditorMainResizablePanel({
     setIsFrozen(now > freezeTimeDate)
   }, [freezeTime, contestId])
 
-  const [isSidePanelHidden, setIsSidePanelHidden] = useState(false)
   const [isBottomPanelHidden, setIsBottomPanelHidden] = useState(false)
   const triggerRefresh = useLeaderboardSync((state) => state.triggerRefresh)
+  const {
+    isPanelHidden,
+    togglePanelVisibility
+  }: { isPanelHidden: boolean; togglePanelVisibility: () => void } =
+    useLeftPanelTabStore()
 
   const pathname = usePathname()
   let base: string
@@ -132,7 +137,7 @@ export function EditorMainResizablePanel({
       <ResizablePanel
         defaultSize={35}
         style={{ minWidth: '500px' }}
-        className={cn(isSidePanelHidden && 'hidden')}
+        className={cn(isPanelHidden && 'hidden')}
         minSize={20}
       >
         <div className="grid-rows-editor grid h-full grid-cols-1">
@@ -219,14 +224,14 @@ export function EditorMainResizablePanel({
       <ResizableHandle
         className={cn(
           'border-[0.5px] border-slate-700',
-          isSidePanelHidden && 'hidden'
+          isPanelHidden && 'hidden'
         )}
       />
 
       <ResizablePanel defaultSize={65} className="relative bg-[#222939]">
         <HidePanelButton
-          isPanelHidden={isSidePanelHidden}
-          setIsPanelHidden={setIsSidePanelHidden}
+          isPanelHidden={isPanelHidden}
+          setIsPanelHidden={() => togglePanelVisibility()}
           direction="horizontal"
         />
         <div className="grid-rows-editor grid h-full">

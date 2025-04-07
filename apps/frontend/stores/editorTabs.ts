@@ -14,33 +14,15 @@ export const useTestcaseTabStore = create<TestcaseTabState>((set) => ({
   setActiveTab: (tab) => set({ activeTab: tab })
 }))
 
-type LeftPanelTab = 'Description' | 'Submissions' | string
-
-interface LeftPanelTabState {
-  visibleTabs: Set<LeftPanelTab>
-  isLeftPanelTabVisible: (tab: LeftPanelTab) => boolean
-  showLeftPanelTab: (tab: LeftPanelTab) => void
-  hideLeftPanelTab: (tab: LeftPanelTab) => void
+interface LeftPanelState {
+  isPanelHidden: boolean
+  togglePanelVisibility: () => void
 }
 
-export const useLeftPanelTabStore = create<LeftPanelTabState>((set) => ({
-  visibleTabs: new Set<LeftPanelTab>(['Description']),
-  isLeftPanelTabVisible: (tab) => {
-    let isVisible = false
-    set((state) => {
-      isVisible = state.visibleTabs.has(tab)
-      return state
-    })
-    return isVisible
-  },
-  showLeftPanelTab: (tab) =>
+export const useLeftPanelTabStore = create<LeftPanelState>((set) => ({
+  isPanelHidden: false,
+  togglePanelVisibility: () =>
     set((state) => ({
-      visibleTabs: new Set(state.visibleTabs).add(tab)
-    })),
-  hideLeftPanelTab: (tab) =>
-    set((state) => {
-      const newVisibleTabs = new Set(state.visibleTabs)
-      newVisibleTabs.delete(tab)
-      return { visibleTabs: newVisibleTabs }
-    })
+      isPanelHidden: !state.isPanelHidden
+    }))
 }))

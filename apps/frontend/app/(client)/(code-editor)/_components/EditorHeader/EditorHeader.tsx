@@ -110,7 +110,7 @@ export function EditorHeader({
   const setActiveTestcaseTab = useTestcaseTabStore(
     (state) => state.setActiveTab
   )
-  const { isLeftPanelTabVisible, showLeftPanelTab } = useLeftPanelTabStore()
+  const { isPanelHidden, togglePanelVisibility } = useLeftPanelTabStore()
 
   useInterval(
     async () => {
@@ -141,8 +141,8 @@ export function EditorHeader({
           if (submission.result === 'Accepted') {
             confetti?.addConfetti()
           }
-          if (!isLeftPanelTabVisible('Submissions')) {
-            showLeftPanelTab('Submissions')
+          if (isPanelHidden) {
+            togglePanelVisibility()
           }
         }
       } else {
