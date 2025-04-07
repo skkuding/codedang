@@ -71,6 +71,9 @@ export function TestcasePanel() {
   }))
 
   const currentVisibleTab = detailTabId !== null ? detailTabId : activeTab
+  const currentVisibleTabIndex = testcaseTabList.findIndex(
+    (tab) => tab.originalId === currentVisibleTab
+  )
 
   return (
     <>
@@ -82,13 +85,18 @@ export function TestcasePanel() {
             setDetailTabId(null)
           }}
           isLeftmost
+          isRightOfActive={currentVisibleTab === TESTCASE_RESULT_TAB}
           className={cn(
             'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
             getWidthClass(testcaseTabList.length)
           )}
         >
           <div className="flex h-full w-full items-center justify-center gap-2">
-            <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
+            <span
+              className={
+                'block overflow-hidden text-ellipsis whitespace-nowrap'
+              }
+            >
               Run Code
             </span>
             <div className="flex items-center">
@@ -107,10 +115,8 @@ export function TestcasePanel() {
             setActiveTab(TESTCASE_RESULT_TAB)
             setDetailTabId(null)
           }}
-          isBetweenTabs={currentVisibleTab === RUN_CODE_TAB}
-          isRightOfActive={
-            detailTabId !== null && activeTab === TESTCASE_RESULT_TAB
-          }
+          isLeftOfActive={currentVisibleTab === RUN_CODE_TAB}
+          isRightOfActive={currentVisibleTabIndex === 0}
           className={cn(
             'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
             getWidthClass(testcaseTabList.length)
@@ -139,7 +145,8 @@ export function TestcasePanel() {
                   setDetailTabId(testcase.originalId)
                 }}
                 onClickCloseButton={() => removeTab(testcase.originalId)}
-                isBetweenTabs={
+                isLeftOfActive={
+                  (currentVisibleTab === TESTCASE_RESULT_TAB && index === 0) ||
                   currentVisibleTab === testcaseTabList[index - 1]?.originalId
                 }
                 isRightOfActive={
@@ -162,6 +169,16 @@ export function TestcasePanel() {
                 </div>
               </TestcaseTab>
             ))}
+            <span
+              className={cn(
+                'flex-1 border-l border-[#222939] bg-[#121728] pr-2',
+                (currentVisibleTab ===
+                  testcaseTabList[testcaseTabList.length - 1]?.originalId ||
+                  (currentVisibleTab === TESTCASE_RESULT_TAB &&
+                    testcaseTabList.length === 0)) &&
+                  'rounded-bl-xl'
+              )}
+            />
           </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
@@ -213,7 +230,7 @@ interface TestcaseTabProps {
   className?: string
   children: ReactNode
   isLeftmost?: boolean
-  isBetweenTabs?: boolean
+  isLeftOfActive?: boolean
   isRightOfActive?: boolean
 }
 
@@ -224,18 +241,18 @@ function TestcaseTab({
   className,
   children,
   isLeftmost,
-  isBetweenTabs,
+  isLeftOfActive,
   isRightOfActive
 }: TestcaseTabProps) {
   return (
     <button
       type="button"
       className={cn(
-        'relative h-12 w-44 border-l border-[#222939] bg-[#121728]',
-        isActive && 'bg-[#222939]',
-        isBetweenTabs && 'rounded-bl-xl',
+        'relative h-12 border-l border-[#222939] bg-[#121728]',
+        !isLeftmost && 'border-l',
+        isActive ? 'bg-[#222939]' : 'bg-[#121728]',
+        isLeftOfActive && 'rounded-bl-xl',
         isRightOfActive && 'rounded-br-xl',
-        isLeftmost && 'rounded-tl-xl',
         className
       )}
       onClick={onClickTab}
