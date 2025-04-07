@@ -165,6 +165,9 @@ jobs:
     env:
       DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
       TEST_DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
+      STORAGE_BUCKET_ENDPOINT_URL: http://localhost:9000
+      TESTCASE_ACCESS_KEY: abc123
+      TESTCASE_SECRET_KEY: xyz456
 
     services:
       postgres:
@@ -175,6 +178,17 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: 1234
           POSTGRES_DB: skkuding
+      minio:
+        image: minio/minio
+        ports:
+          - 9000:9000
+          - 9001:9001
+        env:
+          MINIO_ROOT_USER: ${{ env.TESTCASE_ACCESS_KEY }}
+          MINIO_ROOT_PASSWORD: ${{ env.TESTCASE_SECRET_KEY }}
+        options: >-
+          --entrypoint sh
+          -c 'mkdir -p /data && minio server /data --console-address ":9001"'
 
     steps:
       - uses: actions/checkout@v4
