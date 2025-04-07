@@ -427,6 +427,7 @@ export enum RunnerMessageType {
   STDERR = 'stderr',
   EXIT = 'exit'
 }
+
 export interface AssignmentSummary {
   id: number
   problemCount: number

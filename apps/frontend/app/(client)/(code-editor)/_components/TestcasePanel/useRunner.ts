@@ -32,8 +32,7 @@ const useWebsocket = (
   let cursorPosition = 0
   let isWaitingForServerResponse = false
   let isConnected = false
-  // eslint-disable-next-line prefer-const
-  let inputQueue: string[] = []
+  const inputQueue: string[] = []
   let isComposing = false
   let lastComposedText = ''
 
@@ -136,15 +135,23 @@ const useWebsocket = (
 
   const setupIMEHandlers = () => {
     // IME 조합 시작
-    terminal.textarea?.addEventListener('compositionstart', () => {
-      isComposing = true
-    })
+    terminal.textarea?.addEventListener(
+      'compositionstart',
+      (e: CompositionEvent) => {
+        if (!isConnected) {
+          e.preventDefault()
+          return
+        }
+        isComposing = true
+      }
+    )
 
     // IME 조합 완료
     terminal.textarea?.addEventListener(
       'compositionend',
       (e: CompositionEvent) => {
-        if (isWaitingForServerResponse) {
+        if (!isConnected || isWaitingForServerResponse) {
+          e.preventDefault()
           return
         }
 
@@ -152,11 +159,7 @@ const useWebsocket = (
         lastComposedText = composedText
 
         handleTextInput(composedText)
-
-        // 조합 완료 후 플래그 초기화 (비동기 처리)
-        setTimeout(() => {
-          isComposing = false
-        }, 0)
+        isComposing = false
       }
     )
   }
@@ -164,7 +167,7 @@ const useWebsocket = (
 
   const setupWebSocketHandlers = () => {
     ws.onopen = () => {
-      terminal.writeln('[SYS] 실행 서버 연결 성공\n')
+      terminal.writeln('[SYS] Successfully connected to the runner\n')
       terminal.focus()
       isConnected = true
 
@@ -173,13 +176,13 @@ const useWebsocket = (
     }
 
     ws.onclose = () => {
-      terminal.writeln('\n[SYS] 실행 서버 연결 종료.....')
+      terminal.writeln('\n[SYS] Connection to the runner closed')
       isWaitingForServerResponse = false
       isConnected = false
     }
 
     ws.onerror = () => {
-      terminal.writeln('[SYS] 에러 발생으로 연결 끊김')
+      terminal.writeln('[SYS] Error occurred, connection closed')
       isWaitingForServerResponse = false
       isConnected = false
     }
