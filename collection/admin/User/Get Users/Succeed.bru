@@ -16,11 +16,14 @@ body:graphql {
       cursor: 1
       take: 10
     ) {
+      id
     	username
       email
       studentId
       major
       role
+      canCreateCourse
+      canCreateContest
     }
   }
 }
