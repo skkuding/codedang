@@ -13,8 +13,6 @@ export interface CommandProps {
 
 const Commands = Extension.create({
   name: 'slashcommands',
-
-  // defaultOptions를 addOptions로 변경
   addOptions() {
     return {
       suggestion: {
