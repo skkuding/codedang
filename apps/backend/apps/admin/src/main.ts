@@ -1,7 +1,7 @@
 import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import type { NestExpressApplication } from '@nestjs/platform-express'
-import { graphqlUploadExpress } from 'graphql-upload'
+import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs'
 import { Logger, LoggerErrorInterceptor } from 'nestjs-pino'
 import { AdminModule } from './admin.module'
 import startMetricsExporter from './metric'

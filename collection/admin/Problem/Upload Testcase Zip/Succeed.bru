@@ -1,0 +1,43 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  Apollo-Require-Preflight: true
+}
+
+body:multipart-form {
+  operations: { "query": "mutation($input: UploadTestcaseZipInput!) { uploadTestcaseZip(input: $input){testcaseId}}", "variables" : {"input": {"file": null, "problemId": 1}}}
+  map: { "nfile" : ["variables.input.file"]}
+  nfile: @file(Problem/Upload Testcase Zip/sample.zip)
+}
+
+docs {
+  ## Upload Testcase Zip File
+
+  문제 테스트케이스를 zip 파일로 업로드합니다.
+
+  주어진 Problem ID에 대한 테스트케이스를 업로드합니다. 기존의 테스트케이스는 모두 삭제됩니다.
+
+  Zip 파일은 다음과 같은 형식이어야 합니다.
+
+  - `.in`, `.out` 확장자를 가진 파일들로 구성되어야 합니다.
+  - 각 테스트케이스는 `.in` 파일과 `.out` 파일을 모두 가져야합니다. (예: `1.in`, `1.out`, `2.in`, `2.out`...`)
+
+  ### Error Case
+
+  #### UNPROCESSABLE
+
+  - 파일의 확장자가 .zip이 아닌 경우
+  - 파일이 너무 큰 경우 (100MB 초과)
+  - zip 파일 내에 .in, .out 파일이 아닌 파일이 포함된 경우
+  - .in에 대응하는 .out 파일이 없는 경우 (반대도 마찬가지)
+}

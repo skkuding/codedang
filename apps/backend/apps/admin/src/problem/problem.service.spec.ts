@@ -2,9 +2,13 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { Level } from '@generated'
+import { Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
+import * as archiver from 'archiver'
 import { expect } from 'chai'
+import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { spy, stub } from 'sinon'
+import { Readable } from 'stream'
 import {
   DuplicateFoundException,
   EntityNotExistException,
@@ -113,6 +117,7 @@ const db = {
 describe('ProblemService', () => {
   let service: ProblemService
   let storageService: StorageService
+  let prismaService: PrismaService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -189,6 +194,162 @@ describe('ProblemService', () => {
         )
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(uploadSpy.called).to.be.false
+    })
+  })
+
+  describe('removeAllTestcaseFiles', () => {
+    // Override testing module in this scope to use real PrismaService
+    // TODO: Refactor to use real PrismaService, not mock
+    beforeEach(async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          ProblemService,
+          PrismaService,
+          StorageService,
+          ConfigService,
+          S3Provider,
+          S3MediaProvider,
+          { provide: CACHE_MANAGER, useValue: { del: () => null } }
+        ]
+      }).compile()
+
+      service = module.get<ProblemService>(ProblemService)
+      storageService = module.get<StorageService>(StorageService)
+      prismaService = module.get<PrismaService>(PrismaService)
+    })
+
+    it('should remove all testcase files', async () => {
+      const problemId = 1
+      const files = [
+        `${problemId}/1.in`,
+        `${problemId}/1.out`,
+        `${problemId}/2.in`,
+        `${problemId}/2.out`,
+        `${problemId}/3.in`,
+        `${problemId}/3.out`
+      ]
+
+      await Promise.all(
+        files.map((file) =>
+          storageService.uploadObject(file, 'dummy text', 'txt')
+        )
+      )
+
+      const uploadedFiles = await storageService.listObjects(
+        `${problemId}/`,
+        'testcase'
+      )
+      expect(uploadedFiles).to.be.not.empty
+
+      await service.removeAllTestcaseFiles(problemId)
+
+      const existingFiles = await storageService.listObjects(
+        `${problemId}/`,
+        'testcase'
+      )
+      expect(existingFiles).to.be.empty
+
+      const entries = await prismaService.problemTestcase.findMany({
+        where: { problemId }
+      })
+      expect(entries).to.be.empty
+    })
+  })
+
+  describe('uploadTestcaseFiles', () => {
+    const problemId = 1
+
+    const file = {
+      filename: 'testcase.zip',
+      mimetype: 'application/zip',
+      encoding: 'utf-8',
+      createReadStream: () =>
+        new Readable({
+          read() {
+            this.push('testcase content')
+            this.push(null)
+          }
+        })
+    } satisfies FileUpload
+
+    // Override testing module in this scope to use real PrismaService
+    // TODO: Refactor to use real PrismaService, not mock
+    beforeEach(async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          ProblemService,
+          PrismaService,
+          StorageService,
+          ConfigService,
+          S3Provider,
+          S3MediaProvider,
+          { provide: CACHE_MANAGER, useValue: { del: () => null } }
+        ]
+      }).compile()
+
+      service = module.get<ProblemService>(ProblemService)
+      storageService = module.get<StorageService>(StorageService)
+    })
+
+    it('should not allow if given file is not zip', async () => {
+      const nonZipFile = { ...file, mimetype: 'text/plain' }
+
+      await expect(
+        service.uploadTestcaseZip(nonZipFile, problemId)
+      ).to.be.rejectedWith(UnprocessableDataException)
+    })
+
+    it('should not allow testcase files without corresponding input/output', async () => {
+      const invalidZipStream = () => {
+        const archive = archiver('zip', { zlib: { level: 9 } })
+        archive.append('Content for 1.in', { name: '1.in' })
+        archive.append('Content for 1.out', { name: '1.out' })
+        archive.append('Content for 2.in', { name: '2.in' })
+        archive.append('Content for 2.out', { name: '2.out' })
+        archive.append('Content for 3.in', { name: '3.in' })
+        archive.finalize()
+        return archive
+      }
+
+      const invalidZipFile = {
+        ...file,
+        createReadStream: invalidZipStream
+      } satisfies FileUpload
+
+      await expect(
+        service.uploadTestcaseZip(invalidZipFile, problemId)
+      ).to.be.rejectedWith(UnprocessableDataException)
+
+      const uploadedFiles = await storageService.listObjects(
+        `${problemId}/`,
+        'testcase'
+      )
+      expect(uploadedFiles).to.be.empty
+    })
+
+    it('should upload testcase files', async () => {
+      const createZipStream = () => {
+        const archive = archiver('zip', { zlib: { level: 9 } })
+        archive.append('Content for 1.in', { name: '1.in' })
+        archive.append('Content for 1.out', { name: '1.out' })
+        archive.append('Content for 2.in', { name: '2.in' })
+        archive.append('Content for 2.out', { name: '2.out' })
+        archive.finalize()
+        return archive
+      }
+
+      const zipFile = {
+        ...file,
+        createReadStream: createZipStream
+      } satisfies FileUpload
+
+      await service.uploadTestcaseZip(zipFile, problemId)
+
+      const uploadedFiles = await storageService.listObjects(
+        `${problemId}/`,
+        'testcase'
+      )
+      expect(uploadedFiles).to.have.lengthOf(4)
     })
   })
 

@@ -1,7 +1,8 @@
-import { Field, InputType, Int } from '@nestjs/graphql'
+import { Field, InputType, Int, Directive } from '@nestjs/graphql'
 import { Language, Level } from '@generated'
-import { ValidatePromise } from 'class-validator'
-import { GraphQLUpload } from 'graphql-upload'
+import { Min, ValidatePromise } from 'class-validator'
+import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs'
+import type { FileUpload } from 'graphql-upload/GraphQLUpload.mjs'
 import type { FileUploadDto } from '../dto/file-upload.dto'
 import { Template } from './template.input'
 import { Testcase } from './testcase.input'
@@ -44,7 +45,10 @@ export class CreateProblemInput {
   @Field(() => String, { nullable: false })
   source!: string
 
-  @Field(() => [Testcase], { nullable: false })
+  @Field(() => [Testcase], {
+    nullable: false,
+    deprecationReason: 'Use `createTestcases` or `uploadTestcaseZip` instead'
+  })
   testcases!: Array<Testcase>
 
   @Field(() => [Int], { nullable: false })
@@ -52,6 +56,20 @@ export class CreateProblemInput {
 }
 
 @InputType()
+export class UploadTestcaseZipInput {
+  @Field(() => GraphQLUpload, { nullable: false })
+  @ValidatePromise()
+  file: Promise<FileUpload>
+
+  @Field(() => Int, { nullable: false })
+  @Min(1)
+  problemId: number
+}
+
+@InputType()
+@Directive(
+  '@deprecated(reason: "Use `type: () => GraphQLUpload` directly instead")'
+)
 export class UploadFileInput {
   @Field(() => GraphQLUpload, { nullable: false })
   @ValidatePromise()
