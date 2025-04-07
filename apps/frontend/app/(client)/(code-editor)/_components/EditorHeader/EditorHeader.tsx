@@ -35,6 +35,11 @@ import {
   getStorageKey,
   getCodeFromLocalStorage
 } from '@/stores/editor'
+import {
+  useTestcaseTabStore,
+  useLeftPanelTabStore,
+  RUN_CODE_TAB
+} from '@/stores/editorTabs'
 import type {
   Language,
   ProblemDetail,
@@ -102,6 +107,10 @@ export function EditorHeader({
 
   const queryClient = useQueryClient()
   const { startRunner } = useRunner()
+  const setActiveTestcaseTab = useTestcaseTabStore(
+    (state) => state.setActiveTab
+  )
+  const { isLeftPanelTabVisible, showLeftPanelTab } = useLeftPanelTabStore()
 
   useInterval(
     async () => {
@@ -131,6 +140,9 @@ export function EditorHeader({
           //window.history.pushState(null, '', window.location.href)
           if (submission.result === 'Accepted') {
             confetti?.addConfetti()
+          }
+          if (!isLeftPanelTabVisible('Submissions')) {
+            showLeftPanelTab('Submissions')
           }
         }
       } else {
@@ -195,6 +207,7 @@ export function EditorHeader({
       return
     }
 
+    setActiveTestcaseTab(RUN_CODE_TAB)
     storeCodeToLocalStorage(code)
     startRunner(code, language)
   }
@@ -376,17 +389,22 @@ export function EditorHeader({
     }
   }, [router])
 
-  useKey('s', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-      e.preventDefault()
-      if (!loading) {
-        submit()
+  useKey(
+    's',
+    (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+        e.preventDefault()
+        if (!loading) {
+          submit()
+        }
+      } else if (e.ctrlKey || e.metaKey) {
+        e.preventDefault()
+        saveCode()
       }
-    } else if (e.ctrlKey || e.metaKey) {
-      e.preventDefault()
-      saveCode()
-    }
-  })
+    },
+    {},
+    [loading]
+  )
 
   useKey(
     'Enter',

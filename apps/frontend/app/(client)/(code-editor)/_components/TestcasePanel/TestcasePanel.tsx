@@ -2,6 +2,11 @@
 
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { cn, getResultColor } from '@/libs/utils'
+import {
+  useTestcaseTabStore,
+  RUN_CODE_TAB,
+  TESTCASE_RESULT_TAB
+} from '@/stores/editorTabs'
 import type { TestResultDetail } from '@/types/type'
 import { DiffMatchPatch } from 'diff-match-patch-typescript'
 import { useState, type ReactNode } from 'react'
@@ -22,14 +27,10 @@ function getWidthClass(length: number) {
   }
 }
 
-enum Tab {
-  RUN = -1, // 나중에 따로 분리
-  TCResult = 0
-}
-
 export function TestcasePanel() {
   const [testcaseTabList, setTestcaseTabList] = useState<TestResultDetail[]>([])
-  const [currentTab, setCurrentTab] = useState<number>(Tab.RUN)
+  const { activeTab, setActiveTab } = useTestcaseTabStore()
+  const [detailTabId, setDetailTabId] = useState<number | null>(null)
 
   const moveToDetailTab = (result: TestResultDetail) => {
     setTestcaseTabList((state) =>
@@ -40,15 +41,16 @@ export function TestcasePanel() {
             index === self.findIndex((t) => t.originalId === item.originalId)
         )
     )
-    setCurrentTab(result.originalId)
+    setDetailTabId(result.originalId)
   }
 
   const removeTab = (testcaseId: number) => {
     setTestcaseTabList((state) =>
       state.filter((item) => item.originalId !== testcaseId)
     )
-    if (currentTab === testcaseId) {
-      setCurrentTab(0)
+    if (detailTabId === testcaseId) {
+      setActiveTab(TESTCASE_RESULT_TAB)
+      setDetailTabId(null)
     }
   }
 
@@ -67,14 +69,18 @@ export function TestcasePanel() {
     isUserTestcase
   }))
 
+  const currentVisibleTab = detailTabId !== null ? detailTabId : activeTab
+
   return (
     <>
       <div className="flex h-12 w-full items-center overflow-x-auto">
         <TestcaseTab
-          currentTab={currentTab}
-          onClickTab={() => setCurrentTab(Tab.RUN)}
-          nextTab={Tab.TCResult}
-          testcaseId={Tab.RUN}
+          isActive={currentVisibleTab === RUN_CODE_TAB}
+          onClickTab={() => {
+            setActiveTab(RUN_CODE_TAB)
+            setDetailTabId(null)
+          }}
+          isLeftmost
           className={cn(
             'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
             getWidthClass(testcaseTabList.length)
@@ -88,10 +94,15 @@ export function TestcasePanel() {
         </TestcaseTab>
 
         <TestcaseTab
-          currentTab={currentTab}
-          onClickTab={() => setCurrentTab(Tab.TCResult)}
-          nextTab={testcaseTabList[0]?.originalId}
-          testcaseId={Tab.TCResult}
+          isActive={currentVisibleTab === TESTCASE_RESULT_TAB}
+          onClickTab={() => {
+            setActiveTab(TESTCASE_RESULT_TAB)
+            setDetailTabId(null)
+          }}
+          isBetweenTabs={currentVisibleTab === RUN_CODE_TAB}
+          isRightOfActive={
+            detailTabId !== null && activeTab === TESTCASE_RESULT_TAB
+          }
           className={cn(
             'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
             getWidthClass(testcaseTabList.length)
@@ -110,24 +121,24 @@ export function TestcasePanel() {
           </div>
         </TestcaseTab>
 
-        <ScrollArea
-          className={cn(
-            'relative h-12 w-full overflow-x-auto',
-            currentTab === 0 && 'rounded-bl-xl'
-          )}
-        >
+        <ScrollArea className={cn('relative h-12 w-full overflow-x-auto')}>
           <div className="flex h-12">
             {testcaseTabList.map((testcase, index) => (
               <TestcaseTab
-                currentTab={currentTab}
-                prevTab={testcaseTabList[index - 1]?.originalId}
-                nextTab={testcaseTabList[index + 1]?.originalId}
-                onClickTab={() => setCurrentTab(testcase.originalId)}
-                onClickCloseButton={() => removeTab(testcase.originalId)}
-                testcaseId={testcase.originalId}
                 key={testcase.originalId}
+                isActive={currentVisibleTab === testcase.originalId}
+                onClickTab={() => {
+                  setDetailTabId(testcase.originalId)
+                }}
+                onClickCloseButton={() => removeTab(testcase.originalId)}
+                isBetweenTabs={
+                  currentVisibleTab === testcaseTabList[index - 1]?.originalId
+                }
+                isRightOfActive={
+                  currentVisibleTab === testcaseTabList[index + 1]?.originalId
+                }
                 className={cn(
-                  'h-12 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap', // 높이, 말줄임 처리
+                  'h-12 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
                   getWidthClass(testcaseTabList.length)
                 )}
               >
@@ -143,14 +154,6 @@ export function TestcasePanel() {
                 </div>
               </TestcaseTab>
             ))}
-            <span
-              className={cn(
-                'flex-1 border-l border-[#222939] bg-[#121728] pr-2',
-                currentTab ===
-                  testcaseTabList[testcaseTabList.length - 1]?.id &&
-                  'rounded-bl-xl'
-              )}
-            />
           </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
@@ -160,11 +163,11 @@ export function TestcasePanel() {
         </div>
       </div>
 
-      {currentTab === Tab.RUN ? (
+      {currentVisibleTab === RUN_CODE_TAB ? (
         <RunnerTab />
       ) : (
         <ScrollArea className="h-full">
-          {currentTab === Tab.TCResult ? (
+          {currentVisibleTab === TESTCASE_RESULT_TAB ? (
             <div className="flex flex-col gap-6 p-5 pb-14">
               <TestSummary data={summaryData} />
               <TestcaseTable
@@ -175,7 +178,7 @@ export function TestcasePanel() {
           ) : (
             <TestResultDetail
               data={processedData.find(
-                (item) => item.originalId === currentTab
+                (item) => item.originalId === currentVisibleTab
               )}
             />
           )}
@@ -195,33 +198,36 @@ const SHORTHAND_TAB_CONTENT = {
   user: 'U'
 }
 
-function TestcaseTab({
-  prevTab,
-  nextTab,
-  currentTab,
-  testcaseId = 0,
-  className,
-  onClickTab,
-  onClickCloseButton,
-  children
-}: {
-  prevTab?: number
-  nextTab?: number
-  currentTab: number
-  testcaseId?: number
+interface TestcaseTabProps {
+  isActive: boolean
   onClickTab: () => void
   onClickCloseButton?: () => void
   className?: string
   children: ReactNode
-}) {
+  isLeftmost?: boolean
+  isBetweenTabs?: boolean
+  isRightOfActive?: boolean
+}
+
+function TestcaseTab({
+  isActive,
+  onClickTab,
+  onClickCloseButton,
+  className,
+  children,
+  isLeftmost,
+  isBetweenTabs,
+  isRightOfActive
+}: TestcaseTabProps) {
   return (
     <button
       type="button"
       className={cn(
         'relative h-12 w-44 border-l border-[#222939] bg-[#121728]',
-        currentTab === testcaseId && 'bg-[#222939]',
-        currentTab === prevTab && 'rounded-bl-xl',
-        currentTab === nextTab && 'rounded-br-xl',
+        isActive && 'bg-[#222939]',
+        isBetweenTabs && 'rounded-bl-xl',
+        isRightOfActive && 'rounded-br-xl',
+        isLeftmost && 'rounded-tl-xl',
         className
       )}
       onClick={onClickTab}
@@ -386,6 +392,7 @@ function LabeledField({ label, text, compareText, result }: LabeledFieldProps) {
 
       if (isError) {
         // 컴파일 에러일 경우 ␣ ↵ ↹ 시각화하지 않고 색상만 적용
+
         return (
           <span key={idx} className={colorClass}>
             {data}
@@ -448,16 +455,19 @@ function LabeledField({ label, text, compareText, result }: LabeledFieldProps) {
     const isError = label === 'Output' && isErrorResult(result)
 
     // Input은 diff 없이 흰색으로만 출력
+
     if (label === 'Input') {
       return <WhitespaceVisualizer text={text} className="text-white" />
     }
 
     // Expected Output 처리
+
     if (label === 'Expected Output') {
       return getColoredText(compareText || '', text, true, isError)
     }
 
     // "Output" 처리
+
     return getColoredText(text, compareText || '', false, isError)
   }
 

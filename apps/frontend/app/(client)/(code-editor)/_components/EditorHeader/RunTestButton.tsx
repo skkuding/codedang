@@ -4,6 +4,7 @@ import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
 import { cn } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
 import { useCodeStore } from '@/stores/editor'
+import { useTestcaseTabStore, TESTCASE_RESULT_TAB } from '@/stores/editorTabs'
 import type { TestcaseItem } from '@/types/type'
 import { useMutation } from '@tanstack/react-query'
 import { IoPlayCircleOutline } from 'react-icons/io5'
@@ -31,6 +32,9 @@ export function RunTestButton({
   const showSignIn = useAuthModalStore((state) => state.showSignIn)
   const getCode = useCodeStore((state) => state.getCode)
   const getUserTestcases = useTestcaseStore((state) => state.getUserTestcases)
+  const setActiveTestcaseTab = useTestcaseTabStore(
+    (state) => state.setActiveTab
+  )
 
   const { mutate } = useMutation({
     mutationFn: ({
@@ -99,6 +103,8 @@ export function RunTestButton({
   })
 
   const submitTest = () => {
+    setActiveTestcaseTab(TESTCASE_RESULT_TAB)
+
     const code = getCode()
     const testcases = getUserTestcases()
 
