@@ -395,10 +395,12 @@ export const useRunner = () => {
       const terminal = new Terminal({
         convertEol: true,
         disableStdin: false,
-        cursorBlink: true
+        cursorBlink: true,
+        theme: {
+          background: '#121728'
+        }
       })
 
-      // fit 애드온 추가
       const fitAddon = new FitAddon()
       terminal.loadAddon(fitAddon)
 
