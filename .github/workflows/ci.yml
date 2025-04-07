@@ -186,9 +186,9 @@ jobs:
         env:
           MINIO_ROOT_USER: ${{ env.TESTCASE_ACCESS_KEY }}
           MINIO_ROOT_PASSWORD: ${{ env.TESTCASE_SECRET_KEY }}
-        options: >-
-          --entrypoint sh
-          -c 'mkdir -p /data && minio server /data --console-address ":9001"'
+        volumes:
+          - minio-storage:/data
+        options: '--entrypoint sh server /data'
 
     steps:
       - uses: actions/checkout@v4
