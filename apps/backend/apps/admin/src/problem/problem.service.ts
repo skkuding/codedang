@@ -14,12 +14,16 @@ import { ProblemField, Role } from '@prisma/client'
 import { Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
+import { isEqual } from 'es-toolkit'
 import { Workbook } from 'exceljs'
-import type { ReadStream } from 'fs'
+import type { FileUpload } from 'graphql-upload/GraphQLUpload.mjs'
+import type { Readable } from 'stream'
+import { Parse } from 'unzipper'
 import {
   MAX_DATE,
   MAX_FILE_SIZE,
   MAX_IMAGE_SIZE,
+  MAX_ZIP_SIZE,
   MIN_DATE
 } from '@libs/constants'
 import {
@@ -480,7 +484,7 @@ export class ProblemService {
       throw new UnprocessableDataException('Only pdf files can be accepted')
     }
 
-    const fileSize = await this.getFileSize(createReadStream(), isImage)
+    const fileSize = await this.getFileSize(createReadStream(), MAX_IMAGE_SIZE)
     try {
       await this.storageService.uploadFile({
         filename: newFilename,
@@ -533,7 +537,7 @@ export class ProblemService {
     return resolvedFile
   }
 
-  async getFileSize(readStream: ReadStream, isImage: boolean): Promise<number> {
+  async getFileSize(readStream: Readable, maxSize: number): Promise<number> {
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = []
 
@@ -541,7 +545,7 @@ export class ProblemService {
         chunks.push(chunk)
 
         const totalSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
-        if (totalSize > (isImage ? MAX_IMAGE_SIZE : MAX_FILE_SIZE)) {
+        if (totalSize > maxSize) {
           readStream.destroy()
           reject(
             new UnprocessableDataException('File size exceeds maximum limit')
