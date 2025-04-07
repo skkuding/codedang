@@ -37,7 +37,7 @@ import {
 } from '@/stores/editor'
 import {
   useTestcaseTabStore,
-  useLeftPanelTabStore,
+  useSidePanelTabStore,
   RUN_CODE_TAB
 } from '@/stores/editorTabs'
 import type {
@@ -110,7 +110,8 @@ export function EditorHeader({
   const setActiveTestcaseTab = useTestcaseTabStore(
     (state) => state.setActiveTab
   )
-  const { isPanelHidden, togglePanelVisibility } = useLeftPanelTabStore()
+  const { isSidePanelHidden, toggleSidePanelVisibility } =
+    useSidePanelTabStore()
 
   useInterval(
     async () => {
@@ -141,8 +142,8 @@ export function EditorHeader({
           if (submission.result === 'Accepted') {
             confetti?.addConfetti()
           }
-          if (isPanelHidden) {
-            togglePanelVisibility()
+          if (isSidePanelHidden) {
+            toggleSidePanelVisibility()
           }
         }
       } else {

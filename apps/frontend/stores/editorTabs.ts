@@ -14,15 +14,15 @@ export const useTestcaseTabStore = create<TestcaseTabState>((set) => ({
   setActiveTab: (tab) => set({ activeTab: tab })
 }))
 
-interface LeftPanelState {
-  isPanelHidden: boolean
-  togglePanelVisibility: () => void
+interface SidePanelState {
+  isSidePanelHidden: boolean
+  toggleSidePanelVisibility: () => void
 }
 
-export const useLeftPanelTabStore = create<LeftPanelState>((set) => ({
-  isPanelHidden: false,
-  togglePanelVisibility: () =>
+export const useSidePanelTabStore = create<SidePanelState>((set) => ({
+  isSidePanelHidden: false,
+  toggleSidePanelVisibility: () =>
     set((state) => ({
-      isPanelHidden: !state.isPanelHidden
+      isSidePanelHidden: !state.isSidePanelHidden
     }))
 }))
