@@ -49,7 +49,8 @@ import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
-import { useInterval } from 'react-use'
+import { IoPlayCircleOutline } from 'react-icons/io5'
+import { useInterval, useKey } from 'react-use'
 import { toast } from 'sonner'
 import { useRunner } from '../TestcasePanel/useRunner'
 import { useTestPollingStore } from '../context/TestPollingStoreProvider'
@@ -375,6 +376,41 @@ export function EditorHeader({
     }
   }, [router])
 
+  useKey('s', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+      e.preventDefault()
+      if (!loading) {
+        submit()
+      }
+    } else if (e.ctrlKey || e.metaKey) {
+      e.preventDefault()
+      saveCode()
+    }
+  })
+
+  useKey(
+    'Enter',
+    (e) => {
+      if ((e.ctrlKey && e.metaKey) || e.shiftKey) {
+        e.preventDefault()
+        if (!loading) {
+          submitTest()
+        }
+      } else if (e.ctrlKey || e.metaKey) {
+        e.preventDefault()
+        run()
+      }
+    },
+    {},
+    [loading]
+  )
+
+  const submitTest = () => {
+    if (document.querySelector<HTMLButtonElement>('.test-button')) {
+      document.querySelector<HTMLButtonElement>('.test-button')?.click()
+    }
+  }
+
   return (
     <div className="flex shrink-0 items-center justify-between border-b border-b-slate-700 bg-[#222939] px-6">
       <div>
@@ -420,18 +456,21 @@ export function EditorHeader({
           <Save className="stroke-[1.3]" size={22} />
           Save
         </Button>
+        <Button
+          variant="secondary"
+          className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
+          onClick={run}
+        >
+          <IoPlayCircleOutline size={22} />
+          Run
+        </Button>
         <RunTestButton
           problemId={problem.id}
           language={language}
           disabled={loading}
           saveCode={storeCodeToLocalStorage}
+          className="test-button"
         />
-        <Button
-          className="h-8 shrink-0 gap-1 rounded-[4px] bg-green-500 px-2 font-normal"
-          onClick={run}
-        >
-          RUN
-        </Button>
         <Button
           className="h-8 shrink-0 gap-1 rounded-[4px] px-2 font-normal"
           disabled={loading}
