@@ -1,5 +1,6 @@
 'use client'
 
+import { Badge } from '@/app/(client)/(main)/_components/Badge'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { cn, getResultColor } from '@/libs/utils'
 import {
@@ -86,10 +87,17 @@ export function TestcasePanel() {
             getWidthClass(testcaseTabList.length)
           )}
         >
-          <div className="flex h-full w-full items-center justify-center">
+          <div className="flex h-full w-full items-center justify-center gap-2">
             <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
               Run Code
             </span>
+            <div className="flex items-center">
+              <Badge type="upcoming">
+                <div className="text-[10px]">
+                  <a href="https://tally.so/r/wMVB9g">Beta</a>
+                </div>
+              </Badge>
+            </div>
           </div>
         </TestcaseTab>
 
