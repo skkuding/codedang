@@ -180,7 +180,7 @@ jobs:
           POSTGRES_PASSWORD: 1234
           POSTGRES_DB: skkuding
       minio:
-        image: minio/minio
+        image: minio/minio:latest-cicd
         ports:
           - 9000:9000
           - 9001:9001
