@@ -188,7 +188,7 @@ jobs:
           MINIO_ROOT_PASSWORD: ${{ env.TESTCASE_SECRET_KEY }}
         volumes:
           - minio-storage:/data
-        options: '--entrypoint sh server /data'
+        options: '--entrypoint "server /data"'
 
     steps:
       - uses: actions/checkout@v4
