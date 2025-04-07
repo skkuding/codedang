@@ -168,7 +168,7 @@ jobs:
       STORAGE_BUCKET_ENDPOINT_URL: http://localhost:9000
       TESTCASE_BUCKET_NAME: test-bucket
       TESTCASE_ACCESS_KEY: abc123
-      TESTCASE_SECRET_KEY: xyz456
+      TESTCASE_SECRET_KEY: xyz123456
 
     services:
       postgres:
