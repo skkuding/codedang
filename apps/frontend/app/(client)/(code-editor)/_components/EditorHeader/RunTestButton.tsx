@@ -1,6 +1,7 @@
 import { Button, type ButtonProps } from '@/components/shadcn/button'
 import { useSession } from '@/libs/hooks/useSession'
 import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
+import { cn } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
 import { useCodeStore } from '@/stores/editor'
 import type { TestcaseItem } from '@/types/type'
@@ -14,12 +15,14 @@ interface RunTestButtonProps extends ButtonProps {
   problemId: number
   language: string
   saveCode: (code: string) => void
+  className?: string
 }
 
 export function RunTestButton({
   problemId,
   language,
   saveCode,
+  className,
   ...props
 }: RunTestButtonProps) {
   const session = useSession()
@@ -117,7 +120,10 @@ export function RunTestButton({
   return (
     <Button
       variant="secondary"
-      className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
+      className={cn(
+        'h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]',
+        className
+      )}
       onClick={submitTest}
       {...props}
     >
