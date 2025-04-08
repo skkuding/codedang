@@ -266,7 +266,7 @@ const useWebsocket = (
       return
     }
 
-    // Ctrl+C 입력 감지 (ASCII 3)
+    // Ctrl+C 입력 감지
     if (data === '\x03') {
       sendExitMessage()
       return
@@ -361,14 +361,18 @@ export const useRunner = () => {
   const [resizeObserver, setResizeObserver] = useState<ResizeObserver | null>(
     null
   )
+  const [fitTerminalFn, setFitTerminalFn] = useState<(() => void) | null>(null)
 
   useEffect(() => {
     return () => {
       if (resizeObserver) {
         resizeObserver.disconnect()
       }
+      if (fitTerminalFn) {
+        window.removeEventListener('resize', fitTerminalFn)
+      }
     }
-  }, [resizeObserver])
+  }, [resizeObserver, fitTerminalFn])
 
   const startRunner = (code: string, language: Language) => {
     if (ws) {
@@ -384,6 +388,16 @@ export const useRunner = () => {
     if (terminalInstance) {
       terminalInstance.dispose()
       setTerminalInstance(null)
+    }
+
+    if (resizeObserver) {
+      resizeObserver.disconnect()
+      setResizeObserver(null)
+    }
+
+    if (fitTerminalFn) {
+      window.removeEventListener('resize', fitTerminalFn)
+      setFitTerminalFn(null)
     }
 
     const element = document.getElementById('runner-container')
@@ -404,28 +418,30 @@ export const useRunner = () => {
       terminal.loadAddon(fitAddon)
 
       terminal.open(element)
+
+      const fitTerminal = () => {
+        try {
+          fitAddon.fit()
+        } catch (e) {
+          console.error('Error on resizing terminal:', e)
+        }
+      }
+
+      fitTerminal()
       terminal.focus()
 
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const { ws: newWs } = useWebsocket(terminal, code, language)
       setWs(newWs)
 
-      if (!resizeObserver) {
-        // 컨테이너 크기 변경 감지를 위한 ResizeObserver 설정
-        const observer = new ResizeObserver(() => {
-          const handleResize = () => {
-            try {
-              fitAddon.fit()
-            } catch (e) {
-              console.error('Error on resizing terminal:', e)
-            }
-          }
-          handleResize()
-        })
+      const observer = new ResizeObserver(() => {
+        fitTerminal()
+      })
 
-        observer.observe(element)
-        setResizeObserver(observer)
-      }
+      observer.observe(element)
+      setResizeObserver(observer)
+
+      window.addEventListener('resize', fitTerminal)
 
       let timeLeft = runnerConnectionTimeLimit
       const timerId = setInterval(() => {

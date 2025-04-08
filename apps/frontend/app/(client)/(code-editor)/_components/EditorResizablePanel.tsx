@@ -256,7 +256,7 @@ export function EditorMainResizablePanel({
               <ResizablePanelGroup direction="vertical" className="h-32">
                 <ResizablePanel
                   defaultSize={60}
-                  className="relative !overflow-x-auto !overflow-y-auto"
+                  className="relative !overflow-x-auto overflow-y-auto"
                 >
                   <HidePanelButton
                     isPanelHidden={isBottomPanelHidden}
