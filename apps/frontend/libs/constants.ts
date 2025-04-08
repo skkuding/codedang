@@ -200,7 +200,7 @@ export const courseOvalIconColors: {
   }
 }
 
-export const runnerConnectionTimeLimit = 130 // 130 seconds
+export const runnerConnectionTimeLimit = 180 // 180 seconds
 export const managerReviewerTypes = ['Manager', 'Reviewer'] as const
 
 /**

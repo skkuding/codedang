@@ -35,8 +35,20 @@ const useWebsocket = (
   const inputQueue: string[] = []
   let isComposing = false
   let lastComposedText = ''
+  let outputLength = 0 // 출력 길이 추적용 변수 추가
 
-  terminal.writeln('[SYS] 실행 서버 연결중...')
+  terminal.writeln('[SYS] Connecting to the runner...')
+
+  const sendExitMessage = () => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      const exitMsg = {
+        type: RunnerMessageType.EXIT
+      }
+      ws.send(JSON.stringify(exitMsg))
+      terminal.writeln('\n\n[SYS] Sent exit message to the server')
+      ws.close()
+    }
+  }
 
   const isFullWidthCharacter = (char: string) => {
     if (!char) {
@@ -167,7 +179,9 @@ const useWebsocket = (
 
   const setupWebSocketHandlers = () => {
     ws.onopen = () => {
-      terminal.writeln('[SYS] Successfully connected to the runner\n')
+      terminal.writeln(
+        '[SYS] Successfully connected to the runner. Type Ctrl + C to exit.\n'
+      )
       terminal.focus()
       isConnected = true
 
@@ -210,7 +224,16 @@ const useWebsocket = (
             return
           case RunnerMessageType.STDOUT:
           case RunnerMessageType.STDERR:
+            outputLength += (data.data || '').length
             terminal.write(data.data || '')
+
+            // 출력 길이가 100000자를 초과하면 연결 종료
+            if (outputLength > 100000) {
+              terminal.writeln(
+                '\n\n[SYS] Output is too long, process terminated (Max 100000 characters)'
+              )
+              sendExitMessage()
+            }
             break
           case RunnerMessageType.EXIT:
             terminal.writeln(
@@ -240,6 +263,12 @@ const useWebsocket = (
 
   const handleDataInput = (data: string) => {
     if (!isConnected) {
+      return
+    }
+
+    // Ctrl+C 입력 감지 (ASCII 3)
+    if (data === '\x03') {
+      sendExitMessage()
       return
     }
 
@@ -403,10 +432,17 @@ export const useRunner = () => {
         timeLeft -= 1
         if (timeLeft <= 0) {
           clearInterval(timerId)
-          if (ws) {
-            ws.close()
-            setWs(null)
+          if (newWs && newWs.readyState === WebSocket.OPEN) {
+            const exitMsg = {
+              type: RunnerMessageType.EXIT
+            }
+            newWs.send(JSON.stringify(exitMsg))
+            terminal.writeln(
+              '\n\n[SYS] Time limit exceeded, process terminated (Max 180 seconds)'
+            )
           }
+          newWs.close()
+          setWs(null)
         }
       }, 1000)
       setTimer(timerId)
