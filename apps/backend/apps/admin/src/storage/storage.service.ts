@@ -27,14 +27,27 @@ export class StorageService {
    * @param content 파일 내용
    * @param type 업로드할 파일의 MIME type
    */
-  async uploadObject(filename: string, content: string, type: ContentType) {
+  async uploadObject(
+    filename: string,
+    content: string,
+    type: ContentType,
+    tags?: Record<string, string>
+  ) {
+    const tagging = Object.entries(tags ?? {})
+      .map(
+        ([key, value]) =>
+          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+      )
+      .join('&')
+
     const upload = new Upload({
       client: this.client, // your S3 client
       params: {
         Bucket: this.config.get('TESTCASE_BUCKET_NAME'),
         Key: filename, // or your desired filename
         Body: content,
-        ContentType: ContentTypes[type]
+        ContentType: ContentTypes[type],
+        Tagging: tagging
       }
     })
 

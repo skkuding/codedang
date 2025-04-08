@@ -181,7 +181,14 @@ export class ProblemService {
         }
 
         const objectName = `${problemId}/${testcaseIdMapper[chunkName]}.${extension}`
-        await this.storageService.uploadObject(objectName, chunk, 'txt')
+        const defaultTags = { hidden: 'true' } // s3 object tags are read from iris
+
+        await this.storageService.uploadObject(
+          objectName,
+          chunk,
+          'txt',
+          defaultTags
+        )
       }
 
       // Check if all .in/.out files have corresponding .out/.in files
