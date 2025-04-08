@@ -56,6 +56,16 @@ export class CreateProblemInput {
 }
 
 @InputType()
+export class CreateTestcasesInput {
+  @Field(() => [Testcase], { nullable: false })
+  testcases!: Testcase[]
+
+  @Field(() => Int, { nullable: false })
+  @Min(1)
+  problemId: number
+}
+
+@InputType()
 export class UploadTestcaseZipInput {
   @Field(() => GraphQLUpload, { nullable: false })
   @ValidatePromise()

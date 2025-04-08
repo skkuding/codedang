@@ -37,6 +37,7 @@ import { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { FileSource } from './model/file.output'
 import {
   CreateProblemInput,
+  CreateTestcasesInput,
   UploadFileInput,
   FilterProblemsInput,
   UpdateProblemInput,
@@ -59,6 +60,17 @@ export class ProblemResolver {
       input,
       req.user.id,
       req.user.role
+    )
+  }
+
+  @Mutation(() => [ProblemTestcaseId])
+  async createTestcases(
+    @Args('input', { type: () => CreateTestcasesInput })
+    input: CreateTestcasesInput
+  ): Promise<ProblemTestcaseId[]> {
+    return await this.problemService.createTestcases(
+      input.testcases,
+      input.problemId
     )
   }
 

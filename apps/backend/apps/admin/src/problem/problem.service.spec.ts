@@ -42,6 +42,7 @@ import {
   updateHistories,
   testcaseData
 } from './mock/mock'
+import type { Testcase } from './model/testcase.input'
 import { ProblemService } from './problem.service'
 
 /**
@@ -352,11 +353,70 @@ describe('ProblemService', () => {
     })
   })
 
+  describe('createTestcases', () => {
+    const testcases: Testcase[] = [
+      {
+        input: 'input',
+        output: 'output',
+        isHidden: false,
+        scoreWeight: 1
+      },
+      {
+        input: 'input2',
+        output: 'output2'
+      },
+      {
+        input: 'input3',
+        output: 'output3',
+        isHidden: true
+      }
+    ]
+
+    // Override testing module in this scope to use real PrismaService
+    // TODO: Refactor to use real PrismaService, not mock
+    beforeEach(async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          ProblemService,
+          PrismaService,
+          StorageService,
+          ConfigService,
+          S3Provider,
+          S3MediaProvider,
+          { provide: CACHE_MANAGER, useValue: { del: () => null } }
+        ]
+      }).compile()
+
+      service = module.get<ProblemService>(ProblemService)
+      storageService = module.get<StorageService>(StorageService)
+    })
+
+    it('should fail if problem id is not found', async () => {
+      const problemId = 999
+
+      await expect(
+        service.createTestcases(testcases, problemId)
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+
+    it('should create testcases', async () => {
+      const problemId = 1
+
+      await service.createTestcases(testcases, problemId)
+
+      const uploadedFiles = await storageService.listObjects(
+        `${problemId}/`,
+        'testcase'
+      )
+      expect(uploadedFiles).to.have.lengthOf(6)
+    })
+  })
+
   describe('uploadProblems', () => {
     it('shoule return imported problems', async () => {
       const userId = user[1].id!
       const userRole = user[1].role!
-      const createTestcasesSpy = spy(service, 'createTestcases')
+      const createTestcasesSpy = spy(service, 'createTestcasesLegacy')
       db.problem.create.resetHistory()
       db.problem.create.onCall(0).resolves(importedProblems[0])
       db.problem.create.onCall(1).resolves(importedProblems[1])
@@ -376,7 +436,7 @@ describe('ProblemService', () => {
   describe('uploadTestcase', () => {
     it('should return imported testcase', async () => {
       const problemId = 2
-      const createTestcaseSpy = spy(service, 'createTestcase')
+      const createTestcaseSpy = spy(service, 'createTestcaseLegacy')
       db.problemTestcase.create.resetHistory()
       db.problemTestcase.create.resolves(testcaseData)
 

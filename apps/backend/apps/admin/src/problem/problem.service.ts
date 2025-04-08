@@ -97,7 +97,8 @@ export class ProblemService {
         }
       }
     })
-    await this.createTestcases(problem.id, testcases)
+    // TODO: do not create testcases in createProblem
+    await this.createTestcasesLegacy(problem.id, testcases)
     return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
@@ -220,7 +221,8 @@ export class ProblemService {
     return testcaseIds
   }
 
-  async createTestcases(problemId: number, testcases: Array<Testcase>) {
+  /** @deprecated Testcases are going to be stored in S3, not database. Please check `createTestcases` */
+  async createTestcasesLegacy(problemId: number, testcases: Array<Testcase>) {
     await Promise.all(
       testcases.map(async (tc, index) => {
         const problemTestcase = await this.prisma.problemTestcase.create({
@@ -237,7 +239,8 @@ export class ProblemService {
     )
   }
 
-  async createTestcase(problemId: number, testcase: Testcase) {
+  /** @deprecated Testcases are going to be stored in S3, not database. Please check `createTestcases` */
+  async createTestcaseLegacy(problemId: number, testcase: Testcase) {
     try {
       const problemTestcase = await this.prisma.problemTestcase.create({
         data: {
@@ -258,6 +261,51 @@ export class ProblemService {
 
       throw error
     }
+  }
+
+  async createTestcases(testcases: Testcase[], problemId: number) {
+    // Before upload, clean up all the original testcases
+    await this.removeAllTestcaseFiles(problemId)
+
+    const promises = testcases.map(async (testcase, index) => {
+      try {
+        const { id } = await this.prisma.problemTestcase.create({
+          data: {
+            problemId,
+            scoreWeight: testcase.scoreWeight,
+            isHidden: testcase.isHidden,
+            order: index + 1
+          }
+        })
+
+        const inFileName = `${problemId}/${id}.in`
+        const outFileName = `${problemId}/${id}.out`
+
+        await this.storageService.uploadObject(
+          inFileName,
+          testcase.input,
+          'txt'
+        )
+        await this.storageService.uploadObject(
+          outFileName,
+          testcase.output,
+          'txt'
+        )
+
+        return { testcaseId: id }
+      } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          if (error.code === 'P2003') {
+            throw new EntityNotExistException('problem')
+          }
+        }
+        console.log('error code:', error.code)
+        throw error
+      }
+    })
+
+    const ids = await Promise.all(promises)
+    return ids
   }
 
   async uploadProblems(input: UploadFileInput, userId: number, userRole: Role) {
@@ -475,7 +523,7 @@ export class ProblemService {
       isHidden
     }
 
-    return await this.createTestcase(problemId, testcase)
+    return await this.createTestcaseLegacy(problemId, testcase)
   }
 
   async uploadFile(input: UploadFileInput, userId: number, isImage: boolean) {
