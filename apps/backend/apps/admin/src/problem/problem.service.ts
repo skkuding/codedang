@@ -280,16 +280,19 @@ export class ProblemService {
 
         const inFileName = `${problemId}/${id}.in`
         const outFileName = `${problemId}/${id}.out`
+        const defaultTags = { hidden: 'true' } // s3 object tags are read from iris
 
         await this.storageService.uploadObject(
           inFileName,
           testcase.input,
-          'txt'
+          'txt',
+          defaultTags
         )
         await this.storageService.uploadObject(
           outFileName,
           testcase.output,
-          'txt'
+          'txt',
+          defaultTags
         )
 
         return { testcaseId: id }
