@@ -25,6 +25,12 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/shadcn/tooltip'
 import { useSession } from '@/libs/hooks/useSession'
 import { fetcherWithAuth } from '@/libs/utils'
 import submitIcon from '@/public/icons/submit.svg'
@@ -393,12 +399,7 @@ export function EditorHeader({
   useKey(
     's',
     (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-        e.preventDefault()
-        if (!loading) {
-          submit()
-        }
-      } else if (e.ctrlKey || e.metaKey) {
+      if (e.ctrlKey || e.metaKey) {
         e.preventDefault()
         saveCode()
       }
@@ -467,42 +468,67 @@ export function EditorHeader({
         </AlertDialog>
       </div>
       <div className="flex items-center gap-3">
-        <Button
-          size="icon"
-          className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-[#fafafa] font-medium text-[#484C4D] hover:bg-[#e1e1e1]"
-          onClick={saveCode}
-        >
-          <Save className="stroke-[1.3]" size={22} />
-          Save
-        </Button>
-        <Button
-          variant="secondary"
-          className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
-          onClick={run}
-        >
-          <IoPlayCircleOutline size={22} />
-          Run
-        </Button>
-        <RunTestButton
-          problemId={problem.id}
-          language={language}
-          disabled={loading}
-          saveCode={storeCodeToLocalStorage}
-          className="test-button"
-        />
-        <Button
-          className="h-8 shrink-0 gap-1 rounded-[4px] px-2 font-normal"
-          disabled={loading}
-          onClick={submit}
-        >
-          {loading ? (
-            'Judging'
-          ) : (
-            <>
-              <Image src={submitIcon} width={22} alt={'submit'} /> Submit
-            </>
-          )}
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                size="icon"
+                className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-[#fafafa] font-medium text-[#484C4D] hover:bg-[#e1e1e1]"
+                onClick={saveCode}
+              >
+                <Save className="stroke-[1.3]" size={22} />
+                Save
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Ctrl/Cmd + S | Save Your Code.</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                variant="secondary"
+                className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
+                onClick={run}
+              >
+                <IoPlayCircleOutline size={22} />
+                Run
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Ctrl/Cmd + C | Run Your Code in Interactive Terminal.</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <RunTestButton
+            problemId={problem.id}
+            language={language}
+            disabled={loading}
+            saveCode={storeCodeToLocalStorage}
+            className="test-button"
+          />
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                className="h-8 shrink-0 gap-1 rounded-[4px] px-2 font-normal"
+                disabled={loading}
+                onClick={submit}
+              >
+                {loading ? (
+                  'Judging'
+                ) : (
+                  <>
+                    <Image src={submitIcon} width={22} alt={'submit'} /> Submit
+                  </>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Submit Your Code and Wait for Judging.</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <Select
           onValueChange={(language: Language) => {
             setLanguage(language)

@@ -1,4 +1,9 @@
 import { Button, type ButtonProps } from '@/components/shadcn/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/shadcn/tooltip'
 import { useSession } from '@/libs/hooks/useSession'
 import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
 import { cn } from '@/libs/utils'
@@ -124,17 +129,26 @@ export function RunTestButton({
   }
 
   return (
-    <Button
-      variant="secondary"
-      className={cn(
-        'h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]',
-        className
-      )}
-      onClick={submitTest}
-      {...props}
-    >
-      <IoPlayCircleOutline size={22} />
-      Test
-    </Button>
+    <Tooltip>
+      <TooltipTrigger>
+        <Button
+          variant="secondary"
+          className={cn(
+            'h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]',
+            className
+          )}
+          onClick={submitTest}
+          {...props}
+        >
+          <IoPlayCircleOutline size={22} />
+          Test
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>
+          Ctrl/Cmd + Shift + Enter | Test Your Code with Sample/User Testcases.
+        </p>
+      </TooltipContent>
+    </Tooltip>
   )
 }
