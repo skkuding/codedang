@@ -21,7 +21,6 @@ import type { Readable } from 'stream'
 import { Parse } from 'unzipper'
 import {
   MAX_DATE,
-  MAX_FILE_SIZE,
   MAX_IMAGE_SIZE,
   MAX_ZIP_SIZE,
   MIN_DATE
