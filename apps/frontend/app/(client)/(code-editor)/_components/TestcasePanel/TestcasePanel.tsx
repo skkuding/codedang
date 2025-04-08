@@ -101,9 +101,7 @@ export function TestcasePanel() {
             </span>
             <div className="flex items-center">
               <Badge type="upcoming">
-                <div className="text-[10px]">
-                  <a href="https://tally.so/r/wMVB9g">Beta</a>
-                </div>
+                <div className="text-[10px]">Beta</div>
               </Badge>
             </div>
           </div>
@@ -183,32 +181,36 @@ export function TestcasePanel() {
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
 
-        <div className="flex flex-shrink-0 items-center bg-[#121728] px-2 py-2">
+        <div
+          className={cn(
+            'flex flex-shrink-0 items-center bg-[#121728] px-2 py-2',
+            currentVisibleTab === RUN_CODE_TAB && 'hidden'
+          )}
+        >
           <AddUserTestcaseDialog />
         </div>
       </div>
 
-      {currentVisibleTab === RUN_CODE_TAB ? (
-        <RunnerTab />
-      ) : (
-        <ScrollArea className="h-full">
-          {currentVisibleTab === TESTCASE_RESULT_TAB ? (
-            <div className="flex flex-col gap-6 p-5 pb-14">
-              <TestSummary data={summaryData} />
-              <TestcaseTable
-                data={processedData}
-                moveToDetailTab={moveToDetailTab}
-              />
-            </div>
-          ) : (
-            <TestResultDetail
-              data={processedData.find(
-                (item) => item.originalId === currentVisibleTab
-              )}
+      <RunnerTab
+        className={cn(currentVisibleTab === RUN_CODE_TAB ? 'block' : 'hidden')}
+      />
+      <ScrollArea className="h-full">
+        {currentVisibleTab === TESTCASE_RESULT_TAB ? (
+          <div className="flex flex-col gap-6 p-5 pb-14">
+            <TestSummary data={summaryData} />
+            <TestcaseTable
+              data={processedData}
+              moveToDetailTab={moveToDetailTab}
             />
-          )}
-        </ScrollArea>
-      )}
+          </div>
+        ) : (
+          <TestResultDetail
+            data={processedData.find(
+              (item) => item.originalId === currentVisibleTab
+            )}
+          />
+        )}
+      </ScrollArea>
     </>
   )
 }
