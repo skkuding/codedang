@@ -481,7 +481,7 @@ export function EditorHeader({
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Ctrl/Cmd + S | Save Your Code.</p>
+              <p>Ctrl/Cmd + S | Save your code in your browser.</p>
             </TooltipContent>
           </Tooltip>
 
@@ -497,7 +497,7 @@ export function EditorHeader({
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Ctrl/Cmd + C | Run Your Code in Interactive Terminal.</p>
+              <p>Ctrl/Cmd + Enter | Run your code in interactive terminal.</p>
             </TooltipContent>
           </Tooltip>
 
@@ -525,7 +525,7 @@ export function EditorHeader({
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Submit Your Code and Wait for Judging.</p>
+              <p>Submit your code for evaluation</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

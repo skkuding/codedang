@@ -145,9 +145,7 @@ export function RunTestButton({
         </Button>
       </TooltipTrigger>
       <TooltipContent>
-        <p>
-          Ctrl/Cmd + Shift + Enter | Test Your Code with Sample/User Testcases.
-        </p>
+        <p>Ctrl/Cmd + Shift + Enter | Test your code with testcases</p>
       </TooltipContent>
     </Tooltip>
   )
