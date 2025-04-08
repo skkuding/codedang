@@ -255,7 +255,7 @@ describe('ProblemService', () => {
     })
   })
 
-  describe('uploadTestcaseFiles', () => {
+  describe('uploadTestcaseZip', () => {
     const problemId = 1
 
     const file = {
