@@ -26,6 +26,7 @@ export class StorageService {
    * @param filename 파일 이름
    * @param content 파일 내용
    * @param type 업로드할 파일의 MIME type
+   * @param tags S3 Object에 붙일 태그
    */
   async uploadObject(
     filename: string,
