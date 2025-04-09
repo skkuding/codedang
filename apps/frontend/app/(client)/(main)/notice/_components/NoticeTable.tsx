@@ -1,5 +1,5 @@
 import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
-import { fetcherWithAuth } from '@/libs/utils'
+import { fetcher } from '@/libs/utils'
 import type { Notice } from '@/types/type'
 import { columns } from './Columns'
 
@@ -13,10 +13,9 @@ interface NoticeProps {
 }
 
 const getFixedNotices = async () => {
-  const fixedNoticesRes: NoticeProps = await fetcherWithAuth
+  const fixedNoticesRes: NoticeProps = await fetcher
     .get('notice', {
       searchParams: {
-        groupId: '1',
         fixed: 'true',
         take: '10'
       }
@@ -27,10 +26,9 @@ const getFixedNotices = async () => {
 }
 
 const getNotices = async (search: string) => {
-  const noticesRes: NoticeProps = await fetcherWithAuth
+  const noticesRes: NoticeProps = await fetcher
     .get('notice', {
       searchParams: {
-        groupId: '1',
         search,
         take: '10'
       }

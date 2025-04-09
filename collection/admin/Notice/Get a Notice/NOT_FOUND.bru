@@ -11,13 +11,9 @@ post {
 }
 
 body:graphql {
-  query ($groupId: Int, $noticeId: Int!) {
-    getNotice(groupId: $groupId, noticeId: $noticeId) {
+  query ($noticeId: Int!) {
+    getNotice(noticeId: $noticeId) {
       id
-      groupId
-      group {
-        groupName
-      }
       createdById
       createdBy {
         username

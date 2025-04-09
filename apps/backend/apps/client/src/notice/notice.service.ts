@@ -9,20 +9,17 @@ export class NoticeService {
     cursor,
     take,
     search,
-    fixed = false,
-    groupId
+    fixed = false
   }: {
     cursor: number | null
     take: number
     search?: string
     fixed?: boolean
-    groupId: number | null
   }) {
     const paginator = this.prisma.getPaginator(cursor)
     const notices = await this.prisma.notice.findMany({
       ...paginator,
       where: {
-        groupId,
         isVisible: true,
         isFixed: fixed,
         title: {
@@ -53,7 +50,6 @@ export class NoticeService {
     })
     const total = await this.prisma.notice.count({
       where: {
-        groupId,
         isVisible: true,
         isFixed: fixed,
         title: {
@@ -66,11 +62,10 @@ export class NoticeService {
     return { data, total }
   }
 
-  async getNoticeByID(id: number, groupId: number | null) {
+  async getNoticeByID(id: number) {
     const notice = await this.prisma.notice.findUniqueOrThrow({
       where: {
         id,
-        groupId,
         isVisible: true
       },
       select: {
@@ -97,7 +92,6 @@ export class NoticeService {
       return {
         where: {
           id: options.compare,
-          groupId,
           isVisible: true
         },
         orderBy: {

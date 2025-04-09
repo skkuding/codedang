@@ -6,64 +6,45 @@ import type { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 export class NoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createNotice(
-    userId: number,
-    groupId: number | null,
-    createNoticeInput: CreateNoticeInput
-  ) {
+  async createNotice(userId: number, createNoticeInput: CreateNoticeInput) {
     return await this.prisma.notice.create({
       data: {
         createdById: userId,
-        groupId,
         ...createNoticeInput
       }
     })
   }
 
-  async deleteNotice(groupId: number | null, noticeId: number) {
+  async deleteNotice(noticeId: number) {
     return await this.prisma.notice.delete({
       where: {
-        id: noticeId,
-        groupId
+        id: noticeId
       }
     })
   }
 
-  async updateNotice(
-    groupId: number | null,
-    noticeId: number,
-    updateNoticeInput: UpdateNoticeInput
-  ) {
+  async updateNotice(noticeId: number, updateNoticeInput: UpdateNoticeInput) {
     return await this.prisma.notice.update({
       where: {
-        id: noticeId,
-        groupId
+        id: noticeId
       },
       data: updateNoticeInput
     })
   }
 
-  async getNotice(groupId: number | null, noticeId: number) {
+  async getNotice(noticeId: number) {
     return await this.prisma.notice.findUniqueOrThrow({
       where: {
         id: noticeId
-        // groupId
       }
     })
   }
 
-  async getNotices(
-    groupId: number | null,
-    cursor: number | null,
-    take: number
-  ) {
+  async getNotices(cursor: number | null, take: number) {
     const paginator = this.prisma.getPaginator(cursor)
     return await this.prisma.notice.findMany({
       ...paginator,
-      take,
-      where: {
-        groupId
-      }
+      take
     })
   }
 }

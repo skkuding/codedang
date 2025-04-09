@@ -11,13 +11,12 @@ post {
 }
 
 body:graphql {
-  mutation ($groupId: Int, $noticeInput: CreateNoticeInput!) {
-    createNotice(groupId: $groupId, input: $noticeInput) {
+  mutation ($noticeInput: CreateNoticeInput!) {
+    createNotice(input: $noticeInput) {
       id
       title
       content
       isFixed
-      groupId
       createdBy {
         username
       }
@@ -27,7 +26,6 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "groupId": 1,
     "noticeInput": {
       "title": "Notice created by bruno",
       "content": "123",
@@ -49,7 +47,6 @@ docs {
   
   | 이름 | 타입 | 설명 |
   |--|--|--|
-  |groupId|int?|포함하지 않으면 전체 공개되는 notice로 설정된다.|
   |input|object|공지사항을 구성하는 요소. 하단 참고|
   
   #### input
