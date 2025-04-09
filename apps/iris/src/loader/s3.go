@@ -79,69 +79,94 @@ func (s *S3reader) Get(problemId string) ([]Element, error) {
 		return nil, fmt.Errorf("no testcases found for problemId: %s", problemId)
 	}
 
-	result := make([]Element, len(testcaseIds))
-	for index, id := range testcaseIds {
-		inKey := problemId + "/" + id + ".in"
-		outKey := problemId + "/" + id + ".out"
+	resultChan := make(chan Element, len(testcaseIds))
+	errChan := make(chan error, len(testcaseIds))
 
-		outputInFile, err := s.client.GetObject(context.TODO(), &s3.GetObjectInput{
-			Bucket: aws.String(s.bucket),
-			Key:    aws.String(inKey),
-		})
-		if err != nil {
-			return nil, err
-		}
-		defer outputInFile.Body.Close()
+	// Process each testcase in a goroutine
+	for _, id := range testcaseIds {
+		go func(id string) {
+			inKey := problemId + "/" + id + ".in"
+			outKey := problemId + "/" + id + ".out"
 
-		outputOutFile, err := s.client.GetObject(context.TODO(), &s3.GetObjectInput{
-			Bucket: aws.String(s.bucket),
-			Key:    aws.String(outKey),
-		})
-		if err != nil {
-			return nil, err
-		}
-		defer outputOutFile.Body.Close()
-
-		bodyIn, err := io.ReadAll(outputInFile.Body)
-		if err != nil {
-			return nil, err
-		}
-
-		bodyOut, err := io.ReadAll(outputOutFile.Body)
-		if err != nil {
-			return nil, err
-		}
-
-		idInt, err := strconv.Atoi(id)
-		if err != nil {
-			return nil, fmt.Errorf("failed to convert id to int: %w", err)
-		}
-
-		outputInTags, err := s.client.GetObjectTagging(context.TODO(), &s3.GetObjectTaggingInput{
-			Bucket: aws.String(s.bucket),
-			Key:    aws.String(inKey),
-		})
-		if err != nil {
-			return nil, fmt.Errorf("failed to get tags for %s: %w", inKey, err)
-		}
-
-		// Assume that `hidden` tag is used to mark the testcase as hidden,
-		// instead of reading from database.
-		isHidden := false
-		for _, tag := range outputInTags.TagSet {
-			if *tag.Key == "hidden" && *tag.Value == "true" {
-				isHidden = true
-				break
+			outputInFile, err := s.client.GetObject(context.TODO(), &s3.GetObjectInput{
+				Bucket: aws.String(s.bucket),
+				Key:    aws.String(inKey),
+			})
+			if err != nil {
+				errChan <- err
+				return
 			}
-		}
+			defer outputInFile.Body.Close()
 
-		result[index] = Element{
-			Id:     idInt,
-			In:     string(bodyIn),
-			Out:    string(bodyOut),
-			Hidden: isHidden,
+			outputOutFile, err := s.client.GetObject(context.TODO(), &s3.GetObjectInput{
+				Bucket: aws.String(s.bucket),
+				Key:    aws.String(outKey),
+			})
+			if err != nil {
+				errChan <- err
+				return
+			}
+			defer outputOutFile.Body.Close()
+
+			bodyIn, err := io.ReadAll(outputInFile.Body)
+			if err != nil {
+				errChan <- err
+				return
+			}
+
+			bodyOut, err := io.ReadAll(outputOutFile.Body)
+			if err != nil {
+				errChan <- err
+				return
+			}
+
+			idInt, err := strconv.Atoi(id)
+			if err != nil {
+				errChan <- fmt.Errorf("failed to convert id to int: %w", err)
+				return
+			}
+
+			outputInTags, err := s.client.GetObjectTagging(context.TODO(), &s3.GetObjectTaggingInput{
+				Bucket: aws.String(s.bucket),
+				Key:    aws.String(inKey),
+			})
+			if err != nil {
+				errChan <- fmt.Errorf("failed to get tags for %s: %w", inKey, err)
+				return
+			}
+
+			isHidden := false
+			for _, tag := range outputInTags.TagSet {
+				if *tag.Key == "hidden" && *tag.Value == "true" {
+					isHidden = true
+					break
+				}
+			}
+
+			resultChan <- Element{
+				Id:     idInt,
+				In:     string(bodyIn),
+				Out:    string(bodyOut),
+				Hidden: isHidden,
+			}
+		}(id)
+	}
+
+	var results []Element
+	var errs []error
+
+	for range testcaseIds {
+		select {
+		case elem := <-resultChan:
+			results = append(results, elem)
+		case err := <-errChan:
+			errs = append(errs, err)
 		}
 	}
 
-	return result, nil
+	if len(errs) > 0 {
+		return nil, fmt.Errorf("errors occurred while processing testcases: %v", errs)
+	}
+
+	return results, nil
 }
