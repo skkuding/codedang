@@ -2,7 +2,7 @@ import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo'
 import { CacheModule } from '@nestjs/cache-manager'
 import { Module, type OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { APP_GUARD, APP_FILTER, HttpAdapterHost, ModuleRef } from '@nestjs/core'
+import { APP_GUARD, APP_FILTER, HttpAdapterHost } from '@nestjs/core'
 import { GraphQLModule } from '@nestjs/graphql'
 import type { Server } from 'http'
 import { LoggerModule } from 'nestjs-pino'
@@ -13,7 +13,6 @@ import {
   AdminGuard
 } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
-import { DataLoaderModule, DataLoaderService } from '@libs/dataloader'
 import { AdminExceptionFilter } from '@libs/exception'
 import { apolloErrorFormatter } from '@libs/exception'
 import { LoggingPlugin, pinoLoggerModuleOption } from '@libs/logger'
@@ -37,28 +36,12 @@ import { UserModule } from './user/user.module'
       useClass: CacheConfigService
     }),
     ConfigModule.forRoot({ isGlobal: true }),
-    GraphQLModule.forRootAsync<ApolloDriverConfig>({
+    GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      imports: [DataLoaderModule],
-      inject: [ModuleRef],
-      useFactory: async (moduleRef: ModuleRef) => ({
-        autoSchemaFile: 'schema.gql',
-        sortSchema: true,
-        introspection: true,
-        formatError: apolloErrorFormatter,
-        context: async ({ req, res }) => {
-          const loaderService = await moduleRef.resolve(
-            DataLoaderService,
-            undefined,
-            { strict: false }
-          )
-          return {
-            req,
-            res,
-            loaders: loaderService.loaders
-          }
-        }
-      })
+      autoSchemaFile: 'schema.gql',
+      sortSchema: true,
+      introspection: true,
+      formatError: apolloErrorFormatter
     }),
     CacheModule.registerAsync({
       isGlobal: true,
@@ -76,7 +59,6 @@ import { UserModule } from './user/user.module'
     AnnouncementModule,
     NoticeModule,
     SubmissionModule,
-    DataLoaderModule,
     LoggerModule.forRoot(pinoLoggerModuleOption)
   ],
   controllers: [AdminController],

@@ -11,10 +11,8 @@ import {
 } from '@nestjs/graphql'
 import { Notice, User } from '@generated'
 import { AuthenticatedRequest } from '@libs/auth'
-import { LoaderMap } from '@libs/dataloader'
 import { CursorValidationPipe, IDValidationPipe } from '@libs/pipe'
-import { GroupService } from '@admin/group/group.service'
-import { UserService } from '@admin/user/user.service'
+import { UserLoader } from '@admin/user/user.loader'
 import { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 import { NoticeService } from './notice.service'
 
@@ -23,8 +21,7 @@ export class NoticeResolver {
   private readonly logger = new Logger(NoticeResolver.name)
   constructor(
     private readonly noticeService: NoticeService,
-    private readonly userService: UserService,
-    private readonly groupService: GroupService
+    private readonly userLoader: UserLoader
   ) {}
 
   @Mutation(() => Notice)
@@ -68,14 +65,11 @@ export class NoticeResolver {
   }
 
   @ResolveField('createdBy', () => User, { nullable: true })
-  async getUser(
-    @Parent() notice: Notice,
-    @Context('loaders') loaders: LoaderMap
-  ) {
+  async getUser(@Parent() notice: Notice) {
     const { createdById } = notice
     if (createdById == null) {
       return null
     }
-    return loaders.userloader.load(createdById)
+    return this.userLoader.batchUsers.load(createdById)
   }
 }

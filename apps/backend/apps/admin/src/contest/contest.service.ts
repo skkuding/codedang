@@ -1228,8 +1228,6 @@ export class ContestService {
       }
     })
 
-    console.log('userContests', userContests)
-
     return userContests
   }
 }
