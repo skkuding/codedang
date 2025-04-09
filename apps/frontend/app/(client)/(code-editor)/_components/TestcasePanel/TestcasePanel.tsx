@@ -1,13 +1,20 @@
 'use client'
 
+import { Badge } from '@/app/(client)/(main)/_components/Badge'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { cn, getResultColor } from '@/libs/utils'
+import {
+  useTestcaseTabStore,
+  RUN_CODE_TAB,
+  TESTCASE_RESULT_TAB
+} from '@/stores/editorTabs'
 import type { TestResultDetail } from '@/types/type'
 import { DiffMatchPatch } from 'diff-match-patch-typescript'
 import { useState, type ReactNode } from 'react'
 import { IoMdClose } from 'react-icons/io'
 import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
 import { AddUserTestcaseDialog } from './AddUserTestcaseDialog'
+import { RunnerTab } from './RunnerTab'
 import { TestcaseTable } from './TestcaseTable'
 import { useTestResults } from './useTestResults'
 
@@ -23,7 +30,8 @@ function getWidthClass(length: number) {
 
 export function TestcasePanel() {
   const [testcaseTabList, setTestcaseTabList] = useState<TestResultDetail[]>([])
-  const [currentTab, setCurrentTab] = useState<number>(0)
+  const { activeTab, setActiveTab } = useTestcaseTabStore()
+  const [detailTabId, setDetailTabId] = useState<number | null>(null)
 
   const moveToDetailTab = (result: TestResultDetail) => {
     setTestcaseTabList((state) =>
@@ -34,15 +42,16 @@ export function TestcasePanel() {
             index === self.findIndex((t) => t.originalId === item.originalId)
         )
     )
-    setCurrentTab(result.originalId)
+    setDetailTabId(result.originalId)
   }
 
   const removeTab = (testcaseId: number) => {
     setTestcaseTabList((state) =>
       state.filter((item) => item.originalId !== testcaseId)
     )
-    if (currentTab === testcaseId) {
-      setCurrentTab(0)
+    if (detailTabId === testcaseId) {
+      setActiveTab(TESTCASE_RESULT_TAB)
+      setDetailTabId(null)
     }
   }
 
@@ -61,13 +70,51 @@ export function TestcasePanel() {
     isUserTestcase
   }))
 
+  const currentVisibleTab = detailTabId !== null ? detailTabId : activeTab
+  const currentVisibleTabIndex = testcaseTabList.findIndex(
+    (tab) => tab.originalId === currentVisibleTab
+  )
+
   return (
     <>
       <div className="flex h-12 w-full items-center overflow-x-auto">
         <TestcaseTab
-          currentTab={currentTab}
-          onClickTab={() => setCurrentTab(0)}
-          nextTab={testcaseTabList[0]?.originalId}
+          isActive={currentVisibleTab === RUN_CODE_TAB}
+          onClickTab={() => {
+            setActiveTab(RUN_CODE_TAB)
+            setDetailTabId(null)
+          }}
+          isLeftmost
+          isRightOfActive={currentVisibleTab === TESTCASE_RESULT_TAB}
+          className={cn(
+            'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
+            getWidthClass(testcaseTabList.length)
+          )}
+        >
+          <div className="flex h-full w-full items-center justify-center gap-2">
+            <span
+              className={
+                'block overflow-hidden text-ellipsis whitespace-nowrap'
+              }
+            >
+              Run Code
+            </span>
+            <div className="flex items-center">
+              <Badge type="upcoming">
+                <div className="text-[10px]">Beta</div>
+              </Badge>
+            </div>
+          </div>
+        </TestcaseTab>
+
+        <TestcaseTab
+          isActive={currentVisibleTab === TESTCASE_RESULT_TAB}
+          onClickTab={() => {
+            setActiveTab(TESTCASE_RESULT_TAB)
+            setDetailTabId(null)
+          }}
+          isLeftOfActive={currentVisibleTab === RUN_CODE_TAB}
+          isRightOfActive={currentVisibleTabIndex === 0}
           className={cn(
             'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
             getWidthClass(testcaseTabList.length)
@@ -86,24 +133,25 @@ export function TestcasePanel() {
           </div>
         </TestcaseTab>
 
-        <ScrollArea
-          className={cn(
-            'relative h-12 w-full overflow-x-auto',
-            currentTab === 0 && 'rounded-bl-xl'
-          )}
-        >
+        <ScrollArea className={cn('relative h-12 w-full overflow-x-auto')}>
           <div className="flex h-12">
             {testcaseTabList.map((testcase, index) => (
               <TestcaseTab
-                currentTab={currentTab}
-                prevTab={testcaseTabList[index - 1]?.originalId}
-                nextTab={testcaseTabList[index + 1]?.originalId}
-                onClickTab={() => setCurrentTab(testcase.originalId)}
-                onClickCloseButton={() => removeTab(testcase.originalId)}
-                testcaseId={testcase.originalId}
                 key={testcase.originalId}
+                isActive={currentVisibleTab === testcase.originalId}
+                onClickTab={() => {
+                  setDetailTabId(testcase.originalId)
+                }}
+                onClickCloseButton={() => removeTab(testcase.originalId)}
+                isLeftOfActive={
+                  (currentVisibleTab === TESTCASE_RESULT_TAB && index === 0) ||
+                  currentVisibleTab === testcaseTabList[index - 1]?.originalId
+                }
+                isRightOfActive={
+                  currentVisibleTab === testcaseTabList[index + 1]?.originalId
+                }
                 className={cn(
-                  'h-12 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap', // 높이, 말줄임 처리
+                  'h-12 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
                   getWidthClass(testcaseTabList.length)
                 )}
               >
@@ -122,8 +170,10 @@ export function TestcasePanel() {
             <span
               className={cn(
                 'flex-1 border-l border-[#222939] bg-[#121728] pr-2',
-                currentTab ===
-                  testcaseTabList[testcaseTabList.length - 1]?.id &&
+                (currentVisibleTab ===
+                  testcaseTabList[testcaseTabList.length - 1]?.originalId ||
+                  (currentVisibleTab === TESTCASE_RESULT_TAB &&
+                    testcaseTabList.length === 0)) &&
                   'rounded-bl-xl'
               )}
             />
@@ -131,13 +181,21 @@ export function TestcasePanel() {
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
 
-        <div className="flex flex-shrink-0 items-center bg-[#121728] px-2 py-2">
+        <div
+          className={cn(
+            'flex flex-shrink-0 items-center bg-[#121728] px-2 py-2',
+            currentVisibleTab === RUN_CODE_TAB && 'hidden'
+          )}
+        >
           <AddUserTestcaseDialog />
         </div>
       </div>
 
+      <RunnerTab
+        className={cn(currentVisibleTab === RUN_CODE_TAB ? 'block' : 'hidden')}
+      />
       <ScrollArea className="h-full">
-        {currentTab === 0 ? (
+        {currentVisibleTab === TESTCASE_RESULT_TAB ? (
           <div className="flex flex-col gap-6 p-5 pb-14">
             <TestSummary data={summaryData} />
             <TestcaseTable
@@ -147,7 +205,9 @@ export function TestcasePanel() {
           </div>
         ) : (
           <TestResultDetail
-            data={processedData.find((item) => item.originalId === currentTab)}
+            data={processedData.find(
+              (item) => item.originalId === currentVisibleTab
+            )}
           />
         )}
       </ScrollArea>
@@ -165,33 +225,36 @@ const SHORTHAND_TAB_CONTENT = {
   user: 'U'
 }
 
-function TestcaseTab({
-  prevTab,
-  nextTab,
-  currentTab,
-  testcaseId = 0,
-  className,
-  onClickTab,
-  onClickCloseButton,
-  children
-}: {
-  prevTab?: number
-  nextTab?: number
-  currentTab: number
-  testcaseId?: number
+interface TestcaseTabProps {
+  isActive: boolean
   onClickTab: () => void
   onClickCloseButton?: () => void
   className?: string
   children: ReactNode
-}) {
+  isLeftmost?: boolean
+  isLeftOfActive?: boolean
+  isRightOfActive?: boolean
+}
+
+function TestcaseTab({
+  isActive,
+  onClickTab,
+  onClickCloseButton,
+  className,
+  children,
+  isLeftmost,
+  isLeftOfActive,
+  isRightOfActive
+}: TestcaseTabProps) {
   return (
     <button
       type="button"
       className={cn(
-        'relative h-12 w-44 border-l border-[#222939] bg-[#121728]',
-        currentTab === testcaseId && 'bg-[#222939]',
-        currentTab === prevTab && 'rounded-bl-xl',
-        currentTab === nextTab && 'rounded-br-xl',
+        'relative h-12 border-l border-[#222939] bg-[#121728]',
+        !isLeftmost && 'border-l',
+        isActive ? 'bg-[#222939]' : 'bg-[#121728]',
+        isLeftOfActive && 'rounded-bl-xl',
+        isRightOfActive && 'rounded-br-xl',
         className
       )}
       onClick={onClickTab}
@@ -356,6 +419,7 @@ function LabeledField({ label, text, compareText, result }: LabeledFieldProps) {
 
       if (isError) {
         // 컴파일 에러일 경우 ␣ ↵ ↹ 시각화하지 않고 색상만 적용
+
         return (
           <span key={idx} className={colorClass}>
             {data}
@@ -418,16 +482,19 @@ function LabeledField({ label, text, compareText, result }: LabeledFieldProps) {
     const isError = label === 'Output' && isErrorResult(result)
 
     // Input은 diff 없이 흰색으로만 출력
+
     if (label === 'Input') {
       return <WhitespaceVisualizer text={text} className="text-white" />
     }
 
     // Expected Output 처리
+
     if (label === 'Expected Output') {
       return getColoredText(compareText || '', text, true, isError)
     }
 
     // "Output" 처리
+
     return getColoredText(text, compareText || '', false, isError)
   }
 

@@ -9,8 +9,8 @@ export class Testcase {
   @Field(() => String)
   output!: string
 
-  @Field(() => Boolean, { nullable: true })
-  isHidden?: boolean
+  @Field(() => Boolean)
+  isHidden!: boolean
 
   @Field(() => IntScoreScalar, { nullable: true })
   scoreWeight?: number
