@@ -11,17 +11,21 @@ type TestcaseManager interface {
 }
 
 type testcaseManager struct {
-	database loader.Read
+	database *loader.Postgres
+	s3reader *loader.S3reader
 }
 
-func NewTestcaseManager(database loader.Read) *testcaseManager {
-	return &testcaseManager{database: database}
+func NewTestcaseManager(s3reader *loader.S3reader, database *loader.Postgres) *testcaseManager {
+	return &testcaseManager{s3reader: s3reader, database: database}
 }
 
 func (t *testcaseManager) GetTestcase(problemId string, hidden bool) (Testcase, error) {
-	data, err := t.database.Get(problemId)
+	data, err := t.s3reader.Get(problemId)
 	if err != nil {
-		return Testcase{}, fmt.Errorf("GetTestcase: %w", err)
+		data, err = t.database.Get(problemId)
+		if err != nil {
+			return Testcase{}, fmt.Errorf("GetTestcase: %w", err)
+		}
 	}
 
 	if !hidden {
