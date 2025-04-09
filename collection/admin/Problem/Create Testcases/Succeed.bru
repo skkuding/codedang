@@ -1,0 +1,61 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation CreateTestcase($input: CreateTestcasesInput!) {
+    createTestcases(input: $input) {
+      testcaseId
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "problemId": 1,
+      "testcases": [
+        {
+          "input": "1 2",
+          "output": "3",
+          "isHidden": false
+        },
+        {
+          "input": "hello",
+          "output": "world",
+          "isHidden": true
+        }
+      ]
+    }
+  }
+}
+
+docs {
+  ## Create Testcases
+
+  문제에 대한 테스트케이스를 생성합니다.
+  기존에 존재하는 테스트케이스는 모두 삭제됩니다.
+
+  ### Request Body
+
+  - `problemId`: 문제 ID
+  - `testcases`: 테스트케이스 리스트
+    - `input`: 입력값
+    - `output`: 출력값
+    - `isHidden`: 숨김 여부 (default: false)
+    - `scoreWeight`: 점수 비율 (default: 1)
+
+  ### Error Case
+
+  #### UNPROCESSABLE
+
+  - 문제 ID가 존재하지 않는 경우
+}
