@@ -46,8 +46,8 @@ export class NoticeService {
   async getNotice(groupId: number | null, noticeId: number) {
     return await this.prisma.notice.findUniqueOrThrow({
       where: {
-        id: noticeId,
-        groupId
+        id: noticeId
+        // groupId
       }
     })
   }

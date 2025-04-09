@@ -11,6 +11,7 @@ import {
 } from '@nestjs/graphql'
 import { Group, Notice, User } from '@generated'
 import { AuthenticatedRequest, UseGroupLeaderGuard } from '@libs/auth'
+import type { LoaderMap } from '@libs/dataloader'
 import {
   CursorValidationPipe,
   IDValidationPipe,
@@ -82,12 +83,18 @@ export class NoticeResolver {
   }
 
   @ResolveField('createdBy', () => User, { nullable: true })
-  async getUser(@Parent() notice: Notice) {
+  async getUser(
+    @Parent() notice: Notice,
+    @Context('loaders') loaders: LoaderMap
+  ) {
     const { createdById } = notice
     if (createdById == null) {
       return null
     }
-    return this.userService.getUser(createdById)
+    console.log('createdById: ', createdById)
+
+    // return this.userService.getUser(createdById)
+    return loaders.userloader.load(createdById)
   }
 
   @ResolveField('group', () => Group, { nullable: true })
