@@ -11,13 +11,9 @@ post {
 }
 
 body:graphql {
-  query ($groupId: Int, $noticeId: Int!) {
-    getNotice(groupId: $groupId, noticeId: $noticeId) {
+  query ($noticeId: Int!) {
+    getNotice(noticeId: $noticeId) {
       id
-      groupId
-      group {
-        groupName
-      }
       createdById
       createdBy {
         username
@@ -50,11 +46,10 @@ docs {
   
   | 이름 | 타입 | 설명 |
   |--|--|--|
-  |groupId|int?|포함하지 않으면 전체 공개되는 notice에 해당된다.|
   |noticdId|int|조회할 공지사항의 id|
   
   ### Error Case
   
   #### NOT_FOUND
-  groupId와 noticeId에 맞는 공지사항이 없는 경우에 해당한다.
+  noticeId에 맞는 공지사항이 없는 경우에 해당한다.
 }
