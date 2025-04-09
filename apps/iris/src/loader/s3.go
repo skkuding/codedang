@@ -35,7 +35,7 @@ func NewS3DataSource(bucket string) *S3reader {
 			Credentials:  cred,
 		})
 	}
-	// check if bucket exists
+	// Check if bucket exists
 	_, err := client.HeadBucket(context.TODO(), &s3.HeadBucketInput{
 		Bucket: aws.String(bucket),
 	})
@@ -54,6 +54,15 @@ func (s *S3reader) Get(problemId string) ([]Element, error) {
 		return nil, fmt.Errorf("failed to list objects: %w", err)
 	}
 
+	// Assume that the directory structure of the S3 bucket is as follows:
+	// <problemId>/
+	//   ├── <testcaseId>.in
+	//   ├── <testcaseId>.out
+	//   └── ...
+	//
+	// Since `Element` contains input and output both, we need to read both at the same time
+	// and return them as a single Element. For this, we will parse file names and get the list
+	// of testcaseIds.
 	var testcaseIds []string
 	for _, obj := range output.Contents {
 		if obj.Key != nil {
@@ -112,6 +121,8 @@ func (s *S3reader) Get(problemId string) ([]Element, error) {
 			return nil, fmt.Errorf("failed to get tags for %s: %w", inKey, err)
 		}
 
+		// Assume that `hidden` tag is used to mark the testcase as hidden,
+		// instead of reading from database.
 		isHidden := false
 		for _, tag := range outputInTags.TagSet {
 			if *tag.Key == "hidden" && *tag.Value == "true" {
