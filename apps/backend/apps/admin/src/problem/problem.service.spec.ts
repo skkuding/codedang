@@ -363,7 +363,8 @@ describe('ProblemService', () => {
       },
       {
         input: 'input2',
-        output: 'output2'
+        output: 'output2',
+        isHidden: false
       },
       {
         input: 'input3',
