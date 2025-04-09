@@ -181,7 +181,8 @@ export const problemsWithIsVisible: ProblemWithIsVisible[] =
 export const testcaseInput: Testcase = {
   input: "wake up, daddy's home",
   output: 'welcome home, sir',
-  scoreWeight: 1
+  scoreWeight: 1,
+  isHidden: false
 }
 
 export const testcaseData: Testcase = {
