@@ -1,4 +1,13 @@
-import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
+import {
+  Args,
+  Context,
+  Int,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver
+} from '@nestjs/graphql'
 import { Contest, ContestProblem, UserContest } from '@generated'
 import { ContestRole } from '@prisma/client'
 import {
@@ -11,6 +20,7 @@ import {
   IDValidationPipe,
   RequiredIntPipe
 } from '@libs/pipe'
+import { ContestLoader } from './contest.loader'
 import { ContestService } from './contest.service'
 import { ContestLeaderboard } from './model/contest-leaderboard.model'
 import { ContestSubmissionSummaryForUser } from './model/contest-submission-summary-for-user.model'
@@ -22,10 +32,13 @@ import { ContestsGroupedByStatus } from './model/contests-grouped-by-status.outp
 import { ProblemScoreInput } from './model/problem-score.input'
 import { UserContestScoreSummaryWithUserInfo } from './model/score-summary'
 
-@Resolver(() => Contest)
+@Resolver(() => ContestWithParticipants)
 @UseContestRolesGuard(ContestRole.Manager)
 export class ContestResolver {
-  constructor(private readonly contestService: ContestService) {}
+  constructor(
+    private readonly contestService: ContestService,
+    private readonly contestLoader: ContestLoader
+  ) {}
 
   @Query(() => [ContestWithParticipants])
   @UseDisableContestRolesGuard()
@@ -179,5 +192,14 @@ export class ContestResolver {
   @UseDisableContestRolesGuard()
   async getContestRoles(@Context('req') req: AuthenticatedRequest) {
     return await this.contestService.getContestRoles(req.user.id)
+  }
+
+  @ResolveField('participants', () => Int)
+  async getParticipants(@Parent() contest: Contest): Promise<number> {
+    console.log('=== DEBUG ===')
+    console.log('contest', contest)
+    console.log('contest.id', contest.id)
+    console.log('=== DEBUG ===')
+    return this.contestLoader.batchParticipants.load(contest.id)
   }
 }

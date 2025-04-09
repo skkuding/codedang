@@ -50,7 +50,7 @@ export class ContestService {
 
     const paginator = this.prisma.getPaginator(cursor)
 
-    const contests = await this.prisma.contest.findMany({
+    return await this.prisma.contest.findMany({
       ...paginator,
       take,
       where: {
@@ -66,20 +66,6 @@ export class ContestService {
               }
             }
           : {})
-      },
-      include: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        _count: {
-          select: { contestRecord: true }
-        }
-      }
-    })
-
-    return contests.map((contest) => {
-      const { _count, ...data } = contest
-      return {
-        ...data,
-        participants: _count.contestRecord
       }
     })
   }
@@ -90,10 +76,6 @@ export class ContestService {
         id: contestId
       },
       include: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        _count: {
-          select: { contestRecord: true }
-        },
         userContest: {
           where: {
             role: {
@@ -123,12 +105,7 @@ export class ContestService {
       throw new EntityNotExistException('contest')
     }
 
-    const { _count, ...data } = contest
-
-    return {
-      ...data,
-      participants: _count.contestRecord
-    }
+    return contest
   }
 
   async createContest(
