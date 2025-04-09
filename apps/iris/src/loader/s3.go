@@ -75,6 +75,10 @@ func (s *S3reader) Get(problemId string) ([]Element, error) {
 		}
 	}
 
+	if len(testcaseIds) == 0 {
+		return nil, fmt.Errorf("no testcases found for problemId: %s", problemId)
+	}
+
 	result := make([]Element, len(testcaseIds))
 	for index, id := range testcaseIds {
 		inKey := problemId + "/" + id + ".in"
