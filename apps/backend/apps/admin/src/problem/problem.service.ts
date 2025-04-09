@@ -22,6 +22,7 @@ import { Parse } from 'unzipper'
 import {
   MAX_DATE,
   MAX_IMAGE_SIZE,
+  MAX_FILE_SIZE,
   MAX_ZIP_SIZE,
   MIN_DATE
 } from '@libs/constants'
@@ -541,7 +542,10 @@ export class ProblemService {
       throw new UnprocessableDataException('Only pdf files can be accepted')
     }
 
-    const fileSize = await this.getFileSize(createReadStream(), MAX_IMAGE_SIZE)
+    const fileSize = await this.getFileSize(
+      createReadStream(),
+      isImage ? MAX_IMAGE_SIZE : MAX_FILE_SIZE
+    )
     try {
       await this.storageService.uploadFile({
         filename: newFilename,

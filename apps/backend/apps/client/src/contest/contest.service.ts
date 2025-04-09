@@ -520,7 +520,7 @@ export class ContestService {
               penalty: 0,
               submissionCount: getSubmissionCount(problemId),
               score: 0,
-              isFrozen: false,
+              isFrozen: getIsFrozen(problemId, 0, 0),
               isFirstSolver: false
             }
           }

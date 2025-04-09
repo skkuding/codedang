@@ -25,6 +25,12 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/shadcn/tooltip'
 import { useSession } from '@/libs/hooks/useSession'
 import { fetcherWithAuth } from '@/libs/utils'
 import submitIcon from '@/public/icons/submit.svg'
@@ -35,6 +41,11 @@ import {
   getStorageKey,
   getCodeFromLocalStorage
 } from '@/stores/editor'
+import {
+  useTestcaseTabStore,
+  useSidePanelTabStore,
+  RUN_CODE_TAB
+} from '@/stores/editorTabs'
 import type {
   Language,
   ProblemDetail,
@@ -49,8 +60,10 @@ import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
-import { useInterval } from 'react-use'
+import { IoPlayCircleOutline } from 'react-icons/io5'
+import { useInterval, useKey } from 'react-use'
 import { toast } from 'sonner'
+import { useRunner } from '../TestcasePanel/useRunner'
 import { useTestPollingStore } from '../context/TestPollingStoreProvider'
 import { BackCautionDialog } from './BackCautionDialog'
 import { RunTestButton } from './RunTestButton'
@@ -99,6 +112,12 @@ export function EditorHeader({
   const isModalConfrimed = useRef(false)
 
   const queryClient = useQueryClient()
+  const { startRunner } = useRunner()
+  const setActiveTestcaseTab = useTestcaseTabStore(
+    (state) => state.setActiveTab
+  )
+  const { isSidePanelHidden, toggleSidePanelVisibility } =
+    useSidePanelTabStore()
 
   useInterval(
     async () => {
@@ -128,6 +147,9 @@ export function EditorHeader({
           //window.history.pushState(null, '', window.location.href)
           if (submission.result === 'Accepted') {
             confetti?.addConfetti()
+          }
+          if (isSidePanelHidden) {
+            toggleSidePanelVisibility()
           }
         }
       } else {
@@ -183,6 +205,20 @@ export function EditorHeader({
       toast.error('Failed to save the code')
     }
   }
+
+  const run = () => {
+    const code = getCode()
+
+    if (code === '') {
+      toast.error('Please write code before run')
+      return
+    }
+
+    setActiveTestcaseTab(RUN_CODE_TAB)
+    storeCodeToLocalStorage(code)
+    startRunner(code, language)
+  }
+
   const submit = async () => {
     const code = getCode()
 
@@ -360,6 +396,41 @@ export function EditorHeader({
     }
   }, [router])
 
+  useKey(
+    's',
+    (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault()
+        saveCode()
+      }
+    },
+    {},
+    [loading]
+  )
+
+  useKey(
+    'Enter',
+    (e) => {
+      if ((e.ctrlKey && e.metaKey) || e.shiftKey) {
+        e.preventDefault()
+        if (!loading) {
+          submitTest()
+        }
+      } else if (e.ctrlKey || e.metaKey) {
+        e.preventDefault()
+        run()
+      }
+    },
+    {},
+    [loading]
+  )
+
+  const submitTest = () => {
+    if (document.querySelector<HTMLButtonElement>('.test-button')) {
+      document.querySelector<HTMLButtonElement>('.test-button')?.click()
+    }
+  }
+
   return (
     <div className="flex shrink-0 items-center justify-between border-b border-b-slate-700 bg-[#222939] px-6">
       <div>
@@ -397,33 +468,67 @@ export function EditorHeader({
         </AlertDialog>
       </div>
       <div className="flex items-center gap-3">
-        <Button
-          size="icon"
-          className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-[#fafafa] font-medium text-[#484C4D] hover:bg-[#e1e1e1]"
-          onClick={saveCode}
-        >
-          <Save className="stroke-[1.3]" size={22} />
-          Save
-        </Button>
-        <RunTestButton
-          problemId={problem.id}
-          language={language}
-          disabled={loading}
-          saveCode={storeCodeToLocalStorage}
-        />
-        <Button
-          className="h-8 shrink-0 gap-1 rounded-[4px] px-2 font-normal"
-          disabled={loading}
-          onClick={submit}
-        >
-          {loading ? (
-            'Judging'
-          ) : (
-            <>
-              <Image src={submitIcon} width={22} alt={'submit'} /> Submit
-            </>
-          )}
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                size="icon"
+                className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-[#fafafa] font-medium text-[#484C4D] hover:bg-[#e1e1e1]"
+                onClick={saveCode}
+              >
+                <Save className="stroke-[1.3]" size={22} />
+                Save
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Ctrl/Cmd + S | Save your code in your browser.</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                variant="secondary"
+                className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
+                onClick={run}
+              >
+                <IoPlayCircleOutline size={22} />
+                Run
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Ctrl/Cmd + Enter | Run your code in interactive terminal.</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <RunTestButton
+            problemId={problem.id}
+            language={language}
+            disabled={loading}
+            saveCode={storeCodeToLocalStorage}
+            className="test-button"
+          />
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                className="h-8 shrink-0 gap-1 rounded-[4px] px-2 font-normal"
+                disabled={loading}
+                onClick={submit}
+              >
+                {loading ? (
+                  'Judging'
+                ) : (
+                  <>
+                    <Image src={submitIcon} width={22} alt={'submit'} /> Submit
+                  </>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Submit your code for evaluation</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <Select
           onValueChange={(language: Language) => {
             setLanguage(language)

@@ -84,6 +84,8 @@
     "@uiw/react-codemirror": "^4.23.7",
     "@wasm-fmt/clang-format": "^19.1.7",
     "@wasm-fmt/ruff_fmt": "^0.9.7",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
     "apollo-upload-client": "^18.0.1",
     "cmdk": "^1.0.4",
     "date-fns": "^4.1.0",
