@@ -91,9 +91,6 @@ export class NoticeResolver {
     if (createdById == null) {
       return null
     }
-    console.log('createdById: ', createdById)
-
-    // return this.userService.getUser(createdById)
     return loaders.userloader.load(createdById)
   }
 
