@@ -298,6 +298,7 @@ model ProblemTestcase {
   id          Int      @id @default(autoincrement())
   problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   problemId   Int      @map("problem_id")
+  order       Int?
   // NOTE: Actual input/output value is going to be stored in S3.
   // These fields are only for backward compatibility.
   // All the new testcases are going to be stored in S3.

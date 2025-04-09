@@ -11,7 +11,6 @@ import { CacheConfigService } from '@libs/cache'
 import { ClientExceptionFilter } from '@libs/exception'
 import { pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
-import { StorageModule } from '@libs/storage'
 import { AnnouncementModule } from './announcement/announcement.module'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
@@ -49,7 +48,6 @@ import { WorkbookModule } from './workbook/workbook.module'
     WorkbookModule,
     EmailModule,
     AnnouncementModule,
-    StorageModule,
     AssignmentModule,
     LoggerModule.forRoot(pinoLoggerModuleOption),
     OpenTelemetryModule.forRoot()

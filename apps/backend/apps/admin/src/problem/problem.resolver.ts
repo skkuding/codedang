@@ -39,9 +39,10 @@ import {
   CreateProblemInput,
   UploadFileInput,
   FilterProblemsInput,
-  UpdateProblemInput
+  UpdateProblemInput,
+  UploadTestcaseZipInput
 } from './model/problem.input'
-import { ProblemWithIsVisible } from './model/problem.output'
+import { ProblemWithIsVisible, ProblemTestcaseId } from './model/problem.output'
 import { ProblemService } from './problem.service'
 
 @Resolver(() => ProblemWithIsVisible)
@@ -58,6 +59,17 @@ export class ProblemResolver {
       input,
       req.user.id,
       req.user.role
+    )
+  }
+
+  @Mutation(() => [ProblemTestcaseId])
+  async uploadTestcaseZip(
+    @Args('input', { type: () => UploadTestcaseZipInput })
+    input: UploadTestcaseZipInput
+  ): Promise<ProblemTestcaseId[]> {
+    return await this.problemService.uploadTestcaseZip(
+      await input.file,
+      input.problemId
     )
   }
 

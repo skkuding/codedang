@@ -14,12 +14,16 @@ import { ProblemField, Role } from '@prisma/client'
 import { Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
+import { isEqual } from 'es-toolkit'
 import { Workbook } from 'exceljs'
-import type { ReadStream } from 'fs'
+import type { FileUpload } from 'graphql-upload/GraphQLUpload.mjs'
+import type { Readable } from 'stream'
+import { Parse } from 'unzipper'
 import {
   MAX_DATE,
-  MAX_FILE_SIZE,
   MAX_IMAGE_SIZE,
+  MAX_FILE_SIZE,
+  MAX_ZIP_SIZE,
   MIN_DATE
 } from '@libs/constants'
 import {
@@ -96,6 +100,125 @@ export class ProblemService {
     })
     await this.createTestcases(problem.id, testcases)
     return this.changeVisibleLockTimeToIsVisible(problem)
+  }
+
+  async removeAllTestcaseFiles(problemId: number) {
+    const testcaseDir = problemId + '/'
+    const files = await this.storageService.listObjects(testcaseDir, 'testcase')
+    await Promise.all(
+      files.map(async (file) => {
+        if (!file.Key) return
+        await this.storageService.deleteObject(file.Key, 'testcase')
+      })
+    )
+    await this.prisma.problemTestcase.deleteMany({
+      where: { problemId }
+    })
+  }
+
+  async uploadTestcaseZip(file: FileUpload, problemId: number) {
+    const { filename, mimetype, createReadStream } = file
+
+    if (!filename.endsWith('.zip') || mimetype !== 'application/zip') {
+      throw new UnprocessableDataException('Only zip files are accepted')
+    }
+
+    // Just check if the file size is less than maximum size
+    await this.getFileSize(createReadStream(), MAX_ZIP_SIZE)
+
+    // Testcase files are uploaded under s3://{bucketName}/{problemId}/{testcaseId}.{in|out}
+    // Before upload, delete all objects under the problemId directory
+    await this.removeAllTestcaseFiles(problemId)
+
+    // Under zip, it's expected to have the following structure:
+    //
+    // {name}.zip/
+    //   {chunkName1}.in
+    //   {chunkName1}.out
+    //   {chunkName2}.in
+    //   {chunkName2}.out
+    //   ...
+    //
+    // Then each {chunkName} is registered to the database with {testcaseId} as primary key
+    // and the object is uploaded to S3 with the name {problemId}/{testcaseId}.{in|out}
+    //
+    // s3://{bucketName}/{problemId}/
+    //  {testcaseId1}.{in}
+    //  {testcaseId1}.{out}
+    //  {testcaseId2}.{in}
+    //  {testcaseId2}.{out}
+    //  ...
+
+    /** Mapper between chunk name and testcase ID. { [chunkName]: testcaseId } */
+    const testcaseIdMapper: Record<string, number> = {}
+
+    const inFiles = new Set<string>()
+    const outFiles = new Set<string>()
+
+    const stream = createReadStream().pipe(Parse({ forceStream: true }))
+
+    try {
+      for await (const chunk of stream) {
+        // e.g) chunk.path: 'name.in' => chunkName: 'name', extension: 'in'
+        const chunkName = chunk.path.split('.').slice(0, -1).join('.')
+        const extension = chunk.path.split('.').pop()
+
+        if (extension !== 'in' && extension !== 'out') {
+          throw new UnprocessableDataException(
+            'Testcase files must end with .in or .out'
+          )
+        }
+        if (!(chunkName in testcaseIdMapper)) {
+          const testcase = await this.prisma.problemTestcase.create({
+            data: { problemId }
+          })
+          testcaseIdMapper[chunkName] = testcase.id
+        }
+
+        if (extension === 'in') {
+          inFiles.add(chunkName)
+        } else if (extension === 'out') {
+          outFiles.add(chunkName)
+        }
+
+        const objectName = `${problemId}/${testcaseIdMapper[chunkName]}.${extension}`
+        const defaultTags = { hidden: 'true' } // s3 object tags are read from iris
+
+        await this.storageService.uploadObject(
+          objectName,
+          chunk,
+          'txt',
+          defaultTags
+        )
+      }
+
+      // Check if all .in/.out files have corresponding .out/.in files
+      if (!isEqual(inFiles, outFiles)) {
+        throw new UnprocessableDataException(
+          'Testcase files must have corresponding .in/.out files'
+        )
+      }
+    } catch (error) {
+      await this.removeAllTestcaseFiles(problemId)
+      throw error
+    }
+
+    // Set the testcase order by alphabetical order of original file name
+    // e.g) [aaa.(in|out), aab.(in|out), aac.(in|out), ...]
+    const originalFileNames = Object.keys(testcaseIdMapper).sort()
+
+    originalFileNames.forEach(async (name, index) => {
+      const id = testcaseIdMapper[name]
+      await this.prisma.problemTestcase.update({
+        where: { id },
+        data: { order: index + 1 }
+      })
+    })
+
+    const testcaseIds = originalFileNames.map((name) => ({
+      testcaseId: testcaseIdMapper[name]
+    }))
+    return testcaseIds
   }
 
   async createTestcases(problemId: number, testcases: Array<Testcase>) {
@@ -368,7 +491,10 @@ export class ProblemService {
       throw new UnprocessableDataException('Only pdf files can be accepted')
     }
 
-    const fileSize = await this.getFileSize(createReadStream(), isImage)
+    const fileSize = await this.getFileSize(
+      createReadStream(),
+      isImage ? MAX_IMAGE_SIZE : MAX_FILE_SIZE
+    )
     try {
       await this.storageService.uploadFile({
         filename: newFilename,
@@ -421,7 +547,7 @@ export class ProblemService {
     return resolvedFile
   }
 
-  async getFileSize(readStream: ReadStream, isImage: boolean): Promise<number> {
+  async getFileSize(readStream: Readable, maxSize: number): Promise<number> {
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = []
 
@@ -429,7 +555,7 @@ export class ProblemService {
         chunks.push(chunk)
 
         const totalSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
-        if (totalSize > (isImage ? MAX_IMAGE_SIZE : MAX_FILE_SIZE)) {
+        if (totalSize > maxSize) {
           readStream.destroy()
           reject(
             new UnprocessableDataException('File size exceeds maximum limit')
