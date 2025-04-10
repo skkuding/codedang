@@ -1,0 +1,108 @@
+name: RC - ACM Validation
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECS_CLUSTER: Codedang-Api
+
+permissions: # permissions to the job (for the OpenID Connection)
+  id-token: write
+  contents: read
+
+jobs:
+  export-rc-ns-records:
+    name: Export RC NS Records
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY_RC }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Export RC NS Records
+        working-directory: ./apps/infra/rc/network
+        run: |
+          terraform init -backend-config="bucket=codedang-tf-state-rc"
+          NS_RECORDS=$(terraform output -json rc_ns_records | jq -r '.[]' | tr '\n' ' ')
+          echo "RC_NS_RECORDS=$NS_RECORDS" >> $GITHUB_ENV
+
+  rc-update-prod-route53:
+    name: RC - Update Production Route53 NS
+    runs-on: ubuntu-latest
+    needs: [export-rc-ns-records]
+    environment: production
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update Production Route53 NS Records
+        run: |
+          ZONE_ID=$(aws route53 list-hosted-zones-by-name --dns-name "codedang.com" --query "HostedZones[0].Id" --output text | cut -d'/' -f3)
+          aws route53 change-resource-record-sets \
+            --hosted-zone-id $ZONE_ID \
+            --change-batch '{
+              "Changes": [{
+                "Action": "UPSERT",
+                "ResourceRecordSet": {
+                  "Name": "rc.codedang.com",
+                  "Type": "NS",
+                  "TTL": 300,
+                  "ResourceRecords": [
+                    {"Value": "'${{ env.RC_NS_RECORDS }}'"}
+                  ]
+                }
+              }]
+            }'
+
+  rc-deploy-acm-validation:
+    name: RC - Deploy ACM Validation
+    runs-on: ubuntu-latest
+    needs: [rc-update-prod-route53]
+    environment: production
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY_RC }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.2
+
+      - name: Create Terraform variable file
+        working-directory: ./apps/infra/rc/acm-validation
+        run: |
+          echo 'env = "rc"' >> terraform.tfvars
+
+      - name: Terraform Init ACM Validation
+        working-directory: ./apps/infra/rc/acm-validation
+        run: terraform init -backend-config="bucket=codedang-tf-state-rc"
+
+      - name: Terraform Plan ACM Validation
+        working-directory: ./apps/infra/rc/acm-validation
+        run: terraform plan -input=false -out=plan.out
+
+      - name: Terraform Apply ACM Validation
+        working-directory: ./apps/infra/rc/acm-validation
+        run: terraform apply -input=false plan.out
