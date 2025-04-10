@@ -12,7 +12,6 @@ export default function Page({ params }: { params: { noticeId: string } }) {
 
   const noticeData = useQuery(GET_NOTICE, {
     variables: {
-      groupId: 1,
       noticeId: Number(noticeId)
     }
   }).data?.getNotice

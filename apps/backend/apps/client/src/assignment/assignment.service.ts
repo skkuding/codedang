@@ -216,6 +216,21 @@ export class AssignmentService {
     })
   }
 
+  /**
+   * Assignment 통계 모달을 위해 익명화된 모든 참여자의 점수를 가져옵니다
+   * Autofinalize가 true인 경우 score를 finalScore로 사용합니다
+   * isFinalScoreVisible이 false인 경우 finalScore를 null로 설정합니다
+   * @param {number} groupId assignment의 groupId
+   * @param {number} assignmentId 점수를 조회하려는 Assignment ID
+   * @returns {Promise<{
+   *   assignmentId: number;
+   *   title: string;
+   *   totalParticipants: number;
+   *   finalScores?: number[];
+   *   autoFinalizeScore: boolean;
+   *   isFinalScoreVisible: boolean;
+   * }>}
+   */
   async getAnonymizedScores(assignmentId: number, groupId: number) {
     const assignment = await this.prisma.assignment.findUnique({
       where: { id: assignmentId },
@@ -225,7 +240,6 @@ export class AssignmentService {
         title: true,
         endTime: true,
         isFinalScoreVisible: true,
-        isJudgeResultVisible: true,
         autoFinalizeScore: true
       }
     })
@@ -264,7 +278,6 @@ export class AssignmentService {
       assignmentId: number
       title: string
       totalParticipants: number
-      scores?: number[]
       finalScores?: number[]
       autoFinalizeScore: boolean
       isFinalScoreVisible: boolean
@@ -276,13 +289,9 @@ export class AssignmentService {
       isFinalScoreVisible: assignment.isFinalScoreVisible
     }
 
-    if (assignment.isJudgeResultVisible) {
-      result.scores = validRecords.map((record) => record.score)
-    }
-
     if (assignment.isFinalScoreVisible) {
       if (assignment.autoFinalizeScore) {
-        result.finalScores = result.scores
+        result.finalScores = validRecords.map((record) => record.score)
       } else {
         result.finalScores = validRecords
           .map((record) => record.finalScore)
@@ -293,6 +302,34 @@ export class AssignmentService {
     return result
   }
 
+  /**
+   * 특정 사용자의 과제 문제 기록을 가져옵니다.
+   * - 과제의 문제별 점수, 제출 여부, 코멘트 등을 포함합니다.
+   * - 과제의 자동 점수 산정 여부 및 최종 점수 공개 여부에 따라 반환 값이 달라질 수 있습니다.
+   *
+   * @param {number} assignmentId 조회하려는 과제의 ID
+   * @param {number} userId 조회하려는 사용자의 ID
+   * @returns {Promise<{
+   *   id: number;
+   *   autoFinalizeScore: boolean;
+   *   isFinalScoreVisible: boolean;
+   *   isJudgeResultVisible: boolean;
+   *   userAssignmentFinalScore: number | null;
+   *   assignmentPerfectScore: number;
+   *   comment: string | null;
+   *   problems: Array<{
+   *     id: number;
+   *     title: string;
+   *     order: number;
+   *     maxScore: number;
+   *     problemRecord: {
+   *       finalScore: number | null;
+   *       isSubmitted: boolean;
+   *       comment: string | null;
+   *     } | null;
+   *   }>;
+   * }>}
+   */
   async getMyAssignmentProblemRecord(assignmentId: number, userId: number) {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
@@ -367,7 +404,6 @@ export class AssignmentService {
         }
         map[record.problemId] = {
           finalScore: assignment.isFinalScoreVisible ? record.finalScore : null,
-          score: assignment.isJudgeResultVisible ? record.score : null,
           isSubmitted: record.isSubmitted,
           comment: record.comment
         }
@@ -377,38 +413,11 @@ export class AssignmentService {
         number,
         {
           finalScore: number | null
-          score: number | null
           isSubmitted: boolean
           comment: string
         }
       >
     )
-
-    const submissions = await this.prisma.submission.findMany({
-      where: { userId, assignmentId },
-      select: {
-        problemId: true,
-        createTime: true,
-        result: true
-      },
-      orderBy: {
-        createTime: 'desc'
-      }
-    })
-
-    const submissionMap = new Map<
-      number,
-      { submissionTime: Date; submissionResult: string }
-    >()
-
-    for (const submission of submissions) {
-      if (!submissionMap.has(submission.problemId)) {
-        submissionMap.set(submission.problemId, {
-          submissionTime: submission.createTime,
-          submissionResult: submission.result
-        })
-      }
-    }
 
     if (assignment.autoFinalizeScore) {
       assignmentRecord.finalScore = assignmentRecord.score
@@ -419,11 +428,7 @@ export class AssignmentService {
       title: ap.problem.title,
       order: ap.order,
       maxScore: ap.score,
-      problemRecord: problemRecordMap[ap.problemId] ?? null,
-      submissionTime: submissionMap.get(ap.problemId)?.submissionTime ?? null,
-      submissionResult: assignment.isJudgeResultVisible
-        ? (submissionMap.get(ap.problemId)?.submissionResult ?? null)
-        : null
+      problemRecord: problemRecordMap[ap.problemId] ?? null
     }))
 
     const assignmentPerfectScore = assignment.assignmentProblem.reduce(
@@ -438,9 +443,6 @@ export class AssignmentService {
       isJudgeResultVisible: assignment.isJudgeResultVisible,
       userAssignmentFinalScore: assignment.isFinalScoreVisible
         ? assignmentRecord.finalScore
-        : null,
-      userAssignmentJudgeScore: assignment.isJudgeResultVisible
-        ? assignmentRecord.score
         : null,
       assignmentPerfectScore,
       comment: assignmentRecord.comment,
@@ -523,9 +525,6 @@ export class AssignmentService {
         assignmentPerfectScore: assignmentPerfectScoresMap[assignment.id],
         userAssignmentFinalScore: assignment.isFinalScoreVisible
           ? assignment.assignmentRecord[0].finalScore
-          : null,
-        userAssignmentJudgeScore: assignment.isJudgeResultVisible
-          ? assignment.assignmentRecord[0].score
           : null
       }
     })

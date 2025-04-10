@@ -400,8 +400,6 @@ export interface ProblemGrade {
   order: number
   maxScore: number
   problemRecord: ProblemRecord | null
-  submissionTime: string
-  submissionResult: string | null
 }
 
 export interface ProblemRecord {
@@ -411,6 +409,23 @@ export interface ProblemRecord {
   comment: string
 }
 
+export interface RunnerMessage {
+  type: RunnerMessageType
+  language: Language
+  source: string
+}
+
+export enum RunnerMessageType {
+  INPUT = 'input',
+  CODE = 'code',
+  COMPILE_SUCCESS = 'compile_success',
+  COMPILE_ERR = 'compile_error',
+  ECHO = 'echo',
+  STDOUT = 'stdout',
+  STDERR = 'stderr',
+  EXIT = 'exit'
+}
+
 export interface AssignmentSummary {
   id: number
   problemCount: number
@@ -418,4 +433,16 @@ export interface AssignmentSummary {
   assignmentPerfectScore: number
   userAssignmentFinalScore: number | null
   userAssignmentJudgeScore: number
+}
+
+export interface AssignmentSubmission {
+  problemId: number
+  submission: ProblemSubmission | null
+}
+
+export interface ProblemSubmission {
+  submissionTime: string
+  submissionResult: string
+  testcaseCount: number
+  acceptedTestcaseCount: number
 }

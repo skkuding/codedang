@@ -17,7 +17,6 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { SubmissionPublicationService } from '@libs/rabbitmq'
-import { StorageService } from '@libs/storage'
 import { Snippet } from '../class/create-submission.dto'
 import { problems } from '../mock/problem.mock'
 import { submissions, submissionDto } from '../mock/submission.mock'
@@ -58,7 +57,8 @@ const db = {
   },
   assignmentProblem: {
     findUnique: stub(),
-    findFirst: stub()
+    findFirst: stub(),
+    findMany: stub()
   },
   workbook: {
     findFirst: stub()
@@ -166,7 +166,6 @@ describe('SubmissionService', () => {
         { provide: PrismaService, useValue: db },
         ConfigService,
         TraceService,
-        { provide: StorageService, useValue: { readObject: () => [] } },
         {
           provide: SubmissionPublicationService,
           useFactory: () => ({ publishJudgeRequestMessage: () => [] })
@@ -213,6 +212,7 @@ describe('SubmissionService', () => {
     db.assignment.findFirst.resetHistory()
     db.assignmentProblem.findUnique.resetHistory()
     db.assignmentProblem.findFirst.resetHistory()
+    db.assignmentProblem.findMany.resetHistory()
     db.workbookProblem.findUnique.resetHistory()
     db.contestRecord.findUnique.resetHistory()
     db.contestRecord.update.resetHistory()
@@ -782,6 +782,127 @@ describe('SubmissionService', () => {
           userId: submissions[0].userId
         })
       ).to.be.rejectedWith(EntityNotExistException)
+    })
+  })
+  describe('getAssignmentSubmissionSummary', () => {
+    it('should return submission summary for assignment problems', async () => {
+      const assignmentId = 1
+      const userId = 1
+      const mockAssignmentProblems = [{ problemId: 1 }, { problemId: 2 }]
+      const mockSubmissions = [
+        {
+          problemId: 1,
+          createTime: new Date(),
+          result: 'Accepted',
+          submissionResult: [
+            { result: 'Accepted' },
+            { result: 'Accepted' },
+            { result: 'Wrong Answer' }
+          ]
+        }
+      ]
+
+      db.assignmentRecord.findUnique.resolves({
+        assignment: { isJudgeResultVisible: true }
+      })
+      db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
+      db.submission.findMany.resolves(mockSubmissions)
+
+      const result = await service.getAssignmentSubmissionSummary(
+        assignmentId,
+        userId
+      )
+
+      expect(result).to.have.lengthOf(2)
+      expect(result[0].problemId).to.equal(1)
+      expect(result[0].submission).to.not.be.null
+      expect(result[0].submission?.submissionResult).to.equal('Accepted')
+      expect(result[0].submission?.testcaseCount).to.equal(3)
+      expect(result[0].submission?.acceptedTestcaseCount).to.equal(2)
+
+      expect(result[1].problemId).to.equal(2)
+      expect(result[1].submission).to.be.null
+
+      expect(db.assignmentRecord.findUnique.calledOnce).to.be.true
+      expect(db.assignmentProblem.findMany.calledOnce).to.be.true
+      expect(db.submission.findMany.calledOnce).to.be.true
+    })
+
+    it('should return empty array when there are no assignment problems', async () => {
+      const assignmentId = 1
+      const userId = 1
+
+      db.assignmentRecord.findUnique.resolves({
+        assignment: { isJudgeResultVisible: true }
+      })
+      db.assignmentProblem.findMany.resolves([])
+
+      const result = await service.getAssignmentSubmissionSummary(
+        assignmentId,
+        userId
+      )
+
+      expect(result).to.be.an('array').that.is.empty
+
+      expect(db.assignmentRecord.findUnique.calledOnce).to.be.true
+      expect(db.assignmentProblem.findMany.calledOnce).to.be.true
+      expect(db.submission.findMany.called).to.be.false
+    })
+
+    it('should throw ForbiddenAccessException when user is not participating in assignment', async () => {
+      const assignmentId = 1
+      const userId = 1
+
+      db.assignmentRecord.findUnique.resolves(null)
+
+      await expect(
+        service.getAssignmentSubmissionSummary(assignmentId, userId)
+      ).to.be.rejectedWith(
+        ForbiddenAccessException,
+        'User not participated in the assignment'
+      )
+
+      expect(db.assignmentRecord.findUnique.calledOnce).to.be.true
+      expect(db.assignmentProblem.findMany.called).to.be.true
+    })
+
+    it('should handle multiple submissions for the same problem and use the most recent one', async () => {
+      const assignmentId = 1
+      const userId = 1
+      const mockAssignmentProblems = [{ problemId: 1 }]
+      const olderDate = new Date('2023-01-01')
+      const newerDate = new Date('2023-01-02')
+
+      const mockSubmissions = [
+        {
+          problemId: 1,
+          createTime: newerDate,
+          result: 'Accepted',
+          submissionResult: [{ result: 'Accepted' }]
+        },
+        {
+          problemId: 1,
+          createTime: olderDate,
+          result: 'Wrong Answer',
+          submissionResult: [{ result: 'Wrong Answer' }]
+        }
+      ]
+
+      db.assignmentRecord.findUnique.resolves({
+        assignment: { isJudgeResultVisible: true }
+      })
+      db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
+      db.submission.findMany.resolves(mockSubmissions)
+
+      const result = await service.getAssignmentSubmissionSummary(
+        assignmentId,
+        userId
+      )
+
+      expect(result).to.have.lengthOf(1)
+      expect(result[0].problemId).to.equal(1)
+      expect(result[0].submission?.submissionResult).to.equal('Accepted')
+      expect(result[0].submission?.submissionTime).to.deep.equal(newerDate)
     })
   })
   // TODO: 기획 문의 / 확정 후 Test DB 기반으로 재작성 예정

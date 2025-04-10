@@ -2,6 +2,7 @@ import { queryOptions } from '@tanstack/react-query'
 import {
   getAnonymizedScores,
   getAssignmentGrades,
+  getAssignmentSubmission,
   getAssignmentSubmissionDetail,
   getAssignmentSubmissionList,
   getLatestProblemSubmissionResult,
@@ -11,6 +12,7 @@ import {
   type GetAssignmentGradesRequest,
   type GetAssignmentSubmissionDetailRequest,
   type GetAssignmentSubmissionListRequest,
+  type GetAssignmentSubmissionSummaryRequest,
   type GetLatestProblemSubmissionResultRequest,
   type GetProblemSubmissionResultsRequest,
   type GetTestResultRequest
@@ -113,5 +115,10 @@ export const assignmentSubmissionQueries = {
     queryOptions({
       queryKey: ['assignmentGrades', groupId],
       queryFn: () => getAssignmentGrades({ groupId })
+    }),
+  summary: ({ assignmentId }: GetAssignmentSubmissionSummaryRequest) =>
+    queryOptions({
+      queryKey: ['summary', assignmentId],
+      queryFn: () => getAssignmentSubmission({ assignmentId })
     })
 }

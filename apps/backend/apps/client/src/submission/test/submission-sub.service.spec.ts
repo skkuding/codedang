@@ -664,7 +664,8 @@ describe('SubmissionSubscriptionService', () => {
             freezeTime: true,
             submission: {
               where: {
-                userId: contestSubmission.userId
+                userId: contestSubmission.userId,
+                problemId: contestSubmission.problemId
               },
               select: {
                 id: true

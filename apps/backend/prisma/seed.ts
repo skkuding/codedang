@@ -315,8 +315,7 @@ const createNotices = async () => {
       {
         title: '아주 중요한 공지사항 (1)',
         content: '<p>사실 별 내용 없어요 😇</p>',
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: '더 중요한 공지사항 (2)',
@@ -328,8 +327,7 @@ const createNotices = async () => {
 <p>법률이 정하는 주요방위산업체에 종사하는 근로자의 단체행동권은 법률이 정하는 바에 의하여 이를 제한하거나 인정하지 아니할 수 있다.</p>
 <p>법률은 특별한 규정이 없는 한 공포한 날로부터 20일을 경과함으로써 효력을 발생한다.</p>
 <p>비상계엄이 선포된 때에는 법률이 정하는 바에 의하여 영장제도, 언론·출판·집회·결사의 자유, 정부나 법원의 권한에 관하여 특별한 조치를 할 수 있다.</p>`,
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: '제일 중요한 공지사항 (3)',
@@ -341,8 +339,7 @@ const createNotices = async () => {
 <p>국민의 모든 자유와 권리는 국가안전보장·질서유지 또는 공공복리를 위하여 필요한 경우에 한하여 법률로써 제한할 수 있으며, 제한하는 경우에도 자유와 권리의 본질적인 내용을 침해할 수 없다.</p>
 <p>한 회계연도를 넘어 계속하여 지출할 필요가 있을 때에는 정부는 연한을 정하여 계속비로서 국회의 의결을 얻어야 한다.</p>
 <p>국가는 재해를 예방하고 그 위험으로부터 국민을 보호하기 위하여 노력하여야 한다.</p>`,
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: 'HTML element들 테스트해봐요 (4)',
@@ -371,14 +368,12 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: instructorUser.id,
-        groupId: 1
+        createdById: instructorUser.id
       },
       {
         title: '아주 중요한 공지사항 (5)',
         content: '<p>사실 별 내용 없어요 😇</p>',
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: '더 중요한 공지사항 (6)',
@@ -390,8 +385,7 @@ int main() {
 <p>법률이 정하는 주요방위산업체에 종사하는 근로자의 단체행동권은 법률이 정하는 바에 의하여 이를 제한하거나 인정하지 아니할 수 있다.</p>
 <p>법률은 특별한 규정이 없는 한 공포한 날로부터 20일을 경과함으로써 효력을 발생한다.</p>
 <p>비상계엄이 선포된 때에는 법률이 정하는 바에 의하여 영장제도, 언론·출판·집회·결사의 자유, 정부나 법원의 권한에 관하여 특별한 조치를 할 수 있다.</p>`,
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: '제일 중요한 공지사항 (7)',
@@ -404,8 +398,7 @@ int main() {
 <p>국민의 모든 자유와 권리는 국가안전보장·질서유지 또는 공공복리를 위하여 필요한 경우에 한하여 법률로써 제한할 수 있으며, 제한하는 경우에도 자유와 권리의 본질적인 내용을 침해할 수 없다.</p>
 <p>한 회계연도를 넘어 계속하여 지출할 필요가 있을 때에는 정부는 연한을 정하여 계속비로서 국회의 의결을 얻어야 한다.</p>
 <p>국가는 재해를 예방하고 그 위험으로부터 국민을 보호하기 위하여 노력하여야 한다.</p>`,
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: 'HTML element들 테스트해봐요 (8)',
@@ -433,14 +426,12 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: instructorUser.id,
-        groupId: 1
+        createdById: instructorUser.id
       },
       {
         title: '아주 중요한 공지사항 (9)',
         content: '<p>사실 별 내용 없어요 😇</p>',
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: '더 중요한 공지사항 (10)',
@@ -452,8 +443,7 @@ int main() {
 <p>법률이 정하는 주요방위산업체에 종사하는 근로자의 단체행동권은 법률이 정하는 바에 의하여 이를 제한하거나 인정하지 아니할 수 있다.</p>
 <p>법률은 특별한 규정이 없는 한 공포한 날로부터 20일을 경과함으로써 효력을 발생한다.</p>
 <p>비상계엄이 선포된 때에는 법률이 정하는 바에 의하여 영장제도, 언론·출판·집회·결사의 자유, 정부나 법원의 권한에 관하여 특별한 조치를 할 수 있다.</p>`,
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: '제일 중요한 공지사항 (11)',
@@ -465,8 +455,7 @@ int main() {
 <p>국민의 모든 자유와 권리는 국가안전보장·질서유지 또는 공공복리를 위하여 필요한 경우에 한하여 법률로써 제한할 수 있으며, 제한하는 경우에도 자유와 권리의 본질적인 내용을 침해할 수 없다.</p>
 <p>한 회계연도를 넘어 계속하여 지출할 필요가 있을 때에는 정부는 연한을 정하여 계속비로서 국회의 의결을 얻어야 한다.</p>
 <p>국가는 재해를 예방하고 그 위험으로부터 국민을 보호하기 위하여 노력하여야 한다.</p>`,
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: 'HTML element들 테스트해봐요 (12)',
@@ -494,14 +483,12 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: instructorUser.id,
-        groupId: 1
+        createdById: instructorUser.id
       },
       {
         title: '아주 중요한 공지사항 (13)',
         content: '<p>사실 별 내용 없어요 😇</p>',
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: '더 중요한 공지사항 (14)',
@@ -513,8 +500,7 @@ int main() {
 <p>법률이 정하는 주요방위산업체에 종사하는 근로자의 단체행동권은 법률이 정하는 바에 의하여 이를 제한하거나 인정하지 아니할 수 있다.</p>
 <p>법률은 특별한 규정이 없는 한 공포한 날로부터 20일을 경과함으로써 효력을 발생한다.</p>
 <p>비상계엄이 선포된 때에는 법률이 정하는 바에 의하여 영장제도, 언론·출판·집회·결사의 자유, 정부나 법원의 권한에 관하여 특별한 조치를 할 수 있다.</p>`,
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: '제일 중요한 공지사항 (15)',
@@ -526,8 +512,7 @@ int main() {
 <p>국민의 모든 자유와 권리는 국가안전보장·질서유지 또는 공공복리를 위하여 필요한 경우에 한하여 법률로써 제한할 수 있으며, 제한하는 경우에도 자유와 권리의 본질적인 내용을 침해할 수 없다.</p>
 <p>한 회계연도를 넘어 계속하여 지출할 필요가 있을 때에는 정부는 연한을 정하여 계속비로서 국회의 의결을 얻어야 한다.</p>
 <p>국가는 재해를 예방하고 그 위험으로부터 국민을 보호하기 위하여 노력하여야 한다.</p>`,
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: 'HTML element들 테스트해봐요 (16)',
@@ -555,14 +540,12 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: instructorUser.id,
-        groupId: 1
+        createdById: instructorUser.id
       },
       {
         title: '아주 중요한 공지사항 (17)',
         content: '<p>사실 별 내용 없어요 😇</p>',
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: '더 중요한 공지사항 (18)',
@@ -574,8 +557,7 @@ int main() {
 <p>법률이 정하는 주요방위산업체에 종사하는 근로자의 단체행동권은 법률이 정하는 바에 의하여 이를 제한하거나 인정하지 아니할 수 있다.</p>
 <p>법률은 특별한 규정이 없는 한 공포한 날로부터 20일을 경과함으로써 효력을 발생한다.</p>
 <p>비상계엄이 선포된 때에는 법률이 정하는 바에 의하여 영장제도, 언론·출판·집회·결사의 자유, 정부나 법원의 권한에 관하여 특별한 조치를 할 수 있다.</p>`,
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: '제일 중요한 공지사항 (19)',
@@ -587,8 +569,7 @@ int main() {
 <p>국민의 모든 자유와 권리는 국가안전보장·질서유지 또는 공공복리를 위하여 필요한 경우에 한하여 법률로써 제한할 수 있으며, 제한하는 경우에도 자유와 권리의 본질적인 내용을 침해할 수 없다.</p>
 <p>한 회계연도를 넘어 계속하여 지출할 필요가 있을 때에는 정부는 연한을 정하여 계속비로서 국회의 의결을 얻어야 한다.</p>
 <p>국가는 재해를 예방하고 그 위험으로부터 국민을 보호하기 위하여 노력하여야 한다.</p>`,
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: 'HTML element들 테스트해봐요 (20)',
@@ -616,14 +597,12 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: instructorUser.id,
-        groupId: 1
+        createdById: instructorUser.id
       },
       {
         title: '아주 중요한 공지사항 (21)',
         content: '<p>사실 별 내용 없어요 😇</p>',
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: '더 중요한 공지사항 (22)',
@@ -635,8 +614,7 @@ int main() {
 <p>법률이 정하는 주요방위산업체에 종사하는 근로자의 단체행동권은 법률이 정하는 바에 의하여 이를 제한하거나 인정하지 아니할 수 있다.</p>
 <p>법률은 특별한 규정이 없는 한 공포한 날로부터 20일을 경과함으로써 효력을 발생한다.</p>
 <p>비상계엄이 선포된 때에는 법률이 정하는 바에 의하여 영장제도, 언론·출판·집회·결사의 자유, 정부나 법원의 권한에 관하여 특별한 조치를 할 수 있다.</p>`,
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: '제일 중요한 공지사항 (23)',
@@ -648,8 +626,7 @@ int main() {
 <p>국민의 모든 자유와 권리는 국가안전보장·질서유지 또는 공공복리를 위하여 필요한 경우에 한하여 법률로써 제한할 수 있으며, 제한하는 경우에도 자유와 권리의 본질적인 내용을 침해할 수 없다.</p>
 <p>한 회계연도를 넘어 계속하여 지출할 필요가 있을 때에는 정부는 연한을 정하여 계속비로서 국회의 의결을 얻어야 한다.</p>
 <p>국가는 재해를 예방하고 그 위험으로부터 국민을 보호하기 위하여 노력하여야 한다.</p>`,
-        createdById: superAdminUser.id,
-        groupId: 1
+        createdById: superAdminUser.id
       },
       {
         title: 'HTML element들 테스트해봐요 (24)',
@@ -677,8 +654,7 @@ int main() {
   <li><p>Ordered List Item 2</p></li>
   <li><p>Ordered List Item 3</p></li>
 </ol>`,
-        createdById: instructorUser.id,
-        groupId: 1
+        createdById: instructorUser.id
       }
     ]
   })

@@ -23,9 +23,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem
 } from '@/components/shadcn/dropdown-menu'
-import { GET_USERS } from '@/graphql/user/queries'
-import { cn } from '@/libs/utils'
-import { useSuspenseQuery } from '@apollo/client/react/hooks/useSuspenseQuery'
+import { fetcher } from '@/libs/utils'
 import { ChevronDown, Plus } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { FaTrash } from 'react-icons/fa6'
@@ -39,6 +37,15 @@ interface AddManagerReviewerDialogProps {
   setManagers: (managers: ContestManagerReviewer[]) => void
 }
 
+interface UserResInterface {
+  username: string
+  id: number
+  userProfile: {
+    realName: string
+  }
+}
+
+// TODO: Refactor 및 ui/ux 개발 안된것들 추후 변경하기(배포직전 급하게 버그 발견으로 인한 크리티컬한 버그만 수정)
 export function AddManagerReviewerDialog({
   managers,
   setManagers
@@ -47,36 +54,18 @@ export function AddManagerReviewerDialog({
   const [values, setValues] = useState<string[]>(['']) // State to manage the values of each CommandInput
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null) // State to manage the focused input index
   const [dropdownValues, setDropdownValues] = useState<string[]>(['Manager']) // State to manage the selected dropdown values for each CommandInput
-  const [selectedUserNum, setSelectedUserNum] = useState<number>(0)
+  // const [selectedUserNum, setSelectedUserNum] = useState<number>(0)
   const [open, setOpen] = useState(false) // State to manage the open state of the dialog
+  const [users, setUsers] = useState<ContestManagerReviewer[]>([]) // State to manage the list of users
 
   useEffect(() => {
     if (open) {
       setValues([''])
       setDropdownValues(['Manager'])
       setInputCount(1)
+      // setSelectedUserNum(0)
     }
   }, [open])
-
-  const { data } = useSuspenseQuery(GET_USERS, {
-    variables: {
-      take: 5000
-    }
-  })
-
-  const users = data.getUsers.map((user) => ({
-    id: Number(user.id),
-    email: user.email,
-    username: user.username,
-    realName: user.userProfile ? user.userProfile.realName : '',
-    role: user.role
-  }))
-
-  const handleAddInput = () => {
-    setInputCount((prevCount) => prevCount + 1)
-    setValues((prevValues) => [...prevValues, ''])
-    setDropdownValues((prevValues) => [...prevValues, 'Manager'])
-  }
 
   const handleValueChange = (index: number, value: string) => {
     setValues((prevValues) => {
@@ -115,12 +104,37 @@ export function AddManagerReviewerDialog({
     setOpen(false)
   }
 
+  const handleAddInput = () => {
+    setInputCount((prevCount) => prevCount + 1)
+    setValues((prevValues) => [...prevValues, ''])
+    setDropdownValues((prevValues) => [...prevValues, 'Manager'])
+  }
+
   useEffect(() => {
-    setSelectedUserNum(
-      values.filter((value) => users.some((user) => user.email === value))
-        .length
-    )
-  }, [values, users])
+    async function fetchData() {
+      const res: UserResInterface = await fetcher
+        .get('user/email', {
+          searchParams: {
+            email: values[values.length - 1]
+          }
+        })
+        .json()
+      if (!res.id) {
+        return
+      }
+      setUsers((prevUsers) => {
+        const newUser = {
+          id: res.id,
+          email: values[values.length - 1],
+          username: res.username,
+          realName: res.userProfile.realName,
+          type: dropdownValues[dropdownValues.length - 1]
+        }
+        return [...prevUsers, newUser]
+      })
+    }
+    fetchData()
+  }, [values])
 
   const hasDuplicate = (value: string, index: number) =>
     values.filter((v, i) => v === value && i !== index).length > 0
@@ -141,13 +155,14 @@ export function AddManagerReviewerDialog({
           <DialogTitle className="text-center text-2xl">
             Add Contest Manager / Reviewer
           </DialogTitle>
-          <DialogDescription
+          {/* <DialogDescription
             className={cn(
               selectedUserNum > 0 ? 'text-primary' : 'text-[#9B9B9B]'
             )}
           >
             {`${selectedUserNum} user(s) selected`}
-          </DialogDescription>
+          </DialogDescription> */}
+          <DialogDescription />
         </DialogHeader>
 
         <Command className="gap-[6px]">
@@ -170,24 +185,33 @@ export function AddManagerReviewerDialog({
                       <CommandList>
                         <CommandEmpty>No results found.</CommandEmpty>
                         <CommandGroup className="px-0 pt-0">
-                          {users
-                            .filter((user) =>
-                              user.email.includes(values[index])
+                          {/* NOTE: 추후 skku.edu 말고 다른 도메인 추가 될 수도 있음 */}
+                          {['skku.edu'].map((domain) => {
+                            const emailSuggestion = values[index].endsWith(
+                              `@${domain}`
                             )
-                            .map((user) => (
+                              ? values[index]
+                              : `${values[index].replace(/@.*$/, '')}@${domain}`
+
+                            return (
                               <CommandItem
-                                className="mt-1 w-full justify-between rounded-full bg-gray-100 py-[10px] text-sm text-black"
-                                key={user.email}
-                                value={user.email}
+                                className="mt-1 w-full cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-sm text-black"
+                                key={emailSuggestion}
+                                value={emailSuggestion}
                                 onSelect={() => {
-                                  handleValueChange(index, user.email)
+                                  handleValueChange(index, emailSuggestion)
                                   setFocusedIndex(null)
+
+                                  // setSelectedUserNum(
+                                  //   (prevCount) => prevCount + 1
+                                  // )
                                 }}
                               >
-                                <span className="ml-5">{user.email}</span>
+                                <span className="ml-5">{emailSuggestion}</span>
                                 <HiMiniPlusCircle className="h-5 w-5 text-[#9B9B9B]" />
                               </CommandItem>
-                            ))}
+                            )
+                          })}
                         </CommandGroup>
                       </CommandList>
                     )}

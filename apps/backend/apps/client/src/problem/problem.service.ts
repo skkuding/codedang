@@ -524,13 +524,12 @@ export class AssignmentProblemService {
 
   /**
    * 주어진 옵션에 따라 과제 문제를 여러개 가져옵니다.
-   * 이때, 사용자의 제출기록을 확인하여 각 문제의 점수를 계산합니다.
    *
    * 액세스 정책
    *
-   * 대회 시작 전: 문제 액세스 불가 (Register 안하면 에러 메시지가 다름) //
-   * 대회 진행 중: Register한 경우 문제 액세스 가능 //
-   * 대회 종료 후: 누구나 문제 액세스 가능
+   * 과제 시작 전: 문제 액세스 불가 (Register 안하면 에러 메시지가 다름) //
+   * 과제 진행 중: Participate한 경우 문제 액세스 가능 //
+   * 과제 종료 후: Participate한 경우 문제 액세스 가능
    * @returns {RelatedProblemsResponseDto} data: 과제 문제 목록, total: 과제 문제 총 개수
    */
   async getAssignmentProblems({
@@ -544,10 +543,7 @@ export class AssignmentProblemService {
     cursor: number | null
     take: number
   }) {
-    const assignment = await this.assignmentService.getAssignment(
-      assignmentId,
-      userId
-    )
+    await this.assignmentService.getAssignment(assignmentId, userId) // course 멤버인지, onGoing인지 확인
 
     const paginator = this.prisma.getPaginator(cursor, (value) => ({
       // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -557,48 +553,26 @@ export class AssignmentProblemService {
       }
     }))
 
-    const [assignmentProblems, assignmentProblemRecords] = await Promise.all([
-      this.prisma.assignmentProblem.findMany({
-        ...paginator,
-        take,
-        orderBy: { order: 'asc' },
-        where: {
-          assignmentId
+    const assignmentProblems = await this.prisma.assignmentProblem.findMany({
+      ...paginator,
+      take,
+      orderBy: { order: 'asc' },
+      where: {
+        assignmentId
+      },
+      select: {
+        order: true,
+        problem: {
+          select: problemsSelectOption
         },
-        select: {
-          order: true,
-          problem: {
-            select: problemsSelectOption
-          },
-          problemId: true,
-          score: true
-        }
-      }),
-      this.prisma.assignmentProblemRecord.findMany({
-        where: {
-          userId,
-          assignmentId
-        },
-        select: {
-          problemId: true,
-          score: true,
-          isSubmitted: true
-        }
-      })
-    ])
-
-    const problemRecordMap = new Map<
-      number,
-      { score: number; isSubmitted: boolean }
-    >()
-    for (const record of assignmentProblemRecords) {
-      problemRecordMap.set(record.problemId, record)
-    }
+        problemId: true,
+        score: true
+      }
+    })
 
     const assignmentProblemsWithScore = assignmentProblems.map(
       (assignmentProblem) => {
         const { problem, order } = assignmentProblem
-        const assignmentProblemRecord = problemRecordMap.get(problem.id)
         return {
           order,
           id: problem.id,
@@ -606,11 +580,7 @@ export class AssignmentProblemService {
           difficulty: problem.difficulty,
           submissionCount: problem.submissionCount,
           acceptedRate: problem.acceptedRate,
-          maxScore: assignmentProblem.score,
-          score: assignment.isJudgeResultVisible
-            ? assignmentProblemRecord?.score
-            : null,
-          submissionTime: null
+          maxScore: assignmentProblem.score
         }
       }
     )

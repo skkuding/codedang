@@ -11,6 +11,12 @@ export const baseUrl = process.env.NEXT_PUBLIC_BASEURL
 export const adminBaseUrl = process.env.NEXT_PUBLIC_GQL_BASEURL
 
 /**
+ * The base URL for the runner websocket connection.
+ * @constant
+ */
+export const runnerBaseUrl = process.env.NEXT_PUBLIC_RUNNER_BASEURL
+
+/**
  * The milliseconds per minute.
  * @constant
  */
@@ -194,6 +200,7 @@ export const courseOvalIconColors: {
   }
 }
 
+export const runnerConnectionTimeLimit = 180 // 180 seconds
 export const managerReviewerTypes = ['Manager', 'Reviewer'] as const
 
 /**
@@ -201,3 +208,5 @@ export const managerReviewerTypes = ['Manager', 'Reviewer'] as const
  * @constant
  */
 // export const freezeMinuteOptions = ['90', '75', '60', '45', '30', '15']
+
+export const UNLIMITED_DATE = '2999-12-31T14:59:59.000Z'

@@ -43,6 +43,15 @@ export default function Page({ params }: { params: { contestId: string } }) {
 
   const endTime = methods.getValues('endTime')
   const freezeTime = methods.getValues('freezeTime')
+  const startTime = methods.getValues('startTime')
+  const now = new Date().getTime()
+
+  // Check if the contest is Ongoing
+  const isOngoing =
+    startTime &&
+    endTime &&
+    now >= new Date(startTime).getTime() &&
+    now <= new Date(endTime).getTime()
 
   // Calculate the difference between the end time and the freeze time
   const diffTime =
@@ -80,7 +89,10 @@ export default function Page({ params }: { params: { contestId: string } }) {
 
               <div className="flex flex-col justify-between">
                 <FormSection title="Title">
-                  <TitleForm placeholder="Name your contest" />
+                  <TitleForm
+                    placeholder="Name your contest"
+                    className="max-w-[492px]"
+                  />
                 </FormSection>
                 <FormSection title="Start Time">
                   {methods.getValues('startTime') && (
@@ -104,23 +116,17 @@ export default function Page({ params }: { params: { contestId: string } }) {
               </div>
             </div>
 
-            <FormSection
-              title="Summary"
-              isContest
-              isLabeled={false}
-              isFlexColumn
-            >
+            <FormSection title="Summary" isLabeled={false} isFlexColumn>
               <SummaryForm name="summary" />
             </FormSection>
 
             <FormSection
               title="More Description"
-              isContest
               isLabeled={false}
               isFlexColumn={true}
             >
               {methods.getValues('description') !== undefined && (
-                <DescriptionForm name="description" isContest />
+                <DescriptionForm name="description" />
               )}
             </FormSection>
 
@@ -177,14 +183,25 @@ export default function Page({ params }: { params: { contestId: string } }) {
               />
             </div>
 
-            <Button
-              type="submit"
-              className="flex h-[36px] w-full items-center gap-2 px-0"
-              disabled={isLoading}
-            >
-              <IoMdCheckmarkCircleOutline fontSize={20} />
-              <div className="mb-[2px] text-base">Edit</div>
-            </Button>
+            <div className="space-y-2">
+              {isOngoing && (
+                <p className="text-error text-sm">
+                  * You cannot edit Ongoing Contest.
+                  <br /> * If you want to edit the contest, please make sure
+                  that the contest is not ongoing and that the end time is not
+                  earlier than the start time.
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                className="flex h-[36px] w-full items-center gap-2 px-0"
+                disabled={isLoading || isOngoing}
+              >
+                <IoMdCheckmarkCircleOutline fontSize={20} />
+                <div className="mb-[2px] text-base">Edit</div>
+              </Button>
+            </div>
           </EditContestForm>
         </main>
       </ScrollArea>

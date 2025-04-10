@@ -278,4 +278,15 @@ export class AssignmentSubmissionController {
       req.user.id
     )
   }
+
+  @Get('/summary')
+  async getAssignmentSubmissionSummary(
+    @Req() req: AuthenticatedRequest,
+    @Param('assignmentId', IDValidationPipe) assignmentId: number
+  ) {
+    return await this.submissionService.getAssignmentSubmissionSummary(
+      assignmentId,
+      req.user.id
+    )
+  }
 }

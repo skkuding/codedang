@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  mutation( $groupId: Int, $noticeId: Int! ) {
-    deleteNotice( groupId: $groupId, noticeId: $noticeId) {
+  mutation($noticeId: Int! ) {
+    deleteNotice(noticeId: $noticeId) {
       id
       title
     }

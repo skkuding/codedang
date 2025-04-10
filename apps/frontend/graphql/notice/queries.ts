@@ -1,8 +1,8 @@
 import { gql } from '@generated'
 
 const GET_NOTICE = gql(`
-  query GetNotice($groupId: Int!, $noticeId: Int!) {
-    getNotice(groupId: $groupId, noticeId: $noticeId) {
+  query GetNotice($noticeId: Int!) {
+    getNotice(noticeId: $noticeId) {
       title
       content
     }

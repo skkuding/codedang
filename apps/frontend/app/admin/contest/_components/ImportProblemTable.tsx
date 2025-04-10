@@ -29,6 +29,7 @@ export function ImportProblemTable({
 }) {
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
+      my: true,
       take: 500,
       input: {
         difficulty: [

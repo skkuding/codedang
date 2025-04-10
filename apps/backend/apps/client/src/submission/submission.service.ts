@@ -1115,10 +1115,12 @@ export class SubmissionService {
    * 3. 해당 문제에 대한 총 제출 기록 수 계산
    * 4. 제출물 목록과 총 개수를 포함하는 객체를 반환
    *
+   * @param {number} id - Submission ID
    * @param {number} problemId - 제출 기록을 조회할 문제 ID
-   * @param {number} groupId - 문제의 그룹 ID
-   * @param {number | null} [cursor=null] - 페이징 처리를 위한 커서 값 (기본값: null)
-   * @param {number} [take=10] - 가져올 제출 기록의 수 (기본값: 10)
+   * @param {number} userId - 제출 기록을 조회할 사용자 ID
+   * @param {Role} userRole - 사용자의 역할 (Admin, SuperAdmin 등)
+   * @param {number | null} contestId - 대회 ID (null인 경우 대회 제출 아님)
+   * @param {number | null} assignmentId - 과제 ID (null인 경우 과제 제출 아님)
    * @returns 문제에 대한 제출 기록 목록과 총 제출 기록 수
    * @throws {EntityNotExistException} 주어진 조건에 맞는 문제가 존재하지 않을 경우
    */
@@ -1150,6 +1152,7 @@ export class SubmissionService {
       isJudgeResultVisible: boolean
     } | null = null
     let isJudgeResultVisible: boolean | null = null
+    let isHiddenTestcaseVisible: boolean | null = null
 
     if (contestId) {
       const contestRecord = await this.prisma.contestRecord.findUnique({
@@ -1199,7 +1202,7 @@ export class SubmissionService {
         throw new EntityNotExistException('AssignmentRecord')
       }
       assignment = assignmentRecord.assignment
-      isJudgeResultVisible = assignment.isJudgeResultVisible
+      isHiddenTestcaseVisible = assignment.isJudgeResultVisible
     }
 
     let problem
@@ -1284,34 +1287,48 @@ export class SubmissionService {
       submission.userId === userId ||
       userRole === Role.Admin ||
       userRole === Role.SuperAdmin ||
-      (await this.prisma.submission.count({
-        where: {
-          userId,
-          problemId,
-          result: 'Accepted'
-        }
-      }))
+      (contestId &&
+        (await this.prisma.submission.count({
+          where: {
+            userId,
+            problemId,
+            result: 'Accepted'
+          }
+        })))
     ) {
       const code = plainToInstance(Snippet, submission.code)
-      const results = submission.submissionResult.map((result) => {
-        return {
-          ...result,
-          // TODO: 채점 속도가 너무 빠른경우에 대한 수정 필요 (0ms 미만)
-          cpuTime:
-            result.cpuTime || result.cpuTime === BigInt(0)
-              ? result.cpuTime.toString()
-              : null
-        }
-      })
+      const results = submission.submissionResult
+        .filter(
+          (result) =>
+            !assignmentId ||
+            isHiddenTestcaseVisible ||
+            !result.problemTestcase.isHidden
+        )
+        .map((result) => {
+          return {
+            ...result,
+            // TODO: 채점 속도가 너무 빠른경우에 대한 수정 필요 (0ms 미만)
+            cpuTime:
+              result.cpuTime || result.cpuTime === BigInt(0)
+                ? result.cpuTime.toString()
+                : null
+          }
+        })
 
       results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
 
-      if ((contestId || assignmentId) && !isJudgeResultVisible) {
+      if (contestId && !isJudgeResultVisible) {
         results.map((r) => {
           r.result = 'Blind'
           r.cpuTime = null
           r.memoryUsage = null
         })
+      }
+
+      if (assignmentId && !isHiddenTestcaseVisible) {
+        submission.result = this.getSampleTestcaseSubmissionResult(
+          submission.submissionResult
+        )
       }
 
       return {
@@ -1321,9 +1338,7 @@ export class SubmissionService {
         language: submission.language,
         createTime: submission.createTime,
         result:
-          isJudgeResultVisible || !(contestId || assignmentId)
-            ? submission.result
-            : 'Blind',
+          !contestId || isJudgeResultVisible ? submission.result : 'Blind',
         testcaseResult: results
       }
     }
@@ -1487,6 +1502,23 @@ export class SubmissionService {
     return { data: submissions, total }
   }
 
+  /**
+   * 주어진 문제에 대한 제출 기록 목록을 불러옵니다.
+   *
+   * 1. 지정된 문제와 그룹에 대해 visibleLockTime이 초기값(MIN_DATE)인 문제를 조회
+   * 2. 페이징 옵션을 적용하여 해당 문제에 대한 제출 기록 목록을 조회
+   * 3. 해당 문제에 대한 총 제출 기록 수 계산
+   * 4. 제출물 목록과 총 개수를 포함하는 객체를 반환
+   *
+   * @param {Object} params - 제출 기록 조회를 위한 파라미터
+   * @param {number} params.problemId - 제출 기록을 조회할 문제 ID
+   * @param {number} params.assignmentId - 제출 기록을 조회할 과제 ID
+   * @param {number} params.userId - 제출 기록을 조회할 사용자 ID
+   * @param {number | null} [params.cursor=null] - 페이징을 위한 커서 값
+   * @param {number} [params.take=10] - 한 번에 가져올 제출 기록의 개수
+   * @returns 제출 기록 목록과 총 개수를 포함하는 객체
+   * @throws {EntityNotExistException} 주어진 조건에 맞는 문제가 존재하지 않을 경우
+   */
   @Span()
   async getAssignmentSubmissions({
     problemId,
@@ -1556,7 +1588,7 @@ export class SubmissionService {
 
     const { assignment } = assignmentProblem
 
-    const isJudgeResultVisible = assignment.isJudgeResultVisible
+    const isHiddenTestcaseVisible = assignment.isJudgeResultVisible
 
     const submissions = await this.prisma.submission.findMany({
       ...paginator,
@@ -1576,13 +1608,27 @@ export class SubmissionService {
         createTime: true,
         language: true,
         result: true,
-        codeSize: true
+        codeSize: true,
+        submissionResult: {
+          select: {
+            result: true,
+            problemTestcase: {
+              select: {
+                isHidden: true
+              }
+            }
+          }
+        }
       },
       orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
     })
 
-    if (!isJudgeResultVisible) {
-      submissions.map((submission) => (submission.result = 'Blind'))
+    if (!isHiddenTestcaseVisible) {
+      submissions.forEach((submission) => {
+        submission.result = this.getSampleTestcaseSubmissionResult(
+          submission.submissionResult
+        )
+      })
     }
 
     const total = await this.prisma.submission.count({
@@ -1592,6 +1638,21 @@ export class SubmissionService {
     return { data: submissions, total, assignmentProblem }
   }
 
+  /**
+   * 특정 과제 문제에 대한 사용자의 가장 최근 제출 기록을 가져옵니다.
+   *
+   * 1. 사용자가 과제에 참여했는지 확인
+   * 2. 과제의 채점 결과 공개 여부를 확인
+   * 3. 가장 최근 제출 기록을 조회
+   * 4. 히든 테스트케이스 결과를 필터링하여 반환
+   *
+   * @param {number} problemId - 제출 기록을 조회할 문제 ID
+   * @param {number} assignmentId - 제출 기록을 조회할 과제 ID
+   * @param {number} userId - 제출 기록을 조회할 사용자 ID
+   * @returns 가장 최근 제출 기록 객체
+   * @throws {ForbiddenAccessException} 사용자가 과제에 참여하지 않은 경우
+   * @throws {NotFoundException} 과제 또는 제출 기록이 존재하지 않는 경우
+   */
   async getLatestAssignmentProblemSubmission(
     problemId: number,
     assignmentId: number,
@@ -1608,7 +1669,7 @@ export class SubmissionService {
       )
     }
 
-    const isJudgeResultVisible = (
+    const isHiddenTestcaseVisible = (
       await this.prisma.assignment.findUnique({
         where: { id: assignmentId },
         select: {
@@ -1617,7 +1678,7 @@ export class SubmissionService {
       })
     )?.isJudgeResultVisible
 
-    if (isJudgeResultVisible === undefined) {
+    if (isHiddenTestcaseVisible === undefined) {
       throw new NotFoundException('Assignment')
     }
 
@@ -1637,8 +1698,16 @@ export class SubmissionService {
         language: true,
         code: true,
         createTime: true,
-        result: isJudgeResultVisible ? true : false,
-        submissionResult: isJudgeResultVisible ? true : false,
+        result: true,
+        submissionResult: {
+          include: {
+            problemTestcase: {
+              select: {
+                isHidden: true
+              }
+            }
+          }
+        },
         codeSize: true
       }
     })
@@ -1647,20 +1716,174 @@ export class SubmissionService {
       throw new NotFoundException('Submission')
     }
 
-    if (isJudgeResultVisible) {
-      const filteredSubmissionResult = rawSubmission.submissionResult.map(
-        ({ id, cpuTime, memoryUsage, problemTestcaseId, result }) => ({
-          id,
-          cpuTime: cpuTime?.toString(),
-          memoryUsage,
-          problemTestcaseId,
-          result
-        })
+    const filteredSubmissionResult = rawSubmission.submissionResult
+      .filter(
+        (result) => isHiddenTestcaseVisible || !result.problemTestcase.isHidden
       )
+      .map(({ id, cpuTime, memoryUsage, problemTestcaseId, result }) => ({
+        id,
+        cpuTime: cpuTime?.toString(),
+        memoryUsage,
+        problemTestcaseId,
+        result
+      }))
 
-      return { ...rawSubmission, submissionResult: filteredSubmissionResult }
+    if (!isHiddenTestcaseVisible) {
+      rawSubmission.result = this.getSampleTestcaseSubmissionResult(
+        rawSubmission.submissionResult
+      )
     }
 
-    return { ...rawSubmission, result: ResultStatus.Blind }
+    return { ...rawSubmission, submissionResult: filteredSubmissionResult }
+  }
+
+  /**
+   * 특정 과제에 과제에 속한 문제별로 사용자의 제출 요약 정보를 가져옵니다.
+   * Submission Result, Testcase 개수와 accepted Testcase 개수를 포함합니다.
+   *
+   * 1. 사용자가 과제에 참여했는지 확인
+   * 2. 과제의 문제 목록을 조회
+   * 3. 사용자의 제출 기록을 조회하고 문제별로 요약 정보 생성
+   *
+   * @param {number} assignmentId - 제출 요약 정보를 조회할 과제 ID
+   * @param {number} userId - 제출 요약 정보를 조회할 사용자 ID
+   * @returns 과제 문제별 제출 요약 정보 배열
+   * @throws {ForbiddenAccessException} 사용자가 과제에 참여하지 않은 경우
+   */
+  async getAssignmentSubmissionSummary(assignmentId: number, userId: number) {
+    const [isParticipated, assignmentProblems] = await Promise.all([
+      this.prisma.assignmentRecord.findUnique({
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        where: { assignmentId_userId: { assignmentId, userId } },
+        select: {
+          assignment: {
+            select: {
+              isJudgeResultVisible: true
+            }
+          }
+        }
+      }),
+      this.prisma.assignmentProblem.findMany({
+        where: { assignmentId },
+        select: {
+          problemId: true
+        }
+      })
+    ])
+
+    if (!isParticipated) {
+      throw new ForbiddenAccessException(
+        'User not participated in the assignment'
+      )
+    }
+
+    const { assignment } = isParticipated
+    const isHiddenTestcaseVisible = assignment.isJudgeResultVisible
+
+    if (assignmentProblems.length === 0) {
+      return []
+    }
+
+    const submissions = await this.prisma.submission.findMany({
+      where: { userId, assignmentId },
+      select: {
+        problemId: true,
+        createTime: true,
+        result: true,
+        submissionResult: {
+          select: {
+            result: true,
+            problemTestcase: {
+              select: {
+                isHidden: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        createTime: 'desc'
+      }
+    })
+
+    const submissionMap = new Map<
+      number,
+      {
+        submissionTime: Date
+        submissionResult: string
+        testcaseCount: number | null
+        acceptedTestcaseCount: number | null
+      }
+    >()
+
+    for (const submission of submissions) {
+      if (!submissionMap.has(submission.problemId)) {
+        const filteredSubmissionResult = submission.submissionResult.filter(
+          (result) =>
+            isHiddenTestcaseVisible || !result.problemTestcase.isHidden
+        )
+
+        submissionMap.set(submission.problemId, {
+          submissionTime: submission.createTime,
+          submissionResult: isHiddenTestcaseVisible
+            ? submission.result
+            : this.getSampleTestcaseSubmissionResult(
+                submission.submissionResult
+              ),
+          testcaseCount: filteredSubmissionResult.length,
+          acceptedTestcaseCount: filteredSubmissionResult.reduce(
+            (acc, { result }) => {
+              if (result === ResultStatus.Accepted) return acc + 1
+              else return acc
+            },
+            0
+          )
+        })
+      }
+    }
+
+    return assignmentProblems.map(({ problemId }) => ({
+      problemId,
+      submission: submissionMap.get(problemId) ?? null
+    }))
+  }
+
+  /**
+   * 히든 테스트케이스를 제외한 제출 결과를 기반으로 샘플 테스트케이스의 결과를 계산합니다.
+   *
+   * 1. 히든 테스트케이스를 필터링하여 제외
+   * 2. 모든 테스트케이스가 Accepted 상태인지 확인
+   * 3. 모든 테스트케이스가 Accepted 상태라면 Accepted를 반환
+   * 4. 그렇지 않으면 첫 번째 실패한 테스트케이스의 결과를 반환
+   * 5. 실패한 테스트케이스가 없으면 ServerError를 반환
+   *
+   * @param {Array<{
+   *   result: ResultStatus;
+   *   problemTestcase: { isHidden: boolean };
+   * }>} submissionResults - Testcase result 배열
+   * @returns {ResultStatus} 샘플 테스트케이스만 반영한 Submission Result
+   */
+  private getSampleTestcaseSubmissionResult(
+    submissionResults: Array<{
+      result: ResultStatus
+      problemTestcase: {
+        isHidden: boolean
+      }
+    }>
+  ) {
+    const filteredResults = submissionResults.filter(
+      (result) => !result.problemTestcase.isHidden
+    )
+
+    const allAccepted = filteredResults.every(
+      (testcaseResult) => testcaseResult.result === ResultStatus.Accepted
+    )
+
+    return allAccepted
+      ? ResultStatus.Accepted
+      : (filteredResults.find(
+          (submissionResult) =>
+            submissionResult.result !== ResultStatus.Accepted
+        )?.result ?? ResultStatus.ServerError)
   }
 }

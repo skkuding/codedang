@@ -13,9 +13,11 @@ import {
 } from '@/components/shadcn/table'
 import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
 import { GET_SUBMISSION } from '@/graphql/submission/queries'
-import { dateFormatter, getResultColor } from '@/libs/utils'
+import { cn, dateFormatter } from '@/libs/utils'
 import type { Language } from '@/types/type'
 import { useLazyQuery, useQuery } from '@apollo/client'
+import { ChevronDown, ChevronUp } from 'lucide-react'
+import { useState } from 'react'
 import { IoWarning } from 'react-icons/io5'
 
 export function SubmissionDetailAdmin({
@@ -67,62 +69,56 @@ export function SubmissionDetailAdmin({
     return { correctTestcases: correct, wrongTestcases: wrong }
   })()
 
+  const [expandedRow, setExpandedRow] = useState<number | null>(null)
+
   return (
-    <ScrollArea className="mt-5 max-h-[760px] w-[1000px]">
+    <ScrollArea className="mt-5 max-h-[545px] w-[976px]">
       {!loading && (
-        <div className="mx-14 flex flex-col gap-4">
+        <div className="mx-[70px] flex flex-col gap-6">
           <h1 className="flex text-lg font-semibold">
-            <span className="max-w-[30%] truncate text-gray-400">
+            <span className="max-w-[30%] truncate">
               {submission?.user?.userProfile?.realName}(
-              {submission?.user?.studentId})
+              {submission?.user?.username})&nbsp; &gt; &nbsp;
             </span>
-            <span className="max-w-[30%] truncate text-gray-400">
-              &nbsp; &gt; &nbsp;{submission?.problem.title}
-            </span>
-            <span className="max-w-[40%] truncate">
-              &nbsp; &gt; &nbsp;Submission #{submissionId}
+            <span className="text-primary max-w-[30%] truncate">
+              {submission?.problem.title}
             </span>
           </h1>
-          <h2 className="font-bold">Summary</h2>
-          <ScrollArea className="max-w-full shrink-0 rounded-md">
-            <div className="flex items-center justify-around gap-5 bg-gray-100 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
+          <ScrollArea className="mt-4 max-w-full shrink-0 rounded-md">
+            <div className="flex items-center justify-around gap-5 bg-gray-100 p-7 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
               <div>
-                <h2>Name</h2>
-                <p>{submission?.user?.userProfile?.realName}</p>
-              </div>
-              <div>
-                <h2>Student ID</h2>
-                <p>{submission?.user?.studentId}</p>
-              </div>
-              <div>
-                <h2>Major</h2>
-                <p className="max-w-[20ch] truncate">
-                  {submission?.user?.major}
-                </p>
-              </div>
-              <div>
-                <h2>User ID</h2>
+                <h2 className="mb-[14px]">User ID</h2>
                 <p>{submission?.user?.username}</p>
               </div>
+              <div className="h-14 border-l border-neutral-200" />
               <div>
-                <h2>Result</h2>
-                <p className={getResultColor(submission?.result)}>
-                  {submission?.result}
-                </p>
-              </div>
-              <div>
-                <h2>Language</h2>
+                <h2 className="mb-[14px]">Language</h2>
                 <p>{submission?.language}</p>
               </div>
+              <div className="h-14 border-l border-neutral-200" />
               <div>
-                <h2>Submission Time</h2>
+                <h2 className="mb-[14px]">Submission Time</h2>
                 <p>
                   {dateFormatter(submission?.createTime, 'YYYY-MM-DD HH:mm:ss')}
                 </p>
               </div>
+              <div className="h-14 border-l border-neutral-200" />
               <div>
-                <h2>Code Size</h2>
+                <h2 className="mb-[14px]">Code Size</h2>
                 <p>{new TextEncoder().encode(submission?.code).length} B</p>
+              </div>
+              <div className="h-14 border-l border-neutral-200" />
+              <div>
+                <span
+                  className={cn(
+                    'flex h-[38px] w-36 items-center justify-center rounded-full text-base font-semibold',
+                    submission?.result === 'Accepted'
+                      ? 'border-primary text-primary border-2'
+                      : 'border-2 border-[#fc5555] text-[#fc5555]'
+                  )}
+                >
+                  {submission?.result}
+                </span>
               </div>
             </div>
             <ScrollBar orientation="horizontal" />
@@ -152,19 +148,26 @@ export function SubmissionDetailAdmin({
                   )}
                 </tbody>
               </table>
-              <Table className="[&_*]:text-center [&_*]:text-xs [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:!border-neutral-200">
+              <Table className="table-fixed rounded-lg [&_*]:text-center [&_*]:text-sm [&_td]:p-2 [&_th]:text-white [&_tr]:!border-neutral-200">
                 <TableHeader>
-                  <TableRow>
-                    <TableHead />
-                    <TableHead className="!text-sm text-black">
+                  <TableRow className="bg-[#619cfb] hover:bg-[#619cfb] dark:hover:bg-[#619cfb]">
+                    <TableHead className="w-32 px-2" />
+                    <TableHead className="w-44 px-2 font-semibold">
                       Result
                     </TableHead>
-                    <TableHead className="!text-sm text-black">
-                      Runtime
+                    <TableHead className="w-32 px-2 font-semibold">
+                      Input
                     </TableHead>
-                    <TableHead className="!text-sm text-black">
+                    <TableHead className="w-32 px-2 font-semibold">
+                      Expected Output
+                    </TableHead>
+                    <TableHead className="w-32 px-2 font-semibold">
+                      Output
+                    </TableHead>
+                    <TableHead className="w-24 px-2 font-semibold">
                       Memory
                     </TableHead>
+                    <TableHead className="w-10 px-2 font-semibold" />
                   </TableRow>
                 </TableHeader>
                 <TableBody className="text-slate-400">
@@ -175,28 +178,96 @@ export function SubmissionDetailAdmin({
                     return testcaseData?.getProblem?.testcase?.map(
                       (testcase, index) => {
                         const matchingResult = submission?.testcaseResult[index]
-
                         const label = testcase.isHidden
                           ? `Hidden #${hiddenIndex++}`
                           : `Sample #${sampleIndex++}`
+                        const isExpanded = expandedRow === index
 
                         return (
-                          <TableRow key={testcase.id}>
-                            <TableCell className="!py-4">{label}</TableCell>
-                            <TableCell
-                              className={getResultColor(matchingResult?.result)}
-                            >
-                              {matchingResult?.result || 'N/A'}
-                            </TableCell>
-                            <TableCell>
-                              {matchingResult?.cpuTime || 'N/A'} ms
-                            </TableCell>
-                            <TableCell>
-                              {matchingResult?.memoryUsage
-                                ? `${(matchingResult.memoryUsage / (1024 * 1024)).toFixed(2)} MB`
-                                : 'N/A'}
-                            </TableCell>
-                          </TableRow>
+                          <>
+                            <TableRow key={testcase.id}>
+                              <TableCell className="border-y-[#619cfb] bg-[#619cfb] !py-4 font-semibold text-white">
+                                {label}
+                              </TableCell>
+                              <TableCell className="flex items-center justify-center">
+                                <span
+                                  className={cn(
+                                    'flex h-[38px] w-36 items-center justify-center rounded-full text-base font-semibold',
+                                    submission?.result === 'Accepted'
+                                      ? 'border-primary text-primary border-2'
+                                      : 'border-2 border-[#fc5555] text-[#fc5555]'
+                                  )}
+                                >
+                                  {submission?.result}
+                                </span>
+                              </TableCell>
+                              <TableCell className="max-w-24 truncate">
+                                {testcase.input}
+                              </TableCell>
+                              <TableCell className="max-w-24 truncate">
+                                {testcase.output}
+                              </TableCell>
+                              <TableCell className="max-w-24 truncate">
+                                {matchingResult?.output || '-'}
+                              </TableCell>
+                              <TableCell>
+                                {matchingResult?.memoryUsage
+                                  ? `${(matchingResult.memoryUsage / (1024 * 1024)).toFixed(2)} MB`
+                                  : 'N/A'}
+                              </TableCell>
+                              <TableCell>
+                                <button
+                                  onClick={() =>
+                                    setExpandedRow(isExpanded ? null : index)
+                                  }
+                                  className="p-1"
+                                >
+                                  {isExpanded ? (
+                                    <ChevronUp size={16} />
+                                  ) : (
+                                    <ChevronDown size={16} />
+                                  )}
+                                </button>
+                              </TableCell>
+                            </TableRow>
+
+                            {isExpanded && (
+                              <TableRow
+                                key={testcase.id}
+                                className="bg-neutral-100 hover:bg-neutral-100"
+                              >
+                                <TableCell className="border-y-[#619cfb] bg-[#619cfb] !py-4 text-white" />
+                                <TableCell colSpan={6}>
+                                  <div className="flex items-center justify-center">
+                                    <div className="px-5 py-[10px]">
+                                      <div className="flex gap-4">
+                                        <div className="flex h-8 w-[200px] items-center justify-center rounded-full border border-neutral-400 bg-white text-neutral-700">
+                                          Input
+                                        </div>
+                                        <div className="flex h-8 w-[200px] items-center justify-center rounded-full border border-neutral-400 bg-white text-neutral-700">
+                                          Expected Output
+                                        </div>
+                                        <div className="flex h-8 w-[200px] items-center justify-center rounded-full border border-neutral-400 bg-white text-neutral-700">
+                                          Output
+                                        </div>
+                                      </div>
+                                      <div className="mt-3 flex gap-4 font-mono text-neutral-500">
+                                        <div className="flex w-[200px] items-center rounded-xl border border-neutral-400 bg-white px-5 py-[10px]">
+                                          {testcase.input}
+                                        </div>
+                                        <div className="flex w-[200px] items-center rounded-xl border border-neutral-400 bg-white px-5 py-[10px]">
+                                          {testcase.output}
+                                        </div>
+                                        <div className="flex w-[200px] items-center rounded-xl border border-neutral-400 bg-white px-5 py-[10px]">
+                                          {matchingResult?.output || '-'}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </>
                         )
                       }
                     )

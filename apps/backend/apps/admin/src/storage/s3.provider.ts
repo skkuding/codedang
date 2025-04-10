@@ -1,6 +1,8 @@
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { S3Client } from '@aws-sdk/client-s3'
 
+// TODO: refactor this provider to integrate with S3MediaProvider
+// Maybe we can add more args to useFactory
 export const S3Provider = {
   provide: 'S3_CLIENT',
   import: [ConfigModule],

@@ -50,7 +50,10 @@ export default function Page() {
 
               <div className="flex flex-col justify-between">
                 <FormSection title="Title">
-                  <TitleForm placeholder="Name your contest" />
+                  <TitleForm
+                    placeholder="Name your contest"
+                    className="max-w-[492px]"
+                  />
                 </FormSection>
                 <FormSection title="Start Time">
                   <TimeForm isContest name="startTime" />
@@ -63,22 +66,16 @@ export default function Page() {
               </div>
             </div>
 
-            <FormSection
-              isContest
-              title="Summary"
-              isLabeled={false}
-              isFlexColumn
-            >
+            <FormSection title="Summary" isLabeled={false} isFlexColumn>
               <SummaryForm name="summary" />
             </FormSection>
 
             <FormSection
-              isContest
               title="More Description"
               isLabeled={false}
               isFlexColumn={true}
             >
-              <DescriptionForm isContest name="description" />
+              <DescriptionForm name="description" />
             </FormSection>
 
             <div className="flex h-full min-h-[114px] w-full flex-col justify-center gap-3 rounded-xl border bg-[#8080800D] px-10 py-[27px]">

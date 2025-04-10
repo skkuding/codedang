@@ -72,7 +72,29 @@ export class ContestService {
         _count: {
           select: { contestRecord: true }
         }
-      }
+      },
+      orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }, { createTime: 'asc' }]
+    })
+
+    const now = new Date()
+    const getStatusWeight = (contest: Contest) => {
+      if (contest.startTime > now) return 0 // Upcoming
+      if (contest.endTime <= now) return 2 // Finished
+      return 1 // Ongoing
+    }
+
+    contests.sort((a, b) => {
+      const statusA = getStatusWeight(a)
+      const statusB = getStatusWeight(b)
+      if (statusA !== statusB) return statusA - statusB
+
+      const startDiff = a.startTime.getTime() - b.startTime.getTime()
+      if (startDiff !== 0) return startDiff
+
+      const endDiff = a.endTime.getTime() - b.endTime.getTime()
+      if (endDiff !== 0) return endDiff
+
+      return a.createTime.getTime() - b.createTime.getTime()
     })
 
     return contests.map((contest) => {
@@ -102,7 +124,18 @@ export class ContestService {
           },
           select: {
             userId: true,
-            role: true
+            role: true,
+            user: {
+              select: {
+                username: true,
+                email: true,
+                userProfile: {
+                  select: {
+                    realName: true
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -422,9 +455,7 @@ export class ContestService {
         id: contestId
       },
       data: {
-        summary: summary
-          ? (contest.summary as Prisma.InputJsonValue)
-          : Prisma.JsonNull,
+        ...{ summary },
         ...contestData
       },
       include: {

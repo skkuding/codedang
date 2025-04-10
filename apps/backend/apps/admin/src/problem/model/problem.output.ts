@@ -8,3 +8,9 @@ export class ProblemWithIsVisible extends OmitType(Problem, [
   @Field(() => Boolean, { nullable: true })
   isVisible!: boolean | null
 }
+
+@ObjectType()
+export class ProblemTestcaseId {
+  @Field(() => Number)
+  testcaseId!: number
+}
