@@ -35,12 +35,3 @@ resource "aws_route53_record" "certificate" {
   type            = each.value.type
   zone_id         = each.value.zone_id
 }
-
-resource "aws_acm_certificate_validation" "for_all_domains" {
-  count           = var.env == "rc" ? 1 : 0
-  provider        = aws.us_east_1
-  certificate_arn = aws_acm_certificate.codedang[0].arn
-  validation_record_fqdns = [
-    for record in aws_route53_record.certificate : record.fqdn
-  ]
-}

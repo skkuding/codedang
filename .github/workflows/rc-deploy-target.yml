@@ -66,6 +66,12 @@ jobs:
         working-directory: ./apps/infra/rc/${{ github.event.inputs.terraform_project }}
         run: terraform apply -input=false plan.out
 
+  rc-acm-validation:
+    if: github.event.inputs.terraform_project == 'network'
+    uses: ./.github/workflows/rc-acm-validation.yml
+    secrets: inherit
+    needs: [rc-deploy-target-project]
+
   rc-build-image:
     if: github.event.inputs.terraform_project == 'codedang'
     uses: ./.github/workflows/rc-build-image.yml
