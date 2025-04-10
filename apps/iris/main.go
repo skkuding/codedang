@@ -29,26 +29,23 @@ const (
 )
 
 func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")             // 모든 도메인에서 접근 허용
-	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS") // 허용할 메서드
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type") // 허용할 헤더
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	if r.Method == "OPTIONS" {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
-
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, `{"status": "ok"}`)
 }
 
 func main() {
 
-	http.HandleFunc("/healthz", healthCheckHandler)
+	http.HandleFunc("/health", healthCheckHandler)
 	go func() {
-		fmt.Println("Starting health check server on port 3404...")
-		if err := http.ListenAndServe("0.0.0.0:3404", nil); err != nil {
-			fmt.Println("Failed to start server:", err)
+		if err := http.ListenAndServe("0.0.0.0:9999", nil); err != nil {
+			fmt.Println("Failed to start health checker:", err)
 			os.Exit(1)
 		}
 	}()
