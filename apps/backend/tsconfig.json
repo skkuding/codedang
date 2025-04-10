@@ -28,8 +28,7 @@
       "@libs/pipe": ["./libs/pipe/src/index.ts"],
       "@libs/constants": ["./libs/constants/src/index.ts"],
       "@libs/logger": ["./libs/logger/src/index.ts"],
-      "@libs/types": ["./libs/types/src/index.ts"],
-      "@libs/dataloader": ["./libs/dataloader/src/index.ts"]
+      "@libs/types": ["./libs/types/src/index.ts"]
     }
   }
 }
