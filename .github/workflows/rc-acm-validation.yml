@@ -69,7 +69,7 @@ jobs:
                   "Type": "NS",
                   "TTL": 300,
                   "ResourceRecords": [
-                    {"Value": "'${{ needs.export-rc-ns-records.outputs.rc_ns_records }}'"}
+                    {"Value": "${{ needs.export-rc-ns-records.outputs.rc_ns_records }}"}
                   ]
                 }
               }]
