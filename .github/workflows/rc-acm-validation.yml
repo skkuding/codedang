@@ -28,6 +28,10 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY_RC }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.2
+
       - name: Export RC NS Records
         working-directory: ./apps/infra/rc/network
         run: |
