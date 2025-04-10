@@ -37,7 +37,7 @@ jobs:
         run: |
           terraform init -backend-config="bucket=codedang-tf-state-rc"
           NS_RECORDS=$(terraform output -json rc_ns_records | jq -r '.[]' | tr '\n' ' ')
-          echo "RC_NS_RECORDS=$NS_RECORDS" >> $GITHUB_ENV
+          echo "rc_ns_records=$NS_RECORDS" >> $GITHUB_OUTPUT
 
   rc-update-prod-route53:
     name: RC - Update Production Route53 NS
@@ -68,7 +68,7 @@ jobs:
                   "Type": "NS",
                   "TTL": 300,
                   "ResourceRecords": [
-                    {"Value": "'${{ env.RC_NS_RECORDS }}'"}
+                    {"Value": "'${{ needs.export-rc-ns-records.outputs.rc_ns_records }}'"}
                   ]
                 }
               }]
