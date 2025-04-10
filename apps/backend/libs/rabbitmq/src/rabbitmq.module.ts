@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
+import { TraceService } from 'nestjs-otel'
 import { PUBLISH_CHANNEL, CONSUME_CHANNEL } from '@libs/constants'
 import { SubmissionPublicationService } from './rabbitmq-pub.service'
 import { SubmissionSubscriptionService } from './rabbitmq-sub.service'
@@ -43,7 +44,11 @@ import { SubmissionSubscriptionService } from './rabbitmq-sub.service'
       inject: [ConfigService]
     })
   ],
-  providers: [SubmissionSubscriptionService, SubmissionPublicationService],
+  providers: [
+    SubmissionSubscriptionService,
+    SubmissionPublicationService,
+    TraceService
+  ],
   exports: [
     SubmissionSubscriptionService,
     SubmissionPublicationService,
