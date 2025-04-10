@@ -1,4 +1,4 @@
-name: RC - CD - Build Images
+name: RC - ACM Validation
 
 on:
   workflow_dispatch:
@@ -31,6 +31,7 @@ jobs:
       - name: Export RC NS Records
         working-directory: ./apps/infra/rc/network
         run: |
+          terraform init -backend-config="bucket=codedang-tf-state-rc"
           NS_RECORDS=$(terraform output -json rc_ns_records | jq -r '.[]' | tr '\n' ' ')
           echo "RC_NS_RECORDS=$NS_RECORDS" >> $GITHUB_ENV
 
