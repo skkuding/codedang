@@ -45,6 +45,9 @@ output "route53_zone_id" {
   value = length(aws_route53_zone.codedang) > 0 ? aws_route53_zone.codedang[0].zone_id : null
 }
 
-output "route53_certificate_arn" {
-  value = length(aws_acm_certificate_validation.for_all_domains) > 0 ? aws_acm_certificate_validation.for_all_domains[0].certificate_arn : null
+# Output the NS records for use in the workflow
+output "rc_ns_records" {
+  value       = var.env == "rc" ? aws_route53_zone.codedang[0].name_servers : []
+  description = "Name servers for the rc.codedang.com Route53 zone"
+  sensitive   = true
 }

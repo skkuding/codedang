@@ -99,6 +99,11 @@ jobs:
         working-directory: ./apps/infra/rc/network
         run: terraform apply -input=false plan.out
 
+  rc-acm-validation:
+    uses: ./.github/workflows/rc-mask-db.yml
+    secrets: inherit
+    needs: [rc-deploy-network]
+
   rc-deploy-storage:
     name: RC - Deploy Storage
     runs-on: ubuntu-latest
