@@ -40,7 +40,6 @@ jobs:
         run: |
           terraform init -backend-config="bucket=codedang-tf-state-rc"
           NS_RECORDS=$(terraform output -json rc_ns_records | jq -r '.[]' | tr '\n' ' ')
-          echo "NS_RECORDS is: $NS_RECORDS"
           echo "rc_ns_records=$NS_RECORDS" >> $GITHUB_OUTPUT
 
   rc-update-prod-route53:
