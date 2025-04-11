@@ -62,21 +62,31 @@ jobs:
       - name: Update Production Route53 NS Records
         run: |
           ZONE_ID=$(aws route53 list-hosted-zones-by-name --dns-name "codedang.com" --query "HostedZones[0].Id" --output text | cut -d'/' -f3)
-          aws route53 change-resource-record-sets \
-            --hosted-zone-id $ZONE_ID \
-            --change-batch '{
+          NS_RECORDS="${{ needs.export-rc-ns-records.outputs.rc_ns_records }}"
+          if [ -z "$NS_RECORDS" ]; then
+            echo "Error: rc_ns_records is empty"
+            exit 1
+          fi
+          # Convert space-separated NS records into JSON array
+          NS_ARRAY=$(echo "$NS_RECORDS" | tr ' ' '\n' | jq -R . | jq -s .)
+          CHANGE_BATCH=$(jq -n \
+            --arg name "rc.codedang.com" \
+            --argjson records "$NS_ARRAY" \
+            '{
               "Changes": [{
                 "Action": "UPSERT",
                 "ResourceRecordSet": {
-                  "Name": "rc.codedang.com",
+                  "Name": $name,
                   "Type": "NS",
                   "TTL": 300,
-                  "ResourceRecords": [
-                    {"Value": "${{ needs.export-rc-ns-records.outputs.rc_ns_records }}"}
-                  ]
+                  "ResourceRecords": ($records | map({"Value": .}))
                 }
               }]
-            }'
+            }')
+          echo "Change Batch: $CHANGE_BATCH"
+          aws route53 change-resource-record-sets \
+            --hosted-zone-id "$ZONE_ID" \
+            --change-batch "$CHANGE_BATCH"
 
   rc-deploy-acm-validation:
     name: RC - Deploy ACM Validation
