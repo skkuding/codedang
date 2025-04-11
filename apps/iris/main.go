@@ -41,15 +41,6 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-
-	http.HandleFunc("/health", healthCheckHandler)
-	go func() {
-		if err := http.ListenAndServe("0.0.0.0:9999", nil); err != nil {
-			fmt.Println("Failed to start health checker:", err)
-			os.Exit(1)
-		}
-	}()
-
 	// profile()
 	env := Env(utils.Getenv("APP_ENV", "stage"))
 	logProvider := logger.NewLogger(logger.Console, env == Production)
@@ -74,6 +65,12 @@ func main() {
 		}
 	} else {
 		logProvider.Log(logger.INFO, "Running in stage mode")
+		http.HandleFunc("/health", healthCheckHandler)
+		go func() {
+			if err := http.ListenAndServe("0.0.0.0:9999", nil); err != nil {
+				logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to start health checker: %v", err))
+			}
+		}()
 	}
 
 	database := postgres.NewPostgresDataSource(ctx)
