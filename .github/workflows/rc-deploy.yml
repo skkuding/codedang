@@ -100,7 +100,7 @@ jobs:
         run: terraform apply -input=false plan.out
 
   rc-acm-validation:
-    uses: ./.github/workflows/rc-mask-db.yml
+    uses: ./.github/workflows/rc-acm-validation.yml
     secrets: inherit
     needs: [rc-deploy-network]
 
