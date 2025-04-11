@@ -53,22 +53,22 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v4
-
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY }}
           aws-region: ${{ env.AWS_REGION }}
-
       - name: Update Production Route53 NS Records
         run: |
           ZONE_ID=$(aws route53 list-hosted-zones-by-name --dns-name "codedang.com" --query "HostedZones[0].Id" --output text | cut -d'/' -f3)
           NS_RECORDS="${{ needs.export-rc-ns-records.outputs.rc_ns_records }}"
+          echo "NS_RECORDS is: [$NS_RECORDS]"
           if [ -z "$NS_RECORDS" ]; then
             echo "Error: rc_ns_records is empty"
             exit 1
           fi
-          # Convert space-separated NS records into JSON array
-          NS_ARRAY=$(echo "$NS_RECORDS" | tr ' ' '\n' | jq -R . | jq -s .)
+          # Trim trailing spaces and convert to JSON array, filtering out empty entries
+          NS_ARRAY=$(echo "$NS_RECORDS" | tr -s ' ' | sed 's/[[:space:]]*$//' | tr ' ' '\n' | grep -v '^$' | jq -R . | jq -s .)
+          echo "NS_ARRAY is: $NS_ARRAY"
           CHANGE_BATCH=$(jq -n \
             --arg name "rc.codedang.com" \
             --argjson records "$NS_ARRAY" \
