@@ -1,5 +1,8 @@
 FROM gitpod/workspace-full:latest
 
+# Install Node.js
+RUN nvm install v22.14.0
+
 # Install sandbox
 # FIXME: we don't need 777 permission
 RUN sudo mkdir -p /app/sandbox/policy /app/sandbox/results \
