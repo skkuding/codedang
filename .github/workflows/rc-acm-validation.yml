@@ -20,6 +20,8 @@ jobs:
     defaults:
       run:
         shell: bash
+    outputs:
+      rc_ns_records: ${{ steps.exp-rc-ns.outputs.rc_ns_records }}
     steps:
       - uses: actions/checkout@v4
 
@@ -33,6 +35,7 @@ jobs:
           terraform_version: 1.5.2
 
       - name: Export RC NS Records
+        id: exp-rc-ns
         working-directory: ./apps/infra/rc/network
         run: |
           terraform init -backend-config="bucket=codedang-tf-state-rc"
