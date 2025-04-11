@@ -77,18 +77,11 @@ jobs:
                 "Action": "UPSERT",
                 "ResourceRecordSet": {
                   "Name": $name,
-                  "Name": $name,
                   "Type": "NS",
                   "TTL": 300,
                   "ResourceRecords": ($records | map({"Value": .}))
-                  "ResourceRecords": ($records | map({"Value": .}))
                 }
               }]
-            }')
-          echo "Change Batch: $CHANGE_BATCH"
-          aws route53 change-resource-record-sets \
-            --hosted-zone-id "$ZONE_ID" \
-            --change-batch "$CHANGE_BATCH"
             }')
           echo "Change Batch: $CHANGE_BATCH"
           aws route53 change-resource-record-sets \
