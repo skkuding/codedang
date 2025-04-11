@@ -48,7 +48,17 @@ data "terraform_remote_state" "storage" {
   }
 }
 
+data "terraform_remote_state" "acm_validation" {
+  backend = "s3"
+  config = {
+    bucket = "codedang-tf-state-rc"
+    key    = "terraform/acm-validation.tfstate"
+    region = "ap-northeast-2"
+  }
+}
+
 locals {
-  network = data.terraform_remote_state.network.outputs
-  storage = data.terraform_remote_state.storage.outputs
+  network        = data.terraform_remote_state.network.outputs
+  storage        = data.terraform_remote_state.storage.outputs
+  acm_validation = data.terraform_remote_state.acm_validation.outputs
 }
