@@ -13,7 +13,7 @@ data "aws_cloudfront_origin_request_policy" "exclude_host_header" {
 resource "aws_cloudfront_distribution" "codedang" {
   origin {
     domain_name = "main.d6vf61i67dhk2.amplifyapp.com"
-    origin_id = "d6vf61i67dhk2"
+    origin_id   = "d6vf61i67dhk2"
 
     custom_origin_config {
       http_port              = 80
@@ -96,7 +96,7 @@ resource "aws_cloudfront_distribution" "codedang" {
 
   viewer_certificate {
     cloudfront_default_certificate = var.env == "rc" ? false : true
-    acm_certificate_arn            = var.env == "rc" ? local.network.route53_certificate_arn : null
+    acm_certificate_arn            = var.env == "rc" ? local.acm_validation.route53_certificate_arn : null
     ssl_support_method             = var.env == "rc" ? "sni-only" : null
     minimum_protocol_version       = var.env == "rc" ? "TLSv1.2_2021" : null
 
