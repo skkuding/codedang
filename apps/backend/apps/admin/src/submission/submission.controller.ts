@@ -1,6 +1,16 @@
-import { Controller, Req, Res, Get, Param } from '@nestjs/common'
+import {
+  Controller,
+  Req,
+  Res,
+  Get,
+  Param,
+  UseGuards,
+  Patch,
+  Query
+} from '@nestjs/common'
 import { Response } from 'express'
-import { AuthenticatedRequest } from '@libs/auth'
+import { AdminGuard, AuthenticatedRequest } from '@libs/auth'
+import { IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
 import { SubmissionService } from './submission.service'
 
 @Controller('submission')
@@ -18,5 +28,33 @@ export class SubmissionController {
     @Res() res: Response
   ) {
     await this.submissionService.downloadCodes(filename, res)
+  }
+
+  @UseGuards(AdminGuard)
+  @Patch('rejudgeByProblem')
+  async rejudgeByProblem(
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
+    @Query('contestId', IDValidationPipe) contestId: number | null,
+    @Query('assignmentId', IDValidationPipe) assignmentId: number | null,
+    @Query('workbookId', IDValidationPipe) workbookId: number | null
+  ): Promise<{
+    successCount: number
+    failedSubmissions: { submissionId: number; error: string }[]
+  }> {
+    return this.submissionService.rejudgeSubmissionsByProblem(
+      problemId,
+      contestId,
+      assignmentId,
+      workbookId
+    )
+  }
+
+  @UseGuards(AdminGuard)
+  @Patch('rejudgeBySubmission')
+  async rejudgeBySubmission(
+    @Query('submissionId', new RequiredIntPipe('submissionId'))
+    submissionId: number
+  ): Promise<{ success: boolean; error?: string }> {
+    return this.submissionService.rejudgeSubmissionById(submissionId)
   }
 }

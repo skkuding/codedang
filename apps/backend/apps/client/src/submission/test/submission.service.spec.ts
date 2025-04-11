@@ -368,65 +368,6 @@ describe('SubmissionService', () => {
     })
   })
 
-  describe('rejudgeSubmissionsByProblem', () => {
-    it('should return sucessful rejudge value', async () => {
-      const ResultValue = {
-        successCount: 2,
-        failedSubmissions: []
-      }
-
-      const createSubmissionResultsSpy = stub(
-        service,
-        'createSubmissionResults'
-      )
-      const publishJudgeRequestMessageSpy = stub(
-        publish,
-        'publishJudgeRequestMessage'
-      )
-
-      db.submission.findMany.resolves(submissions)
-      db.submission.update.resolves(submissions)
-      db.submission.create.resolves(submissions)
-
-      const result = await service.rejudgeSubmissionsByProblem(1)
-
-      expect(result).to.deep.equal(ResultValue)
-      expect(createSubmissionResultsSpy.callCount).to.equal(2)
-      expect(publishJudgeRequestMessageSpy.callCount).to.equal(2)
-    })
-
-    it('should throw an exception when no submissions are found for the problem', async () => {
-      db.submission.findMany.resolves([])
-
-      await expect(service.rejudgeSubmissionsByProblem(1)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-  })
-
-  describe('rejudgeSubmissionById', () => {
-    it('should return sucessful rejudge value', async () => {
-      db.submission.findUnique.resolves(submissions[1])
-      db.submission.update.resolves(submissions[1])
-      db.submission.create.resolves(submissions[1])
-
-      const result = await service.rejudgeSubmissionById(1)
-
-      await expect(result).to.deep.equal({
-        error: "Cannot read properties of undefined (reading 'map')",
-        success: false
-      })
-    })
-
-    it('should throw an exception when no submissions are found for the submissionID', async () => {
-      db.submission.findUnique.resolves(null)
-
-      await expect(service.rejudgeSubmissionById(1)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-  })
-
   describe('createSubmission', () => {
     it('should create submission', async () => {
       const createSpy = stub(service, 'createSubmissionResults')

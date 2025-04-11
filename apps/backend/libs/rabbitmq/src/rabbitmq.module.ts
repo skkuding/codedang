@@ -52,7 +52,8 @@ import { SubmissionSubscriptionService } from './rabbitmq-sub.service'
   exports: [
     SubmissionSubscriptionService,
     SubmissionPublicationService,
-    RabbitMQModule
+    RabbitMQModule,
+    TraceService
   ]
 })
 export class LibsRabbitMQModule {}

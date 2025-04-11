@@ -92,34 +92,6 @@ export class SubmissionController {
     }
   }
 
-  @UseGuards(AdminGuard)
-  @Patch('rejudgeByProblem')
-  async rejudgeByProblem(
-    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('contestId', IDValidationPipe) contestId: number | null,
-    @Query('assignmentId', IDValidationPipe) assignmentId: number | null,
-    @Query('workbookId', IDValidationPipe) workbookId: number | null
-  ): Promise<{
-    successCount: number
-    failedSubmissions: { submissionId: number; error: string }[]
-  }> {
-    return this.submissionService.rejudgeSubmissionsByProblem(
-      problemId,
-      contestId,
-      assignmentId,
-      workbookId
-    )
-  }
-
-  @UseGuards(AdminGuard)
-  @Patch('rejudgeBySubmission')
-  async rejudgeBySubmission(
-    @Query('submissionId', new RequiredIntPipe('submissionId'))
-    submissionId: number
-  ): Promise<{ success: boolean; error?: string }> {
-    return this.submissionService.rejudgeSubmissionById(submissionId)
-  }
-
   /**
    * Open Testcase에 대해 채점하는 Test를 요청합니다.
    * 채점 결과는 Cache에 저장됩니다.
