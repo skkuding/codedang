@@ -5,7 +5,31 @@ meta {
 }
 
 patch {
-  url: {{adminRestUrl}}/submission/rejudgeByProblem
+  url: {{adminRestUrl}}/submission/rejudgeByProblem?problemId=1&contestId=1
   body: none
   auth: inherit
+}
+
+params:query {
+  problemId: 1
+  contestId: 1
+  ~assignmentId: 
+  ~workbookId: 
+}
+
+docs {
+  # Rejudge By ProblemID
+  
+  Problem ID를 기반으로 재채점을 수애합니다.
+  
+  ## Query
+  
+  > 필수 query는 * 표시하였습니다.
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |ProblemId *|Integer|Problem ID
+  |contestId |Integer, null, undefined|contest ID|
+  |assignmentId |Integer, null, undefined|assignment ID|
+  |workbookId |Integer, null, undefined|workbook ID|
 }

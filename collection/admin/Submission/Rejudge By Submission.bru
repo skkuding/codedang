@@ -5,7 +5,27 @@ meta {
 }
 
 patch {
-  url: {{adminRestUrl}}/submission/rejudgeBySubmission
+  url: {{adminRestUrl}}/submission/rejudgeBySubmission?submissionId=1
   body: none
   auth: inherit
+}
+
+params:query {
+  submissionId: 1
+}
+
+docs {
+  # Rejudge By SubmissionId
+  
+  SubmissioinId를 기반으로 재채점을 수애합니다.
+  
+  ## Query
+  
+  > 필수 query는 * 표시하였습니다.
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |SubmissionId *|Integer|Submission ID|
+  
+  
 }
