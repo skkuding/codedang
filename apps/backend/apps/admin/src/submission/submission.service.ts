@@ -16,6 +16,7 @@ import path from 'path'
 import sanitize from 'sanitize-filename'
 import {
   EntityNotExistException,
+  ForbiddenAccessException,
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -243,7 +244,7 @@ export class SubmissionService {
       throw new EntityNotExistException('Submission')
     }
 
-    return this.getSubmission(submissionId.id)
+    return this.getSubmission(submissionId.id, userId)
   }
 
   async getAssignmentLatestSubmissionInfo(
@@ -307,7 +308,7 @@ export class SubmissionService {
     }
   }
 
-  async getSubmission(id: number) {
+  async getSubmission(id: number, userId: number) {
     const submission = await this.prisma.submission.findFirst({
       where: {
         id
@@ -338,6 +339,28 @@ export class SubmissionService {
     if (!submission) {
       throw new EntityNotExistException('Submission')
     }
+
+    if (submission.assignment) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          },
+          select: {
+            groupId: true
+          }
+        })
+      ).map((group) => group.groupId)
+
+      if (
+        !leaderGroupIds.includes(submission.assignment.groupId) &&
+        userId !== submission.userId
+      ) {
+        throw new ForbiddenAccessException('Only allowed to access your course')
+      }
+    }
+
     const code = plainToInstance(Snippet, submission.code)
     const results = submission.submissionResult.map((result) => {
       return {
