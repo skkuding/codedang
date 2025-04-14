@@ -1,6 +1,11 @@
-import { Args, Int, Query, Resolver } from '@nestjs/graphql'
+import { Args, Context, Int, Query, Resolver } from '@nestjs/graphql'
 import { ContestRole } from '@prisma/client'
-import { UseContestRolesGuard, UseGroupLeaderGuard } from '@libs/auth'
+import {
+  UseContestRolesGuard,
+  UseDisableAdminGuard,
+  UseGroupLeaderGuard,
+  type AuthenticatedRequest
+} from '@libs/auth'
 import {
   SubmissionOrderPipe,
   CursorValidationPipe,
@@ -124,10 +129,12 @@ export class SubmissionResolver {
    * 특정 제출 내역에 대한 상세 정보를 불러옵니다.
    */
   @Query(() => SubmissionDetail)
+  @UseDisableAdminGuard()
   async getSubmission(
-    @Args('id', { type: () => Int }) id: number
+    @Args('id', { type: () => Int }) id: number,
+    @Context('req') req: AuthenticatedRequest
   ): Promise<SubmissionDetail> {
-    return await this.submissionService.getSubmission(id)
+    return await this.submissionService.getSubmission(id, req.user.id)
   }
 
   /**
