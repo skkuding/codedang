@@ -226,7 +226,8 @@ export class SubmissionService {
   async getAssignmentLatestSubmission(
     assignmentId: number,
     userId: number,
-    problemId: number
+    problemId: number,
+    reqUserId: number
   ) {
     const submissionId = await this.prisma.submission.findFirst({
       where: {
@@ -244,7 +245,7 @@ export class SubmissionService {
       throw new EntityNotExistException('Submission')
     }
 
-    return this.getSubmission(submissionId.id, userId)
+    return this.getSubmission(submissionId.id, reqUserId)
   }
 
   async getAssignmentLatestSubmissionInfo(

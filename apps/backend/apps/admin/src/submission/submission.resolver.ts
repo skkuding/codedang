@@ -116,12 +116,14 @@ export class SubmissionResolver {
     @Args('groupId', { type: () => Int }) _groupId: number,
     @Args('assignmentId', { type: () => Int }) assignmentId: number,
     @Args('userId', { type: () => Int }) userId: number,
-    @Args('problemId', { type: () => Int }) problemId: number
+    @Args('problemId', { type: () => Int }) problemId: number,
+    @Context('req') req: AuthenticatedRequest
   ): Promise<SubmissionDetail> {
     return await this.submissionService.getAssignmentLatestSubmission(
       assignmentId,
       userId,
-      problemId
+      problemId,
+      req.user.id
     )
   }
 
