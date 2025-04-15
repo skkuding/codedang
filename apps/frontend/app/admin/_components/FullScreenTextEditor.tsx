@@ -91,7 +91,10 @@ export function FullScreenTextEditor({
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        codeBlock: false,
+        heading: false
+      }),
       CodeBlockLowlight.extend({
         addNodeView() {
           return ReactNodeViewRenderer(CodeBlockComponent)
@@ -213,6 +216,7 @@ export function FullScreenTextEditor({
           'rounded-b-md border overflow-y-auto w-full h-[1000px] border-input bg-backround px-3 ring-offset-2 disabled:cursur-not-allowed disabled:opacity-50 resize-y'
       }
     },
+    immediatelyRender: false,
     content: defaultValue
   })
 
