@@ -48,8 +48,9 @@ export function RunTestButton({
     }: {
       code: string
       testcases: TestcaseItem[]
-    }) =>
-      Promise.all([
+    }) => {
+      saveCode(code)
+      return Promise.all([
         safeFetcherWithAuth.post('submission/test', {
           json: {
             language,
@@ -91,9 +92,9 @@ export function RunTestButton({
             revalidate: 0
           }
         })
-      ]),
-    onSuccess: (_, { code }) => {
-      saveCode(code)
+      ])
+    },
+    onSuccess: () => {
       startPolling()
     },
     onError: (error) => {
