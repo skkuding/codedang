@@ -26,12 +26,6 @@ data "aws_iam_policy_document" "read_fluent_bit_config" {
       type        = "AWS"
       identifiers = [aws_iam_role.ecs_task_execution_role.arn]
     }
-
-    condition {
-      test     = "StringEquals"
-      variable = "aws:PrincipalServiceName"
-      values   = ["ecs.amazonaws.com"]
-    }
   }
 }
 
