@@ -95,8 +95,7 @@ func (p *producer) confirmHandler(confirms chan amqp.Confirmation) {
 				}
 				delete(m, confirmed.DeliveryTag)
 			} else {
-				p.logger.Log(logger.ERROR, fmt.Sprintf("delivery tag must be a positive integer value: received: %d", confirmed.DeliveryTag))
-				panic("Invalid Delivery Tag: There might be an issue with the connection to the RabbitMQ broker")
+				p.logger.Panic(fmt.Sprintf("delivery tag must be a positive integer value: received: %d", confirmed.DeliveryTag))
 			}
 		}
 	}

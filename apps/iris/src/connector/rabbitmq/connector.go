@@ -39,17 +39,17 @@ func (c *connector) Connect(ctx context.Context) {
 
 	err := c.consumer.OpenChannel()
 	if err != nil {
-		panic(err)
+		c.logger.Panic(fmt.Sprintf("failed to open channel: %s", err))
 	}
 
 	err = c.producer.OpenChannel()
 	if err != nil {
-		panic(err)
+		c.logger.Panic(fmt.Sprintf("failed to open channel: %s", err))
 	}
 
 	messageCh, err := c.consumer.Subscribe()
 	if err != nil {
-		panic(err)
+		c.logger.Panic(fmt.Sprintf("failed to subscribe: %s", err))
 	}
 
 	// [mq.ingress]     consume -> handle -> 														  produce
