@@ -95,7 +95,7 @@
     "@swc/cli": "^0.5.2",
     "@swc/core": "^1.10.4",
     "@types/archiver": "^6.0.3",
-    "@types/cache-manager": "^4.0.6",
+    "@types/cache-manager": "^5.0.0",
     "@types/chai": "^4.3.20",
     "@types/chai-as-promised": "^7.1.8",
     "@types/express": "^5.0.0",
