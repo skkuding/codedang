@@ -1,8 +1,9 @@
+import { context, trace } from '@opentelemetry/api'
 import { gray, italic, white } from 'colorette'
 import { randomUUID } from 'crypto'
 import type { Params } from 'nestjs-pino'
-import PinoPretty from 'pino-pretty'
 import type { PrettyOptions } from 'pino-pretty'
+import PinoPretty from 'pino-pretty'
 import { format } from 'sql-formatter'
 import type { AuthenticatedRequest } from '@libs/auth'
 
@@ -23,11 +24,19 @@ const pinoPrettyOptions: PrettyOptions = {
 // TODO: change log level to nestjs-style. e.g. INFO -> LOG
 export const pinoLoggerModuleOption: Params = {
   pinoHttp: {
-    level: 'trace', // TODO: in production mode, set log level as 'info'
+    level: process.env.APP_ENV === 'production' ? 'info' : 'trace',
     autoLogging: true,
     formatters: {
       level(label) {
         return { level: label }
+      },
+      log(object) {
+        // 로그에 트레이스 정보 추가
+        const span = trace.getSpan(context.active())
+        if (!span) return { ...object }
+
+        const { spanId, traceId } = span.spanContext()
+        return { ...object, spanId, traceId }
       }
     },
     stream:

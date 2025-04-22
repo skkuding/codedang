@@ -3,9 +3,8 @@ import { NestFactory } from '@nestjs/core'
 import type { NestExpressApplication } from '@nestjs/platform-express'
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs'
 import { Logger, LoggerErrorInterceptor } from 'nestjs-pino'
+import InstrumentationSDK from '@libs/instrumentation'
 import { AdminModule } from './admin.module'
-import startMetricsExporter from './metric'
-import tracer from './tracer'
 
 const bootstrap = async () => {
   // otel instrumentation
@@ -16,8 +15,7 @@ const bootstrap = async () => {
     ) {
       console.log('The exporter url is not defined')
     } else {
-      tracer.init()
-      startMetricsExporter()
+      await InstrumentationSDK.start()
     }
   }
 
