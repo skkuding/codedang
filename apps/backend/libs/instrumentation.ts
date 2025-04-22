@@ -1,3 +1,4 @@
+import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api'
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-grpc'
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-grpc'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc'
@@ -6,16 +7,10 @@ import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { PinoInstrumentation } from '@opentelemetry/instrumentation-pino'
 import type { Resource } from '@opentelemetry/resources'
 import { resourceFromAttributes } from '@opentelemetry/resources'
-import {
-  BatchLogRecordProcessor,
-  SimpleLogRecordProcessor
-} from '@opentelemetry/sdk-logs'
+import { BatchLogRecordProcessor } from '@opentelemetry/sdk-logs'
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics'
 import { NodeSDK } from '@opentelemetry/sdk-node'
-import {
-  BatchSpanProcessor,
-  SimpleSpanProcessor
-} from '@opentelemetry/sdk-trace-node'
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-node'
 import {
   ATTR_SERVICE_NAME,
   ATTR_SERVICE_VERSION
@@ -23,14 +18,16 @@ import {
 import { PrismaInstrumentation } from '@prisma/instrumentation'
 import { request } from 'http'
 
+diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
+
 /**
- * InstrumentationSDK는 OpenTelemetry SDK를 초기화하고 설정하는 클래스입니다.
+ * Instrumentation는 OpenTelemetry SDK를 초기화하고 설정하는 클래스입니다.
  * AWS EC2 인스턴스 메타데이터를 사용하여 인스턴스 ID를 가져오고,
  * OpenTelemetry SDK를 사용하여 트레이스, 메트릭 및 로그를 수집합니다.
  * 또한, HTTP, Express 및 Prisma에 대한 자동 계측을 설정합니다.
  * @class InstrumentationSDK
  */
-class InstrumentationSDK {
+class Instrumentation {
   private static sdk: NodeSDK | null = null
 
   /**
@@ -73,7 +70,7 @@ class InstrumentationSDK {
   private static getResource = async (): Promise<Resource> => {
     let instanceId: string
     if (process.env.APP_ENV == 'production' || process.env.APP_ENV == 'rc') {
-      instanceId = await InstrumentationSDK.getAWSInstanceId()
+      instanceId = await Instrumentation.getAWSInstanceId()
     }
     instanceId = 'local'
     const ATTR_INSTANCE_ID = 'service.instance.id'
@@ -86,50 +83,35 @@ class InstrumentationSDK {
     })
   }
 
-  private static getSpanProcessorClass = () => {
-    return process.env.APP_ENV === 'production'
-      ? BatchSpanProcessor
-      : SimpleSpanProcessor
-  }
-
-  private static getLogRecordProcessorClass = () => {
-    return process.env.APP_ENV === 'production'
-      ? BatchLogRecordProcessor
-      : SimpleLogRecordProcessor
-  }
-
-  static async start(): Promise<void> {
-    if (InstrumentationSDK.sdk) {
+  static async start(otlpEndpointUrl: string): Promise<void> {
+    if (Instrumentation.sdk) {
       return // 이미 초기화된 경우 다시 초기화하지 않음
     }
 
-    const resource = await InstrumentationSDK.getResource()
-    const SpanProcessorClass = InstrumentationSDK.getSpanProcessorClass()
-    const LogRecordProcessorClass =
-      InstrumentationSDK.getLogRecordProcessorClass()
+    const resource = await Instrumentation.getResource()
 
-    InstrumentationSDK.sdk = new NodeSDK({
+    Instrumentation.sdk = new NodeSDK({
       resource,
       // trace
       spanProcessors: [
-        new SpanProcessorClass(
+        new BatchSpanProcessor(
           new OTLPTraceExporter({
-            url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL
+            url: otlpEndpointUrl
           })
         )
       ],
       // metric
       metricReader: new PeriodicExportingMetricReader({
         exporter: new OTLPMetricExporter({
-          url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT
+          url: otlpEndpointUrl
         }),
         exportIntervalMillis: 1000
       }),
       // log
       logRecordProcessors: [
-        new LogRecordProcessorClass(
+        new BatchLogRecordProcessor(
           new OTLPLogExporter({
-            url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL
+            url: otlpEndpointUrl
           })
         )
       ],
@@ -141,22 +123,21 @@ class InstrumentationSDK {
       ]
     })
 
-    return InstrumentationSDK.sdk.start()
+    return Instrumentation.sdk.start()
   }
 
   static async shutdown(): Promise<void> {
-    if (InstrumentationSDK.sdk) {
-      await InstrumentationSDK.sdk.shutdown()
-      console.log('InstrumentationSDK shut down')
+    if (Instrumentation.sdk) {
+      await Instrumentation.sdk.shutdown()
     }
   }
 }
 
 process.on('SIGTERM', () => {
-  InstrumentationSDK.shutdown()
+  Instrumentation.shutdown()
     .then(() => console.log('OTEL SDK shut down successfully'))
     .catch((err) => console.error('Error shutting down OTEL SDK', err))
     .finally(() => process.exit(0))
 })
 
-export default InstrumentationSDK
+export default Instrumentation
