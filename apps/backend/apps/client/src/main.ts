@@ -2,27 +2,19 @@ import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import cookieParser from 'cookie-parser'
-import { Logger, LoggerErrorInterceptor } from 'nestjs-pino'
-import InstrumentationSDK from '@libs/instrumentation'
-import { AppModule } from './app.module'
+import Instrumentation from '@libs/instrumentation'
 
 const bootstrap = async () => {
-  // otel instrumentation
-  if (process.env.APP_ENV == 'production' || process.env.APP_ENV == 'stage') {
-    if (
-      process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL == undefined ||
-      process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL == ''
-    ) {
-      console.warn('The exporter url is not defined')
-    } else {
-      await InstrumentationSDK.start()
-    }
-  }
+  await Instrumentation.start(
+    process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL || 'http://localhost:4317'
+  )
 
+  const { AppModule } = await import('./app.module')
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true
   })
 
+  const { Logger, LoggerErrorInterceptor } = await import('nestjs-pino')
   app.useLogger(app.get(Logger))
   app.useGlobalInterceptors(new LoggerErrorInterceptor())
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }))

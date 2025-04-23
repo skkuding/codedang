@@ -2,23 +2,14 @@ import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import type { NestExpressApplication } from '@nestjs/platform-express'
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs'
-import { Logger, LoggerErrorInterceptor } from 'nestjs-pino'
-import InstrumentationSDK from '@libs/instrumentation'
-import { AdminModule } from './admin.module'
+import Instrumentation from '@libs/instrumentation'
 
 const bootstrap = async () => {
-  // otel instrumentation
-  if (process.env.APP_ENV == 'production' || process.env.APP_ENV == 'stage') {
-    if (
-      process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL == undefined ||
-      process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL == ''
-    ) {
-      console.log('The exporter url is not defined')
-    } else {
-      await InstrumentationSDK.start()
-    }
-  }
+  await Instrumentation.start(
+    process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL || 'http://localhost:4317'
+  )
 
+  const { AdminModule } = await import('./admin.module')
   const app = await NestFactory.create<NestExpressApplication>(AdminModule, {
     bufferLogs: true
   })
@@ -36,6 +27,7 @@ const bootstrap = async () => {
   // default body parser limit: 100KB. Increase the limit to 10MB ()
   app.useBodyParser('json', { limit: '10mb' })
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 2 }))
+  const { Logger, LoggerErrorInterceptor } = await import('nestjs-pino')
   app.useLogger(app.get(Logger))
   app.useGlobalInterceptors(new LoggerErrorInterceptor())
   app.useGlobalPipes(new ValidationPipe())

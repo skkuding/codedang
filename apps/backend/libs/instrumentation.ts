@@ -1,4 +1,3 @@
-import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api'
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-grpc'
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-grpc'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc'
@@ -17,8 +16,6 @@ import {
 } from '@opentelemetry/semantic-conventions'
 import { PrismaInstrumentation } from '@prisma/instrumentation'
 import { request } from 'http'
-
-diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
 
 /**
  * Instrumentation는 OpenTelemetry SDK를 초기화하고 설정하는 클래스입니다.
@@ -68,18 +65,21 @@ class Instrumentation {
   }
 
   private static getResource = async (): Promise<Resource> => {
+    const ATTR_INSTANCE_ID = 'service.instance.id'
     let instanceId: string
     if (process.env.APP_ENV == 'production' || process.env.APP_ENV == 'rc') {
       instanceId = await Instrumentation.getAWSInstanceId()
     }
-    instanceId = 'local'
-    const ATTR_INSTANCE_ID = 'service.instance.id'
+    instanceId = '1'
+
+    const ATTR_ENVIRONMENT = 'service.environment'
+    const environment = process.env.APP_ENV || 'local'
 
     return resourceFromAttributes({
       [ATTR_SERVICE_NAME]: 'CLIENT-API', // TODO: 동적으로 서비스 이름을 가져오기
       [ATTR_SERVICE_VERSION]: '2.2.0', // TODO: 동적으로 서비스 버전을 가져오기
       [ATTR_INSTANCE_ID]: instanceId,
-      environment: 'production'
+      [ATTR_ENVIRONMENT]: environment
     })
   }
 
@@ -123,6 +123,7 @@ class Instrumentation {
       ]
     })
 
+    console.log('OTEL SDK initialized')
     return Instrumentation.sdk.start()
   }
 

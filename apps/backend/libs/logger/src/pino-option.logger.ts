@@ -1,4 +1,3 @@
-import { context, trace } from '@opentelemetry/api'
 import { gray, italic, white } from 'colorette'
 import { randomUUID } from 'crypto'
 import type { Params } from 'nestjs-pino'
@@ -29,14 +28,6 @@ export const pinoLoggerModuleOption: Params = {
     formatters: {
       level(label) {
         return { level: label }
-      },
-      log(object) {
-        // 로그에 트레이스 정보 추가
-        const span = trace.getSpan(context.active())
-        if (!span) return { ...object }
-
-        const { spanId, traceId } = span.spanContext()
-        return { ...object, spanId, traceId }
       }
     },
     stream:
