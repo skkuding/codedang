@@ -97,18 +97,18 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 
 	for result := range resultChan {
 		if err := c.producer.Publish(result, ctx, message.Type); err != nil {
-			c.logger.Log(logger.ERROR, fmt.Sprintf("failed to publish result: %s: %s", string(result), err))
+			c.logger.LogWithContext(logger.ERROR, fmt.Sprintf("failed to publish result: %s: %s", string(result), err), extractedCtx)
 			// nack
 		} else {
-			c.logger.Log(logger.DEBUG, fmt.Sprintf("result published: %s", string(result)))
+			c.logger.LogWithContext(logger.DEBUG, fmt.Sprintf("result published: %s", string(result)), extractedCtx)
 		}
 	}
 
 	if err := message.Ack(false); err != nil {
-		c.logger.Log(logger.ERROR, fmt.Sprintf("failed to ack message: %s: %s", string(message.Body), err))
+		c.logger.LogWithContext(logger.ERROR, fmt.Sprintf("failed to ack message: %s: %s", string(message.Body), err), extractedCtx)
 		// retry
 	} else {
-		c.logger.Log(logger.DEBUG, "message ack")
+		c.logger.LogWithContext(logger.DEBUG, "message ack", extractedCtx)
 	}
 
 }

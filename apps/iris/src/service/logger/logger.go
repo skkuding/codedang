@@ -1,11 +1,13 @@
 package logger
 
 import (
+	"context"
 	"log"
 
 	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"go.opentelemetry.io/contrib/bridges/otelzap"
 	"go.opentelemetry.io/otel/log/global"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -27,6 +29,7 @@ const (
 
 type Logger interface {
 	Log(level Level, msg string)
+	LogWithContext(level Level, msg string, ctx context.Context)
 }
 
 type logger struct {
@@ -96,5 +99,32 @@ func (l *logger) Log(level Level, msg string) {
 		l.zap.Warn(msg)
 	case ERROR:
 		l.zap.Error(msg)
+	}
+}
+
+// Trace 정보와 함께 로그를 남기는 메서드
+// TODO: 위의 Log 메서드와 통합
+func (l *logger) LogWithContext(level Level, msg string, ctx context.Context) {
+	// add trace_id and span_id to zap fields
+	var fields []zap.Field
+	if ctx != nil {
+		span := trace.SpanFromContext(ctx)
+		if spanCtx := span.SpanContext(); spanCtx.IsValid() {
+			fields = []zap.Field{
+				zap.String("trace_id", spanCtx.TraceID().String()),
+				zap.String("span_id", spanCtx.SpanID().String()),
+			}
+		}
+	}
+
+	switch level {
+	case DEBUG:
+		l.zap.Debug(msg, fields...)
+	case INFO:
+		l.zap.Info(msg, fields...)
+	case WARN:
+		l.zap.Warn(msg, fields...)
+	case ERROR:
+		l.zap.Error(msg, fields...)
 	}
 }
