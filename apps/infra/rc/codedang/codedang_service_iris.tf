@@ -21,9 +21,7 @@ module "iris" {
         rabbitmq_password               = local.storage.mq_password,
         rabbitmq_vhost                  = rabbitmq_vhost.vh.name,
         otel_exporter_otlp_endpoint_url = var.otel_exporter_otlp_endpoint_url,
-        loki_url                        = var.loki_url,
-      })),
-      jsondecode(file("container_definitions/log_router.json"))
+      }))
     ])
 
     execution_role_arn = aws_iam_role.ecs_task_execution_role.arn

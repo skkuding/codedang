@@ -45,9 +45,7 @@ module "client_api" {
         kakao_client_id                 = var.kakao_client_id,
         kakao_client_secret             = var.kakao_client_secret,
         otel_exporter_otlp_endpoint_url = var.otel_exporter_otlp_endpoint_url,
-        loki_url                        = var.loki_url,
-      })),
-      jsondecode(file("container_definitions/log_router.json"))
+      }))
     ])
 
     execution_role_arn = aws_iam_role.ecs_task_execution_role.arn

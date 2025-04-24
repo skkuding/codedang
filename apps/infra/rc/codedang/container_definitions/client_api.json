@@ -78,17 +78,5 @@
       "name": "OTEL_EXPORTER_OTLP_ENDPOINT_URL",
       "value": "${otel_exporter_otlp_endpoint_url}"
     }
-  ],
-  "logConfiguration": {
-    "logDriver": "awsfirelens",
-    "options": {
-      "LabelKeys": "container_name,ecs_task_definition,source,ecs_cluster",
-      "Labels": "{job=\"firelens\"}",
-      "LineFormat": "key_value",
-      "Name": "loki",
-      "RemoveKeys": "container_id,ecs_task_arn",
-      "Url": "${loki_url}"
-    },
-    "secretOptions": []
-  }
+  ]
 }
