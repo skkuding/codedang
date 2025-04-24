@@ -5,8 +5,10 @@ import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs'
 import Instrumentation from '@libs/instrumentation'
 
 const bootstrap = async () => {
+  const resource = await Instrumentation.getResource('ADMIN-API', '2.2.0')
   await Instrumentation.start(
-    process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL || 'http://localhost:4317'
+    process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL || 'localhost:4317',
+    resource
   )
 
   const { AdminModule } = await import('./admin.module')

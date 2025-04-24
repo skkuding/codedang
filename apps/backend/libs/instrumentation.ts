@@ -1,3 +1,8 @@
+import {
+  CompositePropagator,
+  W3CBaggagePropagator,
+  W3CTraceContextPropagator
+} from '@opentelemetry/core'
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-grpc'
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-grpc'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc'
@@ -64,7 +69,10 @@ class Instrumentation {
     })
   }
 
-  private static getResource = async (): Promise<Resource> => {
+  public static getResource = async (
+    serviceName: string,
+    serviceVersion: string
+  ): Promise<Resource> => {
     const ATTR_INSTANCE_ID = 'service.instance.id'
     let instanceId: string
     if (process.env.APP_ENV == 'production' || process.env.APP_ENV == 'rc') {
@@ -76,19 +84,27 @@ class Instrumentation {
     const environment = process.env.APP_ENV || 'local'
 
     return resourceFromAttributes({
-      [ATTR_SERVICE_NAME]: 'CLIENT-API', // TODO: 동적으로 서비스 이름을 가져오기
-      [ATTR_SERVICE_VERSION]: '2.2.0', // TODO: 동적으로 서비스 버전을 가져오기
+      [ATTR_SERVICE_NAME]: serviceName, // TODO: 동적으로 서비스 이름을 가져오기
+      [ATTR_SERVICE_VERSION]: serviceVersion, // TODO: 동적으로 서비스 버전을 가져오기
       [ATTR_INSTANCE_ID]: instanceId,
       [ATTR_ENVIRONMENT]: environment
     })
   }
 
-  static async start(otlpEndpointUrl: string): Promise<void> {
+  /**
+   * @param otlpEndpointUrl Collector의 OTLP Endpoint URL, 예: `localhost:4317`
+   */
+  static async start(
+    otlpEndpointUrl: string,
+    resource: Resource
+  ): Promise<void> {
     if (Instrumentation.sdk) {
       return // 이미 초기화된 경우 다시 초기화하지 않음
     }
 
-    const resource = await Instrumentation.getResource()
+    const otlpEndpointUrlWithScheme = otlpEndpointUrl.startsWith('http')
+      ? otlpEndpointUrl
+      : `http://${otlpEndpointUrl}`
 
     Instrumentation.sdk = new NodeSDK({
       resource,
@@ -96,25 +112,31 @@ class Instrumentation {
       spanProcessors: [
         new BatchSpanProcessor(
           new OTLPTraceExporter({
-            url: otlpEndpointUrl
+            url: otlpEndpointUrlWithScheme
           })
         )
       ],
       // metric
       metricReader: new PeriodicExportingMetricReader({
         exporter: new OTLPMetricExporter({
-          url: otlpEndpointUrl
+          url: otlpEndpointUrlWithScheme
         }),
-        exportIntervalMillis: 1000
+        exportIntervalMillis: 15000
       }),
       // log
       logRecordProcessors: [
         new BatchLogRecordProcessor(
           new OTLPLogExporter({
-            url: otlpEndpointUrl
+            url: otlpEndpointUrlWithScheme
           })
         )
       ],
+      textMapPropagator: new CompositePropagator({
+        propagators: [
+          new W3CTraceContextPropagator(),
+          new W3CBaggagePropagator()
+        ]
+      }),
       instrumentations: [
         new HttpInstrumentation(),
         new ExpressInstrumentation(),
