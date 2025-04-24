@@ -2,11 +2,11 @@ import { MailerModule } from '@nestjs-modules/mailer'
 import { CacheModule } from '@nestjs/cache-manager'
 import { Module, type OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { APP_GUARD, APP_FILTER, HttpAdapterHost } from '@nestjs/core'
+import { APP_FILTER, APP_GUARD, HttpAdapterHost } from '@nestjs/core'
 import type { Server } from 'http'
 import { OpenTelemetryModule } from 'nestjs-otel'
 import { LoggerModule } from 'nestjs-pino'
-import { JwtAuthModule, JwtAuthGuard } from '@libs/auth'
+import { JwtAuthGuard, JwtAuthModule } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
 import { ClientExceptionFilter } from '@libs/exception'
 import { pinoLoggerModuleOption } from '@libs/logger'
@@ -50,7 +50,16 @@ import { WorkbookModule } from './workbook/workbook.module'
     AnnouncementModule,
     AssignmentModule,
     LoggerModule.forRoot(pinoLoggerModuleOption),
-    OpenTelemetryModule.forRoot()
+    OpenTelemetryModule.forRoot({
+      metrics: {
+        hostMetrics: true,
+        apiMetrics: {
+          enable: true,
+          ignoreRoutes: ['/favicon.ico'],
+          ignoreUndefinedRoutes: false
+        }
+      }
+    })
   ],
   controllers: [AppController],
   providers: [
