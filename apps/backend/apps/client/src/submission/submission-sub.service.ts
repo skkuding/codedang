@@ -10,6 +10,7 @@ import {
 import type { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
 import { ValidationError, validateOrReject } from 'class-validator'
+import { Span } from 'nestjs-otel'
 import {
   testKey,
   testcasesKey,
@@ -192,6 +193,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     return res
   }
 
+  @Span()
   async handleJudgerMessage(msg: JudgerResponse): Promise<void> {
     const status = Status(msg.resultCode)
 
@@ -219,6 +221,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     await this.updateTestcaseJudgeResult(submissionResult)
   }
 
+  @Span()
   async handleJudgeError(
     status: ResultStatus,
     msg: JudgerResponse
@@ -260,6 +263,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       )
   }
 
+  @Span()
   async updateTestcaseJudgeResult(
     submissionResult: Partial<SubmissionResult> &
       Pick<SubmissionResult, 'result' | 'submissionId' | 'problemTestcaseId'>
@@ -283,6 +287,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     await this.updateSubmissionResult(submissionResult.submissionId)
   }
 
+  @Span()
   async updateSubmissionResult(submissionId: number): Promise<void> {
     const submission = await this.prisma.submission.findUnique({
       where: {
@@ -389,6 +394,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
    * 7. `contestProblemRecord`를 `upsert()`하여 참가자의 문제 해결 기록을 갱신합니다.
    * 8. 참가자의 전체 점수를 다시 계산하고, `contestRecord`에 반영합니다.
    */
+  @Span()
   async updateContestRecord(
     submission: Pick<
       Submission,
@@ -579,6 +585,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     })
   }
 
+  @Span()
   async calculateAssignmentSubmissionScore(
     submission: Pick<
       Submission,
@@ -786,6 +793,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     })
   }
 
+  @Span()
   async updateProblemAccepted(id: number, isAccepted: boolean): Promise<void> {
     const data: {
       submissionCount: { increment: number }

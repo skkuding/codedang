@@ -42,7 +42,6 @@
     "@opentelemetry/exporter-metrics-otlp-grpc": "^0.200.0",
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.200.0",
     "@opentelemetry/host-metrics": "^0.36.0",
-    "@opentelemetry/instrumentation-amqplib": "^0.47.0",
     "@opentelemetry/instrumentation-express": "^0.48.0",
     "@opentelemetry/instrumentation-http": "^0.200.0",
     "@opentelemetry/instrumentation-pino": "^0.47.0",

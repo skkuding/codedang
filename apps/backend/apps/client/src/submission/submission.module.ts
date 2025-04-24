@@ -9,9 +9,9 @@ import { ProblemModule } from '@client/problem/problem.module'
 import { SubmissionPublicationService } from './submission-pub.service'
 import { SubmissionSubscriptionService } from './submission-sub.service'
 import {
-  AssignmentSubmissionController,
   ContestSubmissionController,
-  SubmissionController
+  SubmissionController,
+  AssignmentSubmissionController
 } from './submission.controller'
 import { SubmissionService } from './submission.service'
 
