@@ -15,8 +15,11 @@ import {
 } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { Snippet } from './class/create-submission.dto'
-import { JudgeRequest, UserTestcaseJudgeRequest } from './class/judge-request'
+import { Snippet } from './class/rabbitmq-create-submission.dto'
+import {
+  JudgeRequest,
+  UserTestcaseJudgeRequest
+} from './class/rabbitmq-judge-request'
 
 @Injectable()
 export class SubmissionPublicationService {
@@ -50,7 +53,8 @@ export class SubmissionPublicationService {
     submission: Submission | TestSubmission,
     isTest = false,
     isUserTest = false,
-    userTestcases?: { id: number; in: string; out: string }[]
+    userTestcases?: { id: number; in: string; out: string }[],
+    isRejudge = false
   ): Promise<void> {
     const problem = await this.prisma.problem.findUnique({
       where: { id: submission.problemId },
@@ -87,7 +91,7 @@ export class SubmissionPublicationService {
       messageId: String(submission.id),
       persistent: true,
       type: this.calculateMessageType(isTest, isUserTest),
-      priority: this.calculateMessagePriority(isTest, isUserTest),
+      priority: this.calculateMessagePriority(isTest, isUserTest, isRejudge),
       headers: carrier
     })
     span.end()
@@ -122,8 +126,17 @@ export class SubmissionPublicationService {
    * @param isTest - 테스트 제출 여부
    * @param isUserTest - 사용자 정의 테스트 케이스 제출 여부
    */
-  private calculateMessagePriority(isTest: boolean, isUserTest: boolean) {
+  private calculateMessagePriority(
+    isTest: boolean,
+    isUserTest: boolean,
+    isRejudge: boolean
+  ) {
     const msgType = this.calculateMessageType(isTest, isUserTest)
+
+    // 재채점 메시지 우선순위 낮게 설정
+    if (isRejudge) {
+      return MESSAGE_PRIORITY_LOW
+    }
 
     switch (msgType) {
       case JUDGE_MESSAGE_TYPE:
