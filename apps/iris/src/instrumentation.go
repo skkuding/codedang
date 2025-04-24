@@ -71,7 +71,6 @@ func newResource(ctx context.Context, serviceName, serviceVersion string) (*reso
 		resource.WithAttributes(
 			semconv.ServiceName(serviceName),
 			semconv.ServiceVersion(serviceVersion),
-			semconv.DeploymentEnvironment(os.Getenv("APP_ENV")),
 		),
 		resource.WithProcess(),
 		resource.WithHost(),
