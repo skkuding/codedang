@@ -205,3 +205,7 @@ func GetCPUMeter(meter metric.Meter, duration time.Duration) {
 		log.Fatalln(err, "failed to create CPU meter")
 	}
 }
+
+func GetSemanticSpanName(packageName, functionName string) string {
+	return fmt.Sprintf("%s:%s:%s", "IRIS", packageName, functionName)
+}

@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	instrumentation "github.com/skkuding/codedang/apps/iris/src"
 	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/common/result"
 	"github.com/skkuding/codedang/apps/iris/src/loader"
@@ -17,7 +18,6 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"github.com/skkuding/codedang/apps/iris/src/utils"
-	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -86,6 +86,7 @@ type JudgeHandler[C any, E any] struct {
 	testcaseManager testcase.TestcaseManager
 	file            file.FileManager
 	logger          logger.Logger
+	tracer          trace.Tracer
 }
 
 func NewJudgeHandler[C any, E any](
@@ -93,29 +94,30 @@ func NewJudgeHandler[C any, E any](
 	testcaseManager testcase.TestcaseManager,
 	file file.FileManager,
 	logger logger.Logger,
+	tracer trace.Tracer,
 ) *JudgeHandler[C, E] {
 	return &JudgeHandler[C, E]{
 		sandbox,
 		testcaseManager,
 		file,
 		logger,
+		tracer,
 	}
 }
 
 // handle top layer logical flow
-func (j *JudgeHandler[C, E]) Handle(id string, data []byte, hidden bool, out chan JudgeResultMessage) {
+func (j *JudgeHandler[C, E]) Handle(id string, data []byte, hidden bool, out chan JudgeResultMessage, ctx context.Context) {
 	startedAt := time.Now()
-	tracer := otel.Tracer("Handle Tracer")
-	handleCtx, span := tracer.Start(
-		context.Background(),
-		"JUDGE Handler",
+	handleCtx, childSpan := j.tracer.Start(
+		ctx,
+		instrumentation.GetSemanticSpanName("judge-handler", "handle"),
 		trace.WithAttributes(attribute.Int("submissionId", func() int {
 			submissionId, _ := strconv.Atoi(id)
 			return submissionId
 		}()),
 		),
 	)
-	defer span.End()
+	defer childSpan.End()
 
 	//TODO: validation logic here
 	req := Request{}
@@ -250,16 +252,18 @@ func (j *JudgeHandler[C, E]) Handle(id string, data []byte, hidden bool, out cha
 
 	tcNum := tc.Count()
 	for i := 0; i < tcNum; i++ {
-		j.judgeTestcase(i, dir, validReq, tc.Elements[i], out)
+		j.judgeTestcase(ctx, i, dir, validReq, tc.Elements[i], out)
 		// j.logger.Log(logger.DEBUG, fmt.Sprintf("Testcase %d judged", i))
 	}
 }
 
 // wrapper to use goroutine
-func (j *JudgeHandler[C, E]) compile(traceCtx context.Context, out chan<- result.ChResult, dto sandbox.CompileRequest) {
-	tracer := otel.Tracer("Compile Tracer")
-	_, span := tracer.Start(traceCtx, "go:goroutine:compile")
-	defer span.End()
+func (j *JudgeHandler[C, E]) compile(ctx context.Context, out chan<- result.ChResult, dto sandbox.CompileRequest) {
+	_, childSpan := j.tracer.Start(
+		ctx,
+		instrumentation.GetSemanticSpanName("judge-handler", "compile"),
+	)
+	defer childSpan.End()
 
 	res, err := j.sandbox.Compile(dto)
 	if err != nil {
@@ -270,10 +274,12 @@ func (j *JudgeHandler[C, E]) compile(traceCtx context.Context, out chan<- result
 }
 
 // wrapper to use goroutine
-func (j *JudgeHandler[C, E]) getTestcase(traceCtx context.Context, out chan<- result.ChResult, problemId string, hidden bool) {
-	tracer := otel.Tracer("GetTestcase Tracer")
-	_, span := tracer.Start(traceCtx, "go:goroutine:getTestcase")
-	defer span.End()
+func (j *JudgeHandler[C, E]) getTestcase(ctx context.Context, out chan<- result.ChResult, problemId string, hidden bool) {
+	_, childSpan := j.tracer.Start(
+		ctx,
+		instrumentation.GetSemanticSpanName("judge-handler", "getTestcase"),
+	)
+	defer childSpan.End()
 
 	res, err := j.testcaseManager.GetTestcase(problemId, hidden)
 
@@ -284,8 +290,13 @@ func (j *JudgeHandler[C, E]) getTestcase(traceCtx context.Context, out chan<- re
 	out <- result.ChResult{Data: res}
 }
 
-func (j *JudgeHandler[C, E]) judgeTestcase(idx int, dir string, validReq *Request,
+func (j *JudgeHandler[C, E]) judgeTestcase(ctx context.Context, idx int, dir string, validReq *Request,
 	tc loader.Element, out chan JudgeResultMessage) {
+	_, childSpan := j.tracer.Start(
+		ctx,
+		instrumentation.GetSemanticSpanName("judge-handler", "judgeTestcase"),
+	)
+	defer childSpan.End()
 
 	res := JudgeResult{}
 

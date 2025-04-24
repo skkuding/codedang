@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+	instrumentation "github.com/skkuding/codedang/apps/iris/src"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
@@ -108,7 +109,7 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 	tracer := otel.Tracer("Producer")
 	spanCtx, childSpan := tracer.Start(
 		ctx,
-		"go:publish-message",
+		instrumentation.GetSemanticSpanName("producer", "publish"),
 		trace.WithLinks(trace.Link{SpanContext: span.SpanContext()}),
 		trace.WithSpanKind(trace.SpanKindProducer),
 	)

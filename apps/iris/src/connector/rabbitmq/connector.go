@@ -6,6 +6,7 @@ import (
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+	instrumentation "github.com/skkuding/codedang/apps/iris/src"
 	"github.com/skkuding/codedang/apps/iris/src/router"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"go.opentelemetry.io/otel"
@@ -79,7 +80,7 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 	tracer := otel.Tracer("Connector")
 	spanCtx, childSpan := tracer.Start(
 		extractedCtx,
-		"go:handle-message",
+		instrumentation.GetSemanticSpanName("connector", "handle"),
 		trace.WithLinks(trace.Link{SpanContext: span.SpanContext()}), // Client-API로부터 전달받은 SpanContext를 연결
 		trace.WithSpanKind(trace.SpanKindConsumer),
 	)
@@ -92,7 +93,7 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 		resultChan <- router.NewResponse("", nil, fmt.Errorf("message_id(message property) must not be empty")).Marshal()
 		close(resultChan)
 	} else {
-		go c.router.Route(message.Type, message.MessageId, message.Body, resultChan)
+		go c.router.Route(message.Type, message.MessageId, message.Body, resultChan, spanCtx)
 	}
 
 	for result := range resultChan {

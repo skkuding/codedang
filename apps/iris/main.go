@@ -68,6 +68,7 @@ func main() {
 	} else {
 		logProvider.Log(logger.INFO, "Cannot find OTEL_EXPORTER_OTLP_ENDPOINT_URL")
 	}
+	defaultTracer := otel.Tracer("default")
 
 	bucket := utils.Getenv("TESTCASE_BUCKET_NAME", "")
 	s3reader := loader.NewS3DataSource(bucket)
@@ -83,9 +84,10 @@ func main() {
 		testcaseManager,
 		fileManager,
 		logProvider,
+		defaultTracer,
 	)
 
-	routeProvider := router.NewRouter(judgeHandler, logProvider)
+	routeProvider := router.NewRouter(judgeHandler, logProvider, defaultTracer)
 
 	logProvider.Log(logger.INFO, "Server Started")
 
