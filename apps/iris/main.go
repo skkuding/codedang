@@ -54,19 +54,21 @@ func main() {
 		}()
 	}
 
-	otelExporterUrl := utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", "")
-	if otelExporterUrl != "" {
-		// TODO: ServiceName, ServiceVersion을 환경변수를 통해 동적으로 로드
-		shutdown, err := instrumentation.Init(ctx, "IRIS", "2.2.0", otelExporterUrl)
-		if err != nil {
-			logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to initialize instrumentation: %v", err))
-		}
-		defer shutdown(ctx)
+	if utils.Getenv("ENABLE_OPENTELEMETRY", "false") == "true" {
+		otelExporterUrl := utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", "")
+		if otelExporterUrl != "" {
+			// TODO: ServiceName, ServiceVersion을 환경변수를 통해 동적으로 로드
+			shutdown, err := instrumentation.Init(ctx, "IRIS", "2.2.0", otelExporterUrl)
+			if err != nil {
+				logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to initialize instrumentation: %v", err))
+			}
+			defer shutdown(ctx)
 
-		instrumentation.GetMemoryMeter(otel.Meter("memory-metrics"))
-		instrumentation.GetCPUMeter(otel.Meter("cpu-metrics"), 15*time.Second)
-	} else {
-		logProvider.Log(logger.INFO, "Cannot find OTEL_EXPORTER_OTLP_ENDPOINT_URL")
+			instrumentation.GetMemoryMeter(otel.Meter("memory-metrics"))
+			instrumentation.GetCPUMeter(otel.Meter("cpu-metrics"), 15*time.Second)
+		} else {
+			logProvider.Log(logger.INFO, "Cannot find OTEL_EXPORTER_OTLP_ENDPOINT_URL")
+		}
 	}
 	defaultTracer := otel.Tracer("default")
 
