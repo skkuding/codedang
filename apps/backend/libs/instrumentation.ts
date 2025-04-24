@@ -22,6 +22,7 @@ import {
 } from '@opentelemetry/semantic-conventions'
 import { PrismaInstrumentation } from '@prisma/instrumentation'
 import { request } from 'http'
+import type { OpenTelemetryModuleOptions } from 'nestjs-otel/lib/interfaces'
 
 /**
  * Instrumentation는 OpenTelemetry SDK를 초기화하고 설정하는 클래스입니다.
@@ -154,6 +155,19 @@ class Instrumentation {
   static async shutdown(): Promise<void> {
     if (Instrumentation.sdk) {
       await Instrumentation.sdk.shutdown()
+    }
+  }
+
+  public static getOpenTelemetryModuleOptions(): OpenTelemetryModuleOptions {
+    return {
+      metrics: {
+        hostMetrics: true,
+        apiMetrics: {
+          enable: true,
+          ignoreRoutes: ['/favicon.ico'],
+          ignoreUndefinedRoutes: false
+        }
+      }
     }
   }
 }
