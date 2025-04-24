@@ -17,12 +17,18 @@ import path from 'path'
 import sanitize from 'sanitize-filename'
 import {
   EntityNotExistException,
+  ForbiddenAccessException,
   UnprocessableDataException,
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { SubmissionPublicationService } from '@libs/rabbitmq'
-import { Language, ResultStatus } from '@admin/@generated'
+import {
+  ContestRole,
+  ResultStatus,
+  Role,
+  type Language
+} from '@admin/@generated'
 import { Snippet } from '@admin/problem/model/template.input'
 import { LanguageExtension } from './enum/language-extensions.enum'
 import { SubmissionOrder } from './enum/submission-order.enum'
@@ -231,7 +237,8 @@ export class SubmissionService {
   async getAssignmentLatestSubmission(
     assignmentId: number,
     userId: number,
-    problemId: number
+    problemId: number,
+    reqUserId: number
   ) {
     const submissionId = await this.prisma.submission.findFirst({
       where: {
@@ -249,7 +256,7 @@ export class SubmissionService {
       throw new EntityNotExistException('Submission')
     }
 
-    return this.getSubmission(submissionId.id)
+    return this.getSubmission(submissionId.id, reqUserId)
   }
 
   async getAssignmentLatestSubmissionInfo(
@@ -313,7 +320,7 @@ export class SubmissionService {
     }
   }
 
-  async getSubmission(id: number) {
+  async getSubmission(id: number, userId: number) {
     const submission = await this.prisma.submission.findFirst({
       where: {
         id
@@ -344,6 +351,60 @@ export class SubmissionService {
     if (!submission) {
       throw new EntityNotExistException('Submission')
     }
+
+    if (submission.assignment) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          },
+          select: {
+            groupId: true
+          }
+        })
+      ).map((group) => group.groupId)
+
+      if (
+        !leaderGroupIds.includes(submission.assignment.groupId) &&
+        userId !== submission.userId
+      ) {
+        throw new ForbiddenAccessException('Only allowed to access your course')
+      }
+    } else if (submission.contest) {
+      const contestIds = (
+        await this.prisma.userContest.findMany({
+          where: {
+            userId,
+            role: {
+              in: [ContestRole.Admin, ContestRole.Manager]
+            }
+          }
+        })
+      ).map((contest) => contest.contestId)
+
+      if (!contestIds.includes(submission.contest.id)) {
+        throw new ForbiddenAccessException(
+          'Only allowed to access your contest'
+        )
+      }
+    } else {
+      const userRole = await this.prisma.user.findFirst({
+        where: {
+          id: userId
+        },
+        select: {
+          role: true
+        }
+      })
+
+      if (userRole?.role !== Role.Admin && userRole?.role !== Role.SuperAdmin) {
+        throw new ForbiddenAccessException(
+          'Only Admin can access this submission'
+        )
+      }
+    }
+
     const code = plainToInstance(Snippet, submission.code)
     const results = submission.submissionResult.map((result) => {
       return {
