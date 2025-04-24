@@ -4,6 +4,8 @@ import (
 	"log"
 
 	"github.com/skkuding/codedang/apps/iris/src/common/constants"
+	"go.opentelemetry.io/contrib/bridges/otelzap"
+	"go.opentelemetry.io/otel/log/global"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -56,6 +58,17 @@ func NewLogger(mode Mode, isProduction bool) *logger {
 			log.Fatalf("can't initialize zap logger: %v", err)
 		}
 	}
+
+	loggerProvider := global.GetLoggerProvider()
+	// 기존 로거의 Core를 가져와 OTel Core와 Tee로 묶는 Core Wrapper 적용
+	zapLogger = zapLogger.WithOptions(zap.WrapCore(func(originalCore zapcore.Core) zapcore.Core {
+		otelCore := otelzap.NewCore(
+			"IRIS", // 로그의 scope_name에 사용될 이름
+			otelzap.WithLoggerProvider(loggerProvider),
+		)
+		return zapcore.NewTee(originalCore, otelCore)
+	}))
+
 	return &logger{zap: zapLogger}
 }
 
