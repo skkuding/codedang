@@ -77,12 +77,12 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 	extractedCtx := otel.GetTextMapPropagator().Extract(ctx, carrier)
 	span := trace.SpanFromContext(extractedCtx)
 	tracer := otel.Tracer("Connector")
-	_, childSpan := tracer.Start(
+	spanCtx, childSpan := tracer.Start(
 		extractedCtx,
 		"go:handle-message",
 		trace.WithLinks(trace.Link{SpanContext: span.SpanContext()}), // Client-API로부터 전달받은 SpanContext를 연결
+		trace.WithSpanKind(trace.SpanKindConsumer),
 	)
-	defer childSpan.End()
 
 	resultChan := make(chan []byte)
 	if message.Type == "" {
@@ -96,19 +96,19 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 	}
 
 	for result := range resultChan {
-		if err := c.producer.Publish(result, ctx, message.Type); err != nil {
-			c.logger.LogWithContext(logger.ERROR, fmt.Sprintf("failed to publish result: %s: %s", string(result), err), extractedCtx)
+		if err := c.producer.Publish(result, spanCtx, message.Type); err != nil {
+			c.logger.LogWithContext(logger.ERROR, fmt.Sprintf("failed to publish result: %s: %s", string(result), err), spanCtx)
 			// nack
 		} else {
-			c.logger.LogWithContext(logger.DEBUG, fmt.Sprintf("result published: %s", string(result)), extractedCtx)
+			c.logger.LogWithContext(logger.DEBUG, fmt.Sprintf("result published: %s", string(result)), spanCtx)
 		}
 	}
 
 	if err := message.Ack(false); err != nil {
-		c.logger.LogWithContext(logger.ERROR, fmt.Sprintf("failed to ack message: %s: %s", string(message.Body), err), extractedCtx)
+		c.logger.LogWithContext(logger.ERROR, fmt.Sprintf("failed to ack message: %s: %s", string(message.Body), err), spanCtx)
 		// retry
 	} else {
-		c.logger.LogWithContext(logger.DEBUG, "message ack", extractedCtx)
+		c.logger.LogWithContext(logger.DEBUG, "message ack", spanCtx)
 	}
-
+	childSpan.End()
 }
