@@ -6,6 +6,7 @@ import {
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-grpc'
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-grpc'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc'
+import { AmqplibInstrumentation } from '@opentelemetry/instrumentation-amqplib'
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { PinoInstrumentation } from '@opentelemetry/instrumentation-pino'
@@ -141,7 +142,8 @@ class Instrumentation {
         new HttpInstrumentation(),
         new ExpressInstrumentation(),
         new PrismaInstrumentation(),
-        new PinoInstrumentation()
+        new PinoInstrumentation(),
+        new AmqplibInstrumentation()
       ]
     })
 

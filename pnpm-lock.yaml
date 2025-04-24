@@ -146,6 +146,9 @@ importers:
       '@opentelemetry/host-metrics':
         specifier: ^0.36.0
         version: 0.36.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-amqplib':
+        specifier: ^0.47.0
+        version: 0.47.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-express':
         specifier: ^0.48.0
         version: 0.48.0(@opentelemetry/api@1.9.0)
@@ -3051,6 +3054,12 @@ packages:
   '@opentelemetry/instrumentation-amqplib@0.45.0':
     resolution: {integrity: sha512-SlKLsOS65NGMIBG1Lh/hLrMDU9WzTUF25apnV6ZmWZB1bBmUwan7qrwwrTu1cL5LzJWCXOdZPuTaxP7pC9qxnQ==}
     engines: {node: '>=14'}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-amqplib@0.47.0':
+    resolution: {integrity: sha512-bQboBxolOVDcD4l5QAwqKYpJVKQ8BW82+8tiD5uheu0hDuYgdmDziSAByc8yKS7xpkJw4AYocVP7JwSpQ1hgjg==}
+    engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
 
@@ -14856,6 +14865,15 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation': 0.56.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.32.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-amqplib@0.47.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.200.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.32.0
     transitivePeerDependencies:
       - supports-color
