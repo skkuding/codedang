@@ -511,34 +511,13 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
                 </Button>
               </div>
             </div>
-            <div className="flex flex-col gap-4 pl-10">
+            <div className="flex flex-col gap-4">
               {/* <span className="text-sm font-bold">Invitation Code Setting</span> */}
               <div className="flex items-center gap-4">
-                <span className="text-sm">
+                <span className="text-sm text-[#5C5C5C]">
                   Only approved accounts can enter
                 </span>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button type="button">
-                        <MdHelpOutline className="text-gray-400 hover:text-gray-700" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent
-                      side="top"
-                      className="mb-2 bg-white px-4 py-2 text-xs font-normal shadow-md"
-                    >
-                      When you upload a file, the existing whitelist is{' '}
-                      <span className="font-medium">deleted</span> and replaced.
-                      <br />
-                      You can download the sample file{' '}
-                      <a href="/Whitelist_Sample.csv" className="text-primary">
-                        here
-                      </a>
-                      .
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+
                 <Switch
                   checked={isApprovalRequired}
                   onCheckedChange={(checked) => {
@@ -593,19 +572,34 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
 
               {isApprovalRequired && (
                 <div className="flex flex-col gap-2">
-                  {studentIds.length > 0 && (
-                    <span className="text-xs">
+                  <ul className="list-inside list-disc text-xs text-[#8A8A8A]">
+                    <li>
+                      When you upload a new file, the existing whitelist is
+                      deleted and replaced.
+                      <div className="pl-4">
+                        You can download the sample file{' '}
+                        <a
+                          href="/Whitelist_Sample.csv"
+                          className="text-primary underline"
+                        >
+                          here
+                        </a>
+                        .
+                      </div>
+                    </li>
+                    <li>
                       Current Whitelist:{' '}
                       <CSVLink
                         data={studentIds.map((id) => ({ studentId: id }))}
                         headers={[{ label: 'studentId', key: 'studentId' }]}
                         filename={fileName}
-                        className="text-primary mb-2 text-xs"
+                        className="text-primary underline"
                       >
                         {fileName}
                       </CSVLink>
-                    </span>
-                  )}
+                    </li>
+                  </ul>
+
                   <label className="flex cursor-pointer items-center gap-2">
                     <IoCloudUpload size={20} />
                     <span className="text-xs">Upload File (Excel)</span>
