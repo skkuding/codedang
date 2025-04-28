@@ -16,7 +16,6 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { StorageService } from '@libs/storage'
 import { Snippet } from '../class/create-submission.dto'
 import { problems } from '../mock/problem.mock'
 import { submissions, submissionDto } from '../mock/submission.mock'
@@ -146,7 +145,6 @@ describe('SubmissionService', () => {
         { provide: PrismaService, useValue: db },
         ConfigService,
         TraceService,
-        { provide: StorageService, useValue: { readObject: () => [] } },
         {
           provide: SubmissionPublicationService,
           useFactory: () => ({ publishJudgeRequestMessage: () => [] })

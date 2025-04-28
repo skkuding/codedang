@@ -20,6 +20,7 @@ import { cn } from '@/libs/utils'
 import bottomCenterIcon from '@/public/icons/bottom-center.svg'
 import syncIcon from '@/public/icons/sync.svg'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
+import { useSidePanelTabStore } from '@/stores/editorTabs'
 import type { ProblemDetail, Contest } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import type { Route } from 'next'
@@ -85,9 +86,16 @@ export function EditorMainResizablePanel({
     setIsFrozen(now > freezeTimeDate)
   }, [freezeTime, contestId])
 
-  const [isSidePanelHidden, setIsSidePanelHidden] = useState(false)
   const [isBottomPanelHidden, setIsBottomPanelHidden] = useState(false)
+  const toggleBottomPanelVisibility = () => {
+    setIsBottomPanelHidden((prev) => !prev)
+  }
   const triggerRefresh = useLeaderboardSync((state) => state.triggerRefresh)
+  const {
+    isSidePanelHidden,
+    toggleSidePanelVisibility
+  }: { isSidePanelHidden: boolean; toggleSidePanelVisibility: () => void } =
+    useSidePanelTabStore()
 
   const pathname = usePathname()
   let base: string
@@ -226,7 +234,7 @@ export function EditorMainResizablePanel({
       <ResizablePanel defaultSize={65} className="relative bg-[#222939]">
         <HidePanelButton
           isPanelHidden={isSidePanelHidden}
-          setIsPanelHidden={setIsSidePanelHidden}
+          toggleIsPanelHidden={toggleSidePanelVisibility}
           direction="horizontal"
         />
         <div className="grid-rows-editor grid h-full">
@@ -248,11 +256,11 @@ export function EditorMainResizablePanel({
               <ResizablePanelGroup direction="vertical" className="h-32">
                 <ResizablePanel
                   defaultSize={60}
-                  className="relative !overflow-x-auto !overflow-y-auto"
+                  className="relative !overflow-x-auto overflow-y-auto"
                 >
                   <HidePanelButton
                     isPanelHidden={isBottomPanelHidden}
-                    setIsPanelHidden={setIsBottomPanelHidden}
+                    toggleIsPanelHidden={toggleBottomPanelVisibility}
                     direction="vertical"
                   />
                   <CodeEditorInEditorResizablePanel
@@ -307,13 +315,13 @@ function CodeEditorInEditorResizablePanel({
 
 interface HidePanelButtonProps {
   isPanelHidden: boolean
-  setIsPanelHidden: (isPanelHidden: boolean) => void
+  toggleIsPanelHidden: () => void
   direction: 'horizontal' | 'vertical'
 }
 
 function HidePanelButton({
   isPanelHidden,
-  setIsPanelHidden,
+  toggleIsPanelHidden,
   direction
 }: HidePanelButtonProps) {
   return (
@@ -342,7 +350,7 @@ function HidePanelButton({
             : '[clip-path:polygon(16%_0%,84%_0%,100%_100%,0%_100%)]'
         )}
         onClick={() => {
-          setIsPanelHidden(!isPanelHidden)
+          toggleIsPanelHidden()
         }}
       >
         {isPanelHidden ? (
