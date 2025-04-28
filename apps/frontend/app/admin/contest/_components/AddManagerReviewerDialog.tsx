@@ -23,7 +23,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem
 } from '@/components/shadcn/dropdown-menu'
-import { fetcher } from '@/libs/utils'
+import { cn, isHttpError, safeFetcherWithAuth } from '@/libs/utils'
 import { ChevronDown, Plus } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { FaTrash } from 'react-icons/fa6'
@@ -54,16 +54,18 @@ export function AddManagerReviewerDialog({
   const [values, setValues] = useState<string[]>(['']) // State to manage the values of each CommandInput
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null) // State to manage the focused input index
   const [dropdownValues, setDropdownValues] = useState<string[]>(['Manager']) // State to manage the selected dropdown values for each CommandInput
-  // const [selectedUserNum, setSelectedUserNum] = useState<number>(0)
+  const [selectedUserNum, setSelectedUserNum] = useState<number>(0)
   const [open, setOpen] = useState(false) // State to manage the open state of the dialog
   const [users, setUsers] = useState<ContestManagerReviewer[]>([]) // State to manage the list of users
+  const [errors, setErrors] = useState<string[]>([]) // State to track errors for each input
 
   useEffect(() => {
     if (open) {
       setValues([''])
       setDropdownValues(['Manager'])
       setInputCount(1)
-      // setSelectedUserNum(0)
+      setSelectedUserNum(0)
+      setErrors([]) // Reset errors when dialog opens
     }
   }, [open])
 
@@ -73,8 +75,14 @@ export function AddManagerReviewerDialog({
       newValues[index] = value
       return newValues
     })
+    setErrors((prevErrors) => {
+      const newErrors = [...prevErrors]
+      newErrors[index] = '' // Clear error when value changes
+      return newErrors
+    })
   }
 
+  // Dropdown 버튼
   const handleDropdownChange = (index: number, value: string) => {
     setDropdownValues((prevValues) => {
       const newValues = [...prevValues]
@@ -83,12 +91,15 @@ export function AddManagerReviewerDialog({
     })
   }
 
+  // Trash 버튼
   const handleDeleteInput = (index: number) => {
     setValues((prevValues) => prevValues.filter((_, i) => i !== index))
     setDropdownValues((prevValues) => prevValues.filter((_, i) => i !== index))
+    setErrors((prevErrors) => prevErrors.filter((_, i) => i !== index))
     setInputCount((prevCount) => prevCount - 1)
   }
 
+  // Save 버튼
   const handleSave = () => {
     const newManagers: ContestManagerReviewer[] = values.map((email, index) => {
       const user = users.find((user) => user.email === email)
@@ -104,37 +115,63 @@ export function AddManagerReviewerDialog({
     setOpen(false)
   }
 
+  // Add 버튼
   const handleAddInput = () => {
     setInputCount((prevCount) => prevCount + 1)
     setValues((prevValues) => [...prevValues, ''])
     setDropdownValues((prevValues) => [...prevValues, 'Manager'])
+    setErrors((prevErrors) => [...prevErrors, ''])
   }
 
-  useEffect(() => {
-    async function fetchData() {
-      const res: UserResInterface = await fetcher
+  const fetchUserData = async (
+    email: string,
+    index: number,
+    dropdownValue: string
+  ) => {
+    try {
+      const res: UserResInterface = await safeFetcherWithAuth
         .get('user/email', {
           searchParams: {
-            email: values[values.length - 1]
+            email
           }
         })
         .json()
-      if (!res.id) {
-        return
-      }
+      console.log('User data fetched:', res)
       setUsers((prevUsers) => {
         const newUser = {
           id: res.id,
-          email: values[values.length - 1],
+          email,
           username: res.username,
           realName: res.userProfile.realName,
-          type: dropdownValues[dropdownValues.length - 1]
+          type: dropdownValue
         }
         return [...prevUsers, newUser]
       })
+      setSelectedUserNum((prevCount) => prevCount + 1)
+      setErrors((prevErrors) => {
+        const newErrors = [...prevErrors]
+        newErrors[index] = '' // Clear error if user is found
+        return newErrors
+      })
+    } catch (error) {
+      if (isHttpError(error) && error.response.status === 404) {
+        console.error('Error fetching user data:', error.response.status)
+        setErrors((prevErrors) => {
+          const newErrors = [...prevErrors]
+          newErrors[index] = 'No user exists with this email' // Set error message
+          return newErrors
+        })
+      }
+      if (isHttpError(error) && error.response.status === 400) {
+        console.error('Error fetching user data:', error.response.status)
+        setErrors((prevErrors) => {
+          const newErrors = [...prevErrors]
+          newErrors[index] = 'Invalid email format' // Set error message
+          return newErrors
+        })
+      }
     }
-    fetchData()
-  }, [values])
+  }
 
   const hasDuplicate = (value: string, index: number) =>
     values.filter((v, i) => v === value && i !== index).length > 0
@@ -150,19 +187,18 @@ export function AddManagerReviewerDialog({
           <div className="text-sm font-bold">Add</div>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[580px] px-10 py-[60px]">
+      <DialogContent className="max-w-[580px] px-10 py-[60px] sm:rounded-2xl">
         <DialogHeader className="justify-center gap-7">
           <DialogTitle className="text-center text-2xl">
             Add Contest Manager / Reviewer
           </DialogTitle>
-          {/* <DialogDescription
+          <DialogDescription
             className={cn(
               selectedUserNum > 0 ? 'text-primary' : 'text-[#9B9B9B]'
             )}
           >
             {`${selectedUserNum} user(s) selected`}
-          </DialogDescription> */}
-          <DialogDescription />
+          </DialogDescription>
         </DialogHeader>
 
         <Command className="gap-[6px]">
@@ -201,10 +237,11 @@ export function AddManagerReviewerDialog({
                                 onSelect={() => {
                                   handleValueChange(index, emailSuggestion)
                                   setFocusedIndex(null)
-
-                                  // setSelectedUserNum(
-                                  //   (prevCount) => prevCount + 1
-                                  // )
+                                  fetchUserData(
+                                    emailSuggestion,
+                                    index,
+                                    dropdownValues[index]
+                                  ) // fetch user data only when CommandItem is selected
                                 }}
                               >
                                 <span className="ml-5">{emailSuggestion}</span>
@@ -254,9 +291,15 @@ export function AddManagerReviewerDialog({
                     className="h-10 w-10 p-0"
                     onClick={() => handleDeleteInput(index)}
                   >
-                    <FaTrash className="h-5 w-5 text-[#B0B0B0]" />
+                    <FaTrash className="h-5 w-5 text-[#9B9B9B]" />
                   </Button>
                 </div>
+                {errors[index] && (
+                  <div className="flex items-center gap-1">
+                    <PiWarningFill size={14} className="text-error" />
+                    <p className="text-error mt-1 text-xs">{errors[index]}</p>
+                  </div>
+                )}
                 {hasDuplicate(values[index], index) && (
                   <div className="flex items-center gap-1">
                     <PiWarningFill size={14} className="text-error" />
