@@ -1,0 +1,92 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "k6: Run Login Test (dotenv)",
+      "type": "shell",
+      "command": "npx", // npx를 통해 dotenv-cli 실행
+      "args": [
+        "dotenv-cli",
+        "-e",
+        "${workspaceFolder}/loadtest/.env.development", // 프로젝트 루트의 .env 파일 지정
+        "--", // dotenv-cli 인수와 k6 인수 분리
+        "k6", // 실행할 명령어
+        "run",
+        "--out",
+        "experimental-opentelemetry",
+        "${workspaceFolder}/loadtest/scripts/login.ts"
+      ],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "k6: Run Signup Test (dotenv)",
+      "type": "shell",
+      "command": "npx",
+      "args": [
+        "dotenv-cli",
+        "-e",
+        "${workspaceFolder}/loadtest/.env.development",
+        "--",
+        "k6",
+        "run",
+        "--out",
+        "experimental-opentelemetry",
+        "${workspaceFolder}/loadtest/scripts/signup.ts"
+      ],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "k6: Run Submission Test (dotenv)",
+      "type": "shell",
+      "command": "npx",
+      "args": [
+        "dotenv-cli",
+        "-e",
+        "${workspaceFolder}/loadtest/.env.development",
+        "--",
+        "k6",
+        "run",
+        "--out",
+        "experimental-opentelemetry",
+        "${workspaceFolder}/loadtest/scripts/submission/index.ts"
+      ],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    }
+  ]
+}
