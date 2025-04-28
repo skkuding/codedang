@@ -36,18 +36,11 @@ function SummarySection({ buttonName, maxChar }: SummarySectionProps) {
   const { register, watch, setValue } = useFormContext()
 
   const [inputCount, setInputCount] = useState(0)
+  const watchedValue = watch(`summary.${buttonName}`) // Watch the specific field value
 
   useEffect(() => {
-    const subscription = watch(
-      (value) => {
-        setInputCount(value?.summary?.[buttonName]?.length || 0)
-      },
-      { name: `summary.${buttonName}` }
-    )
-    return () => {
-      subscription.unsubscribe() // Unsubscribe to avoid memory leaks
-    }
-  }, [watch, buttonName])
+    setInputCount(watchedValue?.length || 0) // Update inputCount after rendering
+  }, [watchedValue])
 
   return (
     <div

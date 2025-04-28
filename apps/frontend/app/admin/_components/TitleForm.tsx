@@ -21,16 +21,11 @@ export function TitleForm({ placeholder, className }: TitleFormProps) {
   } = useFormContext()
   // NOTE: Contest Title Form은 최대 길이 120 (Assignment 쪽도 피그마상 120으로 확인해서 우선 120으로 설정)
   const [inputCount, setInputCount] = useState(0)
+  const watchedValue = watch('title') // Watch the specific field value
 
   useEffect(() => {
-    const subscription = watch(
-      (value) => {
-        setInputCount(value.title?.length || 0)
-      },
-      { name: 'title' }
-    )
-    return () => subscription.unsubscribe()
-  }, [])
+    setInputCount(watchedValue?.length || 0) // Update inputCount after rendering
+  }, [watchedValue])
 
   return (
     <div className={cn(className, 'flex w-full flex-col')}>
