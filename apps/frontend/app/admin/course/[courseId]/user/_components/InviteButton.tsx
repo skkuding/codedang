@@ -86,26 +86,28 @@ export function InviteButton({ onSuccess, params }: InviteButtonProps) {
       <Button
         type="button"
         onClick={() => setIsAlertDialogOpen(true)}
-        className="flex gap-2"
+        className="flex items-center gap-2"
       >
         <FaCirclePlus />
         Invite
       </Button>
       <AlertDialog open={isAlertDialogOpen} onOpenChange={handleOpenChange}>
-        <AlertDialogContent className="max-w-lg p-8">
+        <AlertDialogContent className="m-0 flex h-[710px] w-[580px] flex-col p-0">
           <AlertDialogCancel className="absolute right-4 top-4 border-none">
             <FiX className="h-5 w-5" />
           </AlertDialogCancel>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="mb-4 text-xl">Invite</AlertDialogTitle>
-          </AlertDialogHeader>
-          <div className="flex flex-col gap-3">
-            <InviteManually courseId={courseId} />
-            <Separator className="my-6" />
+          <div className="flex justify-center">
+            <h2 className="m-0 mb-[28px] pt-[60px] text-center text-xl font-bold">
+              Invite Member
+            </h2>
+          </div>
+
+          <div className="flex flex-col gap-6">
             <InviteByCode
               courseId={courseId}
               isAlertDialogOpen={isAlertDialogOpen}
             />
+            <InviteManually courseId={courseId} />
           </div>
         </AlertDialogContent>
       </AlertDialog>
@@ -215,7 +217,7 @@ function InviteManually({ courseId }: InviteManuallyProps) {
       aria-label="Invite user"
       className="flex flex-col gap-3"
     >
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-4 pl-10">
         <span className="text-base font-bold">Invite Manually</span>
         <div className="mt-4 flex justify-start gap-4">
           <div className="flex flex-col">
@@ -431,9 +433,9 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
         handleUpdateButtonClick()
       }}
       aria-label="Invite user"
-      className="flex flex-col gap-3"
+      className="flex flex-col gap-6"
     >
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4 pl-10">
         <div className="flex items-center gap-4">
           <span className="text-base font-bold">Invite by Invitation Code</span>
           <Switch
@@ -483,68 +485,36 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
         </AlertDialog>
 
         {isInviteByCodeEnabled && (
-          <div className="flex flex-col gap-6">
-            <div className="flex justify-start gap-4">
-              <Input
-                id="issueInvitation"
-                className="w-[194px]"
-                readOnly
-                {...register('issueInvitation')}
-              />
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2 pl-10">
+              {getValues('issueInvitation')
+                ?.split('')
+                .map((char, index) => (
+                  <div
+                    key={index}
+                    className="flex h-[42px] w-[42px] items-center justify-center rounded bg-gray-100 text-lg text-[#5C5C5C]"
+                  >
+                    {char}
+                  </div>
+                ))}
               <div className="flex gap-2">
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      type="button"
-                      className="bg-primary hover:bg-primary-strong px-6"
-                    >
-                      <RxReload size={17} strokeWidth={0.5} />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="max-w-lg p-8">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="mb-4 text-xl">
-                        Update Invitation Code
-                      </AlertDialogTitle>
-                    </AlertDialogHeader>
-                    <AlertDialogDescription>
-                      The previous invitation code will no longer be available.
-                    </AlertDialogDescription>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel className="px-4 py-2 text-neutral-400">
-                        Cancel
-                      </AlertDialogCancel>
-                      <AlertDialogAction asChild>
-                        <Button
-                          type="button"
-                          onClick={() => handleUpdateButtonClick()}
-                        >
-                          Ok
-                        </Button>
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
                 <Button
                   type="button"
-                  className="bg-primary hover:bg-primary-strong px-6"
+                  className="flex h-[42px] w-[60px] items-center justify-center rounded-[21px] bg-gray-300 hover:bg-gray-400"
                   onClick={() => {
                     const invitationCode = getValues('issueInvitation') // 현재 입력된 값 가져오기
                     toast.success('Copied Successfully')
                     navigator.clipboard.writeText(invitationCode) // 클립보드에 복사
                   }}
                 >
-                  <IoCopyOutline
-                    size={20}
-                    className="h-5 w-5 stroke-current text-white drop-shadow-md filter"
-                  />
+                  <IoCopyOutline size={20} className="text-white" />
                 </Button>
               </div>
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-4 pl-10">
               {/* <span className="text-sm font-bold">Invitation Code Setting</span> */}
-              <div className="flex gap-2">
-                <span className="text-sm font-bold">
+              <div className="flex items-center gap-4">
+                <span className="text-sm">
                   Only approved accounts can enter
                 </span>
                 <TooltipProvider>
