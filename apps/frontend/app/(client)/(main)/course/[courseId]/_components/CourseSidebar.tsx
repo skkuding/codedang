@@ -59,6 +59,16 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
           fill={getActiveColor(pathname, `/course/${courseId}/assignment`)}
         />
       )
+    },
+    // TODO: Exercise ICON 확정되면 변경할 것
+    {
+      name: 'Exercise',
+      path: `/course/${courseId}/exercise` as const,
+      icon: (
+        <AssignmentIcon
+          fill={getActiveColor(pathname, `/course/${courseId}/exercise`)}
+        />
+      )
     }
     // {
     //   name: 'Exam',

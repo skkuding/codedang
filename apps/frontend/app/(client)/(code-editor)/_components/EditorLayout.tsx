@@ -110,7 +110,15 @@ export async function EditorLayout({
         contestId={contestId}
         courseId={courseId}
         assignmentId={assignmentId}
-        enableCopyPaste={contest ? contest.enableCopyPaste : true}
+        enableCopyPaste={(() => {
+          if (contest) {
+            return contest.enableCopyPaste
+          } else if (assignment) {
+            return assignment.enableCopyPaste
+          } else {
+            return true
+          }
+        })()}
       >
         {children}
       </EditorMainResizablePanel>
