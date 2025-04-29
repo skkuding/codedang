@@ -1,6 +1,6 @@
 # Bucket for internal files, such as configuration files
 resource "aws_s3_bucket" "internal" {
-  bucket = "codedang-internal"
+  bucket = "codedang-internal-rc"
 
   tags = {
     Name = "Codedang-Internal"
