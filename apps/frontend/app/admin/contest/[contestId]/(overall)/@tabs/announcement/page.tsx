@@ -63,8 +63,9 @@ export default function AdminAnnouncementPage() {
   const onSubmitAnnouncement: SubmitHandler<CreateAnnouncementInput> = async (
     data
   ) => {
+    console.log('problem order: ', data.problemOrder)
     try {
-      await createAnnouncement({
+      const response = await createAnnouncement({
         variables: {
           contestId,
           input: {
@@ -74,6 +75,7 @@ export default function AdminAnnouncementPage() {
         }
       })
       resetField('content')
+      console.log('Mutation response: ', response)
       toast.success('Create Announcement successfully!')
     } catch (error) {
       //TODO: error handling
