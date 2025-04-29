@@ -53,7 +53,8 @@ const assignment: Assignment = {
   assignmentProblem: [],
   week: 1,
   autoFinalizeScore: false,
-  isFinalScoreVisible: false
+  isFinalScoreVisible: false,
+  isExercise: false
 }
 
 const assignmentWithCount = {
@@ -96,7 +97,8 @@ const assignmentWithParticipants: AssignmentWithParticipants = {
   participants: 10,
   week: 1,
   autoFinalizeScore: false,
-  isFinalScoreVisible: false
+  isFinalScoreVisible: false,
+  isExercise: false
 }
 
 const group: Group = {
@@ -295,7 +297,7 @@ describe('AssignmentService', () => {
     it('should return an array of assignments', async () => {
       db.assignment.findMany.resolves([assignmentWithCount])
 
-      const res = await service.getAssignments(5, 2, 0)
+      const res = await service.getAssignments(5, 2, 0, false)
       expect(res).to.deep.equal([assignmentWithParticipants])
     })
   })
