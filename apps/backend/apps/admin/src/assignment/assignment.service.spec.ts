@@ -77,7 +77,8 @@ const assignmentWithCount = {
   },
   week: 1,
   autoFinalizeScore: false,
-  isFinalScoreVisible: false
+  isFinalScoreVisible: false,
+  isExercise: false
 }
 
 const assignmentWithParticipants: AssignmentWithParticipants = {
