@@ -163,8 +163,7 @@ function InviteManually({ courseId }: InviteManuallyProps) {
           color: '#0973DC', // 진한 파란색 텍스트
           borderRadius: '1000px',
           border: '1px solid rgba(255, 255, 255, 0.10)',
-          maxWidth: '360px',
-          width: '100%'
+          maxWidth: '200px'
         },
         closeButton: false
       })
@@ -194,7 +193,6 @@ function InviteManually({ courseId }: InviteManuallyProps) {
               : 'Student'
           }
         ])
-        toast.success('Invited Successfully!')
       } catch {
         toast.error('Failed to invite user')
       }
@@ -539,7 +537,8 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
                         background: '#F0F8FF', // 연한 파란색 (Primary Light 느낌)
                         color: '#0973DC', // 진한 파란색 텍스트
                         borderRadius: '1000px',
-                        border: '1px solid rgba(255, 255, 255, 0.10)'
+                        border: '1px solid rgba(255, 255, 255, 0.10)',
+                        maxWidth: '200px'
                       },
                       closeButton: false
                     })
