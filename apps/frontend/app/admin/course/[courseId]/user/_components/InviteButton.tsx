@@ -86,26 +86,28 @@ export function InviteButton({ onSuccess, params }: InviteButtonProps) {
       <Button
         type="button"
         onClick={() => setIsAlertDialogOpen(true)}
-        className="flex gap-2"
+        className="flex items-center gap-2"
       >
         <FaCirclePlus />
         Invite
       </Button>
       <AlertDialog open={isAlertDialogOpen} onOpenChange={handleOpenChange}>
-        <AlertDialogContent className="max-w-lg p-8">
+        <AlertDialogContent className="m-0 flex h-[710px] w-[580px] max-w-none flex-col p-0">
           <AlertDialogCancel className="absolute right-4 top-4 border-none">
             <FiX className="h-5 w-5" />
           </AlertDialogCancel>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="mb-4 text-xl">Invite</AlertDialogTitle>
-          </AlertDialogHeader>
-          <div className="flex flex-col gap-3">
-            <InviteManually courseId={courseId} />
-            <Separator className="my-6" />
+          <div className="flex justify-center">
+            <h2 className="m-0 mb-[28px] pt-[60px] text-center text-xl font-bold">
+              Invite Member
+            </h2>
+          </div>
+
+          <div className="flex flex-col gap-6">
             <InviteByCode
               courseId={courseId}
               isAlertDialogOpen={isAlertDialogOpen}
             />
+            <InviteManually courseId={courseId} />
           </div>
         </AlertDialogContent>
       </AlertDialog>
@@ -135,7 +137,7 @@ interface UserInfo {
 function InviteManually({ courseId }: InviteManuallyProps) {
   const roles: MemberRole[] = ['Instructor', 'Student']
   const [userId, setUserId] = useState(0)
-  const [invitedList, setInvitedList] = useState<string[]>([''])
+  const [invitedList, setInvitedList] = useState<string[]>([])
 
   const [inviteUser] = useMutation(INVITE_USER)
 
@@ -148,6 +150,15 @@ function InviteManually({ courseId }: InviteManuallyProps) {
     if (res.ok) {
       const userInfo: UserInfo = await res.json()
       setUserId(userInfo.id)
+      toast.success('Invited Successfully !', {
+        style: {
+          background: '#F0F8FF', // 연한 파란색 (Primary Light 느낌)
+          color: '#0973DC', // 진한 파란색 텍스트
+          borderRadius: '1000px',
+          border: '1px solid rgba(255, 255, 255, 0.10)'
+        },
+        closeButton: false
+      })
     } else {
       toast.error('Failed to find user')
     }
@@ -169,7 +180,7 @@ function InviteManually({ courseId }: InviteManuallyProps) {
           ...prevList,
           `${result.data?.inviteUser.user.email} - ${result.data?.inviteUser.isGroupLeader ? 'Instructor' : 'Student'}`
         ])
-        toast.success('Success to invite user')
+        toast.success('Invited Successfully!')
       } catch {
         toast.error('Failed to invite user')
       }
@@ -213,75 +224,82 @@ function InviteManually({ courseId }: InviteManuallyProps) {
         findHandleSubmit(onFind)()
       }}
       aria-label="Invite user"
-      className="flex flex-col gap-3"
+      className="flex flex-col gap-4 pl-10"
     >
-      <div className="flex flex-col gap-2">
-        <span className="text-base font-bold">Invite Manually</span>
-        <div className="mt-4 flex justify-start gap-4">
-          <div className="flex flex-col">
-            <div className="flex justify-between">
-              <div className="flex items-center rounded-lg border border-gray-300 px-2">
-                <MdOutlineEmail className="h-8 w-12 text-gray-400" />
-                <Input
-                  id="email"
-                  {...findRegister('email')}
-                  placeholder="Email Address"
-                  className="border-none"
-                />
+      {/* 제목 + 선택된 유저 수 */}
+      <span className="text-base font-bold">Invite Manually</span>
+      <span className="text-sm text-gray-400">
+        {invitedList.length} user(s) selected
+      </span>
 
-                <Select
-                  value={
-                    inviteWatch('isGroupLeader') ? 'Instructor' : 'Student'
-                  }
-                  onValueChange={(value) => {
-                    inviteSetValue('isGroupLeader', value === 'Instructor')
-                  }}
-                >
-                  <SelectTrigger className="border-none text-gray-500">
-                    <SelectValue>
-                      {inviteWatch('isGroupLeader') ? 'Instructor' : 'Student'}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className="rounded-md border border-none bg-white shadow-md">
-                    {roles.map((role) => (
-                      <SelectItem key={role} value={role}>
-                        {role}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            {invitedList.length > 1 && (
-              <div className="flex flex-col rounded-md border border-gray-300">
-                {invitedList.map((user) => (
-                  <span key={user} className="ml-3 p-1 text-gray-500">
-                    {user}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-          <Button
-            type="submit"
-            className="bg-primary hover:bg-primary-strong ml-2 px-5"
+      {/* Email 입력 줄 */}
+      <div className="flex w-full max-w-[500px] flex-col gap-4">
+        <div className="flex h-[44px] items-center rounded-full border border-gray-300 px-4 py-2">
+          {/* 이메일 아이콘 */}
+          <MdOutlineEmail className="h-5 w-5 text-gray-400" />
+
+          {/* 이메일 인풋 */}
+          <Input
+            id="email"
+            {...findRegister('email')}
+            placeholder="Email Address"
+            className="flex-1 border-none !bg-transparent pl-2 text-sm placeholder:text-gray-400 autofill:!bg-transparent focus:outline-none focus:ring-0 focus-visible:border-none focus-visible:outline-none focus-visible:ring-0"
+          />
+
+          {/* 역할 선택 드롭다운 */}
+          <Select
+            value={inviteWatch('isGroupLeader') ? 'Instructor' : 'Student'}
+            onValueChange={(value) => {
+              inviteSetValue('isGroupLeader', value === 'Instructor')
+            }}
           >
-            Invite
-          </Button>
+            <SelectTrigger className="w-auto min-w-[80px] border-none bg-transparent text-sm text-gray-500 focus:outline-none">
+              <SelectValue placeholder="Student" />
+            </SelectTrigger>
+            <SelectContent className="rounded-lg bg-white shadow-md">
+              {roles.map((role) => (
+                <SelectItem key={role} value={role}>
+                  {role}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-        {findErrors.email && (
-          <ErrorMessage message={findErrors.email.message} />
-        )}
-        {inviteErrors.groupId && (
-          <ErrorMessage message={inviteErrors.groupId.message} />
-        )}
-        {inviteErrors.userId && (
-          <ErrorMessage message={inviteErrors.userId.message} />
-        )}
-        {inviteErrors.isGroupLeader && (
-          <ErrorMessage message={inviteErrors.isGroupLeader.message} />
-        )}
+
+        {/* Invite 버튼 */}
+        <Button
+          type="submit"
+          className="bg-primary hover:bg-primary-strong h-[44px] w-full rounded-full text-sm font-semibold text-white"
+        >
+          Invite
+        </Button>
       </div>
+
+      {/* 초대된 유저 리스트 */}
+      {invitedList.length > 0 && (
+        <div className="flex flex-col gap-2">
+          {invitedList.map((user) => (
+            <div
+              key={user}
+              className="rounded-lg bg-gray-100 px-4 py-2 text-gray-700"
+            >
+              {user}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 에러 메시지 */}
+      {findErrors.email && <ErrorMessage message={findErrors.email.message} />}
+      {inviteErrors.groupId && (
+        <ErrorMessage message={inviteErrors.groupId.message} />
+      )}
+      {inviteErrors.userId && (
+        <ErrorMessage message={inviteErrors.userId.message} />
+      )}
+      {inviteErrors.isGroupLeader && (
+        <ErrorMessage message={inviteErrors.isGroupLeader.message} />
+      )}
     </form>
   )
 }
@@ -431,9 +449,9 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
         handleUpdateButtonClick()
       }}
       aria-label="Invite user"
-      className="flex flex-col gap-3"
+      className="flex flex-col gap-6"
     >
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4 pl-10">
         <div className="flex items-center gap-4">
           <span className="text-base font-bold">Invite by Invitation Code</span>
           <Switch
@@ -483,92 +501,47 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
         </AlertDialog>
 
         {isInviteByCodeEnabled && (
-          <div className="flex flex-col gap-6">
-            <div className="flex justify-start gap-4">
-              <Input
-                id="issueInvitation"
-                className="w-[194px]"
-                readOnly
-                {...register('issueInvitation')}
-              />
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2 pl-10">
+              {getValues('issueInvitation')
+                ?.split('')
+                .map((char, index) => (
+                  <div
+                    key={index}
+                    className="flex h-[42px] w-[42px] items-center justify-center rounded bg-gray-100 text-lg text-[#5C5C5C]"
+                  >
+                    {char}
+                  </div>
+                ))}
               <div className="flex gap-2">
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      type="button"
-                      className="bg-primary hover:bg-primary-strong px-6"
-                    >
-                      <RxReload size={17} strokeWidth={0.5} />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="max-w-lg p-8">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="mb-4 text-xl">
-                        Update Invitation Code
-                      </AlertDialogTitle>
-                    </AlertDialogHeader>
-                    <AlertDialogDescription>
-                      The previous invitation code will no longer be available.
-                    </AlertDialogDescription>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel className="px-4 py-2 text-neutral-400">
-                        Cancel
-                      </AlertDialogCancel>
-                      <AlertDialogAction asChild>
-                        <Button
-                          type="button"
-                          onClick={() => handleUpdateButtonClick()}
-                        >
-                          Ok
-                        </Button>
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
                 <Button
                   type="button"
-                  className="bg-primary hover:bg-primary-strong px-6"
+                  className="flex h-[42px] w-[60px] items-center justify-center rounded-[21px] bg-gray-300 hover:bg-gray-400"
                   onClick={() => {
                     const invitationCode = getValues('issueInvitation') // 현재 입력된 값 가져오기
-                    toast.success('Copied Successfully')
+                    toast.success('Copied Successfully !', {
+                      style: {
+                        background: '#F0F8FF', // 연한 파란색 (Primary Light 느낌)
+                        color: '#0973DC', // 진한 파란색 텍스트
+                        borderRadius: '1000px',
+                        border: '1px solid rgba(255, 255, 255, 0.10)'
+                      },
+                      closeButton: false
+                    })
                     navigator.clipboard.writeText(invitationCode) // 클립보드에 복사
                   }}
                 >
-                  <IoCopyOutline
-                    size={20}
-                    className="h-5 w-5 stroke-current text-white drop-shadow-md filter"
-                  />
+                  <IoCopyOutline size={20} className="text-white" />
                 </Button>
               </div>
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-4">
               {/* <span className="text-sm font-bold">Invitation Code Setting</span> */}
-              <div className="flex gap-2">
-                <span className="text-sm font-bold">
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-[#5C5C5C]">
                   Only approved accounts can enter
                 </span>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button type="button">
-                        <MdHelpOutline className="text-gray-400 hover:text-gray-700" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent
-                      side="top"
-                      className="mb-2 bg-white px-4 py-2 text-xs font-normal shadow-md"
-                    >
-                      When you upload a file, the existing whitelist is{' '}
-                      <span className="font-medium">deleted</span> and replaced.
-                      <br />
-                      You can download the sample file{' '}
-                      <a href="/Whitelist_Sample.csv" className="text-primary">
-                        here
-                      </a>
-                      .
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+
                 <Switch
                   checked={isApprovalRequired}
                   onCheckedChange={(checked) => {
@@ -623,29 +596,48 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
 
               {isApprovalRequired && (
                 <div className="flex flex-col gap-2">
-                  {studentIds.length > 0 && (
-                    <span className="text-xs">
+                  <ul className="list-inside list-disc text-xs text-[#8A8A8A]">
+                    <li>
+                      When you upload a new file, the existing whitelist is
+                      deleted and replaced.
+                      <div className="pl-4">
+                        You can download the sample file{' '}
+                        <a
+                          href="/Whitelist_Sample.csv"
+                          className="text-primary underline"
+                        >
+                          here
+                        </a>
+                        .
+                      </div>
+                    </li>
+                    <li>
                       Current Whitelist:{' '}
                       <CSVLink
                         data={studentIds.map((id) => ({ studentId: id }))}
                         headers={[{ label: 'studentId', key: 'studentId' }]}
                         filename={fileName}
-                        className="text-primary mb-2 text-xs"
+                        className="text-primary underline"
                       >
                         {fileName}
                       </CSVLink>
-                    </span>
-                  )}
-                  <label className="flex cursor-pointer items-center gap-2">
-                    <IoCloudUpload size={20} />
-                    <span className="text-xs">Upload File (Excel)</span>
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept=".csv, .xlsx, .xls"
-                      onChange={handleFileUpload}
-                    />
-                  </label>
+                    </li>
+                  </ul>
+
+                  <div className="flex w-full">
+                    <label className="flex w-[500px] cursor-pointer items-center justify-center gap-[10px] rounded-full border border-[#D8D8D8] bg-white px-[28px] py-[12px]">
+                      <IoCloudUpload size={20} className="text-gray-700" />
+                      <span className="text-sm font-medium text-gray-700">
+                        Upload File (Excel)
+                      </span>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept=".csv, .xlsx, .xls"
+                        onChange={handleFileUpload}
+                      />
+                    </label>
+                  </div>
                 </div>
               )}
             </div>
