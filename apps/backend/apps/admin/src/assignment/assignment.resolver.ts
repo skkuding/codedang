@@ -41,9 +41,16 @@ export class AssignmentResolver {
     take: number,
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
-    cursor: number | null
+    cursor: number | null,
+    @Args('isExercise', { nullable: true, type: () => Boolean })
+    isExercise: boolean | null
   ) {
-    return await this.assignmentService.getAssignments(take, groupId, cursor)
+    return await this.assignmentService.getAssignments(
+      take,
+      groupId,
+      cursor,
+      isExercise
+    )
   }
 
   @Query(() => AssignmentWithParticipants)
@@ -141,13 +148,13 @@ export class AssignmentResolver {
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null
   ) {
-    return await this.assignmentService.getAssignmentSubmissionSummaryByUserId(
+    return await this.assignmentService.getAssignmentSubmissionSummaryByUserId({
       take,
       assignmentId,
       userId,
       problemId,
       cursor
-    )
+    })
   }
 
   @Mutation(() => DuplicatedAssignmentResponse)
