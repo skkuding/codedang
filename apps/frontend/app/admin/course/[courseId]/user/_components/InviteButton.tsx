@@ -150,6 +150,15 @@ function InviteManually({ courseId }: InviteManuallyProps) {
     if (res.ok) {
       const userInfo: UserInfo = await res.json()
       setUserId(userInfo.id)
+      toast.success('Invited Successfully !', {
+        style: {
+          background: '#F0F8FF', // 연한 파란색 (Primary Light 느낌)
+          color: '#0973DC', // 진한 파란색 텍스트
+          borderRadius: '1000px',
+          border: '1px solid rgba(255, 255, 255, 0.10)'
+        },
+        closeButton: false
+      })
     } else {
       toast.error('Failed to find user')
     }
@@ -171,7 +180,7 @@ function InviteManually({ courseId }: InviteManuallyProps) {
           ...prevList,
           `${result.data?.inviteUser.user.email} - ${result.data?.inviteUser.isGroupLeader ? 'Instructor' : 'Student'}`
         ])
-        toast.success('Success to invite user')
+        toast.success('Invited Successfully!')
       } catch {
         toast.error('Failed to invite user')
       }
@@ -234,7 +243,7 @@ function InviteManually({ courseId }: InviteManuallyProps) {
             id="email"
             {...findRegister('email')}
             placeholder="Email Address"
-            className="flex-1 border-none bg-transparent pl-2 text-sm placeholder:text-gray-400 focus:outline-none"
+            className="flex-1 border-none !bg-transparent pl-2 text-sm placeholder:text-gray-400 autofill:!bg-transparent focus:outline-none focus:ring-0 focus-visible:border-none focus-visible:outline-none focus-visible:ring-0"
           />
 
           {/* 역할 선택 드롭다운 */}
@@ -510,7 +519,15 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
                   className="flex h-[42px] w-[60px] items-center justify-center rounded-[21px] bg-gray-300 hover:bg-gray-400"
                   onClick={() => {
                     const invitationCode = getValues('issueInvitation') // 현재 입력된 값 가져오기
-                    toast.success('Copied Successfully')
+                    toast.success('Copied Successfully !', {
+                      style: {
+                        background: '#F0F8FF', // 연한 파란색 (Primary Light 느낌)
+                        color: '#0973DC', // 진한 파란색 텍스트
+                        borderRadius: '1000px',
+                        border: '1px solid rgba(255, 255, 255, 0.10)'
+                      },
+                      closeButton: false
+                    })
                     navigator.clipboard.writeText(invitationCode) // 클립보드에 복사
                   }}
                 >
