@@ -349,6 +349,7 @@ function HidePanelButton({
             ? '[clip-path:polygon(0%_0%,100%_16%,100%_84%,0%_100%)]'
             : '[clip-path:polygon(16%_0%,84%_0%,100%_100%,0%_100%)]'
         )}
+        onKeyDown={preventEnterKeyDown}
         onClick={() => {
           toggleIsPanelHidden()
         }}
@@ -375,4 +376,10 @@ function HidePanelButton({
       </Button>
     </div>
   )
+}
+
+const preventEnterKeyDown = (event: React.KeyboardEvent) => {
+  if (event.key === 'Enter') {
+    event.preventDefault()
+  }
 }
