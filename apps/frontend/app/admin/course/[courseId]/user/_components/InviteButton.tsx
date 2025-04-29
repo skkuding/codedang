@@ -134,11 +134,18 @@ interface UserInfo {
   id: number
 }
 
+interface InvitedUserDisplay {
+  email: string
+  role: 'Student' | 'Instructor'
+}
+
 function InviteManually({ courseId }: InviteManuallyProps) {
   const roles: MemberRole[] = ['Instructor', 'Student']
   const [userId, setUserId] = useState(0)
-  const [invitedList, setInvitedList] = useState<string[]>([])
 
+  const [invitedList, setInvitedList] = useState<
+    { email: string; role: 'Instructor' | 'Student' }[]
+  >([])
   const [inviteUser] = useMutation(INVITE_USER)
 
   const onFind: SubmitHandler<FindUserInput> = async (data) => {
@@ -155,7 +162,9 @@ function InviteManually({ courseId }: InviteManuallyProps) {
           background: '#F0F8FF', // 연한 파란색 (Primary Light 느낌)
           color: '#0973DC', // 진한 파란색 텍스트
           borderRadius: '1000px',
-          border: '1px solid rgba(255, 255, 255, 0.10)'
+          border: '1px solid rgba(255, 255, 255, 0.10)',
+          maxWidth: '360px',
+          width: '100%'
         },
         closeButton: false
       })
@@ -178,7 +187,12 @@ function InviteManually({ courseId }: InviteManuallyProps) {
         const result = await updatePromise
         setInvitedList((prevList) => [
           ...prevList,
-          `${result.data?.inviteUser.user.email} - ${result.data?.inviteUser.isGroupLeader ? 'Instructor' : 'Student'}`
+          {
+            email: result.data?.inviteUser.user.email ?? '',
+            role: result.data?.inviteUser.isGroupLeader
+              ? 'Instructor'
+              : 'Student'
+          }
         ])
         toast.success('Invited Successfully!')
       } catch {
@@ -280,10 +294,11 @@ function InviteManually({ courseId }: InviteManuallyProps) {
         <div className="flex flex-col gap-2">
           {invitedList.map((user) => (
             <div
-              key={user}
-              className="rounded-lg bg-gray-100 px-4 py-2 text-gray-700"
+              key={user.email}
+              className="flex h-[42px] w-[500px] items-start justify-between gap-[243px] rounded-full bg-gray-100 px-[36px] py-[10px] pr-[44px]"
             >
-              {user}
+              <span className="text-sm text-gray-800">{user.email}</span>
+              <span className="text-sm text-gray-400">{user.role}</span>
             </div>
           ))}
         </div>
