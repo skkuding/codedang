@@ -46,9 +46,7 @@ export interface ProblemScore {
 export class AssignmentService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAssignments(groupId: number, isExercise: boolean | null) {
-    isExercise = isExercise ?? false
-
+  async getAssignments(groupId: number, isExercise: boolean) {
     const assignments = await this.prisma.assignment.findMany({
       where: {
         groupId,
@@ -456,9 +454,8 @@ export class AssignmentService {
   async getMyAssignmentsSummary(
     groupId: number,
     userId: number,
-    isExercise: boolean | null
+    isExercise: boolean
   ) {
-    isExercise = isExercise ?? false
     const assignments = await this.prisma.assignment.findMany({
       where: {
         groupId,

@@ -27,11 +27,9 @@ export class AssignmentService {
     take: number,
     groupId: number,
     cursor: number | null,
-    isExercise: boolean | null
+    isExercise: boolean
   ) {
     const paginator = this.prisma.getPaginator(cursor)
-
-    isExercise = isExercise ?? false
 
     const assignments = await this.prisma.assignment.findMany({
       ...paginator,

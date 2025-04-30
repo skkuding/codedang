@@ -1,3 +1,4 @@
+import { DefaultValuePipe } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import {
   Assignment,
@@ -42,8 +43,12 @@ export class AssignmentResolver {
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
-    @Args('isExercise', { nullable: true, type: () => Boolean })
-    isExercise: boolean | null
+    @Args(
+      'isExercise',
+      { nullable: true, type: () => Boolean },
+      new DefaultValuePipe(false)
+    )
+    isExercise: boolean
   ) {
     return await this.assignmentService.getAssignments(
       take,
