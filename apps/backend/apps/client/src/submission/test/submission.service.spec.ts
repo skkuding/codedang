@@ -128,7 +128,8 @@ const mockAssignment: Assignment = {
   updateTime: new Date(Date.now() - 10000),
   week: 1,
   autoFinalizeScore: false,
-  isFinalScoreVisible: true
+  isFinalScoreVisible: true,
+  isExercise: false
 }
 const USERIP = '127.0.0.1'
 
