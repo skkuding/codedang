@@ -48,7 +48,7 @@ export function LeaderboardUnfreezeSwitchDialog({
       <DialogTrigger asChild>
         <Switch
           disabled={isUnfrozen}
-          checked={isUnfrozen}
+          checked={activated ? isUnfrozen : false}
           className={`h-[24px] w-[46px] aria-checked:bg-[#3581FA] ${!activated ? 'aria-[checked=false]:bg-[#C4C4C4]' : 'aria-[checked=false]:bg-[#80808014]'} `}
           thumbClassName="w-[18px] h-[18px] data-[state=checked]:translate-x-[22px] data-[state=unchecked]:translate-x-[2px]"
         />

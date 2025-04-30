@@ -56,7 +56,7 @@ export default function ContestLeaderBoard() {
       setDisableLeaderboard(false)
     }
   }, [fetchedContest])
-
+  console.log('contest leaderboard: ', contestLeaderboard.getContestLeaderboard)
   const isUnfrozen = !contestLeaderboard.getContestLeaderboard.isFrozen
 
   const [problemSize, setProblemSize] = useState(0)
