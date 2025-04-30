@@ -259,7 +259,7 @@ export function EditorHeader({
       toast.success('Successfully submitted the code')
       storeCodeToLocalStorage(code)
       const submission: Submission = await res.json()
-      console.log('submission: ', submission)
+
       setSubmissionId(submission.id)
       if (contestId) {
         queryClient.invalidateQueries({
