@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -26,8 +28,19 @@ const (
 	Stage      Env = "stage"
 )
 
-func main() {
+func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func main() {
 	// profile()
 	env := Env(utils.Getenv("APP_ENV", "stage"))
 	logProvider := logger.NewLogger(logger.Console, env == Production)
@@ -52,11 +65,25 @@ func main() {
 		}
 	} else {
 		logProvider.Log(logger.INFO, "Running in stage mode")
+		http.HandleFunc("/health", healthCheckHandler)
+		go func() {
+			if err := http.ListenAndServe("0.0.0.0:9999", nil); err != nil {
+				logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to start health checker: %v", err))
+			}
+		}()
 	}
 
 	bucket := utils.Getenv("TESTCASE_BUCKET_NAME", "")
-	s3reader := loader.NewS3DataSource(bucket)
-	database := loader.NewPostgresDataSource(ctx)
+	s3reader, err := loader.NewS3DataSource(bucket)
+	if err != nil {
+		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create S3 data source: %v", err))
+		return
+	}
+	database, err := loader.NewPostgresDataSource(ctx)
+	if err != nil {
+		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create Postgres data source: %v", err))
+		return
+	}
 	testcaseManager := testcase.NewTestcaseManager(s3reader, database)
 
 	fileManager := file.NewFileManager("/app/sandbox/results")

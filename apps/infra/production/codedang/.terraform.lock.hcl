@@ -5,6 +5,7 @@ provider "registry.terraform.io/cyrilgdn/rabbitmq" {
   version     = "1.8.0"
   constraints = "~> 1.8"
   hashes = [
+    "h1:hbzoPpKDY/ePtDcvdZPiq8RRQPgze265t2wWHPecpJo=",
     "h1:neLQrdEL+Hh/ulJzaptij9YBiFVKdskHHwOUPKk6Htk=",
     "zh:0a8bd3de84ccd39b55057403fd9d1adbb024caccfcffb879ac894858ba9f06a0",
     "zh:16f80a580d481970bbedf86e8e5da07078f0d7f1a8a86392e8ef6e1b9f4ca1d9",
@@ -25,7 +26,7 @@ provider "registry.terraform.io/cyrilgdn/rabbitmq" {
 
 provider "registry.terraform.io/hashicorp/aws" {
   version     = "5.82.2"
-  constraints = "~> 5.0, ~> 5.82"
+  constraints = "~> 5.82"
   hashes = [
     "h1:A+p239yxppdk209lLSm/YZZTwigdiloBefOHV9rzLIk=",
     "h1:DA8G6qWp+4EefwZ6gZeaWI7ecKCG8bYXO1XUfpA2Oy8=",

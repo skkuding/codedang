@@ -11,6 +11,7 @@ on:
           - 'network'
           - 'storage'
           - 'codedang'
+          - 'acm-validation'
 
 env:
   AWS_REGION: ap-northeast-2

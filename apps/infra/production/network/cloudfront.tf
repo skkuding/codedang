@@ -90,6 +90,16 @@ resource "aws_cloudfront_distribution" "codedang" {
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.allow_all.id
   }
 
+  ordered_cache_behavior {
+    path_pattern             = "/submission/download/*"
+    allowed_methods          = ["GET", "HEAD", "OPTIONS"]
+    cached_methods           = ["GET", "HEAD", "OPTIONS"]
+    target_origin_id         = data.aws_lb.admin_api.id
+    viewer_protocol_policy   = "redirect-to-https"
+    cache_policy_id          = data.aws_cloudfront_cache_policy.disable.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.allow_all.id
+  }
+
   restrictions {
     geo_restriction {
       restriction_type = "none"
