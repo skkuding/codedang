@@ -27,31 +27,31 @@ func Factory(c Module, p Providers, args ...any) Connector {
 	case RABBIT_MQ:
 		consumerConfig, ok := args[0].(rabbitmq.ConsumerConfig)
 		if !ok {
-			panic(fmt.Sprintf("Invalid consumer config: %v", consumerConfig))
+			p.Logger.Panic(fmt.Sprintf("Invalid consumer config: %v", consumerConfig))
 		}
 		consumer, err := rabbitmq.NewConsumer(consumerConfig, p.Logger)
 		if err != nil {
-			panic(err)
+			p.Logger.Panic(fmt.Sprintf("Failed to create consumer: %v", err))
 		}
 
 		producerConfig, ok := args[1].(rabbitmq.ProducerConfig)
 		if !ok {
-			panic(fmt.Sprintf("Invalid producer config: %v", producerConfig))
+			p.Logger.Panic(fmt.Sprintf("Invalid producer config: %v", producerConfig))
 		}
 		producer, err := rabbitmq.NewProducer(producerConfig, p.Logger)
 		if err != nil {
-			panic(err)
+			p.Logger.Panic(fmt.Sprintf("Failed to create producer: %v", err))
 		}
 
 		return rabbitmq.NewConnector(consumer, producer, p.Router, p.Logger)
 	case HTTP:
-
-		panic("Need to be implemented")
+		p.Logger.Panic("HTTP connector need to be implemented")
 	case FILE:
-		panic("Need to be implemented")
+		p.Logger.Panic("File connector need to be implemented")
 	case CONSOLE:
-		panic("Need to be implemented")
+		p.Logger.Panic("Console connector need to be implemented")
 	default:
-		panic("Unsupported Connector")
+		p.Logger.Panic(fmt.Sprintf("Invalid connector type: %s", c))
 	}
+	return nil
 }

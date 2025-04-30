@@ -6,6 +6,7 @@ provider "registry.terraform.io/cyrilgdn/rabbitmq" {
   constraints = "~> 1.8"
   hashes = [
     "h1:PZrZsZvFQJd3hwfv7j/drVvQEL42n6yxV9zhXWjfDwA=",
+    "h1:hbzoPpKDY/ePtDcvdZPiq8RRQPgze265t2wWHPecpJo=",
     "h1:neLQrdEL+Hh/ulJzaptij9YBiFVKdskHHwOUPKk6Htk=",
     "zh:0a8bd3de84ccd39b55057403fd9d1adbb024caccfcffb879ac894858ba9f06a0",
     "zh:16f80a580d481970bbedf86e8e5da07078f0d7f1a8a86392e8ef6e1b9f4ca1d9",
@@ -30,6 +31,7 @@ provider "registry.terraform.io/hashicorp/aws" {
   hashes = [
     "h1:ERlzacp7dxBqlMqk1mVwsZvRE0kxpWOK3EeexukKEoY=",
     "h1:RuPaHbllUB8a2TGTyc149wJfoh6zhIEjUvFYKR6iP2E=",
+    "h1:ce6Dw2y4PpuqAPtnQ0dO270dRTmwEARqnfffrE1VYJ8=",
     "zh:0262fc96012fb7e173e1b7beadd46dfc25b1dc7eaef95b90e936fc454724f1c8",
     "zh:397413613d27f4f54d16efcbf4f0a43c059bd8d827fe34287522ae182a992f9b",
     "zh:436c0c5d56e1da4f0a4c13129e12a0b519d12ab116aed52029b183f9806866f3",
