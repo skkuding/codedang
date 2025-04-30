@@ -11,3 +11,4 @@
     }
     reverse_proxy localhost:5525 # route to frontend stage/preview deployments.
 }
+`
