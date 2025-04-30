@@ -12,7 +12,7 @@ export default function Page() {
         height={262}
       />
       <p className="text-center font-['IBM_Plex_Mono'] text-[40px] font-bold leading-[46px] text-[#0760EF]">
-        Thanks for using CODEDANG!!
+        Thanks for using CODEDANG!
       </p>
       <p className="text-slate-[#000] gap-6 text-center font-light leading-[50px]">
         Easily manage problems and contests on the management page.
