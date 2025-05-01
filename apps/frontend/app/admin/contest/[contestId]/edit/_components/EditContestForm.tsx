@@ -73,6 +73,7 @@ export function EditContestForm({
         evaluateWithSampleTestcase: data.evaluateWithSampleTestcase,
         userContest: data.userContest?.map((role) => ({
           contestRole: role.role,
+          // * 보류
           userId: role.userId ?? undefined
         }))
       })

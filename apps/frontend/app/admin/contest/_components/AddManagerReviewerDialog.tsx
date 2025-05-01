@@ -23,6 +23,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem
 } from '@/components/shadcn/dropdown-menu'
+import { ALLOWED_DOMAINS } from '@/libs/constants'
 import { cn, isHttpError, safeFetcherWithAuth } from '@/libs/utils'
 import { ChevronDown, Plus } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
@@ -45,7 +46,6 @@ interface UserResInterface {
   }
 }
 
-// TODO: Refactor 및 ui/ux 개발 안된것들 추후 변경하기(배포직전 급하게 버그 발견으로 인한 크리티컬한 버그만 수정)
 export function AddManagerReviewerDialog({
   managers,
   setManagers
@@ -54,7 +54,6 @@ export function AddManagerReviewerDialog({
   const [values, setValues] = useState<string[]>(['']) // State to manage the values of each CommandInput
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null) // State to manage the focused input index
   const [dropdownValues, setDropdownValues] = useState<string[]>(['Manager']) // State to manage the selected dropdown values for each CommandInput
-  const [selectedUserNum, setSelectedUserNum] = useState<number>(0)
   const [open, setOpen] = useState(false) // State to manage the open state of the dialog
   const [users, setUsers] = useState<ContestManagerReviewer[]>([]) // State to manage the list of users
   const [errors, setErrors] = useState<string[]>([]) // State to track errors for each input
@@ -64,8 +63,8 @@ export function AddManagerReviewerDialog({
       setValues([''])
       setDropdownValues(['Manager'])
       setInputCount(1)
-      setSelectedUserNum(0)
-      setErrors([]) // Reset errors when dialog opens
+      setUsers([])
+      setErrors([])
     }
   }, [open])
 
@@ -97,21 +96,31 @@ export function AddManagerReviewerDialog({
     setDropdownValues((prevValues) => prevValues.filter((_, i) => i !== index))
     setErrors((prevErrors) => prevErrors.filter((_, i) => i !== index))
     setInputCount((prevCount) => prevCount - 1)
+    if (users[index]) {
+      setUsers((prevUsers) => prevUsers.filter((_, i) => i !== index))
+    }
   }
 
   // Save 버튼
   const handleSave = () => {
-    const newManagers: ContestManagerReviewer[] = values.map((email, index) => {
-      const user = users.find((user) => user.email === email)
-      return {
-        id: user?.id || 0,
-        email,
-        username: user?.username || '',
-        realName: user?.realName || '',
-        type: dropdownValues[index]
-      }
-    })
-    setManagers([...managers, ...newManagers])
+    // Filter out invalid or empty email values
+    const validManagers: ContestManagerReviewer[] = values
+      .map((email, index) => {
+        const user = users.find((user) => user.email === email)
+        if (!user || !email.trim() || errors[index]) {
+          return null // Exclude invalid or empty values
+        }
+        return {
+          id: user.id,
+          email,
+          username: user.username,
+          realName: user.realName,
+          type: dropdownValues[index]
+        }
+      })
+      .filter((manager): manager is ContestManagerReviewer => manager !== null) // Remove null values
+
+    setManagers([...managers, ...validManagers])
     setOpen(false)
   }
 
@@ -136,7 +145,6 @@ export function AddManagerReviewerDialog({
           }
         })
         .json()
-      console.log('User data fetched:', res)
       setUsers((prevUsers) => {
         const newUser = {
           id: res.id,
@@ -147,7 +155,6 @@ export function AddManagerReviewerDialog({
         }
         return [...prevUsers, newUser]
       })
-      setSelectedUserNum((prevCount) => prevCount + 1)
       setErrors((prevErrors) => {
         const newErrors = [...prevErrors]
         newErrors[index] = '' // Clear error if user is found
@@ -193,11 +200,9 @@ export function AddManagerReviewerDialog({
             Add Contest Manager / Reviewer
           </DialogTitle>
           <DialogDescription
-            className={cn(
-              selectedUserNum > 0 ? 'text-primary' : 'text-[#9B9B9B]'
-            )}
+            className={cn(users.length > 0 ? 'text-primary' : 'text-[#9B9B9B]')}
           >
-            {`${selectedUserNum} user(s) selected`}
+            {`${users.length} user(s) selected`}
           </DialogDescription>
         </DialogHeader>
 
@@ -221,8 +226,7 @@ export function AddManagerReviewerDialog({
                       <CommandList>
                         <CommandEmpty>No results found.</CommandEmpty>
                         <CommandGroup className="px-0 pt-0">
-                          {/* NOTE: 추후 skku.edu 말고 다른 도메인 추가 될 수도 있음 */}
-                          {['skku.edu'].map((domain) => {
+                          {ALLOWED_DOMAINS.map((domain) => {
                             const emailSuggestion = values[index].endsWith(
                               `@${domain}`
                             )
