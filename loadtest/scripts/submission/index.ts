@@ -8,7 +8,8 @@ import { Trend } from 'k6/metrics'
 const BASE_URL = __ENV.CODEDANG_BASE_URL || 'http://localhost:4000'
 const LOGIN_USERNAME = __ENV.LOGIN_USERNAME || 'instructor'
 const LOGIN_PASSWORD = __ENV.LOGIN_PASSWORD || 'Instructorinstructor'
-const PROBLEM_ID = 6
+const CONTEST_ID = 2
+const PROBLEM_ID = 356
 const OTEL_ENDPOINT = __ENV.K6_OTEL_EXPORTER_OTLP_ENDPOINT || 'localhost:4317'
 
 // --- 코드 파일 설정 ---
@@ -20,26 +21,27 @@ const getCodeSnippets = (scriptType: scriptType) => {
       c: [
         // 'scripts/villain/c/execve_shell.c',
         // 'scripts/villain/c/fopen_sesnsitive_files.c',
-        // 'fopen_write_1TB_dummy.c',
+        // 'scripts/villain/c/fopen_write_1TB_dummy.c',
         // 'scripts/villain/c/fork_bomb.c'
+        // 'scripts/villain/c/infinite_loop.c'
         // 'scripts/villain/c/inject_file.c'
         'scripts/villain/c/memory_hog.c'
         // 'scripts/villain/c/long_output.c'
       ],
       java: [
-        'scripts/villain/java/memory_hog.java'
+        // 'scripts/villain/java/memory_hog.java'
         // 'scripts/villain/java/long_output.java'
       ],
       python: [
         // 'scripts/villain/python/basic_infinite_loop.py',
         // 'scripts/villain/python/nested_for.py',
-        'scripts/villain/python/memory_hog.py'
+        // 'scripts/villain/python/memory_hog.py'
         // 'scripts/villain/python/long_output.py'
       ],
       cpp: [
         // 'scripts/villain/cpp/buffer_overflow.cpp',
         // 'scripts/villain/cpp/use_after_free.cpp',
-        'scripts/villain/cpp/memory_hog.cpp'
+        // 'scripts/villain/cpp/memory_hog.cpp'
         // 'scripts/villain/cpp/long_output.cpp'
       ]
     }
@@ -67,7 +69,7 @@ const getCodeSnippets = (scriptType: scriptType) => {
     }
   }
   if (snippets.length === 0) {
-    throw new Error(
+    console.warn(
       `Could not load any code snippets. Check file paths (${`./scripts/${scriptType}/`}) and permissions.`
     )
   }
@@ -115,6 +117,7 @@ function loginAndGetAuth(baseUrl: string, username: string, password: string) {
 // 코드 제출 로직도 별도 함수로 분리
 function submitCode(
   baseUrl: string,
+  contestId: number,
   problemId: number,
   authInfo: { authToken: string; cookie: string },
   codeSnippet: string,
@@ -124,7 +127,7 @@ function submitCode(
     code: [{ id: 1, text: codeSnippet, locked: false }],
     language: 'C'
   })
-  const submissionUrl = `${baseUrl}/submission?problemId=${problemId}`
+  const submissionUrl = `${baseUrl}/submission?contestId=${contestId}&problemId=${problemId}`
   const submissionParams = {
     headers: {
       Authorization: authInfo.authToken,
@@ -165,6 +168,13 @@ export function setup() {
   if (villainCodeSnippets.length === 0 && normalCodeSnippets.length === 0) {
     throw new Error('No code snippets were loaded.')
   }
+
+  // setup에서 로그인 수행
+  console.log(`[k6 Setup] Attempting login for user: ${LOGIN_USERNAME}`)
+  const authInfo = loginAndGetAuth(BASE_URL, LOGIN_USERNAME, LOGIN_PASSWORD)
+
+  // 로그인 성공 시 인증 정보 반환
+  return { sharedAuthInfo: authInfo }
 }
 
 // --- k6 옵션: Scenarios 정의 ---
@@ -187,29 +197,26 @@ export const options = {
       executor: 'ramping-vus',
       // 이 시나리오에서 실행할 함수 이름
       exec: 'villainScenario',
-      stages: [{ duration: '10s', target: 10 }],
+      stages: [{ duration: '1s', target: 1 }],
       tags: { user_type: 'villain' }
-    },
-    // 시나리오 2: Normal 사용자
-    normals: {
-      executor: 'ramping-vus',
-      // 이 시나리오에서 실행할 함수 이름
-      exec: 'normalScenario',
-      stages: [{ duration: '10s', target: 140 }],
-      tags: { user_type: 'normal' }
     }
+    // 시나리오 2: Normal 사용자
+    // normals: {
+    //   executor: 'ramping-vus',
+    //   // 이 시나리오에서 실행할 함수 이름
+    //   exec: 'normalScenario',
+    //   stages: [{ duration: '10s', target: 150 }],
+    //   tags: { user_type: 'normal' }
+    // }
   }
 }
 
 // --- Villain 시나리오 실행 함수 ---
-export function villainScenario() {
+export function villainScenario(data: {
+  sharedAuthInfo: { authToken: string; cookie: string }
+}) {
   // 1. 로그인
-  const authInfo = loginAndGetAuth(BASE_URL, LOGIN_USERNAME, LOGIN_PASSWORD)
-  if (!authInfo) {
-    sleep(1)
-    return // 로그인 실패 시 중단
-  }
-  sleep(0.5)
+  const authInfo = data.sharedAuthInfo
 
   // 2. Villain 코드 제출
   if (villainCodeSnippets.length > 0) {
@@ -218,40 +225,34 @@ export function villainScenario() {
         Math.floor(Math.random() * villainCodeSnippets.length)
       ]
     // 제출 함수 호출 + 태그 전달
-    submitCode(BASE_URL, PROBLEM_ID, authInfo, randomCode, {
+    submitCode(BASE_URL, CONTEST_ID, PROBLEM_ID, authInfo, randomCode, {
       snippet_type: 'villain'
     })
   } else {
     console.warn('Villain snippet array is empty!')
   }
 
-  sleep(1)
+  sleep(10)
 }
 
 // --- Normal 시나리오 실행 함수 ---
-export function normalScenario() {
+export function normalScenario(data: {
+  sharedAuthInfo: { authToken: string; cookie: string }
+}) {
   // 1. 로그인
-  const authInfo = loginAndGetAuth(BASE_URL, LOGIN_USERNAME, LOGIN_PASSWORD)
-  if (!authInfo) {
-    sleep(1)
-    return // 로그인 실패 시 중단
-  }
-  sleep(0.5)
+  const authInfo = data.sharedAuthInfo
 
   // 2. Normal 코드 제출
   if (normalCodeSnippets.length > 0) {
     const randomCode =
       normalCodeSnippets[Math.floor(Math.random() * normalCodeSnippets.length)]
     // 제출 함수 호출 + 태그 전달
-    submitCode(BASE_URL, PROBLEM_ID, authInfo, randomCode, {
+    submitCode(BASE_URL, CONTEST_ID, PROBLEM_ID, authInfo, randomCode, {
       snippet_type: 'normal'
     })
   } else {
     console.warn('Normal snippet array is empty!')
   }
 
-  sleep(1)
+  sleep(10)
 }
-
-// 기존 default 함수는 더 이상 사용되지 않으므로 삭제하거나 주석 처리합니다.
-// export default function () { ... }
