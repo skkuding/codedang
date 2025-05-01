@@ -23,20 +23,23 @@ const getCodeSnippets = (scriptType: scriptType) => {
         // 'fopen_write_1TB_dummy.c',
         // 'scripts/villain/c/fork_bomb.c'
         // 'scripts/villain/c/inject_file.c'
+        'scripts/villain/c/memory_hog.c',
         'scripts/villain/c/long_output.c'
       ],
       java: [
-        'scripts/villain/java/memoryHog.java',
+        'scripts/villain/java/memory_hog.java',
         'scripts/villain/java/long_output.java'
       ],
       python: [
         'scripts/villain/python/basic_infinite_loop.py',
         'scripts/villain/python/nested_for.py',
+        'scripts/villain/python/memory_hog.py',
         'scripts/villain/python/long_output.py'
       ],
       cpp: [
         'scripts/villain/cpp/buffer_overflow.cpp',
         'scripts/villain/cpp/use_after_free.cpp',
+        'scripts/villain/cpp/memory_hog.cpp',
         'scripts/villain/cpp/long_output.cpp'
       ]
     }
