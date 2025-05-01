@@ -9,18 +9,43 @@ const BASE_URL = __ENV.CODEDANG_BASE_URL || 'http://localhost:4000'
 const LOGIN_USERNAME = __ENV.LOGIN_USERNAME || 'instructor'
 const LOGIN_PASSWORD = __ENV.LOGIN_PASSWORD || 'Instructorinstructor'
 const PROBLEM_ID = 6
-const OTEL_ENDPOINT = __ENV.K6_OTEL_EXPORTER_OTLP_ENDPOINT || 'localhost:4317'
+// const OTEL_ENDPOINT = __ENV.K6_OTEL_EXPORTER_OTLP_ENDPOINT || 'localhost:4317'
 
 // --- 코드 파일 설정 ---
-const getCodeSnippets = (dir: string, numberOfCodeFiles: number) => {
+type scriptType = 'normal' | 'villain'
+const getCodeSnippets = (scriptType: scriptType) => {
+  const submissionScripts = {
+    normal: ['scripts/normal/1.c'],
+    villain: {
+      c: [
+        'scripts/villain/c/execve_shell.c',
+        'scripts/villain/c/fopen_sesnsitive_files.c',
+        'fopen_write_1TB_dummy.c',
+        'scripts/villain/c/fork_bomb.c',
+        'scripts/villain/c/inject_file.c'
+      ],
+      java: ['scripts/villain/java/memoryHog.java'],
+      python: [
+        'scripts/villain/python/basic_infinite_loop.py',
+        'scripts/villain/python/nested_for.py'
+      ],
+      cpp: ['scripts/villain/cpp/buffer_overflow.cpp', 'use_after_free.cpp']
+    }
+  } as const
+
   const snippets = []
   const fileNames: string[] = []
-  for (let i = 1; i <= numberOfCodeFiles; i++) {
-    fileNames.push(`${i}.c`)
+  if (scriptType === 'normal') {
+    fileNames.push(...submissionScripts.normal)
+  } else if (scriptType === 'villain') {
+    fileNames.push(...submissionScripts.villain.c)
+    fileNames.push(...submissionScripts.villain.python)
+    fileNames.push(...submissionScripts.villain.java)
+    fileNames.push(...submissionScripts.villain.cpp)
   }
 
   for (const fileName of fileNames) {
-    const filePath = `./scripts/${dir}/${fileName}` // 프로젝트 루트 기준 경로
+    const filePath = `./${fileName}`
     try {
       console.log(`Attempting to open: ${filePath}`)
       const content = open(filePath)
@@ -31,20 +56,18 @@ const getCodeSnippets = (dir: string, numberOfCodeFiles: number) => {
   }
   if (snippets.length === 0) {
     throw new Error(
-      `Could not load any code snippets. Check file paths (${`./scripts/${dir}/`}) and permissions.`
+      `Could not load any code snippets. Check file paths (${`./scripts/${scriptType}/`}) and permissions.`
     )
   }
   return snippets
 }
 
 // SharedArray로 파일 미리 로드
-const villainCodeSnippets = new SharedArray(
-  'villainCodeSnippets',
-  () => getCodeSnippets('villain', 2) // scripts/villain 폴더, 파일 2개 가정
+const villainCodeSnippets = new SharedArray('villainCodeSnippets', () =>
+  getCodeSnippets('villain')
 )
-const normalCodeSnippets = new SharedArray(
-  'normalCodeSnippets',
-  () => getCodeSnippets('normal', 2) // scripts/normal 폴더, 파일 2개 가정
+const normalCodeSnippets = new SharedArray('normalCodeSnippets', () =>
+  getCodeSnippets('normal')
 )
 // ------------------------------------------
 
@@ -120,7 +143,7 @@ const submissionLatency = new Trend('submission_latency', true) // 제출 응답
 // 테스트 시작 전 한 번 실행 (모든 시나리오 공통)
 export function setup() {
   console.log(`[k6 Setup] Target API Server: ${BASE_URL}`)
-  console.log(`[k6 Setup] Sending OTLP metrics to: ${OTEL_ENDPOINT}`)
+  // console.log(`[k6 Setup] Sending OTLP metrics to: ${OTEL_ENDPOINT}`)
   console.log(
     `[k6 Setup] Loaded ${villainCodeSnippets.length} villain code snippets.`
   )
@@ -153,8 +176,8 @@ export const options = {
       // 이 시나리오에서 실행할 함수 이름
       exec: 'villainScenario',
       stages: [
-        { duration: '1m', target: 75 }, // 1분 동안 75 VUs까지 증가
-        { duration: '2m', target: 75 }, // 2분 동안 75 VUs 유지
+        { duration: '1m', target: 10 }, // 1분 동안 10 VUs까지 증가
+        { duration: '2m', target: 10 }, // 2분 동안 10 VUs 유지
         { duration: '1m', target: 0 } // 1분 동안 0 VUs까지 감소
       ],
       tags: { user_type: 'villain' }
@@ -165,8 +188,8 @@ export const options = {
       // 이 시나리오에서 실행할 함수 이름
       exec: 'normalScenario',
       stages: [
-        { duration: '1m', target: 75 }, // 1분 동안 75 VUs까지 증가
-        { duration: '2m', target: 75 }, // 2분 동안 75 VUs 유지
+        { duration: '1m', target: 140 }, // 1분 동안 140 VUs까지 증가
+        { duration: '2m', target: 140 }, // 2분 동안 140 VUs 유지
         { duration: '1m', target: 0 } // 1분 동안 0 VUs까지 감소
       ],
       tags: { user_type: 'normal' }
