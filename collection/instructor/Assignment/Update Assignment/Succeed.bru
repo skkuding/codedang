@@ -13,9 +13,9 @@ post {
 body:graphql {
   mutation {
     updateAssignment(
-      groupId: 2
+      groupId: 5
       input: {
-        id: 24
+        id: 32
         title: "25학년도 성민규 auto채점 과제"
         description: "헤헤헤"
         startTime: "2024-01-01"
@@ -27,12 +27,14 @@ body:graphql {
         isJudgeResultVisible: true
         autoFinalizeScore: true
         isFinalScoreVisible: true
+        isExercise: false
       }
     ) {
       id
       title
       description
       week
+      isExercise
     }
   }
 }

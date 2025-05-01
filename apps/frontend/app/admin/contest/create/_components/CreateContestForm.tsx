@@ -36,7 +36,7 @@ export function CreateContestForm({
     resolver: valibotResolver(createSchema),
     defaultValues: {
       invitationCode: null,
-      enableCopyPaste: false,
+      enableCopyPaste: true,
       isJudgeResultVisible: true,
       description: null
     }
