@@ -169,11 +169,13 @@ export function setup() {
     throw new Error('No code snippets were loaded.')
   }
 
-  // setup에서 로그인 수행
   console.log(`[k6 Setup] Attempting login for user: ${LOGIN_USERNAME}`)
   const authInfo = loginAndGetAuth(BASE_URL, LOGIN_USERNAME, LOGIN_PASSWORD)
+  if (!authInfo) {
+    throw new Error('Login failed. Check your credentials.')
+  }
+  console.log(`[k6 Setup] Login successful!`)
 
-  // 로그인 성공 시 인증 정보 반환
   return { sharedAuthInfo: authInfo }
 }
 

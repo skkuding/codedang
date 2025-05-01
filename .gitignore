@@ -142,3 +142,7 @@ coverage
 *.pkg
 
 .idea
+
+# Load Test Files
+loadtest/results/*.json
+loadtest/results/*.csv

@@ -8,14 +8,16 @@
       "args": [
         "dotenv-cli",
         "-e",
-        "${workspaceFolder}/loadtest/.env.development",
-        "-e",
         "${workspaceFolder}/loadtest/.env",
+        "-e",
+        "${workspaceFolder}/loadtest/.env.development",
         "--",
         "k6",
         "run",
         "--out",
         "experimental-opentelemetry",
+        "--out",
+        "json=${workspaceFolder}/loadtest/results/submission-test-result.json",
         "${workspaceFolder}/loadtest/scripts/login.ts"
       ],
       "group": {
@@ -39,14 +41,16 @@
       "args": [
         "dotenv-cli",
         "-e",
-        "${workspaceFolder}/loadtest/.env.development",
-        "-e",
         "${workspaceFolder}/loadtest/.env",
+        "-e",
+        "${workspaceFolder}/loadtest/.env.development",
         "--",
         "k6",
         "run",
         "--out",
         "experimental-opentelemetry",
+        "--out",
+        "json=${workspaceFolder}/loadtest/results/submission-test-result.json",
         "${workspaceFolder}/loadtest/scripts/signup.ts"
       ],
       "group": {
@@ -70,14 +74,16 @@
       "args": [
         "dotenv-cli",
         "-e",
-        "${workspaceFolder}/loadtest/.env.development",
-        "-e",
         "${workspaceFolder}/loadtest/.env",
+        "-e",
+        "${workspaceFolder}/loadtest/.env.development",
         "--",
         "k6",
         "run",
         "--out",
         "experimental-opentelemetry",
+        "--out",
+        "json=${workspaceFolder}/loadtest/results/submission-test-result.json",
         "${workspaceFolder}/loadtest/scripts/submission/index.ts"
       ],
       "group": {
