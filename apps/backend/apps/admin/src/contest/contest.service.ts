@@ -1087,6 +1087,7 @@ export class ContestService {
         user: { select: { username: true } },
         finalScore: true,
         finalTotalPenalty: true,
+        lastAcceptedTime: true,
         contestProblemRecord: {
           select: {
             finalScore: true,
