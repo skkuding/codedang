@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -25,6 +27,18 @@ const (
 	Production Env = "production"
 	Stage      Env = "stage"
 )
+
+func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
 
 func main() {
 
@@ -52,6 +66,12 @@ func main() {
 		}
 	} else {
 		logProvider.Log(logger.INFO, "Running in stage mode")
+		http.HandleFunc("/health", healthCheckHandler)
+		go func() {
+			if err := http.ListenAndServe("0.0.0.0:3404", nil); err != nil {
+				logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to start health checker: %v", err))
+			}
+		}()
 	}
 
 	database := postgres.NewPostgresDataSource(ctx)

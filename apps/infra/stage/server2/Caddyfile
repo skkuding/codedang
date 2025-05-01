@@ -90,6 +90,12 @@ stage.codedang.com {
 		import cors *.vercel.app
 	}
 
+	handle /health{
+		reverse_porxy 127.0.0,1:3404
+
+		import cors *.codedang.com
+	}
+
 	handle {
 		reverse_proxy https://coolify.codedang.com {
 			header_up Host coolify.codedang.com
