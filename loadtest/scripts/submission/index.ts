@@ -23,24 +23,24 @@ const getCodeSnippets = (scriptType: scriptType) => {
         // 'fopen_write_1TB_dummy.c',
         // 'scripts/villain/c/fork_bomb.c'
         // 'scripts/villain/c/inject_file.c'
-        'scripts/villain/c/memory_hog.c',
-        'scripts/villain/c/long_output.c'
+        'scripts/villain/c/memory_hog.c'
+        // 'scripts/villain/c/long_output.c'
       ],
       java: [
-        'scripts/villain/java/memory_hog.java',
-        'scripts/villain/java/long_output.java'
+        'scripts/villain/java/memory_hog.java'
+        // 'scripts/villain/java/long_output.java'
       ],
       python: [
-        'scripts/villain/python/basic_infinite_loop.py',
-        'scripts/villain/python/nested_for.py',
-        'scripts/villain/python/memory_hog.py',
-        'scripts/villain/python/long_output.py'
+        // 'scripts/villain/python/basic_infinite_loop.py',
+        // 'scripts/villain/python/nested_for.py',
+        'scripts/villain/python/memory_hog.py'
+        // 'scripts/villain/python/long_output.py'
       ],
       cpp: [
-        'scripts/villain/cpp/buffer_overflow.cpp',
-        'scripts/villain/cpp/use_after_free.cpp',
-        'scripts/villain/cpp/memory_hog.cpp',
-        'scripts/villain/cpp/long_output.cpp'
+        // 'scripts/villain/cpp/buffer_overflow.cpp',
+        // 'scripts/villain/cpp/use_after_free.cpp',
+        'scripts/villain/cpp/memory_hog.cpp'
+        // 'scripts/villain/cpp/long_output.cpp'
       ]
     }
   } as const
@@ -187,11 +187,7 @@ export const options = {
       executor: 'ramping-vus',
       // 이 시나리오에서 실행할 함수 이름
       exec: 'villainScenario',
-      stages: [
-        { duration: '1m', target: 10 }, // 1분 동안 10 VUs까지 증가
-        { duration: '2m', target: 10 }, // 2분 동안 10 VUs 유지
-        { duration: '1m', target: 0 } // 1분 동안 0 VUs까지 감소
-      ],
+      stages: [{ duration: '10s', target: 10 }],
       tags: { user_type: 'villain' }
     },
     // 시나리오 2: Normal 사용자
@@ -199,11 +195,7 @@ export const options = {
       executor: 'ramping-vus',
       // 이 시나리오에서 실행할 함수 이름
       exec: 'normalScenario',
-      stages: [
-        { duration: '1m', target: 140 }, // 1분 동안 140 VUs까지 증가
-        { duration: '2m', target: 140 }, // 2분 동안 140 VUs 유지
-        { duration: '1m', target: 0 } // 1분 동안 0 VUs까지 감소
-      ],
+      stages: [{ duration: '10s', target: 140 }],
       tags: { user_type: 'normal' }
     }
   }
