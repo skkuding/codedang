@@ -9,7 +9,7 @@ const BASE_URL = __ENV.CODEDANG_BASE_URL || 'http://localhost:4000'
 const LOGIN_USERNAME = __ENV.LOGIN_USERNAME || 'instructor'
 const LOGIN_PASSWORD = __ENV.LOGIN_PASSWORD || 'Instructorinstructor'
 const PROBLEM_ID = 6
-// const OTEL_ENDPOINT = __ENV.K6_OTEL_EXPORTER_OTLP_ENDPOINT || 'localhost:4317'
+const OTEL_ENDPOINT = __ENV.K6_OTEL_EXPORTER_OTLP_ENDPOINT || 'localhost:4317'
 
 // --- 코드 파일 설정 ---
 type scriptType = 'normal' | 'villain'
@@ -18,18 +18,27 @@ const getCodeSnippets = (scriptType: scriptType) => {
     normal: ['scripts/normal/1.c'],
     villain: {
       c: [
-        'scripts/villain/c/execve_shell.c',
-        'scripts/villain/c/fopen_sesnsitive_files.c',
-        'fopen_write_1TB_dummy.c',
-        'scripts/villain/c/fork_bomb.c',
-        'scripts/villain/c/inject_file.c'
+        // 'scripts/villain/c/execve_shell.c',
+        // 'scripts/villain/c/fopen_sesnsitive_files.c',
+        // 'fopen_write_1TB_dummy.c',
+        // 'scripts/villain/c/fork_bomb.c'
+        // 'scripts/villain/c/inject_file.c'
+        'scripts/villain/c/long_output.c'
       ],
-      java: ['scripts/villain/java/memoryHog.java'],
+      java: [
+        'scripts/villain/java/memoryHog.java',
+        'scripts/villain/java/long_output.java'
+      ],
       python: [
         'scripts/villain/python/basic_infinite_loop.py',
-        'scripts/villain/python/nested_for.py'
+        'scripts/villain/python/nested_for.py',
+        'scripts/villain/python/long_output.py'
       ],
-      cpp: ['scripts/villain/cpp/buffer_overflow.cpp', 'use_after_free.cpp']
+      cpp: [
+        'scripts/villain/cpp/buffer_overflow.cpp',
+        'scripts/villain/cpp/use_after_free.cpp',
+        'scripts/villain/cpp/long_output.cpp'
+      ]
     }
   } as const
 
@@ -143,7 +152,7 @@ const submissionLatency = new Trend('submission_latency', true) // 제출 응답
 // 테스트 시작 전 한 번 실행 (모든 시나리오 공통)
 export function setup() {
   console.log(`[k6 Setup] Target API Server: ${BASE_URL}`)
-  // console.log(`[k6 Setup] Sending OTLP metrics to: ${OTEL_ENDPOINT}`)
+  console.log(`[k6 Setup] Sending OTLP metrics to: ${OTEL_ENDPOINT}`)
   console.log(
     `[k6 Setup] Loaded ${villainCodeSnippets.length} villain code snippets.`
   )
