@@ -137,6 +137,17 @@ export class ContestService {
               }
             }
           }
+        },
+        contestRecord: {
+          select: {
+            userId: true,
+            user: {
+              select: {
+                username: true,
+                email: true
+              }
+            }
+          }
         }
       }
     })
