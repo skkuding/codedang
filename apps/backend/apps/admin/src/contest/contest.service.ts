@@ -140,7 +140,13 @@ export class ContestService {
         },
         contestRecord: {
           select: {
-            userId: true
+            userId: true,
+            user: {
+              select: {
+                username: true,
+                email: true
+              }
+            }
           }
         }
       }
