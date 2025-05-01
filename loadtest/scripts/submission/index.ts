@@ -194,25 +194,20 @@ export const options = {
     'submission_latency{snippet_type:normal}': ['p(95)<1000']
   },
   scenarios: {
-    // 시나리오 1: Villain 사용자 (Constant Arrival Rate 사용)
+    // 시나리오 1: Villain 사용자
     villains: {
-      executor: 'constant-arrival-rate', // 실행기 변경
-      exec: 'villainScenario', // 실행할 함수
-      duration: '1m', // 이 비율로 실행할 총 시간 (예: 1분)
-      rate: 1, // 목표 반복률 (1회)
-      timeUnit: '10s', // rate의 시간 단위 (10초당)
-      // 즉, 10초당 1번의 반복 시작을 목표로 함
-      maxVUs: 150, // 최대 사용할 VU 수 (목표 비율 달성 위해 증가 가능)
+      executor: 'ramping-vus',
+      // 이 시나리오에서 실행할 함수 이름
+      exec: 'villainScenario',
+      stages: [{ duration: '1s', target: 1 }],
       tags: { user_type: 'villain' }
     }
-    // 시나리오 2: Normal 사용자 (필요시 동일하게 수정)
+    // 시나리오 2: Normal 사용자
     // normals: {
-    //   executor: 'constant-arrival-rate',
+    //   executor: 'ramping-vus',
+    //   // 이 시나리오에서 실행할 함수 이름
     //   exec: 'normalScenario',
-    //   duration: '1m',
-    //   rate: 1,
-    //   timeUnit: '10s',
-    //   maxVUs: 150,
+    //   stages: [{ duration: '10s', target: 150 }],
     //   tags: { user_type: 'normal' }
     // }
   }
