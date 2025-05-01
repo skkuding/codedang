@@ -5,7 +5,9 @@ import {
   Req,
   Get,
   Query,
-  Delete
+  Delete,
+  ParseBoolPipe,
+  DefaultValuePipe
 } from '@nestjs/common'
 import { AuthenticatedRequest } from '@libs/auth'
 import { GroupIDPipe, IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
@@ -16,8 +18,16 @@ export class AssignmentController {
   constructor(private readonly assignmentService: AssignmentService) {}
 
   @Get('')
-  async getAssignments(@Query('groupId', GroupIDPipe) groupId: number) {
-    return await this.assignmentService.getAssignments(groupId)
+  async getAssignments(
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query(
+      'isExercise',
+      new ParseBoolPipe({ optional: true }),
+      new DefaultValuePipe(false)
+    )
+    isExercise: boolean
+  ) {
+    return await this.assignmentService.getAssignments(groupId, isExercise)
   }
 
   @Get(':id')
@@ -91,11 +101,18 @@ export class AssignmentController {
   @Get('/me/summary')
   async getMyAssignmentsSummary(
     @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query(
+      'isExercise',
+      new ParseBoolPipe({ optional: true }),
+      new DefaultValuePipe(false)
+    )
+    isExercise: boolean
   ) {
     return await this.assignmentService.getMyAssignmentsSummary(
       groupId,
-      req.user.id
+      req.user.id,
+      isExercise
     )
   }
 }

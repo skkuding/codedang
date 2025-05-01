@@ -23,7 +23,9 @@ module "iris" {
         otel_exporter_otlp_endpoint_url = var.otel_exporter_otlp_endpoint_url,
         loki_url                        = var.loki_url,
       })),
-      jsondecode(file("container_definitions/log_router.json"))
+      jsondecode(templatefile("container_definitions/fluentbit.json", {
+        fluentbit_config_arn = aws_s3_object.fluent_bit_config_file.arn
+      }))
     ])
 
     execution_role_arn = aws_iam_role.ecs_task_execution_role.arn

@@ -98,7 +98,10 @@ export function TextEditor({
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        codeBlock: false,
+        heading: false
+      }),
       CodeBlockLowlight.extend({
         addNodeView() {
           return ReactNodeViewRenderer(CodeBlockComponent)
@@ -223,6 +226,7 @@ export function TextEditor({
     onUpdate({ editor }) {
       onChange(editor.getHTML())
     },
+    immediatelyRender: false,
     content: defaultValue
   })
 
