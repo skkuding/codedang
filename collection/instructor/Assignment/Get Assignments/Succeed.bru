@@ -13,9 +13,10 @@ post {
 body:graphql {
   query {
     getAssignments(
-      groupId: 2
-      cursor: 1
+      groupId: 5
+      cursor: null
       take: 10
+      isExercise: false
     ) {
       id
       title
@@ -23,6 +24,7 @@ body:graphql {
       startTime
       endTime
       week
+      isExercise
       participants
     }
   }

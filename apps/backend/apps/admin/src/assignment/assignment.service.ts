@@ -23,12 +23,17 @@ export class AssignmentService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getAssignments(take: number, groupId: number, cursor: number | null) {
+  async getAssignments(
+    take: number,
+    groupId: number,
+    cursor: number | null,
+    isExercise: boolean
+  ) {
     const paginator = this.prisma.getPaginator(cursor)
 
     const assignments = await this.prisma.assignment.findMany({
       ...paginator,
-      where: { groupId },
+      where: { groupId, isExercise },
       take,
       include: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -489,13 +494,19 @@ export class AssignmentService {
     return assignmentProblems
   }
 
-  async getAssignmentSubmissionSummaryByUserId(
-    take: number,
-    assignmentId: number,
-    userId: number,
-    problemId: number | null,
+  async getAssignmentSubmissionSummaryByUserId({
+    take,
+    assignmentId,
+    userId,
+    problemId,
+    cursor
+  }: {
+    take: number
+    assignmentId: number
+    userId: number
+    problemId: number | null
     cursor: number | null
-  ) {
+  }) {
     const paginator = this.prisma.getPaginator(cursor)
     const submissions = await this.prisma.submission.findMany({
       ...paginator,

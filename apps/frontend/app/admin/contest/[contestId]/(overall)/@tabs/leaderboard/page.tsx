@@ -56,7 +56,6 @@ export default function ContestLeaderBoard() {
       setDisableLeaderboard(false)
     }
   }, [fetchedContest])
-
   const isUnfrozen = !contestLeaderboard.getContestLeaderboard.isFrozen
 
   const [problemSize, setProblemSize] = useState(0)
