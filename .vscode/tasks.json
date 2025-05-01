@@ -4,13 +4,15 @@
     {
       "label": "k6: Run Login Test (dotenv)",
       "type": "shell",
-      "command": "npx", // npx를 통해 dotenv-cli 실행
+      "command": "npx",
       "args": [
         "dotenv-cli",
         "-e",
-        "${workspaceFolder}/loadtest/.env.development", // 프로젝트 루트의 .env 파일 지정
-        "--", // dotenv-cli 인수와 k6 인수 분리
-        "k6", // 실행할 명령어
+        "${workspaceFolder}/loadtest/.env.development",
+        "-e",
+        "${workspaceFolder}/loadtest/.env",
+        "--",
+        "k6",
         "run",
         "--out",
         "experimental-opentelemetry",
@@ -38,6 +40,8 @@
         "dotenv-cli",
         "-e",
         "${workspaceFolder}/loadtest/.env.development",
+        "-e",
+        "${workspaceFolder}/loadtest/.env",
         "--",
         "k6",
         "run",
@@ -67,6 +71,8 @@
         "dotenv-cli",
         "-e",
         "${workspaceFolder}/loadtest/.env.development",
+        "-e",
+        "${workspaceFolder}/loadtest/.env",
         "--",
         "k6",
         "run",
