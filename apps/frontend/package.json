@@ -144,7 +144,7 @@
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "jsdom": "^25.0.1",
+    "jsdom": "^26.1.0",
     "lucide-react": "^0.469.0",
     "msw": "^2.7.0",
     "postcss": "^8.4.49",
