@@ -8,7 +8,7 @@ import {
   ResolveField,
   Resolver
 } from '@nestjs/graphql'
-import { Contest, ContestProblem, UserContest } from '@generated'
+import { Contest, ContestProblem, User, UserContest } from '@generated'
 import { ContestRole } from '@prisma/client'
 import {
   AuthenticatedRequest,
@@ -20,6 +20,7 @@ import {
   IDValidationPipe,
   RequiredIntPipe
 } from '@libs/pipe'
+import { UserLoader } from '@admin/user/user.loader'
 import { ContestLoader } from './contest.loader'
 import { ContestService } from './contest.service'
 import { ContestLeaderboard } from './model/contest-leaderboard.model'
@@ -37,7 +38,8 @@ import { UserContestScoreSummaryWithUserInfo } from './model/score-summary'
 export class ContestResolver {
   constructor(
     private readonly contestService: ContestService,
-    private readonly contestLoader: ContestLoader
+    private readonly contestLoader: ContestLoader,
+    private readonly userLoader: UserLoader
   ) {}
 
   @Query(() => [ContestWithParticipants])
@@ -194,12 +196,17 @@ export class ContestResolver {
     return await this.contestService.getContestRoles(req.user.id)
   }
 
+  @ResolveField('createdBy', () => User, { nullable: true })
+  async getUser(@Parent() contest: Contest): Promise<User | null> {
+    const { createdById } = contest
+    if (createdById == null) {
+      return null
+    }
+    return this.userLoader.batchUsers.load(createdById)
+  }
+
   @ResolveField('participants', () => Int)
   async getParticipants(@Parent() contest: Contest): Promise<number> {
-    console.log('=== DEBUG ===')
-    console.log('contest', contest)
-    console.log('contest.id', contest.id)
-    console.log('=== DEBUG ===')
     return this.contestLoader.batchParticipants.load(contest.id)
   }
 }
