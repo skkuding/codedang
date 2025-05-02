@@ -34,7 +34,9 @@ interface ExerciseAccordionProps {
 }
 
 export function ExerciseAccordion({ courseId }: ExerciseAccordionProps) {
-  const { data: exercises } = useQuery(assignmentQueries.muliple({ courseId }))
+  const { data: exercises } = useQuery(
+    assignmentQueries.muliple({ courseId, isExercise: true })
+  )
   const { data: grades } = useQuery(assignmentQueries.grades({ courseId }))
 
   const gradeMap = new Map(grades?.map((grade) => [grade.id, grade]) ?? [])
