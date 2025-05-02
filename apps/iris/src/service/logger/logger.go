@@ -25,6 +25,7 @@ const (
 
 type Logger interface {
 	Log(level Level, msg string)
+	Panic(msg string)
 }
 
 type logger struct {
@@ -84,4 +85,9 @@ func (l *logger) Log(level Level, msg string) {
 	case ERROR:
 		l.zap.Error(msg)
 	}
+}
+
+func (l *logger) Panic(msg string) {
+	defer l.zap.Sync()
+	l.zap.Panic(msg)
 }

@@ -49,7 +49,8 @@ const assignment = {
     groupType: GroupType.Course
   },
   autoFinalizeScore: true,
-  isFinalScoreVisible: true
+  isFinalScoreVisible: true,
+  isExercise: false
 } satisfies Assignment & {
   group: Partial<Group>
 }
@@ -150,12 +151,12 @@ describe('AssignmentService', () => {
 
   describe('getAssignmentsByGroupId', () => {
     it('should return ongoing, upcoming, registered ongoing, registered upcoming assignments when userId is provided', async () => {
-      const assignments = await service.getAssignments(groupId)
+      const assignments = await service.getAssignments(groupId, false)
       expect(assignments).to.have.lengthOf(14)
     })
 
     it('a assignment should contain following fields when userId is provided', async () => {
-      const assignments = await service.getAssignments(groupId)
+      const assignments = await service.getAssignments(groupId, false)
       expect(assignments[0]).to.have.property('title')
       expect(assignments[0]).to.have.property('startTime')
       expect(assignments[0]).to.have.property('endTime')

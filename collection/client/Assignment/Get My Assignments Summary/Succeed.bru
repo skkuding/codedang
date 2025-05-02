@@ -5,13 +5,14 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/assignment/me/summary?groupId=1
+  url: {{baseUrl}}/assignment/me/summary?groupId=2&isExercise=true
   body: none
   auth: none
 }
 
 params:query {
-  groupId: 1
+  groupId: 2
+  isExercise: true
 }
 
 assert {

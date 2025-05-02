@@ -275,7 +275,7 @@ export function EditorMainResizablePanel({
                   defaultSize={40}
                   className={cn(isBottomPanelHidden && 'hidden')}
                 >
-                  <TestcasePanel />
+                  <TestcasePanel isContest={Boolean(courseId)} />
                 </ResizablePanel>
               </ResizablePanelGroup>
             </TestPollingStoreProvider>
