@@ -352,8 +352,8 @@ importers:
         specifier: ^6.1.0
         version: 6.1.0
       prisma-nestjs-graphql:
-        specifier: ^20.0.3
-        version: 20.0.3
+        specifier: ^21.1.1
+        version: 21.1.1
       proxyquire:
         specifier: ^2.1.3
         version: 2.1.3
@@ -9195,8 +9195,8 @@ packages:
     resolution: {integrity: sha512-D2FR03Vir7FIu45XBY20mTb+/ZSWB00sjU9jdQXt83gDrI4Ztz5Fs7/yy74g2N5SVQY4xY1qDr4rNddwYRVX0g==}
     engines: {node: '>=0.10.0'}
 
-  outmatch@0.7.0:
-    resolution: {integrity: sha512-w1ybiTBffGiwxOO7JJBVVOsIiWwzcfSl/D80amWAU2UDe1o9/SySOUzAwDuN3+jGKQRs0UCDTS8rndFiroJgVQ==}
+  outmatch@1.0.0:
+    resolution: {integrity: sha512-Dro+1hlvosA7DUKFqeHUA2g+xdWGoGTGZ+19go5vwxqS7iSTXQtajrEdhTdBXdahzGBEV2NH89vouFWpLyOuPg==}
 
   outvariant@1.4.3:
     resolution: {integrity: sha512-+Sl2UErvtsoajRDKCE5/dBz4DIvHXQQnAxtQTF04OJxY0+DyZXSo5P5Bb7XYWOh81syohlYL24hbDwxedPUJCA==}
@@ -9664,8 +9664,8 @@ packages:
     resolution: {integrity: sha512-ZtV1YrwscEjlrUzYrTSs6Nwo49JM3pXLM4fFOBSC3wSni+bxaWlw9/Qgk75PZO8M7cX2EybmL2iwvaV3vkAttw==}
     engines: {node: '>=14'}
 
-  prisma-nestjs-graphql@20.0.3:
-    resolution: {integrity: sha512-p8ZGoXqc+s6sI1UnIRK9qmT9neFyt8V+SAfuP1SZNgJQBhKc/8hO2dfwZFqLHAYrbfo/psAa+AghO4yx5pohuA==}
+  prisma-nestjs-graphql@21.1.1:
+    resolution: {integrity: sha512-XoCPekDvEKrIzASI6AlbMQYZMyOUuo1rrCD6Go3E4b+uttE9pHPXw+k3m/oQsr7MJXYsmYNCBor6sm0OgTirVA==}
     hasBin: true
 
   prisma@6.1.0:
@@ -22037,7 +22037,7 @@ snapshots:
 
   os-tmpdir@1.0.2: {}
 
-  outmatch@0.7.0: {}
+  outmatch@1.0.0: {}
 
   outvariant@1.4.3: {}
 
@@ -22478,7 +22478,7 @@ snapshots:
       uuid: 9.0.1
     optional: true
 
-  prisma-nestjs-graphql@20.0.3:
+  prisma-nestjs-graphql@21.1.1:
     dependencies:
       '@prisma/generator-helper': 5.22.0
       await-event-emitter: 2.0.2
@@ -22488,7 +22488,7 @@ snapshots:
       graceful-fs: 4.2.11
       json5: 2.2.3
       lodash: 4.17.21
-      outmatch: 0.7.0
+      outmatch: 1.0.0
       pluralize: 8.0.0
       pupa: 2.1.1
       ts-morph: 16.0.0
