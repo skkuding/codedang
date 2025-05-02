@@ -13,7 +13,7 @@ post {
 body:graphql {
   mutation {
     createAssignment(
-      groupId: 3
+      groupId: 2
       input: {
         title: "25학년도 성민규 auto-graded, final-score-visible"
         description: "bruno수정"
@@ -24,6 +24,7 @@ body:graphql {
         isRankVisible: true
         enableCopyPaste: true
         isJudgeResultVisible: true
+        isExercise: true
       }
     ) {
       id
@@ -32,6 +33,7 @@ body:graphql {
       week
       enableCopyPaste
       isJudgeResultVisible
+      isExercise
     }
   }
   
