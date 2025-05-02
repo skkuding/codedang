@@ -10,11 +10,9 @@ const bootstrap = async () => {
     process.env.APP_ENV === 'stage' ||
     process.env.ENABLE_OPENTELEMETRY === 'true'
   ) {
+    const otlpEndpointUrl = process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL || 'localhost:4317'
     const resource = await Instrumentation.getResource('ADMIN-API', '2.2.0')
-    await Instrumentation.start(
-      process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL || 'localhost:4317',
-      resource
-    )
+    await Instrumentation.start(otlpEndpointUrl, resource)
   }
 
   const { AdminModule } = await import('./admin.module')
