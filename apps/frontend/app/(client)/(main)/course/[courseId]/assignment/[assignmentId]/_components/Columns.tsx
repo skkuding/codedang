@@ -15,6 +15,7 @@ import type { ColumnDef, Row } from '@tanstack/react-table'
 import { Suspense, useState } from 'react'
 import { MdOutlineFileOpen } from 'react-icons/md'
 import { ProblemDetailModal } from '../../../_components/ProblemDetailModal'
+import { ResultBadge } from '../../../_components/ResultBadge'
 import { TestCaseResult } from '../../../_components/TestCaseResult'
 
 export const columns = (
@@ -64,12 +65,12 @@ export const columns = (
     cell: ({ row }) => {
       const submission = submissions.find(
         (submission) => submission.problemId === row.original.id
-      )?.submission
+      )
 
       return (
         submission && (
           <div className="flex w-full justify-center">
-            {/* <SubmissionBadge grade={grade} /> */}
+            <ResultBadge assignmentSubmission={submission} />
           </div>
         )
       )
