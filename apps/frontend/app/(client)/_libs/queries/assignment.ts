@@ -21,14 +21,14 @@ export const assignmentQueries = {
       queryKey: ['assignments', courseId],
       queryFn: () => getAssignments({ courseId, isExercise })
     }),
-  record: ({ assignmentId, courseId }: GetAssignmentProblemRecordRequest) =>
+  record: ({ assignmentId }: GetAssignmentProblemRecordRequest) =>
     queryOptions({
-      queryKey: ['record', assignmentId, courseId],
-      queryFn: () => getAssignmentProblemRecord({ assignmentId, courseId })
+      queryKey: ['record', assignmentId],
+      queryFn: () => getAssignmentProblemRecord({ assignmentId })
     }),
-  grades: ({ courseId }: GetAssignmentsSummaryRequest) =>
+  grades: ({ courseId, isExercise }: GetAssignmentsSummaryRequest) =>
     queryOptions({
-      queryKey: ['grades', courseId],
-      queryFn: () => getAssignmentsSummary({ courseId })
+      queryKey: ['grades', courseId, isExercise],
+      queryFn: () => getAssignmentsSummary({ courseId, isExercise })
     })
 }

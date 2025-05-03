@@ -84,8 +84,7 @@ function AssignmentAccordionItem({
 
   const { data: record } = useQuery({
     ...assignmentQueries.record({
-      assignmentId: assignment.id,
-      courseId
+      assignmentId: assignment.id
     }),
     enabled: isAccordionOpen
   })

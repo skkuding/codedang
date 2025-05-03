@@ -37,7 +37,9 @@ export function ExerciseAccordion({ courseId }: ExerciseAccordionProps) {
   const { data: exercises } = useQuery(
     assignmentQueries.muliple({ courseId, isExercise: true })
   )
-  const { data: grades } = useQuery(assignmentQueries.grades({ courseId }))
+  const { data: grades } = useQuery(
+    assignmentQueries.grades({ courseId, isExercise: true })
+  )
 
   const gradeMap = new Map(grades?.map((grade) => [grade.id, grade]) ?? [])
 
@@ -79,8 +81,7 @@ function ExerciseAccordionItem({
 
   const { data: record } = useQuery({
     ...assignmentQueries.record({
-      assignmentId: exercise.id,
-      courseId
+      assignmentId: exercise.id
     }),
     enabled: isAccordionOpen
   })
