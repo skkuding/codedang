@@ -12,7 +12,6 @@ import {
 } from '@/components/PaginatorV2'
 import { getTakeQueryParam, usePagination } from '@/libs/hooks/usePaginationV2'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import type { Route } from 'next'
 import { useState } from 'react'
 import { columns } from './Columns'
 
@@ -20,13 +19,13 @@ const itemsPerPage = 20
 
 interface SubmissionPaginatedTableProps {
   courseId: number
-  assignmentId: number
+  exerciseId: number
   problemId: number
 }
 
 export function SubmissionPaginatedTable({
   courseId,
-  assignmentId,
+  exerciseId,
   problemId
 }: SubmissionPaginatedTableProps) {
   const [queryParams, updateQueryParams] = useState({
@@ -37,7 +36,7 @@ export function SubmissionPaginatedTable({
     assignmentSubmissionQueries.list({
       ...queryParams,
       problemId,
-      assignmentId
+      assignmentId: exerciseId
     })
   )
 
@@ -63,7 +62,7 @@ export function SubmissionPaginatedTable({
         data={paginatedItems}
         columns={columns}
         getHref={(row) =>
-          `/course/${courseId}/assignment/${assignmentId}/problem/${problemId}/submission/${row.original.id}` as Route
+          `/course/${courseId}/exercise/${exerciseId}/problem/${problemId}/submission/${row.original.id}` as const
         }
       />
       <Paginator>

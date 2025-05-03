@@ -15,20 +15,20 @@ import Link from 'next/link'
 import { FaSortDown } from 'react-icons/fa'
 import { assignmentProblemQueries } from '../../_libs/queries/assignmentProblem'
 
-interface AssignmentProblemDropdownProps {
+interface ExerciseProblemDropdownProps {
   problem: Required<ProblemDetail>
-  assignmentId: number
+  exerciseId: number
   courseId: number
 }
 
-export function AssignmentProblemDropdown({
+export function ExerciseProblemDropdown({
   problem,
-  assignmentId,
+  exerciseId,
   courseId
-}: AssignmentProblemDropdownProps) {
-  const { data: assignmentProblem, error } = useQuery({
+}: ExerciseProblemDropdownProps) {
+  const { data: exerciseProblem, error } = useQuery({
     ...assignmentProblemQueries.list({
-      assignmentId,
+      assignmentId: exerciseId,
       take: 20,
       groupId: courseId
     }),
@@ -44,11 +44,11 @@ export function AssignmentProblemDropdown({
       <DropdownMenuContent className="border-slate-700 bg-slate-900">
         {error && isHttpError(error)
           ? 'Failed to load the assignment problem'
-          : assignmentProblem?.data.map((p) => (
+          : exerciseProblem?.data.map((p) => (
               <Link
                 key={p.id}
                 href={
-                  `/course/${courseId}/assignment/${assignmentId}/problem/${p.id}` as const
+                  `/course/${courseId}/exercise/${exerciseId}/problem/${p.id}` as const
                 }
               >
                 <DropdownMenuItem

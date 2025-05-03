@@ -4,15 +4,15 @@ export default function layout({
   params,
   children
 }: {
-  params: { problemId: string; assignmentId: string; courseId: string }
+  params: { problemId: string; exerciseId: string; courseId: string }
   children: React.ReactNode
 }) {
-  const { problemId, assignmentId, courseId } = params
+  const { problemId, exerciseId, courseId } = params
 
   return (
     <EditorLayout
       problemId={Number(problemId)}
-      assignmentId={Number(assignmentId)}
+      exerciseId={Number(exerciseId)}
       courseId={Number(courseId)}
     >
       {children}

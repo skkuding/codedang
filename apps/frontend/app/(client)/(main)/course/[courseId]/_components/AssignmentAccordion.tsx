@@ -237,7 +237,6 @@ function AssignmentAccordionItem({
                         <SubmissionDetailModal
                           problemId={problem.id}
                           assignment={assignment}
-                          courseId={courseId}
                         />
                       )}
                     </Dialog>

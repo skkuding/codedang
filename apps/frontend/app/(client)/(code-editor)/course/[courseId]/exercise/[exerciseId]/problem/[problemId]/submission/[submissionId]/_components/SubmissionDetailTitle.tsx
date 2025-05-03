@@ -36,16 +36,16 @@ interface AssignmentSubmission {
 
 interface SubmissionDetailTitleProps {
   problemId: number
-  assignmentId: number
+  exerciseId: number
 }
 
 export function SubmissionDetailTitle({
   problemId,
-  assignmentId
+  exerciseId
 }: SubmissionDetailTitleProps) {
-  async function fetchAssignmentSubmissionTitleWithOrder(assignmentId: number) {
+  async function fetchAssignmentSubmissionTitleWithOrder(exerciseId: number) {
     const res: AssignmentSubmission = await safeFetcherWithAuth(
-      `assignment/${assignmentId}/submission`,
+      `assignment/${exerciseId}/submission`,
       {
         searchParams: { problemId, take: 100 }
       }
@@ -58,8 +58,8 @@ export function SubmissionDetailTitle({
   }
 
   const { data: detailTitle } = useSuspenseQuery({
-    queryKey: ['assignment submission problem title with order', assignmentId],
-    queryFn: () => fetchAssignmentSubmissionTitleWithOrder(assignmentId)
+    queryKey: ['assignment submission problem title with order', exerciseId],
+    queryFn: () => fetchAssignmentSubmissionTitleWithOrder(exerciseId)
   })
 
   return (

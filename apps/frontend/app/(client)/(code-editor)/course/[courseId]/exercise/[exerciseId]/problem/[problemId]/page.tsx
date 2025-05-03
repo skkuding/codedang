@@ -6,17 +6,17 @@ import { redirect } from 'next/navigation'
 export default async function DescriptionPage({
   params
 }: {
-  params: { problemId: string; assignmentId: string; courseId: string }
+  params: { problemId: string; exerciseId: string; courseId: string }
 }) {
-  const { problemId, assignmentId, courseId } = params
+  const { problemId, exerciseId, courseId } = params
 
   // TODO: use `getAssignmentProblemDetail` from _libs/apis folder & use error boundary
   const res = await fetcherWithAuth(
-    `assignment/${assignmentId}/problem/${problemId}`
+    `assignment/${exerciseId}/problem/${problemId}`
   )
   if (!res.ok && res.status === 403) {
     redirect(
-      `/course/${courseId}/assignment/${assignmentId}/finished/problem/${problemId}`
+      `/course/${courseId}/exercise/${exerciseId}/finished/problem/${problemId}`
     )
   }
 

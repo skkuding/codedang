@@ -11,27 +11,27 @@ export default function Page({
   params
 }: {
   params: {
-    assignmentId: string
+    exerciseId: string
     courseId: string
     problemId: string
     submissionId: string
   }
 }) {
-  const { courseId, assignmentId, problemId, submissionId } = params
+  const { courseId, exerciseId, problemId, submissionId } = params
 
   return (
     <div className="flex flex-col gap-5 overflow-auto py-6">
       <div className="z-20 flex items-center gap-3 px-6">
         <Link
           href={
-            `/course/${courseId}/assignment/${assignmentId}/problem/${problemId}/submission` as const
+            `/course/${courseId}/exercise/${exerciseId}/problem/${problemId}/submission` as const
           }
         >
           <ArrowLeft className="size-5" />
         </Link>
         <SubmissionDetailTitle
           problemId={Number(problemId)}
-          assignmentId={Number(assignmentId)}
+          exerciseId={Number(exerciseId)}
         />
       </div>
       <ErrorBoundary fallback={FetchErrorFallback}>
@@ -46,7 +46,7 @@ export default function Page({
         >
           <SubmissionDetail
             problemId={Number(problemId)}
-            assignmentId={Number(assignmentId)}
+            exerciseId={Number(exerciseId)}
             submissionId={Number(submissionId)}
           />
         </Suspense>

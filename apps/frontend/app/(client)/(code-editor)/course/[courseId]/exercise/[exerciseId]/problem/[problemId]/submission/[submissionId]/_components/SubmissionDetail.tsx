@@ -17,23 +17,23 @@ import { IoIosLock } from 'react-icons/io'
 interface Props {
   problemId: number
   submissionId: number
-  assignmentId: number
+  exerciseId: number
 }
 
 export async function SubmissionDetail({
   problemId,
   submissionId,
-  assignmentId
+  exerciseId
 }: Props) {
   const res = await fetcherWithAuth(`submission/${submissionId}`, {
-    searchParams: { problemId, assignmentId },
+    searchParams: { problemId, exerciseId },
     next: {
       tags: [`submission/${submissionId}`]
     }
   })
   const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
   const assignmentSubmissionRes = await fetcherWithAuth(
-    `assignment/${assignmentId}/submission`,
+    `assignment/${exerciseId}/submission`,
     {
       searchParams: { problemId, take: 100 }
     }

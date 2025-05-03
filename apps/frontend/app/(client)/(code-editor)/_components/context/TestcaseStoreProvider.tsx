@@ -36,6 +36,7 @@ const createTestcaseStore = (
   sampleTestcases: TestcaseItem[],
   contestId?: number,
   assignmentId?: number,
+  exerciseId?: number,
   courseId?: number
 ) => {
   const baseKey = `user_testcase_${problemId}`
@@ -44,6 +45,8 @@ const createTestcaseStore = (
     storageKey = `${baseKey}_${contestId}`
   } else if (assignmentId) {
     storageKey = `${baseKey}_${courseId}_${assignmentId}`
+  } else if (exerciseId) {
+    storageKey = `${baseKey}_${courseId}_${exerciseId}`
   } else {
     storageKey = baseKey
   }
@@ -83,21 +86,25 @@ type TestcaseStore = ReturnType<typeof createTestcaseStore>
 
 const TestcaseStoreContext = createContext<TestcaseStore | null>(null)
 
+interface TestcaseStoreProviderProps {
+  problemId: number
+  contestId?: number
+  courseId?: number
+  assignmentId?: number
+  exerciseId?: number
+  problemTestcase: TestcaseItem[]
+  children: ReactNode
+}
+
 export function TestcaseStoreProvider({
   problemId,
   contestId,
   courseId,
   assignmentId,
+  exerciseId,
   problemTestcase,
   children
-}: {
-  problemId: number
-  contestId?: number
-  courseId?: number
-  assignmentId?: number
-  problemTestcase: TestcaseItem[]
-  children: ReactNode
-}) {
+}: TestcaseStoreProviderProps) {
   const storeRef = useRef<TestcaseStore>()
   if (!storeRef.current) {
     storeRef.current = createTestcaseStore(
@@ -105,6 +112,7 @@ export function TestcaseStoreProvider({
       problemTestcase,
       contestId,
       assignmentId,
+      exerciseId,
       courseId
     )
   }
