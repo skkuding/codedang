@@ -14,32 +14,39 @@ import {
 const BASE_URL = __ENV.CODEDANG_BASE_URL || 'http://localhost:4000'
 const LOGIN_USERNAME = __ENV.LOGIN_USERNAME || 'instructor'
 const LOGIN_PASSWORD = __ENV.LOGIN_PASSWORD || 'Instructorinstructor'
-const CONTEST_ID = Number(__ENV.CONTEST_ID) || 2
-const PROBLEM_ID = Number(__ENV.PROBLEM_ID) || 356
+const CONTEST_ID = Number(__ENV.CONTEST_ID)
+const PROBLEM_ID = Number(__ENV.PROBLEM_ID) || 6
 const OTEL_ENDPOINT = __ENV.K6_OTEL_EXPORTER_OTLP_ENDPOINT || 'localhost:4317'
 
 // --- 공통 함수: 코드 제출 ---
 // 코드 제출 로직도 별도 함수로 분리
-function submitCode(
-  baseUrl: string,
-  contestId: number,
-  problemId: number,
-  authInfo: AuthInfo,
-  codeSnippet: CodeSnippet,
+function submitCode({
+  baseUrl,
+  contestId,
+  problemId,
+  authInfo,
+  codeSnippet,
+  tags
+}: {
+  baseUrl: string
+  contestId?: number
+  problemId: number
+  authInfo: AuthInfo
+  codeSnippet: CodeSnippet
   tags: any
-) {
+}) {
+  const submissionUrl = getSubmissionUrl({ baseUrl, contestId, problemId })
   const submissionPayload = JSON.stringify({
     code: [{ id: 1, text: codeSnippet.text, locked: false }],
     language: codeSnippet.language
   })
-  const submissionUrl = `${baseUrl}/submission?contestId=${contestId}&problemId=${problemId}`
   const submissionParams = {
     headers: {
       Authorization: authInfo.authToken,
       Cookie: authInfo.cookie,
       'Content-Type': 'application/json'
     },
-    tags: { scenario: 'submission', ...tags } // 기본 태그와 추가 태그 병합
+    tags: { scenario: 'submission', ...tags }
   }
 
   const submissionRes = http.post(
@@ -138,26 +145,54 @@ export const options = {
   }
 }
 
-// --- Villain 시나리오 실행 함수 ---
 export function villainScenario(data: ReturnType<typeof setup>) {
   const authInfo = data.sharedAuthInfo
   const codeSnippet = data.codeSnippets.villain
 
-  submitCode(BASE_URL, CONTEST_ID, PROBLEM_ID, authInfo, codeSnippet, {
-    snippet_type: 'villain'
+  submitCode({
+    baseUrl: BASE_URL,
+    contestId: CONTEST_ID,
+    problemId: PROBLEM_ID,
+    authInfo,
+    codeSnippet,
+    tags: {
+      snippet_type: 'villain'
+    }
   })
 
   sleep(10)
 }
 
-// --- Normal 시나리오 실행 함수 ---
 export function normalScenario(data: ReturnType<typeof setup>) {
   const authInfo = data.sharedAuthInfo
   const codeSnippet = data.codeSnippets.normal
 
-  submitCode(BASE_URL, CONTEST_ID, PROBLEM_ID, authInfo, codeSnippet, {
-    snippet_type: 'normal'
+  submitCode({
+    baseUrl: BASE_URL,
+    contestId: CONTEST_ID,
+    problemId: PROBLEM_ID,
+    authInfo,
+    codeSnippet,
+    tags: {
+      snippet_type: 'normal'
+    }
   })
 
   sleep(10)
+}
+
+const getSubmissionUrl = ({
+  baseUrl,
+  contestId,
+  problemId
+}: {
+  baseUrl: string
+  contestId?: number
+  problemId: number
+}) => {
+  let submissionUrl = `${baseUrl}/submission?problemId=${problemId}`
+  if (contestId) {
+    submissionUrl += `&contestId=${contestId}`
+  }
+  return submissionUrl
 }
