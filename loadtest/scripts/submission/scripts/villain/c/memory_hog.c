@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define TARGET_MB 700
+#define TARGET_MB 500
 #define INT_SIZE sizeof(int)
 #define MB (1024 * 1024)
 
