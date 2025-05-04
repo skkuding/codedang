@@ -25,13 +25,15 @@ import { CSVLink } from 'react-csv'
 import { toast } from 'sonner'
 import { createColumns } from './Columns'
 
+interface ParticipantTableProps {
+  groupId: number
+  assignmentId: number
+}
+
 export function ParticipantTable({
   groupId,
   assignmentId
-}: {
-  groupId: number
-  assignmentId: number
-}) {
+}: ParticipantTableProps) {
   const assignmentData = useQuery(GET_ASSIGNMENT, {
     variables: {
       groupId,
@@ -152,52 +154,56 @@ export function ParticipantTable({
           isAssignmentFinished
         )}
       >
-        <div className="flex items-center gap-4">
-          <DataTableSearchBar columndId="realName" placeholder="Search Name" />
-          <div className="flex items-center gap-2">
-            Reveal Hidden T/C Result
-            <Switch
-              onCheckedChange={async (checked) => {
-                setRevealRawScore(checked)
-                await updateAssignment({
-                  variables: {
-                    groupId,
-                    input: {
-                      id: assignmentId,
-                      isJudgeResultVisible: checked
-                    }
-                  }
-                })
-              }}
-              checked={revealRawScore}
-              className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
+        <div className="flex justify-between">
+          <div className="flex items-center gap-4">
+            <DataTableSearchBar
+              columndId="realName"
+              placeholder="Search Name"
             />
-          </div>
-          <div className="flex items-center gap-2">
-            Reveal Final Score
-            <Switch
-              onCheckedChange={async (checked) => {
-                setRevealFinalScore(checked)
-                await updateAssignment({
-                  variables: {
-                    groupId,
-                    input: {
-                      id: assignmentId,
-                      isFinalScoreVisible: checked
+            <div className="flex items-center gap-2">
+              Reveal Hidden T/C Result
+              <Switch
+                onCheckedChange={async (checked) => {
+                  setRevealRawScore(checked)
+                  await updateAssignment({
+                    variables: {
+                      groupId,
+                      input: {
+                        id: assignmentId,
+                        isJudgeResultVisible: checked
+                      }
                     }
-                  }
-                })
-              }}
-              checked={revealFinalScore}
-              className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
-            />
+                  })
+                }}
+                checked={revealRawScore}
+                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              Reveal Final Score
+              <Switch
+                onCheckedChange={async (checked) => {
+                  setRevealFinalScore(checked)
+                  await updateAssignment({
+                    variables: {
+                      groupId,
+                      input: {
+                        id: assignmentId,
+                        isFinalScoreVisible: checked
+                      }
+                    }
+                  })
+                }}
+                checked={revealFinalScore}
+                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
+              />
+            </div>
           </div>
-
           <CSVLink
             data={csvData}
             headers={headers}
             filename={fileName}
-            className="ml-auto flex flex-shrink-0 items-center gap-2 rounded-lg bg-blue-400 px-3 py-1.5 text-lg font-semibold text-white transition-opacity hover:opacity-85"
+            className="bg-primary flex items-center gap-2 rounded-full px-[12px] py-[8px] text-lg font-semibold text-white transition-opacity hover:opacity-85"
           >
             Export
             <Image
@@ -212,7 +218,7 @@ export function ParticipantTable({
         {isAssignmentFinished ? (
           <DataTable
             getHref={(data) =>
-              `/admin/course/${groupId}/grade/assignment/${assignmentId}/user/${data.id}/problem/${problemData[0].problemId}` as Route
+              `/admin/course/${groupId}/assignment/${assignmentId}/assessment/user/${data.id}/problem/${problemData[0].problemId}` as const
             }
           />
         ) : (

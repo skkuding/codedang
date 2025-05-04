@@ -53,17 +53,13 @@ const getCourseNavItems = (courseId: string): NavItem[] => [
     name: 'Assignment',
     path: `/admin/course/${courseId}/assignment`,
     icon: AssignmentIcon
-  },
+  }
   // {
   //   name: 'Exam',
   //   path: `/admin/course/${courseId}/exam`,
   //   icon: FaFilePen
   // },
-  {
-    name: 'Grade',
-    path: `/admin/course/${courseId}/grade`,
-    icon: GradeIcon
-  }
+
   // {
   //   name: 'Q&A',
   //   path: `/admin/course/${courseId}/qna`,

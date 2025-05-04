@@ -1,8 +1,5 @@
 'use client'
 
-import { SubmissionAssessment } from '@/app/admin/course/[courseId]/grade/assignment/[assignmentId]/user/[userId]/problem/[problemId]/_components/SubmissionAssessment'
-import { SubmissionSummary } from '@/app/admin/course/[courseId]/grade/assignment/[assignmentId]/user/[userId]/problem/[problemId]/_components/SubmissionSummary'
-import { SubmissionTestcase } from '@/app/admin/course/[courseId]/grade/assignment/[assignmentId]/user/[userId]/problem/[problemId]/_components/SubmissionTestcase'
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
@@ -10,6 +7,9 @@ import { useQuery } from '@apollo/client'
 import type { SubmissionDetail } from '@generated/graphql'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
+import { SubmissionAssessment } from './_components/SubmissionAssessment'
+import { SubmissionSummary } from './_components/SubmissionSummary'
+import { SubmissionTestcase } from './_components/SubmissionTestcase'
 
 interface PageProps {
   params: {

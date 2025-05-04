@@ -1,12 +1,10 @@
 'use client'
 
-import { KatexContent } from '@/components/KatexContent'
 import { Button } from '@/components/shadcn/button'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
 import { formatDateRange } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import { useQuery } from '@apollo/client'
-import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -27,14 +25,14 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
     <main className="flex flex-col gap-6 px-20 py-16">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href={`/admin/course/${courseId}/assignment` as Route}>
+          <Link href={`/admin/course/${courseId}/assignment` as const}>
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
           <span className="text-4xl font-bold">{assignmentData?.title}</span>
         </div>
         <Link
           href={
-            `/admin/course/${courseId}/assignment/${assignmentId}/edit` as Route
+            `/admin/course/${courseId}/assignment/${assignmentId}/edit` as const
           }
         >
           <Button variant="default">
@@ -56,10 +54,7 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
           )}
         </div>
       </div>
-      <KatexContent
-        content={assignmentData?.description}
-        classname="prose mb-4 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12"
-      />
+
       <AssignmentOverallTabs
         groupId={Number(courseId)}
         assignmentId={Number(assignmentId)}

@@ -1,23 +1,20 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
-import {
-  SubmissionTable,
-  SubmissionTableFallback
-} from './_components/SubmissionTable'
+import { ParticipantTable } from '../_components/ParticipantTable'
+import { SubmissionTableFallback } from './_components/SubmissionTable'
 
-export default function Submission({
-  params
-}: {
-  params: { courseId: string; assignmentId: string }
-}) {
+export default function Submission() {
   return (
     <ErrorBoundary fallback={FetchErrorFallback}>
       <Suspense fallback={<SubmissionTableFallback />}>
-        <SubmissionTable
-          groupId={Number(params.courseId)}
-          assignmentId={Number(params.assignmentId)}
-        />
+        <div>
+          <ParticipantTable />
+          {/* <SubmissionTable
+            groupId={Number(params.courseId)}
+            assignmentId={Number(params.assignmentId)}
+          /> */}
+        </div>
       </Suspense>
     </ErrorBoundary>
   )
