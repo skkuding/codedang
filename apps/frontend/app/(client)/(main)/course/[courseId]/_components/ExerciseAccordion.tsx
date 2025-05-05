@@ -8,7 +8,6 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/shadcn/accordion'
-import { Dialog } from '@/components/shadcn/dialog'
 import { UNLIMITED_DATE } from '@/libs/constants'
 import {
   cn,
@@ -28,30 +27,30 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useInterval } from 'react-use'
 import { AssignmentLink } from './AssignmentLink'
-import { DetailButton } from './DetailButton'
-import { GradeDetailModal } from './GradeDetailModal'
-import { SubmissionDetailModal } from './SubmissionDetailModal'
+import { ResultBadge } from './ResultBadge'
 
-interface AssignmentAccordianProps {
+interface ExerciseAccordionProps {
   courseId: number
 }
 
-export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
-  const { data: assignments } = useQuery(
-    assignmentQueries.muliple({ courseId })
+export function ExerciseAccordion({ courseId }: ExerciseAccordionProps) {
+  const { data: exercises } = useQuery(
+    assignmentQueries.muliple({ courseId, isExercise: true })
   )
-  const { data: grades } = useQuery(assignmentQueries.grades({ courseId }))
+  const { data: grades } = useQuery(
+    assignmentQueries.grades({ courseId, isExercise: true })
+  )
 
   const gradeMap = new Map(grades?.map((grade) => [grade.id, grade]) ?? [])
 
   return (
     <div className="mt-8">
-      {assignments?.map((assignment) => (
-        <AssignmentAccordionItem
-          key={assignment.id}
-          assignment={assignment}
+      {exercises?.map((exercise) => (
+        <ExerciseAccordionItem
+          key={exercise.id}
+          exercise={exercise}
           grade={
-            gradeMap.get(assignment.id) ?? {
+            gradeMap.get(exercise.id) ?? {
               id: 0,
               submittedCount: 0,
               problemCount: 0,
@@ -67,39 +66,33 @@ export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
   )
 }
 
-interface AssignmentAccordionItemProps {
-  assignment: Assignment
+interface ExerciseAccordionItemProps {
+  exercise: Assignment
   courseId: number
   grade: AssignmentSummary
 }
 
-function AssignmentAccordionItem({
-  assignment,
+function ExerciseAccordionItem({
+  exercise,
   courseId,
   grade
-}: AssignmentAccordionItemProps) {
+}: ExerciseAccordionItemProps) {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false)
-  const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false)
-  const [openProblemId, setOpenProblemId] = useState<number | null>(null)
 
   const { data: record } = useQuery({
     ...assignmentQueries.record({
-      assignmentId: assignment.id
+      assignmentId: exercise.id
     }),
     enabled: isAccordionOpen
   })
 
   const { data: submission } = useQuery({
-    ...assignmentSubmissionQueries.summary({ assignmentId: assignment.id }),
+    ...assignmentSubmissionQueries.summary({ assignmentId: exercise.id }),
     enabled: isAccordionOpen
   })
 
-  const handleOpenChange = (problemId: number | null) => {
-    setOpenProblemId(problemId)
-  }
-
   const handleAccordionOpenChange = (value: string) => {
-    setIsAccordionOpen(value === assignment.id.toString())
+    setIsAccordionOpen(value === exercise.id.toString())
   }
 
   return (
@@ -110,74 +103,44 @@ function AssignmentAccordionItem({
       onValueChange={handleAccordionOpenChange}
     >
       <AccordionItem
-        value={assignment.id.toString()}
+        value={exercise.id.toString()}
         className="group border-b-0"
       >
         <AccordionTrigger
           className={cn(
-            'mt-[14px] flex w-full items-center rounded-2xl bg-white px-8 py-5 text-left text-sm shadow-md',
+            'mt-[14px] flex w-full items-center rounded-2xl bg-white px-[60px] py-5 text-left text-sm shadow-md',
             'data-[state=open]:-mb-6 data-[state=open]:mt-[24px]',
             'relative',
             'hover:no-underline'
           )}
           iconStyle="w-5 h-5 absolute right-[3%]"
         >
-          <p className="text-primary mr-3 w-[10%] text-left font-normal">
-            [Week {assignment.week}]
+          <p className="text-primary w-[10%] text-left font-normal">
+            [Week {exercise.week}]
           </p>
-          <div className="flex w-[30%] flex-col">
+          <div className="flex w-[45%] flex-col">
             <AssignmentLink
-              key={assignment.id}
-              assignment={assignment}
+              key={exercise.id}
+              assignment={exercise}
               courseId={courseId}
+              isExercise
             />
-            {assignment && <AssignmentStatusTimeDiff assignment={assignment} />}
+            {exercise && <AssignmentStatusTimeDiff assignment={exercise} />}
           </div>
-          {assignment && (
-            <div className="flex w-[30%] justify-center">
+          {exercise && (
+            <div className="flex w-[25%] justify-center">
               <div className="max-w-[200px] flex-1 text-left">
                 <p className="overflow-hidden whitespace-nowrap font-normal text-[#8A8A8A]">
-                  {formatDateRange(
-                    assignment.startTime,
-                    assignment.endTime,
-                    false
-                  )}
+                  {formatDateRange(exercise.startTime, exercise.endTime, false)}
                 </p>
               </div>
             </div>
           )}
-          <div className="flex w-[13%] justify-center">
-            {dayjs().isAfter(dayjs(assignment.startTime)) && (
+          <div className="flex w-[20%] justify-center">
+            {dayjs().isAfter(dayjs(exercise.startTime)) && (
               <SubmissionBadge grade={grade} />
             )}
           </div>
-
-          <div className="flex w-[10%] justify-center gap-1 font-medium">
-            {dayjs().isAfter(assignment.startTime) && (
-              <p>
-                {grade.submittedCount > 0
-                  ? `${grade.userAssignmentFinalScore ?? '-'} / ${grade.assignmentPerfectScore}`
-                  : `- / ${grade.assignmentPerfectScore}`}
-              </p>
-            )}
-          </div>
-          <div className="flex w-[5%] justify-center">
-            <Dialog
-              open={isAssignmentDialogOpen}
-              onOpenChange={setIsAssignmentDialogOpen}
-            >
-              <DetailButton
-                isActivated={
-                  grade.userAssignmentFinalScore !== null &&
-                  dayjs().isAfter(dayjs(assignment.endTime))
-                }
-              />
-              {isAssignmentDialogOpen && (
-                <GradeDetailModal courseId={courseId} assignment={assignment} />
-              )}
-            </Dialog>
-          </div>
-          <div className="w-[1%]" />
         </AccordionTrigger>
         <AccordionContent className="-mb-4 w-full">
           {isAccordionOpen && record && submission && (
@@ -186,14 +149,16 @@ function AssignmentAccordionItem({
               {record.problems.map((problem, index) => (
                 <div
                   key={problem.id}
-                  className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
+                  className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-[60px] py-6 last:border-none"
                 >
-                  <div className="text-primary mr-3 flex w-[7%] justify-center font-normal">
+                  <div className="text-primary flex w-[10%] justify-center font-normal">
                     <p> {convertToLetter(problem.order)}</p>
                   </div>
-                  <div className="flex w-[30%]">
+                  <div className="flex w-[45%]">
                     <Link
-                      href={`/course/${courseId}/assignment/${assignment.id}/problem/${problem.id}`}
+                      href={
+                        `/course/${courseId}/exercise/${exercise.id}/problem/${problem.id}` as const
+                      }
                       // onClick={handleClick}
                     >
                       <span className="line-clamp-1 font-medium text-[#171717]">
@@ -201,9 +166,9 @@ function AssignmentAccordionItem({
                       </span>
                     </Link>
                   </div>
-                  <div className="w-[30%]">
+                  <div className="w-[25%]">
                     {submission[index].submission?.submissionTime && (
-                      <div className="flex w-full justify-center font-normal text-[#8A8A8A]">
+                      <div className="flex w-full justify-center text-xs font-normal text-[#8A8A8A]">
                         Last Submission :{' '}
                         {dateFormatter(
                           submission[index].submission.submissionTime,
@@ -213,35 +178,9 @@ function AssignmentAccordionItem({
                     )}
                   </div>
 
-                  <div className="flex w-[13%] justify-center" />
-                  <div className="flex w-[10%] justify-center font-medium">
-                    {dayjs().isAfter(dayjs(assignment.endTime))
-                      ? (problem.problemRecord?.finalScore ?? '-')
-                      : '-'}{' '}
-                    / {problem.maxScore}
+                  <div className="flex w-[20%] justify-center font-medium">
+                    <ResultBadge assignmentSubmission={submission[index]} />
                   </div>
-                  <div className="flex w-[5%] justify-center">
-                    <Dialog
-                      open={openProblemId === problem.id}
-                      onOpenChange={(isOpen) =>
-                        handleOpenChange(isOpen ? problem.id : null)
-                      }
-                    >
-                      <DetailButton
-                        isActivated={
-                          (record?.isFinalScoreVisible ?? false) &&
-                          dayjs().isAfter(dayjs(assignment.endTime))
-                        }
-                      />
-                      {openProblemId === problem.id && (
-                        <SubmissionDetailModal
-                          problemId={problem.id}
-                          assignment={assignment}
-                        />
-                      )}
-                    </Dialog>
-                  </div>
-                  <div className="w-[1%]" />
                 </div>
               ))}
             </div>
@@ -351,15 +290,15 @@ function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
   return (
     <div
       className={cn(
-        'flex h-[34px] w-[100px] items-center justify-center rounded-full border',
+        'flex h-[38px] w-[140px] items-center justify-center rounded-full border',
         badgeStyle,
         className
       )}
     >
-      <div className="flex gap-2 text-sm font-medium">
-        <p> {grade.submittedCount}</p>
-        <p> /</p>
-        <p> {grade.problemCount}</p>
+      <div className="text-sm font-medium">
+        <p>
+          {grade.submittedCount}/{grade.problemCount}
+        </p>
       </div>
     </div>
   )
