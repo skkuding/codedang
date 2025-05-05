@@ -2,6 +2,11 @@
 
 set -ex
 
+if [ -z "$DEVCONTAINER" ]
+then
+  docker compose --profile=dev up -d
+fi
+
 # Check requirements: npm
 if [ ! $(command -v npm) ]
 then
