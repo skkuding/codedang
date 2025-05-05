@@ -260,3 +260,18 @@ jobs:
         if: steps.filter.outputs.iris == 'true'
         run: go test ./...
         working-directory: ./apps/iris
+
+  # TODO: write smoke test for backend
+  # e.g) start backend server and check if it responds to requests
+  #
+  # ```
+  # pnpm --filter="@codedang/backend" start &
+  #
+  # for i in {1..10}
+  # do
+  #   curl -s http://localhost:3000/health && exit 0
+  #   sleep 2
+  # done
+  # echo "Server did not respond to health check."
+  # exit 1
+  # ```

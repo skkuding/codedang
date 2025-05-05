@@ -20,6 +20,8 @@ jobs:
     defaults:
       run:
         shell: bash
+    outputs:
+      rc_ns_records: ${{ steps.exp-rc-ns.outputs.rc_ns_records }}
     steps:
       - uses: actions/checkout@v4
 
@@ -33,11 +35,12 @@ jobs:
           terraform_version: 1.5.2
 
       - name: Export RC NS Records
+        id: exp-rc-ns
         working-directory: ./apps/infra/rc/network
         run: |
           terraform init -backend-config="bucket=codedang-tf-state-rc"
           NS_RECORDS=$(terraform output -json rc_ns_records | jq -r '.[]' | tr '\n' ' ')
-          echo "RC_NS_RECORDS=$NS_RECORDS" >> $GITHUB_ENV
+          echo "rc_ns_records=$NS_RECORDS" >> $GITHUB_OUTPUT
 
   rc-update-prod-route53:
     name: RC - Update Production Route53 NS
@@ -49,30 +52,40 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v4
-
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY }}
           aws-region: ${{ env.AWS_REGION }}
-
       - name: Update Production Route53 NS Records
         run: |
           ZONE_ID=$(aws route53 list-hosted-zones-by-name --dns-name "codedang.com" --query "HostedZones[0].Id" --output text | cut -d'/' -f3)
-          aws route53 change-resource-record-sets \
-            --hosted-zone-id $ZONE_ID \
-            --change-batch '{
+          NS_RECORDS="${{ needs.export-rc-ns-records.outputs.rc_ns_records }}"
+          echo "NS_RECORDS is: [$NS_RECORDS]"
+          if [ -z "$NS_RECORDS" ]; then
+            echo "Error: rc_ns_records is empty"
+            exit 1
+          fi
+          # Trim trailing spaces and convert to JSON array, filtering out empty entries
+          NS_ARRAY=$(echo "$NS_RECORDS" | tr -s ' ' | sed 's/[[:space:]]*$//' | tr ' ' '\n' | grep -v '^$' | jq -R . | jq -s .)
+          echo "NS_ARRAY is: $NS_ARRAY"
+          CHANGE_BATCH=$(jq -n \
+            --arg name "rc.codedang.com" \
+            --argjson records "$NS_ARRAY" \
+            '{
               "Changes": [{
                 "Action": "UPSERT",
                 "ResourceRecordSet": {
-                  "Name": "rc.codedang.com",
+                  "Name": $name,
                   "Type": "NS",
                   "TTL": 300,
-                  "ResourceRecords": [
-                    {"Value": "'${{ env.RC_NS_RECORDS }}'"}
-                  ]
+                  "ResourceRecords": ($records | map({"Value": .}))
                 }
               }]
-            }'
+            }')
+          echo "Change Batch: $CHANGE_BATCH"
+          aws route53 change-resource-record-sets \
+            --hosted-zone-id "$ZONE_ID" \
+            --change-batch "$CHANGE_BATCH"
 
   rc-deploy-acm-validation:
     name: RC - Deploy ACM Validation

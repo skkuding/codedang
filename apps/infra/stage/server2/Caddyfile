@@ -90,6 +90,15 @@ stage.codedang.com {
 		import cors *.vercel.app
 	}
 
+	handle /submission/download/* {
+		reverse_proxy 127.0.0.1:3000
+
+		import cors http://localhost:5525
+		import cors *.codedang.com
+		import cors *.gitpod.io
+		import cors *.vercel.app
+	}
+
 	handle {
 		reverse_proxy https://coolify.codedang.com {
 			header_up Host coolify.codedang.com

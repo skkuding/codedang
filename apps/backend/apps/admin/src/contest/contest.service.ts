@@ -50,7 +50,7 @@ export class ContestService {
 
     const paginator = this.prisma.getPaginator(cursor)
 
-    return await this.prisma.contest.findMany({
+    const contests = await this.prisma.contest.findMany({
       ...paginator,
       take,
       where: {
@@ -66,8 +66,38 @@ export class ContestService {
               }
             }
           : {})
-      }
+      },
+      include: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: { contestRecord: true }
+        }
+      },
+      orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }, { createTime: 'asc' }]
     })
+
+    const now = new Date()
+    const getStatusWeight = (contest: Contest) => {
+      if (contest.startTime > now) return 0 // Upcoming
+      if (contest.endTime <= now) return 2 // Finished
+      return 1 // Ongoing
+    }
+
+    contests.sort((a, b) => {
+      const statusA = getStatusWeight(a)
+      const statusB = getStatusWeight(b)
+      if (statusA !== statusB) return statusA - statusB
+
+      const startDiff = a.startTime.getTime() - b.startTime.getTime()
+      if (startDiff !== 0) return startDiff
+
+      const endDiff = a.endTime.getTime() - b.endTime.getTime()
+      if (endDiff !== 0) return endDiff
+
+      return a.createTime.getTime() - b.createTime.getTime()
+    })
+
+    return contests
   }
 
   async getContest(contestId: number) {
@@ -94,6 +124,17 @@ export class ContestService {
                     realName: true
                   }
                 }
+              }
+            }
+          }
+        },
+        contestRecord: {
+          select: {
+            userId: true,
+            user: {
+              select: {
+                username: true,
+                email: true
               }
             }
           }
@@ -1042,6 +1083,7 @@ export class ContestService {
         user: { select: { username: true } },
         finalScore: true,
         finalTotalPenalty: true,
+        lastAcceptedTime: true,
         contestProblemRecord: {
           select: {
             finalScore: true,

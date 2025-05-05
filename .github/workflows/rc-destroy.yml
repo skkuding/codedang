@@ -62,6 +62,17 @@ jobs:
           terraform init -backend-config="bucket=codedang-tf-state-rc"
           terraform destroy -auto-approve
 
+      - name: Create Terraform variable file (ACM-Validation)
+        working-directory: ./apps/infra/rc/acm-validation
+        run: |
+          echo 'env = "rc"' >> terraform.tfvars
+
+      - name: Destroy ACM-Validation
+        working-directory: ./apps/infra/rc/acm-validation
+        run: |
+          terraform init -backend-config="bucket=codedang-tf-state-rc"
+          terraform destroy -auto-approve
+
       - name: Create Terraform variable file (Network)
         working-directory: ./apps/infra/rc/network
         run: |

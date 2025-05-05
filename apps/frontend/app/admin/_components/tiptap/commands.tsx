@@ -13,24 +13,26 @@ export interface CommandProps {
 
 const Commands = Extension.create({
   name: 'slashcommands',
-  defaultOptions: {
-    suggestion: {
-      char: '/',
-      startOfLine: false,
-      command: ({ editor, range, props }: CommandProps) => {
-        props.command({ editor, range, props })
-      },
-      render: () => ({}),
-      items: ({
-        query
-      }: {
-        query?: string
-      }): {
-        title: string
-        command: ({ editor, range }: { editor: Editor; range: Range }) => void
-      }[] => {
-        void query
-        return []
+  addOptions() {
+    return {
+      suggestion: {
+        char: '/',
+        startOfLine: false,
+        command: ({ editor, range, props }: CommandProps) => {
+          props.command({ editor, range, props })
+        },
+        render: () => ({}),
+        items: ({
+          query
+        }: {
+          query?: string
+        }): {
+          title: string
+          command: ({ editor, range }: { editor: Editor; range: Range }) => void
+        }[] => {
+          void query
+          return []
+        }
       }
     }
   },

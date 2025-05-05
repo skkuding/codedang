@@ -21,6 +21,13 @@ body:graphql {
       freezeTime
       startTime
       endTime
+      contestRecord {
+        userId
+        user {
+          username
+          email
+        }
+      }
       userContest {
         userId
         role
@@ -41,7 +48,7 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "contestId": 20
+    "contestId": 1
   }
 }
 

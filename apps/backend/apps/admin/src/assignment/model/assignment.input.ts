@@ -41,6 +41,9 @@ export class CreateAssignmentInput {
 
   @Field(() => Boolean, { nullable: true })
   isFinalScoreVisible?: boolean
+
+  @Field(() => Boolean, { nullable: true })
+  isExercise?: boolean
 }
 
 @InputType()
@@ -86,4 +89,7 @@ export class UpdateAssignmentInput {
 
   @Field(() => Boolean, { nullable: true })
   isFinalScoreVisible?: boolean
+
+  @Field(() => Boolean, { nullable: true })
+  isExercise?: boolean
 }
