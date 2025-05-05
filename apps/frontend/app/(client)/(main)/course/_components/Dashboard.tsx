@@ -15,9 +15,9 @@ import { DashboardCalendar } from './DashboardCalendar'
 
 const getAssignments = async () => {
   const data: {
-    ongoing: Assignment[] //Course type 정의 후 수정
+    ongoing: Assignment[]
     upcoming: Assignment[]
-  } = await fetcher.get('assignment/ongoing-upcoming').json() //group으로 해야하나 assignment로 해야하나!!
+  } = await fetcher.get('assignment/ongoing-upcoming').json()
   data.ongoing.forEach((assignment) => {
     assignment.status = 'ongoing'
   })
@@ -25,23 +25,6 @@ const getAssignments = async () => {
     assignment.status = 'upcoming'
   })
   return data.ongoing.concat(data.upcoming)
-}
-
-const getRegisteredAssignments = async () => {
-  //현재 등록된 assignments를 불러온다.
-  const data: {
-    registeredOngoing: Assignment[] //Course Interface를 정의한 뒤 수정해야한다.
-    registeredUpcoming: Assignment[]
-  } = await fetcherWithAuth
-    .get('assignment/ongoing-upcoming-with-registered')
-    .json()
-  data.registeredOngoing.forEach((assignment) => {
-    assignment.status = 'registeredOngoing'
-  })
-  data.registeredUpcoming.forEach((assignment) => {
-    assignment.status = 'registeredUpcoming'
-  })
-  return data.registeredOngoing.concat(data.registeredUpcoming)
 }
 
 export function Dashboard({ session }: { session?: Session | null }) {
@@ -53,9 +36,8 @@ export function Dashboard({ session }: { session?: Session | null }) {
   //TODO: Tanstack Query 쓰면 좋을 것 같아요!
   useEffect(() => {
     const fetchData = async () => {
-      const fetchedData = session
-        ? await getRegisteredAssignments()
-        : await getAssignments()
+      const fetchedData = session ? await getAssignments() : []
+
       const parsedData = fetchedData.map((assignment) => ({
         ...assignment,
         startTime: new Date(assignment.startTime),
