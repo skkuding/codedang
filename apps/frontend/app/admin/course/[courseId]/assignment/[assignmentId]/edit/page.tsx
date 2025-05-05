@@ -97,7 +97,7 @@ export default function Page({
                 </FormSection>
               </div>
 
-              <FormSection isFlexColumn title="Description">
+              <FormSection isFlexColumn title="Description" isLabeled={false}>
                 {methods.getValues('description') && (
                   <DescriptionForm name="description" />
                 )}
