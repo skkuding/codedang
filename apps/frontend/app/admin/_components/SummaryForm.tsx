@@ -36,10 +36,10 @@ function SummarySection({ buttonName, maxChar }: SummarySectionProps) {
   const { register, watch, setValue } = useFormContext()
 
   const [inputCount, setInputCount] = useState(0)
-  const watchedValue = watch(`summary.${buttonName}`) // Watch the specific field value
+  const watchedValue = watch(`summary.${buttonName}`)
 
   useEffect(() => {
-    setInputCount(watchedValue?.length || 0) // Update inputCount after rendering
+    setInputCount(watchedValue?.length || 0)
   }, [watchedValue])
 
   return (

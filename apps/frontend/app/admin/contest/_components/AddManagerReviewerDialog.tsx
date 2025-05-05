@@ -108,7 +108,7 @@ export function AddManagerReviewerDialog({
       .map((email, index) => {
         const user = users.find((user) => user.email === email)
         if (!user || !email.trim() || errors[index]) {
-          return null // Exclude invalid or empty values
+          return null
         }
         return {
           id: user.id,
@@ -118,7 +118,7 @@ export function AddManagerReviewerDialog({
           type: dropdownValues[index]
         }
       })
-      .filter((manager): manager is ContestManagerReviewer => manager !== null) // Remove null values
+      .filter((manager): manager is ContestManagerReviewer => manager !== null)
 
     setManagers([...managers, ...validManagers])
     setOpen(false)
