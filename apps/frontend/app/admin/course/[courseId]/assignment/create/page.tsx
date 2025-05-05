@@ -30,7 +30,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
       <ScrollArea className="w-full">
         <main className="flex flex-col gap-6 px-[93px] py-[80px]">
           <div className="flex items-center gap-4">
-            <Link href={`/admin/course/${courseId}/assignment` as Route}>
+            <Link href={`/admin/course/${courseId}/assignment` as const}>
               <FaAngleLeft className="h-12" />
             </Link>
             <span className="text-[32px] font-bold">CREATE ASSIGNMENT</span>
@@ -82,7 +82,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
                 </FormSection>
               </div>
 
-              <FormSection isFlexColumn title="Description">
+              <FormSection isFlexColumn title="Description" isLabeled={false}>
                 <DescriptionForm name="description" />
               </FormSection>
 
