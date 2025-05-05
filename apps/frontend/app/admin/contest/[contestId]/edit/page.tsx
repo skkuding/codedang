@@ -26,6 +26,7 @@ import {
   type ContestProblem,
   editSchema
 } from '../../_libs/schemas'
+import { EnableCopyPasteForm } from '../../create/_components/EnableCopyPasteForm'
 import { FreezeForm } from '../../create/_components/FreezeForm'
 import { PosterUploadForm } from '../../create/_components/PosterUploadForm'
 import { SampleTestcaseForm } from '../../create/_components/SampleTestcaseForm'
@@ -149,6 +150,13 @@ export default function Page({ params }: { params: { contestId: string } }) {
                 placeholder="Enter a invitation code"
                 hasValue={methods.getValues('invitationCode') !== null}
               />
+              {methods.getValues('enableCopyPaste') !== undefined && (
+                <EnableCopyPasteForm
+                  name="enableCopyPaste"
+                  title="Enable Copy Paste"
+                  hasValue={methods.getValues('enableCopyPaste') !== false}
+                />
+              )}
             </div>
 
             <div className="flex flex-col gap-1">
