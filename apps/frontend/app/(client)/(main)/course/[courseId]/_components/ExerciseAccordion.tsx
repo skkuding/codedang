@@ -18,7 +18,6 @@ import {
 import type {
   Assignment,
   AssignmentStatus,
-  AssignmentSubmission,
   AssignmentSummary
 } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
@@ -157,7 +156,9 @@ function ExerciseAccordionItem({
                   </div>
                   <div className="flex w-[45%]">
                     <Link
-                      href={`/course/${courseId}/exercise/${exercise.id}/problem/${problem.id}`}
+                      href={
+                        `/course/${courseId}/exercise/${exercise.id}/problem/${problem.id}` as const
+                      }
                       // onClick={handleClick}
                     >
                       <span className="line-clamp-1 font-medium text-[#171717]">

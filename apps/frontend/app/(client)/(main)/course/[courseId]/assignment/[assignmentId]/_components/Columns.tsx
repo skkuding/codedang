@@ -1,8 +1,9 @@
 'use client'
 
-import { FetchErrorFallback } from '@/components/FetchErrorFallback'
-import { Dialog } from '@/components/shadcn/dialog'
-import { Skeleton } from '@/components/shadcn/skeleton'
+// 기획 확실하지 않아서 주석처리 (민규)
+// import { FetchErrorFallback } from '@/components/FetchErrorFallback'
+// import { Dialog } from '@/components/shadcn/dialog'
+// import { Skeleton } from '@/components/shadcn/skeleton'
 import { convertToLetter, dateFormatter } from '@/libs/utils'
 import type {
   Assignment,
@@ -10,13 +11,13 @@ import type {
   AssignmentSubmission,
   ProblemGrade
 } from '@/types/type'
-import { ErrorBoundary } from '@suspensive/react'
+// import { ErrorBoundary } from '@suspensive/react'
 import type { ColumnDef, Row } from '@tanstack/react-table'
-import { Suspense, useState } from 'react'
-import { MdOutlineFileOpen } from 'react-icons/md'
-import { ProblemDetailModal } from '../../../_components/ProblemDetailModal'
+// import { Suspense, useState } from 'react'
+// import { MdOutlineFileOpen } from 'react-icons/md'
+// import { ProblemDetailModal } from '../../../_components/ProblemDetailModal'
+// import { TestCaseResult } from '../../../_components/TestCaseResult'
 import { ResultBadge } from '../../../_components/ResultBadge'
-import { TestCaseResult } from '../../../_components/TestCaseResult'
 
 export const columns = (
   record: AssignmentProblemRecord,
