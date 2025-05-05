@@ -33,7 +33,6 @@ func Factory(c Module, p Providers, args ...any) Connector {
 		if err != nil {
 			p.Logger.Panic(fmt.Sprintf("Failed to create consumer: %v", err))
 		}
-		p.Logger.Panic(fmt.Sprintf("Failed to create consumer: %v", err))
 
 		producerConfig, ok := args[1].(rabbitmq.ProducerConfig)
 		if !ok {

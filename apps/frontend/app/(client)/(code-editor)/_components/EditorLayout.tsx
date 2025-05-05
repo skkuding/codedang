@@ -14,9 +14,11 @@ import type { GetContestProblemDetailResponse } from '../../_libs/apis/contestPr
 import { AssignmentProblemDropdown } from './AssignmentProblemDropdown'
 import { ContestProblemDropdown } from './ContestProblemDropdown'
 import { EditorMainResizablePanel } from './EditorResizablePanel'
+import { ExerciseProblemDropdown } from './ExerciseProblemDropdown'
 
 interface EditorLayoutProps {
   assignmentId?: number
+  exerciseId?: number
   courseId?: number
   contestId?: number
   problemId: number
@@ -25,12 +27,14 @@ interface EditorLayoutProps {
 
 export async function EditorLayout({
   assignmentId,
+  exerciseId,
   courseId,
   contestId,
   problemId,
   children
 }: EditorLayoutProps) {
   let assignment: Assignment | undefined
+  let exercise: Assignment | undefined
   let contest: Contest | undefined
   let problem: Required<ProblemDetail>
   let courseName: string | undefined
@@ -77,6 +81,34 @@ export async function EditorLayout({
 
     assignment = await fetcherWithAuth(`assignment/${assignmentId}`).json()
     assignment && (assignment.status = 'ongoing')
+  } else if (courseId && exerciseId) {
+    // for getting course info
+    const courseRes = await fetcherWithAuth(`course/${courseId}`)
+    if (courseRes.ok) {
+      const courseData = await courseRes.json<Omit<Course, 'description'>>()
+      courseName = courseData.groupName
+      console.log(courseData)
+    }
+
+    // for getting assignment info and problems list
+    const exerciseRes = await fetcherWithAuth(
+      `assignment/${exerciseId}/problem/${problemId}`,
+      {
+        searchParams: { groupId: courseId }
+      }
+    )
+    if (!exerciseRes.ok && exerciseRes.status === 403) {
+      redirect(
+        `/course/${courseId}/exercise/${exerciseId}/finished/problem/${problemId}`
+      )
+    }
+
+    const exerciseProblem =
+      await exerciseRes.json<GetAssignmentProblemDetailResponse>()
+    problem = { ...exerciseProblem.problem, order: exerciseProblem.order }
+
+    exercise = await fetcherWithAuth(`assignment/${exerciseId}`).json()
+    exercise && (exercise.status = 'ongoing')
   } else {
     problem = await fetcher(`problem/${problemId}`).json()
   }
@@ -94,6 +126,7 @@ export async function EditorLayout({
             {renderHeaderContent({
               contest,
               assignment,
+              exercise,
               problem,
               courseId,
               courseName
@@ -101,7 +134,7 @@ export async function EditorLayout({
           </div>
         </div>
         <div className="flex items-center gap-1">
-          {renderTimediff({ contest, assignment })}
+          {renderTimediff({ contest, assignment, exercise })}
           <HeaderAuthPanel session={session} group={'editor'} />
         </div>
       </header>
@@ -110,7 +143,18 @@ export async function EditorLayout({
         contestId={contestId}
         courseId={courseId}
         assignmentId={assignmentId}
-        enableCopyPaste={contest ? contest.enableCopyPaste : true}
+        exerciseId={exerciseId}
+        enableCopyPaste={(() => {
+          if (contest) {
+            return contest.enableCopyPaste
+          } else if (assignment) {
+            return assignment.enableCopyPaste
+          } else if (exercise) {
+            return exercise.enableCopyPaste
+          } else {
+            return true
+          }
+        })()}
       >
         {children}
       </EditorMainResizablePanel>
@@ -121,6 +165,7 @@ export async function EditorLayout({
 interface HeaderContentProps {
   contest?: Contest | undefined
   assignment?: Assignment | undefined
+  exercise?: Assignment | undefined
   courseId?: number | undefined
   courseName?: string | undefined
   problem: Required<ProblemDetail>
@@ -129,6 +174,7 @@ interface HeaderContentProps {
 const renderHeaderContent = ({
   contest,
   assignment,
+  exercise,
   problem,
   courseId,
   courseName
@@ -167,6 +213,26 @@ const renderHeaderContent = ({
         )}
       </>
     )
+  } else if (exercise && courseName) {
+    return (
+      <>
+        <Link href={`/course/${courseId}/exercise`}>
+          <p> {omitString({ targetString: courseName, maxlength: 20 })}</p>
+        </Link>
+        <p className="mx-2"> / </p>
+        <Link href={`/course/${courseId}/exercise/${exercise.id}`}>
+          {omitString({ targetString: exercise.title, maxlength: 20 })}
+        </Link>
+        <p className="mx-2"> / </p>
+        {courseId !== undefined && (
+          <ExerciseProblemDropdown
+            problem={problem}
+            exerciseId={exercise.id}
+            courseId={courseId}
+          />
+        )}
+      </>
+    )
   } else {
     return (
       <>
@@ -179,10 +245,12 @@ const renderHeaderContent = ({
 
 const renderTimediff = ({
   contest,
-  assignment
+  assignment,
+  exercise
 }: {
   contest?: Contest | undefined
   assignment?: Assignment | undefined
+  exercise?: Assignment | undefined
 }) => {
   if (contest) {
     return (
@@ -192,15 +260,18 @@ const renderTimediff = ({
         inContestEditor={true}
       />
     )
-  } else if (assignment) {
+  }
+  const item = assignment ?? exercise
+
+  if (item) {
     return (
       <AssignmentStatusTimeDiff
-        assignment={assignment}
+        assignment={item}
         textStyle="text-sm text-error"
         inAssignmentEditor={true}
       />
     )
-  } else {
-    return null
   }
+
+  return null
 }

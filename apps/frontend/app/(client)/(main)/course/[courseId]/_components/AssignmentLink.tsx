@@ -1,6 +1,5 @@
 'use client'
 
-import { fetcherWithAuth } from '@/libs/utils'
 import type { Assignment, AssignmentStatus } from '@/types/type'
 import dayjs from 'dayjs'
 import Link from 'next/link'
@@ -12,12 +11,24 @@ import { toast } from 'sonner'
 interface AssignmentLinkProps {
   assignment: Assignment
   courseId: number
+  isExercise?: boolean
 }
 
-export function AssignmentLink({ assignment, courseId }: AssignmentLinkProps) {
+export function AssignmentLink({
+  assignment,
+  courseId,
+  isExercise = false
+}: AssignmentLinkProps) {
   const router = useRouter()
+  const [type, setType] = useState<'assignment' | 'exercise'>('assignment')
   const [assignmentStatus, setAssignmentStatus] =
     useState<AssignmentStatus>('upcoming')
+
+  const updateType = () => {
+    if (isExercise) {
+      setType('exercise')
+    }
+  }
 
   const updateAssignmentStatus = () => {
     // TODO: change to use server date
@@ -32,6 +43,7 @@ export function AssignmentLink({ assignment, courseId }: AssignmentLinkProps) {
   }
 
   useEffect(() => {
+    updateType()
     updateAssignmentStatus()
   }, [])
 
@@ -39,7 +51,7 @@ export function AssignmentLink({ assignment, courseId }: AssignmentLinkProps) {
     updateAssignmentStatus()
   }, 1000)
 
-  const handleClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
 
     if (assignmentStatus === 'upcoming') {
@@ -47,24 +59,12 @@ export function AssignmentLink({ assignment, courseId }: AssignmentLinkProps) {
       return
     }
 
-    const res = await fetcherWithAuth.post(
-      `assignment/${assignment.id}/participation`,
-      {
-        searchParams: {
-          groupId: courseId
-        }
-      }
-    )
-    if (!res.ok && res.status !== 409) {
-      toast.error('Failed to participate in the assignment')
-      return
-    }
-    router.push(`/course/${courseId}/assignment/${assignment.id}`)
+    router.push(`/course/${courseId}/${type}/${assignment.id}`)
   }
 
   return (
     <Link
-      href={`/course/${courseId}/assignment/${assignment.id}`}
+      href={`/course/${courseId}/${type}/${assignment.id}`}
       onClick={handleClick}
     >
       <p className="line-clamp-1 font-normal">{assignment.title}</p>

@@ -137,6 +137,17 @@ export class ContestService {
               }
             }
           }
+        },
+        contestRecord: {
+          select: {
+            userId: true,
+            user: {
+              select: {
+                username: true,
+                email: true
+              }
+            }
+          }
         }
       }
     })
@@ -1087,6 +1098,7 @@ export class ContestService {
         user: { select: { username: true } },
         finalScore: true,
         finalTotalPenalty: true,
+        lastAcceptedTime: true,
         contestProblemRecord: {
           select: {
             finalScore: true,

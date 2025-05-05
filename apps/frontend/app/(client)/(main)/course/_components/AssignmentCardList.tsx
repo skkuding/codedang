@@ -8,7 +8,6 @@ import {
 import { cn, fetcher, fetcherWithAuth } from '@/libs/utils'
 import type { Assignment } from '@/types/type'
 import type { Route } from 'next'
-import type { Session } from 'next-auth'
 import Link from 'next/link'
 import { AssignmentCard } from '../_components/AssignmentCard'
 
@@ -24,23 +23,6 @@ const getAssignments = async () => {
     assignment.status = 'upcoming'
   })
   return data.ongoing.concat(data.upcoming)
-}
-
-const getRegisteredAssignments = async () => {
-  //현재 등록된 assignments를 불러온다.
-  const data: {
-    registeredOngoing: Assignment[]
-    registeredUpcoming: Assignment[]
-  } = await fetcherWithAuth
-    .get('assignment/ongoing-upcoming-with-registered')
-    .json()
-  data.registeredOngoing.forEach((assignment) => {
-    assignment.status = 'registeredOngoing'
-  })
-  data.registeredUpcoming.forEach((assignment) => {
-    assignment.status = 'registeredUpcoming'
-  })
-  return data.registeredOngoing.concat(data.registeredUpcoming)
 }
 
 type ItemsPerSlide = 2 | 3
@@ -105,17 +87,13 @@ function AssignmentCardCarousel({
 interface AssignmentCardListProps {
   type: string
   title: string
-  session?: Session | null
 }
 
 export async function AssignmentCardList({
   title,
-  type,
-  session
+  type
 }: AssignmentCardListProps) {
-  const data = (
-    session ? await getRegisteredAssignments() : await getAssignments()
-  ).filter(
+  const data = (await getAssignments()).filter(
     (assignment) =>
       assignment.status.toLowerCase() === `registered${type.toLowerCase()}` ||
       assignment.status.toLowerCase() === type.toLowerCase()
