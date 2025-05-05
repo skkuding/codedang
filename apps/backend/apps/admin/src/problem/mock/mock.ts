@@ -5,7 +5,6 @@ import type {
   WorkbookProblem,
   Contest,
   ContestProblem,
-  Assignment,
   AssignmentProblem,
   ProblemTag,
   Tag,
@@ -51,6 +50,12 @@ export const template: Template = {
     }
   ]
 }
+export const solution = [
+  {
+    language: Language.Cpp,
+    code: 'int main(void) {}'
+  }
+]
 export const user: Partial<User>[] = [
   {
     id: 1,
@@ -72,6 +77,7 @@ export const problems: Problem[] = [
     hint: 'hit rather hint',
     template: [template],
     languages: [Language.Cpp],
+    solution,
     timeLimit: 0,
     memoryLimit: 0,
     difficulty: Level.Level2,
@@ -99,6 +105,7 @@ export const problems: Problem[] = [
     hint: 'hit rather hint',
     template: [template],
     languages: [Language.Cpp],
+    solution,
     timeLimit: 0,
     memoryLimit: 0,
     difficulty: Level.Level2,
@@ -238,7 +245,8 @@ export const importedProblems: Problem[] = [
         language: 'C'
       }
     ],
-    languages: ['C'],
+    languages: ['C', 'Cpp'],
+    solution,
     timeLimit: 2000,
     memoryLimit: 512,
     difficulty: 'Level3',
@@ -280,7 +288,8 @@ export const importedProblems: Problem[] = [
         language: 'Java'
       }
     ],
-    languages: ['C', 'Java'],
+    languages: ['C', 'Java', 'Cpp'],
+    solution,
     timeLimit: 2000,
     memoryLimit: 512,
     difficulty: 'Level4',

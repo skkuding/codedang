@@ -44,6 +44,7 @@ import type {
   UpdateProblemTagInput
 } from './model/problem.input'
 import type { ProblemWithIsVisible } from './model/problem.output'
+import type { Solution } from './model/solution.input'
 import type { Template } from './model/template.input'
 import { ImportedTestcaseHeader } from './model/testcase.constants'
 import type { Testcase } from './model/testcase.input'
@@ -61,7 +62,15 @@ export class ProblemService {
     userId: number,
     userRole: Role
   ) {
-    const { languages, template, tagIds, testcases, isVisible, ...data } = input
+    const {
+      languages,
+      template,
+      solution,
+      tagIds,
+      testcases,
+      isVisible,
+      ...data
+    } = input
 
     if (userRole == Role.User && isVisible == true) {
       throw new UnprocessableDataException(
@@ -84,12 +93,22 @@ export class ProblemService {
       }
     })
 
+    // Check if the problem supports the language in the solution
+    solution.forEach((solution: Solution) => {
+      if (!languages.includes(solution.language as Language)) {
+        throw new UnprocessableDataException(
+          `This problem does not support ${solution.language as Language}`
+        )
+      }
+    })
+
     const problem = await this.prisma.problem.create({
       data: {
         ...data,
         visibleLockTime: isVisible ? MIN_DATE : MAX_DATE,
         createdById: userId,
         languages,
+        solution,
         template: [JSON.stringify(template)],
         problemTag: {
           create: tagIds.map((tagId) => {
@@ -356,6 +375,7 @@ export class ProblemService {
       const languagesText = row.getCell(header['지원언어']).text.split(',')
       const levelText = row.getCell(header['난이도']).text
       const languages: Language[] = []
+      const solution: Solution[] = []
       const level: Level = Level['Level' + levelText]
       const template: Template[] = []
       for (let text of languagesText) {
@@ -364,18 +384,24 @@ export class ProblemService {
         }
         if (!(text in Language)) continue
         const language = text as keyof typeof Language
-        const code = row.getCell(header[`${language}SampleCode`]).text
+        const sampleCode = row.getCell(header[`${language}SampleCode`]).text
         template.push({
           language,
           code: [
             {
               id: 1,
-              text: code,
+              text: sampleCode,
               locked: false
             }
           ]
         })
         languages.push(Language[language])
+
+        const solutionCode = row.getCell(header[`${language}AnswerCode`]).text
+        solution.push({
+          language,
+          code: solutionCode
+        })
       }
       if (!languages.length) {
         throw new UnprocessableFileDataException(
@@ -422,6 +448,7 @@ export class ProblemService {
         outputDescription: '',
         hint: '',
         template,
+        solution,
         languages,
         timeLimit: 2000,
         memoryLimit: 512,
