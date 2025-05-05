@@ -15,7 +15,7 @@ import {
 } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
 import { AdminExceptionFilter, apolloErrorFormatter } from '@libs/exception'
-import Instrumentation from '@libs/instrumentation'
+import { openTelemetryModuleOption } from '@libs/instrumentation'
 import { LoggingPlugin, pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
 import { NoticeModule } from '@admin/notice/notice.module'
@@ -61,7 +61,7 @@ import { UserModule } from './user/user.module'
     NoticeModule,
     SubmissionModule,
     LoggerModule.forRoot(pinoLoggerModuleOption),
-    OpenTelemetryModule.forRoot(Instrumentation.getOpenTelemetryModuleOptions())
+    OpenTelemetryModule.forRoot(openTelemetryModuleOption)
   ],
   controllers: [AdminController],
   providers: [

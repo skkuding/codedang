@@ -113,6 +113,7 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 		trace.WithLinks(trace.Link{SpanContext: span.SpanContext()}),
 		trace.WithSpanKind(trace.SpanKindProducer),
 	)
+	defer childSpan.End()
 
 	seqNo := p.channel.GetNextPublishSeqNo()
 	p.logger.Log(logger.INFO, fmt.Sprintf("publishing %dB body", len(result)))
@@ -139,13 +140,11 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 			Type:            messageType, // 0-9
 		},
 	); err != nil {
-		childSpan.End()
 		return fmt.Errorf("exchange publish: %s", err)
 	}
 
 	p.logger.Log(logger.DEBUG, fmt.Sprintf("published %dB OK", len(result)))
 	p.publishes <- seqNo
-	childSpan.End()
 	return nil
 }
 

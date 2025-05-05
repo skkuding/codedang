@@ -84,6 +84,7 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 		trace.WithLinks(trace.Link{SpanContext: span.SpanContext()}), // Client-API로부터 전달받은 SpanContext를 연결
 		trace.WithSpanKind(trace.SpanKindConsumer),
 	)
+	defer childSpan.End()
 
 	resultChan := make(chan []byte)
 	if message.Type == "" {
@@ -111,5 +112,4 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 	} else {
 		c.logger.LogWithContext(logger.DEBUG, "message ack", spanCtx)
 	}
-	childSpan.End()
 }

@@ -8,7 +8,7 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 )
 
-// TODO: 좀 더 Semantic한 방식으로 변환
+// TODO: 가능하면 관련 라이브러리의 변환 함수 사용
 
 // convertHeaderCarrierToTable converts an OpenTelemetry HeaderCarrier to a RabbitMQ Table.
 func convertHeaderCarrierToTable(carrier propagation.HeaderCarrier) amqp.Table {

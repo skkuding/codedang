@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common'
 import {
   CompositePropagator,
   W3CBaggagePropagator,
@@ -21,8 +22,7 @@ import {
   ATTR_SERVICE_VERSION
 } from '@opentelemetry/semantic-conventions'
 import { PrismaInstrumentation } from '@prisma/instrumentation'
-import { request } from 'http'
-import type { OpenTelemetryModuleOptions } from 'nestjs-otel/lib/interfaces'
+import axios from 'axios'
 
 /**
  * Instrumentation는 OpenTelemetry SDK를 초기화하고 설정하는 클래스입니다.
@@ -33,6 +33,7 @@ import type { OpenTelemetryModuleOptions } from 'nestjs-otel/lib/interfaces'
  */
 class Instrumentation {
   private static sdk: NodeSDK | null = null
+  static readonly logger: Logger = new Logger('Instrumentation')
 
   /**
    * AWS 환경에서의 Instance ID를 가져오는 함수입니다.
@@ -43,31 +44,10 @@ class Instrumentation {
   private static getAWSInstanceId = (): Promise<string> => {
     const AWS_METADATA_HOSTNAME = '169.254.169.254'
     const AWS_METADATA_INSTANCE_ID_PATH = '/latest/meta-data/instance-id'
+    const url = `http://${AWS_METADATA_HOSTNAME}${AWS_METADATA_INSTANCE_ID_PATH}`
 
-    return new Promise((resolve, reject) => {
-      const options = {
-        hostname: AWS_METADATA_HOSTNAME,
-        path: AWS_METADATA_INSTANCE_ID_PATH,
-        method: 'GET',
-        timeout: 1000
-      }
-
-      const req = request(options, (res) => {
-        let data = ''
-        res.on('data', (chunk: Buffer) => {
-          data += chunk.toString()
-        })
-        res.on('end', () => {
-          resolve(data)
-        })
-      })
-
-      req.on('error', (error: Error) => {
-        console.error(error)
-        reject(error)
-      })
-
-      req.end()
+    return axios.get(url, {
+      timeout: 1000
     })
   }
 
@@ -108,75 +88,76 @@ class Instrumentation {
       ? otlpEndpointUrl
       : `http://${otlpEndpointUrl}`
 
-    Instrumentation.sdk = new NodeSDK({
-      resource,
-      // trace
-      spanProcessors: [
-        new BatchSpanProcessor(
-          new OTLPTraceExporter({
-            url: otlpEndpointUrlWithScheme
-          })
-        )
-      ],
-      // metric
-      metricReader: new PeriodicExportingMetricReader({
-        exporter: new OTLPMetricExporter({
+    const spanProcessors = [
+      new BatchSpanProcessor(
+        new OTLPTraceExporter({
           url: otlpEndpointUrlWithScheme
-        }),
-        exportIntervalMillis: 15000
+        })
+      )
+    ]
+    const metricReader = new PeriodicExportingMetricReader({
+      exporter: new OTLPMetricExporter({
+        url: otlpEndpointUrlWithScheme
       }),
-      // log
-      logRecordProcessors: [
-        new BatchLogRecordProcessor(
-          new OTLPLogExporter({
-            url: otlpEndpointUrlWithScheme
-          })
-        )
-      ],
-      textMapPropagator: new CompositePropagator({
-        propagators: [
-          new W3CTraceContextPropagator(),
-          new W3CBaggagePropagator()
-        ]
-      }),
-      instrumentations: [
-        new HttpInstrumentation(),
-        new ExpressInstrumentation(),
-        new PrismaInstrumentation(),
-        new PinoInstrumentation(),
-        new AmqplibInstrumentation()
-      ]
+      exportIntervalMillis: 15000
+    })
+    const logRecordProcessors = [
+      new BatchLogRecordProcessor(
+        new OTLPLogExporter({
+          url: otlpEndpointUrlWithScheme
+        })
+      )
+    ]
+
+    const textMapPropagator = new CompositePropagator({
+      propagators: [new W3CTraceContextPropagator(), new W3CBaggagePropagator()]
     })
 
-    console.log('OTEL SDK initialized')
+    const instrumentations = [
+      new HttpInstrumentation(),
+      new ExpressInstrumentation(),
+      new PrismaInstrumentation(),
+      new PinoInstrumentation(),
+      new AmqplibInstrumentation()
+    ]
+
+    Instrumentation.sdk = new NodeSDK({
+      resource,
+      spanProcessors,
+      metricReader,
+      logRecordProcessors,
+      textMapPropagator,
+      instrumentations
+    })
+
+    this.logger.log(
+      `OTEL SDK starting with endpoint: ${otlpEndpointUrlWithScheme}`
+    )
     return Instrumentation.sdk.start()
   }
 
   static async shutdown(): Promise<void> {
     if (Instrumentation.sdk) {
       await Instrumentation.sdk.shutdown()
-    }
-  }
-
-  public static getOpenTelemetryModuleOptions(): OpenTelemetryModuleOptions {
-    return {
-      metrics: {
-        hostMetrics: true,
-        apiMetrics: {
-          enable: true,
-          ignoreRoutes: ['/favicon.ico'],
-          ignoreUndefinedRoutes: false
-        }
-      }
+      Instrumentation.sdk = null
+      this.logger.log('OTEL SDK shutdown successfully')
+    } else {
+      this.logger.warn('OTEL SDK is not initialized')
     }
   }
 }
 
-process.on('SIGTERM', () => {
-  Instrumentation.shutdown()
-    .then(() => console.log('OTEL SDK shut down successfully'))
-    .catch((err) => console.error('Error shutting down OTEL SDK', err))
-    .finally(() => process.exit(0))
-})
+process.on('SIGTERM', () => Instrumentation.shutdown())
 
 export default Instrumentation
+
+export const openTelemetryModuleOption = {
+  metrics: {
+    hostMetrics: true,
+    apiMetrics: {
+      enable: true,
+      ignoreRoutes: ['/favicon.ico'],
+      ignoreUndefinedRoutes: false
+    }
+  }
+}

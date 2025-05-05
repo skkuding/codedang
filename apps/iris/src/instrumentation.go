@@ -39,11 +39,10 @@ var (
 	loggerProvider *otel_log.LoggerProvider
 )
 
-func getAWSInstanceID() string {
+func getAWSInstanceID() (string, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
-		fmt.Print("failed to get Config Of AWS")
-		return "Instance-Id-Not-Found"
+		return "", fmt.Errorf("Instance-Id-Not-Found")
 	}
 
 	client := imds.NewFromConfig(cfg)
@@ -53,7 +52,7 @@ func getAWSInstanceID() string {
 
 	if err != nil {
 		fmt.Print("failed to get Instance Id")
-		return "Instance-Id-Not-Found"
+		return "", fmt.Errorf("Instance-Id-Not-Found")
 	}
 
 	defer output.Content.Close()
@@ -61,9 +60,9 @@ func getAWSInstanceID() string {
 	bytes, err := io.ReadAll(output.Content)
 	if err != nil {
 		fmt.Print("failed to Type Cast from Metadata Output to String")
-		return "Instance-Id-Not-Found"
+		return "", fmt.Errorf("Instance-Id-Not-Found")
 	}
-	return string(bytes)
+	return string(bytes), nil
 }
 
 func newResource(ctx context.Context, serviceName, serviceVersion string) (*resource.Resource, error) {
@@ -78,13 +77,30 @@ func newResource(ctx context.Context, serviceName, serviceVersion string) (*reso
 		resource.WithOS(),
 		resource.WithTelemetrySDK(),
 	}
+
+	var instanceID string
 	appEnv := strings.ToLower(os.Getenv("APP_ENV"))
 	if appEnv == "production" || appEnv == "rc" {
-		instanceID := getAWSInstanceID()
-		attrs = append(attrs, resource.WithAttributes(semconv.ServiceInstanceID(instanceID)))
+		var err error
+		instanceID, err = getAWSInstanceID()
+		// instanceID: AWS Instance ID > Hostname > Fallback
+		if err != nil {
+			log.Printf("WARNING: Failed to get AWS instance ID: %v. Falling back to hostname.", err)
+			hostname, hostErr := os.Hostname()
+			if hostErr != nil {
+				log.Printf("WARNING: Failed to get hostname: %v. Using fallback instance ID.", hostErr)
+				instanceID = "unknown-instance-fallback"
+			} else {
+				instanceID = hostname
+			}
+		}
 	} else {
-		attrs = append(attrs, resource.WithAttributes(semconv.ServiceInstanceID("1")))
+		instanceID = "1"
 	}
+
+	// 결정된 instanceID를 속성으로 추가합니다.
+	attrs = append(attrs, resource.WithAttributes(semconv.ServiceInstanceID(instanceID)))
+
 	res, err := resource.New(ctx, attrs...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create resource: %w", err)
