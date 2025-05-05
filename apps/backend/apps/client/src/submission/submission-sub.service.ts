@@ -566,9 +566,9 @@ export class SubmissionSubscriptionService implements OnModuleInit {
             timePenaltySum,
             submitCountPenaltySum,
             maxTimePenalty
-          ),
-          lastAcceptedTime: updateTime
-        })
+          )
+        }),
+        lastAcceptedTime: updateTime
       }
 
       await prisma.contestRecord.update({

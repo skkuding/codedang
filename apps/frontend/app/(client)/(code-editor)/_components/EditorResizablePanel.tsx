@@ -42,6 +42,7 @@ interface ProblemEditorProps {
   children: React.ReactNode
   contestId?: number
   assignmentId?: number
+  exerciseId?: number
   courseId?: number
   enableCopyPaste?: boolean
 }
@@ -50,6 +51,7 @@ export function EditorMainResizablePanel({
   problem,
   contestId,
   assignmentId,
+  exerciseId,
   courseId,
   enableCopyPaste = true,
   children
@@ -103,6 +105,8 @@ export function EditorMainResizablePanel({
     base = `/contest/${contestId}` as const
   } else if (assignmentId) {
     base = `/course/${courseId}/assignment/${assignmentId}` as const
+  } else if (exerciseId) {
+    base = `/course/${courseId}/exercise/${exerciseId}` as const
   } else {
     base = '' as const
   }
@@ -110,6 +114,7 @@ export function EditorMainResizablePanel({
     problem.id,
     contestId,
     assignmentId,
+    exerciseId,
     courseId
   )()
   const [tabValue, setTabValue] = useState('Description')
@@ -242,6 +247,7 @@ export function EditorMainResizablePanel({
             problemId={problem.id}
             contestId={contestId}
             assignmentId={assignmentId}
+            exerciseId={exerciseId}
             courseId={courseId}
             problemTestcase={problem.problemTestcase}
           >
@@ -250,6 +256,7 @@ export function EditorMainResizablePanel({
                 problem={problem}
                 contestId={contestId}
                 assignmentId={assignmentId}
+                exerciseId={exerciseId}
                 courseId={courseId}
                 templateString={problem.template[0]}
               />
@@ -267,6 +274,7 @@ export function EditorMainResizablePanel({
                     problemId={problem.id}
                     contestId={contestId}
                     assignmentId={assignmentId}
+                    exerciseId={exerciseId}
                     enableCopyPaste={enableCopyPaste}
                   />
                 </ResizablePanel>
@@ -275,7 +283,7 @@ export function EditorMainResizablePanel({
                   defaultSize={40}
                   className={cn(isBottomPanelHidden && 'hidden')}
                 >
-                  <TestcasePanel />
+                  <TestcasePanel isContest={Boolean(courseId)} />
                 </ResizablePanel>
               </ResizablePanelGroup>
             </TestPollingStoreProvider>
@@ -290,6 +298,7 @@ interface CodeEditorInEditorResizablePanelProps {
   problemId: number
   contestId?: number
   assignmentId?: number
+  exerciseId?: number
   enableCopyPaste: boolean
 }
 
@@ -297,9 +306,15 @@ function CodeEditorInEditorResizablePanel({
   problemId,
   contestId,
   assignmentId,
+  exerciseId,
   enableCopyPaste
 }: CodeEditorInEditorResizablePanelProps) {
-  const { language } = useLanguageStore(problemId, contestId, assignmentId)()
+  const { language } = useLanguageStore(
+    problemId,
+    contestId,
+    assignmentId,
+    exerciseId
+  )()
   const { code, setCode } = useCodeStore()
 
   return (
@@ -349,6 +364,7 @@ function HidePanelButton({
             ? '[clip-path:polygon(0%_0%,100%_16%,100%_84%,0%_100%)]'
             : '[clip-path:polygon(16%_0%,84%_0%,100%_100%,0%_100%)]'
         )}
+        onKeyDown={preventEnterKeyDown}
         onClick={() => {
           toggleIsPanelHidden()
         }}
@@ -375,4 +391,10 @@ function HidePanelButton({
       </Button>
     </div>
   )
+}
+
+const preventEnterKeyDown = (event: React.KeyboardEvent) => {
+  if (event.key === 'Enter') {
+    event.preventDefault()
+  }
 }

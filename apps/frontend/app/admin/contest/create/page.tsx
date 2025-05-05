@@ -20,6 +20,7 @@ import { CreateEditContestLabel } from '../_components/CreateEditContestLabel'
 import { ImportDialog } from '../_components/ImportDialog'
 import type { ContestManagerReviewer, ContestProblem } from '../_libs/schemas'
 import { CreateContestForm } from './_components/CreateContestForm'
+import { EnableCopyPasteForm } from './_components/EnableCopyPasteForm'
 import { FreezeForm } from './_components/FreezeForm'
 import { PosterUploadForm } from './_components/PosterUploadForm'
 import { SampleTestcaseForm } from './_components/SampleTestcaseForm'
@@ -89,6 +90,10 @@ export default function Page() {
                 type="number"
                 formElement="input"
                 placeholder="Enter a invitation code"
+              />
+              <EnableCopyPasteForm
+                name="enableCopyPaste"
+                title="Enable Copy Paste"
               />
             </div>
 

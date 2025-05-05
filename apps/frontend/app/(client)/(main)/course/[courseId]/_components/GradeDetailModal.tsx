@@ -44,8 +44,7 @@ export function GradeDetailModal({
 
   const { data: assignmentProblemRecord } = useSuspenseQuery({
     ...assignmentQueries.record({
-      assignmentId: assignment.id,
-      courseId
+      assignmentId: assignment.id
     })
   })
 

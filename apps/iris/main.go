@@ -74,8 +74,16 @@ func main() {
 	defaultTracer := otel.Tracer("default")
 
 	bucket := utils.Getenv("TESTCASE_BUCKET_NAME", "")
-	s3reader := loader.NewS3DataSource(bucket)
-	database := loader.NewPostgresDataSource(ctx)
+	s3reader, err := loader.NewS3DataSource(bucket)
+	if err != nil {
+		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create S3 data source: %v", err))
+		return
+	}
+	database, err := loader.NewPostgresDataSource(ctx)
+	if err != nil {
+		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create Postgres data source: %v", err))
+		return
+	}
 	testcaseManager := testcase.NewTestcaseManager(s3reader, database)
 
 	fileManager := file.NewFileManager("/app/sandbox/results")

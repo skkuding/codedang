@@ -29,6 +29,7 @@ const (
 
 type Logger interface {
 	Log(level Level, msg string)
+	Panic(msg string)
 	LogWithContext(level Level, msg string, ctx context.Context)
 }
 
@@ -127,4 +128,9 @@ func (l *logger) LogWithContext(level Level, msg string, ctx context.Context) {
 	case ERROR:
 		l.zap.Error(msg, fields...)
 	}
+}
+
+func (l *logger) Panic(msg string) {
+	defer l.zap.Sync()
+	l.zap.Panic(msg)
 }

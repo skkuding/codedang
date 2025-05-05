@@ -72,6 +72,7 @@ interface ProblemEditorProps {
   problem: ProblemDetail
   contestId?: number
   assignmentId?: number
+  exerciseId?: number
   courseId?: number
   templateString: string
 }
@@ -80,13 +81,15 @@ export function EditorHeader({
   problem,
   contestId,
   assignmentId,
+  exerciseId,
   courseId,
   templateString
 }: ProblemEditorProps) {
   const { language, setLanguage } = useLanguageStore(
     problem.id,
     contestId,
-    assignmentId
+    assignmentId,
+    exerciseId
   )()
   const setCode = useCodeStore((state) => state.setCode)
   const getCode = useCodeStore((state) => state.getCode)
@@ -102,7 +105,14 @@ export function EditorHeader({
   const pathname = usePathname()
   const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
   const storageKey = useRef(
-    getStorageKey(language, problem.id, userName, contestId, assignmentId)
+    getStorageKey(
+      language,
+      problem.id,
+      userName,
+      contestId,
+      assignmentId,
+      exerciseId
+    )
   )
   const session = useSession()
   const showSignIn = useAuthModalStore((state) => state.showSignIn)
@@ -126,7 +136,8 @@ export function EditorHeader({
         searchParams: {
           problemId: problem.id,
           ...(contestId && { contestId }),
-          ...(assignmentId && { assignmentId })
+          ...(assignmentId && { assignmentId }),
+          ...(exerciseId && { assignmentId: exerciseId })
         }
       })
       if (res.ok) {
@@ -139,6 +150,8 @@ export function EditorHeader({
             href = `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}?cellProblemId=${problem.id}`
           } else if (assignmentId) {
             href = `/course/${courseId}/assignment/${assignmentId}/problem/${problem.id}/submission/${submissionId}`
+          } else if (exerciseId) {
+            href = `/course/${courseId}/exercise/${exerciseId}/problem/${problem.id}/submission/${submissionId}`
           } else {
             href = `/problem/${problem.id}/submission/${submissionId}`
           }
@@ -190,13 +203,22 @@ export function EditorHeader({
       problem.id,
       userName,
       contestId,
-      assignmentId
+      assignmentId,
+      exerciseId
     )
     if (storageKey.current !== undefined) {
       const storedCode = getCodeFromLocalStorage(storageKey.current)
       setCode(storedCode || templateCode)
     }
-  }, [userName, problem, contestId, assignmentId, language, templateCode])
+  }, [
+    userName,
+    problem,
+    contestId,
+    assignmentId,
+    exerciseId,
+    language,
+    templateCode
+  ])
 
   const storeCodeToLocalStorage = (code: string) => {
     if (storageKey.current !== undefined) {
@@ -249,7 +271,8 @@ export function EditorHeader({
       searchParams: {
         problemId: problem.id,
         ...(contestId && { contestId }),
-        ...(assignmentId && { assignmentId })
+        ...(assignmentId && { assignmentId }),
+        ...(exerciseId && { assignmentId: exerciseId })
       },
       next: {
         revalidate: 0
@@ -259,6 +282,7 @@ export function EditorHeader({
       toast.success('Successfully submitted the code')
       storeCodeToLocalStorage(code)
       const submission: Submission = await res.json()
+
       setSubmissionId(submission.id)
       if (contestId) {
         queryClient.invalidateQueries({
@@ -277,6 +301,16 @@ export function EditorHeader({
         queryClient.invalidateQueries({
           queryKey: assignmentSubmissionQueries.lists({
             assignmentId,
+            problemId: problem.id
+          })
+        })
+      } else if (exerciseId) {
+        queryClient.invalidateQueries({
+          queryKey: assignmentProblemQueries.lists(exerciseId)
+        })
+        queryClient.invalidateQueries({
+          queryKey: assignmentSubmissionQueries.lists({
+            assignmentId: exerciseId,
             problemId: problem.id
           })
         })
@@ -348,7 +382,8 @@ export function EditorHeader({
       problem.id,
       userName,
       contestId,
-      assignmentId
+      assignmentId,
+      exerciseId
     )
 
     // TODO: 배포 후 뒤로 가기 로직 재구현
