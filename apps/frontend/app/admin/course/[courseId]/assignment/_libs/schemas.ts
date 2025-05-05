@@ -9,7 +9,11 @@ export const createSchema = v.object({
 
   isRankVisible: v.boolean(),
   isVisible: v.boolean(),
-  description: v.optional(v.string()),
+  description: v.pipe(
+    v.string(),
+    v.minLength(1),
+    v.check((value) => value !== '<p></p>')
+  ),
   startTime: v.optional(v.date()),
   endTime: v.optional(v.date()),
   week: v.number(),

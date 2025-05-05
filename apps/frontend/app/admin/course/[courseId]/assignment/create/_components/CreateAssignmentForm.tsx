@@ -39,7 +39,7 @@ export function CreateAssignmentForm({
       enableCopyPaste: false,
       isJudgeResultVisible: false,
       autoFinalizeScore: false,
-      description: '<p></p>'
+      description: ''
     }
   })
 
