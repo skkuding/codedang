@@ -18,7 +18,7 @@ data "aws_iam_policy_document" "testcase_permissions" {
     }
 
     condition {
-      test     = "IpAddress"
+      test     = "StringEquals"
       variable = "aws:sourceVpce"
       values   = [local.network.vpc_endpoint]
     }
