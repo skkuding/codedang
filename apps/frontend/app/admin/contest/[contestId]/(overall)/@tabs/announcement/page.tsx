@@ -49,7 +49,6 @@ export default function AdminAnnouncementPage() {
     register,
     setValue,
     getValues,
-    watch,
     trigger,
     resetField,
     formState: { errors }
@@ -63,22 +62,15 @@ export default function AdminAnnouncementPage() {
     setSeemore(openHistory ? 'see more' : 'close')
   }
 
-  const onSubmitAnnouncement: SubmitHandler<CreateAnnouncementInput> = async (
-    data
-  ) => {
+  const onSubmitAnnouncement: SubmitHandler<
+    CreateAnnouncementInput
+  > = async () => {
     const formValues = getValues()
-    const submitData = {
-      ...data,
-      problemOrder: formValues.problemOrder
-    }
-    console.log('original form data: ', data)
-    console.log('corrected form data:', submitData)
-
     try {
       await createAnnouncement({
         variables: {
           contestId,
-          input: submitData
+          input: formValues
         }
       })
       resetField('content')
@@ -96,8 +88,6 @@ export default function AdminAnnouncementPage() {
     },
     []
   )
-  const problemOrder = watch('problemOrder')
-  console.log('problemOrder:', problemOrder)
 
   return (
     <ConfirmNavigation>
@@ -201,11 +191,6 @@ export default function AdminAnnouncementPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <input
-                type="hidden"
-                value={problemOrder ?? ''}
-                {...register('problemOrder')}
-              />
               {errors.problemOrder && (
                 <ErrorMessage message={errors.problemOrder.message} />
               )}
