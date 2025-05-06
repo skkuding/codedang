@@ -240,9 +240,6 @@ function InviteManually({ courseId }: InviteManuallyProps) {
     >
       {/* 제목 + 선택된 유저 수 */}
       <span className="text-base font-bold">Invite Manually</span>
-      <span className="text-sm text-gray-400">
-        {invitedList.length} user(s) selected
-      </span>
 
       {/* Email 입력 줄 */}
       <div className="flex w-full max-w-[500px] flex-col gap-4">
