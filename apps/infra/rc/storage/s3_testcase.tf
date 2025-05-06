@@ -8,6 +8,7 @@ resource "aws_s3_bucket" "testcase" {
 
 data "aws_iam_policy_document" "testcase_permissions" {
   statement {
+    sid       = "AllowTestcaseRead"
     actions   = ["s3:ListBucket", "s3:GetObject"]
     resources = ["${aws_s3_bucket.testcase.arn}", "${aws_s3_bucket.testcase.arn}/*"]
 
@@ -18,8 +19,8 @@ data "aws_iam_policy_document" "testcase_permissions" {
 
     condition {
       test     = "IpAddress"
-      variable = "AWS:SourceIp"
-      values   = [local.network.public_ip]
+      variable = "aws:sourceVpce"
+      values   = [local.network.vpc_endpoint]
     }
   }
 }
