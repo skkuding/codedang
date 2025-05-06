@@ -142,41 +142,40 @@ function InviteManually({ courseId }: InviteManuallyProps) {
   const [inviteUser] = useMutation(INVITE_USER)
 
   const onFind: SubmitHandler<FindUserInput> = async (data) => {
-    const res = await fetcherWithAuth('user/email', {
-      searchParams: {
-        email: data.email
+    try {
+      const res = await fetcherWithAuth('user/email', {
+        searchParams: { email: data.email }
+      })
+
+      if (!res.ok) {
+        toast.error('Failed to find user')
+        return
       }
-    })
-    if (res.ok) {
+
       const userInfo: UserInfo = await res.json()
       setUserId(userInfo.id)
-      toast.success('Invited Successfully !', {
-        style: {
-          background: '#F0F8FF',
-          color: '#0973DC',
-          borderRadius: '1000px',
-          border: '1px solid rgba(255, 255, 255, 0.10)',
-          maxWidth: '200px'
-        },
-        closeButton: false
-      })
-    } else {
-      toast.error('Failed to find user')
+    } catch (err) {
+      console.error(err)
+      toast.error('Unexpected error occurred')
     }
   }
 
   const onInvite: SubmitHandler<InviteUserInput> = useCallback(
     async (data) => {
-      const updatePromise = inviteUser({
-        variables: {
-          groupId: courseId,
-          isGroupLeader: data.isGroupLeader,
-          userId
-        }
-      })
+      if (!userId) {
+        toast.error('No user selected to invite')
+        return
+      }
 
       try {
-        const result = await updatePromise
+        const result = await inviteUser({
+          variables: {
+            groupId: courseId,
+            isGroupLeader: data.isGroupLeader,
+            userId
+          }
+        })
+
         setInvitedList((prevList) => [
           ...prevList,
           {
@@ -186,6 +185,17 @@ function InviteManually({ courseId }: InviteManuallyProps) {
               : 'Student'
           }
         ])
+
+        toast.success('Invited Successfully!', {
+          style: {
+            background: '#F0F8FF',
+            color: '#0973DC',
+            borderRadius: '1000px',
+            border: '1px solid rgba(255, 255, 255, 0.10)',
+            maxWidth: '200px'
+          },
+          closeButton: false
+        })
       } catch {
         toast.error('Failed to invite user')
       }
