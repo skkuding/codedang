@@ -15,6 +15,7 @@ import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { solution } from '@admin/problem/mock/mock'
 import { AssignmentService } from './assignment.service'
 import type { AssignmentWithParticipants } from './model/assignment-with-participants.model'
 import type {
@@ -126,7 +127,8 @@ const problem: Problem = {
   outputDescription: 'outputdescription',
   hint: 'hint',
   template: [],
-  languages: ['C'],
+  languages: ['C', 'Cpp'],
+  solution,
   timeLimit: 10000,
   memoryLimit: 100000,
   difficulty: 'Level1',

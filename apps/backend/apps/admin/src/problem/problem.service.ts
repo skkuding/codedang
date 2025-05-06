@@ -85,21 +85,37 @@ export class ProblemService {
     }
 
     // Check if the problem supports the language in the template
+    const seen = new Set<Language>()
     template.forEach((template: Template) => {
-      if (!languages.includes(template.language as Language)) {
+      const lang = template.language as Language
+      if (!languages.includes(lang)) {
         throw new UnprocessableDataException(
-          `This problem does not support ${template.language as Language}`
+          `This problem does not support ${lang}`
         )
       }
+      if (seen.has(lang)) {
+        throw new UnprocessableDataException(
+          `Duplicate language ${lang} in template`
+        )
+      }
+      seen.add(lang)
     })
 
     // Check if the problem supports the language in the solution
+    seen.clear()
     solution.forEach((solution: Solution) => {
-      if (!languages.includes(solution.language as Language)) {
+      const lang = solution.language as Language
+      if (!languages.includes(lang)) {
         throw new UnprocessableDataException(
-          `This problem does not support ${solution.language as Language}`
+          `This problem does not support ${lang}`
         )
       }
+      if (seen.has(lang)) {
+        throw new UnprocessableDataException(
+          `Duplicate language ${lang} in solution`
+        )
+      }
+      seen.add(lang)
     })
 
     const problem = await this.prisma.problem.create({
@@ -385,23 +401,27 @@ export class ProblemService {
         if (!(text in Language)) continue
         const language = text as keyof typeof Language
         const sampleCode = row.getCell(header[`${language}SampleCode`]).text
-        template.push({
-          language,
-          code: [
-            {
-              id: 1,
-              text: sampleCode,
-              locked: false
-            }
-          ]
-        })
+        if (sampleCode !== '') {
+          template.push({
+            language,
+            code: [
+              {
+                id: 1,
+                text: sampleCode,
+                locked: false
+              }
+            ]
+          })
+        }
         languages.push(Language[language])
 
         const solutionCode = row.getCell(header[`${language}AnswerCode`]).text
-        solution.push({
-          language,
-          code: solutionCode
-        })
+        if (solutionCode !== '') {
+          solution.push({
+            language,
+            code: solutionCode
+          })
+        }
       }
       if (!languages.length) {
         throw new UnprocessableFileDataException(
@@ -763,8 +783,16 @@ export class ProblemService {
     userRole: Role,
     userId: number
   ) {
-    const { id, languages, template, tags, testcases, isVisible, ...data } =
-      input
+    const {
+      id,
+      languages,
+      template,
+      solution,
+      tags,
+      testcases,
+      isVisible,
+      ...data
+    } = input
 
     if (userRole == Role.User && isVisible == true) {
       throw new UnprocessableDataException(
@@ -892,6 +920,14 @@ export class ProblemService {
       }
     })
 
+    solution?.forEach((solution) => {
+      if (!supportedLangs.includes(solution.language as Language)) {
+        throw new UnprocessableDataException(
+          `This problem does not support ${solution.language as Language}`
+        )
+      }
+    })
+
     // TODO: Problem Edit API 호출 방식 수정 후 롤백 예정
     // const submission = await this.prisma.submission.findFirst({
     //   where: {
@@ -928,6 +964,7 @@ export class ProblemService {
         }),
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
+        ...(solution && { solution }),
         problemTag,
         ...(updatedFields.length > 0 && {
           updateHistory: {

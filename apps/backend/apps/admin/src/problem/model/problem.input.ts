@@ -151,6 +151,9 @@ export class UpdateProblemInput {
   @Field(() => [Language], { nullable: true })
   languages?: Array<keyof typeof Language>
 
+  @Field(() => [Solution], { nullable: true })
+  solution?: Array<Solution>
+
   @Field(() => Int, { nullable: true })
   timeLimit?: number
 
