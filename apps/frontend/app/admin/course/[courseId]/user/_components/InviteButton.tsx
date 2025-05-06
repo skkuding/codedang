@@ -129,13 +129,16 @@ interface UserInfo {
   id: number
 }
 
+type InvitedUserDisplay = {
+  email: string
+  role: 'Instructor' | 'Student'
+}
+
 function InviteManually({ courseId }: InviteManuallyProps) {
   const roles: MemberRole[] = ['Instructor', 'Student']
   const [userId, setUserId] = useState(0)
 
-  const [invitedList, setInvitedList] = useState<
-    { email: string; role: 'Instructor' | 'Student' }[]
-  >([])
+  const [invitedList, setInvitedList] = useState<InvitedUserDisplay[]>([])
   const [inviteUser] = useMutation(INVITE_USER)
 
   const onFind: SubmitHandler<FindUserInput> = async (data) => {
