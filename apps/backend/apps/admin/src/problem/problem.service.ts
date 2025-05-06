@@ -912,20 +912,39 @@ export class ProblemService {
       )
     }
     const supportedLangs = languages ?? problem.languages
-    template?.forEach((template) => {
-      if (!supportedLangs.includes(template.language as Language)) {
+
+    // Check if the problem supports the language in the template
+    const seen = new Set<Language>()
+    template?.forEach((template: Template) => {
+      const lang = template.language as Language
+      if (!supportedLangs.includes(lang)) {
         throw new UnprocessableDataException(
-          `This problem does not support ${template.language as Language}`
+          `This problem does not support ${lang}`
         )
       }
+      if (seen.has(lang)) {
+        throw new UnprocessableDataException(
+          `Duplicate language ${lang} in template`
+        )
+      }
+      seen.add(lang)
     })
 
-    solution?.forEach((solution) => {
-      if (!supportedLangs.includes(solution.language as Language)) {
+    // Check if the problem supports the language in the solution
+    seen.clear()
+    solution?.forEach((solution: Solution) => {
+      const lang = solution.language as Language
+      if (!supportedLangs.includes(lang)) {
         throw new UnprocessableDataException(
-          `This problem does not support ${solution.language as Language}`
+          `This problem does not support ${lang}`
         )
       }
+      if (seen.has(lang)) {
+        throw new UnprocessableDataException(
+          `Duplicate language ${lang} in solution`
+        )
+      }
+      seen.add(lang)
     })
 
     // TODO: Problem Edit API 호출 방식 수정 후 롤백 예정
