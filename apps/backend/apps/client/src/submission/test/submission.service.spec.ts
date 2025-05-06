@@ -120,6 +120,7 @@ const mockAssignment: Assignment = {
   description: 'test',
   startTime: new Date(Date.now() - 10000),
   endTime: new Date(Date.now() + 10000),
+  dueTime: new Date(Date.now() + 5000),
   isVisible: true,
   isRankVisible: true,
   isJudgeResultVisible: true,
@@ -284,7 +285,8 @@ describe('SubmissionService', () => {
         assignment: {
           groupId: 1,
           startTime: new Date(Date.now() - 10000),
-          endTime: new Date(Date.now() + 10000)
+          endTime: new Date(Date.now() + 10000),
+          dueTime: new Date(Date.now() + 5000)
         }
       })
       db.assignmentProblem.findUnique.resolves({ problem: problems[0] })
