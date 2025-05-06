@@ -80,7 +80,11 @@
     }
   ],
   "logConfiguration": {
-    "logDriver": "awsfirelens",
-    "secretOptions": []
+    "logDriver": "awslogs",
+    "options": {
+      "awslogs-group": "${log_group_name}",
+      "awslogs-region": "${region}",
+      "awslogs-stream-prefix": "client-api"
+    }
   }
 }

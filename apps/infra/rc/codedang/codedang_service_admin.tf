@@ -2,6 +2,17 @@ data "aws_ecr_repository" "admin_api" {
   name = "codedang-admin-api"
 }
 
+# TODO: send log to grafana
+resource "aws_cloudwatch_log_group" "admin_api" {
+  name              = "/aws/ecs/codedang-admin-api"
+  retention_in_days = 30
+
+  tags = {
+    Name        = "Codedang-Admin-Api"
+    Description = "Codedang Admin Api log group"
+  }
+}
+
 module "admin_api_loadbalancer" {
   source = "./modules/loadbalancing"
 
@@ -41,10 +52,9 @@ module "admin_api" {
         media_secret_key                = local.storage.media_secret_access_key,
         otel_exporter_otlp_endpoint_url = var.otel_exporter_otlp_endpoint_url,
         loki_url                        = var.loki_url,
+        log_group_name                  = aws_cloudwatch_log_group.admin_api.name,
+        region                          = data.aws_region.current.name,
       })),
-      jsondecode(templatefile("container_definitions/fluentbit.json", {
-        fluentbit_config_arn = aws_s3_object.fluent_bit_config_file.arn
-      }))
     ])
     execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
   }
