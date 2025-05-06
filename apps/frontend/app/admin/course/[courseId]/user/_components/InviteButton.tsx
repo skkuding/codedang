@@ -9,7 +9,6 @@ import {
   AlertDialogCancel,
   AlertDialogFooter,
   AlertDialogAction,
-  AlertDialogTrigger,
   AlertDialogDescription
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
@@ -21,9 +20,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
-import { Separator } from '@/components/shadcn/separator'
 import { Switch } from '@/components/shadcn/switch'
-import { TooltipProvider, TooltipTrigger } from '@/components/shadcn/tooltip'
 import { CREATE_WHITE_LIST, DELETE_WHITE_LIST } from '@/graphql/course/mutation'
 import { GET_COURSE, GET_WHITE_LIST } from '@/graphql/course/queries'
 import {
@@ -35,15 +32,13 @@ import { fetcherWithAuth } from '@/libs/utils'
 import type { MemberRole } from '@/types/type'
 import { useMutation, useQuery } from '@apollo/client'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import { Tooltip, TooltipContent } from '@radix-ui/react-tooltip'
 import { useCallback, useEffect, useState } from 'react'
 import { CSVLink } from 'react-csv'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { FaCirclePlus } from 'react-icons/fa6'
 import { FiX } from 'react-icons/fi'
 import { IoCloudUpload, IoCopyOutline } from 'react-icons/io5'
-import { MdHelpOutline, MdOutlineEmail } from 'react-icons/md'
-import { RxReload } from 'react-icons/rx'
+import { MdOutlineEmail } from 'react-icons/md'
 import { toast } from 'sonner'
 import * as XLSX from 'xlsx'
 import { findUserSchema, inviteUserSchema } from '../_libs/schema'
@@ -132,11 +127,6 @@ interface InviteManuallyProps {
 interface UserInfo {
   userName: string
   id: number
-}
-
-interface InvitedUserDisplay {
-  email: string
-  role: 'Student' | 'Instructor'
 }
 
 function InviteManually({ courseId }: InviteManuallyProps) {
@@ -373,7 +363,7 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
     }
   }, [isAlertDialogOpen, refetchInvitationCode, refetchWhiteList])
 
-  const { register, getValues, reset } = useForm<InvitationCodeInput>()
+  const { getValues, reset } = useForm<InvitationCodeInput>()
 
   const handleUpdateButtonClick = async () => {
     try {
