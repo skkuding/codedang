@@ -526,7 +526,7 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
               <div className="flex gap-2">
                 <Button
                   type="button"
-                  className="flex h-[42px] w-[60px] items-center justify-center rounded-[21px] bg-gray-300 hover:bg-gray-400"
+                  className="flex h-[42px] w-[60px] items-center justify-center rounded-[21px] bg-[#3581FA]"
                   onClick={() => {
                     const invitationCode = getValues('issueInvitation') // 현재 입력된 값 가져오기
                     toast.success('Copied Successfully !', {
