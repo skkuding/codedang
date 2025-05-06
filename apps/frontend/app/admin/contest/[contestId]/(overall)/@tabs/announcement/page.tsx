@@ -56,6 +56,7 @@ export default function AdminAnnouncementPage() {
   } = useForm<CreateAnnouncementInput>({
     resolver: valibotResolver(announcementSchema)
   })
+  register('problemOrder')
 
   const onClickSeemore = () => {
     setOpenHistory(!openHistory)
@@ -65,15 +66,19 @@ export default function AdminAnnouncementPage() {
   const onSubmitAnnouncement: SubmitHandler<CreateAnnouncementInput> = async (
     data
   ) => {
-    console.log('form data: ', data)
+    const formValues = getValues()
+    const submitData = {
+      ...data,
+      problemOrder: formValues.problemOrder
+    }
+    console.log('original form data: ', data)
+    console.log('corrected form data:', submitData)
+
     try {
       await createAnnouncement({
         variables: {
           contestId,
-          input: {
-            problemOrder: data.problemOrder,
-            content: data.content
-          }
+          input: submitData
         }
       })
       resetField('content')
@@ -92,6 +97,7 @@ export default function AdminAnnouncementPage() {
     []
   )
   const problemOrder = watch('problemOrder')
+  console.log('problemOrder:', problemOrder)
 
   return (
     <ConfirmNavigation>
@@ -195,9 +201,22 @@ export default function AdminAnnouncementPage() {
                   ))}
                 </SelectContent>
               </Select>
+              <input
+                type="hidden"
+                value={problemOrder ?? ''}
+                {...register('problemOrder')}
+              />
               {errors.problemOrder && (
                 <ErrorMessage message={errors.problemOrder.message} />
               )}
+              {/* <select {...register('problemOrder')}>
+                <option value="none"> General </option>
+                {problemData?.getContestProblems.map((problem) => (
+                  <option key={problem.order} value={problem.order.toString()}>
+                    {convertToLetter(problem.order)}. {problem.problem.title}
+                  </option>
+                ))}
+              </select> */}
             </div>
             <div className="relative">
               <Textarea
