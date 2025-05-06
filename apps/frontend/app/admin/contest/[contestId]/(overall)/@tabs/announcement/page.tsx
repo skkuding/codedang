@@ -48,6 +48,8 @@ export default function AdminAnnouncementPage() {
     handleSubmit,
     register,
     setValue,
+    getValues,
+    watch,
     trigger,
     resetField,
     formState: { errors }
@@ -63,9 +65,9 @@ export default function AdminAnnouncementPage() {
   const onSubmitAnnouncement: SubmitHandler<CreateAnnouncementInput> = async (
     data
   ) => {
-    console.log('problem order: ', data.problemOrder)
+    console.log('form data: ', data)
     try {
-      const response = await createAnnouncement({
+      await createAnnouncement({
         variables: {
           contestId,
           input: {
@@ -75,7 +77,6 @@ export default function AdminAnnouncementPage() {
         }
       })
       resetField('content')
-      console.log('Mutation response: ', response)
       toast.success('Create Announcement successfully!')
     } catch (error) {
       //TODO: error handling
@@ -90,6 +91,7 @@ export default function AdminAnnouncementPage() {
     },
     []
   )
+  const problemOrder = watch('problemOrder')
 
   return (
     <ConfirmNavigation>
@@ -166,12 +168,10 @@ export default function AdminAnnouncementPage() {
                     value === 'none' ? null : Number(value),
                     { shouldValidate: true }
                   )
+                  console.log('Current form values:', getValues())
                 }}
               >
-                <SelectTrigger
-                  value="none"
-                  className="h-12 rounded-full bg-white pl-[30px] text-xl font-medium text-[#474747] focus:ring-0"
-                >
+                <SelectTrigger className="h-12 rounded-full bg-white pl-[30px] text-xl font-medium text-[#474747] focus:ring-0">
                   <SelectValue placeholder="General" />
                 </SelectTrigger>
                 <SelectContent
@@ -186,7 +186,7 @@ export default function AdminAnnouncementPage() {
                   </SelectItem>
                   {problemData?.getContestProblems.map((problem) => (
                     <SelectItem
-                      key={problem.problemId}
+                      key={problem.order}
                       value={problem.order.toString()}
                       className="hover:text-primary text-lg font-normal"
                     >

@@ -18,6 +18,7 @@ export default async function ContestAnnouncement({
       }
     })
     .json()
+  console.log('contestAnnouncements:', contestAnnouncements)
   return (
     <div className="pb-[120px]">
       <p className="my-20 text-left text-2xl font-semibold">ANNOUNCEMENT</p>
