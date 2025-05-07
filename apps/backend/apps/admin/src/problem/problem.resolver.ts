@@ -30,6 +30,7 @@ import { ForbiddenAccessException } from '@libs/exception'
 import {
   CursorValidationPipe,
   GroupIDPipe,
+  IDValidationPipe,
   ProblemIDPipe,
   RequiredIntPipe
 } from '@libs/pipe'
@@ -147,7 +148,13 @@ export class ProblemResolver {
     @Args('take', { defaultValue: 10, type: () => Int }) take: number,
     @Args('my', { defaultValue: false, type: () => Boolean }) my: boolean,
     @Args('shared', { defaultValue: false, type: () => Boolean })
-    shared: boolean
+    shared: boolean,
+    @Args(
+      'contestId',
+      { nullable: true, defaultValue: null, type: () => Int },
+      IDValidationPipe
+    )
+    contestId: number | null
   ) {
     if (!my && !shared && req.user.role == Role.User) {
       throw new ForbiddenAccessException(
@@ -160,7 +167,8 @@ export class ProblemResolver {
       cursor,
       take,
       my,
-      shared
+      shared,
+      contestId
     })
   }
 
