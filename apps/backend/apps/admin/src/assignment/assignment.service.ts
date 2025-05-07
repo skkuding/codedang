@@ -136,6 +136,7 @@ export class AssignmentService {
         groupId: true,
         startTime: true,
         endTime: true,
+        dueTime: true,
         assignmentProblem: {
           select: {
             problemId: true
@@ -159,6 +160,13 @@ export class AssignmentService {
     if (assignment.startTime >= assignment.endTime) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
+      )
+    }
+
+    assignment.dueTime = assignment.dueTime || assignmentFound.dueTime
+    if (assignment.startTime >= assignment.dueTime) {
+      throw new UnprocessableDataException(
+        'The start time must be earlier than the due time'
       )
     }
 
