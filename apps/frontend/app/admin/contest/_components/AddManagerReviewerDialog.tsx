@@ -123,7 +123,14 @@ export function AddManagerReviewerDialog({
         }
       })
       .filter((user): user is ContestManagerReviewer => user !== null)
-    setManagers([...managers, ...validInputFields])
+
+    // 중복 이메일 제거
+    const uniqueValidInputFields = validInputFields.filter(
+      (field, index, self) =>
+        self.findIndex((f) => f.email === field.email) === index
+    )
+
+    setManagers([...managers, ...uniqueValidInputFields])
     setOpen(false)
   }
 
