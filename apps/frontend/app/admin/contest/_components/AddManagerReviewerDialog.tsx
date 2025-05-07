@@ -125,8 +125,10 @@ export function AddManagerReviewerDialog({
       .filter((user): user is ContestManagerReviewer => user !== null)
 
     // 중복 이메일 제거
+    const existingEmails = new Set(managers.map((manager) => manager.email))
     const uniqueValidInputFields = validInputFields.filter(
       (field, index, self) =>
+        !existingEmails.has(field.email) &&
         self.findIndex((f) => f.email === field.email) === index
     )
 
