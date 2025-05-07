@@ -12,6 +12,7 @@ const assignmentSelectOption = {
   title: true,
   startTime: true,
   endTime: true,
+  dueTime: true,
   group: { select: { id: true, groupName: true } },
   enableCopyPaste: true,
   isJudgeResultVisible: true,
