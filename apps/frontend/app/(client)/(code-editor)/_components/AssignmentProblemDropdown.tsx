@@ -10,7 +10,6 @@ import { cn, convertToLetter, isHttpError } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-green.svg'
 import type { ProblemDetail } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
-import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { FaSortDown } from 'react-icons/fa'
@@ -49,7 +48,7 @@ export function AssignmentProblemDropdown({
               <Link
                 key={p.id}
                 href={
-                  `/course/${courseId}/assignment/${assignmentId}/problem/${p.id}` as Route
+                  `/course/${courseId}/assignment/${assignmentId}/problem/${p.id}` as const
                 }
               >
                 <DropdownMenuItem

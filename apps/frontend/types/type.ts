@@ -6,12 +6,7 @@ export type ContestStatus =
   | 'registeredUpcoming'
 
 // TODO: registeredOngoing registeredUpcoming 삭제하기
-export type AssignmentStatus =
-  | 'ongoing'
-  | 'upcoming'
-  | 'finished'
-  | 'registeredOngoing'
-  | 'registeredUpcoming'
+export type AssignmentStatus = 'ongoing' | 'upcoming' | 'finished'
 
 export type RecentUpdateType = 'Assignment' | 'Grade' | 'QnA' | 'Exam'
 

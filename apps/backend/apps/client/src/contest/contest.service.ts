@@ -378,6 +378,7 @@ export class ContestService {
         finalScore: true,
         totalPenalty: true,
         finalTotalPenalty: true,
+        lastAcceptedTime: true,
         contestProblemRecord: {
           select: {
             score: true,
@@ -400,9 +401,7 @@ export class ContestService {
       orderBy: [
         { [scoreColumn]: 'desc' },
         { [totalPenaltyColumn]: 'asc' },
-        {
-          lastAcceptedTime: 'asc'
-        }
+        { lastAcceptedTime: 'asc' }
       ]
     })
 
