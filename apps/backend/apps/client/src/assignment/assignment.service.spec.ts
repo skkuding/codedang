@@ -36,6 +36,7 @@ const assignment = {
   description: 'description',
   startTime: now.add(-1, 'day').toDate(),
   endTime: now.add(1, 'day').toDate(),
+  dueTime: now.add(1, 'day').toDate(),
   isVisible: true,
   isJudgeResultVisible: true,
   isRankVisible: true,
@@ -63,6 +64,7 @@ const ongoingAssignments = [
     isJudgeResultVisible: true,
     startTime: now.add(-1, 'day').toDate(),
     endTime: now.add(1, 'day').toDate(),
+    dueTime: now.add(1, 'day').toDate(),
     week: 1,
     participants: 1,
     enableCopyPaste: true
@@ -77,6 +79,7 @@ const upcomingAssignments = [
     isJudgeResultVisible: true,
     startTime: now.add(1, 'day').toDate(),
     endTime: now.add(2, 'day').toDate(),
+    dueTime: now.add(2, 'day').toDate(),
     week: 1,
     participants: 1,
     enableCopyPaste: true
@@ -91,6 +94,7 @@ const finishedAssignments = [
     isJudgeResultVisible: true,
     startTime: now.add(-2, 'day').toDate(),
     endTime: now.add(-1, 'day').toDate(),
+    dueTime: now.add(-1, 'day').toDate(),
     week: 1,
     participants: 1,
     enableCopyPaste: true
@@ -160,6 +164,7 @@ describe('AssignmentService', () => {
       expect(assignments[0]).to.have.property('title')
       expect(assignments[0]).to.have.property('startTime')
       expect(assignments[0]).to.have.property('endTime')
+      expect(assignments[0]).to.have.property('dueTime')
       expect(assignments[0]).to.have.property('id')
       expect(assignments[0].group).to.have.property('id')
       expect(assignments[0].group).to.have.property('groupName')
