@@ -1,5 +1,14 @@
-import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
-import { Contest, ContestProblem, UserContest } from '@generated'
+import {
+  Args,
+  Context,
+  Int,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver
+} from '@nestjs/graphql'
+import { Contest, ContestProblem, User, UserContest } from '@generated'
 import { ContestRole } from '@prisma/client'
 import {
   AuthenticatedRequest,
@@ -11,6 +20,8 @@ import {
   IDValidationPipe,
   RequiredIntPipe
 } from '@libs/pipe'
+import { UserLoader } from '@admin/user/user.loader'
+import { ContestLoader } from './contest.loader'
 import { ContestService } from './contest.service'
 import { ContestLeaderboard } from './model/contest-leaderboard.model'
 import { ContestSubmissionSummaryForUser } from './model/contest-submission-summary-for-user.model'
@@ -22,10 +33,14 @@ import { ContestsGroupedByStatus } from './model/contests-grouped-by-status.outp
 import { ProblemScoreInput } from './model/problem-score.input'
 import { UserContestScoreSummaryWithUserInfo } from './model/score-summary'
 
-@Resolver(() => Contest)
+@Resolver(() => ContestWithParticipants)
 @UseContestRolesGuard(ContestRole.Manager)
 export class ContestResolver {
-  constructor(private readonly contestService: ContestService) {}
+  constructor(
+    private readonly contestService: ContestService,
+    private readonly contestLoader: ContestLoader,
+    private readonly userLoader: UserLoader
+  ) {}
 
   @Query(() => [ContestWithParticipants])
   @UseDisableContestRolesGuard()
@@ -179,5 +194,19 @@ export class ContestResolver {
   @UseDisableContestRolesGuard()
   async getContestRoles(@Context('req') req: AuthenticatedRequest) {
     return await this.contestService.getContestRoles(req.user.id)
+  }
+
+  @ResolveField('createdBy', () => User, { nullable: true })
+  async getUser(@Parent() contest: Contest): Promise<User | null> {
+    const { createdById } = contest
+    if (createdById == null) {
+      return null
+    }
+    return this.userLoader.batchUsers.load(createdById)
+  }
+
+  @ResolveField('participants', () => Int)
+  async getParticipants(@Parent() contest: Contest): Promise<number> {
+    return this.contestLoader.batchParticipants.load(contest.id)
   }
 }

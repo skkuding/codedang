@@ -11,7 +11,6 @@ import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { ContestService } from './contest.service'
-import type { ContestWithParticipants } from './model/contest-with-participants.model'
 import type {
   CreateContestInput,
   UpdateContestInput
@@ -59,64 +58,64 @@ const contest: Contest = {
   }
 }
 
-const contestWithCount = {
-  id: contestId,
-  createdById: userId,
-  title: 'title',
-  description: 'description',
-  penalty: 20,
-  lastPenalty: false,
-  startTime,
-  endTime,
-  unfreeze: false,
-  freezeTime: null,
-  isJudgeResultVisible: true,
-  enableCopyPaste: true,
-  evaluateWithSampleTestcase: false,
-  createTime,
-  updateTime,
-  invitationCode,
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  _count: {
-    contestRecord: 10
-  },
-  posterUrl: 'posterUrl',
-  summary: {
-    참여대상: 'participationTarget',
-    진행방식: 'competitionMethod',
-    순위산정: 'rankingMethod',
-    문제형태: 'problemFormat',
-    참여혜택: 'benefits'
-  }
-}
+// const contestWithCount = {
+//   id: contestId,
+//   createdById: userId,
+//   title: 'title',
+//   description: 'description',
+//   penalty: 20,
+//   lastPenalty: false,
+//   startTime,
+//   endTime,
+//   unfreeze: false,
+//   freezeTime: null,
+//   isJudgeResultVisible: true,
+//   enableCopyPaste: true,
+//   evaluateWithSampleTestcase: false,
+//   createTime,
+//   updateTime,
+//   invitationCode,
+//   // eslint-disable-next-line @typescript-eslint/naming-convention
+//   _count: {
+//     contestRecord: 10
+//   },
+//   posterUrl: 'posterUrl',
+//   summary: {
+//     참여대상: 'participationTarget',
+//     진행방식: 'competitionMethod',
+//     순위산정: 'rankingMethod',
+//     문제형태: 'problemFormat',
+//     참여혜택: 'benefits'
+//   }
+// }
 
-const contestWithParticipants: ContestWithParticipants = {
-  id: contestId,
-  createdById: userId,
-  title: 'title',
-  description: 'description',
-  penalty: 20,
-  lastPenalty: false,
-  startTime,
-  endTime,
-  unfreeze: false,
-  freezeTime: null,
-  enableCopyPaste: true,
-  isJudgeResultVisible: true,
-  evaluateWithSampleTestcase: false,
-  createTime,
-  updateTime,
-  participants: 10,
-  invitationCode,
-  posterUrl: 'posterUrl',
-  summary: {
-    참여대상: 'participationTarget',
-    진행방식: 'competitionMethod',
-    순위산정: 'rankingMethod',
-    문제형태: 'problemFormat',
-    참여혜택: 'benefits'
-  }
-}
+// const contestWithParticipants: ContestWithParticipants = {
+//   id: contestId,
+//   createdById: userId,
+//   title: 'title',
+//   description: 'description',
+//   penalty: 20,
+//   lastPenalty: false,
+//   startTime,
+//   endTime,
+//   unfreeze: false,
+//   freezeTime: null,
+//   enableCopyPaste: true,
+//   isJudgeResultVisible: true,
+//   evaluateWithSampleTestcase: false,
+//   createTime,
+//   updateTime,
+//   participants: 10,
+//   invitationCode,
+//   posterUrl: 'posterUrl',
+//   summary: {
+//     참여대상: 'participationTarget',
+//     진행방식: 'competitionMethod',
+//     순위산정: 'rankingMethod',
+//     문제형태: 'problemFormat',
+//     참여혜택: 'benefits'
+//   }
+// }
 
 const problem: Problem = {
   id: problemId,
@@ -313,10 +312,10 @@ describe('ContestService', () => {
 
   describe('getContests', () => {
     it('should return an array of contests', async () => {
-      db.contest.findMany.resolves([contestWithCount])
+      db.contest.findMany.resolves([contest])
 
       const res = await service.getContests(userId, 5, 0)
-      expect(res).to.deep.equal([contestWithParticipants])
+      expect(res).to.deep.equal([contest])
     })
   })
 
