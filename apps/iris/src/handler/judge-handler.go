@@ -23,12 +23,13 @@ import (
 )
 
 type Request struct {
-	Code          string            `json:"code"`
-	Language      string            `json:"language"`
-	ProblemId     int               `json:"problemId"`
-	TimeLimit     int               `json:"timeLimit"`
-	MemoryLimit   int               `json:"memoryLimit"`
-	UserTestcases *[]loader.Element `json:"userTestcases,omitempty"` // 사용자 테스트 케이스
+	Code              string            `json:"code"`
+	Language          string            `json:"language"`
+	ProblemId         int               `json:"problemId"`
+	TimeLimit         int               `json:"timeLimit"`
+	MemoryLimit       int               `json:"memoryLimit"`
+	UserTestcases     *[]loader.Element `json:"userTestcases,omitempty"`     // 사용자 테스트 케이스
+	StopOnNotAccepted bool              `json:"stopOnNotAccepted,omitempty"` // 테스트 케이스가 틀리면 이후 테스트 케이스 실행 중단
 }
 
 func (r Request) Validate() (*Request, error) {
@@ -249,9 +250,14 @@ func (j *JudgeHandler[C, E]) Handle(id string, data []byte, hidden bool, out cha
 	}
 
 	tcNum := tc.Count()
-	for i := 0; i < tcNum; i++ {
-		j.judgeTestcase(i, dir, validReq, tc.Elements[i], out)
-		// j.logger.Log(logger.DEBUG, fmt.Sprintf("Testcase %d judged", i))
+	for i := range tcNum {
+		result := j.judgeTestcase(i, dir, validReq, tc.Elements[i], out)
+		if validReq.StopOnNotAccepted && result != nil && ResultCode(result.ErrorCode) != ACCEPTED {
+			for idxToCancel := i + 1; idxToCancel < tcNum; idxToCancel++ {
+				j.sendCancelResult(tc.Elements[idxToCancel], out)
+			}
+			break
+		}
 	}
 }
 
@@ -285,7 +291,7 @@ func (j *JudgeHandler[C, E]) getTestcase(traceCtx context.Context, out chan<- re
 }
 
 func (j *JudgeHandler[C, E]) judgeTestcase(idx int, dir string, validReq *Request,
-	tc loader.Element, out chan JudgeResultMessage) {
+	tc loader.Element, out chan JudgeResultMessage) *JudgeResult {
 
 	res := JudgeResult{}
 
@@ -331,8 +337,24 @@ Send:
 	marshaledRes, err := json.Marshal(res)
 	if err != nil {
 		out <- JudgeResultMessage{nil, &HandlerError{err: ErrMarshalJson, level: logger.ERROR}}
-		return
+		return nil
 	} else {
 		out <- JudgeResultMessage{marshaledRes, ParseError(res, judgeResultCode)}
+		return &res
 	}
+}
+
+func (j *JudgeHandler[C, E]) sendCancelResult(element loader.Element, out chan JudgeResultMessage) {
+	canceledResult := JudgeResult{
+		TestcaseId: element.Id,
+		ErrorCode:  int(CANCELED),
+		Error:      "Execution canceled due to previous test case failure",
+	}
+
+	marshaledRes, err := json.Marshal(canceledResult)
+	if err != nil {
+		out <- JudgeResultMessage{nil, &HandlerError{err: ErrMarshalJson, level: logger.ERROR}}
+		return
+	}
+	out <- JudgeResultMessage{marshaledRes, nil}
 }
