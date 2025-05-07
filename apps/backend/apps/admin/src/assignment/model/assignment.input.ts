@@ -21,6 +21,9 @@ export class CreateAssignmentInput {
   @Field(() => GraphQLISODateTime, { nullable: false })
   endTime!: Date
 
+  @Field(() => GraphQLISODateTime, { nullable: false })
+  dueTime!: Date
+
   @Field(() => Number, { nullable: false })
   week!: number
 

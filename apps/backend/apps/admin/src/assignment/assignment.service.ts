@@ -92,6 +92,12 @@ export class AssignmentService {
       )
     }
 
+    if (assignment.startTime >= assignment.dueTime) {
+      throw new UnprocessableDataException(
+        'The start time must be earlier than the due time'
+      )
+    }
+
     const group = await this.prisma.group.findUnique({
       where: {
         id: groupId
