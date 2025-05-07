@@ -9,7 +9,6 @@ import {
   AlertDialogCancel,
   AlertDialogFooter,
   AlertDialogAction,
-  AlertDialogTrigger,
   AlertDialogDescription
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
@@ -21,9 +20,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
-import { Separator } from '@/components/shadcn/separator'
 import { Switch } from '@/components/shadcn/switch'
-import { TooltipProvider, TooltipTrigger } from '@/components/shadcn/tooltip'
 import { CREATE_WHITE_LIST, DELETE_WHITE_LIST } from '@/graphql/course/mutation'
 import { GET_COURSE, GET_WHITE_LIST } from '@/graphql/course/queries'
 import {
@@ -35,15 +32,13 @@ import { fetcherWithAuth } from '@/libs/utils'
 import type { MemberRole } from '@/types/type'
 import { useMutation, useQuery } from '@apollo/client'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import { Tooltip, TooltipContent } from '@radix-ui/react-tooltip'
 import { useCallback, useEffect, useState } from 'react'
 import { CSVLink } from 'react-csv'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { FaCirclePlus } from 'react-icons/fa6'
 import { FiX } from 'react-icons/fi'
 import { IoCloudUpload, IoCopyOutline } from 'react-icons/io5'
-import { MdHelpOutline, MdOutlineEmail } from 'react-icons/md'
-import { RxReload } from 'react-icons/rx'
+import { MdOutlineEmail } from 'react-icons/md'
 import { toast } from 'sonner'
 import * as XLSX from 'xlsx'
 import { findUserSchema, inviteUserSchema } from '../_libs/schema'
@@ -77,7 +72,7 @@ export function InviteButton({ onSuccess, params }: InviteButtonProps) {
   const handleOpenChange = (isOpen: boolean) => {
     setIsAlertDialogOpen(isOpen)
     if (!isOpen) {
-      onSuccess() // 다이얼로그가 닫힐 때 실행
+      onSuccess()
     }
   }
 
@@ -92,7 +87,7 @@ export function InviteButton({ onSuccess, params }: InviteButtonProps) {
         Invite
       </Button>
       <AlertDialog open={isAlertDialogOpen} onOpenChange={handleOpenChange}>
-        <AlertDialogContent className="m-0 flex h-[710px] w-[580px] max-w-none flex-col p-0">
+        <AlertDialogContent className="flex h-[693px] w-[580px] flex-col overflow-hidden">
           <AlertDialogCancel className="absolute right-4 top-4 border-none">
             <FiX className="h-5 w-5" />
           </AlertDialogCancel>
@@ -102,7 +97,7 @@ export function InviteButton({ onSuccess, params }: InviteButtonProps) {
             </h2>
           </div>
 
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-1 flex-col gap-6 overflow-hidden px-4">
             <InviteByCode
               courseId={courseId}
               isAlertDialogOpen={isAlertDialogOpen}
@@ -134,56 +129,53 @@ interface UserInfo {
   id: number
 }
 
-interface InvitedUserDisplay {
+type InvitedUserDisplay = {
   email: string
-  role: 'Student' | 'Instructor'
+  role: 'Instructor' | 'Student'
 }
 
 function InviteManually({ courseId }: InviteManuallyProps) {
   const roles: MemberRole[] = ['Instructor', 'Student']
   const [userId, setUserId] = useState(0)
 
-  const [invitedList, setInvitedList] = useState<
-    { email: string; role: 'Instructor' | 'Student' }[]
-  >([])
+  const [invitedList, setInvitedList] = useState<InvitedUserDisplay[]>([])
   const [inviteUser] = useMutation(INVITE_USER)
 
   const onFind: SubmitHandler<FindUserInput> = async (data) => {
-    const res = await fetcherWithAuth('user/email', {
-      searchParams: {
-        email: data.email
+    try {
+      const res = await fetcherWithAuth('user/email', {
+        searchParams: { email: data.email }
+      })
+
+      if (!res.ok) {
+        toast.error('Failed to find user')
+        return
       }
-    })
-    if (res.ok) {
+
       const userInfo: UserInfo = await res.json()
       setUserId(userInfo.id)
-      toast.success('Invited Successfully !', {
-        style: {
-          background: '#F0F8FF', // 연한 파란색 (Primary Light 느낌)
-          color: '#0973DC', // 진한 파란색 텍스트
-          borderRadius: '1000px',
-          border: '1px solid rgba(255, 255, 255, 0.10)',
-          maxWidth: '200px'
-        },
-        closeButton: false
-      })
-    } else {
-      toast.error('Failed to find user')
+    } catch (err) {
+      console.error(err)
+      toast.error('Unexpected error occurred')
     }
   }
 
   const onInvite: SubmitHandler<InviteUserInput> = useCallback(
     async (data) => {
-      const updatePromise = inviteUser({
-        variables: {
-          groupId: courseId,
-          isGroupLeader: data.isGroupLeader,
-          userId
-        }
-      })
+      if (!userId) {
+        toast.error('No user selected to invite')
+        return
+      }
 
       try {
-        const result = await updatePromise
+        const result = await inviteUser({
+          variables: {
+            groupId: courseId,
+            isGroupLeader: data.isGroupLeader,
+            userId
+          }
+        })
+
         setInvitedList((prevList) => [
           ...prevList,
           {
@@ -193,13 +185,24 @@ function InviteManually({ courseId }: InviteManuallyProps) {
               : 'Student'
           }
         ])
+
+        toast.success('Invited Successfully!', {
+          style: {
+            background: '#F0F8FF',
+            color: '#0973DC',
+            borderRadius: '1000px',
+            border: '1px solid rgba(255, 255, 255, 0.10)',
+            maxWidth: '200px'
+          },
+          closeButton: false
+        })
       } catch {
         toast.error('Failed to invite user')
       }
     },
-    [inviteUser, courseId, userId, setInvitedList] // 의존성 배열 설정
+    [inviteUser, courseId, userId, setInvitedList]
   )
-  // email검증
+
   const {
     register: findRegister,
     handleSubmit: findHandleSubmit,
@@ -208,7 +211,6 @@ function InviteManually({ courseId }: InviteManuallyProps) {
     resolver: valibotResolver(findUserSchema)
   })
 
-  // 실제invite
   const {
     watch: inviteWatch,
     handleSubmit: inviteHandleSubmit,
@@ -230,70 +232,76 @@ function InviteManually({ courseId }: InviteManuallyProps) {
   }, [inviteHandleSubmit, onInvite, userId])
 
   return (
-    <form
-      onSubmit={(event) => {
-        event.preventDefault()
-        findHandleSubmit(onFind)()
-      }}
-      aria-label="Invite user"
-      className="flex flex-col gap-4 pl-10"
-    >
-      {/* 제목 + 선택된 유저 수 */}
-      <span className="text-base font-bold">Invite Manually</span>
-      <span className="text-sm text-gray-400">
-        {invitedList.length} user(s) selected
-      </span>
+    <div className="flex flex-1 flex-col overflow-hidden">
+      <form
+        onSubmit={(event) => {
+          event.preventDefault()
+          findHandleSubmit(onFind)()
+        }}
+        aria-label="Invite user"
+        className="flex flex-col gap-4"
+      >
+        <span className="text-base font-bold">Invite Manually</span>
 
-      {/* Email 입력 줄 */}
-      <div className="flex w-full max-w-[500px] flex-col gap-4">
-        <div className="flex h-[44px] items-center rounded-full border border-gray-300 px-4 py-2">
-          {/* 이메일 아이콘 */}
-          <MdOutlineEmail className="h-5 w-5 text-gray-400" />
+        <div className="flex w-full max-w-[500px] flex-col gap-4">
+          <div className="flex h-[44px] items-center rounded-full border border-gray-300 px-4 py-2">
+            <MdOutlineEmail className="h-5 w-5 text-gray-400" />
 
-          {/* 이메일 인풋 */}
-          <Input
-            id="email"
-            {...findRegister('email')}
-            placeholder="Email Address"
-            className="flex-1 border-none !bg-transparent pl-2 text-sm placeholder:text-gray-400 autofill:!bg-transparent focus:outline-none focus:ring-0 focus-visible:border-none focus-visible:outline-none focus-visible:ring-0"
-          />
+            <Input
+              id="email"
+              {...findRegister('email')}
+              placeholder="Email Address"
+              className="flex-1 border-none !bg-transparent pl-2 text-sm placeholder:text-gray-400 autofill:!bg-transparent focus:outline-none focus:ring-0 focus-visible:border-none focus-visible:outline-none focus-visible:ring-0"
+            />
 
-          {/* 역할 선택 드롭다운 */}
-          <Select
-            value={inviteWatch('isGroupLeader') ? 'Instructor' : 'Student'}
-            onValueChange={(value) => {
-              inviteSetValue('isGroupLeader', value === 'Instructor')
-            }}
+            <Select
+              value={inviteWatch('isGroupLeader') ? 'Instructor' : 'Student'}
+              onValueChange={(value) => {
+                inviteSetValue('isGroupLeader', value === 'Instructor')
+              }}
+            >
+              <SelectTrigger className="w-auto min-w-[80px] border-none bg-transparent text-sm text-gray-500 focus:outline-none">
+                <SelectValue placeholder="Student" />
+              </SelectTrigger>
+              <SelectContent className="rounded-lg bg-white shadow-md">
+                {roles.map((role) => (
+                  <SelectItem key={role} value={role}>
+                    {role}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button
+            type="submit"
+            className="bg-primary hover:bg-primary-strong h-[44px] w-full rounded-full text-sm font-semibold text-white"
           >
-            <SelectTrigger className="w-auto min-w-[80px] border-none bg-transparent text-sm text-gray-500 focus:outline-none">
-              <SelectValue placeholder="Student" />
-            </SelectTrigger>
-            <SelectContent className="rounded-lg bg-white shadow-md">
-              {roles.map((role) => (
-                <SelectItem key={role} value={role}>
-                  {role}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            Invite
+          </Button>
         </div>
 
-        {/* Invite 버튼 */}
-        <Button
-          type="submit"
-          className="bg-primary hover:bg-primary-strong h-[44px] w-full rounded-full text-sm font-semibold text-white"
-        >
-          Invite
-        </Button>
-      </div>
+        {findErrors.email && (
+          <ErrorMessage message={findErrors.email.message} />
+        )}
+        {inviteErrors.groupId && (
+          <ErrorMessage message={inviteErrors.groupId.message} />
+        )}
+        {inviteErrors.userId && (
+          <ErrorMessage message={inviteErrors.userId.message} />
+        )}
+        {inviteErrors.isGroupLeader && (
+          <ErrorMessage message={inviteErrors.isGroupLeader.message} />
+        )}
+      </form>
 
-      {/* 초대된 유저 리스트 */}
+      {/* 초대 유저 리스트 영역 */}
       {invitedList.length > 0 && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-1 flex-col gap-2 overflow-y-auto pt-2">
           {invitedList.map((user) => (
             <div
               key={user.email}
-              className="flex h-[42px] w-[500px] items-start justify-between gap-[243px] rounded-full bg-gray-100 px-[36px] py-[10px] pr-[44px]"
+              className="flex h-[42px] w-full items-start justify-between rounded-full bg-gray-100 px-[24px] py-[10px]"
             >
               <span className="text-sm text-gray-800">{user.email}</span>
               <span className="text-sm text-gray-400">{user.role}</span>
@@ -301,19 +309,7 @@ function InviteManually({ courseId }: InviteManuallyProps) {
           ))}
         </div>
       )}
-
-      {/* 에러 메시지 */}
-      {findErrors.email && <ErrorMessage message={findErrors.email.message} />}
-      {inviteErrors.groupId && (
-        <ErrorMessage message={inviteErrors.groupId.message} />
-      )}
-      {inviteErrors.userId && (
-        <ErrorMessage message={inviteErrors.userId.message} />
-      )}
-      {inviteErrors.isGroupLeader && (
-        <ErrorMessage message={inviteErrors.isGroupLeader.message} />
-      )}
-    </form>
+    </div>
   )
 }
 
@@ -327,7 +323,7 @@ interface InvitationCodeInput {
 }
 
 function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
-  const [isInviteByCodeEnabled, setIsInviteByCodeEnabled] = useState(false) // 기본값: 숨김
+  const [isInviteByCodeEnabled, setIsInviteByCodeEnabled] = useState(false)
   const [isApprovalRequired, setIsApprovalRequired] = useState(false)
   const [issueInvitation] = useMutation(ISSUE_INVITATION)
   const [revokeInvitation] = useMutation(REVOKE_INVITATION)
@@ -376,7 +372,7 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
     }
   }, [isAlertDialogOpen, refetchInvitationCode, refetchWhiteList])
 
-  const { register, getValues, reset } = useForm<InvitationCodeInput>()
+  const { getValues, reset } = useForm<InvitationCodeInput>()
 
   const handleUpdateButtonClick = async () => {
     try {
@@ -464,7 +460,7 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
       aria-label="Invite user"
       className="flex flex-col gap-6"
     >
-      <div className="flex flex-col gap-4 pl-10">
+      <div className="flex flex-col gap-4">
         <div className="flex items-center gap-4">
           <span className="text-base font-bold">Invite by Invitation Code</span>
           <Switch
@@ -529,20 +525,20 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
               <div className="flex gap-2">
                 <Button
                   type="button"
-                  className="flex h-[42px] w-[60px] items-center justify-center rounded-[21px] bg-gray-300 hover:bg-gray-400"
+                  className="flex h-[42px] w-[60px] items-center justify-center rounded-[21px] bg-[#3581FA]"
                   onClick={() => {
-                    const invitationCode = getValues('issueInvitation') // 현재 입력된 값 가져오기
+                    const invitationCode = getValues('issueInvitation')
                     toast.success('Copied Successfully !', {
                       style: {
-                        background: '#F0F8FF', // 연한 파란색 (Primary Light 느낌)
-                        color: '#0973DC', // 진한 파란색 텍스트
+                        background: '#F0F8FF',
+                        color: '#0973DC',
                         borderRadius: '1000px',
                         border: '1px solid rgba(255, 255, 255, 0.10)',
                         maxWidth: '200px'
                       },
                       closeButton: false
                     })
-                    navigator.clipboard.writeText(invitationCode) // 클립보드에 복사
+                    navigator.clipboard.writeText(invitationCode)
                   }}
                 >
                   <IoCopyOutline size={20} className="text-white" />
