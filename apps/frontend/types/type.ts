@@ -1,3 +1,5 @@
+import type { UpdateContestInput } from '@generated/graphql'
+
 export type ContestStatus =
   | 'ongoing'
   | 'upcoming'
@@ -440,4 +442,14 @@ export interface ProblemSubmission {
   submissionResult: string
   testcaseCount: number
   acceptedTestcaseCount: number
+}
+
+export interface UpdateContestInfo extends UpdateContestInput {
+  contestRecord?: {
+    userId: number
+    user: {
+      username: string
+      email: string
+    }
+  }[]
 }
