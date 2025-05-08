@@ -31,9 +31,10 @@ const startTime = faker.date.past()
 const endTime = faker.date.future()
 const createTime = faker.date.past()
 const updateTime = faker.date.past()
-const problemIdsWithScore = {
+const assignmentProblemInput = {
   problemId,
-  score: 10
+  score: 10,
+  solutionReleaseTime: null
 }
 // const duplicatedAssignmentId = 2
 
@@ -151,6 +152,7 @@ const assignmentProblem: AssignmentProblem = {
   assignmentId,
   problemId,
   score: 50,
+  solutionReleaseTime: null,
   createTime: faker.date.past(),
   updateTime: faker.date.past()
 }
@@ -361,7 +363,7 @@ describe('AssignmentService', () => {
 
       const res = await Promise.all(
         await service.importProblemsToAssignment(groupId, assignmentId, [
-          problemIdsWithScore
+          assignmentProblemInput
         ])
       )
 
@@ -376,7 +378,7 @@ describe('AssignmentService', () => {
       const res = await service.importProblemsToAssignment(
         groupId,
         assignmentId,
-        [problemIdsWithScore]
+        [assignmentProblemInput]
       )
 
       expect(res).to.deep.equal([])
@@ -384,7 +386,9 @@ describe('AssignmentService', () => {
 
     it('should throw error when the assignmentId not exist', async () => {
       expect(
-        service.importProblemsToAssignment(groupId, 9999, [problemIdsWithScore])
+        service.importProblemsToAssignment(groupId, 9999, [
+          assignmentProblemInput
+        ])
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })

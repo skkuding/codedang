@@ -33,6 +33,7 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { AssignmentProblemUpdateInput } from '@admin/assignment/model/assignment-problem.input'
 import type { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from './model/problem.constants'
@@ -1259,10 +1260,10 @@ export class ProblemService {
     return assignmentProblems
   }
 
-  async updateAssignmentProblemsScore(
+  async updateAssignmentProblems(
     groupId: number,
     assignmentId: number,
-    problemIdsWithScore: ProblemScoreInput[]
+    problemIdsWithScore: AssignmentProblemUpdateInput[]
   ): Promise<Partial<AssignmentProblem>[]> {
     await this.prisma.assignment.findFirstOrThrow({
       where: { id: assignmentId, groupId }
@@ -1277,7 +1278,10 @@ export class ProblemService {
             problemId: record.problemId
           }
         },
-        data: { score: record.score }
+        data: {
+          score: record.score,
+          solutionReleaseTime: record.solutionReleaseTime
+        }
       })
     })
 

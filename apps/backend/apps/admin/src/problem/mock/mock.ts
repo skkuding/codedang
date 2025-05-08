@@ -704,6 +704,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 1,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -712,6 +713,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 2,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -720,6 +722,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 3,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -728,6 +731,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 4,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -736,6 +740,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 5,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -744,6 +749,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 6,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -752,6 +758,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 7,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -760,6 +767,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 8,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -768,6 +776,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 9,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -776,6 +785,7 @@ export const exampleAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 10,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   }
@@ -787,6 +797,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 2,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -795,6 +806,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 3,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -803,6 +815,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 4,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -811,6 +824,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 5,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -819,6 +833,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 6,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -827,6 +842,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 7,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -835,6 +851,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 8,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -843,6 +860,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 9,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -851,6 +869,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 10,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   },
@@ -859,6 +878,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
     assignmentId: 1,
     problemId: 1,
     score: 1,
+    solutionReleaseTime: null,
     createTime: new Date(),
     updateTime: new Date()
   }
