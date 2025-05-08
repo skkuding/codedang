@@ -23,7 +23,6 @@ EOF
 variable "redis_port" { sensitive = true }
 variable "jwt_secret" { sensitive = true }
 variable "otel_exporter_otlp_endpoint_url" { sensitive = true }
-variable "loki_url" { sensitive = true }
 
 variable "github_client_id" { sensitive = true }
 variable "github_client_secret" { sensitive = true }

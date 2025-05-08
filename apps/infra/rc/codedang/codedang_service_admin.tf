@@ -40,10 +40,6 @@ module "admin_api" {
         media_access_key                = local.storage.media_access_key,
         media_secret_key                = local.storage.media_secret_access_key,
         otel_exporter_otlp_endpoint_url = var.otel_exporter_otlp_endpoint_url,
-        loki_url                        = var.loki_url,
-      })),
-      jsondecode(templatefile("container_definitions/fluentbit.json", {
-        fluentbit_config_arn = aws_s3_object.fluent_bit_config_file.arn
       }))
     ])
     execution_role_arn = aws_iam_role.ecs_task_execution_role.arn

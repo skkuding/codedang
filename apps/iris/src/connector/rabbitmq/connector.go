@@ -6,6 +6,7 @@ import (
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+	instrumentation "github.com/skkuding/codedang/apps/iris/src"
 	"github.com/skkuding/codedang/apps/iris/src/router"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"go.opentelemetry.io/otel"
@@ -77,10 +78,11 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 	extractedCtx := otel.GetTextMapPropagator().Extract(ctx, carrier)
 	span := trace.SpanFromContext(extractedCtx)
 	tracer := otel.Tracer("Connector")
-	_, childSpan := tracer.Start(
+	spanCtx, childSpan := tracer.Start(
 		extractedCtx,
-		"go:handle-message",
+		instrumentation.GetSemanticSpanName("connector", "handle"),
 		trace.WithLinks(trace.Link{SpanContext: span.SpanContext()}), // Client-API로부터 전달받은 SpanContext를 연결
+		trace.WithSpanKind(trace.SpanKindConsumer),
 	)
 	defer childSpan.End()
 
@@ -92,23 +94,22 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 		resultChan <- router.NewResponse("", nil, fmt.Errorf("message_id(message property) must not be empty")).Marshal()
 		close(resultChan)
 	} else {
-		go c.router.Route(message.Type, message.MessageId, message.Body, resultChan)
+		go c.router.Route(message.Type, message.MessageId, message.Body, resultChan, spanCtx)
 	}
 
 	for result := range resultChan {
-		if err := c.producer.Publish(result, ctx, message.Type); err != nil {
-			c.logger.Log(logger.ERROR, fmt.Sprintf("failed to publish result: %s: %s", string(result), err))
+		if err := c.producer.Publish(result, spanCtx, message.Type); err != nil {
+			c.logger.LogWithContext(logger.ERROR, fmt.Sprintf("failed to publish result: %s: %s", string(result), err), spanCtx)
 			// nack
 		} else {
-			c.logger.Log(logger.DEBUG, fmt.Sprintf("result published: %s", string(result)))
+			c.logger.LogWithContext(logger.DEBUG, fmt.Sprintf("result published: %s", string(result)), spanCtx)
 		}
 	}
 
 	if err := message.Ack(false); err != nil {
-		c.logger.Log(logger.ERROR, fmt.Sprintf("failed to ack message: %s: %s", string(message.Body), err))
+		c.logger.LogWithContext(logger.ERROR, fmt.Sprintf("failed to ack message: %s: %s", string(message.Body), err), spanCtx)
 		// retry
 	} else {
-		c.logger.Log(logger.DEBUG, "message ack")
+		c.logger.LogWithContext(logger.DEBUG, "message ack", spanCtx)
 	}
-
 }

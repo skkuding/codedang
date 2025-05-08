@@ -21,10 +21,6 @@ module "iris" {
         rabbitmq_password               = local.storage.mq_password,
         rabbitmq_vhost                  = rabbitmq_vhost.vh.name,
         otel_exporter_otlp_endpoint_url = var.otel_exporter_otlp_endpoint_url,
-        loki_url                        = var.loki_url,
-      })),
-      jsondecode(templatefile("container_definitions/fluentbit.json", {
-        fluentbit_config_arn = aws_s3_object.fluent_bit_config_file.arn
       }))
     ])
 

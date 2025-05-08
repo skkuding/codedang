@@ -100,7 +100,7 @@ jobs:
       - name: Load dotenv from secret
         run: |
           echo "${{ secrets.ENV_DEVELOPMENT }}" > .env
-          echo "${{ secrets.LOKI_SERVER_URL }}" >> .env
+          echo "${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT_URL }}" > .env
 
       - name: Check if containers are running
         id: check-container

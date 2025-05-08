@@ -186,7 +186,7 @@ module "nat_security_groups" {
     sg_nat_instance = {
       name        = "Codedang-SG-NAT-Instance"
       tags_name   = "Codedang-SG-NAT-Instance"
-      description = "Allow Fluent-bit and Other NAT traffic"
+      description = "Allow NAT traffic"
       vpc_id      = aws_vpc.main.id
       ingress = [
         {
@@ -226,18 +226,9 @@ module "nat_security_groups" {
           ]
         },
         {
-          description = "Allow ECS API for Log Data"
-          from_port   = 3101
-          to_port     = 3101
-          protocol    = "tcp"
-          security_groups = [
-            module.app_security_groups.security_group_ids["sg_ecs_api"]
-          ]
-        },
-        {
-          description = "Allow ECS API for metric, trace data"
-          from_port   = 4318
-          to_port     = 4318
+          description = "Allow ECS API for telemetry data"
+          from_port   = 4317
+          to_port     = 4317
           protocol    = "tcp"
           security_groups = [
             module.app_security_groups.security_group_ids["sg_ecs_api"]
