@@ -251,8 +251,8 @@ func (j *JudgeHandler[C, E]) Handle(id string, data []byte, hidden bool, out cha
 
 	tcNum := tc.Count()
 	for i := range tcNum {
-		result := j.judgeTestcase(i, dir, validReq, tc.Elements[i], out)
-		if validReq.StopOnNotAccepted && result != nil && ResultCode(result.ErrorCode) != ACCEPTED {
+		judgeResultCode := j.judgeTestcase(i, dir, validReq, tc.Elements[i], out)
+		if validReq.StopOnNotAccepted && judgeResultCode != ACCEPTED {
 			for idxToCancel := i + 1; idxToCancel < tcNum; idxToCancel++ {
 				j.sendCancelResult(tc.Elements[idxToCancel], out)
 			}
@@ -291,7 +291,7 @@ func (j *JudgeHandler[C, E]) getTestcase(traceCtx context.Context, out chan<- re
 }
 
 func (j *JudgeHandler[C, E]) judgeTestcase(idx int, dir string, validReq *Request,
-	tc loader.Element, out chan JudgeResultMessage) *JudgeResult {
+	tc loader.Element, out chan JudgeResultMessage) ResultCode {
 
 	res := JudgeResult{}
 
@@ -337,11 +337,10 @@ Send:
 	marshaledRes, err := json.Marshal(res)
 	if err != nil {
 		out <- JudgeResultMessage{nil, &HandlerError{err: ErrMarshalJson, level: logger.ERROR}}
-		return nil
 	} else {
 		out <- JudgeResultMessage{marshaledRes, ParseError(res, judgeResultCode)}
-		return &res
 	}
+	return judgeResultCode
 }
 
 func (j *JudgeHandler[C, E]) sendCancelResult(element loader.Element, out chan JudgeResultMessage) {
@@ -356,5 +355,5 @@ func (j *JudgeHandler[C, E]) sendCancelResult(element loader.Element, out chan J
 		out <- JudgeResultMessage{nil, &HandlerError{err: ErrMarshalJson, level: logger.ERROR}}
 		return
 	}
-	out <- JudgeResultMessage{marshaledRes, nil}
+	out <- JudgeResultMessage{marshaledRes, ParseError(canceledResult, CANCELED)}
 }
