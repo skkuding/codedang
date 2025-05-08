@@ -746,32 +746,12 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         problemTestcaseIds.has(sr.problemTestcase.id)
       )
 
-      // 총 점수 가중치 계산
-      const scoreWeightSum = submission.submissionResult.reduce(
-        (acc, sr) => acc + sr.problemTestcase.scoreWeight,
-        0
-      )
-
-      if (scoreWeightSum > 0) {
-        // (1) 정수 변환을 위한 가중치 계산
-        let totalRounded = 0
-        const weights = submission.submissionResult.map((sr) => {
-          const raw = (sr.problemTestcase.scoreWeight / scoreWeightSum) * 100
-          const rounded = Math.round(raw)
-          totalRounded += rounded
-          return { sr, raw, rounded }
-        })
-
-        // (2) 오차 계산 및 보정
-        const diff = 100 - totalRounded
-        weights
-          .sort((a, b) => (b.raw % 1) - (a.raw % 1)) // 소수점 큰 순 정렬
-          .slice(0, Math.abs(diff)) // 필요한 개수만큼 조정
-          .forEach((w) => (w.rounded += Math.sign(diff)))
-
-        // (3) 최종 값 반영 (기존 submissionResult 배열 그대로 사용)
-        weights.forEach((w) => {
-          w.sr.problemTestcase.scoreWeight = w.rounded
+      // 모든 테스트케이스에 동일한 가중치 부여 처리
+      const totalTestcases = submission.submissionResult.length
+      if (totalTestcases > 0) {
+        const equalWeight = 100 / totalTestcases
+        submission.submissionResult.forEach((sr) => {
+          sr.problemTestcase.scoreWeight = equalWeight
         })
       }
     }
