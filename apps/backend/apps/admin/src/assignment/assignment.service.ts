@@ -952,7 +952,7 @@ export class AssignmentService {
         assignment: {
           select: {
             groupId: true,
-            endTime: true
+            dueTime: true
           }
         }
       }
@@ -968,7 +968,7 @@ export class AssignmentService {
       throw new ForbiddenAccessException('Forbidden Resource')
     }
 
-    if (now <= assignment.endTime) {
+    if (now <= assignment.dueTime) {
       throw new ConflictFoundException('Can grade only finished assignments')
     }
 
