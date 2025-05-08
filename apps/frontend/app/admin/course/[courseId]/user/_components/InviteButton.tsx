@@ -87,7 +87,7 @@ export function InviteButton({ onSuccess, params }: InviteButtonProps) {
         Invite
       </Button>
       <AlertDialog open={isAlertDialogOpen} onOpenChange={handleOpenChange}>
-        <AlertDialogContent className="flex h-[693px] w-[580px] flex-col overflow-hidden">
+        <AlertDialogContent className="flex max-h-[693px] w-[580px] flex-col overflow-hidden">
           <AlertDialogCancel className="absolute right-4 top-4 border-none">
             <FiX className="h-5 w-5" />
           </AlertDialogCancel>
@@ -295,7 +295,8 @@ function InviteManually({ courseId }: InviteManuallyProps) {
         )}
       </form>
 
-      {/* 초대 유저 리스트 영역 */}
+      {invitedList.length === 0 && <div className="mt-[60px]" />}
+
       {invitedList.length > 0 && (
         <div className="flex flex-1 flex-col gap-2 overflow-y-auto pt-2">
           {invitedList.map((user) => (
