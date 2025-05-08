@@ -1263,13 +1263,13 @@ export class ProblemService {
   async updateAssignmentProblems(
     groupId: number,
     assignmentId: number,
-    problemIdsWithScore: AssignmentProblemUpdateInput[]
+    assignmentProblemUpdateInput: AssignmentProblemUpdateInput[]
   ): Promise<Partial<AssignmentProblem>[]> {
     await this.prisma.assignment.findFirstOrThrow({
       where: { id: assignmentId, groupId }
     })
 
-    const queries = problemIdsWithScore.map((record) => {
+    const queries = assignmentProblemUpdateInput.map((record) => {
       return this.prisma.assignmentProblem.update({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention

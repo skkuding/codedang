@@ -104,6 +104,7 @@ export const assignmentProblems = [
     score: 0,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
+    solutionReleaseTime: null,
     assignment: {
       startTime: new Date()
     }
@@ -115,6 +116,7 @@ export const assignmentProblems = [
     score: 0,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
+    solutionReleaseTime: null,
     assignment: {
       startTime: new Date()
     }
@@ -165,6 +167,7 @@ export const assignmentProblemsWithScore = [
     problemId: 1,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
+    solutionReleaseTime: null,
     assignment: {
       startTime: new Date()
     },
@@ -176,6 +179,7 @@ export const assignmentProblemsWithScore = [
     problemId: 2,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
+    solutionReleaseTime: null,
     assignment: {
       startTime: new Date()
     },
