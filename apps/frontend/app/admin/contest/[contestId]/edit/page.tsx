@@ -20,16 +20,16 @@ import { AddManagerReviewerDialog } from '../../_components/AddManagerReviewerDi
 import { ContestManagerReviewerTable } from '../../_components/ContestManagerReviewerTable'
 import { ContestProblemTable } from '../../_components/ContestProblemTable'
 import { CreateEditContestLabel } from '../../_components/CreateEditContestLabel'
+import { EnableCopyPasteForm } from '../../_components/EnableCopyPasteForm'
+import { FreezeForm } from '../../_components/FreezeForm'
 import { ImportDialog } from '../../_components/ImportDialog'
+import { PosterUploadForm } from '../../_components/PosterUploadForm'
+import { SampleTestcaseForm } from '../../_components/SampleTestcaseForm'
 import {
   type ContestManagerReviewer,
   type ContestProblem,
   editSchema
 } from '../../_libs/schemas'
-import { EnableCopyPasteForm } from '../../create/_components/EnableCopyPasteForm'
-import { FreezeForm } from '../../create/_components/FreezeForm'
-import { PosterUploadForm } from '../../create/_components/PosterUploadForm'
-import { SampleTestcaseForm } from '../../create/_components/SampleTestcaseForm'
 import { EditContestForm } from './_components/EditContestForm'
 
 export default function Page({ params }: { params: { contestId: string } }) {
