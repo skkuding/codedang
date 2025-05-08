@@ -5,12 +5,12 @@ import { plainToInstance } from 'class-transformer'
 import { Response } from 'express'
 import {
   mkdirSync,
-  writeFile,
   createWriteStream,
   createReadStream,
   existsSync,
   unlink,
-  rm
+  rm,
+  writeFileSync
 } from 'fs'
 import path from 'path'
 import sanitize from 'sanitize-filename'
@@ -504,15 +504,15 @@ export class SubmissionService {
       const formattedCode = code.map((snippet) => snippet.text).join('\n')
       const filename = `${info.user?.studentId}${LanguageExtension[info.language]}`
       const filePath = path.join(dirPath, filename)
-      writeFile(filePath, formattedCode, (err) => {
-        if (err) {
-          this.logger.error(err)
-          throw new UnprocessableFileDataException(
-            'failed to handle source code file.',
-            filename
-          )
-        }
-      })
+      try {
+        writeFileSync(filePath, formattedCode)
+      } catch (err) {
+        this.logger.error(err)
+        throw new UnprocessableFileDataException(
+          'failed to handle source code file.',
+          filename
+        )
+      }
     })
     const zipFilename = `${assignmentTitle}_${problemId}`
     const zipPath = path.join(__dirname, `${zipFilename}.zip`)
