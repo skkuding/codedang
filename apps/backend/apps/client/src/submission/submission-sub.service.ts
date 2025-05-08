@@ -348,7 +348,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       ? ResultStatus.Accepted
       : (submission.submissionResult.find(
           (submissionResult) =>
-            submissionResult.result !== ResultStatus.Accepted
+            submissionResult.result !== ResultStatus.Accepted &&
+            submissionResult.result !== ResultStatus.Canceled
         )?.result ?? ResultStatus.ServerError)
 
     await this.prisma.submission.update({
