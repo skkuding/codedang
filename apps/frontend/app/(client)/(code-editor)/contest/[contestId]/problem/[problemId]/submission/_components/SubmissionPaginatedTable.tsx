@@ -4,6 +4,7 @@ import {
   SubmissionTable,
   SubmissionTableFallback
 } from '@/app/(client)/(code-editor)/_components/SubmissionTable'
+import { useSubmissionSync } from '@/app/(client)/(code-editor)/_components/context/ReFetchingSubmissionStoreProvider'
 import { getContestProblemList } from '@/app/(client)/_libs/apis/contestProblem'
 import { contestSubmissionQueries } from '@/app/(client)/_libs/queries/contestSubmission'
 import {
@@ -26,12 +27,12 @@ export function SubmissionPaginatedTable({
   problemId: number
   contestId: number
 }) {
+  const refreshTrigger = useSubmissionSync((state) => state.refreshTrigger)
   const [queryParams, updateQueryParams] = useState({
     take: getTakeQueryParam({ itemsPerPage })
   })
-
   const problemIdList = useSuspenseQuery({
-    queryKey: ['Contest Problem', contestId],
+    queryKey: ['Contest Problem', contestId, refreshTrigger],
     queryFn: async () => {
       const response = await getContestProblemList({
         contestId,
