@@ -11,7 +11,8 @@ export const useLanguageStore = (
   problemId: number,
   contestId?: number,
   courseId?: number,
-  assignmentId?: number
+  assignmentId?: number,
+  exerciseId?: number
 ) => {
   let languageKey = `${problemId}`
 
@@ -19,6 +20,8 @@ export const useLanguageStore = (
     languageKey += `_contest_${contestId}_language`
   } else if (assignmentId) {
     languageKey += `_course_${courseId}_assignment_${assignmentId}_language`
+  } else if (exerciseId) {
+    languageKey += `_course_${courseId}_exercise_${exerciseId}_language`
   } else {
     languageKey += '_language'
   }
@@ -57,7 +60,8 @@ export const getStorageKey = (
   problemId: number,
   userName: string,
   contestId?: number,
-  assignmentId?: number
+  assignmentId?: number,
+  exerciseId?: number
 ) => {
   if (userName === '') {
     return undefined
@@ -69,6 +73,8 @@ export const getStorageKey = (
     problemKey += `_contest_${contestId}_language`
   } else if (assignmentId) {
     problemKey += `_assignment_${assignmentId}_language`
+  } else if (exerciseId) {
+    problemKey += `_exercise_${exerciseId}_language`
   } else {
     problemKey += '_language'
   }

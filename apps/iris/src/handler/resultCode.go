@@ -15,6 +15,7 @@ const (
 	TESTCASE_ERROR
 	SEGMENTATION_FAULT_ERROR
 	SERVER_ERROR
+	CANCELED
 )
 
 func SandboxStatusCodeToJudgeResultCode(status sandbox.StatusCode) ResultCode {
