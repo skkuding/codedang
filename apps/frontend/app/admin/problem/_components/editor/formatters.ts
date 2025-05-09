@@ -22,7 +22,7 @@ export async function initAndFormat(
     clangInitialized = true
   }
 
-  if (language === 'Python3' && !pythonInitialized) {
+  if ((language === 'Python3' || language === 'PyPy3') && !pythonInitialized) {
     const python = await import('@wasm-fmt/ruff_fmt')
     await python.default()
     pythonFormatter = python.format

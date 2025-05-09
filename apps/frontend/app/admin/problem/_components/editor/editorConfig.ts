@@ -54,5 +54,6 @@ export const languageParser: Record<Language, () => LanguageSupport> = {
   Cpp: cpp,
   C: cpp,
   Java: java,
-  Python3: python
+  Python3: python,
+  PyPy3: python
 }

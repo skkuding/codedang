@@ -43,7 +43,8 @@ const commonSchema = v.object({
             'Golang',
             'Java',
             'Python2',
-            'Python3'
+            'Python3',
+            'PyPy3'
           ]),
           code: v.array(
             v.object({

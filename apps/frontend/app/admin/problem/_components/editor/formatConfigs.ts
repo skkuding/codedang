@@ -15,6 +15,7 @@ export const extensionMap: Record<Language, string> = {
   C: 'main.c',
   Cpp: 'main.cpp',
   Java: 'Main.java',
+  PyPy3: 'main.py',
   Python3: 'main.py',
   Python2: 'main.py',
   Golang: 'main.go'

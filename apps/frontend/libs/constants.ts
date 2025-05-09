@@ -44,7 +44,7 @@ export const contestNoticeId = process.env.NODE_ENV === 'development' ? 25 : 4
  * The languages that are supported by the grading system.
  * @constant
  */
-export const languages = ['C', 'Cpp', 'Java', 'Python3'] as const
+export const languages = ['C', 'Cpp', 'Java', 'Python3', 'PyPy3'] as const
 
 /**
  * The levels of difficulty for problems.

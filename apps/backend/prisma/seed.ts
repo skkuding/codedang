@@ -692,7 +692,13 @@ const createProblems = async () => {
           join(fixturePath, 'problem/1-output-eng.html'),
           'utf-8'
         ),
-        languages: [Language.C, Language.Cpp, Language.Java, Language.Python3],
+        languages: [
+          Language.C,
+          Language.Cpp,
+          Language.Java,
+          Language.Python3,
+          Language.PyPy3
+        ],
         hint: '',
         timeLimit: 2000,
         memoryLimit: 512,
