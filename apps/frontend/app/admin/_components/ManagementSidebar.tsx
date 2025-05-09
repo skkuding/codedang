@@ -113,6 +113,7 @@ export function ManagementSidebar() {
   })
   const [hasAnyPermissionOnContest, setHasAnyPermissionOnContest] =
     useState(false)
+  const [isCourseItemExist, setIsCourseItemExist] = useState(false)
   const pathname = usePathname()
 
   const { data: coursesData } = useQuery(GET_COURSES_USER_LEAD)
@@ -194,6 +195,7 @@ export function ManagementSidebar() {
       code: `${course?.courseInfo?.courseNum}-${course?.courseInfo?.classNum}`,
       name: course.groupName
     })) || []
+  courseItems.length > 0 && setIsCourseItemExist(true)
 
   return (
     <div className="mx-6 flex h-full gap-5">
@@ -251,7 +253,8 @@ export function ManagementSidebar() {
                 pathname.startsWith('/admin/course') && (
                   <div
                     className={cn(
-                      'mt-4 flex flex-col gap-3 pl-4',
+                      isCourseItemExist ? 'mt-4' : '',
+                      'flex flex-col gap-3 pl-4',
                       isMainSidebarExpanded && isAnimationComplete
                         ? ''
                         : 'hidden'
