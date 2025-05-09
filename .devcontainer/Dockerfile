@@ -14,7 +14,7 @@ RUN chmod 750 /app/sandbox/libjudger.so
 
 # Install dependencies
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-  && apt-get -y install --no-install-recommends netcat direnv gcc g++ openjdk-17-jdk \
+  && apt-get -y install --no-install-recommends netcat direnv gcc g++ openjdk-17-jdk pypy3 \
   && rm -rf /var/lib/apt/lists/*
 
 
