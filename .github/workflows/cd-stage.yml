@@ -28,11 +28,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          year = $(date +%Y)
+          year=$(date +%Y)
 
-          PKG = "codedang-client-api"
+          PKG="codedang-client-api"
 
-          url ="https://api.github.com/orgs/$OWNER/packages/container/$PKG/versions"
+          url="https://api.github.com/orgs/$OWNER/packages/container/$PKG/versions"
 
           tags=$(curl -fsSL -H "Authorization: Bearer $TOKEN" "$url" \
             |  jq -r '.[].metadata.container.tags[]' \
@@ -46,7 +46,7 @@ jobs:
               | sed -E "s/^${year}\.([0-9]+)$/\1/" \
               | sort -n \
               | tail -n 1)
-            next = "${year}.$((max + 1))"
+            next="${year}.$((max + 1))"
           fi
           echo "IMAGE_TAG=$next" >> "$GITHUB_ENV"
 
