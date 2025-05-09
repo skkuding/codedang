@@ -11,11 +11,11 @@ import {
 import { DELETE_ASSIGNMENT } from '@/graphql/assignment/mutations'
 import { GET_ASSIGNMENTS } from '@/graphql/assignment/queries'
 import { useApolloClient, useMutation, useSuspenseQuery } from '@apollo/client'
-import type { Route } from 'next'
 import { columns } from './AssignmentTableColumns'
 
 interface AssignmentTableProps {
   groupId: string
+  isExercise?: boolean
 }
 
 const headerStyle = {
@@ -26,11 +26,15 @@ const headerStyle = {
   isVisible: 'px-0 w-1/12'
 }
 
-export function AssignmentTable({ groupId }: AssignmentTableProps) {
+export function AssignmentTable({
+  groupId,
+  isExercise = false
+}: AssignmentTableProps) {
   const { data } = useSuspenseQuery(GET_ASSIGNMENTS, {
     variables: {
       groupId: Number(groupId),
-      take: 300
+      take: 300,
+      isExercise
     }
   })
 
@@ -52,7 +56,9 @@ export function AssignmentTable({ groupId }: AssignmentTableProps) {
       <DataTable
         headerStyle={headerStyle}
         getHref={(data) =>
-          `/admin/course/${groupId}/assignment/${data.id}` as Route
+          isExercise
+            ? (`/admin/course/${groupId}/exercise/${data.id}` as const)
+            : (`/admin/course/${groupId}/assignment/${data.id}` as const)
         }
       />
       <DataTablePagination showSelection />
@@ -62,9 +68,13 @@ export function AssignmentTable({ groupId }: AssignmentTableProps) {
 
 interface AssignmentsDeleteButtonProp {
   groupId: string
+  isExercise?: boolean
 }
 
-function AssignmentsDeleteButton({ groupId }: AssignmentsDeleteButtonProp) {
+function AssignmentsDeleteButton({
+  groupId,
+  isExercise = false
+}: AssignmentsDeleteButtonProp) {
   const client = useApolloClient()
   const [deleteAssignment] = useMutation(DELETE_ASSIGNMENT)
 
@@ -85,7 +95,7 @@ function AssignmentsDeleteButton({ groupId }: AssignmentsDeleteButtonProp) {
 
   return (
     <DataTableDeleteButton
-      target="assignment"
+      target={isExercise ? 'exercise' : 'assignment'}
       deleteTarget={deleteTarget}
       onSuccess={onSuccess}
     />
