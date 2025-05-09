@@ -13,7 +13,43 @@ jobs:
   build-client-api:
     name: Build client-api image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
     steps:
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Determine next image tag
+        id: tag
+        env:
+          OWNER: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          year = $(date +%Y)
+
+          PKG = "codedang-client-api"
+
+          url ="https://api.github.com/orgs/$OWNER/packages/container/$PKG/versions"
+
+          tags=$(curl -fsSL -H "Authorization: Bearer $TOKEN" "$url" \
+            |  jq -r '.[].metadata.container.tags[]' \
+            |  grep "^${year}\.[0-9]\+$" || true)
+
+          if [[-z "$tags"]]; then
+            next = "${year}.1"
+
+          else
+            max=$(echo "$tags" \
+              | sed -E "s/^${year}\.([0-9]+)$/\1/" \
+              | sort -n \
+              | tail -n 1)
+            next = "${year}.$((max + 1))"
+          fi
+          echo "IMAGE_TAG=$next" >> "$GITHUB_ENV"
+
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -32,7 +68,9 @@ jobs:
           build-args: |
             target=client
             app_env=stage
-          tags: ghcr.io/${{ github.repository_owner }}/codedang-client-api:latest
+          tags: ghcr.io/${{ github.repository_owner }}/codedang-client-api:${{env.IMAGE_TAG}}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
 
   build-admin-api:
     name: Build admin-api image
