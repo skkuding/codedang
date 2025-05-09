@@ -41,8 +41,7 @@ export default function Page() {
       inputDescription: '',
       outputDescription: '',
       testcases: [
-        { input: '', output: '', isHidden: false, scoreWeight: null },
-        { input: '', output: '', isHidden: true, scoreWeight: null }
+        { input: '', output: '', isHidden: false, scoreWeight: null }
       ],
       timeLimit: 2000,
       memoryLimit: 512,
