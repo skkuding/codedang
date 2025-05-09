@@ -462,7 +462,8 @@ describe('ProblemService', () => {
         cursor: 1,
         take: 5,
         my: false,
-        shared: false
+        shared: false,
+        contestId: null
       })
       expect(result).to.deep.equal(problemsWithIsVisible)
     })

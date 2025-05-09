@@ -10,7 +10,7 @@ import {
 } from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput, UpdateHistory } from '@generated'
-import { ProblemField, Role } from '@prisma/client'
+import { ContestRole, ProblemField, Role } from '@prisma/client'
 import { Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
@@ -635,7 +635,8 @@ export class ProblemService {
     cursor,
     take,
     my,
-    shared
+    shared,
+    contestId
   }: {
     userId: number
     input: FilterProblemsInput
@@ -643,14 +644,31 @@ export class ProblemService {
     take: number
     my: boolean
     shared: boolean
+    contestId: number | null
   }) {
     const paginator = this.prisma.getPaginator(cursor)
 
     const whereOptions: ProblemWhereInput = {}
 
     if (my) {
-      whereOptions.createdById = {
-        equals: userId
+      if (contestId) {
+        const contestManagers = await this.prisma.userContest.findMany({
+          where: {
+            contestId,
+            role: ContestRole.Manager
+          },
+          select: { userId: true }
+        })
+        const contestManagerIds = contestManagers
+          .map((manager) => manager.userId)
+          .filter((id): id is number => id !== null)
+        whereOptions.createdById = {
+          in: [userId, ...contestManagerIds]
+        }
+      } else {
+        whereOptions.createdById = {
+          equals: userId
+        }
       }
     }
     if (shared) {

@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  query GetProblems($input: FilterProblemsInput!, $cursor: Int, $take: Int!, $my: Boolean, $shared: Boolean) {
-    getProblems(input: $input, cursor: $cursor, take: $take, my: $my, shared: $shared) {
+  query GetProblems($input: FilterProblemsInput!, $cursor: Int, $take: Int!, $my: Boolean, $shared: Boolean, $contestId: Int) {
+    getProblems(input: $input, cursor: $cursor, take: $take, my: $my, shared: $shared, contestId: $contestId) {
       id
       createdBy {
         id
