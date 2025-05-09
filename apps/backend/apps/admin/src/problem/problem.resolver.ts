@@ -33,6 +33,7 @@ import {
   ProblemIDPipe,
   RequiredIntPipe
 } from '@libs/pipe'
+import { AssignmentProblemUpdateInput } from '@admin/assignment/model/assignment-problem.input'
 import { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { FileSource } from './model/file.output'
 import {
@@ -285,16 +286,18 @@ export class AssignmentProblemResolver {
   }
 
   @Mutation(() => [AssignmentProblem])
-  async updateAssignmentProblemsScore(
+  async updateAssignmentProblems(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('assignmentId', { type: () => Int }) assignmentId: number,
-    @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
-    problemIdsWithScore: ProblemScoreInput[]
+    @Args('assignmentProblemUpdateInput', {
+      type: () => [AssignmentProblemUpdateInput]
+    })
+    assignmentProblemUpdateInput: AssignmentProblemUpdateInput[]
   ) {
-    return await this.problemService.updateAssignmentProblemsScore(
+    return await this.problemService.updateAssignmentProblems(
       groupId,
       assignmentId,
-      problemIdsWithScore
+      assignmentProblemUpdateInput
     )
   }
 

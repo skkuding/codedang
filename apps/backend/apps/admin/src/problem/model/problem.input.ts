@@ -4,6 +4,7 @@ import { Min, ValidatePromise } from 'class-validator'
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs'
 import type { FileUpload } from 'graphql-upload/GraphQLUpload.mjs'
 import type { FileUploadDto } from '../dto/file-upload.dto'
+import { Solution } from './solution.input'
 import { Template } from './template.input'
 import { Testcase } from './testcase.input'
 
@@ -32,6 +33,9 @@ export class CreateProblemInput {
 
   @Field(() => [Language], { nullable: false })
   languages!: Array<keyof typeof Language>
+
+  @Field(() => [Solution], { nullable: false })
+  solution!: Array<Solution>
 
   @Field(() => Int, { nullable: false })
   timeLimit!: number
@@ -146,6 +150,9 @@ export class UpdateProblemInput {
 
   @Field(() => [Language], { nullable: true })
   languages?: Array<keyof typeof Language>
+
+  @Field(() => [Solution], { nullable: true })
+  solution?: Array<Solution>
 
   @Field(() => Int, { nullable: true })
   timeLimit?: number

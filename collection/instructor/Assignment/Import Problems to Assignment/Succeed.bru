@@ -15,14 +15,16 @@ body:graphql {
     importProblemsToAssignment(
       groupId: 2
       assignmentId: 5
-      problemIdsWithScore: [
+      assignmentProblemInput: [
         {
           problemId: 7,
-          score: 20
+          score: 20,
+          solutionReleaseTime: null
         },
         {
         	problemId: 8,
           score: 30
+          solutionReleaseTime: "2025-05-21"
         },
         {
           problemId: 9,
@@ -36,6 +38,7 @@ body:graphql {
       updateTime
       order
       score
+      solutionReleaseTime
     }
   }
 }

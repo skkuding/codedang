@@ -31,6 +31,7 @@ export const problems: Problem[] = [
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     template: [],
+    solution: [],
     engTitle: null,
     engDescription: null,
     engHint: null,
@@ -58,6 +59,7 @@ export const problems: Problem[] = [
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     template: [],
+    solution: [],
     engTitle: null,
     engDescription: null,
     engHint: null,
@@ -102,6 +104,7 @@ export const assignmentProblems = [
     score: 0,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
+    solutionReleaseTime: null,
     assignment: {
       startTime: new Date()
     }
@@ -113,6 +116,7 @@ export const assignmentProblems = [
     score: 0,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
+    solutionReleaseTime: null,
     assignment: {
       startTime: new Date()
     }
@@ -163,6 +167,7 @@ export const assignmentProblemsWithScore = [
     problemId: 1,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
+    solutionReleaseTime: null,
     assignment: {
       startTime: new Date()
     },
@@ -174,6 +179,7 @@ export const assignmentProblemsWithScore = [
     problemId: 2,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
+    solutionReleaseTime: null,
     assignment: {
       startTime: new Date()
     },

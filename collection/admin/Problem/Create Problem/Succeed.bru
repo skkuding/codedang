@@ -22,6 +22,7 @@ body:graphql {
       hint
       isVisible
       template
+      solution
       testcase {
         id
         input
@@ -52,7 +53,10 @@ body:graphql:vars {
           }
         ]
       },
-      "languages": ["Cpp"],
+      "solution": [{"language": "Cpp", "code": "#include <stdio.h>\\n\\nint main() {\\n  printf(\\\"afda\\\");\\n\\n  return 0;\\n}"}],
+      "languages": [
+        "Cpp"
+      ],
       "timeLimit": 0,
       "memoryLimit": 0,
       "difficulty": "Level2",
@@ -65,7 +69,9 @@ body:graphql:vars {
           "scoreWeight": 10
         }
       ],
-      "tagIds": [1]
+      "tagIds": [
+        1
+      ]
     }
   }
 }
