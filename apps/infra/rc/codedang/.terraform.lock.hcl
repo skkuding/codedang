@@ -27,7 +27,7 @@ provider "registry.terraform.io/cyrilgdn/rabbitmq" {
 
 provider "registry.terraform.io/hashicorp/aws" {
   version     = "5.97.0"
-  constraints = "~> 5.75"
+  constraints = "~> 5.97"
   hashes = [
     "h1:0cMARQKxeJIHYi+p1Yg391n3oytz92H0/E/gdTSo1vg=",
     "h1:2vyaumyNsiPVqJsMQwaSbrrssj6HcJVspxJawhu0UsU=",
