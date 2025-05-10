@@ -12,7 +12,7 @@ resource "aws_ecs_task_definition" "this" {
 resource "aws_ecs_service" "this" {
   name                 = var.ecs_service.name
   cluster              = var.ecs_service.cluster_arn
-  task_definition      = aws_ecs_task_definition.this.family
+  task_definition      = aws_ecs_task_definition.this.arn
   desired_count        = var.ecs_service.desired_count
   launch_type          = "EC2"
   force_new_deployment = true

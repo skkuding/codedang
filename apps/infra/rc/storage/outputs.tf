@@ -23,8 +23,8 @@ output "redis_host" {
   sensitive = true
 }
 
-output "mq_host_id" {
-  value     = aws_mq_broker.judge_queue.id
+output "mq_host" {
+  value     = trimprefix(aws_mq_broker.judge_queue.instances.0.console_url, "https://")
   sensitive = true
 }
 

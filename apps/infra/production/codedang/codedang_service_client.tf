@@ -57,11 +57,11 @@ module "client_api" {
     container_definitions = jsonencode([
       jsondecode(templatefile("container_definitions/client_api.json", {
         ecr_uri                         = data.aws_ecr_repository.client_api.repository_url,
-        database_url                    = var.database_url,
+        database_url                    = local.storage.database_url,
         redis_host                      = var.redis_host,
         redis_port                      = var.redis_port,
         jwt_secret                      = var.jwt_secret,
-        rabbitmq_host                   = "${aws_mq_broker.judge_queue.id}.mq.ap-northeast-2.amazonaws.com",
+        rabbitmq_host                   = trimprefix(aws_mq_broker.judge_queue.instances.0.console_url, "https://"),
         rabbitmq_port                   = var.rabbitmq_port,
         rabbitmq_username               = var.rabbitmq_username,
         rabbitmq_password               = random_password.rabbitmq_password.result,

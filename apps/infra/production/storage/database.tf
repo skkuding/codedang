@@ -30,11 +30,15 @@ resource "aws_subnet" "private_db3" {
 
 resource "aws_db_subnet_group" "db_subnet_group" {
   name = "codedang-db-subnet-group"
-  subnet_ids = [
-    aws_subnet.private_db1.id,
-    aws_subnet.private_db2.id,
-    aws_subnet.private_db3.id
-  ]
+  # subnet_ids = [
+  #   aws_subnet.private_db1.id,
+  #   aws_subnet.private_db2.id,
+  #   aws_subnet.private_db3.id
+  # ]
+
+  # TODO: change this to private subnets after migrating testcases from db to s3
+  # After the migration, on-premise iris does not have to access the database
+  subnet_ids = local.network.db_subnet_ids
 }
 
 resource "aws_security_group" "db" {
@@ -79,8 +83,21 @@ resource "aws_db_instance" "postgres" {
   password = random_password.postgres_password.result
   port     = var.postgres_port
 
+  # Temporarily expose database to public for on-premise iris
+  # TODO: remove this after migrating testcase from db to s3
+  publicly_accessible = true
+
   vpc_security_group_ids = [aws_security_group.db.id]
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
 
-  skip_final_snapshot = true
+  # Take a snapshot before deleting the instance
+  skip_final_snapshot       = false
+  final_snapshot_identifier = "codedang-db-final-snapshot"
+  snapshot_identifier       = "codedang-db-final-snapshot-20250507"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  # deletion_protection = true
 }

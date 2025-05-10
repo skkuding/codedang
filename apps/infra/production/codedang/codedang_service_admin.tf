@@ -56,7 +56,7 @@ module "admin_api" {
     container_definitions = jsonencode([
       jsondecode(templatefile("container_definitions/admin_api.json", {
         ecr_uri                         = data.aws_ecr_repository.admin_api.repository_url,
-        database_url                    = var.database_url,
+        database_url                    = local.storage.database_url,
         redis_host                      = var.redis_host,
         redis_port                      = var.redis_port,
         jwt_secret                      = var.jwt_secret,

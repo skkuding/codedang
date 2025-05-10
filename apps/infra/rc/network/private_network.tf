@@ -122,16 +122,3 @@ module "private_db_subnets" {
     }
   }
 }
-
-# 알림: Route Table 연결이 불필요해 모듈로 생성하지 않음.
-# 일관성을 위해 Network 프로젝트에 두었으나, 차후 하이브리드 클라우드
-# 전환 시 유연하게 대처할 것...
-resource "aws_subnet" "private_mq" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.20.0/24"
-  availability_zone = "ap-northeast-2a"
-
-  tags = {
-    Name = "Codedang-MQ-Subnet1"
-  }
-}
