@@ -4,7 +4,6 @@ import { ErrorMessage } from '@/app/admin/_components/ErrorMessage'
 import { Label } from '@/app/admin/_components/Label'
 import { Switch } from '@/components/shadcn/switch'
 import React from 'react'
-import { useEffect } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
 
 interface SampleTestcaseFormProps {
@@ -13,10 +12,10 @@ interface SampleTestcaseFormProps {
   hasValue?: boolean
 }
 
-export function EnableCopyPasteForm({
+export function SampleTestcaseForm({
   name,
   title,
-  hasValue = true
+  hasValue = false
 }: SampleTestcaseFormProps) {
   const {
     control,
@@ -25,12 +24,9 @@ export function EnableCopyPasteForm({
 
   const { field } = useController({
     name,
-    control
+    control,
+    defaultValue: hasValue
   })
-
-  useEffect(() => {
-    field.onChange(hasValue)
-  }, [hasValue])
 
   return (
     <div className="flex items-center gap-3">

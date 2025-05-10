@@ -20,7 +20,7 @@ class JudgeResult {
 }
 
 export class JudgerResponse {
-  @Max(9)
+  @Max(10)
   @Min(0)
   @IsNotEmpty()
   resultCode: number

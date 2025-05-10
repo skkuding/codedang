@@ -42,6 +42,8 @@ func resultCodeToError(code ResultCode) error {
 		return err.Wrap(ErrRuntime)
 	case SEGMENTATION_FAULT_ERROR:
 		return err.Wrap(ErrSegFault)
+	case CANCELED:
+		return err.Wrap(ErrCanceled)
 	}
 	return &HandlerError{caller: caller, err: ErrSandbox, level: logger.ERROR}
 }
