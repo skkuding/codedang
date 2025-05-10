@@ -300,9 +300,6 @@ importers:
       '@types/archiver':
         specifier: ^6.0.3
         version: 6.0.3
-      '@types/cache-manager':
-        specifier: ^5.0.0
-        version: 5.0.0
       '@types/chai':
         specifier: ^4.3.20
         version: 4.3.20
@@ -4951,10 +4948,6 @@ packages:
 
   '@types/busboy@1.5.4':
     resolution: {integrity: sha512-kG7WrUuAKK0NoyxfQHsVE6j1m01s6kMma64E+OZenQABMQyTJop1DumUWcLwAQ2JzpefU7PDYoRDKl8uZosFjw==}
-
-  '@types/cache-manager@5.0.0':
-    resolution: {integrity: sha512-YaQBBhn2OIShxGMH7l1qzGgXCQJ2TRYTqMhFMXRBkDcXQIlqXv+XFkBGstwXSyv7q+JQm3HbpVhaVF8l5tr+Hg==}
-    deprecated: This is a stub types definition. cache-manager provides its own type definitions, so you do not need this installed.
 
   '@types/chai-as-promised@7.1.8':
     resolution: {integrity: sha512-ThlRVIJhr69FLlh6IctTXFkmhtP3NpMZ2QGq69StYLyKZFp/HOp1VdKZj7RvfNWYYcJ1xlbLGLLWj1UvP5u/Gw==}
@@ -16804,10 +16797,6 @@ snapshots:
   '@types/busboy@1.5.4':
     dependencies:
       '@types/node': 22.15.3
-
-  '@types/cache-manager@5.0.0':
-    dependencies:
-      cache-manager: 5.7.6
 
   '@types/chai-as-promised@7.1.8':
     dependencies:
