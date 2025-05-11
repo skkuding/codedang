@@ -16,7 +16,7 @@ export type Level = 'Level1' | 'Level2' | 'Level3' | 'Level4' | 'Level5'
 
 export type SemesterSeason = 'Spring' | 'Summer' | 'Fall' | 'Winter'
 
-export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
+export type Language = 'C' | 'Cpp' | 'Java' | 'Python3' | 'PyPy3'
 // Problem type definition
 
 export type MemberRole = 'Instructor' | 'Student'

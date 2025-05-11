@@ -288,6 +288,7 @@ enum Language {
   Java
   Python2
   Python3
+  PyPy3
   Golang
 }
 
