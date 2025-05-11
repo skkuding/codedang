@@ -181,12 +181,19 @@ export function EditAssignmentForm({
 
   const proceedSubmit = async () => {
     const input = methods.getValues()
+
+    // NOTE: 임시로 dueTime을 endTime과 동일하게 설정
+    const finalInput = {
+      ...input,
+      dueTime: input.endTime
+    }
+
     setIsLoading(true)
 
     await updateAssignment({
       variables: {
         groupId: courseId,
-        input
+        input: finalInput
       }
     })
 

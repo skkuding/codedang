@@ -12,6 +12,7 @@ export const createSchema = v.object({
   description: v.string(),
   startTime: v.optional(v.date()),
   endTime: v.optional(v.date()),
+  dueTime: v.optional(v.date()),
   week: v.number(),
   enableCopyPaste: v.boolean(),
   isJudgeResultVisible: v.boolean(),
