@@ -85,5 +85,8 @@ func ErrorToResultCode(err error) handler.ResultCode {
 	if errors.Is(err, handler.ErrSegFault) {
 		return handler.SEGMENTATION_FAULT_ERROR
 	}
+	if errors.Is(err, handler.ErrCanceled) {
+		return handler.CANCELED
+	}
 	return handler.SERVER_ERROR
 }

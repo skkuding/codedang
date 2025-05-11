@@ -43,6 +43,8 @@ export const Status = (code: number) => {
       return ResultStatus.ServerError
     case 8: // Segmentation Fault
       return ResultStatus.SegmentationFaultError
+    case 10: // Canceled
+      return ResultStatus.Canceled
     default:
       return ResultStatus.ServerError
   }

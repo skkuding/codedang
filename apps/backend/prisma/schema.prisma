@@ -670,6 +670,7 @@ enum ResultStatus {
   ServerError
   SegmentationFaultError
   Blind // isJudgeResultVisible == False로 설정된 Assignment/Contest의 채점 결과를 반환할 때 사용
+  Canceled // isStopOnNotAccepted == True일 때 앞선 테스트케이스가 Not Accepted인 경우 이후 테스트케이스 실행 취소
 }
 
 model TestSubmission {
