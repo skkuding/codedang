@@ -8,6 +8,7 @@ import { SwitchField } from '@/app/admin/_components/SwitchField'
 import { TitleForm } from '@/app/admin/_components/TitleForm'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
+import { cn } from '@/libs/utils'
 import type { UpdateContestInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
@@ -85,17 +86,17 @@ export default function Page({ params }: { params: { contestId: string } }) {
           >
             <div className="flex justify-between gap-[26px]">
               {methods.getValues('posterUrl') !== undefined && (
-                <PosterUploadForm name="posterUrl" />
+                <PosterUploadForm name="posterUrl" disabled={isOngoing} />
               )}
 
               <div className="flex flex-col justify-between">
-                <FormSection title="Title">
+                <FormSection title="Title" disabled={isOngoing}>
                   <TitleForm
                     placeholder="Name your contest"
                     className="max-w-[492px]"
                   />
                 </FormSection>
-                <FormSection title="Start Time">
+                <FormSection title="Start Time" disabled={isOngoing}>
                   {methods.getValues('startTime') && (
                     <TimeForm isContest name="startTime" />
                   )}
@@ -117,7 +118,12 @@ export default function Page({ params }: { params: { contestId: string } }) {
               </div>
             </div>
 
-            <FormSection title="Summary" isLabeled={false} isFlexColumn>
+            <FormSection
+              title="Summary"
+              isLabeled={false}
+              isFlexColumn
+              disabled={isOngoing}
+            >
               <SummaryForm name="summary" />
             </FormSection>
 
@@ -125,6 +131,7 @@ export default function Page({ params }: { params: { contestId: string } }) {
               title="More Description"
               isLabeled={false}
               isFlexColumn={true}
+              disabled={isOngoing}
             >
               {methods.getValues('description') !== undefined && (
                 <DescriptionForm name="description" />
@@ -140,6 +147,7 @@ export default function Page({ params }: { params: { contestId: string } }) {
                   hasValue={
                     methods.getValues('evaluateWithSampleTestcase') !== false
                   }
+                  disabled={isOngoing}
                 />
               )}
               <SwitchField
@@ -149,17 +157,24 @@ export default function Page({ params }: { params: { contestId: string } }) {
                 formElement="input"
                 placeholder="Enter a invitation code"
                 hasValue={methods.getValues('invitationCode') !== null}
+                disabled={isOngoing}
               />
               {methods.getValues('enableCopyPaste') !== undefined && (
                 <EnableCopyPasteForm
                   name="enableCopyPaste"
                   title="Enable Copy Paste"
                   hasValue={methods.getValues('enableCopyPaste') !== false}
+                  disabled={isOngoing}
                 />
               )}
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div
+              className={cn(
+                'flex flex-col gap-1',
+                isOngoing && 'pointer-events-none opacity-50'
+              )}
+            >
               <div className="flex items-center justify-between">
                 <CreateEditContestLabel
                   title="Add manager / reviewer"
@@ -176,7 +191,12 @@ export default function Page({ params }: { params: { contestId: string } }) {
               />
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div
+              className={cn(
+                'flex flex-col gap-1',
+                isOngoing && 'pointer-events-none opacity-50'
+              )}
+            >
               <div className="flex items-center justify-between">
                 <CreateEditContestLabel
                   title="Contest Problem List"
@@ -194,17 +214,25 @@ export default function Page({ params }: { params: { contestId: string } }) {
             <div className="space-y-2">
               {isOngoing && (
                 <p className="text-error text-sm">
-                  * You cannot edit Ongoing Contest.
-                  <br /> * If you want to edit the contest, please make sure
-                  that the contest is not ongoing and that the end time is not
-                  earlier than the start time.
+                  * You can only edit{' '}
+                  <strong className="font-bold">End Time</strong> and{' '}
+                  <strong className="font-bold">Freeze Time</strong> for an
+                  Ongoing Contest.
+                  <br />* Ensure the{' '}
+                  <strong className="font-bold">Freeze Start Time</strong> is
+                  after the <strong className="font-bold">Current Time</strong>,
+                  and the{' '}
+                  <strong className="font-bold">
+                    Original Freeze Start Time
+                  </strong>
+                  .
                 </p>
               )}
 
               <Button
                 type="submit"
                 className="flex h-[36px] w-full items-center gap-2 px-0"
-                disabled={isLoading || isOngoing}
+                disabled={isLoading}
               >
                 <IoMdCheckmarkCircleOutline fontSize={20} />
                 <div className="mb-[2px] text-base">Edit</div>
