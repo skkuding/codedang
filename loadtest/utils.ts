@@ -113,34 +113,34 @@ export function generateSummary(
 
   summaryText += '=== 테스트 환경 정보 ===\n'
   summaryText += `실행 시간: ${year}-${month}-${day} ${hours}:${minutes}\n`
-  summaryText += `대상 API 서버: ${CODEDANG_BASE_URL || 'http://localhost:4000'}\n`
-  summaryText += `로그인 유저: ${LOGIN_USERNAME || 'instructor'}\n`
-  summaryText += `대회 ID: ${CONTEST_ID || '설정되지 않음'}\n`
-  summaryText += `문제 ID: ${PROBLEM_ID || 6}\n`
-  summaryText += `OTLP 엔드포인트: ${K6_OTEL_EXPORTER_OTLP_ENDPOINT || '설정되지 않음'}\n`
-  summaryText += `요청 간 대기시간: ${SLEEP_INTERVAL_SECONDS || 10}초\n`
-  summaryText += `일반 코드 스니펫 경로: ${NORMAL_CODE_SNIPPET_FILE_PATH || './scripts/normal/default.py'}\n`
-  summaryText += `빌런 코드 스니펫 경로: ${VILLAIN_CODE_SNIPPET_FILE_PATH || './scripts/villain/python/default.py'}\n\n`
+  summaryText += `대상 API 서버: ${CODEDANG_BASE_URL}\n`
+  summaryText += `로그인 유저: ${LOGIN_USERNAME}\n`
+  summaryText += `대회 ID: ${CONTEST_ID}\n`
+  summaryText += `문제 ID: ${PROBLEM_ID}\n`
+  summaryText += `OTLP 엔드포인트: ${K6_OTEL_EXPORTER_OTLP_ENDPOINT}\n`
+  summaryText += `요청 간 대기시간: ${SLEEP_INTERVAL_SECONDS}초\n`
+  summaryText += `일반 코드 스니펫 경로: ${NORMAL_CODE_SNIPPET_FILE_PATH}\n`
+  summaryText += `빌런 코드 스니펫 경로: ${VILLAIN_CODE_SNIPPET_FILE_PATH}\n\n`
 
-  // TODO: 시나리오 정보 동적 추가
+  // // TODO: 시나리오 정보 동적 추가
   summaryText += '=== 시나리오 정보 ===\n'
 
   const scenarios = testOptions.scenarios || {}
-  const scenarioNames = ['villains', 'normals']
-  if (scenarioNames.length === 0) {
-    summaryText += '시나리오 정보가 없습니다.\n'
-  } else {
-    scenarioNames.forEach((scenarioName) => {
-      const scenario = scenarios[scenarioName]
-      summaryText += `시나리오 이름: ${scenarioName}\n`
-      summaryText += `  실행기: ${scenario.executor}\n`
-      summaryText += `  단계: ${scenario.env}\n`
-      summaryText += `  태그: ${JSON.stringify(scenario.tags || {})}\n`
-      summaryText += `  실행 함수: ${scenario.exec}\n`
-      summaryText += `  실행 시간: ${scenario.startTime}\n`
-    })
-  }
-  summaryText += '\n'
+  // const scenarioNames = ['villains', 'normals']
+  // if (scenarioNames.length === 0) {
+  //   summaryText += '시나리오 정보가 없습니다.\n'
+  // } else {
+  //   scenarioNames.forEach((scenarioName) => {
+  //     const scenario = scenarios[scenarioName]
+  //     summaryText += `시나리오 이름: ${scenarioName}\n`
+  //     summaryText += `  실행기: ${scenario.executor}\n`
+  //     summaryText += `  단계: ${scenario.env}\n`
+  //     summaryText += `  태그: ${JSON.stringify(scenario.tags || {})}\n`
+  //     summaryText += `  실행 함수: ${scenario.exec}\n`
+  //     summaryText += `  실행 시간: ${scenario.startTime}\n`
+  //   })
+  // }
+  // summaryText += '\n'
 
   // 테스트 결과 정보 추가
   summaryText += '=== 테스트 결과 요약 ===\n'

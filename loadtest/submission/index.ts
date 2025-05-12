@@ -13,17 +13,17 @@ import {
 } from '../utils.ts'
 
 // --- 설정값 ---
-const BASE_URL = __ENV.CODEDANG_BASE_URL || 'http://localhost:4000'
-const LOGIN_USERNAME = __ENV.LOGIN_USERNAME || 'instructor'
-const LOGIN_PASSWORD = __ENV.LOGIN_PASSWORD || 'Instructorinstructor'
+const BASE_URL = __ENV.CODEDANG_BASE_URL
+const LOGIN_USERNAME = __ENV.LOGIN_USERNAME
+const LOGIN_PASSWORD = __ENV.LOGIN_PASSWORD
 const CONTEST_ID = Number(__ENV.CONTEST_ID)
-const PROBLEM_ID = Number(__ENV.PROBLEM_ID) || 6
+const PROBLEM_ID = Number(__ENV.PROBLEM_ID)
 const OTEL_ENDPOINT = __ENV.K6_OTEL_EXPORTER_OTLP_ENDPOINT // OTLP 형식으로 메트릭을 전송할 엔드포인트(선택적)
-const SLEEP_INTERVAL_SECONDS = Number(__ENV.SLEEP_INTERVAL_SECONDS) || 10 // 각 vu가 요청 후 대기하는 시간
+const SLEEP_INTERVAL_SECONDS = Number(__ENV.SLEEP_INTERVAL_SECONDS) // 각 vu가 요청 후 대기하는 시간
 const NORMAL_CODE_SNIPPET_FILE_PATH =
-  __ENV.NORMAL_CODE_SNIPPET_FILE_PATH || './scripts/normal/default.py'
+  __ENV.NORMAL_CODE_SNIPPET_FILE_PATH || './scripts/normal/default.cpp'
 const VILLAIN_CODE_SNIPPET_FILE_PATH =
-  __ENV.VILLAIN_CODE_SNIPPET_FILE_PATH || './scripts/villain/python/default.py'
+  __ENV.VILLAIN_CODE_SNIPPET_FILE_PATH || './scripts/villain/cpp/default.cpp'
 
 // --- k6 옵션: Scenarios 정의 ---
 export const options: Options = {
