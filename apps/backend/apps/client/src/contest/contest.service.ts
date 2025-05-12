@@ -6,6 +6,7 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { ContestQnACreateDto } from './dto/contest-qna.dto'
 
 const contestSelectOption = {
   id: true,
@@ -587,5 +588,133 @@ export class ContestService {
     })
 
     return userContests
+  }
+
+  async createContestQnA(
+    contestId: number,
+    userId: number,
+    data: ContestQnACreateDto
+  ) {
+    const contest = await this.prisma.contest.findUnique({
+      where: {
+        id: contestId
+      }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const hasRegistered = await this.prisma.userContest.findFirst({
+      where: { userId, contestId }
+    })
+    if (!hasRegistered) {
+      throw new ForbiddenAccessException('Not registered in this contest')
+    }
+
+    return await this.prisma.contestQnA.create({
+      data: {
+        ...data,
+        contestId,
+        createdById: userId
+      }
+    })
+  }
+
+  async getContestQnAs(userId: number, contestId: number) {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contestId }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const isPrivileged = await this.prisma.userContest.findFirst({
+      where: {
+        userId,
+        contestId,
+        role: {
+          in: ['Admin', 'Manager', 'Reviewer']
+        }
+      }
+    })
+
+    return (
+      await this.prisma.contestQnA.findMany({
+        select: {
+          id: true,
+          title: true,
+          answer: true,
+          createTime: true
+        },
+        where: {
+          contestId,
+          OR: isPrivileged
+            ? undefined
+            : [{ createdById: userId }, { isVisible: true }]
+        },
+        orderBy: {
+          createTime: 'desc'
+        }
+      })
+    ).map((qna) => {
+      const { answer, ...rest } = qna
+      return {
+        ...rest,
+        isAnswered: Boolean(answer)
+      }
+    })
+  }
+
+  async getContestQnA(userId: number, contestId: number, qnaId: number) {
+    const contest = await this.prisma.contest.findUnique({
+      where: {
+        id: contestId
+      }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const isPrivileged = await this.prisma.userContest.findFirst({
+      where: {
+        userId,
+        contestId,
+        role: {
+          in: ['Admin', 'Manager', 'Reviewer']
+        }
+      }
+    })
+
+    const qna = await this.prisma.contestQnA.findFirst({
+      where: {
+        id: qnaId,
+        OR: isPrivileged
+          ? undefined
+          : [{ createdById: userId }, { isVisible: true }]
+      },
+      include: {
+        createdBy: {
+          select: {
+            username: true
+          }
+        },
+        answeredBy: {
+          select: {
+            username: true
+          }
+        }
+      }
+    })
+
+    if (!qna) {
+      throw isPrivileged
+        ? new EntityNotExistException('ContestQnA')
+        : new ForbiddenAccessException('You are not allowed to view this QnA')
+    }
+
+    return qna
   }
 }
