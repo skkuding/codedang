@@ -1,6 +1,6 @@
 import { Controller, Req, Res, Get, Param } from '@nestjs/common'
 import { Response } from 'express'
-import { AuthenticatedRequest } from '@libs/auth'
+import { AuthenticatedRequest, UseGroupLeaderGuard } from '@libs/auth'
 import { SubmissionService } from './submission.service'
 
 @Controller('submission')
@@ -12,6 +12,7 @@ export class SubmissionController {
    * filename은 압축된 zipFile의 이름으로 ${assignmentTitle}_${problemId}의 형식으로 저장됩니다.
    */
   @Get('/download/:filename')
+  @UseGroupLeaderGuard()
   async downloadCodes(
     @Param('filename') filename: string,
     @Req() req: AuthenticatedRequest,

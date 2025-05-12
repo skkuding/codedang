@@ -462,60 +462,7 @@ export class SubmissionService {
     return encodeURIComponent(problem.title)
   }
 
-  async compressSourceCodes(
-    assignmentId: number,
-    problemId: number,
-    userId: number
-  ) {
-    const userRole = await this.prisma.user.findFirst({
-      where: {
-        id: userId
-      },
-      select: {
-        role: true
-      }
-    })
-
-    const assignmentGroupId = await this.prisma.assignment.findUnique({
-      where: {
-        id: assignmentId
-      },
-      select: {
-        groupId: true
-      }
-    })
-
-    if (assignmentGroupId == null) {
-      throw new EntityNotExistException('Assignment')
-    }
-
-    const assignmentUserGroup = await this.prisma.userGroup.findUnique({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        userId_groupId: {
-          userId,
-          groupId: assignmentGroupId.groupId
-        }
-      },
-      select: {
-        isGroupLeader: true
-      }
-    })
-
-    if (!assignmentUserGroup) {
-      throw new ForbiddenAccessException('You can only access to your Group')
-    }
-
-    if (
-      assignmentUserGroup!.isGroupLeader != true &&
-      userRole?.role !== Role.Admin &&
-      userRole?.role !== Role.SuperAdmin
-    ) {
-      throw new ForbiddenAccessException(
-        'Only Instructor or Admin can download the sourceCodes'
-      )
-    }
-
+  async compressSourceCodes(assignmentId: number, problemId: number) {
     const assignmentProblemRecords =
       await this.prisma.assignmentProblemRecord.findMany({
         where: {
@@ -628,7 +575,7 @@ export class SubmissionService {
       rm(zipFilename, { recursive: true, force: true }, (err) => {
         if (err) this.logger.error('Error on deleting folder: ', err)
       })
-      res.status(500).json({ error: 'File download failed' })
+      res.status(500).json({ error: 'File download failed: ', err })
     })
   }
 }
