@@ -11,7 +11,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import type { ContestWithScores } from './model/contest-with-scores.model'
 import type { CreateContestInput } from './model/contest.input'
-import { UpdateContestInput } from './model/contest.input'
+import type { UpdateContestInput } from './model/contest.input'
 import type { ProblemScoreInput } from './model/problem-score.input'
 
 @Injectable()
@@ -301,25 +301,6 @@ export class ContestService {
       }
     })
 
-    const now = new Date()
-    const isOngoing =
-      now >= contestFound.startTime && now < contestFound.endTime
-
-    if (isOngoing) {
-      const allowedFields = UpdateContestInput.ongoingMutableFields
-      const modifiedFields = Object.keys(contest).filter(
-        (key) => contest[key] !== undefined
-      )
-      const disallowedFields = modifiedFields.filter(
-        (field) => !allowedFields.includes(field as keyof UpdateContestInput)
-      )
-      if (disallowedFields.length) {
-        throw new UnprocessableDataException(
-          `Only ${allowedFields.join(', ')} fields can be modified in ongoing contest`
-        )
-      }
-    }
-
     const isEndTimeChanged =
       contest.endTime && contest.endTime !== contestFound.endTime
     contest.startTime = contest.startTime || contestFound.startTime
@@ -342,6 +323,10 @@ export class ContestService {
     const isFreezeTimeChanged =
       contest.freezeTime && contest.freezeTime !== contestFound.freezeTime
     if (isFreezeTimeChanged) {
+      const now = new Date()
+      const isOngoing =
+        now >= contestFound.startTime && now < contestFound.endTime
+
       if (contest.freezeTime && contest.freezeTime <= now) {
         throw new UnprocessableDataException(
           'The freeze time must be later than the current time'
@@ -353,6 +338,7 @@ export class ContestService {
         )
       }
       if (
+        isOngoing &&
         contestFound.freezeTime &&
         contest.freezeTime &&
         contest.freezeTime <= contestFound.freezeTime

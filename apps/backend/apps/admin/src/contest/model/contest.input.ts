@@ -115,12 +115,6 @@ export class UpdateContestInput {
 
   @Field(() => GraphQLJSON, { nullable: true })
   summary?: Record<string, string>
-
-  // ongoing contest에서 수정 가능한 필드
-  static readonly ongoingMutableFields: (keyof UpdateContestInput)[] = [
-    'endTime',
-    'freezeTime'
-  ]
 }
 
 @InputType()
