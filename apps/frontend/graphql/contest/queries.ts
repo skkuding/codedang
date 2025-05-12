@@ -14,6 +14,7 @@ const GET_CONTEST = gql(`
       posterUrl
       summary
       freezeTime
+      enableCopyPaste
       evaluateWithSampleTestcase
       userContest {
         userId

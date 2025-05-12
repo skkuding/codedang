@@ -266,7 +266,7 @@ export class SubmissionService {
         startTime: {
           lte: now
         },
-        endTime: {
+        dueTime: {
           gt: now
         }
       }
@@ -288,7 +288,7 @@ export class SubmissionService {
         assignment: {
           select: {
             startTime: true,
-            endTime: true
+            dueTime: true
           }
         }
       }
@@ -300,7 +300,7 @@ export class SubmissionService {
     }
     if (
       assignmentRecord.assignment.startTime > now ||
-      assignmentRecord.assignment.endTime <= now
+      assignmentRecord.assignment.dueTime <= now
     ) {
       throw new ConflictFoundException(
         'Submission is only allowed to ongoing assignments'

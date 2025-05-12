@@ -345,6 +345,7 @@ model Assignment {
   description          String
   startTime            DateTime @map("start_time")
   endTime              DateTime @map("end_time")
+  dueTime              DateTime @map("due_time")
   isVisible            Boolean  @default(true) @map("is_visible")
   isRankVisible        Boolean  @default(true) @map("is_rank_visible")
   isJudgeResultVisible Boolean  @default(true) @map("is_judge_result_visible") // 이 Assignment에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다.

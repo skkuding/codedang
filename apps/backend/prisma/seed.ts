@@ -1520,6 +1520,7 @@ const createAssignments = async () => {
       groupId: number
       startTime: Date
       endTime: Date
+      dueTime: Date
       isVisible: boolean
       isRankVisible: boolean
       enableCopyPaste: boolean
@@ -1563,6 +1564,7 @@ const createAssignments = async () => {
         groupId: privateGroup1.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        dueTime: new Date('2026-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
         enableCopyPaste: true
@@ -1576,6 +1578,7 @@ const createAssignments = async () => {
         groupId: privateGroup1.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        dueTime: new Date('2026-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
         enableCopyPaste: true
@@ -1589,6 +1592,7 @@ const createAssignments = async () => {
         groupId: privateGroup1.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        dueTime: new Date('2026-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
         enableCopyPaste: true
@@ -1602,6 +1606,7 @@ const createAssignments = async () => {
         groupId: privateGroup1.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        dueTime: new Date('2026-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
         enableCopyPaste: true
@@ -1615,6 +1620,7 @@ const createAssignments = async () => {
         groupId: privateGroup2.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        dueTime: new Date('2026-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
         enableCopyPaste: true
@@ -1629,6 +1635,7 @@ const createAssignments = async () => {
         groupId: privateGroup1.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        dueTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
         enableCopyPaste: true
@@ -1642,6 +1649,7 @@ const createAssignments = async () => {
         groupId: privateGroup1.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        dueTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
         enableCopyPaste: true
@@ -1655,6 +1663,7 @@ const createAssignments = async () => {
         groupId: privateGroup1.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        dueTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
         enableCopyPaste: true
@@ -1668,6 +1677,7 @@ const createAssignments = async () => {
         groupId: privateGroup1.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        dueTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
         enableCopyPaste: true
@@ -1681,6 +1691,7 @@ const createAssignments = async () => {
         groupId: privateGroup1.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        dueTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
         enableCopyPaste: true
@@ -1694,6 +1705,7 @@ const createAssignments = async () => {
         groupId: privateGroup1.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        dueTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
         enableCopyPaste: true
@@ -1707,6 +1719,7 @@ const createAssignments = async () => {
         groupId: privateGroup1.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        dueTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
         enableCopyPaste: true
@@ -1720,6 +1733,7 @@ const createAssignments = async () => {
         groupId: privateGroup1.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        dueTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: false,
         enableCopyPaste: true
@@ -1733,6 +1747,7 @@ const createAssignments = async () => {
         groupId: privateGroup2.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        dueTime: new Date('2024-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
         enableCopyPaste: true
@@ -1747,6 +1762,7 @@ const createAssignments = async () => {
         groupId: privateGroup1.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        dueTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
         enableCopyPaste: true
@@ -1760,6 +1776,7 @@ const createAssignments = async () => {
         groupId: privateGroup1.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        dueTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
         enableCopyPaste: true
@@ -1774,6 +1791,7 @@ const createAssignments = async () => {
         groupId: privateGroup1.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        dueTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: false,
         isRankVisible: true,
         enableCopyPaste: true
@@ -1787,6 +1805,7 @@ const createAssignments = async () => {
         groupId: privateGroup2.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        dueTime: new Date('3025-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
         enableCopyPaste: true
