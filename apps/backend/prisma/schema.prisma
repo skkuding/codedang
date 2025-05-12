@@ -565,6 +565,8 @@ model ContestRecord {
 
 model ContestQnA {
   id           Int      @id @default(autoincrement())
+  // contest 내부에서의 numbering
+  order        Int
   createdBy    User?    @relation("CreatedByUser", fields: [createdById], references: [id], onDelete: SetNull)
   createdById  Int?     @map("created_by_id")
   answeredBy   User?    @relation("AnsweredByUser", fields: [answeredById], references: [id], onDelete: SetNull)
@@ -578,6 +580,7 @@ model ContestQnA {
   createTime   DateTime @default(now()) @map("create_time")
   updateTime   DateTime @updatedAt @map("update_time")
 
+  @@unique([contestId, order])
   @@map("contest_qna")
 }
 

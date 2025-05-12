@@ -5,7 +5,40 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/contest/1/qna
+  url: {{baseUrl}}/contest/1/qna/1
   body: none
   auth: inherit
+}
+
+docs {
+  ## 📘 Get Contest QnA (by Order)
+  
+  **GET** `/contest/:id/qna/:order`
+  
+  Retrieve a single QnA entry by its order within the contest.
+  
+  > 특정 대회에서 특정 순번(order)에 해당하는 QnA 하나를 조회합니다.  
+  > 사용자의 권한 및 로그인 여부에 따라 조회 가능 여부와 반환되는 필드가 달라집니다:
+  >
+  > - 운영진(Admin, Manager, Reviewer)은 모든 QnA를 열람할 수 있습니다.
+  > - 일반 사용자는 본인이 작성했거나 공개된 QnA만 조회할 수 있습니다.
+  > - 로그인하지 않은 경우 공개된 QnA만 조회할 수 있으며, 제한된 정보만 반환됩니다.
+  
+  
+  ### 🔒 Authentication
+  
+  🔸 Optional  
+  - 로그인하지 않아도 공개된 QnA는 조회 가능  
+  - 인증 실패 시 `req.user`는 null이 됩니다
+  
+  
+  ### 📥 Request Parameters
+  
+  #### Path Parameters
+  
+  | Name      | Type   | Required | Description                      |
+  |-----------|--------|----------|----------------------------------|
+  | `id`      | number | ✅       | ID of the target contest         |
+  | `order`   | number | ✅       | 순번 (order) of the QnA in contest |
+  
 }

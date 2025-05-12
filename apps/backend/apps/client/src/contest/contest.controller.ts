@@ -103,17 +103,17 @@ export class ContestController {
     return await this.contestService.getContestQnAs(req.user?.id, contestId)
   }
 
-  @Get(':id/qna/:qnaId')
+  @Get(':id/qna/:order')
   @UserNullWhenAuthFailedIfPublic()
   async getContestQnAById(
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) contestId: number,
-    @Param('qnaId', IDValidationPipe) qnaId: number
+    @Param('order', IDValidationPipe) order: number
   ) {
     return await this.contestService.getContestQnA(
       req.user?.id,
       contestId,
-      qnaId
+      order
     )
   }
 }
