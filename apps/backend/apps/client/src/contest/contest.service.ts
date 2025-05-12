@@ -668,7 +668,7 @@ export class ContestService {
               })
         },
         orderBy: {
-          createTime: 'desc'
+          order: 'asc'
         }
       })
     ).map((qna) => {
