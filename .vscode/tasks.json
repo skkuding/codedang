@@ -2,72 +2,6 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "k6: Run Login Test (dotenv)",
-      "type": "shell",
-      "command": "npx",
-      "args": [
-        "dotenv-cli",
-        "-e",
-        "${workspaceFolder}/loadtest/.env",
-        "-e",
-        "${workspaceFolder}/loadtest/.env.development",
-        "--",
-        "k6",
-        "run",
-        "--out",
-        "experimental-opentelemetry",
-        "--out",
-        "json=${workspaceFolder}/loadtest/results/submission-test-result.json",
-        "${workspaceFolder}/loadtest/scripts/login.ts"
-      ],
-      "group": {
-        "kind": "test",
-        "isDefault": false
-      },
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "k6: Run Signup Test (dotenv)",
-      "type": "shell",
-      "command": "npx",
-      "args": [
-        "dotenv-cli",
-        "-e",
-        "${workspaceFolder}/loadtest/.env",
-        "-e",
-        "${workspaceFolder}/loadtest/.env.development",
-        "--",
-        "k6",
-        "run",
-        "--out",
-        "experimental-opentelemetry",
-        "--out",
-        "json=${workspaceFolder}/loadtest/results/submission-test-result.json",
-        "${workspaceFolder}/loadtest/scripts/signup.ts"
-      ],
-      "group": {
-        "kind": "test",
-        "isDefault": false
-      },
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "problemMatcher": []
-    },
-    {
       "label": "k6: Run Submission Test (dotenv)",
       "type": "shell",
       "command": "npx",
@@ -83,12 +17,12 @@
         "--out",
         "experimental-opentelemetry",
         "--out",
-        "json=${workspaceFolder}/loadtest/results/submission-test-result.json",
-        "${workspaceFolder}/loadtest/scripts/submission/index.ts"
+        "json=${workspaceFolder}/loadtest/submission/results/submission-test-result.json",
+        "${workspaceFolder}/loadtest/submission/index.ts"
       ],
       "group": {
         "kind": "test",
-        "isDefault": false
+        "isDefault": true
       },
       "presentation": {
         "echo": true,
