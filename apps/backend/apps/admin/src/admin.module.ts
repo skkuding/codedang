@@ -27,6 +27,7 @@ import { GroupModule } from './group/group.module'
 import { ProblemModule } from './problem/problem.module'
 import { StorageModule } from './storage/storage.module'
 import { SubmissionModule } from './submission/submission.module'
+import { TestcaseModule } from './testcase/testcase.module'
 import { UserModule } from './user/user.module'
 
 @Module({
@@ -59,7 +60,8 @@ import { UserModule } from './user/user.module'
     AnnouncementModule,
     NoticeModule,
     SubmissionModule,
-    LoggerModule.forRoot(pinoLoggerModuleOption)
+    LoggerModule.forRoot(pinoLoggerModuleOption),
+    TestcaseModule
   ],
   controllers: [AdminController],
   providers: [

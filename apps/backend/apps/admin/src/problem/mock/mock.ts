@@ -5,7 +5,6 @@ import type {
   WorkbookProblem,
   Contest,
   ContestProblem,
-  Assignment,
   AssignmentProblem,
   ProblemTag,
   Tag,
@@ -17,13 +16,13 @@ import { createReadStream } from 'fs'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import type { FileUploadDto } from '../dto/file-upload.dto'
 import type { UploadFileInput } from '../model/problem.input'
-import type { ProblemWithIsVisible } from '../model/problem.output'
+import type { ProblemModel } from '../model/problem.output'
 import type { Template } from '../model/template.input'
 import type { Testcase } from '../model/testcase.input'
 
 const changeVisibleLockTimeToIsVisible = function (
   problems: Problem[]
-): ProblemWithIsVisible[] {
+): ProblemModel[] {
   return problems.map((problem: Problem) => {
     const { visibleLockTime, ...data } = problem
     return {
@@ -34,6 +33,7 @@ const changeVisibleLockTimeToIsVisible = function (
               visibleLockTime.getTime() === MAX_DATE.getTime()
             ? false
             : null,
+      testcase: [],
       ...data
     }
   })
@@ -87,7 +87,8 @@ export const problems: Problem[] = [
     engHint: null,
     engInputDescription: null,
     engOutputDescription: null,
-    updateHistory: []
+    updateHistory: [],
+    problemTestcase: []
   },
   {
     id: 2,
@@ -114,7 +115,8 @@ export const problems: Problem[] = [
     engHint: null,
     engInputDescription: null,
     engOutputDescription: null,
-    updateHistory: []
+    updateHistory: [],
+    problemTestcase: []
   }
 ]
 
@@ -175,7 +177,7 @@ export const updateHistories = [
   }
 ]
 
-export const problemsWithIsVisible: ProblemWithIsVisible[] =
+export const problemsWithIsVisible: ProblemModel[] =
   changeVisibleLockTimeToIsVisible(problems)
 
 export const testcaseInput: Testcase = {
@@ -299,7 +301,7 @@ export const importedProblems: Problem[] = [
   }
 ]
 
-export const importedProblemsWithIsVisible: ProblemWithIsVisible[] =
+export const importedProblemsWithIsVisible: ProblemModel[] =
   changeVisibleLockTimeToIsVisible(importedProblems)
 
 export const exampleWorkbook: Workbook = {

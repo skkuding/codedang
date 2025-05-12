@@ -1,0 +1,35 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  query GetTestcases {
+    testcases(problemId: 1) {
+      id
+      problemId
+      input
+      output
+      order
+      scoreWeight
+    }
+  }
+}
+
+docs {
+  ## Get Testcases
+  
+  문제의 테스트케이스를 불러옵니다.
+  각 input/output별로 10KB까지만 불러올 수 있습니다.
+  
+  ### Request Body
+  
+  - `problemId`: 문제 ID
+}

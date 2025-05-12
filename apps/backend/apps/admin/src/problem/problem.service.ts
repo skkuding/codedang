@@ -35,6 +35,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import type { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { StorageService } from '@admin/storage/storage.service'
+import { TestcaseService } from '@admin/testcase/testcase.service'
 import { ImportedProblemHeader } from './model/problem.constants'
 import type {
   CreateProblemInput,
@@ -43,7 +44,7 @@ import type {
   UpdateProblemInput,
   UpdateProblemTagInput
 } from './model/problem.input'
-import type { ProblemWithIsVisible } from './model/problem.output'
+import type { ProblemModel } from './model/problem.output'
 import type { Template } from './model/template.input'
 import { ImportedTestcaseHeader } from './model/testcase.constants'
 import type { Testcase } from './model/testcase.input'
@@ -53,6 +54,7 @@ export class ProblemService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly storageService: StorageService,
+    private readonly testcaseService: TestcaseService,
     private readonly config: ConfigService
   ) {}
 
@@ -100,7 +102,7 @@ export class ProblemService {
     })
     // TODO: do not create testcases in createProblem
     await this.createTestcasesLegacy(problem.id, testcases)
-    return this.changeVisibleLockTimeToIsVisible(problem)
+    return await this.processToProblemModel(problem)
   }
 
   async removeAllTestcaseFiles(problemId: number) {
@@ -303,7 +305,6 @@ export class ProblemService {
             throw new EntityNotExistException('problem')
           }
         }
-        console.log('error code:', error.code)
         throw error
       }
     })
@@ -688,7 +689,9 @@ export class ProblemService {
         createdBy: true
       }
     })
-    return this.changeVisibleLockTimeToIsVisible(problems)
+    return await Promise.all(
+      problems.map((problem) => this.processToProblemModel(problem))
+    )
   }
 
   async getProblem(id: number, userRole: Role, userId: number) {
@@ -719,7 +722,7 @@ export class ProblemService {
         )
       }
     }
-    return this.changeVisibleLockTimeToIsVisible(problem)
+    return await this.processToProblemModel(problem)
   }
 
   async getProblemById(id: number) {
@@ -728,7 +731,7 @@ export class ProblemService {
         id
       }
     })
-    return this.changeVisibleLockTimeToIsVisible(problem)
+    return await this.processToProblemModel(problem)
   }
 
   async updateProblem(
@@ -881,7 +884,7 @@ export class ProblemService {
     const problemTag = tags ? await this.updateProblemTag(id, tags) : undefined
 
     if (testcases?.length) {
-      await this.updateTestcases(id, testcases)
+      await this.createTestcases(testcases, id)
     }
 
     const updatedInfo = updatedInfos
@@ -920,7 +923,7 @@ export class ProblemService {
       }
     })
 
-    return this.changeVisibleLockTimeToIsVisible(updatedProblem)
+    return await this.processToProblemModel(updatedProblem)
   }
 
   async getProblemUpdateHistory(problemId: number): Promise<UpdateHistory[]> {
@@ -965,28 +968,6 @@ export class ProblemService {
     return {
       create: await Promise.all(createIds),
       delete: await Promise.all(deleteIds)
-    }
-  }
-
-  async updateTestcases(problemId: number, testcases: Array<Testcase>) {
-    await Promise.all([
-      this.prisma.problemTestcase.deleteMany({
-        where: {
-          problemId
-        }
-      })
-    ])
-
-    for (const tc of testcases) {
-      await this.prisma.problemTestcase.create({
-        data: {
-          problemId,
-          input: tc.input,
-          output: tc.output,
-          scoreWeight: tc.scoreWeight,
-          isHidden: tc.isHidden
-        }
-      })
     }
   }
 
@@ -1325,35 +1306,33 @@ export class ProblemService {
     })
   }
 
-  changeVisibleLockTimeToIsVisible(
-    problems: Problem | Problem[]
-  ): ProblemWithIsVisible | ProblemWithIsVisible[] {
-    if (Array.isArray(problems)) {
-      return problems.map((problem) => {
-        const { visibleLockTime, ...data } = problem
-        return {
-          isVisible:
-            visibleLockTime.getTime() === MIN_DATE.getTime()
-              ? true
-              : visibleLockTime < new Date() ||
-                  visibleLockTime.getTime() === MAX_DATE.getTime()
-                ? false
-                : null,
-          ...data
-        }
-      })
-    } else {
-      const { visibleLockTime, ...data } = problems
-      return {
-        isVisible:
-          visibleLockTime.getTime() === MIN_DATE.getTime()
-            ? true
-            : visibleLockTime < new Date() ||
-                visibleLockTime.getTime() === MAX_DATE.getTime()
-              ? false
-              : null,
-        ...data
-      }
+  getProblemVisibility(visibleLockTime: Date) {
+    // By default, a problem is invisible.
+    // It is visible only if manager set the problem to be visible(visibleLockTime == MIN_DATE).
+    // If the problem belongs to upcoming/ongoing contest, it is invisible.
+    //
+    // Please check below link for more details
+    // https://github.com/skkuding/codedang/pull/1673
+    if (visibleLockTime.getTime() === MIN_DATE.getTime()) {
+      return true
+    }
+    if (visibleLockTime < new Date()) {
+      return false
+    }
+    if (visibleLockTime.getTime() === MAX_DATE.getTime()) {
+      return false
+    }
+    return null
+  }
+
+  async processToProblemModel(problem: Problem): Promise<ProblemModel> {
+    const testcase = await this.testcaseService.getTestcases(problem.id)
+    const { visibleLockTime, ...data } = problem
+    const isVisible = this.getProblemVisibility(visibleLockTime)
+    return {
+      ...data,
+      testcase,
+      isVisible
     }
   }
 }

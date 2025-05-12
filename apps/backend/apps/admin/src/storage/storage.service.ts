@@ -88,20 +88,40 @@ export class StorageService {
   }
 
   /**
-   * @deprecated testcase를 더 이상 S3에 저장하지 않습니다.
+   * S3 Bucket에서 파일을 읽어옵니다.
    *
-   * Object(testcase)를 불러옵니다.
    * @param filename 파일 이름
-   * @returns S3에 저장된 Object
+   * @param bucket Bucket type to read from ('testcase' or 'media')
+   * @param options Optional parameters
+   * @param options.readBytes Read only a certain number of bytes
    */
-  async readObject(filename: string) {
-    const res = await this.client.send(
+  async readObject(
+    filename: string,
+    bucket: 'testcase' | 'media',
+    options?: {
+      readBytes?: number
+    }
+  ) {
+    const bucketName = this.config.get(
+      bucket == 'testcase' ? 'TESTCASE_BUCKET_NAME' : 'MEDIA_BUCKET_NAME'
+    )
+    const range = options?.readBytes
+      ? `bytes=0-${options.readBytes}`
+      : undefined
+
+    const output = await this.client.send(
       new GetObjectCommand({
-        Bucket: this.config.get('TESTCASE_BUCKET_NAME'),
-        Key: filename
+        Bucket: bucketName,
+        Key: filename,
+        Range: range
       })
     )
-    return res.Body?.transformToString() ?? ''
+    if (output.Body == null) {
+      throw new Error('File not found')
+    }
+
+    const text = await output.Body.transformToString()
+    return text
   }
 
   /**

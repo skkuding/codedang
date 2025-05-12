@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { RolesModule } from '@libs/auth'
 import { StorageModule } from '@admin/storage/storage.module'
+import { TestcaseModule } from '@admin/testcase/testcase.module'
+import { TestcaseService } from '@admin/testcase/testcase.service'
 import { ProblemTagResolver, TagResolver } from './problem-tag.resolver'
 import {
   AssignmentProblemResolver,
@@ -13,7 +15,7 @@ import { ProblemService } from './problem.service'
 import { IntScoreScalar } from './scalar/int-score.scalar'
 
 @Module({
-  imports: [StorageModule, ConfigModule, RolesModule],
+  imports: [StorageModule, ConfigModule, RolesModule, TestcaseModule],
   providers: [
     ProblemResolver,
     ContestProblemResolver,
@@ -22,7 +24,8 @@ import { IntScoreScalar } from './scalar/int-score.scalar'
     ProblemService,
     IntScoreScalar,
     ProblemTagResolver,
-    TagResolver
+    TagResolver,
+    TestcaseService
   ],
   exports: [IntScoreScalar]
 })
