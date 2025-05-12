@@ -631,7 +631,7 @@ export class ContestService {
     }
 
     const isPrivileged =
-      userId !== null &&
+      userId &&
       (await this.prisma.userContest.findFirst({
         where: {
           userId,

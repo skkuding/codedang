@@ -15,7 +15,7 @@ import {
 } from '@libs/auth'
 import { IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
 import { ContestService } from './contest.service'
-import type { ContestQnACreateDto } from './dto/contest-qna.dto'
+import { ContestQnACreateDto } from './dto/contest-qna.dto'
 
 @Controller('contest')
 export class ContestController {

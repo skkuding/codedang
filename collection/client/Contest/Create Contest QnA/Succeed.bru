@@ -1,0 +1,18 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/contest/1/qna
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "어쩌구",
+    "content": "저쩌구"
+  }
+}
