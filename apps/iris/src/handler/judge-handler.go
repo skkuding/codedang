@@ -23,13 +23,14 @@ import (
 )
 
 type Request struct {
-	Code              string            `json:"code"`
-	Language          string            `json:"language"`
-	ProblemId         int               `json:"problemId"`
-	TimeLimit         int               `json:"timeLimit"`
-	MemoryLimit       int               `json:"memoryLimit"`
-	UserTestcases     *[]loader.Element `json:"userTestcases,omitempty"`     // 사용자 테스트 케이스
-	StopOnNotAccepted bool              `json:"stopOnNotAccepted,omitempty"` // 테스트 케이스가 틀리면 이후 테스트 케이스 실행 중단
+	Code                     string            `json:"code"`
+	Language                 string            `json:"language"`
+	ProblemId                int               `json:"problemId"`
+	TimeLimit                int               `json:"timeLimit"`
+	MemoryLimit              int               `json:"memoryLimit"`
+	UserTestcases            *[]loader.Element `json:"userTestcases,omitempty"`            // 사용자 테스트 케이스
+	StopOnNotAccepted        bool              `json:"stopOnNotAccepted,omitempty"`        // 테스트 케이스가 틀리면 이후 테스트 케이스 실행 중단
+	JudgeOnlyHiddenTestcases bool              `json:"judgeOnlyHiddenTestcases,omitempty"` // Hidden 테스트 케이스만 채점
 }
 
 func (r Request) Validate() (*Request, error) {
@@ -212,6 +213,16 @@ func (j *JudgeHandler[C, E]) Handle(id string, data []byte, hidden bool, out cha
 				level:  logger.ERROR,
 			}}
 			return
+		}
+
+		if validReq.JudgeOnlyHiddenTestcases {
+			hiddenTestcases := make([]loader.Element, 0)
+			for _, testcase := range tc.Elements {
+				if testcase.Hidden {
+					hiddenTestcases = append(hiddenTestcases, testcase)
+				}
+			}
+			tc = testcase.Testcase{Elements: hiddenTestcases}
 		}
 	}
 
