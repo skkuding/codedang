@@ -150,6 +150,7 @@ const mockAssignment = {
   description: 'This is a sample assignment.',
   startTime: faker.date.past(),
   endTime: faker.date.future(),
+  dueTime: faker.date.future(),
   isJudgeResultVisible: true,
   enableCopyPaste: false,
   autoFinalizeScore: false,
