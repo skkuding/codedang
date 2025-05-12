@@ -247,6 +247,7 @@ export class ContestQnAResolver {
     )
   }
 
+  // TODO: update with data loader when n+1 query issue is fixed
   @ResolveField('createdBy', () => User, { nullable: true })
   async getUser(@Parent() contestQnA: ContestQnA) {
     const { createdById } = contestQnA
@@ -256,6 +257,7 @@ export class ContestQnAResolver {
     return await this.userService.getUser(createdById)
   }
 
+  // TODO: update with data loader when n+1 query issue is fixed
   @ResolveField('answeredBy', () => User, { nullable: true })
   async getAnsweredBy(@Parent() contestQnA: ContestQnA) {
     const { answeredById } = contestQnA
