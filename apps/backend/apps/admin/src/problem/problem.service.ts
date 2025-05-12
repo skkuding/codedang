@@ -635,27 +635,50 @@ export class ProblemService {
     cursor,
     take,
     my,
-    shared,
-    contestId
+    idOptions = {}
   }: {
     userId: number
     input: FilterProblemsInput
     cursor: number | null
     take: number
     my: boolean
-    shared: boolean
-    contestId: number | null
+    idOptions?: {
+      shared?: boolean
+      contestId?: number | null
+    }
   }) {
+    // TODO: 후에 assignmentId와 workbookId에서 필터링이 필요하다면 idOptions에 추가
+    const { shared, contestId } = idOptions
+    if (shared && contestId) {
+      throw new ForbiddenException('Cannot use more than one idOptions')
+    }
+
     const paginator = this.prisma.getPaginator(cursor)
 
     const whereOptions: ProblemWhereInput = {}
 
     if (my) {
       if (contestId) {
+        // 'my' and contest problems
+        const user = await this.prisma.userContest.findUnique({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            userId_contestId: { userId, contestId }
+          },
+          select: { role: true }
+        })
+        if (
+          !user ||
+          (user.role !== ContestRole.Admin && user.role !== ContestRole.Manager)
+        ) {
+          throw new ForbiddenException(
+            'You must be Admin/Manager of this contest.'
+          )
+        }
         const contestManagers = await this.prisma.userContest.findMany({
           where: {
             contestId,
-            role: ContestRole.Manager
+            role: { in: [ContestRole.Admin, ContestRole.Manager] }
           },
           select: { userId: true }
         })
@@ -666,11 +689,17 @@ export class ProblemService {
           in: [userId, ...contestManagerIds]
         }
       } else {
+        // only 'my' problems
         whereOptions.createdById = {
           equals: userId
         }
       }
+    } else {
+      if (contestId) {
+        throw new ForbiddenException('Cannot use contestId without my option')
+      }
     }
+
     if (shared) {
       const leaderGroupIds = (
         await this.prisma.userGroup.findMany({

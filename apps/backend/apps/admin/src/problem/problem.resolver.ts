@@ -167,8 +167,10 @@ export class ProblemResolver {
       cursor,
       take,
       my,
-      shared,
-      contestId
+      idOptions: {
+        shared,
+        contestId
+      }
     })
   }
 
