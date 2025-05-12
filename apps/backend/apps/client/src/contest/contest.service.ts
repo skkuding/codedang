@@ -621,7 +621,7 @@ export class ContestService {
     })
   }
 
-  async getContestQnAs(userId: number, contestId: number) {
+  async getContestQnAs(userId: number | null, contestId: number) {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId }
     })
@@ -630,15 +630,17 @@ export class ContestService {
       throw new EntityNotExistException('Contest')
     }
 
-    const isPrivileged = await this.prisma.userContest.findFirst({
-      where: {
-        userId,
-        contestId,
-        role: {
-          in: ['Admin', 'Manager', 'Reviewer']
+    const isPrivileged =
+      userId !== null &&
+      (await this.prisma.userContest.findFirst({
+        where: {
+          userId,
+          contestId,
+          role: {
+            in: ['Admin', 'Manager', 'Reviewer']
+          }
         }
-      }
-    })
+      }))
 
     return (
       await this.prisma.contestQnA.findMany({
@@ -650,9 +652,11 @@ export class ContestService {
         },
         where: {
           contestId,
-          OR: isPrivileged
-            ? undefined
-            : [{ createdById: userId }, { isVisible: true }]
+          ...(isPrivileged
+            ? {}
+            : {
+                OR: [{ createdById: userId ?? -1 }, { isVisible: true }]
+              })
         },
         orderBy: {
           createTime: 'desc'
@@ -667,54 +671,75 @@ export class ContestService {
     })
   }
 
-  async getContestQnA(userId: number, contestId: number, qnaId: number) {
+  /**
+   * 특정 대회의 특정 QnA를 조회합니다.
+   *
+   * 이 함수는 다음과 같은 조건에 따라 QnA를 조회하고 반환합니다:
+   * - 운영진(Admin, Manager, Reviewer)인 경우: 모든 QnA를 열람할 수 있습니다.
+   * - 일반 사용자:
+   *   - 로그인한 경우: 자신이 작성한 QnA 또는 공개된 QnA만 열람 가능합니다.
+   *   - 로그인하지 않은 경우: 공개된 QnA만 열람 가능합니다.
+   *
+   * QnA를 찾을 수 없거나 접근 권한이 없는 경우 예외를 발생시킵니다.
+   * - 운영진: QnA가 실제로 없으면 EntityNotExistException 발생
+   * - 일반 사용자: 권한이 없는 경우 ForbiddenAccessException 발생
+   *
+   * 사용자가 대회에 등록되어 있지 않으면 제한된 필드(id, title, 작성자, 작성 시간 등)만 반환합니다.
+   *
+   * @param userId - 요청자의 사용자 ID (로그인하지 않은 경우 null)
+   * @param contestId - 대상 대회의 ID
+   * @param qnaId - 조회할 QnA의 ID
+   * @returns QnA 전체 정보 또는 제한된 정보
+   * @throws EntityNotExistException - 대회 또는 QnA가 존재하지 않을 경우
+   * @throws ForbiddenAccessException - 접근 권한이 없을 경우
+   */
+  async getContestQnA(userId: number | null, contestId: number, qnaId: number) {
     const contest = await this.prisma.contest.findUnique({
-      where: {
-        id: contestId
-      }
+      where: { id: contestId }
     })
-
     if (!contest) {
       throw new EntityNotExistException('Contest')
     }
 
-    const isPrivileged = await this.prisma.userContest.findFirst({
-      where: {
-        userId,
-        contestId,
-        role: {
-          in: ['Admin', 'Manager', 'Reviewer']
-        }
-      }
-    })
+    const userContest = userId
+      ? await this.prisma.userContest.findFirst({
+          where: { userId, contestId }
+        })
+      : null
+
+    const isPrivileged =
+      userContest && ['Admin', 'Manager', 'Reviewer'].includes(userContest.role)
 
     const qna = await this.prisma.contestQnA.findFirst({
       where: {
         id: qnaId,
-        OR: isPrivileged
-          ? undefined
-          : [{ createdById: userId }, { isVisible: true }]
+        contestId,
+        ...(isPrivileged
+          ? {}
+          : {
+              OR: [{ createdById: userId ?? -1 }, { isVisible: true }]
+            })
       },
       include: {
-        createdBy: {
-          select: {
-            username: true
-          }
-        },
-        answeredBy: {
-          select: {
-            username: true
-          }
-        }
+        createdBy: { select: { username: true } },
+        answeredBy: { select: { username: true } }
       }
     })
 
     if (!qna) {
-      throw isPrivileged
-        ? new EntityNotExistException('ContestQnA')
-        : new ForbiddenAccessException('You are not allowed to view this QnA')
+      if (isPrivileged) {
+        throw new EntityNotExistException('ContestQnA')
+      } else {
+        throw new ForbiddenAccessException(
+          'You are not allowed to view this QnA'
+        )
+      }
     }
 
+    if (!userContest) {
+      const { id, title, createdBy, createdById, createTime } = qna
+      return { id, title, createdBy, createdById, createTime }
+    }
     return qna
   }
 }

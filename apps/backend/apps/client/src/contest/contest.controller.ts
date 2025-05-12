@@ -5,7 +5,8 @@ import {
   Req,
   Get,
   Query,
-  Delete
+  Delete,
+  Body
 } from '@nestjs/common'
 import {
   AuthenticatedRequest,
@@ -14,6 +15,7 @@ import {
 } from '@libs/auth'
 import { IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
 import { ContestService } from './contest.service'
+import type { ContestQnACreateDto } from './dto/contest-qna.dto'
 
 @Controller('contest')
 export class ContestController {
@@ -77,5 +79,41 @@ export class ContestController {
     @Query('search') search: string
   ) {
     return await this.contestService.getContestLeaderboard(contestId, search)
+  }
+
+  @Post(':id/qna')
+  async createContestQnA(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) contestId: number,
+    @Body() contestQnACreateDto: ContestQnACreateDto
+  ) {
+    return await this.contestService.createContestQnA(
+      contestId,
+      req.user.id,
+      contestQnACreateDto
+    )
+  }
+
+  @Get(':id/qna')
+  @UserNullWhenAuthFailedIfPublic()
+  async getContestQnA(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) contestId: number
+  ) {
+    return await this.contestService.getContestQnAs(req.user?.id, contestId)
+  }
+
+  @Get(':id/qna/:qnaId')
+  @UserNullWhenAuthFailedIfPublic()
+  async getContestQnAById(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) contestId: number,
+    @Param('qnaId', IDValidationPipe) qnaId: number
+  ) {
+    return await this.contestService.getContestQnA(
+      req.user?.id,
+      contestId,
+      qnaId
+    )
   }
 }
