@@ -36,6 +36,13 @@ import type { ContestManagerReviewer } from '../_libs/schemas'
 interface AddManagerReviewerDialogProps {
   managers: ContestManagerReviewer[]
   setManagers: (managers: ContestManagerReviewer[]) => void
+  participants?: {
+    userId: number
+    user: {
+      username: string
+      email: string
+    }
+  }[]
 }
 
 interface UserResInterface {
@@ -52,7 +59,8 @@ const generateUniqueId = () => {
 
 export function AddManagerReviewerDialog({
   managers,
-  setManagers
+  setManagers,
+  participants = []
 }: AddManagerReviewerDialogProps) {
   const [open, setOpen] = useState(false) // State to manage the open state of the dialog
   const [users, setUsers] = useState<ContestManagerReviewer[]>([]) // State to manage the list of users
@@ -136,6 +144,7 @@ export function AddManagerReviewerDialog({
     setOpen(false)
   }
 
+  // 실제 존재하는 이메일(유저)인지 확인하는 함수
   const fetchUserData = async (
     email: string,
     id: string,
@@ -149,6 +158,27 @@ export function AddManagerReviewerDialog({
           }
         })
         .json()
+
+      // contest participants에 등록된 유저인지 확인
+      const isParticipant = participants.some(
+        (participant) => participant.user.email === email
+      )
+      if (isParticipant) {
+        setInputFields((prevFields) =>
+          prevFields.map((field) =>
+            field.id === id
+              ? {
+                  ...field,
+                  error:
+                    'This email is already registered as contest participant'
+                }
+              : field
+          )
+        )
+        return
+      }
+
+      // 존재하는 이메일이고, participants로 등록된 유저가 아닐 경우에만 추가
       setUsers((prevUsers) => [
         ...prevUsers,
         {

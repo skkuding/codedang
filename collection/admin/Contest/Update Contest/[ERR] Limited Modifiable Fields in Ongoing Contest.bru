@@ -1,7 +1,7 @@
 meta {
-  name: [422] End Time Earlier than Start Time
+  name: [ERR] Limited Modifiable Fields in Ongoing Contest
   type: graphql
-  seq: 2
+  seq: 4
 }
 
 post {
@@ -31,22 +31,16 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "contestId": 15,
+    "contestId": 20,
     "input": {
       "title": "Updated Contest 2",
       "description": "thisisupdatedcontest",
-      "startTime": "2030-01-01",
-      "endTime": "2020-01-01",
+      "startTime": "2024-01-01",
+      "endTime": "2030-01-01",
       "enableCopyPaste": true,
       "isJudgeResultVisible": true,
       "invitationCode": "123456",
-      "summary": {
-        "참여대상": "updatedparticipationTarget",
-        "진행방식": "updatedcompetitionMethod",
-        "순위산정": "updatedrankingMethod",
-        "문제형태": "updatedproblemFormat",
-        "참여혜택": "updatedbenefits"
-      }
+      "freezeTime": "2029-01-01"
     }
   }
 }

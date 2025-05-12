@@ -9,7 +9,7 @@ import { TitleForm } from '@/app/admin/_components/TitleForm'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { cn } from '@/libs/utils'
-import type { UpdateContestInput } from '@generated/graphql'
+import type { UpdateContestInfo } from '@/types/type'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -39,15 +39,15 @@ export default function Page({ params }: { params: { contestId: string } }) {
   const [isLoading, setIsLoading] = useState(true)
   const { contestId } = params
 
-  const methods = useForm<UpdateContestInput>({
+  const methods = useForm<UpdateContestInfo>({
     resolver: valibotResolver(editSchema)
   })
 
+  const participants = methods.watch('contestRecord')
   const endTime = methods.getValues('endTime')
   const freezeTime = methods.getValues('freezeTime')
   const startTime = methods.getValues('startTime')
   const now = new Date().getTime()
-
   // Check if the contest is Ongoing
   const isOngoing =
     startTime &&
@@ -183,6 +183,7 @@ export default function Page({ params }: { params: { contestId: string } }) {
                 <AddManagerReviewerDialog
                   managers={managers}
                   setManagers={setManagers}
+                  participants={participants}
                 />
               </div>
               <ContestManagerReviewerTable
