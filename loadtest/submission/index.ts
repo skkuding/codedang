@@ -3,7 +3,9 @@ import { check, sleep } from 'k6'
 import { SharedArray } from 'k6/data'
 import http from 'k6/http'
 import { Trend } from 'k6/metrics'
+import type { Options } from 'k6/options'
 import {
+  generateSummary,
   getCodeSnippet,
   loginAndGetAuth,
   type AuthInfo,
@@ -18,11 +20,35 @@ const CONTEST_ID = Number(__ENV.CONTEST_ID)
 const PROBLEM_ID = Number(__ENV.PROBLEM_ID) || 6
 const OTEL_ENDPOINT = __ENV.K6_OTEL_EXPORTER_OTLP_ENDPOINT // OTLP 형식으로 메트릭을 전송할 엔드포인트(선택적)
 const SLEEP_INTERVAL_SECONDS = Number(__ENV.SLEEP_INTERVAL_SECONDS) || 10 // 각 vu가 요청 후 대기하는 시간
+const NORMAL_CODE_SNIPPET_FILE_PATH =
+  __ENV.NORMAL_CODE_SNIPPET_FILE_PATH || './scripts/normal/default.py'
+const VILLAIN_CODE_SNIPPET_FILE_PATH =
+  __ENV.VILLAIN_CODE_SNIPPET_FILE_PATH || './scripts/villain/python/default.py'
+
+// --- k6 옵션: Scenarios 정의 ---
+export const options: Options = {
+  scenarios: {
+    // 시나리오 1: Villain 사용자
+    villains: {
+      executor: 'ramping-vus',
+      exec: 'villainScenario',
+      stages: [{ duration: '10s', target: 15 }],
+      tags: { user_type: 'villain' }
+    },
+    // 시나리오 2: Normal 사용자
+    normals: {
+      executor: 'ramping-vus',
+      exec: 'normalScenario',
+      stages: [{ duration: '10s', target: 135 }],
+      tags: { user_type: 'normal' }
+    }
+  }
+} as const
 
 /**
  * 제출 함수로서, 정상 또는 빌런 사용자의 코드 스니펫을 제출합니다.
  * @param baseUrl API 서버 URL
- * @param contestId 대회 ID (선택적)
+ * @param contestId 대회 ID(선택적)
  * @param problemId 문제 ID
  * @param authInfo 인증 정보
  * @param codeSnippet 코드 스니펫
@@ -78,11 +104,11 @@ const submissionLatency = new Trend('submission_latency', true) // 제출 응답
 // SharedArray 생성자의 두 번째 인자로 넘기는 함수는 init 단계에서 한 번만 실행됨
 const normalCodeSnippets = new SharedArray('normalSnippets', () => {
   // 이 함수 내부에서만 open() 함수 호출 가능
-  return [getCodeSnippet('./scripts/normal/default.py')]
+  return [getCodeSnippet(NORMAL_CODE_SNIPPET_FILE_PATH)]
 })
 
 const villainCodeSnippets = new SharedArray('villainSnippets', () => {
-  return [getCodeSnippet('./scripts/villain/python/default.py')]
+  return [getCodeSnippet(VILLAIN_CODE_SNIPPET_FILE_PATH)]
 })
 
 // 유틸리티 함수로 편하게 접근
@@ -145,26 +171,6 @@ export function setup() {
   } as const
 }
 
-// --- k6 옵션: Scenarios 정의 ---
-export const options = {
-  scenarios: {
-    // 시나리오 1: Villain 사용자
-    villains: {
-      executor: 'ramping-vus',
-      exec: 'villainScenario',
-      stages: [{ duration: '10s', target: 15 }],
-      tags: { user_type: 'villain' }
-    },
-    // 시나리오 2: Normal 사용자
-    normals: {
-      executor: 'ramping-vus',
-      exec: 'normalScenario',
-      stages: [{ duration: '10s', target: 135 }],
-      tags: { user_type: 'normal' }
-    }
-  }
-}
-
 export function villainScenario(data: ReturnType<typeof setup>) {
   const authInfo = data.sharedAuthInfo
   const codeSnippet = data.codeSnippets.villain
@@ -217,4 +223,19 @@ const getSubmissionUrl = ({
     submissionUrl += `&contestId=${contestId}`
   }
   return submissionUrl
+}
+
+// --- Summary 함수: 테스트 결과 요약 ---
+export function handleSummary(data: any) {
+  return generateSummary(data, options, './loadtest/submission/results', {
+    BASE_URL,
+    LOGIN_USERNAME,
+    LOGIN_PASSWORD,
+    CONTEST_ID,
+    PROBLEM_ID,
+    OTEL_ENDPOINT,
+    SLEEP_INTERVAL_SECONDS,
+    NORMAL_CODE_SNIPPET_FILE_PATH,
+    VILLAIN_CODE_SNIPPET_FILE_PATH
+  })
 }

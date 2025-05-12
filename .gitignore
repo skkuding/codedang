@@ -144,5 +144,6 @@ coverage
 .idea
 
 # Load Test Files
-loadtest/results/*.json
-loadtest/results/*.csv
+loadtest/*/results/*.json
+loadtest/*/results/*.txt
+loadtest/*/results/*.csv
