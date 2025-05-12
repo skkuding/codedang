@@ -1490,9 +1490,9 @@ const createContests = async () => {
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         freezeTime: new Date('3024-01-01T00:00:00.000Z'),
+        invitationCode: null,
         enableCopyPaste: true,
-        evaluateWithSampleTestcase: true,
-        invitationCode: null
+        evaluateWithSampleTestcase: true
       }
     }
   ]
