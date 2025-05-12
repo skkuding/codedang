@@ -33,8 +33,8 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { StorageService } from '@libs/storage'
 import type { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
-import { StorageService } from '@admin/storage/storage.service'
 import { TestcaseService } from '@admin/testcase/testcase.service'
 import { ImportedProblemHeader } from './model/problem.constants'
 import type {
@@ -201,6 +201,8 @@ export class ProblemService {
           'Testcase files must have corresponding .in/.out files'
         )
       }
+
+      // TODO: force testcases over 5KB to be hidden
     } catch (error) {
       await this.removeAllTestcaseFiles(problemId)
       throw error

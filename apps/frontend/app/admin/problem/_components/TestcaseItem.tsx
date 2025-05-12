@@ -84,7 +84,6 @@ export function TestcaseItem({
 
         <div>
           <input
-            disabled={blockEdit}
             {...register(`testcases.${index}.scoreWeight`, {
               setValueAs: (value) => (isInvalid(value) ? null : Number(value))
             })}

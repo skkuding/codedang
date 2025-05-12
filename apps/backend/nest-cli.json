@@ -11,7 +11,9 @@
     "watchAssets": true,
     "webpack": true,
     "deleteOutDir": true,
-    "plugins": ["@nestjs/swagger"],
+    "plugins": [
+      "@nestjs/swagger"
+    ],
     "builder": {
       "type": "swc",
       "options": {

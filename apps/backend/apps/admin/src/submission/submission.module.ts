@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 import { RolesModule } from '@libs/auth'
-import { StorageModule } from '@admin/storage/storage.module'
+import { StorageModule } from '@libs/storage'
 import { TestcaseModule } from '@admin/testcase/testcase.module'
 import { TestcaseService } from '@admin/testcase/testcase.service'
 import { SubmissionController } from './submission.controller'

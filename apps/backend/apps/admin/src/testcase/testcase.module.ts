@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { StorageModule } from '@admin/storage/storage.module'
+import { StorageModule } from '@libs/storage'
 import { TestcaseResolver } from './testcase.resolver'
 import { TestcaseService } from './testcase.service'
 

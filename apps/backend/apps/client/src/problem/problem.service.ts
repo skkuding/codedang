@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma, ResultStatus } from '@prisma/client'
+import { Prisma, ProblemTestcase, ResultStatus } from '@prisma/client'
 import { MIN_DATE } from '@libs/constants'
 import { ForbiddenAccessException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { StorageService } from '@libs/storage'
 import { AssignmentService } from '@client/assignment/assignment.service'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
@@ -50,7 +51,10 @@ const problemSelectOption: Prisma.ProblemSelect = {
 
 @Injectable()
 export class ProblemService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storageService: StorageService
+  ) {}
 
   /**
    * 주어진 옵션에 따라 문제 목록을 가져옵니다.
@@ -204,6 +208,27 @@ export class ProblemService {
       select: problemSelectOption
     })
 
+    data.problemTestcase = await Promise.all(
+      data.problemTestcase.map(async (testcase) => {
+        if (testcase.input !== null && testcase.output !== null) {
+          return testcase
+        }
+        const input = await this.storageService.readObject(
+          `${problemId}/${testcase.id}.in`,
+          'testcase'
+        )
+        const output = await this.storageService.readObject(
+          `${problemId}/${testcase.id}.out`,
+          'testcase'
+        )
+        return {
+          ...testcase,
+          input,
+          output
+        }
+      })
+    )
+
     const tags = (
       await this.prisma.problemTag.findMany({
         where: {
@@ -248,7 +273,8 @@ export class ProblemService {
 export class ContestProblemService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly contestService: ContestService
+    private readonly contestService: ContestService,
+    private readonly storageService: StorageService
   ) {}
 
   /**
@@ -438,6 +464,27 @@ export class ContestProblemService {
       }
     })
 
+    data.problem.problemTestcase = await Promise.all(
+      data.problem.problemTestcase.map(async (testcase) => {
+        if (testcase.input !== null && testcase.output !== null) {
+          return testcase
+        }
+        const input = await this.storageService.readObject(
+          `${problemId}/${testcase.id}.in`,
+          'testcase'
+        )
+        const output = await this.storageService.readObject(
+          `${problemId}/${testcase.id}.out`,
+          'testcase'
+        )
+        return {
+          ...testcase,
+          input,
+          output
+        }
+      })
+    )
+
     const tags = (
       await this.prisma.problemTag.findMany({
         where: {
@@ -519,7 +566,8 @@ export class ContestProblemService {
 export class AssignmentProblemService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly assignmentService: AssignmentService
+    private readonly assignmentService: AssignmentService,
+    private readonly storageService: StorageService
   ) {}
 
   /**
@@ -640,6 +688,27 @@ export class AssignmentProblemService {
       }
     })
 
+    data.problem.problemTestcase = await Promise.all(
+      data.problem.problemTestcase.map(async (testcase) => {
+        if (testcase.input !== null && testcase.output !== null) {
+          return testcase
+        }
+        const input = await this.storageService.readObject(
+          `${problemId}/${testcase.id}.in`,
+          'testcase'
+        )
+        const output = await this.storageService.readObject(
+          `${problemId}/${testcase.id}.out`,
+          'testcase'
+        )
+        return {
+          ...testcase,
+          input,
+          output
+        }
+      })
+    )
+
     const tags = (
       await this.prisma.problemTag.findMany({
         where: {
@@ -685,7 +754,8 @@ export class AssignmentProblemService {
 export class WorkbookProblemService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly workbookService: WorkbookService
+    private readonly workbookService: WorkbookService,
+    private readonly storageService: StorageService
   ) {}
 
   async getWorkbookProblems({
@@ -815,6 +885,27 @@ export class WorkbookProblemService {
         }
       }
     })
+
+    data.problem.problemTestcase = await Promise.all(
+      data.problem.problemTestcase.map(async (testcase) => {
+        if (testcase.input !== null && testcase.output !== null) {
+          return testcase
+        }
+        const input = await this.storageService.readObject(
+          `${problemId}/${testcase.id}.in`,
+          'testcase'
+        )
+        const output = await this.storageService.readObject(
+          `${problemId}/${testcase.id}.out`,
+          'testcase'
+        )
+        return {
+          ...testcase,
+          input,
+          output
+        }
+      })
+    )
 
     const tags = (
       await this.prisma.problemTag.findMany({

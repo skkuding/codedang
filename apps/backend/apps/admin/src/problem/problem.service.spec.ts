@@ -15,8 +15,8 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { StorageService } from '@libs/storage'
 import { S3MediaProvider, S3Provider } from '@admin/storage/s3.provider'
-import { StorageService } from '@admin/storage/storage.service'
 import { TestcaseService } from '@admin/testcase/testcase.service'
 import {
   exampleAssignment,

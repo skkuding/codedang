@@ -1,11 +1,10 @@
 import { ConfigService } from '@nestjs/config'
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { PrismaService } from '@libs/prisma'
-import { ProblemTestcaseCreateManyInput } from '@admin/@generated'
+import { StorageService, S3Provider, S3MediaProvider } from '@libs/storage'
+import type { ProblemTestcaseCreateManyInput } from '@admin/@generated'
 import { ProblemService } from '@admin/problem/problem.service'
-import { S3Provider, S3MediaProvider } from '@admin/storage/s3.provider'
-import { StorageService } from '@admin/storage/storage.service'
 import { TestcaseService } from './testcase.service'
 
 describe('TestcaseService', () => {
