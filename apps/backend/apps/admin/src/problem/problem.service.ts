@@ -689,7 +689,7 @@ export class ProblemService {
           in: [userId, ...contestManagerIds]
         }
       } else {
-        // only 'my' problems
+        // 'my' problems
         whereOptions.createdById = {
           equals: userId
         }
@@ -699,8 +699,8 @@ export class ProblemService {
         throw new ForbiddenException('Cannot use contestId without my option')
       }
     }
-
     if (shared) {
+      // shared problems
       const leaderGroupIds = (
         await this.prisma.userGroup.findMany({
           where: {
