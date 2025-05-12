@@ -149,7 +149,6 @@ export class SubmissionResolver {
   @Query(() => String, { nullable: true })
   @UseDisableAdminGuard()
   async compressSourceCodes(
-    @Args('groupId', { type: () => Int }) _groupId: number,
     @Args('assignmentId', { type: () => Int })
     assignmentId: number,
     @Args('problemId', { type: () => Int }, new RequiredIntPipe('problemId'))
