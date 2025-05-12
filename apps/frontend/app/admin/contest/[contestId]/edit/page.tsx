@@ -112,6 +112,7 @@ export default function Page({ params }: { params: { contestId: string } }) {
                     name="freezeTime"
                     hasValue={methods.getValues('freezeTime') !== null}
                     isEdit={true}
+                    isOngoing={isOngoing}
                     diffTime={diffTime}
                   />
                 )}
