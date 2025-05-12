@@ -96,7 +96,7 @@ export function LeaderboardModalDialog() {
               <ModalNumberComponent index={1} />
               <div className="ml-3 flex flex-col">
                 <p className="text-base">
-                  The ranking of each participants is determined
+                  The ranking of each participant is determined
                 </p>
                 <p className="text-base">
                   based on the number of problems solved.
