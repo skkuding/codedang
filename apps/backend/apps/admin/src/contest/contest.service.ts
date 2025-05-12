@@ -342,12 +342,12 @@ export class ContestService {
     const isFreezeTimeChanged =
       contest.freezeTime && contest.freezeTime !== contestFound.freezeTime
     if (isFreezeTimeChanged) {
-      if (contest.freezeTime && contest.freezeTime < now) {
+      if (contest.freezeTime && contest.freezeTime <= now) {
         throw new UnprocessableDataException(
           'The freeze time must be later than the current time'
         )
       }
-      if (contest.freezeTime && contest.freezeTime > contest.endTime) {
+      if (contest.freezeTime && contest.freezeTime >= contest.endTime) {
         throw new UnprocessableDataException(
           'The freeze time must be earlier than the end time'
         )
@@ -364,7 +364,7 @@ export class ContestService {
       if (
         isOngoing &&
         contestFound.freezeTime &&
-        contestFound.freezeTime < now
+        contestFound.freezeTime <= now
       ) {
         throw new UnprocessableDataException(
           'Cannot change freeze time after the freeze time has passed already'
