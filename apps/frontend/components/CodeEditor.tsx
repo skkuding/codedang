@@ -76,7 +76,8 @@ const languageParser: Record<Language, () => LanguageSupport> = {
   Cpp: cpp,
   C: cpp,
   Java: java,
-  Python3: python
+  Python3: python,
+  PyPy3: python
 }
 
 interface CodeEditorProps extends ReactCodeMirrorProps {

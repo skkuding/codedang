@@ -8,7 +8,7 @@ import { SwitchField } from '@/app/admin/_components/SwitchField'
 import { TitleForm } from '@/app/admin/_components/TitleForm'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
-import type { UpdateContestInput } from '@generated/graphql'
+import type { UpdateContestInfo } from '@/types/type'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -20,15 +20,16 @@ import { AddManagerReviewerDialog } from '../../_components/AddManagerReviewerDi
 import { ContestManagerReviewerTable } from '../../_components/ContestManagerReviewerTable'
 import { ContestProblemTable } from '../../_components/ContestProblemTable'
 import { CreateEditContestLabel } from '../../_components/CreateEditContestLabel'
+import { EnableCopyPasteForm } from '../../_components/EnableCopyPasteForm'
+import { FreezeForm } from '../../_components/FreezeForm'
 import { ImportDialog } from '../../_components/ImportDialog'
+import { PosterUploadForm } from '../../_components/PosterUploadForm'
+import { SampleTestcaseForm } from '../../_components/SampleTestcaseForm'
 import {
   type ContestManagerReviewer,
   type ContestProblem,
   editSchema
 } from '../../_libs/schemas'
-import { FreezeForm } from '../../create/_components/FreezeForm'
-import { PosterUploadForm } from '../../create/_components/PosterUploadForm'
-import { SampleTestcaseForm } from '../../create/_components/SampleTestcaseForm'
 import { EditContestForm } from './_components/EditContestForm'
 
 export default function Page({ params }: { params: { contestId: string } }) {
@@ -37,15 +38,15 @@ export default function Page({ params }: { params: { contestId: string } }) {
   const [isLoading, setIsLoading] = useState(true)
   const { contestId } = params
 
-  const methods = useForm<UpdateContestInput>({
+  const methods = useForm<UpdateContestInfo>({
     resolver: valibotResolver(editSchema)
   })
 
+  const participants = methods.watch('contestRecord')
   const endTime = methods.getValues('endTime')
   const freezeTime = methods.getValues('freezeTime')
   const startTime = methods.getValues('startTime')
   const now = new Date().getTime()
-
   // Check if the contest is Ongoing
   const isOngoing =
     startTime &&
@@ -149,6 +150,13 @@ export default function Page({ params }: { params: { contestId: string } }) {
                 placeholder="Enter a invitation code"
                 hasValue={methods.getValues('invitationCode') !== null}
               />
+              {methods.getValues('enableCopyPaste') !== undefined && (
+                <EnableCopyPasteForm
+                  name="enableCopyPaste"
+                  title="Enable Copy Paste"
+                  hasValue={methods.getValues('enableCopyPaste') !== false}
+                />
+              )}
             </div>
 
             <div className="flex flex-col gap-1">
@@ -160,6 +168,7 @@ export default function Page({ params }: { params: { contestId: string } }) {
                 <AddManagerReviewerDialog
                   managers={managers}
                   setManagers={setManagers}
+                  participants={participants}
                 />
               </div>
               <ContestManagerReviewerTable

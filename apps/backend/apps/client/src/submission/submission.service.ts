@@ -214,7 +214,8 @@ export class SubmissionService {
       userIp,
       idOptions: {
         contestId
-      }
+      },
+      stopOnNotAccepted: true
     })
 
     return submission
@@ -266,7 +267,7 @@ export class SubmissionService {
         startTime: {
           lte: now
         },
-        endTime: {
+        dueTime: {
           gt: now
         }
       }
@@ -288,7 +289,7 @@ export class SubmissionService {
         assignment: {
           select: {
             startTime: true,
-            endTime: true
+            dueTime: true
           }
         }
       }
@@ -300,7 +301,7 @@ export class SubmissionService {
     }
     if (
       assignmentRecord.assignment.startTime > now ||
-      assignmentRecord.assignment.endTime <= now
+      assignmentRecord.assignment.dueTime <= now
     ) {
       throw new ConflictFoundException(
         'Submission is only allowed to ongoing assignments'
@@ -452,7 +453,8 @@ export class SubmissionService {
     problem,
     userId,
     userIp,
-    idOptions
+    idOptions,
+    stopOnNotAccepted = false
   }: {
     submissionDto: CreateSubmissionDto
     problem: Problem
@@ -463,6 +465,7 @@ export class SubmissionService {
       assignmentId?: number
       workbookId?: number
     }
+    stopOnNotAccepted?: boolean
   }) {
     if (!problem.languages.includes(submissionDto.language)) {
       throw new ConflictFoundException(
@@ -502,7 +505,11 @@ export class SubmissionService {
 
       await this.createSubmissionResults(submission)
 
-      await this.publish.publishJudgeRequestMessage(code, submission)
+      await this.publish.publishJudgeRequestMessage({
+        code,
+        submission,
+        stopOnNotAccepted
+      })
       return submission
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -722,7 +729,13 @@ export class SubmissionService {
     }
 
     await this.cacheManager.set(testcasesKey(testSubmission.id), testcaseIds)
-    await this.publish.publishJudgeRequestMessage(code, testSubmission, true)
+
+    await this.publish.publishJudgeRequestMessage({
+      code,
+      submission: testSubmission,
+      isTest: true,
+      stopOnNotAccepted: false
+    })
   }
 
   /**
@@ -746,27 +759,32 @@ export class SubmissionService {
     testSubmission: TestSubmission,
     userTestcases: { id: number; in: string; out: string }[]
   ): Promise<void> {
-    const testcaseIds: number[] = []
-    for (const testcase of userTestcases) {
-      await this.cacheManager.set(
-        userTestKey(testSubmission.id, testcase.id),
-        { id: testcase.id, result: 'Judging' },
-        TEST_SUBMISSION_EXPIRE_TIME
-      )
-      testcaseIds.push(testcase.id)
-    }
+    const testcaseIds = userTestcases.map((tc) => tc.id)
 
     await this.cacheManager.set(
       userTestcasesKey(testSubmission.id),
-      testcaseIds
+      testcaseIds,
+      TEST_SUBMISSION_EXPIRE_TIME
     )
-    await this.publish.publishJudgeRequestMessage(
+
+    for (const testcase of userTestcases) {
+      await this.cacheManager.set(
+        userTestKey(testSubmission.id, testcase.id),
+        {
+          id: testcase.id,
+          result: ResultStatus.Judging
+        },
+        TEST_SUBMISSION_EXPIRE_TIME
+      )
+    }
+
+    await this.publish.publishJudgeRequestMessage({
       code,
-      testSubmission,
-      false,
-      true,
-      userTestcases
-    )
+      submission: testSubmission,
+      isUserTest: true,
+      userTestcases,
+      stopOnNotAccepted: false
+    })
   }
 
   @Span()

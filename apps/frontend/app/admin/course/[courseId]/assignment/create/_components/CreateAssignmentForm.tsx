@@ -38,7 +38,8 @@ export function CreateAssignmentForm({
       isVisible: true,
       enableCopyPaste: false,
       isJudgeResultVisible: false,
-      autoFinalizeScore: false
+      autoFinalizeScore: false,
+      description: ''
     }
   })
 
@@ -72,10 +73,12 @@ export function CreateAssignmentForm({
     const input = methods.getValues()
     setIsCreating(true)
 
+    // NOTE: 임시로 dueTime을 endTime과 동일하게 설정
     const finalInput = {
       ...input,
       startTime: input.startTime ?? new Date(0),
-      endTime: input.endTime ?? new Date('2999-12-31T23:59:59')
+      endTime: input.endTime ?? new Date('2999-12-31T23:59:59'),
+      dueTime: input.endTime ?? new Date('2999-12-31T23:59:59')
     }
 
     const { data } = await createAssignment({

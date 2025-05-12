@@ -44,7 +44,7 @@ export const contestNoticeId = process.env.NODE_ENV === 'development' ? 25 : 4
  * The languages that are supported by the grading system.
  * @constant
  */
-export const languages = ['C', 'Cpp', 'Java', 'Python3'] as const
+export const languages = ['C', 'Cpp', 'Java', 'Python3', 'PyPy3'] as const
 
 /**
  * The levels of difficulty for problems.
@@ -210,3 +210,9 @@ export const managerReviewerTypes = ['Manager', 'Reviewer'] as const
 // export const freezeMinuteOptions = ['90', '75', '60', '45', '30', '15']
 
 export const UNLIMITED_DATE = '2999-12-31T14:59:59.000Z'
+
+/**
+ * The list of allowed domains for email verification.
+ * @constant
+ */
+export const ALLOWED_DOMAINS = ['skku.edu']

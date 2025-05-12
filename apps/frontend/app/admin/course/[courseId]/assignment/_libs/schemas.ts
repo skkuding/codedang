@@ -9,13 +9,10 @@ export const createSchema = v.object({
 
   isRankVisible: v.boolean(),
   isVisible: v.boolean(),
-  description: v.pipe(
-    v.string(),
-    v.minLength(1),
-    v.check((value) => value !== '<p></p>')
-  ),
+  description: v.string(),
   startTime: v.optional(v.date()),
   endTime: v.optional(v.date()),
+  dueTime: v.optional(v.date()),
   week: v.number(),
   enableCopyPaste: v.boolean(),
   isJudgeResultVisible: v.boolean(),
