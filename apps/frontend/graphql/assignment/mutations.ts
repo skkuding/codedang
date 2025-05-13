@@ -56,16 +56,17 @@ const IMPORT_PROBLEMS_TO_ASSIGNMENT = gql(`
   mutation ImportProblemsToAssignment(
     $groupId: Int!,
     $assignmentId: Int!,
-    $problemIdsWithScore: [AssignmentProblemScoreInput!]!
+    $assignmentProblemInput: [AssignmentProblemInput!]!
   ) {
     importProblemsToAssignment(
       groupId: $groupId,
       assignmentId: $assignmentId,
-      problemIdsWithScore: $problemIdsWithScore
+      assignmentProblemInput: $assignmentProblemInput
     ) {
       assignmentId
       problemId
       score
+      solutionReleaseTime
     }
   }
 `)

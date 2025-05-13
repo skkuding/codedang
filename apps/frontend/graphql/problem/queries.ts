@@ -54,6 +54,7 @@ const GET_PROBLEMS = gql(`
           name
         }
       }
+      solution
     }
   }
 `)
