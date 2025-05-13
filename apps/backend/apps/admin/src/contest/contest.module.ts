@@ -8,6 +8,6 @@ import { ContestService } from './contest.service'
 
 @Module({
   imports: [RolesModule, ProblemModule, UserModule],
-  providers: [ContestService, ContestResolver, ContestLoader],
+  providers: [ContestService, ContestResolver, ContestLoader]
 })
 export class ContestModule {}
