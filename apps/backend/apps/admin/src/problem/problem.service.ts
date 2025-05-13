@@ -629,6 +629,29 @@ export class ProblemService {
     })
   }
 
+  /**
+   * 특정 조건에 따라 문제 목록을 조회합니다.
+   *
+   * 1. my=true일 때
+   *    - contestId가 있으면 본인 및 대회 Admin∙Manager가 만든 문제 필터
+   *    - contestId가 없으면 본인이 만든 문제만 필터
+   * 2. shared=true일 때 그룹 리더 권한 기반 공유 문제 필터
+   * 3. 난이도(input.difficulty) 및 언어(input.languages) 추가 필터 적용
+   * 4. visibleLockTime을 기준으로 isVisible 필드 계산 및 설정
+   *
+   * @param {number} userId - 조회를 요청한 사용자의 ID
+   * @param {FilterProblemsInput} input - 난이도∙언어 필터 옵션 DTO
+   * @param {(number | null)} cursor - 가져올 문제의 시작점
+   * @param {number} take - 한 번에 조회할 문제 최대 개수
+   * @param {boolean} my - 본인이 만든 문제만 조회할지 여부
+   * @param {boolean} shared - 그룹 공유된 문제도 포함할지 여부
+   * @param {(number | null)} contestId - 특정 대회 문제만 조회할 contest ID
+   * @returns {Promise<ProblemWithIsVisible[]>} - isVisible 필드가 추가된 문제 배열
+   * @throws {ForbiddenException} 아래의 경우에 발생합니다
+   *   - idOptions에서 한 개의 속성을 초과하여 사용한 경우
+   *   - contestId로 필터링 시 해당 대회의 Admin/Manager가 아닌 경우
+   *   - my=false일 때 contestId를 사용한 경우
+   */
   async getProblems({
     userId,
     input,
