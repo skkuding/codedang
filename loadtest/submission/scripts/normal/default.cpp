@@ -17,11 +17,12 @@ int main() {
 			g[u].push_back({v, i});
 			g[v].push_back({u, i});
 		}
+  vector<int> dist(100'010, (int)1e9 + 7);
 		set<pair<int, int>> pq;
-		pq.insert({0, 0});
-		
-		vector<int> dist(100'010, (int)1e9 + 7);
-		dist[0] = 0;
+	  for (int i = 0; i < 100010; ++i) {
+      pq.insert({i + 101010, i});
+      dist[i] = i + 101010;
+    }
 		while (!pq.empty()) {
 			auto [d, node] = *pq.begin();
 			pq.erase(pq.begin());
