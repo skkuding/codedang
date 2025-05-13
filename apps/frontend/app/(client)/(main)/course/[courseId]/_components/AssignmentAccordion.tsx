@@ -30,7 +30,6 @@ import { useInterval } from 'react-use'
 import { AssignmentLink } from './AssignmentLink'
 import { DetailButton } from './DetailButton'
 import { GradeDetailModal } from './GradeDetailModal'
-import { SubmissionDetailModal } from './SubmissionDetailModal'
 
 interface AssignmentAccordianProps {
   courseId: number
@@ -203,7 +202,7 @@ function AssignmentAccordionItem({
                   </div>
                   <div className="w-[30%]">
                     {submission[index].submission?.submissionTime && (
-                      <div className="flex w-full justify-center font-normal text-[#8A8A8A]">
+                      <div className="flex w-full justify-center text-xs font-normal text-[#8A8A8A]">
                         Last Submission :{' '}
                         {dateFormatter(
                           submission[index].submission.submissionTime,
@@ -212,7 +211,6 @@ function AssignmentAccordionItem({
                       </div>
                     )}
                   </div>
-
                   <div className="flex w-[13%] justify-center" />
                   <div className="flex w-[10%] justify-center font-medium">
                     {dayjs().isAfter(dayjs(assignment.endTime))
@@ -220,28 +218,8 @@ function AssignmentAccordionItem({
                       : '-'}{' '}
                     / {problem.maxScore}
                   </div>
-                  <div className="flex w-[5%] justify-center">
-                    <Dialog
-                      open={openProblemId === problem.id}
-                      onOpenChange={(isOpen) =>
-                        handleOpenChange(isOpen ? problem.id : null)
-                      }
-                    >
-                      <DetailButton
-                        isActivated={
-                          (record?.isFinalScoreVisible ?? false) &&
-                          dayjs().isAfter(dayjs(assignment.endTime))
-                        }
-                      />
-                      {openProblemId === problem.id && (
-                        <SubmissionDetailModal
-                          problemId={problem.id}
-                          assignment={assignment}
-                        />
-                      )}
-                    </Dialog>
-                  </div>
-                  <div className="w-[1%]" />
+
+                  <div className="w-[6%]" />
                 </div>
               ))}
             </div>
