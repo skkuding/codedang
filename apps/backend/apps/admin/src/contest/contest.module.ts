@@ -9,6 +9,5 @@ import { ContestService } from './contest.service'
 @Module({
   imports: [RolesModule, ProblemModule, UserModule],
   providers: [ContestService, ContestResolver, ContestLoader],
-  exports: [ContestService, ContestLoader]
 })
 export class ContestModule {}

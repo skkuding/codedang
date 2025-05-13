@@ -19,6 +19,10 @@ COPY --from=builder /build/iris .
 # Install dependencies
 RUN apt update && apt install -y \
   curl gcc g++ openjdk-17-jdk \
+  software-properties-common \
+  && add-apt-repository ppa:pypy/ppa \
+  && apt update \
+  && apt install -y pypy3 \
   && rm -rf /var/lib/apt/lists/*
 
 # Install sandbox

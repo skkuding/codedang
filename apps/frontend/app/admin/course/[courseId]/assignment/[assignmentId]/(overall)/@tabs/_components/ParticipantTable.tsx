@@ -8,15 +8,34 @@ import {
   DataTableSearchBar
 } from '@/app/admin/_components/table'
 import { Skeleton } from '@/components/shadcn/skeleton'
-import { GET_ASSIGNMENT_SCORE_SUMMARIES } from '@/graphql/assignment/queries'
+import {
+  GET_ASSIGNMENT_SCORE_SUMMARIES,
+  GET_ASSIGNMENTS
+} from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
+import excelIcon from '@/public/icons/excel.svg'
 import { useSuspenseQuery } from '@apollo/client'
-import type { Route } from 'next'
+import { useQuery } from '@apollo/client'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
+import { CSVLink } from 'react-csv'
 import { createColumns } from './Columns'
 
-export function ParticipantTable({ assignmentId }: { assignmentId: number }) {
+interface ScoreSummary {
+  username: string
+  realName: string
+  studentId: string
+  userAssignmentScore: number
+  assignmentPerfectScore: number
+  submittedProblemCount: number
+  totalProblemCount: number
+  problemScores: { problemId: number; score: number; maxScore: number }[]
+  major: string
+}
+
+export function ParticipantTable() {
   const courseId = Number(useParams().courseId)
+  const assignmentId = Number(useParams().assignmentId)
 
   const summaries = useSuspenseQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
     variables: { assignmentId, groupId: courseId, take: 300 }
@@ -32,9 +51,106 @@ export function ParticipantTable({ assignmentId }: { assignmentId: number }) {
     variables: { groupId: courseId, assignmentId }
   })
 
-  const problemData = problems.data.getAssignmentProblems
+  const problemColumnData = problems.data.getAssignmentProblems
     .slice()
     .sort((a, b) => a.order - b.order)
+
+  // 1. GraphQL Query 호출
+  const { data: assignmentData } = useQuery(GET_ASSIGNMENTS, {
+    variables: { groupId: courseId, take: 100 }
+  })
+  const { data: problemData } = useQuery(GET_ASSIGNMENT_PROBLEMS, {
+    variables: {
+      groupId: courseId,
+      assignmentId
+    }
+  })
+  const { data: scoreData } = useQuery<{
+    getAssignmentScoreSummaries: ScoreSummary[]
+  }>(GET_ASSIGNMENT_SCORE_SUMMARIES, {
+    variables: {
+      groupId: courseId,
+      assignmentId,
+      take: 300
+    }
+  })
+
+  // 2. 보조 함수
+  const formatScore = (score: number): string => {
+    const fixedScore = Math.floor(score * 1000) / 1000
+    return fixedScore.toString()
+  }
+
+  // 3. 문제 목록 파싱 (csvData보다 먼저!)
+  const problemList =
+    problemData?.getAssignmentProblems
+      .slice()
+      .sort((a, b) => a.order - b.order)
+      .map((problem) => ({
+        problemId: problem.problemId,
+        maxScore: problem.score,
+        title: problem.problem.title,
+        order: problem.order
+      })) || []
+
+  // 4. csvData 생성
+  const csvData =
+    scoreData?.getAssignmentScoreSummaries.map((user) => {
+      const userProblemScores = problemList.map((problem) => {
+        const scoreData = user.problemScores.find(
+          (ps) => ps.problemId === problem.problemId
+        )
+        return {
+          maxScore: scoreData ? formatScore(scoreData.score) : '-'
+        }
+      })
+
+      return {
+        studentId: user.studentId,
+        major: user.major,
+        realName: user.realName,
+        username: user.username,
+        problemRatio: user.submittedProblemCount
+          ? `${user.submittedProblemCount}`
+          : '-',
+        score: formatScore(user.userAssignmentScore),
+        problems: userProblemScores
+      }
+    }) || []
+
+  // 5. 과제 제목 → 파일명 생성
+  const assignmentTitle = assignmentData?.getAssignments.find(
+    (assignment) => assignment.id === assignmentId.toString()
+  )?.title
+
+  const fileName = assignmentTitle
+    ? `${assignmentTitle.replace(/\s+/g, '_')}.csv`
+    : `course-${courseId}/assignment-${assignmentId}-participants.csv`
+
+  // 6. CSV Header 생성
+  const problemHeaders = problemList.map((problem, index) => {
+    const problemLabel = String.fromCharCode(65 + index)
+    return {
+      label: `${problemLabel}(배점 ${problem.maxScore})`,
+      key: `problems[${index}].maxScore`
+    }
+  })
+
+  const headers = [
+    { label: '학번', key: 'studentId' },
+    { label: '전공', key: 'major' },
+    { label: '이름', key: 'realName' },
+    { label: '아이디', key: 'username' },
+    {
+      label: `제출 문제 수(총 ${scoreData?.getAssignmentScoreSummaries[0]?.totalProblemCount || 0})`,
+      key: 'problemRatio'
+    },
+    {
+      label: `총 획득 점수(만점 ${scoreData?.getAssignmentScoreSummaries[0]?.assignmentPerfectScore || 0})`,
+      key: 'score'
+    },
+    ...problemHeaders
+  ]
 
   return (
     <div>
@@ -42,11 +158,31 @@ export function ParticipantTable({ assignmentId }: { assignmentId: number }) {
         <span className="text-primary font-bold">{summariesData.length}</span>{' '}
         Participants
       </p>
-      <DataTableRoot data={summariesData} columns={createColumns(problemData)}>
-        <DataTableSearchBar columndId="realName" placeholder="Search Name" />
+      <DataTableRoot
+        data={summariesData}
+        columns={createColumns(problemColumnData)}
+      >
+        <div className="flex justify-between">
+          <DataTableSearchBar columndId="realName" placeholder="Search Name" />
+          <CSVLink
+            data={csvData}
+            headers={headers}
+            filename={fileName}
+            className="bg-primary flex items-center gap-2 rounded-full px-[12px] py-[8px] text-lg font-semibold text-white transition-opacity hover:opacity-85"
+          >
+            Export
+            <Image
+              src={excelIcon}
+              alt="Excel Icon"
+              width={20}
+              height={20}
+              className="ml-1"
+            />
+          </CSVLink>
+        </div>
         <DataTable
           getHref={(data) =>
-            `/admin/course/${courseId}/assignment/${assignmentId}/participant/${data.id}` as Route
+            `/admin/course/${courseId}/assignment/${assignmentId}/participant/${data.id}` as const
           }
         />
         <DataTablePagination />
