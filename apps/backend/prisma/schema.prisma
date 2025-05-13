@@ -215,6 +215,7 @@ model Problem {
 
   template        Json[]     @default([])
   languages       Language[]
+  solution        Json[]     @default([])
   timeLimit       Int        @map("time_limit") // unit: MilliSeconds
   memoryLimit     Int        @map("memory_limit") // unit: MegaBytes
   difficulty      Level
@@ -367,15 +368,17 @@ model Assignment {
 }
 
 model AssignmentProblem {
-  order                   Int
-  assignment              Assignment                @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId            Int                       @map("assignment_id")
-  problem                 Problem                   @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId               Int                       @map("problem_id")
+  order        Int
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId Int        @map("assignment_id")
+  problem      Problem    @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId    Int        @map("problem_id")
   // 각 문제의 점수 (비율 아님)
-  score                   Int                       @default(0)
+  score        Int        @default(0)
+
   createTime              DateTime                  @default(now()) @map("create_time")
   updateTime              DateTime                  @updatedAt @map("update_time")
+  solutionReleaseTime     DateTime?                 @map("solution_release_time")
   assignmentProblemRecord AssignmentProblemRecord[]
 
   @@id([assignmentId, problemId])

@@ -634,8 +634,9 @@ export class AssignmentProblemService {
       },
       select: {
         order: true,
+        solutionReleaseTime: true,
         problem: {
-          select: problemSelectOption
+          select: { ...problemSelectOption, solution: true }
         }
       }
     })
@@ -665,6 +666,10 @@ export class AssignmentProblemService {
       'updateTime',
       'visibleLockTime'
     ]
+
+    if (!data.solutionReleaseTime || now < data.solutionReleaseTime) {
+      excludedFields.push('solution')
+    }
 
     const problem = { ...data.problem } // 원본 객체를 복사해서 안전하게 작업
     excludedFields.forEach((key) => {
@@ -764,7 +769,8 @@ export class WorkbookProblemService {
       'timeLimit',
       'memoryLimit',
       'updateTime',
-      'visibleLockTime'
+      'visibleLockTime',
+      'solution'
     ]
 
     return {
@@ -839,7 +845,8 @@ export class WorkbookProblemService {
       'problemTag',
       'submission',
       'updateTime',
-      'visibleLockTime'
+      'visibleLockTime',
+      'solution'
     ]
     const problem = { ...data.problem }
     excludedFields.forEach((key) => {

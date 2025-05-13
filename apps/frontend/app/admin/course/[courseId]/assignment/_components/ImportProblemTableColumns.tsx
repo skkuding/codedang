@@ -17,6 +17,7 @@ export interface DataTableProblem {
   languages: string[]
   score?: number
   order?: number
+  solutionReleaseTime: Date | null
 }
 
 export const DEFAULT_PAGE_SIZE = 5
