@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { RolesModule } from '@libs/auth'
 import { StorageModule } from '@admin/storage/storage.module'
 import { ProblemTagResolver, TagResolver } from './problem-tag.resolver'
+import { ProblemLoader } from './problem.loader'
 import {
   AssignmentProblemResolver,
   ContestProblemResolver,
@@ -20,6 +21,7 @@ import { IntScoreScalar } from './scalar/int-score.scalar'
     WorkbookProblemResolver,
     AssignmentProblemResolver,
     ProblemService,
+    ProblemLoader,
     IntScoreScalar,
     ProblemTagResolver,
     TagResolver

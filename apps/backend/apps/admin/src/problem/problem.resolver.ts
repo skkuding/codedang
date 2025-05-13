@@ -44,7 +44,7 @@ import {
   UploadTestcaseZipInput
 } from './model/problem.input'
 import { ProblemWithIsVisible, ProblemTestcaseId } from './model/problem.output'
-import type { ProblemLoader } from './problem.loader'
+import { ProblemLoader } from './problem.loader'
 import { ProblemService } from './problem.service'
 
 @Resolver(() => ProblemWithIsVisible)
