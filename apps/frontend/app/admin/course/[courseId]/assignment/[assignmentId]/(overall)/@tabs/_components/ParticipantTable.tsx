@@ -154,16 +154,23 @@ export function ParticipantTable() {
 
   return (
     <div>
-      <p className="mb-3 font-medium">
-        <span className="text-primary font-bold">{summariesData.length}</span>{' '}
-        Participants
-      </p>
       <DataTableRoot
         data={summariesData}
         columns={createColumns(problemColumnData)}
       >
         <div className="flex justify-between">
-          <DataTableSearchBar columndId="realName" placeholder="Search Name" />
+          <div className="flex items-center gap-4">
+            <div className="font-semibold">
+              <span className="text-primary font-bold">
+                {summariesData.length}
+              </span>{' '}
+              Participants
+            </div>
+            <DataTableSearchBar
+              columndId="realName"
+              placeholder="Search Name"
+            />
+          </div>
           <CSVLink
             data={csvData}
             headers={headers}

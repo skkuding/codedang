@@ -31,29 +31,20 @@ export const columns: ColumnDef<OverallSubmission>[] = [
   },
   {
     accessorKey: 'realname',
-    header: () => <p className="font-mono text-sm">Name</p>,
+    header: () => <p className="border-r py-1 font-mono text-sm">Name</p>,
     cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs font-medium">
+      <div className="whitespace-nowrap border-r py-1 text-center text-xs font-medium">
         {row.getValue('realname')}
       </div>
     )
   },
   {
-    accessorKey: 'username',
-    header: () => <p className="border-r py-1 font-mono text-sm">User ID</p>,
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap border-r py-1 text-center text-xs font-medium">
-        {row.getValue('username')}
-      </div>
-    )
-  },
-  {
     accessorKey: 'result',
-    header: () => <p className="font-mono text-sm">Result</p>,
+    header: () => <p className="py-1 font-mono text-sm">Result</p>,
     cell: ({ row }) => (
       <div
         className={cn(
-          'whitespace-nowrap text-center text-xs',
+          'whitespace-nowrap py-1 text-center text-xs',
           getResultColor(row.getValue('result'))
         )}
       >

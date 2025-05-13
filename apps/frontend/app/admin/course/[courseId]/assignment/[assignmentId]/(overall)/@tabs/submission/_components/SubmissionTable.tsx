@@ -14,6 +14,7 @@ import { GET_ASSIGNMENT_SUBMISSIONS } from '@/graphql/submission/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { useState } from 'react'
 import { columns } from './Columns'
+import { DataTableProblemFilterMini } from './DataTableProblemFilterMini'
 
 export function SubmissionTable({
   groupId,
@@ -42,10 +43,21 @@ export function SubmissionTable({
         columns={columns}
         defaultSortState={[{ id: 'submissionTime', desc: true }]}
       >
-        <div className="flex gap-4">
-          <DataTableSearchBar columndId="realname" />
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="font-semibold">
+              <span className="text-primary font-bold">
+                {data.getAssignmentSubmissions.length}
+              </span>{' '}
+              Submissions
+            </div>
+            <DataTableProblemFilterMini
+              groupId={groupId}
+              assignmentId={assignmentId}
+            />
+          </div>
+          <DataTableSearchBar columndId="realname" placeholder="Search Name" />
         </div>
-        <DataTableProblemFilter groupId={groupId} assignmentId={assignmentId} />
         <DataTable
           onRowClick={(_, row) => {
             setSubmissionId(row.original.id)

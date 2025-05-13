@@ -46,7 +46,7 @@ export default function Information({ params }: InformationProps) {
   return (
     <ErrorBoundary fallback={FetchErrorFallback}>
       <Suspense fallback={<ParticipantTableFallback />}>
-        <div className="flex w-[956px] flex-col gap-5">
+        <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
             <span className="font-bold">Description</span>
             <KatexContent
@@ -62,7 +62,7 @@ export default function Information({ params }: InformationProps) {
               <span className="font-bold">Included Problem</span>
               <button
                 type="button"
-                className="flex h-7 w-7 items-center justify-center rounded transition hover:bg-gray-200"
+                className="flex h-7 w-7 items-center justify-center rounded transition hover:bg-transparent"
                 onClick={() => setProblemsOpen((prev) => !prev)}
               >
                 <ChevronDownIcon
@@ -72,54 +72,57 @@ export default function Information({ params }: InformationProps) {
             </div>
             {problemsOpen && (
               <div className="w-full rounded-b-[12px] bg-white">
-                <Table className="border-seperate overflow-hidden rounded-2xl">
+                <Table className="overflow-hidden rounded-xl border border-gray-200">
                   <TableHeader>
-                    <TableRow className="border-none">
-                      <TableHead className="w-12 text-left text-[14px] font-semibold text-gray-700">
+                    <TableRow className="border-b border-gray-200">
+                      <TableHead className="w-12 bg-gray-50 text-center text-sm font-normal text-gray-500">
                         Order
                       </TableHead>
-                      <TableHead className="text-left text-[14px] font-semibold text-gray-700">
+                      <TableHead className="bg-gray-50 text-left text-sm font-normal text-gray-500">
                         Title
                       </TableHead>
-                      <TableHead className="w-20 text-center text-[14px] font-semibold text-gray-700">
+                      <TableHead className="w-20 bg-gray-50 text-center text-sm font-normal text-gray-500">
                         Score
                       </TableHead>
-                      <TableHead className="w-20 text-center text-[14px] font-semibold text-gray-700">
+                      <TableHead className="w-20 bg-gray-50 text-center text-sm font-normal text-gray-500">
                         Solution
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {problemsData.map((problem, idx) => (
-                      <TableRow key={problem.problemId} className="border-none">
-                        <TableCell className="bg-white text-center font-mono text-[15px] text-gray-700">
+                      <TableRow
+                        key={problem.problemId}
+                        className="border-b border-gray-200 last:border-b-0"
+                      >
+                        <TableCell className="text-center font-mono text-sm text-gray-900">
                           {String.fromCharCode(65 + idx)}
                         </TableCell>
-                        <TableCell className="bg-white text-left text-[15px] text-black">
+                        <TableCell className="text-left text-sm text-gray-900">
                           {problem.problem.title}
                         </TableCell>
-                        <TableCell className="bg-white text-center text-[15px] text-black">
+                        <TableCell className="text-center text-sm text-gray-900">
                           {problem.score}
                         </TableCell>
-                        <TableCell className="bg-white text-center">
+                        <TableCell className="text-center">
                           <FaEye className="inline text-gray-400" />
                         </TableCell>
                       </TableRow>
                     ))}
-                    <TableRow className="border-none">
+                    <TableRow>
                       <TableCell
                         colSpan={2}
-                        className="rounded-bl-[12px] bg-[#F5F5F5] text-right text-[15px] font-semibold text-gray-700"
+                        className="rounded-bl-xl bg-gray-50 text-right text-sm font-semibold text-gray-700"
                       >
                         Total
                       </TableCell>
-                      <TableCell className="text-primary bg-[#F5F5F5] text-center text-[15px] font-semibold">
+                      <TableCell className="text-primary bg-gray-50 text-center text-sm font-semibold">
                         {problemsData.reduce(
                           (acc, cur) => acc + (cur.score || 0),
                           0
                         )}
                       </TableCell>
-                      <TableCell className="rounded-br-[12px] bg-[#F5F5F5]" />
+                      <TableCell className="rounded-br-xl bg-gray-50" />
                     </TableRow>
                   </TableBody>
                 </Table>
