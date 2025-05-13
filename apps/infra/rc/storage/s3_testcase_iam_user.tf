@@ -32,7 +32,7 @@ resource "aws_iam_user" "iris_on_prem" {
 
 data "aws_iam_policy_document" "testcase_read" {
   statement {
-    actions   = ["s3:ListBucket", "s3:GetObject"]
+    actions   = ["s3:ListBucket", "s3:GetObject", "s3:GetObjectTagging"]
     resources = ["${aws_s3_bucket.testcase.arn}", "${aws_s3_bucket.testcase.arn}/*"]
   }
 }
