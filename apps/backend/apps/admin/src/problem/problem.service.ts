@@ -120,9 +120,9 @@ export class ProblemService {
   }
 
   async uploadTestcaseZip(file: FileUpload, problemId: number) {
-    const { filename, mimetype, createReadStream } = file
+    const { filename, createReadStream } = file
 
-    if (!filename.endsWith('.zip') || mimetype !== 'application/zip') {
+    if (!filename.endsWith('.zip')) {
       throw new UnprocessableDataException('Only zip files are accepted')
     }
 
