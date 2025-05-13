@@ -2,14 +2,9 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { Level } from '@generated'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
-import * as archiver from 'archiver'
 import { expect } from 'chai'
-import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { spy, stub } from 'sinon'
-import { Readable } from 'stream'
 import {
-  DuplicateFoundException,
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
@@ -24,13 +19,9 @@ import {
   exampleOrderUpdatedAssignmentProblems,
   exampleOrderUpdatedContestProblems,
   exampleOrderUpdatedWorkbookProblems,
-  exampleProblemTags,
-  exampleProblemTestcases,
-  exampleTag,
   exampleWorkbook,
   exampleWorkbookProblems,
   fileUploadInput,
-  testcaseUploadInput,
   user,
   importedProblems,
   importedProblemsWithIsVisible,
@@ -39,11 +30,9 @@ import {
   problemsWithIsVisible,
   template,
   testcaseInput,
-  updateHistories,
-  testcaseData
-} from './mock/mock'
-import type { Testcase } from './model/testcase.input'
-import { ProblemService } from './problem.service'
+  updateHistories
+} from '../mock/mock'
+import { FileService, ProblemService, TestcaseService } from './'
 
 /**
  * TODO: s3 관련 코드 재작성(수정) 필요
@@ -117,7 +106,7 @@ const db = {
 describe('ProblemService', () => {
   let service: ProblemService
   let storageService: StorageService
-  let prismaService: PrismaService
+  let testcaseService: TestcaseService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -125,6 +114,8 @@ describe('ProblemService', () => {
         ProblemService,
         { provide: PrismaService, useValue: db },
         StorageService,
+        TestcaseService,
+        FileService,
         ConfigService,
         S3Provider,
         S3MediaProvider,
@@ -134,6 +125,7 @@ describe('ProblemService', () => {
 
     service = module.get<ProblemService>(ProblemService)
     storageService = module.get<StorageService>(StorageService)
+    testcaseService = module.get<TestcaseService>(TestcaseService)
   })
 
   it('should be defined', () => {
@@ -197,227 +189,11 @@ describe('ProblemService', () => {
     })
   })
 
-  describe('removeAllTestcaseFiles', () => {
-    // Override testing module in this scope to use real PrismaService
-    // TODO: Refactor to use real PrismaService, not mock
-    beforeEach(async () => {
-      const module: TestingModule = await Test.createTestingModule({
-        providers: [
-          ProblemService,
-          PrismaService,
-          StorageService,
-          ConfigService,
-          S3Provider,
-          S3MediaProvider,
-          { provide: CACHE_MANAGER, useValue: { del: () => null } }
-        ]
-      }).compile()
-
-      service = module.get<ProblemService>(ProblemService)
-      storageService = module.get<StorageService>(StorageService)
-      prismaService = module.get<PrismaService>(PrismaService)
-    })
-
-    it('should remove all testcase files', async () => {
-      const problemId = 1
-      const files = [
-        `${problemId}/1.in`,
-        `${problemId}/1.out`,
-        `${problemId}/2.in`,
-        `${problemId}/2.out`,
-        `${problemId}/3.in`,
-        `${problemId}/3.out`
-      ]
-
-      await Promise.all(
-        files.map((file) =>
-          storageService.uploadObject(file, 'dummy text', 'txt')
-        )
-      )
-
-      const uploadedFiles = await storageService.listObjects(
-        `${problemId}/`,
-        'testcase'
-      )
-      expect(uploadedFiles).to.be.not.empty
-
-      await service.removeAllTestcaseFiles(problemId)
-
-      const existingFiles = await storageService.listObjects(
-        `${problemId}/`,
-        'testcase'
-      )
-      expect(existingFiles).to.be.empty
-
-      const entries = await prismaService.problemTestcase.findMany({
-        where: { problemId }
-      })
-      expect(entries).to.be.empty
-    })
-  })
-
-  describe('uploadTestcaseZip', () => {
-    const problemId = 1
-
-    const file = {
-      filename: 'testcase.zip',
-      mimetype: 'application/zip',
-      encoding: 'utf-8',
-      createReadStream: () =>
-        new Readable({
-          read() {
-            this.push('testcase content')
-            this.push(null)
-          }
-        })
-    } satisfies FileUpload
-
-    // Override testing module in this scope to use real PrismaService
-    // TODO: Refactor to use real PrismaService, not mock
-    beforeEach(async () => {
-      const module: TestingModule = await Test.createTestingModule({
-        providers: [
-          ProblemService,
-          PrismaService,
-          StorageService,
-          ConfigService,
-          S3Provider,
-          S3MediaProvider,
-          { provide: CACHE_MANAGER, useValue: { del: () => null } }
-        ]
-      }).compile()
-
-      service = module.get<ProblemService>(ProblemService)
-      storageService = module.get<StorageService>(StorageService)
-    })
-
-    it('should not allow if given file is not zip', async () => {
-      const nonZipFile = { ...file, mimetype: 'text/plain' }
-
-      await expect(
-        service.uploadTestcaseZip(nonZipFile, problemId)
-      ).to.be.rejectedWith(UnprocessableDataException)
-    })
-
-    it('should not allow testcase files without corresponding input/output', async () => {
-      const invalidZipStream = () => {
-        const archive = archiver('zip', { zlib: { level: 9 } })
-        archive.append('Content for 1.in', { name: '1.in' })
-        archive.append('Content for 1.out', { name: '1.out' })
-        archive.append('Content for 2.in', { name: '2.in' })
-        archive.append('Content for 2.out', { name: '2.out' })
-        archive.append('Content for 3.in', { name: '3.in' })
-        archive.finalize()
-        return archive
-      }
-
-      const invalidZipFile = {
-        ...file,
-        createReadStream: invalidZipStream
-      } satisfies FileUpload
-
-      await expect(
-        service.uploadTestcaseZip(invalidZipFile, problemId)
-      ).to.be.rejectedWith(UnprocessableDataException)
-
-      const uploadedFiles = await storageService.listObjects(
-        `${problemId}/`,
-        'testcase'
-      )
-      expect(uploadedFiles).to.be.empty
-    })
-
-    it('should upload testcase files', async () => {
-      const createZipStream = () => {
-        const archive = archiver('zip', { zlib: { level: 9 } })
-        archive.append('Content for 1.in', { name: '1.in' })
-        archive.append('Content for 1.out', { name: '1.out' })
-        archive.append('Content for 2.in', { name: '2.in' })
-        archive.append('Content for 2.out', { name: '2.out' })
-        archive.finalize()
-        return archive
-      }
-
-      const zipFile = {
-        ...file,
-        createReadStream: createZipStream
-      } satisfies FileUpload
-
-      await service.uploadTestcaseZip(zipFile, problemId)
-
-      const uploadedFiles = await storageService.listObjects(
-        `${problemId}/`,
-        'testcase'
-      )
-      expect(uploadedFiles).to.have.lengthOf(4)
-    })
-  })
-
-  describe('createTestcases', () => {
-    const testcases: Testcase[] = [
-      {
-        input: 'input',
-        output: 'output',
-        isHidden: false,
-        scoreWeight: 1
-      },
-      {
-        input: 'input2',
-        output: 'output2',
-        isHidden: false
-      },
-      {
-        input: 'input3',
-        output: 'output3',
-        isHidden: true
-      }
-    ]
-
-    // Override testing module in this scope to use real PrismaService
-    // TODO: Refactor to use real PrismaService, not mock
-    beforeEach(async () => {
-      const module: TestingModule = await Test.createTestingModule({
-        providers: [
-          ProblemService,
-          PrismaService,
-          StorageService,
-          ConfigService,
-          S3Provider,
-          S3MediaProvider,
-          { provide: CACHE_MANAGER, useValue: { del: () => null } }
-        ]
-      }).compile()
-
-      service = module.get<ProblemService>(ProblemService)
-      storageService = module.get<StorageService>(StorageService)
-    })
-
-    it('should fail if problem id is not found', async () => {
-      const problemId = 999
-
-      await expect(
-        service.createTestcases(testcases, problemId)
-      ).to.be.rejectedWith(EntityNotExistException)
-    })
-
-    it('should create testcases', async () => {
-      const problemId = 1
-
-      await service.createTestcases(testcases, problemId)
-
-      const uploadedFiles = await storageService.listObjects(
-        `${problemId}/`,
-        'testcase'
-      )
-      expect(uploadedFiles).to.have.lengthOf(6)
-    })
-  })
-
   describe('uploadProblems', () => {
     it('shoule return imported problems', async () => {
       const userId = user[1].id!
       const userRole = user[1].role!
-      const createTestcasesSpy = spy(service, 'createTestcasesLegacy')
+      const createTestcasesSpy = spy(testcaseService, 'createTestcasesLegacy')
       db.problem.create.resetHistory()
       db.problem.create.onCall(0).resolves(importedProblems[0])
       db.problem.create.onCall(1).resolves(importedProblems[1])
@@ -431,25 +207,6 @@ describe('ProblemService', () => {
 
       expect(createTestcasesSpy.calledTwice).to.be.true
       expect(res).to.deep.equal(importedProblemsWithIsVisible)
-    })
-  })
-
-  describe('uploadTestcase', () => {
-    it('should return imported testcase', async () => {
-      const problemId = 2
-      const createTestcaseSpy = spy(service, 'createTestcaseLegacy')
-      db.problemTestcase.create.resetHistory()
-      db.problemTestcase.create.resolves(testcaseData)
-
-      const result = await service.uploadTestcase(
-        testcaseUploadInput,
-        problemId,
-        user[0].role!,
-        user[0].id!
-      )
-
-      expect(createTestcaseSpy.calledOnce).to.be.true
-      expect(result).to.deep.equal(testcaseData)
     })
   })
 
@@ -959,93 +716,6 @@ describe('ProblemService', () => {
       await expect(
         service.updateContestProblemsOrder(1, [2, 3, 4, 5, 6, 7, 8, 9, 10, 1])
       ).to.be.rejectedWith(EntityNotExistException)
-    })
-  })
-
-  describe('createTag', () => {
-    it('should return a created tag', async () => {
-      beforeEach(() => {
-        db.tag.create.resetBehavior()
-      })
-      db.tag.create.resolves(exampleTag)
-      const result = await service.createTag('Brute Force')
-      expect(result).to.deep.equal(exampleTag)
-    })
-
-    it('should handle a duplicate exception', async () => {
-      beforeEach(() => {
-        db.tag.create.resetBehavior()
-      })
-      db.tag.create.rejects(
-        new PrismaClientKnownRequestError('message', {
-          code: 'P2002',
-          clientVersion: '5.11.0'
-        })
-      )
-      await expect(service.createTag('something duplicate')).to.be.rejectedWith(
-        DuplicateFoundException
-      )
-    })
-  })
-
-  describe('deleteTag', () => {
-    beforeEach(() => {
-      db.tag.findFirst.reset()
-      db.tag.delete.reset()
-    })
-    afterEach(() => {
-      db.tag.findFirst.reset()
-      db.tag.delete.reset()
-    })
-
-    it('should return deleted tag', async () => {
-      db.tag.findFirst.resolves(exampleTag)
-      db.tag.delete.resolves(exampleTag)
-      const result = await service.deleteTag('Brute Force')
-      expect(result).to.deep.equal(exampleTag)
-    })
-
-    it('should handle a entity not exist exception', async () => {
-      db.tag.findFirst.resolves(null)
-      await expect(
-        service.deleteTag('something does not exist')
-      ).to.be.rejectedWith(EntityNotExistException)
-    })
-  })
-  describe('getTag', () => {
-    afterEach(() => {
-      db.tag.findUnique.reset()
-    })
-
-    it('should return a tag object', async () => {
-      db.tag.findUnique.resolves(exampleTag)
-      expect(await service.getTag(1)).to.deep.equal(exampleTag)
-    })
-
-    it('should throw an EntityNotExist exception when tagId do not exist', async () => {
-      await expect(service.getTag(999)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-  })
-
-  describe('getProblemTags', () => {
-    afterEach(() => {
-      db.problemTestcase.findMany.reset()
-    })
-
-    it('should return a problem tag array', async () => {
-      db.problemTag.findMany.resolves(exampleProblemTags)
-      expect(await service.getProblemTags(1)).to.deep.equal(exampleProblemTags)
-    })
-  })
-
-  describe('getProblemTestcases', () => {
-    it('should return a problem testcase array', async () => {
-      db.problemTestcase.findMany.resolves(exampleProblemTestcases)
-      expect(await service.getProblemTestcases(1)).to.deep.equal(
-        exampleProblemTestcases
-      )
     })
   })
 })

@@ -12,7 +12,6 @@ import {
 import {
   AssignmentProblem,
   ContestProblem,
-  File,
   Group,
   ProblemTag,
   ProblemTestcase,
@@ -27,29 +26,25 @@ import {
   UseGroupLeaderGuard
 } from '@libs/auth'
 import { ForbiddenAccessException } from '@libs/exception'
-import {
-  CursorValidationPipe,
-  GroupIDPipe,
-  ProblemIDPipe,
-  RequiredIntPipe
-} from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
-import { FileSource } from './model/file.output'
 import {
   CreateProblemInput,
-  CreateTestcasesInput,
   UploadFileInput,
   FilterProblemsInput,
-  UpdateProblemInput,
-  UploadTestcaseZipInput
-} from './model/problem.input'
-import { ProblemWithIsVisible, ProblemTestcaseId } from './model/problem.output'
-import { ProblemService } from './problem.service'
+  UpdateProblemInput
+} from '../model/problem.input'
+import { ProblemWithIsVisible } from '../model/problem.output'
+import { ProblemService, TagService, TestcaseService } from '../services'
 
 @Resolver(() => ProblemWithIsVisible)
 @UseDisableAdminGuard()
 export class ProblemResolver {
-  constructor(private readonly problemService: ProblemService) {}
+  constructor(
+    private readonly problemService: ProblemService,
+    private readonly tagService: TagService,
+    private readonly testcaseService: TestcaseService
+  ) {}
 
   @Mutation(() => ProblemWithIsVisible)
   async createProblem(
@@ -60,28 +55,6 @@ export class ProblemResolver {
       input,
       req.user.id,
       req.user.role
-    )
-  }
-
-  @Mutation(() => [ProblemTestcaseId])
-  async createTestcases(
-    @Args('input', { type: () => CreateTestcasesInput })
-    input: CreateTestcasesInput
-  ): Promise<ProblemTestcaseId[]> {
-    return await this.problemService.createTestcases(
-      input.testcases,
-      input.problemId
-    )
-  }
-
-  @Mutation(() => [ProblemTestcaseId])
-  async uploadTestcaseZip(
-    @Args('input', { type: () => UploadTestcaseZipInput })
-    input: UploadTestcaseZipInput
-  ): Promise<ProblemTestcaseId[]> {
-    return await this.problemService.uploadTestcaseZip(
-      await input.file,
-      input.problemId
     )
   }
 
@@ -96,46 +69,6 @@ export class ProblemResolver {
       req.user.id,
       req.user.role
     )
-  }
-
-  @Mutation(() => ProblemTestcase)
-  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async uploadTestcase(
-    @Context('req') req: AuthenticatedRequest,
-    @Args('problemId', { type: () => Int }, ProblemIDPipe)
-    problemId: number,
-    @Args('input') input: UploadFileInput
-  ) {
-    return await this.problemService.uploadTestcase(
-      input,
-      problemId,
-      req.user.role,
-      req.user.id
-    )
-  }
-
-  @Mutation(() => FileSource)
-  async uploadImage(
-    @Args('input') input: UploadFileInput,
-    @Context('req') req: AuthenticatedRequest
-  ) {
-    return await this.problemService.uploadFile(input, req.user.id, true)
-  }
-
-  @Mutation(() => FileSource)
-  async uploadFile(
-    @Args('input') input: UploadFileInput,
-    @Context('req') req: AuthenticatedRequest
-  ) {
-    return await this.problemService.uploadFile(input, req.user.id, false)
-  }
-
-  @Mutation(() => File)
-  async deleteFile(
-    @Args('filename') filename: string,
-    @Context('req') req: AuthenticatedRequest
-  ) {
-    return await this.problemService.deleteFile(filename, req.user.id)
   }
 
   @Query(() => [ProblemWithIsVisible])
@@ -184,12 +117,12 @@ export class ProblemResolver {
 
   @ResolveField('tag', () => [ProblemTag])
   async getProblemTags(@Parent() problem: ProblemWithIsVisible) {
-    return await this.problemService.getProblemTags(problem.id)
+    return await this.tagService.getProblemTags(problem.id)
   }
 
   @ResolveField('testcase', () => [ProblemTestcase])
   async getProblemTestCases(@Parent() problem: ProblemWithIsVisible) {
-    return await this.problemService.getProblemTestcases(problem.id)
+    return await this.testcaseService.getProblemTestcases(problem.id)
   }
 
   @Mutation(() => ProblemWithIsVisible)

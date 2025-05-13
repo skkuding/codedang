@@ -1,59 +1,43 @@
 import { ForbiddenException, Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { Language } from '@generated'
 import {
   AssignmentProblem,
   ContestProblem,
   Problem,
-  Tag,
   WorkbookProblem
 } from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput, UpdateHistory } from '@generated'
 import { ProblemField, Role } from '@prisma/client'
-import { Prisma } from '@prisma/client'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
-import { randomUUID } from 'crypto'
-import { isEqual } from 'es-toolkit'
 import { Workbook } from 'exceljs'
-import type { FileUpload } from 'graphql-upload/GraphQLUpload.mjs'
-import type { Readable } from 'stream'
-import { Parse } from 'unzipper'
-import {
-  MAX_DATE,
-  MAX_IMAGE_SIZE,
-  MAX_FILE_SIZE,
-  MAX_ZIP_SIZE,
-  MIN_DATE
-} from '@libs/constants'
+import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
   DuplicateFoundException,
-  EntityNotExistException,
   UnprocessableDataException,
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { StorageService } from '@admin/storage/storage.service'
-import { ImportedProblemHeader } from './model/problem.constants'
+import { ImportedProblemHeader } from '../model/problem.constants'
 import type {
   CreateProblemInput,
   UploadFileInput,
   FilterProblemsInput,
   UpdateProblemInput,
   UpdateProblemTagInput
-} from './model/problem.input'
-import type { ProblemWithIsVisible } from './model/problem.output'
-import type { Template } from './model/template.input'
-import { ImportedTestcaseHeader } from './model/testcase.constants'
-import type { Testcase } from './model/testcase.input'
+} from '../model/problem.input'
+import type { ProblemWithIsVisible } from '../model/problem.output'
+import type { Template } from '../model/template.input'
+import type { Testcase } from '../model/testcase.input'
+import { TestcaseService } from './testcase.service'
 
 @Injectable()
 export class ProblemService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly storageService: StorageService,
-    private readonly config: ConfigService
+    private readonly testcaseService: TestcaseService
   ) {}
 
   async createProblem(
@@ -99,217 +83,8 @@ export class ProblemService {
       }
     })
     // TODO: do not create testcases in createProblem
-    await this.createTestcasesLegacy(problem.id, testcases)
+    await this.testcaseService.createTestcasesLegacy(problem.id, testcases)
     return this.changeVisibleLockTimeToIsVisible(problem)
-  }
-
-  async removeAllTestcaseFiles(problemId: number) {
-    const testcaseDir = problemId + '/'
-    const files = await this.storageService.listObjects(testcaseDir, 'testcase')
-    await Promise.all(
-      files.map(async (file) => {
-        if (!file.Key) return
-        await this.storageService.deleteObject(file.Key, 'testcase')
-      })
-    )
-    await this.prisma.problemTestcase.deleteMany({
-      where: { problemId }
-    })
-  }
-
-  async uploadTestcaseZip(file: FileUpload, problemId: number) {
-    const { filename, mimetype, createReadStream } = file
-
-    if (!filename.endsWith('.zip') || mimetype !== 'application/zip') {
-      throw new UnprocessableDataException('Only zip files are accepted')
-    }
-
-    // Just check if the file size is less than maximum size
-    await this.getFileSize(createReadStream(), MAX_ZIP_SIZE)
-
-    // Testcase files are uploaded under s3://{bucketName}/{problemId}/{testcaseId}.{in|out}
-    // Before upload, delete all objects under the problemId directory
-    await this.removeAllTestcaseFiles(problemId)
-
-    // Under zip, it's expected to have the following structure:
-    //
-    // {name}.zip/
-    //   {chunkName1}.in
-    //   {chunkName1}.out
-    //   {chunkName2}.in
-    //   {chunkName2}.out
-    //   ...
-    //
-    // Then each {chunkName} is registered to the database with {testcaseId} as primary key
-    // and the object is uploaded to S3 with the name {problemId}/{testcaseId}.{in|out}
-    //
-    // s3://{bucketName}/{problemId}/
-    //  {testcaseId1}.{in}
-    //  {testcaseId1}.{out}
-    //  {testcaseId2}.{in}
-    //  {testcaseId2}.{out}
-    //  ...
-
-    /** Mapper between chunk name and testcase ID. { [chunkName]: testcaseId } */
-    const testcaseIdMapper: Record<string, number> = {}
-
-    const inFiles = new Set<string>()
-    const outFiles = new Set<string>()
-
-    const stream = createReadStream().pipe(Parse({ forceStream: true }))
-
-    try {
-      for await (const chunk of stream) {
-        // e.g) chunk.path: 'name.in' => chunkName: 'name', extension: 'in'
-        const chunkName = chunk.path.split('.').slice(0, -1).join('.')
-        const extension = chunk.path.split('.').pop()
-
-        if (extension !== 'in' && extension !== 'out') {
-          throw new UnprocessableDataException(
-            'Testcase files must end with .in or .out'
-          )
-        }
-        if (!(chunkName in testcaseIdMapper)) {
-          const testcase = await this.prisma.problemTestcase.create({
-            data: { problemId }
-          })
-          testcaseIdMapper[chunkName] = testcase.id
-        }
-
-        if (extension === 'in') {
-          inFiles.add(chunkName)
-        } else if (extension === 'out') {
-          outFiles.add(chunkName)
-        }
-
-        const objectName = `${problemId}/${testcaseIdMapper[chunkName]}.${extension}`
-        const defaultTags = { hidden: 'true' } // s3 object tags are read from iris
-
-        await this.storageService.uploadObject(
-          objectName,
-          chunk,
-          'txt',
-          defaultTags
-        )
-      }
-
-      // Check if all .in/.out files have corresponding .out/.in files
-      if (!isEqual(inFiles, outFiles)) {
-        throw new UnprocessableDataException(
-          'Testcase files must have corresponding .in/.out files'
-        )
-      }
-    } catch (error) {
-      await this.removeAllTestcaseFiles(problemId)
-      throw error
-    }
-
-    // Set the testcase order by alphabetical order of original file name
-    // e.g) [aaa.(in|out), aab.(in|out), aac.(in|out), ...]
-    const originalFileNames = Object.keys(testcaseIdMapper).sort()
-
-    originalFileNames.forEach(async (name, index) => {
-      const id = testcaseIdMapper[name]
-      await this.prisma.problemTestcase.update({
-        where: { id },
-        data: { order: index + 1 }
-      })
-    })
-
-    const testcaseIds = originalFileNames.map((name) => ({
-      testcaseId: testcaseIdMapper[name]
-    }))
-    return testcaseIds
-  }
-
-  /** @deprecated Testcases are going to be stored in S3, not database. Please check `createTestcases` */
-  async createTestcasesLegacy(problemId: number, testcases: Array<Testcase>) {
-    await Promise.all(
-      testcases.map(async (tc, index) => {
-        const problemTestcase = await this.prisma.problemTestcase.create({
-          data: {
-            problemId,
-            input: tc.input,
-            output: tc.output,
-            scoreWeight: tc.scoreWeight,
-            isHidden: tc.isHidden
-          }
-        })
-        return { index, id: problemTestcase.id }
-      })
-    )
-  }
-
-  /** @deprecated Testcases are going to be stored in S3, not database. Please check `createTestcases` */
-  async createTestcaseLegacy(problemId: number, testcase: Testcase) {
-    try {
-      const problemTestcase = await this.prisma.problemTestcase.create({
-        data: {
-          problem: { connect: { id: problemId } },
-          input: testcase.input,
-          output: testcase.output,
-          scoreWeight: testcase.scoreWeight,
-          isHidden: testcase.isHidden
-        }
-      })
-      return problemTestcase
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      )
-        throw new EntityNotExistException('problem')
-
-      throw error
-    }
-  }
-
-  async createTestcases(testcases: Testcase[], problemId: number) {
-    // Before upload, clean up all the original testcases
-    await this.removeAllTestcaseFiles(problemId)
-
-    const promises = testcases.map(async (testcase, index) => {
-      try {
-        const { id } = await this.prisma.problemTestcase.create({
-          data: {
-            problemId,
-            scoreWeight: testcase.scoreWeight,
-            isHidden: testcase.isHidden,
-            order: index + 1
-          }
-        })
-
-        const inFileName = `${problemId}/${id}.in`
-        const outFileName = `${problemId}/${id}.out`
-        const defaultTags = { hidden: 'true' } // s3 object tags are read from iris
-
-        await this.storageService.uploadObject(
-          inFileName,
-          testcase.input,
-          'txt',
-          defaultTags
-        )
-        await this.storageService.uploadObject(
-          outFileName,
-          testcase.output,
-          'txt',
-          defaultTags
-        )
-
-        return { testcaseId: id }
-      } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-          if (error.code === 'P2003') {
-            throw new EntityNotExistException('problem')
-          }
-        }
-        console.log('error code:', error.code)
-        throw error
-      }
-    })
-
-    const ids = await Promise.all(promises)
-    return ids
   }
 
   async uploadProblems(input: UploadFileInput, userId: number, userRole: Role) {
@@ -437,196 +212,6 @@ export class ProblemService {
         return problem
       })
     )
-  }
-
-  async uploadTestcase(
-    fileInput: UploadFileInput,
-    problemId: number,
-    userRole: Role,
-    userId: number
-  ) {
-    const problem = await this.prisma.problem.findFirstOrThrow({
-      where: { id: problemId },
-      include: {
-        sharedGroups: {
-          select: {
-            id: true
-          }
-        }
-      }
-    })
-
-    if (userRole == Role.User && problem.createdById != userId) {
-      const leaderGroupIds = (
-        await this.prisma.userGroup.findMany({
-          where: {
-            userId,
-            isGroupLeader: true
-          }
-        })
-      ).map((group) => group.groupId)
-      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
-      const hasShared = sharedGroupIds.some((v) =>
-        new Set(leaderGroupIds).has(v)
-      )
-      if (!hasShared) {
-        throw new ForbiddenException(
-          'User can only edit problems they created or were shared with'
-        )
-      }
-    }
-
-    const { filename, mimetype, createReadStream } = await fileInput.file
-    if (
-      [
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'application/vnd.ms-excel'
-      ].includes(mimetype) === false
-    ) {
-      throw new UnprocessableDataException(
-        'Extensions except Excel(.xlsx, .xls) are not supported.'
-      )
-    }
-    const header = {}
-    const workbook = new Workbook()
-    const worksheet = (await workbook.xlsx.read(createReadStream()))
-      .worksheets[0]
-    worksheet.getRow(1).eachCell((cell, idx) => {
-      if (!ImportedTestcaseHeader.includes(cell.text))
-        throw new UnprocessableFileDataException(
-          `Field ${cell.text} is not supported: ${1}`,
-          filename
-        )
-      header[cell.text] = idx
-    })
-    worksheet.spliceRows(1, 1)
-    const row = worksheet.getRow(1)
-
-    if (!header['Input'] || !header['Output']) {
-      throw new UnprocessableFileDataException(
-        'Input and Output fields are required',
-        filename
-      )
-    }
-    const input = row.getCell(header['Input']).text
-    const output = row.getCell(header['Output']).text
-    const scoreWeight =
-      header['scoreWeight'] === undefined ||
-      row.getCell(header['scoreWeight']).text.trim() === ''
-        ? 1
-        : parseInt(row.getCell(header['scoreWeight']).text.trim(), 10) || 1
-    const isHidden =
-      header['isHidden'] === undefined ||
-      row.getCell(header['isHidden']).text.trim() === ''
-        ? false
-        : row.getCell(header['isHidden']).text.trim() === 'O'
-    const testcase: Testcase = {
-      input,
-      output,
-      scoreWeight,
-      isHidden
-    }
-
-    return await this.createTestcaseLegacy(problemId, testcase)
-  }
-
-  async uploadFile(input: UploadFileInput, userId: number, isImage: boolean) {
-    const { mimetype, createReadStream } = await input.file
-    const newFilename = randomUUID()
-
-    if (isImage && !mimetype.includes('image/')) {
-      throw new UnprocessableDataException('Only image files can be accepted')
-    }
-
-    if (!isImage && mimetype !== 'application/pdf') {
-      throw new UnprocessableDataException('Only pdf files can be accepted')
-    }
-
-    const fileSize = await this.getFileSize(
-      createReadStream(),
-      isImage ? MAX_IMAGE_SIZE : MAX_FILE_SIZE
-    )
-    try {
-      await this.storageService.uploadFile({
-        filename: newFilename,
-        fileSize,
-        content: createReadStream(),
-        type: mimetype
-      })
-      await this.prisma.file.create({
-        data: {
-          filename: newFilename,
-          createdById: userId
-        }
-      })
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        await this.storageService.deleteFile(newFilename) // 파일이 S3에 업로드되었지만, DB에 파일 정보 등록을 실패한 경우 rollback
-      }
-      throw new UnprocessableFileDataException(
-        'Error occurred during file upload.',
-        newFilename
-      )
-    }
-
-    const APP_ENV = this.config.get('APP_ENV')
-    const MEDIA_BUCKET_NAME = this.config.get('MEDIA_BUCKET_NAME')
-    const STORAGE_BUCKET_ENDPOINT_URL = this.config.get(
-      'STORAGE_BUCKET_ENDPOINT_URL'
-    )
-
-    return {
-      src:
-        APP_ENV === 'production'
-          ? `https://${MEDIA_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/${newFilename}`
-          : APP_ENV === 'stage'
-            ? `https://stage.codedang.com/bucket/${MEDIA_BUCKET_NAME}/${newFilename}`
-            : `${STORAGE_BUCKET_ENDPOINT_URL}/${MEDIA_BUCKET_NAME}/${newFilename}`
-    }
-  }
-
-  async deleteFile(filename: string, userId: number) {
-    const file = this.prisma.file.delete({
-      where: {
-        filename,
-        createdById: userId
-      }
-    })
-    const s3FileDeleteResult = this.storageService.deleteFile(filename)
-
-    const [resolvedFile] = await Promise.all([file, s3FileDeleteResult])
-    return resolvedFile
-  }
-
-  async getFileSize(readStream: Readable, maxSize: number): Promise<number> {
-    return new Promise((resolve, reject) => {
-      const chunks: Buffer[] = []
-
-      readStream.on('data', (chunk: Buffer) => {
-        chunks.push(chunk)
-
-        const totalSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
-        if (totalSize > maxSize) {
-          readStream.destroy()
-          reject(
-            new UnprocessableDataException('File size exceeds maximum limit')
-          )
-        }
-      })
-
-      readStream.on('end', () => {
-        const fileSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
-        resolve(fileSize)
-      })
-
-      readStream.on('error', () => {
-        reject(
-          new UnprocessableDataException(
-            'Error occurred during calculating file size.'
-          )
-        )
-      })
-    })
   }
 
   async getProblems({
@@ -881,7 +466,7 @@ export class ProblemService {
     const problemTag = tags ? await this.updateProblemTag(id, tags) : undefined
 
     if (testcases?.length) {
-      await this.updateTestcases(id, testcases)
+      await this.testcaseService.updateTestcases(id, testcases)
     }
 
     const updatedInfo = updatedInfos
@@ -965,28 +550,6 @@ export class ProblemService {
     return {
       create: await Promise.all(createIds),
       delete: await Promise.all(deleteIds)
-    }
-  }
-
-  async updateTestcases(problemId: number, testcases: Array<Testcase>) {
-    await Promise.all([
-      this.prisma.problemTestcase.deleteMany({
-        where: {
-          problemId
-        }
-      })
-    ])
-
-    for (const tc of testcases) {
-      await this.prisma.problemTestcase.create({
-        data: {
-          problemId,
-          input: tc.input,
-          output: tc.output,
-          scoreWeight: tc.scoreWeight,
-          isHidden: tc.isHidden
-        }
-      })
     }
   }
 
@@ -1243,62 +806,6 @@ export class ProblemService {
     return await this.prisma.$transaction(queries)
   }
 
-  /**
-   * 새로운 태그를 생성합니다
-   * @param tagName - unique한 태그이름
-   * @returns
-   * @throws DuplicateFoundException - 이미 존재하는 태그일 경우
-   */
-  async createTag(tagName: string): Promise<Tag> {
-    // 존재하는 태그일 경우 에러를 throw합니다
-    try {
-      return await this.prisma.tag.create({
-        data: {
-          name: tagName
-        }
-      })
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      )
-        throw new DuplicateFoundException('tag')
-
-      throw error
-    }
-  }
-
-  async deleteTag(tagName: string): Promise<Partial<Tag>> {
-    const tag = await this.prisma.tag.findFirst({
-      where: {
-        name: tagName
-      }
-    })
-    if (!tag) {
-      throw new EntityNotExistException('tag')
-    }
-    return await this.prisma.tag.delete({
-      where: {
-        id: tag.id
-      }
-    })
-  }
-  async getTags(): Promise<Partial<Tag>[]> {
-    return await this.prisma.tag.findMany()
-  }
-
-  async getTag(tagId: number) {
-    const tag = await this.prisma.tag.findUnique({
-      where: {
-        id: tagId
-      }
-    })
-    if (tag == null) {
-      throw new EntityNotExistException('problem')
-    }
-    return tag
-  }
-
   async getSharedGroups(problemId: number) {
     return await this.prisma.problem
       .findUnique({
@@ -1307,22 +814,6 @@ export class ProblemService {
         }
       })
       .sharedGroups()
-  }
-
-  async getProblemTags(problemId: number) {
-    return await this.prisma.problemTag.findMany({
-      where: {
-        problemId
-      }
-    })
-  }
-
-  async getProblemTestcases(problemId: number) {
-    return await this.prisma.problemTestcase.findMany({
-      where: {
-        problemId
-      }
-    })
   }
 
   changeVisibleLockTimeToIsVisible(

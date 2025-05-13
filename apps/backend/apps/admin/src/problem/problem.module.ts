@@ -2,15 +2,25 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { RolesModule } from '@libs/auth'
 import { StorageModule } from '@admin/storage/storage.module'
-import { ProblemTagResolver, TagResolver } from './problem-tag.resolver'
+import {
+  FileResolver,
+  ProblemTagResolver,
+  TagResolver,
+  TestcaseResolver
+} from './resolvers'
 import {
   AssignmentProblemResolver,
   ContestProblemResolver,
   ProblemResolver,
   WorkbookProblemResolver
-} from './problem.resolver'
-import { ProblemService } from './problem.service'
+} from './resolvers/problem.resolver'
 import { IntScoreScalar } from './scalar/int-score.scalar'
+import {
+  FileService,
+  ProblemService,
+  TagService,
+  TestcaseService
+} from './services'
 
 @Module({
   imports: [StorageModule, ConfigModule, RolesModule],
@@ -19,10 +29,15 @@ import { IntScoreScalar } from './scalar/int-score.scalar'
     ContestProblemResolver,
     WorkbookProblemResolver,
     AssignmentProblemResolver,
-    ProblemService,
-    IntScoreScalar,
     ProblemTagResolver,
-    TagResolver
+    TagResolver,
+    TestcaseResolver,
+    FileResolver,
+    IntScoreScalar,
+    ProblemService,
+    TestcaseService,
+    FileService,
+    TagService
   ],
   exports: [IntScoreScalar]
 })
