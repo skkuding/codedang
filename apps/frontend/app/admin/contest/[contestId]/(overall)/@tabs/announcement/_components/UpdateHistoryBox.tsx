@@ -17,6 +17,8 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
   const { data: updateHistory } = useQuery(GET_CONTEST_UPDATE_HISTORIES, {
     variables: { contestId }
   })
+  const updateHistories =
+    updateHistory?.getContestUpdateHistories.updateHistories
   return (
     <>
       <div className="mb-6 text-2xl font-semibold">Update History</div>
@@ -24,48 +26,43 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
         id="historyBox"
         className={cn(
           'w-100% mb-[14px] overflow-hidden rounded-xl border bg-white px-10 pb-[20px] pt-[18px]',
-          openHistory &&
-            (updateHistory?.getContestUpdateHistories.updateHistories?.length ??
-              0) > 3
+          openHistory && (updateHistories?.length ?? 0) > 3
             ? 'h-auto'
             : 'h-[149px]'
         )}
       >
-        {updateHistory?.getContestUpdateHistories?.updateHistories?.length ===
-          0 && <p>no result.</p>}
-        {updateHistory?.getContestUpdateHistories.updateHistories.map(
-          (history, index) => (
-            <div
-              key={history.updatedAt}
-              className={
-                index === 0
-                  ? 'text-primary flex w-full flex-wrap py-[6px] text-lg'
-                  : 'flex w-full flex-wrap py-[6px] text-lg'
-              }
-            >
-              <p>
-                {`[`}
-                {dateFormatter(history.updatedAt, 'YYYY-MM-DD HH:mm:ss')}
-                {`] `}
-              </p>
+        {updateHistories?.length === 0 && <p>no result.</p>}
+        {updateHistories?.map((history, index) => (
+          <div
+            key={history.updatedAt}
+            className={
+              index === 0
+                ? 'text-primary flex w-full flex-wrap py-[6px] text-lg'
+                : 'flex w-full flex-wrap py-[6px] text-lg'
+            }
+          >
+            <p>
+              {`[`}
+              {dateFormatter(history.updatedAt, 'YYYY-MM-DD HH:mm:ss')}
+              {`] `}
+            </p>
+            &nbsp;
+            <p>
+              Problem{' '}
+              {history.order !== null
+                ? convertToLetter(Number(history.order))
+                : ''}
               &nbsp;
-              <p>
-                Problem{' '}
-                {history.order !== null
-                  ? convertToLetter(Number(history.order))
-                  : ''}
-                &nbsp;
-                {':'}
-              </p>
-              &nbsp;
-              <div className="flex">
-                {history.updatedInfo
-                  .map((current) => current.current)
-                  .join(' & ')}
-              </div>
+              {':'}
+            </p>
+            &nbsp;
+            <div className="flex">
+              {history.updatedInfo
+                .map((current) => current.current)
+                .join(' & ')}
             </div>
-          )
-        )}
+          </div>
+        ))}
       </div>
       <Button
         className="mb-16 h-[42px] bg-[#80808014] text-lg hover:bg-[#80808039]"

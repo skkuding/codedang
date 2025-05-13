@@ -47,7 +47,7 @@ export interface ContestProblem {
 
 export const announcementSchema = v.object({
   content: v.pipe(v.string(), v.minLength(1, 'Required')),
-  problemOrder: v.nullable(v.number())
+  problemOrder: v.undefinedable(v.nullable(v.number()))
 })
 export interface ContestManagerReviewer {
   id: number

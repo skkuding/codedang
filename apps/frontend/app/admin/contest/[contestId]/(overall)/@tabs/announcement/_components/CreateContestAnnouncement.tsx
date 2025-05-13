@@ -17,7 +17,6 @@ import { convertToLetter } from '@/libs/utils'
 import { useQuery, useMutation } from '@apollo/client'
 import type { CreateAnnouncementInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import { useCallback, useState, type ChangeEvent } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { BiSolidPencil } from 'react-icons/bi'
 import { toast } from 'sonner'
@@ -28,7 +27,6 @@ export function CreateContestAnnouncement({
   contestId: number
 }) {
   const txtMaxLength = 400
-  const [txtlength, setTxtlength] = useState<number>(0)
   const { data: problemData } = useQuery(GET_CONTEST_PROBLEMS, {
     variables: { contestId }
   })
@@ -39,12 +37,14 @@ export function CreateContestAnnouncement({
     register,
     setValue,
     trigger,
+    watch,
     resetField,
     formState: { errors }
   } = useForm<CreateAnnouncementInput>({
     resolver: valibotResolver(announcementSchema)
   })
 
+  const txtlength = (watch('content') || '').length
   const onSubmitAnnouncement: SubmitHandler<CreateAnnouncementInput> = async (
     data
   ) => {
@@ -67,23 +67,16 @@ export function CreateContestAnnouncement({
     }
   }
 
-  const onTxtlengthCheck = useCallback(
-    (e: ChangeEvent<HTMLTextAreaElement>) => {
-      setTxtlength(e.target.value.length)
-    },
-    []
-  )
   return (
     <form onSubmit={handleSubmit(onSubmitAnnouncement)}>
       <p className="mb-6 text-2xl font-semibold">Post New Announcement</p>
       <div className="mb-[10px]">
-        {/* <Controller name='problemOrder' control={control}  */}
         <Select
           onValueChange={(value) => {
-            trigger()
             setValue('problemOrder', value === 'none' ? null : Number(value), {
               shouldValidate: true
             })
+            trigger()
           }}
         >
           <SelectTrigger className="h-12 rounded-full bg-white pl-[30px] text-xl font-medium text-[#474747] focus:ring-0">
@@ -118,7 +111,6 @@ export function CreateContestAnnouncement({
         <Textarea
           {...register('content')}
           placeholder="Enter your announcement"
-          onChange={onTxtlengthCheck}
           maxLength={txtMaxLength}
           className="min-h-[260px] rounded-xl bg-white px-[30px] py-6 text-lg font-normal text-black placeholder:text-[#3333334D] focus-visible:ring-0"
         />
