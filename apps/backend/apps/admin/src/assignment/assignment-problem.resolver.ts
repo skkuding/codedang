@@ -11,10 +11,10 @@ import {
 import { UseGroupLeaderGuard } from '@libs/auth'
 import { GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { AssignmentProblem } from '@admin/@generated'
-import { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { ProblemWithIsVisible } from '@admin/problem/model/problem.output'
 import { ProblemService } from '@admin/problem/services'
 import { AssignmentProblemService } from './assignment-problem.service'
+import { AssignmentProblemUpdateInput } from './model/assignment-problem.input'
 
 @Resolver(() => AssignmentProblem)
 @UseGroupLeaderGuard()
@@ -42,16 +42,18 @@ export class AssignmentProblemResolver {
   }
 
   @Mutation(() => [AssignmentProblem])
-  async updateAssignmentProblemsScore(
+  async updateAssignmentProblems(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('assignmentId', { type: () => Int }) assignmentId: number,
-    @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
-    problemIdsWithScore: ProblemScoreInput[]
+    @Args('assignmentProblemUpdateInput', {
+      type: () => [AssignmentProblemUpdateInput]
+    })
+    assignmentProblemUpdateInput: AssignmentProblemUpdateInput[]
   ) {
-    return await this.assignmentProblemService.updateAssignmentProblemsScore(
+    return await this.assignmentProblemService.updateAssignmentProblems(
       groupId,
       assignmentId,
-      problemIdsWithScore
+      assignmentProblemUpdateInput
     )
   }
 

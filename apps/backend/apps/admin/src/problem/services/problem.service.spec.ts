@@ -107,6 +107,7 @@ describe('ProblemService', () => {
       isVisible: false,
       template: problems[0].template,
       languages: problems[0].languages,
+      solution: problems[0].solution,
       timeLimit: problems[0].timeLimit,
       memoryLimit: problems[0].memoryLimit,
       difficulty: Level.Level1,

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import type { AssignmentProblem } from '@prisma/client'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
+import type { AssignmentProblemUpdateInput } from './model/assignment-problem.input'
 
 @Injectable()
 export class AssignmentProblemService {
@@ -21,16 +21,16 @@ export class AssignmentProblemService {
     return assignmentProblems
   }
 
-  async updateAssignmentProblemsScore(
+  async updateAssignmentProblems(
     groupId: number,
     assignmentId: number,
-    problemIdsWithScore: ProblemScoreInput[]
+    assignmentProblemUpdateInput: AssignmentProblemUpdateInput[]
   ): Promise<Partial<AssignmentProblem>[]> {
     await this.prisma.assignment.findFirstOrThrow({
       where: { id: assignmentId, groupId }
     })
 
-    const queries = problemIdsWithScore.map((record) => {
+    const queries = assignmentProblemUpdateInput.map((record) => {
       return this.prisma.assignmentProblem.update({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -39,7 +39,10 @@ export class AssignmentProblemService {
             problemId: record.problemId
           }
         },
-        data: { score: record.score }
+        data: {
+          score: record.score,
+          solutionReleaseTime: record.solutionReleaseTime
+        }
       })
     })
 

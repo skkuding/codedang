@@ -96,7 +96,7 @@ export function LeaderboardModalDialog() {
               <ModalNumberComponent index={1} />
               <div className="ml-3 flex flex-col">
                 <p className="text-base">
-                  The ranking of each participants is determined
+                  The ranking of each participant is determined
                 </p>
                 <p className="text-base">
                   based on the number of problems solved.
@@ -127,12 +127,15 @@ export function LeaderboardModalDialog() {
                     </p>
                   </div>
                 </div>
-                <div className="border-1 mt-7 flex h-[72px] w-[560px] flex-col justify-center rounded-[10px] border border-[#3581FA] pl-6 text-[#3581FA]">
-                  <p>
+                <div className="border-1 mt-7 flex h-[72px] w-[560px] flex-col justify-center rounded-[10px] border border-[#3581FA] px-5 text-[#3581FA]">
+                  <p className="tracking-[-0.48px]">
                     If the number of problems solved and the penalty are the
                     same,
                   </p>
-                  <p>they are considered to have the same rank.</p>
+                  <p className="tracking-[-0.48px]">
+                    ranking is determined by the earliest time of submission of
+                    the last accepted.
+                  </p>
                 </div>
               </div>
             </div>
