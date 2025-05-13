@@ -22,14 +22,11 @@ export function UploadTestcase({ problemId }: UploadTestcaseProps) {
       const { data } = await refetch()
       setValue('testcases', data.testcases)
 
-      for (const [index, testcase] of data.testcases.entries()) {
-        if (testcase.isTruncated) {
-          toast.warning(
-            `Testcase ${index + 1} is over 5KB and has been truncated from this browser.`,
-            { duration: 60 * 1000 }
-          )
-          break
-        }
+      if (data.testcases.some((testcase) => testcase.isTruncated)) {
+        toast.warning(
+          'Some testcases are over 5KB and have been truncated from this browser.',
+          { duration: 60 * 1000 }
+        )
       }
     },
     onError: () => {

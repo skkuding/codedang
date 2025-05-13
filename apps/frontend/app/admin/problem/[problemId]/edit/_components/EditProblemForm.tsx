@@ -68,13 +68,11 @@ export function EditProblemForm({
         source: data.source
       })
 
-      for (const [index, testcase] of data.testcase.entries()) {
-        if (testcase.isTruncated) {
-          toast.warning(
-            `Testcase ${index + 1} is over 5KB and has been truncated from this browser.`,
-            { duration: 60 * 1000 }
-          )
-        }
+      if (data.testcase.some((testcase) => testcase.isTruncated)) {
+        toast.warning(
+          'Some testcases are over 5KB and has been truncated from this browser.',
+          { duration: 60 * 1000 }
+        )
       }
 
       if (data.template) {
