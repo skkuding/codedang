@@ -16,7 +16,7 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
-import { S3MediaProvider, S3Provider } from '@admin/storage/s3.provider'
+import { S3MediaProvider, S3Provider } from '@libs/storage'
 import { TestcaseService } from '@admin/testcase/testcase.service'
 import {
   exampleAssignment,
@@ -65,6 +65,8 @@ const db = {
     createMany: stub(),
     deleteMany: stub(),
     findMany: stub(),
+    findUniqueOrThrow: stub(),
+    delete: stub(),
     update: stub()
   },
   problemTag: {
@@ -298,7 +300,7 @@ describe('ProblemService', () => {
     })
 
     it('should not allow if given file is not zip', async () => {
-      const nonZipFile = { ...file, mimetype: 'text/plain' }
+      const nonZipFile = { ...file, filename: 'testcase.txt' }
 
       await expect(
         service.uploadTestcaseZip(nonZipFile, problemId)

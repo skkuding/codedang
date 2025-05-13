@@ -1,4 +1,5 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql'
+import { IntScoreScalar } from '@admin/problem/scalar/int-score.scalar'
 
 // avoid name conflict with @admin/@generated
 @ObjectType()
@@ -28,4 +29,25 @@ export class TestcaseModel {
 
   @Field(() => Boolean)
   isHidden: boolean
+}
+
+// Input for updating testcase.
+// Only fields to be updated can be given.
+// TODO: Is there any better name for this?
+@ObjectType()
+export class UpdateTestcaseModel {
+  @Field(() => Int, { nullable: true })
+  id?: number
+
+  @Field(() => String, { nullable: true })
+  input?: string
+
+  @Field(() => String, { nullable: true })
+  output?: string
+
+  @Field(() => Boolean, { nullable: true })
+  isHidden?: boolean
+
+  @Field(() => IntScoreScalar, { nullable: true })
+  scoreWeight?: number
 }

@@ -156,4 +156,130 @@ describe('TestcaseService', () => {
       await problemService.removeAllTestcaseFiles(problemId)
     })
   })
+
+  describe('updateTestcases', () => {
+    it('should add new testcase if input/output are given', async () => {
+      const problemId = 1
+      const testcases = [
+        {
+          problemId,
+          order: 1,
+          scoreWeight: 1,
+          input: '1 2',
+          output: '3'
+        },
+        {
+          problemId,
+          order: 2,
+          scoreWeight: 1,
+          input: '3 4',
+          output: '7'
+        }
+      ] satisfies ProblemTestcaseCreateManyInput[]
+
+      await problemService.removeAllTestcaseFiles(problemId)
+      await prismaService.problemTestcase.createMany({
+        data: testcases
+      })
+
+      const newTestcase = {
+        input: '5 6',
+        output: '11'
+      }
+
+      await expect(service.updateTestcases([newTestcase], problemId)).to.be.not
+        .rejected
+
+      const result = await service.getTestcases(problemId)
+      expect(result.length).to.equal(1)
+      expect(result[0].input).to.equal(newTestcase.input)
+      expect(result[0].output).to.equal(newTestcase.output)
+
+      await problemService.removeAllTestcaseFiles(problemId)
+    })
+
+    it('should change isHidden field when input/output is empty', async () => {
+      const problemId = 1
+      const testcases = [
+        {
+          problemId,
+          order: 1,
+          scoreWeight: 1,
+          input: '1 2',
+          output: '3'
+        },
+        {
+          problemId,
+          order: 2,
+          scoreWeight: 1,
+          input: '3 4',
+          output: '7'
+        }
+      ] satisfies ProblemTestcaseCreateManyInput[]
+
+      await problemService.removeAllTestcaseFiles(problemId)
+      const testcaseIds =
+        await prismaService.problemTestcase.createManyAndReturn({
+          data: testcases,
+          select: { id: true }
+        })
+
+      const newTestcases = testcaseIds.map((testcase) => ({
+        id: testcase.id,
+        isHidden: true
+      }))
+
+      await expect(service.updateTestcases(newTestcases, problemId)).to.be.not
+        .rejected
+
+      const result = await service.getTestcases(problemId)
+      expect(result.length).to.equal(2)
+      expect(result[0].input).to.equal(testcases[0].input)
+      expect(result[0].output).to.equal(testcases[0].output)
+      expect(result[0].isHidden).to.equal(true)
+      expect(result[1].input).to.equal(testcases[1].input)
+      expect(result[1].output).to.equal(testcases[1].output)
+      expect(result[1].isHidden).to.equal(true)
+
+      await problemService.removeAllTestcaseFiles(problemId)
+    })
+  })
+
+  describe('removeTestcases', () => {
+    it('should remove testcases from database and s3', async () => {
+      const problemId = 1
+      const testcases = [
+        {
+          problemId,
+          order: 1,
+          scoreWeight: 1,
+          input: '1 2',
+          output: '3'
+        },
+        {
+          problemId,
+          order: 2,
+          scoreWeight: 1,
+          input: '3 4',
+          output: '7'
+        }
+      ] satisfies ProblemTestcaseCreateManyInput[]
+
+      await problemService.removeAllTestcaseFiles(problemId)
+      const testcaseIds =
+        await prismaService.problemTestcase.createManyAndReturn({
+          data: testcases,
+          select: { id: true }
+        })
+
+      await service.removeTestcase(testcaseIds[0].id)
+
+      const result = await service.getTestcases(problemId)
+      expect(result.length).to.equal(1)
+      expect(result[0].input).to.equal(testcases[1].input)
+      expect(result[0].output).to.equal(testcases[1].output)
+
+      await problemService.removeAllTestcaseFiles(problemId)
+    })
+  })
 })
