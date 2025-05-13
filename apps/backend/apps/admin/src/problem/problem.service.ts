@@ -173,7 +173,7 @@ export class ProblemService {
         }
         if (!(chunkName in testcaseIdMapper)) {
           const testcase = await this.prisma.problemTestcase.create({
-            data: { problemId }
+            data: { problemId, isHidden: true }
           })
           testcaseIdMapper[chunkName] = testcase.id
         }
