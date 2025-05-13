@@ -79,7 +79,6 @@ function AssignmentAccordionItem({
 }: AssignmentAccordionItemProps) {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false)
   const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false)
-  const [openProblemId, setOpenProblemId] = useState<number | null>(null)
 
   const { data: record } = useQuery({
     ...assignmentQueries.record({
@@ -92,10 +91,6 @@ function AssignmentAccordionItem({
     ...assignmentSubmissionQueries.summary({ assignmentId: assignment.id }),
     enabled: isAccordionOpen
   })
-
-  const handleOpenChange = (problemId: number | null) => {
-    setOpenProblemId(problemId)
-  }
 
   const handleAccordionOpenChange = (value: string) => {
     setIsAccordionOpen(value === assignment.id.toString())
