@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import * as archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
-import { group } from 'console'
 import { Response } from 'express'
 import {
   mkdirSync,
