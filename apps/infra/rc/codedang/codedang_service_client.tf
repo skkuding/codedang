@@ -59,6 +59,7 @@ module "client_api" {
         loki_url                        = var.loki_url,
         log_group_name                  = aws_cloudwatch_log_group.client_api.name,
         region                          = data.aws_region.current.name,
+        testcase_bucket_name            = local.storage.s3_testcase_bucket.name,
       })),
     ])
 
