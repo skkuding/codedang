@@ -200,11 +200,11 @@ const input = {
 } satisfies CreateContestInput
 
 const updateInput = {
-  title: 'test title10',
-  description: 'test description',
-  startTime: faker.date.past(),
   endTime: faker.date.future(),
-  enableCopyPaste: false
+  freezeTime: faker.date.between({
+    from: new Date(new Date().getTime()),
+    to: new Date(endTime.getTime())
+  })
 } satisfies UpdateContestInput
 
 const db = {

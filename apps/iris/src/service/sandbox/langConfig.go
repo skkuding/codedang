@@ -4,7 +4,7 @@ type Language string
 
 func (l Language) IsValid() bool {
 	switch l {
-	case "C", "Cpp", "Java", "Python3":
+	case "C", "Cpp", "Java", "Python3", "PyPy3":
 		return true
 	}
 	return false
@@ -15,6 +15,7 @@ const (
 	CPP    Language = "Cpp"
 	JAVA   Language = "Java"
 	PYTHON Language = "Python3"
+	PYPY   Language = "PyPy3"
 )
 
 type LangConfig[C any, E any] interface {

@@ -28,6 +28,7 @@ const groupId = 1
 const problemId = 2
 const startTime = faker.date.past()
 const endTime = faker.date.future()
+const dueTime = faker.date.future()
 const createTime = faker.date.past()
 const updateTime = faker.date.past()
 const problemIdsWithScore = {
@@ -44,6 +45,7 @@ const assignment: Assignment = {
   description: 'description',
   startTime,
   endTime,
+  dueTime,
   isVisible: true,
   isRankVisible: true,
   isJudgeResultVisible: true,
@@ -65,6 +67,7 @@ const assignmentWithCount = {
   description: 'description',
   startTime,
   endTime,
+  dueTime,
   isVisible: true,
   isRankVisible: true,
   isJudgeResultVisible: true,
@@ -89,6 +92,7 @@ const assignmentWithParticipants: AssignmentWithParticipants = {
   description: 'description',
   startTime,
   endTime,
+  dueTime,
   isVisible: true,
   isRankVisible: true,
   enableCopyPaste: true,
@@ -193,6 +197,7 @@ const input = {
   description: 'test description',
   startTime: faker.date.past(),
   endTime: faker.date.future(),
+  dueTime: faker.date.future(),
   week: 1,
   isVisible: false,
   isRankVisible: false,
@@ -207,6 +212,7 @@ const updateInput = {
   description: 'test description',
   startTime: faker.date.past(),
   endTime: faker.date.future(),
+  dueTime: faker.date.future(),
   week: 1,
   isVisible: false,
   isRankVisible: false,

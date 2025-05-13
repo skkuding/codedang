@@ -39,7 +39,9 @@ export function UserTable() {
   return (
     <DataTableRoot data={mappedUsers} columns={columns}>
       <DataTableSearchBar columndId="username" />
-      <DataTable />
+      <div className="[&_tr]:cursor-default">
+        <DataTable />
+      </div>
       <DataTablePagination />
     </DataTableRoot>
   )

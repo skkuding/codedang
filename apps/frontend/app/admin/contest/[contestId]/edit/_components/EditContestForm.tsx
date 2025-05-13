@@ -13,10 +13,11 @@ import {
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
+import type { UpdateContestInfo } from '@/types/type'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { useRouter } from 'next/navigation'
-import { useState, type ReactNode } from 'react'
+import { useState, useEffect, type ReactNode } from 'react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -28,7 +29,7 @@ interface EditContestFormProps {
   setProblems: (problems: ContestProblem[]) => void
   setManagers: (managers: ContestManagerReviewer[]) => void
   setIsLoading: (isLoading: boolean) => void
-  methods: UseFormReturn<UpdateContestInput>
+  methods: UseFormReturn<UpdateContestInfo>
 }
 
 export function EditContestForm({
@@ -46,7 +47,7 @@ export function EditContestForm({
   const { setShouldSkipWarning } = useConfirmNavigationContext()
   const router = useRouter()
 
-  // 수정된 manager, reviewer 목록(managers) 으로 등록
+  // 수정된 manager, reviewer 목록(managers)으로 등록
   const formattedManagers = managers
     .filter((manager) => manager.id !== null) // Exclude managers with null id
     .map((manager) => ({
@@ -56,9 +57,13 @@ export function EditContestForm({
   methods.register('userContest')
   methods.setValue('userContest', formattedManagers)
 
-  useQuery(GET_CONTEST, {
-    variables: { contestId },
-    onCompleted: (contestData) => {
+  const { data: contestData } = useQuery(GET_CONTEST, {
+    variables: { contestId }
+  })
+  // NOTE: 기존 useQuery의 onCompleted 대신 useEffect를 사용하여 managers와 problems를 업데이트.
+  // useQuery는 내부적으로 비동기 처리이기 때문에, 컴포넌트가 렌더링되기도 전에 onCompleted 콜백이 실행될 수 있음(콘솔 경고 뜸).
+  useEffect(() => {
+    if (contestData) {
       const data = contestData.getContest
       methods.reset({
         title: data.title,
@@ -70,13 +75,26 @@ export function EditContestForm({
         summary: data.summary,
         posterUrl: data.posterUrl,
         freezeTime: data.freezeTime === null ? null : new Date(data.freezeTime),
+        enableCopyPaste: data.enableCopyPaste,
         evaluateWithSampleTestcase: data.evaluateWithSampleTestcase,
         userContest: data.userContest?.map((role) => ({
           contestRole: role.role,
           userId: role.userId ?? undefined
-        }))
+        })),
+        // contestRecord -> 대회 참여자 목록 확인을 위함(delete 후 서버에 보내지 않음)
+        contestRecord: (data.contestRecord ?? [])
+          .filter((record) => record.userId !== null)
+          .map((record) => ({
+            ...record,
+            userId: record.userId as number,
+            user: record.user
+              ? {
+                  username: record.user.username,
+                  email: record.user.email
+                }
+              : undefined
+          }))
       })
-      setIsLoading(false)
       setManagers(
         (data.userContest ?? [])
           .filter((user) => user.userId !== null && user.userId !== undefined)
@@ -90,12 +108,16 @@ export function EditContestForm({
             }
           })
       )
+      setIsLoading(false)
     }
+  }, [contestData, methods, setManagers, setIsLoading])
+
+  const { data: problemData } = useQuery(GET_CONTEST_PROBLEMS, {
+    variables: { contestId }
   })
 
-  useQuery(GET_CONTEST_PROBLEMS, {
-    variables: { contestId },
-    onCompleted: (problemData) => {
+  useEffect(() => {
+    if (problemData) {
       const data = problemData.getContestProblems
 
       setPrevProblemIds(data.map((problem) => problem.problemId))
@@ -111,7 +133,7 @@ export function EditContestForm({
       })
       setProblems(contestProblems)
     }
-  })
+  }, [problemData, setPrevProblemIds, setProblems])
 
   const [updateContest, { error }] = useMutation(UPDATE_CONTEST)
   const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
@@ -136,6 +158,8 @@ export function EditContestForm({
 
   const onSubmit = async () => {
     const input = methods.getValues()
+    delete input.contestRecord // contestRecord는 서버에 보내지 않음
+
     setIsLoading(true)
     await updateContest({
       variables: {
