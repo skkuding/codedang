@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
   DeleteObjectCommand,
+  HeadObjectCommand,
   ListObjectsV2Command,
   GetObjectCommand,
   PutObjectCommand,
@@ -105,9 +106,18 @@ export class StorageService {
     const bucketName = this.config.get(
       bucket == 'testcase' ? 'TESTCASE_BUCKET_NAME' : 'MEDIA_BUCKET_NAME'
     )
-    const range = options?.readBytes
-      ? `bytes=0-${options.readBytes}`
-      : undefined
+
+    const head = await this.client.send(
+      new HeadObjectCommand({
+        Bucket: bucketName,
+        Key: filename
+      })
+    )
+    const size = head.ContentLength ?? 0
+    const range =
+      options?.readBytes && size > options.readBytes
+        ? `bytes=0-${options.readBytes}`
+        : undefined
 
     const output = await this.client.send(
       new GetObjectCommand({
