@@ -27,6 +27,13 @@ const GET_CONTEST = gql(`
           }
         }
       }
+      contestRecord {
+        userId
+        user {
+          username
+          email
+        }
+      }
     }
   }
 `)

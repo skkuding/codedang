@@ -18,6 +18,7 @@ type langConfig struct {
 	cppConfig  JudgerConfig
 	javaConfig JudgerConfig
 	pyConfig   JudgerConfig
+	pypyConfig JudgerConfig
 	file       file.FileManager
 }
 
@@ -124,11 +125,28 @@ func NewJudgerLangConfig(file file.FileManager, javaPolicyPath string) *langConf
 		env:                   append(defaultEnv, "PYTHONIOENCODING=utf-8"),
 	}
 
+	var pypyConfig = JudgerConfig{
+		Language:              sandbox.PYPY,
+		SrcName:               "solution.py",
+		ExeName:               "solution.py",
+		MaxCompileCpuTime:     3000,
+		MaxCompileRealTime:    10000,
+		MaxCompileMemory:      128 * 1024 * 1024,
+		CompilerPath:          "/usr/bin/pypy3",
+		CompileArgs:           "-W ignore -m py_compile {srcPath}",
+		RunCommand:            "/usr/bin/pypy3",
+		RunArgs:               "{exePath}",
+		SeccompRule:           "general",
+		MemoeryLimitCheckOnly: false,
+		env:                   append(defaultEnv, "PYTHONIOENCODING=utf-8", "PYTHONPATH={exeDir}"),
+	}
+
 	return &langConfig{
 		cConfig:    cConfig,
 		cppConfig:  cppConfig,
 		javaConfig: javaConfig,
 		pyConfig:   pyConfig,
+		pypyConfig: pypyConfig,
 		file:       file,
 	}
 }
@@ -141,10 +159,10 @@ func (l *langConfig) GetConfig(language sandbox.Language) (JudgerConfig, error) 
 		return l.cppConfig, nil
 	case sandbox.JAVA:
 		return l.javaConfig, nil
-	// case PYTHON2:
-	// 	return py2Config, nil
 	case sandbox.PYTHON:
 		return l.pyConfig, nil
+	case sandbox.PYPY:
+		return l.pypyConfig, nil
 	}
 	return JudgerConfig{}, fmt.Errorf("unsupported language: %s", language)
 }
