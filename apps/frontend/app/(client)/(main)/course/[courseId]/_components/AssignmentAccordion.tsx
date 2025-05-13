@@ -187,7 +187,7 @@ function AssignmentAccordionItem({
                   key={problem.id}
                   className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
                 >
-                  <div className="text-primary mr-3 flex w-[7%] justify-center font-normal">
+                  <div className="text-primary mr-3 flex w-[10%] justify-center font-normal">
                     <p> {convertToLetter(problem.order)}</p>
                   </div>
                   <div className="flex w-[30%]">

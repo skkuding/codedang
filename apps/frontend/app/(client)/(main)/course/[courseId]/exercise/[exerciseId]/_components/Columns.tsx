@@ -4,7 +4,12 @@
 // import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 // import { Dialog } from '@/components/shadcn/dialog'
 // import { Skeleton } from '@/components/shadcn/skeleton'
-import { convertToLetter, dateFormatter } from '@/libs/utils'
+import {
+  cn,
+  convertToLetter,
+  dateFormatter,
+  getResultColor
+} from '@/libs/utils'
 import type {
   Assignment,
   AssignmentProblemRecord,
@@ -13,10 +18,11 @@ import type {
 } from '@/types/type'
 // import { ErrorBoundary } from '@suspensive/react'
 import type { ColumnDef } from '@tanstack/react-table'
+import { SubmissionOverviewModal } from '../../../_components/SubmissionOverviewModal'
+
 // import { Suspense, useState } from 'react'
 // import { MdOutlineFileOpen } from 'react-icons/md'
 // import { ProblemDetailModal } from '../../../_components/ProblemDetailModal'
-import { TestCaseResult } from '../../../_components/TestCaseResult'
 
 export const columns = (
   record: AssignmentProblemRecord,
@@ -70,74 +76,23 @@ export const columns = (
       return (
         submission && (
           <div className="flex w-full justify-center">
-            <TestCaseResult submission={submission} />
-            {/* <ResultBadge assignmentSubmission={submission} /> */}
+            <p className={cn(getResultColor(submission.submissionResult))}>
+              {submission.submissionResult}
+            </p>
           </div>
         )
       )
     }
+  },
+  {
+    header: 'Detail',
+    accessorKey: 'detail',
+    cell: ({ row }) => (
+      <SubmissionOverviewModal
+        problem={row.original}
+        assignment={assignment}
+        submissions={submissions}
+      />
+    )
   }
-  // 기획 확실하지 않아서 주석처리 (민규)
-  // {
-  //   header: 'Detail',
-  //   accessorKey: 'detail',
-  //   cell: ({ row }) => (
-  //     <DetailCell
-  //       problem={row.original}
-  //       assignment={assignment}
-  //       courseId={courseId}
-  //       submissions={submissions}
-  //     />
-  //   )
-  // }
 ]
-
-// interface SubmissionCellProps {
-//   problem: ProblemGrade
-//   assignment: Assignment
-//   courseId: number
-//   submissions: AssignmentSubmission[]
-// }
-
-// function DetailCell({
-//   problem,
-//   assignment,
-//   courseId,
-//   submissions
-// }: SubmissionCellProps) {
-//   const [isOpen, setIsOpen] = useState<boolean>(false)
-
-//   const handleOpenChange = (open: boolean) => {
-//     setIsOpen(open)
-//   }
-
-//   return (
-//     submissions.find((submission) => submission.problemId === problem.id)
-//       ?.submission && (
-//       <div
-//         className="flex items-center justify-center"
-//         onClick={(e) => {
-//           e.preventDefault()
-//           e.stopPropagation()
-//         }}
-//       >
-//         <ErrorBoundary fallback={FetchErrorFallback}>
-//           <Suspense fallback={<Skeleton className="size-[25px]" />}>
-//             <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-//               <button onClick={() => setIsOpen(true)}>
-//                 <MdOutlineFileOpen size={20} />
-//               </button>
-//               {isOpen && (
-//                 <ProblemDetailModal
-//                   problemId={problem.id}
-//                   assignment={assignment}
-//                   courseId={courseId}
-//                 />
-//               )}
-//             </Dialog>
-//           </Suspense>
-//         </ErrorBoundary>
-//       </div>
-//     )
-//   )
-// }
