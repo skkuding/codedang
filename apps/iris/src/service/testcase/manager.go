@@ -22,13 +22,8 @@ func NewTestcaseManager(s3reader *loader.S3reader, database *loader.Postgres) *t
 func (t *testcaseManager) GetTestcase(problemId string, hidden bool) (Testcase, error) {
 	data, err := t.s3reader.Get(problemId)
 	if err != nil {
-		err1 := fmt.Errorf("GetTestcase: %w", err) // REMOVE ME
 		data, err = t.database.Get(problemId)
 		if err != nil {
-			err2 := fmt.Errorf("GetTestcase: %w", err) // REMOVE ME
-			// Log the error            // REMOVE ME
-			fmt.Println("Error:", err1) // REMOVE ME
-			fmt.Println("Error:", err2) // REMOVE ME
 			return Testcase{}, fmt.Errorf("GetTestcase: %w", err)
 		}
 	}
