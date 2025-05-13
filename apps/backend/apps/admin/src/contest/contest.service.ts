@@ -341,7 +341,7 @@ export class ContestService {
         if (
           contestFound.freezeTime &&
           contest.freezeTime &&
-          contest.freezeTime <= contestFound.freezeTime
+          contest.freezeTime < contestFound.freezeTime
         ) {
           throw new UnprocessableDataException(
             'The freeze time must be later than the previous freeze time'
