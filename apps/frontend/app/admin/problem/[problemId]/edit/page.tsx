@@ -25,6 +25,7 @@ import { LimitForm } from '../../_components/LimitForm'
 import { PopoverVisibleInfo } from '../../_components/PopoverVisibleInfo'
 import { TemplateField } from '../../_components/TemplateField'
 import { TestcaseField } from '../../_components/TestcaseField'
+import { UploadTestcase } from '../../_components/UploadTestcase'
 import { editSchema } from '../../_libs/schemas'
 import { EditProblemForm } from './_components/EditProblemForm'
 
@@ -146,8 +147,15 @@ export default function Page({ params }: { params: { problemId: string } }) {
               </div>
             </div>
 
+            <FormSection isFlexColumn title="Upload Testcase" isLabeled={false}>
+              <UploadTestcase problemId={parseInt(problemId)} />
+            </FormSection>
+
             {methods.getValues('testcases') && (
-              <TestcaseField blockEdit={false} />
+              <TestcaseField
+                blockEdit={false}
+                problemId={parseInt(problemId)}
+              />
             )}
 
             <FormSection isFlexColumn title="Limit">

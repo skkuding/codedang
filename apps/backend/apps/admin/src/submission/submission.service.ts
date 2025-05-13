@@ -1,4 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common'
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger
+} from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import * as archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
@@ -27,18 +31,26 @@ import {
   type ResultStatus
 } from '@admin/@generated'
 import { Snippet } from '@admin/problem/model/template.input'
+import { TestcaseService } from '@admin/testcase/testcase.service'
 import { LanguageExtension } from './enum/language-extensions.enum'
 import { SubmissionOrder } from './enum/submission-order.enum'
 import type {
   GetAssignmentSubmissionsInput,
   GetContestSubmissionsInput
 } from './model/get-submissions.input'
+import {
+  SubmissionDetail,
+  type TestCaseResult
+} from './model/submission-detail.output'
 import type { SubmissionsWithTotal } from './model/submissions-with-total.output'
 
 @Injectable()
 export class SubmissionService {
   private readonly logger = new Logger(SubmissionService.name)
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly testcaseService: TestcaseService
+  ) {}
 
   async getSubmissions(
     problemId: number,
@@ -314,7 +326,7 @@ export class SubmissionService {
     }
   }
 
-  async getSubmission(id: number, userId: number) {
+  async getSubmission(id: number, userId: number): Promise<SubmissionDetail> {
     const submission = await this.prisma.submission.findFirst({
       where: {
         id
@@ -328,18 +340,7 @@ export class SubmissionService {
         problem: true,
         contest: true,
         assignment: true,
-        // TODO: Let's not include this here.
-        // Instead, we should use @ResolveField to get this value.
-        submissionResult: {
-          include: {
-            problemTestcase: {
-              select: {
-                input: true,
-                output: true
-              }
-            }
-          }
-        }
+        submissionResult: true
       }
     })
     if (!submission) {
@@ -400,21 +401,33 @@ export class SubmissionService {
     }
 
     const code = plainToInstance(Snippet, submission.code)
-    const results = submission.submissionResult.map((result) => {
-      return {
-        ...result,
-        // TODO: Handle this separately.
-        // If input/output is null, the values should be read from S3.
-        problemTestcase: {
-          input: result.problemTestcase.input ?? '',
-          output: result.problemTestcase.output ?? ''
-        },
-        cpuTime:
-          result.cpuTime || result.cpuTime === BigInt(0)
-            ? result.cpuTime.toString()
-            : null
+
+    const testcases = await this.testcaseService.getTestcases(
+      submission.problemId
+    )
+    const testcaseMap = new Map(
+      testcases.map((testcase) => [testcase.id, testcase])
+    )
+
+    const results: TestCaseResult[] = submission.submissionResult.map(
+      (result) => {
+        const testcase = testcaseMap.get(result.problemTestcaseId)
+        if (!testcase) {
+          throw new InternalServerErrorException(
+            'Actual testcase and submission result mismatch: ' +
+              `Testcase ID ${result.problemTestcaseId} not found in database and S3`
+          )
+        }
+        return {
+          ...result,
+          problemTestcase: {
+            input: testcase.input,
+            output: testcase.output
+          },
+          cpuTime: result.cpuTime?.toString() ?? null
+        }
       }
-    })
+    )
     results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { submissionResult, ...submissionWithoutResult } = submission

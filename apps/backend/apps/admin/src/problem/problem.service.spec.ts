@@ -8,14 +8,16 @@ import { expect } from 'chai'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { spy, stub } from 'sinon'
 import { Readable } from 'stream'
+import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import {
   DuplicateFoundException,
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { S3MediaProvider, S3Provider } from '@admin/storage/s3.provider'
-import { StorageService } from '@admin/storage/storage.service'
+import { StorageService } from '@libs/storage'
+import { S3MediaProvider, S3Provider } from '@libs/storage'
+import { TestcaseService } from '@admin/testcase/testcase.service'
 import {
   exampleAssignment,
   exampleAssignmentProblems,
@@ -63,6 +65,8 @@ const db = {
     createMany: stub(),
     deleteMany: stub(),
     findMany: stub(),
+    findUniqueOrThrow: stub(),
+    delete: stub(),
     update: stub()
   },
   problemTag: {
@@ -123,6 +127,7 @@ describe('ProblemService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProblemService,
+        TestcaseService,
         { provide: PrismaService, useValue: db },
         StorageService,
         ConfigService,
@@ -161,6 +166,7 @@ describe('ProblemService', () => {
     it('should return created problem', async () => {
       db.problem.create.resolves(problems[0])
       db.problemTestcase.create.resolves({ index: 1, id: 1 })
+      db.problemTestcase.findMany.resolves([])
 
       const result = await service.createProblem(
         input,
@@ -205,6 +211,7 @@ describe('ProblemService', () => {
         providers: [
           ProblemService,
           PrismaService,
+          TestcaseService,
           StorageService,
           ConfigService,
           S3Provider,
@@ -279,6 +286,7 @@ describe('ProblemService', () => {
         providers: [
           ProblemService,
           PrismaService,
+          TestcaseService,
           StorageService,
           ConfigService,
           S3Provider,
@@ -292,7 +300,7 @@ describe('ProblemService', () => {
     })
 
     it('should not allow if given file is not zip', async () => {
-      const nonZipFile = { ...file, mimetype: 'text/plain' }
+      const nonZipFile = { ...file, filename: 'testcase.txt' }
 
       await expect(
         service.uploadTestcaseZip(nonZipFile, problemId)
@@ -380,6 +388,7 @@ describe('ProblemService', () => {
         providers: [
           ProblemService,
           PrismaService,
+          TestcaseService,
           StorageService,
           ConfigService,
           S3Provider,
@@ -456,6 +465,7 @@ describe('ProblemService', () => {
   describe('getProblems', () => {
     it('should return group problems', async () => {
       db.problem.findMany.resolves(problems)
+      db.problemTestcase.findMany.resolves([])
       const result = await service.getProblems({
         userId: user[0].id!,
         input: {},
@@ -1046,6 +1056,30 @@ describe('ProblemService', () => {
       expect(await service.getProblemTestcases(1)).to.deep.equal(
         exampleProblemTestcases
       )
+    })
+  })
+
+  describe('getProblemVisibility', () => {
+    it('should return true if the problem is visible', () => {
+      const isVisible = service.getProblemVisibility(MIN_DATE)
+      expect(isVisible).to.be.true
+    })
+
+    it('should return false if the problem is not visible', () => {
+      const isVisible = service.getProblemVisibility(MAX_DATE)
+      expect(isVisible).to.be.false
+    })
+
+    it('should return false if the lock time is in the past', () => {
+      const time = new Date(Date.now() - 1000 * 60 * 60)
+      const isVisible = service.getProblemVisibility(time)
+      expect(isVisible).to.be.false
+    })
+
+    it('should return null if the lock time is in the future', () => {
+      const time = new Date(Date.now() + 1000 * 60 * 60)
+      const isVisible = service.getProblemVisibility(time)
+      expect(isVisible).to.be.null
     })
   })
 })

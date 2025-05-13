@@ -8,7 +8,9 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
+import { GET_TESTCASE } from '@/graphql/problem/queries'
 import { cn } from '@/libs/utils'
+import { useQuery } from '@apollo/client'
 import type { Testcase } from '@generated/graphql'
 import { useEffect, useState } from 'react'
 import { type FieldErrorsImpl, useFormContext, useWatch } from 'react-hook-form'
@@ -18,13 +20,23 @@ import { isInvalid } from '../_libs/utils'
 import { AddBadge } from './AddBadge'
 import { TestcaseItem } from './TestcaseItem'
 
-export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
+export function TestcaseField({
+  problemId = 0,
+  blockEdit = false
+}: {
+  problemId?: number
+  blockEdit?: boolean
+}) {
   const {
     formState: { errors },
     getValues,
     setValue,
     control
   } = useFormContext()
+
+  // TODO: refactor this not to use query
+  const { data } = useQuery(GET_TESTCASE, { variables: { problemId } })
+  const isTruncated = data?.testcases?.some((tc) => tc.isTruncated) ?? false
 
   const watchedItems: Testcase[] = useWatch({ name: 'testcases', control })
 
@@ -119,7 +131,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
           (item, index) =>
             !item.isHidden && (
               <TestcaseItem
-                blockEdit={blockEdit}
+                blockEdit={blockEdit || isTruncated}
                 key={index}
                 index={index}
                 itemError={itemErrors}
@@ -135,7 +147,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
           (item, index) =>
             item.isHidden && (
               <TestcaseItem
-                blockEdit={blockEdit}
+                blockEdit={blockEdit || isTruncated}
                 key={index}
                 index={index}
                 itemError={itemErrors}

@@ -1,4 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { ConfigService } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import { faker } from '@faker-js/faker'
@@ -8,6 +9,7 @@ import { plainToInstance } from 'class-transformer'
 import { stub } from 'sinon'
 import { ForbiddenAccessException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { StorageService, S3Provider, S3MediaProvider } from '@libs/storage'
 import { AssignmentService } from '@client/assignment/assignment.service'
 import { ContestService } from '@client/contest/contest.service'
 import { GroupService } from '@client/group/group.service'
@@ -206,7 +208,14 @@ describe('ProblemService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ProblemService, { provide: PrismaService, useValue: db }]
+      providers: [
+        ProblemService,
+        StorageService,
+        ConfigService,
+        S3Provider,
+        S3MediaProvider,
+        { provide: PrismaService, useValue: db }
+      ]
     }).compile()
 
     service = module.get<ProblemService>(ProblemService)
@@ -305,6 +314,10 @@ describe('ContestProblemService', () => {
       providers: [
         ContestProblemService,
         ContestService,
+        StorageService,
+        ConfigService,
+        S3Provider,
+        S3MediaProvider,
         GroupService,
         {
           provide: CACHE_MANAGER,
@@ -621,6 +634,10 @@ describe('AssignmentProblemService', () => {
       providers: [
         AssignmentProblemService,
         AssignmentService,
+        StorageService,
+        ConfigService,
+        S3Provider,
+        S3MediaProvider,
         GroupService,
         {
           provide: CACHE_MANAGER,
@@ -834,6 +851,10 @@ describe('WorkbookProblemService', () => {
       providers: [
         WorkbookProblemService,
         WorkbookService,
+        StorageService,
+        ConfigService,
+        S3Provider,
+        S3MediaProvider,
         GroupService,
         { provide: PrismaService, useValue: db },
         {
