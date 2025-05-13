@@ -7,7 +7,7 @@ import {
   UpdateHistory
 } from '@generated'
 import type {} from '@generated'
-import { ProblemField, Role } from '@prisma/client'
+import { ContestRole, ProblemField, Role } from '@prisma/client'
 import { Workbook } from 'exceljs'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
@@ -212,45 +212,39 @@ export class ProblemService {
     )
   }
 
+  /**
+   * 특정 조건에 따라 문제 목록을 조회합니다.
+   *
+   * @param {number} userId - 조회를 요청한 사용자의 ID
+   * @param {FilterProblemsInput} input - 난이도∙언어 필터 옵션 DTO
+   * @param {(number | null)} cursor - 가져올 문제의 시작점
+   * @param {number} take - 한 번에 조회할 문제 최대 개수
+   * @param {'my'|'shared'|'contest'} mode - 조회 모드
+   * @param {(number | null)} contestId - 특정 대회 문제만 조회할 contest ID (contest 모드에서 필요)
+   * @returns {Promise<ProblemWithIsVisible[]>} - isVisible 필드가 추가된 문제 배열
+   * @throws {ForbiddenException} 아래의 경우에 발생합니다
+   *   - contestId로 필터링 시 해당 대회의 Admin/Manager가 아닌 경우
+   *   - contestId가 contest 모드에서 제공되지 않은 경우
+   *   - 잘못된 mode 사용 시
+   */
   async getProblems({
     userId,
     input,
     cursor,
     take,
-    my,
-    shared
+    mode,
+    contestId
   }: {
     userId: number
     input: FilterProblemsInput
     cursor: number | null
     take: number
-    my: boolean
-    shared: boolean
+    mode: 'my' | 'shared' | 'contest'
+    contestId?: number | null
   }) {
     const paginator = this.prisma.getPaginator(cursor)
-
-    const whereOptions: ProblemWhereInput = {}
-
-    if (my) {
-      whereOptions.createdById = {
-        equals: userId
-      }
-    }
-    if (shared) {
-      const leaderGroupIds = (
-        await this.prisma.userGroup.findMany({
-          where: {
-            userId,
-            isGroupLeader: true
-          }
-        })
-      ).map((group) => group.groupId)
-      whereOptions.sharedGroups = {
-        some: {
-          id: { in: leaderGroupIds }
-        }
-      }
-    }
+    const whereOptions: ProblemWhereInput =
+      await this.buildProblemWhereOptionsWithMode(userId, mode, contestId)
 
     if (input.difficulty) {
       whereOptions.difficulty = {
@@ -272,6 +266,78 @@ export class ProblemService {
       }
     })
     return this.changeVisibleLockTimeToIsVisible(problems)
+  }
+
+  private async buildProblemWhereOptionsWithMode(
+    userId: number,
+    mode: 'my' | 'shared' | 'contest',
+    contestId?: number | null
+  ): Promise<ProblemWhereInput> {
+    switch (mode) {
+      case 'my':
+        return { createdById: { equals: userId } }
+
+      case 'contest':
+        if (!contestId) {
+          throw new ForbiddenException(
+            'contestId must be provided in contest mode'
+          )
+        }
+        {
+          const user = await this.prisma.userContest.findUnique({
+            where: {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              userId_contestId: { userId, contestId }
+            },
+            select: { role: true }
+          })
+          if (
+            !user ||
+            (user.role !== ContestRole.Admin &&
+              user.role !== ContestRole.Manager)
+          ) {
+            throw new ForbiddenException(
+              'You must be Admin/Manager of this contest.'
+            )
+          }
+          const contestManagers = await this.prisma.userContest.findMany({
+            where: {
+              contestId,
+              role: { in: [ContestRole.Admin, ContestRole.Manager] }
+            },
+            select: { userId: true }
+          })
+          const contestManagerIds = contestManagers
+            .map((manager) => manager.userId)
+            .filter((id): id is number => id !== null)
+          return {
+            createdById: {
+              in: [userId, ...contestManagerIds]
+            }
+          }
+        }
+
+      case 'shared': {
+        const leaderGroupIds = (
+          await this.prisma.userGroup.findMany({
+            where: {
+              userId,
+              isGroupLeader: true
+            }
+          })
+        ).map((group) => group.groupId)
+        return {
+          sharedGroups: {
+            some: {
+              id: { in: leaderGroupIds }
+            }
+          }
+        }
+      }
+
+      default:
+        throw new ForbiddenException('Invalid mode')
+    }
   }
 
   async getProblem(id: number, userRole: Role, userId: number) {

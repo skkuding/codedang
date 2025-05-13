@@ -10,10 +10,12 @@ import {
   Parent
 } from '@nestjs/graphql'
 import { Group, ProblemTag, ProblemTestcase, UpdateHistory } from '@generated'
-import { Role } from '@prisma/client'
 import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
-import { ForbiddenAccessException } from '@libs/exception'
-import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
+import {
+  CursorValidationPipe,
+  IDValidationPipe,
+  RequiredIntPipe
+} from '@libs/pipe'
 import {
   CreateProblemInput,
   UploadFileInput,
@@ -64,22 +66,17 @@ export class ProblemResolver {
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
     @Args('take', { defaultValue: 10, type: () => Int }) take: number,
-    @Args('my', { defaultValue: false, type: () => Boolean }) my: boolean,
-    @Args('shared', { defaultValue: false, type: () => Boolean })
-    shared: boolean
+    @Args('mode', { type: () => String }) mode: 'my' | 'shared' | 'contest',
+    @Args('contestId', { nullable: true, type: () => Int }, IDValidationPipe)
+    contestId: number | null
   ) {
-    if (!my && !shared && req.user.role == Role.User) {
-      throw new ForbiddenAccessException(
-        'User does not have permission for all problems'
-      )
-    }
     return await this.problemService.getProblems({
       userId: req.user.id,
       input,
       cursor,
       take,
-      my,
-      shared
+      mode,
+      contestId
     })
   }
 
