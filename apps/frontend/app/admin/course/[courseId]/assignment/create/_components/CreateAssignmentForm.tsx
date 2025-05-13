@@ -16,6 +16,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { createSchema } from '../../_libs/schemas'
 import type { AssignmentProblem } from '../../_libs/type'
+import { isOptionAfterDeadline } from '../../_libs/utils'
 
 interface CreateAssignmentFormProps {
   groupId: string
@@ -95,18 +96,6 @@ export function CreateAssignmentForm({
       return
     }
 
-    const isOpitonAfterDeadline = (solutionReleaseTime: Date | null) => {
-      const dummyReleaseTime = new Date('2025-01-01')
-      if (!solutionReleaseTime) {
-        return false
-      }
-      console.log(solutionReleaseTime, dummyReleaseTime)
-      console.log(
-        solutionReleaseTime.toString() === dummyReleaseTime.toString()
-      )
-      return solutionReleaseTime.toString() === dummyReleaseTime.toString()
-    }
-
     await importProblemsToAssignment({
       variables: {
         groupId: Number(groupId),
@@ -115,7 +104,7 @@ export function CreateAssignmentForm({
           return {
             problemId: problem.id,
             score: problem.score,
-            solutionReleaseTime: isOpitonAfterDeadline(
+            solutionReleaseTime: isOptionAfterDeadline(
               problem.solutionReleaseTime
             )
               ? input.endTime
