@@ -9,14 +9,7 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6'
 import { CourseInfoBox } from './CourseInfoBox'
-import {
-  AssignmentIcon
-  // ExamIcon,
-  // HomeIcon,
-  // MemberIcon,
-  // NoticeIcon,
-  // QnaIcon
-} from './Icons'
+import { AssignmentIcon, ExerciseIcon } from './Icons'
 
 interface CourseSidebarProps {
   courseId: string
@@ -65,7 +58,7 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
       name: 'Exercise',
       path: `/course/${courseId}/exercise` as const,
       icon: (
-        <AssignmentIcon
+        <ExerciseIcon
           fill={getActiveColor(pathname, `/course/${courseId}/exercise`)}
         />
       )
