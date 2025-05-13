@@ -31,7 +31,7 @@ export class AssignmentProblemResolver {
     @Args(
       'assignmentId',
       { type: () => Int },
-      new RequiredIntPipe('assignmenttId')
+      new RequiredIntPipe('assignmentId')
     )
     assignmentId: number
   ) {
