@@ -147,13 +147,6 @@ describe('ContestProblemService', () => {
     })
 
     it('should handle RecordNotFound error', async () => {
-      beforeEach(() => {
-        // stub의 동작 초기화
-        db.contestProblem.update.resetBehavior()
-        db.contestProblem.findFirstOrThrow.resetBehavior()
-        db.contestProblem.findMany.resetBehavior()
-        db.$transaction.resetBehavior()
-      })
       //given
       db.contestProblem.findMany.resolves(exampleContestProblems)
 
