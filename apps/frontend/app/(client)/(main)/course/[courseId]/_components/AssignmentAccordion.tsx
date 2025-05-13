@@ -84,8 +84,7 @@ function AssignmentAccordionItem({
 
   const { data: record } = useQuery({
     ...assignmentQueries.record({
-      assignmentId: assignment.id,
-      courseId
+      assignmentId: assignment.id
     }),
     enabled: isAccordionOpen
   })
@@ -123,7 +122,7 @@ function AssignmentAccordionItem({
           )}
           iconStyle="w-5 h-5 absolute right-[3%]"
         >
-          <p className="text-primary mr-3 w-[7%] text-left font-normal">
+          <p className="text-primary mr-3 w-[10%] text-left font-normal">
             [Week {assignment.week}]
           </p>
           <div className="flex w-[30%] flex-col">
@@ -238,7 +237,6 @@ function AssignmentAccordionItem({
                         <SubmissionDetailModal
                           problemId={problem.id}
                           assignment={assignment}
-                          courseId={courseId}
                         />
                       )}
                     </Dialog>
@@ -283,9 +281,7 @@ export function AssignmentStatusTimeDiff({
     }
 
     const timeRef =
-      assignmentStatus === 'ongoing' || assignmentStatus === 'registeredOngoing'
-        ? assignment.endTime
-        : assignment.startTime
+      assignmentStatus === 'ongoing' ? assignment.endTime : assignment.startTime
 
     const diff = dayjs.duration(Math.abs(dayjs(timeRef).diff(now)))
     const days = Math.floor(diff.asDays())
@@ -330,10 +326,7 @@ export function AssignmentStatusTimeDiff({
         </>
       ) : (
         <>
-          {assignmentStatus === 'ongoing' ||
-          assignmentStatus === 'registeredOngoing'
-            ? 'Ends in'
-            : 'Starts in'}
+          {assignmentStatus === 'ongoing' ? 'Ends in' : 'Starts in'}
           <p className="overflow-hidden text-ellipsis whitespace-nowrap">
             {timeDiff.days > 0
               ? `${timeDiff.days} days`

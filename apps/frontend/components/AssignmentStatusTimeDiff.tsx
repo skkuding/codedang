@@ -50,9 +50,7 @@ export function AssignmentStatusTimeDiff({
     }
 
     const timeRef =
-      assignmentStatus === 'ongoing' || assignmentStatus === 'registeredOngoing'
-        ? assignment.endTime
-        : assignment.startTime
+      assignmentStatus === 'ongoing' ? assignment.endTime : assignment.startTime
 
     const diff = dayjs.duration(Math.abs(dayjs(timeRef).diff(now)))
     const days = Math.floor(diff.asDays())
@@ -120,10 +118,7 @@ export function AssignmentStatusTimeDiff({
       ) : (
         <>
           <Image src={clockIcon} alt="clock" width={16} height={16} />
-          {assignmentStatus === 'ongoing' ||
-          assignmentStatus === 'registeredOngoing'
-            ? 'Ends in'
-            : 'Starts in'}
+          {assignmentStatus === 'ongoing' ? 'Ends in' : 'Starts in'}
           <p className="overflow-hidden text-ellipsis whitespace-nowrap">
             {timeDiff.days > 0
               ? `${timeDiff.days} DAYS`

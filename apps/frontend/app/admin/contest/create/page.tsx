@@ -17,13 +17,13 @@ import { AddManagerReviewerDialog } from '../_components/AddManagerReviewerDialo
 import { ContestManagerReviewerTable } from '../_components/ContestManagerReviewerTable'
 import { ContestProblemTable } from '../_components/ContestProblemTable'
 import { CreateEditContestLabel } from '../_components/CreateEditContestLabel'
+import { EnableCopyPasteForm } from '../_components/EnableCopyPasteForm'
+import { FreezeForm } from '../_components/FreezeForm'
 import { ImportDialog } from '../_components/ImportDialog'
+import { PosterUploadForm } from '../_components/PosterUploadForm'
+import { SampleTestcaseForm } from '../_components/SampleTestcaseForm'
 import type { ContestManagerReviewer, ContestProblem } from '../_libs/schemas'
 import { CreateContestForm } from './_components/CreateContestForm'
-import { EnableCopyPasteForm } from './_components/EnableCopyPasteForm'
-import { FreezeForm } from './_components/FreezeForm'
-import { PosterUploadForm } from './_components/PosterUploadForm'
-import { SampleTestcaseForm } from './_components/SampleTestcaseForm'
 
 export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])

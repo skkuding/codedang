@@ -18,19 +18,14 @@ import { MdArrowForwardIos } from 'react-icons/md'
 interface ProblemDetailModalProps {
   problemId: number
   assignment: Assignment
-
-  courseId: number
 }
 export function ProblemDetailModal({
   problemId,
-  assignment,
-
-  courseId
+  assignment
 }: ProblemDetailModalProps) {
   const { data: assignmentProblemRecord } = useSuspenseQuery({
     ...assignmentQueries.record({
-      assignmentId: assignment.id,
-      courseId
+      assignmentId: assignment.id
     })
   })
 

@@ -1,9 +1,18 @@
+import type { Language } from '@/types/type'
+
+export interface Solution {
+  code: string
+  language: Language
+}
+
 export interface AssignmentProblem {
   id: number
   title: string
   order: number
   difficulty: string
   score: number
+  solutionReleaseTime: Date | null
+  solution?: Solution
 }
 
 export interface ScoreSummary {

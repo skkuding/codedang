@@ -31,9 +31,7 @@ export default function AssignmentDetail({ params }: AssignmentDetailProps) {
     assignmentQueries.single({ assignmentId })
   )
 
-  const { data: record } = useQuery(
-    assignmentQueries.record({ assignmentId, courseId })
-  )
+  const { data: record } = useQuery(assignmentQueries.record({ assignmentId }))
 
   const { data: submissions } = useQuery(
     assignmentSubmissionQueries.summary({ assignmentId: assignment?.id ?? 0 })

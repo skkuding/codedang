@@ -14,6 +14,7 @@ const GET_CONTEST = gql(`
       posterUrl
       summary
       freezeTime
+      enableCopyPaste
       evaluateWithSampleTestcase
       userContest {
         userId
@@ -24,6 +25,13 @@ const GET_CONTEST = gql(`
           userProfile {
             realName
           }
+        }
+      }
+      contestRecord {
+        userId
+        user {
+          username
+          email
         }
       }
     }
