@@ -59,6 +59,36 @@ module "admin_api" {
     execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
   }
 
+  task_role = {
+    iam_role = {
+      name        = "Codedang-Admin-API-Task-Role"
+      description = null
+    }
+
+    iam_policy = {
+      name = "Codedang-Admin-API-Testcase-Write"
+      policy = jsonencode({
+        Statement = [
+          {
+            Action = [
+              "s3:ListBucket",
+              "s3:GetObject",
+              "s3:PutObject",
+              "s3:PutObjectTagging",
+              "s3:DeleteObject",
+            ]
+            Effect = "Allow"
+            Resource = [
+              "${local.storage.s3_testcase_bucket.arn}",
+              "${local.storage.s3_testcase_bucket.arn}/*",
+            ]
+          },
+        ]
+        Version = "2012-10-17"
+      })
+    }
+  }
+
   ecs_service = {
     name          = "Codedang-Admin-Api-Service"
     cluster_arn   = module.codedang_api.ecs_cluster.arn

@@ -8,7 +8,7 @@ resource "aws_iam_user" "testcase" {
 
 data "aws_iam_policy_document" "testcase_write" {
   statement {
-    actions   = ["s3:ListBucket", "s3:GetObject", "s3:PutObject", "s3:PubObjectTagging", "s3:DeleteObject"]
+    actions   = ["s3:ListBucket", "s3:GetObject", "s3:PutObject", "s3:PutObjectTagging", "s3:DeleteObject"]
     resources = ["${aws_s3_bucket.testcase.arn}", "${aws_s3_bucket.testcase.arn}/*"]
   }
 }
