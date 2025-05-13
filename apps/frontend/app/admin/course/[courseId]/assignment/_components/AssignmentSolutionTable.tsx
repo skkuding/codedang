@@ -1,16 +1,26 @@
 import { DataTable, DataTableRoot } from '@/app/admin/_components/table'
-import { useMemo, useState, type Dispatch, type SetStateAction } from 'react'
+import dayjs from 'dayjs'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction
+} from 'react'
 import type { AssignmentProblem } from '../_libs/type'
 import { createColumns } from './AssignmentSolutionColumns'
 
 interface AssignmentSolutionTableProps {
   problems: AssignmentProblem[]
   setProblems: Dispatch<SetStateAction<AssignmentProblem[]>>
+  endTime?: Date
 }
 
 export function AssignmentSolutionTable({
   problems,
-  setProblems
+  setProblems,
+  endTime
 }: AssignmentSolutionTableProps) {
   const [revealedStates, setRevealedStates] = useState<{
     [key: number]: boolean
@@ -21,6 +31,38 @@ export function AssignmentSolutionTable({
   const [solutionReleaseTimes, setSolutionReleaseTimes] = useState<{
     [key: number]: Date | null
   }>({})
+
+  const hasProblemsLoaded = useRef(false)
+
+  useEffect(() => {
+    if (!hasProblemsLoaded.current && problems.length > 0) {
+      const newRevealedStates: { [key: number]: boolean } = {}
+      const newOptionStates: { [key: number]: string } = {}
+      const newSolutionReleaseTimes: { [key: number]: Date | null } = {}
+
+      problems.forEach((problem, index) => {
+        newRevealedStates[index] = problem.solutionReleaseTime !== null
+
+        if (problem.solutionReleaseTime === null) {
+          newOptionStates[index] = ''
+        } else if (
+          dayjs(problem.solutionReleaseTime).toString() ===
+          dayjs(endTime)?.toString()
+        ) {
+          newOptionStates[index] = 'After Deadline'
+        } else {
+          newOptionStates[index] = 'Manually'
+          newSolutionReleaseTimes[index] = problem.solutionReleaseTime
+        }
+      })
+
+      setRevealedStates(newRevealedStates)
+      setOptionStates(newOptionStates)
+      setSolutionReleaseTimes(newSolutionReleaseTimes)
+
+      hasProblemsLoaded.current = true
+    }
+  }, [problems])
 
   const handleSwitchChange = (rowIndex: number) => {
     setRevealedStates((prev) => {
@@ -89,9 +131,11 @@ export function AssignmentSolutionTable({
     })
   }
 
-  const filteredProblems = useMemo(() => {
-    return problems.filter((problem) => problem.solution)
-  }, [problems])
+  // TODO: GET_ASSIGNMENT_PROBLEMS에 solution 추가되면 solution으로 있는 걸로 필터링
+  // const filteredProblems = useMemo(() => {
+  //   return problems.filter((problem) => problem.solution)
+  // }, [problems])
+  const filteredProblems = problems
 
   const columns = useMemo(
     () =>

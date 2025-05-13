@@ -77,6 +77,7 @@ const GET_ASSIGNMENT_PROBLEMS = gql(`
       score
       createTime
       updateTime
+      solutionReleaseTime
       problem {
         id
         title

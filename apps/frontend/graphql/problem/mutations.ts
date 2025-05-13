@@ -102,12 +102,13 @@ const UPDATE_ASSIGNMENT_PROBLEMS_ORDER = gql(`
   }
 `)
 
-const UPDATE_ASSIGNMENT_PROBLEMS_SCORES = gql(`
-  mutation UpdateAssignmentProblemsScore($groupId: Int!, $assignmentId: Int!, $problemIdsWithScore: [ProblemScoreInput!]!) {
-    updateAssignmentProblemsScore(groupId: $groupId, assignmentId: $assignmentId, problemIdsWithScore: $problemIdsWithScore) {
+const UPDATE_ASSIGNMENT_PROBLEMS = gql(`
+  mutation UpdateAssignmentProblems($groupId: Int!, $assignmentId: Int!, $assignmentProblemUpdateInput: [AssignmentProblemUpdateInput!]!) {
+    updateAssignmentProblems(groupId: $groupId, assignmentId: $assignmentId, assignmentProblemUpdateInput: $assignmentProblemUpdateInput) {
       assignmentId
       problemId
       score
+      solutionReleaseTime
       order
     }
   }
@@ -152,7 +153,7 @@ export {
   UPDATE_CONTEST_PROBLEMS_ORDER,
   UPDATE_CONTEST_PROBLEMS_SCORES,
   UPDATE_ASSIGNMENT_PROBLEMS_ORDER,
-  UPDATE_ASSIGNMENT_PROBLEMS_SCORES,
+  UPDATE_ASSIGNMENT_PROBLEMS,
   DELETE_PROBLEM,
   UPLOAD_PROBLEMS,
   UPLOAD_IMAGE,
