@@ -34,6 +34,7 @@ import { EditorHeader } from './EditorHeader/EditorHeader'
 import { LeaderboardModalDialog } from './LeaderboardModalDialog'
 import { TestcasePanel } from './TestcasePanel/TestcasePanel'
 import { useLeaderboardSync } from './context/ReFetchingLeaderboardStoreProvider'
+import { useSubmissionSync } from './context/ReFetchingSubmissionStoreProvider'
 import { TestPollingStoreProvider } from './context/TestPollingStoreProvider'
 import { TestcaseStoreProvider } from './context/TestcaseStoreProvider'
 
@@ -93,6 +94,9 @@ export function EditorMainResizablePanel({
     setIsBottomPanelHidden((prev) => !prev)
   }
   const triggerRefresh = useLeaderboardSync((state) => state.triggerRefresh)
+  const triggerSubmissionRefresh = useSubmissionSync(
+    (state) => state.triggerRefresh
+  )
   const {
     isSidePanelHidden,
     toggleSidePanelVisibility
@@ -188,7 +192,7 @@ export function EditorMainResizablePanel({
                 )}
               </TabsList>
             </Tabs>
-            {tabValue === 'Leaderboard' ? (
+            {tabValue === 'Leaderboard' && (
               <div className="flex gap-x-4">
                 <LeaderboardModalDialog />
                 <TooltipProvider>
@@ -221,7 +225,19 @@ export function EditorMainResizablePanel({
                   </Tooltip>
                 </TooltipProvider>
               </div>
-            ) : null}
+            )}
+            {tabValue === 'Submission' && contestId && (
+              <div className="flex gap-x-4">
+                <Image
+                  src={syncIcon}
+                  alt="Sync"
+                  className={'cursor-pointer'}
+                  onClick={() => {
+                    triggerSubmissionRefresh()
+                  }}
+                />
+              </div>
+            )}
           </div>
           <ScrollArea className="[&>div>div]:!block">
             <Suspense fallback={<Loading />}>{children}</Suspense>

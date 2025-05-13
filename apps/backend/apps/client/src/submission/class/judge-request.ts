@@ -8,14 +8,15 @@ export class JudgeRequest {
   problemId: number
   timeLimit: number
   memoryLimit: number
-  judgeMode: string
   stopOnNotAccepted: boolean
+  judgeOnlyHiddenTestcases: boolean
 
   constructor(
     code: Snippet[],
     language: Language,
     problem: { id: number; timeLimit: number; memoryLimit: number },
-    stopOnNotAccepted = false
+    stopOnNotAccepted = false,
+    judgeOnlyHiddenTestcases = false
   ) {
     this.code = code.map((snippet) => snippet.text).join('\n')
     this.language = language
@@ -23,6 +24,7 @@ export class JudgeRequest {
     this.timeLimit = calculateTimeLimit(language, problem.timeLimit)
     this.memoryLimit = calculateMemoryLimit(language, problem.memoryLimit)
     this.stopOnNotAccepted = stopOnNotAccepted
+    this.judgeOnlyHiddenTestcases = judgeOnlyHiddenTestcases
   }
 }
 
