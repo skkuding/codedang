@@ -63,7 +63,7 @@ export function FreezeForm({
       }
     }
     updateFreezeTime()
-  }, [isEnabled, selectedOption, setValue, name, watch])
+  }, [isEnabled, selectedOption, setValue, name, watch, endTime, diffTime])
 
   useEffect(() => {
     setIsEnabled(hasValue)
