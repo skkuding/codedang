@@ -8,12 +8,7 @@ import {
   TagResolver,
   TestcaseResolver
 } from './resolvers'
-import {
-  AssignmentProblemResolver,
-  ContestProblemResolver,
-  ProblemResolver,
-  WorkbookProblemResolver
-} from './resolvers/problem.resolver'
+import { ProblemResolver } from './resolvers/problem.resolver'
 import { IntScoreScalar } from './scalar/int-score.scalar'
 import {
   FileService,
@@ -26,9 +21,6 @@ import {
   imports: [StorageModule, ConfigModule, RolesModule],
   providers: [
     ProblemResolver,
-    ContestProblemResolver,
-    WorkbookProblemResolver,
-    AssignmentProblemResolver,
     ProblemTagResolver,
     TagResolver,
     TestcaseResolver,
@@ -39,6 +31,6 @@ import {
     FileService,
     TagService
   ],
-  exports: [IntScoreScalar]
+  exports: [IntScoreScalar, ProblemService]
 })
 export class ProblemModule {}

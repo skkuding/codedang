@@ -1,4 +1,4 @@
-import { ParseArrayPipe, UsePipes, ValidationPipe } from '@nestjs/common'
+import { UsePipes, ValidationPipe } from '@nestjs/common'
 import {
   Args,
   Context,
@@ -9,25 +9,11 @@ import {
   ResolveField,
   Parent
 } from '@nestjs/graphql'
-import {
-  AssignmentProblem,
-  ContestProblem,
-  Group,
-  ProblemTag,
-  ProblemTestcase,
-  UpdateHistory,
-  WorkbookProblem
-} from '@generated'
-import { ContestRole, Role } from '@prisma/client'
-import {
-  AuthenticatedRequest,
-  UseContestRolesGuard,
-  UseDisableAdminGuard,
-  UseGroupLeaderGuard
-} from '@libs/auth'
+import { Group, ProblemTag, ProblemTestcase, UpdateHistory } from '@generated'
+import { Role } from '@prisma/client'
+import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
 import { ForbiddenAccessException } from '@libs/exception'
-import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
-import { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
+import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
 import {
   CreateProblemInput,
   UploadFileInput,
@@ -147,146 +133,5 @@ export class ProblemResolver {
       req.user.role,
       req.user.id
     )
-  }
-}
-
-@Resolver(() => ContestProblem)
-@UseContestRolesGuard(ContestRole.Reviewer)
-export class ContestProblemResolver {
-  constructor(private readonly problemService: ProblemService) {}
-
-  @Query(() => [ContestProblem], { name: 'getContestProblems' })
-  async getContestProblems(
-    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
-    contestId: number
-  ) {
-    return await this.problemService.getContestProblems(contestId)
-  }
-
-  @Mutation(() => [ContestProblem])
-  @UseContestRolesGuard(ContestRole.Manager)
-  async updateContestProblemsScore(
-    @Args('contestId', { type: () => Int }) contestId: number,
-    @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
-    problemIdsWithScore: ProblemScoreInput[]
-  ) {
-    return await this.problemService.updateContestProblemsScore(
-      contestId,
-      problemIdsWithScore
-    )
-  }
-
-  @Mutation(() => [ContestProblem])
-  @UseContestRolesGuard(ContestRole.Manager)
-  async updateContestProblemsOrder(
-    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
-    contestId: number,
-    @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
-  ) {
-    return await this.problemService.updateContestProblemsOrder(
-      contestId,
-      orders
-    )
-  }
-
-  @ResolveField('problem', () => ProblemWithIsVisible)
-  async getProblem(@Parent() contestProblem: ContestProblem) {
-    return await this.problemService.getProblemById(contestProblem.problemId)
-  }
-}
-
-@Resolver(() => AssignmentProblem)
-@UseGroupLeaderGuard()
-export class AssignmentProblemResolver {
-  constructor(private readonly problemService: ProblemService) {}
-
-  @Query(() => [AssignmentProblem], { name: 'getAssignmentProblems' })
-  async getAssignmentProblems(
-    @Args('groupId', { type: () => Int }, GroupIDPipe)
-    groupId: number,
-    @Args(
-      'assignmentId',
-      { type: () => Int },
-      new RequiredIntPipe('assignmenttId')
-    )
-    assignmentId: number
-  ) {
-    return await this.problemService.getAssignmentProblems(
-      groupId,
-      assignmentId
-    )
-  }
-
-  @Mutation(() => [AssignmentProblem])
-  async updateAssignmentProblemsScore(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('assignmentId', { type: () => Int }) assignmentId: number,
-    @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
-    problemIdsWithScore: ProblemScoreInput[]
-  ) {
-    return await this.problemService.updateAssignmentProblemsScore(
-      groupId,
-      assignmentId,
-      problemIdsWithScore
-    )
-  }
-
-  @Mutation(() => [AssignmentProblem])
-  async updateAssignmentProblemsOrder(
-    @Args('groupId', { type: () => Int }, GroupIDPipe)
-    groupId: number,
-    @Args(
-      'assignmentId',
-      { type: () => Int },
-      new RequiredIntPipe('assignmentId')
-    )
-    assignmentId: number,
-    @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
-  ) {
-    return await this.problemService.updateAssignmentProblemsOrder(
-      groupId,
-      assignmentId,
-      orders
-    )
-  }
-
-  @ResolveField('problem', () => ProblemWithIsVisible)
-  async getProblem(@Parent() assignmentProblem: AssignmentProblem) {
-    return await this.problemService.getProblemById(assignmentProblem.problemId)
-  }
-}
-
-@Resolver(() => WorkbookProblem)
-@UseGroupLeaderGuard()
-export class WorkbookProblemResolver {
-  constructor(private readonly problemService: ProblemService) {}
-
-  @Query(() => [WorkbookProblem], { name: 'getWorkbookProblems' })
-  async getWorkbookProblems(
-    @Args('groupId', { type: () => Int }, GroupIDPipe)
-    groupId: number,
-    @Args('workbookId', { type: () => Int }) workbookId: number
-  ) {
-    return await this.problemService.getWorkbookProblems(groupId, workbookId)
-  }
-
-  @Mutation(() => [WorkbookProblem])
-  async updateWorkbookProblemsOrder(
-    @Args('groupId', { type: () => Int }, GroupIDPipe)
-    groupId: number,
-    @Args('workbookId', { type: () => Int }) workbookId: number,
-    // orders는 항상 workbookId에 해당하는 workbookProblems들이 모두 딸려 온다.
-    @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
-  ) {
-    return await this.problemService.updateWorkbookProblemsOrder(
-      groupId,
-      workbookId,
-      orders
-    )
-  }
-
-  @ResolveField('problem', () => ProblemWithIsVisible)
-  async getProblem(@Parent() workbookProblem: WorkbookProblem) {
-    return await this.problemService.getProblemById(workbookProblem.problemId)
   }
 }

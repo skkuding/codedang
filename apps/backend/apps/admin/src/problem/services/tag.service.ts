@@ -5,6 +5,7 @@ import {
   EntityNotExistException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { UpdateProblemTagInput } from '../model/problem.input'
 
 @Injectable()
 export class TagService {
@@ -32,6 +33,40 @@ export class TagService {
         throw new DuplicateFoundException('tag')
 
       throw error
+    }
+  }
+
+  async updateProblemTag(
+    problemId: number,
+    problemTags: UpdateProblemTagInput
+  ) {
+    const createIds = problemTags.create.map(async (tagId) => {
+      const check = await this.prisma.problemTag.findFirst({
+        where: {
+          tagId,
+          problemId
+        }
+      })
+      if (check) {
+        throw new DuplicateFoundException(`${tagId} tag`)
+      }
+      return { tag: { connect: { id: tagId } } }
+    })
+
+    const deleteIds = problemTags.delete.map(async (tagId) => {
+      const check = await this.prisma.problemTag.findFirstOrThrow({
+        where: {
+          tagId,
+          problemId
+        },
+        select: { id: true }
+      })
+      return { id: check.id }
+    })
+
+    return {
+      create: await Promise.all(createIds),
+      delete: await Promise.all(deleteIds)
     }
   }
 

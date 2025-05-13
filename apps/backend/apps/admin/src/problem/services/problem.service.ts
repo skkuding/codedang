@@ -1,35 +1,32 @@
 import { ForbiddenException, Injectable } from '@nestjs/common'
-import { Language } from '@generated'
 import {
-  AssignmentProblem,
-  ContestProblem,
+  Language,
   Problem,
-  WorkbookProblem
+  Level,
+  ProblemWhereInput,
+  UpdateHistory
 } from '@generated'
-import { Level } from '@generated'
-import type { ProblemWhereInput, UpdateHistory } from '@generated'
+import type {} from '@generated'
 import { ProblemField, Role } from '@prisma/client'
 import { Workbook } from 'exceljs'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
-  DuplicateFoundException,
   UnprocessableDataException,
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from '../model/problem.constants'
 import type {
   CreateProblemInput,
   UploadFileInput,
   FilterProblemsInput,
-  UpdateProblemInput,
-  UpdateProblemTagInput
+  UpdateProblemInput
 } from '../model/problem.input'
 import type { ProblemWithIsVisible } from '../model/problem.output'
 import type { Template } from '../model/template.input'
 import type { Testcase } from '../model/testcase.input'
+import { TagService } from './tag.service'
 import { TestcaseService } from './testcase.service'
 
 @Injectable()
@@ -37,7 +34,8 @@ export class ProblemService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly storageService: StorageService,
-    private readonly testcaseService: TestcaseService
+    private readonly testcaseService: TestcaseService,
+    private readonly tagService: TagService
   ) {}
 
   async createProblem(
@@ -463,7 +461,9 @@ export class ProblemService {
     //   )
     // }
 
-    const problemTag = tags ? await this.updateProblemTag(id, tags) : undefined
+    const problemTag = tags
+      ? await this.tagService.updateProblemTag(id, tags)
+      : undefined
 
     if (testcases?.length) {
       await this.testcaseService.updateTestcases(id, testcases)
@@ -519,40 +519,6 @@ export class ProblemService {
     })
   }
 
-  async updateProblemTag(
-    problemId: number,
-    problemTags: UpdateProblemTagInput
-  ) {
-    const createIds = problemTags.create.map(async (tagId) => {
-      const check = await this.prisma.problemTag.findFirst({
-        where: {
-          tagId,
-          problemId
-        }
-      })
-      if (check) {
-        throw new DuplicateFoundException(`${tagId} tag`)
-      }
-      return { tag: { connect: { id: tagId } } }
-    })
-
-    const deleteIds = problemTags.delete.map(async (tagId) => {
-      const check = await this.prisma.problemTag.findFirstOrThrow({
-        where: {
-          tagId,
-          problemId
-        },
-        select: { id: true }
-      })
-      return { id: check.id }
-    })
-
-    return {
-      create: await Promise.all(createIds),
-      delete: await Promise.all(deleteIds)
-    }
-  }
-
   async deleteProblem(id: number, userRole: Role, userId: number) {
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: { id }
@@ -593,217 +559,6 @@ export class ProblemService {
       return []
     }
     return matches
-  }
-
-  async getWorkbookProblems(
-    groupId: number,
-    workbookId: number
-  ): Promise<Partial<WorkbookProblem>[]> {
-    // id를 받은 workbook이 현재 접속된 group의 것인지 확인
-    // 아니면 에러 throw
-    await this.prisma.workbook.findFirstOrThrow({
-      where: { id: workbookId, groupId }
-    })
-    const workbookProblems = await this.prisma.workbookProblem.findMany({
-      where: { workbookId }
-    })
-
-    return workbookProblems
-  }
-
-  async updateWorkbookProblemsOrder(
-    groupId: number,
-    workbookId: number,
-    // orders는 항상 workbookId에 해당하는 workbookProblems들이 모두 딸려 온다.
-    orders: number[]
-  ): Promise<Partial<WorkbookProblem>[]> {
-    // id를 받은 workbook이 현재 접속된 group의 것인지 확인
-    await this.prisma.workbook.findFirstOrThrow({
-      where: { id: workbookId, groupId }
-    })
-    // workbookId를 가지고 있는 workbookProblem을 모두 가져옴
-    const workbookProblemsToBeUpdated =
-      await this.prisma.workbookProblem.findMany({
-        where: { workbookId }
-      })
-    // orders 길이와  찾은 workbookProblem 길이가 같은지 확인
-    if (orders.length !== workbookProblemsToBeUpdated.length) {
-      throw new UnprocessableDataException(
-        'the len of orders and the len of workbookProblem are not equal.'
-      )
-    }
-    //problemId 기준으로 오름차순 정렬
-    workbookProblemsToBeUpdated.sort((a, b) => a.problemId - b.problemId)
-    const queries = workbookProblemsToBeUpdated.map((record) => {
-      const newOrder = orders.indexOf(record.problemId) + 1
-      return this.prisma.workbookProblem.update({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          workbookId_problemId: {
-            workbookId,
-            problemId: record.problemId
-          }
-        },
-        data: { order: newOrder }
-      })
-    })
-    return await this.prisma.$transaction(queries)
-  }
-
-  async getContestProblems(
-    contestId: number
-  ): Promise<Partial<ContestProblem>[]> {
-    await this.prisma.contest.findFirstOrThrow({
-      where: { id: contestId }
-    })
-    const contestProblems = await this.prisma.contestProblem.findMany({
-      where: { contestId }
-    })
-    return contestProblems
-  }
-
-  async updateContestProblemsScore(
-    contestId: number,
-    problemIdsWithScore: ProblemScoreInput[]
-  ): Promise<Partial<ContestProblem>[]> {
-    await this.prisma.contest.findFirstOrThrow({
-      where: { id: contestId }
-    })
-
-    const queries = problemIdsWithScore.map((record) => {
-      return this.prisma.contestProblem.update({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          contestId_problemId: {
-            contestId,
-            problemId: record.problemId
-          }
-        },
-        data: { score: record.score }
-      })
-    })
-
-    return await this.prisma.$transaction(queries)
-  }
-
-  async updateContestProblemsOrder(
-    contestId: number,
-    orders: number[]
-  ): Promise<Partial<ContestProblem>[]> {
-    await this.prisma.contest.findFirstOrThrow({
-      where: { id: contestId }
-    })
-
-    const contestProblems = await this.prisma.contestProblem.findMany({
-      where: { contestId }
-    })
-
-    if (orders.length !== contestProblems.length) {
-      throw new UnprocessableDataException(
-        'the length of orders and the length of contestProblem are not equal.'
-      )
-    }
-
-    const queries = contestProblems.map((record) => {
-      const newOrder = orders.indexOf(record.problemId)
-      if (newOrder === -1) {
-        throw new UnprocessableDataException(
-          'There is a problemId in the contest that is missing from the provided orders.'
-        )
-      }
-      return this.prisma.contestProblem.update({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          contestId_problemId: {
-            contestId,
-            problemId: record.problemId
-          }
-        },
-        data: { order: newOrder }
-      })
-    })
-
-    return await this.prisma.$transaction(queries)
-  }
-
-  async getAssignmentProblems(
-    groupId: number,
-    assignmentId: number
-  ): Promise<Partial<AssignmentProblem>[]> {
-    await this.prisma.assignment.findFirstOrThrow({
-      where: { id: assignmentId, groupId }
-    })
-    const assignmentProblems = await this.prisma.assignmentProblem.findMany({
-      where: { assignmentId }
-    })
-    return assignmentProblems
-  }
-
-  async updateAssignmentProblemsScore(
-    groupId: number,
-    assignmentId: number,
-    problemIdsWithScore: ProblemScoreInput[]
-  ): Promise<Partial<AssignmentProblem>[]> {
-    await this.prisma.assignment.findFirstOrThrow({
-      where: { id: assignmentId, groupId }
-    })
-
-    const queries = problemIdsWithScore.map((record) => {
-      return this.prisma.assignmentProblem.update({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          assignmentId_problemId: {
-            assignmentId,
-            problemId: record.problemId
-          }
-        },
-        data: { score: record.score }
-      })
-    })
-
-    return await this.prisma.$transaction(queries)
-  }
-
-  async updateAssignmentProblemsOrder(
-    groupId: number,
-    assignmentId: number,
-    orders: number[]
-  ): Promise<Partial<AssignmentProblem>[]> {
-    await this.prisma.assignment.findFirstOrThrow({
-      where: { id: assignmentId, groupId }
-    })
-
-    const assignmentProblems = await this.prisma.assignmentProblem.findMany({
-      where: { assignmentId }
-    })
-
-    if (orders.length !== assignmentProblems.length) {
-      throw new UnprocessableDataException(
-        'the length of orders and the length of assignmentProblem are not equal.'
-      )
-    }
-
-    const queries = assignmentProblems.map((record) => {
-      const newOrder = orders.indexOf(record.problemId)
-      if (newOrder === -1) {
-        throw new UnprocessableDataException(
-          'There is a problemId in the assignment that is missing from the provided orders.'
-        )
-      }
-
-      return this.prisma.assignmentProblem.update({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          assignmentId_problemId: {
-            assignmentId,
-            problemId: record.problemId
-          }
-        },
-        data: { order: newOrder }
-      })
-    })
-
-    return await this.prisma.$transaction(queries)
   }
 
   async getSharedGroups(problemId: number) {
