@@ -67,6 +67,7 @@ import { useRunner } from '../TestcasePanel/useRunner'
 import { useTestPollingStore } from '../context/TestPollingStoreProvider'
 import { BackCautionDialog } from './BackCautionDialog'
 import { RunTestButton } from './RunTestButton'
+import { useSubmissionPolling } from './hooks/useSubmissionPolling'
 
 interface ProblemEditorProps {
   problem: ProblemDetail
@@ -128,6 +129,13 @@ export function EditorHeader({
   )
   const { isSidePanelHidden, toggleSidePanelVisibility } =
     useSidePanelTabStore()
+
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  useSubmissionPolling({
+    contestId,
+    problemId: problem.id,
+    enabled: isSubmitted
+  })
 
   useInterval(
     async () => {
@@ -294,6 +302,7 @@ export function EditorHeader({
             problemId: problem.id
           })
         })
+        setIsSubmitted(true)
       } else if (assignmentId) {
         queryClient.invalidateQueries({
           queryKey: assignmentProblemQueries.lists(assignmentId)
