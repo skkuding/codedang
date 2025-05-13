@@ -29,7 +29,7 @@ import { useEffect, useState } from 'react'
 import { useInterval } from 'react-use'
 import { AssignmentLink } from './AssignmentLink'
 import { DetailButton } from './DetailButton'
-import { GradeDetailModal } from './GradeDetailModal'
+import { GradeStatisticsModal } from './GradeStatisticsModal'
 
 interface AssignmentAccordianProps {
   courseId: number
@@ -172,7 +172,10 @@ function AssignmentAccordionItem({
                 }
               />
               {isAssignmentDialogOpen && (
-                <GradeDetailModal courseId={courseId} assignment={assignment} />
+                <GradeStatisticsModal
+                  courseId={courseId}
+                  assignment={assignment}
+                />
               )}
             </Dialog>
           </div>
