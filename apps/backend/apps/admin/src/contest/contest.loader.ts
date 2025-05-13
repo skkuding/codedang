@@ -7,8 +7,6 @@ export class ContestLoader {
   constructor(private readonly prisma: PrismaService) {}
 
   batchParticipants = new DataLoader<number, number>(async (ids: number[]) => {
-    console.log('ContestLoader batchParticipants', ids)
-
     const contests = await this.prisma.contest.findMany({
       where: { id: { in: ids } },
       select: {
