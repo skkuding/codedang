@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
   DeleteObjectCommand,
@@ -14,6 +14,7 @@ import { type ContentType, ContentTypes } from './content.type'
 
 @Injectable()
 export class StorageService {
+  private readonly logger = new Logger(StorageService.name)
   constructor(
     private readonly config: ConfigService,
     @Inject('S3_CLIENT') private readonly client: S3Client,
@@ -107,6 +108,7 @@ export class StorageService {
       bucket == 'testcase' ? 'TESTCASE_BUCKET_NAME' : 'MEDIA_BUCKET_NAME'
     )
 
+    this.logger.debug(`Reading file ${filename} from ${bucketName}`)
     const head = await this.client.send(
       new HeadObjectCommand({
         Bucket: bucketName,
