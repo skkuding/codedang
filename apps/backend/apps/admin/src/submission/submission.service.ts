@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import * as archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
+import { group } from 'console'
 import { Response } from 'express'
 import {
   mkdirSync,
@@ -462,7 +463,26 @@ export class SubmissionService {
     return encodeURIComponent(problem.title)
   }
 
-  async compressSourceCodes(assignmentId: number, problemId: number) {
+  async compressSourceCodes(
+    groupId: number,
+    assignmentId: number,
+    problemId: number
+  ) {
+    const assignmentGroupId = await this.prisma.assignment.findFirst({
+      where: {
+        id: assignmentId
+      },
+      select: {
+        groupId: true
+      }
+    })
+
+    if (assignmentGroupId?.groupId != groupId) {
+      throw new ForbiddenAccessException(
+        'Only Group Leader can download source codes.'
+      )
+    }
+
     const assignmentProblemRecords =
       await this.prisma.assignmentProblemRecord.findMany({
         where: {
@@ -535,11 +555,31 @@ export class SubmissionService {
       )
     })
 
-    const downloadSrc = `/submission/download/${zipFilename}`
+    const downloadSrc = `/submission/download/${groupId}/${assignmentId}/${zipFilename}`
     return downloadSrc
   }
 
-  async downloadCodes(filename: string, res: Response) {
+  async downloadCodes(
+    groupId: number,
+    assignmentId: number,
+    filename: string,
+    res: Response
+  ) {
+    const assignmentGroupId = await this.prisma.assignment.findFirst({
+      where: {
+        id: assignmentId
+      },
+      select: {
+        groupId: true
+      }
+    })
+
+    if (assignmentGroupId?.groupId != groupId) {
+      throw new ForbiddenAccessException(
+        'Only Group Leader can download source codes.'
+      )
+    }
+
     const sanitizedFilename = sanitize(filename)
     const encodedFilename = encodeURIComponent(sanitizedFilename)
     const zipFilename = path.resolve(__dirname, encodedFilename)
