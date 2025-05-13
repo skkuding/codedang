@@ -6,7 +6,6 @@ import {
   IMPORT_PROBLEMS_TO_ASSIGNMENT
 } from '@/graphql/assignment/mutations'
 import { UPDATE_ASSIGNMENT_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
-// import { UPDATE_ASSIGNMENT_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import type { CreateAssignmentInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
@@ -96,14 +95,31 @@ export function CreateAssignmentForm({
       return
     }
 
+    const isOpitonAfterDeadline = (solutionReleaseTime: Date | null) => {
+      const dummyReleaseTime = new Date('2025-01-01')
+      if (!solutionReleaseTime) {
+        return false
+      }
+      console.log(solutionReleaseTime, dummyReleaseTime)
+      console.log(
+        solutionReleaseTime.toString() === dummyReleaseTime.toString()
+      )
+      return solutionReleaseTime.toString() === dummyReleaseTime.toString()
+    }
+
     await importProblemsToAssignment({
       variables: {
         groupId: Number(groupId),
         assignmentId,
-        problemIdsWithScore: problems.map((problem) => {
+        assignmentProblemInput: problems.map((problem) => {
           return {
             problemId: problem.id,
-            score: problem.score
+            score: problem.score,
+            solutionReleaseTime: isOpitonAfterDeadline(
+              problem.solutionReleaseTime
+            )
+              ? input.endTime
+              : problem.solutionReleaseTime
           }
         })
       }
