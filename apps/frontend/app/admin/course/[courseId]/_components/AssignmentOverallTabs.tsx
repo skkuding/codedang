@@ -89,7 +89,7 @@ export function AssignmentOverallTabs({
           ASSESSMENT
         </Link>
       )}
-      <Link
+      {/* <Link
         href={
           `/admin/course/${groupId}/${isExercise ? 'exercise' : 'assignment'}/${assignmentId}/statistics` as const
         }
@@ -101,7 +101,7 @@ export function AssignmentOverallTabs({
         )}
       >
         STATISTICS
-      </Link>
+      </Link> */}
     </div>
   )
 }
