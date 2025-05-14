@@ -12,6 +12,7 @@ import { cn } from '@/libs/utils'
 import type { Testcase } from '@generated/graphql'
 import { useEffect, useState } from 'react'
 import { type FieldErrorsImpl, useFormContext, useWatch } from 'react-hook-form'
+import { FaArrowRotateLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { Label } from '../../_components/Label'
 import { isInvalid } from '../_libs/utils'
@@ -33,10 +34,13 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
   const [dialogDescription, setDialogDescription] = useState<string>('')
   const [disableDistribution, setDisableDistribution] = useState<boolean>(false)
+  const [isScoreNull, setIsScoreNull] = useState<boolean>(true)
 
   useEffect(() => {
     const allFilled = watchedItems.every((item) => !isInvalid(item.scoreWeight))
     setDisableDistribution(allFilled)
+    const allNull = watchedItems.every((item) => isInvalid(item.scoreWeight))
+    setIsScoreNull(allNull)
   }, [watchedItems])
 
   const addTestcase = (isHidden: boolean) => {
@@ -110,6 +114,13 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
 
     setValue('testcases', updatedTestcases)
   }
+  const initializeScore = () => {
+    const currentValues: Testcase[] = getValues('testcases')
+    const updatedTestcases = currentValues.map((tc) => {
+      return { ...tc, scoreWeight: null }
+    })
+    setValue('testcases', updatedTestcases)
+  }
 
   return (
     <div className="flex flex-col gap-10">
@@ -145,7 +156,31 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
         )}
         {!blockEdit && <AddBadge onClick={() => addTestcase(true)} />}
       </div>
-      <div className="flex w-full justify-end">
+      <div className="flex w-full justify-end gap-3">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                className={cn(
+                  'flex h-9 w-40 items-center gap-2 px-0',
+                  isScoreNull && 'bg-gray-300 text-gray-600'
+                )}
+                onClick={initializeScore}
+                disabled={isScoreNull}
+              >
+                <FaArrowRotateLeft
+                  fontSize={20}
+                  className={cn(isScoreNull && 'text-gray-600')}
+                />
+                <p>Reset Ratio</p>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="bg-white text-black shadow-sm">
+              Click to discard all of the scores of testcases.
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
