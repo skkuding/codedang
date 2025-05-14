@@ -4,7 +4,6 @@ import {
   DataTable,
   DataTableFallback,
   DataTablePagination,
-  DataTableProblemFilter,
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'

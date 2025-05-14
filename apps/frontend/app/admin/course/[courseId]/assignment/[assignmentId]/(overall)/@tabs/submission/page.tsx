@@ -1,13 +1,11 @@
 'use client'
 
-import { DataTableSearchBar } from '@/app/admin/_components/table/DataTableSearchBar'
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { cn } from '@/libs/utils'
 import { ErrorBoundary } from '@suspensive/react'
 import { useState } from 'react'
 import { Suspense } from 'react'
 import { ParticipantTable } from '../_components/ParticipantTable'
-import { DataTableProblemFilterMini } from './_components/DataTableProblemFilterMini'
 import {
   SubmissionTable,
   SubmissionTableFallback
