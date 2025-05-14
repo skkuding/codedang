@@ -76,7 +76,6 @@ export function CreateContestAnnouncement({
             setValue('problemOrder', value === 'none' ? null : Number(value), {
               shouldValidate: true
             })
-            trigger()
           }}
         >
           <SelectTrigger className="h-12 rounded-full bg-white pl-[30px] text-xl font-medium text-[#474747] focus:ring-0">
