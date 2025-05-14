@@ -215,7 +215,8 @@ export class SubmissionService {
       idOptions: {
         contestId
       },
-      stopOnNotAccepted: true
+      stopOnNotAccepted: true,
+      judgeOnlyHiddenTestcases: !contest.evaluateWithSampleTestcase
     })
 
     return submission
@@ -454,7 +455,8 @@ export class SubmissionService {
     userId,
     userIp,
     idOptions,
-    stopOnNotAccepted = false
+    stopOnNotAccepted = false,
+    judgeOnlyHiddenTestcases = false
   }: {
     submissionDto: CreateSubmissionDto
     problem: Problem
@@ -466,6 +468,7 @@ export class SubmissionService {
       workbookId?: number
     }
     stopOnNotAccepted?: boolean
+    judgeOnlyHiddenTestcases?: boolean
   }) {
     if (!problem.languages.includes(submissionDto.language)) {
       throw new ConflictFoundException(
@@ -503,12 +506,13 @@ export class SubmissionService {
         }
       })
 
-      await this.createSubmissionResults(submission)
+      await this.createSubmissionResults(submission, judgeOnlyHiddenTestcases)
 
       await this.publish.publishJudgeRequestMessage({
         code,
         submission,
-        stopOnNotAccepted
+        stopOnNotAccepted,
+        judgeOnlyHiddenTestcases
       })
       return submission
     } catch (error) {
@@ -529,13 +533,20 @@ export class SubmissionService {
    * @returns {Promise<void>}
    */
   @Span()
-  async createSubmissionResults(submission: Submission): Promise<void> {
-    const testcases = await this.prisma.problemTestcase.findMany({
+  async createSubmissionResults(
+    submission: Submission,
+    judgeOnlyHiddenTestcases: boolean
+  ): Promise<void> {
+    let testcases = await this.prisma.problemTestcase.findMany({
       where: {
         problemId: submission.problemId
       },
-      select: { id: true }
+      select: { id: true, isHidden: true }
     })
+
+    if (judgeOnlyHiddenTestcases) {
+      testcases = testcases.filter((testcase) => testcase.isHidden)
+    }
 
     await this.prisma.submissionResult.createMany({
       data: testcases.map((testcase) => {
