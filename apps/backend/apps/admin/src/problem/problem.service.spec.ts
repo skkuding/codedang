@@ -150,6 +150,7 @@ describe('ProblemService', () => {
       isVisible: false,
       template: problems[0].template,
       languages: problems[0].languages,
+      solution: problems[0].solution,
       timeLimit: problems[0].timeLimit,
       memoryLimit: problems[0].memoryLimit,
       difficulty: Level.Level1,
@@ -454,15 +455,18 @@ describe('ProblemService', () => {
   })
 
   describe('getProblems', () => {
-    it('should return group problems', async () => {
+    it('should return my problems', async () => {
       db.problem.findMany.resolves(problems)
       const result = await service.getProblems({
         userId: user[0].id!,
         input: {},
         cursor: 1,
         take: 5,
-        my: false,
-        shared: false
+        my: true,
+        idOptions: {
+          shared: false,
+          contestId: null
+        }
       })
       expect(result).to.deep.equal(problemsWithIsVisible)
     })

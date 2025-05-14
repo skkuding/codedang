@@ -11,25 +11,32 @@ post {
 }
 
 body:graphql {
-  mutation UpdateAssignmentProblemsScore($groupId: Int!, $assignmentId: Int!, $problemIdsWithScore: [ProblemScoreInput!]!) {
-    updateAssignmentProblemsScore(groupId: $groupId, assignmentId: $assignmentId, problemIdsWithScore: $problemIdsWithScore) {
+  mutation UpdateAssignmentProblems($groupId: Int!, $assignmentId: Int!, $assignmentProblemUpdateInput: [AssignmentProblemUpdateInput!]!) {
+    updateAssignmentProblems(groupId: $groupId, assignmentId: $assignmentId, assignmentProblemUpdateInput: $assignmentProblemUpdateInput) {
       assignmentId
       problemId
       score
+      solutionReleaseTime
       order
     }
   }
-
+  
 }
 
 body:graphql:vars {
   {
     "groupId": 1,
     "assignmentId": 1,
-    "problemIdsWithScore": [
+    "assignmentProblemUpdateInput": [
+      {
+        "problemId": 3,
+        "score": 0,
+        "solutionReleaseTime": null
+      },
       {
         "problemId": 1,
-        "score": 0
+        "score": 0,
+        "solutionReleaseTime": "2025-05-08"
       }
     ]
   }

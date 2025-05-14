@@ -20,6 +20,7 @@ export const problems: Problem[] = [
         ]
       }
     ],
+    solution: [],
     languages: [Language.C],
     timeLimit: 1000,
     memoryLimit: 4096,
