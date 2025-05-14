@@ -42,7 +42,8 @@ export function AssignmentOverallTabs({
 
   const isCurrentTab = (tab: string) => {
     const basePath = `/admin/course/${groupId}/${isExercise ? 'exercise' : 'assignment'}/${assignmentId}`
-    return pathname.startsWith(tab ? `${basePath}/${tab}` : basePath)
+    const currentPath = tab ? `${basePath}/${tab}` : basePath
+    return pathname === currentPath
   }
 
   return (

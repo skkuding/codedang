@@ -12,12 +12,12 @@ import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
 import { AssignmentOverallTabs } from '../../../_components/AssignmentOverallTabs'
 
 export default function Layout({ tabs }: { tabs: React.ReactNode }) {
-  const { courseId, assignmentId } = useParams()
+  const { courseId, exerciseId } = useParams()
 
   const assignmentData = useQuery(GET_ASSIGNMENT, {
     variables: {
       groupId: Number(courseId),
-      assignmentId: Number(assignmentId)
+      assignmentId: Number(exerciseId)
     }
   }).data?.getAssignment
 
@@ -25,14 +25,14 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
     <main className="flex flex-col gap-6 px-20 py-16">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href={`/admin/course/${courseId}/assignment` as const}>
+          <Link href={`/admin/course/${courseId}/exercise` as const}>
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
           <span className="text-4xl font-bold">{assignmentData?.title}</span>
         </div>
         <Link
           href={
-            `/admin/course/${courseId}/assignment/${assignmentId}/edit` as const
+            `/admin/course/${courseId}/exercise/${exerciseId}/edit` as const
           }
         >
           <Button variant="default">
@@ -57,7 +57,7 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
 
       <AssignmentOverallTabs
         groupId={Number(courseId)}
-        assignmentId={Number(assignmentId)}
+        assignmentId={Number(exerciseId)}
         isExercise={true}
       />
       {tabs}

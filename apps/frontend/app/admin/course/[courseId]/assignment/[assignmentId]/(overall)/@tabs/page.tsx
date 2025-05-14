@@ -18,7 +18,7 @@ import { ChevronDownIcon } from '@radix-ui/react-icons'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
-import { ParticipantTableFallback } from './submission/_components/ParticipantTable'
+import { ParticipantTableFallback } from '../../../../_components/ParticipantTable'
 
 interface InformationProps {
   params: { courseId: string; assignmentId: string }
