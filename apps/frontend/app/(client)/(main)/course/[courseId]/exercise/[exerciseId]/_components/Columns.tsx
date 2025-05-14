@@ -1,15 +1,28 @@
 'use client'
 
-import { convertToLetter, dateFormatter } from '@/libs/utils'
+// 기획 확실하지 않아서 주석처리 (민규)
+// import { FetchErrorFallback } from '@/components/FetchErrorFallback'
+// import { Dialog } from '@/components/shadcn/dialog'
+// import { Skeleton } from '@/components/shadcn/skeleton'
+import {
+  cn,
+  convertToLetter,
+  dateFormatter,
+  getResultColor
+} from '@/libs/utils'
 import type {
   Assignment,
   AssignmentProblemRecord,
   AssignmentSubmission,
   ProblemGrade
 } from '@/types/type'
+// import { ErrorBoundary } from '@suspensive/react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { SubmissionOverviewModal } from '../../../_components/SubmissionOverviewModal'
-import { TestCaseResult } from '../../../_components/TestCaseResult'
+
+// import { Suspense, useState } from 'react'
+// import { MdOutlineFileOpen } from 'react-icons/md'
+// import { ProblemDetailModal } from '../../../_components/ProblemDetailModal'
 
 export const columns = (
   record: AssignmentProblemRecord,
@@ -63,8 +76,9 @@ export const columns = (
       return (
         submission && (
           <div className="flex w-full justify-center">
-            <TestCaseResult submission={submission} />
-            {/* <ResultBadge assignmentSubmission={submission} /> */}
+            <p className={cn(getResultColor(submission.submissionResult))}>
+              {submission.submissionResult}
+            </p>
           </div>
         )
       )
