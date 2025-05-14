@@ -48,13 +48,14 @@ export function AssignmentOverallTabs({
   }
 
   return (
-    <div className="flex h-[48px] w-full rounded-full border border-solid border-[#80808040] bg-white text-lg font-normal text-[#737373]">
+    <div className="flex w-full border-b border-[#E1E1E1]">
       <Link
         href={`/admin/course/${groupId}/assignment/${assignmentId}` as const}
         className={cn(
-          'flex h-full w-1/4 items-center justify-center rounded-full',
-          isCurrentTab('') &&
-            'text-primary border-primary border-2 border-solid bg-white'
+          'flex h-12 flex-1 items-center justify-center font-semibold',
+          isCurrentTab('')
+            ? 'border-b-2 border-[#3581FA] text-[#3581FA]'
+            : 'text-[#737373]'
         )}
       >
         INFORMATION
@@ -64,9 +65,10 @@ export function AssignmentOverallTabs({
           `/admin/course/${groupId}/assignment/${assignmentId}/submission` as const
         }
         className={cn(
-          'flex h-full w-1/4 items-center justify-center rounded-full',
-          isCurrentTab('submission') &&
-            'text-primary border-primary border-2 border-solid bg-white'
+          'flex h-12 flex-1 items-center justify-center font-semibold',
+          isCurrentTab('submission')
+            ? 'border-b-2 border-[#3581FA] text-[#3581FA]'
+            : 'text-[#737373]'
         )}
       >
         SUBMISSION
@@ -76,9 +78,10 @@ export function AssignmentOverallTabs({
           `/admin/course/${groupId}/assignment/${assignmentId}/assessment` as const
         }
         className={cn(
-          'flex h-full w-1/4 items-center justify-center rounded-full',
-          isCurrentTab('assessment') &&
-            'text-primary border-primary border-2 border-solid bg-white'
+          'flex h-12 flex-1 items-center justify-center font-semibold',
+          isCurrentTab('assessment')
+            ? 'border-b-2 border-[#3581FA] text-[#3581FA]'
+            : 'text-[#737373]'
         )}
       >
         ASSESSMENT
@@ -88,9 +91,10 @@ export function AssignmentOverallTabs({
           `/admin/course/${groupId}/assignment/${assignmentId}/statictics` as const
         }
         className={cn(
-          'flex h-full w-1/4 items-center justify-center rounded-full',
-          isCurrentTab('statictics') &&
-            'text-primary border-primary border-2 border-solid bg-white'
+          'flex h-12 flex-1 items-center justify-center font-semibold',
+          isCurrentTab('statictics')
+            ? 'border-b-2 border-[#3581FA] text-[#3581FA]'
+            : 'text-[#737373]'
         )}
       >
         STATISTICS

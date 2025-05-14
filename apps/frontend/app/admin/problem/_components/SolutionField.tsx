@@ -1,14 +1,14 @@
 'use client'
 
-import type { Template, Language } from '@generated/graphql'
+import type { Language, Solution } from '@generated/graphql'
 import { useEffect, useRef } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { CodeForm } from './CodeForm'
 
-export function TemplateField() {
+export function SolutionField() {
   const { unregister, watch, setValue, getValues } = useFormContext()
   const watchedLanguages: Language[] = watch('languages') ?? []
-  const watchedTemplates: Template[] = watch('template') ?? []
+  const watchedSolutions: Solution[] = watch('solution') ?? []
   const previousLanguagesRef = useRef<Language[]>([])
 
   useEffect(() => {
@@ -18,19 +18,19 @@ export function TemplateField() {
         ? previousLanguages.length - watchedLanguages.length
         : 0
 
-    // Unregister templates that are no longer associated with existing languages
+    // Unregister solutions that are no longer associated with existing languages
     for (let i = 0; i < removedCount; i++) {
       const index = previousLanguages.length - 1 - i
-      unregister(`template.${index}`)
+      unregister(`solution.${index}`)
     }
 
-    // Filter out any empty template objects
-    // Note: Even after unregistering, some templates may remain as empty objects
-    const filteredTemplates = watchedTemplates.filter((template) => {
-      return Object.keys(template).length > 0
+    // Filter out any empty solution objects
+    // Note: Even after unregistering, some solutions may remain as empty objects
+    const filteredSolutions = watchedSolutions.filter((solution) => {
+      return Object.keys(solution).length > 0
     })
 
-    setValue('template', filteredTemplates)
+    setValue('solution', filteredSolutions)
 
     previousLanguagesRef.current = watchedLanguages
   }, [watchedLanguages, unregister])
@@ -42,10 +42,10 @@ export function TemplateField() {
           <div key={index} className="flex gap-4">
             {language && (
               <CodeForm
-                name={`template.${index}.code.0.text`}
+                name={`solution.${index}.code`}
                 language={language}
-                hasValue={getValues(`template.${index}.code.0.text`) || false}
-                variant="template"
+                hasValue={getValues(`solution.${index}.code`) || false}
+                variant="solution"
               />
             )}
           </div>

@@ -26,7 +26,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import Loading from '../problem/[problemId]/loading'
@@ -34,6 +34,7 @@ import { EditorHeader } from './EditorHeader/EditorHeader'
 import { LeaderboardModalDialog } from './LeaderboardModalDialog'
 import { TestcasePanel } from './TestcasePanel/TestcasePanel'
 import { useLeaderboardSync } from './context/ReFetchingLeaderboardStoreProvider'
+import { useSubmissionDetailSync } from './context/ReFetchingSubmissionDetailStoreProvider'
 import { useSubmissionSync } from './context/ReFetchingSubmissionStoreProvider'
 import { TestPollingStoreProvider } from './context/TestPollingStoreProvider'
 import { TestcaseStoreProvider } from './context/TestcaseStoreProvider'
@@ -97,6 +98,9 @@ export function EditorMainResizablePanel({
   const triggerSubmissionRefresh = useSubmissionSync(
     (state) => state.triggerRefresh
   )
+  const triggerSubmissionDetailRefresh = useSubmissionDetailSync(
+    (state) => state.triggerRefresh
+  )
   const {
     isSidePanelHidden,
     toggleSidePanelVisibility
@@ -104,6 +108,7 @@ export function EditorMainResizablePanel({
     useSidePanelTabStore()
 
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   let base: string
   if (contestId) {
     base = `/contest/${contestId}` as const
@@ -140,6 +145,16 @@ export function EditorMainResizablePanel({
       setLanguage(problem.languages[0])
     }
   }, [problem.languages, language, setLanguage])
+
+  const [isSubmissionDetail, setIsSubmissionDetail] = useState(false)
+  useEffect(() => {
+    const cellProblemId = searchParams.get('cellProblemId')
+    if (cellProblemId) {
+      setIsSubmissionDetail(true)
+    } else {
+      setIsSubmissionDetail(false)
+    }
+  }, [pathname, searchParams])
 
   return (
     <ResizablePanelGroup
@@ -233,7 +248,9 @@ export function EditorMainResizablePanel({
                   alt="Sync"
                   className={'cursor-pointer'}
                   onClick={() => {
-                    triggerSubmissionRefresh()
+                    isSubmissionDetail
+                      ? triggerSubmissionDetailRefresh()
+                      : triggerSubmissionRefresh()
                   }}
                 />
               </div>

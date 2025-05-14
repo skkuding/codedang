@@ -17,7 +17,7 @@ import type { Assignment } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { MdArrowForwardIos } from 'react-icons/md'
-import { Bar, CartesianGrid, XAxis, BarChart, YAxis } from 'recharts'
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 import { toast } from 'sonner'
 
 const chartConfig = {
@@ -26,15 +26,15 @@ const chartConfig = {
   }
 } satisfies ChartConfig
 
-interface GradeDetailModalProps {
+interface GradeStatisticsModalProps {
   assignment: Assignment
   courseId: number
 }
 
-export function GradeDetailModal({
+export function GradeStatisticsModal({
   assignment,
   courseId
-}: GradeDetailModalProps) {
+}: GradeStatisticsModalProps) {
   const { data } = useSuspenseQuery(
     assignmentSubmissionQueries.anonymizedScores({
       assignmentId: assignment.id,
