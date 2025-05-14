@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  query GetProblems($input: FilterProblemsInput!, $cursor: Int, $take: Int!, $my: Boolean, $shared: Boolean) {
-    getProblems(input: $input, cursor: $cursor, take: $take, my: $my, shared: $shared) {
+  query GetProblems($input: FilterProblemsInput!, $cursor: Int, $take: Int!, $my: Boolean, $shared: Boolean, $contestId: Int) {
+    getProblems(input: $input, cursor: $cursor, take: $take, my: $my, shared: $shared, contestId: $contestId) {
       id
       createdBy {
         id
@@ -62,7 +62,35 @@ assert {
 }
 
 docs {
-  ## Get Problems
+  # Get Problems
   조건에 맞는 Problem들을 가져옵니다.
   조건에 맞는 Problem이 없다면, 빈 배열을 반환합니다.
+
+  ## Query
+
+  > 필수 query는 * 표시하였습니다.
+
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |input*|FilterProblemsInput|문제 필터링 조건|
+  |cursor|Integer|cursor 값보다 큰 ID 문제 필터링|
+  |take*|Integer|가져올 문제 수 (default: 10)|
+  |my*|boolean|내가 만든 문제인지 여부 (default: false)|
+  |shared*|boolean|공유된 문제인지 여부 (default: false)|
+  |contestId|Integer|문제가 속한 대회 ID (default: null)|
+
+  ## Response
+
+  ### my=false & shared=false 시
+  전체 문제 목록 반환
+
+  ### my=true & contestId 지정 시
+  해당 대회에서 Admin∙Manager 역할인 경우,
+  본인이 만든 문제와 대회 Admin∙Manager가 만든 문제를 함께 반환
+
+  ### my=true & contestId 미지정 시
+  본인이 만든 문제만 반환
+
+  ### shared=true 시
+  사용자가 그룹 리더인 그룹에 공유된 문제만 반환
 }
