@@ -19,10 +19,8 @@ import { DescriptionForm } from '../../../_components/DescriptionForm'
 import { FormSection } from '../../../_components/FormSection'
 import { SwitchField } from '../../../_components/SwitchField'
 import { TitleForm } from '../../../_components/TitleForm'
-import { VisibleForm } from '../../../_components/VisibleForm'
 import { InfoForm } from '../../_components/InfoForm'
 import { LimitForm } from '../../_components/LimitForm'
-import { PopoverVisibleInfo } from '../../_components/PopoverVisibleInfo'
 import { SolutionField } from '../../_components/SolutionField'
 import { TemplateField } from '../../_components/TemplateField'
 import { TestcaseField } from '../../_components/TestcaseField'
@@ -32,9 +30,6 @@ import { EditProblemForm } from './_components/EditProblemForm'
 export default function Page({ params }: { params: { problemId: string } }) {
   const [isPreviewing, setIsPreviewing] = useState(false)
   const { problemId } = params
-
-  const session = useSession()
-  const isAdmin = session?.user?.role !== 'User'
 
   const methods = useForm<UpdateProblemInput>({
     resolver: valibotResolver(editSchema),
@@ -93,27 +88,12 @@ export default function Page({ params }: { params: { problemId: string } }) {
             <Link href={`/admin/problem/${problemId}`}>
               <FaAngleLeft className="h-12 hover:text-gray-700/80" />
             </Link>
-            <span className="text-4xl font-bold">Edit Problem</span>
+            <span className="text-4xl font-bold">EDIT PROBLEM</span>
           </div>
 
           <EditProblemForm problemId={Number(problemId)} methods={methods}>
-            <div className="flex gap-32">
-              <FormSection isFlexColumn title="Title">
-                <TitleForm placeholder="Enter a problem name" />
-              </FormSection>
-
-              <FormSection isFlexColumn title="Visible">
-                <PopoverVisibleInfo />
-                <VisibleForm
-                  blockEdit={
-                    methods.getValues('isVisible') === null || !isAdmin
-                  }
-                />
-              </FormSection>
-            </div>
-
-            <FormSection isFlexColumn title="Info">
-              <InfoForm />
+            <FormSection isFlexColumn title="Title">
+              <TitleForm placeholder="Enter a problem name" />
             </FormSection>
 
             <FormSection isFlexColumn title="Description">
@@ -153,6 +133,10 @@ export default function Page({ params }: { params: { problemId: string } }) {
 
             <FormSection isFlexColumn title="Limit">
               <LimitForm blockEdit={false} />
+            </FormSection>
+
+            <FormSection isFlexColumn title="Info">
+              <InfoForm />
             </FormSection>
 
             <TemplateField />
