@@ -133,11 +133,11 @@ export function AssignmentSolutionTable({
     })
   }
 
-  // TODO: GET_ASSIGNMENT_PROBLEMS에 solution 추가되면 solution으로 있는 걸로 필터링
-  // const filteredProblems = useMemo(() => {
-  //   return problems.filter((problem) => problem.solution)
-  // }, [problems])
-  const filteredProblems = problems
+  const filteredProblems = useMemo(() => {
+    return problems.filter((problem) => {
+      return problem.solution.some((solution) => solution.code.length > 0)
+    })
+  }, [problems])
 
   const columns = useMemo(
     () =>
