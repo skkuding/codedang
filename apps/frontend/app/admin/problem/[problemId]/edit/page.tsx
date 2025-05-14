@@ -127,14 +127,6 @@ export default function Page({ params }: { params: { problemId: string } }) {
               </div>
             </div>
 
-            {methods.getValues('testcases') && (
-              <TestcaseField blockEdit={false} />
-            )}
-
-            <FormSection isFlexColumn title="Limit">
-              <LimitForm blockEdit={false} />
-            </FormSection>
-
             <FormSection isFlexColumn title="Info">
               <InfoForm />
             </FormSection>
@@ -142,6 +134,14 @@ export default function Page({ params }: { params: { problemId: string } }) {
             <TemplateField />
 
             <SolutionField />
+
+            {methods.getValues('testcases') && (
+              <TestcaseField blockEdit={false} />
+            )}
+
+            <FormSection isFlexColumn title="Limit">
+              <LimitForm blockEdit={false} />
+            </FormSection>
 
             <SwitchField
               name="hint"

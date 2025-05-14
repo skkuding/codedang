@@ -139,10 +139,6 @@ export default function Page() {
 
             <TestcaseField />
 
-            <FormSection isFlexColumn title="Limit">
-              <LimitForm />
-            </FormSection>
-
             <FormSection isFlexColumn title="Info">
               <InfoForm />
             </FormSection>
@@ -150,6 +146,10 @@ export default function Page() {
             <TemplateField />
 
             <SolutionField />
+
+            <FormSection isFlexColumn title="Limit">
+              <LimitForm />
+            </FormSection>
 
             <SwitchField
               name="hint"
