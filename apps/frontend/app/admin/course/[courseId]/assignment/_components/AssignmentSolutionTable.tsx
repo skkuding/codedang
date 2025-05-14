@@ -14,13 +14,13 @@ import { createColumns } from './AssignmentSolutionColumns'
 interface AssignmentSolutionTableProps {
   problems: AssignmentProblem[]
   setProblems: Dispatch<SetStateAction<AssignmentProblem[]>>
-  endTime?: Date
+  dueTime?: Date
 }
 
 export function AssignmentSolutionTable({
   problems,
   setProblems,
-  endTime
+  dueTime
 }: AssignmentSolutionTableProps) {
   const [revealedStates, setRevealedStates] = useState<{
     [key: number]: boolean
@@ -49,7 +49,7 @@ export function AssignmentSolutionTable({
           newOptionStates[index] = ''
         } else if (
           dayjs(problem.solutionReleaseTime).toString() ===
-          dayjs(endTime)?.toString()
+          dayjs(dueTime)?.toString()
         ) {
           newOptionStates[index] = 'After Deadline'
         } else {
@@ -95,7 +95,7 @@ export function AssignmentSolutionTable({
       const newState = { ...prev, [rowIndex]: value }
       const dummyReleaseTime = new Date('2025-01-01')
 
-      // 일단 2025-01-01로 해두고 Create 할 때 endTime으로 갈아끼우기기
+      // 일단 2025-01-01로 해두고 Create 할 때 dueTime으로 갈아끼우기기
       if (value === 'After Deadline') {
         setSolutionReleaseTimes((prev) => ({
           ...prev,

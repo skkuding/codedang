@@ -7,6 +7,7 @@ import { Label } from '@/app/admin/_components/Label'
 import { SwitchField } from '@/app/admin/_components/SwitchField'
 import { TimeForm } from '@/app/admin/_components/TimeForm'
 import { TitleForm } from '@/app/admin/_components/TitleForm'
+import { TimeFormPopover } from '@/app/admin/course/_components/TimeFormPopover'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { UpdateAssignmentInput } from '@generated/graphql'
@@ -50,7 +51,7 @@ export default function Page({
             <Link href={`/admin/course/${courseId}/assignment` as const}>
               <FaAngleLeft className="h-12" />
             </Link>
-            <span className="text-4xl font-bold">Edit Assignment</span>
+            <span className="text-4xl font-bold">EDIT ASSIGNMENT</span>
           </div>
 
           <EditAssignmentForm
@@ -69,15 +70,35 @@ export default function Page({
                 />
               </FormSection>
 
-              <FormSection
-                title="Week"
-                isJustifyBetween={false}
-                className="gap-[67px]"
-              >
-                {methods.getValues('week') && (
-                  <WeekComboBox name="week" courseId={Number(courseId)} />
-                )}
-              </FormSection>
+              <div className="flex justify-between">
+                <FormSection
+                  title="Week"
+                  isJustifyBetween={false}
+                  className="gap-[67px]"
+                >
+                  {methods.getValues('week') && (
+                    <WeekComboBox name="week" courseId={Number(courseId)} />
+                  )}
+                </FormSection>
+                <FormSection
+                  title="Due Time"
+                  isJustifyBetween={false}
+                  className="gap-[40px]"
+                  isLabeled={false}
+                >
+                  <TimeFormPopover />
+                  {methods.getValues('dueTime') && (
+                    <TimeForm
+                      name="dueTime"
+                      defaultTimeOnSelect={{
+                        hours: 23,
+                        minutes: 59,
+                        seconds: 59
+                      }}
+                    />
+                  )}
+                </FormSection>
+              </div>
 
               <div className="flex justify-between">
                 <FormSection
@@ -139,7 +160,7 @@ export default function Page({
                 <AssignmentSolutionTable
                   problems={problems}
                   setProblems={setProblems}
-                  endTime={methods.getValues('endTime')}
+                  dueTime={methods.getValues('dueTime')}
                 />
               </div>
 

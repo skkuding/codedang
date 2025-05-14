@@ -65,6 +65,7 @@ export function EditAssignmentForm({
         title: data.title,
         description: data.description,
         startTime: new Date(data.startTime),
+        dueTime: new Date(data.dueTime),
         endTime: new Date(data.endTime),
         enableCopyPaste: data.enableCopyPaste,
         isJudgeResultVisible: data.isJudgeResultVisible,
@@ -154,8 +155,13 @@ export function EditAssignmentForm({
     .map((problem) => problem.title)
 
   const isSubmittable = (input: UpdateAssignmentInput) => {
-    if (input.startTime >= input.endTime) {
-      toast.error('Start time must be less than end time')
+    if (input.startTime >= input.dueTime) {
+      toast.error('Start time must be less than due time')
+      return
+    }
+
+    if (input.dueTime >= input.endTime) {
+      toast.error('Due time must be less than end time')
       return
     }
 
@@ -183,18 +189,12 @@ export function EditAssignmentForm({
   const proceedSubmit = async () => {
     const input = methods.getValues()
 
-    // NOTE: 임시로 dueTime을 endTime과 동일하게 설정
-    const finalInput = {
-      ...input,
-      dueTime: input.endTime
-    }
-
     setIsLoading(true)
 
     await updateAssignment({
       variables: {
         groupId: courseId,
-        input: finalInput
+        input
       }
     })
 
@@ -246,7 +246,7 @@ export function EditAssignmentForm({
             solutionReleaseTime: isOptionAfterDeadline(
               problem.solutionReleaseTime
             )
-              ? input.endTime
+              ? input.dueTime
               : problem.solutionReleaseTime
           }
         })
