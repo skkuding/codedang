@@ -30,9 +30,11 @@ import { ForbiddenAccessException } from '@libs/exception'
 import {
   CursorValidationPipe,
   GroupIDPipe,
+  IDValidationPipe,
   ProblemIDPipe,
   RequiredIntPipe
 } from '@libs/pipe'
+import { AssignmentProblemUpdateInput } from '@admin/assignment/model/assignment-problem.input'
 import { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { FileSource } from './model/file.output'
 import {
@@ -147,7 +149,13 @@ export class ProblemResolver {
     @Args('take', { defaultValue: 10, type: () => Int }) take: number,
     @Args('my', { defaultValue: false, type: () => Boolean }) my: boolean,
     @Args('shared', { defaultValue: false, type: () => Boolean })
-    shared: boolean
+    shared: boolean,
+    @Args(
+      'contestId',
+      { nullable: true, defaultValue: null, type: () => Int },
+      IDValidationPipe
+    )
+    contestId: number | null
   ) {
     if (!my && !shared && req.user.role == Role.User) {
       throw new ForbiddenAccessException(
@@ -160,7 +168,10 @@ export class ProblemResolver {
       cursor,
       take,
       my,
-      shared
+      idOptions: {
+        shared,
+        contestId
+      }
     })
   }
 
@@ -285,16 +296,18 @@ export class AssignmentProblemResolver {
   }
 
   @Mutation(() => [AssignmentProblem])
-  async updateAssignmentProblemsScore(
+  async updateAssignmentProblems(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('assignmentId', { type: () => Int }) assignmentId: number,
-    @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
-    problemIdsWithScore: ProblemScoreInput[]
+    @Args('assignmentProblemUpdateInput', {
+      type: () => [AssignmentProblemUpdateInput]
+    })
+    assignmentProblemUpdateInput: AssignmentProblemUpdateInput[]
   ) {
-    return await this.problemService.updateAssignmentProblemsScore(
+    return await this.problemService.updateAssignmentProblems(
       groupId,
       assignmentId,
-      problemIdsWithScore
+      assignmentProblemUpdateInput
     )
   }
 
