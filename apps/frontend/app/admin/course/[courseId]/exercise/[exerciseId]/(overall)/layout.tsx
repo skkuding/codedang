@@ -58,6 +58,7 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
       <AssignmentOverallTabs
         groupId={Number(courseId)}
         assignmentId={Number(assignmentId)}
+        isExercise={true}
       />
       {tabs}
     </main>

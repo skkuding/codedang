@@ -16,11 +16,13 @@ interface SubmissionSummary {
 interface AssignmentOverallTabsProps {
   groupId: number
   assignmentId: number
+  isExercise?: boolean
 }
 
 export function AssignmentOverallTabs({
   groupId,
-  assignmentId
+  assignmentId,
+  isExercise
 }: AssignmentOverallTabsProps) {
   const pathname = usePathname()
 
@@ -39,18 +41,16 @@ export function AssignmentOverallTabs({
   })
 
   const isCurrentTab = (tab: string) => {
-    if (tab === '') {
-      return pathname === `/admin/course/${groupId}/assignment/${assignmentId}`
-    }
-    return pathname.startsWith(
-      `/admin/course/${groupId}/assignment/${assignmentId}/${tab}`
-    )
+    const basePath = `/admin/course/${groupId}/${isExercise ? 'exercise' : 'assignment'}/${assignmentId}`
+    return pathname.startsWith(tab ? `${basePath}/${tab}` : basePath)
   }
 
   return (
     <div className="flex w-full border-b border-[#E1E1E1]">
       <Link
-        href={`/admin/course/${groupId}/assignment/${assignmentId}` as const}
+        href={
+          `/admin/course/${groupId}/${isExercise ? 'exercise' : 'assignment'}/${assignmentId}` as const
+        }
         className={cn(
           'flex h-12 flex-1 items-center justify-center font-semibold',
           isCurrentTab('')
@@ -62,7 +62,7 @@ export function AssignmentOverallTabs({
       </Link>
       <Link
         href={
-          `/admin/course/${groupId}/assignment/${assignmentId}/submission` as const
+          `/admin/course/${groupId}/${isExercise ? 'exercise' : 'assignment'}/${assignmentId}/submission` as const
         }
         className={cn(
           'flex h-12 flex-1 items-center justify-center font-semibold',
@@ -73,26 +73,28 @@ export function AssignmentOverallTabs({
       >
         SUBMISSION
       </Link>
+      {!isExercise && (
+        <Link
+          href={
+            `/admin/course/${groupId}/assignment/${assignmentId}/assessment` as const
+          }
+          className={cn(
+            'flex h-12 flex-1 items-center justify-center font-semibold',
+            isCurrentTab('assessment')
+              ? 'border-b-2 border-[#3581FA] text-[#3581FA]'
+              : 'text-[#737373]'
+          )}
+        >
+          ASSESSMENT
+        </Link>
+      )}
       <Link
         href={
-          `/admin/course/${groupId}/assignment/${assignmentId}/assessment` as const
+          `/admin/course/${groupId}/${isExercise ? 'exercise' : 'assignment'}/${assignmentId}/statistics` as const
         }
         className={cn(
           'flex h-12 flex-1 items-center justify-center font-semibold',
-          isCurrentTab('assessment')
-            ? 'border-b-2 border-[#3581FA] text-[#3581FA]'
-            : 'text-[#737373]'
-        )}
-      >
-        ASSESSMENT
-      </Link>
-      <Link
-        href={
-          `/admin/course/${groupId}/assignment/${assignmentId}/statictics` as const
-        }
-        className={cn(
-          'flex h-12 flex-1 items-center justify-center font-semibold',
-          isCurrentTab('statictics')
+          isCurrentTab('statistics')
             ? 'border-b-2 border-[#3581FA] text-[#3581FA]'
             : 'text-[#737373]'
         )}
