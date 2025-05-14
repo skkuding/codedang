@@ -266,6 +266,7 @@ export const createColumns = (
               href={
                 `/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${row.original.id}/problem/${problemData[0].problemId}` as const
               }
+              target="_blank"
               className="flex justify-center"
             >
               <SquareArrowOutUpRight className="hover:text-primary h-4 w-4 text-gray-500" />
