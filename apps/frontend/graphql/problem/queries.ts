@@ -29,6 +29,7 @@ const GET_PROBLEM = gql(`
       hint
       source
       template
+      solution
     }
   }
 `)

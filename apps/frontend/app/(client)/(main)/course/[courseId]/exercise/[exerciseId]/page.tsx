@@ -14,7 +14,7 @@ import {
 import calendarIcon from '@/public/icons/calendar.svg'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
-import { columns } from '../../assignment/[assignmentId]/_components/Columns'
+import { columns } from './_components/Columns'
 
 interface ExerciseDetailProps {
   params: {

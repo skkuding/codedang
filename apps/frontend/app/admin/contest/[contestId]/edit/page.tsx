@@ -31,6 +31,7 @@ import {
   type ContestProblem,
   editSchema
 } from '../../_libs/schemas'
+import { ContestEditEndTimeForm } from './_components/ContestEditEndTimeForm'
 import { EditContestForm } from './_components/EditContestForm'
 
 export default function Page({ params }: { params: { contestId: string } }) {
@@ -103,7 +104,10 @@ export default function Page({ params }: { params: { contestId: string } }) {
                 </FormSection>
                 <FormSection title="End Time">
                   {methods.getValues('endTime') && (
-                    <TimeForm isContest name="endTime" />
+                    <ContestEditEndTimeForm
+                      name="endTime"
+                      isOngoing={isOngoing}
+                    />
                   )}
                 </FormSection>
 
@@ -224,10 +228,13 @@ export default function Page({ params }: { params: { contestId: string } }) {
                   <strong className="font-bold">End Time</strong> and{' '}
                   <strong className="font-bold">Freeze Time</strong> for an
                   Ongoing Contest.
-                  <br />* Ensure the{' '}
-                  <strong className="font-bold">Freeze Start Time</strong> is
-                  after the <strong className="font-bold">Current Time</strong>,
-                  and the{' '}
+                  <br />* <strong className="font-bold">End Time</strong> must
+                  be after the{' '}
+                  <strong className="font-bold">Original End Time</strong>.
+                  <br />*{' '}
+                  <strong className="font-bold">Freeze Start Time</strong> must
+                  be after the{' '}
+                  <strong className="font-bold">Current Time</strong>, and the{' '}
                   <strong className="font-bold">
                     Original Freeze Start Time
                   </strong>

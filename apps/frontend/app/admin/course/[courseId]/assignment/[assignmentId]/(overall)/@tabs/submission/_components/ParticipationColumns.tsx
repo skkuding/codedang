@@ -2,8 +2,8 @@
 
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import type {
-  ScoreSummary,
-  ProblemData
+  ProblemData,
+  ScoreSummary
 } from '@/app/admin/course/[courseId]/assignment/_libs/type'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 
@@ -41,25 +41,16 @@ export const createColumns = (
       filterFn: 'includesString'
     },
     {
-      accessorKey: 'username',
-      header: () => <p className="border-r py-1 font-mono text-sm">User ID</p>,
-      cell: ({ row }) => (
-        <div className="whitespace-nowrap border-r py-1 text-center text-xs font-medium">
-          {row.getValue('username')}
-        </div>
-      )
-    },
-    {
       accessorKey: 'submittedProblemCount',
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
           title="Submit"
-          className="flex justify-center border-r"
+          className="flex justify-center border-x"
         />
       ),
       cell: ({ row }) => (
-        <div className="flex justify-center border-r">
+        <div className="flex justify-center border-x">
           {row.original.submittedProblemCount}/{row.original.totalProblemCount}
         </div>
       )
