@@ -14,12 +14,11 @@ import {
 } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import excelIcon from '@/public/icons/excel.svg'
-import { useSuspenseQuery } from '@apollo/client'
-import { useQuery } from '@apollo/client'
+import { useQuery, useSuspenseQuery } from '@apollo/client'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { CSVLink } from 'react-csv'
-import { createColumns } from './Columns'
+import { createColumns } from './ParticipationColumns'
 
 interface ScoreSummary {
   username: string
@@ -154,16 +153,23 @@ export function ParticipantTable() {
 
   return (
     <div>
-      <p className="mb-3 font-medium">
-        <span className="text-primary font-bold">{summariesData.length}</span>{' '}
-        Participants
-      </p>
       <DataTableRoot
         data={summariesData}
         columns={createColumns(problemColumnData)}
       >
         <div className="flex justify-between">
-          <DataTableSearchBar columndId="realName" placeholder="Search Name" />
+          <div className="flex items-center gap-4">
+            <div className="font-semibold">
+              <span className="text-primary font-bold">
+                {summariesData.length}
+              </span>{' '}
+              Participants
+            </div>
+            <DataTableSearchBar
+              columndId="realName"
+              placeholder="Search Name"
+            />
+          </div>
           <CSVLink
             data={csvData}
             headers={headers}
