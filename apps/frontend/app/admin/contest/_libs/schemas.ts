@@ -36,7 +36,6 @@ export const createSchema = v.object({
 export const editSchema = v.object({
   ...createSchema.entries
 })
-
 export interface ContestProblem {
   id: number
   title: string
