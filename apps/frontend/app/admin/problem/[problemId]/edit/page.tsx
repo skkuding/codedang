@@ -5,7 +5,6 @@ import { EditorDescription } from '@/app/admin/_components/code-editor/EditorDes
 import { PreviewEditorLayout } from '@/app/admin/_components/code-editor/PreviewEditorLayout'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
-import { useSession } from '@/libs/hooks/useSession'
 import type { ProblemDetail, Template } from '@/types/type'
 import type { UpdateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
