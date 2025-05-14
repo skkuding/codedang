@@ -31,7 +31,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
       <ScrollArea className="w-full">
         <main className="flex flex-col gap-6 px-[93px] py-[80px]">
           <div className="flex items-center gap-4">
-            <Link href={`/admin/course/${courseId}/assignment` as const}>
+            <Link href={`/admin/course/${courseId}/exercise` as const}>
               <FaAngleLeft className="h-12" />
             </Link>
             <span className="text-[32px] font-bold">CREATE EXERCISE</span>
@@ -48,7 +48,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
               title="Title"
               className="gap-[77px]"
             >
-              <TitleForm placeholder="Name your Assignment" />
+              <TitleForm placeholder="Name your Exercise" />
             </FormSection>
 
             <div className="flex flex-col gap-6">
