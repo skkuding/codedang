@@ -135,7 +135,9 @@ export function AssignmentSolutionTable({
 
   const filteredProblems = useMemo(() => {
     return problems.filter((problem) => {
-      return problem.solution.some((solution) => solution.code.length > 0)
+      return (
+        problem.solution?.some((solution) => solution.code.length > 0) ?? false
+      )
     })
   }, [problems])
 
