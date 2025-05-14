@@ -41,7 +41,9 @@ export function AssignmentSolutionTable({
       const newSolutionReleaseTimes: { [key: number]: Date | null } = {}
 
       problems.forEach((problem, index) => {
-        newRevealedStates[index] = problem.solutionReleaseTime !== null
+        if (problem.solutionReleaseTime) {
+          newRevealedStates[index] = true
+        }
 
         if (problem.solutionReleaseTime === null) {
           newOptionStates[index] = ''
