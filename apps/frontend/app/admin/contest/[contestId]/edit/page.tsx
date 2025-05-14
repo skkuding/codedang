@@ -204,7 +204,11 @@ export default function Page({ params }: { params: { contestId: string } }) {
                   title="Contest Problem List"
                   content={`If contest problems are imported from the ‘All Problem List’,<br>the problems will automatically become invisible state.<br>After the contests are all over, you can manually make the problem visible again.`}
                 />
-                <ImportDialog problems={problems} setProblems={setProblems} />
+                <ImportDialog
+                  problems={problems}
+                  setProblems={setProblems}
+                  contestId={contestId}
+                />
               </div>
               <ContestProblemTable
                 problems={problems}
