@@ -36,7 +36,6 @@ export function CreateContestAnnouncement({
     handleSubmit,
     register,
     setValue,
-    trigger,
     watch,
     resetField,
     formState: { errors }
