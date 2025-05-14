@@ -14,12 +14,11 @@ import {
 } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import excelIcon from '@/public/icons/excel.svg'
-import { useSuspenseQuery } from '@apollo/client'
-import { useQuery } from '@apollo/client'
+import { useQuery, useSuspenseQuery } from '@apollo/client'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { CSVLink } from 'react-csv'
-import { createColumns } from './Columns'
+import { createColumns } from './ParticipationColumns'
 
 interface ScoreSummary {
   username: string

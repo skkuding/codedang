@@ -5,21 +5,20 @@ import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
 import {
   Table,
-  TableHeader,
   TableBody,
+  TableCell,
   TableHead,
-  TableRow,
-  TableCell
+  TableHeader,
+  TableRow
 } from '@/components/shadcn/table'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { useQuery, useSuspenseQuery } from '@apollo/client'
 import { ChevronDownIcon } from '@radix-ui/react-icons'
 import { ErrorBoundary } from '@suspensive/react'
-import { Suspense } from 'react'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
-import { ParticipantTableFallback } from './_components/ParticipantTable'
+import { ParticipantTableFallback } from './submission/_components/ParticipantTable'
 
 interface InformationProps {
   params: { courseId: string; assignmentId: string }
@@ -41,7 +40,7 @@ export default function Information({ params }: InformationProps) {
       }
     }).data?.getAssignmentProblems || []
 
-  const [problemsOpen, setProblemsOpen] = useState(true)
+  const [problemsOpen, setProblemsOpen] = useState(false)
 
   return (
     <ErrorBoundary fallback={FetchErrorFallback}>
@@ -66,7 +65,7 @@ export default function Information({ params }: InformationProps) {
                 onClick={() => setProblemsOpen((prev) => !prev)}
               >
                 <ChevronDownIcon
-                  className={`h-5 w-5 transition-transform ${problemsOpen ? '' : '-rotate-180'}`}
+                  className={`h-5 w-5 transition-transform ${problemsOpen ? '-rotate-180' : ''}`}
                 />
               </button>
             </div>

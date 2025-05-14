@@ -2,8 +2,8 @@
 
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import type {
-  ScoreSummary,
-  ProblemData
+  ProblemData,
+  ScoreSummary
 } from '@/app/admin/course/[courseId]/assignment/_libs/type'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 

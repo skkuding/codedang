@@ -12,8 +12,8 @@ import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { GET_ASSIGNMENT_SUBMISSIONS } from '@/graphql/submission/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { useState } from 'react'
-import { columns } from './Columns'
 import { DataTableProblemFilterMini } from './DataTableProblemFilterMini'
+import { columns } from './SubmissionColumns'
 
 export function SubmissionTable({
   groupId,
