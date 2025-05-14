@@ -19,7 +19,7 @@ import excelIcon from '@/public/logos/excel.png'
 import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
 import dayjs from 'dayjs'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CSVLink } from 'react-csv'
 import { toast } from 'sonner'
 import { createColumns } from './Columns'
@@ -60,12 +60,13 @@ export function ParticipantTable({
     .slice()
     .sort((a, b) => a.order - b.order)
 
-  const [revealRawScore, setRevealRawScore] = useState(
-    assignmentData?.isJudgeResultVisible
-  )
   const [revealFinalScore, setRevealFinalScore] = useState(
     assignmentData?.isFinalScoreVisible
   )
+
+  useEffect(() => {
+    setRevealFinalScore(assignmentData?.isFinalScoreVisible)
+  }, [assignmentData?.isFinalScoreVisible])
 
   const formatScore = (score: number): string => {
     const fixedScore = Math.floor(score * 1000) / 1000
@@ -172,6 +173,9 @@ export function ParticipantTable({
                         id: assignmentId,
                         isFinalScoreVisible: checked
                       }
+                    },
+                    onCompleted: () => {
+                      toast.success('Successfully updated')
                     }
                   })
                 }}
