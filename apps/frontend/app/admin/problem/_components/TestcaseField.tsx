@@ -34,10 +34,13 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
   const [dialogDescription, setDialogDescription] = useState<string>('')
   const [disableDistribution, setDisableDistribution] = useState<boolean>(false)
+  const [isScoreNull, setIsScoreNull] = useState<boolean>(true)
 
   useEffect(() => {
     const allFilled = watchedItems.every((item) => !isInvalid(item.scoreWeight))
     setDisableDistribution(allFilled)
+    const allNull = watchedItems.every((item) => isInvalid(item.scoreWeight))
+    setIsScoreNull(allNull)
   }, [watchedItems])
 
   const addTestcase = (isHidden: boolean) => {
@@ -158,15 +161,22 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                className="flex h-9 w-40 items-center gap-2 px-0"
+                className={cn(
+                  'flex h-9 w-40 items-center gap-2 px-0',
+                  isScoreNull && 'bg-gray-300 text-gray-600'
+                )}
                 onClick={initializeScore}
+                disabled={isScoreNull}
               >
-                <FaArrowRotateLeft />
-                <p>Initialize Score</p>
+                <FaArrowRotateLeft
+                  fontSize={20}
+                  className={cn(isScoreNull && 'text-gray-600')}
+                />
+                <p>Reset Ratio</p>
               </Button>
             </TooltipTrigger>
             <TooltipContent className="bg-white text-black shadow-sm">
-              Click to discard all of the scores of testcases
+              Click to discard all of the scores of testcases.
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
