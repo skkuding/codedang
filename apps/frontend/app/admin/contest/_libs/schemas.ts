@@ -44,7 +44,6 @@ export interface ContestProblem {
   difficulty: string
   score: number
 }
-
 export const announcementSchema = v.object({
   content: v.pipe(v.string(), v.minLength(1, 'Required')),
   problemOrder: v.undefinedable(v.nullable(v.number()))
