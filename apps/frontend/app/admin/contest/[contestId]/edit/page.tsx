@@ -20,7 +20,7 @@ import { AddManagerReviewerDialog } from '../../_components/AddManagerReviewerDi
 import { ContestManagerReviewerTable } from '../../_components/ContestManagerReviewerTable'
 import { ContestProblemTable } from '../../_components/ContestProblemTable'
 import { CreateEditContestLabel } from '../../_components/CreateEditContestLabel'
-import { EnableCopyPasteForm } from '../../_components/EnableCopyPasteForm'
+import { DisableCopyPasteForm } from '../../_components/DisableCopyPasteForm'
 import { FreezeForm } from '../../_components/FreezeForm'
 import { ImportDialog } from '../../_components/ImportDialog'
 import { PosterUploadForm } from '../../_components/PosterUploadForm'
@@ -151,9 +151,9 @@ export default function Page({ params }: { params: { contestId: string } }) {
                 hasValue={methods.getValues('invitationCode') !== null}
               />
               {methods.getValues('enableCopyPaste') !== undefined && (
-                <EnableCopyPasteForm
+                <DisableCopyPasteForm
                   name="enableCopyPaste"
-                  title="Enable Copy Paste"
+                  title="Disable Copy/Paste"
                   hasValue={methods.getValues('enableCopyPaste') !== false}
                 />
               )}
