@@ -21,15 +21,18 @@ import {
 } from './ImportProblemTableColumns'
 
 export function ImportProblemTable({
+  contestId,
   checkedProblems,
   onSelectedExport
 }: {
+  contestId: number
   checkedProblems: ContestProblem[]
   onSelectedExport: (selectedRows: ContestProblem[]) => void
 }) {
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
-      my: true,
+      mode: 'contest',
+      contestId,
       take: 500,
       input: {
         difficulty: [

@@ -30,11 +30,16 @@ import {
 import type { ContestProblem } from '../_libs/schemas'
 
 interface ImportDialogProps {
+  contestId: number
   problems: ContestProblem[]
   setProblems: (problems: ContestProblem[]) => void
 }
 
-export function ImportDialog({ problems, setProblems }: ImportDialogProps) {
+export function ImportDialog({
+  contestId,
+  problems,
+  setProblems
+}: ImportDialogProps) {
   const [showImportDialog, setShowImportDialog] = useState(false)
   return (
     <>
@@ -84,6 +89,7 @@ export function ImportDialog({ problems, setProblems }: ImportDialogProps) {
           <ErrorBoundary fallback={FetchErrorFallback}>
             <Suspense fallback={<ImportProblemTableFallback />}>
               <ImportProblemTable
+                contestId={contestId}
                 checkedProblems={problems}
                 onSelectedExport={(problems) => {
                   setProblems(problems)
