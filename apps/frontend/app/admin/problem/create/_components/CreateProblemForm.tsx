@@ -55,13 +55,9 @@ export function CreateProblemForm({
       return
     }
     const input = methods.getValues()
-    const finalInput = {
-      ...input,
-      solution: []
-    }
     await createProblem({
       variables: {
-        input: finalInput
+        input
       }
     })
   })

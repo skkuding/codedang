@@ -24,6 +24,7 @@ import { EditorDescription } from '../../_components/code-editor/EditorDescripti
 import { InfoForm } from '../_components/InfoForm'
 import { LimitForm } from '../_components/LimitForm'
 import { PopoverVisibleInfo } from '../_components/PopoverVisibleInfo'
+import { SolutionField } from '../_components/SolutionField'
 import { TemplateField } from '../_components/TemplateField'
 import { TestcaseField } from '../_components/TestcaseField'
 import { CreateProblemForm } from './_components/CreateProblemForm'
@@ -48,6 +49,7 @@ export default function Page() {
       hint: '',
       source: '',
       template: [],
+      solution: [],
       isVisible: isAdmin
     }
   })
@@ -155,6 +157,8 @@ export default function Page() {
             </FormSection>
 
             <TemplateField />
+
+            <SolutionField />
 
             <SwitchField
               name="hint"
