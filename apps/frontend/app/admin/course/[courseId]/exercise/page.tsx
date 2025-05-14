@@ -19,7 +19,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
         <p className="text-4xl font-bold">Exercise List</p>
         <Button variant="default" asChild>
           <Link
-            href={`/admin/course/${courseId}/assignment/create` as const}
+            href={`/admin/course/${courseId}/exercise/create` as const}
             className="flex gap-1"
           >
             <FaCirclePlus />
