@@ -52,7 +52,7 @@ export default function Submission({
           {tab === 'all' ? (
             <SubmissionTable groupId={groupId} assignmentId={exerciseId} />
           ) : (
-            <ParticipantTable />
+            <ParticipantTable isExercise={true} />
           )}
         </div>
       </Suspense>
