@@ -10,7 +10,7 @@ import {
 } from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput, UpdateHistory } from '@generated'
-import { ProblemField, Role } from '@prisma/client'
+import { ContestRole, ProblemField, Role } from '@prisma/client'
 import { Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
@@ -33,6 +33,7 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { AssignmentProblemUpdateInput } from '@admin/assignment/model/assignment-problem.input'
 import type { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from './model/problem.constants'
@@ -44,6 +45,7 @@ import type {
   UpdateProblemTagInput
 } from './model/problem.input'
 import type { ProblemWithIsVisible } from './model/problem.output'
+import type { Solution } from './model/solution.input'
 import type { Template } from './model/template.input'
 import { ImportedTestcaseHeader } from './model/testcase.constants'
 import type { Testcase } from './model/testcase.input'
@@ -61,7 +63,15 @@ export class ProblemService {
     userId: number,
     userRole: Role
   ) {
-    const { languages, template, tagIds, testcases, isVisible, ...data } = input
+    const {
+      languages,
+      template,
+      solution,
+      tagIds,
+      testcases,
+      isVisible,
+      ...data
+    } = input
 
     if (userRole == Role.User && isVisible == true) {
       throw new UnprocessableDataException(
@@ -76,12 +86,37 @@ export class ProblemService {
     }
 
     // Check if the problem supports the language in the template
+    const seen = new Set<Language>()
     template.forEach((template: Template) => {
-      if (!languages.includes(template.language as Language)) {
+      const lang = template.language as Language
+      if (!languages.includes(lang)) {
         throw new UnprocessableDataException(
-          `This problem does not support ${template.language as Language}`
+          `This problem does not support ${lang}`
         )
       }
+      if (seen.has(lang)) {
+        throw new UnprocessableDataException(
+          `Duplicate language ${lang} in template`
+        )
+      }
+      seen.add(lang)
+    })
+
+    // Check if the problem supports the language in the solution
+    seen.clear()
+    solution.forEach((solution: Solution) => {
+      const lang = solution.language as Language
+      if (!languages.includes(lang)) {
+        throw new UnprocessableDataException(
+          `This problem does not support ${lang}`
+        )
+      }
+      if (seen.has(lang)) {
+        throw new UnprocessableDataException(
+          `Duplicate language ${lang} in solution`
+        )
+      }
+      seen.add(lang)
     })
 
     const problem = await this.prisma.problem.create({
@@ -90,6 +125,7 @@ export class ProblemService {
         visibleLockTime: isVisible ? MIN_DATE : MAX_DATE,
         createdById: userId,
         languages,
+        solution,
         template: [JSON.stringify(template)],
         problemTag: {
           create: tagIds.map((tagId) => {
@@ -356,6 +392,7 @@ export class ProblemService {
       const languagesText = row.getCell(header['지원언어']).text.split(',')
       const levelText = row.getCell(header['난이도']).text
       const languages: Language[] = []
+      const solution: Solution[] = []
       const level: Level = Level['Level' + levelText]
       const template: Template[] = []
       for (let text of languagesText) {
@@ -364,18 +401,28 @@ export class ProblemService {
         }
         if (!(text in Language)) continue
         const language = text as keyof typeof Language
-        const code = row.getCell(header[`${language}SampleCode`]).text
-        template.push({
-          language,
-          code: [
-            {
-              id: 1,
-              text: code,
-              locked: false
-            }
-          ]
-        })
+        const sampleCode = row.getCell(header[`${language}SampleCode`]).text
+        if (sampleCode !== '') {
+          template.push({
+            language,
+            code: [
+              {
+                id: 1,
+                text: sampleCode,
+                locked: false
+              }
+            ]
+          })
+        }
         languages.push(Language[language])
+
+        const solutionCode = row.getCell(header[`${language}AnswerCode`]).text
+        if (solutionCode !== '') {
+          solution.push({
+            language,
+            code: solutionCode
+          })
+        }
       }
       if (!languages.length) {
         throw new UnprocessableFileDataException(
@@ -422,6 +469,7 @@ export class ProblemService {
         outputDescription: '',
         hint: '',
         template,
+        solution,
         languages,
         timeLimit: 2000,
         memoryLimit: 512,
@@ -629,31 +677,101 @@ export class ProblemService {
     })
   }
 
+  /**
+   * 특정 조건에 따라 문제 목록을 조회합니다.
+   *
+   * 1. my=true일 때
+   *    - contestId가 있으면 본인 및 대회 Admin∙Manager가 만든 문제 필터
+   *    - contestId가 없으면 본인이 만든 문제만 필터
+   * 2. shared=true일 때 그룹 리더 권한 기반 공유 문제 필터
+   * 3. 난이도(input.difficulty) 및 언어(input.languages) 추가 필터 적용
+   * 4. visibleLockTime을 기준으로 isVisible 필드 계산 및 설정
+   *
+   * @param {number} userId - 조회를 요청한 사용자의 ID
+   * @param {FilterProblemsInput} input - 난이도∙언어 필터 옵션 DTO
+   * @param {(number | null)} cursor - 가져올 문제의 시작점
+   * @param {number} take - 한 번에 조회할 문제 최대 개수
+   * @param {boolean} my - 본인이 만든 문제만 조회할지 여부
+   * @param {boolean} shared - 그룹 공유된 문제도 포함할지 여부
+   * @param {(number | null)} contestId - 특정 대회 문제만 조회할 contest ID
+   * @returns {Promise<ProblemWithIsVisible[]>} - isVisible 필드가 추가된 문제 배열
+   * @throws {ForbiddenException} 아래의 경우에 발생합니다
+   *   - idOptions에서 한 개의 속성을 초과하여 사용한 경우
+   *   - contestId로 필터링 시 해당 대회의 Admin/Manager가 아닌 경우
+   *   - my=false일 때 contestId를 사용한 경우
+   */
   async getProblems({
     userId,
     input,
     cursor,
     take,
     my,
-    shared
+    idOptions = {}
   }: {
     userId: number
     input: FilterProblemsInput
     cursor: number | null
     take: number
     my: boolean
-    shared: boolean
+    idOptions?: {
+      shared?: boolean
+      contestId?: number | null
+    }
   }) {
+    // TODO: 후에 assignmentId와 workbookId에서 필터링이 필요하다면 idOptions에 추가
+    const { shared, contestId } = idOptions
+    if (shared && contestId) {
+      throw new ForbiddenException('Cannot use more than one idOptions')
+    }
+
     const paginator = this.prisma.getPaginator(cursor)
 
     const whereOptions: ProblemWhereInput = {}
 
     if (my) {
-      whereOptions.createdById = {
-        equals: userId
+      if (contestId) {
+        // 'my' and contest problems
+        const user = await this.prisma.userContest.findUnique({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            userId_contestId: { userId, contestId }
+          },
+          select: { role: true }
+        })
+        if (
+          !user ||
+          (user.role !== ContestRole.Admin && user.role !== ContestRole.Manager)
+        ) {
+          throw new ForbiddenException(
+            'You must be Admin/Manager of this contest.'
+          )
+        }
+        const contestManagers = await this.prisma.userContest.findMany({
+          where: {
+            contestId,
+            role: { in: [ContestRole.Admin, ContestRole.Manager] }
+          },
+          select: { userId: true }
+        })
+        const contestManagerIds = contestManagers
+          .map((manager) => manager.userId)
+          .filter((id): id is number => id !== null)
+        whereOptions.createdById = {
+          in: [userId, ...contestManagerIds]
+        }
+      } else {
+        // 'my' problems
+        whereOptions.createdById = {
+          equals: userId
+        }
+      }
+    } else {
+      if (contestId) {
+        throw new ForbiddenException('Cannot use contestId without my option')
       }
     }
     if (shared) {
+      // shared problems
       const leaderGroupIds = (
         await this.prisma.userGroup.findMany({
           where: {
@@ -736,8 +854,16 @@ export class ProblemService {
     userRole: Role,
     userId: number
   ) {
-    const { id, languages, template, tags, testcases, isVisible, ...data } =
-      input
+    const {
+      id,
+      languages,
+      template,
+      solution,
+      tags,
+      testcases,
+      isVisible,
+      ...data
+    } = input
 
     if (userRole == Role.User && isVisible == true) {
       throw new UnprocessableDataException(
@@ -857,12 +983,39 @@ export class ProblemService {
       )
     }
     const supportedLangs = languages ?? problem.languages
-    template?.forEach((template) => {
-      if (!supportedLangs.includes(template.language as Language)) {
+
+    // Check if the problem supports the language in the template
+    const seen = new Set<Language>()
+    template?.forEach((template: Template) => {
+      const lang = template.language as Language
+      if (!supportedLangs.includes(lang)) {
         throw new UnprocessableDataException(
-          `This problem does not support ${template.language as Language}`
+          `This problem does not support ${lang}`
         )
       }
+      if (seen.has(lang)) {
+        throw new UnprocessableDataException(
+          `Duplicate language ${lang} in template`
+        )
+      }
+      seen.add(lang)
+    })
+
+    // Check if the problem supports the language in the solution
+    seen.clear()
+    solution?.forEach((solution: Solution) => {
+      const lang = solution.language as Language
+      if (!supportedLangs.includes(lang)) {
+        throw new UnprocessableDataException(
+          `This problem does not support ${lang}`
+        )
+      }
+      if (seen.has(lang)) {
+        throw new UnprocessableDataException(
+          `Duplicate language ${lang} in solution`
+        )
+      }
+      seen.add(lang)
     })
 
     // TODO: Problem Edit API 호출 방식 수정 후 롤백 예정
@@ -901,6 +1054,7 @@ export class ProblemService {
         }),
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
+        ...(solution && { solution }),
         problemTag,
         ...(updatedFields.length > 0 && {
           updateHistory: {
@@ -1176,16 +1330,16 @@ export class ProblemService {
     return assignmentProblems
   }
 
-  async updateAssignmentProblemsScore(
+  async updateAssignmentProblems(
     groupId: number,
     assignmentId: number,
-    problemIdsWithScore: ProblemScoreInput[]
+    assignmentProblemUpdateInput: AssignmentProblemUpdateInput[]
   ): Promise<Partial<AssignmentProblem>[]> {
     await this.prisma.assignment.findFirstOrThrow({
       where: { id: assignmentId, groupId }
     })
 
-    const queries = problemIdsWithScore.map((record) => {
+    const queries = assignmentProblemUpdateInput.map((record) => {
       return this.prisma.assignmentProblem.update({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -1194,7 +1348,10 @@ export class ProblemService {
             problemId: record.problemId
           }
         },
-        data: { score: record.score }
+        data: {
+          score: record.score,
+          solutionReleaseTime: record.solutionReleaseTime
+        }
       })
     })
 

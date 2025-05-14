@@ -3,6 +3,7 @@
 import { ConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
 import { DescriptionForm } from '@/app/admin/_components/DescriptionForm'
 import { FormSection } from '@/app/admin/_components/FormSection'
+import { Label } from '@/app/admin/_components/Label'
 import { SwitchField } from '@/app/admin/_components/SwitchField'
 import { TimeForm } from '@/app/admin/_components/TimeForm'
 import { TitleForm } from '@/app/admin/_components/TitleForm'
@@ -14,6 +15,7 @@ import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { AssignmentProblemListLabel } from '../_components/AssignmentProblemListLabel'
 import { AssignmentProblemTable } from '../_components/AssignmentProblemTable'
+import { AssignmentSolutionTable } from '../_components/AssignmentSolutionTable'
 import { ImportDialog } from '../_components/ImportDialog'
 import { WeekComboBox } from '../_components/WeekComboBox'
 import type { AssignmentProblem } from '../_libs/type'
@@ -94,6 +96,19 @@ export default function Page({ params }: { params: { courseId: string } }) {
                   problems={problems}
                   setProblems={setProblems}
                   disableInput={false}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-3">
+                  <Label required={false}>Solution</Label>
+                  <p className="text-[11px] font-normal text-[#9B9B9B]">
+                    하단 리스트는 Solution이 존재하는 문제만 표시됩니다.
+                  </p>
+                </div>
+                <AssignmentSolutionTable
+                  problems={problems}
+                  setProblems={setProblems}
                 />
               </div>
 
