@@ -8,8 +8,8 @@ import {
 } from '@/graphql/assignment/mutations'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
 import {
-  UPDATE_ASSIGNMENT_PROBLEMS_ORDER,
-  UPDATE_ASSIGNMENT_PROBLEMS_SCORES
+  UPDATE_ASSIGNMENT_PROBLEMS,
+  UPDATE_ASSIGNMENT_PROBLEMS_ORDER
 } from '@/graphql/problem/mutations'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
@@ -21,6 +21,7 @@ import { useState, type ReactNode } from 'react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 import type { AssignmentProblem } from '../../../_libs/type'
+import { isOptionAfterDeadline } from '../../../_libs/utils'
 import { ConfirmModal } from './ConfirmModal'
 
 interface EditAssigmentFormProps {
@@ -98,7 +99,8 @@ export function EditAssignmentForm({
           title: problem.problem.title,
           order: problem.order,
           difficulty: problem.problem.difficulty,
-          score: problem.score ?? 0 // Score 기능 완료되면 수정해주세요!!
+          score: problem.score ?? 0, // Score 기능 완료되면 수정해주세요!!
+          solutionReleaseTime: problem.solutionReleaseTime
         }
       })
       setProblems(assignmentProblems)
@@ -115,13 +117,12 @@ export function EditAssignmentForm({
   const [updateAssignmentProblemsOrder] = useMutation(
     UPDATE_ASSIGNMENT_PROBLEMS_ORDER
   )
-  const [updateAssignmentProblemsScore] = useMutation(
-    UPDATE_ASSIGNMENT_PROBLEMS_SCORES
-  )
+  const [updateAssignmentProblems] = useMutation(UPDATE_ASSIGNMENT_PROBLEMS)
 
   const currentProblems = problems.map((problem) => ({
     problemId: problem.id,
-    score: problem.score
+    score: problem.score,
+    solutionReleaseTime: problem.solutionReleaseTime
   }))
   const deletedProblemIds = prevProblems
     .filter((prev) => {
@@ -217,7 +218,7 @@ export function EditAssignmentForm({
         variables: {
           groupId: courseId,
           assignmentId,
-          problemIdsWithScore: addedProblems
+          assignmentProblemInput: addedProblems
         }
       })
     }
@@ -234,15 +235,23 @@ export function EditAssignmentForm({
       }
     })
 
-    if (updatedProblemScores.length > 0) {
-      await updateAssignmentProblemsScore({
-        variables: {
-          groupId: courseId,
-          assignmentId,
-          problemIdsWithScore: updatedProblemScores
-        }
-      })
-    }
+    await updateAssignmentProblems({
+      variables: {
+        groupId: courseId,
+        assignmentId,
+        assignmentProblemUpdateInput: currentProblems.map((problem) => {
+          return {
+            problemId: problem.problemId,
+            score: problem.score,
+            solutionReleaseTime: isOptionAfterDeadline(
+              problem.solutionReleaseTime
+            )
+              ? input.endTime
+              : problem.solutionReleaseTime
+          }
+        })
+      }
+    })
 
     setShouldSkipWarning(true)
     toast.success('Assignment updated successfully')

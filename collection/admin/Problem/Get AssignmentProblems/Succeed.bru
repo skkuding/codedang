@@ -19,6 +19,7 @@ body:graphql {
       score
       createTime
       updateTime
+      solutionReleaseTime
       problem {
         id
         title
@@ -27,7 +28,7 @@ body:graphql {
       }
     }
   }
-
+  
 }
 
 body:graphql:vars {
@@ -44,7 +45,7 @@ assert {
 docs {
   ## Get Assignment Problems
   Assignment Problem들을 가져옵니다.
-
+  
   ### Error Cases
   #### NOT_FOUND
   존재하는 group id와 assignment id가 필요합니다.
