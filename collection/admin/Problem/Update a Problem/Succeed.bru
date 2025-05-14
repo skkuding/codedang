@@ -20,6 +20,8 @@ body:graphql {
       inputDescription
       outputDescription
       hint
+      template
+      solution
       isVisible
       updateHistory{
           updatedAt
@@ -34,12 +36,13 @@ body:graphql {
 body:graphql:vars {
   {
     "input": {
-      "id": 4,
+      "id": 15,
       "title": "New Title",
       "description": "updated description",
       "inputDescription": "updated input description",
       "outputDescription": "updated output description",
-      "hint": "updated hint"
+      "hint": "updated hint",
+      "solution": []
     }
   }
 }
@@ -51,7 +54,7 @@ assert {
 docs {
   ## Update Problem
   Problem 정보를 수정합니다.
-
+  
   ### Error Cases
   #### UNPROCESSABLE(1)
   수정된 Problem은 최소 1개 이상의 프로그래밍 언어를 지원해야 합니다.

@@ -33,6 +33,7 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { AssignmentProblemUpdateInput } from '@admin/assignment/model/assignment-problem.input'
 import type { ProblemScoreInput } from '@admin/contest/model/problem-score.input'
 import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from './model/problem.constants'
@@ -44,6 +45,7 @@ import type {
   UpdateProblemTagInput
 } from './model/problem.input'
 import type { ProblemWithIsVisible } from './model/problem.output'
+import type { Solution } from './model/solution.input'
 import type { Template } from './model/template.input'
 import { ImportedTestcaseHeader } from './model/testcase.constants'
 import type { Testcase } from './model/testcase.input'
@@ -61,7 +63,15 @@ export class ProblemService {
     userId: number,
     userRole: Role
   ) {
-    const { languages, template, tagIds, testcases, isVisible, ...data } = input
+    const {
+      languages,
+      template,
+      solution,
+      tagIds,
+      testcases,
+      isVisible,
+      ...data
+    } = input
 
     if (userRole == Role.User && isVisible == true) {
       throw new UnprocessableDataException(
@@ -76,12 +86,37 @@ export class ProblemService {
     }
 
     // Check if the problem supports the language in the template
+    const seen = new Set<Language>()
     template.forEach((template: Template) => {
-      if (!languages.includes(template.language as Language)) {
+      const lang = template.language as Language
+      if (!languages.includes(lang)) {
         throw new UnprocessableDataException(
-          `This problem does not support ${template.language as Language}`
+          `This problem does not support ${lang}`
         )
       }
+      if (seen.has(lang)) {
+        throw new UnprocessableDataException(
+          `Duplicate language ${lang} in template`
+        )
+      }
+      seen.add(lang)
+    })
+
+    // Check if the problem supports the language in the solution
+    seen.clear()
+    solution.forEach((solution: Solution) => {
+      const lang = solution.language as Language
+      if (!languages.includes(lang)) {
+        throw new UnprocessableDataException(
+          `This problem does not support ${lang}`
+        )
+      }
+      if (seen.has(lang)) {
+        throw new UnprocessableDataException(
+          `Duplicate language ${lang} in solution`
+        )
+      }
+      seen.add(lang)
     })
 
     const problem = await this.prisma.problem.create({
@@ -90,6 +125,7 @@ export class ProblemService {
         visibleLockTime: isVisible ? MIN_DATE : MAX_DATE,
         createdById: userId,
         languages,
+        solution,
         template: [JSON.stringify(template)],
         problemTag: {
           create: tagIds.map((tagId) => {
@@ -356,6 +392,7 @@ export class ProblemService {
       const languagesText = row.getCell(header['지원언어']).text.split(',')
       const levelText = row.getCell(header['난이도']).text
       const languages: Language[] = []
+      const solution: Solution[] = []
       const level: Level = Level['Level' + levelText]
       const template: Template[] = []
       for (let text of languagesText) {
@@ -364,18 +401,28 @@ export class ProblemService {
         }
         if (!(text in Language)) continue
         const language = text as keyof typeof Language
-        const code = row.getCell(header[`${language}SampleCode`]).text
-        template.push({
-          language,
-          code: [
-            {
-              id: 1,
-              text: code,
-              locked: false
-            }
-          ]
-        })
+        const sampleCode = row.getCell(header[`${language}SampleCode`]).text
+        if (sampleCode !== '') {
+          template.push({
+            language,
+            code: [
+              {
+                id: 1,
+                text: sampleCode,
+                locked: false
+              }
+            ]
+          })
+        }
         languages.push(Language[language])
+
+        const solutionCode = row.getCell(header[`${language}AnswerCode`]).text
+        if (solutionCode !== '') {
+          solution.push({
+            language,
+            code: solutionCode
+          })
+        }
       }
       if (!languages.length) {
         throw new UnprocessableFileDataException(
@@ -422,6 +469,7 @@ export class ProblemService {
         outputDescription: '',
         hint: '',
         template,
+        solution,
         languages,
         timeLimit: 2000,
         memoryLimit: 512,
@@ -736,8 +784,16 @@ export class ProblemService {
     userRole: Role,
     userId: number
   ) {
-    const { id, languages, template, tags, testcases, isVisible, ...data } =
-      input
+    const {
+      id,
+      languages,
+      template,
+      solution,
+      tags,
+      testcases,
+      isVisible,
+      ...data
+    } = input
 
     if (userRole == Role.User && isVisible == true) {
       throw new UnprocessableDataException(
@@ -857,12 +913,39 @@ export class ProblemService {
       )
     }
     const supportedLangs = languages ?? problem.languages
-    template?.forEach((template) => {
-      if (!supportedLangs.includes(template.language as Language)) {
+
+    // Check if the problem supports the language in the template
+    const seen = new Set<Language>()
+    template?.forEach((template: Template) => {
+      const lang = template.language as Language
+      if (!supportedLangs.includes(lang)) {
         throw new UnprocessableDataException(
-          `This problem does not support ${template.language as Language}`
+          `This problem does not support ${lang}`
         )
       }
+      if (seen.has(lang)) {
+        throw new UnprocessableDataException(
+          `Duplicate language ${lang} in template`
+        )
+      }
+      seen.add(lang)
+    })
+
+    // Check if the problem supports the language in the solution
+    seen.clear()
+    solution?.forEach((solution: Solution) => {
+      const lang = solution.language as Language
+      if (!supportedLangs.includes(lang)) {
+        throw new UnprocessableDataException(
+          `This problem does not support ${lang}`
+        )
+      }
+      if (seen.has(lang)) {
+        throw new UnprocessableDataException(
+          `Duplicate language ${lang} in solution`
+        )
+      }
+      seen.add(lang)
     })
 
     // TODO: Problem Edit API 호출 방식 수정 후 롤백 예정
@@ -901,6 +984,7 @@ export class ProblemService {
         }),
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
+        ...(solution && { solution }),
         problemTag,
         ...(updatedFields.length > 0 && {
           updateHistory: {
@@ -1176,16 +1260,16 @@ export class ProblemService {
     return assignmentProblems
   }
 
-  async updateAssignmentProblemsScore(
+  async updateAssignmentProblems(
     groupId: number,
     assignmentId: number,
-    problemIdsWithScore: ProblemScoreInput[]
+    assignmentProblemUpdateInput: AssignmentProblemUpdateInput[]
   ): Promise<Partial<AssignmentProblem>[]> {
     await this.prisma.assignment.findFirstOrThrow({
       where: { id: assignmentId, groupId }
     })
 
-    const queries = problemIdsWithScore.map((record) => {
+    const queries = assignmentProblemUpdateInput.map((record) => {
       return this.prisma.assignmentProblem.update({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -1194,7 +1278,10 @@ export class ProblemService {
             problemId: record.problemId
           }
         },
-        data: { score: record.score }
+        data: {
+          score: record.score,
+          solutionReleaseTime: record.solutionReleaseTime
+        }
       })
     })
 
