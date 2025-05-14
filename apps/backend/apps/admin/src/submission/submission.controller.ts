@@ -2,7 +2,7 @@ import { Controller, Req, Res, Get, Param } from '@nestjs/common'
 import { Args, Int } from '@nestjs/graphql'
 import { Response } from 'express'
 import { AuthenticatedRequest, UseGroupLeaderGuard } from '@libs/auth'
-import { GroupIDPipe } from '@libs/pipe'
+import { GroupIDPipe, IDValidationPipe } from '@libs/pipe'
 import { SubmissionService } from './submission.service'
 
 @Controller('submission')
@@ -16,8 +16,8 @@ export class SubmissionController {
   @Get('/download/:groupId/:assignmentId/:filename')
   @UseGroupLeaderGuard()
   async downloadCodes(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('assignmentId', { type: () => Int }) assignmentId: number,
+    @Param('groupId', GroupIDPipe) groupId: number,
+    @Param('assignmentId', IDValidationPipe) assignmentId: number,
     @Param('filename') filename: string,
     @Req() req: AuthenticatedRequest,
     @Res() res: Response
