@@ -323,45 +323,41 @@ export class ProblemService {
       case 'my':
         return { createdById: { equals: userId } }
 
-      case 'contest':
+      case 'contest': {
         if (!contestId) {
+          return { createdById: { equals: userId } }
+        }
+        const user = await this.prisma.userContest.findUnique({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            userId_contestId: { userId, contestId }
+          },
+          select: { role: true }
+        })
+        if (
+          !user ||
+          (user.role !== ContestRole.Admin && user.role !== ContestRole.Manager)
+        ) {
           throw new ForbiddenException(
-            'contestId must be provided in contest mode'
+            'You must be Admin/Manager of this contest.'
           )
         }
-        {
-          const user = await this.prisma.userContest.findUnique({
-            where: {
-              // eslint-disable-next-line @typescript-eslint/naming-convention
-              userId_contestId: { userId, contestId }
-            },
-            select: { role: true }
-          })
-          if (
-            !user ||
-            (user.role !== ContestRole.Admin &&
-              user.role !== ContestRole.Manager)
-          ) {
-            throw new ForbiddenException(
-              'You must be Admin/Manager of this contest.'
-            )
-          }
-          const contestManagers = await this.prisma.userContest.findMany({
-            where: {
-              contestId,
-              role: { in: [ContestRole.Admin, ContestRole.Manager] }
-            },
-            select: { userId: true }
-          })
-          const contestManagerIds = contestManagers
-            .map((manager) => manager.userId)
-            .filter((id): id is number => id !== null)
-          return {
-            createdById: {
-              in: [userId, ...contestManagerIds]
-            }
+        const contestManagers = await this.prisma.userContest.findMany({
+          where: {
+            contestId,
+            role: { in: [ContestRole.Admin, ContestRole.Manager] }
+          },
+          select: { userId: true }
+        })
+        const contestManagerIds = contestManagers
+          .map((manager) => manager.userId)
+          .filter((id): id is number => id !== null)
+        return {
+          createdById: {
+            in: [userId, ...contestManagerIds]
           }
         }
+      }
 
       case 'shared': {
         const leaderGroupIds = (
