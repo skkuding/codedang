@@ -23,6 +23,7 @@ import { VisibleForm } from '../../../_components/VisibleForm'
 import { InfoForm } from '../../_components/InfoForm'
 import { LimitForm } from '../../_components/LimitForm'
 import { PopoverVisibleInfo } from '../../_components/PopoverVisibleInfo'
+import { SolutionField } from '../../_components/SolutionField'
 import { TemplateField } from '../../_components/TemplateField'
 import { TestcaseField } from '../../_components/TestcaseField'
 import { editSchema } from '../../_libs/schemas'
@@ -37,7 +38,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
 
   const methods = useForm<UpdateProblemInput>({
     resolver: valibotResolver(editSchema),
-    defaultValues: { template: [] }
+    defaultValues: { template: [], solution: [] }
   })
 
   const PreviewPortal = () => {
@@ -155,6 +156,8 @@ export default function Page({ params }: { params: { problemId: string } }) {
             </FormSection>
 
             <TemplateField />
+
+            <SolutionField />
 
             <SwitchField
               name="hint"
