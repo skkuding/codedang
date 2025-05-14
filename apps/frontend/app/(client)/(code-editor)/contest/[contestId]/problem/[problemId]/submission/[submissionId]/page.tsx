@@ -1,3 +1,5 @@
+'use client'
+
 import { useSubmissionDetailSync } from '@/app/(client)/(code-editor)/_components/context/ReFetchingSubmissionDetailStoreProvider'
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
