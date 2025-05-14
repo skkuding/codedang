@@ -15,7 +15,7 @@ interface DisableCopyPasteFormProps {
 export function DisableCopyPasteForm({
   name,
   title,
-  hasValue = false
+  hasValue = true
 }: DisableCopyPasteFormProps) {
   const {
     control,
