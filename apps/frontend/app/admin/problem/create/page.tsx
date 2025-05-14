@@ -19,11 +19,10 @@ import { DescriptionForm } from '../../_components/DescriptionForm'
 import { FormSection } from '../../_components/FormSection'
 import { SwitchField } from '../../_components/SwitchField'
 import { TitleForm } from '../../_components/TitleForm'
-import { VisibleForm } from '../../_components/VisibleForm'
 import { EditorDescription } from '../../_components/code-editor/EditorDescription'
 import { InfoForm } from '../_components/InfoForm'
 import { LimitForm } from '../_components/LimitForm'
-import { PopoverVisibleInfo } from '../_components/PopoverVisibleInfo'
+import { SolutionField } from '../_components/SolutionField'
 import { TemplateField } from '../_components/TemplateField'
 import { TestcaseField } from '../_components/TestcaseField'
 import { CreateProblemForm } from './_components/CreateProblemForm'
@@ -48,6 +47,7 @@ export default function Page() {
       hint: '',
       source: '',
       template: [],
+      solution: [],
       isVisible: isAdmin
     }
   })
@@ -104,23 +104,12 @@ export default function Page() {
             <Link href="/admin/problem">
               <FaAngleLeft className="h-12 hover:text-gray-700/80" />
             </Link>
-            <span className="text-4xl font-bold">Create Problem</span>
+            <span className="text-4xl font-bold">CREATE PROBLEM</span>
           </div>
 
           <CreateProblemForm methods={methods}>
-            <div className="flex gap-32">
-              <FormSection isFlexColumn title="Title">
-                <TitleForm placeholder="Enter a problem name" />
-              </FormSection>
-
-              <FormSection isFlexColumn title="Visible">
-                <PopoverVisibleInfo />
-                <VisibleForm blockEdit={!isAdmin} />
-              </FormSection>
-            </div>
-
-            <FormSection isFlexColumn title="Info">
-              <InfoForm />
+            <FormSection isFlexColumn title="Title">
+              <TitleForm placeholder="Enter a problem name" />
             </FormSection>
 
             <FormSection isFlexColumn title="Description">
@@ -150,11 +139,17 @@ export default function Page() {
 
             <TestcaseField />
 
-            <FormSection isFlexColumn title="Limit">
-              <LimitForm />
+            <FormSection isFlexColumn title="Info">
+              <InfoForm />
             </FormSection>
 
             <TemplateField />
+
+            <SolutionField />
+
+            <FormSection isFlexColumn title="Limit">
+              <LimitForm />
+            </FormSection>
 
             <SwitchField
               name="hint"
