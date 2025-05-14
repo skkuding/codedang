@@ -1,3 +1,5 @@
+'use client'
+
 import { dataIfError } from '@/app/(client)/(code-editor)/_libs/dataIfError'
 import { CodeEditor } from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
@@ -18,11 +20,13 @@ interface Props {
   problemId: number
   submissionId: number
   contestId: number
+  refreshTrigger: number
 }
 export async function SubmissionDetail({
   problemId,
   submissionId,
-  contestId
+  contestId,
+  refreshTrigger
 }: Props) {
   const res = await fetcherWithAuth(`submission/${submissionId}`, {
     searchParams: { problemId, contestId },
@@ -31,6 +35,7 @@ export async function SubmissionDetail({
     }
   })
   const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
+
   const contestSubmissionRes = await fetcherWithAuth(
     `contest/${contestId}/submission`,
     {
