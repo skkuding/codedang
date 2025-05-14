@@ -51,7 +51,7 @@ export function AssignmentTable({
     >
       <div className="flex justify-between gap-2">
         <DataTableSearchBar columndId="title" />
-        <AssignmentsDeleteButton groupId={groupId} />
+        <AssignmentsDeleteButton groupId={groupId} isExercise={isExercise} />
       </div>
       <DataTable
         headerStyle={headerStyle}

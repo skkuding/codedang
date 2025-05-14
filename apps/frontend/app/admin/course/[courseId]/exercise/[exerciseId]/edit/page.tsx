@@ -28,11 +28,11 @@ import type { AssignmentProblem } from '../../../_libs/type'
 export default function Page({
   params
 }: {
-  params: { courseId: string; assignmentId: string }
+  params: { courseId: string; exerciseId: string }
 }) {
   const [problems, setProblems] = useState<AssignmentProblem[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const { courseId, assignmentId } = params
+  const { courseId, exerciseId } = params
 
   const methods = useForm<UpdateAssignmentInput>({
     resolver: valibotResolver(editSchema),
@@ -55,7 +55,7 @@ export default function Page({
 
           <EditAssignmentForm
             courseId={Number(courseId)}
-            assignmentId={Number(assignmentId)}
+            assignmentId={Number(exerciseId)}
             problems={problems}
             setProblems={setProblems}
             setIsLoading={setIsLoading}

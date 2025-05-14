@@ -13,13 +13,13 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
-import { AssignmentProblemListLabel } from '../../assignment/_components/AssignmentProblemListLabel'
-import { AssignmentProblemTable } from '../../assignment/_components/AssignmentProblemTable'
-import { AssignmentSolutionTable } from '../../assignment/_components/AssignmentSolutionTable'
-import { ImportDialog } from '../../assignment/_components/ImportDialog'
-import { WeekComboBox } from '../../assignment/_components/WeekComboBox'
-import type { AssignmentProblem } from '../../assignment/_libs/type'
-import { CreateExerciseForm } from './_components/CreateExerciseForm'
+import { AssignmentProblemListLabel } from '../../_components/AssignmentProblemListLabel'
+import { AssignmentProblemTable } from '../../_components/AssignmentProblemTable'
+import { AssignmentSolutionTable } from '../../_components/AssignmentSolutionTable'
+import { CreateAssignmentForm } from '../../_components/CreateAssignmentForm'
+import { ImportDialog } from '../../_components/ImportDialog'
+import { WeekComboBox } from '../../_components/WeekComboBox'
+import type { AssignmentProblem } from '../../_libs/type'
 
 export default function Page({ params }: { params: { courseId: string } }) {
   const { courseId } = params
@@ -37,10 +37,11 @@ export default function Page({ params }: { params: { courseId: string } }) {
             <span className="text-[32px] font-bold">CREATE EXERCISE</span>
           </div>
 
-          <CreateExerciseForm
+          <CreateAssignmentForm
             groupId={courseId}
             problems={problems}
             setIsCreating={setIsCreating}
+            isExercise={true}
           >
             <FormSection
               isFlexColumn={false}
@@ -144,7 +145,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
                 <div className="mb-[2px] text-base">Create</div>
               </Button>
             </div>
-          </CreateExerciseForm>
+          </CreateAssignmentForm>
         </main>
       </ScrollArea>
     </ConfirmNavigation>
