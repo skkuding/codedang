@@ -13,6 +13,7 @@ import {
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
+import type { UpdateContestInfo } from '@/types/type'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { useRouter } from 'next/navigation'
@@ -28,7 +29,7 @@ interface EditContestFormProps {
   setProblems: (problems: ContestProblem[]) => void
   setManagers: (managers: ContestManagerReviewer[]) => void
   setIsLoading: (isLoading: boolean) => void
-  methods: UseFormReturn<UpdateContestInput>
+  methods: UseFormReturn<UpdateContestInfo>
 }
 
 export function EditContestForm({
@@ -79,7 +80,20 @@ export function EditContestForm({
         userContest: data.userContest?.map((role) => ({
           contestRole: role.role,
           userId: role.userId ?? undefined
-        }))
+        })),
+        // contestRecord -> 대회 참여자 목록 확인을 위함(delete 후 서버에 보내지 않음)
+        contestRecord: (data.contestRecord ?? [])
+          .filter((record) => record.userId !== null)
+          .map((record) => ({
+            ...record,
+            userId: record.userId as number,
+            user: record.user
+              ? {
+                  username: record.user.username,
+                  email: record.user.email
+                }
+              : undefined
+          }))
       })
       setManagers(
         (data.userContest ?? [])
@@ -144,6 +158,8 @@ export function EditContestForm({
 
   const onSubmit = async () => {
     const input = methods.getValues()
+    delete input.contestRecord // contestRecord는 서버에 보내지 않음
+
     setIsLoading(true)
     await updateContest({
       variables: {

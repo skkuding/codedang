@@ -1,5 +1,6 @@
 'use client'
 
+import { useSubmissionPolling } from '@/app/(client)/(code-editor)/_libs/hooks/useSubmissionPolling'
 import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { contestProblemQueries } from '@/app/(client)/_libs/queries/contestProblem'
@@ -129,6 +130,12 @@ export function EditorHeader({
   const { isSidePanelHidden, toggleSidePanelVisibility } =
     useSidePanelTabStore()
 
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  useSubmissionPolling({
+    contestId,
+    problemId: problem.id,
+    enabled: isSubmitted
+  })
   useInterval(
     async () => {
       // TODO: Implement assignment submission
@@ -294,6 +301,7 @@ export function EditorHeader({
             problemId: problem.id
           })
         })
+        setIsSubmitted(true)
       } else if (assignmentId) {
         queryClient.invalidateQueries({
           queryKey: assignmentProblemQueries.lists(assignmentId)
@@ -469,6 +477,33 @@ export function EditorHeader({
   return (
     <div className="flex shrink-0 items-center justify-between border-b border-b-slate-700 bg-[#222939] px-6">
       <div>
+        <Select
+          onValueChange={(language: Language) => {
+            setLanguage(language)
+          }}
+          value={language}
+        >
+          <SelectTrigger className="h-8 min-w-[86px] max-w-fit shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:outline-none focus:ring-0 focus:ring-offset-0">
+            <p className="px-1">
+              <SelectValue />
+            </p>
+          </SelectTrigger>
+          <SelectContent className="mt-3 min-w-[100px] max-w-fit border-none bg-[#4C5565] p-0 font-mono">
+            <SelectGroup className="text-white">
+              {problem.languages.map((language) => (
+                <SelectItem
+                  key={language}
+                  value={language}
+                  className="cursor-pointer hover:bg-[#222939]"
+                >
+                  {language}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex items-center gap-3">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
@@ -501,25 +536,8 @@ export function EditorHeader({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </div>
-      <div className="flex items-center gap-3">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <Button
-                size="icon"
-                className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-[#fafafa] font-medium text-[#484C4D] hover:bg-[#e1e1e1]"
-                onClick={saveCode}
-              >
-                <Save className="stroke-[1.3]" size={22} />
-                Save
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Ctrl/Cmd + S | Save your code in your browser.</p>
-            </TooltipContent>
-          </Tooltip>
 
+        <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
               <Button
@@ -536,6 +554,22 @@ export function EditorHeader({
             </TooltipContent>
           </Tooltip>
 
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                size="icon"
+                className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-[#fafafa] font-medium text-[#484C4D] hover:bg-[#e1e1e1]"
+                onClick={saveCode}
+              >
+                <Save className="stroke-[1.3]" size={22} />
+                Save
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Ctrl/Cmd + S | Save your code in your browser.</p>
+            </TooltipContent>
+          </Tooltip>
+
           <RunTestButton
             problemId={problem.id}
             language={language}
@@ -543,6 +577,7 @@ export function EditorHeader({
             saveCode={storeCodeToLocalStorage}
             className="test-button"
           />
+
           <Tooltip>
             <TooltipTrigger>
               <Button
@@ -564,31 +599,6 @@ export function EditorHeader({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        <Select
-          onValueChange={(language: Language) => {
-            setLanguage(language)
-          }}
-          value={language}
-        >
-          <SelectTrigger className="h-8 min-w-[86px] max-w-fit shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:outline-none focus:ring-0 focus:ring-offset-0">
-            <p className="px-1">
-              <SelectValue />
-            </p>
-          </SelectTrigger>
-          <SelectContent className="mt-3 min-w-[100px] max-w-fit border-none bg-[#4C5565] p-0 font-mono">
-            <SelectGroup className="text-white">
-              {problem.languages.map((language) => (
-                <SelectItem
-                  key={language}
-                  value={language}
-                  className="cursor-pointer hover:bg-[#222939]"
-                >
-                  {language}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
       </div>
       <BackCautionDialog
         confrim={isModalConfrimed}

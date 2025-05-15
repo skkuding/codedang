@@ -214,7 +214,9 @@ export class SubmissionService {
       userIp,
       idOptions: {
         contestId
-      }
+      },
+      stopOnNotAccepted: true,
+      judgeOnlyHiddenTestcases: !contest.evaluateWithSampleTestcase
     })
 
     return submission
@@ -452,7 +454,9 @@ export class SubmissionService {
     problem,
     userId,
     userIp,
-    idOptions
+    idOptions,
+    stopOnNotAccepted = false,
+    judgeOnlyHiddenTestcases = false
   }: {
     submissionDto: CreateSubmissionDto
     problem: Problem
@@ -463,6 +467,8 @@ export class SubmissionService {
       assignmentId?: number
       workbookId?: number
     }
+    stopOnNotAccepted?: boolean
+    judgeOnlyHiddenTestcases?: boolean
   }) {
     if (!problem.languages.includes(submissionDto.language)) {
       throw new ConflictFoundException(
@@ -500,9 +506,14 @@ export class SubmissionService {
         }
       })
 
-      await this.createSubmissionResults(submission)
+      await this.createSubmissionResults(submission, judgeOnlyHiddenTestcases)
 
-      await this.publish.publishJudgeRequestMessage(code, submission)
+      await this.publish.publishJudgeRequestMessage({
+        code,
+        submission,
+        stopOnNotAccepted,
+        judgeOnlyHiddenTestcases
+      })
       return submission
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -522,13 +533,20 @@ export class SubmissionService {
    * @returns {Promise<void>}
    */
   @Span()
-  async createSubmissionResults(submission: Submission): Promise<void> {
-    const testcases = await this.prisma.problemTestcase.findMany({
+  async createSubmissionResults(
+    submission: Submission,
+    judgeOnlyHiddenTestcases: boolean
+  ): Promise<void> {
+    let testcases = await this.prisma.problemTestcase.findMany({
       where: {
         problemId: submission.problemId
       },
-      select: { id: true }
+      select: { id: true, isHidden: true }
     })
+
+    if (judgeOnlyHiddenTestcases) {
+      testcases = testcases.filter((testcase) => testcase.isHidden)
+    }
 
     await this.prisma.submissionResult.createMany({
       data: testcases.map((testcase) => {
@@ -722,7 +740,13 @@ export class SubmissionService {
     }
 
     await this.cacheManager.set(testcasesKey(testSubmission.id), testcaseIds)
-    await this.publish.publishJudgeRequestMessage(code, testSubmission, true)
+
+    await this.publish.publishJudgeRequestMessage({
+      code,
+      submission: testSubmission,
+      isTest: true,
+      stopOnNotAccepted: false
+    })
   }
 
   /**
@@ -746,27 +770,32 @@ export class SubmissionService {
     testSubmission: TestSubmission,
     userTestcases: { id: number; in: string; out: string }[]
   ): Promise<void> {
-    const testcaseIds: number[] = []
-    for (const testcase of userTestcases) {
-      await this.cacheManager.set(
-        userTestKey(testSubmission.id, testcase.id),
-        { id: testcase.id, result: 'Judging' },
-        TEST_SUBMISSION_EXPIRE_TIME
-      )
-      testcaseIds.push(testcase.id)
-    }
+    const testcaseIds = userTestcases.map((tc) => tc.id)
 
     await this.cacheManager.set(
       userTestcasesKey(testSubmission.id),
-      testcaseIds
+      testcaseIds,
+      TEST_SUBMISSION_EXPIRE_TIME
     )
-    await this.publish.publishJudgeRequestMessage(
+
+    for (const testcase of userTestcases) {
+      await this.cacheManager.set(
+        userTestKey(testSubmission.id, testcase.id),
+        {
+          id: testcase.id,
+          result: ResultStatus.Judging
+        },
+        TEST_SUBMISSION_EXPIRE_TIME
+      )
+    }
+
+    await this.publish.publishJudgeRequestMessage({
       code,
-      testSubmission,
-      false,
-      true,
-      userTestcases
-    )
+      submission: testSubmission,
+      isUserTest: true,
+      userTestcases,
+      stopOnNotAccepted: false
+    })
   }
 
   @Span()

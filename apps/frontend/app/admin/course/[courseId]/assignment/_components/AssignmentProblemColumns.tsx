@@ -7,7 +7,7 @@ import { Input } from '@/components/shadcn/input'
 import type { Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import { toast } from 'sonner'
-import type { AssignmentProblem } from '../_libs/type'
+import type { AssignmentProblem } from '../../_libs/type'
 
 export const createColumns = (
   setProblems: React.Dispatch<React.SetStateAction<AssignmentProblem[]>>,
@@ -40,7 +40,7 @@ export const createColumns = (
         <Input
           disabled={disableInput}
           defaultValue={row.getValue('score')}
-          className="hide-spin-button w-[70px] focus-visible:ring-0 disabled:pointer-events-none"
+          className="hide-spin-button w-[70px] text-center focus-visible:ring-0 disabled:pointer-events-none"
           type="number"
           min={0}
           onKeyDown={(e) => {
@@ -66,7 +66,7 @@ export const createColumns = (
       <div className="flex justify-center">
         <Input
           disabled={true}
-          className="w-[70px] focus-visible:ring-0"
+          className="w-[70px] text-center focus-visible:ring-0"
           value={table
             .getCoreRowModel()
             .rows.map((row) => row.original)

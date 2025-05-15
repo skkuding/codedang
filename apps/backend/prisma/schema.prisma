@@ -215,6 +215,7 @@ model Problem {
 
   template        Json[]     @default([])
   languages       Language[]
+  solution        Json[]     @default([])
   timeLimit       Int        @map("time_limit") // unit: MilliSeconds
   memoryLimit     Int        @map("memory_limit") // unit: MegaBytes
   difficulty      Level
@@ -288,6 +289,7 @@ enum Language {
   Java
   Python2
   Python3
+  PyPy3
   Golang
 }
 
@@ -366,15 +368,17 @@ model Assignment {
 }
 
 model AssignmentProblem {
-  order                   Int
-  assignment              Assignment                @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId            Int                       @map("assignment_id")
-  problem                 Problem                   @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId               Int                       @map("problem_id")
+  order        Int
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId Int        @map("assignment_id")
+  problem      Problem    @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId    Int        @map("problem_id")
   // 각 문제의 점수 (비율 아님)
-  score                   Int                       @default(0)
+  score        Int        @default(0)
+
   createTime              DateTime                  @default(now()) @map("create_time")
   updateTime              DateTime                  @updatedAt @map("update_time")
+  solutionReleaseTime     DateTime?                 @map("solution_release_time")
   assignmentProblemRecord AssignmentProblemRecord[]
 
   @@id([assignmentId, problemId])
@@ -669,6 +673,7 @@ enum ResultStatus {
   ServerError
   SegmentationFaultError
   Blind // isJudgeResultVisible == False로 설정된 Assignment/Contest의 채점 결과를 반환할 때 사용
+  Canceled // isStopOnNotAccepted == True일 때 앞선 테스트케이스가 Not Accepted인 경우 이후 테스트케이스 실행 취소
 }
 
 model TestSubmission {

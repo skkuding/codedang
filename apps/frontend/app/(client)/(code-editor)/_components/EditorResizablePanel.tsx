@@ -26,7 +26,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import Loading from '../problem/[problemId]/loading'
@@ -34,6 +34,8 @@ import { EditorHeader } from './EditorHeader/EditorHeader'
 import { LeaderboardModalDialog } from './LeaderboardModalDialog'
 import { TestcasePanel } from './TestcasePanel/TestcasePanel'
 import { useLeaderboardSync } from './context/ReFetchingLeaderboardStoreProvider'
+import { useSubmissionDetailSync } from './context/ReFetchingSubmissionDetailStoreProvider'
+import { useSubmissionSync } from './context/ReFetchingSubmissionStoreProvider'
 import { TestPollingStoreProvider } from './context/TestPollingStoreProvider'
 import { TestcaseStoreProvider } from './context/TestcaseStoreProvider'
 
@@ -93,6 +95,12 @@ export function EditorMainResizablePanel({
     setIsBottomPanelHidden((prev) => !prev)
   }
   const triggerRefresh = useLeaderboardSync((state) => state.triggerRefresh)
+  const triggerSubmissionRefresh = useSubmissionSync(
+    (state) => state.triggerRefresh
+  )
+  const triggerSubmissionDetailRefresh = useSubmissionDetailSync(
+    (state) => state.triggerRefresh
+  )
   const {
     isSidePanelHidden,
     toggleSidePanelVisibility
@@ -100,6 +108,7 @@ export function EditorMainResizablePanel({
     useSidePanelTabStore()
 
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   let base: string
   if (contestId) {
     base = `/contest/${contestId}` as const
@@ -126,6 +135,8 @@ export function EditorMainResizablePanel({
       pathname.startsWith(`${base}/problem/${problem.id}/leaderboard`)
     ) {
       setTabValue('Leaderboard')
+    } else if (pathname.startsWith(`${base}/problem/${problem.id}/solution`)) {
+      setTabValue('Solution')
     } else {
       setTabValue('Description')
     }
@@ -136,6 +147,16 @@ export function EditorMainResizablePanel({
       setLanguage(problem.languages[0])
     }
   }, [problem.languages, language, setLanguage])
+
+  const [isSubmissionDetail, setIsSubmissionDetail] = useState(false)
+  useEffect(() => {
+    const cellProblemId = searchParams.get('cellProblemId')
+    if (cellProblemId) {
+      setIsSubmissionDetail(true)
+    } else {
+      setIsSubmissionDetail(false)
+    }
+  }, [pathname, searchParams])
 
   return (
     <ResizablePanelGroup
@@ -171,6 +192,19 @@ export function EditorMainResizablePanel({
                     Submissions
                   </TabsTrigger>
                 </Link>
+                {assignmentId && (
+                  <Link
+                    replace
+                    href={`${base}/problem/${problem.id}/solution` as Route}
+                  >
+                    <TabsTrigger
+                      value="Solution"
+                      className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
+                    >
+                      Solution
+                    </TabsTrigger>
+                  </Link>
+                )}
                 {contestId && (
                   <Link
                     replace
@@ -188,7 +222,7 @@ export function EditorMainResizablePanel({
                 )}
               </TabsList>
             </Tabs>
-            {tabValue === 'Leaderboard' ? (
+            {tabValue === 'Leaderboard' && (
               <div className="flex gap-x-4">
                 <LeaderboardModalDialog />
                 <TooltipProvider>
@@ -221,7 +255,21 @@ export function EditorMainResizablePanel({
                   </Tooltip>
                 </TooltipProvider>
               </div>
-            ) : null}
+            )}
+            {tabValue === 'Submission' && contestId && (
+              <div className="flex gap-x-4">
+                <Image
+                  src={syncIcon}
+                  alt="Sync"
+                  className={'cursor-pointer'}
+                  onClick={() => {
+                    isSubmissionDetail
+                      ? triggerSubmissionDetailRefresh()
+                      : triggerSubmissionRefresh()
+                  }}
+                />
+              </div>
+            )}
           </div>
           <ScrollArea className="[&>div>div]:!block">
             <Suspense fallback={<Loading />}>{children}</Suspense>

@@ -11,6 +11,7 @@ const GET_ASSIGNMENT = gql(`
       description
       endTime
       startTime
+      dueTime
       title
       week
     }
@@ -18,8 +19,8 @@ const GET_ASSIGNMENT = gql(`
 `)
 
 const GET_ASSIGNMENTS = gql(`
-  query GetAssignments($groupId: Int!, $cursor: Int, $take: Int!) {
-    getAssignments(groupId: $groupId, cursor: $cursor, take: $take) {
+  query GetAssignments($groupId: Int!, $cursor: Int, $take: Int!, $isExercise: Boolean) {
+    getAssignments(groupId: $groupId, cursor: $cursor, take: $take, isExercise: $isExercise) {
       id
       title
       startTime

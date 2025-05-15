@@ -54,7 +54,7 @@ export function AssignmentProblemDropdown({
         {sortedProblems.map((p) => (
           <Link
             href={
-              `/admin/course/${courseId}/grade/assignment/${assignmentId}/user/${userId}/problem/${p.problemId}` as Route
+              `/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${userId}/problem/${p.problemId}` as Route
             }
             key={p.problemId}
           >

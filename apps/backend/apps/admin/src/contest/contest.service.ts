@@ -54,7 +54,7 @@ export class ContestService {
       ...paginator,
       take,
       where: {
-        ...(user?.role === Role.User
+        ...(user?.role !== Role.SuperAdmin
           ? {
               userContest: {
                 some: {
@@ -324,15 +324,34 @@ export class ContestService {
       contest.freezeTime && contest.freezeTime !== contestFound.freezeTime
     if (isFreezeTimeChanged) {
       const now = new Date()
-      if (contest.freezeTime && contest.freezeTime < now) {
+      if (contest.freezeTime && contest.freezeTime <= now) {
         throw new UnprocessableDataException(
           'The freeze time must be later than the current time'
         )
       }
-      if (contestFound.freezeTime && contestFound.freezeTime < now) {
+      if (contest.freezeTime && contest.freezeTime >= contest.endTime) {
         throw new UnprocessableDataException(
-          'Cannot change freeze time after the freeze time has passed already'
+          'The freeze time must be earlier than the end time'
         )
+      }
+
+      const isOngoing =
+        now >= contestFound.startTime && now < contestFound.endTime
+      if (isOngoing) {
+        if (
+          contestFound.freezeTime &&
+          contest.freezeTime &&
+          contest.freezeTime < contestFound.freezeTime
+        ) {
+          throw new UnprocessableDataException(
+            'The freeze time must be later than the previous freeze time'
+          )
+        }
+        if (contestFound.freezeTime && contestFound.freezeTime <= now) {
+          throw new UnprocessableDataException(
+            'Cannot change freeze time after the freeze time has passed already'
+          )
+        }
       }
     }
 
