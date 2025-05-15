@@ -240,7 +240,7 @@ export function AddManagerReviewerDialog({
           <Command key={inputField.id} className="h-full gap-[6px]">
             <div className="flex flex-col">
               <div className="flex gap-2">
-                <div className="w-full max-w-[498px] gap-2">
+                <div className="relative w-full max-w-[346px] gap-2">
                   <CommandInput
                     className="ml-1 h-10 w-[300px] text-sm placeholder:text-neutral-300"
                     placeholder="Search Email"
@@ -251,6 +251,22 @@ export function AddManagerReviewerDialog({
                       handleValueChange(inputField.id, value)
                     }
                   />
+                  <Button
+                    variant="ghost"
+                    className="absolute right-0 top-[1px] mr-[2px] mt-[2px] h-9 w-9 p-1 text-sm font-normal"
+                    onClick={() => {
+                      handleValueChange(inputField.id, inputField.value)
+                      setFocusedInputId(null)
+                      fetchUserData(
+                        inputField.value,
+                        inputField.id,
+                        inputField.dropdown
+                      )
+                    }}
+                  >
+                    <HiMiniPlusCircle className="h-5 w-5 text-[#9B9B9B]" />
+                  </Button>
+
                   {focusedInputId === inputField.id && inputField.value && (
                     <CommandList>
                       <CommandEmpty>No results found.</CommandEmpty>
@@ -265,7 +281,7 @@ export function AddManagerReviewerDialog({
                             <CommandItem
                               key={emailSuggestion}
                               value={emailSuggestion}
-                              className="mt-1 w-full cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-sm text-black"
+                              className="relative mt-1 w-full cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-sm text-black"
                               onSelect={() => {
                                 handleValueChange(
                                   inputField.id,
@@ -280,7 +296,7 @@ export function AddManagerReviewerDialog({
                               }}
                             >
                               <span className="ml-5">{emailSuggestion}</span>
-                              <HiMiniPlusCircle className="h-5 w-5 text-[#9B9B9B]" />
+                              <HiMiniPlusCircle className="absolute right-2 h-5 w-5 text-[#9B9B9B]" />
                             </CommandItem>
                           )
                         })}
