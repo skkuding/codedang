@@ -12,7 +12,7 @@ import {
 import { Notice, User } from '@generated'
 import { AuthenticatedRequest } from '@libs/auth'
 import { CursorValidationPipe, IDValidationPipe } from '@libs/pipe'
-import { GroupService } from '@admin/group/group.service'
+import { UserLoader } from '@admin/user/user.loader'
 import { UserService } from '@admin/user/user.service'
 import { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 import { NoticeService } from './notice.service'
@@ -23,7 +23,7 @@ export class NoticeResolver {
   constructor(
     private readonly noticeService: NoticeService,
     private readonly userService: UserService,
-    private readonly groupService: GroupService
+    private readonly userLoader: UserLoader
   ) {}
 
   @Mutation(() => Notice)
@@ -72,6 +72,6 @@ export class NoticeResolver {
     if (createdById == null) {
       return null
     }
-    return this.userService.getUser(createdById)
+    return this.userLoader.batchUsers.load(createdById)
   }
 }

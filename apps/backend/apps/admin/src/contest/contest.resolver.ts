@@ -20,7 +20,8 @@ import {
   IDValidationPipe,
   RequiredIntPipe
 } from '@libs/pipe'
-import { UserService } from '@admin/user/user.service'
+import { UserLoader } from '@admin/user/user.loader'
+import { ContestLoader } from './contest.loader'
 import { ContestService } from './contest.service'
 import { ContestLeaderboard } from './model/contest-leaderboard.model'
 import { ContestSubmissionSummaryForUser } from './model/contest-submission-summary-for-user.model'
@@ -37,7 +38,8 @@ import { UserContestScoreSummaryWithUserInfo } from './model/score-summary'
 export class ContestResolver {
   constructor(
     private readonly contestService: ContestService,
-    private readonly userService: UserService
+    private readonly contestLoader: ContestLoader,
+    private readonly userLoader: UserLoader
   ) {}
 
   @Query(() => [ContestWithParticipants])
@@ -195,11 +197,16 @@ export class ContestResolver {
   }
 
   @ResolveField('createdBy', () => User, { nullable: true })
-  async getUser(@Parent() contest: Contest) {
+  async getUser(@Parent() contest: Contest): Promise<User | null> {
     const { createdById } = contest
     if (createdById == null) {
       return null
     }
-    return await this.userService.getUser(createdById)
+    return this.userLoader.batchUsers.load(createdById)
+  }
+
+  @ResolveField('participants', () => Int)
+  async getParticipants(@Parent() contest: Contest): Promise<number> {
+    return this.contestLoader.batchParticipants.load(contest.id)
   }
 }

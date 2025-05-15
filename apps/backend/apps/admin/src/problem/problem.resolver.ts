@@ -46,6 +46,7 @@ import {
   UploadTestcaseZipInput
 } from './model/problem.input'
 import { ProblemWithIsVisible, ProblemTestcaseId } from './model/problem.output'
+import { ProblemLoader } from './problem.loader'
 import { ProblemService } from './problem.service'
 
 @Resolver(() => ProblemWithIsVisible)
@@ -231,7 +232,10 @@ export class ProblemResolver {
 @Resolver(() => ContestProblem)
 @UseContestRolesGuard(ContestRole.Reviewer)
 export class ContestProblemResolver {
-  constructor(private readonly problemService: ProblemService) {}
+  constructor(
+    private readonly problemService: ProblemService,
+    private readonly problemLoader: ProblemLoader
+  ) {}
 
   @Query(() => [ContestProblem], { name: 'getContestProblems' })
   async getContestProblems(
@@ -269,14 +273,17 @@ export class ContestProblemResolver {
 
   @ResolveField('problem', () => ProblemWithIsVisible)
   async getProblem(@Parent() contestProblem: ContestProblem) {
-    return await this.problemService.getProblemById(contestProblem.problemId)
+    return await this.problemLoader.batchProblems.load(contestProblem.problemId)
   }
 }
 
 @Resolver(() => AssignmentProblem)
 @UseGroupLeaderGuard()
 export class AssignmentProblemResolver {
-  constructor(private readonly problemService: ProblemService) {}
+  constructor(
+    private readonly problemService: ProblemService,
+    private readonly problemLoader: ProblemLoader
+  ) {}
 
   @Query(() => [AssignmentProblem], { name: 'getAssignmentProblems' })
   async getAssignmentProblems(
@@ -332,14 +339,19 @@ export class AssignmentProblemResolver {
 
   @ResolveField('problem', () => ProblemWithIsVisible)
   async getProblem(@Parent() assignmentProblem: AssignmentProblem) {
-    return await this.problemService.getProblemById(assignmentProblem.problemId)
+    return await this.problemLoader.batchProblems.load(
+      assignmentProblem.problemId
+    )
   }
 }
 
 @Resolver(() => WorkbookProblem)
 @UseGroupLeaderGuard()
 export class WorkbookProblemResolver {
-  constructor(private readonly problemService: ProblemService) {}
+  constructor(
+    private readonly problemService: ProblemService,
+    private readonly problemLoader: ProblemLoader
+  ) {}
 
   @Query(() => [WorkbookProblem], { name: 'getWorkbookProblems' })
   async getWorkbookProblems(
@@ -367,6 +379,8 @@ export class WorkbookProblemResolver {
 
   @ResolveField('problem', () => ProblemWithIsVisible)
   async getProblem(@Parent() workbookProblem: WorkbookProblem) {
-    return await this.problemService.getProblemById(workbookProblem.problemId)
+    return await this.problemLoader.batchProblems.load(
+      workbookProblem.problemId
+    )
   }
 }

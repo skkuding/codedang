@@ -97,13 +97,7 @@ export class ContestService {
       return a.createTime.getTime() - b.createTime.getTime()
     })
 
-    return contests.map((contest) => {
-      const { _count, ...data } = contest
-      return {
-        ...data,
-        participants: _count.contestRecord
-      }
-    })
+    return contests
   }
 
   async getContest(contestId: number) {
@@ -112,10 +106,6 @@ export class ContestService {
         id: contestId
       },
       include: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        _count: {
-          select: { contestRecord: true }
-        },
         userContest: {
           where: {
             role: {
@@ -156,12 +146,7 @@ export class ContestService {
       throw new EntityNotExistException('contest')
     }
 
-    const { _count, ...data } = contest
-
-    return {
-      ...data,
-      participants: _count.contestRecord
-    }
+    return contest
   }
 
   async createContest(
@@ -1280,8 +1265,6 @@ export class ContestService {
         role: true
       }
     })
-
-    console.log('userContests', userContests)
 
     return userContests
   }
