@@ -54,6 +54,11 @@ export interface Template {
   language: Language
 }
 
+export interface Solution {
+  code: string
+  language: Language
+}
+
 export interface Problem {
   id: number
   title: string
@@ -121,6 +126,7 @@ export interface ProblemDetail {
   tags: Tag[]
   hint: string
   template: string[]
+  solution: Solution[]
   difficulty: Level
   order?: number
 }

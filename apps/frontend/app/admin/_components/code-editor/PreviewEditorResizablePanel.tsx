@@ -70,6 +70,12 @@ export function PreviewEditorResizablePanel({
                 >
                   Submissions
                 </TabsTrigger>
+                <TabsTrigger
+                  value="Solution"
+                  className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
+                >
+                  Solution
+                </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>

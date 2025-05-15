@@ -135,6 +135,8 @@ export function EditorMainResizablePanel({
       pathname.startsWith(`${base}/problem/${problem.id}/leaderboard`)
     ) {
       setTabValue('Leaderboard')
+    } else if (pathname.startsWith(`${base}/problem/${problem.id}/solution`)) {
+      setTabValue('Solution')
     } else {
       setTabValue('Description')
     }
@@ -190,6 +192,19 @@ export function EditorMainResizablePanel({
                     Submissions
                   </TabsTrigger>
                 </Link>
+                {assignmentId && (
+                  <Link
+                    replace
+                    href={`${base}/problem/${problem.id}/solution` as Route}
+                  >
+                    <TabsTrigger
+                      value="Solution"
+                      className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
+                    >
+                      Solution
+                    </TabsTrigger>
+                  </Link>
+                )}
                 {contestId && (
                   <Link
                     replace
