@@ -104,7 +104,11 @@ export default function Information({ params }: InformationProps) {
                           {problem.score}
                         </TableCell>
                         <TableCell className="text-center">
-                          <FaEye className="inline text-gray-400" />
+                          {problem.solutionReleaseTime &&
+                            new Date(problem.solutionReleaseTime) <=
+                              new Date() && (
+                              <FaEye className="inline text-gray-400" />
+                            )}
                         </TableCell>
                       </TableRow>
                     ))}
