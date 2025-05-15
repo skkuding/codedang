@@ -222,27 +222,11 @@ export const createColumns = (
       }
     })),
     {
-      accessorKey: 'userAssignmentScore',
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Raw Score"
-          className="flex justify-center border-x"
-        />
-      ),
-      cell: ({ row }) => (
-        <div className="flex justify-center border-x text-xs">
-          {row.original.userAssignmentScore}/
-          {row.original.assignmentPerfectScore}
-        </div>
-      )
-    },
-    {
       accessorKey: 'userAssignmentFinalScore',
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Final Score"
+          title="Total"
           className="flex justify-center"
         />
       ),

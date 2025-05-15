@@ -103,11 +103,7 @@ export function ParticipantTable({
     { label: 'Student Id', key: 'studentId' },
     { label: 'Name', key: 'realName' },
     {
-      label: `Raw Score(MAX ${summaries?.data.getAssignmentScoreSummaries[0]?.assignmentPerfectScore || 0})`,
-      key: 'rawScore'
-    },
-    {
-      label: `Final Score(MAX ${summaries?.data.getAssignmentScoreSummaries[0]?.assignmentPerfectScore || 0})`,
+      label: `Total Score(MAX ${summaries?.data.getAssignmentScoreSummaries[0]?.assignmentPerfectScore || 0})`,
       key: 'finalScore'
     },
 
@@ -162,7 +158,7 @@ export function ParticipantTable({
               placeholder="Search Name"
             />
             <div className="flex items-center gap-2">
-              Reveal Final Score
+              Show Scores to Students
               <Switch
                 onCheckedChange={async (checked) => {
                   setRevealFinalScore(checked)
