@@ -8,8 +8,11 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6'
+import {
+  AssignmentIcon,
+  ExerciseIcon
+} from '../../../../../../components/Icons'
 import { CourseInfoBox } from './CourseInfoBox'
-import { AssignmentIcon, ExerciseIcon } from './Icons'
 
 interface CourseSidebarProps {
   courseId: string

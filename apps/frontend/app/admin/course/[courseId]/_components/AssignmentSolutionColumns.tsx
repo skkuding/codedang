@@ -16,7 +16,7 @@ export const createColumns = (
   return [
     {
       accessorKey: 'title',
-      header: () => <p className="w-72 text-left text-sm">Title</p>,
+      header: () => <p className="w-64 text-left text-sm">Title</p>,
       cell: ({ row }) => (
         <div>
           <p className="w-72 overflow-hidden text-ellipsis whitespace-nowrap text-left">
@@ -50,10 +50,10 @@ export const createColumns = (
               <input
                 type="radio"
                 className="text-primary-light text-xs"
-                checked={selectedOption === 'After Deadline'}
-                onChange={() => handleOptionChange(row.index, 'After Deadline')}
+                checked={selectedOption === 'After Due Date'}
+                onChange={() => handleOptionChange(row.index, 'After Due Date')}
               />
-              <p>After Deadline</p>
+              <p>After Due Date</p>
             </label>
             <div className="flex w-[218px] flex-col items-center justify-start gap-2">
               <label className="flex items-center gap-1">

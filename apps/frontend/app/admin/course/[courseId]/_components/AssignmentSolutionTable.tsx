@@ -14,13 +14,13 @@ import { createColumns } from './AssignmentSolutionColumns'
 interface AssignmentSolutionTableProps {
   problems: AssignmentProblem[]
   setProblems: Dispatch<SetStateAction<AssignmentProblem[]>>
-  endTime?: Date
+  dueTime?: Date
 }
 
 export function AssignmentSolutionTable({
   problems,
   setProblems,
-  endTime
+  dueTime
 }: AssignmentSolutionTableProps) {
   const [revealedStates, setRevealedStates] = useState<{
     [key: number]: boolean
@@ -41,15 +41,17 @@ export function AssignmentSolutionTable({
       const newSolutionReleaseTimes: { [key: number]: Date | null } = {}
 
       problems.forEach((problem, index) => {
-        newRevealedStates[index] = problem.solutionReleaseTime !== null
+        if (problem.solutionReleaseTime) {
+          newRevealedStates[index] = true
+        }
 
         if (problem.solutionReleaseTime === null) {
           newOptionStates[index] = ''
         } else if (
           dayjs(problem.solutionReleaseTime).toString() ===
-          dayjs(endTime)?.toString()
+          dayjs(dueTime)?.toString()
         ) {
-          newOptionStates[index] = 'After Deadline'
+          newOptionStates[index] = 'After Due Date'
         } else {
           newOptionStates[index] = 'Manually'
           newSolutionReleaseTimes[index] = problem.solutionReleaseTime
@@ -93,8 +95,8 @@ export function AssignmentSolutionTable({
       const newState = { ...prev, [rowIndex]: value }
       const dummyReleaseTime = new Date('2025-01-01')
 
-      // 일단 2025-01-01로 해두고 Create 할 때 endTime으로 갈아끼우기기
-      if (value === 'After Deadline') {
+      // 일단 2025-01-01로 해두고 Create 할 때 dueTime으로 갈아끼우기기
+      if (value === 'After Due Date') {
         setSolutionReleaseTimes((prev) => ({
           ...prev,
           [rowIndex]: new Date('2025-01-01')
@@ -131,11 +133,13 @@ export function AssignmentSolutionTable({
     })
   }
 
-  // TODO: GET_ASSIGNMENT_PROBLEMS에 solution 추가되면 solution으로 있는 걸로 필터링
-  // const filteredProblems = useMemo(() => {
-  //   return problems.filter((problem) => problem.solution)
-  // }, [problems])
-  const filteredProblems = problems
+  const filteredProblems = useMemo(() => {
+    return problems.filter((problem) => {
+      return (
+        problem.solution?.some((solution) => solution.code.length > 0) ?? false
+      )
+    })
+  }, [problems])
 
   const columns = useMemo(
     () =>

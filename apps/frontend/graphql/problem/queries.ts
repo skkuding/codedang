@@ -85,6 +85,7 @@ const GET_ASSIGNMENT_PROBLEMS = gql(`
         description
         isVisible
         difficulty
+        solution
       }
     }
   }

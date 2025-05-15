@@ -11,6 +11,7 @@ const GET_ASSIGNMENT = gql(`
       description
       endTime
       startTime
+      dueTime
       title
       week
     }
