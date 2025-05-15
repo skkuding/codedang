@@ -138,17 +138,17 @@ export default function Page({ params }: { params: { courseId: string } }) {
 
               <div className="flex flex-col gap-1 rounded-md border bg-white p-[20px]">
                 <SwitchField
+                  hasValue={true}
                   name="isJudgeResultVisible"
-                  title="Hide Hidden Testcase Result"
-                  description="When enabled, hidden testcase results will be hidden from students."
-                  invert={true}
+                  title="Reveal Hidden Testcase Result"
+                  description="When enabled, students will not be able to copy from or paste into the code editor."
                 />
 
                 <SwitchField
+                  hasValue={true}
                   name="enableCopyPaste"
-                  title="Disable Copy/Paste"
+                  title="Enable Participants Copy/Pasting"
                   description="When enabled, students will not be able to copy from or paste into the code editor."
-                  invert={true}
                 />
               </div>
 

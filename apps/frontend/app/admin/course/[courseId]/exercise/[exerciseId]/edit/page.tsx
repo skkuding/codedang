@@ -171,17 +171,16 @@ export default function Page({
               <div className="flex flex-col gap-1 rounded-md border bg-white p-[20px]">
                 <SwitchField
                   name="isJudgeResultVisible"
-                  title="Hide Hidden Testcase Result"
+                  title="Reveal Hidden Testcase Result"
                   description="When enabled, hidden testcase results will be hidden from students."
-                  invert={true}
-                  hasValue={methods.getValues('isJudgeResultVisible') || true}
+                  hasValue={methods.getValues('isJudgeResultVisible') || false}
                 />
+
                 <SwitchField
                   name="enableCopyPaste"
-                  title="Disable Copy/Paste"
                   description="When enabled, students will not be able to copy from or paste into the code editor."
-                  hasValue={methods.getValues('enableCopyPaste') || true}
-                  invert={true}
+                  title="Enable Participants Copy/Pasting"
+                  hasValue={methods.getValues('enableCopyPaste') || false}
                 />
               </div>
 
