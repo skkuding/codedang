@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { CiShare1 } from 'react-icons/ci'
 import { FaCheck } from 'react-icons/fa6'
 import { toast } from 'sonner'
-import type { Solution } from '../_libs/type'
+import type { Solution } from '../../_libs/type'
 
 export interface DataTableProblem {
   id: number

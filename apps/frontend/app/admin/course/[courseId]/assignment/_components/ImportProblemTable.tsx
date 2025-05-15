@@ -113,9 +113,9 @@ export function ImportProblemTable({
           }
         }}
       />
-      <div className="h-5" />
-      <DataTablePagination showSelection showRowsPerPage={false} />
-      <div className="h-7" />
+      <div className="h-[12px]" />
+      <DataTablePagination showRowsPerPage={false} />
+      <div className="h-[20px]" />
       <ImportProblemButton onSelectedExport={onSelectedExport} />
     </DataTableRoot>
   )

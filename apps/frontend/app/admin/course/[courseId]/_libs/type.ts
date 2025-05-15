@@ -12,7 +12,7 @@ export interface AssignmentProblem {
   difficulty: string
   score: number
   solutionReleaseTime: Date | null
-  solution?: Solution
+  solution?: Solution[]
 }
 
 export interface ScoreSummary {
