@@ -1,7 +1,6 @@
 'use client'
 
-import React from 'react'
-import { useDataTable } from '../../_components/table/context'
+import { useDataTable } from './table/context'
 
 export function ImportProblemDescription() {
   const { table } = useDataTable()

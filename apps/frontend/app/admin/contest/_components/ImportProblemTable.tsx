@@ -2,6 +2,7 @@ import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
 import { toast } from 'sonner'
+import { ImportProblemDescription } from '../../_components/ImportProblemDescription'
 import {
   DataTable,
   DataTableFallback,
@@ -12,7 +13,6 @@ import {
 } from '../../_components/table'
 import type { ContestProblem } from '../_libs/schemas'
 import { ImportProblemButton } from './ImportProblemButton'
-import { ImportProblemDescription } from './ImportProblemDescription'
 import {
   columns,
   DEFAULT_PAGE_SIZE,

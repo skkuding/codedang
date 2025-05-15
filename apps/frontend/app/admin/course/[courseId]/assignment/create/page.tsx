@@ -109,7 +109,11 @@ export default function Page({ params }: { params: { courseId: string } }) {
               <div className="flex flex-col gap-1">
                 <div className="flex items-center justify-between">
                   <AssignmentProblemListLabel />
-                  <ImportDialog problems={problems} setProblems={setProblems} />
+                  <ImportDialog
+                    problems={problems}
+                    setProblems={setProblems}
+                    target="assignment"
+                  />
                 </div>
                 <AssignmentProblemTable
                   problems={problems}
