@@ -152,12 +152,12 @@ export default function Information({ params }: InformationProps) {
               </div>
               <div className="flex items-center gap-4">
                 <span className="text-[16px] font-semibold">
-                  Disable Copy/Paste
+                  Enable Copy/Paste
                 </span>
                 <span
-                  className={`rounded-[12px] px-4 py-1 text-xs font-bold text-white ${!assignmentData?.enableCopyPaste ? 'bg-primary' : 'bg-gray-300'}`}
+                  className={`rounded-[12px] px-4 py-1 text-xs font-bold text-white ${assignmentData?.enableCopyPaste ? 'bg-primary' : 'bg-gray-300'}`}
                 >
-                  {!assignmentData?.enableCopyPaste ? 'ON' : 'OFF'}
+                  {assignmentData?.enableCopyPaste ? 'ON' : 'OFF'}
                 </span>
               </div>
             </div>
