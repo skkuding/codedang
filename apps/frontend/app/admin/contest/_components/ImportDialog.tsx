@@ -30,7 +30,6 @@ import {
 import type { ContestProblem } from '../_libs/schemas'
 
 interface ImportDialogProps {
-  contestId: number
   problems: ContestProblem[]
   setProblems: (problems: ContestProblem[]) => void
   contestId?: string | null
