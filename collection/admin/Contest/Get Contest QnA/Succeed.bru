@@ -1,0 +1,39 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getContestQnA(
+      contestId: 1
+      order: 1
+    ) {
+      id
+      title
+      content
+      answer
+      isVisible
+      createTime
+      createdById
+      answeredById
+      createdBy {
+        username
+      }
+      answeredBy {
+        username
+      }
+    }
+  }
+}
+
+assert {
+  res.body.data.getContests: isDefined
+}
