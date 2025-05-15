@@ -1,5 +1,6 @@
 'use client'
 
+import { useSubmissionPolling } from '@/app/(client)/(code-editor)/_libs/hooks/useSubmissionPolling'
 import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { contestProblemQueries } from '@/app/(client)/_libs/queries/contestProblem'
@@ -129,6 +130,12 @@ export function EditorHeader({
   const { isSidePanelHidden, toggleSidePanelVisibility } =
     useSidePanelTabStore()
 
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  useSubmissionPolling({
+    contestId,
+    problemId: problem.id,
+    enabled: isSubmitted
+  })
   useInterval(
     async () => {
       // TODO: Implement assignment submission
@@ -294,6 +301,7 @@ export function EditorHeader({
             problemId: problem.id
           })
         })
+        setIsSubmitted(true)
       } else if (assignmentId) {
         queryClient.invalidateQueries({
           queryKey: assignmentProblemQueries.lists(assignmentId)
