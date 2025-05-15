@@ -54,7 +54,7 @@ export class ContestService {
       ...paginator,
       take,
       where: {
-        ...(user?.role === Role.User
+        ...(user?.role !== Role.SuperAdmin
           ? {
               userContest: {
                 some: {
