@@ -46,8 +46,7 @@ export function ImportProblemTable({
   const { data: myData } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       ...queryVariables,
-      shared: false,
-      my: true
+      mode: 'my'
     }
   })
 
@@ -55,8 +54,7 @@ export function ImportProblemTable({
   const { data: sharedData } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       ...queryVariables,
-      shared: true,
-      my: false
+      mode: 'shared'
     }
   })
 
