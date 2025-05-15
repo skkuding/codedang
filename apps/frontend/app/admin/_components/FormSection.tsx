@@ -7,7 +7,8 @@ interface FormSectionProps {
   isFlexColumn?: boolean
   isJustifyBetween?: boolean
   className?: string
-  disabled?: boolean
+  isOngoing?: boolean
+  isFinished?: boolean
 }
 
 export function FormSection({
@@ -17,7 +18,8 @@ export function FormSection({
   isFlexColumn = false,
   isJustifyBetween = true,
   className,
-  disabled = false
+  isOngoing = false,
+  isFinished = false
 }: FormSectionProps) {
   const isChildrenArray = Array.isArray(children)
   const [badge, content] = isChildrenArray ? children : [null, children]
@@ -31,7 +33,8 @@ export function FormSection({
           'gap-[18px]': isFlexColumn,
           'justify-between': isJustifyBetween
         },
-        disabled && 'pointer-events-none opacity-50',
+        isOngoing && 'pointer-events-none opacity-50',
+        isFinished && 'pointer-events-none',
         className
       )}
     >

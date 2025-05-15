@@ -58,7 +58,11 @@ export function SwitchField({
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-3">
-        <Label disabled={disabled} required={false}>
+        <Label
+          disabled={disabled}
+          required={false}
+          className={cn(name === 'invitationCode' ? 'opacity-100' : '')}
+        >
           {title}
         </Label>
         {tooltip && (
