@@ -87,11 +87,6 @@ export function FreezeForm({
         )
         return
       }
-
-      if (newFreezeTime <= now) {
-        toast.error('New Freeze Time must be after the Current Time.')
-        return
-      }
     }
 
     setSelectedOption(value)
