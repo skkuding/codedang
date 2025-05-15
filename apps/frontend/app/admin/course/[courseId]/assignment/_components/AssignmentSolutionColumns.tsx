@@ -48,10 +48,10 @@ export const createColumns = (
               <input
                 type="radio"
                 className="text-primary-light text-xs"
-                checked={selectedOption === 'After Deadline'}
-                onChange={() => handleOptionChange(row.index, 'After Deadline')}
+                checked={selectedOption === 'After Due Date'}
+                onChange={() => handleOptionChange(row.index, 'After Due Date')}
               />
-              <p>After Deadline</p>
+              <p>After Due Date</p>
             </label>
             <div className="flex w-[218px] flex-col items-center justify-start gap-2">
               <label className="flex items-center gap-1">

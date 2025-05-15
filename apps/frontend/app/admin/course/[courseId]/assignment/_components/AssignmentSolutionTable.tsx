@@ -51,7 +51,7 @@ export function AssignmentSolutionTable({
           dayjs(problem.solutionReleaseTime).toString() ===
           dayjs(dueTime)?.toString()
         ) {
-          newOptionStates[index] = 'After Deadline'
+          newOptionStates[index] = 'After Due Date'
         } else {
           newOptionStates[index] = 'Manually'
           newSolutionReleaseTimes[index] = problem.solutionReleaseTime
@@ -96,7 +96,7 @@ export function AssignmentSolutionTable({
       const dummyReleaseTime = new Date('2025-01-01')
 
       // 일단 2025-01-01로 해두고 Create 할 때 dueTime으로 갈아끼우기기
-      if (value === 'After Deadline') {
+      if (value === 'After Due Date') {
         setSolutionReleaseTimes((prev) => ({
           ...prev,
           [rowIndex]: new Date('2025-01-01')
