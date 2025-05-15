@@ -145,7 +145,11 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex w-[70px] justify-center">
-          {row.original.solution.length > 0 ? <FaCheck /> : '-'}
+          {row.original.solution.some((solution) => solution.code !== '') ? (
+            <FaCheck />
+          ) : (
+            '-'
+          )}
         </div>
       )
     },

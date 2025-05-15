@@ -57,9 +57,12 @@ export function ImportDialog({
             <AlertDialogTitle className="text-2xl font-semibold">
               Importing from Problem List
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-neutral-500">
-              If {target} problems are imported from the ‘All Problem List’, the
-              problems will automatically become invisible state.
+            <AlertDialogDescription className="text-xs text-neutral-500">
+              <span>
+                If {target} problems are imported from the ‘All Problem List’,
+                the problems will automatically become invisible state. <br />
+                These problems will be shared with your course’s instructors.
+              </span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="w-full gap-0">

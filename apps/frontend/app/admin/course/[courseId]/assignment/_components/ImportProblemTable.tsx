@@ -2,7 +2,6 @@ import { ImportProblemDescription } from '@/app/admin/_components/ImportProblemD
 import {
   DataTable,
   DataTableFallback,
-  DataTableLangFilter,
   DataTableLevelFilter,
   DataTablePagination,
   DataTableRoot,
@@ -89,7 +88,6 @@ export function ImportProblemTable({
       <ImportProblemDescription />
       <div className="flex gap-[6px] pb-1">
         <DataTableSearchBar columndId="title" className="lg:w-[308px]" />
-        <DataTableLangFilter />
         <DataTableLevelFilter />
       </div>
       <DataTable
