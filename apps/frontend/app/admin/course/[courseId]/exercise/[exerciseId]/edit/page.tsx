@@ -28,11 +28,11 @@ import type { AssignmentProblem } from '../../../_libs/type'
 export default function Page({
   params
 }: {
-  params: { courseId: string; assignmentId: string }
+  params: { courseId: string; exerciseId: string }
 }) {
   const [problems, setProblems] = useState<AssignmentProblem[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const { courseId, assignmentId } = params
+  const { courseId, exerciseId } = params
 
   const methods = useForm<UpdateAssignmentInput>({
     resolver: valibotResolver(editSchema),
@@ -47,15 +47,15 @@ export default function Page({
       <ScrollArea className="w-full">
         <main className="flex flex-col gap-6 px-[93px] py-[80px]">
           <div className="flex items-center gap-4">
-            <Link href={`/admin/course/${courseId}/assignment` as const}>
+            <Link href={`/admin/course/${courseId}/exercise` as const}>
               <FaAngleLeft className="h-12" />
             </Link>
-            <span className="text-4xl font-bold">Edit Assignment</span>
+            <span className="text-4xl font-bold">Edit Exercise</span>
           </div>
 
           <EditAssignmentForm
             courseId={Number(courseId)}
-            assignmentId={Number(assignmentId)}
+            assignmentId={Number(exerciseId)}
             problems={problems}
             setProblems={setProblems}
             setIsLoading={setIsLoading}
@@ -64,7 +64,7 @@ export default function Page({
             <div className="flex w-[901px] flex-col gap-[28px]">
               <FormSection title="Title">
                 <TitleForm
-                  placeholder="Name your Assignment"
+                  placeholder="Name your Exercise"
                   className="max-w-[767px]"
                 />
               </FormSection>

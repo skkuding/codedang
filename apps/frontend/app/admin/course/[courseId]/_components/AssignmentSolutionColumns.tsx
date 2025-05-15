@@ -18,9 +18,11 @@ export const createColumns = (
       accessorKey: 'title',
       header: () => <p className="w-72 text-left text-sm">Title</p>,
       cell: ({ row }) => (
-        <p className="w-72 overflow-hidden text-ellipsis whitespace-nowrap text-left">
-          {row.getValue('title')}
-        </p>
+        <div>
+          <p className="w-72 overflow-hidden text-ellipsis whitespace-nowrap text-left">
+            {row.getValue('title')}
+          </p>
+        </div>
       )
     },
     {

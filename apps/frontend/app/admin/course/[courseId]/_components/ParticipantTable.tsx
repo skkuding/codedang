@@ -32,9 +32,16 @@ interface ScoreSummary {
   major: string
 }
 
-export function ParticipantTable() {
-  const courseId = Number(useParams().courseId)
-  const assignmentId = Number(useParams().assignmentId)
+interface ParticipantTableProps {
+  isExercise?: boolean
+}
+
+export function ParticipantTable({ isExercise }: ParticipantTableProps) {
+  const params = useParams()
+  const courseId = Number(params.courseId)
+  const assignmentId = Number(
+    params[isExercise ? 'exerciseId' : 'assignmentId']
+  )
 
   const summaries = useSuspenseQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
     variables: { assignmentId, groupId: courseId, take: 300 }

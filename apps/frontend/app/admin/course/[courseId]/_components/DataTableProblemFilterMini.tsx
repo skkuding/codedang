@@ -8,7 +8,7 @@ import {
 import { cn } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
 import { useEffect, useState } from 'react'
-import { IoFilter, IoChevronDown } from 'react-icons/io5'
+import { IoChevronDown, IoFilter } from 'react-icons/io5'
 
 const ALL_OPTION_LABEL = 'All Problems'
 

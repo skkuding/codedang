@@ -7,7 +7,7 @@ import { Input } from '@/components/shadcn/input'
 import type { Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import { toast } from 'sonner'
-import type { AssignmentProblem } from '../_libs/type'
+import type { AssignmentProblem } from '../../_libs/type'
 
 export const createColumns = (
   setProblems: React.Dispatch<React.SetStateAction<AssignmentProblem[]>>,

@@ -1,23 +1,23 @@
 'use client'
 
+import { ParticipantTable } from '@/app/admin/course/[courseId]/_components/ParticipantTable'
+import {
+  SubmissionTable,
+  SubmissionTableFallback
+} from '@/app/admin/course/[courseId]/_components/SubmissionTable'
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { cn } from '@/libs/utils'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense, useState } from 'react'
-import { ParticipantTable } from '../../../../../_components/ParticipantTable'
-import {
-  SubmissionTable,
-  SubmissionTableFallback
-} from '../../../../../_components/SubmissionTable'
 
 export default function Submission({
   params
 }: {
-  params: { courseId: string; assignmentId: string }
+  params: { courseId: string; exerciseId: string }
 }) {
   const [tab, setTab] = useState<'all' | 'students'>('all')
   const groupId = Number(params.courseId)
-  const assignmentId = Number(params.assignmentId)
+  const exerciseId = Number(params.exerciseId)
 
   return (
     <ErrorBoundary fallback={FetchErrorFallback}>
@@ -50,9 +50,9 @@ export default function Submission({
             </div>
           </div>
           {tab === 'all' ? (
-            <SubmissionTable groupId={groupId} assignmentId={assignmentId} />
+            <SubmissionTable groupId={groupId} assignmentId={exerciseId} />
           ) : (
-            <ParticipantTable />
+            <ParticipantTable isExercise={true} />
           )}
         </div>
       </Suspense>

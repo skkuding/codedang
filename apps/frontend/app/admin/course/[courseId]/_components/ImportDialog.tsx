@@ -3,14 +3,14 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import {
   AlertDialog,
-  AlertDialogTrigger,
+  AlertDialogAction,
+  AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
 import {
@@ -26,7 +26,7 @@ import type { AssignmentProblem } from '../_libs/type'
 import {
   ImportProblemTable,
   ImportProblemTableFallback
-} from './ImportProblemTable'
+} from '../assignment/_components/ImportProblemTable'
 
 interface ImportDialogProps {
   problems: AssignmentProblem[]
