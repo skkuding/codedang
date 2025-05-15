@@ -125,11 +125,8 @@ export default function Page({ params }: { params: { courseId: string } }) {
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-3">
                   <Label required={false}>Solution</Label>
-                  <p className="text-[11px] font-normal text-[#9B9B9B]">
-                    <span className="font-semibold">
-                      Only problems with solutions
-                    </span>
-                    are listed below.
+                  <p className="text-[11px] text-[#9B9B9B]">
+                    Only problems with solutions are listed below.
                   </p>
                 </div>
                 <AssignmentSolutionTable
