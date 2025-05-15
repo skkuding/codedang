@@ -11,9 +11,13 @@ import { useController, useFormContext } from 'react-hook-form'
 
 interface PosterUploadFormProps {
   name: string
+  disabled?: boolean
 }
 
-export function PosterUploadForm({ name }: PosterUploadFormProps) {
+export function PosterUploadForm({
+  name,
+  disabled = false
+}: PosterUploadFormProps) {
   const {
     control
     // formState: { errors }
@@ -81,7 +85,8 @@ export function PosterUploadForm({ name }: PosterUploadFormProps) {
         onClick={handleClick}
         className={cn(
           'relative z-10 flex h-[312px] w-[234px] cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-[#80808029] bg-[#80808014] text-[#3333334D]',
-          field.value ? 'bg-white' : 'bg-[#80808014]'
+          field.value ? 'bg-white' : 'bg-[#80808014]',
+          disabled && 'cursor-not-allowed'
         )}
       >
         {isLoading ? (
@@ -117,6 +122,7 @@ export function PosterUploadForm({ name }: PosterUploadFormProps) {
         ref={fileInputRef}
         onChange={(e) => handleUploadPhoto(e.target.files)}
         style={{ display: 'none' }}
+        disabled={disabled}
       />
 
       <CautionDialog
