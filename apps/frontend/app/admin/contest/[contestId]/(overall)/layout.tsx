@@ -8,7 +8,7 @@ import calendarIcon from '@/public/icons/calendar.svg'
 import { useQuery } from '@apollo/client'
 import Image from 'next/image'
 import Link from 'next/link'
-import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
+import { FaAngleLeft, FaPencil, FaUser } from 'react-icons/fa6'
 import { IoKey } from 'react-icons/io5'
 import { ContestOverallTabs } from '../_components/ContestOverallTabs'
 
@@ -45,8 +45,12 @@ export default function Layout({
       </div>
       <div className="mb-[120px] flex flex-col gap-[10px]">
         <div className="flex font-normal text-[#333333E5]">
+          <FaUser className="black self-center" color="#3581FA" />
+          &nbsp; Contest Admin : {contestData?.createdBy?.username}
+        </div>
+        <div className="flex font-normal text-[#333333E5]">
           <IoKey className="black self-center" color="#3581FA" />
-          &nbsp; Invitation code: {contestData?.invitationCode}
+          &nbsp; Invitation code : {contestData?.invitationCode}
         </div>
         <div className="flex items-center gap-2">
           <Image src={calendarIcon} alt="calendar" width={16} />

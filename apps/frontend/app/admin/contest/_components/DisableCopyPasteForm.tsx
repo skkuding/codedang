@@ -10,12 +10,14 @@ interface DisableCopyPasteFormProps {
   name: string
   title: string
   hasValue?: boolean
+  disabled?: boolean
 }
 
 export function DisableCopyPasteForm({
   name,
   title,
-  hasValue = true
+  hasValue = true,
+  disabled = false
 }: DisableCopyPasteFormProps) {
   const {
     control,
@@ -29,11 +31,14 @@ export function DisableCopyPasteForm({
   })
   return (
     <div className="flex items-center gap-3">
-      <Label required={false}>{title}</Label>
+      <Label disabled={disabled} required={false}>
+        {title}
+      </Label>
       <Switch
         onCheckedChange={(checked) => field.onChange(!checked)}
         checked={!field.value}
         className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
+        disabled={disabled}
       />
       {field.value && errors[name] && (
         <ErrorMessage message={errors[name]?.message?.toString()} />

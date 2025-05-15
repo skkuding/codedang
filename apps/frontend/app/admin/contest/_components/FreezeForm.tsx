@@ -12,11 +12,13 @@ import { cn } from '@/libs/utils'
 import React, { useRef, useState } from 'react'
 import { useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
+import { toast } from 'sonner'
 
 interface FreezeFormProps {
   name: string
   hasValue?: boolean
   isEdit?: boolean
+  isOngoing?: boolean
   diffTime?: number | null
 }
 
@@ -26,6 +28,7 @@ export function FreezeForm({
   name,
   hasValue = false,
   isEdit = false,
+  isOngoing = false,
   diffTime
 }: FreezeFormProps) {
   const [isEnabled, setIsEnabled] = useState<boolean>(hasValue)
@@ -35,6 +38,7 @@ export function FreezeForm({
   )
   const isInitialized = useRef(!isEdit)
   const endTime = watch('endTime')
+  const originalFreezeTime = useRef(watch(name)).current
 
   useEffect(() => {
     if (!isInitialized.current) {
@@ -59,11 +63,35 @@ export function FreezeForm({
       }
     }
     updateFreezeTime()
-  }, [isEnabled, selectedOption, setValue, name, watch])
+  }, [isEnabled, selectedOption, setValue, name, watch, endTime, diffTime])
 
   useEffect(() => {
     setIsEnabled(hasValue)
   }, [hasValue, diffTime])
+
+  // Handle the change of freeze time when the user selects a new option from the dropdown(Ongoing / Not Ongoing)
+  const handleFreezeTimeChange = (value: string) => {
+    const now = new Date()
+    const newFreezeTime = new Date(endTime)
+    newFreezeTime.setMinutes(newFreezeTime.getMinutes() - Number(value))
+
+    if (isOngoing) {
+      if (originalFreezeTime && now >= originalFreezeTime) {
+        toast.error('Freeze Time cannot be updated as it has already started.')
+        return
+      }
+
+      if (originalFreezeTime && newFreezeTime < originalFreezeTime) {
+        toast.error(
+          'New Freeze Time must be after the Original Freeze Start Time.'
+        )
+        return
+      }
+    }
+
+    setSelectedOption(value)
+    setValue(name, newFreezeTime)
+  }
 
   return (
     <div className="flex h-[114px] w-[641px] flex-col justify-evenly rounded-xl border border-[#80808040] bg-[#80808014] px-7">
@@ -82,9 +110,7 @@ export function FreezeForm({
         <h1 className="text-base font-semibold">Freeze start time</h1>
         <Select
           value={selectedOption}
-          onValueChange={(value) => {
-            setSelectedOption(value)
-          }}
+          onValueChange={(value) => handleFreezeTimeChange(value)}
           disabled={!isEnabled}
         >
           <SelectTrigger className="flex h-9 w-[307px] items-center rounded-[20px] border border-[#80808040] bg-white px-5">
@@ -99,9 +125,7 @@ export function FreezeForm({
                 <div
                   key={option}
                   className="flex cursor-pointer items-center rounded-xl pl-5 hover:bg-gray-100/80"
-                  onClick={() => {
-                    setSelectedOption(option)
-                  }}
+                  onClick={() => handleFreezeTimeChange(option)}
                 >
                   <span
                     className={cn(
