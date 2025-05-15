@@ -31,9 +31,14 @@ import {
 interface ImportDialogProps {
   problems: AssignmentProblem[]
   setProblems: (problems: AssignmentProblem[]) => void
+  target: string
 }
 
-export function ImportDialog({ problems, setProblems }: ImportDialogProps) {
+export function ImportDialog({
+  problems,
+  setProblems,
+  target
+}: ImportDialogProps) {
   const [showImportDialog, setShowImportDialog] = useState(false)
   return (
     <>
@@ -53,8 +58,8 @@ export function ImportDialog({ problems, setProblems }: ImportDialogProps) {
               Importing from Problem List
             </AlertDialogTitle>
             <AlertDialogDescription className="text-neutral-500">
-              If assignment problems are imported from the ‘All Problem List’,
-              the problems will automatically become invisible state.
+              If {target} problems are imported from the ‘All Problem List’, the
+              problems will automatically become invisible state.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="w-full gap-0">
