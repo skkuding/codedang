@@ -29,6 +29,7 @@ const GET_PROBLEM = gql(`
       hint
       source
       template
+      solution
     }
   }
 `)
@@ -84,6 +85,7 @@ const GET_ASSIGNMENT_PROBLEMS = gql(`
         description
         isVisible
         difficulty
+        solution
       }
     }
   }

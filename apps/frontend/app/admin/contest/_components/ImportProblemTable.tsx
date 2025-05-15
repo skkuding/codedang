@@ -20,19 +20,21 @@ import {
   MAX_SELECTED_ROW_COUNT
 } from './ImportProblemTableColumns'
 
-export function ImportProblemTable({
-  contestId,
-  checkedProblems,
-  onSelectedExport
-}: {
-  contestId: number
+interface ImportProblemTableProps {
   checkedProblems: ContestProblem[]
   onSelectedExport: (selectedRows: ContestProblem[]) => void
-}) {
+  contestId?: string | null
+}
+
+export function ImportProblemTable({
+  checkedProblems,
+  onSelectedExport,
+  contestId = null
+}: ImportProblemTableProps) {
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       mode: 'contest',
-      contestId,
+      contestId ? Number(contestId) : null,
       take: 500,
       input: {
         difficulty: [

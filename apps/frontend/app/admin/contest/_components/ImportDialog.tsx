@@ -33,12 +33,13 @@ interface ImportDialogProps {
   contestId: number
   problems: ContestProblem[]
   setProblems: (problems: ContestProblem[]) => void
+  contestId?: string | null
 }
 
 export function ImportDialog({
-  contestId,
   problems,
-  setProblems
+  setProblems,
+  contestId = null
 }: ImportDialogProps) {
   const [showImportDialog, setShowImportDialog] = useState(false)
   return (

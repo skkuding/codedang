@@ -17,14 +17,14 @@ import { useParams, usePathname } from 'next/navigation'
 import { useEffect, useState, type ComponentType } from 'react'
 import type { IconType } from 'react-icons'
 import {
-  FaSquarePollHorizontal,
-  FaUser,
-  FaBell,
-  FaPen,
-  FaBook,
-  FaTrophy,
   FaAnglesLeft,
-  FaAnglesRight
+  FaAnglesRight,
+  FaBell,
+  FaBook,
+  FaPen,
+  FaSquarePollHorizontal,
+  FaTrophy,
+  FaUser
 } from 'react-icons/fa6'
 
 interface NavItem {
@@ -52,6 +52,11 @@ const getCourseNavItems = (courseId: string): NavItem[] => [
   {
     name: 'Assignment',
     path: `/admin/course/${courseId}/assignment`,
+    icon: AssignmentIcon
+  },
+  {
+    name: 'Exercise',
+    path: `/admin/course/${courseId}/exercise`,
     icon: AssignmentIcon
   }
   // {

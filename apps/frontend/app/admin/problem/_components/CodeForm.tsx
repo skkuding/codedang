@@ -13,9 +13,15 @@ interface CodeFormProps {
   name: string
   language: Language
   hasValue?: boolean
+  variant: 'template' | 'solution'
 }
 
-export function CodeForm({ name, language, hasValue = false }: CodeFormProps) {
+export function CodeForm({
+  name,
+  language,
+  hasValue = false,
+  variant
+}: CodeFormProps) {
   const [isEnabled, setIsEnabled] = useState(false)
   const {
     control,
@@ -50,7 +56,9 @@ export function CodeForm({ name, language, hasValue = false }: CodeFormProps) {
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Label required={false}>{language} Template</Label>
+          <Label required={false}>
+            {language} {variant === 'template' ? 'Template' : 'Solution'}
+          </Label>
           <Switch
             onCheckedChange={() => {
               setValue(name, '')
