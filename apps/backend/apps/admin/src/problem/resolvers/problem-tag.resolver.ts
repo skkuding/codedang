@@ -8,18 +8,18 @@ import {
   Args
 } from '@nestjs/graphql'
 import { ProblemTag, Tag } from '@generated'
-import { ProblemService } from './problem.service'
+import { TagService } from '../services'
 
 @Resolver(() => ProblemTag)
 export class ProblemTagResolver {
   private readonly logger = new Logger(ProblemTagResolver.name)
 
-  constructor(private readonly problemService: ProblemService) {}
+  constructor(private readonly tagService: TagService) {}
 
   @ResolveField('tag', () => Tag)
   async getTag(@Parent() problemTag: ProblemTag) {
     try {
-      return await this.problemService.getTag(problemTag.tagId)
+      return await this.tagService.getTag(problemTag.tagId)
     } catch (error) {
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -31,23 +31,23 @@ export class ProblemTagResolver {
 export class TagResolver {
   private readonly logger = new Logger(TagResolver.name)
 
-  constructor(private readonly problemService: ProblemService) {}
+  constructor(private readonly tagService: TagService) {}
 
   @Mutation(() => Tag)
   async createTag(
     @Args('tagName', { type: () => String })
     tagName: string
   ) {
-    return await this.problemService.createTag(tagName)
+    return await this.tagService.createTag(tagName)
   }
 
   @Mutation(() => Tag)
   async deleteTag(@Args('tagName', { type: () => String }) tagName: string) {
-    return await this.problemService.deleteTag(tagName)
+    return await this.tagService.deleteTag(tagName)
   }
 
   @Query(() => [Tag])
   async getTags() {
-    return await this.problemService.getTags()
+    return await this.tagService.getTags()
   }
 }

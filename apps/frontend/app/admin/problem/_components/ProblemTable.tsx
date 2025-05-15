@@ -38,8 +38,7 @@ export function ProblemTable({ isUser }: ProblemTableProps) {
           Language.PyPy3
         ]
       },
-      my: true,
-      shared: false
+      mode: 'my'
     }
   })
 

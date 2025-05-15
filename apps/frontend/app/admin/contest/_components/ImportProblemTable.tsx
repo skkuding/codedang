@@ -33,7 +33,7 @@ export function ImportProblemTable({
 }: ImportProblemTableProps) {
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
-      my: true,
+      mode: 'contest',
       contestId: contestId ? Number(contestId) : null,
       take: 500,
       input: {

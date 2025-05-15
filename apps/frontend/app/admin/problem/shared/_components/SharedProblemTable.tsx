@@ -26,8 +26,7 @@ export function SharedProblemTable() {
         ],
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3]
       },
-      shared: true,
-      my: false
+      mode: 'shared'
     }
   })
 
