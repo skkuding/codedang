@@ -2,7 +2,7 @@
 import { check } from 'k6'
 import http from 'k6/http'
 import { Trend } from 'k6/metrics'
-import type { Options } from 'k6/options'
+import type { Scenario } from 'k6/options'
 
 export type CodeSnippet = {
   filePath: string
@@ -81,12 +81,7 @@ export function loginAndGetAuth(
  * @param envVars 환경 변수 정보
  * @returns 요약 보고서 객체
  */
-export function generateSummary(
-  data: any,
-  testOptions: Options,
-  filePath: string,
-  envVars: any
-) {
+export function generateSummary(data: any, filePath: string, envVars: any) {
   const now = new Date()
   const year = now.getFullYear()
   const month = String(now.getMonth() + 1).padStart(2, '0')
@@ -122,25 +117,18 @@ export function generateSummary(
   summaryText += `일반 코드 스니펫 경로: ${NORMAL_CODE_SNIPPET_FILE_PATH}\n`
   summaryText += `빌런 코드 스니펫 경로: ${VILLAIN_CODE_SNIPPET_FILE_PATH}\n\n`
 
-  // // TODO: 시나리오 정보 동적 추가
+  // TODO: 시나리오 정보 동적 추가
   summaryText += '=== 시나리오 정보 ===\n'
 
-  const scenarios = testOptions.scenarios || {}
-  // const scenarioNames = ['villains', 'normals']
-  // if (scenarioNames.length === 0) {
-  //   summaryText += '시나리오 정보가 없습니다.\n'
-  // } else {
-  //   scenarioNames.forEach((scenarioName) => {
-  //     const scenario = scenarios[scenarioName]
-  //     summaryText += `시나리오 이름: ${scenarioName}\n`
-  //     summaryText += `  실행기: ${scenario.executor}\n`
-  //     summaryText += `  단계: ${scenario.env}\n`
-  //     summaryText += `  태그: ${JSON.stringify(scenario.tags || {})}\n`
-  //     summaryText += `  실행 함수: ${scenario.exec}\n`
-  //     summaryText += `  실행 시간: ${scenario.startTime}\n`
-  //   })
-  // }
-  // summaryText += '\n'
+  const scenarios = data.options?.scenarios || {}
+  scenarios.forEach((scenario: Scenario) => {
+    summaryText += `시나리오 이름: ${scenario}\n`
+    summaryText += `  실행기: ${scenario.executor}\n`
+    summaryText += `  단계: ${scenario.env}\n`
+    summaryText += `  태그: ${JSON.stringify(scenario.tags || {})}\n`
+    summaryText += `  실행 함수: ${scenario.exec}\n`
+    summaryText += `  실행 시간: ${scenario.startTime}\n`
+  })
 
   // 테스트 결과 정보 추가
   summaryText += '=== 테스트 결과 요약 ===\n'

@@ -227,7 +227,7 @@ const getSubmissionUrl = ({
 
 // --- Summary 함수: 테스트 결과 요약 ---
 export function handleSummary(data: any) {
-  return generateSummary(data, options, './loadtest/submission/results', {
+  return generateSummary(data, './loadtest/submission/results', {
     BASE_URL,
     LOGIN_USERNAME,
     LOGIN_PASSWORD,
