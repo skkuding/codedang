@@ -172,13 +172,13 @@ export default function Page({
                 <SwitchField
                   name="isJudgeResultVisible"
                   title="Reveal Hidden Testcase Result"
-                  description="When enabled, hidden testcase results will be hidden from students."
+                  description="When enabled, hidden testcase results will be revealed from students."
                   hasValue={methods.getValues('isJudgeResultVisible') || false}
                 />
 
                 <SwitchField
                   name="enableCopyPaste"
-                  description="When enabled, students will not be able to copy from or paste into the code editor."
+                  description="When enabled, students will be able to copy from or paste into the code editor."
                   title="Enable Participants Copy/Pasting"
                   hasValue={methods.getValues('enableCopyPaste') || false}
                 />

@@ -141,14 +141,14 @@ export default function Page({ params }: { params: { courseId: string } }) {
                   hasValue={true}
                   name="isJudgeResultVisible"
                   title="Reveal Hidden Testcase Result"
-                  description="When enabled, students will not be able to copy from or paste into the code editor."
+                  description="When enabled, hidden testcase results will be revealed from students."
                 />
 
                 <SwitchField
                   hasValue={true}
                   name="enableCopyPaste"
                   title="Enable Participants Copy/Pasting"
-                  description="When enabled, students will not be able to copy from or paste into the code editor."
+                  description="When enabled, students will be able to copy from or paste into the code editor."
                 />
               </div>
 
