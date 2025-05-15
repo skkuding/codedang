@@ -58,7 +58,7 @@ export class ContestRolesGuard implements CanActivate {
       const userRole = (await this.service.getUserRole(user.id)).role
       user.role = userRole
     }
-    if (user.isAdmin() || user.isSuperAdmin()) {
+    if (user.isSuperAdmin()) {
       return true
     }
 
