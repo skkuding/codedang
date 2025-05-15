@@ -36,8 +36,8 @@ export function CreateAssignmentForm({
     defaultValues: {
       isRankVisible: true,
       isVisible: true,
-      enableCopyPaste: false,
-      isJudgeResultVisible: false,
+      enableCopyPaste: true,
+      isJudgeResultVisible: true,
       autoFinalizeScore: false,
       description: ''
     }

@@ -154,7 +154,10 @@ export default function Page({
                 <div className="flex items-center gap-3">
                   <Label required={false}>Solution</Label>
                   <p className="text-[11px] font-normal text-[#9B9B9B]">
-                    하단 리스트는 Solution이 존재하는 문제만 표시됩니다.
+                    <span className="font-semibold">
+                      Only problems with solutions
+                    </span>
+                    are listed below.
                   </p>
                 </div>
                 <AssignmentSolutionTable
@@ -166,16 +169,19 @@ export default function Page({
 
               <div className="flex flex-col gap-1 rounded-md border bg-white p-[20px]">
                 <SwitchField
-                  name="enableCopyPaste"
-                  title="Enable Participants Copy/Pasting"
-                  hasValue={methods.getValues('enableCopyPaste') || false}
+                  name="isJudgeResultVisible"
+                  title="Hide Hidden Testcase Result"
+                  description="When enabled, hidden testcase results will be hidden from students."
+                  invert={true}
+                  hasValue={methods.getValues('isJudgeResultVisible') || true}
                 />
 
                 <SwitchField
-                  name="isJudgeResultVisible"
-                  title="Reveal Hidden Testcase Result"
-                  description="이걸 끄면 학생들이 Hidden 테케의 결과를 확인할 수 없어요"
-                  hasValue={methods.getValues('isJudgeResultVisible') || false}
+                  name="enableCopyPaste"
+                  title="Disable Copy/Paste"
+                  description="When enabled, students will not be able to copy from or paste into the code editor."
+                  hasValue={methods.getValues('enableCopyPaste') || true}
+                  invert={true}
                 />
               </div>
 

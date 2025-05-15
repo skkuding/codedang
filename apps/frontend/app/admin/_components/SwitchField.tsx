@@ -27,6 +27,7 @@ interface SwitchFieldProps {
   children?: React.ReactNode | React.ReactNode[]
   tooltip?: boolean
   description?: string
+  invert?: boolean
 }
 
 export function SwitchField({
@@ -38,9 +39,12 @@ export function SwitchField({
   hasValue = false,
   children = null,
   tooltip = false,
-  description
+  description,
+  invert = false
 }: SwitchFieldProps) {
-  const [isEnabled, setIsEnabled] = useState<boolean>(false)
+  const [isEnabled, setIsEnabled] = useState<boolean>(
+    invert ? !hasValue : hasValue
+  )
   const {
     register,
     setValue,
@@ -50,8 +54,8 @@ export function SwitchField({
   } = useFormContext()
 
   useEffect(() => {
-    setIsEnabled(hasValue)
-  }, [hasValue])
+    setIsEnabled(invert ? !hasValue : hasValue)
+  }, [hasValue, invert])
 
   return (
     <div className="flex flex-col gap-1">
