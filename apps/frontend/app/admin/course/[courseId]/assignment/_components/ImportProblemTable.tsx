@@ -12,7 +12,7 @@ import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
 import { toast } from 'sonner'
-import type { AssignmentProblem } from '../_libs/type'
+import type { AssignmentProblem } from '../../_libs/type'
 import { ImportProblemButton } from './ImportProblemButton'
 import {
   columns,

@@ -9,27 +9,28 @@ import { UPDATE_ASSIGNMENT_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import type { CreateAssignmentInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { createSchema } from '../../_libs/schemas'
-import type { AssignmentProblem } from '../../_libs/type'
-import { isOptionAfterDeadline } from '../../_libs/utils'
+import { createSchema } from '../_libs/schemas'
+import type { AssignmentProblem } from '../_libs/type'
+import { isOptionAfterDeadline } from '../_libs/utils'
 
 interface CreateAssignmentFormProps {
   groupId: string
   children: ReactNode
   problems: AssignmentProblem[]
   setIsCreating: (isCreating: boolean) => void
+  isExercise?: boolean
 }
 
 export function CreateAssignmentForm({
   groupId,
   children,
   problems,
-  setIsCreating
+  setIsCreating,
+  isExercise = false
 }: CreateAssignmentFormProps) {
   const methods = useForm<CreateAssignmentInput>({
     resolver: valibotResolver(createSchema),
@@ -76,6 +77,7 @@ export function CreateAssignmentForm({
     // NOTE: 임시로 dueTime을 endTime과 동일하게 설정
     const finalInput = {
       ...input,
+      isExercise: isExercise ?? false,
       startTime: input.startTime ?? new Date(0),
       endTime: input.endTime ?? new Date('2999-12-31T23:59:59'),
       dueTime: input.endTime ?? new Date('2999-12-31T23:59:59')
@@ -128,7 +130,11 @@ export function CreateAssignmentForm({
 
     setShouldSkipWarning(true)
     toast.success('Assignment created successfully')
-    router.push(`/admin/course/${groupId}/assignment` as Route)
+    router.push(
+      isExercise
+        ? (`/admin/course/${groupId}/exercise` as const)
+        : (`/admin/course/${groupId}/assignment` as const)
+    )
     router.refresh()
   }
 

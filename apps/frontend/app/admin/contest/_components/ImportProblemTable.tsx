@@ -23,15 +23,18 @@ import {
 interface ImportProblemTableProps {
   checkedProblems: ContestProblem[]
   onSelectedExport: (selectedRows: ContestProblem[]) => void
+  contestId?: string | null
 }
 
 export function ImportProblemTable({
   checkedProblems,
-  onSelectedExport
+  onSelectedExport,
+  contestId = null
 }: ImportProblemTableProps) {
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       my: true,
+      contestId: contestId ? Number(contestId) : null,
       take: 500,
       input: {
         difficulty: [

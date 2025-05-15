@@ -201,7 +201,12 @@ export default async function ContestTop({
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-      <Accordion type="single" collapsible className="w-[1208px]">
+      <Accordion
+        defaultValue="item-1"
+        type="single"
+        collapsible
+        className="w-[1208px]"
+      >
         <AccordionItem value="item-1" className="border-b-0">
           <AccordionTrigger className="h-[74px] border-t-[1.5px] border-[#a2a2a240] pr-[25px] text-lg font-semibold">
             Problem List

@@ -29,13 +29,14 @@ const GET_PROBLEM = gql(`
       hint
       source
       template
+      solution
     }
   }
 `)
 
 const GET_PROBLEMS = gql(`
-  query GetProblems($cursor: Int, $take: Int!, $input: FilterProblemsInput!, $my: Boolean, $shared: Boolean) {
-    getProblems(cursor: $cursor, take: $take, input: $input, my: $my, shared: $shared) {
+  query GetProblems($cursor: Int, $take: Int!, $input: FilterProblemsInput!, $my: Boolean, $shared: Boolean, $contestId: Int) {
+    getProblems(cursor: $cursor, take: $take, input: $input, my: $my, shared: $shared, contestId: $contestId) {
       id
       title
       updateTime

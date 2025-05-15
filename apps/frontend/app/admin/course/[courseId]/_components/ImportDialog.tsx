@@ -26,7 +26,7 @@ import type { AssignmentProblem } from '../_libs/type'
 import {
   ImportProblemTable,
   ImportProblemTableFallback
-} from './ImportProblemTable'
+} from '../assignment/_components/ImportProblemTable'
 
 interface ImportDialogProps {
   problems: AssignmentProblem[]

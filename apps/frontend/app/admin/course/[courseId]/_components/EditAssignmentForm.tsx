@@ -20,9 +20,9 @@ import { useRouter } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
-import type { AssignmentProblem } from '../../../_libs/type'
-import { isOptionAfterDeadline } from '../../../_libs/utils'
-import { ConfirmModal } from './ConfirmModal'
+import type { AssignmentProblem } from '../_libs/type'
+import { isOptionAfterDeadline } from '../_libs/utils'
+import { ConfirmModal } from '../assignment/[assignmentId]/edit/_components/ConfirmModal'
 
 interface EditAssigmentFormProps {
   courseId: number

@@ -34,6 +34,9 @@ const GET_CONTEST = gql(`
           email
         }
       }
+      createdBy{
+        username
+      }
     }
   }
 `)
