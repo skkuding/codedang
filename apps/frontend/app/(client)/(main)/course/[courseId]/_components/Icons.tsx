@@ -72,7 +72,7 @@ export function AssignmentIcon({ fill }: IconProps) {
   )
 }
 
-export function ExamIcon({ fill }: IconProps) {
+export function ExerciseIcon({ fill }: IconProps) {
   return (
     <svg
       width="16"

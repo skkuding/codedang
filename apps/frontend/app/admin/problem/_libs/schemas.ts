@@ -33,6 +33,24 @@ const commonSchema = v.object({
   memoryLimit: v.pipe(v.number(), v.minValue(0)),
   hint: v.optional(v.string()),
   source: v.optional(v.string()),
+  solution: v.optional(
+    v.array(
+      v.optional(
+        v.object({
+          language: v.picklist([
+            'C',
+            'Cpp',
+            'Golang',
+            'Java',
+            'Python2',
+            'Python3',
+            'PyPy3'
+          ]),
+          code: v.string()
+        })
+      )
+    )
+  ),
   template: v.optional(
     v.array(
       v.optional(

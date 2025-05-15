@@ -6,17 +6,17 @@ import { Switch } from '@/components/shadcn/switch'
 import React from 'react'
 import { useController, useFormContext } from 'react-hook-form'
 
-interface EnableCopyPasteFormProps {
+interface DisableCopyPasteFormProps {
   name: string
   title: string
   hasValue?: boolean
 }
 
-export function EnableCopyPasteForm({
+export function DisableCopyPasteForm({
   name,
   title,
   hasValue = true
-}: EnableCopyPasteFormProps) {
+}: DisableCopyPasteFormProps) {
   const {
     control,
     formState: { errors }
@@ -27,13 +27,12 @@ export function EnableCopyPasteForm({
     control,
     defaultValue: hasValue
   })
-
   return (
     <div className="flex items-center gap-3">
       <Label required={false}>{title}</Label>
       <Switch
-        onCheckedChange={field.onChange}
-        checked={field.value}
+        onCheckedChange={(checked) => field.onChange(!checked)}
+        checked={!field.value}
         className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
       />
       {field.value && errors[name] && (
