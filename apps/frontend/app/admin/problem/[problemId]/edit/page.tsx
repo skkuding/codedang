@@ -61,6 +61,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
         ?.map((template) =>
           template.code.map((snippet) => snippet.text).join('\n')
         ),
+      solution: [],
       difficulty: methods.getValues('difficulty')
     } as ProblemDetail
 
