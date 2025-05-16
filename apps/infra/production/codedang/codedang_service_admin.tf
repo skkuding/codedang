@@ -97,8 +97,8 @@ module "admin_api" {
             ]
             Effect = "Allow"
             Resource = [
-              "${local.storage.s3_testcase_bucket.arn}",
-              "${local.storage.s3_testcase_bucket.arn}/*",
+              "${local.storage.testcase_bucket.arn}",
+              "${local.storage.testcase_bucket.arn}/*",
             ]
           },
         ]
