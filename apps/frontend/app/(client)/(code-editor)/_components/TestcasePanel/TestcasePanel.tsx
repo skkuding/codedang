@@ -59,6 +59,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
     }
   }
 
+  // Hide 'run' feature in contest, because it is not stable yet
   // TODO: remove this after 'run' feature gets stable
   useEffect(() => {
     if (isContest) {
