@@ -5,12 +5,12 @@ import { plainToInstance } from 'class-transformer'
 import { Response } from 'express'
 import {
   mkdirSync,
-  writeFile,
   createWriteStream,
   createReadStream,
   existsSync,
   unlink,
-  rm
+  rm,
+  writeFileSync
 } from 'fs'
 import path from 'path'
 import sanitize from 'sanitize-filename'
@@ -462,7 +462,26 @@ export class SubmissionService {
     return encodeURIComponent(problem.title)
   }
 
-  async compressSourceCodes(assignmentId: number, problemId: number) {
+  async compressSourceCodes(
+    groupId: number,
+    assignmentId: number,
+    problemId: number
+  ) {
+    const assignmentGroupId = await this.prisma.assignment.findFirst({
+      where: {
+        id: assignmentId
+      },
+      select: {
+        groupId: true
+      }
+    })
+
+    if (assignmentGroupId?.groupId != groupId) {
+      throw new ForbiddenAccessException(
+        'Only Group Leader can download source codes.'
+      )
+    }
+
     const assignmentProblemRecords =
       await this.prisma.assignmentProblemRecord.findMany({
         where: {
@@ -504,15 +523,15 @@ export class SubmissionService {
       const formattedCode = code.map((snippet) => snippet.text).join('\n')
       const filename = `${info.user?.studentId}${LanguageExtension[info.language]}`
       const filePath = path.join(dirPath, filename)
-      writeFile(filePath, formattedCode, (err) => {
-        if (err) {
-          this.logger.error(err)
-          throw new UnprocessableFileDataException(
-            'failed to handle source code file.',
-            filename
-          )
-        }
-      })
+      try {
+        writeFileSync(filePath, formattedCode)
+      } catch (err) {
+        this.logger.error(err)
+        throw new UnprocessableFileDataException(
+          'failed to handle source code file.',
+          filename
+        )
+      }
     })
     const zipFilename = `${assignmentTitle}_${problemId}`
     const zipPath = path.join(__dirname, `${zipFilename}.zip`)
@@ -535,11 +554,31 @@ export class SubmissionService {
       )
     })
 
-    const downloadSrc = `/submission/download/${zipFilename}`
+    const downloadSrc = `/submission/download/${groupId}/${assignmentId}/${zipFilename}`
     return downloadSrc
   }
 
-  async downloadCodes(filename: string, res: Response) {
+  async downloadCodes(
+    groupId: number,
+    assignmentId: number,
+    filename: string,
+    res: Response
+  ) {
+    const assignmentGroupId = await this.prisma.assignment.findFirst({
+      where: {
+        id: assignmentId
+      },
+      select: {
+        groupId: true
+      }
+    })
+
+    if (assignmentGroupId?.groupId != groupId) {
+      throw new ForbiddenAccessException(
+        'Only Group Leader can download source codes.'
+      )
+    }
+
     const sanitizedFilename = sanitize(filename)
     const encodedFilename = encodeURIComponent(sanitizedFilename)
     const zipFilename = path.resolve(__dirname, encodedFilename)
@@ -575,7 +614,7 @@ export class SubmissionService {
       rm(zipFilename, { recursive: true, force: true }, (err) => {
         if (err) this.logger.error('Error on deleting folder: ', err)
       })
-      res.status(500).json({ error: 'File download failed' })
+      res.status(500).json({ error: 'File download failed: ', err })
     })
   }
 }
