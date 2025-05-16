@@ -12,11 +12,11 @@ import {
   TableRow
 } from '@/components/shadcn/table'
 import { dateFormatter, fetcherWithAuth, getResultColor } from '@/libs/utils'
-import type { SubmissionDetail, ContestSubmission } from '@/types/type'
+import type { ContestSubmission, SubmissionDetail } from '@/types/type'
 import { revalidateTag } from 'next/cache'
 import { IoIosLock } from 'react-icons/io'
 
-interface Props {
+interface SubmissionDetailProps {
   problemId: number
   submissionId: number
   contestId: number
@@ -26,8 +26,8 @@ export async function SubmissionDetail({
   problemId,
   submissionId,
   contestId,
-  refreshTrigger
-}: Props) {
+  refreshTrigger // 해당 컴포넌트에서 사용하지 않는 것처럼 보이지만 refresh의 위력을 발휘하는 중입니다. 삭제하지 말아주세요 ㅠㅠ
+}: SubmissionDetailProps) {
   const res = await fetcherWithAuth(`submission/${submissionId}`, {
     searchParams: { problemId, contestId },
     next: {
@@ -90,11 +90,11 @@ export async function SubmissionDetail({
           value={submission.code}
           language={submission.language}
           readOnly
-          className="max-h-96 min-h-16 w-full rounded-lg"
+          className="max-h-[1050px] min-h-[10px] w-full rounded-lg"
         />
       </div>
-      <div className="-ml-16 h-2 min-w-[100%] bg-[#121728]" />
-      {submission.testcaseResult.length !== 0 && (
+      {!contestId && <div className="-ml-16 h-2 min-w-[100%] bg-[#121728]" />}
+      {!contestId && submission.testcaseResult.length !== 0 && (
         <div className="my-3 px-6">
           <h2 className="text-base font-bold">Test case</h2>
           <Table className="[&_*]:text-center [&_*]:text-sm [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:border-slate-600">
