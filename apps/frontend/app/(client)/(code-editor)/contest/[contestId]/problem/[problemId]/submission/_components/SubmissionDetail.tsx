@@ -90,7 +90,7 @@ export async function SubmissionDetail({
           value={submission.code}
           language={submission.language}
           readOnly
-          className="max-h-[1050px] min-h-[10px] w-full rounded-lg"
+          className="max-h-[1010px] min-h-[10px] w-full rounded-lg"
         />
       </div>
       {!contestId && <div className="-ml-16 h-2 min-w-[100%] bg-[#121728]" />}
