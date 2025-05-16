@@ -538,21 +538,23 @@ export function EditorHeader({
         </AlertDialog>
 
         <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <Button
-                variant="secondary"
-                className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
-                onClick={run}
-              >
-                <IoPlayCircleOutline size={22} />
-                Run
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Ctrl/Cmd + Enter | Run your code in interactive terminal.</p>
-            </TooltipContent>
-          </Tooltip>
+          {contestId === undefined && (
+            <Tooltip>
+              <TooltipTrigger>
+                <Button
+                  variant="secondary"
+                  className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
+                  onClick={run}
+                >
+                  <IoPlayCircleOutline size={22} />
+                  Run
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Ctrl/Cmd + Enter | Run your code in interactive terminal.</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
 
           <Tooltip>
             <TooltipTrigger>
