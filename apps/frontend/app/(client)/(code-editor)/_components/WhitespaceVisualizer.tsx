@@ -6,7 +6,7 @@ export function WhitespaceVisualizer({
   isTruncated = false,
   className
 }: {
-  text: string
+  text: string | null
   isTruncated?: boolean
   className?: string
 }) {
@@ -14,20 +14,30 @@ export function WhitespaceVisualizer({
     'color: rgb(53, 129, 250); min-width: 0.5em; display: inline-block;'
 
   // NOTE: Skip highlighting if text exceeds 100,000 characters to avoid performance issues.
-  const highlightedWhitespaceText =
-    text.length >= 100000
-      ? text
-      : text
-          .replaceAll(/ /g, `<span style="${whitespaceStyle}">␣</span>`)
-          .replaceAll(/\n/g, `<span style="${whitespaceStyle}">↵</span>\n`)
-          .replaceAll(/\t/g, `<span style="${whitespaceStyle}">↹</span>`)
+  let highlightedWhitespaceText = ''
+  let truncatedText
 
-  const lines = highlightedWhitespaceText.split('\n')
-  const visibleLines = lines.slice(0, 3).join('\n')
-  const truncatedText =
-    lines.length > 3
-      ? `${visibleLines}\n<span style="color: rgb(150, 150, 150);">...</span>`
-      : visibleLines
+  if (text === null || text?.length === 0) {
+    highlightedWhitespaceText =
+      '<span style="color: rgb(150, 150, 150); font-style: italic;">(empty)</span>'
+    truncatedText = highlightedWhitespaceText
+  } else if (text.length >= 100000) {
+    highlightedWhitespaceText = text
+    truncatedText = text
+  } else {
+    highlightedWhitespaceText = text
+      .replaceAll(/ /g, `<span style="${whitespaceStyle}">␣</span>`)
+      .replaceAll(/\n/g, `<span style="${whitespaceStyle}">↵</span>\n`)
+      .replaceAll(/\t/g, `<span style="${whitespaceStyle}">↹</span>`)
+
+    const lines = highlightedWhitespaceText.split('\n')
+    const visibleLines = lines.slice(0, 3).join('\n')
+
+    truncatedText =
+      lines.length > 3
+        ? `${visibleLines}\n<span style="color: rgb(150, 150, 150);">...</span>`
+        : visibleLines
+  }
 
   return (
     <pre
