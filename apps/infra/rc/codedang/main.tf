@@ -57,6 +57,8 @@ data "terraform_remote_state" "acm_validation" {
   }
 }
 
+data "aws_region" "current" {}
+
 locals {
   network        = data.terraform_remote_state.network.outputs
   storage        = data.terraform_remote_state.storage.outputs

@@ -56,7 +56,7 @@ module "admin_api" {
     container_definitions = jsonencode([
       jsondecode(templatefile("container_definitions/admin_api.json", {
         ecr_uri                         = data.aws_ecr_repository.admin_api.repository_url,
-        database_url                    = var.database_url,
+        database_url                    = local.storage.database_url,
         redis_host                      = var.redis_host,
         redis_port                      = var.redis_port,
         jwt_secret                      = var.jwt_secret,
@@ -74,6 +74,37 @@ module "admin_api" {
       }))
     ])
     execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+  }
+
+  task_role = {
+    iam_role = {
+      name        = "Codedang-Admin-API-Task-Role"
+      description = null
+    }
+
+    iam_policy = {
+      name = "Codedang-Admin-API-Testcase-Write"
+      policy = jsonencode({
+        Statement = [
+          {
+            Action = [
+              "s3:ListBucket",
+              "s3:GetObject",
+              "s3:PutObject",
+              "s3:PutObjectTagging",
+              "s3:DeleteObject",
+
+            ]
+            Effect = "Allow"
+            Resource = [
+              "${local.storage.testcase_bucket.arn}",
+              "${local.storage.testcase_bucket.arn}/*",
+            ]
+          },
+        ]
+        Version = "2012-10-17"
+      })
+    }
   }
 
   ecs_service = {

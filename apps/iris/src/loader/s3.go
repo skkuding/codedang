@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
@@ -22,7 +23,12 @@ func NewS3DataSource(bucket string) (*S3reader, error) {
 	endpoint := os.Getenv("STORAGE_BUCKET_ENDPOINT_URL")
 	if endpoint == "" {
 		// Connect to AWS S3
-		client = s3.New(s3.Options{Region: "ap-northeast-2"})
+		// Use `LoadDefaultConfig` in case of loading credentials from environment variables
+		cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("ap-northeast-2"))
+		if err != nil {
+			return nil, fmt.Errorf("failed to load AWS config: %w", err)
+		}
+		client = s3.NewFromConfig(cfg)
 	} else {
 		// Connect to MinIO (non-production)
 		accessKey := os.Getenv("TESTCASE_ACCESS_KEY")

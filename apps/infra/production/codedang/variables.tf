@@ -20,7 +20,6 @@ EOF
 # TODO: description 넣고 공통부분은 object로 처리
 variable "public_subnet1" { sensitive = true }
 variable "public_subnet2" { sensitive = true }
-variable "database_url" { sensitive = true }
 variable "redis_host" { sensitive = true }
 variable "redis_port" { sensitive = true }
 variable "jwt_secret" { sensitive = true }

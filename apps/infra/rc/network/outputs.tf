@@ -3,6 +3,11 @@ output "vpc_id" {
   sensitive = true
 }
 
+output "vpc_endpoint" {
+  value     = aws_vpc_endpoint.s3_endpoint.id
+  sensitive = true
+}
+
 output "private_route_table_id" {
   value     = aws_route_table.private.id
   sensitive = true
@@ -14,7 +19,7 @@ output "public_ip" {
 }
 
 output "mq_subnet_id" {
-  value     = aws_subnet.private_mq.id
+  value     = module.public_api_subnets.subnet_ids["public_mq"]
   sensitive = true
 }
 
