@@ -387,6 +387,9 @@ importers:
       '@apollo/client':
         specifier: ^3.12.4
         version: 3.13.8(@types/react@18.3.20)(graphql-ws@6.0.4(graphql@16.11.0)(ws@8.18.1))(graphql@16.11.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(subscriptions-transport-ws@0.11.0(graphql@16.11.0))
+      '@channel.io/channel-web-sdk-loader':
+        specifier: ^2.0.0
+        version: 2.0.0
       '@codemirror/lang-cpp':
         specifier: ^6.0.2
         version: 6.0.2
@@ -1200,6 +1203,9 @@ packages:
 
   '@bundled-es-modules/tough-cookie@0.1.6':
     resolution: {integrity: sha512-dvMHbL464C0zI+Yqxbz6kZ5TOEp7GLW+pry/RWndAR8MJQAXZ2rPmIs8tziTZjeIyhSNZgZbCePtfSbdWqStJw==}
+
+  '@channel.io/channel-web-sdk-loader@2.0.0':
+    resolution: {integrity: sha512-Z8DDpf2lAaYr/3aAnwQtxg0L8MYWgi/hhGV8c5/SLCV6Fx5Gssj7mfyHHrCVC315B0icmLYqZsXBlmbf6cN8Jg==}
 
   '@codemirror/autocomplete@6.18.6':
     resolution: {integrity: sha512-PHHBXFomUs5DF+9tCOM/UoW6XQ4R44lLNNhRaW9PKPTU0D7lIjRg3ElxaJnTwsl/oHiR93WSXDBrekhoUGCPtg==}
@@ -12462,6 +12468,8 @@ snapshots:
     dependencies:
       '@types/tough-cookie': 4.0.5
       tough-cookie: 4.1.4
+
+  '@channel.io/channel-web-sdk-loader@2.0.0': {}
 
   '@codemirror/autocomplete@6.18.6':
     dependencies:

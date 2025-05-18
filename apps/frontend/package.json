@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.12.4",
+    "@channel.io/channel-web-sdk-loader": "^2.0.0",
     "@codemirror/lang-cpp": "^6.0.2",
     "@codemirror/lang-java": "^6.0.1",
     "@codemirror/lang-python": "^6.2.0",
