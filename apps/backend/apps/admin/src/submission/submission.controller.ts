@@ -2,6 +2,7 @@ import { Controller, Req, Res, Get, Param } from '@nestjs/common'
 import { Response } from 'express'
 import { AuthenticatedRequest, UseGroupLeaderGuard } from '@libs/auth'
 import { GroupIDPipe, IDValidationPipe } from '@libs/pipe'
+import type { problemId } from '@admin/problem/mock/mock'
 import { SubmissionService } from './submission.service'
 
 @Controller('submission')
@@ -17,14 +18,14 @@ export class SubmissionController {
   async downloadCodes(
     @Param('groupId', GroupIDPipe) groupId: number,
     @Param('assignmentId', IDValidationPipe) assignmentId: number,
-    @Param('filename') filename: string,
+    @Param('problemId', IDValidationPipe) problemId: number,
     @Req() req: AuthenticatedRequest,
     @Res() res: Response
   ) {
     await this.submissionService.downloadCodes(
       groupId,
       assignmentId,
-      filename,
+      problemId,
       res
     )
   }

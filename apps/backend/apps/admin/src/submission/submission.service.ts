@@ -554,14 +554,14 @@ export class SubmissionService {
       )
     })
 
-    const downloadSrc = `/submission/download/${groupId}/${assignmentId}/${zipFilename}`
+    const downloadSrc = `/submission/download/${assignmentGroupId!.groupId}/${assignmentId}/${problemId}`
     return downloadSrc
   }
 
   async downloadCodes(
     groupId: number,
     assignmentId: number,
-    filename: string,
+    problemId: number,
     res: Response
   ) {
     const assignmentGroupId = await this.prisma.assignment.findFirst({
@@ -579,6 +579,10 @@ export class SubmissionService {
       )
     }
 
+    const assignmentTitle = await this.getAssignmentTitle(assignmentId)
+
+    const filename = `${assignmentTitle}_${problemId}`
+
     const sanitizedFilename = sanitize(filename)
     const encodedFilename = encodeURIComponent(sanitizedFilename)
     const zipFilename = path.resolve(__dirname, encodedFilename)
@@ -587,6 +591,7 @@ export class SubmissionService {
       !existsSync(`${zipFilename}.zip`)
     ) {
       res.status(404).json({ error: 'File not found' })
+      return
     }
 
     res.set({
