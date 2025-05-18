@@ -26,7 +26,7 @@ export function ChannelIO() {
     return () => {
       ChannelService.shutdown()
     }
-  }, [])
+  }, [username])
 
   return null
 }
