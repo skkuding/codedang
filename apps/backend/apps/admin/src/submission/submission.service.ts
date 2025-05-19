@@ -13,7 +13,6 @@ import {
   writeFileSync
 } from 'fs'
 import path from 'path'
-import sanitize from 'sanitize-filename'
 import {
   EntityNotExistException,
   ForbiddenAccessException,
@@ -583,9 +582,7 @@ export class SubmissionService {
 
     const filename = `${assignmentTitle}_${problemId}`
 
-    const sanitizedFilename = sanitize(filename)
-    const encodedFilename = encodeURIComponent(sanitizedFilename)
-    const zipFilename = path.resolve(__dirname, encodedFilename)
+    const zipFilename = path.resolve(__dirname, filename)
     if (
       !zipFilename.startsWith(__dirname) ||
       !existsSync(`${zipFilename}.zip`)
@@ -598,7 +595,7 @@ export class SubmissionService {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       'Content-Type': 'application/zip',
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      'Content-Disposition': `attachment; filename*=UTF-8''${encodedFilename}.zip`
+      'Content-Disposition': `attachment; filename*=UTF-8''${filename}.zip`
     })
     const fileStream = createReadStream(`${zipFilename}.zip`)
     fileStream.pipe(res)
