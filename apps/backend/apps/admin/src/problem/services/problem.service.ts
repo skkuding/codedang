@@ -438,10 +438,38 @@ export class ProblemService {
       ...data
     } = input
 
-    if (userRole == Role.User && isVisible == true) {
-      throw new UnprocessableDataException(
-        'User cannot set a problem to public'
+    // SuperAdmin/Admin은 항상 visible 설정 가능
+    if (
+      userRole !== Role.SuperAdmin &&
+      userRole !== Role.Admin &&
+      isVisible == true
+    ) {
+      // Contest의 Admin/Manager인 경우에만 visible 설정 가능
+      const contestProblems = await this.prisma.contestProblem.findMany({
+        where: { problemId: id },
+        include: {
+          contest: {
+            include: {
+              userContest: {
+                where: {
+                  userId,
+                  role: {
+                    in: [ContestRole.Admin, ContestRole.Manager]
+                  }
+                }
+              }
+            }
+          }
+        }
+      })
+      const hasPermission = contestProblems.some(
+        (contestProblem) => contestProblem.contest.userContest.length > 0
       )
+      if (!hasPermission) {
+        throw new UnprocessableDataException(
+          'Only SuperAdmin/Admin or Contest Admin/Manager can set a problem to public'
+        )
+      }
     }
 
     const problem = await this.prisma.problem.findFirstOrThrow({
