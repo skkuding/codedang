@@ -438,7 +438,7 @@ export class ProblemService {
       ...data
     } = input
 
-    // SuperAdmin/Admin은 항상 visible 설정 가능
+    // Admin 이상 권한이 있으면 항상 visible 설정 가능
     if (
       userRole !== Role.SuperAdmin &&
       userRole !== Role.Admin &&
