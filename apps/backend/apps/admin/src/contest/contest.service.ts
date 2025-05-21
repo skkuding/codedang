@@ -1166,6 +1166,9 @@ export class ContestService {
         id: true,
         order: true,
         problemId: true
+      },
+      orderBy: {
+        order: 'asc'
       }
     })
 

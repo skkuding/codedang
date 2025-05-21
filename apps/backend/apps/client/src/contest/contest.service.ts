@@ -476,6 +476,9 @@ export class ContestService {
         id: true,
         order: true,
         problemId: true
+      },
+      orderBy: {
+        order: 'asc'
       }
     }) // 모든 문제 목록이 포함된 배열
 
