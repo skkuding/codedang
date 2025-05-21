@@ -34,5 +34,6 @@ resource "aws_db_instance" "postgres" {
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
 
   # Take a snapshot of the database before deletion
-  skip_final_snapshot = false
+  skip_final_snapshot       = false
+  final_snapshot_identifier = "codedang-db-final-snapshot"
 }
