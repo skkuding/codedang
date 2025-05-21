@@ -1,5 +1,6 @@
 'use client'
 
+import { useProblem } from '@/app/(client)/(code-editor)/_components/context/ProblemContext'
 import { KatexContent } from '@/components/KatexContent'
 import {
   Accordion,
@@ -15,16 +16,15 @@ import { EditorSampleField } from './EditorSampleField'
 import { ReferenceDialog } from './ReferenceDialog'
 
 interface EditorDescriptionProps {
-  problem: ProblemDetail
-  isContest?: boolean
   isAssignment?: boolean
+  isContest?: boolean
 }
 
 export function EditorDescription({
-  problem,
-  isContest = false,
-  isAssignment = false
+  isAssignment,
+  isContest
 }: EditorDescriptionProps) {
+  const { problem } = useProblem()
   const level = problem.difficulty
   const levelNumber = level.slice(-1)
 
