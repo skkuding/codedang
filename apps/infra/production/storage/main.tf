@@ -28,3 +28,16 @@ data "aws_vpc" "main" {
     Name = "Codedang-VPC"
   }
 }
+
+data "terraform_remote_state" "network" {
+  backend = "s3"
+  config = {
+    bucket = "codedang-tf-state"
+    key    = "terraform/network.tfstate"
+    region = "ap-northeast-2"
+  }
+}
+
+locals {
+  network = data.terraform_remote_state.network.outputs
+}
