@@ -6,8 +6,8 @@ import {
   DialogTrigger
 } from '@/components/shadcn/dialog'
 import compileIcon from '@/public/icons/compile-version.svg'
-import { FileText } from 'lucide-react'
 import Image from 'next/image'
+import { FaRegFile } from 'react-icons/fa6'
 
 export function ReferenceDialog() {
   return (
@@ -34,11 +34,13 @@ export function ReferenceDialog() {
             <table className="min-w-full bg-[#222939] text-left text-sm">
               <thead className="border-b border-slate-600 bg-slate-800 text-xs font-normal text-[#C4CACC]">
                 <tr>
-                  <th className="py-3 pl-4">Language</th>
-                  <th className="py-3 pl-4">Time Limit</th>
+                  <th className="py-3 pl-4 font-normal">Language</th>
+                  <th className="py-3 pl-4 font-normal">Time Limit</th>
 
-                  <th className="py-3 pl-4">Memory Limit</th>
-                  <th className="px-3 py-3">Compiler Version Document</th>
+                  <th className="py-3 pl-4 font-normal">Memory Limit</th>
+                  <th className="px-3 py-3 font-normal">
+                    Compiler Version Document
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -47,12 +49,12 @@ export function ReferenceDialog() {
                   <td className="py-3 pl-4 text-[#8A8A8A]">-</td>
                   <td className="py-3 pl-4 text-[#8A8A8A]">-</td>
                   <td className="px-3 py-3">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 pb-2">
                       <a
                         href="https://cplusplus.com/reference/clibrary/"
                         target="_blank"
                       >
-                        <FileText size={18} />
+                        <FaRegFile size={16} />
                       </a>
                       <span>gcc 13.2.0</span>
                     </div>
@@ -61,7 +63,7 @@ export function ReferenceDialog() {
                         href="https://cplusplus.com/reference/clibrary/"
                         target="_blank"
                       >
-                        <FileText size={18} />
+                        <FaRegFile size={16} />
                       </a>
                       <span>c11</span>
                     </div>
@@ -72,12 +74,12 @@ export function ReferenceDialog() {
                   <td className="py-3 pl-4 text-[#8A8A8A]">-</td>
                   <td className="py-3 pl-4 text-[#8A8A8A]">-</td>
                   <td className="px-3 py-3">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 pb-2">
                       <a
                         href="https://cplusplus.com/reference/"
                         target="_blank"
                       >
-                        <FileText size={18} />
+                        <FaRegFile size={16} />
                       </a>
                       <span>g++ 13.2.0</span>
                     </div>
@@ -86,7 +88,7 @@ export function ReferenceDialog() {
                         href="https://cplusplus.com/reference/"
                         target="_blank"
                       >
-                        <FileText size={18} />
+                        <FaRegFile size={16} />
                       </a>
                       <span>c++ 14</span>
                     </div>
@@ -102,7 +104,7 @@ export function ReferenceDialog() {
                         href="https://docs.oracle.com/en/java/javase/17/docs/api/index.html"
                         target="_blank"
                       >
-                        <FileText size={18} />
+                        <FaRegFile size={16} />
                       </a>
                       <span>openjdk 17.0.11</span>
                     </div>
@@ -118,7 +120,7 @@ export function ReferenceDialog() {
                         href="https://docs.python.org/3.12/library/index.html"
                         target="_blank"
                       >
-                        <FileText size={18} />
+                        <FaRegFile size={16} />
                       </a>
                       <span>python 3.12.3</span>
                     </div>
@@ -131,7 +133,7 @@ export function ReferenceDialog() {
                   <td className="px-3 py-3">
                     <div className="flex items-center space-x-2">
                       <a href="https://pypy.org/" target="_blank">
-                        <FileText size={18} />
+                        <FaRegFile size={16} />
                       </a>
                       <span>Python 3.1.0.14, PyPy 7.3.17</span>
                     </div>
