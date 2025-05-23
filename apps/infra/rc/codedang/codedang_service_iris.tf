@@ -2,6 +2,17 @@ data "aws_ecr_repository" "iris" {
   name = "codedang-iris"
 }
 
+# TODO: send log to grafana
+resource "aws_cloudwatch_log_group" "iris" {
+  name              = "/aws/ecs/codedang-iris"
+  retention_in_days = 30
+
+  tags = {
+    Name        = "Codedang-Iris"
+    Description = "Codedang Iris log group"
+  }
+}
+
 module "iris" {
   source = "./modules/service_autoscaling"
 
@@ -15,15 +26,17 @@ module "iris" {
       jsondecode(templatefile("container_definitions/iris.json", {
         ecr_uri                         = data.aws_ecr_repository.iris.repository_url,
         database_url                    = local.storage.db_url,
-        rabbitmq_host                   = "${local.storage.mq_host_id}.mq.ap-northeast-2.amazonaws.com",
+        rabbitmq_host                   = local.storage.mq_host,
         rabbitmq_port                   = var.rabbitmq_port,
         rabbitmq_username               = var.rabbitmq_username,
         rabbitmq_password               = local.storage.mq_password,
         rabbitmq_vhost                  = rabbitmq_vhost.vh.name,
         otel_exporter_otlp_endpoint_url = var.otel_exporter_otlp_endpoint_url,
         loki_url                        = var.loki_url,
-      })),
-      jsondecode(file("container_definitions/log_router.json"))
+        testcase_bucket_name            = local.storage.s3_testcase_bucket.name,
+        log_group_name                  = aws_cloudwatch_log_group.iris.name,
+        region                          = data.aws_region.current.name,
+      }))
     ])
 
     execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
@@ -53,11 +66,11 @@ module "iris" {
   ecs_service = {
     name          = "Codedang-Iris-Service"
     cluster_arn   = module.codedang_iris.ecs_cluster.arn
-    desired_count = 2
+    desired_count = 0
   }
 
   appautoscaling_target = {
-    min_capacity = 2
+    min_capacity = 0
     max_capacity = 8
     resource_id = {
       cluster_name = module.codedang_iris.ecs_cluster.name

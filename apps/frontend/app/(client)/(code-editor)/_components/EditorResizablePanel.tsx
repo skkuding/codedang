@@ -26,7 +26,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import Loading from '../problem/[problemId]/loading'
@@ -34,6 +34,8 @@ import { EditorHeader } from './EditorHeader/EditorHeader'
 import { LeaderboardModalDialog } from './LeaderboardModalDialog'
 import { TestcasePanel } from './TestcasePanel/TestcasePanel'
 import { useLeaderboardSync } from './context/ReFetchingLeaderboardStoreProvider'
+import { useSubmissionDetailSync } from './context/ReFetchingSubmissionDetailStoreProvider'
+import { useSubmissionSync } from './context/ReFetchingSubmissionStoreProvider'
 import { TestPollingStoreProvider } from './context/TestPollingStoreProvider'
 import { TestcaseStoreProvider } from './context/TestcaseStoreProvider'
 
@@ -42,6 +44,7 @@ interface ProblemEditorProps {
   children: React.ReactNode
   contestId?: number
   assignmentId?: number
+  exerciseId?: number
   courseId?: number
   enableCopyPaste?: boolean
 }
@@ -50,6 +53,7 @@ export function EditorMainResizablePanel({
   problem,
   contestId,
   assignmentId,
+  exerciseId,
   courseId,
   enableCopyPaste = true,
   children
@@ -91,6 +95,12 @@ export function EditorMainResizablePanel({
     setIsBottomPanelHidden((prev) => !prev)
   }
   const triggerRefresh = useLeaderboardSync((state) => state.triggerRefresh)
+  const triggerSubmissionRefresh = useSubmissionSync(
+    (state) => state.triggerRefresh
+  )
+  const triggerSubmissionDetailRefresh = useSubmissionDetailSync(
+    (state) => state.triggerRefresh
+  )
   const {
     isSidePanelHidden,
     toggleSidePanelVisibility
@@ -98,11 +108,14 @@ export function EditorMainResizablePanel({
     useSidePanelTabStore()
 
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   let base: string
   if (contestId) {
     base = `/contest/${contestId}` as const
   } else if (assignmentId) {
     base = `/course/${courseId}/assignment/${assignmentId}` as const
+  } else if (exerciseId) {
+    base = `/course/${courseId}/exercise/${exerciseId}` as const
   } else {
     base = '' as const
   }
@@ -110,6 +123,7 @@ export function EditorMainResizablePanel({
     problem.id,
     contestId,
     assignmentId,
+    exerciseId,
     courseId
   )()
   const [tabValue, setTabValue] = useState('Description')
@@ -121,6 +135,8 @@ export function EditorMainResizablePanel({
       pathname.startsWith(`${base}/problem/${problem.id}/leaderboard`)
     ) {
       setTabValue('Leaderboard')
+    } else if (pathname.startsWith(`${base}/problem/${problem.id}/solution`)) {
+      setTabValue('Solution')
     } else {
       setTabValue('Description')
     }
@@ -131,6 +147,16 @@ export function EditorMainResizablePanel({
       setLanguage(problem.languages[0])
     }
   }, [problem.languages, language, setLanguage])
+
+  const [isSubmissionDetail, setIsSubmissionDetail] = useState(false)
+  useEffect(() => {
+    const cellProblemId = searchParams.get('cellProblemId')
+    if (cellProblemId) {
+      setIsSubmissionDetail(true)
+    } else {
+      setIsSubmissionDetail(false)
+    }
+  }, [pathname, searchParams])
 
   return (
     <ResizablePanelGroup
@@ -166,6 +192,19 @@ export function EditorMainResizablePanel({
                     Submissions
                   </TabsTrigger>
                 </Link>
+                {assignmentId && (
+                  <Link
+                    replace
+                    href={`${base}/problem/${problem.id}/solution` as Route}
+                  >
+                    <TabsTrigger
+                      value="Solution"
+                      className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
+                    >
+                      Solution
+                    </TabsTrigger>
+                  </Link>
+                )}
                 {contestId && (
                   <Link
                     replace
@@ -183,7 +222,7 @@ export function EditorMainResizablePanel({
                 )}
               </TabsList>
             </Tabs>
-            {tabValue === 'Leaderboard' ? (
+            {tabValue === 'Leaderboard' && (
               <div className="flex gap-x-4">
                 <LeaderboardModalDialog />
                 <TooltipProvider>
@@ -216,7 +255,21 @@ export function EditorMainResizablePanel({
                   </Tooltip>
                 </TooltipProvider>
               </div>
-            ) : null}
+            )}
+            {tabValue === 'Submission' && contestId && (
+              <div className="flex gap-x-4">
+                <Image
+                  src={syncIcon}
+                  alt="Sync"
+                  className={'cursor-pointer'}
+                  onClick={() => {
+                    isSubmissionDetail
+                      ? triggerSubmissionDetailRefresh()
+                      : triggerSubmissionRefresh()
+                  }}
+                />
+              </div>
+            )}
           </div>
           <ScrollArea className="[&>div>div]:!block">
             <Suspense fallback={<Loading />}>{children}</Suspense>
@@ -242,6 +295,7 @@ export function EditorMainResizablePanel({
             problemId={problem.id}
             contestId={contestId}
             assignmentId={assignmentId}
+            exerciseId={exerciseId}
             courseId={courseId}
             problemTestcase={problem.problemTestcase}
           >
@@ -250,6 +304,7 @@ export function EditorMainResizablePanel({
                 problem={problem}
                 contestId={contestId}
                 assignmentId={assignmentId}
+                exerciseId={exerciseId}
                 courseId={courseId}
                 templateString={problem.template[0]}
               />
@@ -267,6 +322,7 @@ export function EditorMainResizablePanel({
                     problemId={problem.id}
                     contestId={contestId}
                     assignmentId={assignmentId}
+                    exerciseId={exerciseId}
                     enableCopyPaste={enableCopyPaste}
                   />
                 </ResizablePanel>
@@ -275,7 +331,7 @@ export function EditorMainResizablePanel({
                   defaultSize={40}
                   className={cn(isBottomPanelHidden && 'hidden')}
                 >
-                  <TestcasePanel />
+                  <TestcasePanel isContest={contestId !== undefined} />
                 </ResizablePanel>
               </ResizablePanelGroup>
             </TestPollingStoreProvider>
@@ -290,6 +346,7 @@ interface CodeEditorInEditorResizablePanelProps {
   problemId: number
   contestId?: number
   assignmentId?: number
+  exerciseId?: number
   enableCopyPaste: boolean
 }
 
@@ -297,9 +354,15 @@ function CodeEditorInEditorResizablePanel({
   problemId,
   contestId,
   assignmentId,
+  exerciseId,
   enableCopyPaste
 }: CodeEditorInEditorResizablePanelProps) {
-  const { language } = useLanguageStore(problemId, contestId, assignmentId)()
+  const { language } = useLanguageStore(
+    problemId,
+    contestId,
+    assignmentId,
+    exerciseId
+  )()
   const { code, setCode } = useCodeStore()
 
   return (
@@ -349,6 +412,7 @@ function HidePanelButton({
             ? '[clip-path:polygon(0%_0%,100%_16%,100%_84%,0%_100%)]'
             : '[clip-path:polygon(16%_0%,84%_0%,100%_100%,0%_100%)]'
         )}
+        onKeyDown={preventEnterKeyDown}
         onClick={() => {
           toggleIsPanelHidden()
         }}
@@ -375,4 +439,10 @@ function HidePanelButton({
       </Button>
     </div>
   )
+}
+
+const preventEnterKeyDown = (event: React.KeyboardEvent) => {
+  if (event.key === 'Enter') {
+    event.preventDefault()
+  }
 }

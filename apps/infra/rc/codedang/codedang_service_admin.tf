@@ -2,6 +2,17 @@ data "aws_ecr_repository" "admin_api" {
   name = "codedang-admin-api"
 }
 
+# TODO: send log to grafana
+resource "aws_cloudwatch_log_group" "admin_api" {
+  name              = "/aws/ecs/codedang-admin-api"
+  retention_in_days = 30
+
+  tags = {
+    Name        = "Codedang-Admin-Api"
+    Description = "Codedang Admin Api log group"
+  }
+}
+
 module "admin_api_loadbalancer" {
   source = "./modules/loadbalancing"
 
@@ -41,10 +52,41 @@ module "admin_api" {
         media_secret_key                = local.storage.media_secret_access_key,
         otel_exporter_otlp_endpoint_url = var.otel_exporter_otlp_endpoint_url,
         loki_url                        = var.loki_url,
+        log_group_name                  = aws_cloudwatch_log_group.admin_api.name,
+        region                          = data.aws_region.current.name,
       })),
-      jsondecode(file("container_definitions/log_router.json"))
     ])
     execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+  }
+
+  task_role = {
+    iam_role = {
+      name        = "Codedang-Admin-API-Task-Role"
+      description = null
+    }
+
+    iam_policy = {
+      name = "Codedang-Admin-API-Testcase-Write"
+      policy = jsonencode({
+        Statement = [
+          {
+            Action = [
+              "s3:ListBucket",
+              "s3:GetObject",
+              "s3:PutObject",
+              "s3:PutObjectTagging",
+              "s3:DeleteObject",
+            ]
+            Effect = "Allow"
+            Resource = [
+              "${local.storage.s3_testcase_bucket.arn}",
+              "${local.storage.s3_testcase_bucket.arn}/*",
+            ]
+          },
+        ]
+        Version = "2012-10-17"
+      })
+    }
   }
 
   ecs_service = {

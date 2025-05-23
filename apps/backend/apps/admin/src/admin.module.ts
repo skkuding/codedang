@@ -29,6 +29,7 @@ import { ProblemModule } from './problem/problem.module'
 import { StorageModule } from './storage/storage.module'
 import { SubmissionModule } from './submission/submission.module'
 import { UserModule } from './user/user.module'
+import { WorkbookModule } from './workbook/workbook.module'
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { UserModule } from './user/user.module'
     PrismaModule,
     ContestModule,
     AssignmentModule,
+    WorkbookModule,
     ProblemModule,
     StorageModule,
     GroupModule,

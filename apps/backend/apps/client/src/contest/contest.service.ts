@@ -378,6 +378,7 @@ export class ContestService {
         finalScore: true,
         totalPenalty: true,
         finalTotalPenalty: true,
+        lastAcceptedTime: true,
         contestProblemRecord: {
           select: {
             score: true,
@@ -400,9 +401,7 @@ export class ContestService {
       orderBy: [
         { [scoreColumn]: 'desc' },
         { [totalPenaltyColumn]: 'asc' },
-        {
-          lastAcceptedTime: 'asc'
-        }
+        { lastAcceptedTime: 'asc' }
       ]
     })
 
@@ -477,6 +476,9 @@ export class ContestService {
         id: true,
         order: true,
         problemId: true
+      },
+      orderBy: {
+        order: 'asc'
       }
     }) // 모든 문제 목록이 포함된 배열
 

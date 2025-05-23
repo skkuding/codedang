@@ -12,6 +12,7 @@ const assignmentSelectOption = {
   title: true,
   startTime: true,
   endTime: true,
+  dueTime: true,
   group: { select: { id: true, groupName: true } },
   enableCopyPaste: true,
   isJudgeResultVisible: true,
@@ -46,10 +47,11 @@ export interface ProblemScore {
 export class AssignmentService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAssignments(groupId: number) {
+  async getAssignments(groupId: number, isExercise: boolean) {
     const assignments = await this.prisma.assignment.findMany({
       where: {
         groupId,
+        isExercise,
         isVisible: true
       },
       select: {
@@ -238,7 +240,7 @@ export class AssignmentService {
         id: true,
         groupId: true,
         title: true,
-        endTime: true,
+        dueTime: true,
         isFinalScoreVisible: true,
         autoFinalizeScore: true
       }
@@ -255,7 +257,7 @@ export class AssignmentService {
     }
 
     const now = new Date()
-    if (now < assignment.endTime) {
+    if (now < assignment.dueTime) {
       throw new ForbiddenAccessException(
         'Cannot view scores before assignment ends'
       )
@@ -450,11 +452,16 @@ export class AssignmentService {
     }
   }
 
-  async getMyAssignmentsSummary(groupId: number, userId: number) {
+  async getMyAssignmentsSummary(
+    groupId: number,
+    userId: number,
+    isExercise: boolean
+  ) {
     const assignments = await this.prisma.assignment.findMany({
       where: {
         groupId,
         isVisible: true,
+        isExercise,
         startTime: {
           lte: new Date()
         }

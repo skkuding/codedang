@@ -5,7 +5,12 @@ import { useConfirmNavigationContext } from '@/app/admin/_components/ConfirmNavi
 import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
-import type { Template, Testcase, UpdateProblemInput } from '@generated/graphql'
+import type {
+  Solution,
+  Template,
+  Testcase,
+  UpdateProblemInput
+} from '@generated/graphql'
 import { useRouter } from 'next/navigation'
 import { useRef, useState, type ReactNode } from 'react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
@@ -45,8 +50,16 @@ export function EditProblemForm({
     onCompleted: (problemData) => {
       const data = problemData.getProblem
 
+      // HACK: This is a workaround for migrating testcase to separated query/mutation.
+      // After migration, testcase input/output is not going to passed through 'getProblem' and 'updateProblem'
+      const testcases = data.testcase.map((testcase) => ({
+        ...testcase,
+        input: testcase.input ?? '',
+        output: testcase.output ?? ''
+      }))
+
       const initialFormValues = {
-        testcases: data.testcase,
+        testcases,
         timeLimit: data.timeLimit,
         memoryLimit: data.memoryLimit
       }
@@ -65,7 +78,7 @@ export function EditProblemForm({
         description: data.description,
         inputDescription: data.inputDescription || '<p></p>',
         outputDescription: data.outputDescription || '<p></p>',
-        testcases: data.testcase,
+        testcases,
         timeLimit: data.timeLimit,
         memoryLimit: data.memoryLimit,
         hint: data.hint,
@@ -84,6 +97,15 @@ export function EditProblemForm({
                 locked: template.code[0].locked
               }
             ]
+          })
+        })
+      }
+      if (data.solution) {
+        const solutions = data.solution
+        solutions.map((solution: Solution, index: number) => {
+          methods.setValue(`solution.${index}`, {
+            language: solution.language,
+            code: solution.code
           })
         })
       }

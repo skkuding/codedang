@@ -1,14 +1,13 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Button } from '@/components/shadcn/button'
 import { ErrorBoundary } from '@suspensive/react'
-import type { Route } from 'next'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { FaCirclePlus } from 'react-icons/fa6'
 import {
   AssignmentTable,
   AssignmentTableFallback
-} from './_components/AssignmentTable'
+} from '../../_components/AssignmentTable'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,7 +19,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
         <p className="text-4xl font-bold">Assignment List</p>
         <Button variant="default" asChild>
           <Link
-            href={`/admin/course/${courseId}/assignment/create` as Route}
+            href={`/admin/course/${courseId}/assignment/create` as const}
             className="flex gap-1"
           >
             <FaCirclePlus />
@@ -29,7 +28,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
         </Button>
       </div>
       <p className="text-lg text-slate-500">
-        Here&apos;s the assignments you made
+        Here&apos;s a list of the assignments you made
       </p>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<AssignmentTableFallback />}>

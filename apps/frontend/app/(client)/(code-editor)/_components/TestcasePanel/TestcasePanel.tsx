@@ -10,13 +10,17 @@ import {
 } from '@/stores/editorTabs'
 import type { TestResultDetail } from '@/types/type'
 import { DiffMatchPatch } from 'diff-match-patch-typescript'
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { IoMdClose } from 'react-icons/io'
 import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
 import { AddUserTestcaseDialog } from './AddUserTestcaseDialog'
 import { RunnerTab } from './RunnerTab'
 import { TestcaseTable } from './TestcaseTable'
 import { useTestResults } from './useTestResults'
+
+interface TestcasePanelProps {
+  isContest: boolean
+}
 
 function getWidthClass(length: number) {
   if (length < 5) {
@@ -28,7 +32,7 @@ function getWidthClass(length: number) {
   }
 }
 
-export function TestcasePanel() {
+export function TestcasePanel({ isContest }: TestcasePanelProps) {
   const [testcaseTabList, setTestcaseTabList] = useState<TestResultDetail[]>([])
   const { activeTab, setActiveTab } = useTestcaseTabStore()
   const [detailTabId, setDetailTabId] = useState<number | null>(null)
@@ -55,6 +59,15 @@ export function TestcasePanel() {
     }
   }
 
+  // Hide 'run' feature in contest, because it is not stable yet
+  // TODO: remove this after 'run' feature gets stable
+  useEffect(() => {
+    if (isContest) {
+      setActiveTab(TESTCASE_RESULT_TAB)
+      setDetailTabId(null)
+    }
+  }, [isContest])
+
   const MAX_OUTPUT_LENGTH = 100000
   const testResults = useTestResults()
   const processedData = testResults.map((testcase) => ({
@@ -78,35 +91,36 @@ export function TestcasePanel() {
   return (
     <>
       <div className="flex h-12 w-full items-center overflow-x-auto">
-        <TestcaseTab
-          isActive={currentVisibleTab === RUN_CODE_TAB}
-          onClickTab={() => {
-            setActiveTab(RUN_CODE_TAB)
-            setDetailTabId(null)
-          }}
-          isLeftmost
-          isRightOfActive={currentVisibleTab === TESTCASE_RESULT_TAB}
-          className={cn(
-            'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
-            getWidthClass(testcaseTabList.length)
-          )}
-        >
-          <div className="flex h-full w-full items-center justify-center gap-2">
-            <span
-              className={
-                'block overflow-hidden text-ellipsis whitespace-nowrap'
-              }
-            >
-              Run Code
-            </span>
-            <div className="flex items-center">
-              <Badge type="upcoming">
-                <div className="text-[10px]">Beta</div>
-              </Badge>
+        {!isContest && (
+          <TestcaseTab
+            isActive={currentVisibleTab === RUN_CODE_TAB}
+            onClickTab={() => {
+              setActiveTab(RUN_CODE_TAB)
+              setDetailTabId(null)
+            }}
+            isLeftmost
+            isRightOfActive={currentVisibleTab === TESTCASE_RESULT_TAB}
+            className={cn(
+              'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
+              getWidthClass(testcaseTabList.length)
+            )}
+          >
+            <div className="flex h-full w-full items-center justify-center gap-2">
+              <span
+                className={
+                  'block overflow-hidden text-ellipsis whitespace-nowrap'
+                }
+              >
+                Run Code
+              </span>
+              <div className="flex items-center">
+                <Badge type="upcoming">
+                  <div className="text-[10px]">Beta</div>
+                </Badge>
+              </div>
             </div>
-          </div>
-        </TestcaseTab>
-
+          </TestcaseTab>
+        )}
         <TestcaseTab
           isActive={currentVisibleTab === TESTCASE_RESULT_TAB}
           onClickTab={() => {
@@ -132,7 +146,6 @@ export function TestcasePanel() {
             </span>
           </div>
         </TestcaseTab>
-
         <ScrollArea className={cn('relative h-12 w-full overflow-x-auto')}>
           <div className="flex h-12">
             {testcaseTabList.map((testcase, index) => (
@@ -180,7 +193,6 @@ export function TestcasePanel() {
           </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
-
         <div
           className={cn(
             'flex flex-shrink-0 items-center bg-[#121728] px-2 py-2',

@@ -1,5 +1,6 @@
 'use client'
 
+import { useSubmissionPolling } from '@/app/(client)/(code-editor)/_libs/hooks/useSubmissionPolling'
 import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { contestProblemQueries } from '@/app/(client)/_libs/queries/contestProblem'
@@ -72,6 +73,7 @@ interface ProblemEditorProps {
   problem: ProblemDetail
   contestId?: number
   assignmentId?: number
+  exerciseId?: number
   courseId?: number
   templateString: string
 }
@@ -80,13 +82,15 @@ export function EditorHeader({
   problem,
   contestId,
   assignmentId,
+  exerciseId,
   courseId,
   templateString
 }: ProblemEditorProps) {
   const { language, setLanguage } = useLanguageStore(
     problem.id,
     contestId,
-    assignmentId
+    assignmentId,
+    exerciseId
   )()
   const setCode = useCodeStore((state) => state.setCode)
   const getCode = useCodeStore((state) => state.getCode)
@@ -102,7 +106,14 @@ export function EditorHeader({
   const pathname = usePathname()
   const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
   const storageKey = useRef(
-    getStorageKey(language, problem.id, userName, contestId, assignmentId)
+    getStorageKey(
+      language,
+      problem.id,
+      userName,
+      contestId,
+      assignmentId,
+      exerciseId
+    )
   )
   const session = useSession()
   const showSignIn = useAuthModalStore((state) => state.showSignIn)
@@ -119,6 +130,12 @@ export function EditorHeader({
   const { isSidePanelHidden, toggleSidePanelVisibility } =
     useSidePanelTabStore()
 
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  useSubmissionPolling({
+    contestId,
+    problemId: problem.id,
+    enabled: isSubmitted
+  })
   useInterval(
     async () => {
       // TODO: Implement assignment submission
@@ -126,7 +143,8 @@ export function EditorHeader({
         searchParams: {
           problemId: problem.id,
           ...(contestId && { contestId }),
-          ...(assignmentId && { assignmentId })
+          ...(assignmentId && { assignmentId }),
+          ...(exerciseId && { assignmentId: exerciseId })
         }
       })
       if (res.ok) {
@@ -139,6 +157,8 @@ export function EditorHeader({
             href = `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}?cellProblemId=${problem.id}`
           } else if (assignmentId) {
             href = `/course/${courseId}/assignment/${assignmentId}/problem/${problem.id}/submission/${submissionId}`
+          } else if (exerciseId) {
+            href = `/course/${courseId}/exercise/${exerciseId}/problem/${problem.id}/submission/${submissionId}`
           } else {
             href = `/problem/${problem.id}/submission/${submissionId}`
           }
@@ -190,13 +210,22 @@ export function EditorHeader({
       problem.id,
       userName,
       contestId,
-      assignmentId
+      assignmentId,
+      exerciseId
     )
     if (storageKey.current !== undefined) {
       const storedCode = getCodeFromLocalStorage(storageKey.current)
       setCode(storedCode || templateCode)
     }
-  }, [userName, problem, contestId, assignmentId, language, templateCode])
+  }, [
+    userName,
+    problem,
+    contestId,
+    assignmentId,
+    exerciseId,
+    language,
+    templateCode
+  ])
 
   const storeCodeToLocalStorage = (code: string) => {
     if (storageKey.current !== undefined) {
@@ -249,7 +278,8 @@ export function EditorHeader({
       searchParams: {
         problemId: problem.id,
         ...(contestId && { contestId }),
-        ...(assignmentId && { assignmentId })
+        ...(assignmentId && { assignmentId }),
+        ...(exerciseId && { assignmentId: exerciseId })
       },
       next: {
         revalidate: 0
@@ -259,6 +289,7 @@ export function EditorHeader({
       toast.success('Successfully submitted the code')
       storeCodeToLocalStorage(code)
       const submission: Submission = await res.json()
+
       setSubmissionId(submission.id)
       if (contestId) {
         queryClient.invalidateQueries({
@@ -270,6 +301,7 @@ export function EditorHeader({
             problemId: problem.id
           })
         })
+        setIsSubmitted(true)
       } else if (assignmentId) {
         queryClient.invalidateQueries({
           queryKey: assignmentProblemQueries.lists(assignmentId)
@@ -277,6 +309,16 @@ export function EditorHeader({
         queryClient.invalidateQueries({
           queryKey: assignmentSubmissionQueries.lists({
             assignmentId,
+            problemId: problem.id
+          })
+        })
+      } else if (exerciseId) {
+        queryClient.invalidateQueries({
+          queryKey: assignmentProblemQueries.lists(exerciseId)
+        })
+        queryClient.invalidateQueries({
+          queryKey: assignmentSubmissionQueries.lists({
+            assignmentId: exerciseId,
             problemId: problem.id
           })
         })
@@ -348,7 +390,8 @@ export function EditorHeader({
       problem.id,
       userName,
       contestId,
-      assignmentId
+      assignmentId,
+      exerciseId
     )
 
     // TODO: 배포 후 뒤로 가기 로직 재구현
@@ -434,6 +477,33 @@ export function EditorHeader({
   return (
     <div className="flex shrink-0 items-center justify-between border-b border-b-slate-700 bg-[#222939] px-6">
       <div>
+        <Select
+          onValueChange={(language: Language) => {
+            setLanguage(language)
+          }}
+          value={language}
+        >
+          <SelectTrigger className="h-8 min-w-[86px] max-w-fit shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:outline-none focus:ring-0 focus:ring-offset-0">
+            <p className="px-1">
+              <SelectValue />
+            </p>
+          </SelectTrigger>
+          <SelectContent className="mt-3 min-w-[100px] max-w-fit border-none bg-[#4C5565] p-0 font-mono">
+            <SelectGroup className="text-white">
+              {problem.languages.map((language) => (
+                <SelectItem
+                  key={language}
+                  value={language}
+                  className="cursor-pointer hover:bg-[#222939]"
+                >
+                  {language}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex items-center gap-3">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
@@ -466,9 +536,26 @@ export function EditorHeader({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </div>
-      <div className="flex items-center gap-3">
+
         <TooltipProvider>
+          {contestId === undefined && (
+            <Tooltip>
+              <TooltipTrigger>
+                <Button
+                  variant="secondary"
+                  className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
+                  onClick={run}
+                >
+                  <IoPlayCircleOutline size={22} />
+                  Run
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Ctrl/Cmd + Enter | Run your code in interactive terminal.</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+
           <Tooltip>
             <TooltipTrigger>
               <Button
@@ -485,22 +572,6 @@ export function EditorHeader({
             </TooltipContent>
           </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger>
-              <Button
-                variant="secondary"
-                className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
-                onClick={run}
-              >
-                <IoPlayCircleOutline size={22} />
-                Run
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Ctrl/Cmd + Enter | Run your code in interactive terminal.</p>
-            </TooltipContent>
-          </Tooltip>
-
           <RunTestButton
             problemId={problem.id}
             language={language}
@@ -508,6 +579,7 @@ export function EditorHeader({
             saveCode={storeCodeToLocalStorage}
             className="test-button"
           />
+
           <Tooltip>
             <TooltipTrigger>
               <Button
@@ -529,31 +601,6 @@ export function EditorHeader({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        <Select
-          onValueChange={(language: Language) => {
-            setLanguage(language)
-          }}
-          value={language}
-        >
-          <SelectTrigger className="h-8 min-w-[86px] max-w-fit shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:outline-none focus:ring-0 focus:ring-offset-0">
-            <p className="px-1">
-              <SelectValue />
-            </p>
-          </SelectTrigger>
-          <SelectContent className="mt-3 min-w-[100px] max-w-fit border-none bg-[#4C5565] p-0 font-mono">
-            <SelectGroup className="text-white">
-              {problem.languages.map((language) => (
-                <SelectItem
-                  key={language}
-                  value={language}
-                  className="cursor-pointer hover:bg-[#222939]"
-                >
-                  {language}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
       </div>
       <BackCautionDialog
         confrim={isModalConfrimed}

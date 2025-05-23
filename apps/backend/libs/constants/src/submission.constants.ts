@@ -4,7 +4,8 @@ const cpuLimitTable = {
   [Language.C]: (t: number) => t,
   [Language.Cpp]: (t: number) => t,
   [Language.Java]: (t: number) => t * 2 + 1000,
-  [Language.Python3]: (t: number) => t * 3 + 200
+  [Language.Python3]: (t: number) => t * 3 + 2000,
+  [Language.PyPy3]: (t: number) => t * 3 + 2000
 }
 
 export const calculateTimeLimit = (language: Language, time: number) =>
@@ -14,7 +15,8 @@ const memoryLimitTable = {
   [Language.C]: (m: number) => 1024 * 1024 * m,
   [Language.Cpp]: (m: number) => 1024 * 1024 * m,
   [Language.Java]: (m: number) => 1024 * 1024 * (m * 2 + 16),
-  [Language.Python3]: (m: number) => 1024 * 1024 * (m * 2 + 32)
+  [Language.Python3]: (m: number) => 1024 * 1024 * (m * 2 + 32),
+  [Language.PyPy3]: (m: number) => 1024 * 1024 * (m * 2 + 128)
 }
 
 export const calculateMemoryLimit = (language: Language, memory: number) =>
@@ -41,6 +43,8 @@ export const Status = (code: number) => {
       return ResultStatus.ServerError
     case 8: // Segmentation Fault
       return ResultStatus.SegmentationFaultError
+    case 10: // Canceled
+      return ResultStatus.Canceled
     default:
       return ResultStatus.ServerError
   }

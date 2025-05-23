@@ -15,6 +15,7 @@ import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { solution } from '@admin/problem/mock/mock'
 import { AssignmentService } from './assignment.service'
 import type { AssignmentWithParticipants } from './model/assignment-with-participants.model'
 import type {
@@ -28,11 +29,13 @@ const groupId = 1
 const problemId = 2
 const startTime = faker.date.past()
 const endTime = faker.date.future()
+const dueTime = faker.date.future()
 const createTime = faker.date.past()
 const updateTime = faker.date.past()
-const problemIdsWithScore = {
+const assignmentProblemInput = {
   problemId,
-  score: 10
+  score: 10,
+  solutionReleaseTime: null
 }
 // const duplicatedAssignmentId = 2
 
@@ -44,6 +47,7 @@ const assignment: Assignment = {
   description: 'description',
   startTime,
   endTime,
+  dueTime,
   isVisible: true,
   isRankVisible: true,
   isJudgeResultVisible: true,
@@ -53,7 +57,8 @@ const assignment: Assignment = {
   assignmentProblem: [],
   week: 1,
   autoFinalizeScore: false,
-  isFinalScoreVisible: false
+  isFinalScoreVisible: false,
+  isExercise: false
 }
 
 const assignmentWithCount = {
@@ -64,6 +69,7 @@ const assignmentWithCount = {
   description: 'description',
   startTime,
   endTime,
+  dueTime,
   isVisible: true,
   isRankVisible: true,
   isJudgeResultVisible: true,
@@ -76,7 +82,8 @@ const assignmentWithCount = {
   },
   week: 1,
   autoFinalizeScore: false,
-  isFinalScoreVisible: false
+  isFinalScoreVisible: false,
+  isExercise: false
 }
 
 const assignmentWithParticipants: AssignmentWithParticipants = {
@@ -87,6 +94,7 @@ const assignmentWithParticipants: AssignmentWithParticipants = {
   description: 'description',
   startTime,
   endTime,
+  dueTime,
   isVisible: true,
   isRankVisible: true,
   enableCopyPaste: true,
@@ -96,7 +104,8 @@ const assignmentWithParticipants: AssignmentWithParticipants = {
   participants: 10,
   week: 1,
   autoFinalizeScore: false,
-  isFinalScoreVisible: false
+  isFinalScoreVisible: false,
+  isExercise: false
 }
 
 const group: Group = {
@@ -123,7 +132,8 @@ const problem: Problem = {
   outputDescription: 'outputdescription',
   hint: 'hint',
   template: [],
-  languages: ['C'],
+  languages: ['C', 'Cpp'],
+  solution,
   timeLimit: 10000,
   memoryLimit: 100000,
   difficulty: 'Level1',
@@ -146,6 +156,7 @@ const assignmentProblem: AssignmentProblem = {
   assignmentId,
   problemId,
   score: 50,
+  solutionReleaseTime: null,
   createTime: faker.date.past(),
   updateTime: faker.date.past()
 }
@@ -190,6 +201,7 @@ const input = {
   description: 'test description',
   startTime: faker.date.past(),
   endTime: faker.date.future(),
+  dueTime: faker.date.future(),
   week: 1,
   isVisible: false,
   isRankVisible: false,
@@ -204,6 +216,7 @@ const updateInput = {
   description: 'test description',
   startTime: faker.date.past(),
   endTime: faker.date.future(),
+  dueTime: faker.date.future(),
   week: 1,
   isVisible: false,
   isRankVisible: false,
@@ -295,7 +308,7 @@ describe('AssignmentService', () => {
     it('should return an array of assignments', async () => {
       db.assignment.findMany.resolves([assignmentWithCount])
 
-      const res = await service.getAssignments(5, 2, 0)
+      const res = await service.getAssignments(5, 2, 0, false)
       expect(res).to.deep.equal([assignmentWithParticipants])
     })
   })
@@ -356,7 +369,7 @@ describe('AssignmentService', () => {
 
       const res = await Promise.all(
         await service.importProblemsToAssignment(groupId, assignmentId, [
-          problemIdsWithScore
+          assignmentProblemInput
         ])
       )
 
@@ -371,7 +384,7 @@ describe('AssignmentService', () => {
       const res = await service.importProblemsToAssignment(
         groupId,
         assignmentId,
-        [problemIdsWithScore]
+        [assignmentProblemInput]
       )
 
       expect(res).to.deep.equal([])
@@ -379,7 +392,9 @@ describe('AssignmentService', () => {
 
     it('should throw error when the assignmentId not exist', async () => {
       expect(
-        service.importProblemsToAssignment(groupId, 9999, [problemIdsWithScore])
+        service.importProblemsToAssignment(groupId, 9999, [
+          assignmentProblemInput
+        ])
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })

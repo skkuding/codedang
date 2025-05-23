@@ -29,8 +29,7 @@ import { useEffect, useState } from 'react'
 import { useInterval } from 'react-use'
 import { AssignmentLink } from './AssignmentLink'
 import { DetailButton } from './DetailButton'
-import { GradeDetailModal } from './GradeDetailModal'
-import { SubmissionDetailModal } from './SubmissionDetailModal'
+import { GradeStatisticsModal } from './GradeStatisticsModal'
 
 interface AssignmentAccordianProps {
   courseId: number
@@ -80,12 +79,10 @@ function AssignmentAccordionItem({
 }: AssignmentAccordionItemProps) {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false)
   const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false)
-  const [openProblemId, setOpenProblemId] = useState<number | null>(null)
 
   const { data: record } = useQuery({
     ...assignmentQueries.record({
-      assignmentId: assignment.id,
-      courseId
+      assignmentId: assignment.id
     }),
     enabled: isAccordionOpen
   })
@@ -94,10 +91,6 @@ function AssignmentAccordionItem({
     ...assignmentSubmissionQueries.summary({ assignmentId: assignment.id }),
     enabled: isAccordionOpen
   })
-
-  const handleOpenChange = (problemId: number | null) => {
-    setOpenProblemId(problemId)
-  }
 
   const handleAccordionOpenChange = (value: string) => {
     setIsAccordionOpen(value === assignment.id.toString())
@@ -123,7 +116,7 @@ function AssignmentAccordionItem({
           )}
           iconStyle="w-5 h-5 absolute right-[3%]"
         >
-          <p className="text-primary mr-3 w-[7%] text-left font-normal">
+          <p className="text-primary mr-3 w-[10%] text-left font-normal">
             [Week {assignment.week}]
           </p>
           <div className="flex w-[30%] flex-col">
@@ -174,7 +167,10 @@ function AssignmentAccordionItem({
                 }
               />
               {isAssignmentDialogOpen && (
-                <GradeDetailModal courseId={courseId} assignment={assignment} />
+                <GradeStatisticsModal
+                  courseId={courseId}
+                  assignment={assignment}
+                />
               )}
             </Dialog>
           </div>
@@ -189,7 +185,7 @@ function AssignmentAccordionItem({
                   key={problem.id}
                   className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
                 >
-                  <div className="text-primary mr-3 flex w-[7%] justify-center font-normal">
+                  <div className="text-primary mr-3 flex w-[10%] justify-center font-normal">
                     <p> {convertToLetter(problem.order)}</p>
                   </div>
                   <div className="flex w-[30%]">
@@ -204,7 +200,7 @@ function AssignmentAccordionItem({
                   </div>
                   <div className="w-[30%]">
                     {submission[index].submission?.submissionTime && (
-                      <div className="flex w-full justify-center font-normal text-[#8A8A8A]">
+                      <div className="flex w-full justify-center text-xs font-normal text-[#8A8A8A]">
                         Last Submission :{' '}
                         {dateFormatter(
                           submission[index].submission.submissionTime,
@@ -213,7 +209,6 @@ function AssignmentAccordionItem({
                       </div>
                     )}
                   </div>
-
                   <div className="flex w-[13%] justify-center" />
                   <div className="flex w-[10%] justify-center font-medium">
                     {dayjs().isAfter(dayjs(assignment.endTime))
@@ -221,29 +216,8 @@ function AssignmentAccordionItem({
                       : '-'}{' '}
                     / {problem.maxScore}
                   </div>
-                  <div className="flex w-[5%] justify-center">
-                    <Dialog
-                      open={openProblemId === problem.id}
-                      onOpenChange={(isOpen) =>
-                        handleOpenChange(isOpen ? problem.id : null)
-                      }
-                    >
-                      <DetailButton
-                        isActivated={
-                          (record?.isFinalScoreVisible ?? false) &&
-                          dayjs().isAfter(dayjs(assignment.endTime))
-                        }
-                      />
-                      {openProblemId === problem.id && (
-                        <SubmissionDetailModal
-                          problemId={problem.id}
-                          assignment={assignment}
-                          courseId={courseId}
-                        />
-                      )}
-                    </Dialog>
-                  </div>
-                  <div className="w-[1%]" />
+
+                  <div className="w-[6%]" />
                 </div>
               ))}
             </div>
@@ -283,9 +257,7 @@ export function AssignmentStatusTimeDiff({
     }
 
     const timeRef =
-      assignmentStatus === 'ongoing' || assignmentStatus === 'registeredOngoing'
-        ? assignment.endTime
-        : assignment.startTime
+      assignmentStatus === 'ongoing' ? assignment.endTime : assignment.startTime
 
     const diff = dayjs.duration(Math.abs(dayjs(timeRef).diff(now)))
     const days = Math.floor(diff.asDays())
@@ -330,10 +302,7 @@ export function AssignmentStatusTimeDiff({
         </>
       ) : (
         <>
-          {assignmentStatus === 'ongoing' ||
-          assignmentStatus === 'registeredOngoing'
-            ? 'Ends in'
-            : 'Starts in'}
+          {assignmentStatus === 'ongoing' ? 'Ends in' : 'Starts in'}
           <p className="overflow-hidden text-ellipsis whitespace-nowrap">
             {timeDiff.days > 0
               ? `${timeDiff.days} days`

@@ -1,3 +1,4 @@
+import { DefaultValuePipe } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import {
   Assignment,
@@ -17,13 +18,13 @@ import {
 } from '@libs/pipe'
 import { AssignmentService } from './assignment.service'
 import { UpdateAssignmentProblemRecordInput } from './model/assignment-problem-record-input'
+import { AssignmentProblemInput } from './model/assignment-problem.input'
 import { AssignmentSubmissionSummaryForUser } from './model/assignment-submission-summary-for-user.model'
 import { AssignmentWithParticipants } from './model/assignment-with-participants.model'
 import { CreateAssignmentInput } from './model/assignment.input'
 import { UpdateAssignmentInput } from './model/assignment.input'
 import { AssignmentsGroupedByStatus } from './model/assignments-grouped-by-status.output'
 import { DuplicatedAssignmentResponse } from './model/duplicated-assignment-response.output'
-import { AssignmentProblemScoreInput } from './model/problem-score.input'
 import { UserAssignmentScoreSummaryWithUserInfo } from './model/score-summary'
 
 @Resolver(() => Assignment)
@@ -41,9 +42,20 @@ export class AssignmentResolver {
     take: number,
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
-    cursor: number | null
+    cursor: number | null,
+    @Args(
+      'isExercise',
+      { nullable: true, type: () => Boolean },
+      new DefaultValuePipe(false)
+    )
+    isExercise: boolean
   ) {
-    return await this.assignmentService.getAssignments(take, groupId, cursor)
+    return await this.assignmentService.getAssignments(
+      take,
+      groupId,
+      cursor,
+      isExercise
+    )
   }
 
   @Query(() => AssignmentWithParticipants)
@@ -94,13 +106,13 @@ export class AssignmentResolver {
   async importProblemsToAssignment(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('assignmentId', { type: () => Int }) assignmentId: number,
-    @Args('problemIdsWithScore', { type: () => [AssignmentProblemScoreInput] })
-    problemIdsWithScore: AssignmentProblemScoreInput[]
+    @Args('assignmentProblemInput', { type: () => [AssignmentProblemInput] })
+    assignmentProblemInput: AssignmentProblemInput[]
   ) {
     return await this.assignmentService.importProblemsToAssignment(
       groupId,
       assignmentId,
-      problemIdsWithScore
+      assignmentProblemInput
     )
   }
 
@@ -141,13 +153,13 @@ export class AssignmentResolver {
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null
   ) {
-    return await this.assignmentService.getAssignmentSubmissionSummaryByUserId(
+    return await this.assignmentService.getAssignmentSubmissionSummaryByUserId({
       take,
       assignmentId,
       userId,
       problemId,
       cursor
-    )
+    })
   }
 
   @Mutation(() => DuplicatedAssignmentResponse)

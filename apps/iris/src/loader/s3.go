@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
@@ -17,12 +18,17 @@ type S3reader struct {
 	bucket string
 }
 
-func NewS3DataSource(bucket string) *S3reader {
+func NewS3DataSource(bucket string) (*S3reader, error) {
 	var client *s3.Client
 	endpoint := os.Getenv("STORAGE_BUCKET_ENDPOINT_URL")
 	if endpoint == "" {
 		// Connect to AWS S3
-		client = s3.New(s3.Options{Region: "ap-northeast-2"})
+		// Use `LoadDefaultConfig` in case of loading credentials from environment variables
+		cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("ap-northeast-2"))
+		if err != nil {
+			return nil, fmt.Errorf("failed to load AWS config: %w", err)
+		}
+		client = s3.NewFromConfig(cfg)
 	} else {
 		// Connect to MinIO (non-production)
 		accessKey := os.Getenv("TESTCASE_ACCESS_KEY")
@@ -40,9 +46,9 @@ func NewS3DataSource(bucket string) *S3reader {
 		Bucket: aws.String(bucket),
 	})
 	if err != nil {
-		panic(fmt.Sprintf("Cannot access S3 bucket <%s>: %s", bucket, err.Error()))
+		return nil, fmt.Errorf("cannot access S3 bucket <%s>: %w", bucket, err)
 	}
-	return &S3reader{client: client, bucket: bucket}
+	return &S3reader{client: client, bucket: bucket}, nil
 }
 
 func (s *S3reader) Get(problemId string) ([]Element, error) {

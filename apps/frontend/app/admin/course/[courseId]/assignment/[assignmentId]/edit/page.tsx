@@ -3,26 +3,28 @@
 import { ConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
 import { DescriptionForm } from '@/app/admin/_components/DescriptionForm'
 import { FormSection } from '@/app/admin/_components/FormSection'
+import { Label } from '@/app/admin/_components/Label'
 import { SwitchField } from '@/app/admin/_components/SwitchField'
 import { TimeForm } from '@/app/admin/_components/TimeForm'
 import { TitleForm } from '@/app/admin/_components/TitleForm'
+import { TimeFormPopover } from '@/app/admin/course/_components/TimeFormPopover'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { UpdateAssignmentInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import type { Route } from 'next'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
-import { AssignmentProblemListLabel } from '../../_components/AssignmentProblemListLabel'
-import { AssignmentProblemTable } from '../../_components/AssignmentProblemTable'
-import { ImportDialog } from '../../_components/ImportDialog'
-import { WeekComboBox } from '../../_components/WeekComboBox'
-import { editSchema } from '../../_libs/schemas'
-import type { AssignmentProblem } from '../../_libs/type'
-import { EditAssignmentForm } from './_components/EditAssignmentForm'
+import { AssignmentProblemListLabel } from '../../../_components/AssignmentProblemListLabel'
+import { AssignmentProblemTable } from '../../../_components/AssignmentProblemTable'
+import { AssignmentSolutionTable } from '../../../_components/AssignmentSolutionTable'
+import { EditAssignmentForm } from '../../../_components/EditAssignmentForm'
+import { ImportDialog } from '../../../_components/ImportDialog'
+import { WeekComboBox } from '../../../_components/WeekComboBox'
+import { editSchema } from '../../../_libs/schemas'
+import type { AssignmentProblem } from '../../../_libs/type'
 
 export default function Page({
   params
@@ -46,10 +48,10 @@ export default function Page({
       <ScrollArea className="w-full">
         <main className="flex flex-col gap-6 px-[93px] py-[80px]">
           <div className="flex items-center gap-4">
-            <Link href={`/admin/course/${courseId}/assignment` as Route}>
+            <Link href={`/admin/course/${courseId}/assignment` as const}>
               <FaAngleLeft className="h-12" />
             </Link>
-            <span className="text-4xl font-bold">Edit Assignment</span>
+            <span className="text-4xl font-bold">EDIT ASSIGNMENT</span>
           </div>
 
           <EditAssignmentForm
@@ -68,15 +70,35 @@ export default function Page({
                 />
               </FormSection>
 
-              <FormSection
-                title="Week"
-                isJustifyBetween={false}
-                className="gap-[67px]"
-              >
-                {methods.getValues('week') && (
-                  <WeekComboBox name="week" courseId={Number(courseId)} />
-                )}
-              </FormSection>
+              <div className="flex justify-between">
+                <FormSection
+                  title="Week"
+                  isJustifyBetween={false}
+                  className="gap-[67px]"
+                >
+                  {methods.getValues('week') && (
+                    <WeekComboBox name="week" courseId={Number(courseId)} />
+                  )}
+                </FormSection>
+                <FormSection
+                  title="Due Time"
+                  isJustifyBetween={false}
+                  className="gap-[40px]"
+                  isLabeled={false}
+                >
+                  <TimeFormPopover />
+                  {methods.getValues('dueTime') && (
+                    <TimeForm
+                      name="dueTime"
+                      defaultTimeOnSelect={{
+                        hours: 23,
+                        minutes: 59,
+                        seconds: 59
+                      }}
+                    />
+                  )}
+                </FormSection>
+              </div>
 
               <div className="flex justify-between">
                 <FormSection
@@ -98,7 +120,7 @@ export default function Page({
                 </FormSection>
               </div>
 
-              <FormSection isFlexColumn title="Description">
+              <FormSection isFlexColumn title="Description" isLabeled={false}>
                 {methods.getValues('description') && (
                   <DescriptionForm name="description" />
                 )}
@@ -119,7 +141,11 @@ export default function Page({
               <div className="flex flex-col gap-1">
                 <div className="flex items-center justify-between">
                   <AssignmentProblemListLabel />
-                  <ImportDialog problems={problems} setProblems={setProblems} />
+                  <ImportDialog
+                    problems={problems}
+                    setProblems={setProblems}
+                    target="assignment"
+                  />
                 </div>
                 <AssignmentProblemTable
                   problems={problems}
@@ -128,18 +154,33 @@ export default function Page({
                 />
               </div>
 
-              <div className="flex flex-col gap-1 rounded-md border bg-white p-[20px]">
-                <SwitchField
-                  name="enableCopyPaste"
-                  title="Enable Participants Copy/Pasting"
-                  hasValue={methods.getValues('enableCopyPaste') || false}
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-3">
+                  <Label required={false}>Solution</Label>
+                  <p className="text-[11px] text-[#9B9B9B]">
+                    Only problems with solutions are listed below.
+                  </p>
+                </div>
+                <AssignmentSolutionTable
+                  problems={problems}
+                  setProblems={setProblems}
+                  dueTime={methods.getValues('dueTime')}
                 />
+              </div>
 
+              <div className="flex flex-col gap-1 rounded-md border bg-white p-[20px]">
                 <SwitchField
                   name="isJudgeResultVisible"
                   title="Reveal Hidden Testcase Result"
-                  description="이걸 끄면 학생들이 Hidden 테케의 결과를 확인할 수 없어요"
+                  description="When enabled, hidden testcase results will be revealed from students."
                   hasValue={methods.getValues('isJudgeResultVisible') || false}
+                />
+
+                <SwitchField
+                  name="enableCopyPaste"
+                  description="When enabled, students will be able to copy from or paste into the code editor."
+                  title="Enable Participants Copy/Pasting"
+                  hasValue={methods.getValues('enableCopyPaste') || false}
                 />
               </div>
 

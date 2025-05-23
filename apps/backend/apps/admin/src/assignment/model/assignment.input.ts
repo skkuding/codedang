@@ -21,6 +21,9 @@ export class CreateAssignmentInput {
   @Field(() => GraphQLISODateTime, { nullable: false })
   endTime!: Date
 
+  @Field(() => GraphQLISODateTime, { nullable: false })
+  dueTime!: Date
+
   @Field(() => Number, { nullable: false })
   week!: number
 
@@ -41,6 +44,9 @@ export class CreateAssignmentInput {
 
   @Field(() => Boolean, { nullable: true })
   isFinalScoreVisible?: boolean
+
+  @Field(() => Boolean, { nullable: true })
+  isExercise?: boolean
 }
 
 @InputType()
@@ -66,6 +72,9 @@ export class UpdateAssignmentInput {
   @Field(() => GraphQLISODateTime, { nullable: true })
   endTime?: Date
 
+  @Field(() => GraphQLISODateTime, { nullable: true })
+  dueTime?: Date
+
   @Field(() => Number, { nullable: true })
   week?: number
 
@@ -86,4 +95,7 @@ export class UpdateAssignmentInput {
 
   @Field(() => Boolean, { nullable: true })
   isFinalScoreVisible?: boolean
+
+  @Field(() => Boolean, { nullable: true })
+  isExercise?: boolean
 }

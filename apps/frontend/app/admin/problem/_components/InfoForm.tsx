@@ -2,7 +2,7 @@
 
 import { OptionSelect } from '@/app/admin/_components/OptionSelect'
 import { languages, levels } from '@/libs/constants'
-import type { Template } from '@generated/graphql'
+import type { Solution, Template } from '@generated/graphql'
 import type { Language } from '@generated/graphql'
 import { useEffect } from 'react'
 import { useFormContext, useController } from 'react-hook-form'
@@ -23,13 +23,18 @@ export function InfoForm() {
   useEffect(() => {
     if (watchedLanguages) {
       const templates: Template[] = [] // temp array to store templates
+      const solutions: Solution[] = [] // temp array to store solutions
       const savedTemplates: Template[] = getValues('template') // templates saved in form
+      const savedSolutions: Solution[] = getValues('solution') // solutions saved in form
       watchedLanguages.map((language) => {
-        const temp = savedTemplates.filter(
+        const tempTemplates = savedTemplates.filter(
           (template) => template.language === language
         )
-        if (temp.length !== 0) {
-          templates.push(temp[0])
+        const tempSolutions = savedSolutions.filter(
+          (solution) => solution.language === language
+        )
+        if (tempTemplates.length !== 0) {
+          templates.push(tempTemplates[0])
         } else {
           // push dummy template to array
           templates.push({
@@ -43,6 +48,15 @@ export function InfoForm() {
             ]
           })
         }
+        if (tempSolutions.length !== 0) {
+          solutions.push(tempSolutions[0])
+        } else {
+          // push dummy solution to array
+          solutions.push({
+            language,
+            code: ''
+          })
+        }
       })
       templates.map((template, index) => {
         setValue(`template.${index}`, {
@@ -54,6 +68,12 @@ export function InfoForm() {
               locked: false
             }
           ]
+        })
+      })
+      solutions.map((solution, index) => {
+        setValue(`solution.${index}`, {
+          language: solution.language,
+          code: solution.code ?? ''
         })
       })
     }

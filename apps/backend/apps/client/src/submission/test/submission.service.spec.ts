@@ -141,6 +141,7 @@ const mockAssignment: Assignment = {
   description: 'test',
   startTime: new Date(Date.now() - 10000),
   endTime: new Date(Date.now() + 10000),
+  dueTime: new Date(Date.now() + 5000),
   isVisible: true,
   isRankVisible: true,
   isJudgeResultVisible: true,
@@ -149,7 +150,8 @@ const mockAssignment: Assignment = {
   updateTime: new Date(Date.now() - 10000),
   week: 1,
   autoFinalizeScore: false,
-  isFinalScoreVisible: true
+  isFinalScoreVisible: true,
+  isExercise: false
 }
 const USERIP = '127.0.0.1'
 
@@ -304,7 +306,8 @@ describe('SubmissionService', () => {
         assignment: {
           groupId: 1,
           startTime: new Date(Date.now() - 10000),
-          endTime: new Date(Date.now() + 10000)
+          endTime: new Date(Date.now() + 10000),
+          dueTime: new Date(Date.now() + 5000)
         }
       })
       db.assignmentProblem.findUnique.resolves({ problem: problems[0] })
