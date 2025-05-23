@@ -697,10 +697,11 @@ export class SubmissionService {
           await this.createSubmissionResults(rejudgedSubmission)
 
           // 채점 요청 발행
-          await this.publish.publishJudgeRequestMessage(
+          await this.publish.publishJudgeRequestMessage({
             code,
-            rejudgedSubmission
-          )
+            submission: rejudgedSubmission,
+            isRejudge: true
+          })
 
           // 제출 상태 업데이트 (채점 중으로)
           await this.prisma.submission.update({
@@ -796,7 +797,11 @@ export class SubmissionService {
       await this.createSubmissionResults(rejudgedSubmission)
 
       // 채점 요청 발행
-      await this.publish.publishJudgeRequestMessage(code, rejudgedSubmission)
+      await this.publish.publishJudgeRequestMessage({
+        code,
+        submission: rejudgedSubmission,
+        isRejudge: true
+      })
 
       // 제출 상태 업데이트
       await this.prisma.submission.update({
